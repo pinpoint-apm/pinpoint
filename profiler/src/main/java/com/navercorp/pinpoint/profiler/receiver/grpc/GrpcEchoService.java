@@ -16,14 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.trace.PCmdEcho;
 import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
 import com.navercorp.pinpoint.grpc.trace.PCommandType;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
-import com.navercorp.pinpoint.profiler.receiver.ProfilerSimpleCommandService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,18 +29,12 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Taejin Koo
  */
-public class GrpcEchoService implements ProfilerSimpleCommandService<PCmdRequest> {
+public class GrpcEchoService implements ProfilerGrpcCommandService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub;
-
-    public GrpcEchoService(ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub) {
-        this.profilerCommandServiceStub = Assert.requireNonNull(profilerCommandServiceStub, "profilerCommandServiceStub");
-    }
-
     @Override
-    public void simpleCommandService(PCmdRequest request) {
+    public void handle(PCmdRequest request, ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub) {
         logger.info("simpleCommandService:{}", request);
 
         PCmdEcho commandEcho = request.getCommandEcho();

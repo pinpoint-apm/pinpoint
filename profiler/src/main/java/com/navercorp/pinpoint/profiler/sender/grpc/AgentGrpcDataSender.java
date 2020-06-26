@@ -18,25 +18,24 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.SocketIdClientInterceptor;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.receiver.grpc.CommandServiceStubFactory;
-import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
+import com.navercorp.pinpoint.profiler.receiver.grpc.CommandServiceStubFactory;
+import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
+import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
 
+import com.google.protobuf.GeneratedMessageV3;
+import io.grpc.stub.StreamObserver;
 import org.jboss.netty.buffer.ChannelBuffers;
 
 import java.util.concurrent.ScheduledExecutorService;
-
-import com.google.protobuf.GeneratedMessageV3;
-import io.grpc.stub.StreamObserver;
 
 /**
  * @author jaehong.kim
@@ -62,7 +61,7 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
                                ReconnectExecutor reconnectExecutor,
                                final ScheduledExecutorService retransmissionExecutor,
                                ChannelFactory channelFactory,
-                               ActiveTraceRepository activeTraceRepository) {
+                               ProfilerCommandServiceLocator profilerCommandServiceLocator) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
 
         this.agentInfoStub = AgentGrpc.newStub(managedChannel);
@@ -70,7 +69,7 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
 
         this.reconnectExecutor = reconnectExecutor;
         CommandServiceStubFactory commandServiceStubFactory = new CommandServiceStubFactory(managedChannel);
-        this.grpcCommandService = new GrpcCommandService(commandServiceStubFactory, reconnectExecutor, activeTraceRepository);
+        this.grpcCommandService = new GrpcCommandService(commandServiceStubFactory, reconnectExecutor, profilerCommandServiceLocator);
         {
             final Runnable reconnectJob = new Runnable() {
                 @Override

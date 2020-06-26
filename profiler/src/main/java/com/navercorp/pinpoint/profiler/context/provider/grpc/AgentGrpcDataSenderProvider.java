@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context.provider.grpc;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
@@ -30,9 +27,19 @@ import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.MetadataConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandLocatorBuilder;
+import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
+import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcActiveThreadCountService;
+import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcActiveThreadDumpService;
+import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcActiveThreadLightDumpService;
+import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcEchoService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.AgentGrpcDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.NameResolverProvider;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -81,8 +88,11 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
         final ChannelFactoryBuilder channelFactoryBuilder = newChannelFactoryBuilder();
         ChannelFactory channelFactory = channelFactoryBuilder.build();
 
-        final  ReconnectExecutor reconnectExecutor = reconnectExecutorProvider.get();
-        return new AgentGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, retransmissionExecutor, channelFactory, activeTraceRepository);
+        final ReconnectExecutor reconnectExecutor = reconnectExecutorProvider.get();
+
+        final ProfilerCommandServiceLocator profilerCommandServiceLocator = createProfilerCommandServiceLocator(activeTraceRepository);
+
+        return new AgentGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, retransmissionExecutor, channelFactory, profilerCommandServiceLocator);
     }
 
     ChannelFactoryBuilder newChannelFactoryBuilder() {
@@ -97,5 +107,19 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
         channelFactoryBuilder.setExecutorQueueSize(channelExecutorQueueSize);
         channelFactoryBuilder.setClientOption(clientOption);
         return channelFactoryBuilder;
+    }
+
+    private ProfilerCommandServiceLocator createProfilerCommandServiceLocator(ActiveTraceRepository activeTraceRepository) {
+        ProfilerCommandLocatorBuilder profilerCommandLocatorBuilder = new ProfilerCommandLocatorBuilder();
+
+        profilerCommandLocatorBuilder.addService(new GrpcEchoService());
+        if (activeTraceRepository != null) {
+            profilerCommandLocatorBuilder.addService(new GrpcActiveThreadCountService(activeTraceRepository));
+            profilerCommandLocatorBuilder.addService(new GrpcActiveThreadDumpService(activeTraceRepository));
+            profilerCommandLocatorBuilder.addService(new GrpcActiveThreadLightDumpService(activeTraceRepository));
+        }
+
+        final ProfilerCommandServiceLocator commandServiceLocator = profilerCommandLocatorBuilder.build();
+        return commandServiceLocator;
     }
 }
