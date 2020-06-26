@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
+import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
@@ -51,12 +53,14 @@ public class WrappedSpanEventRecorderTest {
     @Mock
     private SqlMetaDataService sqlMetaDataService;
 
+    private final IgnoreErrorHandler errorHandler = new BypassErrorHandler();
+
     @Test
     public void testSetExceptionInfo_RootMarkError() throws Exception {
         when(traceRoot.getShared()).thenReturn(shared);
 
         SpanEvent spanEvent = new SpanEvent();
-        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService);
+        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler);
         recorder.setWrapped(spanEvent);
 
         final String exceptionMessage1 = "exceptionMessage1";
@@ -78,7 +82,7 @@ public class WrappedSpanEventRecorderTest {
     @Test
     public void testRecordAPIId() throws Exception {
         SpanEvent spanEvent = new SpanEvent();
-        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService);
+        WrappedSpanEventRecorder recorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler);
         recorder.setWrapped(spanEvent);
 
 
