@@ -19,8 +19,13 @@ package com.navercorp.pinpoint.grpc.server;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderReader;
+
 import io.grpc.Metadata;
 import io.grpc.Status;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -36,7 +41,9 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         final String applicationName = getId(headers, Header.APPLICATION_NAME_KEY);
         final long startTime = getTime(headers, Header.AGENT_START_TIME_KEY);
         final long socketId = getSocketId(headers);
-        return new Header(agentId, applicationName, startTime, socketId);
+        final List<Integer> supportCommandCodeList = getSupportCommandCodeList(headers);
+
+        return new Header(agentId, applicationName, startTime, socketId, supportCommandCodeList);
     }
 
     protected long getTime(Metadata headers, Metadata.Key<String> timeKey) {
@@ -72,13 +79,33 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         }
     }
 
+    protected List<Integer> getSupportCommandCodeList(Metadata headers) {
+        List<Integer> supportCommandCodeList = new ArrayList<Integer>();
+
+        boolean hasHeader = headers.containsKey(Header.SUPPORT_COMMAND_CODE);
+        if (!hasHeader) {
+            return Header.SUPPORT_COMMAND_CODE_LIST_NOT_EXIST;
+        }
+
+        final Iterable<String> codeValues = headers.getAll(Header.SUPPORT_COMMAND_CODE);
+        try {
+            for (String codeValue : codeValues) {
+                final int code = Integer.parseInt(codeValue);
+                supportCommandCodeList.add(code);
+            }
+            return Collections.unmodifiableList(supportCommandCodeList);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return Header.SUPPORT_COMMAND_CODE_LIST_PARSE_ERROR;
+        }
+    }
+
     private String validateId(String id, Metadata.Key key) {
         if (!IdValidateUtils.validateId(id)) {
             throw Status.INVALID_ARGUMENT.withDescription("invalid " + key.name()).asRuntimeException();
         }
         return id;
     }
-
 
 
 }

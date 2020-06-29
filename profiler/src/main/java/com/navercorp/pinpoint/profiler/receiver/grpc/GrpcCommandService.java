@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.profiler.receiver.grpc;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
+import com.navercorp.pinpoint.grpc.client.SupportCommandCodeClientInterceptor;
 import com.navercorp.pinpoint.grpc.trace.PCmdMessage;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
-import com.navercorp.pinpoint.grpc.trace.PCmdServiceHandshake;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
@@ -71,13 +71,20 @@ public class GrpcCommandService {
         if (shutdown) {
             return;
         }
-        ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub = commandServiceStubFactory.newStub();
+        ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub = newCommandServiceStub(commandServiceStubFactory, profilerCommandServiceLocator);
         GrpcCommandDispatcher commandDispatcher = new GrpcCommandDispatcher(profilerCommandServiceStub, profilerCommandServiceLocator);
 
         CommandServiceMainStreamObserver commandServiceMainStreamObserver = new CommandServiceMainStreamObserver(commandDispatcher);
         profilerCommandServiceStub.handleCommand(commandServiceMainStreamObserver);
 
         this.commandServiceMainStreamObserver = commandServiceMainStreamObserver;
+    }
+
+    private ProfilerCommandServiceGrpc.ProfilerCommandServiceStub newCommandServiceStub(CommandServiceStubFactory commandServiceStubFactory, ProfilerCommandServiceLocator profilerCommandServiceLocator) {
+        final ProfilerCommandServiceGrpc.ProfilerCommandServiceStub commandServiceStub = commandServiceStubFactory.newStub();
+
+        final SupportCommandCodeClientInterceptor supportCommandCodeClientInterceptor = new SupportCommandCodeClientInterceptor(profilerCommandServiceLocator.getCommandServiceCodes());
+        return commandServiceStub.withInterceptors(supportCommandCodeClientInterceptor);
     }
 
     private void reserveReconnect() {
@@ -115,16 +122,6 @@ public class GrpcCommandService {
                 public void run() {
                     logger.info("Connect to CommandServiceStream completed.");
                     reconnector.reset();
-
-                    PCmdServiceHandshake.Builder handshakeMessageBuilder = PCmdServiceHandshake.newBuilder();
-                    for (Short commandServiceCode : commandDispatcher.getSupportCommandServiceIdList()) {
-                        handshakeMessageBuilder.addSupportCommandServiceKey(commandServiceCode);
-                    }
-
-                    PCmdMessage.Builder initialMessage = PCmdMessage.newBuilder();
-                    initialMessage.setHandshakeMessage(handshakeMessageBuilder.build());
-
-                    requestStream.onNext(initialMessage.build());
                 }
             });
 

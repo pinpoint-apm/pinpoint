@@ -82,7 +82,9 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         final Long transportId = getTransportId();
         final AgentInfo agentInfo = getAgentInfo();
 
-        logger.debug("{} => local. handleCommand(). transportId:{}", agentInfo, transportId);
+        final List<Integer> supportCommandCodeList = getSupportCommandCodeList();
+
+        logger.debug("{} => local. handleCommand(). transportId:{}, supportCommandCodeList{}", agentInfo, transportId, supportCommandCodeList);
 
         final RequestManager requestManager = new RequestManager(timer, 3000);
         final PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(getRemoteAddress(), agentInfo, requestManager, requestObserver);
@@ -100,6 +102,12 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
                 if (serverCallStreamObserver.isReady()) {
                     logger.info("{} => local. ready() transportId:{}", agentInfo.getAgentKey(), transportId);
                     pinpointGrpcServer.connected();
+
+                    // new operation for handshake
+                    if (supportCommandCodeList == Header.SUPPORT_COMMAND_CODE_LIST_NOT_EXIST) {
+                        return;
+                    }
+                    registerAgentCommandList(pinpointGrpcServer, supportCommandCodeList);
                 }
             }
         });
@@ -107,14 +115,10 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         final StreamObserver<PCmdMessage> responseObserver = new StreamObserver<PCmdMessage>() {
             @Override
             public void onNext(PCmdMessage value) {
+                // old operation for handshake
                 if (value.hasHandshakeMessage()) {
                     List<Integer> supportCommandServiceKeyList = value.getHandshakeMessage().getSupportCommandServiceKeyList();
-                    logger.info("{} => local. execute handshake:{}", getAgentInfo().getAgentKey(), supportCommandServiceKeyList);
-                    boolean handshakeSucceed = pinpointGrpcServer.handleHandshake(supportCommandServiceKeyList);
-                    if (handshakeSucceed) {
-                        GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(pinpointGrpcServer, supportCommandServiceKeyList);
-                        profilerClusterManager.register(grpcAgentConnection);
-                    }
+                    registerAgentCommandList(pinpointGrpcServer, supportCommandServiceKeyList);
                 } else if (value.hasFailMessage()) {
                     PCmdResponse failMessage = value.getFailMessage();
                     pinpointGrpcServer.handleFail(failMessage);
@@ -142,6 +146,17 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
         };
         return responseObserver;
+    }
+
+    private boolean registerAgentCommandList(PinpointGrpcServer pinpointGrpcServer, List<Integer> supportCommandServiceCodeList) {
+        logger.info("{} => local. execute supportCommandServiceCodeList:{}", getAgentInfo().getAgentKey(), supportCommandServiceCodeList);
+        boolean handshakeSucceed = pinpointGrpcServer.handleHandshake(supportCommandServiceCodeList);
+        if (handshakeSucceed) {
+            GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(pinpointGrpcServer, supportCommandServiceCodeList);
+            profilerClusterManager.register(grpcAgentConnection);
+        }
+
+        return handshakeSucceed;
     }
 
     @Override
@@ -213,6 +228,11 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
     private AgentInfo getAgentInfo() {
         Header header = ServerContext.getAgentInfo();
         return new AgentInfo(header.getApplicationName(), header.getAgentId(), header.getAgentStartTime());
+    }
+
+    private List<Integer> getSupportCommandCodeList() {
+        Header header = ServerContext.getAgentInfo();
+        return header.getSupportCommandCodeList();
     }
 
     private Long getTransportId() {
