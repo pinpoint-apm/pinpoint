@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ViewChild, Renderer2, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
-import { filter, tap, switchMap } from 'rxjs/operators';
+import { filter, tap } from 'rxjs/operators';
 
 import {
     StoreHelperService,
@@ -70,13 +70,17 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
                 this.setDisplayGuide(true);
                 this.renderer.setStyle(this.callTreeComponent.nativeElement, 'display', 'none');
             }),
-            tap((transactionInfo: ITransactionMetaData) => this.transactionInfo = transactionInfo),
-            switchMap(({agentId, spanId, traceId, collectorAcceptTime}: ITransactionMetaData) => this.transactionDetailDataService.getData(agentId, spanId, traceId, collectorAcceptTime)),
-        ).subscribe((transactionDetailInfo: ITransactionDetailData) => {
-            this.storeHelperService.dispatch(new Actions.UpdateTransactionDetailData(transactionDetailInfo));
-            this.storeHelperService.dispatch(new Actions.ChangeTransactionViewType('callTree'));
-            this.setDisplayGuide(false);
-            this.renderer.setStyle(this.callTreeComponent.nativeElement, 'display', 'block');
+            tap((transactionInfo: ITransactionMetaData) => this.transactionInfo = transactionInfo)
+        ).subscribe(({agentId, spanId, traceId, collectorAcceptTime}: ITransactionMetaData) => {
+            this.transactionDetailDataService.getData(agentId, spanId, traceId, collectorAcceptTime).subscribe((transactionDetailInfo: ITransactionDetailData) => {
+                this.storeHelperService.dispatch(new Actions.UpdateTransactionDetailData(transactionDetailInfo));
+                this.storeHelperService.dispatch(new Actions.ChangeTransactionViewType('callTree'));
+                this.setDisplayGuide(false);
+                this.renderer.setStyle(this.callTreeComponent.nativeElement, 'display', 'block');
+            });
+            this.transactionDetailDataService.getTimelineData(agentId, spanId, traceId, collectorAcceptTime).subscribe((transactionTimelineInfo: ITransactionTimelineData) => {
+                this.storeHelperService.dispatch(new Actions.UpdateTransactionTimelineData(transactionTimelineInfo));
+            });
         }, (error: IServerErrorFormat) => {
             this.dynamicPopupService.openPopup({
                 data: {

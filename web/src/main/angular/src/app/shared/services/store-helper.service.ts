@@ -80,6 +80,9 @@ export class StoreHelperService {
     getTransactionDetailData(unsubscribe: Subject<void>): Observable<ITransactionDetailData> {
         return this.getObservable(STORE_KEY.TRANSACTION_DETAIL_DATA, unsubscribe);
     }
+    getTransactionTimelineData(unsubscribe: Subject<void>): Observable<ITransactionTimelineData> {
+        return this.getObservable(STORE_KEY.TRANSACTION_TIMELINE_DATA, unsubscribe);
+    }
     getServerListData(unsubscribe: Subject<void>): Observable<any> {
         return this.getObservable(STORE_KEY.SERVER_LIST, unsubscribe);
     }

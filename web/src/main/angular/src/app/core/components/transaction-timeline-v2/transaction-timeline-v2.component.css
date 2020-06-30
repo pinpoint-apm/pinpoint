@@ -3,6 +3,18 @@
     overflow-y: auto;
     background-color: #FFF;
 }
+.l-title-group {
+    border-bottom: 1px solid #506078;
+    padding-right: 30px;
+    text-align: right;
+    font-size: 15px;
+    font-family: Verdana;
+    color: #cccccc;
+}
+.l-title-group > .title-text {
+    z-index: 9999;
+    position: relative;
+}
 .l-timeline-bar {
     width: 100%;
     height: 20px;
@@ -11,6 +23,7 @@
     border-style: dashed !important;
     border-bottom: 1px solid #D3D3D3;
     text-shadow: 1px 1px 0 #eee, 1px -1px 0 #eee, -1px 1px 0 #eee, -1px -1px 0 #eee, 1px 0px 0 #eee, 0px 1px 0 #eee, -1px 0px 0 #eee, 0px -1px 0 #eee;
+    text-align: left;
 }
 .l-timeline-bar > div {
     color: #000;
@@ -34,29 +47,17 @@
     position: relative;
     white-space: nowrap;
 }
-.l-timeline-bar-frame span.before {
-    left: -70px;
-    display: none;
-    position: absolute;
-    text-align: right;
-    white-space: nowrap;
-}
-.l-timeline-bar-frame span.after {
-    display: none;
-    white-space: nowrap;
-}
 .l-timeline-bar-selected {
     background-color: orange !important;
 }
-
 .clickable-bar .l-tooltip-text {
     background-color: white;
     visibility: hidden;
     padding: 0 3px;
     position: absolute;
+    width: max-content;
     z-index: 1;
 }
-
 .clickable-bar:hover .l-tooltip-text{
     visibility: visible;
 }

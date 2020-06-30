@@ -258,6 +258,18 @@ interface ITransactionDetailData {
     transactionId: string;
 }
 // @store
+interface ITransactionTimelineData {
+    agentId: string;
+    applicationId: string;
+    applicationName: string;
+    barRatio: number;
+    callStack: any[];
+    databaseCalls: any[];
+    callStackEnd: number;
+    callStackStart: number;
+    transactionId: string;
+}
+// @store
 interface IHoveredInfo {
     index: number;
     time?: number;

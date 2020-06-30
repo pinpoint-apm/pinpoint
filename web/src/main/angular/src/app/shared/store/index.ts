@@ -11,6 +11,7 @@ import * as serverAndAgent from './server-and-agent.reducer';
 import * as serverList from './server-list.reducer';
 import * as timeline from './timeline.reducer';
 import * as timezone from './timezone.reducer';
+import * as transactionTimelineData from './transaction-timeline-data.reducer';
 import * as transactionDetailData from './transaction-detail-data.reducer';
 import * as transactionData from './transaction-info.reducer';
 import * as serverMapLoadingState from './server-map-loading-state.reducer';
@@ -29,6 +30,7 @@ export interface AppState {
     agentSelectionForServerList: IAgentSelection;
     transactionData: ITransactionMetaData;
     transactionDetailData: ITransactionDetailData;
+    transactionTimelineData: ITransactionTimelineData;
     applicationList: IApplication[];
     favoriteApplicationList: IApplication[];
     serverList: any;
@@ -52,6 +54,7 @@ export const STORE_KEY = {
     TIMELINE_SELECTION_RANGE: 'timelineSelectionRange',
     TRANSACTION_DATA: 'transactionData',
     TRANSACTION_DETAIL_DATA: 'transactionDetailData',
+    TRANSACTION_TIMELINE_DATA: 'transactionTimelineData',
     APPLICATION_LIST: 'applicationList',
     FAVORITE_APPLICATION_LIST: 'favoriteApplicationList',
     SERVER_LIST: 'serverList',
@@ -84,6 +87,7 @@ export const reducers: ActionReducerMap<any> = {
     timezone: timezone.Reducer,
     transactionData: transactionData.Reducer,
     transactionDetailData: transactionDetailData.Reducer,
+    transactionTimelineData: transactionTimelineData.Reducer,
     adminAgentList: admin.Reducer,
     serverAndAgent: serverAndAgent.Reducer,
     uiState: uiState.Reducer,
@@ -104,6 +108,7 @@ export const Actions = {
     'ChangeAgentForServerList': agentSelectionForInfoPerServer.ChangeAgentForServerList,
     'UpdateTransactionData': transactionData.UpdateTransactionData,
     'UpdateTransactionDetailData': transactionDetailData.UpdateTransactionDetailData,
+    'UpdateTransactionTimelineData': transactionTimelineData.UpdateTransactionTimelineData,
     'UpdateApplicationList': applicationList.UpdateApplicationList,
     'AddFavoriteApplication': favoriteApplicationList.AddFavoriteApplication,
     'RemoveFavoriteApplication': favoriteApplicationList.RemoveFavoriteApplication,

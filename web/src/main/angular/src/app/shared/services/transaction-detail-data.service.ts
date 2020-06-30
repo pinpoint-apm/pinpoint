@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 
 import { Observable, Subject } from 'rxjs';
-import { tap, shareReplay, retry } from 'rxjs/operators';
+import { tap, shareReplay } from 'rxjs/operators';
 
 export interface ITransactionDetailPartInfo {
     completeState: string;
@@ -20,6 +20,10 @@ export class TransactionDetailDataService {
     private lastKey: string;
     cachedData: { [key: string]: Observable<ITransactionDetailData> } = {};
     partInfo$: Observable<any>;
+
+    private requestTimelineURL = 'transactionTimelineInfo.pinpoint';
+    private lastTimelineKey: string;
+    cachedTimelineData: { [key: string]: Observable<ITransactionTimelineData> } = {};
 
     constructor(
         private http: HttpClient
@@ -51,6 +55,22 @@ export class TransactionDetailDataService {
     private hasData(): boolean {
         return !!this.cachedData[this.lastKey];
     }
+
+    getTimelineData(agentId: string, spanId: string, traceId: string, focusTimestamp: number): Observable<ITransactionTimelineData> {
+        this.lastTimelineKey = agentId + spanId + traceId + focusTimestamp;
+        if ( this.hasTimelineData() ) {
+            return this.cachedTimelineData[this.lastTimelineKey];
+        } else {
+            const httpRequest$ = this.http.get<ITransactionTimelineData>(this.requestTimelineURL, this.makeRequestOptionsArgs(agentId, spanId, traceId, focusTimestamp));
+            this.cachedTimelineData[this.lastTimelineKey] = httpRequest$.pipe(shareReplay(3));
+        }
+        return this.cachedTimelineData[this.lastTimelineKey];
+    }
+
+    private hasTimelineData(): boolean {
+        return !!this.cachedTimelineData[this.lastTimelineKey];
+    }
+
     private makeRequestOptionsArgs(agentId: string, spanId: string, traceId: string, focusTimestamp: number): object {
         return {
             params: new HttpParams()

@@ -37,16 +37,25 @@ export class TransactionDetailPageComponent implements OnInit, OnDestroy {
             filter((urlService: NewUrlStateNotificationService) => {
                 return urlService.hasValue(UrlPathId.AGENT_ID, UrlPathId.SPAN_ID, UrlPathId.TRACE_ID, UrlPathId.FOCUS_TIMESTAMP);
             }),
-            switchMap((urlService: NewUrlStateNotificationService) => {
-                return this.transactionDetailDataService.getData(
-                    urlService.getPathValue(UrlPathId.AGENT_ID),
-                    urlService.getPathValue(UrlPathId.SPAN_ID),
-                    urlService.getPathValue(UrlPathId.TRACE_ID),
-                    urlService.getPathValue(UrlPathId.FOCUS_TIMESTAMP)
-                );
-            })
-        ).subscribe((transactionDetailInfo: ITransactionDetailData) => {
-            this.storeHelperService.dispatch(new Actions.UpdateTransactionDetailData(transactionDetailInfo));
+        ).subscribe((urlService: NewUrlStateNotificationService) => {
+            this.transactionDetailDataService.getData(
+                urlService.getPathValue(UrlPathId.AGENT_ID),
+                urlService.getPathValue(UrlPathId.SPAN_ID),
+                urlService.getPathValue(UrlPathId.TRACE_ID),
+                urlService.getPathValue(UrlPathId.FOCUS_TIMESTAMP)
+            ).subscribe((transactionDetailInfo: ITransactionDetailData) => {
+                this.storeHelperService.dispatch(new Actions.UpdateTransactionDetailData(transactionDetailInfo));
+            });
+
+            this.transactionDetailDataService.getTimelineData(
+                urlService.getPathValue(UrlPathId.AGENT_ID),
+                urlService.getPathValue(UrlPathId.SPAN_ID),
+                urlService.getPathValue(UrlPathId.TRACE_ID),
+                urlService.getPathValue(UrlPathId.FOCUS_TIMESTAMP)
+            ).subscribe((transactionTimelineData: ITransactionTimelineData) => {
+                this.storeHelperService.dispatch(new Actions.UpdateTransactionTimelineData(transactionTimelineData));
+            });
+
         }, (error: IServerErrorFormat) => {
             this.dynamicPopupService.openPopup({
                 data: {

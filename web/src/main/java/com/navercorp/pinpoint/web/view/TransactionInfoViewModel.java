@@ -163,9 +163,6 @@ public class TransactionInfoViewModel {
                 first = false;
             }
 
-            if (record.getElapsed() == 0) {
-                record.setExcludeFromTimeline(true);
-            }
             list.add(new CallStack(record, barRatio));
         }
 

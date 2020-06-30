@@ -234,12 +234,6 @@ public class SpanEventAlign implements Align {
     }
 
     @Override
-    public boolean getExcludeFromTimeline() { return false; }
-
-    @Override
-    public void setExcludeFromTimeline(boolean exclude) {}
-
-    @Override
     public String toString() {
         return "SpanEventAlign{" +
                 "spanBo=" + spanBo +

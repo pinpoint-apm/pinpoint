@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.web.util.DefaultMongoJsonParser;
 import com.navercorp.pinpoint.web.util.MongoJsonParser;
 import com.navercorp.pinpoint.web.util.OutputParameterMongoJsonParser;
 import com.navercorp.pinpoint.web.view.TransactionInfoViewModel;
+import com.navercorp.pinpoint.web.view.TransactionTimelineInfoViewModel;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -99,6 +100,32 @@ public class BusinessTransactionController {
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp, agentId, spanId);
 
         TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, spanResult.getTraceState(), logConfiguration);
+        return result;
+    }
+
+    /**
+     * info lookup for a selected transaction
+     *
+     * @param traceIdParam
+     * @param focusTimestamp
+     * @return
+     */
+    @RequestMapping(value = "/transactionTimelineInfo", method = RequestMethod.GET)
+    @ResponseBody
+    public TransactionTimelineInfoViewModel transactionTimelineInfo(@RequestParam("traceId") String traceIdParam,
+                                                                    @RequestParam(value = "focusTimestamp", required = false, defaultValue = "0") long focusTimestamp,
+                                                                    @RequestParam(value = "agentId", required = false) String agentId,
+                                                                    @RequestParam(value = "spanId", required = false, defaultValue = "-1") long spanId) {
+        logger.debug("GET /transactionTimelineInfo params {traceId={}, focusTimestamp={}, agentId={}, spanId={}, v={}}", traceIdParam, focusTimestamp, agentId, spanId);
+
+        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceIdParam);
+
+        // select spans
+        final CallTreeIterator callTreeIterator = this.spanService.selectSpan(transactionId, focusTimestamp).getCallTree();
+
+        RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp, agentId, spanId);
+
+        TransactionTimelineInfoViewModel result = new TransactionTimelineInfoViewModel(transactionId, spanId, recordSet, logConfiguration);
         return result;
     }
 
