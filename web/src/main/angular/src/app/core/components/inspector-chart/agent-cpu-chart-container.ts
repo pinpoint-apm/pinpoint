@@ -30,16 +30,16 @@ export class AgentCPUChartContainer implements IInspectorChartContainer {
     makeDataOption(): Data {
         return {
             types: {
-                jvm: 'spline',
-                system: 'area-spline'
+                jvm: 'area-spline',
+                system: 'spline'
             },
             names: {
                 jvm: 'JVM',
                 system: 'System'
             },
             colors: {
-                jvm: 'rgba(31, 119, 180, 0.7)',
-                system: 'rgba(174, 199, 232, 0.7)'
+                jvm: 'rgba(174, 199, 232, 0.5)',
+                system: 'rgba(31, 119, 180, 0.5)'
             }
         };
     }
