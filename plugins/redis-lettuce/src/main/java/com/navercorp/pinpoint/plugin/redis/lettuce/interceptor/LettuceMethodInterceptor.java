@@ -41,7 +41,8 @@ public class LettuceMethodInterceptor extends SpanEventSimpleAroundInterceptorFo
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
+                               Throwable throwable) {
         final String endPoint = toEndPoint(target);
         recorder.recordApi(getMethodDescriptor());
         recorder.recordEndPoint(endPoint != null ? endPoint : "Unknown");
@@ -49,11 +50,11 @@ public class LettuceMethodInterceptor extends SpanEventSimpleAroundInterceptorFo
         recorder.recordServiceType(LettuceConstants.REDIS_LETTUCE);
         recorder.recordException(throwable);
 
-        if(result instanceof AsyncContextAccessor) {
-            if(AsyncContextAccessorUtils.getAsyncContext(result) == null) {
+        if (result instanceof AsyncContextAccessor) {
+            if (AsyncContextAccessorUtils.getAsyncContext(result) == null) {
                 // Avoid duplicate async context
                 final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-                ((AsyncContextAccessor)result)._$PINPOINT$_setAsyncContext(asyncContext);
+                ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
             }
         }
     }
