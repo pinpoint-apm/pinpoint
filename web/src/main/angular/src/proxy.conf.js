@@ -32,6 +32,7 @@ const PROXY_CONFIG = [
             "/getAgentInfo.pinpoint",
             "/transactionmetadata.pinpoint",
             "/transactionInfo.pinpoint",
+            "/transactionTimelineInfo.pinpoint",
             "/sqlBind.pinpoint",
             "/jsonBind.pinpoint",
             "/getScatterData.pinpoint",

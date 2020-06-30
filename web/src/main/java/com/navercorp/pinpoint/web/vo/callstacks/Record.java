@@ -55,8 +55,6 @@ public interface Record {
 
     boolean isExcludeFromTimeline();
 
-    void setExcludeFromTimeline(boolean exclude);
-
     String getSimpleClassName();
 
     void setSimpleClassName(String simpleClassName);

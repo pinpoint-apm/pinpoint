@@ -24,10 +24,10 @@ export class TransactionTimelineContainerComponentV2 implements OnInit, OnDestro
 
     private unsubscribe = new Subject<void>();
 
-    keyIndex: any;
     startTime: number;
     endTime: number;
     rowData: any;
+    databaseCalls: any;
     barRatio: number;
 
     constructor(
@@ -48,82 +48,18 @@ export class TransactionTimelineContainerComponentV2 implements OnInit, OnDestro
     }
 
     private connectStore(): void {
-        this.storeHelperService.getTransactionDetailData(this.unsubscribe).pipe(
-            filter((transactionDetailInfo: any) => {
-                return transactionDetailInfo && transactionDetailInfo.transactionId ? true : false;
+        this.storeHelperService.getTransactionTimelineData(this.unsubscribe).pipe(
+            filter((transactionTimelineInfo: any) => {
+                return transactionTimelineInfo && transactionTimelineInfo.transactionId ? true : false;
             })
-        ).subscribe((transactionDetailInfo: ITransactionDetailData) => {
-            this.startTime = transactionDetailInfo.callStackStart;
-            this.endTime = transactionDetailInfo.callStackEnd;
-            this.keyIndex = transactionDetailInfo.callStackIndex;
-            this.barRatio = this.getBarRatio(transactionDetailInfo);
-            this.rowData = this.filterCallStack(transactionDetailInfo);
-            this.cd.detectChanges();
+        ).subscribe((transactionTimelineInfo: ITransactionTimelineData) => {
+            this.startTime = transactionTimelineInfo.callStackStart;
+            this.endTime = transactionTimelineInfo.callStackEnd;
+            this.barRatio = transactionTimelineInfo.barRatio;
+            this.rowData = transactionTimelineInfo.callStack;
+            this.databaseCalls = transactionTimelineInfo.databaseCalls;
+            this.cd.detectChanges()
         });
-    }
-
-    private getBarRatio(tInfo: ITransactionDetailData): number {
-        return Math.max(1000 / (tInfo.callStackEnd - tInfo.callStackStart), 1);
-    }
-
-    private filterCallStack(data: ITransactionDetailData): any {
-        let rowData=[];
-        let asyncRootInfo = [[],[]];        /* depth, application name*/
-        let isAsync = false;
-        let prevApplication = "";
-
-        function checkAsyncDepth(call): number {
-            let asyncInfoLastIndex = asyncRootInfo[0].length - 1;
-            while (call[this.keyIndex.tab] <= asyncRootInfo[0][asyncInfoLastIndex]) {
-                asyncRootInfo[0].pop();
-                asyncRootInfo[1].pop();
-                asyncInfoLastIndex--;
-                isAsync = false;
-            }
-            return asyncInfoLastIndex;
-        }
-
-        data.callStack.filter(call =>
-            (call[this.keyIndex.isMethod] && !call[this.keyIndex.excludeFromTimeline] && call[this.keyIndex.service] !== ''))
-            .forEach((call) => {
-                let depth = call[this.keyIndex.tab];
-                while (depth >= rowData.length) {
-                    rowData.push([]);
-                }
-
-                let asyncInfoLastIndex = checkAsyncDepth.call(this, call);
-
-                if (asyncInfoLastIndex >= 0) {
-                    if (call[this.keyIndex.applicationName] === asyncRootInfo[1][asyncInfoLastIndex]) {
-                        if (call[this.keyIndex.tab] > asyncRootInfo[0][asyncInfoLastIndex]) {
-                            // returned to previous async trace
-                            isAsync = true;
-                        }
-                    } else if (call[this.keyIndex.applicationName] != prevApplication){
-                        // now at synchronous application trace
-                        isAsync = false;
-                    }
-                }
-
-                if (call[this.keyIndex.apiType] === "ASYNC") {
-                    isAsync = true
-                    asyncRootInfo[0].push(call[this.keyIndex.tab]);
-                    asyncRootInfo[1].push(call[this.keyIndex.applicationName]);
-                }
-
-                let rearranged = [];
-                if (isAsync) {
-                    rearranged.push(null);
-                    rearranged.push(call);
-                } else {
-                    rearranged.push(call);
-                    rearranged.push(null);
-                }
-                rowData[depth].push(rearranged);
-                prevApplication = call[this.keyIndex.applicationName];
-            }
-        )
-        return rowData;
     }
 
     onSelectTransaction(id: string): void {
