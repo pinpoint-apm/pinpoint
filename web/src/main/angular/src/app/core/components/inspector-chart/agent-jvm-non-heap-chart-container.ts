@@ -57,8 +57,8 @@ export class AgentJVMNonHeapChartContainer implements IInspectorChartContainer {
                 fgcTime: 'Major GC'
             },
             colors: {
-                max: 'rgba(174, 199, 232, 0.4)',
-                used: 'rgba(31, 119, 180, 0.4)',
+                max: 'rgba(31, 119, 180, 0.4)',
+                used: 'rgba(174, 199, 232, 0.4)',
                 fgcTime: 'rgba(255, 42, 0, 0.3)'
             },
             axes: {
