@@ -34,7 +34,7 @@ public class ApplicationLoadedClassChartGroupTest {
     @Test
     public void createApplicationLoadedClassChartGroupTest() {
         long time = 1495418083250L;
-        Range range = new Range(time - 240000, time);
+        Range range = Range.newRange(time - 240000, time);
         TimeWindow timeWindow = new TimeWindow(range);
         List<AggreJoinLoadedClassBo> aggreJoinLoadedClassBoList = new ArrayList<>(5);
         AggreJoinLoadedClassBo aggreJoinLoadedClassBo1 = new AggreJoinLoadedClassBo("testApp", 11, 20, "agent1_1", 60, "agent1_2", 11, 20, "agent1_1", 60, "agent1_2",time);
@@ -58,7 +58,7 @@ public class ApplicationLoadedClassChartGroupTest {
         int index = loadedClassChartPoints.size();
 
         for (Point point : loadedClassChartPoints) {
-            testLoadedCLass((LoadedClassPoint)point, aggreJoinLoadedClassBoList.get(--index));
+            testLoadedCLass((LongApplicationStatPoint)point, aggreJoinLoadedClassBoList.get(--index));
         }
 
         Chart unloadedClassChart = charts.get(ApplicationLoadedClassChart.ApplicationLoadedClassChartGroup.LoadedClassChartType.UNLOADED_CLASS_COUNT);
@@ -67,11 +67,11 @@ public class ApplicationLoadedClassChartGroupTest {
         index = unloadedClassChartPoints.size();
 
         for (Point point : unloadedClassChartPoints) {
-            testUnloadedCLass((LoadedClassPoint)point, aggreJoinLoadedClassBoList.get(--index));
+            testUnloadedCLass((LongApplicationStatPoint)point, aggreJoinLoadedClassBoList.get(--index));
         }
     }
 
-    private void testLoadedCLass(LoadedClassPoint point, AggreJoinLoadedClassBo loadedClassBo) {
+    private void testLoadedCLass(LongApplicationStatPoint point, AggreJoinLoadedClassBo loadedClassBo) {
         assertEquals(point.getXVal(), loadedClassBo.getTimestamp());
         assertEquals(point.getYValForAvg(), loadedClassBo.getAvgLoadedClass(), 0);
         assertEquals(point.getYValForMin(), loadedClassBo.getMinLoadedClass(), 0);
@@ -80,7 +80,7 @@ public class ApplicationLoadedClassChartGroupTest {
         assertEquals(point.getAgentIdForMax(), loadedClassBo.getMaxLoadedClassAgentId());
     }
 
-    private void testUnloadedCLass(LoadedClassPoint point, AggreJoinLoadedClassBo loadedClassBo) {
+    private void testUnloadedCLass(LongApplicationStatPoint point, AggreJoinLoadedClassBo loadedClassBo) {
         assertEquals(point.getXVal(), loadedClassBo.getTimestamp());
         assertEquals(point.getYValForAvg(), loadedClassBo.getAvgUnloadedClass(), 0);
         assertEquals(point.getYValForMin(), loadedClassBo.getMinUnloadedClass(), 0);

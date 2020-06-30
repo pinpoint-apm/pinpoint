@@ -49,7 +49,7 @@ public class HbaseApplicationLoadedClassDao implements ApplicationLoadedClassDao
     public List<AggreJoinLoadedClassBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = new Range(scanFrom, scanTo);
+        Range range = Range.newRange(scanFrom, scanTo);
         ApplicationStatMapper mapper = operations.createRowMapper(loadedClassDecoder, range);
         SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, loadedClassSampler);
         List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_LOADED_CLASS, resultExtractor, applicationId, range);

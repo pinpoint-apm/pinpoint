@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.google.common.collect.ImmutableMap;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLoadedClassBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -41,7 +42,7 @@ public class ApplicationLoadedClassChart implements StatChart {
     }
 
     public static class ApplicationLoadedClassChartGroup implements StatChartGroup {
-        private static final LoadedClassPoint.UncollectedLoadedClassPointCreator UNCOLLECTED_LOADED_CLASS_POINT = new LoadedClassPoint.UncollectedLoadedClassPointCreator();
+        private static final LongApplicationStatPoint.UncollectedCreator UNCOLLECTED_LOADED_CLASS_POINT = new LongApplicationStatPoint.UncollectedCreator(JoinLoadedClassBo.UNCOLLECTED_VALUE);
 
         private final TimeWindow timeWindow;
         private final Map<ChartType, Chart<? extends Point>> loadedClassChartMap;
@@ -57,27 +58,28 @@ public class ApplicationLoadedClassChart implements StatChart {
         }
 
         private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinLoadedClassBo> aggreJoinLoadedClassBoList) {
-            Chart<LoadedClassPoint> loadedClassCount = newChart(aggreJoinLoadedClassBoList, this::newLoadedClassCount);
-            Chart<LoadedClassPoint> unloadedClassCount = newChart(aggreJoinLoadedClassBoList, this::newUnloadedClassCount);
+            Chart<LongApplicationStatPoint> loadedClassCount = newChart(aggreJoinLoadedClassBoList, this::newLoadedClassCount);
+            Chart<LongApplicationStatPoint> unloadedClassCount = newChart(aggreJoinLoadedClassBoList, this::newUnloadedClassCount);
+
 
             return ImmutableMap.of(LoadedClassChartType.LOADED_CLASS_COUNT, loadedClassCount
                     , LoadedClassChartType.UNLOADED_CLASS_COUNT, unloadedClassCount);
         }
 
-        private Chart<LoadedClassPoint> newChart(List<AggreJoinLoadedClassBo> LoadedClassList, Function<AggreJoinLoadedClassBo, LoadedClassPoint> filter) {
-            TimeSeriesChartBuilder<LoadedClassPoint> builder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_LOADED_CLASS_POINT);
+        private Chart<LongApplicationStatPoint> newChart(List<AggreJoinLoadedClassBo> LoadedClassList, Function<AggreJoinLoadedClassBo, LongApplicationStatPoint> filter) {
+            TimeSeriesChartBuilder<LongApplicationStatPoint> builder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_LOADED_CLASS_POINT);
             return builder.build(LoadedClassList, filter);
         }
 
-        private LoadedClassPoint newLoadedClassCount(AggreJoinLoadedClassBo loadedClassBo) {
-            return new LoadedClassPoint(loadedClassBo.getTimestamp(),
+        private LongApplicationStatPoint newLoadedClassCount(AggreJoinLoadedClassBo loadedClassBo) {
+            return new LongApplicationStatPoint(loadedClassBo.getTimestamp(),
                     loadedClassBo.getMinLoadedClass(), loadedClassBo.getMinLoadedClassAgentId(),
                     loadedClassBo.getMaxLoadedClass(), loadedClassBo.getMaxLoadedClassAgentId(),
                     loadedClassBo.getAvgLoadedClass());
         }
 
-        private LoadedClassPoint newUnloadedClassCount(AggreJoinLoadedClassBo loadedClassBo) {
-            return new LoadedClassPoint(loadedClassBo.getTimestamp(),
+        private LongApplicationStatPoint newUnloadedClassCount(AggreJoinLoadedClassBo loadedClassBo) {
+            return new LongApplicationStatPoint(loadedClassBo.getTimestamp(),
                     loadedClassBo.getMinUnloadedClass(), loadedClassBo.getMinUnloadedClassAgentId(),
                     loadedClassBo.getMaxUnloadedClass(), loadedClassBo.getMaxUnloadedClassAgentId(),
                     loadedClassBo.getAvgUnloadedClass());
