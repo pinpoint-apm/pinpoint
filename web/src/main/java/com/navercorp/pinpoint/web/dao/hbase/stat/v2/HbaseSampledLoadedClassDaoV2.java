@@ -47,7 +47,7 @@ public class HbaseSampledLoadedClassDaoV2 implements SampledLoadedClassCountDao 
     public List<SampledLoadedClassCount> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = new Range(scanFrom, scanTo);
+        Range range = Range.newRange(scanFrom, scanTo);
         AgentStatMapperV2<LoadedClassBo> mapper = operations.createRowMapper(loadedClassDecoder, range);
         SampledAgentStatResultExtractor<LoadedClassBo, SampledLoadedClassCount> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, loadedClassSampler);
         return operations.getSampledAgentStatList(AgentStatType.LOADED_CLASS, resultExtractor, agentId, range);
