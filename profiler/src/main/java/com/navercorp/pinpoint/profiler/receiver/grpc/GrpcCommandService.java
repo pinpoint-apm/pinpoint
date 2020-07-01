@@ -75,7 +75,7 @@ public class GrpcCommandService {
         GrpcCommandDispatcher commandDispatcher = new GrpcCommandDispatcher(profilerCommandServiceStub, profilerCommandServiceLocator);
 
         CommandServiceMainStreamObserver commandServiceMainStreamObserver = new CommandServiceMainStreamObserver(commandDispatcher);
-        profilerCommandServiceStub.handleCommand(commandServiceMainStreamObserver);
+        profilerCommandServiceStub.handleCommandV2(commandServiceMainStreamObserver);
 
         this.commandServiceMainStreamObserver = commandServiceMainStreamObserver;
     }
