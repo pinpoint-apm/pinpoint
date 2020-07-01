@@ -54,7 +54,7 @@ public class HttpStatusCodeRecorder {
         if (this.errors.isErrorCode(statusCode)) {
             spanRecorder.recordError();
             if (isDebug) {
-                logger.debug("Record error");
+                logger.debug("Record https.status.code error code:{}", statusCode);
             }
         }
     }
