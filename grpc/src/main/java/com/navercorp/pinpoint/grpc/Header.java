@@ -37,6 +37,8 @@ public class Header {
     public static final Metadata.Key<String> SOCKET_ID = newStringKey("socketid");
     public static final Metadata.Key<String> SUPPORT_COMMAND_CODE = newStringKey("supportCommandCode");
 
+    public static final String SUPPORT_COMMAND_CODE_DELIMITER = ";";
+
     private static Metadata.Key<String> newStringKey(String s) {
         return Metadata.Key.of(s, Metadata.ASCII_STRING_MARSHALLER);
     }

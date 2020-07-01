@@ -40,7 +40,12 @@ service Stat {
 }
 
 service ProfilerCommandService {
+    // deprecated api
     rpc HandleCommand (stream PCmdMessage) returns (stream PCmdRequest) {
+        option deprecated = true;
+    }
+
+    rpc HandleCommandV2 (stream PCmdMessage) returns (stream PCmdRequest) {
     }
 
     rpc CommandEcho (PCmdEchoResponse) returns (google.protobuf.Empty) {

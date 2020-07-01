@@ -27,6 +27,7 @@ import io.grpc.ForwardingClientCall;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 
+import java.util.Iterator;
 import java.util.Set;
 
 public class SupportCommandCodeClientInterceptor implements ClientInterceptor {
@@ -43,9 +44,21 @@ public class SupportCommandCodeClientInterceptor implements ClientInterceptor {
         final ClientCall<ReqT, RespT> forwardingClientCall = new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(clientCall) {
             @Override
             public void start(Listener<RespT> responseListener, Metadata headers) {
-                for (Short code : supportCommandCodes) {
-                    headers.put(Header.SUPPORT_COMMAND_CODE, String.valueOf(code));
+
+                StringBuilder supportCommandCodeStringBuilder = new StringBuilder();
+
+                final Iterator<Short> supportCodeIterator = supportCommandCodes.iterator();
+                while (supportCodeIterator.hasNext()) {
+                    final Short code = supportCodeIterator.next();
+                    supportCommandCodeStringBuilder.append(code);
+
+                    final boolean hasNext = supportCodeIterator.hasNext();
+                    if (hasNext) {
+                        supportCommandCodeStringBuilder.append(Header.SUPPORT_COMMAND_CODE_DELIMITER);
+                    }
                 }
+
+                headers.put(Header.SUPPORT_COMMAND_CODE, supportCommandCodeStringBuilder.toString());
                 super.start(responseListener, headers);
             }
 

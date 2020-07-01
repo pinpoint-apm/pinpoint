@@ -87,6 +87,37 @@ public class GrpcCommandServiceTest {
     }
 
     @Test
+    public void oldVersionHandshakeFailTest() throws IOException {
+        ZookeeperProfilerClusterManager manager = creteMemoryClusterManager();
+
+        ZookeeperClusterService mockClusterService = Mockito.mock(ZookeeperClusterService.class);
+        Mockito.when(mockClusterService.getProfilerClusterManager()).thenReturn(manager);
+
+        GrpcCommandService commandService = new GrpcCommandService(mockClusterService);
+
+        try {
+            TransportMetadata transportMetaData = createTransportMetaData(new InetSocketAddress("127.0.0.1", 61613), 10);
+            attachContext(transportMetaData);
+            attachContext(new Header("agent", "applicationName", System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, getCodeList()));
+
+            final TempServerCallStreamObserver<PCmdRequest> requestObserver = new TempServerCallStreamObserver<>();
+            StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommand(requestObserver);
+
+            final boolean await = awaitUtils.await(new TestAwaitTaskUtils() {
+                @Override
+                public boolean checkCompleted() {
+                    return manager.getClusterData().size() == 1;
+                }
+            });
+
+            Assert.assertFalse(await);
+            Assert.assertNotNull(requestObserver.getLatestException());
+        } finally {
+            commandService.close();
+        }
+    }
+
+    @Test
     public void newVersionHandshakeTest() throws IOException {
         ZookeeperProfilerClusterManager manager = creteMemoryClusterManager();
 
@@ -100,7 +131,7 @@ public class GrpcCommandServiceTest {
             attachContext(transportMetaData);
             attachContext(new Header("agent", "applicationName", System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, getCodeList()));
 
-            StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommand(new TempServerCallStreamObserver<PCmdRequest>());
+            StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommandV2(new TempServerCallStreamObserver<PCmdRequest>());
 
             awaitUtils.await(new TestAwaitTaskUtils() {
                 @Override

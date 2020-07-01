@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.grpc.server;
 
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderReader;
 
@@ -82,20 +83,24 @@ public class AgentHeaderReader implements HeaderReader<Header> {
     protected List<Integer> getSupportCommandCodeList(Metadata headers) {
         List<Integer> supportCommandCodeList = new ArrayList<Integer>();
 
-        boolean hasHeader = headers.containsKey(Header.SUPPORT_COMMAND_CODE);
-        if (!hasHeader) {
+        final String value = headers.get(Header.SUPPORT_COMMAND_CODE);
+        if (value == null) {
             return Header.SUPPORT_COMMAND_CODE_LIST_NOT_EXIST;
         }
 
-        final Iterable<String> codeValues = headers.getAll(Header.SUPPORT_COMMAND_CODE);
+        final List<String> codeValueList = StringUtils.tokenizeToStringList(value, Header.SUPPORT_COMMAND_CODE_DELIMITER);
         try {
-            for (String codeValue : codeValues) {
-                final int code = Integer.parseInt(codeValue);
+            for (String codeValue : codeValueList) {
+                if (StringUtils.isEmpty(codeValue)) {
+                    continue;
+                }
+
+                final String trimmedCodeValue = codeValue.trim();
+                final int code = Integer.parseInt(trimmedCodeValue);
                 supportCommandCodeList.add(code);
             }
             return Collections.unmodifiableList(supportCommandCodeList);
         } catch (NumberFormatException e) {
-            e.printStackTrace();
             return Header.SUPPORT_COMMAND_CODE_LIST_PARSE_ERROR;
         }
     }
@@ -106,6 +111,5 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         }
         return id;
     }
-
 
 }
