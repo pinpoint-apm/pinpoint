@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,7 +33,7 @@ public class HttpStatusCodeErrors {
             return 100 <= statusCode && statusCode <= 599;
         }
     };
-    private static final List<String> DEFAULT_ERROR_CODES = Arrays.asList("5xx");
+    private static final List<String> DEFAULT_ERROR_CODES = Collections.singletonList("5xx");
 
     private final StatusCode[] errors;
 
