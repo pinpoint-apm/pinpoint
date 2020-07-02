@@ -243,7 +243,7 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
     }
 
     onSelectArea(params: any): void {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_LIST);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_AREA_ON_SCATTER);
         const returnOpenWindow = this.urlRouteManagerService.openPage({
             path: [
                 UrlPath.TRANSACTION_LIST,

@@ -99,7 +99,7 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
     }
 
     onOpenTransactionDetailPage(): void {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_DETAIL);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_DETAIL_PAGE_WITH_ICON);
         this.urlRouteManagerService.openPage({
             path: [
                 UrlPath.TRANSACTION_DETAIL,

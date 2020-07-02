@@ -1,18 +1,12 @@
 import { Component, OnInit, Input, Output, EventEmitter, AfterViewInit, ComponentFactoryResolver, Injector } from '@angular/core';
 
 import {
-    UrlRouteManagerService,
-    NewUrlStateNotificationService,
     AnalyticsService,
     TRACKED_EVENT_LIST,
     DynamicPopupService,
     DynamicPopup
 } from 'app/shared/services';
-import { Filter } from 'app/core/models/filter';
-import { UrlPathId, UrlPath, UrlQuery } from 'app/shared/models';
-import { FilterAppTransactionWizardPopupContainerComponent} from "../filter-app-transaction-wizard-popup/filter-app-transaction-wizard-popup-container.component";
-import { FilterParamMaker } from 'app/core/utils/filter-param-maker';
-import { HintParamMaker } from 'app/core/utils/hint-param-maker';
+import { FilterAppTransactionWizardPopupContainerComponent} from 'app/core/components/filter-app-transaction-wizard-popup/filter-app-transaction-wizard-popup-container.component';
 
 @Component({
     selector: 'pp-node-context-popup-container',
@@ -26,8 +20,6 @@ export class NodeContextPopupContainerComponent implements OnInit, AfterViewInit
     @Output() outClose = new EventEmitter<void>();
 
     constructor(
-        private urlRouteManagerService: UrlRouteManagerService,
-        private newUrlStateNotificationService: NewUrlStateNotificationService,
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
         private componentFactoryResolver: ComponentFactoryResolver,
@@ -44,7 +36,7 @@ export class NodeContextPopupContainerComponent implements OnInit, AfterViewInit
     }
 
     onClickApplicationFilterTransactionWizard(): void {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_FILTER_TRANSACTION_WIZARD);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_FILTER_TRANSACTION_WIZARD_POPUP_ON_NODE_CONTEXT_POPUP);
         this.dynamicPopupService.openPopup({
             data: this.data,
             component: FilterAppTransactionWizardPopupContainerComponent

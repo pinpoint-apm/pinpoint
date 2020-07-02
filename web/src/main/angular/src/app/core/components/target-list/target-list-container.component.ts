@@ -138,7 +138,7 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
     }
 
     onOpenFilter([target]: any): void {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_FILTER_TRANSACTION);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_FILTERED_MAP_PAGE_ON_MERGED_TARGET_LIST);
         const appKey = `${target.filterApplicationName}@${target.filterApplicationServiceTypeName}`;
         const period = this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithAddedWords();
         const endTime = this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime();
@@ -173,7 +173,7 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
     }
 
     onOpenFilterWizard(target: any): void {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_FILTER_TRANSACTION_WIZARD);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_FILTER_TRANSACTION_WIZARD_POPUP_ON_MERGED_TARGET_LIST);
         this.dynamicPopupService.openPopup({
             data: this.serverMapData.getLinkData(target[1]),
             component: FilterTransactionWizardPopupContainerComponent

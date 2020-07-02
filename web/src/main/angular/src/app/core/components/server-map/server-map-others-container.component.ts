@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Input, Inject, ChangeDetectionStrategy, C
 import { Subject } from 'rxjs';
 import { takeUntil, filter, skip } from 'rxjs/operators';
 
-import { WebAppSettingDataService, GutterEventService, DynamicPopupService } from 'app/shared/services';
+import { WebAppSettingDataService, GutterEventService, DynamicPopupService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { ServerMapInteractionService } from './server-map-interaction.service';
 import { ServerMapData } from './class/server-map-data.class';
 import { SERVER_MAP_TYPE, ServerMapType } from './class/server-map-factory';
@@ -31,6 +31,7 @@ export class ServerMapOthersContainerComponent implements OnInit, OnDestroy {
         private gutterEventService: GutterEventService,
         private serverMapInteractionService: ServerMapInteractionService,
         private serverMapChangeNotificationService: ServerMapChangeNotificationService,
+        private analyticsService: AnalyticsService,
         @Inject(SERVER_MAP_TYPE) public type: ServerMapType
     ) {}
     ngOnInit() {
@@ -61,6 +62,7 @@ export class ServerMapOthersContainerComponent implements OnInit, OnDestroy {
     onClickNode($event: any): void {}
     onClickLink($event: any): void {}
     onContextClickBackground(coord: ICoordinate): void {
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CONTEXT_CLICK_ON_SERVER_MAP_BACKGROUND);
         this.dynamicPopupService.openPopup({
             data: this.mapData,
             coord,

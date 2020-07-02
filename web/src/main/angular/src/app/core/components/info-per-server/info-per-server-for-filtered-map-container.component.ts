@@ -96,8 +96,13 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
             })
         ).subscribe(() => {
             this.show();
+            this.selectedAgent = this.selectedAgent ? this.selectedAgent : this.getFirstAgent();
+            this.storeHelperService.dispatch(new Actions.ChangeAgentForServerList({
+                agent: this.selectedAgent,
+                responseSummary: this.agentHistogramData['agentHistogram'][this.selectedAgent],
+                load: this.agentHistogramData['agentTimeSeriesHistogram'][this.selectedAgent]
+            }));
             this.cd.detectChanges();
-            this.onSelectAgent(this.selectedAgent ? this.selectedAgent : this.getFirstAgent());
         });
     }
 
@@ -122,7 +127,7 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
     }
 
     onSelectAgent(agent: string): void {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_AGENT);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_AGENT_ON_SERVER_LIST_VIEW);
         this.storeHelperService.dispatch(new Actions.ChangeAgentForServerList({
             agent,
             responseSummary: this.agentHistogramData['agentHistogram'][agent],

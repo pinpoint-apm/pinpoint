@@ -61,7 +61,8 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe((target: ISelectedTarget) => {
             this.originalTargetSelected = true;
             this.selectedTarget = target;
-            this.onChangeAgent(SideBarTitleContainerComponent.AGENT_ALL);
+            this.selectedAgent = SideBarTitleContainerComponent.AGENT_ALL;
+            this.storeHelperService.dispatch(new Actions.ChangeAgent(''));
             this.makeFromToData();
             this.cd.detectChanges();
         });
@@ -149,8 +150,8 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
     }
 
     onChangeAgent(agentName: string): void {
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_AGENT_ON_SIDE_BAR_TITLE);
         this.selectedAgent = agentName;
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_AGENT);
         this.storeHelperService.dispatch(new Actions.ChangeAgent(agentName === SideBarTitleContainerComponent.AGENT_ALL ? '' : agentName));
     }
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
 
-import { StoreHelperService } from 'app/shared/services';
+import { StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { ServerMapForFilteredMapDataService } from 'app/core/components/server-map/server-map-for-filtered-map-data.service';
 import { BUTTON_STATE } from './state-button.component';
 
@@ -18,7 +18,8 @@ export class StateButtonForFilteredMapContainerComponent implements OnInit, OnDe
     constructor(
         private changeDetectorRef: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
-        private serverMapForFilteredMapDataService: ServerMapForFilteredMapDataService
+        private serverMapForFilteredMapDataService: ServerMapForFilteredMapDataService,
+        private analyticsService: AnalyticsService,
     ) {}
     ngOnInit() {
         this.connectStore();
@@ -44,10 +45,12 @@ export class StateButtonForFilteredMapContainerComponent implements OnInit, OnDe
         });
     }
     onChangeState(event: string) {
-        if ( event === BUTTON_STATE.RESUME ) {
+        if (event === BUTTON_STATE.RESUME) {
             this.serverMapForFilteredMapDataService.resumeDataLoad();
-        } else if ( event === BUTTON_STATE.PAUSE ) {
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.RESUME_DATA_LOAD_ON_FILTERED_MAP_PAGE);
+        } else if (event === BUTTON_STATE.PAUSE) {
             this.serverMapForFilteredMapDataService.stopDataLoad();
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.PAUSE_DATA_LOAD_ON_FILTERED_MAP_PAGE);
         }
     }
 }

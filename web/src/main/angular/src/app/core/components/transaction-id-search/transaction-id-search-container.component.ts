@@ -16,7 +16,9 @@ import {
     UrlRouteManagerService,
     DynamicPopup,
     PopupConstant,
-    NewUrlStateNotificationService
+    NewUrlStateNotificationService,
+    AnalyticsService,
+    TRACKED_EVENT_LIST
 } from 'app/shared/services';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 
@@ -41,6 +43,7 @@ export class TransactionIdSearchContainerComponent implements OnInit, AfterViewI
     constructor(
         private urlRouteManagerService: UrlRouteManagerService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
+        private analyticsService: AnalyticsService,
         private el: ElementRef,
         private renderer: Renderer2
     ) {}
@@ -98,6 +101,7 @@ export class TransactionIdSearchContainerComponent implements OnInit, AfterViewI
                 spanId
             ]
         });
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SEARCH_TRANSACTION_ID);
     }
 
     onInputChange(): void {

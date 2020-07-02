@@ -247,6 +247,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
     }
 
     onContextClickBackground(coord: ICoordinate): void {
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CONTEXT_CLICK_ON_SERVER_MAP_BACKGROUND);
         this.dynamicPopupService.openPopup({
             data: this.mapData,
             coord,
@@ -258,6 +259,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
     }
 
     onContextClickNode({key, coord}: {key: string, coord: ICoordinate}): void {
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CONTEXT_CLICK_ON_SERVER_MAP_NODE);
         const nodeData = this.mapData.getNodeData(key);
         if (nodeData.isWas) {
             this.dynamicPopupService.openPopup({
@@ -271,6 +273,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         }
     }
     onContextClickLink({key, coord}: {key: string, coord: ICoordinate}): void {
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CONTEXT_CLICK_ON_SERVER_MAP_LINK);
         this.dynamicPopupService.openPopup({
             data: this.mapData.getLinkData(key),
             coord,
