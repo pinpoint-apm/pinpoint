@@ -331,7 +331,7 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
     }
 
     onSelectArea(params: any): void {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_LIST);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_AREA_ON_SCATTER);
         let returnOpenWindow;
         if (this.newUrlStateNotificationService.isRealTimeMode()) {
             returnOpenWindow = this.urlRouteManagerService.openPage({

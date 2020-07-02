@@ -7,7 +7,9 @@ import {
     WebAppSettingDataService,
     UrlRouteManagerService,
     NewUrlStateNotificationService,
-    DynamicPopup
+    DynamicPopup,
+    AnalyticsService,
+    TRACKED_EVENT_LIST
 } from 'app/shared/services';
 import { UrlPathId, UrlQuery, UrlPath } from 'app/shared/models';
 import { Filter } from 'app/core/models';
@@ -32,6 +34,7 @@ export class FilterTransactionWizardPopupContainerComponent implements OnInit, A
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
         private windowRefService: WindowRefService,
+        private analyticsService: AnalyticsService,
     ) {}
 
     ngOnInit() {
@@ -98,6 +101,8 @@ export class FilterTransactionWizardPopupContainerComponent implements OnInit, A
                 hint: HintParamMaker.makeParam(currHintStr, addedHint)
             }
         });
+
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_FILTERED_MAP_PAGE_ON_FILTER_TRANSACTION_WIZARD_POPUP);
     }
 
     onClosePopup(): void {

@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, AfterViewInit } from '@
 
 import { ServerMapInteractionService } from 'app/core/components/server-map/server-map-interaction.service';
 import { ServerMapData } from 'app/core/components/server-map/class';
-import { DynamicPopup } from 'app/shared/services/dynamic-popup.service';
+import { AnalyticsService, DynamicPopup, TRACKED_EVENT_LIST, } from 'app/shared/services';
 
 @Component({
     selector: 'pp-server-map-context-popup-container',
@@ -17,6 +17,7 @@ export class ServerMapContextPopupContainerComponent implements OnInit, AfterVie
 
     constructor(
         private serverMapInteractionService: ServerMapInteractionService,
+        private analyticsService: AnalyticsService,
     ) {}
 
     ngOnInit() {}
@@ -29,11 +30,13 @@ export class ServerMapContextPopupContainerComponent implements OnInit, AfterVie
     }
 
     onChangeMergeState(mergeState: IServerMapMergeState): void {
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CHANGE_SERVER_MAP_MERGE_STATE, `${mergeState.state}`);
         this.serverMapInteractionService.setMergeState(mergeState);
         this.outClose.emit();
     }
 
     onClickRefresh(): void {
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REFRESH_SERVER_MAP);
         this.serverMapInteractionService.setRefresh();
         this.outClose.emit();
     }

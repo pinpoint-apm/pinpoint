@@ -72,12 +72,12 @@ export class TransactionDetailMenuContainerComponent implements OnInit, OnDestro
     }
 
     onSelectViewType(viewType: string): void {
-        this.analyticsService.trackEvent((TRACKED_EVENT_LIST as any)[`CLICK_${viewType}`]);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SWITCH_TRANSACTION_VIEW_TYPE_THROUGH_TAB, `${viewType}`);
         this.storeHelperService.dispatch(new Actions.ChangeTransactionViewType(viewType));
     }
 
     onOpenDetailView(): void {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_VIEW);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_VIEW_PAGE_THROUGH_TAB);
         this.urlRouteManagerService.openPage({
             path: [
                 UrlPath.TRANSACTION_VIEW,
@@ -91,6 +91,7 @@ export class TransactionDetailMenuContainerComponent implements OnInit, OnDestro
 
     onOpenExtraView(param: any): void {
         if (param.open) {
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_LOG_PAGE_THROUGH_TAB);
             this.urlRouteManagerService.openPage(parseURL(param.url));
         } else {
             this.dynamicPopupService.openPopup({

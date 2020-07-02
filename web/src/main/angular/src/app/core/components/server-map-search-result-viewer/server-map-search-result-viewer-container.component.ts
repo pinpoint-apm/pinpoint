@@ -66,11 +66,11 @@ export class ServerMapSearchResultViewerContainerComponent implements OnInit {
     }
 
     onSearch(query: string): void {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SEARCH_NODE);
         if (query.length < this.minLength) {
             return;
         }
 
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SEARCH_NODE);
         this.serverMapInteractionService.setSearchWord(query);
     }
 

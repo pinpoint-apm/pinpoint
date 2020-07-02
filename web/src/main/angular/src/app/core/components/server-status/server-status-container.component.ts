@@ -75,7 +75,7 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
     }
 
     onClickViewServer(): void {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_SERVER_LIST);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.TOGGLE_SERVER_LIST_VIEW);
         this.isInfoPerServerShow = !this.isInfoPerServerShow;
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.SERVER_MAP_DISABLE,

@@ -149,7 +149,7 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
     }
 
     onOpenTransactionView(transactionShortInfo: { agentId: string, traceId: string, collectorAcceptTime: number, spanId: string }): void {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_VIEW);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_VIEW_PAGE_WITH_ICON);
         this.urlRouteManagerService.openPage({
             path: [
                 UrlPath.TRANSACTION_VIEW,

@@ -44,7 +44,7 @@ export class LinkContextPopupContainerComponent implements OnInit, AfterViewInit
     }
 
     onClickFilterTransaction(): void {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_FILTER_TRANSACTION);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_FILTERED_MAP_PAGE_ON_LINK_CONTEXT_POPUP);
         this.outClose.emit();
         const appKey = `${this.data.filterApplicationName}@${this.data.filterApplicationServiceTypeName}`;
         const period = this.newUrlStateNotificationService.hasValue(UrlPathId.PERIOD) ? this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime() : '';
@@ -74,7 +74,7 @@ export class LinkContextPopupContainerComponent implements OnInit, AfterViewInit
     }
 
     onClickFilterTransactionWizard(): void {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_FILTER_TRANSACTION_WIZARD);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_FILTER_TRANSACTION_WIZARD_POPUP_ON_LINK_CONTEXT_POPUP);
         this.dynamicPopupService.openPopup({
             data: this.data,
             component: FilterTransactionWizardPopupContainerComponent

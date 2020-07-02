@@ -256,6 +256,7 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
 
     onChangeActiveOnlyToggle(activeOnly: boolean): void {
         this.activeOnly = activeOnly;
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.TOGGLE_ACTIVE_ONLY_OPTION, `${activeOnly}`);
     }
 
     onOpenThreadDump(agentId: string): void {
