@@ -108,12 +108,15 @@ public class PinpointWebSocketMessageConverterTest {
     public void UnknownMessageTest() throws Exception {
         PinpointWebSocketMessage emptyString = messageConverter.getWebSocketMessage("");
         Assert.assertSame(emptyString.getClass(), UnknownMessage.class);
+        Assert.assertEquals(PinpointWebSocketMessageType.UNKNOWN, emptyString.getType());
 
         PinpointWebSocketMessage nullValue = messageConverter.getWebSocketMessage(null);
         Assert.assertSame(nullValue.getClass(), UnknownMessage.class);
+        Assert.assertEquals(PinpointWebSocketMessageType.UNKNOWN, nullValue.getType());
 
         PinpointWebSocketMessage emptyObject = messageConverter.getWebSocketMessage("{}");
         Assert.assertSame(emptyObject.getClass(), UnknownMessage.class);
+        Assert.assertEquals(PinpointWebSocketMessageType.UNKNOWN, emptyObject.getType());
     }
 
 

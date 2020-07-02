@@ -189,6 +189,12 @@ public class HbaseAgentLifeCycleDaoTest {
         Assert.assertEquals(expectedAgentLifeCycleState, nonNullAgentInfoStatus.getState());
     }
 
+    @Test
+    public void populateAgentStatus_should_not_crash_with_invalid_inputs() {
+        this.agentLifeCycleDao.populateAgentStatus(null, 1000L);
+        this.agentLifeCycleDao.populateAgentStatuses(Arrays.asList(), 1000L);
+    }
+
     private AgentLifeCycleBo createAgentLifeCycleBo(String agentId, long eventTimestamp, AgentLifeCycleState state) {
         return new AgentLifeCycleBo(agentId, 0L, eventTimestamp, 0L, state);
     }
