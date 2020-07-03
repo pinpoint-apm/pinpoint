@@ -65,29 +65,10 @@ public class JoinDirectBufferBoTest {
         JoinDirectBufferBo joinDirectBufferBo = JoinDirectBufferBo.joinDirectBufferBoList(joinDirectBufferBoList, 1496988667231L);
         assertEquals(joinDirectBufferBo.getId(), "agent1");
         assertEquals(joinDirectBufferBo.getTimestamp(), 1496988667231L);
-        assertEquals(joinDirectBufferBo.getAvgDirectCount(), 30, 0);
-        assertEquals(joinDirectBufferBo.getMinDirectCount(), 7, 0);
-        assertEquals(joinDirectBufferBo.getMinDirectCountAgentId(), "agent3");
-        assertEquals(joinDirectBufferBo.getMaxDirectCount(), 80, 0);
-        assertEquals(joinDirectBufferBo.getMaxDirectCountAgentId(), "agent4");
-
-        assertEquals(joinDirectBufferBo.getAvgDirectMemoryUsed(), 30, 0);
-        assertEquals(joinDirectBufferBo.getMinDirectMemoryUsed(), 7, 0);
-        assertEquals(joinDirectBufferBo.getMinDirectMemoryUsedAgentId(), "agent3");
-        assertEquals(joinDirectBufferBo.getMaxDirectMemoryUsed(), 80, 0);
-        assertEquals(joinDirectBufferBo.getMaxDirectMemoryUsedAgentId(), "agent4");
-
-        assertEquals(joinDirectBufferBo.getAvgMappedCount(), 30, 0);
-        assertEquals(joinDirectBufferBo.getMinMappedCount(), 7, 0);
-        assertEquals(joinDirectBufferBo.getMinMappedCountAgentId(), "agent3");
-        assertEquals(joinDirectBufferBo.getMaxMappedCount(), 80, 0);
-        assertEquals(joinDirectBufferBo.getMaxMappedCountAgentId(), "agent4");
-
-        assertEquals(joinDirectBufferBo.getAvgMappedMemoryUsed(), 30, 0);
-        assertEquals(joinDirectBufferBo.getMinMappedMemoryUsed(), 7, 0);
-        assertEquals(joinDirectBufferBo.getMinMappedMemoryUsedAgentId(), "agent3");
-        assertEquals(joinDirectBufferBo.getMaxMappedMemoryUsed(), 80, 0);
-        assertEquals(joinDirectBufferBo.getMaxMappedMemoryUsedAgentId(), "agent4");
+        assertEquals(joinDirectBufferBo.getDirectCountJoinValue(), new JoinLongFieldBo(30L, 7L, "agent3", 80L, "agent4"));
+        assertEquals(joinDirectBufferBo.getDirectMemoryUsedJoinValue(), new JoinLongFieldBo(30L, 7L, "agent3", 80L, "agent4"));
+        assertEquals(joinDirectBufferBo.getMappedCountJoinValue(), new JoinLongFieldBo(30L, 7L, "agent3", 80L, "agent4"));
+        assertEquals(joinDirectBufferBo.getMappedMemoryUsedJoinValue(), new JoinLongFieldBo(30L, 7L, "agent3", 80L, "agent4"));
    }
 
     @Test

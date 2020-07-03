@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -83,19 +84,23 @@ public class ApplicationDirectBufferChart implements StatChart {
         }
 
         private LongApplicationStatPoint newDirectCount(AggreJoinDirectBufferBo directBuffer) {
-            return new LongApplicationStatPoint(directBuffer.getTimestamp(), directBuffer.getMinDirectCount(), directBuffer.getMinDirectCountAgentId(), directBuffer.getMaxDirectCount(), directBuffer.getMaxDirectCountAgentId(), directBuffer.getAvgDirectCount());
+            final JoinLongFieldBo directCountJoinValue = directBuffer.getDirectCountJoinValue();
+            return new LongApplicationStatPoint(directBuffer.getTimestamp(), directCountJoinValue.getMin(), directCountJoinValue.getMinAgentId(), directCountJoinValue.getMax(), directCountJoinValue.getMaxAgentId(), directCountJoinValue.getAvg());
         }
 
         private LongApplicationStatPoint newDirectMemoryUsed(AggreJoinDirectBufferBo directBuffer) {
-            return new LongApplicationStatPoint(directBuffer.getTimestamp(), directBuffer.getMinDirectMemoryUsed(), directBuffer.getMinDirectMemoryUsedAgentId(), directBuffer.getMaxDirectMemoryUsed(), directBuffer.getMaxDirectMemoryUsedAgentId(), directBuffer.getAvgDirectMemoryUsed());
+            final JoinLongFieldBo directMemoryUsedJoinValue = directBuffer.getDirectMemoryUsedJoinValue();
+            return new LongApplicationStatPoint(directBuffer.getTimestamp(), directMemoryUsedJoinValue.getMin(), directMemoryUsedJoinValue.getMinAgentId(), directMemoryUsedJoinValue.getMax(), directMemoryUsedJoinValue.getMaxAgentId(), directMemoryUsedJoinValue.getAvg());
         }
 
         private LongApplicationStatPoint newMappedCount(AggreJoinDirectBufferBo directBuffer) {
-            return new LongApplicationStatPoint(directBuffer.getTimestamp(), directBuffer.getMinMappedCount(), directBuffer.getMinMappedCountAgentId(), directBuffer.getMaxMappedCount(), directBuffer.getMaxMappedCountAgentId(), directBuffer.getAvgMappedCount());
+            final JoinLongFieldBo mappedCountJoinValue = directBuffer.getMappedCountJoinValue();
+            return new LongApplicationStatPoint(directBuffer.getTimestamp(), mappedCountJoinValue.getMin(), mappedCountJoinValue.getMinAgentId(), mappedCountJoinValue.getMax(), mappedCountJoinValue.getMaxAgentId(), mappedCountJoinValue.getAvg());
         }
 
         private LongApplicationStatPoint newMappedMemoryUsed(AggreJoinDirectBufferBo directBuffer) {
-            return new LongApplicationStatPoint(directBuffer.getTimestamp(), directBuffer.getMinMappedMemoryUsed(), directBuffer.getMinMappedMemoryUsedAgentId(), directBuffer.getMaxMappedMemoryUsed(), directBuffer.getMaxMappedMemoryUsedAgentId(), directBuffer.getAvgMappedMemoryUsed());
+            final JoinLongFieldBo mappedMemoryUsedJoinValue = directBuffer.getMappedMemoryUsedJoinValue();
+            return new LongApplicationStatPoint(directBuffer.getTimestamp(), mappedMemoryUsedJoinValue.getMin(), mappedMemoryUsedJoinValue.getMinAgentId(), mappedMemoryUsedJoinValue.getMax(), mappedMemoryUsedJoinValue.getMaxAgentId(), mappedMemoryUsedJoinValue.getAvg());
         }
 
         @Override

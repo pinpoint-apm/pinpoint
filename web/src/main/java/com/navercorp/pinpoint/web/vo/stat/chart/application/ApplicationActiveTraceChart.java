@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -71,8 +72,9 @@ public class ApplicationActiveTraceChart implements StatChart {
         }
 
         private IntApplicationStatPoint newActiveTracePoint(AggreJoinActiveTraceBo activeTrace) {
-            return new IntApplicationStatPoint(activeTrace.getTimestamp(), activeTrace.getMinTotalCount(),
-                    activeTrace.getMinTotalCountAgentId(), activeTrace.getMaxTotalCount(), activeTrace.getMaxTotalCountAgentId(), activeTrace.getTotalCount());
+            final JoinIntFieldBo totalCountValue = activeTrace.getTotalCountJoinValue();
+            return new IntApplicationStatPoint(activeTrace.getTimestamp(), totalCountValue.getMin(),
+                    totalCountValue.getMinAgentId(), totalCountValue.getMax(), totalCountValue.getMaxAgentId(), totalCountValue.getAvg());
         }
 
         @Override

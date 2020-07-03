@@ -15,8 +15,9 @@
  */
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
-import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author minwoo.jung
@@ -28,103 +29,46 @@ public class JoinMemoryBo implements JoinStatBo {
     private String id = UNKNOWN_ID;
     private long timestamp = Long.MIN_VALUE;
 
-    private long heapUsed = UNCOLLECTED_VALUE;
-    private long minHeapUsed = UNCOLLECTED_VALUE;
-    private long maxHeapUsed = UNCOLLECTED_VALUE;
-    private String minHeapAgentId = UNKNOWN_AGENT;
-    private String maxHeapAgentId = UNKNOWN_AGENT;
-
-    private long nonHeapUsed = UNCOLLECTED_VALUE;
-    private long minNonHeapUsed = UNCOLLECTED_VALUE;
-    private long maxNonHeapUsed = UNCOLLECTED_VALUE;
-    private String minNonHeapAgentId = UNKNOWN_AGENT;
-    private String maxNonHeapAgentId = UNKNOWN_AGENT;
+    private JoinLongFieldBo heapUsedJoinValue = JoinLongFieldBo.UNCOLLECTED_FIELD_BO;
+    private JoinLongFieldBo nonHeapUsedJoinValue = JoinLongFieldBo.UNCOLLECTED_FIELD_BO;
 
     public JoinMemoryBo() {
     }
 
     public JoinMemoryBo(String id, long timestamp, long heapUsed, long minHeapUsed, long maxHeapUsed, String minHeapAgentId, String maxHeapAgentId, long nonHeapUsed, long minNonHeapUsed, long maxNonHeapUsed, String minNonHeapAgentId, String maxNonHeapAgentId) {
+        this(id, timestamp, new JoinLongFieldBo(heapUsed, minHeapUsed, minHeapAgentId, maxHeapUsed, maxHeapAgentId), new JoinLongFieldBo(nonHeapUsed, minNonHeapUsed, minNonHeapAgentId, maxNonHeapUsed, maxNonHeapAgentId));
+    }
+
+    public JoinMemoryBo(String id, long timestamp, JoinLongFieldBo heapUsedJoinValue, JoinLongFieldBo nonHeapUsedJoinValue) {
         this.id = id;
         this.timestamp = timestamp;
-        this.heapUsed = heapUsed;
-        this.minHeapUsed = minHeapUsed;
-        this.maxHeapUsed = maxHeapUsed;
-        this.minHeapAgentId = minHeapAgentId;
-        this.maxHeapAgentId = maxHeapAgentId;
-        this.nonHeapUsed = nonHeapUsed;
-        this.minNonHeapUsed = minNonHeapUsed;
-        this.maxNonHeapUsed = maxNonHeapUsed;
-        this.minNonHeapAgentId = minNonHeapAgentId;
-        this.maxNonHeapAgentId = maxNonHeapAgentId;
+        this.heapUsedJoinValue = Objects.requireNonNull(heapUsedJoinValue, "heapUsedJoinValue");
+        this.nonHeapUsedJoinValue = Objects.requireNonNull(nonHeapUsedJoinValue, "nonHeapUsedJoinValue");
     }
 
-    public long getMinHeapUsed() {
-        return minHeapUsed;
+    public JoinLongFieldBo getHeapUsedJoinValue() {
+        return heapUsedJoinValue;
     }
 
-    public void setMinHeapUsed(long minHeapUsed) {
-        this.minHeapUsed = minHeapUsed;
+    public void setHeapUsedJoinValue(JoinLongFieldBo heapUsedJoinValue) {
+        this.heapUsedJoinValue = heapUsedJoinValue;
     }
 
-    public long getMaxHeapUsed() {
-        return maxHeapUsed;
+    public JoinLongFieldBo getNonHeapUsedJoinValue() {
+        return nonHeapUsedJoinValue;
     }
 
-    public void setMaxHeapUsed(long maxHeapUsed) {
-        this.maxHeapUsed = maxHeapUsed;
-    }
-
-    public String getMinHeapAgentId() {
-        return minHeapAgentId;
-    }
-
-    public void setMinHeapAgentId(String minHeapAgentId) {
-        this.minHeapAgentId = minHeapAgentId;
-    }
-
-    public String getMaxHeapAgentId() {
-        return maxHeapAgentId;
-    }
-
-    public void setMaxHeapAgentId(String maxHeapAgentId) {
-        this.maxHeapAgentId = maxHeapAgentId;
-    }
-
-    public long getMinNonHeapUsed() {
-        return minNonHeapUsed;
-    }
-
-    public void setMinNonHeapUsed(long minNonHeapUsed) {
-        this.minNonHeapUsed = minNonHeapUsed;
-    }
-
-    public long getMaxNonHeapUsed() {
-        return maxNonHeapUsed;
-    }
-
-    public void setMaxNonHeapUsed(long maxNonHeapUsed) {
-        this.maxNonHeapUsed = maxNonHeapUsed;
-    }
-
-    public String getMinNonHeapAgentId() {
-        return minNonHeapAgentId;
-    }
-
-    public void setMinNonHeapAgentId(String minNonHeapAgentId) {
-        this.minNonHeapAgentId = minNonHeapAgentId;
-    }
-
-    public String getMaxNonHeapAgentId() {
-        return maxNonHeapAgentId;
-    }
-
-    public void setMaxNonHeapAgentId(String maxNonHeapAgentId) {
-        this.maxNonHeapAgentId = maxNonHeapAgentId;
+    public void setNonHeapUsedJoinValue(JoinLongFieldBo nonHeapUsedJoinValue) {
+        this.nonHeapUsedJoinValue = nonHeapUsedJoinValue;
     }
 
     @Override
     public long getTimestamp() {
         return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     @Override
@@ -136,101 +80,40 @@ public class JoinMemoryBo implements JoinStatBo {
         this.id = id;
     }
 
-    public void setHeapUsed(long heapUsed) {
-        this.heapUsed = heapUsed;
-    }
-
-    public void setNonHeapUsed(long nonHeapUsed) {
-        this.nonHeapUsed = nonHeapUsed;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public long getHeapUsed() {
-        return heapUsed;
-    }
-
-    public long getNonHeapUsed() {
-        return nonHeapUsed;
-    }
-
     public static JoinMemoryBo joinMemoryBoList(List<JoinMemoryBo> joinMemoryBoList, Long timestamp) {
         final int boCount = joinMemoryBoList.size();
-
         if (boCount == 0) {
             return JoinMemoryBo.EMPTY_JOIN_MEMORY_BO;
         }
 
-        final JoinMemoryBo initJoinMemoryBo = joinMemoryBoList.get(0);
-        long sumHeapUsed = 0;
-        long minHeapUsed = initJoinMemoryBo.getMinHeapUsed();
-        long maxHeapUsed = initJoinMemoryBo.getMaxHeapUsed();
-        String minHeapAgentId = initJoinMemoryBo.getMinHeapAgentId();
-        String maxHeapAgentId = initJoinMemoryBo.getMaxHeapAgentId();
-        long sumNonHeapUsed = 0;
-        long minNonHeapUsed = initJoinMemoryBo.getMinNonHeapUsed();
-        long maxNonHeapUsed = initJoinMemoryBo.getMaxNonHeapUsed();
-        String minNonHeapAgentId = initJoinMemoryBo.getMinNonHeapAgentId();
-        String maxNonHeapAgentId = initJoinMemoryBo.getMaxNonHeapAgentId();
+        List<JoinLongFieldBo> heapUsedFieldBoList = joinMemoryBoList.stream().map(e -> e.getHeapUsedJoinValue()).collect(Collectors.toList());
+        final JoinLongFieldBo heapUsedJoinValue = JoinLongFieldBo.merge(heapUsedFieldBoList);
 
-        for (JoinMemoryBo joinMemoryBo : joinMemoryBoList) {
-            sumHeapUsed += joinMemoryBo.getHeapUsed();
-            if (joinMemoryBo.getMaxHeapUsed() > maxHeapUsed) {
-                maxHeapUsed = joinMemoryBo.getMaxHeapUsed();
-                maxHeapAgentId = joinMemoryBo.getMaxHeapAgentId();
-            }
-            if (joinMemoryBo.getMinHeapUsed() < minHeapUsed) {
-                minHeapUsed = joinMemoryBo.getMinHeapUsed();
-                minHeapAgentId = joinMemoryBo.getMinHeapAgentId();
-            }
+        List<JoinLongFieldBo> nonHeapUsedFieldBoList = joinMemoryBoList.stream().map(e -> e.getNonHeapUsedJoinValue()).collect(Collectors.toList());
+        final JoinLongFieldBo nonHeapUsedJoinValue = JoinLongFieldBo.merge(nonHeapUsedFieldBoList);
 
-            sumNonHeapUsed += joinMemoryBo.getNonHeapUsed();
-            if (joinMemoryBo.getMaxNonHeapUsed() > maxNonHeapUsed) {
-                maxNonHeapUsed = joinMemoryBo.getMaxNonHeapUsed();
-                maxNonHeapAgentId = joinMemoryBo.getMaxNonHeapAgentId();
-            }
-            if (joinMemoryBo.getMinNonHeapUsed() < minNonHeapUsed) {
-                minNonHeapUsed = joinMemoryBo.getMinNonHeapUsed();
-                minNonHeapAgentId = joinMemoryBo.getMinNonHeapAgentId();
-            }
-        }
+
+        final JoinMemoryBo firstJoinMemoryBo = joinMemoryBoList.get(0);
 
         final JoinMemoryBo newJoinMemoryBo = new JoinMemoryBo();
-        newJoinMemoryBo.setId(initJoinMemoryBo.getId());
+        newJoinMemoryBo.setId(firstJoinMemoryBo.getId());
         newJoinMemoryBo.setTimestamp(timestamp);
-        newJoinMemoryBo.setHeapUsed(sumHeapUsed / (long)boCount);
-        newJoinMemoryBo.setMinHeapUsed(minHeapUsed);
-        newJoinMemoryBo.setMinHeapAgentId(minHeapAgentId);
-        newJoinMemoryBo.setMaxHeapUsed(maxHeapUsed);
-        newJoinMemoryBo.setMaxHeapAgentId(maxHeapAgentId);
-        newJoinMemoryBo.setNonHeapUsed(sumNonHeapUsed / (long)boCount);
-        newJoinMemoryBo.setMinNonHeapUsed(minNonHeapUsed);
-        newJoinMemoryBo.setMinNonHeapAgentId(minNonHeapAgentId);
-        newJoinMemoryBo.setMaxNonHeapUsed(maxNonHeapUsed);
-        newJoinMemoryBo.setMaxNonHeapAgentId(maxNonHeapAgentId);
-
+        newJoinMemoryBo.setHeapUsedJoinValue(heapUsedJoinValue);
+        newJoinMemoryBo.setNonHeapUsedJoinValue(nonHeapUsedJoinValue);
         return newJoinMemoryBo;
     }
 
     @Override
     public String toString() {
-        return "JoinMemoryBo{" +
-            "id='" + id + '\'' +
-            ", heapUsed=" + heapUsed +
-            ", minHeapUsed=" + minHeapUsed +
-            ", maxHeapUsed=" + maxHeapUsed +
-            ", minHeapAgentId='" + minHeapAgentId + '\'' +
-            ", maxHeapAgentId='" + maxHeapAgentId + '\'' +
-            ", nonHeapUsed=" + nonHeapUsed +
-            ", minNonHeapUsed=" + minNonHeapUsed +
-            ", maxNonHeapUsed=" + maxNonHeapUsed +
-            ", minNonHeapAgentId='" + minNonHeapAgentId + '\'' +
-            ", maxNonHeapAgentId='" + maxNonHeapAgentId + '\'' +
-            ", timestamp=" + timestamp +"(" + new Date(timestamp)+ ")" +
-            '}';
+        final StringBuilder sb = new StringBuilder("JoinMemoryBo{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", timestamp=").append(timestamp);
+        sb.append(", heapUsedJoinValue=").append(heapUsedJoinValue);
+        sb.append(", nonHeapUsedJoinValue=").append(nonHeapUsedJoinValue);
+        sb.append('}');
+        return sb.toString();
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -240,34 +123,18 @@ public class JoinMemoryBo implements JoinStatBo {
         JoinMemoryBo that = (JoinMemoryBo) o;
 
         if (timestamp != that.timestamp) return false;
-        if (heapUsed != that.heapUsed) return false;
-        if (minHeapUsed != that.minHeapUsed) return false;
-        if (maxHeapUsed != that.maxHeapUsed) return false;
-        if (nonHeapUsed != that.nonHeapUsed) return false;
-        if (minNonHeapUsed != that.minNonHeapUsed) return false;
-        if (maxNonHeapUsed != that.maxNonHeapUsed) return false;
-        if (!id.equals(that.id)) return false;
-        if (!minHeapAgentId.equals(that.minHeapAgentId)) return false;
-        if (!maxHeapAgentId.equals(that.maxHeapAgentId)) return false;
-        if (!minNonHeapAgentId.equals(that.minNonHeapAgentId)) return false;
-        return maxNonHeapAgentId.equals(that.maxNonHeapAgentId);
-
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (heapUsedJoinValue != null ? !heapUsedJoinValue.equals(that.heapUsedJoinValue) : that.heapUsedJoinValue != null) return false;
+        return nonHeapUsedJoinValue != null ? nonHeapUsedJoinValue.equals(that.nonHeapUsedJoinValue) : that.nonHeapUsedJoinValue == null;
     }
 
     @Override
     public int hashCode() {
-        int result = id.hashCode();
+        int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
-        result = 31 * result + (int) (heapUsed ^ (heapUsed >>> 32));
-        result = 31 * result + (int) (minHeapUsed ^ (minHeapUsed >>> 32));
-        result = 31 * result + (int) (maxHeapUsed ^ (maxHeapUsed >>> 32));
-        result = 31 * result + minHeapAgentId.hashCode();
-        result = 31 * result + maxHeapAgentId.hashCode();
-        result = 31 * result + (int) (nonHeapUsed ^ (nonHeapUsed >>> 32));
-        result = 31 * result + (int) (minNonHeapUsed ^ (minNonHeapUsed >>> 32));
-        result = 31 * result + (int) (maxNonHeapUsed ^ (maxNonHeapUsed >>> 32));
-        result = 31 * result + minNonHeapAgentId.hashCode();
-        result = 31 * result + maxNonHeapAgentId.hashCode();
+        result = 31 * result + (heapUsedJoinValue != null ? heapUsedJoinValue.hashCode() : 0);
+        result = 31 * result + (nonHeapUsedJoinValue != null ? nonHeapUsedJoinValue.hashCode() : 0);
         return result;
     }
+
 }

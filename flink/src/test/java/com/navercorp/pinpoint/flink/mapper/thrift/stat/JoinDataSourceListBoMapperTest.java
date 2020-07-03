@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFDataSource;
 import com.navercorp.pinpoint.thrift.dto.flink.TFDataSourceList;
@@ -69,19 +70,11 @@ public class JoinDataSourceListBoMapperTest {
         JoinDataSourceBo joinDataSourceBo1 = joinDataSourceBoList.get(0);
         assertEquals(joinDataSourceBo1.getServiceTypeCode(), 1000);
         assertEquals(joinDataSourceBo1.getUrl(), "jdbc:mysql");
-        assertEquals(joinDataSourceBo1.getAvgActiveConnectionSize(), 13);
-        assertEquals(joinDataSourceBo1.getMinActiveConnectionSize(), 13);
-        assertEquals(joinDataSourceBo1.getMinActiveConnectionAgentId(), "testAgent");
-        assertEquals(joinDataSourceBo1.getMaxActiveConnectionSize(), 13);
-        assertEquals(joinDataSourceBo1.getMaxActiveConnectionAgentId(), "testAgent");
+        assertEquals(joinDataSourceBo1.getActiveConnectionSizeJoinValue(), new JoinIntFieldBo(13, 13, "testAgent", 13, "testAgent"));
         JoinDataSourceBo joinDataSourceBo2 = joinDataSourceBoList.get(1);
         assertEquals(joinDataSourceBo2.getServiceTypeCode(), 2000);
         assertEquals(joinDataSourceBo2.getUrl(), "jdbc:mssql");
-        assertEquals(joinDataSourceBo2.getAvgActiveConnectionSize(), 23);
-        assertEquals(joinDataSourceBo2.getMinActiveConnectionSize(), 23);
-        assertEquals(joinDataSourceBo2.getMinActiveConnectionAgentId(), "testAgent");
-        assertEquals(joinDataSourceBo2.getMaxActiveConnectionSize(), 23);
-        assertEquals(joinDataSourceBo2.getMaxActiveConnectionAgentId(), "testAgent");
+        assertEquals(joinDataSourceBo2.getActiveConnectionSizeJoinValue(), new JoinIntFieldBo(23, 23, "testAgent", 23, "testAgent"));
     }
 
 

@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinFileDescriptorBo;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -44,11 +46,7 @@ public class JoinFileDescriptorSamplerTest {
 
         AggreJoinFileDescriptorBo aggreJoinFileDescriptorBo = joinFileDescriptorSampler.sampleDataPoints(0, new Date().getTime(), joinFileDescriptorBoList,  new JoinFileDescriptorBo());
         assertEquals(aggreJoinFileDescriptorBo.getId(), "testApp");
-        assertEquals(aggreJoinFileDescriptorBo.getAvgOpenFDCount(), 33, 0);
-        assertEquals(aggreJoinFileDescriptorBo.getMinOpenFDCount(), 10, 0);
-        assertEquals(aggreJoinFileDescriptorBo.getMinOpenFDCountAgentId(), "agent2_2");
-        assertEquals(aggreJoinFileDescriptorBo.getMaxOpenFDCount(), 60, 0);
-        assertEquals(aggreJoinFileDescriptorBo.getMaxOpenFDCountAgentId(), "agent1_1");
+        assertEquals(aggreJoinFileDescriptorBo.getOpenFdCountJoinValue(), new JoinLongFieldBo(33L, 10L, "agent2_2", 60L, "agent1_1"));
     }
 
 }

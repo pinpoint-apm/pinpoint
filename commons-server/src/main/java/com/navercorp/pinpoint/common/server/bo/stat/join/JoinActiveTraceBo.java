@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
-import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author minwoo.jung
@@ -32,25 +32,21 @@ public class JoinActiveTraceBo implements JoinStatBo {
     private long timestamp = Long.MIN_VALUE;
     private int histogramSchemaType = DEFAULT_HISTOGRAM_SCHEMA_TYPE;
     private short version = DEFAULT_VERSION;
-    private int totalCount = UNCOLLECTED_VALUE;
-    private String maxTotalCountAgentId = UNKNOWN_AGENT;
-    private int maxTotalCount = UNCOLLECTED_VALUE;
-    private String minTotalCountAgentId = UNKNOWN_AGENT;
-    private int minTotalCount = UNCOLLECTED_VALUE;
+    private JoinIntFieldBo totalCountJoinValue = JoinIntFieldBo.UNCOLLECTED_FIELD_BO;
 
     public JoinActiveTraceBo() {
     }
 
     public JoinActiveTraceBo(String id, int histogramSchemaType, short version, int totalCount, int minTotalCount, String minTotalCountAgentId, int maxTotalCount, String maxTotalCountAgentId, long timestamp) {
+        this(id, histogramSchemaType, version, new JoinIntFieldBo(totalCount, minTotalCount, minTotalCountAgentId, maxTotalCount, maxTotalCountAgentId), timestamp);
+    }
+
+    public JoinActiveTraceBo(String id, int histogramSchemaType, short version, JoinIntFieldBo totalCountJoinValue, long timestamp) {
         this.id = id;
         this.timestamp = timestamp;
         this.histogramSchemaType = histogramSchemaType;
         this.version = version;
-        this.totalCount = totalCount;
-        this.maxTotalCountAgentId = maxTotalCountAgentId;
-        this.maxTotalCount = maxTotalCount;
-        this.minTotalCountAgentId = minTotalCountAgentId;
-        this.minTotalCount = minTotalCount;
+        this.totalCountJoinValue = totalCountJoinValue;
     }
 
     @Override
@@ -87,100 +83,44 @@ public class JoinActiveTraceBo implements JoinStatBo {
         this.version = version;
     }
 
-    public int getTotalCount() {
-        return totalCount;
+    public JoinIntFieldBo getTotalCountJoinValue() {
+        return totalCountJoinValue;
     }
 
-    public void setTotalCount(int totalCount) {
-        this.totalCount = totalCount;
-    }
-
-    public String getMaxTotalCountAgentId() {
-        return maxTotalCountAgentId;
-    }
-
-    public void setMaxTotalCountAgentId(String maxTotalCountAgentId) {
-        this.maxTotalCountAgentId = maxTotalCountAgentId;
-    }
-
-    public int getMaxTotalCount() {
-        return maxTotalCount;
-    }
-
-    public void setMaxTotalCount(int maxTotalCount) {
-        this.maxTotalCount = maxTotalCount;
-    }
-
-    public String getMinTotalCountAgentId() {
-        return minTotalCountAgentId;
-    }
-
-    public void setMinTotalCountAgentId(String minTotalCountAgentId) {
-        this.minTotalCountAgentId = minTotalCountAgentId;
-    }
-
-    public int getMinTotalCount() {
-        return minTotalCount;
-    }
-
-    public void setMinTotalCount(int minTotalCount) {
-        this.minTotalCount = minTotalCount;
+    public void setTotalCountJoinValue(JoinIntFieldBo totalCountJoinValue) {
+        this.totalCountJoinValue = totalCountJoinValue;
     }
 
     public static JoinActiveTraceBo joinActiveTraceBoList(List<JoinActiveTraceBo> joinActiveTraceBoList, Long timestamp) {
         final int boCount = joinActiveTraceBoList.size();
-
         if (boCount == 0) {
             return JoinActiveTraceBo.EMPTY_JOIN_ACTIVE_TRACE_BO;
         }
 
-        final JoinActiveTraceBo initJoinActiveTraceBo = joinActiveTraceBoList.get(0);
-        int sumTotalcount = 0;
-        String maxTotalCountAgentId = initJoinActiveTraceBo.getMaxTotalCountAgentId();
-        int maxTotalCount = initJoinActiveTraceBo.getMaxTotalCount();
-        String minTotalCountAgentId = initJoinActiveTraceBo.getMinTotalCountAgentId();
-        int minTotalCount = initJoinActiveTraceBo.getMinTotalCount();
+        List<JoinIntFieldBo> totalCountFieldBoList = joinActiveTraceBoList.stream().map(e -> e.getTotalCountJoinValue()).collect(Collectors.toList());
+        JoinIntFieldBo totalCountJoinValue = JoinIntFieldBo.merge(totalCountFieldBoList);
 
-        for (JoinActiveTraceBo joinActiveTraceBo : joinActiveTraceBoList) {
-            sumTotalcount += joinActiveTraceBo.getTotalCount();
-
-            if (joinActiveTraceBo.getMaxTotalCount() > maxTotalCount) {
-                maxTotalCount = joinActiveTraceBo.getMaxTotalCount();
-                maxTotalCountAgentId = joinActiveTraceBo.getMaxTotalCountAgentId();
-            }
-            if (joinActiveTraceBo.getMinTotalCount() < minTotalCount) {
-                minTotalCount = joinActiveTraceBo.getMinTotalCount();
-                minTotalCountAgentId = joinActiveTraceBo.getMinTotalCountAgentId();
-            }
-        }
+        final JoinActiveTraceBo firstJoinActiveTraceBo = joinActiveTraceBoList.get(0);
 
         final JoinActiveTraceBo newJoinActiveTraceBo = new JoinActiveTraceBo();
-        newJoinActiveTraceBo.setId(initJoinActiveTraceBo.getId());
+        newJoinActiveTraceBo.setId(firstJoinActiveTraceBo.getId());
         newJoinActiveTraceBo.setTimestamp(timestamp);
-        newJoinActiveTraceBo.setHistogramSchemaType(initJoinActiveTraceBo.getHistogramSchemaType());
-        newJoinActiveTraceBo.setVersion(initJoinActiveTraceBo.getVersion());
-        newJoinActiveTraceBo.setTotalCount(sumTotalcount / boCount);
-        newJoinActiveTraceBo.setMaxTotalCount(maxTotalCount);
-        newJoinActiveTraceBo.setMaxTotalCountAgentId(maxTotalCountAgentId);
-        newJoinActiveTraceBo.setMinTotalCount(minTotalCount);
-        newJoinActiveTraceBo.setMinTotalCountAgentId(minTotalCountAgentId);
-
+        newJoinActiveTraceBo.setHistogramSchemaType(firstJoinActiveTraceBo.getHistogramSchemaType());
+        newJoinActiveTraceBo.setVersion(firstJoinActiveTraceBo.getVersion());
+        newJoinActiveTraceBo.setTotalCountJoinValue(totalCountJoinValue);
         return newJoinActiveTraceBo;
     }
 
     @Override
     public String toString() {
-        return "JoinActiveTraceBo{" +
-            "id='" + id + '\'' +
-            ", timestamp=" + new Date(timestamp) +
-            ", histogramSchemaType=" + histogramSchemaType +
-            ", version=" + version +
-            ", totalCount=" + totalCount +
-            ", maxTotalCountAgentId='" + maxTotalCountAgentId + '\'' +
-            ", maxTotalCount=" + maxTotalCount +
-            ", minTotalCountAgentId='" + minTotalCountAgentId + '\'' +
-            ", minTotalCount=" + minTotalCount +
-            '}';
+        final StringBuilder sb = new StringBuilder("JoinActiveTraceBo{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", timestamp=").append(timestamp);
+        sb.append(", histogramSchemaType=").append(histogramSchemaType);
+        sb.append(", version=").append(version);
+        sb.append(", totalCountJoinValue=").append(totalCountJoinValue);
+        sb.append('}');
+        return sb.toString();
     }
 
     @Override
@@ -193,26 +133,17 @@ public class JoinActiveTraceBo implements JoinStatBo {
         if (timestamp != that.timestamp) return false;
         if (histogramSchemaType != that.histogramSchemaType) return false;
         if (version != that.version) return false;
-        if (totalCount != that.totalCount) return false;
-        if (maxTotalCount != that.maxTotalCount) return false;
-        if (minTotalCount != that.minTotalCount) return false;
-        if (!id.equals(that.id)) return false;
-        if (!maxTotalCountAgentId.equals(that.maxTotalCountAgentId)) return false;
-        return minTotalCountAgentId.equals(that.minTotalCountAgentId);
-
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        return totalCountJoinValue != null ? totalCountJoinValue.equals(that.totalCountJoinValue) : that.totalCountJoinValue == null;
     }
 
     @Override
     public int hashCode() {
-        int result = id.hashCode();
+        int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         result = 31 * result + histogramSchemaType;
         result = 31 * result + (int) version;
-        result = 31 * result + totalCount;
-        result = 31 * result + maxTotalCountAgentId.hashCode();
-        result = 31 * result + maxTotalCount;
-        result = 31 * result + minTotalCountAgentId.hashCode();
-        result = 31 * result + minTotalCount;
+        result = 31 * result + (totalCountJoinValue != null ? totalCountJoinValue.hashCode() : 0);
         return result;
     }
 }

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
@@ -92,38 +93,42 @@ public class ApplicationDirectBufferChartGroupTest {
     }
 
     private void testDirectCount(LongApplicationStatPoint directBufferPoint, AggreJoinDirectBufferBo aggreJoinDirectBufferBo) {
+        final JoinLongFieldBo directCountJoinValue = aggreJoinDirectBufferBo.getDirectCountJoinValue();
         assertEquals(directBufferPoint.getXVal(), aggreJoinDirectBufferBo.getTimestamp());
-        assertEquals(directBufferPoint.getYValForAvg(), aggreJoinDirectBufferBo.getAvgDirectCount(), 0);
-        assertEquals(directBufferPoint.getYValForMin(), aggreJoinDirectBufferBo.getMinDirectCount(), 0);
-        assertEquals(directBufferPoint.getYValForMax(), aggreJoinDirectBufferBo.getMaxDirectCount(), 0);
-        assertEquals(directBufferPoint.getAgentIdForMin(), aggreJoinDirectBufferBo.getMinDirectCountAgentId());
-        assertEquals(directBufferPoint.getAgentIdForMax(), aggreJoinDirectBufferBo.getMaxDirectCountAgentId());
+        assertEquals(directBufferPoint.getYValForAvg(), directCountJoinValue.getAvg(), 0);
+        assertEquals(directBufferPoint.getYValForMin(), directCountJoinValue.getMin(), 0);
+        assertEquals(directBufferPoint.getYValForMax(), directCountJoinValue.getMax(), 0);
+        assertEquals(directBufferPoint.getAgentIdForMin(), directCountJoinValue.getMinAgentId());
+        assertEquals(directBufferPoint.getAgentIdForMax(), directCountJoinValue.getMaxAgentId());
     }
 
     private void testDirectMemoryUsed(LongApplicationStatPoint directBufferPoint, AggreJoinDirectBufferBo aggreJoinDirectBufferBo) {
+        final JoinLongFieldBo directMemoryUsedJoinValue = aggreJoinDirectBufferBo.getDirectMemoryUsedJoinValue();
         assertEquals(directBufferPoint.getXVal(), aggreJoinDirectBufferBo.getTimestamp());
-        assertEquals(directBufferPoint.getYValForAvg(), aggreJoinDirectBufferBo.getAvgDirectMemoryUsed(), 0);
-        assertEquals(directBufferPoint.getYValForMin(), aggreJoinDirectBufferBo.getMinDirectMemoryUsed(), 0);
-        assertEquals(directBufferPoint.getYValForMax(), aggreJoinDirectBufferBo.getMaxDirectMemoryUsed(), 0);
-        assertEquals(directBufferPoint.getAgentIdForMin(), aggreJoinDirectBufferBo.getMinDirectMemoryUsedAgentId());
-        assertEquals(directBufferPoint.getAgentIdForMax(), aggreJoinDirectBufferBo.getMaxDirectMemoryUsedAgentId());
+        assertEquals(directBufferPoint.getYValForAvg(), directMemoryUsedJoinValue.getAvg(), 0);
+        assertEquals(directBufferPoint.getYValForMin(), directMemoryUsedJoinValue.getMin(), 0);
+        assertEquals(directBufferPoint.getYValForMax(), directMemoryUsedJoinValue.getMax(), 0);
+        assertEquals(directBufferPoint.getAgentIdForMin(), directMemoryUsedJoinValue.getMinAgentId());
+        assertEquals(directBufferPoint.getAgentIdForMax(), directMemoryUsedJoinValue.getMaxAgentId());
     }
 
     private void testMappedCount(LongApplicationStatPoint directBufferPoint, AggreJoinDirectBufferBo aggreJoinDirectBufferBo) {
+        final JoinLongFieldBo mappedCountJoinValue = aggreJoinDirectBufferBo.getMappedCountJoinValue();
         assertEquals(directBufferPoint.getXVal(), aggreJoinDirectBufferBo.getTimestamp());
-        assertEquals(directBufferPoint.getYValForAvg(), aggreJoinDirectBufferBo.getAvgMappedCount(), 0);
-        assertEquals(directBufferPoint.getYValForMin(), aggreJoinDirectBufferBo.getMinMappedCount(), 0);
-        assertEquals(directBufferPoint.getYValForMax(), aggreJoinDirectBufferBo.getMaxMappedCount(), 0);
-        assertEquals(directBufferPoint.getAgentIdForMin(), aggreJoinDirectBufferBo.getMinMappedCountAgentId());
-        assertEquals(directBufferPoint.getAgentIdForMax(), aggreJoinDirectBufferBo.getMaxMappedCountAgentId());
+        assertEquals(directBufferPoint.getYValForAvg(), mappedCountJoinValue.getAvg(), 0);
+        assertEquals(directBufferPoint.getYValForMin(), mappedCountJoinValue.getMin(), 0);
+        assertEquals(directBufferPoint.getYValForMax(), mappedCountJoinValue.getMax(), 0);
+        assertEquals(directBufferPoint.getAgentIdForMin(), mappedCountJoinValue.getMinAgentId());
+        assertEquals(directBufferPoint.getAgentIdForMax(), mappedCountJoinValue.getMaxAgentId());
     }
 
     private void testMappedMemoryUsed(LongApplicationStatPoint directBufferPoint, AggreJoinDirectBufferBo aggreJoinDirectBufferBo) {
+        final JoinLongFieldBo mappedMemoryUsedJoinValue = aggreJoinDirectBufferBo.getMappedMemoryUsedJoinValue();
         assertEquals(directBufferPoint.getXVal(), aggreJoinDirectBufferBo.getTimestamp());
-        assertEquals(directBufferPoint.getYValForAvg(), aggreJoinDirectBufferBo.getAvgMappedMemoryUsed(), 0);
-        assertEquals(directBufferPoint.getYValForMin(), aggreJoinDirectBufferBo.getMinMappedMemoryUsed(), 0);
-        assertEquals(directBufferPoint.getYValForMax(), aggreJoinDirectBufferBo.getMaxMappedMemoryUsed(), 0);
-        assertEquals(directBufferPoint.getAgentIdForMin(), aggreJoinDirectBufferBo.getMinMappedMemoryUsedAgentId());
-        assertEquals(directBufferPoint.getAgentIdForMax(), aggreJoinDirectBufferBo.getMaxMappedMemoryUsedAgentId());
+        assertEquals(directBufferPoint.getYValForAvg(), mappedMemoryUsedJoinValue.getAvg(), 0);
+        assertEquals(directBufferPoint.getYValForMin(), mappedMemoryUsedJoinValue.getMin(), 0);
+        assertEquals(directBufferPoint.getYValForMax(), mappedMemoryUsedJoinValue.getMax(), 0);
+        assertEquals(directBufferPoint.getAgentIdForMin(), mappedMemoryUsedJoinValue.getMinAgentId());
+        assertEquals(directBufferPoint.getAgentIdForMax(), mappedMemoryUsedJoinValue.getMaxAgentId());
     }
 }

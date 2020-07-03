@@ -16,12 +16,15 @@
 
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFTransaction;
+
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author minwoo.jung
@@ -52,11 +55,7 @@ public class JoinTransactionBoMapperTest {
         assertEquals(joinTransactionBo.getId(), id);
         assertEquals(joinTransactionBo.getTimestamp(), 1491274138454L);
         assertEquals(joinTransactionBo.getCollectInterval(), 5000);
-        assertEquals(joinTransactionBo.getTotalCount(), 250);
-        assertEquals(joinTransactionBo.getMaxTotalCount(), 250);
-        assertEquals(joinTransactionBo.getMaxTotalCountAgentId(), id);
-        assertEquals(joinTransactionBo.getMinTotalCount(), 250);
-        assertEquals(joinTransactionBo.getMinTotalCountAgentId(), id);
+        assertEquals(joinTransactionBo.getTotalCountJoinValue(), new JoinLongFieldBo(250L, 250L, id, 250L, id));
     }
 
     @Test

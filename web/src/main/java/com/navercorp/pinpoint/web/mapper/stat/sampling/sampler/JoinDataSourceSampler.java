@@ -49,8 +49,7 @@ public class JoinDataSourceSampler implements ApplicationStatSampler<JoinDataSou
     public List<JoinDataSourceBo> getJoinDataSourceBoList(long timestamp, List<JoinDataSourceBo> joinDataSourceBoList) {
         List<JoinDataSourceBo> aggreJoinDataSourceBoList = new ArrayList<>(joinDataSourceBoList.size());
         for (JoinDataSourceBo ds : joinDataSourceBoList) {
-            AggreJoinDataSourceBo dataSourceBo = new AggreJoinDataSourceBo(ds.getServiceTypeCode(), ds.getUrl(), ds.getAvgActiveConnectionSize(),
-                    ds.getMinActiveConnectionSize(), ds.getMinActiveConnectionAgentId(), ds.getMaxActiveConnectionSize(), ds.getMaxActiveConnectionAgentId(), timestamp);
+            AggreJoinDataSourceBo dataSourceBo = new AggreJoinDataSourceBo(ds.getServiceTypeCode(), ds.getUrl(), ds.getActiveConnectionSizeJoinValue(), timestamp);
             aggreJoinDataSourceBoList.add(dataSourceBo);
         }
         return aggreJoinDataSourceBoList;

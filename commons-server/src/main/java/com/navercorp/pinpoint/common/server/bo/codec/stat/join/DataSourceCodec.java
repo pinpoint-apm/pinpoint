@@ -22,15 +22,18 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeader
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinIntFieldEncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinIntFieldStrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StringEncodingStrategy;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedIntegerEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedShortEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -82,49 +85,33 @@ public class DataSourceCodec implements ApplicationStatCodec {
 
         UnsignedShortEncodingStrategy.Analyzer.Builder serviceTypeAnalyzerBuilder = new UnsignedShortEncodingStrategy.Analyzer.Builder();
         StringEncodingStrategy.Analyzer.Builder jdbcUrlAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
-        UnsignedIntegerEncodingStrategy.Analyzer.Builder avgActiveConnectionSizeAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
-        UnsignedIntegerEncodingStrategy.Analyzer.Builder minActiveConnectionSizeAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
-        StringEncodingStrategy.Analyzer.Builder minActiveConnectionAgentIdAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
-        UnsignedIntegerEncodingStrategy.Analyzer.Builder maxActiveConnectionSizeAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
-        StringEncodingStrategy.Analyzer.Builder maxActiveConnectionAgentIdAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
+        JoinIntFieldStrategyAnalyzer.Builder activeConnectionSizeAnalyzerBuilder = new JoinIntFieldStrategyAnalyzer.Builder();
 
         for (JoinDataSourceBo joinDataSourceBo : joinDataSourceBoList) {
             serviceTypeAnalyzerBuilder.addValue(joinDataSourceBo.getServiceTypeCode());
             jdbcUrlAnalyzerBuilder.addValue(joinDataSourceBo.getUrl());
-            avgActiveConnectionSizeAnalyzerBuilder.addValue(joinDataSourceBo.getAvgActiveConnectionSize());
-            minActiveConnectionSizeAnalyzerBuilder.addValue(joinDataSourceBo.getMinActiveConnectionSize());
-            minActiveConnectionAgentIdAnalyzerBuilder.addValue(joinDataSourceBo.getMinActiveConnectionAgentId());
-            maxActiveConnectionSizeAnalyzerBuilder.addValue(joinDataSourceBo.getMaxActiveConnectionSize());
-            maxActiveConnectionAgentIdAnalyzerBuilder.addValue(joinDataSourceBo.getMaxActiveConnectionAgentId());
+            activeConnectionSizeAnalyzerBuilder.addValue(joinDataSourceBo.getActiveConnectionSizeJoinValue());
         }
 
         StrategyAnalyzer<Short> serviceTypeAnalyzer = serviceTypeAnalyzerBuilder.build();
         StrategyAnalyzer<String> jdbcUrlAnalyzer = jdbcUrlAnalyzerBuilder.build();
-        StrategyAnalyzer<Integer> avgActiveConnectionSizeAnalyzer = avgActiveConnectionSizeAnalyzerBuilder.build();
-        StrategyAnalyzer<Integer> minActiveConnectionSizeAnalyzer = minActiveConnectionSizeAnalyzerBuilder.build();
-        StrategyAnalyzer<String> minActiveConnectionAgentIdAnalyzer = minActiveConnectionAgentIdAnalyzerBuilder.build();
-        StrategyAnalyzer<Integer> maxActiveConnectionSizeAnalyzer = maxActiveConnectionSizeAnalyzerBuilder.build();
-        StrategyAnalyzer<String> maxActiveConnectionAgentIdAnalyzer = maxActiveConnectionAgentIdAnalyzerBuilder.build();
+        JoinIntFieldStrategyAnalyzer activeConnectionSizeAnalyzer = activeConnectionSizeAnalyzerBuilder.build();
 
         AgentStatHeaderEncoder headerEncoder = new BitCountingHeaderEncoder();
         headerEncoder.addCode(serviceTypeAnalyzer.getBestStrategy().getCode());
         headerEncoder.addCode(jdbcUrlAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(avgActiveConnectionSizeAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(minActiveConnectionSizeAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(minActiveConnectionAgentIdAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(maxActiveConnectionSizeAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(maxActiveConnectionAgentIdAnalyzer.getBestStrategy().getCode());
+
+        final byte[] codes = activeConnectionSizeAnalyzer.getBestStrategy().getCodes();
+        for (byte code : codes) {
+            headerEncoder.addCode(code);
+        }
 
         final byte[] header = headerEncoder.getHeader();
         valueBuffer.putPrefixedBytes(header);
 
         this.codec.encodeValues(valueBuffer, serviceTypeAnalyzer.getBestStrategy(), serviceTypeAnalyzer.getValues());
         this.codec.encodeValues(valueBuffer, jdbcUrlAnalyzer.getBestStrategy(), jdbcUrlAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, avgActiveConnectionSizeAnalyzer.getBestStrategy(), avgActiveConnectionSizeAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, minActiveConnectionSizeAnalyzer.getBestStrategy(), minActiveConnectionSizeAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, minActiveConnectionAgentIdAnalyzer.getBestStrategy(), minActiveConnectionAgentIdAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, maxActiveConnectionSizeAnalyzer.getBestStrategy(), maxActiveConnectionSizeAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, maxActiveConnectionAgentIdAnalyzer.getBestStrategy(), maxActiveConnectionAgentIdAnalyzer.getValues());
+        this.codec.encodeValues(valueBuffer, activeConnectionSizeAnalyzer.getBestStrategy(), activeConnectionSizeAnalyzer.getValues());
     }
 
     private void encodeTimestamps(Buffer valueBuffer, List<JoinDataSourceListBo> joinDataSourceListBoList) {
@@ -141,7 +128,7 @@ public class DataSourceCodec implements ApplicationStatCodec {
         List<JoinDataSourceListBo> joinDataSourceListBoList = new ArrayList<JoinDataSourceListBo>();
 
         for (JoinStatBo joinStatBo : joinStatBoList) {
-            joinDataSourceListBoList.add((JoinDataSourceListBo)joinStatBo);
+            joinDataSourceListBoList.add((JoinDataSourceListBo) joinStatBo);
         }
 
         return joinDataSourceListBoList;
@@ -177,31 +164,18 @@ public class DataSourceCodec implements ApplicationStatCodec {
 
         EncodingStrategy<Short> serviceTypeEncodingStrategy = UnsignedShortEncodingStrategy.getFromCode(headerDecoder.getCode());
         EncodingStrategy<String> urlEncodingStrategy = StringEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Integer> avgActiveConnectionSizeEncodingStrategy = UnsignedIntegerEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Integer> minActiveConnectionSizeEncodingStrategy = UnsignedIntegerEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<String> minActiveConnectionAgentIdEncodingStrategy = StringEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Integer> maxActiveConnectionSizeEncodingStrategy = UnsignedIntegerEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<String> maxActiveConnectionAgentIdEncodingStrategy = StringEncodingStrategy.getFromCode(headerDecoder.getCode());
+        JoinIntFieldEncodingStrategy activeConnectionSizeEncodingStrategy = JoinIntFieldEncodingStrategy.getFromCode(headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode());
 
         List<Short> serviceTypeCodeList = this.codec.decodeValues(valueBuffer, serviceTypeEncodingStrategy, numValues);
         List<String> jdbcUrlList = this.codec.decodeValues(valueBuffer, urlEncodingStrategy, numValues);
-        List<Integer> avgActiveConnectionSizeCountList = this.codec.decodeValues(valueBuffer, avgActiveConnectionSizeEncodingStrategy, numValues);
-        List<Integer> minActiveConnectionSizeCountList = this.codec.decodeValues(valueBuffer, minActiveConnectionSizeEncodingStrategy, numValues);
-        List<String> minActiveConnectionAgentIdList = this.codec.decodeValues(valueBuffer, minActiveConnectionAgentIdEncodingStrategy, numValues);
-        List<Integer> maxActiveConnectionSizeList = this.codec.decodeValues(valueBuffer, maxActiveConnectionSizeEncodingStrategy, numValues);
-        List<String> maxActiveConnectionAgentIdList = this.codec.decodeValues(valueBuffer, maxActiveConnectionAgentIdEncodingStrategy, numValues);
+        final List<JoinIntFieldBo> activeConnectionSizeValueList = this.codec.decodeValues(valueBuffer, activeConnectionSizeEncodingStrategy, numValues);
 
         List<JoinDataSourceBo> joinDataSourceBoList = new ArrayList<JoinDataSourceBo>(numValues);
-
         for (int i = 0; i < numValues; ++i) {
             JoinDataSourceBo joinDataSourceBo = new JoinDataSourceBo();
             joinDataSourceBo.setServiceTypeCode(serviceTypeCodeList.get(i));
             joinDataSourceBo.setUrl(jdbcUrlList.get(i));
-            joinDataSourceBo.setAvgActiveConnectionSize(avgActiveConnectionSizeCountList.get(i));
-            joinDataSourceBo.setMinActiveConnectionSize(minActiveConnectionSizeCountList.get(i));
-            joinDataSourceBo.setMinActiveConnectionAgentId(minActiveConnectionAgentIdList.get(i));
-            joinDataSourceBo.setMaxActiveConnectionSize(maxActiveConnectionSizeList.get(i));
-            joinDataSourceBo.setMaxActiveConnectionAgentId(maxActiveConnectionAgentIdList.get(i));
+            joinDataSourceBo.setActiveConnectionSizeJoinValue(activeConnectionSizeValueList.get(i));
             joinDataSourceBoList.add(joinDataSourceBo);
         }
 

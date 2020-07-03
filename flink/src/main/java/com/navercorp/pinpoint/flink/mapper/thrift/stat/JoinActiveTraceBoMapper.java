@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTrace;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTraceHistogram;
@@ -48,11 +49,7 @@ public class JoinActiveTraceBoMapper {
         joinActiveTraceBo.setTimestamp(tFAgentStat.getTimestamp());
         joinActiveTraceBo.setHistogramSchemaType(histogram.getHistogramSchemaType());
         joinActiveTraceBo.setVersion(histogram.getVersion());
-        joinActiveTraceBo.setTotalCount(totalCount);
-        joinActiveTraceBo.setMaxTotalCount(totalCount);
-        joinActiveTraceBo.setMaxTotalCountAgentId(agentId);
-        joinActiveTraceBo.setMinTotalCount(totalCount);
-        joinActiveTraceBo.setMinTotalCountAgentId(agentId);
+        joinActiveTraceBo.setTotalCountJoinValue(new JoinIntFieldBo(totalCount, totalCount, agentId, totalCount, agentId));
         return joinActiveTraceBo;
     }
 

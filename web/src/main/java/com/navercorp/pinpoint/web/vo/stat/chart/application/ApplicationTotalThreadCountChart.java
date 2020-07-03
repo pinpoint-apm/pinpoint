@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
@@ -71,7 +72,9 @@ public class ApplicationTotalThreadCountChart implements StatChart {
         }
 
         private LongApplicationStatPoint newTotalThreadCount(AggreJoinTotalThreadCountBo totalThreadCountBo) {
-            return new LongApplicationStatPoint(totalThreadCountBo.getTimestamp(), totalThreadCountBo.getMinTotalThreadCount(), totalThreadCountBo.getMinTotalThreadCountAgentId(), totalThreadCountBo.getMaxTotalThreadCount(), totalThreadCountBo.getMaxTotalThreadCountAgentId(), totalThreadCountBo.getAvgTotalThreadCount());
+            final JoinLongFieldBo totalThreadCountJoinValue = totalThreadCountBo.getTotalThreadCountJoinValue();
+            return new LongApplicationStatPoint(totalThreadCountBo.getTimestamp(), totalThreadCountJoinValue.getMin(), totalThreadCountJoinValue.getMinAgentId(),
+                    totalThreadCountJoinValue.getMax(), totalThreadCountJoinValue.getMaxAgentId(), totalThreadCountJoinValue.getAvg());
         }
 
         @Override

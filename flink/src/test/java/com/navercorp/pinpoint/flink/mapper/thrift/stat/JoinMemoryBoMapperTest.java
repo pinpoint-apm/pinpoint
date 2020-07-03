@@ -16,12 +16,14 @@
 
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
+
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -46,16 +48,8 @@ public class JoinMemoryBoMapperTest {
         JoinMemoryBo joinMemoryBo = joinMemoryBoMapper.map(tFAgentStat);
         assertEquals(joinMemoryBo.getTimestamp(), 1491274138454L);
         assertEquals(joinMemoryBo.getId(), TEST_AGENT);
-        assertEquals(joinMemoryBo.getHeapUsed(), 1000);
-        assertEquals(joinMemoryBo.getMinHeapUsed(), 1000);
-        assertEquals(joinMemoryBo.getMaxHeapUsed(), 1000);
-        assertEquals(joinMemoryBo.getMinHeapAgentId(), TEST_AGENT);
-        assertEquals(joinMemoryBo.getMaxHeapAgentId(), TEST_AGENT);
-        assertEquals(joinMemoryBo.getNonHeapUsed(), 300);
-        assertEquals(joinMemoryBo.getMaxNonHeapUsed(), 300);
-        assertEquals(joinMemoryBo.getMinNonHeapUsed(), 300);
-        assertEquals(joinMemoryBo.getMinNonHeapAgentId(), TEST_AGENT);
-        assertEquals(joinMemoryBo.getMaxNonHeapAgentId(), TEST_AGENT);
+        assertEquals(joinMemoryBo.getHeapUsedJoinValue(), new JoinLongFieldBo(1000L, 1000L, TEST_AGENT, 1000L, TEST_AGENT));
+        assertEquals(joinMemoryBo.getNonHeapUsedJoinValue(), new JoinLongFieldBo(300L, 300L, TEST_AGENT, 300L, TEST_AGENT));
     }
 
     @Test

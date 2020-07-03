@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 import com.navercorp.pinpoint.flink.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
@@ -35,16 +36,13 @@ public class JoinMemoryBoMapper implements ThriftBoMapper<JoinMemoryBo, TFAgentS
 
         TFJvmGc memory = tFAgentStat.getGc();
         joinMemoryBo.setTimestamp(tFAgentStat.getTimestamp());
-        joinMemoryBo.setHeapUsed(memory.getJvmMemoryHeapUsed());
-        joinMemoryBo.setMinHeapUsed(memory.getJvmMemoryHeapUsed());
-        joinMemoryBo.setMaxHeapUsed(memory.getJvmMemoryHeapUsed());
-        joinMemoryBo.setMinHeapAgentId(tFAgentStat.getAgentId());
-        joinMemoryBo.setMaxHeapAgentId(tFAgentStat.getAgentId());
-        joinMemoryBo.setNonHeapUsed(memory.getJvmMemoryNonHeapUsed());
-        joinMemoryBo.setMinNonHeapUsed(memory.getJvmMemoryNonHeapUsed());
-        joinMemoryBo.setMaxNonHeapUsed(memory.getJvmMemoryNonHeapUsed());
-        joinMemoryBo.setMinNonHeapAgentId(tFAgentStat.getAgentId());
-        joinMemoryBo.setMaxNonHeapAgentId(tFAgentStat.getAgentId());
+
+        final String agentId = tFAgentStat.getAgentId();
+        final long jvmMemoryHeapUsed = memory.getJvmMemoryHeapUsed();
+        joinMemoryBo.setHeapUsedJoinValue(new JoinLongFieldBo(jvmMemoryHeapUsed, jvmMemoryHeapUsed, agentId, jvmMemoryHeapUsed, agentId));
+
+        final long jvmMemoryNonHeapUsed = memory.getJvmMemoryNonHeapUsed();
+        joinMemoryBo.setNonHeapUsedJoinValue(new JoinLongFieldBo(jvmMemoryNonHeapUsed, jvmMemoryNonHeapUsed, agentId,  jvmMemoryNonHeapUsed, agentId));
 
         return joinMemoryBo;
     }

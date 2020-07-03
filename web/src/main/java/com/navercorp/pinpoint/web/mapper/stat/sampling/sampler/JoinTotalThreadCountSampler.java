@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTotalThreadCountBo;
 import org.apache.commons.collections.CollectionUtils;
@@ -33,13 +34,9 @@ public class JoinTotalThreadCountSampler implements ApplicationStatSampler<JoinT
         JoinTotalThreadCountBo joinTotalThreadCountBo = JoinTotalThreadCountBo.joinTotalThreadCountBoList(dataPoints, timestamp);
 
         String id = joinTotalThreadCountBo.getId();
-        long avgTotalThreadCount = joinTotalThreadCountBo.getAvgTotalThreadCount();
-        long minTotalThreadCount = joinTotalThreadCountBo.getMinTotalThreadCount();
-        String minTotalTreadCountAgentId = joinTotalThreadCountBo.getMinTotalThreadCountAgentId();
-        long maxTotalThreadCount = joinTotalThreadCountBo.getMaxTotalThreadCount();
-        String maxTotalThreadCountAgentId = joinTotalThreadCountBo.getMaxTotalThreadCountAgentId();
+        final JoinLongFieldBo totalThreadCountJoinValue = joinTotalThreadCountBo.getTotalThreadCountJoinValue();
 
-        AggreJoinTotalThreadCountBo aggreJoinTotalThraedCountBo = new AggreJoinTotalThreadCountBo(id, timestamp, avgTotalThreadCount, minTotalThreadCount, minTotalTreadCountAgentId, maxTotalThreadCount, maxTotalThreadCountAgentId);
+        AggreJoinTotalThreadCountBo aggreJoinTotalThraedCountBo = new AggreJoinTotalThreadCountBo(id, timestamp, totalThreadCountJoinValue);
         return aggreJoinTotalThraedCountBo;
     }
 }

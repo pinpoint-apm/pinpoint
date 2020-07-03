@@ -42,11 +42,7 @@ public class JoinTotalThreadCountBoTest {
         JoinTotalThreadCountBo joinTotalThreadCountBo = JoinTotalThreadCountBo.joinTotalThreadCountBoList(joinTotalThreadCountBoList, 1496988668231L);
         assertEquals("agent1", joinTotalThreadCountBo.getId());
         assertEquals(1496988668231L, joinTotalThreadCountBo.getTimestamp());
-        assertEquals(26, joinTotalThreadCountBo.getAvgTotalThreadCount());
-        assertEquals(0, joinTotalThreadCountBo.getMinTotalThreadCount());
-        assertEquals("agent4", joinTotalThreadCountBo.getMinTotalThreadCountAgentId());
-        assertEquals(236, joinTotalThreadCountBo.getMaxTotalThreadCount());
-        assertEquals("agent3", joinTotalThreadCountBo.getMaxTotalThreadCountAgentId());
+        assertEquals(new JoinLongFieldBo(26L, 0L, "agent4", 236L, "agent3"), joinTotalThreadCountBo.getTotalThreadCountJoinValue());
     }
     @Test
     public void joinTotalThreadCountBoList2Test() {

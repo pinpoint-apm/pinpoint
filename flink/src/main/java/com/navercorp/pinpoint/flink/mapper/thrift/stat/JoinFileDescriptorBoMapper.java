@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.flink.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFFileDescriptor;
@@ -39,11 +40,8 @@ public class JoinFileDescriptorBoMapper implements ThriftBoMapper<JoinFileDescri
         joinFileDescriptorBo.setTimestamp(tFAgentStat.getTimestamp());
 
         TFFileDescriptor tFFileDescriptor = tFAgentStat.getFileDescriptor();
-        joinFileDescriptorBo.setAvgOpenFDCount(tFFileDescriptor.getOpenFileDescriptorCount());
-        joinFileDescriptorBo.setMinOpenFDCountAgentId(agentId);
-        joinFileDescriptorBo.setMinOpenFDCount(tFFileDescriptor.getOpenFileDescriptorCount());
-        joinFileDescriptorBo.setMaxOpenFDCountAgentId(agentId);
-        joinFileDescriptorBo.setMaxOpenFDCount(tFFileDescriptor.getOpenFileDescriptorCount());
+        final long openFileDescriptorCount = tFFileDescriptor.getOpenFileDescriptorCount();
+        joinFileDescriptorBo.setOpenFdCountJoinValue(new JoinLongFieldBo(openFileDescriptorCount, openFileDescriptorCount, agentId, openFileDescriptorCount, agentId));
 
         return joinFileDescriptorBo;
     }

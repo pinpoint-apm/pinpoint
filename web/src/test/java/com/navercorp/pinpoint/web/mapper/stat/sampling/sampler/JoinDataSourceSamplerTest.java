@@ -18,13 +18,18 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceListBo;
+
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -49,47 +54,27 @@ public class JoinDataSourceSamplerTest {
         AggreJoinDataSourceBo aggreJoinDataSourceBo1 = joinDataSourceBoList.get(0);
         assertEquals(aggreJoinDataSourceBo1.getServiceTypeCode(), 1000);
         assertEquals(aggreJoinDataSourceBo1.getUrl(), "jdbc:mysql");
-        assertEquals(aggreJoinDataSourceBo1.getAvgActiveConnectionSize(), 60);
-        assertEquals(aggreJoinDataSourceBo1.getMinActiveConnectionSize(), 35);
-        assertEquals(aggreJoinDataSourceBo1.getMinActiveConnectionAgentId(), "agent_id_1_10");
-        assertEquals(aggreJoinDataSourceBo1.getMaxActiveConnectionSize(), 110);
-        assertEquals(aggreJoinDataSourceBo1.getMaxActiveConnectionAgentId(), "agent_id_6_50");
+        assertEquals(aggreJoinDataSourceBo1.getActiveConnectionSizeJoinValue(), new JoinIntFieldBo(60, 35, "agent_id_1_10", 110, "agent_id_6_50"));
 
         AggreJoinDataSourceBo aggreJoinDataSourceBo2 = joinDataSourceBoList.get(1);
         assertEquals(aggreJoinDataSourceBo2.getServiceTypeCode(), 2000);
         assertEquals(aggreJoinDataSourceBo2.getUrl(), "jdbc:mssql");
-        assertEquals(aggreJoinDataSourceBo2.getAvgActiveConnectionSize(), 50);
-        assertEquals(aggreJoinDataSourceBo2.getMinActiveConnectionSize(), 15);
-        assertEquals(aggreJoinDataSourceBo2.getMinActiveConnectionAgentId(), "agent_id_2_10");
-        assertEquals(aggreJoinDataSourceBo2.getMaxActiveConnectionSize(), 80);
-        assertEquals(aggreJoinDataSourceBo2.getMaxActiveConnectionAgentId(), "agent_id_7_50");
+        assertEquals(aggreJoinDataSourceBo2.getActiveConnectionSizeJoinValue(), new JoinIntFieldBo(50, 15, "agent_id_2_10", 80, "agent_id_7_50"));
 
         AggreJoinDataSourceBo aggreJoinDataSourceBo3 = joinDataSourceBoList.get(2);
         assertEquals(aggreJoinDataSourceBo3.getServiceTypeCode(), 3000);
         assertEquals(aggreJoinDataSourceBo3.getUrl(), "jdbc:postgre");
-        assertEquals(aggreJoinDataSourceBo3.getAvgActiveConnectionSize(), 40);
-        assertEquals(aggreJoinDataSourceBo3.getMinActiveConnectionSize(), 35);
-        assertEquals(aggreJoinDataSourceBo3.getMinActiveConnectionAgentId(), "agent_id_3_10");
-        assertEquals(aggreJoinDataSourceBo3.getMaxActiveConnectionSize(), 100);
-        assertEquals(aggreJoinDataSourceBo3.getMaxActiveConnectionAgentId(), "agent_id_8_50");
+        assertEquals(aggreJoinDataSourceBo3.getActiveConnectionSizeJoinValue(), new JoinIntFieldBo(40, 35, "agent_id_3_10", 100, "agent_id_8_50"));
 
         AggreJoinDataSourceBo aggreJoinDataSourceBo4 = joinDataSourceBoList.get(3);
         assertEquals(aggreJoinDataSourceBo4.getServiceTypeCode(), 4000);
         assertEquals(aggreJoinDataSourceBo4.getUrl(), "jdbc:oracle");
-        assertEquals(aggreJoinDataSourceBo4.getAvgActiveConnectionSize(), 70);
-        assertEquals(aggreJoinDataSourceBo4.getMinActiveConnectionSize(), 20);
-        assertEquals(aggreJoinDataSourceBo4.getMinActiveConnectionAgentId(), "agent_id_4_10");
-        assertEquals(aggreJoinDataSourceBo4.getMaxActiveConnectionSize(), 120);
-        assertEquals(aggreJoinDataSourceBo4.getMaxActiveConnectionAgentId(), "agent_id_9_50");
+        assertEquals(aggreJoinDataSourceBo4.getActiveConnectionSizeJoinValue(), new JoinIntFieldBo(70, 20, "agent_id_4_10", 120, "agent_id_9_50"));
 
         AggreJoinDataSourceBo aggreJoinDataSourceBo5 = joinDataSourceBoList.get(4);
         assertEquals(aggreJoinDataSourceBo5.getServiceTypeCode(), 5000);
         assertEquals(aggreJoinDataSourceBo5.getUrl(), "jdbc:cubrid");
-        assertEquals(aggreJoinDataSourceBo5.getAvgActiveConnectionSize(), 80);
-        assertEquals(aggreJoinDataSourceBo5.getMinActiveConnectionSize(), 35);
-        assertEquals(aggreJoinDataSourceBo5.getMinActiveConnectionAgentId(), "agent_id_5_10");
-        assertEquals(aggreJoinDataSourceBo5.getMaxActiveConnectionSize(), 130);
-        assertEquals(aggreJoinDataSourceBo5.getMaxActiveConnectionAgentId(), "agent_id_10_50");
+        assertEquals(aggreJoinDataSourceBo5.getActiveConnectionSizeJoinValue(), new JoinIntFieldBo(80, 35, "agent_id_5_10", 130, "agent_id_10_50"));
     }
 
     private class ComparatorImpl implements Comparator<JoinDataSourceBo> {

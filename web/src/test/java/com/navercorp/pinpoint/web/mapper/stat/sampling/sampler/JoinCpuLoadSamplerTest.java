@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinCpuLoadBo;
 import org.junit.Test;
 
@@ -44,16 +45,8 @@ public class JoinCpuLoadSamplerTest {
 
         AggreJoinCpuLoadBo aggreJoinCpuLoadBo = joinCpuLoadSampler.sampleDataPoints(0, new Date().getTime(), joinCpuLoadBoList,  new JoinCpuLoadBo());
         assertEquals(aggreJoinCpuLoadBo.getId(), "testApp");
-        assertEquals(aggreJoinCpuLoadBo.getJvmCpuLoad(), 33.0, 0);
-        assertEquals(aggreJoinCpuLoadBo.getMinJvmCpuLoad(), 10.0, 0);
-        assertEquals(aggreJoinCpuLoadBo.getMinJvmCpuAgentId(), "agent2_2");
-        assertEquals(aggreJoinCpuLoadBo.getMaxJvmCpuLoad(), 60.0, 0);
-        assertEquals(aggreJoinCpuLoadBo.getMaxJvmCpuAgentId(), "agent1_1");
-        assertEquals(aggreJoinCpuLoadBo.getSystemCpuLoad(), 30.0, 0);
-        assertEquals(aggreJoinCpuLoadBo.getMinSystemCpuLoad(), 24, 0);
-        assertEquals(aggreJoinCpuLoadBo.getMinSysCpuAgentId(), "agent2_4");
-        assertEquals(aggreJoinCpuLoadBo.getMaxSystemCpuLoad(), 86.0, 0);
-        assertEquals(aggreJoinCpuLoadBo.getMaxSysCpuAgentId(), "agent5_3");
+        assertEquals(aggreJoinCpuLoadBo.getJvmCpuLoadJoinValue(), new JoinDoubleFieldBo(33.0, 10.0, "agent2_2", 60.0, "agent1_1"));
+        assertEquals(aggreJoinCpuLoadBo.getSystemCpuLoadJoinValue(), new JoinDoubleFieldBo(30.0, (double) 24, "agent2_4", 86.0, "agent5_3"));
     }
 
 }

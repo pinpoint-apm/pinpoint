@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
@@ -68,11 +69,12 @@ public class ApplicationResponseTimeChartGroupTest {
     }
 
     private void testResponseTimeCount(DoubleApplicationStatPoint responseTimePoint, AggreJoinResponseTimeBo aggreJoinResponseTimeBo) {
-        assertEquals(responseTimePoint.getYValForAvg(), aggreJoinResponseTimeBo.getAvg(), 0);
-        assertEquals(responseTimePoint.getYValForMin(), aggreJoinResponseTimeBo.getMinAvg(), 0);
-        assertEquals(responseTimePoint.getYValForMax(), aggreJoinResponseTimeBo.getMaxAvg(), 0);
-        assertEquals(responseTimePoint.getAgentIdForMax(), aggreJoinResponseTimeBo.getMaxAvgAgentId());
-        assertEquals(responseTimePoint.getAgentIdForMin(), aggreJoinResponseTimeBo.getMinAvgAgentId());
+        final JoinLongFieldBo responseTimeJoinValue = aggreJoinResponseTimeBo.getResponseTimeJoinValue();
+        assertEquals(responseTimePoint.getYValForAvg(), responseTimeJoinValue.getAvg(), 0);
+        assertEquals(responseTimePoint.getYValForMin(), responseTimeJoinValue.getMin(), 0);
+        assertEquals(responseTimePoint.getYValForMax(), responseTimeJoinValue.getMax(), 0);
+        assertEquals(responseTimePoint.getAgentIdForMax(), responseTimeJoinValue.getMaxAgentId());
+        assertEquals(responseTimePoint.getAgentIdForMin(), responseTimeJoinValue.getMinAgentId());
     }
 
 

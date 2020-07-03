@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.web.vo.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 
 /**
@@ -27,6 +28,10 @@ public class AggreJoinTransactionBo extends JoinTransactionBo implements Aggrega
 
     public AggreJoinTransactionBo(String id, long collectInterval, long totalCount, long minTotalCount, String minTotalCountAgentId, long maxTotalCount, String maxTotalCountAgentId, long timestamp) {
         super(id, collectInterval, totalCount, minTotalCount, minTotalCountAgentId, maxTotalCount, maxTotalCountAgentId, timestamp);
+    }
+
+    public AggreJoinTransactionBo(String id, long collectInterval, JoinLongFieldBo totalCountJoinValue, long timestamp) {
+        super(id, collectInterval, totalCountJoinValue, timestamp);
     }
 
     public static AggreJoinTransactionBo createUncollectedObject(long timestamp) {

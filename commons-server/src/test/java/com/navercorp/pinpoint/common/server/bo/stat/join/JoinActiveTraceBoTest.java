@@ -21,7 +21,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -47,11 +47,7 @@ public class JoinActiveTraceBoTest {
         assertEquals(1496988667231L, joinActiveTraceBo.getTimestamp());
         assertEquals(1, joinActiveTraceBo.getHistogramSchemaType());
         assertEquals(2, joinActiveTraceBo.getVersion());
-        assertEquals(30, joinActiveTraceBo.getTotalCount());
-        assertEquals(9, joinActiveTraceBo.getMinTotalCount());
-        assertEquals("agent2", joinActiveTraceBo.getMinTotalCountAgentId());
-        assertEquals(99, joinActiveTraceBo.getMaxTotalCount());
-        assertEquals("agent5", joinActiveTraceBo.getMaxTotalCountAgentId());
+        assertEquals(new JoinIntFieldBo(30, 9, "agent2", 99, "agent5"), joinActiveTraceBo.getTotalCountJoinValue());
     }
 
     @Test

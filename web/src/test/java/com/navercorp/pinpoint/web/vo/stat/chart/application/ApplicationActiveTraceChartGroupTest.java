@@ -16,19 +16,22 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinActiveTraceBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author minwoo.jung
@@ -42,11 +45,11 @@ public class ApplicationActiveTraceChartGroupTest {
         Range range = Range.newRange(time - 240000, time);
         TimeWindow timeWindow = new TimeWindow(range);
         List<AggreJoinActiveTraceBo> aggreJoinActiveTraceBoList = new ArrayList<>(5);
-        AggreJoinActiveTraceBo aggreJoinActiveTraceBo1 = new AggreJoinActiveTraceBo(id, 1, (short)2, 150, 10, "app_1_1", 230, "app_1_2", time);
-        AggreJoinActiveTraceBo aggreJoinActiveTraceBo2 = new AggreJoinActiveTraceBo(id, 1, (short)2, 110, 22, "app_2_1", 330, "app_2_2", time - 60000);
-        AggreJoinActiveTraceBo aggreJoinActiveTraceBo3 = new AggreJoinActiveTraceBo(id, 1, (short)2, 120, 24, "app_3_1", 540, "app_3_2", time - 120000);
-        AggreJoinActiveTraceBo aggreJoinActiveTraceBo4 = new AggreJoinActiveTraceBo(id, 1, (short)2, 130, 25, "app_4_1", 560, "app_4_2", time - 180000);
-        AggreJoinActiveTraceBo aggreJoinActiveTraceBo5 = new AggreJoinActiveTraceBo(id, 1, (short)2, 140, 12, "app_5_1", 260, "app_5_2", time - 240000);
+        AggreJoinActiveTraceBo aggreJoinActiveTraceBo1 = new AggreJoinActiveTraceBo(id, 1, (short) 2, 150, 10, "app_1_1", 230, "app_1_2", time);
+        AggreJoinActiveTraceBo aggreJoinActiveTraceBo2 = new AggreJoinActiveTraceBo(id, 1, (short) 2, 110, 22, "app_2_1", 330, "app_2_2", time - 60000);
+        AggreJoinActiveTraceBo aggreJoinActiveTraceBo3 = new AggreJoinActiveTraceBo(id, 1, (short) 2, 120, 24, "app_3_1", 540, "app_3_2", time - 120000);
+        AggreJoinActiveTraceBo aggreJoinActiveTraceBo4 = new AggreJoinActiveTraceBo(id, 1, (short) 2, 130, 25, "app_4_1", 560, "app_4_2", time - 180000);
+        AggreJoinActiveTraceBo aggreJoinActiveTraceBo5 = new AggreJoinActiveTraceBo(id, 1, (short) 2, 140, 12, "app_5_1", 260, "app_5_2", time - 240000);
         aggreJoinActiveTraceBoList.add(aggreJoinActiveTraceBo1);
         aggreJoinActiveTraceBoList.add(aggreJoinActiveTraceBo2);
         aggreJoinActiveTraceBoList.add(aggreJoinActiveTraceBo3);
@@ -66,11 +69,12 @@ public class ApplicationActiveTraceChartGroupTest {
     }
 
     private void testActiveTraceCount(IntApplicationStatPoint activeTracePoint, AggreJoinActiveTraceBo aggreJoinActiveTraceBo) {
-        assertTrue(activeTracePoint.getYValForAvg() == aggreJoinActiveTraceBo.getTotalCount());
-        assertTrue(activeTracePoint.getYValForMin() == aggreJoinActiveTraceBo.getMinTotalCount());
-        assertTrue(activeTracePoint.getYValForMax() == aggreJoinActiveTraceBo.getMaxTotalCount());
-        assertEquals(activeTracePoint.getAgentIdForMin(), aggreJoinActiveTraceBo.getMinTotalCountAgentId());
-        assertEquals(activeTracePoint.getAgentIdForMax(), aggreJoinActiveTraceBo.getMaxTotalCountAgentId());
+        final JoinIntFieldBo totalCountJoinValue = aggreJoinActiveTraceBo.getTotalCountJoinValue();
+        assertTrue(activeTracePoint.getYValForAvg() == totalCountJoinValue.getAvg());
+        assertTrue(activeTracePoint.getYValForMin() == totalCountJoinValue.getMin());
+        assertTrue(activeTracePoint.getYValForMax() == totalCountJoinValue.getMax());
+        assertEquals(activeTracePoint.getAgentIdForMin(), totalCountJoinValue.getMinAgentId());
+        assertEquals(activeTracePoint.getAgentIdForMax(), totalCountJoinValue.getMaxAgentId());
     }
 
 }

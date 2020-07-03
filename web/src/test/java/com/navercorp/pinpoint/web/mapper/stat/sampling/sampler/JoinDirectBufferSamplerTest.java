@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDirectBufferBo;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -44,30 +46,13 @@ public class JoinDirectBufferSamplerTest {
 
         AggreJoinDirectBufferBo aggreJoinDirectBufferBo = joinDirectBufferSampler.sampleDataPoints(0, new Date().getTime(), joinDirectBufferBoList,  new JoinDirectBufferBo());
         assertEquals(aggreJoinDirectBufferBo.getId(), "testApp");
-        assertEquals(aggreJoinDirectBufferBo.getAvgDirectCount(), 33, 0);
-        assertEquals(aggreJoinDirectBufferBo.getMinDirectCount(), 10, 0);
-        assertEquals(aggreJoinDirectBufferBo.getMinDirectCountAgentId(), "agent2_2");
-        assertEquals(aggreJoinDirectBufferBo.getMaxDirectCount(), 60, 0);
-        assertEquals(aggreJoinDirectBufferBo.getMaxDirectCountAgentId(), "agent1_1");
-
-        assertEquals(aggreJoinDirectBufferBo.getAvgDirectMemoryUsed(), 30, 0);
-        assertEquals(aggreJoinDirectBufferBo.getMinDirectMemoryUsed(), 24, 0);
-        assertEquals(aggreJoinDirectBufferBo.getMinDirectMemoryUsedAgentId(), "agent2_4");
-        assertEquals(aggreJoinDirectBufferBo.getMaxDirectMemoryUsed(), 86, 0);
-        assertEquals(aggreJoinDirectBufferBo.getMaxDirectMemoryUsedAgentId(), "agent5_3");
+        assertEquals(aggreJoinDirectBufferBo.getDirectCountJoinValue(), new JoinLongFieldBo(33L, 10L, "agent2_2", 60L, "agent1_1"));
+        assertEquals(aggreJoinDirectBufferBo.getDirectMemoryUsedJoinValue(), new JoinLongFieldBo(30L, 24L, "agent2_4", 86L, "agent5_3"));
 
         assertEquals(aggreJoinDirectBufferBo.getId(), "testApp");
-        assertEquals(aggreJoinDirectBufferBo.getAvgMappedCount(), 33, 0);
-        assertEquals(aggreJoinDirectBufferBo.getMinMappedCount(), 11, 0);
-        assertEquals(aggreJoinDirectBufferBo.getMinMappedCountAgentId(), "agent2_6");
-        assertEquals(aggreJoinDirectBufferBo.getMaxMappedCount(), 61, 0);
-        assertEquals(aggreJoinDirectBufferBo.getMaxMappedCountAgentId(), "agent1_5");
 
-        assertEquals(aggreJoinDirectBufferBo.getAvgMappedMemoryUsed(), 30, 0);
-        assertEquals(aggreJoinDirectBufferBo.getMinMappedMemoryUsed(), 23, 0);
-        assertEquals(aggreJoinDirectBufferBo.getMinMappedMemoryUsedAgentId(), "agent2_8");
-        assertEquals(aggreJoinDirectBufferBo.getMaxMappedMemoryUsed(), 86, 0);
-        assertEquals(aggreJoinDirectBufferBo.getMaxMappedMemoryUsedAgentId(), "agent5_7");
+        assertEquals(aggreJoinDirectBufferBo.getMappedCountJoinValue(), new JoinLongFieldBo(33L, 11L, "agent2_6", 61L, "agent1_5"));
+        assertEquals(aggreJoinDirectBufferBo.getMappedMemoryUsedJoinValue(), new JoinLongFieldBo(30L, 23L, "agent2_8", 86L, "agent5_7"));
     }
 
 }

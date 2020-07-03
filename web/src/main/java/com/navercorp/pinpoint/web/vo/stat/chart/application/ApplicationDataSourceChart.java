@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -83,7 +84,9 @@ public class ApplicationDataSourceChart implements StatChart {
 
 
         private IntApplicationStatPoint newDataSource(AggreJoinDataSourceBo ds) {
-            return new IntApplicationStatPoint(ds.getTimestamp(), ds.getMinActiveConnectionSize(), ds.getMinActiveConnectionAgentId(), ds.getMaxActiveConnectionSize(), ds.getMaxActiveConnectionAgentId(), ds.getAvgActiveConnectionSize());
+            final JoinIntFieldBo activeConnectionSizeJoinValue = ds.getActiveConnectionSizeJoinValue();
+            return new IntApplicationStatPoint(ds.getTimestamp(), activeConnectionSizeJoinValue.getMin(), activeConnectionSizeJoinValue.getMinAgentId(),
+                    activeConnectionSizeJoinValue.getMax(), activeConnectionSizeJoinValue.getMaxAgentId(), activeConnectionSizeJoinValue.getAvg());
         }
 
         public String getJdbcUrl() {

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFDirectBuffer;
 import org.junit.Test;
@@ -47,18 +48,22 @@ public class JoinDirectBufferBoMapperTest {
         assertNotNull(joinDirectBufferBo);
         assertEquals(joinDirectBufferBo.getId(), "testAgent");
         assertEquals(joinDirectBufferBo.getTimestamp(), 1491274138454L);
-        assertEquals(joinDirectBufferBo.getAvgDirectCount(), 10, 0);
-        assertEquals(joinDirectBufferBo.getMinDirectCount(), 10, 0);
-        assertEquals(joinDirectBufferBo.getMaxDirectCount(), 10, 0);
-        assertEquals(joinDirectBufferBo.getAvgDirectMemoryUsed(), 11, 0);
-        assertEquals(joinDirectBufferBo.getMinDirectMemoryUsed(), 11, 0);
-        assertEquals(joinDirectBufferBo.getMaxDirectMemoryUsed(), 11, 0);
-        assertEquals(joinDirectBufferBo.getAvgMappedCount(), 12, 0);
-        assertEquals(joinDirectBufferBo.getMinMappedCount(), 12, 0);
-        assertEquals(joinDirectBufferBo.getMaxMappedCount(), 12, 0);
-        assertEquals(joinDirectBufferBo.getAvgMappedMemoryUsed(), 13, 0);
-        assertEquals(joinDirectBufferBo.getMinMappedMemoryUsed(), 13, 0);
-        assertEquals(joinDirectBufferBo.getMaxMappedMemoryUsed(), 13, 0);
+        final JoinLongFieldBo directCountJoinValue = joinDirectBufferBo.getDirectCountJoinValue();
+        assertEquals(directCountJoinValue.getAvg(), 10, 0);
+        assertEquals(directCountJoinValue.getMin(), 10, 0);
+        assertEquals(directCountJoinValue.getMax(), 10, 0);
+        final JoinLongFieldBo directMemoryUsedJoinValue = joinDirectBufferBo.getDirectMemoryUsedJoinValue();
+        assertEquals(directMemoryUsedJoinValue.getAvg(), 11, 0);
+        assertEquals(directMemoryUsedJoinValue.getMin(), 11, 0);
+        assertEquals(directMemoryUsedJoinValue.getMax(), 11, 0);
+        final JoinLongFieldBo mappedCountJoinValue = joinDirectBufferBo.getMappedCountJoinValue();
+        assertEquals(mappedCountJoinValue.getAvg(), 12, 0);
+        assertEquals(mappedCountJoinValue.getMin(), 12, 0);
+        assertEquals(mappedCountJoinValue.getMax(), 12, 0);
+        final JoinLongFieldBo mappedMemoryUsedJoinValue = joinDirectBufferBo.getMappedMemoryUsedJoinValue();
+        assertEquals(mappedMemoryUsedJoinValue.getAvg(), 13, 0);
+        assertEquals(mappedMemoryUsedJoinValue.getMin(), 13, 0);
+        assertEquals(mappedMemoryUsedJoinValue.getMax(), 13, 0);
     }
 
     @Test

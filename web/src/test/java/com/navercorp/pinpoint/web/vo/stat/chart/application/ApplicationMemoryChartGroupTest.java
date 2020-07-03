@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
@@ -29,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -74,11 +75,12 @@ public class ApplicationMemoryChartGroupTest {
     }
 
     private void testHeap(DoubleApplicationStatPoint memoryPoint, AggreJoinMemoryBo aggreJoinMemoryBo) {
-        assertEquals(memoryPoint.getYValForAvg(), aggreJoinMemoryBo.getHeapUsed(), 0);
-        assertEquals(memoryPoint.getYValForMin(), aggreJoinMemoryBo.getMinHeapUsed(), 0);
-        assertEquals(memoryPoint.getYValForMax(), aggreJoinMemoryBo.getMaxHeapUsed(), 0);
-        assertEquals(memoryPoint.getAgentIdForMin(), aggreJoinMemoryBo.getMinHeapAgentId());
-        assertEquals(memoryPoint.getAgentIdForMax(), aggreJoinMemoryBo.getMaxHeapAgentId());
+        final JoinLongFieldBo heapUsedJoinValue = aggreJoinMemoryBo.getHeapUsedJoinValue();
+        assertEquals(memoryPoint.getYValForAvg(), heapUsedJoinValue.getAvg(), 0);
+        assertEquals(memoryPoint.getYValForMin(), heapUsedJoinValue.getMin(), 0);
+        assertEquals(memoryPoint.getYValForMax(), heapUsedJoinValue.getMax(), 0);
+        assertEquals(memoryPoint.getAgentIdForMin(), heapUsedJoinValue.getMinAgentId());
+        assertEquals(memoryPoint.getAgentIdForMax(), heapUsedJoinValue.getMaxAgentId());
     }
 
 }

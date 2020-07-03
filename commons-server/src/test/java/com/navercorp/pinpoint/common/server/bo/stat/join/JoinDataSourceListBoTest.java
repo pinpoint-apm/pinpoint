@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -47,48 +47,27 @@ public class JoinDataSourceListBoTest {
         JoinDataSourceBo joinDataSourceBo1 = joinDataSourceBoList.get(0);
         assertEquals(joinDataSourceBo1.getServiceTypeCode(), 1000);
         assertEquals(joinDataSourceBo1.getUrl(), "jdbc:mysql");
-        assertEquals(joinDataSourceBo1.getAvgActiveConnectionSize(), 60);
-        assertEquals(joinDataSourceBo1.getMinActiveConnectionSize(), 35);
-        assertEquals(joinDataSourceBo1.getMinActiveConnectionAgentId(), "agent_id_1_10");
-        assertEquals(joinDataSourceBo1.getMaxActiveConnectionSize(), 110);
-        assertEquals(joinDataSourceBo1.getMaxActiveConnectionAgentId(), "agent_id_6_50");
+        assertEquals(new JoinIntFieldBo(60, 35, "agent_id_1_10", 110, "agent_id_6_50"), joinDataSourceBo1.getActiveConnectionSizeJoinValue());
 
         JoinDataSourceBo joinDataSourceBo2 = joinDataSourceBoList.get(1);
         assertEquals(joinDataSourceBo2.getServiceTypeCode(), 2000);
         assertEquals(joinDataSourceBo2.getUrl(), "jdbc:mssql");
-        assertEquals(joinDataSourceBo2.getAvgActiveConnectionSize(), 50);
-        assertEquals(joinDataSourceBo2.getMinActiveConnectionSize(), 15);
-        assertEquals(joinDataSourceBo2.getMinActiveConnectionAgentId(), "agent_id_2_10");
-        assertEquals(joinDataSourceBo2.getMaxActiveConnectionSize(), 80);
-        assertEquals(joinDataSourceBo2.getMaxActiveConnectionAgentId(), "agent_id_7_50");
+        assertEquals(new JoinIntFieldBo(50, 15, "agent_id_2_10", 80, "agent_id_7_50"), joinDataSourceBo2.getActiveConnectionSizeJoinValue());
 
         JoinDataSourceBo joinDataSourceBo3 = joinDataSourceBoList.get(2);
         assertEquals(joinDataSourceBo3.getServiceTypeCode(), 3000);
         assertEquals(joinDataSourceBo3.getUrl(), "jdbc:postgre");
-        assertEquals(joinDataSourceBo3.getAvgActiveConnectionSize(), 40);
-        assertEquals(joinDataSourceBo3.getMinActiveConnectionSize(), 35);
-        assertEquals(joinDataSourceBo3.getMinActiveConnectionAgentId(), "agent_id_3_10");
-        assertEquals(joinDataSourceBo3.getMaxActiveConnectionSize(), 100);
-        assertEquals(joinDataSourceBo3.getMaxActiveConnectionAgentId(), "agent_id_8_50");
+        assertEquals(new JoinIntFieldBo(40, 35, "agent_id_3_10", 100, "agent_id_8_50"), joinDataSourceBo3.getActiveConnectionSizeJoinValue());
 
         JoinDataSourceBo joinDataSourceBo4 = joinDataSourceBoList.get(3);
         assertEquals(joinDataSourceBo4.getServiceTypeCode(), 4000);
         assertEquals(joinDataSourceBo4.getUrl(), "jdbc:oracle");
-        assertEquals(joinDataSourceBo4.getAvgActiveConnectionSize(), 70);
-        assertEquals(joinDataSourceBo4.getMinActiveConnectionSize(), 20);
-        assertEquals(joinDataSourceBo4.getMinActiveConnectionAgentId(), "agent_id_4_10");
-        assertEquals(joinDataSourceBo4.getMaxActiveConnectionSize(), 120);
-        assertEquals(joinDataSourceBo4.getMaxActiveConnectionAgentId(), "agent_id_9_50");
-
+        assertEquals(new JoinIntFieldBo(70, 20, "agent_id_4_10", 120, "agent_id_9_50"), joinDataSourceBo4.getActiveConnectionSizeJoinValue());
 
         JoinDataSourceBo joinDataSourceBo5 = joinDataSourceBoList.get(4);
         assertEquals(joinDataSourceBo5.getServiceTypeCode(), 5000);
         assertEquals(joinDataSourceBo5.getUrl(), "jdbc:cubrid");
-        assertEquals(joinDataSourceBo5.getAvgActiveConnectionSize(), 80);
-        assertEquals(joinDataSourceBo5.getMinActiveConnectionSize(), 35);
-        assertEquals(joinDataSourceBo5.getMinActiveConnectionAgentId(), "agent_id_5_10");
-        assertEquals(joinDataSourceBo5.getMaxActiveConnectionSize(), 130);
-        assertEquals(joinDataSourceBo5.getMaxActiveConnectionAgentId(), "agent_id_10_50");
+        assertEquals(new JoinIntFieldBo(80, 35, "agent_id_5_10", 130, "agent_id_10_50"), joinDataSourceBo5.getActiveConnectionSizeJoinValue());
     }
 
     @Test

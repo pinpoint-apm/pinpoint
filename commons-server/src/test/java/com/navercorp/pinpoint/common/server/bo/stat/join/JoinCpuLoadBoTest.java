@@ -44,16 +44,8 @@ public class JoinCpuLoadBoTest {
         JoinCpuLoadBo joinCpuLoadBo = JoinCpuLoadBo.joinCpuLoadBoList(joinCpuLoadBoList, 1496988667231L);
         assertEquals(joinCpuLoadBo.getId(), "agent1");
         assertEquals(joinCpuLoadBo.getTimestamp(), 1496988667231L);
-        assertEquals(joinCpuLoadBo.getJvmCpuLoad(), 33, 0);
-        assertEquals(joinCpuLoadBo.getMinJvmCpuLoad(), 7, 0);
-        assertEquals(joinCpuLoadBo.getMinJvmCpuAgentId(), "agent3");
-        assertEquals(joinCpuLoadBo.getMaxJvmCpuLoad(), 80, 0);
-        assertEquals(joinCpuLoadBo.getMaxJvmCpuAgentId(), "agent4");
-        assertEquals(joinCpuLoadBo.getSystemCpuLoad(), 30, 0);
-        assertEquals(joinCpuLoadBo.getMinSystemCpuLoad(), 12, 0);
-        assertEquals(joinCpuLoadBo.getMinSysCpuAgentId(), "agent2");
-        assertEquals(joinCpuLoadBo.getMaxSystemCpuLoad(), 99, 0);
-        assertEquals(joinCpuLoadBo.getMaxSysCpuAgentId(), "agent5");
+        assertEquals(joinCpuLoadBo.getJvmCpuLoadJoinValue(), new JoinDoubleFieldBo((double) 33, (double) 7, "agent3", (double) 80, "agent4"));
+        assertEquals(joinCpuLoadBo.getSystemCpuLoadJoinValue(), new JoinDoubleFieldBo((double) 30, (double) 12, "agent2", (double) 99, "agent5"));
     }
 
     @Test
