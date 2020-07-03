@@ -82,7 +82,6 @@ public class NettyPlugin implements ProfilerPlugin, TransformTemplateAware {
             transformTemplate.transform("io.netty.handler.codec.http.HttpObjectEncoder", HttpEncoderTransformer.class);
         }
 
-        // todo
         transformTemplate.transform("io.netty.util.internal.PlatformDependent", PlatformDependentTransform.class);
     }
 
@@ -96,7 +95,7 @@ public class NettyPlugin implements ProfilerPlugin, TransformTemplateAware {
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("directBufferPreferred", "usedDirectMemory", "maxDirectMemory"))) {
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("usedDirectMemory", "maxDirectMemory"))) {
                 method.addInterceptor(PlatformDependentInterceptor.class);
             }
 
