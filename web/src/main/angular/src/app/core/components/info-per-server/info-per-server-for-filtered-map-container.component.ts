@@ -136,8 +136,8 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
         this.selectedAgent = agent;
     }
 
-    onOpenInspector(agentName: string): void {
+    onOpenInspector(agent: string): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_INSPECTOR_WITH_AGENT);
-        this.urlRouteManagerService.openInspectorPage(false, agentName);
+        this.urlRouteManagerService.openInspectorPage(false, this.selectedTarget.node[0].replace('^', '@'), agent);
     }
 }

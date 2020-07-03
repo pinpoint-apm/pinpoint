@@ -189,7 +189,7 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
         this.urlRouteManagerService.openPage({
             path: [
                 UrlPath.SCATTER_FULL_SCREEN_MODE,
-                this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                `${this.selectedApplication.replace('^', '@')}`,
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
                 this.selectedAgent
@@ -235,7 +235,7 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
         const returnOpenWindow = this.urlRouteManagerService.openPage({
             path: [
                 UrlPath.TRANSACTION_LIST,
-                this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                `${this.selectedApplication.replace('^', '@')}`,
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
             ],

@@ -94,7 +94,7 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
         ).pipe(
             take(1),
         ).subscribe(([isRealTimeMode, selectedAgent]: [boolean, string]) => {
-            this.urlRouteManagerService.openInspectorPage(isRealTimeMode, selectedAgent);
+            this.urlRouteManagerService.openInspectorPage(isRealTimeMode, `${this.node.applicationName}@${this.node.serviceType}`, selectedAgent);
         });
     }
 }

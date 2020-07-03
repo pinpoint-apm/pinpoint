@@ -174,8 +174,6 @@ interface IFilter {
 }
 
 interface ISelectedTarget {
-    endTime: string;
-    period: string;
     isNode?: boolean;
     isLink?: boolean;
     isMerged: boolean;

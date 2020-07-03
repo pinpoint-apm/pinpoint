@@ -255,7 +255,7 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
         const returnOpenWindow = this.urlRouteManagerService.openPage({
             path: [
                 UrlPath.TRANSACTION_LIST,
-                this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                `${this.selectedApplication.replace('^', '@')}`,
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
             ],
