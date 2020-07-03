@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.bootstrap.plugin.request;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface RequestAdaptor<T> {
+public interface RequestAdaptor<REQ> {
 
-    String getHeader(T request, String name);
+    String getHeader(REQ request, String name);
 
 
     /**
@@ -29,26 +29,26 @@ public interface RequestAdaptor<T> {
      *
      * @return
      */
-    String getRpcName(T request);
+    String getRpcName(REQ request);
 
     /**
      * Server address
      *
      * @return
      */
-    String getEndPoint(T request);
+    String getEndPoint(REQ request);
 
     /**
      * Client address
      *
      * @return
      */
-    String getRemoteAddress(T request);
+    String getRemoteAddress(REQ request);
 
     /**
      * Server address that the client used
      *
      * @return
      */
-    String getAcceptorHost(T request);
+    String getAcceptorHost(REQ request);
 }

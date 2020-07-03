@@ -16,16 +16,33 @@
 
 package com.navercorp.pinpoint.plugin.common.servlet.util;
 
+import com.navercorp.pinpoint.bootstrap.plugin.request.CookieAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.CookieFilter;
+import com.navercorp.pinpoint.bootstrap.plugin.request.CookieSupportAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class HttpServletRequestAdaptor implements RequestAdaptor<HttpServletRequest> {
+public class HttpServletRequestAdaptor implements RequestAdaptor<HttpServletRequest>, CookieSupportAdaptor<HttpServletRequest> {
+
+    private final CookieFilter<Cookie> cookieFilter = new CookieFilter<Cookie>() {
+        @Override
+        protected CookieAdaptor newCookieAdaptor(Cookie cookie) {
+            return new HttpServletCookieAdaptor(cookie);
+        }
+
+        @Override
+        protected String getName(Cookie cookie) {
+            return cookie.getName();
+        }
+    };
 
     public HttpServletRequestAdaptor() {
     }
@@ -58,4 +75,17 @@ public class HttpServletRequestAdaptor implements RequestAdaptor<HttpServletRequ
         final String acceptorHost = url != null ? NetworkUtils.getHostFromURL(url.toString()) : null;
         return acceptorHost;
     }
+
+    @Override
+    public List<CookieAdaptor> getCookie(HttpServletRequest request) {
+        final Cookie[] cookies = request.getCookies();
+        return cookieFilter.wrap(cookies);
+    }
+
+    @Override
+    public List<CookieAdaptor> getCookie(HttpServletRequest request, String[] cookieNames) {
+        final Cookie[] cookies = request.getCookies();
+        return cookieFilter.filter(cookies, cookieNames);
+    }
+
 }
