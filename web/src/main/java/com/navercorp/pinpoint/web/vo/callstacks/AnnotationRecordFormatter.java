@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
+import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.calltree.span.Align;
 import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
@@ -70,7 +71,20 @@ public class AnnotationRecordFormatter {
                 return buildHttpIoArguments(value);
             }
         }
+        // TODO complext-type formatting
+        final Object value = annotationBo.getValue();
+        if (value instanceof StringStringValue) {
+            return formatStringStringValue((StringStringValue) value);
+        }
+
         return Objects.toString(annotationBo.getValue(), "");
+    }
+
+    private String formatStringStringValue(StringStringValue value) {
+        StringBuilder sb = new StringBuilder(value.getStringValue1());
+        sb.append('=');
+        sb.append(value.getStringValue2());
+        return sb.toString();
     }
 
     String buildProxyHttpHeaderAnnotationArguments(final LongIntIntByteByteStringValue value, final long startTimeMillis) {
