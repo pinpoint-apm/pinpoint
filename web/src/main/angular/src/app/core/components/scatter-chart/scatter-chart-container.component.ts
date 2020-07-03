@@ -277,7 +277,7 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
             this.urlRouteManagerService.openPage({
                 path: [
                     UrlPath.SCATTER_FULL_SCREEN_MODE,
-                    this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                    `${this.selectedApplication.replace('^', '@')}`,
                     this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
                     this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
                     this.selectedAgent
@@ -288,7 +288,7 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
                 path: [
                     UrlPath.SCATTER_FULL_SCREEN_MODE,
                     UrlPathId.REAL_TIME,
-                    this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                    `${this.selectedApplication.replace('^', '@')}`,
                     this.selectedAgent
                 ]
             });
@@ -337,7 +337,7 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
             returnOpenWindow = this.urlRouteManagerService.openPage({
                 path: [
                     UrlPath.TRANSACTION_LIST,
-                    this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                    `${this.selectedApplication.replace('^', '@')}`,
                     this.webAppSettingDataService.getSystemDefaultPeriod().getValueWithTime(),
                     EndTime.newByNumber(this.currentRange.to).getEndTime(),
                 ],
@@ -347,7 +347,7 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
             returnOpenWindow = this.urlRouteManagerService.openPage({
                 path: [
                     UrlPath.TRANSACTION_LIST,
-                    this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                    `${this.selectedApplication.replace('^', '@')}`,
                     this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
                     this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
                 ],
