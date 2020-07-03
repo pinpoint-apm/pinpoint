@@ -44,9 +44,9 @@ public class JoinFileDescriptorBoMapperTest {
         assertNotNull(joinFileDescriptorBo);
         assertEquals(joinFileDescriptorBo.getId(), "testAgent");
         assertEquals(joinFileDescriptorBo.getTimestamp(), 1491274138454L);
-        assertEquals(joinFileDescriptorBo.getAvgOpenFDCount(), 10, 0);
-        assertEquals(joinFileDescriptorBo.getMinOpenFDCount(), 10, 0);
-        assertEquals(joinFileDescriptorBo.getMaxOpenFDCount(), 10, 0);
+        assertEquals(joinFileDescriptorBo.getOpenFdCountJoinValue().getAvg(), 10, 0);
+        assertEquals(joinFileDescriptorBo.getOpenFdCountJoinValue().getMin(), 10, 0);
+        assertEquals(joinFileDescriptorBo.getOpenFdCountJoinValue().getMax(), 10, 0);
     }
 
     @Test

@@ -21,7 +21,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -32,11 +32,11 @@ public class JoinDataSourceBoTest {
     public void joinDataSourceBoListTest() {
         List<JoinDataSourceBo> joinDataSourceBoList = new ArrayList<JoinDataSourceBo>();
 
-        JoinDataSourceBo joinDataSourceBo1 = new JoinDataSourceBo((short)1000, "jdbc:mysql", 30, 25, "agent_id_1", 60, "agent_id_6");
-        JoinDataSourceBo joinDataSourceBo2 = new JoinDataSourceBo((short)1000, "jdbc:mysql", 20, 5, "agent_id_2", 30, "agent_id_7");
-        JoinDataSourceBo joinDataSourceBo3 = new JoinDataSourceBo((short)1000, "jdbc:mysql", 10, 25, "agent_id_3", 50, "agent_id_8");
-        JoinDataSourceBo joinDataSourceBo4 = new JoinDataSourceBo((short)1000, "jdbc:mysql", 40, 4, "agent_id_4", 70, "agent_id_9");
-        JoinDataSourceBo joinDataSourceBo5 = new JoinDataSourceBo((short)1000, "jdbc:mysql", 50, 25, "agent_id_5", 80, "agent_id_10");
+        JoinDataSourceBo joinDataSourceBo1 = new JoinDataSourceBo((short) 1000, "jdbc:mysql", 30, 25, "agent_id_1", 60, "agent_id_6");
+        JoinDataSourceBo joinDataSourceBo2 = new JoinDataSourceBo((short) 1000, "jdbc:mysql", 20, 5, "agent_id_2", 30, "agent_id_7");
+        JoinDataSourceBo joinDataSourceBo3 = new JoinDataSourceBo((short) 1000, "jdbc:mysql", 10, 25, "agent_id_3", 50, "agent_id_8");
+        JoinDataSourceBo joinDataSourceBo4 = new JoinDataSourceBo((short) 1000, "jdbc:mysql", 40, 4, "agent_id_4", 70, "agent_id_9");
+        JoinDataSourceBo joinDataSourceBo5 = new JoinDataSourceBo((short) 1000, "jdbc:mysql", 50, 25, "agent_id_5", 80, "agent_id_10");
 
         joinDataSourceBoList.add(joinDataSourceBo1);
         joinDataSourceBoList.add(joinDataSourceBo2);
@@ -48,11 +48,7 @@ public class JoinDataSourceBoTest {
 
         assertEquals(joinDataSourceBo.getServiceTypeCode(), 1000);
         assertEquals(joinDataSourceBo.getUrl(), "jdbc:mysql");
-        assertEquals(joinDataSourceBo.getAvgActiveConnectionSize(), 30);
-        assertEquals(joinDataSourceBo.getMinActiveConnectionSize(), 4);
-        assertEquals(joinDataSourceBo.getMinActiveConnectionAgentId(), "agent_id_4");
-        assertEquals(joinDataSourceBo.getMaxActiveConnectionSize(), 80);
-        assertEquals(joinDataSourceBo.getMaxActiveConnectionAgentId(), "agent_id_10");
+        assertEquals(new JoinIntFieldBo(30, 4, "agent_id_4", 80, "agent_id_10"), joinDataSourceBo.getActiveConnectionSizeJoinValue());
     }
 
     @Test

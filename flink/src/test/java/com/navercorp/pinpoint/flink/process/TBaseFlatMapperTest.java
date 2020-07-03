@@ -16,15 +16,36 @@
 
 package com.navercorp.pinpoint.flink.process;
 
-import com.navercorp.pinpoint.common.server.bo.stat.join.*;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinApplicationStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper;
 import com.navercorp.pinpoint.flink.vo.RawData;
-import com.navercorp.pinpoint.thrift.dto.flink.*;
+import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
+import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
+import com.navercorp.pinpoint.thrift.dto.flink.TFCpuLoad;
+import com.navercorp.pinpoint.thrift.dto.flink.TFDirectBuffer;
+import com.navercorp.pinpoint.thrift.dto.flink.TFFileDescriptor;
+import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
+import com.navercorp.pinpoint.thrift.dto.flink.TFTransaction;
+
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -85,21 +106,25 @@ public class TBaseFlatMapperTest {
         JoinCpuLoadBo joinCpuLoadBo = joincpulaodBoList.get(0);
         assertEquals(joinCpuLoadBo.getId(), AGENT_ID);
         assertEquals(joinCpuLoadBo.getTimestamp(), 1491274143454L);
-        assertEquals(joinCpuLoadBo.getJvmCpuLoad(), 10, 0);
-        assertEquals(joinCpuLoadBo.getMinJvmCpuLoad(), 10, 0);
-        assertEquals(joinCpuLoadBo.getMaxJvmCpuLoad(), 10, 0);
-        assertEquals(joinCpuLoadBo.getSystemCpuLoad(), 30, 0);
-        assertEquals(joinCpuLoadBo.getMinSystemCpuLoad(), 30, 0);
-        assertEquals(joinCpuLoadBo.getMaxSystemCpuLoad(), 30, 0);
+        JoinDoubleFieldBo jvmCpuLoadJoinValue = joinCpuLoadBo.getJvmCpuLoadJoinValue();
+        assertEquals(jvmCpuLoadJoinValue.getAvg(), 10, 0);
+        assertEquals(jvmCpuLoadJoinValue.getMin(), 10, 0);
+        assertEquals(jvmCpuLoadJoinValue.getMax(), 10, 0);
+        JoinDoubleFieldBo systemCpuLoadJoinValue = joinCpuLoadBo.getSystemCpuLoadJoinValue();
+        assertEquals(systemCpuLoadJoinValue.getAvg(), 30, 0);
+        assertEquals(systemCpuLoadJoinValue.getMin(), 30, 0);
+        assertEquals(systemCpuLoadJoinValue.getMax(), 30, 0);
         joinCpuLoadBo = joincpulaodBoList.get(1);
         assertEquals(joinCpuLoadBo.getId(), AGENT_ID);
         assertEquals(joinCpuLoadBo.getTimestamp(), 1491274148454L);
-        assertEquals(joinCpuLoadBo.getJvmCpuLoad(), 20, 0);
-        assertEquals(joinCpuLoadBo.getMinJvmCpuLoad(), 20, 0);
-        assertEquals(joinCpuLoadBo.getMaxJvmCpuLoad(), 20, 0);
-        assertEquals(joinCpuLoadBo.getSystemCpuLoad(), 50, 0);
-        assertEquals(joinCpuLoadBo.getMinSystemCpuLoad(), 50, 0);
-        assertEquals(joinCpuLoadBo.getMaxSystemCpuLoad(), 50, 0);
+        jvmCpuLoadJoinValue = joinCpuLoadBo.getJvmCpuLoadJoinValue();
+        assertEquals(jvmCpuLoadJoinValue.getAvg(), 20, 0);
+        assertEquals(jvmCpuLoadJoinValue.getMin(), 20, 0);
+        assertEquals(jvmCpuLoadJoinValue.getMax(), 20, 0);
+        systemCpuLoadJoinValue = joinCpuLoadBo.getSystemCpuLoadJoinValue();
+        assertEquals(systemCpuLoadJoinValue.getAvg(), 50, 0);
+        assertEquals(systemCpuLoadJoinValue.getMin(), 50, 0);
+        assertEquals(systemCpuLoadJoinValue.getMax(), 50, 0);
     }
 
     private TFAgentStatBatch createTFAgentStatBatch() {
@@ -172,14 +197,14 @@ public class TBaseFlatMapperTest {
 
         JoinMemoryBo joinMemoryBo = joinMemoryBoList.get(0);
         assertEquals(joinMemoryBo.getId(), AGENT_ID);
-        assertEquals(joinMemoryBo.getHeapUsed(), 3000);
-        assertEquals(joinMemoryBo.getNonHeapUsed(), 450);
+        assertEquals((long) joinMemoryBo.getHeapUsedJoinValue().getAvg(), 3000);
+        assertEquals((long) joinMemoryBo.getNonHeapUsedJoinValue().getAvg(), 450);
         assertEquals(joinMemoryBo.getTimestamp(), 1491274143454L);
 
         JoinMemoryBo joinMemoryBo2 = joinMemoryBoList.get(1);
         assertEquals(joinMemoryBo2.getId(), AGENT_ID);
-        assertEquals(joinMemoryBo2.getHeapUsed(), 2000);
-        assertEquals(joinMemoryBo2.getNonHeapUsed(), 850);
+        assertEquals((long) joinMemoryBo2.getHeapUsedJoinValue().getAvg(), 2000);
+        assertEquals((long) joinMemoryBo2.getNonHeapUsedJoinValue().getAvg(), 850);
         assertEquals(joinMemoryBo2.getTimestamp(), 1491274148454L);
     }
 
@@ -257,21 +282,13 @@ public class TBaseFlatMapperTest {
         assertEquals(joinTransactionBo.getId(), AGENT_ID);
         assertEquals(joinTransactionBo.getTimestamp(), 1491274143454L);
         assertEquals(joinTransactionBo.getCollectInterval(), 5000);
-        assertEquals(joinTransactionBo.getTotalCount(), 120);
-        assertEquals(joinTransactionBo.getMaxTotalCount(), 120);
-        assertEquals(joinTransactionBo.getMaxTotalCountAgentId(), AGENT_ID);
-        assertEquals(joinTransactionBo.getMinTotalCount(), 120);
-        assertEquals(joinTransactionBo.getMinTotalCountAgentId(), AGENT_ID);
+        assertEquals(joinTransactionBo.getTotalCountJoinValue(), new JoinLongFieldBo(120L, 120L, AGENT_ID, 120L, AGENT_ID));
 
         JoinTransactionBo joinTransactionBo2 = joinTransactionBoList.get(1);
         assertEquals(joinTransactionBo2.getId(), AGENT_ID);
         assertEquals(joinTransactionBo2.getTimestamp(), 1491274148454L);
         assertEquals(joinTransactionBo2.getCollectInterval(), 5000);
-        assertEquals(joinTransactionBo2.getTotalCount(), 124);
-        assertEquals(joinTransactionBo2.getMaxTotalCount(), 124);
-        assertEquals(joinTransactionBo2.getMaxTotalCountAgentId(), AGENT_ID);
-        assertEquals(joinTransactionBo2.getMinTotalCount(), 124);
-        assertEquals(joinTransactionBo2.getMinTotalCountAgentId(), AGENT_ID);
+        assertEquals(joinTransactionBo2.getTotalCountJoinValue(), new JoinLongFieldBo(124L, 124L, AGENT_ID, 124L, AGENT_ID));
     }
 
     private TFAgentStatBatch createTFAgentStatBatch3() {
@@ -350,15 +367,15 @@ public class TBaseFlatMapperTest {
         JoinFileDescriptorBo joinFileDescriptorBo = joinFileDescriptorBoList.get(0);
         assertEquals(joinFileDescriptorBo.getId(), AGENT_ID);
         assertEquals(joinFileDescriptorBo.getTimestamp(), 1491274143454L);
-        assertEquals(joinFileDescriptorBo.getAvgOpenFDCount(), 10, 0);
-        assertEquals(joinFileDescriptorBo.getMinOpenFDCount(), 10, 0);
-        assertEquals(joinFileDescriptorBo.getMaxOpenFDCount(), 10, 0);
+        assertEquals(joinFileDescriptorBo.getOpenFdCountJoinValue().getAvg(), 10, 0);
+        assertEquals(joinFileDescriptorBo.getOpenFdCountJoinValue().getMin(), 10, 0);
+        assertEquals(joinFileDescriptorBo.getOpenFdCountJoinValue().getMax(), 10, 0);
         joinFileDescriptorBo = joinFileDescriptorBoList.get(1);
         assertEquals(joinFileDescriptorBo.getId(), AGENT_ID);
         assertEquals(joinFileDescriptorBo.getTimestamp(), 1491274148454L);
-        assertEquals(joinFileDescriptorBo.getAvgOpenFDCount(), 20, 0);
-        assertEquals(joinFileDescriptorBo.getMinOpenFDCount(), 20, 0);
-        assertEquals(joinFileDescriptorBo.getMaxOpenFDCount(), 20, 0);
+        assertEquals(joinFileDescriptorBo.getOpenFdCountJoinValue().getAvg(), 20, 0);
+        assertEquals(joinFileDescriptorBo.getOpenFdCountJoinValue().getMin(), 20, 0);
+        assertEquals(joinFileDescriptorBo.getOpenFdCountJoinValue().getMax(), 20, 0);
     }
 
     private TFAgentStatBatch createTFAgentStatBatch4() {
@@ -430,33 +447,41 @@ public class TBaseFlatMapperTest {
         JoinDirectBufferBo joinDirectBufferBo = joinDirectBufferBoList.get(0);
         assertEquals(joinDirectBufferBo.getId(), AGENT_ID);
         assertEquals(joinDirectBufferBo.getTimestamp(), 1491274143454L);
-        assertEquals(joinDirectBufferBo.getAvgDirectCount(), 10, 0);
-        assertEquals(joinDirectBufferBo.getMinDirectCount(), 10, 0);
-        assertEquals(joinDirectBufferBo.getMaxDirectCount(), 10, 0);
-        assertEquals(joinDirectBufferBo.getAvgDirectMemoryUsed(), 20, 0);
-        assertEquals(joinDirectBufferBo.getMinDirectMemoryUsed(), 20, 0);
-        assertEquals(joinDirectBufferBo.getMaxDirectMemoryUsed(), 20, 0);
-        assertEquals(joinDirectBufferBo.getAvgMappedCount(), 30, 0);
-        assertEquals(joinDirectBufferBo.getMinMappedCount(), 30, 0);
-        assertEquals(joinDirectBufferBo.getMaxMappedCount(), 30, 0);
-        assertEquals(joinDirectBufferBo.getAvgMappedMemoryUsed(), 40, 0);
-        assertEquals(joinDirectBufferBo.getMinMappedMemoryUsed(), 40, 0);
-        assertEquals(joinDirectBufferBo.getMaxMappedMemoryUsed(), 40, 0);
+        JoinLongFieldBo directCountJoinValue = joinDirectBufferBo.getDirectCountJoinValue();
+        assertEquals(directCountJoinValue.getAvg(), 10, 0);
+        assertEquals(directCountJoinValue.getMin(), 10, 0);
+        assertEquals(directCountJoinValue.getMax(), 10, 0);
+        JoinLongFieldBo directMemoryUsedJoinValue = joinDirectBufferBo.getDirectMemoryUsedJoinValue();
+        assertEquals(directMemoryUsedJoinValue.getAvg(), 20, 0);
+        assertEquals(directMemoryUsedJoinValue.getMin(), 20, 0);
+        assertEquals(directMemoryUsedJoinValue.getMax(), 20, 0);
+        JoinLongFieldBo mappedCountJoinValue = joinDirectBufferBo.getMappedCountJoinValue();
+        assertEquals(mappedCountJoinValue.getAvg(), 30, 0);
+        assertEquals(mappedCountJoinValue.getMin(), 30, 0);
+        assertEquals(mappedCountJoinValue.getMax(), 30, 0);
+        JoinLongFieldBo mappedMemoryUsedJoinValue = joinDirectBufferBo.getMappedMemoryUsedJoinValue();
+        assertEquals(mappedMemoryUsedJoinValue.getAvg(), 40, 0);
+        assertEquals(mappedMemoryUsedJoinValue.getMin(), 40, 0);
+        assertEquals(mappedMemoryUsedJoinValue.getMax(), 40, 0);
         joinDirectBufferBo = joinDirectBufferBoList.get(1);
         assertEquals(joinDirectBufferBo.getId(), AGENT_ID);
         assertEquals(joinDirectBufferBo.getTimestamp(), 1491274148454L);
-        assertEquals(joinDirectBufferBo.getAvgDirectCount(), 50, 0);
-        assertEquals(joinDirectBufferBo.getMinDirectCount(), 50, 0);
-        assertEquals(joinDirectBufferBo.getMaxDirectCount(), 50, 0);
-        assertEquals(joinDirectBufferBo.getAvgDirectMemoryUsed(), 60, 0);
-        assertEquals(joinDirectBufferBo.getMinDirectMemoryUsed(), 60, 0);
-        assertEquals(joinDirectBufferBo.getMaxDirectMemoryUsed(), 60, 0);
-        assertEquals(joinDirectBufferBo.getAvgMappedCount(), 70, 0);
-        assertEquals(joinDirectBufferBo.getMinMappedCount(), 70, 0);
-        assertEquals(joinDirectBufferBo.getMaxMappedCount(), 70, 0);
-        assertEquals(joinDirectBufferBo.getAvgMappedMemoryUsed(), 80, 0);
-        assertEquals(joinDirectBufferBo.getMinMappedMemoryUsed(), 80, 0);
-        assertEquals(joinDirectBufferBo.getMaxMappedMemoryUsed(), 80, 0);
+        directCountJoinValue = joinDirectBufferBo.getDirectCountJoinValue();
+        assertEquals(directCountJoinValue.getAvg(), 50, 0);
+        assertEquals(directCountJoinValue.getMin(), 50, 0);
+        assertEquals(directCountJoinValue.getMax(), 50, 0);
+        directMemoryUsedJoinValue = joinDirectBufferBo.getDirectMemoryUsedJoinValue();
+        assertEquals(directMemoryUsedJoinValue.getAvg(), 60, 0);
+        assertEquals(directMemoryUsedJoinValue.getMin(), 60, 0);
+        assertEquals(directMemoryUsedJoinValue.getMax(), 60, 0);
+        mappedCountJoinValue = joinDirectBufferBo.getMappedCountJoinValue();
+        assertEquals(mappedCountJoinValue.getAvg(), 70, 0);
+        assertEquals(mappedCountJoinValue.getMin(), 70, 0);
+        assertEquals(mappedCountJoinValue.getMax(), 70, 0);
+        mappedMemoryUsedJoinValue = joinDirectBufferBo.getMappedMemoryUsedJoinValue();
+        assertEquals(mappedMemoryUsedJoinValue.getAvg(), 80, 0);
+        assertEquals(mappedMemoryUsedJoinValue.getMin(), 80, 0);
+        assertEquals(mappedMemoryUsedJoinValue.getMax(), 80, 0);
     }
 
     private TFAgentStatBatch createTFAgentStatBatch5() {

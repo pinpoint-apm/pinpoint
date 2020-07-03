@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
@@ -29,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -70,11 +71,12 @@ public class ApplicationDataSourceChartGroupTest {
 
     private void testDataSource(IntApplicationStatPoint dataSourcePoint, AggreJoinDataSourceBo aggreJoinDataSourceBo) {
         assertEquals(dataSourcePoint.getXVal(), aggreJoinDataSourceBo.getTimestamp());
-        assertEquals(dataSourcePoint.getYValForAvg(), aggreJoinDataSourceBo.getAvgActiveConnectionSize(), 0);
-        assertEquals(dataSourcePoint.getYValForMin(), aggreJoinDataSourceBo.getMinActiveConnectionSize(), 0);
-        assertEquals(dataSourcePoint.getYValForMax(), aggreJoinDataSourceBo.getMaxActiveConnectionSize(), 0);
-        assertEquals(dataSourcePoint.getAgentIdForMin(), aggreJoinDataSourceBo.getMinActiveConnectionAgentId());
-        assertEquals(dataSourcePoint.getAgentIdForMax(), aggreJoinDataSourceBo.getMaxActiveConnectionAgentId());
+        final JoinIntFieldBo activeConnectionSizeJoinValue = aggreJoinDataSourceBo.getActiveConnectionSizeJoinValue();
+        assertEquals(dataSourcePoint.getYValForAvg(), activeConnectionSizeJoinValue.getAvg(), 0);
+        assertEquals(dataSourcePoint.getYValForMin(), activeConnectionSizeJoinValue.getMin(), 0);
+        assertEquals(dataSourcePoint.getYValForMax(), activeConnectionSizeJoinValue.getMax(), 0);
+        assertEquals(dataSourcePoint.getAgentIdForMin(), activeConnectionSizeJoinValue.getMinAgentId());
+        assertEquals(dataSourcePoint.getAgentIdForMax(), activeConnectionSizeJoinValue.getMaxAgentId());
     }
 
 

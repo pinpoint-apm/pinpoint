@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -73,7 +74,9 @@ public class ApplicationFileDescriptorChart implements StatChart {
         }
 
         private LongApplicationStatPoint newOpenFileDescriptorCount(AggreJoinFileDescriptorBo fileDescriptor) {
-            return new LongApplicationStatPoint(fileDescriptor.getTimestamp(), fileDescriptor.getMinOpenFDCount(), fileDescriptor.getMinOpenFDCountAgentId(), fileDescriptor.getMaxOpenFDCount(), fileDescriptor.getMaxOpenFDCountAgentId(), fileDescriptor.getAvgOpenFDCount());
+            final JoinLongFieldBo openFdCountJoinValue = fileDescriptor.getOpenFdCountJoinValue();
+            return new LongApplicationStatPoint(fileDescriptor.getTimestamp(), openFdCountJoinValue.getMin(), openFdCountJoinValue.getMinAgentId(),
+                    openFdCountJoinValue.getMax(), openFdCountJoinValue.getMaxAgentId(), openFdCountJoinValue.getAvg());
         }
 
         @Override

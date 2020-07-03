@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
@@ -65,10 +66,11 @@ public class ApplicationTotalThreadCountChartGroupTest {
 
     private void testTotalThreadCount(LongApplicationStatPoint point, AggreJoinTotalThreadCountBo totalThreadCountBo) {
         assertEquals(point.getXVal(), totalThreadCountBo.getTimestamp());
-        assertEquals(point.getYValForAvg(), totalThreadCountBo.getAvgTotalThreadCount(), 0);
-        assertEquals(point.getYValForMin(), totalThreadCountBo.getMinTotalThreadCount(), 0);
-        assertEquals(point.getYValForMax(), totalThreadCountBo.getMaxTotalThreadCount(), 0);
-        assertEquals(point.getAgentIdForMin(), totalThreadCountBo.getMinTotalThreadCountAgentId());
-        assertEquals(point.getAgentIdForMax(), totalThreadCountBo.getMaxTotalThreadCountAgentId());
+        final JoinLongFieldBo totalThreadCountJoinValue = totalThreadCountBo.getTotalThreadCountJoinValue();
+        assertEquals(point.getYValForAvg(), totalThreadCountJoinValue.getAvg(), 0);
+        assertEquals(point.getYValForMin(), totalThreadCountJoinValue.getMin(), 0);
+        assertEquals(point.getYValForMax(), totalThreadCountJoinValue.getMax(), 0);
+        assertEquals(point.getAgentIdForMin(), totalThreadCountJoinValue.getMinAgentId());
+        assertEquals(point.getAgentIdForMax(), totalThreadCountJoinValue.getMaxAgentId());
     }
 }

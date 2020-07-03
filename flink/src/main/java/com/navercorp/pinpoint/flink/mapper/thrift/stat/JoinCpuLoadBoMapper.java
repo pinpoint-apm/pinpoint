@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
 import com.navercorp.pinpoint.flink.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFCpuLoad;
@@ -39,16 +40,10 @@ public class JoinCpuLoadBoMapper implements ThriftBoMapper<JoinCpuLoadBo, TFAgen
         joinCpuLoadBo.setTimestamp(tFAgentStat.getTimestamp());
 
         TFCpuLoad tFCpuLoad = tFAgentStat.getCpuLoad();
-        joinCpuLoadBo.setJvmCpuLoad(tFCpuLoad.getJvmCpuLoad());
-        joinCpuLoadBo.setMinJvmCpuAgentId(agentId);
-        joinCpuLoadBo.setMinJvmCpuLoad(tFCpuLoad.getJvmCpuLoad());
-        joinCpuLoadBo.setMaxJvmCpuAgentId(agentId);
-        joinCpuLoadBo.setMaxJvmCpuLoad(tFCpuLoad.getJvmCpuLoad());
-        joinCpuLoadBo.setSystemCpuLoad(tFCpuLoad.getSystemCpuLoad());
-        joinCpuLoadBo.setMinSysCpuAgentId(agentId);
-        joinCpuLoadBo.setMinSystemCpuLoad(tFCpuLoad.getSystemCpuLoad());
-        joinCpuLoadBo.setMaxSysCpuAgentId(agentId);
-        joinCpuLoadBo.setMaxSystemCpuLoad(tFCpuLoad.getSystemCpuLoad());
+        final double jvmCpuLoad = tFCpuLoad.getJvmCpuLoad();
+        joinCpuLoadBo.setJvmCpuLoadJoinValue(new JoinDoubleFieldBo(jvmCpuLoad, jvmCpuLoad, agentId, jvmCpuLoad, agentId));
+        final double systemCpuLoad = tFCpuLoad.getSystemCpuLoad();
+        joinCpuLoadBo.setSystemCpuLoadJoinValue(new JoinDoubleFieldBo(systemCpuLoad, systemCpuLoad, agentId, systemCpuLoad, agentId));
         return joinCpuLoadBo;
     }
 }

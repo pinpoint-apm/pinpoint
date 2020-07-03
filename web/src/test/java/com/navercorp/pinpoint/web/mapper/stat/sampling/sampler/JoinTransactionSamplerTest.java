@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
 import org.junit.Test;
@@ -39,11 +40,7 @@ public class JoinTransactionSamplerTest {
 
         assertEquals(aggreJoinTransactionBo.getId(), "test_app");
         assertEquals(aggreJoinTransactionBo.getCollectInterval(),5000);
-        assertEquals(aggreJoinTransactionBo.getTotalCount(), 130);
-        assertEquals(aggreJoinTransactionBo.getMinTotalCount(), 10);
-        assertEquals(aggreJoinTransactionBo.getMinTotalCountAgentId(), "app_1_1");
-        assertEquals(aggreJoinTransactionBo.getMaxTotalCount(), 560);
-        assertEquals(aggreJoinTransactionBo.getMaxTotalCountAgentId(), "app_4_2");
+        assertEquals(aggreJoinTransactionBo.getTotalCountJoinValue(), new JoinLongFieldBo(130l, 10l, "app_1_1", 560l, "app_4_2"));
         assertEquals(aggreJoinTransactionBo.getTimestamp(), 1487149800000L);
     }
 

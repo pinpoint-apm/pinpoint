@@ -16,14 +16,16 @@
 
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinResponseTimeBo;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -38,11 +40,7 @@ public class JoinResponseTimeSamplerTest {
         AggreJoinResponseTimeBo aggreJoinResponseTimeBo = joinResponseTimeSampler.sampleDataPoints(1, currentTime, joinResponseTimeBoList, JoinResponseTimeBo.EMPTY_JOIN_RESPONSE_TIME_BO);
         assertEquals(aggreJoinResponseTimeBo.getId(), "test_app");
         assertEquals(aggreJoinResponseTimeBo.getTimestamp(), 1487149800000L);
-        assertEquals(aggreJoinResponseTimeBo.getAvg(), 3000);
-        assertEquals(2, aggreJoinResponseTimeBo.getMinAvg());
-        assertEquals("app_1_1", aggreJoinResponseTimeBo.getMinAvgAgentId());
-        assertEquals(9000, aggreJoinResponseTimeBo.getMaxAvg());
-        assertEquals("app_2_1", aggreJoinResponseTimeBo.getMaxAvgAgentId());
+        assertEquals(aggreJoinResponseTimeBo.getResponseTimeJoinValue(), new JoinLongFieldBo(3000L, 2L, "app_1_1", 9000L, "app_2_1"));
     }
 
     private List<JoinResponseTimeBo> createJoinResponseTimeList(long currentTime) {
@@ -69,10 +67,6 @@ public class JoinResponseTimeSamplerTest {
         AggreJoinResponseTimeBo aggreJoinResponseTimeBo = joinResponseTimeSampler.sampleDataPoints(1, currentTime, joinResponseTimeBoList, JoinResponseTimeBo.EMPTY_JOIN_RESPONSE_TIME_BO);
         assertEquals(aggreJoinResponseTimeBo.getId(), JoinResponseTimeBo.UNKNOWN_ID);
         assertEquals(aggreJoinResponseTimeBo.getTimestamp(), 1487149800000L);
-        assertEquals(aggreJoinResponseTimeBo.getAvg(), JoinResponseTimeBo.UNCOLLECTED_VALUE);
-        assertEquals(JoinResponseTimeBo.UNCOLLECTED_VALUE, aggreJoinResponseTimeBo.getMinAvg());
-        assertEquals(JoinResponseTimeBo.UNKNOWN_AGENT, aggreJoinResponseTimeBo.getMinAvgAgentId());
-        assertEquals(JoinResponseTimeBo.UNCOLLECTED_VALUE, aggreJoinResponseTimeBo.getMaxAvg());
-        assertEquals(JoinResponseTimeBo.UNKNOWN_AGENT, aggreJoinResponseTimeBo.getMaxAvgAgentId());
+        assertEquals(aggreJoinResponseTimeBo.getResponseTimeJoinValue(), new JoinLongFieldBo(JoinResponseTimeBo.UNCOLLECTED_VALUE, JoinResponseTimeBo.UNCOLLECTED_VALUE, JoinResponseTimeBo.UNKNOWN_AGENT, JoinResponseTimeBo.UNCOLLECTED_VALUE, JoinResponseTimeBo.UNKNOWN_AGENT));
     }
 }

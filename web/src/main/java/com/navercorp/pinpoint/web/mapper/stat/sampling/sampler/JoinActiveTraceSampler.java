@@ -16,7 +16,9 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinActiveTraceBo;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -38,13 +40,9 @@ public class JoinActiveTraceSampler implements ApplicationStatSampler<JoinActive
         String id = joinActiveTraceBo.getId();
         int histogramSchemaType = joinActiveTraceBo.getHistogramSchemaType();
         short version = joinActiveTraceBo.getVersion();
-        int totalCount = joinActiveTraceBo.getTotalCount();
-        int maxTotalCount = joinActiveTraceBo.getMaxTotalCount();
-        String maxTotalCountAgentId = joinActiveTraceBo.getMaxTotalCountAgentId();
-        int minTotalCount = joinActiveTraceBo.getMinTotalCount();
-        String minTotalCountAgentId = joinActiveTraceBo.getMinTotalCountAgentId();
-        AggreJoinActiveTraceBo aggreJoinActiveTraceBo = new AggreJoinActiveTraceBo(id, histogramSchemaType, version, totalCount, minTotalCount, minTotalCountAgentId, maxTotalCount, maxTotalCountAgentId, timestamp);
+        JoinIntFieldBo totalCountValue = joinActiveTraceBo.getTotalCountJoinValue();
 
+        AggreJoinActiveTraceBo aggreJoinActiveTraceBo = new AggreJoinActiveTraceBo(id, histogramSchemaType, version, totalCountValue, timestamp);
         return aggreJoinActiveTraceBo;
     }
 }

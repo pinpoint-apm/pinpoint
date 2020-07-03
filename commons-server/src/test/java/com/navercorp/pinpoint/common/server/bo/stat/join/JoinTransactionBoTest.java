@@ -21,7 +21,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -46,11 +46,7 @@ public class JoinTransactionBoTest {
         assertEquals("agent1", joinTransactionBo.getId());
         assertEquals(1496988667231L, joinTransactionBo.getTimestamp());
         assertEquals(5000, joinTransactionBo.getCollectInterval());
-        assertEquals(130, joinTransactionBo.getTotalCount());
-        assertEquals(11, joinTransactionBo.getMinTotalCount());
-        assertEquals("agent5", joinTransactionBo.getMinTotalCountAgentId());
-        assertEquals(630, joinTransactionBo.getMaxTotalCount());
-        assertEquals("agent4", joinTransactionBo.getMaxTotalCountAgentId());
+        assertEquals(new JoinLongFieldBo(130L, 11L, "agent5", 630L, "agent4"), joinTransactionBo.getTotalCountJoinValue());
     }
 
     @Test

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
@@ -71,7 +72,9 @@ public class ApplicationResponseTimeChart implements StatChart {
 
 
         private DoubleApplicationStatPoint newResponseTime(AggreJoinResponseTimeBo time) {
-            return new DoubleApplicationStatPoint(time.getTimestamp(), (double) time.getMinAvg(), time.getMinAvgAgentId(), (double) time.getMaxAvg(), time.getMaxAvgAgentId(), (double) time.getAvg());
+            final JoinLongFieldBo responseTimeJoinValue = time.getResponseTimeJoinValue();
+            return new DoubleApplicationStatPoint(time.getTimestamp(), (double) responseTimeJoinValue.getMin(), responseTimeJoinValue.getMinAgentId(),
+                    (double) responseTimeJoinValue.getMax(), responseTimeJoinValue.getMaxAgentId(), (double) responseTimeJoinValue.getAvg());
         }
 
         @Override

@@ -22,14 +22,17 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeader
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongFieldEncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongFieldStrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StrategyAnalyzer;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StringEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -61,46 +64,34 @@ public class TransactionCodec implements ApplicationStatCodec {
         valueBuffer.putVInt(numValues);
         List<Long> timestamps = new ArrayList<Long>(numValues);
         UnsignedLongEncodingStrategy.Analyzer.Builder collectIntervalAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder totalCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder minTotalCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        StringEncodingStrategy.Analyzer.Builder minTotalCountAgentIdAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder maxTotalCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        StringEncodingStrategy.Analyzer.Builder maxTotalCountAgentIdAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
+        JoinLongFieldStrategyAnalyzer.Builder totalCountAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
 
         for (JoinStatBo joinStatBo : joinTransactionBoList) {
             JoinTransactionBo joinTransactionBo = (JoinTransactionBo) joinStatBo;
             timestamps.add(joinTransactionBo.getTimestamp());
             collectIntervalAnalyzerBuilder.addValue(joinTransactionBo.getCollectInterval());
-            totalCountAnalyzerBuilder.addValue(joinTransactionBo.getTotalCount());
-            minTotalCountAnalyzerBuilder.addValue(joinTransactionBo.getMinTotalCount());
-            minTotalCountAgentIdAnalyzerBuilder.addValue(joinTransactionBo.getMinTotalCountAgentId());
-            maxTotalCountAnalyzerBuilder.addValue(joinTransactionBo.getMaxTotalCount());
-            maxTotalCountAgentIdAnalyzerBuilder.addValue(joinTransactionBo.getMaxTotalCountAgentId());
+            totalCountAnalyzerBuilder.addValue(joinTransactionBo.getTotalCountJoinValue());
         }
 
         codec.encodeTimestamps(valueBuffer, timestamps);
-        encodeDataPoints(valueBuffer, collectIntervalAnalyzerBuilder.build(), totalCountAnalyzerBuilder.build(), minTotalCountAnalyzerBuilder.build(), minTotalCountAgentIdAnalyzerBuilder.build(), maxTotalCountAnalyzerBuilder.build(), maxTotalCountAgentIdAnalyzerBuilder.build());
+        encodeDataPoints(valueBuffer, collectIntervalAnalyzerBuilder.build(), totalCountAnalyzerBuilder.build());
     }
 
-    private void encodeDataPoints(Buffer valueBuffer, StrategyAnalyzer<Long> collectIntervalAnalyzer, StrategyAnalyzer<Long> totalCountAnalyzer, StrategyAnalyzer<Long> minTotalCountAnalyzer, StrategyAnalyzer<String> minTotalCountAgentIdAnalyzer, StrategyAnalyzer<Long> maxTotalCountAnalyzer, StrategyAnalyzer<String> maxTotalCountAgentIdAnalyzer) {
+    private void encodeDataPoints(Buffer valueBuffer, StrategyAnalyzer<Long> collectIntervalAnalyzer, JoinLongFieldStrategyAnalyzer totalCountAnalyzer) {
         AgentStatHeaderEncoder headerEncoder = new BitCountingHeaderEncoder();
         headerEncoder.addCode(collectIntervalAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(totalCountAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(minTotalCountAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(minTotalCountAgentIdAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(maxTotalCountAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(maxTotalCountAgentIdAnalyzer.getBestStrategy().getCode());
+
+        final byte[] codes = totalCountAnalyzer.getBestStrategy().getCodes();
+        for (byte code : codes) {
+            headerEncoder.addCode(code);
+        }
+
         final byte[] header = headerEncoder.getHeader();
         valueBuffer.putPrefixedBytes(header);
 
         this.codec.encodeValues(valueBuffer, collectIntervalAnalyzer.getBestStrategy(), collectIntervalAnalyzer.getValues());
         this.codec.encodeValues(valueBuffer, totalCountAnalyzer.getBestStrategy(), totalCountAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, minTotalCountAnalyzer.getBestStrategy(), minTotalCountAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, minTotalCountAgentIdAnalyzer.getBestStrategy(), minTotalCountAgentIdAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, maxTotalCountAnalyzer.getBestStrategy(), maxTotalCountAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, maxTotalCountAgentIdAnalyzer.getBestStrategy(), maxTotalCountAgentIdAnalyzer.getValues());
     }
-
 
     @Override
     public List<JoinStatBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
@@ -116,18 +107,11 @@ public class TransactionCodec implements ApplicationStatCodec {
         final byte[] header = valueBuffer.readPrefixedBytes();
         AgentStatHeaderDecoder headerDecoder = new BitCountingHeaderDecoder(header);
         EncodingStrategy<Long> collectIntervalEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> totalCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> minTotalCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<String> minTotalCountAgentIdEncodingStrategy = StringEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> maxTotalCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<String> maxTotalCountAgentIdEncodingStrategy = StringEncodingStrategy.getFromCode(headerDecoder.getCode());
+
+        JoinLongFieldEncodingStrategy totalCountEncodingStrategy = JoinLongFieldEncodingStrategy.getFromCode(headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode());
 
         List<Long> collectIntervalList = this.codec.decodeValues(valueBuffer, collectIntervalEncodingStrategy, numValues);
-        List<Long> totalCountList = this.codec.decodeValues(valueBuffer, totalCountEncodingStrategy, numValues);
-        List<Long> minTotalCountList = this.codec.decodeValues(valueBuffer, minTotalCountEncodingStrategy, numValues);
-        List<String> minTotalCountAgentIdList = this.codec.decodeValues(valueBuffer, minTotalCountAgentIdEncodingStrategy, numValues);
-        List<Long> maxTotalCountList = this.codec.decodeValues(valueBuffer, maxTotalCountEncodingStrategy, numValues);
-        List<String> maxTotalCountAgentIdList = this.codec.decodeValues(valueBuffer, maxTotalCountAgentIdEncodingStrategy, numValues);
+        final List<JoinLongFieldBo> totalCountList = this.codec.decodeValues(valueBuffer, totalCountEncodingStrategy, numValues);
 
         List<JoinStatBo> joinTransactionBoList = new ArrayList<JoinStatBo>();
         for (int i = 0 ; i < numValues ; i++) {
@@ -135,11 +119,7 @@ public class TransactionCodec implements ApplicationStatCodec {
             joinTransactionBo.setId(id);
             joinTransactionBo.setTimestamp(timestampList.get(i));
             joinTransactionBo.setCollectInterval(collectIntervalList.get(i));
-            joinTransactionBo.setTotalCount(totalCountList.get(i));
-            joinTransactionBo.setMinTotalCount(minTotalCountList.get(i));
-            joinTransactionBo.setMinTotalCountAgentId(minTotalCountAgentIdList.get(i));
-            joinTransactionBo.setMaxTotalCount(maxTotalCountList.get(i));
-            joinTransactionBo.setMaxTotalCountAgentId(maxTotalCountAgentIdList.get(i));
+            joinTransactionBo.setTotalCountJoinValue(totalCountList.get(i));
             joinTransactionBoList.add(joinTransactionBo);
         }
 

@@ -46,11 +46,7 @@ public class JoinResponseTimeBoTest {
         JoinResponseTimeBo joinResponseTimeBo = JoinResponseTimeBo.joinResponseTimeBoList(joinResponseTimeBoList, time);
         assertEquals("agent1", joinResponseTimeBo.getId());
         assertEquals(time, joinResponseTimeBo.getTimestamp());
-        assertEquals(3000, joinResponseTimeBo.getAvg());
-        assertEquals(2, joinResponseTimeBo.getMinAvg());
-        assertEquals("agent1", joinResponseTimeBo.getMinAvgAgentId());
-        assertEquals(9000, joinResponseTimeBo.getMaxAvg());
-        assertEquals("agent2", joinResponseTimeBo.getMaxAvgAgentId());
+        assertEquals(new JoinLongFieldBo(3000L, 2L, "agent1", 9000L, "agent2"), joinResponseTimeBo.getResponseTimeJoinValue());
     }
 
     @Test

@@ -15,8 +15,10 @@
  */
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinResponseTimeBo;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -36,13 +38,9 @@ public class JoinResponseTimeSampler implements ApplicationStatSampler<JoinRespo
 
         JoinResponseTimeBo joinResponseTimeBo = JoinResponseTimeBo.joinResponseTimeBoList(joinResponseTimeBoList, timestamp);
         String id = joinResponseTimeBo.getId();
-        long avg = joinResponseTimeBo.getAvg();
-        long minAvg = joinResponseTimeBo.getMinAvg();
-        String minAvgAgentId = joinResponseTimeBo.getMinAvgAgentId();
-        long maxAvg = joinResponseTimeBo.getMaxAvg();
-        String maxAvgAgentId = joinResponseTimeBo.getMaxAvgAgentId();
+        JoinLongFieldBo responseTimeJoinValue = joinResponseTimeBo.getResponseTimeJoinValue();
 
-        AggreJoinResponseTimeBo aggreJoinResponseTimeBo = new AggreJoinResponseTimeBo(id, timestamp, avg, minAvg, minAvgAgentId, maxAvg, maxAvgAgentId);
+        AggreJoinResponseTimeBo aggreJoinResponseTimeBo = new AggreJoinResponseTimeBo(id, timestamp, responseTimeJoinValue);
         return aggreJoinResponseTimeBo;
     }
 }

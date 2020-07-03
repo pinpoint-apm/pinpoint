@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
@@ -73,13 +74,15 @@ public class ApplicationMemoryChart implements StatChart {
         }
 
         private DoubleApplicationStatPoint newHeap(AggreJoinMemoryBo memory) {
-            return new DoubleApplicationStatPoint(memory.getTimestamp(), (double) memory.getMinHeapUsed(), memory.getMinHeapAgentId(),
-                    (double) memory.getMaxHeapUsed(), memory.getMaxHeapAgentId(), (double) memory.getHeapUsed());
+            final JoinLongFieldBo heapUsedJoinValue = memory.getHeapUsedJoinValue();
+            return new DoubleApplicationStatPoint(memory.getTimestamp(), (double) heapUsedJoinValue.getMin(), heapUsedJoinValue.getMinAgentId(),
+                    (double) heapUsedJoinValue.getMax(), heapUsedJoinValue.getMaxAgentId(), (double) heapUsedJoinValue.getAvg());
         }
 
         private DoubleApplicationStatPoint newNonHeap(AggreJoinMemoryBo memory) {
-            return new DoubleApplicationStatPoint(memory.getTimestamp(), (double) memory.getMinNonHeapUsed(), memory.getMinNonHeapAgentId(),
-                    (double) memory.getMaxNonHeapUsed(), memory.getMaxNonHeapAgentId(), (double) memory.getNonHeapUsed());
+            final JoinLongFieldBo nonHeapUsedJoinValue = memory.getNonHeapUsedJoinValue();
+            return new DoubleApplicationStatPoint(memory.getTimestamp(), (double) nonHeapUsedJoinValue.getMin(), nonHeapUsedJoinValue.getMinAgentId(),
+                    (double) nonHeapUsedJoinValue.getMax(), nonHeapUsedJoinValue.getMaxAgentId(), (double) nonHeapUsedJoinValue.getAvg());
         }
 
         private Chart<DoubleApplicationStatPoint> newChart(List<AggreJoinMemoryBo> aggreJoinMemoryBoList, Function<AggreJoinMemoryBo, DoubleApplicationStatPoint> filter) {

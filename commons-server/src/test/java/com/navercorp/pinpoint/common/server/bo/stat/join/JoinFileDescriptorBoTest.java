@@ -44,11 +44,7 @@ public class JoinFileDescriptorBoTest {
         JoinFileDescriptorBo joinFileDescriptorBo = JoinFileDescriptorBo.joinFileDescriptorBoList(joinFileDescriptorBoList, 1496988667231L);
         assertEquals(joinFileDescriptorBo.getId(), "agent1");
         assertEquals(joinFileDescriptorBo.getTimestamp(), 1496988667231L);
-        assertEquals(joinFileDescriptorBo.getAvgOpenFDCount(), 30, 0);
-        assertEquals(joinFileDescriptorBo.getMinOpenFDCount(), 7, 0);
-        assertEquals(joinFileDescriptorBo.getMinOpenFDCountAgentId(), "agent3");
-        assertEquals(joinFileDescriptorBo.getMaxOpenFDCount(), 80, 0);
-        assertEquals(joinFileDescriptorBo.getMaxOpenFDCountAgentId(), "agent4");
+        assertEquals(new JoinLongFieldBo(30L, 7L, "agent3", 80L, "agent4"), joinFileDescriptorBo.getOpenFdCountJoinValue());
     }
 
     @Test

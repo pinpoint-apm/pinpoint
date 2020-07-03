@@ -17,12 +17,14 @@
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
-import com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinCpuLoadBoMapper;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFCpuLoad;
+
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author minwoo.jung
@@ -45,12 +47,14 @@ public class JoinThriftCpuLoadBoMapperTest {
         assertNotNull(joinCpuLoadBo);
         assertEquals(joinCpuLoadBo.getId(), "testAgent");
         assertEquals(joinCpuLoadBo.getTimestamp(), 1491274138454L);
-        assertEquals(joinCpuLoadBo.getJvmCpuLoad(), 10, 0);
-        assertEquals(joinCpuLoadBo.getMinJvmCpuLoad(), 10, 0);
-        assertEquals(joinCpuLoadBo.getMaxJvmCpuLoad(), 10, 0);
-        assertEquals(joinCpuLoadBo.getSystemCpuLoad(), 30, 0);
-        assertEquals(joinCpuLoadBo.getMinSystemCpuLoad(), 30, 0);
-        assertEquals(joinCpuLoadBo.getMaxSystemCpuLoad(), 30, 0);
+        final JoinDoubleFieldBo jvmCpuLoadJoinValue = joinCpuLoadBo.getJvmCpuLoadJoinValue();
+        assertEquals(jvmCpuLoadJoinValue.getAvg(), 10, 0);
+        assertEquals(jvmCpuLoadJoinValue.getMin(), 10, 0);
+        assertEquals(jvmCpuLoadJoinValue.getMax(), 10, 0);
+        final JoinDoubleFieldBo systemCpuLoadJoinValue = joinCpuLoadBo.getSystemCpuLoadJoinValue();
+        assertEquals(systemCpuLoadJoinValue.getAvg(), 30, 0);
+        assertEquals(systemCpuLoadJoinValue.getMin(), 30, 0);
+        assertEquals(systemCpuLoadJoinValue.getMax(), 30, 0);
     }
 
     @Test

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
@@ -73,10 +74,11 @@ public class ApplicationTransactionChart implements StatChart {
 
 
         private DoubleApplicationStatPoint newTransactionPoint(AggreJoinTransactionBo transaction) {
-            double minTotalCount = calculateTPS(transaction.getMinTotalCount(), transaction.getCollectInterval());
-            double maxTotalCount = calculateTPS(transaction.getMaxTotalCount(), transaction.getCollectInterval());
-            double totalCount = calculateTPS(transaction.getTotalCount(), transaction.getCollectInterval());
-            return new DoubleApplicationStatPoint(transaction.getTimestamp(), minTotalCount, transaction.getMinTotalCountAgentId(), maxTotalCount, transaction.getMaxTotalCountAgentId(), totalCount);
+            final JoinLongFieldBo totalCountJoinValue = transaction.getTotalCountJoinValue();
+            double minTotalCount = calculateTPS(totalCountJoinValue.getMin(), transaction.getCollectInterval());
+            double maxTotalCount = calculateTPS(totalCountJoinValue.getMax(), transaction.getCollectInterval());
+            double totalCount = calculateTPS(totalCountJoinValue.getAvg(), transaction.getCollectInterval());
+            return new DoubleApplicationStatPoint(transaction.getTimestamp(), minTotalCount, totalCountJoinValue.getMinAgentId(), maxTotalCount, totalCountJoinValue.getMaxAgentId(), totalCount);
         }
 
         private double calculateTPS(double value, long timeMs) {

@@ -16,7 +16,9 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinFileDescriptorBo;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -37,13 +39,9 @@ public class JoinFileDescriptorSampler implements ApplicationStatSampler<JoinFil
         JoinFileDescriptorBo joinFileDescriptorBo = JoinFileDescriptorBo.joinFileDescriptorBoList(joinFileDescriptorBoList, timestamp);
 
         String id = joinFileDescriptorBo.getId();
-        long openFileDescriptorCount = joinFileDescriptorBo.getAvgOpenFDCount();
-        long minOpenFileDescriptor = joinFileDescriptorBo.getMinOpenFDCount();
-        String minOpenFileDescriptorAgentId = joinFileDescriptorBo.getMinOpenFDCountAgentId();
-        long maxOpenFileDescriptor  = joinFileDescriptorBo.getMaxOpenFDCount();
-        String maxOpenFileDescriptorAgentId = joinFileDescriptorBo.getMaxOpenFDCountAgentId();
+        final JoinLongFieldBo openFdCountJoinValue = joinFileDescriptorBo.getOpenFdCountJoinValue();
 
-        AggreJoinFileDescriptorBo aggreJoinFileDescriptorBo = new AggreJoinFileDescriptorBo(id, openFileDescriptorCount, maxOpenFileDescriptor , maxOpenFileDescriptorAgentId, minOpenFileDescriptor, minOpenFileDescriptorAgentId, timestamp);
+        AggreJoinFileDescriptorBo aggreJoinFileDescriptorBo = new AggreJoinFileDescriptorBo(id, openFdCountJoinValue, timestamp);
         return aggreJoinFileDescriptorBo;
     }
 }

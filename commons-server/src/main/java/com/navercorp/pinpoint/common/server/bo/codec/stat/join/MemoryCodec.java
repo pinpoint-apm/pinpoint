@@ -22,13 +22,13 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeader
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StrategyAnalyzer;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StringEncodingStrategy;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
-import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongFieldEncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongFieldStrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -64,72 +64,39 @@ public class MemoryCodec implements ApplicationStatCodec {
         final int numValues = joinMemoryBoList.size();
         valueBuffer.putVInt(numValues);
         List<Long> timestamps = new ArrayList<Long>(numValues);
-        UnsignedLongEncodingStrategy.Analyzer.Builder heapUsedAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder minHeapUsedAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        StringEncodingStrategy.Analyzer.Builder minHeapAgentIdAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder maxHeapUsedAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        StringEncodingStrategy.Analyzer.Builder maxHeapAgentIdAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder nonHeapUsedAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder minNonHeapUsedAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        StringEncodingStrategy.Analyzer.Builder minNonHeapAgentIdAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder maxNonHeapUsedAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        StringEncodingStrategy.Analyzer.Builder maxNonHeapAgentIdAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
+        JoinLongFieldStrategyAnalyzer.Builder heapUsedAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
+        JoinLongFieldStrategyAnalyzer.Builder nonHeapUsedAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
 
         for (JoinStatBo joinStatBo : joinMemoryBoList) {
             JoinMemoryBo joinMemoryBo = (JoinMemoryBo) joinStatBo;
             timestamps.add(joinMemoryBo.getTimestamp());
-            heapUsedAnalyzerBuilder.addValue(joinMemoryBo.getHeapUsed());
-            minHeapUsedAnalyzerBuilder.addValue(joinMemoryBo.getMinHeapUsed());
-            minHeapAgentIdAnalyzerBuilder.addValue(joinMemoryBo.getMinHeapAgentId());
-            maxHeapUsedAnalyzerBuilder.addValue(joinMemoryBo.getMaxHeapUsed());
-            maxHeapAgentIdAnalyzerBuilder.addValue(joinMemoryBo.getMaxHeapAgentId());
-            nonHeapUsedAnalyzerBuilder.addValue(joinMemoryBo.getNonHeapUsed());
-            minNonHeapUsedAnalyzerBuilder.addValue(joinMemoryBo.getMinNonHeapUsed());
-            minNonHeapAgentIdAnalyzerBuilder.addValue(joinMemoryBo.getMinNonHeapAgentId());
-            maxNonHeapUsedAnalyzerBuilder.addValue(joinMemoryBo.getMaxNonHeapUsed());
-            maxNonHeapAgentIdAnalyzerBuilder.addValue(joinMemoryBo.getMaxNonHeapAgentId());
+            heapUsedAnalyzerBuilder.addValue(joinMemoryBo.getHeapUsedJoinValue());
+            nonHeapUsedAnalyzerBuilder.addValue(joinMemoryBo.getNonHeapUsedJoinValue());
         }
 
         codec.encodeTimestamps(valueBuffer, timestamps);
-        encodeDataPoints(valueBuffer, heapUsedAnalyzerBuilder.build(), minHeapUsedAnalyzerBuilder.build(), minHeapAgentIdAnalyzerBuilder.build(), maxHeapUsedAnalyzerBuilder.build(), maxHeapAgentIdAnalyzerBuilder.build(), nonHeapUsedAnalyzerBuilder.build(), minNonHeapUsedAnalyzerBuilder.build(), minNonHeapAgentIdAnalyzerBuilder.build(), maxNonHeapUsedAnalyzerBuilder.build(), maxNonHeapAgentIdAnalyzerBuilder.build());
+        encodeDataPoints(valueBuffer, heapUsedAnalyzerBuilder.build(), nonHeapUsedAnalyzerBuilder.build());
     }
 
     private void encodeDataPoints(Buffer valueBuffer,
-                                  StrategyAnalyzer<Long> heapUsedStrategyAnalyzer,
-                                  StrategyAnalyzer<Long> minHeapUsedStrategyAnalyzer,
-                                  StrategyAnalyzer<String> minHeapAgentIdStrategyAnalyzer,
-                                  StrategyAnalyzer<Long> maxHeapUsedStrategyAnalyzer,
-                                  StrategyAnalyzer<String> maxHeapAgentIdStrategyAnalyzer,
-                                  StrategyAnalyzer<Long> nonHeapUsedStrategyAnalyzer,
-                                  StrategyAnalyzer<Long> minNonHeapUsedStrategyAnalyzer,
-                                  StrategyAnalyzer<String> minNonHeapAgentIdStrategyAnalyzer,
-                                  StrategyAnalyzer<Long> maxNonHeapUsedStrategyAnalyzer,
-                                  StrategyAnalyzer<String> maxNonHeapAgentIdStrategyAnalyzer) {
+                                  JoinLongFieldStrategyAnalyzer heapUsedStrategyAnalyzer,
+                                  JoinLongFieldStrategyAnalyzer nonHeapUsedStrategyAnalyzer) {
         // encode header
         AgentStatHeaderEncoder headerEncoder = new BitCountingHeaderEncoder();
-        headerEncoder.addCode(heapUsedStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(minHeapUsedStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(minHeapAgentIdStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(maxHeapUsedStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(maxHeapAgentIdStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(nonHeapUsedStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(minNonHeapUsedStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(minNonHeapAgentIdStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(maxNonHeapUsedStrategyAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(maxNonHeapAgentIdStrategyAnalyzer.getBestStrategy().getCode());
+        byte[] codes = heapUsedStrategyAnalyzer.getBestStrategy().getCodes();
+        for (byte code : codes) {
+            headerEncoder.addCode(code);
+        }
+        codes = nonHeapUsedStrategyAnalyzer.getBestStrategy().getCodes();
+        for (byte code : codes) {
+            headerEncoder.addCode(code);
+        }
+
         final byte[] header = headerEncoder.getHeader();
         valueBuffer.putPrefixedBytes(header);
         // encode values
         this.codec.encodeValues(valueBuffer, heapUsedStrategyAnalyzer.getBestStrategy(), heapUsedStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, minHeapUsedStrategyAnalyzer.getBestStrategy(), minHeapUsedStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, minHeapAgentIdStrategyAnalyzer.getBestStrategy(), minHeapAgentIdStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, maxHeapUsedStrategyAnalyzer.getBestStrategy(), maxHeapUsedStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, maxHeapAgentIdStrategyAnalyzer.getBestStrategy(), maxHeapAgentIdStrategyAnalyzer.getValues());
         this.codec.encodeValues(valueBuffer, nonHeapUsedStrategyAnalyzer.getBestStrategy(), nonHeapUsedStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, minNonHeapUsedStrategyAnalyzer.getBestStrategy(), minNonHeapUsedStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, minNonHeapAgentIdStrategyAnalyzer.getBestStrategy(), minNonHeapAgentIdStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, maxNonHeapUsedStrategyAnalyzer.getBestStrategy(), maxNonHeapUsedStrategyAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, maxNonHeapAgentIdStrategyAnalyzer.getBestStrategy(), maxNonHeapAgentIdStrategyAnalyzer.getValues());
     }
 
     @Override
@@ -145,47 +112,23 @@ public class MemoryCodec implements ApplicationStatCodec {
         // decode headers
         final byte[] header = valueBuffer.readPrefixedBytes();
         AgentStatHeaderDecoder headerDecoder = new BitCountingHeaderDecoder(header);
-        EncodingStrategy<Long> heapUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> minHeapUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<String> minHeapAgentIdEncodingStrategy = StringEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> maxHeapUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<String> maxHeapAgentIdEncodingStrategy = StringEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> nonHeapUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> minNonHeapUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<String> minNonHeapAgentIdEncodingStrategy = StringEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> maxNonHeapUsedEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<String> maxNonHeapAgentIdEncodingStrategy = StringEncodingStrategy.getFromCode(headerDecoder.getCode());
+        JoinLongFieldEncodingStrategy heapUsedEncodingStrategy = JoinLongFieldEncodingStrategy.getFromCode(headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode());
+        JoinLongFieldEncodingStrategy nonHeapUsedEncodingStrategy = JoinLongFieldEncodingStrategy.getFromCode(headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode());
 
         // decode values
-        List<Long> heapUsedList = this.codec.decodeValues(valueBuffer, heapUsedEncodingStrategy, numValues);
-        List<Long> minHeapUsedList = this.codec.decodeValues(valueBuffer, minHeapUsedEncodingStrategy, numValues);
-        List<String> minHeapAgentIdLIst = this.codec.decodeValues(valueBuffer, minHeapAgentIdEncodingStrategy, numValues);
-        List<Long> maxHeapUsedList = this.codec.decodeValues(valueBuffer, maxHeapUsedEncodingStrategy, numValues);
-        List<String> maxHeapAgentIdList = this.codec.decodeValues(valueBuffer, maxHeapAgentIdEncodingStrategy, numValues);
-        List<Long> nonHeapUsedList = this.codec.decodeValues(valueBuffer, nonHeapUsedEncodingStrategy, numValues);
-        List<Long> minNonHeapUsedList = this.codec.decodeValues(valueBuffer, minNonHeapUsedEncodingStrategy, numValues);
-        List<String> minNonHeapAgentIdList = this.codec.decodeValues(valueBuffer, minNonHeapAgentIdEncodingStrategy, numValues);
-        List<Long> maxNonHeapUsedList = this.codec.decodeValues(valueBuffer, maxNonHeapUsedEncodingStrategy, numValues);
-        List<String> maxNonHeapAGentidList = this.codec.decodeValues(valueBuffer, maxNonHeapAgentIdEncodingStrategy, numValues);
+        final List<JoinLongFieldBo> heapUsedList = this.codec.decodeValues(valueBuffer, heapUsedEncodingStrategy, numValues);
+        final List<JoinLongFieldBo> nonHeapUsedList = this.codec.decodeValues(valueBuffer, nonHeapUsedEncodingStrategy, numValues);
 
-        List<JoinStatBo> joinCpuLoadBoList = new ArrayList<JoinStatBo>(numValues);
+        List<JoinStatBo> joinMemoryBoList = new ArrayList<JoinStatBo>(numValues);
         for (int i = 0; i < numValues; i++) {
             JoinMemoryBo joinMemoryBo = new JoinMemoryBo();
             joinMemoryBo.setId(id);
             joinMemoryBo.setTimestamp(timestamps.get(i));
-            joinMemoryBo.setHeapUsed(heapUsedList.get(i));
-            joinMemoryBo.setMinHeapUsed(minHeapUsedList.get(i));
-            joinMemoryBo.setMinHeapAgentId(minHeapAgentIdLIst.get(i));
-            joinMemoryBo.setMaxHeapUsed(maxHeapUsedList.get(i));
-            joinMemoryBo.setMaxHeapAgentId(maxHeapAgentIdList.get(i));
-            joinMemoryBo.setNonHeapUsed(nonHeapUsedList.get(i));
-            joinMemoryBo.setMinNonHeapUsed(minNonHeapUsedList.get(i));
-            joinMemoryBo.setMinNonHeapAgentId(minNonHeapAgentIdList.get(i));
-            joinMemoryBo.setMaxNonHeapUsed(maxNonHeapUsedList.get(i));
-            joinMemoryBo.setMaxNonHeapAgentId(maxNonHeapAGentidList.get(i));
-            joinCpuLoadBoList.add(joinMemoryBo);
+            joinMemoryBo.setHeapUsedJoinValue(heapUsedList.get(i));
+            joinMemoryBo.setNonHeapUsedJoinValue(nonHeapUsedList.get(i));
+            joinMemoryBoList.add(joinMemoryBo);
         }
 
-        return joinCpuLoadBoList;
+        return joinMemoryBoList;
     }
 }

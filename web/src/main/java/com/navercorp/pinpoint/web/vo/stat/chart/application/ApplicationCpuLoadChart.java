@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -76,11 +77,15 @@ public class ApplicationCpuLoadChart implements StatChart {
         }
 
         private DoubleApplicationStatPoint newSystemCpu(AggreJoinCpuLoadBo cpuLoad) {
-            return new DoubleApplicationStatPoint(cpuLoad.getTimestamp(), cpuLoad.getMinSystemCpuLoad(), cpuLoad.getMinSysCpuAgentId(), cpuLoad.getMaxSystemCpuLoad(), cpuLoad.getMaxSysCpuAgentId(), cpuLoad.getSystemCpuLoad());
+            final JoinDoubleFieldBo systemCpuLoadJoinValue = cpuLoad.getSystemCpuLoadJoinValue();
+            return new DoubleApplicationStatPoint(cpuLoad.getTimestamp(), systemCpuLoadJoinValue.getMin(), systemCpuLoadJoinValue.getMinAgentId(),
+                    systemCpuLoadJoinValue.getMax(), systemCpuLoadJoinValue.getMaxAgentId(), systemCpuLoadJoinValue.getAvg());
         }
 
         private DoubleApplicationStatPoint newJvmCpu(AggreJoinCpuLoadBo cpuLoad) {
-            return new DoubleApplicationStatPoint(cpuLoad.getTimestamp(), cpuLoad.getMinJvmCpuLoad(), cpuLoad.getMinJvmCpuAgentId(), cpuLoad.getMaxJvmCpuLoad(), cpuLoad.getMaxJvmCpuAgentId(), cpuLoad.getJvmCpuLoad());
+            final JoinDoubleFieldBo jvmCpuLoadJoinValue = cpuLoad.getJvmCpuLoadJoinValue();
+            return new DoubleApplicationStatPoint(cpuLoad.getTimestamp(), jvmCpuLoadJoinValue.getMin(), jvmCpuLoadJoinValue.getMinAgentId(),
+                    jvmCpuLoadJoinValue.getMax(), jvmCpuLoadJoinValue.getMaxAgentId(), jvmCpuLoadJoinValue.getAvg());
         }
 
         @Override

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTotalThreadCountBo;
 import org.junit.Test;
@@ -41,10 +42,6 @@ public class JoinTotalThreadSamplerTest {
 
         AggreJoinTotalThreadCountBo aggreJoinTotalThraedCountBo = joinTotalThreadCountSampler.sampleDataPoints(0, new Date().getTime(), joinTotalThreadCountBoList,  new JoinTotalThreadCountBo());
         assertEquals(aggreJoinTotalThraedCountBo.getId(), "testApp");
-        assertEquals(aggreJoinTotalThraedCountBo.getAvgTotalThreadCount(), 33, 0);
-        assertEquals(aggreJoinTotalThraedCountBo.getMinTotalThreadCount(), 39, 0);
-        assertEquals(aggreJoinTotalThraedCountBo.getMinTotalThreadCountAgentId(), "agent3_1");
-        assertEquals(aggreJoinTotalThraedCountBo.getMaxTotalThreadCount(), 90, 0);
-        assertEquals(aggreJoinTotalThraedCountBo.getMaxTotalThreadCountAgentId(), "agent3_2");
+        assertEquals(aggreJoinTotalThraedCountBo.getTotalThreadCountJoinValue(), new JoinLongFieldBo(33L, 39L, "agent3_1", 90L, "agent3_2"));
     }
 }

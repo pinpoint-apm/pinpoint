@@ -16,6 +16,8 @@
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author minwoo.jung
@@ -26,24 +28,20 @@ public class JoinTransactionBo implements JoinStatBo {
 
     private String id = UNKNOWN_ID;
     private long collectInterval = UNCOLLECTED_VALUE;
-    private long totalCount = UNCOLLECTED_VALUE;
-    private String maxTotalCountAgentId = UNKNOWN_AGENT;
-    private long maxTotalCount = UNCOLLECTED_VALUE;
-    private String minTotalCountAgentId = UNKNOWN_AGENT;
-    private long minTotalCount = UNCOLLECTED_VALUE;
+    private JoinLongFieldBo totalCountJoinValue = JoinLongFieldBo.UNCOLLECTED_FIELD_BO;
     private long timestamp = Long.MIN_VALUE;
 
     public JoinTransactionBo() {
     }
 
     public JoinTransactionBo(String id, long collectInterval, long totalCount, long minTotalCount, String minTotalCountAgentId, long maxTotalCount, String maxTotalCountAgentId, long timestamp) {
+        this(id, collectInterval, new JoinLongFieldBo(totalCount, minTotalCount, minTotalCountAgentId, maxTotalCount, maxTotalCountAgentId), timestamp);
+    }
+
+    public JoinTransactionBo(String id, long collectInterval, JoinLongFieldBo totalCountJoinValue, long timestamp) {
         this.id = id;
         this.collectInterval = collectInterval;
-        this.totalCount = totalCount;
-        this.maxTotalCountAgentId = maxTotalCountAgentId;
-        this.maxTotalCount = maxTotalCount;
-        this.minTotalCountAgentId = minTotalCountAgentId;
-        this.minTotalCount = minTotalCount;
+        this.totalCountJoinValue = Objects.requireNonNull(totalCountJoinValue, "totalCountJoinValue");
         this.timestamp = timestamp;
     }
 
@@ -59,44 +57,12 @@ public class JoinTransactionBo implements JoinStatBo {
         this.collectInterval = collectInterval;
     }
 
-    public long getTotalCount() {
-        return totalCount;
+    public JoinLongFieldBo getTotalCountJoinValue() {
+        return totalCountJoinValue;
     }
 
-    public void setTotalCount(long totalCount) {
-        this.totalCount = totalCount;
-    }
-
-    public String getMaxTotalCountAgentId() {
-        return maxTotalCountAgentId;
-    }
-
-    public void setMaxTotalCountAgentId(String maxTotalCountAgentId) {
-        this.maxTotalCountAgentId = maxTotalCountAgentId;
-    }
-
-    public long getMaxTotalCount() {
-        return maxTotalCount;
-    }
-
-    public void setMaxTotalCount(long maxTotalCount) {
-        this.maxTotalCount = maxTotalCount;
-    }
-
-    public String getMinTotalCountAgentId() {
-        return minTotalCountAgentId;
-    }
-
-    public void setMinTotalCountAgentId(String minTotalCountAgentId) {
-        this.minTotalCountAgentId = minTotalCountAgentId;
-    }
-
-    public long getMinTotalCount() {
-        return minTotalCount;
-    }
-
-    public void setMinTotalCount(long minTotalCount) {
-        this.minTotalCount = minTotalCount;
+    public void setTotalCountJoinValue(JoinLongFieldBo totalCountJoinValue) {
+        this.totalCountJoinValue = totalCountJoinValue;
     }
 
     @Override
@@ -115,56 +81,21 @@ public class JoinTransactionBo implements JoinStatBo {
 
     public static JoinTransactionBo joinTransactionBoLIst(List<JoinTransactionBo> joinTransactionBoList, Long timestamp) {
         final int boCount = joinTransactionBoList.size();
-
         if (boCount == 0) {
             return JoinTransactionBo.EMPTY_JOIN_TRANSACTION_BO;
         }
 
-        final JoinTransactionBo initJoinTransactionBo = joinTransactionBoList.get(0);
-        long sumTotalCount = 0;
-        String maxTotalCountAgentId = initJoinTransactionBo.getMaxTotalCountAgentId();
-        long maxTotalCount = initJoinTransactionBo.getMaxTotalCount();
-        String minTotalCountAgentId = initJoinTransactionBo.getMinTotalCountAgentId();
-        long minTotalCount = initJoinTransactionBo.getMinTotalCount();
+        List<JoinLongFieldBo> totalCountFieldBoList = joinTransactionBoList.stream().map(e -> e.getTotalCountJoinValue()).collect(Collectors.toList());
+        final JoinLongFieldBo totalCountJoinValue = JoinLongFieldBo.merge(totalCountFieldBoList);
 
-        for (JoinTransactionBo joinTransactionBo : joinTransactionBoList) {
-            sumTotalCount += joinTransactionBo.getTotalCount();
-
-            if (joinTransactionBo.getMaxTotalCount() > maxTotalCount) {
-                maxTotalCount = joinTransactionBo.getMaxTotalCount();
-                maxTotalCountAgentId = joinTransactionBo.getMaxTotalCountAgentId();
-            }
-            if (joinTransactionBo.getMinTotalCount() < minTotalCount) {
-                minTotalCount = joinTransactionBo.getMinTotalCount();
-                minTotalCountAgentId = joinTransactionBo.getMinTotalCountAgentId();
-            }
-        }
+        final JoinTransactionBo firstJoinTransactionBo = joinTransactionBoList.get(0);
 
         final JoinTransactionBo newJoinTransactionBo = new JoinTransactionBo();
-        newJoinTransactionBo.setId(initJoinTransactionBo.getId());
+        newJoinTransactionBo.setId(firstJoinTransactionBo.getId());
         newJoinTransactionBo.setTimestamp(timestamp);
-        newJoinTransactionBo.setTotalCount(sumTotalCount / (long)boCount);
-        newJoinTransactionBo.setCollectInterval(initJoinTransactionBo.getCollectInterval());
-        newJoinTransactionBo.setMaxTotalCount(maxTotalCount);
-        newJoinTransactionBo.setMaxTotalCountAgentId(maxTotalCountAgentId);
-        newJoinTransactionBo.setMinTotalCount(minTotalCount);
-        newJoinTransactionBo.setMinTotalCountAgentId(minTotalCountAgentId);
-
+        newJoinTransactionBo.setCollectInterval(firstJoinTransactionBo.getCollectInterval());
+        newJoinTransactionBo.setTotalCountJoinValue(totalCountJoinValue);
         return newJoinTransactionBo;
-    }
-
-    @Override
-    public String toString() {
-        return "JoinTransactionBo{" +
-            "id='" + id + '\'' +
-            ", timestamp=" + timestamp  +
-            ", totalCount=" + totalCount +
-            ", maxTotalCountAgentId='" + maxTotalCountAgentId + '\'' +
-            ", maxTotalCount=" + maxTotalCount +
-            ", minTotalCountAgentId='" + minTotalCountAgentId + '\'' +
-            ", minTotalCount=" + minTotalCount +
-            ", collectInterval=" + collectInterval +
-            '}';
     }
 
     @Override
@@ -175,26 +106,29 @@ public class JoinTransactionBo implements JoinStatBo {
         JoinTransactionBo that = (JoinTransactionBo) o;
 
         if (collectInterval != that.collectInterval) return false;
-        if (totalCount != that.totalCount) return false;
-        if (maxTotalCount != that.maxTotalCount) return false;
-        if (minTotalCount != that.minTotalCount) return false;
         if (timestamp != that.timestamp) return false;
-        if (!id.equals(that.id)) return false;
-        if (!maxTotalCountAgentId.equals(that.maxTotalCountAgentId)) return false;
-        return minTotalCountAgentId.equals(that.minTotalCountAgentId);
-
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        return totalCountJoinValue != null ? totalCountJoinValue.equals(that.totalCountJoinValue) : that.totalCountJoinValue == null;
     }
 
     @Override
     public int hashCode() {
-        int result = id.hashCode();
+        int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (int) (collectInterval ^ (collectInterval >>> 32));
-        result = 31 * result + (int) (totalCount ^ (totalCount >>> 32));
-        result = 31 * result + maxTotalCountAgentId.hashCode();
-        result = 31 * result + (int) (maxTotalCount ^ (maxTotalCount >>> 32));
-        result = 31 * result + minTotalCountAgentId.hashCode();
-        result = 31 * result + (int) (minTotalCount ^ (minTotalCount >>> 32));
+        result = 31 * result + (totalCountJoinValue != null ? totalCountJoinValue.hashCode() : 0);
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         return result;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("JoinTransactionBo{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", collectInterval=").append(collectInterval);
+        sb.append(", totalCountJoinValue=").append(totalCountJoinValue);
+        sb.append(", timestamp=").append(timestamp);
+        sb.append('}');
+        return sb.toString();
+    }
+
 }

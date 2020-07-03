@@ -16,14 +16,16 @@
 
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -38,16 +40,8 @@ public class JoinMemorySamplerTest {
         AggreJoinMemoryBo aggreJoinMemoryBo = new JoinMemorySampler().sampleDataPoints(1, currentTime, joinMemoryBoList, JoinMemoryBo.EMPTY_JOIN_MEMORY_BO);
         assertEquals(aggreJoinMemoryBo.getId(), ID);
         assertEquals(aggreJoinMemoryBo.getTimestamp(), currentTime);
-        assertEquals(aggreJoinMemoryBo.getHeapUsed(), 3000);
-        assertEquals(aggreJoinMemoryBo.getMinHeapUsed(), 100);
-        assertEquals(aggreJoinMemoryBo.getMaxHeapUsed(), 8000);
-        assertEquals(aggreJoinMemoryBo.getMinHeapAgentId(), "app_4_1");
-        assertEquals(aggreJoinMemoryBo.getMaxHeapAgentId(), "app_3_2");
-        assertEquals(aggreJoinMemoryBo.getNonHeapUsed(), 300);
-        assertEquals(aggreJoinMemoryBo.getMinNonHeapUsed(), 50);
-        assertEquals(aggreJoinMemoryBo.getMaxNonHeapUsed(), 2900);
-        assertEquals(aggreJoinMemoryBo.getMinNonHeapAgentId(), "app_1_3");
-        assertEquals(aggreJoinMemoryBo.getMaxNonHeapAgentId(), "app_5_4");
+        assertEquals(aggreJoinMemoryBo.getHeapUsedJoinValue(), new JoinLongFieldBo(3000L, 100L, "app_4_1", 8000L, "app_3_2"));
+        assertEquals(aggreJoinMemoryBo.getNonHeapUsedJoinValue(), new JoinLongFieldBo(300L, 50L, "app_1_3", 2900L, "app_5_4"));
     }
 
     private List<JoinMemoryBo> createJoinMemoryBoList(long currentTime) {

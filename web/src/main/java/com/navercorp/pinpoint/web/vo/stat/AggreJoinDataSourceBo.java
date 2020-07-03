@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 
 
 /**
@@ -28,6 +29,11 @@ public class AggreJoinDataSourceBo extends JoinDataSourceBo implements Aggregati
 
     public AggreJoinDataSourceBo(short serviceTypeCode, String url, int avgActiveConnectionSize, int minActiveConnectionSize, String minActiveConnectionAgentId, int maxActiveConnectionSize, String maxActiveConnectionAgentId ,long timestamp) {
         super(serviceTypeCode, url, avgActiveConnectionSize, minActiveConnectionSize, minActiveConnectionAgentId, maxActiveConnectionSize, maxActiveConnectionAgentId);
+        this.timestamp = timestamp;
+    }
+
+    public AggreJoinDataSourceBo(short serviceTypeCode, String url, JoinIntFieldBo activeConnectionSize, long timestamp) {
+        super(serviceTypeCode, url, activeConnectionSize);
         this.timestamp = timestamp;
     }
 

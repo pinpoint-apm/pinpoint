@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 import com.navercorp.pinpoint.flink.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
@@ -32,11 +33,7 @@ public class JoinTotalThreadCountBoMapper implements ThriftBoMapper<JoinTotalThr
         final long totalThreadCount = tFAgentStat.getTotalThreadCount().getTotalThreadCount();
         joinTotalThreadCountBo.setId(agentId);
         joinTotalThreadCountBo.setTimestamp(tFAgentStat.getTimestamp());
-        joinTotalThreadCountBo.setAvgTotalThreadCount(totalThreadCount);
-        joinTotalThreadCountBo.setMinTotalThreadCount(totalThreadCount);
-        joinTotalThreadCountBo.setMinTotalThreadCountAgentId(agentId);
-        joinTotalThreadCountBo.setMaxTotalThreadCount(totalThreadCount);
-        joinTotalThreadCountBo.setMaxTotalThreadCountAgentId(agentId);
+        joinTotalThreadCountBo.setTotalThreadCountJoinValue(new JoinLongFieldBo(totalThreadCount, totalThreadCount, agentId, totalThreadCount, agentId));
         return joinTotalThreadCountBo;
     }
 }

@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
 import org.apache.commons.collections.CollectionUtils;
@@ -37,12 +38,9 @@ public class JoinTransactionSampler implements ApplicationStatSampler<JoinTransa
         JoinTransactionBo joinTransactionBo = JoinTransactionBo.joinTransactionBoLIst(joinTransactionBoList, timestamp);
         String id = joinTransactionBo.getId();
         long collectInterval = joinTransactionBo.getCollectInterval();
-        long totalCount = joinTransactionBo.getTotalCount();
-        long maxTotalCount = joinTransactionBo.getMaxTotalCount();
-        String maxTotalCountAgentId = joinTransactionBo.getMaxTotalCountAgentId();
-        long minTotalCount = joinTransactionBo.getMinTotalCount();
-        String minTotalCountAgentId = joinTransactionBo.getMinTotalCountAgentId();
-        AggreJoinTransactionBo aggreJoinTransactionBo = new AggreJoinTransactionBo(id, collectInterval, totalCount, minTotalCount, minTotalCountAgentId, maxTotalCount, maxTotalCountAgentId, timestamp);
+        final JoinLongFieldBo totalCountJoinValue = joinTransactionBo.getTotalCountJoinValue();
+
+        AggreJoinTransactionBo aggreJoinTransactionBo = new AggreJoinTransactionBo(id, collectInterval, totalCountJoinValue, timestamp);
         return aggreJoinTransactionBo;
     }
 }

@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 
 /**
  * @author Roy Kim
@@ -27,6 +28,11 @@ public class AggreJoinDirectBufferBo extends JoinDirectBufferBo implements Aggre
 
     public AggreJoinDirectBufferBo(String id, long avgDirectCount, long maxDirectCount, String maxDirectCountAgentId, long minDirectCount, String minDirectCountAgentId, long avgDirectMemoryUsed, long maxDirectMemoryUsed, String maxDirectMemoryUsedAgentId, long minDirectMemoryUsed, String minDirectMemoryUsedAgentId, long avgMappedCount, long maxMappedCount, String maxMappedCountAgentId, long minMappedCount, String minMappedCountAgentId, long avgMappedMemoryUsed, long maxMappedMemoryUsed, String maxMappedMemoryUsedAgentId, long minMappedMemoryUsed, String minMappedMemoryUsedAgentId, long timestamp) {
         super(id, avgDirectCount, maxDirectCount, maxDirectCountAgentId, minDirectCount, minDirectCountAgentId, avgDirectMemoryUsed, maxDirectMemoryUsed, maxDirectMemoryUsedAgentId, minDirectMemoryUsed, minDirectMemoryUsedAgentId, avgMappedCount, maxMappedCount, maxMappedCountAgentId, minMappedCount, minMappedCountAgentId, avgMappedMemoryUsed, maxMappedMemoryUsed, maxMappedMemoryUsedAgentId, minMappedMemoryUsed, minMappedMemoryUsedAgentId, timestamp);
+    }
+
+    public AggreJoinDirectBufferBo(String id, JoinLongFieldBo directCountJoinValue, JoinLongFieldBo directMemoryUsedJoinValue,
+                              JoinLongFieldBo mappedCountJoinValue, JoinLongFieldBo mappedMemoryUsedJoinValue, long timestamp) {
+        super(id, directCountJoinValue, directMemoryUsedJoinValue, mappedCountJoinValue, mappedMemoryUsedJoinValue, timestamp);
     }
 
     public static AggreJoinDirectBufferBo createUncollectedObject(long timestamp) {

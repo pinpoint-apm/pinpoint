@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
@@ -71,11 +72,12 @@ public class ApplicationTransactionChartGroupTest {
     }
 
     private void testTranCount(DoubleApplicationStatPoint transactionPoint, AggreJoinTransactionBo aggreJoinTransactionBo) {
-        assertEquals(transactionPoint.getYValForAvg(), calculateTPS(aggreJoinTransactionBo.getTotalCount(), aggreJoinTransactionBo.getCollectInterval()), 0);
-        assertEquals(transactionPoint.getYValForMin(), calculateTPS(aggreJoinTransactionBo.getMinTotalCount(), aggreJoinTransactionBo.getCollectInterval()), 0);
-        assertEquals(transactionPoint.getYValForMax(), calculateTPS(aggreJoinTransactionBo.getMaxTotalCount(), aggreJoinTransactionBo.getCollectInterval()), 0);
-        assertEquals(transactionPoint.getAgentIdForMin(), aggreJoinTransactionBo.getMinTotalCountAgentId());
-        assertEquals(transactionPoint.getAgentIdForMax(), aggreJoinTransactionBo.getMaxTotalCountAgentId());
+        final JoinLongFieldBo totalCountJoinValue = aggreJoinTransactionBo.getTotalCountJoinValue();
+        assertEquals(transactionPoint.getYValForAvg(), calculateTPS(totalCountJoinValue.getAvg(), aggreJoinTransactionBo.getCollectInterval()), 0);
+        assertEquals(transactionPoint.getYValForMin(), calculateTPS(totalCountJoinValue.getMin(), aggreJoinTransactionBo.getCollectInterval()), 0);
+        assertEquals(transactionPoint.getYValForMax(), calculateTPS(totalCountJoinValue.getMax(), aggreJoinTransactionBo.getCollectInterval()), 0);
+        assertEquals(transactionPoint.getAgentIdForMin(), totalCountJoinValue.getMinAgentId());
+        assertEquals(transactionPoint.getAgentIdForMax(), totalCountJoinValue.getMaxAgentId());
     }
 
     private double calculateTPS(double value, long timeMs) {

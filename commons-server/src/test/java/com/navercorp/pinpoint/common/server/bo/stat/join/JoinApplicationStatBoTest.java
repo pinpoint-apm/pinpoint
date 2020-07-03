@@ -17,9 +17,13 @@ package com.navercorp.pinpoint.common.server.bo.stat.join;
 
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author minwoo.jung
@@ -53,72 +57,32 @@ public class JoinApplicationStatBoTest {
         JoinCpuLoadBo joinCpuLoadBo1 = joinCpuLoadBoList.get(0);
         assertEquals(joinCpuLoadBo1.getId(), "id1");
         assertEquals(joinCpuLoadBo1.getTimestamp(), 1487149800000L);
-        assertEquals(joinCpuLoadBo1.getJvmCpuLoad(), 48.6, 0);
-        assertEquals(joinCpuLoadBo1.getMinJvmCpuLoad(), 22.0, 0);
-        assertEquals(joinCpuLoadBo1.getMinJvmCpuAgentId(), "id5_2");
-        assertEquals(joinCpuLoadBo1.getMaxJvmCpuLoad(), 91.0, 0);
-        assertEquals(joinCpuLoadBo1.getMaxJvmCpuAgentId(), "id4_1");
-        assertEquals(joinCpuLoadBo1.getSystemCpuLoad(), 78.6, 0);
-        assertEquals(joinCpuLoadBo1.getMinSystemCpuLoad(), 41.0, 0);
-        assertEquals(joinCpuLoadBo1.getMinSysCpuAgentId(), "id5_4");
-        assertEquals(joinCpuLoadBo1.getMaxSystemCpuLoad(), 91.0, 0);
-        assertEquals(joinCpuLoadBo1.getMaxSysCpuAgentId(), "id4_3");
+        assertEquals(joinCpuLoadBo1.getJvmCpuLoadJoinValue(), new JoinDoubleFieldBo(48.6, 22.0, "id5_2", 91.0, "id4_1"));
+        assertEquals(joinCpuLoadBo1.getSystemCpuLoadJoinValue(), new JoinDoubleFieldBo(78.6, 41.0, "id5_4", 91.0, "id4_3"));
 
         JoinCpuLoadBo joinCpuLoadBo2 = joinCpuLoadBoList.get(1);
         assertEquals(joinCpuLoadBo2.getId(), "id1");
         assertEquals(joinCpuLoadBo2.getTimestamp(), 1487149805000L);
-        assertEquals(joinCpuLoadBo2.getJvmCpuLoad(), 38.6, 0);
-        assertEquals(joinCpuLoadBo2.getMinJvmCpuLoad(), 35.0, 0);
-        assertEquals(joinCpuLoadBo2.getMinJvmCpuAgentId(), "id5_2");
-        assertEquals(joinCpuLoadBo2.getMaxJvmCpuLoad(), 81.0, 0);
-        assertEquals(joinCpuLoadBo2.getMaxJvmCpuAgentId(), "id4_1");
-        assertEquals(joinCpuLoadBo2.getSystemCpuLoad(), 68.6, 0);
-        assertEquals(joinCpuLoadBo2.getMinSystemCpuLoad(), 35.0, 0);
-        assertEquals(joinCpuLoadBo2.getMinSysCpuAgentId(), "id5_4");
-        assertEquals(joinCpuLoadBo2.getMaxSystemCpuLoad(), 81.0, 0);
-        assertEquals(joinCpuLoadBo2.getMaxSysCpuAgentId(), "id4_3");
+        assertEquals(joinCpuLoadBo2.getJvmCpuLoadJoinValue(), new JoinDoubleFieldBo(38.6, 35.0, "id5_2", 81.0, "id4_1"));
+        assertEquals(joinCpuLoadBo2.getSystemCpuLoadJoinValue(), new JoinDoubleFieldBo(68.6, 35.0, "id5_4", 81.0, "id4_3"));
 
         JoinCpuLoadBo joinCpuLoadBo3 = joinCpuLoadBoList.get(2);
         assertEquals(joinCpuLoadBo3.getId(), "id1");
         assertEquals(joinCpuLoadBo3.getTimestamp(), 1487149810000L);
-        assertEquals(joinCpuLoadBo3.getJvmCpuLoad(), 28.6, 0);
-        assertEquals(joinCpuLoadBo3.getMinJvmCpuLoad(), 22.0, 0);
-        assertEquals(joinCpuLoadBo3.getMinJvmCpuAgentId(), "id5_2");
-        assertEquals(joinCpuLoadBo3.getMaxJvmCpuLoad(), 71.0, 0);
-        assertEquals(joinCpuLoadBo3.getMaxJvmCpuAgentId(), "id4_1");
-        assertEquals(joinCpuLoadBo3.getSystemCpuLoad(), 58.6, 0);
-        assertEquals(joinCpuLoadBo3.getMinSystemCpuLoad(), 22.0, 0);
-        assertEquals(joinCpuLoadBo3.getMinSysCpuAgentId(), "id5_4");
-        assertEquals(joinCpuLoadBo3.getMaxSystemCpuLoad(), 71.0, 0);
-        assertEquals(joinCpuLoadBo3.getMaxSysCpuAgentId(), "id4_3");
+        assertEquals(joinCpuLoadBo3.getJvmCpuLoadJoinValue(), new JoinDoubleFieldBo(28.6, 22.0, "id5_2", 71.0, "id4_1"));
+        assertEquals(joinCpuLoadBo3.getSystemCpuLoadJoinValue(), new JoinDoubleFieldBo(58.6, 22.0, "id5_4", 71.0, "id4_3"));
 
         JoinCpuLoadBo joinCpuLoadBo4 = joinCpuLoadBoList.get(3);
         assertEquals(joinCpuLoadBo4.getId(), "id1");
         assertEquals(joinCpuLoadBo4.getTimestamp(), 1487149815000L);
-        assertEquals(joinCpuLoadBo4.getJvmCpuLoad(), 18.6, 0);
-        assertEquals(joinCpuLoadBo4.getMinJvmCpuLoad(), 12.0, 0);
-        assertEquals(joinCpuLoadBo4.getMinJvmCpuAgentId(), "id5_2");
-        assertEquals(joinCpuLoadBo4.getMaxJvmCpuLoad(), 61.0, 0);
-        assertEquals(joinCpuLoadBo4.getMaxJvmCpuAgentId(), "id4_1");
-        assertEquals(joinCpuLoadBo4.getSystemCpuLoad(), 38.6, 0);
-        assertEquals(joinCpuLoadBo4.getMinSystemCpuLoad(), 13.0, 0);
-        assertEquals(joinCpuLoadBo4.getMinSysCpuAgentId(), "id5_4");
-        assertEquals(joinCpuLoadBo4.getMaxSystemCpuLoad(), 93.0, 0);
-        assertEquals(joinCpuLoadBo4.getMaxSysCpuAgentId(), "id4_3");
+        assertEquals(joinCpuLoadBo4.getJvmCpuLoadJoinValue(), new JoinDoubleFieldBo(18.6, 12.0, "id5_2", 61.0, "id4_1"));
+        assertEquals(joinCpuLoadBo4.getSystemCpuLoadJoinValue(), new JoinDoubleFieldBo(38.6, 13.0, "id5_4", 93.0, "id4_3"));
 
         JoinCpuLoadBo joinCpuLoadBo5 = joinCpuLoadBoList.get(4);
         assertEquals(joinCpuLoadBo5.getId(), "id1");
         assertEquals(joinCpuLoadBo5.getTimestamp(), 1487149820000L);
-        assertEquals(joinCpuLoadBo5.getJvmCpuLoad(), 8.6, 0);
-        assertEquals(joinCpuLoadBo5.getMinJvmCpuLoad(), 2.0, 0);
-        assertEquals(joinCpuLoadBo5.getMinJvmCpuAgentId(), "id5_2");
-        assertEquals(joinCpuLoadBo5.getMaxJvmCpuLoad(), 93.0, 0);
-        assertEquals(joinCpuLoadBo5.getMaxJvmCpuAgentId(), "id4_1");
-        assertEquals(joinCpuLoadBo5.getSystemCpuLoad(), 28.6, 0);
-        assertEquals(joinCpuLoadBo5.getMinSystemCpuLoad(), 3.0, 0);
-        assertEquals(joinCpuLoadBo5.getMinSysCpuAgentId(), "id5_4");
-        assertEquals(joinCpuLoadBo5.getMaxSystemCpuLoad(), 63.0, 0);
-        assertEquals(joinCpuLoadBo5.getMaxSysCpuAgentId(), "id4_3");
+        assertEquals(joinCpuLoadBo5.getJvmCpuLoadJoinValue(), new JoinDoubleFieldBo(8.6, 2.0, "id5_2", 93.0, "id4_1"));
+        assertEquals(joinCpuLoadBo5.getSystemCpuLoadJoinValue(), new JoinDoubleFieldBo(28.6, 3.0, "id5_4", 63.0, "id4_3"));
     }
 
     private JoinApplicationStatBo createJoinApplicationStatBo(final String id, final long timestamp, final int plus) {
@@ -168,72 +132,32 @@ public class JoinApplicationStatBoTest {
         JoinMemoryBo joinMemoryBo1 = joinMemoryBoList.get(0);
         assertEquals("id1", joinMemoryBo1.getId());
         assertEquals(1487149800000L, joinMemoryBo1.getTimestamp());
-        assertEquals(2986, joinMemoryBo1.getHeapUsed());
-        assertEquals(1950, joinMemoryBo1.getMinHeapUsed());
-        assertEquals(5040, joinMemoryBo1.getMaxHeapUsed());
-        assertEquals("id5_1", joinMemoryBo1.getMinHeapAgentId());
-        assertEquals("id4_2", joinMemoryBo1.getMaxHeapAgentId());
-        assertEquals(486, joinMemoryBo1.getNonHeapUsed());
-        assertEquals(0, joinMemoryBo1.getMinNonHeapUsed());
-        assertEquals(640, joinMemoryBo1.getMaxNonHeapUsed());
-        assertEquals("id5_3", joinMemoryBo1.getMinNonHeapAgentId());
-        assertEquals("id4_4", joinMemoryBo1.getMaxNonHeapAgentId());
+        assertEquals(new JoinLongFieldBo(2986L, 1950L, "id5_1", 5040L, "id4_2"), joinMemoryBo1.getHeapUsedJoinValue());
+        assertEquals(new JoinLongFieldBo(486L, 0L, "id5_3", 640L, "id4_4"), joinMemoryBo1.getNonHeapUsedJoinValue());
 
         JoinMemoryBo joinMemoryBo2 = joinMemoryBoList.get(1);
         assertEquals("id1", joinMemoryBo2.getId());
         assertEquals(1487149805000L, joinMemoryBo2.getTimestamp());
-        assertEquals(3986, joinMemoryBo2.getHeapUsed());
-        assertEquals(950, joinMemoryBo2.getMinHeapUsed());
-        assertEquals(7040, joinMemoryBo2.getMaxHeapUsed());
-        assertEquals("id5_1", joinMemoryBo2.getMinHeapAgentId());
-        assertEquals("id4_2", joinMemoryBo2.getMaxHeapAgentId());
-        assertEquals(386, joinMemoryBo2.getNonHeapUsed());
-        assertEquals(100, joinMemoryBo2.getMinNonHeapUsed());
-        assertEquals(640, joinMemoryBo2.getMaxNonHeapUsed());
-        assertEquals("id5_3", joinMemoryBo2.getMinNonHeapAgentId());
-        assertEquals("id4_4", joinMemoryBo2.getMaxNonHeapAgentId());
+        assertEquals(new JoinLongFieldBo(3986L, 950L, "id5_1", 7040L, "id4_2"), joinMemoryBo2.getHeapUsedJoinValue());
+        assertEquals(new JoinLongFieldBo(386L, 100L, "id5_3", 640L, "id4_4"), joinMemoryBo2.getNonHeapUsedJoinValue());
 
         JoinMemoryBo joinMemoryBo3 = joinMemoryBoList.get(2);
         assertEquals("id1", joinMemoryBo3.getId());
         assertEquals(1487149810000L, joinMemoryBo3.getTimestamp());
-        assertEquals(4986, joinMemoryBo3.getHeapUsed());
-        assertEquals(2950, joinMemoryBo3.getMinHeapUsed());
-        assertEquals(8040, joinMemoryBo3.getMaxHeapUsed());
-        assertEquals("id5_1", joinMemoryBo3.getMinHeapAgentId());
-        assertEquals("id4_2", joinMemoryBo3.getMaxHeapAgentId());
-        assertEquals(186, joinMemoryBo3.getNonHeapUsed());
-        assertEquals(50, joinMemoryBo3.getMinNonHeapUsed());
-        assertEquals(240, joinMemoryBo3.getMaxNonHeapUsed());
-        assertEquals("id5_3", joinMemoryBo3.getMinNonHeapAgentId());
-        assertEquals("id4_4", joinMemoryBo3.getMaxNonHeapAgentId());
+        assertEquals(new JoinLongFieldBo(4986L, 2950L, "id5_1", 8040L, "id4_2"), joinMemoryBo3.getHeapUsedJoinValue());
+        assertEquals(new JoinLongFieldBo(186L, 50L, "id5_3", 240L, "id4_4"), joinMemoryBo3.getNonHeapUsedJoinValue());
 
         JoinMemoryBo joinMemoryBo4 = joinMemoryBoList.get(3);
         assertEquals("id1", joinMemoryBo4.getId());
         assertEquals(1487149815000L, joinMemoryBo4.getTimestamp());
-        assertEquals(986, joinMemoryBo4.getHeapUsed());
-        assertEquals(50, joinMemoryBo4.getMinHeapUsed());
-        assertEquals(3040, joinMemoryBo4.getMaxHeapUsed());
-        assertEquals("id5_1", joinMemoryBo4.getMinHeapAgentId());
-        assertEquals("id4_2", joinMemoryBo4.getMaxHeapAgentId());
-        assertEquals(86, joinMemoryBo4.getNonHeapUsed());
-        assertEquals(850, joinMemoryBo4.getMinNonHeapUsed());
-        assertEquals(1040, joinMemoryBo4.getMaxNonHeapUsed());
-        assertEquals("id5_3", joinMemoryBo4.getMinNonHeapAgentId());
-        assertEquals("id4_4", joinMemoryBo4.getMaxNonHeapAgentId());
+        assertEquals(new JoinLongFieldBo(986L, 50L, "id5_1", 3040L, "id4_2"), joinMemoryBo4.getHeapUsedJoinValue());
+        assertEquals(new JoinLongFieldBo(86L, 850L, "id5_3", 1040L, "id4_4"), joinMemoryBo4.getNonHeapUsedJoinValue());
 
         JoinMemoryBo joinMemoryBo5 = joinMemoryBoList.get(4);
         assertEquals("id1", joinMemoryBo5.getId());
         assertEquals(1487149820000L, joinMemoryBo5.getTimestamp());
-        assertEquals(1986, joinMemoryBo5.getHeapUsed());
-        assertEquals(950, joinMemoryBo5.getMinHeapUsed());
-        assertEquals(6040, joinMemoryBo5.getMaxHeapUsed());
-        assertEquals("id5_1", joinMemoryBo5.getMinHeapAgentId());
-        assertEquals("id4_2", joinMemoryBo5.getMaxHeapAgentId());
-        assertEquals(286, joinMemoryBo5.getNonHeapUsed());
-        assertEquals(50, joinMemoryBo5.getMinNonHeapUsed());
-        assertEquals(2940, joinMemoryBo5.getMaxNonHeapUsed());
-        assertEquals("id5_3", joinMemoryBo5.getMinNonHeapAgentId());
-        assertEquals("id4_4", joinMemoryBo5.getMaxNonHeapAgentId());
+        assertEquals(new JoinLongFieldBo(1986L, 950L, "id5_1", 6040L, "id4_2"), joinMemoryBo5.getHeapUsedJoinValue());
+        assertEquals(new JoinLongFieldBo(286L, 50L, "id5_3", 2940L, "id4_4"), joinMemoryBo5.getNonHeapUsedJoinValue());
     }
 
     private static class ComparatorImpl2 implements Comparator<JoinMemoryBo> {
@@ -322,11 +246,11 @@ public class JoinApplicationStatBoTest {
         Collections.sort(joinCpuLoadBoList, new ComparatorImpl());
 
         assertEquals(joinCpuLoadBoList.size(), 5);
-        assertEquals(joinCpuLoadBoList.get(0).getJvmCpuLoad(), 33,0);
-        assertEquals(joinCpuLoadBoList.get(1).getJvmCpuLoad(), 22,0);
-        assertEquals(joinCpuLoadBoList.get(2).getJvmCpuLoad(), 33,0);
-        assertEquals(joinCpuLoadBoList.get(3).getJvmCpuLoad(), 77,0);
-        assertEquals(joinCpuLoadBoList.get(4).getJvmCpuLoad(), 88,0);
+        assertEquals(joinCpuLoadBoList.get(0).getJvmCpuLoadJoinValue().getAvg(), 33,0);
+        assertEquals(joinCpuLoadBoList.get(1).getJvmCpuLoadJoinValue().getAvg(), 22,0);
+        assertEquals(joinCpuLoadBoList.get(2).getJvmCpuLoadJoinValue().getAvg(), 33,0);
+        assertEquals(joinCpuLoadBoList.get(3).getJvmCpuLoadJoinValue().getAvg(), 77,0);
+        assertEquals(joinCpuLoadBoList.get(4).getJvmCpuLoadJoinValue().getAvg(), 88,0);
     }
 
     @Test
@@ -380,11 +304,11 @@ public class JoinApplicationStatBoTest {
         List<JoinMemoryBo> joinMemoryBoList = joinApplicationStatBo.getJoinMemoryBoList();
         Collections.sort(joinMemoryBoList, new ComparatorImpl2());
         assertEquals(joinMemoryBoList.size(), 5);
-        assertEquals(joinMemoryBoList.get(0).getHeapUsed(), 4000);
-        assertEquals(joinMemoryBoList.get(1).getHeapUsed(), 2000);
-        assertEquals(joinMemoryBoList.get(2).getHeapUsed(), 4000);
-        assertEquals(joinMemoryBoList.get(3).getHeapUsed(), 8800);
-        assertEquals(joinMemoryBoList.get(4).getHeapUsed(), 7800);
+        assertEquals((long) joinMemoryBoList.get(0).getHeapUsedJoinValue().getAvg(), 4000);
+        assertEquals((long) joinMemoryBoList.get(1).getHeapUsedJoinValue().getAvg(), 2000);
+        assertEquals((long) joinMemoryBoList.get(2).getHeapUsedJoinValue().getAvg(), 4000);
+        assertEquals((long) joinMemoryBoList.get(3).getHeapUsedJoinValue().getAvg(), 8800);
+        assertEquals((long) joinMemoryBoList.get(4).getHeapUsedJoinValue().getAvg(), 7800);
     }
 
     @Test
@@ -443,47 +367,27 @@ public class JoinApplicationStatBoTest {
         JoinTransactionBo joinTransactionBo1 = joinTransactionBoList.get(0);
         assertEquals(joinTransactionBo1.getId(), "id1");
         assertEquals(joinTransactionBo1.getTimestamp(), 1487149800000L);
-        assertEquals(joinTransactionBo1.getTotalCount(), 86);
-        assertEquals(joinTransactionBo1.getMinTotalCount(), 10);
-        assertEquals(joinTransactionBo1.getMinTotalCountAgentId(), "id5_1");
-        assertEquals(joinTransactionBo1.getMaxTotalCount(), 240);
-        assertEquals(joinTransactionBo1.getMaxTotalCountAgentId(), "id4_2");
+        assertEquals(joinTransactionBo1.getTotalCountJoinValue(), new JoinLongFieldBo(86L, 10L, "id5_1", 240L, "id4_2"));
 
         JoinTransactionBo joinTransactionBo2 = joinTransactionBoList.get(1);
         assertEquals(joinTransactionBo2.getId(), "id1");
         assertEquals(joinTransactionBo2.getTimestamp(), 1487149805000L);
-        assertEquals(joinTransactionBo2.getTotalCount(), 286);
-        assertEquals(joinTransactionBo2.getMinTotalCount(), 100);
-        assertEquals(joinTransactionBo2.getMinTotalCountAgentId(), "id5_1");
-        assertEquals(joinTransactionBo2.getMaxTotalCount(), 440);
-        assertEquals(joinTransactionBo2.getMaxTotalCountAgentId(), "id4_2");
+        assertEquals(joinTransactionBo2.getTotalCountJoinValue(), new JoinLongFieldBo(286L, 100L, "id5_1", 440L, "id4_2"));
 
         JoinTransactionBo joinTransactionBo3 = joinTransactionBoList.get(2);
         assertEquals(joinTransactionBo3.getId(), "id1");
         assertEquals(joinTransactionBo3.getTimestamp(), 1487149810000L);
-        assertEquals(joinTransactionBo3.getTotalCount(), 186);
-        assertEquals(joinTransactionBo3.getMinTotalCount(), 80);
-        assertEquals(joinTransactionBo3.getMinTotalCountAgentId(), "id5_1");
-        assertEquals(joinTransactionBo3.getMaxTotalCount(), 340);
-        assertEquals(joinTransactionBo3.getMaxTotalCountAgentId(), "id4_2");
+        assertEquals(joinTransactionBo3.getTotalCountJoinValue(), new JoinLongFieldBo(186L, 80L, "id5_1", 340L, "id4_2"));
 
         JoinTransactionBo joinTransactionBo4 = joinTransactionBoList.get(3);
         assertEquals(joinTransactionBo4.getId(), "id1");
         assertEquals(joinTransactionBo4.getTimestamp(), 1487149815000L);
-        assertEquals(joinTransactionBo4.getTotalCount(), 386);
-        assertEquals(joinTransactionBo4.getMinTotalCount(), 150);
-        assertEquals(joinTransactionBo4.getMinTotalCountAgentId(), "id5_1");
-        assertEquals(joinTransactionBo4.getMaxTotalCount(), 490);
-        assertEquals(joinTransactionBo4.getMaxTotalCountAgentId(), "id4_2");
+        assertEquals(joinTransactionBo4.getTotalCountJoinValue(), new JoinLongFieldBo(386L, 150L, "id5_1", 490L, "id4_2"));
 
         JoinTransactionBo joinTransactionBo5 = joinTransactionBoList.get(4);
         assertEquals(joinTransactionBo5.getId(), "id1");
         assertEquals(joinTransactionBo5.getTimestamp(), 1487149820000L);
-        assertEquals(joinTransactionBo5.getTotalCount(), 336);
-        assertEquals(joinTransactionBo5.getMinTotalCount(), 120);
-        assertEquals(joinTransactionBo5.getMinTotalCountAgentId(), "id5_1");
-        assertEquals(joinTransactionBo5.getMaxTotalCount(), 640);
-        assertEquals(joinTransactionBo5.getMaxTotalCountAgentId(), "id4_2");
+        assertEquals(joinTransactionBo5.getTotalCountJoinValue(), new JoinLongFieldBo(336L, 120L, "id5_1", 640L, "id4_2"));
     }
 
     @Test
@@ -537,11 +441,11 @@ public class JoinApplicationStatBoTest {
         List<JoinTransactionBo> joinTransactionBoList = joinApplicationStatBo.getJoinTransactionBoList();
         Collections.sort(joinTransactionBoList, new ComparatorImpl3());
         assertEquals(joinTransactionBoList.size(), 5);
-        assertEquals(joinTransactionBoList.get(0).getTotalCount(), 100);
-        assertEquals(joinTransactionBoList.get(1).getTotalCount(), 200);
-        assertEquals(joinTransactionBoList.get(2).getTotalCount(), 300);
-        assertEquals(joinTransactionBoList.get(3).getTotalCount(), 400);
-        assertEquals(joinTransactionBoList.get(4).getTotalCount(), 30);
+        assertEquals((long) joinTransactionBoList.get(0).getTotalCountJoinValue().getAvg(), 100);
+        assertEquals((long) joinTransactionBoList.get(1).getTotalCountJoinValue().getAvg(), 200);
+        assertEquals((long) joinTransactionBoList.get(2).getTotalCountJoinValue().getAvg(), 300);
+        assertEquals((long) joinTransactionBoList.get(3).getTotalCountJoinValue().getAvg(), 400);
+        assertEquals((long) joinTransactionBoList.get(4).getTotalCountJoinValue().getAvg(), 30);
     }
 
     @Test
@@ -610,11 +514,11 @@ public class JoinApplicationStatBoTest {
         List<JoinActiveTraceBo> joinActiveTraceBoList = joinApplicationStatBo.getJoinActiveTraceBoList();
         Collections.sort(joinActiveTraceBoList, new ComparatorImpl4());
         assertEquals(joinActiveTraceBoList.size(), 5);
-        assertEquals(joinActiveTraceBoList.get(0).getTotalCount(), 100);
-        assertEquals(joinActiveTraceBoList.get(1).getTotalCount(), 200);
-        assertEquals(joinActiveTraceBoList.get(2).getTotalCount(), 300);
-        assertEquals(joinActiveTraceBoList.get(3).getTotalCount(), 400);
-        assertEquals(joinActiveTraceBoList.get(4).getTotalCount(), 30);
+        assertEquals((int) joinActiveTraceBoList.get(0).getTotalCountJoinValue().getAvg(), 100);
+        assertEquals((int) joinActiveTraceBoList.get(1).getTotalCountJoinValue().getAvg(), 200);
+        assertEquals((int) joinActiveTraceBoList.get(2).getTotalCountJoinValue().getAvg(), 300);
+        assertEquals((int) joinActiveTraceBoList.get(3).getTotalCountJoinValue().getAvg(), 400);
+        assertEquals((int) joinActiveTraceBoList.get(4).getTotalCountJoinValue().getAvg(), 30);
     }
 
     private static class ComparatorImpl4 implements Comparator<JoinActiveTraceBo> {
@@ -658,55 +562,35 @@ public class JoinApplicationStatBoTest {
         assertEquals(joinActiveTraceBo1.getTimestamp(), 1487149800000L);
         assertEquals(joinActiveTraceBo1.getHistogramSchemaType(), 1);
         assertEquals(joinActiveTraceBo1.getVersion(), 2);
-        assertEquals(joinActiveTraceBo1.getTotalCount(), 86);
-        assertEquals(joinActiveTraceBo1.getMinTotalCount(), 10);
-        assertEquals(joinActiveTraceBo1.getMinTotalCountAgentId(), "id5_1");
-        assertEquals(joinActiveTraceBo1.getMaxTotalCount(), 240);
-        assertEquals(joinActiveTraceBo1.getMaxTotalCountAgentId(), "id4_2");
+        assertEquals(new JoinIntFieldBo(86, 10, "id5_1", 240, "id4_2"), joinActiveTraceBo1.getTotalCountJoinValue());
 
         JoinActiveTraceBo joinActiveTraceBo2 = joinActiveTraceBoList.get(1);
         assertEquals(joinActiveTraceBo2.getId(), "id1");
         assertEquals(joinActiveTraceBo2.getTimestamp(), 1487149805000L);
         assertEquals(joinActiveTraceBo2.getHistogramSchemaType(), 1);
         assertEquals(joinActiveTraceBo2.getVersion(), 2);
-        assertEquals(joinActiveTraceBo2.getTotalCount(), 286);
-        assertEquals(joinActiveTraceBo2.getMinTotalCount(), 100);
-        assertEquals(joinActiveTraceBo2.getMinTotalCountAgentId(), "id5_1");
-        assertEquals(joinActiveTraceBo2.getMaxTotalCount(), 440);
-        assertEquals(joinActiveTraceBo2.getMaxTotalCountAgentId(), "id4_2");
+        assertEquals(new JoinIntFieldBo(286, 100, "id5_1", 440, "id4_2"), joinActiveTraceBo2.getTotalCountJoinValue());
 
         JoinActiveTraceBo joinActiveTraceBo3 = joinActiveTraceBoList.get(2);
         assertEquals(joinActiveTraceBo3.getId(), "id1");
         assertEquals(joinActiveTraceBo3.getTimestamp(), 1487149810000L);
         assertEquals(joinActiveTraceBo3.getHistogramSchemaType(), 1);
         assertEquals(joinActiveTraceBo3.getVersion(), 2);
-        assertEquals(joinActiveTraceBo3.getTotalCount(), 186);
-        assertEquals(joinActiveTraceBo3.getMinTotalCount(), 80);
-        assertEquals(joinActiveTraceBo3.getMinTotalCountAgentId(), "id5_1");
-        assertEquals(joinActiveTraceBo3.getMaxTotalCount(), 340);
-        assertEquals(joinActiveTraceBo3.getMaxTotalCountAgentId(), "id4_2");
+        assertEquals(new JoinIntFieldBo(186, 80, "id5_1", 340, "id4_2"), joinActiveTraceBo3.getTotalCountJoinValue());
 
         JoinActiveTraceBo joinActiveTraceBo4 = joinActiveTraceBoList.get(3);
         assertEquals(joinActiveTraceBo4.getId(), "id1");
         assertEquals(joinActiveTraceBo4.getTimestamp(), 1487149815000L);
         assertEquals(joinActiveTraceBo4.getHistogramSchemaType(), 1);
         assertEquals(joinActiveTraceBo4.getVersion(), 2);
-        assertEquals(joinActiveTraceBo4.getTotalCount(), 386);
-        assertEquals(joinActiveTraceBo4.getMinTotalCount(), 150);
-        assertEquals(joinActiveTraceBo4.getMinTotalCountAgentId(), "id5_1");
-        assertEquals(joinActiveTraceBo4.getMaxTotalCount(), 490);
-        assertEquals(joinActiveTraceBo4.getMaxTotalCountAgentId(), "id4_2");
+        assertEquals(new JoinIntFieldBo(386, 150, "id5_1", 490, "id4_2"), joinActiveTraceBo4.getTotalCountJoinValue());
 
         JoinActiveTraceBo joinActiveTraceBo5 = joinActiveTraceBoList.get(4);
         assertEquals(joinActiveTraceBo5.getId(), "id1");
         assertEquals(joinActiveTraceBo5.getTimestamp(), 1487149820000L);
         assertEquals(joinActiveTraceBo5.getHistogramSchemaType(), 1);
         assertEquals(joinActiveTraceBo5.getVersion(), 2);
-        assertEquals(joinActiveTraceBo5.getTotalCount(), 336);
-        assertEquals(joinActiveTraceBo5.getMinTotalCount(), 120);
-        assertEquals(joinActiveTraceBo5.getMinTotalCountAgentId(), "id5_1");
-        assertEquals(joinActiveTraceBo5.getMaxTotalCount(), 640);
-        assertEquals(joinActiveTraceBo5.getMaxTotalCountAgentId(), "id4_2");
+        assertEquals(new JoinIntFieldBo(336, 120, "id5_1", 640, "id4_2"), joinActiveTraceBo5.getTotalCountJoinValue());
     }
 
     @Test
@@ -776,11 +660,13 @@ public class JoinApplicationStatBoTest {
         List<JoinResponseTimeBo> joinResponseTimeBoList = joinApplicationStatBo.getJoinResponseTimeBoList();
         Collections.sort(joinResponseTimeBoList, new ComparatorImpl5());
         assertEquals(joinResponseTimeBoList.size(), 5);
-        assertEquals(joinResponseTimeBoList.get(0).getAvg(), 100);
-        assertEquals(joinResponseTimeBoList.get(1).getAvg(), 200);
-        assertEquals(joinResponseTimeBoList.get(2).getAvg(), 300);
-        assertEquals(joinResponseTimeBoList.get(3).getAvg(), 400);
-        assertEquals(joinResponseTimeBoList.get(4).getAvg(), 30);
+
+
+        assertEquals((long) joinResponseTimeBoList.get(0).getResponseTimeJoinValue().getAvg(), 100);
+        assertEquals((long) joinResponseTimeBoList.get(1).getResponseTimeJoinValue().getAvg(), 200);
+        assertEquals((long) joinResponseTimeBoList.get(2).getResponseTimeJoinValue().getAvg(), 300);
+        assertEquals((long) joinResponseTimeBoList.get(3).getResponseTimeJoinValue().getAvg(), 400);
+        assertEquals((long) joinResponseTimeBoList.get(4).getResponseTimeJoinValue().getAvg(), 30);
     }
 
     private void assertJoinResponseTimeBoList(List<JoinResponseTimeBo> joinResponseTimeBoList) {
@@ -789,47 +675,27 @@ public class JoinApplicationStatBoTest {
         JoinResponseTimeBo joinResponseTimeBo1 = joinResponseTimeBoList.get(0);
         assertEquals(joinResponseTimeBo1.getId(), "id1");
         assertEquals(joinResponseTimeBo1.getTimestamp(), 1487149800000L);
-        assertEquals(joinResponseTimeBo1.getAvg(), 286);
-        assertEquals(joinResponseTimeBo1.getMinAvg(), 150);
-        assertEquals(joinResponseTimeBo1.getMinAvgAgentId(), "id5_1");
-        assertEquals(joinResponseTimeBo1.getMaxAvg(), 6040);
-        assertEquals(joinResponseTimeBo1.getMaxAvgAgentId(), "id4_2");
+        assertEquals(joinResponseTimeBo1.getResponseTimeJoinValue(), new JoinLongFieldBo(286L, 150L, "id5_1", 6040L, "id4_2"));
 
         JoinResponseTimeBo joinResponseTimeBo2 = joinResponseTimeBoList.get(1);
         assertEquals(joinResponseTimeBo2.getId(), "id1");
         assertEquals(joinResponseTimeBo2.getTimestamp(), 1487149805000L);
-        assertEquals(joinResponseTimeBo2.getAvg(), 186);
-        assertEquals(joinResponseTimeBo2.getMinAvg(), 0);
-        assertEquals(joinResponseTimeBo2.getMinAvgAgentId(), "id5_1");
-        assertEquals(joinResponseTimeBo2.getMaxAvg(), 7040);
-        assertEquals(joinResponseTimeBo2.getMaxAvgAgentId(), "id4_2");
+        assertEquals(joinResponseTimeBo2.getResponseTimeJoinValue(), new JoinLongFieldBo(186L, 0L, "id5_1", 7040L, "id4_2"));
 
         JoinResponseTimeBo joinResponseTimeBo3 = joinResponseTimeBoList.get(2);
         assertEquals(joinResponseTimeBo3.getId(), "id1");
         assertEquals(joinResponseTimeBo3.getTimestamp(), 1487149810000L);
-        assertEquals(joinResponseTimeBo3.getAvg(), 386);
-        assertEquals(joinResponseTimeBo3.getMinAvg(), 250);
-        assertEquals(joinResponseTimeBo3.getMinAvgAgentId(), "id5_1");
-        assertEquals(joinResponseTimeBo3.getMaxAvg(), 8040);
-        assertEquals(joinResponseTimeBo3.getMaxAvgAgentId(), "id4_2");
+        assertEquals(joinResponseTimeBo3.getResponseTimeJoinValue(), new JoinLongFieldBo(386L, 250L, "id5_1", 8040L, "id4_2"));
 
         JoinResponseTimeBo joinResponseTimeBo4 = joinResponseTimeBoList.get(3);
         assertEquals(joinResponseTimeBo4.getId(), "id1");
         assertEquals(joinResponseTimeBo4.getTimestamp(), 1487149815000L);
-        assertEquals(joinResponseTimeBo4.getAvg(), 486);
-        assertEquals(joinResponseTimeBo4.getMinAvg(), 350);
-        assertEquals(joinResponseTimeBo4.getMinAvgAgentId(), "id5_1");
-        assertEquals(joinResponseTimeBo4.getMaxAvg(), 2040);
-        assertEquals(joinResponseTimeBo4.getMaxAvgAgentId(), "id4_2");
+        assertEquals(joinResponseTimeBo4.getResponseTimeJoinValue(), new JoinLongFieldBo(486L, 350L, "id5_1", 2040L, "id4_2"));
 
         JoinResponseTimeBo joinResponseTimeBo5 = joinResponseTimeBoList.get(4);
         assertEquals(joinResponseTimeBo5.getId(), "id1");
         assertEquals(joinResponseTimeBo5.getTimestamp(), 1487149820000L);
-        assertEquals(joinResponseTimeBo5.getAvg(), 86);
-        assertEquals(joinResponseTimeBo5.getMinAvg(), 50);
-        assertEquals(joinResponseTimeBo5.getMinAvgAgentId(), "id5_1");
-        assertEquals(joinResponseTimeBo5.getMaxAvg(), 9040);
-        assertEquals(joinResponseTimeBo5.getMaxAvgAgentId(), "id4_2");
+        assertEquals(joinResponseTimeBo5.getResponseTimeJoinValue(), new JoinLongFieldBo(86L, 50L, "id5_1", 9040L, "id4_2"));
     }
 
     private static class ComparatorImpl5 implements Comparator<JoinResponseTimeBo> {
@@ -947,15 +813,15 @@ public class JoinApplicationStatBoTest {
         List<JoinDataSourceListBo> joinDataSourceListBoList = joinApplicationStatBo.getJoinDataSourceListBoList();
         Collections.sort(joinDataSourceListBoList, new ComparatorImpl6());
         assertEquals(joinDataSourceListBoList.size(), 5);
-        assertEquals(joinDataSourceListBoList.get(0).getJoinDataSourceBoList().get(0).getAvgActiveConnectionSize(), 100);
+        assertEquals((int) joinDataSourceListBoList.get(0).getJoinDataSourceBoList().get(0).getActiveConnectionSizeJoinValue().getAvg(), 100);
         assertEquals(joinDataSourceListBoList.get(0).getJoinDataSourceBoList().size(), 1);
-        assertEquals(joinDataSourceListBoList.get(1).getJoinDataSourceBoList().get(0).getAvgActiveConnectionSize(), 200);
+        assertEquals((int) joinDataSourceListBoList.get(1).getJoinDataSourceBoList().get(0).getActiveConnectionSizeJoinValue().getAvg(), 200);
         assertEquals(joinDataSourceListBoList.get(1).getJoinDataSourceBoList().size(), 1);
-        assertEquals(joinDataSourceListBoList.get(2).getJoinDataSourceBoList().get(0).getAvgActiveConnectionSize(), 300);
+        assertEquals((int) joinDataSourceListBoList.get(2).getJoinDataSourceBoList().get(0).getActiveConnectionSizeJoinValue().getAvg(), 300);
         assertEquals(joinDataSourceListBoList.get(2).getJoinDataSourceBoList().size(), 1);
-        assertEquals(joinDataSourceListBoList.get(3).getJoinDataSourceBoList().get(0).getAvgActiveConnectionSize(), 400);
+        assertEquals((int) joinDataSourceListBoList.get(3).getJoinDataSourceBoList().get(0).getActiveConnectionSizeJoinValue().getAvg(), 400);
         assertEquals(joinDataSourceListBoList.get(3).getJoinDataSourceBoList().size(), 1);
-        assertEquals(joinDataSourceListBoList.get(4).getJoinDataSourceBoList().get(0).getAvgActiveConnectionSize(), 30);
+        assertEquals((int) joinDataSourceListBoList.get(4).getJoinDataSourceBoList().get(0).getActiveConnectionSizeJoinValue().getAvg(), 30);
         assertEquals(joinDataSourceListBoList.get(4).getJoinDataSourceBoList().size(), 1);
     }
 
@@ -970,19 +836,12 @@ public class JoinApplicationStatBoTest {
         JoinDataSourceBo joinDataSourceBo1_1 = joinDataSourceBoList1.get(0);
         assertEquals(joinDataSourceBo1_1.getServiceTypeCode(), 1000);
         assertEquals(joinDataSourceBo1_1.getUrl(), "jdbc:mysql");
-        assertEquals(joinDataSourceBo1_1.getAvgActiveConnectionSize(), 286);
-        assertEquals(joinDataSourceBo1_1.getMinActiveConnectionSize(), 200);
-        assertEquals(joinDataSourceBo1_1.getMinActiveConnectionAgentId(), "agent_id_1_-50");
-        assertEquals(joinDataSourceBo1_1.getMaxActiveConnectionSize(), 640);
-        assertEquals(joinDataSourceBo1_1.getMaxActiveConnectionAgentId(), "agent_id_6_40");
+        assertEquals(new JoinIntFieldBo(286, 200, "agent_id_1_-50", 640, "agent_id_6_40"), joinDataSourceBo1_1.getActiveConnectionSizeJoinValue());
+
         JoinDataSourceBo joinDataSourceBo1_2 = joinDataSourceBoList1.get(1);
         assertEquals(joinDataSourceBo1_2.getServiceTypeCode(), 2000);
         assertEquals(joinDataSourceBo1_2.getUrl(), "jdbc:mssql");
-        assertEquals(joinDataSourceBo1_2.getAvgActiveConnectionSize(), 386);
-        assertEquals(joinDataSourceBo1_2.getMinActiveConnectionSize(), 300);
-        assertEquals(joinDataSourceBo1_2.getMinActiveConnectionAgentId(), "agent_id_1_-50");
-        assertEquals(joinDataSourceBo1_2.getMaxActiveConnectionSize(), 740);
-        assertEquals(joinDataSourceBo1_2.getMaxActiveConnectionAgentId(), "agent_id_6_40");
+        assertEquals(new JoinIntFieldBo(386, 300, "agent_id_1_-50", 740, "agent_id_6_40"), joinDataSourceBo1_2.getActiveConnectionSizeJoinValue());
 
         JoinDataSourceListBo joinDataSourceListBo2 = joinDataSourceListBoList.get(1);
         assertEquals(joinDataSourceListBo2.getId(), "id1");
@@ -992,19 +851,12 @@ public class JoinApplicationStatBoTest {
         JoinDataSourceBo joinDataSourceBo2_1 = joinDataSourceBoList2.get(0);
         assertEquals(joinDataSourceBo2_1.getServiceTypeCode(), 1000);
         assertEquals(joinDataSourceBo2_1.getUrl(), "jdbc:mysql");
-        assertEquals(joinDataSourceBo2_1.getAvgActiveConnectionSize(), 186);
-        assertEquals(joinDataSourceBo2_1.getMinActiveConnectionSize(), 0);
-        assertEquals(joinDataSourceBo2_1.getMinActiveConnectionAgentId(), "agent_id_2_-50");
-        assertEquals(joinDataSourceBo2_1.getMaxActiveConnectionSize(), 740);
-        assertEquals(joinDataSourceBo2_1.getMaxActiveConnectionAgentId(), "agent_id_7_40");
+        assertEquals(new JoinIntFieldBo(186, 0, "agent_id_2_-50", 740, "agent_id_7_40"), joinDataSourceBo2_1.getActiveConnectionSizeJoinValue());
+
         JoinDataSourceBo joinDataSourceBo2_2 = joinDataSourceBoList2.get(1);
         assertEquals(joinDataSourceBo2_2.getServiceTypeCode(), 2000);
         assertEquals(joinDataSourceBo2_2.getUrl(), "jdbc:mssql");
-        assertEquals(joinDataSourceBo2_2.getAvgActiveConnectionSize(), 286);
-        assertEquals(joinDataSourceBo2_2.getMinActiveConnectionSize(), 100);
-        assertEquals(joinDataSourceBo2_2.getMinActiveConnectionAgentId(), "agent_id_2_-50");
-        assertEquals(joinDataSourceBo2_2.getMaxActiveConnectionSize(), 840);
-        assertEquals(joinDataSourceBo2_2.getMaxActiveConnectionAgentId(), "agent_id_7_40");
+        assertEquals(new JoinIntFieldBo(286, 100, "agent_id_2_-50", 840, "agent_id_7_40"), joinDataSourceBo2_2.getActiveConnectionSizeJoinValue());
 
         JoinDataSourceListBo joinDataSourceListBo3 = joinDataSourceListBoList.get(2);
         assertEquals(joinDataSourceListBo3.getId(), "id1");
@@ -1014,19 +866,12 @@ public class JoinApplicationStatBoTest {
         JoinDataSourceBo joinDataSourceBo3_1 = joinDataSourceBoList3.get(0);
         assertEquals(joinDataSourceBo3_1.getServiceTypeCode(), 1000);
         assertEquals(joinDataSourceBo3_1.getUrl(), "jdbc:mysql");
-        assertEquals(joinDataSourceBo3_1.getAvgActiveConnectionSize(), 486);
-        assertEquals(joinDataSourceBo3_1.getMinActiveConnectionSize(), 100);
-        assertEquals(joinDataSourceBo3_1.getMinActiveConnectionAgentId(), "agent_id_3_-50");
-        assertEquals(joinDataSourceBo3_1.getMaxActiveConnectionSize(), 940);
-        assertEquals(joinDataSourceBo3_1.getMaxActiveConnectionAgentId(), "agent_id_8_40");
+        assertEquals(new JoinIntFieldBo(486, 100, "agent_id_3_-50", 940, "agent_id_8_40"), joinDataSourceBo3_1.getActiveConnectionSizeJoinValue());
+
         JoinDataSourceBo joinDataSourceBo3_2 = joinDataSourceBoList3.get(1);
         assertEquals(joinDataSourceBo3_2.getServiceTypeCode(), 2000);
         assertEquals(joinDataSourceBo3_2.getUrl(), "jdbc:mssql");
-        assertEquals(joinDataSourceBo3_2.getAvgActiveConnectionSize(), 586);
-        assertEquals(joinDataSourceBo3_2.getMinActiveConnectionSize(), 200);
-        assertEquals(joinDataSourceBo3_2.getMinActiveConnectionAgentId(), "agent_id_3_-50");
-        assertEquals(joinDataSourceBo3_2.getMaxActiveConnectionSize(), 1040);
-        assertEquals(joinDataSourceBo3_2.getMaxActiveConnectionAgentId(), "agent_id_8_40");
+        assertEquals(new JoinIntFieldBo(586, 200, "agent_id_3_-50", 1040, "agent_id_8_40"), joinDataSourceBo3_2.getActiveConnectionSizeJoinValue());
 
         JoinDataSourceListBo joinDataSourceListBo4 = joinDataSourceListBoList.get(3);
         assertEquals(joinDataSourceListBo4.getId(), "id1");
@@ -1036,19 +881,12 @@ public class JoinApplicationStatBoTest {
         JoinDataSourceBo joinDataSourceBo4_1 = joinDataSourceBoList4.get(0);
         assertEquals(joinDataSourceBo4_1.getServiceTypeCode(), 1000);
         assertEquals(joinDataSourceBo4_1.getUrl(), "jdbc:mysql");
-        assertEquals(joinDataSourceBo4_1.getAvgActiveConnectionSize(), 386);
-        assertEquals(joinDataSourceBo4_1.getMinActiveConnectionSize(), 500);
-        assertEquals(joinDataSourceBo4_1.getMinActiveConnectionAgentId(), "agent_id_4_-50");
-        assertEquals(joinDataSourceBo4_1.getMaxActiveConnectionSize(), 640);
-        assertEquals(joinDataSourceBo4_1.getMaxActiveConnectionAgentId(), "agent_id_9_40");
+        assertEquals(new JoinIntFieldBo(386, 500, "agent_id_4_-50", 640, "agent_id_9_40"), joinDataSourceBo4_1.getActiveConnectionSizeJoinValue());
+
         JoinDataSourceBo joinDataSourceBo4_2 = joinDataSourceBoList4.get(1);
         assertEquals(joinDataSourceBo4_2.getServiceTypeCode(), 2000);
         assertEquals(joinDataSourceBo4_2.getUrl(), "jdbc:mssql");
-        assertEquals(joinDataSourceBo4_2.getAvgActiveConnectionSize(), 486);
-        assertEquals(joinDataSourceBo4_2.getMinActiveConnectionSize(), 600);
-        assertEquals(joinDataSourceBo4_2.getMinActiveConnectionAgentId(), "agent_id_4_-50");
-        assertEquals(joinDataSourceBo4_2.getMaxActiveConnectionSize(), 740);
-        assertEquals(joinDataSourceBo4_2.getMaxActiveConnectionAgentId(), "agent_id_9_40");
+        assertEquals(new JoinIntFieldBo(486, 600, "agent_id_4_-50", 740, "agent_id_9_40"), joinDataSourceBo4_2.getActiveConnectionSizeJoinValue());
 
         JoinDataSourceListBo joinDataSourceListBo5 = joinDataSourceListBoList.get(4);
         assertEquals(joinDataSourceListBo5.getId(), "id1");
@@ -1058,20 +896,12 @@ public class JoinApplicationStatBoTest {
         JoinDataSourceBo joinDataSourceBo5_1 = joinDataSourceBoList5.get(0);
         assertEquals(joinDataSourceBo5_1.getServiceTypeCode(), 1000);
         assertEquals(joinDataSourceBo5_1.getUrl(), "jdbc:mysql");
-        assertEquals(joinDataSourceBo5_1.getAvgActiveConnectionSize(), 86);
-        assertEquals(joinDataSourceBo5_1.getMinActiveConnectionSize(), 700);
-        assertEquals(joinDataSourceBo5_1.getMinActiveConnectionAgentId(), "agent_id_5_-50");
-        assertEquals(joinDataSourceBo5_1.getMaxActiveConnectionSize(), 840);
-        assertEquals(joinDataSourceBo5_1.getMaxActiveConnectionAgentId(), "agent_id_10_40");
+        assertEquals(new JoinIntFieldBo(86, 700, "agent_id_5_-50", 840, "agent_id_10_40"), joinDataSourceBo5_1.getActiveConnectionSizeJoinValue());
+
         JoinDataSourceBo joinDataSourceBo5_2 = joinDataSourceBoList5.get(1);
         assertEquals(joinDataSourceBo5_2.getServiceTypeCode(), 2000);
         assertEquals(joinDataSourceBo5_2.getUrl(), "jdbc:mssql");
-        assertEquals(joinDataSourceBo5_2.getAvgActiveConnectionSize(), 186);
-        assertEquals(joinDataSourceBo5_2.getMinActiveConnectionSize(), 800);
-        assertEquals(joinDataSourceBo5_2.getMinActiveConnectionAgentId(), "agent_id_5_-50");
-        assertEquals(joinDataSourceBo5_2.getMaxActiveConnectionSize(), 940);
-        assertEquals(joinDataSourceBo5_2.getMaxActiveConnectionAgentId(), "agent_id_10_40");
-
+        assertEquals(new JoinIntFieldBo(186, 800, "agent_id_5_-50", 940, "agent_id_10_40"), joinDataSourceBo5_2.getActiveConnectionSizeJoinValue());
     }
 
     private static class ComparatorImpl6 implements Comparator<JoinDataSourceListBo> {
@@ -1195,11 +1025,11 @@ public class JoinApplicationStatBoTest {
         Collections.sort(joinFileDescriptorBoList, new ComparatorImpl7());
 
         assertEquals(joinFileDescriptorBoList.size(), 5);
-        assertEquals(joinFileDescriptorBoList.get(0).getAvgOpenFDCount(), 330,0);
-        assertEquals(joinFileDescriptorBoList.get(1).getAvgOpenFDCount(), 220,0);
-        assertEquals(joinFileDescriptorBoList.get(2).getAvgOpenFDCount(), 330,0);
-        assertEquals(joinFileDescriptorBoList.get(3).getAvgOpenFDCount(), 770,0);
-        assertEquals(joinFileDescriptorBoList.get(4).getAvgOpenFDCount(), 880,0);
+        assertEquals(joinFileDescriptorBoList.get(0).getOpenFdCountJoinValue().getAvg(), 330,0);
+        assertEquals(joinFileDescriptorBoList.get(1).getOpenFdCountJoinValue().getAvg(), 220,0);
+        assertEquals(joinFileDescriptorBoList.get(2).getOpenFdCountJoinValue().getAvg(), 330,0);
+        assertEquals(joinFileDescriptorBoList.get(3).getOpenFdCountJoinValue().getAvg(), 770,0);
+        assertEquals(joinFileDescriptorBoList.get(4).getOpenFdCountJoinValue().getAvg(), 880,0);
     }
 
     private static class ComparatorImpl7 implements Comparator<JoinFileDescriptorBo> {
@@ -1214,47 +1044,27 @@ public class JoinApplicationStatBoTest {
         JoinFileDescriptorBo joinFileDescriptorBo1 = joinFileDescriptorBoList.get(0);
         assertEquals(joinFileDescriptorBo1.getId(), "id1");
         assertEquals(joinFileDescriptorBo1.getTimestamp(), 1487149800000L);
-        assertEquals(joinFileDescriptorBo1.getAvgOpenFDCount(), 486, 0);
-        assertEquals(joinFileDescriptorBo1.getMinOpenFDCount(), 220, 0);
-        assertEquals(joinFileDescriptorBo1.getMinOpenFDCountAgentId(), "id5_2");
-        assertEquals(joinFileDescriptorBo1.getMaxOpenFDCount(), 910, 0);
-        assertEquals(joinFileDescriptorBo1.getMaxOpenFDCountAgentId(), "id4_1");
+        assertEquals(new JoinLongFieldBo(486L, 220L, "id5_2", 910L, "id4_1"), joinFileDescriptorBo1.getOpenFdCountJoinValue());
 
         JoinFileDescriptorBo joinFileDescriptorBo2 = joinFileDescriptorBoList.get(1);
         assertEquals(joinFileDescriptorBo2.getId(), "id1");
         assertEquals(joinFileDescriptorBo2.getTimestamp(), 1487149805000L);
-        assertEquals(joinFileDescriptorBo2.getAvgOpenFDCount(), 386, 0);
-        assertEquals(joinFileDescriptorBo2.getMinOpenFDCount(), 350, 0);
-        assertEquals(joinFileDescriptorBo2.getMinOpenFDCountAgentId(), "id5_2");
-        assertEquals(joinFileDescriptorBo2.getMaxOpenFDCount(), 810, 0);
-        assertEquals(joinFileDescriptorBo2.getMaxOpenFDCountAgentId(), "id4_1");
+        assertEquals(new JoinLongFieldBo(386L, 350L, "id5_2", 810L, "id4_1"), joinFileDescriptorBo2.getOpenFdCountJoinValue());
 
         JoinFileDescriptorBo joinFileDescriptorBo3 = joinFileDescriptorBoList.get(2);
         assertEquals(joinFileDescriptorBo3.getId(), "id1");
         assertEquals(joinFileDescriptorBo3.getTimestamp(), 1487149810000L);
-        assertEquals(joinFileDescriptorBo3.getAvgOpenFDCount(), 286, 0);
-        assertEquals(joinFileDescriptorBo3.getMinOpenFDCount(), 220, 0);
-        assertEquals(joinFileDescriptorBo3.getMinOpenFDCountAgentId(), "id5_2");
-        assertEquals(joinFileDescriptorBo3.getMaxOpenFDCount(), 710, 0);
-        assertEquals(joinFileDescriptorBo3.getMaxOpenFDCountAgentId(), "id4_1");
+        assertEquals(new JoinLongFieldBo(286L, 220L, "id5_2", 710L, "id4_1"), joinFileDescriptorBo3.getOpenFdCountJoinValue());
 
         JoinFileDescriptorBo joinFileDescriptorBo4 = joinFileDescriptorBoList.get(3);
         assertEquals(joinFileDescriptorBo4.getId(), "id1");
         assertEquals(joinFileDescriptorBo4.getTimestamp(), 1487149815000L);
-        assertEquals(joinFileDescriptorBo4.getAvgOpenFDCount(), 186, 0);
-        assertEquals(joinFileDescriptorBo4.getMinOpenFDCount(), 120, 0);
-        assertEquals(joinFileDescriptorBo4.getMinOpenFDCountAgentId(), "id5_2");
-        assertEquals(joinFileDescriptorBo4.getMaxOpenFDCount(), 610, 0);
-        assertEquals(joinFileDescriptorBo4.getMaxOpenFDCountAgentId(), "id4_1");
+        assertEquals(new JoinLongFieldBo(186L, 120L, "id5_2", 610L, "id4_1"), joinFileDescriptorBo4.getOpenFdCountJoinValue());
 
         JoinFileDescriptorBo joinFileDescriptorBo5 = joinFileDescriptorBoList.get(4);
         assertEquals(joinFileDescriptorBo5.getId(), "id1");
         assertEquals(joinFileDescriptorBo5.getTimestamp(), 1487149820000L);
-        assertEquals(joinFileDescriptorBo5.getAvgOpenFDCount(), 86, 0);
-        assertEquals(joinFileDescriptorBo5.getMinOpenFDCount(), 20, 0);
-        assertEquals(joinFileDescriptorBo5.getMinOpenFDCountAgentId(), "id5_2");
-        assertEquals(joinFileDescriptorBo5.getMaxOpenFDCount(), 930, 0);
-        assertEquals(joinFileDescriptorBo5.getMaxOpenFDCountAgentId(), "id4_1");
+        assertEquals(new JoinLongFieldBo(86L, 20L, "id5_2", 930L, "id4_1"), joinFileDescriptorBo5.getOpenFdCountJoinValue());
     }
 
     private JoinApplicationStatBo createJoinApplicationStatBo7(final String id, final long timestamp, final int plus) {
@@ -1350,30 +1160,30 @@ public class JoinApplicationStatBoTest {
         Collections.sort(joinDirectBufferBoList, new ComparatorImpl8());
 
         assertEquals(joinDirectBufferBoList.size(), 5);
-        assertEquals(joinDirectBufferBoList.get(0).getAvgDirectCount(), 330,0);
-        assertEquals(joinDirectBufferBoList.get(0).getAvgDirectMemoryUsed(), 330,0);
-        assertEquals(joinDirectBufferBoList.get(0).getAvgMappedCount(), 330,0);
-        assertEquals(joinDirectBufferBoList.get(0).getAvgMappedMemoryUsed(), 330,0);
+        assertEquals(joinDirectBufferBoList.get(0).getDirectCountJoinValue().getAvg(), 330,0);
+        assertEquals(joinDirectBufferBoList.get(0).getDirectMemoryUsedJoinValue().getAvg(), 330,0);
+        assertEquals(joinDirectBufferBoList.get(0).getMappedCountJoinValue().getAvg(), 330,0);
+        assertEquals(joinDirectBufferBoList.get(0).getMappedMemoryUsedJoinValue().getAvg(), 330,0);
 
-        assertEquals(joinDirectBufferBoList.get(1).getAvgDirectCount(), 220,0);
-        assertEquals(joinDirectBufferBoList.get(1).getAvgDirectMemoryUsed(), 220,0);
-        assertEquals(joinDirectBufferBoList.get(1).getAvgMappedCount(), 220,0);
-        assertEquals(joinDirectBufferBoList.get(1).getAvgMappedMemoryUsed(), 220,0);
+        assertEquals(joinDirectBufferBoList.get(1).getDirectCountJoinValue().getAvg(), 220,0);
+        assertEquals(joinDirectBufferBoList.get(1).getDirectMemoryUsedJoinValue().getAvg(), 220,0);
+        assertEquals(joinDirectBufferBoList.get(1).getMappedCountJoinValue().getAvg(), 220,0);
+        assertEquals(joinDirectBufferBoList.get(1).getMappedMemoryUsedJoinValue().getAvg(), 220,0);
 
-        assertEquals(joinDirectBufferBoList.get(2).getAvgDirectCount(), 330,0);
-        assertEquals(joinDirectBufferBoList.get(2).getAvgDirectMemoryUsed(), 330,0);
-        assertEquals(joinDirectBufferBoList.get(2).getAvgMappedCount(), 330,0);
-        assertEquals(joinDirectBufferBoList.get(2).getAvgMappedMemoryUsed(), 330,0);
+        assertEquals(joinDirectBufferBoList.get(2).getDirectCountJoinValue().getAvg(), 330,0);
+        assertEquals(joinDirectBufferBoList.get(2).getDirectMemoryUsedJoinValue().getAvg(), 330,0);
+        assertEquals(joinDirectBufferBoList.get(2).getMappedCountJoinValue().getAvg(), 330,0);
+        assertEquals(joinDirectBufferBoList.get(2).getMappedMemoryUsedJoinValue().getAvg(), 330,0);
 
-        assertEquals(joinDirectBufferBoList.get(3).getAvgDirectCount(), 770,0);
-        assertEquals(joinDirectBufferBoList.get(3).getAvgDirectMemoryUsed(), 770,0);
-        assertEquals(joinDirectBufferBoList.get(3).getAvgMappedCount(), 770,0);
-        assertEquals(joinDirectBufferBoList.get(3).getAvgMappedMemoryUsed(), 770,0);
+        assertEquals(joinDirectBufferBoList.get(3).getDirectCountJoinValue().getAvg(), 770,0);
+        assertEquals(joinDirectBufferBoList.get(3).getDirectMemoryUsedJoinValue().getAvg(), 770,0);
+        assertEquals(joinDirectBufferBoList.get(3).getMappedCountJoinValue().getAvg(), 770,0);
+        assertEquals(joinDirectBufferBoList.get(3).getMappedMemoryUsedJoinValue().getAvg(), 770,0);
 
-        assertEquals(joinDirectBufferBoList.get(4).getAvgDirectCount(), 880,0);
-        assertEquals(joinDirectBufferBoList.get(4).getAvgDirectMemoryUsed(), 880,0);
-        assertEquals(joinDirectBufferBoList.get(4).getAvgMappedCount(), 880,0);
-        assertEquals(joinDirectBufferBoList.get(4).getAvgMappedMemoryUsed(), 880,0);
+        assertEquals(joinDirectBufferBoList.get(4).getDirectCountJoinValue().getAvg(), 880,0);
+        assertEquals(joinDirectBufferBoList.get(4).getDirectMemoryUsedJoinValue().getAvg(), 880,0);
+        assertEquals(joinDirectBufferBoList.get(4).getMappedCountJoinValue().getAvg(), 880,0);
+        assertEquals(joinDirectBufferBoList.get(4).getMappedMemoryUsedJoinValue().getAvg(), 880,0);
     }
 
     private static class ComparatorImpl8 implements Comparator<JoinDirectBufferBo> {
@@ -1385,146 +1195,50 @@ public class JoinApplicationStatBoTest {
 
     private void assertJoinDirectBufferBoList(List<JoinDirectBufferBo> joinDirectBufferBoList) {
         assertEquals(joinDirectBufferBoList.size(), 5);
+        //1
         JoinDirectBufferBo joinDirectBufferBo1 = joinDirectBufferBoList.get(0);
         assertEquals(joinDirectBufferBo1.getId(), "id1");
-        //1
         assertEquals(joinDirectBufferBo1.getTimestamp(), 1487149800000L);
-        assertEquals(joinDirectBufferBo1.getAvgDirectCount(), 486, 0);
-        assertEquals(joinDirectBufferBo1.getMinDirectCount(), 220, 0);
-        assertEquals(joinDirectBufferBo1.getMinDirectCountAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo1.getMaxDirectCount(), 910, 0);
-        assertEquals(joinDirectBufferBo1.getMaxDirectCountAgentId(), "id4_1");
-
-        assertEquals(joinDirectBufferBo1.getAvgDirectMemoryUsed(), 486, 0);
-        assertEquals(joinDirectBufferBo1.getMinDirectMemoryUsed(), 220, 0);
-        assertEquals(joinDirectBufferBo1.getMinDirectMemoryUsedAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo1.getMaxDirectMemoryUsed(), 910, 0);
-        assertEquals(joinDirectBufferBo1.getMaxDirectMemoryUsedAgentId(), "id4_1");
-
-        assertEquals(joinDirectBufferBo1.getAvgMappedCount(), 486, 0);
-        assertEquals(joinDirectBufferBo1.getMinMappedCount(), 220, 0);
-        assertEquals(joinDirectBufferBo1.getMinMappedCountAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo1.getMaxMappedCount(), 910, 0);
-        assertEquals(joinDirectBufferBo1.getMaxMappedCountAgentId(), "id4_1");
-
-        assertEquals(joinDirectBufferBo1.getAvgMappedMemoryUsed(), 486, 0);
-        assertEquals(joinDirectBufferBo1.getMinMappedMemoryUsed(), 220, 0);
-        assertEquals(joinDirectBufferBo1.getMinMappedMemoryUsedAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo1.getMaxMappedMemoryUsed(), 910, 0);
-        assertEquals(joinDirectBufferBo1.getMaxMappedMemoryUsedAgentId(), "id4_1");
+        assertEquals(joinDirectBufferBo1.getDirectCountJoinValue(), new JoinLongFieldBo(486L, 220L, "id5_2", 910L, "id4_1"));
+        assertEquals(joinDirectBufferBo1.getDirectMemoryUsedJoinValue(), new JoinLongFieldBo(486L, 220L, "id5_2", 910L, "id4_1"));
+        assertEquals(joinDirectBufferBo1.getMappedCountJoinValue(), new JoinLongFieldBo(486L, 220L, "id5_2", 910L, "id4_1"));
+        assertEquals(joinDirectBufferBo1.getMappedMemoryUsedJoinValue(), new JoinLongFieldBo(486L, 220L, "id5_2", 910L, "id4_1"));
 
         //2
         JoinDirectBufferBo joinDirectBufferBo2 = joinDirectBufferBoList.get(1);
         assertEquals(joinDirectBufferBo2.getId(), "id1");
         assertEquals(joinDirectBufferBo2.getTimestamp(), 1487149805000L);
-        assertEquals(joinDirectBufferBo2.getAvgDirectCount(), 386, 0);
-        assertEquals(joinDirectBufferBo2.getMinDirectCount(), 350, 0);
-        assertEquals(joinDirectBufferBo2.getMinDirectCountAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo2.getMaxDirectCount(), 810, 0);
-        assertEquals(joinDirectBufferBo2.getMaxDirectCountAgentId(), "id4_1");
-
-        assertEquals(joinDirectBufferBo2.getAvgDirectMemoryUsed(), 386, 0);
-        assertEquals(joinDirectBufferBo2.getMinDirectMemoryUsed(), 350, 0);
-        assertEquals(joinDirectBufferBo2.getMinDirectMemoryUsedAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo2.getMaxDirectMemoryUsed(), 810, 0);
-        assertEquals(joinDirectBufferBo2.getMaxDirectMemoryUsedAgentId(), "id4_1");
-
-        assertEquals(joinDirectBufferBo2.getAvgMappedCount(), 386, 0);
-        assertEquals(joinDirectBufferBo2.getMinMappedCount(), 350, 0);
-        assertEquals(joinDirectBufferBo2.getMinMappedCountAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo2.getMaxMappedCount(), 810, 0);
-        assertEquals(joinDirectBufferBo2.getMaxMappedCountAgentId(), "id4_1");
-
-        assertEquals(joinDirectBufferBo2.getAvgMappedMemoryUsed(), 386, 0);
-        assertEquals(joinDirectBufferBo2.getMinMappedMemoryUsed(), 350, 0);
-        assertEquals(joinDirectBufferBo2.getMinMappedMemoryUsedAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo2.getMaxMappedMemoryUsed(), 810, 0);
-        assertEquals(joinDirectBufferBo2.getMaxMappedMemoryUsedAgentId(), "id4_1");
+        assertEquals(joinDirectBufferBo2.getDirectCountJoinValue(), new JoinLongFieldBo(386L, 350L, "id5_2", 810L, "id4_1"));
+        assertEquals(joinDirectBufferBo2.getDirectMemoryUsedJoinValue(), new JoinLongFieldBo(386L, 350L, "id5_2", 810L, "id4_1"));
+        assertEquals(joinDirectBufferBo2.getMappedCountJoinValue(), new JoinLongFieldBo(386L, 350L, "id5_2", 810L, "id4_1"));
+        assertEquals(joinDirectBufferBo2.getMappedMemoryUsedJoinValue(), new JoinLongFieldBo(386L, 350L, "id5_2", 810L, "id4_1"));
 
         //3
         JoinDirectBufferBo joinDirectBufferBo3 = joinDirectBufferBoList.get(2);
         assertEquals(joinDirectBufferBo3.getId(), "id1");
         assertEquals(joinDirectBufferBo3.getTimestamp(), 1487149810000L);
-        assertEquals(joinDirectBufferBo3.getAvgDirectCount(), 286, 0);
-        assertEquals(joinDirectBufferBo3.getMinDirectCount(), 220, 0);
-        assertEquals(joinDirectBufferBo3.getMinDirectCountAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo3.getMaxDirectCount(), 710, 0);
-        assertEquals(joinDirectBufferBo3.getMaxDirectCountAgentId(), "id4_1");
-
-        assertEquals(joinDirectBufferBo3.getAvgDirectMemoryUsed(), 286, 0);
-        assertEquals(joinDirectBufferBo3.getMinDirectMemoryUsed(), 220, 0);
-        assertEquals(joinDirectBufferBo3.getMinDirectMemoryUsedAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo3.getMaxDirectMemoryUsed(), 710, 0);
-        assertEquals(joinDirectBufferBo3.getMaxDirectMemoryUsedAgentId(), "id4_1");
-
-        assertEquals(joinDirectBufferBo3.getAvgMappedCount(), 286, 0);
-        assertEquals(joinDirectBufferBo3.getMinMappedCount(), 220, 0);
-        assertEquals(joinDirectBufferBo3.getMinMappedCountAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo3.getMaxMappedCount(), 710, 0);
-        assertEquals(joinDirectBufferBo3.getMaxMappedCountAgentId(), "id4_1");
-
-        assertEquals(joinDirectBufferBo3.getAvgMappedMemoryUsed(), 286, 0);
-        assertEquals(joinDirectBufferBo3.getMinMappedMemoryUsed(), 220, 0);
-        assertEquals(joinDirectBufferBo3.getMinMappedMemoryUsedAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo3.getMaxMappedMemoryUsed(), 710, 0);
-        assertEquals(joinDirectBufferBo3.getMaxMappedMemoryUsedAgentId(), "id4_1");
+        assertEquals(joinDirectBufferBo3.getDirectCountJoinValue(), new JoinLongFieldBo(286L, 220L, "id5_2", 710L, "id4_1"));
+        assertEquals(joinDirectBufferBo3.getDirectMemoryUsedJoinValue(), new JoinLongFieldBo(286L, 220L, "id5_2", 710L, "id4_1"));
+        assertEquals(joinDirectBufferBo3.getMappedCountJoinValue(), new JoinLongFieldBo(286L, 220L, "id5_2", 710L, "id4_1"));
+        assertEquals(joinDirectBufferBo3.getMappedMemoryUsedJoinValue(), new JoinLongFieldBo(286L, 220L, "id5_2", 710L, "id4_1"));
 
         //4
         JoinDirectBufferBo joinDirectBufferBo4 = joinDirectBufferBoList.get(3);
         assertEquals(joinDirectBufferBo4.getId(), "id1");
         assertEquals(joinDirectBufferBo4.getTimestamp(), 1487149815000L);
-        assertEquals(joinDirectBufferBo4.getAvgDirectCount(), 186, 0);
-        assertEquals(joinDirectBufferBo4.getMinDirectCount(), 120, 0);
-        assertEquals(joinDirectBufferBo4.getMinDirectCountAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo4.getMaxDirectCount(), 610, 0);
-        assertEquals(joinDirectBufferBo4.getMaxDirectCountAgentId(), "id4_1");
-
-        assertEquals(joinDirectBufferBo4.getAvgDirectMemoryUsed(), 186, 0);
-        assertEquals(joinDirectBufferBo4.getMinDirectMemoryUsed(), 120, 0);
-        assertEquals(joinDirectBufferBo4.getMinDirectMemoryUsedAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo4.getMaxDirectMemoryUsed(), 610, 0);
-        assertEquals(joinDirectBufferBo4.getMaxDirectMemoryUsedAgentId(), "id4_1");
-
-        assertEquals(joinDirectBufferBo4.getAvgMappedCount(), 186, 0);
-        assertEquals(joinDirectBufferBo4.getMinMappedCount(), 120, 0);
-        assertEquals(joinDirectBufferBo4.getMinMappedCountAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo4.getMaxMappedCount(), 610, 0);
-        assertEquals(joinDirectBufferBo4.getMaxMappedCountAgentId(), "id4_1");
-
-        assertEquals(joinDirectBufferBo4.getAvgMappedMemoryUsed(), 186, 0);
-        assertEquals(joinDirectBufferBo4.getMinMappedMemoryUsed(), 120, 0);
-        assertEquals(joinDirectBufferBo4.getMinMappedMemoryUsedAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo4.getMaxMappedMemoryUsed(), 610, 0);
-        assertEquals(joinDirectBufferBo4.getMaxMappedMemoryUsedAgentId(), "id4_1");
+        assertEquals(joinDirectBufferBo4.getDirectCountJoinValue(), new JoinLongFieldBo(186L, 120L, "id5_2", 610L, "id4_1"));
+        assertEquals(joinDirectBufferBo4.getDirectMemoryUsedJoinValue(), new JoinLongFieldBo(186L, 120L, "id5_2", 610L, "id4_1"));
+        assertEquals(joinDirectBufferBo4.getMappedCountJoinValue(), new JoinLongFieldBo(186L, 120L, "id5_2", 610L, "id4_1"));
+        assertEquals(joinDirectBufferBo4.getMappedMemoryUsedJoinValue(), new JoinLongFieldBo(186L, 120L, "id5_2", 610L, "id4_1"));
 
         //5
         JoinDirectBufferBo joinDirectBufferBo5 = joinDirectBufferBoList.get(4);
         assertEquals(joinDirectBufferBo5.getId(), "id1");
         assertEquals(joinDirectBufferBo5.getTimestamp(), 1487149820000L);
-        assertEquals(joinDirectBufferBo5.getAvgDirectCount(), 86, 0);
-        assertEquals(joinDirectBufferBo5.getMinDirectCount(), 20, 0);
-        assertEquals(joinDirectBufferBo5.getMinDirectCountAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo5.getMaxDirectCount(), 930, 0);
-        assertEquals(joinDirectBufferBo5.getMaxDirectCountAgentId(), "id4_1");
-
-        assertEquals(joinDirectBufferBo5.getAvgDirectMemoryUsed(), 86, 0);
-        assertEquals(joinDirectBufferBo5.getMinDirectMemoryUsed(), 20, 0);
-        assertEquals(joinDirectBufferBo5.getMinDirectMemoryUsedAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo5.getMaxDirectMemoryUsed(), 930, 0);
-        assertEquals(joinDirectBufferBo5.getMaxDirectMemoryUsedAgentId(), "id4_1");
-
-        assertEquals(joinDirectBufferBo5.getAvgMappedCount(), 86, 0);
-        assertEquals(joinDirectBufferBo5.getMinMappedCount(), 20, 0);
-        assertEquals(joinDirectBufferBo5.getMinMappedCountAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo5.getMaxMappedCount(), 930, 0);
-        assertEquals(joinDirectBufferBo5.getMaxMappedCountAgentId(), "id4_1");
-
-        assertEquals(joinDirectBufferBo5.getAvgMappedMemoryUsed(), 86, 0);
-        assertEquals(joinDirectBufferBo5.getMinMappedMemoryUsed(), 20, 0);
-        assertEquals(joinDirectBufferBo5.getMinMappedMemoryUsedAgentId(), "id5_2");
-        assertEquals(joinDirectBufferBo5.getMaxMappedMemoryUsed(), 930, 0);
-        assertEquals(joinDirectBufferBo5.getMaxMappedMemoryUsedAgentId(), "id4_1");
-
+        assertEquals(joinDirectBufferBo5.getDirectCountJoinValue(), new JoinLongFieldBo(86L, 20L, "id5_2", 930L, "id4_1"));
+        assertEquals(joinDirectBufferBo5.getDirectMemoryUsedJoinValue(), new JoinLongFieldBo(86L, 20L, "id5_2", 930L, "id4_1"));
+        assertEquals(joinDirectBufferBo5.getMappedCountJoinValue(), new JoinLongFieldBo(86L, 20L, "id5_2", 930L, "id4_1"));
+        assertEquals(joinDirectBufferBo5.getMappedMemoryUsedJoinValue(), new JoinLongFieldBo(86L, 20L, "id5_2", 930L, "id4_1"));
     }
 
     private JoinApplicationStatBo createJoinApplicationStatBo8(final String id, final long timestamp, final int plus) {

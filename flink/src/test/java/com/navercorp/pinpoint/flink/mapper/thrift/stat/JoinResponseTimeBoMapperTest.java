@@ -16,12 +16,14 @@
 
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFResponseTime;
+
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -43,11 +45,7 @@ public class JoinResponseTimeBoMapperTest {
 
         assertEquals(joinResponseTimeBo.getId(), agentId);
         assertEquals(joinResponseTimeBo.getTimestamp(), 1491274148454L);
-        assertEquals(joinResponseTimeBo.getAvg(), 100);
-        assertEquals(joinResponseTimeBo.getMinAvg(), 100);
-        assertEquals(joinResponseTimeBo.getMinAvgAgentId(), agentId);
-        assertEquals(joinResponseTimeBo.getMaxAvg(), 100);
-        assertEquals(joinResponseTimeBo.getMaxAvgAgentId(), agentId);
+        assertEquals(joinResponseTimeBo.getResponseTimeJoinValue(), new JoinLongFieldBo(100L, 100L, agentId, 100L, agentId));
     }
 
     @Test

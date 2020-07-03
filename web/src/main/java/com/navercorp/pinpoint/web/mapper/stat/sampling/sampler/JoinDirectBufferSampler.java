@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDirectBufferBo;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
@@ -37,34 +38,12 @@ public class JoinDirectBufferSampler implements ApplicationStatSampler<JoinDirec
         JoinDirectBufferBo joinDirectBufferBo = JoinDirectBufferBo.joinDirectBufferBoList(joinDirectBufferBoList, timestamp);
 
         String id = joinDirectBufferBo.getId();
-        long avgDirectCount = joinDirectBufferBo.getAvgDirectCount();
-        long minDirectCount = joinDirectBufferBo.getMinDirectCount();
-        String minDirectCountAgentId = joinDirectBufferBo.getMinDirectCountAgentId();
-        long maxDirectCount  = joinDirectBufferBo.getMaxDirectCount();
-        String maxDirectCountAgentId = joinDirectBufferBo.getMaxDirectCountAgentId();
+        final JoinLongFieldBo directCountJoinValue = joinDirectBufferBo.getDirectCountJoinValue();
+        final JoinLongFieldBo directMemoryUsedJoinValue = joinDirectBufferBo.getDirectMemoryUsedJoinValue();
+        final JoinLongFieldBo mappedCountJoinValue = joinDirectBufferBo.getMappedCountJoinValue();
+        final JoinLongFieldBo mappedMemoryUsedJoinValue = joinDirectBufferBo.getMappedMemoryUsedJoinValue();
 
-        long avgDirectMemoryUsed = joinDirectBufferBo.getAvgDirectMemoryUsed();
-        long minDirectMemoryUsed = joinDirectBufferBo.getMinDirectMemoryUsed();
-        String minDirectMemoryUsedAgentId = joinDirectBufferBo.getMinDirectMemoryUsedAgentId();
-        long maxDirectMemoryUsed  = joinDirectBufferBo.getMaxDirectMemoryUsed();
-        String maxDirectMemoryUsedAgentId = joinDirectBufferBo.getMaxDirectMemoryUsedAgentId();
-
-        long avgMappedCount = joinDirectBufferBo.getAvgMappedCount();
-        long minMappedCount = joinDirectBufferBo.getMinMappedCount();
-        String minMappedCountAgentId = joinDirectBufferBo.getMinMappedCountAgentId();
-        long maxMappedCount  = joinDirectBufferBo.getMaxMappedCount();
-        String maxMappedCountAgentId = joinDirectBufferBo.getMaxMappedCountAgentId();
-
-        long avgMappedMemoryUsed = joinDirectBufferBo.getAvgMappedMemoryUsed();
-        long minMappedMemoryUsed = joinDirectBufferBo.getMinMappedMemoryUsed();
-        String minMappedMemoryUsedAgentId = joinDirectBufferBo.getMinMappedMemoryUsedAgentId();
-        long maxMappedMemoryUsed  = joinDirectBufferBo.getMaxMappedMemoryUsed();
-        String maxMappedMemoryUsedAgentId = joinDirectBufferBo.getMaxMappedMemoryUsedAgentId();
-
-        AggreJoinDirectBufferBo aggreJoinDirectBufferBo = new AggreJoinDirectBufferBo(id, avgDirectCount, maxDirectCount , maxDirectCountAgentId, minDirectCount, minDirectCountAgentId
-                , avgDirectMemoryUsed, maxDirectMemoryUsed , maxDirectMemoryUsedAgentId, minDirectMemoryUsed, minDirectMemoryUsedAgentId
-                , avgMappedCount, maxMappedCount , maxMappedCountAgentId, minMappedCount, minMappedCountAgentId
-                , avgMappedMemoryUsed, maxMappedMemoryUsed , maxMappedMemoryUsedAgentId, minMappedMemoryUsed, minMappedMemoryUsedAgentId, timestamp);
+        AggreJoinDirectBufferBo aggreJoinDirectBufferBo = new AggreJoinDirectBufferBo(id, directCountJoinValue, directMemoryUsedJoinValue, mappedCountJoinValue, mappedMemoryUsedJoinValue, timestamp);
         return aggreJoinDirectBufferBo;
     }
 }

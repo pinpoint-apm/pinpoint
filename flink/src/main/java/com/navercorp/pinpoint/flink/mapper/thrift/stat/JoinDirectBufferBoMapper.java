@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.flink.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFDirectBuffer;
@@ -39,29 +40,17 @@ public class JoinDirectBufferBoMapper implements ThriftBoMapper<JoinDirectBuffer
         joinDirectBufferBo.setTimestamp(tFAgentStat.getTimestamp());
 
         TFDirectBuffer tFDirectBuffer = tFAgentStat.getDirectBuffer();
-        joinDirectBufferBo.setAvgDirectCount(tFDirectBuffer.getDirectCount());
-        joinDirectBufferBo.setMinDirectCountAgentId(agentId);
-        joinDirectBufferBo.setMinDirectCount(tFDirectBuffer.getDirectCount());
-        joinDirectBufferBo.setMaxDirectCountAgentId(agentId);
-        joinDirectBufferBo.setMaxDirectCount(tFDirectBuffer.getDirectCount());
+        final long directCount = tFDirectBuffer.getDirectCount();
+        joinDirectBufferBo.setDirectCountJoinValue(new JoinLongFieldBo(directCount, directCount, agentId, directCount, agentId));
 
-        joinDirectBufferBo.setAvgDirectMemoryUsed(tFDirectBuffer.getDirectMemoryUsed());
-        joinDirectBufferBo.setMinDirectMemoryUsedAgentId(agentId);
-        joinDirectBufferBo.setMinDirectMemoryUsed(tFDirectBuffer.getDirectMemoryUsed());
-        joinDirectBufferBo.setMaxDirectMemoryUsedAgentId(agentId);
-        joinDirectBufferBo.setMaxDirectMemoryUsed(tFDirectBuffer.getDirectMemoryUsed());
+        final long directMemoryUsed = tFDirectBuffer.getDirectMemoryUsed();
+        joinDirectBufferBo.setDirectMemoryUsedJoinValue(new JoinLongFieldBo(directMemoryUsed, directMemoryUsed, agentId, directMemoryUsed, agentId));
 
-        joinDirectBufferBo.setAvgMappedCount(tFDirectBuffer.getMappedCount());
-        joinDirectBufferBo.setMinMappedCountAgentId(agentId);
-        joinDirectBufferBo.setMinMappedCount(tFDirectBuffer.getMappedCount());
-        joinDirectBufferBo.setMaxMappedCountAgentId(agentId);
-        joinDirectBufferBo.setMaxMappedCount(tFDirectBuffer.getMappedCount());
+        final long mappedCount = tFDirectBuffer.getMappedCount();
+        joinDirectBufferBo.setMappedCountJoinValue(new JoinLongFieldBo(mappedCount, mappedCount, agentId, mappedCount, agentId));
 
-        joinDirectBufferBo.setAvgMappedMemoryUsed(tFDirectBuffer.getMappedMemoryUsed());
-        joinDirectBufferBo.setMinMappedMemoryUsedAgentId(agentId);
-        joinDirectBufferBo.setMinMappedMemoryUsed(tFDirectBuffer.getMappedMemoryUsed());
-        joinDirectBufferBo.setMaxMappedMemoryUsedAgentId(agentId);
-        joinDirectBufferBo.setMaxMappedMemoryUsed(tFDirectBuffer.getMappedMemoryUsed());
+        final long mappedMemoryUsed = tFDirectBuffer.getMappedMemoryUsed();
+        joinDirectBufferBo.setMappedMemoryUsedJoinValue(new JoinLongFieldBo(mappedMemoryUsed, mappedMemoryUsed, agentId, mappedMemoryUsed, agentId));
 
         return joinDirectBufferBo;
     }

@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 
 /**
  * @author Roy Kim
@@ -27,6 +28,10 @@ public class AggreJoinFileDescriptorBo extends JoinFileDescriptorBo implements A
 
     public AggreJoinFileDescriptorBo(String id, long avgOpenFDCount, long maxOpenFDCount, String maxOpenFDCountAgentId, long minOpenFDCount, String minOpenFDCountAgentId, long timestamp) {
         super(id, avgOpenFDCount, maxOpenFDCount, maxOpenFDCountAgentId, minOpenFDCount, minOpenFDCountAgentId, timestamp);
+    }
+
+    public AggreJoinFileDescriptorBo(String id, JoinLongFieldBo openFdCountJoinValue, long timestamp) {
+        super(id, openFdCountJoinValue, timestamp);
     }
 
     public static AggreJoinFileDescriptorBo createUncollectedObject(long timestamp) {

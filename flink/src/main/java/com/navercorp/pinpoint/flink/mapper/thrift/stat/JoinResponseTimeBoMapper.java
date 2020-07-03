@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 import com.navercorp.pinpoint.flink.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
@@ -37,11 +38,7 @@ public class JoinResponseTimeBoMapper implements ThriftBoMapper<JoinResponseTime
         JoinResponseTimeBo joinResponseTimeBo = new JoinResponseTimeBo();
         joinResponseTimeBo.setId(agentId);
         joinResponseTimeBo.setTimestamp(tFAgentStat.getTimestamp());
-        joinResponseTimeBo.setAvg(avg);
-        joinResponseTimeBo.setMinAvg(avg);
-        joinResponseTimeBo.setMinAvgAgentId(agentId);
-        joinResponseTimeBo.setMaxAvg(avg);
-        joinResponseTimeBo.setMaxAvgAgentId(agentId);
+        joinResponseTimeBo.setResponseTimeJoinValue(new JoinLongFieldBo(avg, avg, agentId, avg, agentId));
 
         return joinResponseTimeBo;
     }
