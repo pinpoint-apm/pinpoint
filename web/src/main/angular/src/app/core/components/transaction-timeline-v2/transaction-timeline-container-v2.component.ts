@@ -24,9 +24,12 @@ export class TransactionTimelineContainerComponentV2 implements OnInit, OnDestro
 
     private unsubscribe = new Subject<void>();
 
+    applicationName: string;
     startTime: number;
     endTime: number;
     rowData: any;
+    asyncRowData: any;
+    focusedRows: boolean[];
     databaseCalls: any;
     barRatio: number;
 
@@ -57,7 +60,10 @@ export class TransactionTimelineContainerComponentV2 implements OnInit, OnDestro
             this.endTime = transactionTimelineInfo.callStackEnd;
             this.barRatio = transactionTimelineInfo.barRatio;
             this.rowData = transactionTimelineInfo.callStack;
+            this.asyncRowData = transactionTimelineInfo.asyncCallStack;
             this.databaseCalls = transactionTimelineInfo.databaseCalls;
+            this.focusedRows = transactionTimelineInfo.focusedRows;
+            this.applicationName = transactionTimelineInfo.applicationId;
             this.cd.detectChanges()
         });
     }
