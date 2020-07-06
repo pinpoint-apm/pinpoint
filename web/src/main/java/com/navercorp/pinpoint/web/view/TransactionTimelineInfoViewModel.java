@@ -34,7 +34,9 @@ public class TransactionTimelineInfoViewModel {
     private final long spanId;
     private final RecordSet recordSet;
     private List<CallStack> databaseCalls;
-    private List<List<CallStack[]>> rowData;
+    private List<List<CallStack>> rowData;
+    private List<List<CallStack>> asyncRowData;
+    private List<Boolean> focusedRows;
 
     private final LogConfiguration logConfiguration;
 
@@ -46,20 +48,13 @@ public class TransactionTimelineInfoViewModel {
         initialize();
     }
 
-    @JsonProperty("applicationName")
-    public String getApplicationName() {
-        return recordSet.getApplicationName();
-    }
-
     @JsonProperty("transactionId")
     public String getTransactionId() {
         return TransactionIdUtils.formatString(transactionId);
     }
 
     @JsonProperty("agentId")
-    public String getAgentId() {
-        return recordSet.getAgentId();
-    }
+    public String getAgentId() { return recordSet.getAgentId(); }
 
     @JsonProperty("applicationId")
     public String getApplicationId() {
@@ -78,7 +73,8 @@ public class TransactionTimelineInfoViewModel {
 
     @JsonProperty("barRatio")
     public double getBarRatio() {
-        return Math.max(1000.0 / (recordSet.getEndTime() - recordSet.getStartTime()), 1);
+        /* total time will take 95% of window width */
+        return 95.0 / (recordSet.getEndTime() - recordSet.getStartTime());
     }
 
     @JsonProperty("databaseCalls")
@@ -87,13 +83,21 @@ public class TransactionTimelineInfoViewModel {
     }
 
     @JsonProperty("callStack")
-    public List<List<CallStack[]>> getCallStack() {
+    public List<List<CallStack>> getCallStack() {
         return rowData;
     }
 
+    @JsonProperty("asyncCallStack")
+    public List<List<CallStack>> getAsyncCallStack() { return asyncRowData; }
+
+    @JsonProperty("focusedRows")
+    public List<Boolean> getFocusedRows() { return focusedRows;}
+
     public void initialize() {
-        rowData = new ArrayList<List<CallStack[]>>();
+        rowData = new ArrayList<List<CallStack>>();
+        asyncRowData = new ArrayList<List<CallStack>>();
         databaseCalls = new ArrayList<CallStack>();
+        focusedRows = new ArrayList<Boolean>();
 
         Stack<Integer> asyncRootDepths = new Stack<Integer>();
         Stack<String> asyncRootNames = new Stack<String>();
@@ -104,26 +108,35 @@ public class TransactionTimelineInfoViewModel {
             if (record.getElapsed() != 0) {
                 int depth = record.getTab();
                 while (depth >= rowData.size()) {
-                    rowData.add(new ArrayList<CallStack[]>());
+                    rowData.add(new ArrayList<CallStack>());
+                    asyncRowData.add(new ArrayList<CallStack>());
+                    focusedRows.add(false);
                 }
 
                 isAsync = isCurrentlyAsync(asyncRootDepths, asyncRootNames, prev, record, isAsync);
 
-                // TODO: change data structure as necessary
-                CallStack[] rearranged = new CallStack[2];
+                CallStack newCall = new CallStack(record);
                 if (isAsync) {
-                    rearranged[0] = null;
-                    rearranged[1] = new CallStack(record);
+                    asyncRowData.get(depth).add(newCall);
                 } else {
-                    rearranged[0] = new CallStack(record);
-                    rearranged[1] = null;
+                    rowData.get(depth).add(newCall);
+                    if(newCall.getApplicationName().equals(recordSet.getApplicationId())) {
+                        focusedRows.set(depth, true);
+                    }
                 }
-                rowData.get(depth).add(rearranged);
                 prev = record;
             } else if ((record.getTitle().equals("SQL") || (record.getTitle().equals("MONGO-JSON")))) {
                 if (prev.getId() == record.getParentId()) {
                     databaseCalls.add(new CallStack(prev));
                 }
+            }
+        }
+
+        for (int i = 0; i < rowData.size(); i++) {
+            if ((rowData.get(i).size() == 0) && (asyncRowData.get(i).size() == 0)) {
+                rowData.remove(i);
+                asyncRowData.remove(i);
+                focusedRows.remove(i);
             }
         }
     }
@@ -165,6 +178,7 @@ public class TransactionTimelineInfoViewModel {
         private long begin;
         private long end;
         private String applicationName = "";
+        private String methodName = "";
         private int depth;
         private String id = "";
         private String parentId = "";
@@ -174,6 +188,7 @@ public class TransactionTimelineInfoViewModel {
             begin = record.getBegin();
             end = record.getBegin() + record.getElapsed();
             applicationName = record.getApplicationName();
+            methodName = record.getTitle();
             depth = record.getTab();
             id = String.valueOf(record.getId());
             if (record.getParentId() > 0) {
@@ -209,6 +224,8 @@ public class TransactionTimelineInfoViewModel {
         public String getApiType() {
             return apiType;
         }
+
+        public String getMethodName() { return methodName; }
 
     }
 }

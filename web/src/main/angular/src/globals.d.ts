@@ -261,9 +261,10 @@ interface ITransactionDetailData {
 interface ITransactionTimelineData {
     agentId: string;
     applicationId: string;
-    applicationName: string;
     barRatio: number;
     callStack: any[];
+    asyncCallStack: any[];
+    focusedRows: boolean[];
     databaseCalls: any[];
     callStackEnd: number;
     callStackStart: number;

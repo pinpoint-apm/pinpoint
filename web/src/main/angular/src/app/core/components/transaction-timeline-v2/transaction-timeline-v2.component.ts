@@ -10,16 +10,19 @@ export class TransactionTimelineComponentV2 implements OnInit {
     @Input() startTime: number;
     @Input() endTime: number;
     @Input() barRatio: number;
-    @Input() rowData: any;
+    @Input() syncRowData: any;
+    @Input() asyncRowData: any;
     @Input() databaseCalls: any;
+    @Input() focusedRows: boolean[];
+    @Input() applicationName: string;
     @Output() outSelectTransaction = new EventEmitter<string>();
 
+    bgColor: string;
     colorSet: { [key: string]: string } = {};
-    bgColor: String;
     constructor() {}
     ngOnInit() {
-        this.rowData = this.rowData.filter(row => row.length > 0);
-        this.bgColor = 'rgba(' + this.calcColor(this.rowData[0][0][0].applicationName) + ', 0.1)';
+        this.barRatio = this.barRatio * window.innerWidth / 100;
+        this.bgColor = 'rgba(' + this.calcColor(this.applicationName) + ', 0.4)';
     }
 
     private calcColor(str: string): string {
@@ -51,10 +54,10 @@ export class TransactionTimelineComponentV2 implements OnInit {
     private findParent(call:any, depth: number): any {
         let ret = null;
         if (depth > 0) {
-            if (this.rowData[depth-1].length > 0) {
-                this.rowData[depth-1].forEach((candidate: any, index: number) => {
-                    if (candidate[this.getDataIndex(candidate)].id === call.parentId) {
-                        ret = candidate[this.getDataIndex(candidate)];
+            if (this.syncRowData[depth-1].length > 0) {
+                this.syncRowData[depth-1].forEach((candidate: any, index: number) => {
+                    if (candidate.id === call.parentId) {
+                        ret = candidate;
                     }
                 });
             }
@@ -75,27 +78,38 @@ export class TransactionTimelineComponentV2 implements OnInit {
         }
     }
 
-    getLineStyle(): object {
-        return {
-            'background-color': this.bgColor,
-        };
+    getLineStyle(depth: number): object {
+        if (this.focusedRows[depth] === true) {
+            return {
+                'background-color': this.bgColor
+            };
+        }
     }
 
-    getStyles(call: any, isAsync: boolean): object {
-        let color = this.calcColor(call.applicationName);
-        let ret = {
+    getSyncStyles(call: any): object {
+        return {
             'display': 'inline-block',
             'position': 'absolute',
             'width': this.getWidth(call) + 'px',
-            'background-color': 'rgb(' + color + ')',
+            'background-color': 'rgb(' + this.calcColor(call.applicationName) + ')',
             'left': this.getLeft(call) + 'px'
-
         };
-        if (isAsync) {
-            ret["height"] = '10px';
-            ret["background"] = 'repeating-linear-gradient(45deg, transparent, transparent 1px, rgb(' + color + ') 1px, rgb(' + color + ') 2px),' +
-                              ' linear-gradient(to bottom, rgba(' + color + ', 0.3), rgba(' + color + ', 0.3))';
-        }
+    }
+
+    getAsyncStyles(call: any): object {
+        let color = this.calcColor(call.applicationName);
+        let ret = {
+        'display': 'inline-block',
+        'position': 'absolute',
+        'width': this.getWidth(call) + 'px',
+        'background-color': 'rgb(' + color + ')',
+        'left': this.getLeft(call) + 'px',
+        'height': '10px',
+        'background': 'repeating-linear-gradient(45deg, transparent, transparent 1px, rgb(' + color + ') 1px,' +
+                      ' rgb(' + color + ') 2px),' +
+                      ' linear-gradient(to bottom, rgba(' + color + ', 0.3), rgba(' + color + ', 0.3))'
+         };
+
         if (call.apiType === "ASYNC") {
             ret["border-top"] = '2px solid rgb(' + color + ')';
         }
@@ -110,23 +124,28 @@ export class TransactionTimelineComponentV2 implements OnInit {
         return (call[0]==null)? 1: 0;
     }
 
-    showName(call: any, isAsync: boolean): boolean {
-        if ((this.getWidth(call) > 180) && !isAsync) {
+    showName(call: any): boolean {
+        if (this.getWidth(call) > 180) {
             return true;
         }
         return false;
     }
 
-    getText(call: any, depth: number, isAsync: boolean): string {
+    getText(call: any, depth: number): string {
         let ret: string = "";
         if (this.showApplicationName(call, depth)) {
             ret = "[" + call.applicationName + "] ";
         }
-        ret += call.apiType + " (" + (call.end - call.begin) + " ms)";
+        ret += call.methodName.split("(", 2)[0]
+            + " (" + (call.end - call.begin) + " ms)";
+        return ret;
+    }
 
-        if (isAsync) {
-            ret += " / Asynchronous"
-        }
+    getTooltipText(call: any): string {
+        let ret: string = "";
+        ret = "[" + call.apiType + "] ";
+        ret += call.methodName.split("(", 2)[0]
+            + " (" + (call.end - call.begin) + " ms)";
         return ret;
     }
 
