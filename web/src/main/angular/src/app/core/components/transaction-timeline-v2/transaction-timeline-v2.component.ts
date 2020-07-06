@@ -15,9 +15,11 @@ export class TransactionTimelineComponentV2 implements OnInit {
     @Output() outSelectTransaction = new EventEmitter<string>();
 
     colorSet: { [key: string]: string } = {};
+    bgColor: String;
     constructor() {}
     ngOnInit() {
         this.rowData = this.rowData.filter(row => row.length > 0);
+        this.bgColor = 'rgba(' + this.calcColor(this.rowData[0][0][0].applicationName) + ', 0.1)';
     }
 
     private calcColor(str: string): string {
@@ -73,9 +75,9 @@ export class TransactionTimelineComponentV2 implements OnInit {
         }
     }
 
-    getLineStyle(row: any): object {
+    getLineStyle(): object {
         return {
-            'background-color': 'rgba(' + this.calcColor(row[0][this.getDataIndex(row[0])].applicationName) + ', 0.1)',
+            'background-color': this.bgColor,
         };
     }
 
