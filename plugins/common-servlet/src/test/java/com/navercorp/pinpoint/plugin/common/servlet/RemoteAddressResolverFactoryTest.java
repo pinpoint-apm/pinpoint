@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.common.servlet;
 
-import com.navercorp.pinpoint.bootstrap.context.RemoteAddressResolver;
-
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
 import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;

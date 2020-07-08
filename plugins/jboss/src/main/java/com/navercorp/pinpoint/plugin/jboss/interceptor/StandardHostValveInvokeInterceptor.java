@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.jboss.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
@@ -23,9 +24,11 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerCookieRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerHeaderRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListener;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
 import com.navercorp.pinpoint.plugin.common.servlet.util.ArgumentValidator;
 import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
@@ -54,7 +57,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
 
     private final MethodDescriptor methodDescriptor;
     private final ArgumentValidator argumentValidator;
-    private final ServletRequestListenerInterceptorHelper<HttpServletRequest> servletRequestListenerInterceptorHelper;
+    private final ServletRequestListener<HttpServletRequest> servletRequestListener;
     private final ServletApiHelper servletApiHelper;
 
     /**
@@ -68,9 +71,20 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         this.argumentValidator = new ServletArgumentValidator(logger, 0, HttpServletRequest.class, 1, HttpServletResponse.class);
         final JbossConfig config = new JbossConfig(traceContext.getProfilerConfig());
         RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
-        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
         ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
-        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServletRequest>(JbossConstants.JBOSS, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder, requestRecorderFactory);
+
+        ServletRequestListenerBuilder<HttpServletRequest> builder = new ServletRequestListenerBuilder<HttpServletRequest>(JbossConstants.JBOSS, traceContext, requestAdaptor);
+        builder.setExcludeURLFilter(config.getExcludeUrlFilter());
+        builder.setParameterRecorder(parameterRecorder);
+        builder.setRequestRecorderFactory(requestRecorderFactory);
+
+        final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
+        builder.setRealIpSupport(config.getRealIpHeader(), config.getRealIpEmptyValue());
+        builder.setHttpStatusCodeRecorder(profilerConfig.getHttpStatusCodeErrors());
+        builder.setServerHeaderRecorder(profilerConfig.readList(ServerHeaderRecorder.CONFIG_KEY_RECORD_REQ_HEADERS));
+        builder.setServerCookieRecorder(profilerConfig.readList(ServerCookieRecorder.CONFIG_KEY_RECORD_REQ_COOKIES));
+        this.servletRequestListener = builder.build();
+
         this.servletApiHelper = newServletApi();
     }
 
@@ -101,7 +115,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 }
                 return;
             }
-            this.servletRequestListenerInterceptorHelper.initialized(request, JbossConstants.JBOSS_METHOD, this.methodDescriptor);
+            this.servletRequestListener.initialized(request, JbossConstants.JBOSS_METHOD, this.methodDescriptor);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle.", t);
@@ -130,7 +144,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 return;
             }
             final int statusCode = servletApiHelper.getStatus(response);
-            this.servletRequestListenerInterceptorHelper.destroyed(request, throwable, statusCode);
+            this.servletRequestListener.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle.", t);

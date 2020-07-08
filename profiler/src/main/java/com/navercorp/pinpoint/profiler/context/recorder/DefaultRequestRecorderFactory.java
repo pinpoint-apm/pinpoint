@@ -17,11 +17,12 @@
 package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.google.inject.Inject;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.DisableRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.DefaultProxyRequestRecorder;
-import com.navercorp.pinpoint.profiler.context.recorder.proxy.DisableProxyRequestRecorder;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParserLoaderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,19 +33,21 @@ import org.slf4j.LoggerFactory;
 public class DefaultRequestRecorderFactory<T> implements RequestRecorderFactory<T> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final ProxyRequestParserLoaderService proxyRequestParserLoaderService;
+    private final boolean enable;
 
     @Inject
-    public DefaultRequestRecorderFactory(final ProxyRequestParserLoaderService proxyRequestParserLoaderService) {
+    public DefaultRequestRecorderFactory(final ProxyRequestParserLoaderService proxyRequestParserLoaderService, ProfilerConfig profilerConfig) {
         this.proxyRequestParserLoaderService = proxyRequestParserLoaderService;
+        this.enable = profilerConfig.isProxyHttpHeaderEnable();
     }
 
     @Override
-    public ProxyRequestRecorder<T> getProxyRequestRecorder(final boolean enable, final RequestAdaptor<T> requestAdaptor) {
+    public ProxyRequestRecorder<T> getProxyRequestRecorder(final RequestAdaptor<T> requestAdaptor) {
         if (!enable) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Disable record proxy http header.");
             }
-            return new DisableProxyRequestRecorder<T>();
+            return new DisableRequestRecorder<T>();
         }
         return new DefaultProxyRequestRecorder<T>(this.proxyRequestParserLoaderService, requestAdaptor);
     }

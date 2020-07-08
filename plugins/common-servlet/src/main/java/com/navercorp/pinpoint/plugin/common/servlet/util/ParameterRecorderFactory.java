@@ -38,4 +38,5 @@ public class ParameterRecorderFactory {
         ParameterExtractor<HttpServletRequest> methodFilterExtractor = new MethodFilterExtractor(excludeProfileMethodFilter, parameterExtractor);
         return new HttpParameterRecorder<HttpServletRequest>(methodFilterExtractor);
     }
+
 }
