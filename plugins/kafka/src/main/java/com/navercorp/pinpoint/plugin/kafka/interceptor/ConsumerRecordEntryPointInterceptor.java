@@ -207,7 +207,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
             public Trace createTrace(TraceContext traceContext, ConsumerRecord consumerRecord) {
                 org.apache.kafka.common.header.Headers headers = consumerRecord.headers();
                 if (headers == null) {
-                    return null;
+                    return createTrace(traceContext, consumerRecord);
                 }
 
                 if (!isSampled(headers)) {
