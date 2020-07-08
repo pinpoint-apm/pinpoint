@@ -51,7 +51,7 @@ export class PeriodSelectorContainerComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.periodList = this.webAppSettingDataService.getPeriodList(this.newUrlStateNotificationService.getStartPath());
-        this.maxPeriod = this.periodList[this.periodList.length - 1].getValue();
+        this.maxPeriod = this.webAppSettingDataService.getMaxPeriodTime();
         this.getI18NText();
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
