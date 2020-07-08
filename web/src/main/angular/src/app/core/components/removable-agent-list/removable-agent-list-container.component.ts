@@ -30,7 +30,7 @@ export class RemovableAgentListContainerComponent implements OnInit, OnDestroy {
     errorMessage: string;
     agentList$: Observable<{[key: string]: any}>;
     selectedApplication: IApplication = null;
-    removeTarget: {appName: string, agentId: string};
+    removeAgent: string;
     i18nText: {[key: string]: string} = {
         select: '',
         cancelButton: '',
@@ -114,8 +114,8 @@ export class RemovableAgentListContainerComponent implements OnInit, OnDestroy {
         return this._removeType;
     }
 
-    onRemoveSelectAgent(agentInfo: {appName: string, agentId: string}): void {
-        this.removeTarget = agentInfo;
+    onRemoveSelectAgent(agentId: string): void {
+        this.removeAgent = agentId;
         this.removeType = REMOVE_TYPE.EACH;
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_ONE_AGENT_REMOVE_CONFIRM_VIEW);
     }
@@ -152,8 +152,8 @@ export class RemovableAgentListContainerComponent implements OnInit, OnDestroy {
             });
         } else {
             this.removableAgentDataService.removeAgentId({
-                applicationName: this.removeTarget.appName,
-                agentId: this.removeTarget.agentId
+                applicationName: this.selectedApplication.getApplicationName(),
+                agentId: this.removeAgent
             }).pipe(
                 tap(() => this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_ONE_AGENT)),
                 filter((response: string) => response === 'OK'),
