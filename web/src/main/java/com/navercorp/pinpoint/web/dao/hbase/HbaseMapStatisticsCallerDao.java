@@ -89,7 +89,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
         TableName mapStatisticsCalleeTableName = descriptor.getTableName();
         LinkDataMap linkDataMap = this.hbaseTemplate.findParallel(mapStatisticsCalleeTableName, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLEE_VER2_NUM_PARTITIONS);
-        logger.debug("Caller data. {}, {}", linkDataMap, range);
+        logger.debug("tableInfo({}). Caller data. {}, {} : ", mapStatisticsCalleeTableName.getNameAsString(), linkDataMap, range );
         if (linkDataMap != null && linkDataMap.size() > 0) {
             return linkDataMap;
         }
