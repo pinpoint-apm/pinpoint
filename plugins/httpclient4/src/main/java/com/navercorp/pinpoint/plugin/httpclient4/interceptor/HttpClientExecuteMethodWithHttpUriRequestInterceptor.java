@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 import java.net.URI;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.HttpUriRequest;
 
@@ -112,11 +113,8 @@ public class HttpClientExecuteMethodWithHttpUriRequestInterceptor extends Abstra
                                 }
                             }
                             if (len > 0) {
-                                try {
-                                    port = Integer.parseInt(host.substring(pos, pos + len));
-                                } catch (NumberFormatException ignore) {
-                                    // skip
-                                }
+                                String hostStr = host.substring(pos, pos + len);
+                                port = NumberUtils.parseInteger(hostStr, port);
                             }
                             host = host.substring(0, colon);
                         }
