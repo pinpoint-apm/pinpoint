@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.agent.plugin.proxy.nginx;
 
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeader;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeaderBuilder;
@@ -76,10 +77,8 @@ public class NginxRequestParser implements ProxyRequestParser {
                 // invalid format.
                 return 0;
             }
-            try {
-                return Long.parseLong(value.substring(0, millisPosition) + value.substring(millisPosition + 1));
-            } catch (NumberFormatException ignored) {
-            }
+            String strValue = value.substring(0, millisPosition) + value.substring(millisPosition + 1);
+            return NumberUtils.parseLong(strValue, 0);
         }
         return 0;
     }
@@ -97,11 +96,8 @@ public class NginxRequestParser implements ProxyRequestParser {
                 // invalid format.
                 return 0;
             }
-            try {
-                // to microseconds
-                return Integer.parseInt(value.substring(0, millisPosition) + value.substring(millisPosition + 1)) * 1000;
-            } catch (NumberFormatException ignored) {
-            }
+            String strValue = value.substring(0, millisPosition) + value.substring(millisPosition + 1);
+            return NumberUtils.parseInteger(strValue, 0) * 1000;
         }
         return 0;
     }

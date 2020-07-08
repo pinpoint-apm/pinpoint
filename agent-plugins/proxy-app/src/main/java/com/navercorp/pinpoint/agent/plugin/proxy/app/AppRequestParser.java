@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.agent.plugin.proxy.app;
 
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeader;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeaderBuilder;
@@ -69,10 +70,6 @@ public class AppRequestParser implements ProxyRequestParser {
         }
 
         // to milliseconds.
-        try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException ignored) {
-        }
-        return 0;
+        return NumberUtils.parseLong(value, 0);
     }
 }

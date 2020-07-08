@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.proxy;
 
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
@@ -136,10 +137,8 @@ public class ProxyHttpHeaderParser {
                     // invalid format.
                     return 0;
                 }
-                try {
-                    return Long.parseLong(value.substring(0, millisPosition) + value.substring(millisPosition + 1));
-                } catch (NumberFormatException ignored) {
-                }
+                String strValue = value.substring(0, millisPosition) + value.substring(millisPosition + 1);
+                return NumberUtils.parseLong(strValue, 0);
             }
             return 0;
         }
@@ -158,11 +157,9 @@ public class ProxyHttpHeaderParser {
                     // invalid format.
                     return 0;
                 }
-                try {
-                    // to microseconds
-                    return Integer.parseInt(value.substring(0, millisPosition) + value.substring(millisPosition + 1)) * 1000;
-                } catch (NumberFormatException ignored) {
-                }
+                // to microseconds
+                String strValue = value.substring(0, millisPosition) + value.substring(millisPosition + 1);
+                return NumberUtils.parseInteger(strValue, 0) * 1000;
             }
             return 0;
         }
@@ -178,10 +175,7 @@ public class ProxyHttpHeaderParser {
             final int length = value.length();
             // convert to milliseconds from microseconds.
             if (length > 3) {
-                try {
-                    return Long.parseLong(value.substring(0, length - 3));
-                } catch (NumberFormatException ignored) {
-                }
+                return NumberUtils.parseLong(value.substring(0, length - 3), 0);
             }
             return 0;
         }
@@ -192,11 +186,7 @@ public class ProxyHttpHeaderParser {
                 return 0;
             }
 
-            try {
-                return Integer.parseInt(value);
-            } catch (NumberFormatException ignored) {
-            }
-            return 0;
+            return NumberUtils.parseInteger(value, 0);
         }
     }
 
@@ -208,11 +198,7 @@ public class ProxyHttpHeaderParser {
             }
 
             // to milliseconds.
-            try {
-                return Long.parseLong(value);
-            } catch (NumberFormatException ignored) {
-            }
-            return 0;
+            return NumberUtils.parseLong(value, 0);
         }
 
         @Override

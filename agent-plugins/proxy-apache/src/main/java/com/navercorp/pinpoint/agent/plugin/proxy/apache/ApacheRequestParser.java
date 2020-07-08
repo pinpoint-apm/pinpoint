@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.agent.plugin.proxy.apache;
 
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeader;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeaderBuilder;
@@ -87,10 +88,7 @@ public class ApacheRequestParser implements ProxyRequestParser {
         final int length = value.length();
         // convert to milliseconds from microseconds.
         if (length > 3) {
-            try {
-                return Long.parseLong(value.substring(0, length - 3));
-            } catch (NumberFormatException ignored) {
-            }
+            return NumberUtils.parseLong(value.substring(0, length - 3), 0);
         }
         return 0;
     }
@@ -99,11 +97,6 @@ public class ApacheRequestParser implements ProxyRequestParser {
         if (value == null) {
             return 0;
         }
-
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException ignored) {
-        }
-        return 0;
+        return NumberUtils.parseInteger(value, 0);
     }
 }
