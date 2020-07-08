@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.plugin.request;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
@@ -26,22 +24,18 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.method.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 
-import java.util.List;
-
 /**
  * @author jaehong.kim
  */
-public class ServletRequestListenerInterceptorHelper<REQ> {
-    private static final MethodDescriptor SERVLET_SYNC_METHOD_DESCRIPTOR = new ServletSyncMethodDescriptor();
+public class ServletRequestListener<REQ> {
+    static final MethodDescriptor SERVLET_SYNC_METHOD_DESCRIPTOR = new ServletSyncMethodDescriptor();
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -57,66 +51,39 @@ public class ServletRequestListenerInterceptorHelper<REQ> {
     private final HttpStatusCodeRecorder httpStatusCodeRecorder;
 
     private final ParameterRecorder<REQ> parameterRecorder;
-    private final RequestRecorderFactory<REQ> requestRecorderFactory;
+
     private final ProxyRequestRecorder<REQ> proxyRequestRecorder;
 
-    @Deprecated
-    public ServletRequestListenerInterceptorHelper(final ServiceType serviceType, final TraceContext traceContext, RequestAdaptor<REQ> requestAdaptor, final Filter<String> excludeUrlFilter, ParameterRecorder<REQ> parameterRecorder) {
-        this(serviceType, traceContext, requestAdaptor, excludeUrlFilter, parameterRecorder, null);
-    }
 
-    public ServletRequestListenerInterceptorHelper(final ServiceType serviceType, final TraceContext traceContext, RequestAdaptor<REQ> requestAdaptor, final Filter<String> excludeUrlFilter, ParameterRecorder<REQ> parameterRecorder, RequestRecorderFactory<REQ> requestRecorderFactory) {
+    public ServletRequestListener(final ServiceType serviceType,
+                                  final TraceContext traceContext,
+                                  final RequestAdaptor<REQ> requestAdaptor,
+                                  final RequestTraceReader<REQ> requestTraceReader,
+                                  final Filter<String> excludeUrlFilter,
+                                  final ParameterRecorder<REQ> parameterRecorder,
+                                  final ProxyRequestRecorder<REQ> proxyRequestRecorder,
+                                  final ServerRequestRecorder<REQ> serverRequestRecorder,
+                                  final HttpStatusCodeRecorder httpStatusCodeRecorder) {
         this.serviceType = Assert.requireNonNull(serviceType, "serviceType");
         this.traceContext = Assert.requireNonNull(traceContext, "traceContext");
         this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
-        this.requestTraceReader = new RequestTraceReader<REQ>(traceContext, requestAdaptor, true);
-        this.requestRecorderFactory = requestRecorderFactory;
-        ProfilerConfig profilerConfig = this.traceContext.getProfilerConfig();
-        if (this.requestRecorderFactory != null) {
-            proxyRequestRecorder = this.requestRecorderFactory.getProxyRequestRecorder(profilerConfig.isProxyHttpHeaderEnable(), requestAdaptor);
-        } else {
-            // Compatibility 1.8.1
-            proxyRequestRecorder = new ProxyHttpHeaderRecorder<REQ>(profilerConfig.isProxyHttpHeaderEnable(), requestAdaptor);
-        }
-        this.excludeUrlFilter = defaultFilter(excludeUrlFilter);
+        this.requestTraceReader = Assert.requireNonNull(requestTraceReader, "requestTraceReader");
+
+        this.proxyRequestRecorder = Assert.requireNonNull(proxyRequestRecorder, "proxyRequestRecorder");
+
+        this.excludeUrlFilter = Assert.requireNonNull(excludeUrlFilter, "excludeUrlFilter");
+        
         this.parameterRecorder = Assert.requireNonNull(parameterRecorder, "parameterRecorder");
 
-        final ServerHeaderRecorder<REQ> headerRecorder = newServerHeaderRecorder(requestAdaptor, profilerConfig);
-        final ServerCookieRecorder<REQ> cookieRecorder = newServerCookieRecorder(requestAdaptor, profilerConfig);
-        this.serverRequestRecorder = new ServerRequestRecorder<REQ>(requestAdaptor, headerRecorder, cookieRecorder);
-        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(profilerConfig.getHttpStatusCodeErrors());
+
+        this.serverRequestRecorder = Assert.requireNonNull(serverRequestRecorder, "serverRequestRecorder");
+
+        this.httpStatusCodeRecorder = Assert.requireNonNull(httpStatusCodeRecorder, "httpStatusCodeRecorder");
+
 
         this.traceContext.cacheApi(SERVLET_SYNC_METHOD_DESCRIPTOR);
     }
 
-    private ServerCookieRecorder<REQ> newServerCookieRecorder(RequestAdaptor<REQ> requestAdaptor, ProfilerConfig profilerConfig) {
-        List<String> recordRequestCookies = profilerConfig.readList(ServerCookieRecorder.CONFIG_KEY_RECORD_REQ_COOKIES);
-        if (recordRequestCookies.isEmpty()) {
-            return new BypassServerCookieRecorder<REQ>();
-        }
-
-        if (!(requestAdaptor instanceof CookieSupportAdaptor)) {
-            // unsupported
-            return new BypassServerCookieRecorder<REQ>();
-        }
-        CookieSupportAdaptor<REQ> cookieAdaptor = (CookieSupportAdaptor<REQ>) requestAdaptor;
-        return new DefaultServerCookieRecorder<REQ>(cookieAdaptor, recordRequestCookies);
-    }
-
-    private ServerHeaderRecorder<REQ> newServerHeaderRecorder(RequestAdaptor<REQ> requestAdaptor, ProfilerConfig profilerConfig) {
-        List<String> recordRequestHeaders = profilerConfig.readList(ServerHeaderRecorder.CONFIG_KEY_RECORD_REQ_HEADERS);
-        if (recordRequestHeaders.isEmpty()) {
-            return new BypassServerHeaderRecorder<REQ>();
-        }
-        return new DefaultServerHeaderRecorder<REQ>(requestAdaptor, recordRequestHeaders);
-    }
-
-    private <T> Filter<T> defaultFilter(Filter<T> excludeUrlFilter) {
-        if (excludeUrlFilter == null) {
-            return new SkipFilter<T>();
-        }
-        return excludeUrlFilter;
-    }
 
     public void initialized(REQ request, final ServiceType serviceType, final MethodDescriptor methodDescriptor) {
         Assert.requireNonNull(request, "request");

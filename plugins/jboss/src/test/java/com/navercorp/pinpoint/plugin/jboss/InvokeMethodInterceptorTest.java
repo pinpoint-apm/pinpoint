@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.DisableRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.test.MockTraceContextFactory;
@@ -66,7 +68,7 @@ public class InvokeMethodInterceptorTest {
     private DefaultApplicationContext applicationContext;
 
     @Mock
-    private RequestRecorderFactory requestRecorderFactory;
+    private RequestRecorderFactory<HttpServletRequest> requestRecorderFactory;
 
     /**
      * Before.
@@ -84,6 +86,8 @@ public class InvokeMethodInterceptorTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+
+        when(requestRecorderFactory.getProxyRequestRecorder(any(RequestAdaptor.class))).thenReturn(new DisableRequestRecorder<HttpServletRequest>());
 
         ProfilerConfig profilerConfig = new DefaultProfilerConfig();
         applicationContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);

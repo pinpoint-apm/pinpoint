@@ -24,5 +24,5 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
  */
 public interface RequestRecorderFactory<T> {
 
-    ProxyRequestRecorder<T> getProxyRequestRecorder(final boolean enable, RequestAdaptor<T> requestAdaptor);
+    ProxyRequestRecorder<T> getProxyRequestRecorder(RequestAdaptor<T> requestAdaptor);
 }

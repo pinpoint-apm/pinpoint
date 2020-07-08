@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.undertow.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
@@ -24,9 +25,11 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerCookieRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerHeaderRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListener;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
 import com.navercorp.pinpoint.plugin.common.servlet.util.ArgumentValidator;
 import com.navercorp.pinpoint.plugin.undertow.ParameterRecorderFactory;
 import com.navercorp.pinpoint.plugin.undertow.UndertowConfig;
@@ -46,16 +49,27 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
     private final MethodDescriptor methodDescriptor;
     private final ArgumentValidator argumentValidator;
     private final UndertowHttpHeaderFilter httpHeaderFilter;
-    private final ServletRequestListenerInterceptorHelper<HttpServerExchange> servletRequestListenerInterceptorHelper;
+    private final ServletRequestListener<HttpServerExchange> servletRequestListener;
 
     public ConnectorsExecuteRootHandlerInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory<HttpServerExchange> requestRecorderFactory) {
         this.methodDescriptor = descriptor;
         final UndertowConfig config = new UndertowConfig(traceContext.getProfilerConfig());
         this.argumentValidator = new ConnectorsArgumentValidator(config.getHttpHandlerClassNameFilter());
         RequestAdaptor<HttpServerExchange> requestAdaptor = new HttpServerExchangeAdaptor();
-        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
         ParameterRecorder<HttpServerExchange> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
-        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServerExchange>(UndertowConstants.UNDERTOW, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder, requestRecorderFactory);
+
+        ServletRequestListenerBuilder<HttpServerExchange> builder = new ServletRequestListenerBuilder<HttpServerExchange>(UndertowConstants.UNDERTOW, traceContext, requestAdaptor);
+        builder.setExcludeURLFilter(config.getExcludeUrlFilter());
+        builder.setParameterRecorder(parameterRecorder);
+        builder.setRequestRecorderFactory(requestRecorderFactory);
+
+        final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
+        builder.setRealIpSupport(config.getRealIpHeader(), config.getRealIpEmptyValue());
+        builder.setHttpStatusCodeRecorder(profilerConfig.getHttpStatusCodeErrors());
+        builder.setServerHeaderRecorder(profilerConfig.readList(ServerHeaderRecorder.CONFIG_KEY_RECORD_REQ_HEADERS));
+        builder.setServerCookieRecorder(profilerConfig.readList(ServerCookieRecorder.CONFIG_KEY_RECORD_REQ_COOKIES));
+        this.servletRequestListener = builder.build();
+
         this.httpHeaderFilter = new UndertowHttpHeaderFilter(config.isHidePinpointHeader());
     }
 
@@ -71,7 +85,7 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
 
         try {
             final HttpServerExchange request = (HttpServerExchange) args[1];
-            this.servletRequestListenerInterceptorHelper.initialized(request, UndertowConstants.UNDERTOW_METHOD, this.methodDescriptor);
+            this.servletRequestListener.initialized(request, UndertowConstants.UNDERTOW_METHOD, this.methodDescriptor);
             this.httpHeaderFilter.filter(request);
         } catch (Throwable t) {
             if (isInfo) {
@@ -94,7 +108,7 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
             final HttpServerExchange request = (HttpServerExchange) args[1];
             final int statusCode = getStatusCode(request);
             // TODO Get exception. e.g. request.getAttachment(DefaultResponseListener.EXCEPTION)
-            this.servletRequestListenerInterceptorHelper.destroyed(request, throwable, statusCode);
+            this.servletRequestListener.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle.", t);
