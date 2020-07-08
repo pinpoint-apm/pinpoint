@@ -110,7 +110,7 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
                     if (logger.isDebugEnabled()) {
                         logger.debug("TraceID not exist. camSampled is false. skip trace.");
                     }
-                    return null;
+                    return trace;
                 }
             }
 
