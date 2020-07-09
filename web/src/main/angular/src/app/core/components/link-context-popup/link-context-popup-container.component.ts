@@ -66,7 +66,7 @@ export class LinkContextPopupContainerComponent implements OnInit, AfterViewInit
                 period,
                 endTime
             ],
-            queryParam: {
+            queryParams: {
                 filter: FilterParamMaker.makeParam(currFilterStr, addedFilter),
                 hint: HintParamMaker.makeParam(currHintStr, addedHint)
             }

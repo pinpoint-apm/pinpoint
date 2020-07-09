@@ -87,7 +87,7 @@ export class ServerMapOptionsContainerComponent implements OnInit, OnDestroy {
 
         this.urlRouteManagerService.moveOnPage({
             url,
-            queryParam: {
+            queryParams: {
                 [UrlQuery.INBOUND]: options.inbound,
                 [UrlQuery.OUTBOUND]: options.outbound,
                 [UrlQuery.WAS_ONLY]: options.wasOnly,

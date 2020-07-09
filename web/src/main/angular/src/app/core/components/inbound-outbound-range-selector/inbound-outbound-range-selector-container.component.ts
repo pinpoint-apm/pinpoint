@@ -66,7 +66,7 @@ export class InboundOutboundRangeSelectorContainerComponent implements OnInit, O
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
             ],
-            queryParam: {
+            queryParams: {
                 [UrlQuery.INBOUND]: bound[0],
                 [UrlQuery.OUTBOUND]: bound[1]
             }

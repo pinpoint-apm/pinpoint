@@ -48,13 +48,13 @@ export class ConfigPageComponent implements OnInit {
 
     ngOnInit() {}
     onClickExit(): void {
-        const { startPath, pathParams, queryParams } = this.newUrlStateNotificationService.getPrevPageUrlInfo();
+        const {startPath, pathParams, queryParams: query} = this.newUrlStateNotificationService.getPrevPageUrlInfo();
         const url = startPath === UrlPath.CONFIG ? [UrlPath.MAIN] : [startPath, ...pathParams.values()];
-        const queryParam = [ ...queryParams.entries() ].reduce((acc: object, [key, value]: string[]) => {
+        const queryParams = [...query.entries()].reduce((acc: object, [key, value]: string[]) => {
             return { ...acc, [key]: value };
         }, {});
 
-        this.urlRouteManagerService.moveOnPage({ url, queryParam });
+        this.urlRouteManagerService.moveOnPage({url, queryParams});
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_CONFIGURATION_PAGE_EXIT_BUTTON);
     }
 

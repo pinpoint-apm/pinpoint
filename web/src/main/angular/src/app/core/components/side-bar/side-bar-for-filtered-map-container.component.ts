@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ElementRef, Renderer2, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterEvent, NavigationStart } from '@angular/router';
 import { Subject, Observable, merge } from 'rxjs';
-import { filter, mapTo, tap, map, takeUntil } from 'rxjs/operators';
+import { filter, mapTo, tap, map, takeUntil, withLatestFrom } from 'rxjs/operators';
 
 import { StoreHelperService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { ServerMapData } from 'app/core/components/server-map/class';
@@ -55,33 +55,37 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
     }
 
     private listenToEmitter(): void {
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).pipe(
-            map((data: ServerMapData) => data.getNodeCount() === 0),
-            filter(() => this.loadingCompleted)
+        this.storeHelperService.getServerMapLoadingState(this.unsubscribe).pipe(
+            withLatestFrom(this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).pipe(
+                map((data: ServerMapData) => data.getNodeCount() === 0)
+            )),
+            tap(([state, isEmpty]: [string, boolean]) => {
+                switch (state) {
+                    case 'loading':
+                        this.loadingCompleted = false;
+                        this.showLoading = true;
+                        this.useDisable = true;
+                        break;
+                    case 'pause':
+                        this.loadingCompleted = false;
+                        this.showLoading = false;
+                        this.useDisable = false;
+                        break;
+                    case 'completed':
+                        this.loadingCompleted = true;
+                        if (isEmpty) {
+                            this.showLoading = false;
+                            this.useDisable = false;
+                        }
+
+                        break;
+                }
+                this.cd.detectChanges();
+            }),
+            filter(([state, _]: [string, boolean]) => state === 'completed'),
+            map(([_, isEmpty]: [string, boolean]) => isEmpty)
         ).subscribe((isEmpty: boolean) => {
             this.renderer.setStyle(this.el.nativeElement, 'display', isEmpty ? 'none' : 'block');
-        });
-
-        this.storeHelperService.getServerMapLoadingState(this.unsubscribe).subscribe((state: string) => {
-            switch (state) {
-                case 'loading':
-                    this.loadingCompleted = false;
-                    this.showLoading = true;
-                    this.useDisable = true;
-                    break;
-                case 'pause':
-                    this.loadingCompleted = false;
-                    this.showLoading = false;
-                    this.useDisable = false;
-                    break;
-                case 'completed':
-                    this.loadingCompleted = true;
-                    // this.showLoading = false;
-                    // this.useDisable = false;
-                    break;
-            }
-
-            this.cd.detectChanges();
         });
 
         this.isTargetMerged$ = merge(

@@ -248,7 +248,7 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
                 '' + page
             ],
-            queryParam: {
+            queryParams: {
                 activeOnly: this.activeOnly
             }
         });

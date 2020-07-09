@@ -99,10 +99,6 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
                 to: MESSAGE_TO.SERVER_MAP_DATA_UPDATE,
                 param: this.mapData
             });
-            if (this.loadingCompleted && this.isEmpty) {
-                this.showLoading = false;
-                this.useDisable = false;
-            }
 
             this.cd.detectChanges();
         });
@@ -133,6 +129,11 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
                     break;
                 case 'completed':
                     this.loadingCompleted = true;
+                    if (this.isEmpty) {
+                        this.showLoading = false;
+                        this.useDisable = false;
+                    }
+
                     break;
             }
 
