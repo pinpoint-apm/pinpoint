@@ -96,7 +96,7 @@ export class FilterAppTransactionWizardPopupContainerComponent implements OnInit
                 period,
                 endTime
             ],
-            queryParam: {
+            queryParams: {
                 filter: FilterParamMaker.makeParam(currFilterStr, addedFilter),
                 hint: HintParamMaker.makeParam(currHintStr, addedHint)
             }

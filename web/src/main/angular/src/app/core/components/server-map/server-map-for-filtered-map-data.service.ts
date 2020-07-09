@@ -81,7 +81,7 @@ export class ServerMapForFilteredMapDataService {
                         }
                     })
                 );
-            }),
+            })
         ).subscribe((res: any) => {
             this.serverMapData.next(res);
         }, (error: IServerErrorFormat) => {
@@ -96,7 +96,11 @@ export class ServerMapForFilteredMapDataService {
                         url: [
                             UrlPath.MAIN
                         ],
-                        needServerTimeRequest: false
+                        needServerTimeRequest: false,
+                        queryParams: {
+                            filter: null,
+                            hint: null,
+                        },
                     });
                 }
             }, {

@@ -59,16 +59,16 @@ export class UrlRouteManagerService {
         ]);
     }
 
-    move({ url, needServerTimeRequest, nextUrl = [], queryParam }: { url: string[], needServerTimeRequest: boolean, nextUrl?: string[], queryParam?: any} ): void {
+    move({url, needServerTimeRequest, nextUrl = [], queryParams}: {url: string[], needServerTimeRequest: boolean, nextUrl?: string[], queryParams?: any}): void {
         url = url[0] === this.getBaseHref().replace(/\//g, '') ? url.slice(1) : url;
         if (needServerTimeRequest) {
             this.serverTimeDataService.getServerTime().subscribe(time => {
                 const newUrl = url.concat([EndTime.formatDate(time)]).concat(nextUrl).filter((v: string) => {
                     return v !== '';
                 });
-                if (queryParam) {
+                if (queryParams) {
                     this.router.navigate(newUrl, {
-                        queryParams: queryParam,
+                        queryParams,
                         queryParamsHandling: 'merge'
                     });
                 } else {
@@ -80,9 +80,9 @@ export class UrlRouteManagerService {
         } else {
             const newUrl = [...url, ...nextUrl];
 
-            if (queryParam) {
+            if (queryParams) {
                 this.router.navigate(newUrl, {
-                    queryParams: queryParam,
+                    queryParams,
                     queryParamsHandling: 'merge'
                 });
             } else {
@@ -93,20 +93,20 @@ export class UrlRouteManagerService {
         }
     }
 
-    moveOnPage({ url, queryParam }: { url: string[], queryParam?: any }): void {
+    moveOnPage({url, queryParams}: {url: string[], queryParams?: any}): void {
         this.move({
             url,
             needServerTimeRequest: false,
             nextUrl: [],
-            queryParam
+            queryParams
         });
     }
 
     // There seems to no way to open a new window through router.navigate method so implemented it by using window.open for now.
     // TODO: Refactor Scatter-TransactionList Page linking URL creation
-    openPage({path, queryParam = {}, metaInfo = ''}: {path: string[], queryParam?: {[key: string]: any}, metaInfo?: string}): any {
+    openPage({path, queryParams = {}, metaInfo = ''}: {path: string[], queryParams?: {[key: string]: any}, metaInfo?: string}): any {
         const pathStr = path.filter((p: string) => !!p).join('/');
-        const queryStr = Object.entries(queryParam).map(([key, value]: [string, any]) => {
+        const queryStr = Object.entries(queryParams).map(([key, value]: [string, any]) => {
             const stringifyValue = (typeof value === 'object' && value !== null) ? JSON.stringify(value) : value;
 
             return `${key}=${encodeURIComponent(stringifyValue)}`;

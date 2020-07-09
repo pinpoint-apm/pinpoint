@@ -162,7 +162,7 @@ export class RealTimePagingContainerComponent implements OnInit, AfterViewInit, 
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
                 '' + page
             ],
-            queryParam: {
+            queryParams: {
                 activeOnly: this.activeOnly
             }
         });
