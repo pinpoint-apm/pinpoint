@@ -79,10 +79,10 @@ http {
 **t=$msec is required value.**
 
 ### App
-Milliseconds since epoch and app information.
+Milliseconds since epoch (13 digits) and app information.
 
 Add HTTP header.
 ~~~
-Pinpoint-ProxyApp: t=1502861340 app=foo-bar
+Pinpoint-ProxyApp: t=1594316309407 app=foo-bar
 ~~~
 **t=epoch is required value.**
