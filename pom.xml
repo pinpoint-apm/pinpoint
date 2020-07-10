@@ -274,13 +274,6 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-collector</artifactId>
-                <type>war</type>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-collector</artifactId>
-                <classifier>classes</classifier>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

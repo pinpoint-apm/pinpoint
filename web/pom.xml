@@ -288,7 +288,8 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-collector</artifactId>
-            <classifier>classes</classifier>
+            <version>${project.version}</version>
+<!--            <classifier>classes</classifier>-->
             <scope>test</scope>
         </dependency>
         <dependency>
