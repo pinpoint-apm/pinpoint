@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.common.server.profile;
 
+import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.SystemProperty;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,7 +27,7 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class ProfileApplicationInitializer {
-
+    private final ServerBootLogger logger = ServerBootLogger.getLogger(ProfileApplicationInitializer.class);
 
     // refer to : org.springframework.core.env.AbstractEnvironment
     public static final String IGNORE_GETENV_PROPERTY_NAME = "spring.getenv.ignore";
@@ -52,7 +52,7 @@ public class ProfileApplicationInitializer {
         this.defaultProfile = getDefaultProfile(defaultProfile);
     }
 
-    public void onStartup() {
+    public String onStartup() {
         String activeProfile = this.systemProperty.getProperty(ACTIVE_PROFILES_PROPERTY_NAME);
         if (activeProfile == null) {
             if (!suppressGetenvAccess()) {
@@ -62,15 +62,15 @@ public class ProfileApplicationInitializer {
         if (activeProfile == null) {
             activeProfile = this.defaultProfile;
         }
-        LocalDateTime now = LocalDateTime.now();
-        final String activeProfileMessage = String.format("%s %s::ActiveProfile:%s", now, name, activeProfile);
-        System.out.println(activeProfileMessage);
+
+        final String activeProfileMessage = String.format("ActiveProfile:%s", activeProfile);
+        logger.info(activeProfileMessage);
 
         List<String> profileList = StringUtils.tokenizeToStringList(activeProfile, ",");
         // TODO exclusive profile(local or release)
         this.systemProperty.setProperty(PINPOINT_ACTIVE_PROFILE, profileList.get(0));
         this.systemProperty.setProperty(ACTIVE_PROFILES_PROPERTY_NAME, activeProfile);
-
+        return activeProfile;
     }
 
     private String getDefaultProfile(String defaultProfile) {

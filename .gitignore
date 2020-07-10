@@ -29,3 +29,6 @@ jsdoc/
 
 # FE local build dir
 dist/
+
+# logs
+logs/

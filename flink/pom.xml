@@ -94,7 +94,6 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-collector</artifactId>
-            <classifier>classes</classifier>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
