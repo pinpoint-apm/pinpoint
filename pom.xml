@@ -68,6 +68,7 @@
         <module>web</module>
         <module>hbase</module>
         <module>flink</module>
+        <module>testcase</module>
     </modules>
 
     <properties>

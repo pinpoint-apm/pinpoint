@@ -95,7 +95,7 @@ public class ASMClassWriterTest {
         assertEquals("com/navercorp/pinpoint/profiler/instrument/mock/ConstructorParentClass", cw.getCommonSuperClass("com/navercorp/pinpoint/profiler/instrument/mock/ConstructorParentClass", "com/navercorp/pinpoint/profiler/instrument/mock/ConstructorChildClass"));
         assertEquals("java/lang/Exception", cw.getCommonSuperClass("java/io/IOException", "java/lang/Exception"));
         assertEquals("java/lang/Throwable", cw.getCommonSuperClass("java/lang/Throwable", "java/lang/Exception"));
-        assertEquals("org/springframework/beans/PropertyValues", cw.getCommonSuperClass("org/springframework/beans/PropertyValues", "org/springframework/beans/MutablePropertyValues"));
+        assertEquals("java/lang/Appendable", cw.getCommonSuperClass("java/lang/Appendable", "java/lang/StringBuilder"));
         assertEquals("java/net/URLConnection", cw.getCommonSuperClass("java/net/HttpURLConnection", "java/net/URLConnection"));
 
         // others

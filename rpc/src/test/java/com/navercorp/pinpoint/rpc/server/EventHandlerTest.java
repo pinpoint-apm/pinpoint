@@ -24,10 +24,10 @@ import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.test.client.TestRawSocket;
 import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
 
+import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
 import java.util.Map;
