@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.util.IOUtils;
+import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

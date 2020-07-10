@@ -24,11 +24,11 @@ import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
 import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
+import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.util.SocketUtils;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
