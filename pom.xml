@@ -93,9 +93,14 @@
 
         <httpcomponents.version>4.5.6</httpcomponents.version>
         <httpcomponents-core.version>4.4.10</httpcomponents-core.version>
-        <spring.version>4.3.27.RELEASE</spring.version>
-        <spring.batch.version>3.0.10.RELEASE</spring.batch.version>
-        <spring.security.version>4.2.17.RELEASE</spring.security.version>
+
+
+        <spring4.version>4.3.27.RELEASE</spring4.version>
+        <spring5.version>5.2.7.RELEASE</spring5.version>
+        <spring.version>${spring4.version}</spring.version>
+        <spring.batch.version>4.2.4.RELEASE</spring.batch.version>
+        <spring.security.version>5.3.3.RELEASE</spring.security.version>
+
         <asm.version>7.2</asm.version>
         <!-- 0.13.0 required Java 1.8 https://github.com/apache/thrift/pull/1657 -->
         <thrift.version>0.12.0</thrift.version>

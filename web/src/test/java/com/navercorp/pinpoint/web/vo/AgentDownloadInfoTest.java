@@ -19,11 +19,12 @@ package com.navercorp.pinpoint.web.vo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.Charsets;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDaoFactory;
 import com.navercorp.pinpoint.web.dao.memory.MemoryAgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.dao.rest.GithubAgentDownloadInfoDao;
-import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.web.client.RestTemplate;
@@ -69,7 +70,8 @@ public class AgentDownloadInfoTest {
         InputStream resourceAsStream = null;
         try {
             resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("mock/github_pinpoint_release_response.json");
-            return IOUtils.toString(resourceAsStream, Charsets.UTF_8);
+            byte[] bytes = IOUtils.toByteArray(resourceAsStream);
+            return BytesUtils.toString(bytes);
         } finally {
             IOUtils.closeQuietly(resourceAsStream);
         }
