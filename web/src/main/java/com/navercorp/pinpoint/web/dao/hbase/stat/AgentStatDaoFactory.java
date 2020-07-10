@@ -240,7 +240,7 @@ abstract class AgentStatDaoFactory<T extends AgentStatDataPoint, D extends Agent
 
         @Override
         public Class<?> getObjectType() {
-            return ResponseTimeDao.class;
+            return DeadlockDao.class;
         }
 
         @Override
