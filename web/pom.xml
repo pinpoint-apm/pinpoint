@@ -36,6 +36,7 @@
 
         <!-- java back-end development option -->
         <build.frontend.skip>false</build.frontend.skip>
+        <spring.version>${spring5.version}</spring.version>
     </properties>
 
     <dependencies>
@@ -96,7 +97,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
-
 
         <dependency>
             <groupId>org.apache.thrift</groupId>
