@@ -114,8 +114,8 @@ public class StatGrpcDataSender extends GrpcDataSender {
         }
         if (message instanceof PCustomMetricMessage) {
             final PCustomMetricMessage customMetricMessage = (PCustomMetricMessage) message;
-            logger.info("Message will not delivered. message:{}", message);
-
+            final PStatMessage statMessage = PStatMessage.newBuilder().setCustomMetricMessage(customMetricMessage).build();
+            statStream.onNext(statMessage);
             return true;
         }
         throw new IllegalStateException("unsupported message " + message);

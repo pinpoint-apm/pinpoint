@@ -69,6 +69,8 @@ public class DefaultTBaseLocator {
 
     public static final short CHUNK = 400;
 
+    public static final short THRIFT_NOT_SUPPORTED = -1;
+
     private static final TypeLocator<TBase<?, ?>> typeLocator = build();
 
     public static TypeLocator<TBase<?, ?>>build() {

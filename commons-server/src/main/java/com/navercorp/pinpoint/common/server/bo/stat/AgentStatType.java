@@ -34,7 +34,9 @@ public enum AgentStatType {
     DEADLOCK((byte) 8, "Deadlock"),
     FILE_DESCRIPTOR((byte) 9, "FileDescriptor"),
     DIRECT_BUFFER((byte) 10, "DirectBuffer"),
-    TOTAL_THREAD((byte) 11, "Total Thread Count");
+    TOTAL_THREAD((byte) 11, "Total Thread Count"),
+    // FIXME
+    NETTY_DIRECT_BUFFER((byte) 12, "Netty Direct Buffer");
 
 
     public static final int TYPE_CODE_BYTE_LENGTH = 1;

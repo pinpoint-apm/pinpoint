@@ -31,7 +31,7 @@ public class DefaultCustomMetricRegistryFilter implements CustomMetricRegistryFi
 
     // default
     private static final AllowedSource<LongCounter> NETTY_USED_DIRECT_MEMORY = new AllowedSource<LongCounter>("custom/netty/usedDirectMemory", LongCounter.class);
-    private static final AllowedSource<LongCounter> NETTY_MAX_DIRECT_MEMORY = new AllowedSource<LongCounter>("custom/netty/maxDirectMemory ", LongCounter.class);
+    private static final AllowedSource<LongCounter> NETTY_MAX_DIRECT_MEMORY = new AllowedSource<LongCounter>("custom/netty/maxDirectMemory", LongCounter.class);
 
     private final List<AllowedSource> allowedSourceList;
 
