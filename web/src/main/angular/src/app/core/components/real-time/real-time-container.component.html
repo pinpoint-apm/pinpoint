@@ -21,6 +21,7 @@
             </article>
             <article class="l-agent-chart">
                 <pp-real-time-chart-header
+                    [activeOnly]="activeOnly"
                     [totalCount]="totalCount"
                     (outOpenPage)="onOpenPage($event)"
                     (outChangeActiveOnlyToggle)="onChangeActiveOnlyToggle($event)">
