@@ -61,7 +61,7 @@ export class Filter {
                 filterFromStr.rt === 'max' ? ResponseRange.MAX : filterFromStr.rt
             );
             if (filterFromStr.url) {
-                newFilter.setUrlPattern(filterFromStr.url);
+                newFilter.setUrlPattern(window.atob(filterFromStr.url));
             }
             if (filterFromStr.fan) {
                 newFilter.setFromAgentName(filterFromStr.fan);
@@ -148,7 +148,7 @@ export class Filter {
             rt: this.responseTo === ResponseRange.MAX ? 'max' : this.responseTo
         };
         if (this.urlPattern) {
-            param['url'] = this.urlPattern;
+            param['url'] = window.btoa(this.urlPattern);
         }
         if (this.fromAgentName) {
             param['fan'] = this.fromAgentName;

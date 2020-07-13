@@ -3,7 +3,6 @@ import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 
 import {
-    WindowRefService,
     WebAppSettingDataService,
     UrlRouteManagerService,
     NewUrlStateNotificationService,
@@ -33,7 +32,6 @@ export class FilterTransactionWizardPopupContainerComponent implements OnInit, A
         private webAppSettingDataService: WebAppSettingDataService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
-        private windowRefService: WindowRefService,
         private analyticsService: AnalyticsService,
     ) {}
 
@@ -72,7 +70,7 @@ export class FilterTransactionWizardPopupContainerComponent implements OnInit, A
             param.responseTo
         );
         if (param.urlPattern) {
-            f.setUrlPattern(this.windowRefService.nativeWindow.btoa(param.urlPattern));
+            f.setUrlPattern(param.urlPattern);
         }
         if (param.from.agent) {
             f.setFromAgentName(param.from.agent);

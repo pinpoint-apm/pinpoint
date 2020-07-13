@@ -27,10 +27,12 @@ export class FilterAppTransactionWizardPopupComponent implements OnInit {
     resultType: string[] = ['Success + Failed', 'Success Only', 'Failed Only'];
     selectedResultType: RESULT_TYPE = RESULT_TYPE.SUCCESS_AND_FAIL;
     selectedAgent = AGENT_ALL;
-    urlPattern = '';
+    // urlPattern = '';
     responseTimeMin = 0;
     responseTimeMax = 30000;
     responseTimeRange = [0, 30000];
+
+    private _urlPattern: string;
 
     constructor() {}
     ngOnInit() {
@@ -89,5 +91,13 @@ export class FilterAppTransactionWizardPopupComponent implements OnInit {
     }
     getTimeFormatter(): NouiFormatter {
         return <NouiFormatter>new TimeFormatter();
+    }
+
+    set urlPattern(url: string) {
+        this._urlPattern = url.startsWith('/') ? url : `/${url}`;
+    }
+
+    get urlPattern(): string {
+        return this._urlPattern;
     }
 }
