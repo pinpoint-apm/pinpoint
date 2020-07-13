@@ -151,7 +151,6 @@ public class GrpcCommandService {
                 requestStream.onError(t);
             }
 
-            commandDispatcher.close();
             reserveReconnect();
         }
 
@@ -159,7 +158,6 @@ public class GrpcCommandService {
         public void onCompleted() {
             logger.info("onCompleted");
             StreamUtils.close(requestStream);
-            commandDispatcher.close();
             // TODO : needs to check whether needs new action
             reserveReconnect();
         }
