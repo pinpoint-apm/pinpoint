@@ -212,8 +212,8 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
     };
 
     private void addPreparedStatementTransformer(final MySqlConfig config) {
-
         transformTemplate.transform("com.mysql.jdbc.PreparedStatement", PreparedStatementTransform.class);
+        transformTemplate.transform("com.mysql.jdbc.ServerPreparedStatement", PreparedStatementTransform.class);
         // 6.x+
         transformTemplate.transform("com.mysql.cj.jdbc.PreparedStatement", PreparedStatementTransform.class);
         // 8.0.11+
