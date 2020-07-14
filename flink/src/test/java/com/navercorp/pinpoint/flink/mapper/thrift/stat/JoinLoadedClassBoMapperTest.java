@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLoadedClassBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFLoadedClass;
 import org.junit.Test;
@@ -40,18 +41,10 @@ public class JoinLoadedClassBoMapperTest {
         final JoinLoadedClassBo joinLoadedClassBo = mapper.map(tFAgentStat);
 
         assertNotNull(joinLoadedClassBo);
-        assertEquals(joinLoadedClassBo.getId(), "testAgent");
-        assertEquals(joinLoadedClassBo.getTimestamp(), 1491274138454L);
-        assertEquals(joinLoadedClassBo.getAvgLoadedClass(), 50, 0);
-        assertEquals(joinLoadedClassBo.getMinLoadedClass(), 50, 0);
-        assertEquals(joinLoadedClassBo.getMaxLoadedClass(), 50, 0);
-        assertEquals(joinLoadedClassBo.getMinLoadedClassAgentId(), "testAgent");
-        assertEquals(joinLoadedClassBo.getMaxLoadedClassAgentId(), "testAgent");
-        assertEquals(joinLoadedClassBo.getAvgUnloadedClass(), 50, 0);
-        assertEquals(joinLoadedClassBo.getMinUnloadedClass(), 50, 0);
-        assertEquals(joinLoadedClassBo.getMaxUnloadedClass(), 50, 0);
-        assertEquals(joinLoadedClassBo.getMinUnloadedClassAgentId(), "testAgent");
-        assertEquals(joinLoadedClassBo.getMaxUnloadedClassAgentId(), "testAgent");
+        assertEquals("testAgent", joinLoadedClassBo.getId());
+        assertEquals(1491274138454L, joinLoadedClassBo.getTimestamp());
+        assertEquals(new JoinLongFieldBo(50L, 50L, "testAgent", 50L, "testAgent"), joinLoadedClassBo.getLoadedClassJoinValue());
+        assertEquals(new JoinLongFieldBo(50L, 50L, "testAgent", 50L, "testAgent"), joinLoadedClassBo.getUnloadedClassJoinValue());
     }
 
     @Test

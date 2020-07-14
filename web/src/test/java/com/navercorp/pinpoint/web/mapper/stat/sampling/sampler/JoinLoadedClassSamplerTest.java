@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLoadedClassBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinLoadedClassBo;
 import org.junit.Test;
 
@@ -41,15 +42,7 @@ public class JoinLoadedClassSamplerTest {
 
         AggreJoinLoadedClassBo aggreJoinLoadedClassBo = joinLoadedClassSampler.sampleDataPoints(0, new Date().getTime(), joinLoadedClassBoList,  new JoinLoadedClassBo());
         assertEquals(aggreJoinLoadedClassBo.getId(), "testApp");
-        assertEquals(aggreJoinLoadedClassBo.getAvgLoadedClass(), 33, 0);
-        assertEquals(aggreJoinLoadedClassBo.getMinLoadedClass(), 10, 0);
-        assertEquals(aggreJoinLoadedClassBo.getMinLoadedClassAgentId(), "agent2_2");
-        assertEquals(aggreJoinLoadedClassBo.getMaxLoadedClass(), 60, 0);
-        assertEquals(aggreJoinLoadedClassBo.getMaxLoadedClassAgentId(), "agent1_1");
-        assertEquals(aggreJoinLoadedClassBo.getAvgUnloadedClass(), 33, 0);
-        assertEquals(aggreJoinLoadedClassBo.getMinUnloadedClass(), 10, 0);
-        assertEquals(aggreJoinLoadedClassBo.getMinUnloadedClassAgentId(), "agent2_2");
-        assertEquals(aggreJoinLoadedClassBo.getMaxUnloadedClass(), 60, 0);
-        assertEquals(aggreJoinLoadedClassBo.getMaxUnloadedClassAgentId(), "agent1_1");
+        assertEquals(aggreJoinLoadedClassBo.getLoadedClassJoinValue(), new JoinLongFieldBo(33L, 10L, "agent2_2", 60L, "agent1_1"));
+        assertEquals(aggreJoinLoadedClassBo.getUnloadedClassJoinValue(), new JoinLongFieldBo(33L, 10L, "agent2_2", 60L, "agent1_1"));
     }
 }

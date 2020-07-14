@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLoadedClassBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 
 public class AggreJoinLoadedClassBo extends JoinLoadedClassBo implements AggregationStatData {
 
@@ -28,6 +29,10 @@ public class AggreJoinLoadedClassBo extends JoinLoadedClassBo implements Aggrega
         super(id, avgLoadedClass, maxLoadedClass, maxLoadedClassAgentId, minLoadedClass, minLoadedClassAgentId, avgUnloadedClass, maxUnloadedClass,
                 maxUnloadedClassAgentId, minUnloadedClass, minUnloadedClassAgentId, timestamp);
 
+    }
+
+    public AggreJoinLoadedClassBo(String id, JoinLongFieldBo loadedClass, JoinLongFieldBo unloadedClass, long timestamp) {
+        super(id, loadedClass, unloadedClass, timestamp);
     }
 
     public static AggreJoinLoadedClassBo createUncollectedObject(long timestamp) {

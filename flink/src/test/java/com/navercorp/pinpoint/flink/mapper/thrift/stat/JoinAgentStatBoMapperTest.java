@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLoadedClassBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTrace;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTraceHistogram;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
@@ -35,6 +36,7 @@ import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
 import com.navercorp.pinpoint.thrift.dto.flink.TFResponseTime;
 import com.navercorp.pinpoint.thrift.dto.flink.TFTotalThreadCount;
 import com.navercorp.pinpoint.thrift.dto.flink.TFTransaction;
+import com.navercorp.pinpoint.thrift.dto.flink.TFLoadedClass;
 
 import org.junit.Test;
 
@@ -437,29 +439,13 @@ public class JoinAgentStatBoMapperTest {
         JoinLoadedClassBo joinLoadedClassBo = joinLoadedClassBoList.get(0);
         assertEquals(agentId, joinLoadedClassBo.getId());
         assertEquals(1491274148454L, joinLoadedClassBo.getTimestamp());
-        assertEquals(100, joinLoadedClassBo.getAvgLoadedClass());
-        assertEquals(100, joinLoadedClassBo.getMinLoadedClass());
-        assertEquals(agentId, joinLoadedClassBo.getMinLoadedClassAgentId());
-        assertEquals(100, joinLoadedClassBo.getMaxLoadedClass());
-        assertEquals(agentId, joinLoadedClassBo.getMaxLoadedClassAgentId());
-        assertEquals(100, joinLoadedClassBo.getAvgUnloadedClass());
-        assertEquals(100, joinLoadedClassBo.getMinUnloadedClass());
-        assertEquals(agentId, joinLoadedClassBo.getMinUnloadedClassAgentId());
-        assertEquals(100, joinLoadedClassBo.getMaxUnloadedClass());
-        assertEquals(agentId, joinLoadedClassBo.getMaxUnloadedClassAgentId());
+        assertEquals(new JoinLongFieldBo(100L, 100L, agentId, 100L, agentId), joinLoadedClassBo.getLoadedClassJoinValue());
+        assertEquals(new JoinLongFieldBo(100L, 100L, agentId, 100L, agentId), joinLoadedClassBo.getUnloadedClassJoinValue());
 
         JoinLoadedClassBo joinLoadedClassBo2 = joinLoadedClassBoList.get(1);
         assertEquals(agentId, joinLoadedClassBo2.getId());
         assertEquals(1491275148454L, joinLoadedClassBo2.getTimestamp());
-        assertEquals(120, joinLoadedClassBo2.getAvgLoadedClass());
-        assertEquals(120, joinLoadedClassBo2.getMinLoadedClass());
-        assertEquals(agentId, joinLoadedClassBo2.getMinLoadedClassAgentId());
-        assertEquals(120, joinLoadedClassBo2.getMaxLoadedClass());
-        assertEquals(agentId, joinLoadedClassBo2.getMaxLoadedClassAgentId());
-        assertEquals(120, joinLoadedClassBo2.getAvgUnloadedClass());
-        assertEquals(120, joinLoadedClassBo2.getMinUnloadedClass());
-        assertEquals(agentId, joinLoadedClassBo2.getMinUnloadedClassAgentId());
-        assertEquals(120, joinLoadedClassBo2.getMaxUnloadedClass());
-        assertEquals(agentId, joinLoadedClassBo2.getMaxUnloadedClassAgentId());
+        assertEquals(new JoinLongFieldBo(120L, 120L, agentId, 120L, agentId), joinLoadedClassBo2.getLoadedClassJoinValue());
+        assertEquals(new JoinLongFieldBo(120L, 120L, agentId, 120L, agentId), joinLoadedClassBo2.getUnloadedClassJoinValue());
     }
 }

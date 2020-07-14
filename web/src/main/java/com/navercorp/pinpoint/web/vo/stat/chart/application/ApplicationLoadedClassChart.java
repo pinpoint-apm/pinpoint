@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.google.common.collect.ImmutableMap;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLoadedClassBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -72,17 +73,18 @@ public class ApplicationLoadedClassChart implements StatChart {
         }
 
         private LongApplicationStatPoint newLoadedClassCount(AggreJoinLoadedClassBo loadedClassBo) {
+            final JoinLongFieldBo loadedClassJoinValue = loadedClassBo.getLoadedClassJoinValue();
             return new LongApplicationStatPoint(loadedClassBo.getTimestamp(),
-                    loadedClassBo.getMinLoadedClass(), loadedClassBo.getMinLoadedClassAgentId(),
-                    loadedClassBo.getMaxLoadedClass(), loadedClassBo.getMaxLoadedClassAgentId(),
-                    loadedClassBo.getAvgLoadedClass());
+                    loadedClassJoinValue.getMin(), loadedClassJoinValue.getMinAgentId(),
+                    loadedClassJoinValue.getMax(), loadedClassJoinValue.getMaxAgentId(), loadedClassJoinValue.getAvg());
         }
 
         private LongApplicationStatPoint newUnloadedClassCount(AggreJoinLoadedClassBo loadedClassBo) {
+            final JoinLongFieldBo unloadedClassJoinValue = loadedClassBo.getUnloadedClassJoinValue();
             return new LongApplicationStatPoint(loadedClassBo.getTimestamp(),
-                    loadedClassBo.getMinUnloadedClass(), loadedClassBo.getMinUnloadedClassAgentId(),
-                    loadedClassBo.getMaxUnloadedClass(), loadedClassBo.getMaxUnloadedClassAgentId(),
-                    loadedClassBo.getAvgUnloadedClass());
+                    unloadedClassJoinValue.getMin(), unloadedClassJoinValue.getMinAgentId(),
+                    unloadedClassJoinValue.getMax(), unloadedClassJoinValue.getMaxAgentId(),
+                    unloadedClassJoinValue.getAvg());
         }
 
         @Override

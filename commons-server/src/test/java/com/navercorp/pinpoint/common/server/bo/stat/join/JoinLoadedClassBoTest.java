@@ -42,17 +42,8 @@ public class JoinLoadedClassBoTest {
         JoinLoadedClassBo joinLoadedClassBo = JoinLoadedClassBo.joinLoadedClassBoList(joinLoadedClassBoList, 1496988668231L);
         assertEquals("agent1", joinLoadedClassBo.getId());
         assertEquals(1496988668231L, joinLoadedClassBo.getTimestamp());
-        assertEquals(26, joinLoadedClassBo.getAvgLoadedClass());
-        assertEquals(10, joinLoadedClassBo.getMaxLoadedClass());
-        assertEquals("agent1", joinLoadedClassBo.getMaxLoadedClassAgentId());
-        assertEquals(2, joinLoadedClassBo.getMinLoadedClass());
-        assertEquals("agent4", joinLoadedClassBo.getMinLoadedClassAgentId());
-
-        assertEquals(26, joinLoadedClassBo.getAvgUnloadedClass());
-        assertEquals(10, joinLoadedClassBo.getMaxUnloadedClass());
-        assertEquals("agent1", joinLoadedClassBo.getMaxUnloadedClassAgentId());
-        assertEquals(2, joinLoadedClassBo.getMinUnloadedClass());
-        assertEquals("agent4", joinLoadedClassBo.getMinUnloadedClassAgentId());
+        assertEquals(new JoinLongFieldBo(26L, 2L, "agent4", 10L, "agent1"), joinLoadedClassBo.getLoadedClassJoinValue());
+        assertEquals(new JoinLongFieldBo(26L, 2L, "agent4", 10L, "agent1"), joinLoadedClassBo.getUnloadedClassJoinValue());
     }
     @Test
     public void joinLoadedClassBoList2Test() {

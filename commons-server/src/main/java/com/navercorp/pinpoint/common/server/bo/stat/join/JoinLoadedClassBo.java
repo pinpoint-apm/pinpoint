@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.common.server.bo.stat.join;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class JoinLoadedClassBo implements JoinStatBo {
     public static final JoinLoadedClassBo EMPTY_JOIN_LOADED_CLASS_BO = new JoinLoadedClassBo();
@@ -26,17 +28,8 @@ public class JoinLoadedClassBo implements JoinStatBo {
     private String id = UNKNOWN_ID;
     private long timestamp = Long.MIN_VALUE;
 
-    private long avgLoadedClass = UNCOLLECTED_VALUE;
-    private String maxLoadedClassAgentId = UNKNOWN_AGENT;
-    private long maxLoadedClass = UNCOLLECTED_VALUE;
-    private String minLoadedClassAgentId = UNKNOWN_AGENT;
-    private long minLoadedClass = UNCOLLECTED_VALUE;
-
-    private long avgUnloadedClass = UNCOLLECTED_VALUE;
-    private String maxUnloadedClassAgentId = UNKNOWN_AGENT;
-    private long maxUnloadedClass = UNCOLLECTED_VALUE;
-    private String minUnloadedClassAgentId = UNKNOWN_AGENT;
-    private long minUnloadedClass = UNCOLLECTED_VALUE;
+    private JoinLongFieldBo loadedClassJoinValue = JoinLongFieldBo.UNCOLLECTED_FIELD_BO;
+    private JoinLongFieldBo unloadedClassJoinValue = JoinLongFieldBo.UNCOLLECTED_FIELD_BO;
 
     public JoinLoadedClassBo() {
     }
@@ -44,77 +37,36 @@ public class JoinLoadedClassBo implements JoinStatBo {
     public JoinLoadedClassBo(String id, long avgLoadedClass, long maxLoadedClass, String maxLoadedClassAgentId, long minLoadedClass, String minLoadedClassAgentId,
                              long avgUnloadedClass, long maxUnloadedClass, String maxUnloadedClassAgentId, long minUnloadedClass, String minUnloadedClassAgentId,
                              long timestamp) {
+        this(id, new JoinLongFieldBo(avgLoadedClass, minLoadedClass, minLoadedClassAgentId, maxLoadedClass, maxLoadedClassAgentId),
+                new JoinLongFieldBo(avgUnloadedClass, minUnloadedClass, minUnloadedClassAgentId, maxUnloadedClass, maxUnloadedClassAgentId), timestamp);
+    }
+
+    public JoinLoadedClassBo(String id, JoinLongFieldBo loadedClassJoinValue, JoinLongFieldBo unloadedClassJoinValue, long timestamp) {
         this.id = id;
-        this.avgLoadedClass = avgLoadedClass;
-        this.maxLoadedClass = maxLoadedClass;
-        this.maxLoadedClassAgentId = maxLoadedClassAgentId;
-        this.minLoadedClass = minLoadedClass;
-        this.minLoadedClassAgentId = minLoadedClassAgentId;
-        this.avgUnloadedClass = avgUnloadedClass;
-        this.maxUnloadedClass = maxUnloadedClass;
-        this.maxUnloadedClassAgentId = maxUnloadedClassAgentId;
-        this.minUnloadedClass = minUnloadedClass;
-        this.minUnloadedClassAgentId = minUnloadedClassAgentId;
+        this.loadedClassJoinValue = Objects.requireNonNull(loadedClassJoinValue, "loadedClassJoinValue");
+        this.unloadedClassJoinValue = Objects.requireNonNull(unloadedClassJoinValue, "unloadedClassJoinValue");
         this.timestamp = timestamp;
     }
 
     public static JoinLoadedClassBo joinLoadedClassBoList(List<JoinLoadedClassBo> joinLoadedClassBoList, Long timestamp) {
         int boCount = joinLoadedClassBoList.size();
-
-        if (joinLoadedClassBoList.size() == 0) {
+        if (boCount == 0) {
             return EMPTY_JOIN_LOADED_CLASS_BO;
         }
+
+        List<JoinLongFieldBo> loadedClassFieldBoList = joinLoadedClassBoList.stream().map(e -> e.getLoadedClassJoinValue()).collect(Collectors.toList());
+        JoinLongFieldBo loadedClassJoinValue = JoinLongFieldBo.merge(loadedClassFieldBoList);
+
+        List<JoinLongFieldBo> unloadedClassFieldBoList = joinLoadedClassBoList.stream().map(e -> e.getUnloadedClassJoinValue()).collect(Collectors.toList());
+        JoinLongFieldBo unloadedClassJoinValue = JoinLongFieldBo.merge(unloadedClassFieldBoList);
+
+        JoinLoadedClassBo firstJoinLoadedClassBo = joinLoadedClassBoList.get(0);
+
         JoinLoadedClassBo newJoinLoadedClassBo = new JoinLoadedClassBo();
-        JoinLoadedClassBo initJoinLoadedClassBo = joinLoadedClassBoList.get(0);
-
-        newJoinLoadedClassBo.setId(initJoinLoadedClassBo.getId());
+        newJoinLoadedClassBo.setId(firstJoinLoadedClassBo.getId());
         newJoinLoadedClassBo.setTimestamp(timestamp);
-
-        long sumLoadedClass = 0L;
-        String maxLoadedClassAgentId = initJoinLoadedClassBo.getMaxLoadedClassAgentId();
-        long maxLoadedClass = initJoinLoadedClassBo.getMaxLoadedClass();
-        String minLoadedClassAgentId = initJoinLoadedClassBo.getMinLoadedClassAgentId();
-        long minLoadedClass = initJoinLoadedClassBo.getMinLoadedClass();
-
-        long sumUnloadedClass = 0L;
-        String maxUnloadedClassAgentId = initJoinLoadedClassBo.getMaxUnloadedClassAgentId();
-        long maxUnloadedClass = initJoinLoadedClassBo.getMaxUnloadedClass();
-        String minUnloadedClassAgentId = initJoinLoadedClassBo.getMinUnloadedClassAgentId();
-        long minUnloadedClass = initJoinLoadedClassBo.getMinUnloadedClass();
-
-        for (JoinLoadedClassBo joinLoadedClassBo : joinLoadedClassBoList) {
-            sumLoadedClass += joinLoadedClassBo.getAvgLoadedClass();
-            if (joinLoadedClassBo.getMaxLoadedClass() > maxLoadedClass) {
-                maxLoadedClass = joinLoadedClassBo.getMaxLoadedClass();
-                maxLoadedClassAgentId = joinLoadedClassBo.getMaxLoadedClassAgentId();
-            }
-            if (joinLoadedClassBo.getMinLoadedClass() < minLoadedClass) {
-                minLoadedClass = joinLoadedClassBo.getMinLoadedClass();
-                minLoadedClassAgentId = joinLoadedClassBo.getMinLoadedClassAgentId();
-            }
-
-            sumUnloadedClass += joinLoadedClassBo.getAvgUnloadedClass();
-            if (joinLoadedClassBo.getMaxUnloadedClass() > maxUnloadedClass) {
-                maxUnloadedClass = joinLoadedClassBo.getMaxUnloadedClass();
-                maxUnloadedClassAgentId = joinLoadedClassBo.getMaxUnloadedClassAgentId();
-            }
-            if (joinLoadedClassBo.getMinUnloadedClass() < minUnloadedClass) {
-                minUnloadedClass = joinLoadedClassBo.getMinUnloadedClass();
-                minUnloadedClassAgentId = joinLoadedClassBo.getMinUnloadedClassAgentId();
-            }
-        }
-
-        newJoinLoadedClassBo.setAvgLoadedClass((sumLoadedClass / boCount));
-        newJoinLoadedClassBo.setMaxLoadedClass(maxLoadedClass);
-        newJoinLoadedClassBo.setMaxLoadedClassAgentId(maxLoadedClassAgentId);
-        newJoinLoadedClassBo.setMinLoadedClass(minLoadedClass);
-        newJoinLoadedClassBo.setMinLoadedClassAgentId(minLoadedClassAgentId);
-
-        newJoinLoadedClassBo.setAvgUnloadedClass((sumUnloadedClass / boCount));
-        newJoinLoadedClassBo.setMaxUnloadedClass(maxUnloadedClass);
-        newJoinLoadedClassBo.setMaxUnloadedClassAgentId(maxUnloadedClassAgentId);
-        newJoinLoadedClassBo.setMinUnloadedClass(minUnloadedClass);
-        newJoinLoadedClassBo.setMinUnloadedClassAgentId(minUnloadedClassAgentId);
+        newJoinLoadedClassBo.setLoadedClassJoinValue(loadedClassJoinValue);
+        newJoinLoadedClassBo.setUnloadedClassJoinValue(unloadedClassJoinValue);
 
         return newJoinLoadedClassBo;
     }
@@ -137,84 +89,20 @@ public class JoinLoadedClassBo implements JoinStatBo {
         this.id = id;
     }
 
-    public long getAvgLoadedClass() {
-        return avgLoadedClass;
+    public JoinLongFieldBo getLoadedClassJoinValue() {
+        return loadedClassJoinValue;
     }
 
-    public void setAvgLoadedClass(long avgLoadedClass) {
-        this.avgLoadedClass = avgLoadedClass;
+    public void setLoadedClassJoinValue(JoinLongFieldBo loadedClassJoinValue) {
+        this.loadedClassJoinValue = loadedClassJoinValue;
     }
 
-    public String getMaxLoadedClassAgentId() {
-        return maxLoadedClassAgentId;
+    public JoinLongFieldBo getUnloadedClassJoinValue() {
+        return unloadedClassJoinValue;
     }
 
-    public void setMaxLoadedClassAgentId(String maxLoadedClassAgentId) {
-        this.maxLoadedClassAgentId = maxLoadedClassAgentId;
-    }
-
-    public long getMaxLoadedClass() {
-        return maxLoadedClass;
-    }
-
-    public void setMaxLoadedClass(long maxLoadedClass) {
-        this.maxLoadedClass = maxLoadedClass;
-    }
-
-    public String getMinLoadedClassAgentId() {
-        return minLoadedClassAgentId;
-    }
-
-    public void setMinLoadedClassAgentId(String minLoadedClassAgentId) {
-        this.minLoadedClassAgentId = minLoadedClassAgentId;
-    }
-
-    public long getMinLoadedClass() {
-        return minLoadedClass;
-    }
-
-    public void setMinLoadedClass(long minLoadedClass) {
-        this.minLoadedClass = minLoadedClass;
-    }
-
-    public long getAvgUnloadedClass() {
-        return avgUnloadedClass;
-    }
-
-    public void setAvgUnloadedClass(long avgUnloadedClass) {
-        this.avgUnloadedClass = avgUnloadedClass;
-    }
-
-    public String getMaxUnloadedClassAgentId() {
-        return maxUnloadedClassAgentId;
-    }
-
-    public void setMaxUnloadedClassAgentId(String maxUnloadedClassAgentId) {
-        this.maxUnloadedClassAgentId = maxUnloadedClassAgentId;
-    }
-
-    public long getMaxUnloadedClass() {
-        return maxUnloadedClass;
-    }
-
-    public void setMaxUnloadedClass(long maxUnloadedClass) {
-        this.maxUnloadedClass = maxUnloadedClass;
-    }
-
-    public String getMinUnloadedClassAgentId() {
-        return minUnloadedClassAgentId;
-    }
-
-    public void setMinUnloadedClassAgentId(String minUnloadedClassAgentId) {
-        this.minUnloadedClassAgentId = minUnloadedClassAgentId;
-    }
-
-    public long getMinUnloadedClass() {
-        return minUnloadedClass;
-    }
-
-    public void setMinUnloadedClass(long minUnloadedClass) {
-        this.minUnloadedClass = minUnloadedClass;
+    public void setUnloadedClassJoinValue(JoinLongFieldBo unloadedClassJoinValue) {
+        this.unloadedClassJoinValue = unloadedClassJoinValue;
     }
 
     @Override
@@ -225,58 +113,31 @@ public class JoinLoadedClassBo implements JoinStatBo {
         JoinLoadedClassBo that = (JoinLoadedClassBo) o;
 
         if (timestamp != that.timestamp) return false;
-        if (avgLoadedClass != that.avgLoadedClass) return false;
-        if (maxLoadedClass != that.maxLoadedClass) return false;
-        if (minLoadedClass != that.minLoadedClass) return false;
-        if (avgUnloadedClass != that.avgUnloadedClass) return false;
-        if (maxUnloadedClass != that.maxUnloadedClass) return false;
-        if (avgUnloadedClass != that.avgUnloadedClass) return false;
         if (!id.equals(that.id)) return false;
-        if (!maxLoadedClassAgentId.equals(that.maxLoadedClassAgentId)) return false;
-        if (!minLoadedClassAgentId.equals(that.minLoadedClassAgentId)) return false;
-        if (!maxUnloadedClassAgentId.equals(that.maxUnloadedClassAgentId)) return false;
-        if (!minUnloadedClassAgentId.equals(that.minUnloadedClassAgentId)) return false;
-        return minUnloadedClassAgentId.equals(that.minUnloadedClassAgentId);
+        if (loadedClassJoinValue != null ? !loadedClassJoinValue.equals(that.loadedClassJoinValue) : that.loadedClassJoinValue != null) return false;
+        if (unloadedClassJoinValue != null ? !unloadedClassJoinValue.equals(that.unloadedClassJoinValue) : that.unloadedClassJoinValue != null) return false;
+
+        return (unloadedClassJoinValue != null ? unloadedClassJoinValue.equals(that.unloadedClassJoinValue) : that.unloadedClassJoinValue == null);
     }
 
 
     @Override
     public int hashCode() {
-        int result;
-
-        result = id.hashCode();
+        int result = (id != null) ? id.hashCode() : 0;
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
-
-        result = 31 * result + (int) (avgLoadedClass ^ (avgLoadedClass >>> 32));
-        result = 31 * result + maxLoadedClassAgentId.hashCode();
-        result = 31 * result + (int) (maxLoadedClass ^ (maxLoadedClass >>> 32));
-        result = 31 * result + minLoadedClassAgentId.hashCode();
-        result = 31 * result + (int) (minLoadedClass ^ (minLoadedClass >>> 32));
-
-        result = 31 * result + (int) (avgUnloadedClass ^ (avgUnloadedClass >>> 32));
-        result = 31 * result + maxUnloadedClassAgentId.hashCode();
-        result = 31 * result + (int) (maxUnloadedClass ^ (maxUnloadedClass >>> 32));
-        result = 31 * result + minUnloadedClassAgentId.hashCode();
-        result = 31 * result + (int) (minUnloadedClass ^ (minUnloadedClass >>> 32));
-
+        result = 31 * result + (loadedClassJoinValue != null ? loadedClassJoinValue.hashCode() : 0);
+        result = 31 * result + (unloadedClassJoinValue != null ? unloadedClassJoinValue.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return "JoinLoadedClassBo{" +
-                "id='" + id + '\'' +
-                ", avgLoadedClass=" + avgLoadedClass +
-                ", maxLoadedClassAgentId='" + maxLoadedClassAgentId + '\'' +
-                ", maxLoadedClass=" + maxLoadedClass +
-                ", minLoadedClassAgentId='" + minLoadedClassAgentId + '\'' +
-                ", minLoadedClass=" + minLoadedClass +
-                ", avgUnloadedClass=" + avgUnloadedClass +
-                ", maxUnloadedClassAgentId='" + maxUnloadedClassAgentId + '\'' +
-                ", maxUnloadedClass=" + maxUnloadedClass +
-                ", minUnloadedClassAgentId='" + minUnloadedClassAgentId + '\'' +
-                ", minUnloadedClass=" + minUnloadedClass +
-                ", timestamp=" + timestamp +"(" + new Date(timestamp)+ ")" +
-                '}';
+        final StringBuilder sb = new StringBuilder("JoinLoadedClassBo{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", timestamp=").append(timestamp);
+        sb.append(", loadedClassJoinValue=").append(loadedClassJoinValue);
+        sb.append(", unloadedClassJoinValue=").append(unloadedClassJoinValue);
+        sb.append('}');
+        return sb.toString();
     }
 }
