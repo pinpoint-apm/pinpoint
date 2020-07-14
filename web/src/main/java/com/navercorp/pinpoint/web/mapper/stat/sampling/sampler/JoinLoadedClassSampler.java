@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLoadedClassBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinLoadedClassBo;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
@@ -35,22 +36,10 @@ public class JoinLoadedClassSampler implements ApplicationStatSampler<JoinLoaded
         JoinLoadedClassBo joinLoadedClassBo = AggreJoinLoadedClassBo.joinLoadedClassBoList(joinLoadedClassBoList, timestamp);
 
         String id = joinLoadedClassBo.getId();
-        long avgLoadedClassCount = joinLoadedClassBo.getAvgLoadedClass();
-        long minLoadedClassCount = joinLoadedClassBo.getMinLoadedClass();
-        String minLoadedClassCountAgentId = joinLoadedClassBo.getMinLoadedClassAgentId();
-        long maxLoadedClassCount  = joinLoadedClassBo.getMaxLoadedClass();
-        String maxLoadedClassCountAgentId = joinLoadedClassBo.getMaxLoadedClassAgentId();
+        JoinLongFieldBo loadedClassJoinValue = joinLoadedClassBo.getLoadedClassJoinValue();
+        JoinLongFieldBo unloadedClassJoinValue = joinLoadedClassBo.getUnloadedClassJoinValue();
+        AggreJoinLoadedClassBo aggreJoinLoadedClassBo = new AggreJoinLoadedClassBo(id, loadedClassJoinValue, unloadedClassJoinValue, timestamp);
 
-        long avgUnloadedClassCount = joinLoadedClassBo.getAvgUnloadedClass();
-        long minUnloadedClassCount = joinLoadedClassBo.getMinUnloadedClass();
-        String minUnloadedClassCountAgentId = joinLoadedClassBo.getMinUnloadedClassAgentId();
-        long maxUnloadedClassCount  = joinLoadedClassBo.getMaxUnloadedClass();
-        String maxUnloadedClassCountAgentId = joinLoadedClassBo.getMaxUnloadedClassAgentId();
-
-        AggreJoinLoadedClassBo aggreJoinLoadedClassBo = new AggreJoinLoadedClassBo(id,
-                avgLoadedClassCount, maxLoadedClassCount , maxLoadedClassCountAgentId, minLoadedClassCount, minLoadedClassCountAgentId,
-                avgUnloadedClassCount, maxUnloadedClassCount , maxUnloadedClassCountAgentId, minUnloadedClassCount, minUnloadedClassCountAgentId,
-                timestamp);
         return aggreJoinLoadedClassBo;
     }
 }

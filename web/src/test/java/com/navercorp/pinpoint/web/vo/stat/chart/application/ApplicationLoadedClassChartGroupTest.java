@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
@@ -72,20 +73,22 @@ public class ApplicationLoadedClassChartGroupTest {
     }
 
     private void testLoadedCLass(LongApplicationStatPoint point, AggreJoinLoadedClassBo loadedClassBo) {
+        final JoinLongFieldBo loadedClass = loadedClassBo.getLoadedClassJoinValue();
         assertEquals(point.getXVal(), loadedClassBo.getTimestamp());
-        assertEquals(point.getYValForAvg(), loadedClassBo.getAvgLoadedClass(), 0);
-        assertEquals(point.getYValForMin(), loadedClassBo.getMinLoadedClass(), 0);
-        assertEquals(point.getYValForMax(), loadedClassBo.getMaxLoadedClass(), 0);
-        assertEquals(point.getAgentIdForMin(), loadedClassBo.getMinLoadedClassAgentId());
-        assertEquals(point.getAgentIdForMax(), loadedClassBo.getMaxLoadedClassAgentId());
+        assertEquals(point.getYValForAvg(), loadedClass.getAvg(), 0);
+        assertEquals(point.getYValForMin(), loadedClass.getMin(), 0);
+        assertEquals(point.getYValForMax(), loadedClass.getMax(), 0);
+        assertEquals(point.getAgentIdForMin(), loadedClass.getMinAgentId());
+        assertEquals(point.getAgentIdForMax(), loadedClass.getMaxAgentId());
     }
 
     private void testUnloadedCLass(LongApplicationStatPoint point, AggreJoinLoadedClassBo loadedClassBo) {
+        final JoinLongFieldBo unloadedClass = loadedClassBo.getUnloadedClassJoinValue();
         assertEquals(point.getXVal(), loadedClassBo.getTimestamp());
-        assertEquals(point.getYValForAvg(), loadedClassBo.getAvgUnloadedClass(), 0);
-        assertEquals(point.getYValForMin(), loadedClassBo.getMinUnloadedClass(), 0);
-        assertEquals(point.getYValForMax(), loadedClassBo.getMaxUnloadedClass(), 0);
-        assertEquals(point.getAgentIdForMin(), loadedClassBo.getMinUnloadedClassAgentId());
-        assertEquals(point.getAgentIdForMax(), loadedClassBo.getMaxUnloadedClassAgentId());
+        assertEquals(point.getYValForAvg(), unloadedClass.getAvg(), 0);
+        assertEquals(point.getYValForMin(), unloadedClass.getMin(), 0);
+        assertEquals(point.getYValForMax(), unloadedClass.getMax(), 0);
+        assertEquals(point.getAgentIdForMin(), unloadedClass.getMinAgentId());
+        assertEquals(point.getAgentIdForMax(), unloadedClass.getMaxAgentId());
     }
 }
