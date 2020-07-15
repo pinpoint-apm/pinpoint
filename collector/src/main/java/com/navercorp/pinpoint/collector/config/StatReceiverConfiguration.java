@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 import java.util.Objects;
@@ -30,10 +29,9 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-@Configuration
 public class StatReceiverConfiguration implements DataReceiverGroupConfiguration {
 
-    private final Logger logger = LoggerFactory.getLogger(StatReceiverConfiguration.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final String PREFIX = "collector.receiver.stat";
 

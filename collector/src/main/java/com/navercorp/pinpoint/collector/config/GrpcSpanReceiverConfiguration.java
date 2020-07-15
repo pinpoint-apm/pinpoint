@@ -23,8 +23,6 @@ import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-
 import javax.annotation.PostConstruct;
 import java.util.Objects;
 import java.util.Properties;
@@ -33,9 +31,8 @@ import java.util.Properties;
  * @author Taejin Koo
  */
 //@ConfigurationProeprties(prefix=GRPC_PREFIX) spring-boot
-@Configuration
 public class GrpcSpanReceiverConfiguration {
-    private final Logger logger = LoggerFactory.getLogger(GrpcSpanReceiverConfiguration.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final String GRPC_PREFIX = "collector.receiver.grpc.span";
 

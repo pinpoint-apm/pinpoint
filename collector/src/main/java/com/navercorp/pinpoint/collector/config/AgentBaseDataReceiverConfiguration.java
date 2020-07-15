@@ -22,16 +22,14 @@ import com.navercorp.pinpoint.common.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 
 /**
  * @author Taejin Koo
  */
-@Configuration
 public class AgentBaseDataReceiverConfiguration {
-    private final Logger logger = LoggerFactory.getLogger(AgentBaseDataReceiverConfiguration.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Value("${collector.receiver.base.ip:0.0.0.0}")
     private String bindIp;

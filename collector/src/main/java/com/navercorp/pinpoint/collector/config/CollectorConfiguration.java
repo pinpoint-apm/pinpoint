@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
@@ -31,10 +30,9 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-@Configuration
 public class CollectorConfiguration {
 
-    private final Logger logger = LoggerFactory.getLogger(CollectorConfiguration.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Value("${collector.agentEventWorker.threadSize:32}")
     private int agentEventWorkerThreadSize;

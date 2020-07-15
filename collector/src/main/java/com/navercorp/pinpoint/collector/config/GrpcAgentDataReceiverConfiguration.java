@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 import java.util.Objects;
@@ -32,10 +31,9 @@ import java.util.Properties;
  * @author Taejin Koo
  */
 //ConfigurationProeprties(prefix="prefix") spring-boot
-@Configuration
 public class GrpcAgentDataReceiverConfiguration {
 
-    private final Logger logger = LoggerFactory.getLogger(GrpcAgentDataReceiverConfiguration.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final String GRPC_PREFIX = "collector.receiver.grpc.agent";
 
