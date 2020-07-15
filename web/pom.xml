@@ -36,7 +36,7 @@
 
         <!-- java back-end development option -->
         <build.frontend.skip>false</build.frontend.skip>
-        <spring.version>${spring5.version}</spring.version>
+        <spring.version>${spring4.version}</spring.version>
     </properties>
 
     <dependencies>
