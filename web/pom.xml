@@ -116,8 +116,8 @@
             <artifactId>jstl</artifactId>
         </dependency>
         <dependency>
-            <groupId>taglibs</groupId>
-            <artifactId>standard</artifactId>
+            <groupId>org.apache.taglibs</groupId>
+            <artifactId>taglibs-standard-impl</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
