@@ -83,7 +83,6 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-web</artifactId>
-            <classifier>classes</classifier>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>

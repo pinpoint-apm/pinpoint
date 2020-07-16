@@ -286,13 +286,6 @@
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-web</artifactId>
                 <version>${project.version}</version>
-                <type>war</type>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-web</artifactId>
-                <classifier>classes</classifier>
-                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
@@ -753,6 +746,18 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring.boot.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>repackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>

@@ -13,8 +13,8 @@
     "test": "ng test pinpoint",
     "lint": "ng lint pinpoint --type-check",
     "e2e": "ng e2e pinpoint",
-    "copy": "cpx './dist/**' '../../../target/deploy'",
-    "copy:watch": "cpx './dist/**' '../../../target/deploy' --watch"
+    "copy": "cpx './dist/**' '../../../target/classes/META-INF/resources'",
+    "copy:watch": "cpx './dist/**' '../../../target/classes/META-INF/resources' --watch"
   },
   "private": true,
   "dependencies": {
