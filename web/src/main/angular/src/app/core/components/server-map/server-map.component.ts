@@ -50,11 +50,6 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
     }
 
     ngOnInit() {
-        this.serverMapInteractionService.onSearchWord$.pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((query: string) => {
-            this.serverMapInteractionService.setSearchResult(this.serverMapDiagram.searchNode(query));
-        });
         this.serverMapInteractionService.onSelectedApplication$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((appKey: string) => {

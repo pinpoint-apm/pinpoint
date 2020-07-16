@@ -7,11 +7,11 @@
     (outCancel)="onClose()"
     (outSearch)="onSearch($event)"
     #searchInput>
-<ng-container *ngIf="searchResultList$ | async as list">
+<ng-container *ngIf="searchResultList as appList">
     <dl class="l-search-list" [style.display]="listDisplay">
         <dt class="l-list-title">Result <button class="l-close-button fas fa-times" (click)="onClose()"></button></dt>
         <div class="l-list-contents-wrapper">
-            <dd class="l-list-contents" *ngFor="let app of list" (click)="onSelectApp(app)" [class.selected]="app.equals(selectedApp)">{{app.applicationName}}({{app.serviceType}})</dd>
+            <dd class="l-list-contents" *ngFor="let app of appList" (click)="onSelectApp(app)" [class.selected]="app.equals(selectedApp)">{{app.applicationName}}({{app.serviceType}})</dd>
             <dd class="l-empty-contents" *ngIf="isEmpty">{{i18nText.EMPTY_RESULT}}</dd>
         </div>
     </dl>

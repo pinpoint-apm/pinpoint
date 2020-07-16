@@ -1,10 +1,13 @@
-import { Component, OnInit, ChangeDetectionStrategy, ViewChild, ElementRef, Renderer2, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ViewChild, ElementRef, Renderer2, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, forkJoin } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { forkJoin, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
-import { NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { ServerMapInteractionService } from 'app/core/components/server-map/server-map-interaction.service';
+import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
+import { NodeGroup } from 'app/core/components/server-map/class';
+import { Application } from 'app/core/models';
 
 @Component({
     selector: 'pp-server-map-search-result-viewer-container',
@@ -12,12 +15,14 @@ import { ServerMapInteractionService } from 'app/core/components/server-map/serv
     styleUrls: ['./server-map-search-result-viewer-container.component.css'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ServerMapSearchResultViewerContainerComponent implements OnInit {
+export class ServerMapSearchResultViewerContainerComponent implements OnInit, OnDestroy {
     @ViewChild('searchInput', {static: true}) searchInput: ElementRef;
     private minLength = 3;
+    private unsubscribe = new Subject<void>();
+    private serverMapData: ServerMapData;
 
     i18nText: {[key: string]: string};
-    searchResultList$: Observable<IApplication[]>;
+    searchResultList: IApplication[];
     listDisplay = 'none';
     isEmpty: boolean;
     selectedApp: IApplication;
@@ -27,6 +32,7 @@ export class ServerMapSearchResultViewerContainerComponent implements OnInit {
         private translateService: TranslateService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private serverMapInteractionService: ServerMapInteractionService,
+        private messageQueueService: MessageQueueService,
         private renderer: Renderer2,
         private analyticsService: AnalyticsService,
         private cd: ChangeDetectorRef
@@ -35,6 +41,11 @@ export class ServerMapSearchResultViewerContainerComponent implements OnInit {
     ngOnInit() {
         this.initI18NText();
         this.listenToEmitter();
+    }
+
+    ngOnDestroy() {
+        this.unsubscribe.next();
+        this.unsubscribe.complete();
     }
 
     private initI18NText() {
@@ -50,14 +61,16 @@ export class ServerMapSearchResultViewerContainerComponent implements OnInit {
     }
 
     private listenToEmitter(): void {
-        this.newUrlStateNotificationService.onUrlStateChange$.subscribe(() => {
+        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe(() => {
             this.resetView();
             this.cd.markForCheck();
         });
-        this.searchResultList$ = this.serverMapInteractionService.onSearchResult$.pipe(
-            tap(() => this.listDisplay = 'block'),
-            tap((list: IApplication[]) => this.isEmpty = list.length === 0)
-        );
+
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe((data: ServerMapData) => {
+            this.serverMapData = data;
+        });
     }
 
     private resetView(): void {
@@ -71,7 +84,22 @@ export class ServerMapSearchResultViewerContainerComponent implements OnInit {
         }
 
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SEARCH_NODE);
-        this.serverMapInteractionService.setSearchWord(query);
+        this.listDisplay = 'block';
+        this.searchResultList = this.serverMapData.getNodeList()
+            .reduce((acc: {[key: string]: any}[], curr: {[key: string]: any}) => {
+                const {key, mergedNodes} = curr;
+
+                return NodeGroup.isGroupKey(key) ? [...acc, ...mergedNodes] : [...acc, curr];
+            }, [])
+            .filter(({applicationName}: {applicationName: string}) => {
+                const regCheckQuery = new RegExp(query, 'i');
+
+                return regCheckQuery.test(applicationName);
+            })
+            .map(({key, applicationName, serviceType}: {key: string, applicationName: string, serviceType: string}) => {
+                return new Application(applicationName, serviceType, 0, key);
+            });
+        this.isEmpty = this.searchResultList.length === 0;
     }
 
     onSelectApp(app: IApplication): void {
