@@ -26,7 +26,7 @@
 
     <artifactId>pinpoint-web</artifactId>
     <name>pinpoint-web</name>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <properties>
         <jdk.version>1.8</jdk.version>
@@ -36,7 +36,9 @@
 
         <!-- java back-end development option -->
         <build.frontend.skip>false</build.frontend.skip>
-        <spring.version>${spring4.version}</spring.version>
+
+        <spring.version>${spring5.version}</spring.version>
+        <spring.security.version>${spring.security5.version}</spring.security.version>
     </properties>
 
     <dependencies>
@@ -107,6 +109,7 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
             <scope>provided</scope>
         </dependency>
 
@@ -190,6 +193,34 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-messaging</artifactId>
             <version>${spring.security.version}</version>
+        </dependency>
+
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.boot</groupId>-->
+        <!--            <artifactId>spring-boot-starter-actuator</artifactId>-->
+        <!--            <version>${spring-boot.version}</version>-->
+        <!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.boot.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <version>${spring.boot.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Mybatis dependecies -->
@@ -289,7 +320,6 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-collector</artifactId>
             <version>${project.version}</version>
-<!--            <classifier>classes</classifier>-->
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -339,6 +369,14 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.navercorp.pinpoint.web.WebApp</mainClass>
+                    <classifier>boot</classifier>
+                </configuration>
+            </plugin>
             <!-- build.frontend -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -408,42 +446,6 @@
         </plugins>
     </build>
     <profiles>
-        <profile>
-            <!-- for ci server -->
-            <id>run-integration-test</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.tomcat.maven</groupId>
-                        <artifactId>tomcat7-maven-plugin</artifactId>
-                        <version>2.2</version>
-                        <configuration>
-                            <path>/</path>
-                            <port>20330</port>
-                            <fork>true</fork>
-                            <uriEncoding>UTF-8</uriEncoding>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>start-tomcat</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>stop-tomcat</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>shutdown</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                </plugins>
-            </build>
-        </profile>
 
         <profile>
             <id>forceclean</id>

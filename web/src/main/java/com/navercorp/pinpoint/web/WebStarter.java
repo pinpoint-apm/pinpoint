@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.collector;
+package com.navercorp.pinpoint.web;
 
 import com.navercorp.pinpoint.common.server.profile.ProfileApplicationListener;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
@@ -9,17 +9,17 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 
 import java.util.Objects;
 
-public class CollectorStarter {
-    private static final ServerBootLogger logger = ServerBootLogger.getLogger(CollectorApp.class);
+public class WebStarter {
+    private static final ServerBootLogger logger = ServerBootLogger.getLogger(WebApp.class);
 
     private final Class<?>[] sources;
 
-    public CollectorStarter(Class<?>... sources) {
+    public WebStarter(Class<?>... sources) {
         this.sources = Objects.requireNonNull(sources, "sources");
     }
 
-    public void start(String[] args) {
 
+    public void start(String[] args) {
         SpringApplicationBuilder builder = new SpringApplicationBuilder();
         builder.sources(sources);
         builder.web(WebApplicationType.SERVLET);
@@ -30,6 +30,7 @@ public class CollectorStarter {
         springApplication.addListeners(new ProfileApplicationListener());
 
         springApplication.run(args);
+
     }
 
 }
