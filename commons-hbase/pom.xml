@@ -45,7 +45,7 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-profiler</artifactId>
+            <artifactId>pinpoint-commons-profiler</artifactId>
         </dependency>
 
         <dependency>
