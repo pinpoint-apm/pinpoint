@@ -39,7 +39,7 @@
 | Apache HttpAsyncClient                                                                     | httpasyncclient            | 4.0     | 4.1.3   |                        | <AG>
 | \*Akka HTTP                                                                                | akka-http_2.12             | 10.1.0  | 10.1.x  |                        | 
 | \*[Kafka](https://github.com/naver/pinpoint/tree/master/plugins/kafka)                     | kafka-clients              | 0.11.0.1|         |                        |
-| GRPC                                                                                       | grpc-stub                  | 1.8.0   | 1.29.0  |                        | <AG>
+| GRPC                                                                                       | grpc-stub                  | 1.8.0   | 1.30.2  |                        | <AG>
 | \*[Reactor](https://github.com/naver/pinpoint/tree/master/plugins/reactor)                 | reactor-core               | 3.3.0   | 3.3.1   |                        |
 | \*[Reactor Netty](https://github.com/naver/pinpoint/tree/master/plugins/reactor-netty)     | reactor-netty              | 0.8.0   | 0.9.2   |                        | 
 |                                                                                            |                            |         |         |                        | 
