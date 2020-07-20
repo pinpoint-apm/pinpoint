@@ -1,8 +1,6 @@
 import { EventEmitter } from '@angular/core';
 
 import { ServerMapData } from './server-map-data.class';
-import { NodeGroup } from './node-group.class';
-import { Application } from 'app/core/models';
 
 export abstract class ServerMapDiagram {
     protected serverMapData: ServerMapData;
@@ -20,13 +18,4 @@ export abstract class ServerMapDiagram {
     abstract redraw(): void;
     abstract refresh(): void;
     abstract clear(): void;
-
-    setMergeState(mergeState: IServerMapMergeState): void {
-        this.serverMapData.setMergeState(mergeState);
-    }
-
-    resetMergeState(): void {
-        this.serverMapData.resetMergeState();
-        this.redraw();
-    }
 }

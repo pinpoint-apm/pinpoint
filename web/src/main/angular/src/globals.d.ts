@@ -316,8 +316,7 @@ interface IUIState {
 
 // @store
 interface IServerMapMergeState {
-    name: string;
-    state: boolean;
+    [key: string]: boolean;
 }
 
 // @store

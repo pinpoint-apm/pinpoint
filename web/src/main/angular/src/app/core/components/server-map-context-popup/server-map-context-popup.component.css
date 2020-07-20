@@ -15,8 +15,13 @@
     margin-right: 4px;
 }
 
+.l-checkbox-input {
+    cursor: pointer;
+}
+
 .l-item-label {
     margin-left: 4px;
+    cursor: pointer;
 }
 
 .l-list-item {

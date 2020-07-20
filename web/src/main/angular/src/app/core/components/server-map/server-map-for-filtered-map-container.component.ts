@@ -92,6 +92,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             this.mapData = new ServerMapData(
                 this.mergedNodeDataList,
                 this.mergedLinkDataList,
+                {},
                 Filter.instanceFromString(this.newUrlStateNotificationService.hasValue(UrlQuery.FILTER) ? this.newUrlStateNotificationService.getQueryValue(UrlQuery.FILTER) : '')
             );
             this.isEmpty = this.mapData.getNodeCount() === 0;
@@ -105,6 +106,16 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         this.connectStore();
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DISABLE).subscribe((disable: boolean) => {
             this.useDisable = disable;
+            this.cd.detectChanges();
+        });
+
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_MERGE_STATE_CHANGE).subscribe((mergeState: IServerMapMergeState) => {
+            this.mapData = new ServerMapData(
+                this.mapData.getOriginalNodeList(),
+                this.mapData.getOriginalLinkList(),
+                {...this.mapData.getMergeState(), ...mergeState},
+                Filter.instanceFromString(this.newUrlStateNotificationService.hasValue(UrlQuery.FILTER) ? this.newUrlStateNotificationService.getQueryValue(UrlQuery.FILTER) : '')
+            );
             this.cd.detectChanges();
         });
     }

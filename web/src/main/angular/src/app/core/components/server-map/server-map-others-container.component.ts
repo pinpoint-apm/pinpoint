@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Input, Inject, ChangeDetectionStrategy, C
 import { Subject } from 'rxjs';
 import { takeUntil, filter, skip } from 'rxjs/operators';
 
-import { WebAppSettingDataService, GutterEventService, DynamicPopupService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { WebAppSettingDataService, GutterEventService, DynamicPopupService, AnalyticsService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { ServerMapInteractionService } from './server-map-interaction.service';
 import { ServerMapData } from './class/server-map-data.class';
 import { SERVER_MAP_TYPE, ServerMapType } from './class/server-map-factory';
@@ -23,7 +23,7 @@ export class ServerMapOthersContainerComponent implements OnInit, OnDestroy {
     showLoading = true;
     funcServerMapImagePath: Function;
     constructor(
-        private changeDetectorRef: ChangeDetectorRef,
+        private cd: ChangeDetectorRef,
         private injector: Injector,
         private componentFactoryResolver: ComponentFactoryResolver,
         private webAppSettingDataService: WebAppSettingDataService,
@@ -32,6 +32,7 @@ export class ServerMapOthersContainerComponent implements OnInit, OnDestroy {
         private serverMapInteractionService: ServerMapInteractionService,
         private serverMapChangeNotificationService: ServerMapChangeNotificationService,
         private analyticsService: AnalyticsService,
+        private messageQueueService: MessageQueueService,
         @Inject(SERVER_MAP_TYPE) public type: ServerMapType
     ) {}
     ngOnInit() {
@@ -48,7 +49,12 @@ export class ServerMapOthersContainerComponent implements OnInit, OnDestroy {
         ).subscribe((data: IServerMapNotificationData) => {
             this.baseApplicationKey = data.baseApplication;
             this.mapData = data.serverMapData;
-            this.changeDetectorRef.detectChanges();
+            this.cd.detectChanges();
+        });
+
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_MERGE_STATE_CHANGE).subscribe((mergeState: IServerMapMergeState) => {
+            this.mapData = new ServerMapData(this.mapData.getOriginalNodeList(), this.mapData.getOriginalLinkList(), {...this.mapData.getMergeState(), ...mergeState});
+            this.cd.detectChanges();
         });
     }
     ngOnDestroy() {
@@ -57,7 +63,7 @@ export class ServerMapOthersContainerComponent implements OnInit, OnDestroy {
     }
     onRenderCompleted(msg: string): void {
         this.showLoading = false;
-        this.changeDetectorRef.detectChanges();
+        this.cd.detectChanges();
     }
     onClickNode($event: any): void {}
     onClickLink($event: any): void {}
