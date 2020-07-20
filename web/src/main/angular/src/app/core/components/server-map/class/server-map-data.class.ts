@@ -82,7 +82,7 @@ export class ServerMapData {
     private countMap: { [key: string]: ILinkCount };
     private nodeMap: IShortNodeInfoMap;
     private linkMap: IShortLinkInfoMap;
-    private mergeStateMap: IStateCheckMap = {};
+    // private mergeStateMap: IStateCheckMap = {};
     private groupServiceTypeMap: IStateCheckMap;
     private originalNodeMap: INodeInfoMap = {};
     private originalLinkMap: ILinkInfoMap = {};
@@ -90,7 +90,8 @@ export class ServerMapData {
     constructor(
         private originalNodeList: INodeInfo[],
         private originalLinkList: ILinkInfo[],
-        private filters?: Filter[]
+        private mergeStateMap: IServerMapMergeState = {},
+        private filters?: Filter[],
     ) {
         this.init();
     }
@@ -300,19 +301,6 @@ export class ServerMapData {
         this.linkList.push(newLink);
         this.linkMap[newLink.key] = newLink;
     }
-    setMergeState({name, state}: IServerMapMergeState): void {
-        this.mergeStateMap[name] = state;
-    }
-    resetMergeState(): void {
-        this.initVar();
-        this.extractNodeData();
-        this.extractLinkData();
-        this.extractLinkCountData();
-        this.extractServiceTypeWhichCanMerge();
-        this.mergeNodes();
-        this.mergeMultiLinkNodes();
-        this.addFilterFlag();
-    }
     removeByKey(dataList: any, dataMap: any, removeList: any) {
         const removeIndex: Array<number> = [];
         dataList.forEach((thing: any, index: number) => {
@@ -465,11 +453,17 @@ export class ServerMapData {
             return acc;
         }, []);
     }
-    getNodeList(): { [key: string]: any }[] {
+    getNodeList(): {[key: string]: any}[] {
         return this.nodeList;
     }
-    getLinkList(): { [key: string]: any }[] {
+    getLinkList(): {[key: string]: any}[] {
         return this.linkList;
+    }
+    getOriginalNodeList(): INodeInfo[] {
+        return this.originalNodeList;
+    }
+    getOriginalLinkList(): ILinkInfo[] {
+        return this.originalLinkList;
     }
     getGroupTypes(): Array<string> {
         const types: Array<string> = [];
@@ -480,11 +474,8 @@ export class ServerMapData {
         }
         return types;
     }
-    getMergeState(): any {
-        return Object.keys(this.mergeStateMap).reduce((accumulator: IStateCheckMap, key: string) => {
-            accumulator[key] = this.mergeStateMap[key];
-            return accumulator;
-        }, {});
+    getMergeState(): IServerMapMergeState {
+        return this.mergeStateMap;
     }
     getLinkListByFrom(from: string): ILinkInfo[] {
         const linkList: ILinkInfo[] = [];

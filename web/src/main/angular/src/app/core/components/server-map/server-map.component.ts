@@ -60,12 +60,6 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
         ).subscribe(() => {
             this.serverMapDiagram.refresh();
         });
-        this.serverMapInteractionService.onChangeMergeState$.pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((params: IServerMapMergeState) => {
-            this.serverMapDiagram.setMergeState(params);
-            this.serverMapDiagram.resetMergeState();
-        });
     }
 
     ngOnDestroy() {

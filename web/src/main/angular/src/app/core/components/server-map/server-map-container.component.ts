@@ -70,6 +70,11 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             this.cd.detectChanges();
         });
 
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_MERGE_STATE_CHANGE).subscribe((mergeState: IServerMapMergeState) => {
+            this.mapData = new ServerMapData(this.mapData.getOriginalNodeList(), this.mapData.getOriginalLinkList(), {...this.mapData.getMergeState(), ...mergeState});
+            this.cd.detectChanges();
+        });
+
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
             map((urlService: NewUrlStateNotificationService) => {
