@@ -79,7 +79,7 @@ public class ProfileApplicationListener implements ApplicationListener<Applicati
     }
 
     private Pair<String, String> log4j2Path(String pinpointActiveProfile) {
-        String logConfig = String.format("classpath:\\profiles\\%s\\log4j2.xml", pinpointActiveProfile);
+        String logConfig = String.format("classpath:profiles/%s/log4j2.xml", pinpointActiveProfile);
 
         return ImmutablePair.of("logging.config", logConfig);
     }
@@ -90,7 +90,7 @@ public class ProfileApplicationListener implements ApplicationListener<Applicati
      */
     @Override
     public int getOrder() {
-        return ConfigFileApplicationListener.DEFAULT_ORDER +1;
+        return ConfigFileApplicationListener.DEFAULT_ORDER + 1;
     }
 
 
