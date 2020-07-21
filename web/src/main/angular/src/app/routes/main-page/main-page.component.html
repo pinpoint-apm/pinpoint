@@ -19,10 +19,7 @@
 </header>
 <div class="l-main-container">
     <section class="l-main-section">
-        <article class="l-main-contents">
-            <router-outlet></router-outlet>
-        </article>
-        <pp-real-time-container *ngIf="enableRealTime$ | async"></pp-real-time-container>
+        <router-outlet></router-outlet>
     </section>
     <pp-side-bar-container *ngIf="isAppSelected$ | async"></pp-side-bar-container>
 </div>

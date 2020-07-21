@@ -10,3 +10,6 @@
     <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
 </div>
 <pp-server-map-container></pp-server-map-container>
+<ng-container *ngIf="enableRealTime$ | async">
+    <pp-real-time-container></pp-real-time-container>
+</ng-container>

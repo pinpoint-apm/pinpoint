@@ -1,4 +1,3 @@
-
 import { NgModule } from '@angular/core';
 
 import { SharedModule } from 'app/shared';
@@ -7,6 +6,7 @@ import { ServerMapSearchResultViewerModule } from 'app/core/components/server-ma
 import { ServerMapModule } from 'app/core/components/server-map';
 import { MainContentsContainerComponent } from './main-contents-container.component';
 import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
+import { RealTimeModule } from 'app/core/components/real-time';
 
 @NgModule({
     declarations: [
@@ -17,7 +17,8 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
         FixedPeriodMoverModule,
         ServerMapSearchResultViewerModule,
         ServerMapModule,
-        HelpViewerPopupModule
+        HelpViewerPopupModule,
+        RealTimeModule,
     ],
     exports: [
         MainContentsContainerComponent

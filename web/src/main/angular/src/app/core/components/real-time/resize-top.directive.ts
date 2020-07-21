@@ -1,6 +1,6 @@
 import { Directive, ElementRef, OnInit, OnDestroy, Renderer2, Input, HostListener } from '@angular/core';
 
-import { WindowRefService, WebAppSettingDataService } from 'app/shared/services';
+import { WebAppSettingDataService } from 'app/shared/services';
 
 @Directive({
     selector: '[ppResizeTop]'
@@ -8,54 +8,71 @@ import { WindowRefService, WebAppSettingDataService } from 'app/shared/services'
 export class ResizeTopDirective implements OnInit, OnDestroy {
     @Input() minHeight: number;
     @Input() maxHeightPadding: number;
-    private resizeElement: HTMLElement;
+
     private maxHeight: number;
     private dragging = false;
+    private resizeElement: HTMLElement;
+
     constructor(
         private elementRef: ElementRef,
         private renderer: Renderer2,
         private webAppSettingDataService: WebAppSettingDataService,
-        private windowRefService: WindowRefService
-    ) {
-        this.resizeElement = this.elementRef.nativeElement.parentElement;
-        this.maxHeight = this.windowRefService.nativeWindow.innerHeight;
-        this.windowRefService.nativeWindow.addEventListener('mouseup', this.onWindowMouseUp.bind(this));
-        this.windowRefService.nativeWindow.addEventListener('mousemove', this.onWindowMouseMove.bind(this));
-    }
+    ) {}
+
     ngOnInit() {
-        this.maxHeight = this.windowRefService.nativeWindow.innerHeight - this.maxHeightPadding;
+        window.addEventListener('mouseup', this.onWindowMouseUp.bind(this));
+        window.addEventListener('mousemove', this.onWindowMouseMove.bind(this));
+
+        this.maxHeight = window.innerHeight - this.maxHeightPadding;
+        this.resizeElement = this.elementRef.nativeElement.parentElement;
     }
+
     ngOnDestroy() {
-        this.windowRefService.nativeWindow.removeEventListener('mouseup', this.onWindowMouseUp);
-        this.windowRefService.nativeWindow.removeEventListener('mousemove', this.onWindowMouseMove);
+        window.removeEventListener('mouseup', this.onWindowMouseUp);
+        window.removeEventListener('mousemove', this.onWindowMouseMove);
     }
-    onWindowMouseUp($event: MouseEvent): void {
+
+    onWindowMouseUp(): void {
         this.dragging = false;
     }
-    onWindowMouseMove($event: MouseEvent): void {
-        if (this.dragging) {
-            this.resizeOn(-$event.movementY);
+
+    onWindowMouseMove({movementY}: MouseEvent): void {
+        if (!this.dragging) {
+            return;
         }
+
+        this.resize(-movementY);
     }
-    @HostListener('mousedown', ['$event']) onMouseDown($event) {
+
+    @HostListener('mousedown', ['$event']) onMouseDown() {
         this.dragging = true;
     }
-    @HostListener('mousemove', ['$event']) onMouseMove($event: MouseEvent) {
-        if (this.dragging) {
-            this.resizeOn(-$event.movementY);
+
+    @HostListener('mousemove', ['$event']) onMouseMove({movementY}: MouseEvent) {
+        if (!this.dragging) {
+            return;
         }
+
+        this.resize(-movementY);
     }
+
     @HostListener('mouseup') onMouseUp() {
         this.dragging = false;
     }
-    resizeOn(y: number): void {
-        if (y !== 0) {
-            const nextHeight = (Number.parseInt(this.resizeElement.style.height, 10) || this.minHeight) + y;
-            if (nextHeight >= this.minHeight && nextHeight <= this.maxHeight) {
-                this.webAppSettingDataService.setLayerHeight(nextHeight);
-                this.renderer.setStyle(this.resizeElement, 'height', nextHeight + 'px');
 
-            }
+    resize(dy: number): void {
+        if (dy === 0) {
+            return;
         }
+
+        const computedHeight = (Number(this.resizeElement.offsetHeight) || this.minHeight) + dy;
+        const isValidHeight = computedHeight >= this.minHeight && computedHeight <= this.maxHeight;
+
+        if (!isValidHeight) {
+            return;
+        }
+
+        this.webAppSettingDataService.setLayerHeight(computedHeight);
+        this.renderer.setStyle(this.resizeElement, 'height', `${computedHeight}px`);
     }
 }

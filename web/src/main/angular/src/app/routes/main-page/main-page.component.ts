@@ -18,7 +18,6 @@ const enum ScreenWidth {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MainPageComponent implements OnInit {
-    enableRealTime$: Observable<boolean>;
     isAppSelected$: Observable<boolean>;
     isScreenWideEnough$: Observable<boolean>;
 
@@ -32,14 +31,6 @@ export class MainPageComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.enableRealTime$ = combineLatest(
-            this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-                map((urlService: NewUrlStateNotificationService) => urlService.isRealTimeMode())
-            ),
-            this.webAppSettingDataService.useActiveThreadChart()
-        ).pipe(
-            map(([isRealTimeMode, useActiveThreadChart]: boolean[]) => isRealTimeMode && useActiveThreadChart)
-        );
         this.isAppSelected$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             map((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlPathId.APPLICATION))
         );

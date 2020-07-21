@@ -14,7 +14,6 @@
 }
 .l-main-section {
     display: flex;
-    flex-flow: column nowrap;
     flex: 1;
     /* background: #edf2f8; */
     --background-color: #edf2f8;
