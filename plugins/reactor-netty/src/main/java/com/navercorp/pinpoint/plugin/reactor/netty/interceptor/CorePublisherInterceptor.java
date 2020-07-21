@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2020 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,40 @@
 
 package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventEndPointInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 
 /**
  * @author jaehong.kim
  */
-public class ChannelOperationsInterceptor extends AsyncContextSpanEventEndPointInterceptor {
+public class CorePublisherInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
-    public ChannelOperationsInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public CorePublisherInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        final AsyncContext publisherAsyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
+        if (publisherAsyncContext != null && args != null && args.length >= 1) {
+            // Set AsyncContext to CoreSubscriber
+            if (args[0] instanceof AsyncContextAccessor) {
+                ((AsyncContextAccessor) (args[0]))._$PINPOINT$_setAsyncContext(publisherAsyncContext);
+                if(isDebug) {
+                    logger.debug("Set AsyncContext args[0]={}", args[0]);
+                }
+            }
+        }
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_INTERNAL);
         recorder.recordException(throwable);
