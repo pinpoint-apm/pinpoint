@@ -1,10 +1,11 @@
 :host {
     display: block;
     z-index: 30;
+    position: relative;
+    width: 100%;
 }
 .l-thread-chart-wrap {
     background: #d3dbe6;
-    border-top: 1px solid #ccd5e0;
     position: absolute;
     bottom: 0;
     left: 0;
@@ -20,6 +21,7 @@
     padding: 0 10px 0 25px;
     justify-content: space-between;
     align-items: center;
+    border-top: 1px solid #bdc7d5;
     border-bottom: 1px solid #bdc7d5;
     cursor: ns-resize;
     background: #f6f8fb;

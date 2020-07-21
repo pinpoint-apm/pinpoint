@@ -14,8 +14,7 @@
         <ng-container [ngSwitch]="activeView">
             <ng-container *ngSwitchCase="'serverMap'">
                 <pp-server-map-others-container
-                    [sourceType]="'TRANSACTION_LIST'"
-                    style="height: calc(100% - 84px)">
+                    [sourceType]="'TRANSACTION_LIST'">
                 </pp-server-map-others-container>
             </ng-container>
             <ng-container *ngSwitchCase="'timeline'">
