@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
@@ -45,9 +46,11 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.PredicateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -77,16 +80,19 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private final AgentDownloadInfoDao agentDownloadInfoDao;
 
+    private final JvmGcDao jvmGcDao;
+
     public AgentInfoServiceImpl(AgentEventService agentEventService,
                                 AgentWarningStatService agentWarningStatService, ApplicationIndexDao applicationIndexDao,
                                 AgentInfoDao agentInfoDao, AgentLifeCycleDao agentLifeCycleDao,
-                                AgentDownloadInfoDao agentDownloadInfoDao) {
+                                AgentDownloadInfoDao agentDownloadInfoDao, @Qualifier("jvmGcDaoFactory") JvmGcDao jvmGcDao) {
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
         this.agentWarningStatService = Objects.requireNonNull(agentWarningStatService, "agentWarningStatService");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
         this.agentDownloadInfoDao = Objects.requireNonNull(agentDownloadInfoDao, "agentDownloadInfoDao");
+        this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
     }
 
     @Override
@@ -127,6 +133,19 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             throw new IllegalArgumentException("Value must be greater than 0.");
         }
 
+        return getApplicationAgentHostList0(offset, limit, -1);
+    }
+
+    @Override
+    public ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays) {
+        if (offset <= 0 || limit <= 0) {
+            throw new IllegalArgumentException("Value must be greater than 0.");
+        }
+
+        return getApplicationAgentHostList0(offset, limit, durationDays);
+    }
+
+    private ApplicationAgentHostList getApplicationAgentHostList0(int offset, int limit, int durationDays) {
         List<String> applicationNameList = getApplicationNameList(applicationIndexDao.selectAllApplicationNames());
         if (offset > applicationNameList.size()) {
             return new ApplicationAgentHostList(offset, offset, applicationNameList.size());
@@ -137,14 +156,42 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         int startIndex = offset - 1;
         int endIndex = Math.min(startIndex + limit, applicationNameList.size());
         ApplicationAgentHostList applicationAgentHostList = new ApplicationAgentHostList(offset, endIndex, applicationNameList.size());
-        for (int i = startIndex ; i < endIndex; i++) {
+        for (int i = startIndex; i < endIndex; i++) {
             String applicationName = applicationNameList.get(i);
 
-            List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
-            List<AgentInfo> agentInfoList = this.agentInfoDao.getAgentInfos(agentIds, timeStamp);
+            List<String> agentIdList = getAgentIdList(applicationName, durationDays);
+            List<AgentInfo> agentInfoList = this.agentInfoDao.getAgentInfos(agentIdList, timeStamp);
             applicationAgentHostList.put(applicationName, agentInfoList);
         }
         return applicationAgentHostList;
+    }
+
+    private List<String> getAgentIdList(String applicationName, int durationDays) {
+        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+        if (CollectionUtils.isEmpty(agentIds)) {
+            return Collections.emptyList();
+        }
+
+        if (durationDays <= 0) {
+            return agentIds;
+        }
+
+        List<String> activeAgentIdList = new ArrayList<>();
+        final long toTimestamp = System.currentTimeMillis();
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, durationDays * -1);
+        final long fromTimestamp = cal.getTimeInMillis();
+        Range queryRange = Range.newRange(fromTimestamp, toTimestamp);
+        for (String agentId : agentIds) {
+            // FIXME This needs to be done with a more accurate information.
+            // If at any time a non-java agent is introduced, or an agent that does not collect jvm data,
+            // this will fail
+            boolean dataExists = this.jvmGcDao.agentStatExists(agentId, queryRange);
+            if (dataExists) {
+                activeAgentIdList.add(agentId);
+            }
+        }
+        return activeAgentIdList;
     }
 
     private List<String> getApplicationNameList(List<Application> applications) {
