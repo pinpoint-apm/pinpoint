@@ -13,7 +13,7 @@
 
     <Appenders>
         <Console name="console" target="system_out">
-            <PatternLayout pattern="${console_message_pattern}"/>
+            <PatternLayout pattern="${file_message_pattern}"/>
         </Console>
 
         <RollingFile name="rollingFile" filename="${logging_dir}/pinpoint-collector.log"
