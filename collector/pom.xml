@@ -35,6 +35,7 @@
         <spring.version>${spring5.version}</spring.version>
         <spring.security.version>${spring.security5.version}</spring.security.version>
 
+        <pinpoint.collector.executable.name>${project.artifactId}-boot-${project.version}</pinpoint.collector.executable.name>
     </properties>
 
     <dependencies>
@@ -313,7 +314,10 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>com.navercorp.pinpoint.collector.CollectorApp</mainClass>
-                    <classifier>boot</classifier>
+                    <outputDirectory>${project.build.directory}/deploy</outputDirectory>
+                    <executable>true</executable>
+                    <attach>false</attach>
+                    <finalName>${pinpoint.collector.executable.name}</finalName>
                 </configuration>
             </plugin>
         </plugins>
