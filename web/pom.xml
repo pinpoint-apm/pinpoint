@@ -39,6 +39,7 @@
 
         <spring.version>${spring5.version}</spring.version>
         <spring.security.version>${spring.security5.version}</spring.security.version>
+        <pinpoint.web.executable.name>${project.artifactId}-boot-${project.version}</pinpoint.web.executable.name>
     </properties>
 
     <dependencies>
@@ -374,7 +375,10 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>com.navercorp.pinpoint.web.WebApp</mainClass>
-                    <classifier>boot</classifier>
+                    <outputDirectory>${project.build.directory}/deploy</outputDirectory>
+                    <executable>true</executable>
+                    <attach>false</attach>
+                    <finalName>${pinpoint.web.executable.name}</finalName>
                 </configuration>
             </plugin>
             <!-- build.frontend -->
