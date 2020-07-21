@@ -44,12 +44,21 @@ public class ApplicationController {
     @Autowired
     private ApplicationService applicationService;
 
-    @RequestMapping(value = "/getApplicationHostInfo", method = RequestMethod.GET)
+    @RequestMapping(value = "/getApplicationHostInfo", method = RequestMethod.GET, params = {"!durationDays"})
     @ResponseBody
     public ApplicationAgentHostList getApplicationHostInfo (
             @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
             @RequestParam(value = "limit", required = false, defaultValue = "100") int limit) throws Exception {
         return agentInfoService.getApplicationAgentHostList(offset, limit);
+    }
+
+    @RequestMapping(value = "/getApplicationHostInfo", method = RequestMethod.GET, params = {"durationDays"})
+    @ResponseBody
+    public ApplicationAgentHostList getApplicationHostInfo (
+            @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+            @RequestParam(value = "limit", required = false, defaultValue = "100") int limit,
+            @RequestParam(value = "durationDays") int durationDays) throws Exception {
+        return agentInfoService.getApplicationAgentHostList(offset, limit, durationDays);
     }
 
     @RequestMapping(value = "/isAvailableApplicationName")
