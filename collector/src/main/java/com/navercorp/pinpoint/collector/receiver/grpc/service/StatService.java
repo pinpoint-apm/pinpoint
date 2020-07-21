@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
+import com.navercorp.pinpoint.grpc.trace.PCustomMetricMessage;
 import com.navercorp.pinpoint.grpc.trace.PStatMessage;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
 import com.navercorp.pinpoint.io.header.Header;
@@ -73,6 +74,9 @@ public class StatService extends StatGrpc.StatImplBase {
                     send(message, responseObserver);
                 } else if (statMessage.hasAgentStatBatch()) {
                     final Message<PAgentStatBatch> message = newMessage(statMessage.getAgentStatBatch(), DefaultTBaseLocator.AGENT_STAT_BATCH);
+                    send(message, responseObserver);
+                } else if (statMessage.hasCustomMetricMessage()) {
+                    final Message<PCustomMetricMessage> message = newMessage(statMessage.getCustomMetricMessage(), DefaultTBaseLocator.THRIFT_NOT_SUPPORTED);
                     send(message, responseObserver);
                 } else {
                     if (isDebug) {

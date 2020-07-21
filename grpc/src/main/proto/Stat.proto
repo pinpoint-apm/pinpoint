@@ -2,6 +2,7 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 import "ThreadDump.proto";
+import "CustomMetric.proto";
 
 option java_multiple_files = true;
 option java_package = "com.navercorp.pinpoint.grpc.trace";
@@ -17,6 +18,7 @@ message PStatMessage {
     oneof field {
         PAgentStat agentStat = 1;
         PAgentStatBatch agentStatBatch = 2;
+        PCustomMetricMessage customMetricMessage = 3;
     }
 }
 
