@@ -22,6 +22,12 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInternalNameMatcherOperand;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.SuperClassInternalNameMatcherOperand;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -32,18 +38,21 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsChannelMethodInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.CorePublisherInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.CoreSubscriberInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpServerHandleHttpServerStateInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpServerHandleStateInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.SubscribeOrReturnMethodInterceptor;
 
 import java.security.ProtectionDomain;
 
 /**
  * @author jaehong.kim
  */
-public class ReactorNettyPlugin implements ProfilerPlugin, TransformTemplateAware {
+public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private TransformTemplate transformTemplate;
+    private MatchableTransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -68,10 +77,17 @@ public class ReactorNettyPlugin implements ProfilerPlugin, TransformTemplateAwar
         transformTemplate.transform("reactor.netty.http.server.HttpServerHandle", HttpServerHandleTransform.class);
         transformTemplate.transform("reactor.netty.channel.ChannelOperations", ChannelOperationsTransform.class);
         transformTemplate.transform("reactor.netty.http.server.HttpServerOperations", HttpServerOperationsTransform.class);
+        // Reactor
+        final Matcher monoMatcher = Matchers.newPackageBasedMatcher("reactor.netty", new SuperClassInternalNameMatcherOperand("reactor.core.publisher.Mono", true));
+        transformTemplate.transform(monoMatcher, FluxAndMonoTransform.class);
+        final Matcher fluxMatcher = Matchers.newPackageBasedMatcher("reactor.netty", new SuperClassInternalNameMatcherOperand("reactor.core.publisher.Flux", true));
+        transformTemplate.transform(fluxMatcher, FluxAndMonoTransform.class);
+        final Matcher coreSubscriberMatcher = Matchers.newPackageBasedMatcher("reactor.netty", new InterfaceInternalNameMatcherOperand("reactor.core.CoreSubscriber", true));
+        transformTemplate.transform(coreSubscriberMatcher, CoreSubscriberTransform.class);
     }
 
     @Override
-    public void setTransformTemplate(TransformTemplate transformTemplate) {
+    public void setTransformTemplate(MatchableTransformTemplate transformTemplate) {
         this.transformTemplate = transformTemplate;
     }
 
@@ -120,6 +136,56 @@ public class ReactorNettyPlugin implements ProfilerPlugin, TransformTemplateAwar
             target.addField(AsyncContextAccessor.class);
 
             return target.toBytecode();
+        }
+    }
+
+    public static class FluxAndMonoTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            // Async Object
+            target.addField(AsyncContextAccessor.class);
+            addCorePublisherInterceptor(target);
+            // since 3.3.0
+            addCoreOperatorInterceptor(target);
+            addCoreSubscriberInterceptor(target);
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class CoreSubscriberTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            // Async Object
+            target.addField(AsyncContextAccessor.class);
+            addCorePublisherInterceptor(target);
+            // since 3.3.0
+            addCoreOperatorInterceptor(target);
+            addCoreSubscriberInterceptor(target);
+            return target.toBytecode();
+        }
+    }
+
+    private static void addCorePublisherInterceptor(final InstrumentClass target) throws InstrumentException {
+        final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "reactor.core.CoreSubscriber");
+        if (subscribeMethod != null) {
+            subscribeMethod.addInterceptor(CorePublisherInterceptor.class);
+        }
+    }
+
+    private static void addCoreOperatorInterceptor(final InstrumentClass target) throws InstrumentException {
+        final InstrumentMethod subscribeOrReturnMethod = target.getDeclaredMethod("subscribeOrReturn", "reactor.core.CoreSubscriber");
+        if (subscribeOrReturnMethod != null) {
+            subscribeOrReturnMethod.addInterceptor(SubscribeOrReturnMethodInterceptor.class);
+        }
+    }
+
+    private static void addCoreSubscriberInterceptor(final InstrumentClass target) throws InstrumentException {
+        // Skip onSubscribe
+        for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("onNext", "onError", "onComplete"))) {
+            method.addInterceptor(CoreSubscriberInterceptor.class);
         }
     }
 }

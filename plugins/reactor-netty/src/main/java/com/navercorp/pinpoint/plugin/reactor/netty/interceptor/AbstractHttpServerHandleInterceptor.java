@@ -49,11 +49,9 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
-
     private final TraceContext traceContext;
     private final MethodDescriptor methodDescriptor;
     private final boolean enableAsyncEndPoint;
-
     private final ServletRequestListener<HttpServerRequest> servletRequestListener;
 
     public AbstractHttpServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory<HttpServerRequest> requestRecorderFactory) {

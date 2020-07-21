@@ -25,10 +25,7 @@ import reactor.netty.http.server.HttpServerRequest;
  * @author Woonduk Kang(emeroad)
  */
 public class MethodFilterExtractor implements ParameterExtractor<HttpServerRequest> {
-
-
     private final Filter<String> excludeProfileMethodFilter;
-
     private final ParameterExtractor<HttpServerRequest> delegate;
 
     public MethodFilterExtractor(Filter<String> excludeProfileMethodFilter, ParameterExtractor<HttpServerRequest> delegate) {

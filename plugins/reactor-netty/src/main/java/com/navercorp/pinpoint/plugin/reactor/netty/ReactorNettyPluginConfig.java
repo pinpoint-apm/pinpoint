@@ -30,13 +30,14 @@ import java.util.List;
 public class ReactorNettyPluginConfig {
     private final boolean enable;
     private final List<String> bootstrapMains;
-
     private final boolean traceRequestParam;
     private final Filter<String> excludeUrlFilter;
     private final String realIpHeader;
     private final String realIpEmptyValue;
     private final Filter<String> excludeProfileMethodFilter;
     private final boolean enableAsyncEndPoint;
+    private final boolean traceSubscribeError;
+    private final List<String> traceSubscribeErrorExcludeMessageList;
 
     public ReactorNettyPluginConfig(ProfilerConfig config) {
         if (config == null) {
@@ -65,6 +66,9 @@ public class ReactorNettyPluginConfig {
         } else {
             this.excludeProfileMethodFilter = new SkipFilter<String>();
         }
+        // Reactor
+        this.traceSubscribeError = config.readBoolean("profiler.reactor-netty.trace.subscribe.error", true);
+        this.traceSubscribeErrorExcludeMessageList = config.readList("profiler.reactor-netty.trace.subscribe.error.exclude.message");
     }
 
     public boolean isEnable() {
@@ -99,6 +103,14 @@ public class ReactorNettyPluginConfig {
         return enableAsyncEndPoint;
     }
 
+    public boolean isTraceSubscribeError() {
+        return traceSubscribeError;
+    }
+
+    public List<String> getTraceSubscribeErrorExcludeMessageList() {
+        return traceSubscribeErrorExcludeMessageList;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ReactorNettyPluginConfig{");
@@ -110,6 +122,8 @@ public class ReactorNettyPluginConfig {
         sb.append(", realIpEmptyValue='").append(realIpEmptyValue).append('\'');
         sb.append(", excludeProfileMethodFilter=").append(excludeProfileMethodFilter);
         sb.append(", enableAsyncEndPoint=").append(enableAsyncEndPoint);
+        sb.append(", traceSubscribeError=").append(traceSubscribeError);
+        sb.append(", traceSubscribeErrorExcludeMessageList=").append(traceSubscribeErrorExcludeMessageList);
         sb.append('}');
         return sb.toString();
     }
