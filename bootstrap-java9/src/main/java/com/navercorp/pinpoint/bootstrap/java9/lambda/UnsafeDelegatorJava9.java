@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.bootstrap.java9.lambda;
 import com.navercorp.pinpoint.bootstrap.instrument.lambda.LambdaBytecodeHandler;
 import jdk.internal.misc.Unsafe;
 
+import java.util.Objects;
+
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -28,9 +30,8 @@ public class UnsafeDelegatorJava9 {
     private static LambdaBytecodeHandler handler;
 
     public static boolean register(LambdaBytecodeHandler handler) {
-        if (handler == null) {
-            throw new NullPointerException("handler");
-        }
+        Objects.requireNonNull(handler, "handler");
+
         final LambdaBytecodeHandler localCopy = UnsafeDelegatorJava9.handler;
         if (localCopy == null) {
             UnsafeDelegatorJava9.handler = handler;
@@ -42,9 +43,9 @@ public class UnsafeDelegatorJava9 {
     }
 
     public static Class<?> defineAnonymousClass(Class<?> hostClass, byte[] data, Object[] cpPatches) {
-        if (hostClass == null || data == null) {
-            throw new NullPointerException();
-        }
+        Objects.requireNonNull(hostClass, "hostClass");
+        Objects.requireNonNull(data, "data");
+
         if (hostClass.isArray() || hostClass.isPrimitive()) {
             throw new IllegalArgumentException();
         }

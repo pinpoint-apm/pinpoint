@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap.java9.module;
 import java.lang.instrument.Instrumentation;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -30,15 +31,9 @@ final class RedefineModuleUtils {
     }
 
     static void addReads(Instrumentation instrumentation, Module module, Set<Module> extraReads) {
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation");
-        }
-        if (module == null) {
-            throw new NullPointerException("module");
-        }
-        if (extraReads == null) {
-            throw new NullPointerException("extraReads");
-        }
+        Objects.requireNonNull(instrumentation, "instrumentation");
+        Objects.requireNonNull(module, "module");
+        Objects.requireNonNull(extraReads, "extraReads");
 
         // for debug
 //        final Set<Module> extraReads0 = extraReads;
@@ -50,15 +45,9 @@ final class RedefineModuleUtils {
     }
 
     static void addExports(Instrumentation instrumentation, Module module, Map<String, Set<Module>> extraExports) {
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation");
-        }
-        if (module == null) {
-            throw new NullPointerException("module");
-        }
-        if (extraExports == null) {
-            throw new NullPointerException("extraExports");
-        }
+        Objects.requireNonNull(instrumentation, "instrumentation");
+        Objects.requireNonNull(module, "module");
+        Objects.requireNonNull(extraExports, "extraExports");
 
         // for debug
         final Set<Module> extraReads = Set.of();
@@ -70,15 +59,9 @@ final class RedefineModuleUtils {
     }
 
     static void addOpens(Instrumentation instrumentation, Module module, Map<String, Set<Module>> extraOpens) {
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation");
-        }
-        if (module == null) {
-            throw new NullPointerException("module");
-        }
-        if (extraOpens == null) {
-            throw new NullPointerException("extraOpens");
-        }
+        Objects.requireNonNull(instrumentation, "instrumentation");
+        Objects.requireNonNull(module, "module");
+        Objects.requireNonNull(extraOpens, "extraOpens");
 
         // for debug
         final Set<Module> extraReads = Set.of();
@@ -90,15 +73,9 @@ final class RedefineModuleUtils {
     }
 
     public static void addUses(Instrumentation instrumentation, Module module, Set<Class<?>> extraUses) {
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation");
-        }
-        if (module == null) {
-            throw new NullPointerException("module");
-        }
-        if (extraUses == null) {
-            throw new NullPointerException("extraUses");
-        }
+        Objects.requireNonNull(instrumentation, "instrumentation");
+        Objects.requireNonNull(module, "module");
+        Objects.requireNonNull(extraUses, "extraUses");
 
         // for debug
         final Set<Module> extraReads = Set.of();
@@ -111,15 +88,9 @@ final class RedefineModuleUtils {
     }
 
     public static void addProvides(Instrumentation instrumentation, Module module, Map<Class<?>, List<Class<?>>> extraProvides) {
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation");
-        }
-        if (module == null) {
-            throw new NullPointerException("module");
-        }
-        if (extraProvides == null) {
-            throw new NullPointerException("extraProvides");
-        }
+        Objects.requireNonNull(instrumentation, "instrumentation");
+        Objects.requireNonNull(module, "module");
+        Objects.requireNonNull(extraProvides, "extraProvides");
 
         // for debug
         final Set<Module> extraReads = Set.of();

@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.module.JavaModule;
 import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
 
 import java.lang.instrument.Instrumentation;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -29,17 +30,12 @@ public class DefaultJavaModuleFactory implements JavaModuleFactory {
     private final Instrumentation instrumentation;
 
     public DefaultJavaModuleFactory(Instrumentation instrumentation) {
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation");
-        }
-        this.instrumentation = instrumentation;
+        this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
     }
 
     @Override
     public JavaModule wrapFromClass(Class<?> clazz) {
-        if (clazz == null) {
-            throw new NullPointerException("clazz");
-        }
+        Objects.requireNonNull(clazz, "clazz");
         return new Java9Module(instrumentation, clazz.getModule());
     }
 
@@ -61,17 +57,15 @@ public class DefaultJavaModuleFactory implements JavaModuleFactory {
 
     @Override
     public Object getUnnamedModule(ClassLoader classLoader) {
-        if (classLoader == null) {
-            throw new NullPointerException("classLoader");
-        }
+        Objects.requireNonNull(classLoader, "classLoader");
+
         return classLoader.getUnnamedModule();
     }
 
     @Override
     public Object getModule(Class<?> clazz) {
-        if (clazz == null) {
-            throw new NullPointerException("clazz");
-        }
+        Objects.requireNonNull(clazz, "clazz");
+
         return clazz.getModule();
     }
 }

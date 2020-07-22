@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Configuration status="info">
+<Configuration status="INFO">
     <Properties>
         <Property name="logging_dir">${sys:pinpoint.log}/${sys:pinpoint.agentId}/</Property>
 
@@ -42,7 +42,7 @@
             <AppenderRef ref="rollingFile"/>
         </Logger>
 
-        <Root level="DEBUG">
+        <Root level="INFO">
             <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>
         </Root>

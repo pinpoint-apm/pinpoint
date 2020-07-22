@@ -27,6 +27,7 @@ import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -43,18 +44,10 @@ public class ModuleSupport {
     private final List<String> allowedProviders;
 
     ModuleSupport(Instrumentation instrumentation, List<String> allowedProviders) {
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation");
-        }
-        if (allowedProviders == null) {
-            throw new NullPointerException("allowedProviders");
-        }
-        this.instrumentation = instrumentation;
+        this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
+        this.allowedProviders = Objects.requireNonNull(allowedProviders, "allowedProviders");
         this.javaBaseModule = wrapJavaModule(Object.class);
         this.bootstrapModule = wrapJavaModule(this.getClass());
-
-        this.allowedProviders = allowedProviders;
-
     }
 
     public void setup() {

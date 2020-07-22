@@ -22,6 +22,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 
 public class Java9ClassLoader extends URLClassLoader {
 
@@ -41,9 +42,8 @@ public class Java9ClassLoader extends URLClassLoader {
         super(name, urls, parent);
         this.parent = parent;
 
-        if (libClass == null) {
-            throw new NullPointerException("profilerLibClass");
-        }
+        Objects.requireNonNull(libClass, "libClass");
+
         this.profilerLibClass = new ProfilerLibClass(libClass);
     }
 

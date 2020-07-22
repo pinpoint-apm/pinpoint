@@ -24,6 +24,7 @@ import java.lang.module.ModuleDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -32,16 +33,13 @@ import java.util.Set;
  */
 public class Java9Module implements JavaModule {
 
-//    private final ModuleLogger logger = ModuleLogger.getLogger(Java9Module.class.getName());
+    //    private final ModuleLogger logger = ModuleLogger.getLogger(Java9Module.class.getName());
     private final Instrumentation instrumentation;
     private final Module module;
 
 
     Java9Module(Instrumentation instrumentation, Module module) {
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation");
-        }
-        this.instrumentation = instrumentation;
+        this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
         this.module = module;
     }
 
@@ -86,10 +84,9 @@ public class Java9Module implements JavaModule {
 
     @Override
     public void addExports(String packageName, JavaModule targetJavaModule) {
-        if (packageName == null) {
-            throw new NullPointerException("packageName");
-        }
-         final Java9Module target = checkJavaModule(targetJavaModule);
+        Objects.requireNonNull(packageName, "packageName");
+
+        final Java9Module target = checkJavaModule(targetJavaModule);
 
 //        logger.info("addExports module:" + module.getName() + " pkg:" + packageName + " target:" + target);
         final Map<String, Set<Module>> extraModules = Map.of(packageName, Set.of(target.module));
@@ -97,9 +94,8 @@ public class Java9Module implements JavaModule {
     }
 
     private Java9Module checkJavaModule(JavaModule targetJavaModule) {
-        if (targetJavaModule == null) {
-            throw new NullPointerException("targetJavaModule");
-        }
+        Objects.requireNonNull(targetJavaModule, "targetJavaModule");
+
         if (targetJavaModule instanceof Java9Module) {
             return (Java9Module) targetJavaModule;
         }
@@ -108,9 +104,8 @@ public class Java9Module implements JavaModule {
 
     @Override
     public void addOpens(String packageName, JavaModule javaModule) {
-        if (packageName == null) {
-            throw new NullPointerException("packageName");
-        }
+        Objects.requireNonNull(packageName, "packageName");
+
         final Java9Module target = checkJavaModule(javaModule);
 
 //        logger.info("addExports module:" + module.getName() + " pkg:" + packageName + " target:" + target);
@@ -122,9 +117,8 @@ public class Java9Module implements JavaModule {
 
     @Override
     public void addUses(Class<?> target) {
-        if (target == null) {
-            throw new NullPointerException("target");
-        }
+        Objects.requireNonNull(target, "target");
+
 //        logger.info("addUses module:" + module.getName() +" target:" + target);
         // for debug
         final Set<Class<?>> extraUses = Set.of(target);
@@ -133,13 +127,8 @@ public class Java9Module implements JavaModule {
 
     @Override
     public void addProvides(Class<?> service, List<Class<?>> providerList) {
-        if (service == null) {
-            throw new NullPointerException("target");
-        }
-
-        if (providerList == null) {
-            throw new NullPointerException("list");
-        }
+        Objects.requireNonNull(service, "service");
+        Objects.requireNonNull(providerList, "providerList");
 
 //        logger.info("addProvides module:" + module.getName() +" service:" + service + " providerList:" + providerList);
         // for debug
@@ -149,18 +138,16 @@ public class Java9Module implements JavaModule {
 
     @Override
     public boolean isExported(String packageName, JavaModule targetJavaModule) {
-        if (packageName == null) {
-            throw new NullPointerException("packageName");
-        }
+        Objects.requireNonNull(packageName, "packageName");
+
         final Java9Module target = checkJavaModule(targetJavaModule);
         return module.isExported(packageName, target.module);
     }
 
     @Override
     public boolean isOpen(String packageName, JavaModule targetJavaModule) {
-        if (packageName == null) {
-            throw new NullPointerException("packageName");
-        }
+        Objects.requireNonNull(packageName, "packageName");
+
         final Java9Module target = checkJavaModule(targetJavaModule);
         return module.isOpen(packageName, target.module);
     }

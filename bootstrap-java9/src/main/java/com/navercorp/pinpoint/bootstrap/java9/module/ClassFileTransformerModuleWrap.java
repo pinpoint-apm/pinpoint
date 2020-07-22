@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.module.ClassFileTransformModuleAdaptor;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -30,10 +31,7 @@ public class ClassFileTransformerModuleWrap implements ClassFileTransformer {
     private final ClassFileTransformModuleAdaptor delegate;
 
     public ClassFileTransformerModuleWrap(ClassFileTransformModuleAdaptor delegate) {
-        if (delegate == null) {
-            throw new NullPointerException("delegate");
-        }
-        this.delegate = delegate;
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
     @Override
