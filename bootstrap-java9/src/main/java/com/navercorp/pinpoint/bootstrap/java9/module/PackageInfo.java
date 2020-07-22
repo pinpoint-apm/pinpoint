@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.bootstrap.java9.module;
 
 import com.navercorp.pinpoint.bootstrap.module.Providers;
-import com.navercorp.pinpoint.common.util.Assert;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -30,8 +30,8 @@ public class PackageInfo {
     private final List<Providers> providersList;
 
     public PackageInfo(Set<String> packageSet, List<Providers> providersList) {
-        this.packageSet = Assert.requireNonNull(packageSet, "packageSet");
-        this.providersList = Assert.requireNonNull(providersList, "providersList");
+        this.packageSet = Objects.requireNonNull(packageSet, "packageSet");
+        this.providersList = Objects.requireNonNull(providersList, "providersList");
     }
 
     public Set<String> getPackage() {

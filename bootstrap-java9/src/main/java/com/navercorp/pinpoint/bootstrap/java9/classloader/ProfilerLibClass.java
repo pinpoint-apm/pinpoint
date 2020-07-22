@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.java9.classloader;
 
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -30,9 +31,7 @@ public class ProfilerLibClass {
     private final String[] libClass;
 
     public ProfilerLibClass(List<String> libClass) {
-        if (libClass == null) {
-            throw new NullPointerException("libClass");
-        }
+        Objects.requireNonNull(libClass, "libClass");
         this.libClass = libClass.toArray(new String[0]);
     }
 

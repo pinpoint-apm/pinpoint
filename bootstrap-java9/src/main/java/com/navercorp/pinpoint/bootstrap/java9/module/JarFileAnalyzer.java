@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.java9.module;
 
 import com.navercorp.pinpoint.bootstrap.module.Providers;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ClassUtils;
 
 import java.io.IOException;
@@ -26,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -47,7 +47,7 @@ public class JarFileAnalyzer implements PackageAnalyzer {
 
 
     JarFileAnalyzer(JarFile jarFile) {
-        this.jarFile = Assert.requireNonNull(jarFile, "jarFile");
+        this.jarFile = Objects.requireNonNull(jarFile, "jarFile");
         this.filter = new PackageFilter();
         this.serviceLoaderEntryFilter = new DefaultServiceLoaderEntryFilter();
     }

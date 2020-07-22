@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.jar.JarFile;
 
@@ -42,12 +43,8 @@ class ModuleBuilder {
     private final ModuleLogger logger = ModuleLogger.getLogger(getClass().getName());
 
     Module defineModule(String moduleName, ClassLoader classLoader, URL[] urls) {
-        if (moduleName == null) {
-            throw new NullPointerException("moduleName");
-        }
-        if (urls == null) {
-            throw new NullPointerException("urls");
-        }
+        Objects.requireNonNull(moduleName, "moduleName");
+        Objects.requireNonNull(urls, "urls");
         if (urls.length == 0) {
             throw new IllegalArgumentException("urls.length is 0");
         }
