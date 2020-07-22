@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.SqlModule;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.Assert;
 import org.slf4j.Marker;
 
 import java.math.BigDecimal;
@@ -33,66 +34,12 @@ import java.util.Map;
 /**
  * @author emeroad
  */
-public class Slf4jPLoggerAdapter implements PLogger {
-    public static final int BUFFER_SIZE = 512;
-
-    private static Object EXIST = new Object();
-
-    private static final Map<Class<?>, Object> SIMPLE_TYPE = prepare();
-
-    private static Map<Class<?>, Object> prepare() {
-        final Map<Class<?>, Object> map = new IdentityHashMap<Class<?>, Object>(64);
-        put(map , String.class);
-        put(map, Boolean.class);
-        put(map, boolean.class);
-        put(map, Byte.class);
-        put(map, byte.class);
-        put(map, Short.class);
-        put(map, short.class);
-        put(map, Integer.class);
-        put(map, int.class);
-        put(map, Long.class);
-        put(map, long.class);
-        put(map, Float.class);
-        put(map, float.class);
-        put(map, Double.class);
-        put(map, double.class);
-        put(map, Character.class);
-        put(map, char.class);
-        put(map, BigDecimal.class);
-        put(map, StringBuffer.class);
-        put(map, BigInteger.class);
-        put(map, java.util.Date.class);
-        put(map, Class.class);
-        put(map, Calendar.class);
-        put(map, GregorianCalendar.class);
-        put(map, URL.class);
-        put(map, Object.class);
-
-        if (SqlModule.isSqlModuleEnable()) {
-            addSqlModuleSupport(map);
-        }
-        return map;
-    }
-
-    private static void addSqlModuleSupport(Map<Class<?>, Object> map) {
-        put(map, SqlModule.getSqlDate());
-        put(map, SqlModule.getSqlTime());
-        put(map, SqlModule.getSqlTimestamp());
-    }
-
-    private static void put(Map<Class<?>, Object> map, Class<?> key) {
-        map.put(key, EXIST);
-    }
-
+public class Slf4jPLoggerAdapter extends AbstractLoggerAdapter implements PLogger  {
 
     private final org.slf4j.Logger logger;
 
     public Slf4jPLoggerAdapter(org.slf4j.Logger logger) {
-        if (logger == null) {
-            throw new NullPointerException("logger");
-        }
-        this.logger = logger;
+        this.logger = Assert.requireNonNull(logger, "logger");
     }
 
     public String getName() {
@@ -101,156 +48,65 @@ public class Slf4jPLoggerAdapter implements PLogger {
 
     @Override
     public void beforeInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        StringBuilder sb = new StringBuilder(BUFFER_SIZE);
-        sb.append("BEFORE ");
-        logMethod(sb, target, className, methodName, parameterDescription, args);
-        logger.debug(sb.toString());
+        if (logger.isDebugEnabled()) {
+            StringBuilder sb = logMethod(TYPE.BEFORE, target, className, methodName, parameterDescription, args);
+            logger.debug(sb.toString());
+        }
     }
 
     @Override
     public void beforeInterceptor(Object target, Object[] args) {
-        StringBuilder sb = new StringBuilder(BUFFER_SIZE);
-        sb.append("BEFORE ");
-        logMethod(sb, target, args);
-        logger.debug(sb.toString());
+        if (logger.isDebugEnabled()) {
+            StringBuilder sb = logMethod(TYPE.BEFORE, target, args);
+            logger.debug(sb.toString());
+        }
+
     }
 
     @Override
     public void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
-        StringBuilder sb = new StringBuilder(BUFFER_SIZE);
-        sb.append("AFTER ");
-        logMethod(sb, target, className, methodName, parameterDescription, args);
-        logResult(sb, result, throwable);
-        if (throwable == null) {
-            logger.debug(sb.toString());
-        } else {
-            logger.debug(sb.toString(), throwable);
+        if (logger.isDebugEnabled()) {
+            StringBuilder sb = logMethod(TYPE.AFTER, target, className, methodName, parameterDescription, args);
+            logResult(sb, result, throwable);
+            String log = sb.toString();
+            if (throwable == null) {
+                debug(log);
+            } else {
+                debug(log, throwable);
+            }
         }
     }
-
 
 
     @Override
     public void afterInterceptor(Object target, Object[] args, Object result, Throwable throwable) {
-        StringBuilder sb = new StringBuilder(BUFFER_SIZE);
-        sb.append("AFTER ");
-        logMethod(sb, target, args);
-        logResult(sb, result, throwable);
-        if (throwable == null) {
-            logger.debug(sb.toString());
-        } else {
-            logger.debug(sb.toString(), throwable);
+        if (logger.isDebugEnabled()) {
+            StringBuilder sb = logMethod(TYPE.AFTER, target, args);
+            logResult(sb, result, throwable);
+            String log = sb.toString();
+            if (throwable == null) {
+                debug(log);
+            } else {
+                debug(log, throwable);
+            }
         }
     }
 
-    private static void logResult(StringBuilder sb, Object result, Throwable throwable) {
-        if (throwable == null) {
-            sb.append(" result:");
-            sb.append(normalizedParameter(result));
-        }  else {
-            sb.append(" Caused:");
-            sb.append(throwable.getMessage());
-        }
-    }
 
     @Override
     public void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        StringBuilder sb = new StringBuilder(BUFFER_SIZE);
-        sb.append("AFTER ");
-        logMethod(sb, target, className, methodName, parameterDescription, args);
-        logger.debug(sb.toString());
+        if (logger.isDebugEnabled()) {
+            StringBuilder sb = logMethod(TYPE.AFTER, target, className, methodName, parameterDescription, args);
+            logger.debug(sb.toString());
+        }
     }
 
     @Override
     public void afterInterceptor(Object target, Object[] args) {
-        StringBuilder sb = new StringBuilder(BUFFER_SIZE);
-        sb.append("AFTER ");
-        logMethod(sb, target, args);
-        logger.debug(sb.toString());
-    }
-
-    private static void logMethod(StringBuilder sb, Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        sb.append(getTarget(target));
-        sb.append(' ');
-        sb.append(className);
-        sb.append(' ');
-        sb.append(methodName);
-        sb.append(parameterDescription);
-        sb.append(" args:");
-        appendParameterList(sb, args);
-    }
-
-    private static void logMethod(StringBuilder sb, Object target, Object[] args) {
-        sb.append(getTarget(target));
-        sb.append(' ');
-        sb.append(" args:");
-        appendParameterList(sb, args);
-    }
-
-    private static String getTarget(Object target) {
-        // Use class name instead of target.toString() because latter could cause side effects.
-        if (target == null) {
-            return "target=null";
-        } else {
-            return target.getClass().getName();
+        if (logger.isDebugEnabled()) {
+            StringBuilder sb = logMethod(TYPE.AFTER, target, args);
+            logger.debug(sb.toString());
         }
-    }
-
-    private static void appendParameterList(StringBuilder sb, Object[] args) {
-        if (ArrayUtils.isEmpty(args)) {
-            sb.append("()");
-            return;
-        }
-        if (args.length > 0) {
-            sb.append('(');
-            sb.append(normalizedParameter(args[0]));
-            for (int i = 1; i < args.length; i++) {
-                sb.append(", ");
-                sb.append(normalizedParameter(args[i]));
-            }
-            sb.append(')');
-        }
-    }
-
-    private static String normalizedParameter(Object arg) {
-        // Do not call toString() because it could cause some side effects.
-        if (arg == null) {
-            return "null";
-        } else {
-            // Check if arg is simple type which is safe to invoke toString()  
-            if (isSimpleType(arg)) {
-                return arg.toString();
-            } else {
-                return getSimpleName(arg.getClass());
-            }
-        }
-    }
-
-    static boolean isSimpleType(Object arg) {
-        final Object find = SIMPLE_TYPE.get(arg.getClass());
-        if (find == null) {
-            return false;
-        }
-        return true;
-    }
-
-    static String getSimpleName(final Class<?> clazz) {
-        if (clazz.isArray()) {
-            return getSimpleName(clazz.getComponentType()) + "[]";
-        }
-
-        final String simpleName = clazz.getName();
-        if (simpleName == null) {
-            // Defense
-            return "";
-        }
-
-        final int lastPackagePosition = simpleName.lastIndexOf('.');
-        if (lastPackagePosition != -1) {
-            // Strip the package name
-            return simpleName.substring(lastPackagePosition + 1);
-        }
-        return simpleName;
     }
 
     @Override

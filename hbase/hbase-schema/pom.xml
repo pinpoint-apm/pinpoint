@@ -25,6 +25,7 @@
         <version>2.1.0-SNAPSHOT</version>
     </parent>
 
+
     <artifactId>pinpoint-hbase-schema</artifactId>
     <packaging>jar</packaging>
 

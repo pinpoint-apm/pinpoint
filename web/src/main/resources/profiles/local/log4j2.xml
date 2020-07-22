@@ -7,8 +7,8 @@
         <Property name="rolling-date-format">%d{yyyy-MM-dd}</Property>
         <Property name="backupsize">1GB</Property>
 
-        <Property name="console_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %clr{%-5level} %clr{%-40.40logger{1.}}{cyan} : %msg:%L%n</Property>
-        <Property name="file_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.} : %msg:%L%n</Property>
+        <Property name="console_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %clr{%-5level} %clr{%-40.40logger{1.}}{cyan}:%3L -- %msg%n</Property>
+        <Property name="file_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.}:%3L -- %msg%n</Property>
     </Properties>
 
     <Appenders>
@@ -22,7 +22,7 @@
                 <Pattern>${file_message_pattern}</Pattern>
             </PatternLayout>
             <Policies>
-                <TimeBasedTriggeringPolicy interval="24" modulate="true"/>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
                 <SizeBasedTriggeringPolicy size="${backupsize}"/>
             </Policies>
             <DefaultRolloverStrategy max="20">

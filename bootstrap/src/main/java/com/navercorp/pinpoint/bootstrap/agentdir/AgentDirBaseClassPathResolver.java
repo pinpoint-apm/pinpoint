@@ -33,7 +33,7 @@ import java.util.regex.Matcher;
  */
 public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
-    private final BootLogger logger = BootLogger.getLogger(this.getClass().getName());
+    private final BootLogger logger = BootLogger.getLogger(this.getClass());
 
     static final String VERSION_PATTERN = "(-[0-9]+\\.[0-9]+\\.[0-9]+((\\-SNAPSHOT)|(-RC[0-9]+))?)?";
 

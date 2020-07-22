@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration status="info">
+    <Properties>
+        <Property name="logging_dir">${sys:pinpoint.log}/${sys:pinpoint.agentId}/</Property>
+
+        <Property name="rolling-date-format">%d{yyyy-MM-dd}</Property>
+        <Property name="backupsize">50m</Property>
+
+        <Property name="file_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.}:%-3L -- %msg%n
+        </Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="console" target="system_out">
+            <PatternLayout pattern="${file_message_pattern}"/>
+        </Console>
+
+        <RollingFile name="rollingFile" filename="${logging_dir}/pinpoint.log"
+                     filepattern="${logging_dir}/pinpoint-${rolling-date-format}-%i.log">
+            <PatternLayout>
+                <Pattern>${file_message_pattern}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20">
+                <Delete basePath="${logging_dir}/" maxDepth="1">
+                    <IfFileName glob="pinpoint-*-*.log">
+                        <IfAny>
+                            <IfAccumulatedFileSize exceeds="${backupsize}" />
+                            <IfAccumulatedFileCount exceeds="20" />
+                        </IfAny>
+                    </IfFileName>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.navercorp.pinpoint" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Logger>
+
+        <Root level="DEBUG">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Root>
+    </Loggers>
+</Configuration>

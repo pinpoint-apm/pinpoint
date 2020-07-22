@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.profiler.context.module.DefaultModuleFactoryResolv
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactoryResolver;
 import com.navercorp.pinpoint.profiler.context.provider.ShutdownHookRegisterProvider;
-import com.navercorp.pinpoint.profiler.logging.Log4jLoggingSystem;
+import com.navercorp.pinpoint.profiler.logging.Log4j2LoggingSystem;
 import com.navercorp.pinpoint.profiler.logging.LoggingSystem;
 import com.navercorp.pinpoint.profiler.util.SystemPropertyDumper;
 import com.navercorp.pinpoint.rpc.ClassPreLoader;
@@ -61,8 +61,9 @@ public class DefaultAgent implements Agent {
         Assert.requireNonNull(agentOption.getInstrumentation() , "instrumentation");
         Assert.requireNonNull(agentOption.getProfilerConfig() , "profilerConfig");
 
+        this.profilerConfig = agentOption.getProfilerConfig();
 
-        final String logConfigPath = getLogConfigPath(agentOption.getProfilerConfig());
+        final String logConfigPath = getLogConfigPath(profilerConfig);
         this.loggingSystem = newLoggingSystem(logConfigPath);
         this.loggingSystem.start();
 
@@ -80,14 +81,13 @@ public class DefaultAgent implements Agent {
         }
         preloadOnStartup();
 
-        this.profilerConfig = agentOption.getProfilerConfig();
-
         this.applicationContext = newApplicationContext(agentOption);
 
     }
 
-    private LoggingSystem newLoggingSystem(String logConfigPath) {
-        return new Log4jLoggingSystem(logConfigPath);
+    private LoggingSystem newLoggingSystem(String profilePath) {
+//        return new Log4jLoggingSystem(logConfigPath);
+        return new Log4j2LoggingSystem(profilePath);
     }
 
     protected ApplicationContext newApplicationContext(AgentOption agentOption) {
@@ -125,7 +125,7 @@ public class DefaultAgent implements Agent {
     private String getLogConfigPath(ProfilerConfig config) {
         final String location = config.readString(Profiles.LOG_CONFIG_LOCATION_KEY, null);
         if (location == null) {
-            throw new IllegalStateException("$PINPOINT_DIR/profiles/${profile}/log4j.xml not found");
+            throw new IllegalStateException("logPath($PINPOINT_DIR/profiles/${profile}/) not found");
         }
         return location;
     }

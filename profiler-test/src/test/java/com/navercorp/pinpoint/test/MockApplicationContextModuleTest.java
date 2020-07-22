@@ -48,7 +48,7 @@ public class MockApplicationContextModuleTest {
     public void test() {
         ProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
         when(profilerConfig.getStaticResourceCleanup()).thenReturn(true);
-        URL resource = getClass().getResource("/log4j.xml");
+        URL resource = getClass().getResource("/");
         when(profilerConfig.readString(Profiles.LOG_CONFIG_LOCATION_KEY, null)).thenReturn(resource.getPath());
         Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
 

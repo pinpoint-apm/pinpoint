@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  */
 public class BootDir {
 
-    private final BootLogger logger = BootLogger.getLogger(this.getClass().getName());
+    private final BootLogger logger = BootLogger.getLogger(this.getClass());
 
     private final List<String> jars;
 

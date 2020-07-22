@@ -67,6 +67,7 @@ public class ProfilerLibs {
 
                 "org.apache.commons.lang",
                 "org.apache.log4j",
+                "org.apache.logging.log4j",
                 "com.nhncorp.nelo2"
         };
 

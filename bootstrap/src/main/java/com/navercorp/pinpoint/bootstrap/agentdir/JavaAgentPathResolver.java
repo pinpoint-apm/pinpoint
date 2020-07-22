@@ -66,7 +66,7 @@ public class JavaAgentPathResolver {
     }
 
     static class ClassAgentPathFinder implements AgentPathFinder {
-        private final BootLogger logger = BootLogger.getLogger(ClassAgentPathFinder.class.getName());
+        private final BootLogger logger = BootLogger.getLogger(getClass());
 
         private final String className;
 
@@ -115,7 +115,7 @@ public class JavaAgentPathResolver {
     @Deprecated
     static class InputArgumentAgentPathFinder implements AgentPathFinder {
 
-        private final BootLogger logger = BootLogger.getLogger(InputArgumentAgentPathFinder.class.getName());
+        private final BootLogger logger = BootLogger.getLogger(getClass());
         
         static final String JAVA_AGENT_OPTION = "-javaagent:";
         

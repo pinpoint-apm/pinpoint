@@ -33,7 +33,7 @@ class SimplePropertyLoader implements PropertyLoader {
 
     private static final String SEPARATOR = File.separator;
 
-    private final BootLogger logger = BootLogger.getLogger(SimplePropertyLoader.class.getName());
+    private final BootLogger logger = BootLogger.getLogger(this.getClass());
     private final SimpleProperty systemProperty;
 
     private final String agentRootPath;

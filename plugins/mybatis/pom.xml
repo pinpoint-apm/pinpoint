@@ -24,6 +24,7 @@
             <artifactId>mybatis</artifactId>
             <!-- 3.5.x java8 -->
             <version>3.2.8</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

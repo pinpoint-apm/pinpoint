@@ -22,7 +22,7 @@
                 <Pattern>${file_message_pattern}</Pattern>
             </PatternLayout>
             <Policies>
-                <TimeBasedTriggeringPolicy interval="24" modulate="true"/>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
                 <SizeBasedTriggeringPolicy size="${backupsize}"/>
             </Policies>
             <DefaultRolloverStrategy max="20">
@@ -43,7 +43,7 @@
                 <Pattern>${file_message_pattern}</Pattern>
             </PatternLayout>
             <Policies>
-                <TimeBasedTriggeringPolicy Interval="24" modulate="true"/>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
             </Policies>
             <DefaultRolloverStrategy>
                 <Delete basePath="${logging_dir}/" maxDepth="1">

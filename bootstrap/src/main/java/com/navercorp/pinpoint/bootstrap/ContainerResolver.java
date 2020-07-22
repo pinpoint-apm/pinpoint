@@ -30,7 +30,7 @@ public class ContainerResolver {
     public static final String CONTAINER_PROPERTY_KEY = "pinpoint.container";
     public static final String KUBERNETES_SERVICE_HOST = "KUBERNETES_SERVICE_HOST";
 
-    private final BootLogger logger = BootLogger.getLogger(ContainerResolver.class.getName());
+    private final BootLogger logger = BootLogger.getLogger(this.getClass());
 
     private final Properties properties;
 

@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.common.util.IdValidateUtils;
  */
 public class IdValidator {
 
-    private final BootLogger logger = BootLogger.getLogger(IdValidator.class.getName());
+    private final BootLogger logger = BootLogger.getLogger(this.getClass());
 
     private static final int MAX_ID_LENGTH = 24;
 
