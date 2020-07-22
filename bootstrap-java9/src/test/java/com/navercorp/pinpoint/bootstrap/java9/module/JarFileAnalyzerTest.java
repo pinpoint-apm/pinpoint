@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.bootstrap.java9.module;
 
 import com.navercorp.pinpoint.bootstrap.module.Providers;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -85,16 +84,15 @@ public class JarFileAnalyzerTest {
     @Test
     public void providers() throws IOException {
         // Jar
-        // org.apache.commons.logging.LogFactory=[org.apache.commons.logging.impl.SLF4JLogFactory]
-        URL url = CodeSourceUtils.getCodeLocation(LogFactory.class);
+        URL url = CodeSourceUtils.getCodeLocation(com.mysql.jdbc.Driver.class);
 
         JarFile jarFile = new JarFile(url.getFile());
         PackageAnalyzer analyzer = new JarFileAnalyzer(jarFile);
         PackageInfo analyze = analyzer.analyze();
         List<Providers> providers = analyze.getProviders();
         Providers first = providers.get(0);
-        Assert.assertEquals(first.getService(), "org.apache.commons.logging.LogFactory");
-        Assert.assertTrue(first.getProviders().contains("org.apache.commons.logging.impl.SLF4JLogFactory"));
+        Assert.assertEquals(first.getService(), "java.sql.Driver");
+        Assert.assertTrue(first.getProviders().contains("com.mysql.jdbc.Driver"));
 
 
     }

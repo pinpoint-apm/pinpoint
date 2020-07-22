@@ -44,7 +44,7 @@ import java.util.Properties;
  */
 class PinpointStarter {
 
-    private final BootLogger logger = BootLogger.getLogger(PinpointStarter.class.getName());
+    private final BootLogger logger = BootLogger.getLogger(getClass());
 
     public static final String AGENT_TYPE = "AGENT_TYPE";
 

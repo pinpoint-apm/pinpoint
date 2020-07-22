@@ -5,26 +5,29 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.util.Assert;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.spi.LoggerRepository;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Log4jLoggingSystem implements LoggingSystem {
 
-    private final String configPath;
+    private final String profilePath;
     private Logger logger;
 
     private PLoggerBinder binder;
 
-    public Log4jLoggingSystem(String configPath) {
-        this.configPath = Assert.requireNonNull(configPath, "configPath");
+    public Log4jLoggingSystem(String profilePath) {
+        this.profilePath = Assert.requireNonNull(profilePath, "profilePath");
     }
 
     @Override
     public void start() {
-        initializeLogger(this.configPath);
+        String configPath = String.format("%s/%s", profilePath, "log4j.xml");
+        initializeLogger(configPath);
         this.logger = LoggerFactory.getLogger(this.getClass());
-        logger.info("Log4jLoggingSystem start");
+        logger.info("{} start {}", this.getClass().getSimpleName(), configPath);
 
         this.binder = new Slf4jLoggerBinder();
         bindPLoggerFactory(this.binder);
@@ -42,7 +45,10 @@ public class Log4jLoggingSystem implements LoggingSystem {
 
     private void initializeLogger(String location) {
         // log4j init
-        DOMConfigurator.configure(location);
+        LoggerRepository loggerRepository = LogManager.getLoggerRepository();
+
+        DOMConfigurator domConfigurator = new DOMConfigurator();
+        domConfigurator.doConfigure(location,loggerRepository);
     }
 
     private void bindPLoggerFactory(PLoggerBinder binder) {

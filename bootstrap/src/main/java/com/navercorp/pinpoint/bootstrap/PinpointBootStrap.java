@@ -34,7 +34,7 @@ import java.util.jar.JarFile;
  */
 public class PinpointBootStrap {
 
-    private static final BootLogger logger = BootLogger.getLogger(PinpointBootStrap.class.getName());
+    private static final BootLogger logger = BootLogger.getLogger(PinpointBootStrap.class);
 
     private static final LoadState STATE = new LoadState();
 

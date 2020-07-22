@@ -31,7 +31,7 @@ import java.util.List;
  */
 final class FileUtils {
 
-    private static final BootLogger logger = BootLogger.getLogger(FileUtils.class.getName());
+    private static final BootLogger logger = BootLogger.getLogger(FileUtils.class);
 
     private FileUtils() {
     }

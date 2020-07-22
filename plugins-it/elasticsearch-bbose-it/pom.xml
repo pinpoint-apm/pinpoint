@@ -39,6 +39,12 @@
             <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
             <version>5.6.9</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch.client</groupId>

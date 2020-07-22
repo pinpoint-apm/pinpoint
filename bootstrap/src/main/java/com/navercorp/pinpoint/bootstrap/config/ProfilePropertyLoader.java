@@ -36,7 +36,7 @@ class ProfilePropertyLoader implements PropertyLoader {
 
     private static final String SEPARATOR = File.separator;
 
-    private final BootLogger logger = BootLogger.getLogger(ProfilePropertyLoader.class.getName());
+    private final BootLogger logger = BootLogger.getLogger(getClass());
     private final SimpleProperty systemProperty;
 
     private final String agentRootPath;

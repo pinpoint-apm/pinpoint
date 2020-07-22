@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,15 +45,17 @@ public class JarProfilerPluginClassInjectorTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final String LOG4_IMPL = "org.slf4j.impl";
+    private static final List<String> LOG4_IMPL = Arrays.asList("org.apache.logging.slf4j", "org.slf4j.impl");
 
     @Test
     public void testInjectClass() throws Exception {
-        final Plugin<?> plugin = getMockPlugin("org.slf4j.impl.Log4jLoggerAdapter");
+//        String className = "org.slf4j.impl.Log4jLoggerAdapter";
+        String className = "org.apache.logging.slf4j.Log4jLogger";
+        final Plugin<?> plugin = getMockPlugin(className);
 
         final ClassLoader contextTypeMatchClassLoader = createContextTypeMatchClassLoader(new URL[]{plugin.getURL()});
 
-         final PluginPackageFilter pluginPackageFilter = new PluginPackageFilter(Collections.singletonList(LOG4_IMPL));
+        final PluginPackageFilter pluginPackageFilter = new PluginPackageFilter(LOG4_IMPL);
         PluginConfig pluginConfig = new PluginConfig(plugin, pluginPackageFilter);
         logger.debug("pluginConfig:{}", pluginConfig);
 
@@ -60,7 +63,7 @@ public class JarProfilerPluginClassInjectorTest {
         final Class<?> loggerClass = injector.injectClass(contextTypeMatchClassLoader, logger.getClass().getName());
 
         logger.debug("ClassLoader{}", loggerClass.getClassLoader());
-        Assert.assertEquals("check className", loggerClass.getName(), "org.slf4j.impl.Log4jLoggerAdapter");
+        Assert.assertEquals("check className", loggerClass.getName(), className);
         Assert.assertEquals("check ClassLoader", loggerClass.getClassLoader().getClass().getName(), CONTEXT_TYPE_MATCH_CLASS_LOADER);
 
     }
@@ -71,12 +74,12 @@ public class JarProfilerPluginClassInjectorTest {
         final Constructor<ClassLoader> constructor = aClass.getConstructor(ClassLoader.class);
         constructor.setAccessible(true);
 
-        List<String> lib = Collections.singletonList(LOG4_IMPL);
+        List<String> lib = LOG4_IMPL;
 
         ClassLoader testClassLoader = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urlArray, ClassLoader.getSystemClassLoader(), lib);
         final ClassLoader contextTypeMatchClassLoader = constructor.newInstance(testClassLoader);
 
-        logger.debug("cl:{}",contextTypeMatchClassLoader);
+        logger.debug("cl:{}", contextTypeMatchClassLoader);
 
 //        final Method excludePackage = aClass.getMethod("excludePackage", String.class);
 //        ReflectionUtils.invokeMethod(excludePackage, contextTypeMatchClassLoader, "org.slf4j");

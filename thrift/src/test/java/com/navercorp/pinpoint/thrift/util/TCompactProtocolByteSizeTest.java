@@ -45,7 +45,7 @@ public class TCompactProtocolByteSizeTest {
         long l = TimeUnit.DAYS.toMillis(1);
         logger.debug("day:{}", l);
         long currentTime = System.currentTimeMillis();
-        logger.debug("currentTime:{}" + currentTime);
+        logger.debug("currentTime:{}", currentTime);
         protocol.writeI64(l);
         byte[] buffer = baos.toByteArray();
         logger.debug("{}", buffer.length);

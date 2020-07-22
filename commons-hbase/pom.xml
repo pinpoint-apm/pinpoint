@@ -32,6 +32,8 @@
         <jdk.version>1.8</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
         <sniffer.artifactid>java18</sniffer.artifactid>
+
+        <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
     </properties>
 
     <dependencies>
@@ -83,31 +85,20 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <!-- thrift logging lib -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <scope>test</scope>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <scope>test</scope>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
         </dependency>
-        <!--<dependency> -->
-        <!--<groupId>org.slf4j</groupId> -->
-        <!--<artifactId>slf4j-jdk14</artifactId> -->
-        <!--<version>1.6.6</version> -->
-        <!--<scope>test</scope> -->
-        <!--</dependency> -->
-
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-jcl</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
     </dependencies>
 
 

@@ -22,19 +22,21 @@ import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.MessageFormat;
+import java.io.Writer;
+import java.util.Formatter;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public final class BootLogger {
 
+    private static final String FORMAT = "%tm-%<td %<tT.%<tL %-5s %-35.35s : %s";
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    
 //    private static final int LOG_LEVEL;
-//    private final String loggerName;
-    private final String messagePattern;
+    private final String loggerName;
     private final PrintStream out;
     private final PrintStream err;
-
 
     static {
         setup();
@@ -54,25 +56,32 @@ public final class BootLogger {
 
     // for test
     BootLogger(String loggerName, PrintStream out, PrintStream err) {
-        Assert.requireNonNull(loggerName, "loggerName");
-
-//        this.loggerName = loggerName;
-        this.messagePattern = "{0,date,yyyy-MM-dd HH:mm:ss} [{1}](" + loggerName + ") {2}{3}";
+        this.loggerName = Assert.requireNonNull(loggerName, "loggerName");
         this.out = out;
         this.err = err;
+    }
+
+    public static BootLogger getLogger(Class clazz) {
+        return new BootLogger(clazz.getSimpleName());
     }
 
     public static BootLogger getLogger(String loggerName) {
         return new BootLogger(loggerName);
     }
 
-    private String format(String logLevel, String msg, String exceptionMessage) {
-        exceptionMessage = defaultString(exceptionMessage, "");
+    private String format(String logLevel, String msg, Throwable throwable) {
+        final long now = System.currentTimeMillis();
 
-        MessageFormat messageFormat = new MessageFormat(messagePattern);
-        final long date = System.currentTimeMillis();
-        Object[] parameter = {date, logLevel, msg, exceptionMessage};
-        return messageFormat.format(parameter);
+        StringBuilder buffer = new StringBuilder(64);
+        Formatter formatter = new Formatter(buffer);
+        formatter.format(FORMAT, now, logLevel, loggerName, msg);
+        if (throwable != null) {
+            String exceptionMessage = toString(throwable);
+            buffer.append(exceptionMessage);
+        } else {
+            buffer.append(LINE_SEPARATOR);
+        }
+        return formatter.toString();
     }
 
     public boolean isInfoEnabled() {
@@ -80,8 +89,8 @@ public final class BootLogger {
     }
 
     public void info(String msg) {
-        String formatMessage = format("INFO ", msg, "");
-        this.out.println(formatMessage);
+        String formatMessage = format("INFO", msg, null);
+        this.out.print(formatMessage);
     }
 
 
@@ -94,16 +103,15 @@ public final class BootLogger {
     }
 
     public void warn(String msg, Throwable throwable) {
-        String exceptionMessage = toString(throwable);
-        String formatMessage = format("WARN ", msg, exceptionMessage);
-        this.err.println(formatMessage);
+        String formatMessage = format("WARN", msg, throwable);
+        this.err.print(formatMessage);
     }
 
-    private String toString(Throwable throwable) {
+    private static String toString(Throwable throwable) {
         if (throwable == null) {
-            return "";
+            return null;
         }
-        StringWriter sw = new StringWriter();
+        Writer sw = new StringWriter(512);
         PrintWriter pw = new PrintWriter(sw);
         pw.println();
         throwable.printStackTrace(pw);
@@ -111,10 +119,4 @@ public final class BootLogger {
         return sw.toString();
     }
 
-    private String defaultString(String exceptionMessage, String defaultValue) {
-        if (exceptionMessage == null) {
-            return defaultValue;
-        }
-        return exceptionMessage;
-    }
 }

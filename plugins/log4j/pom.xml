@@ -13,6 +13,7 @@
     <packaging>jar</packaging>
 
     <dependencies>
+
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap-core</artifactId>
@@ -21,6 +22,7 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

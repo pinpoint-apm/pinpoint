@@ -71,6 +71,6 @@ public class HeaderTBaseSerializerTest {
 
     public void dump(byte[] data) {
         String s = Arrays.toString(data);
-        logger.debug("size:{} data:{}", data.length, s);
+        logger.trace("size:{} data:{}", data.length, s);
     }
 }

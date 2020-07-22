@@ -34,6 +34,6 @@ public class ProfileLogConfigResolver implements LogConfigResolver {
 
     @Override
     public String getLogPath() {
-        return profilesPath + File.separator + activeProfile + File.separator + "log4j.xml";
+        return profilesPath + File.separator + activeProfile + File.separator;
     }
 }

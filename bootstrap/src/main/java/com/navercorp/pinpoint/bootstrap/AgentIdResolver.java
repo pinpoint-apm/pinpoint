@@ -32,7 +32,7 @@ public class AgentIdResolver {
     public static final String APPLICATION_NAME_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "applicationName";
     public static final String AGENT_ID_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "agentId";
 
-    private final BootLogger logger = BootLogger.getLogger(this.getClass().getName());
+    private final BootLogger logger = BootLogger.getLogger(this.getClass());
 
     private final List<AgentProperties> agentPropertyList;
 
