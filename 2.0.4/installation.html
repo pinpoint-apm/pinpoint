@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="keywords" content=" pinpoint, pinpoint homepage, install, start, installation">
+<title>Installation | Leading Open-Source APM</title>
+<link rel="stylesheet" href="css/syntax.css">
+
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<!--<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">-->
+<link rel="stylesheet" href="css/modern-business.css">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="css/customstyles.css">
+<link rel="stylesheet" href="css/boxshadowproperties.css">
+<!-- most color styles are extracted out to here -->
+<link rel="stylesheet" href="css/theme-black.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="js/jquery.navgoco.min.js"></script>
+
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<!-- Anchor.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/2.0.0/anchor.min.js"></script>
+<script src="js/toc.js"></script>
+<script src="js/customscripts.js"></script>
+
+<link rel="shortcut icon" href="images/favicon.ico">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="pinpoint" href="http://localhost:4000/feed.xml">
+
+    <script>
+        $(document).ready(function() {
+            // Initialize navgoco with default options
+            $("#mysidebar").navgoco({
+                caretHtml: '',
+                accordion: true,
+                openClass: 'active', // open
+                save: false, // leave false or nav highlighting doesn't work right
+                cookie: {
+                    name: 'navgoco',
+                    expires: false,
+                    path: '/'
+                },
+                slide: {
+                    duration: 400,
+                    easing: 'swing'
+                }
+            });
+
+            $("#collapseAll").click(function(e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', false);
+            });
+
+            $("#expandAll").click(function(e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', true);
+            });
+
+        });
+
+    </script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+    <script>
+        $(document).ready(function() {
+            $("#tg-sb-link").click(function() {
+                $("#tg-sb-sidebar").toggle();
+                $("#tg-sb-content").toggleClass('col-md-9');
+                $("#tg-sb-content").toggleClass('col-md-12');
+                $("#tg-sb-icon").toggleClass('fa-toggle-on');
+                $("#tg-sb-icon").toggleClass('fa-toggle-off');
+            });
+        });
+    </script>
+    
+
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container topnavlinks">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="fa fa-home fa-lg navbar-brand" href="/pinpoint/index.html">&nbsp;<span class="projectTitle"> <img src="./images/logo2.png"> </span></a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <!-- toggle sidebar button -->
+                <li><a id="tg-sb-link" href="#"><i id="tg-sb-icon" class="fa fa-toggle-on"></i> Nav</a></li>
+                <!-- entries without drop-downs appear here -->
+
+
+
+
+                
+                
+                
+                <li><a href="https://github.com/naver/pinpoint" target="_blank">GitHub</a></li>
+                
+                
+                
+                <li><a href="https://twitter.com/Pinpoint_APM" target="_blank">News</a></li>
+                
+                
+                
+                <li><a href="https://naver.github.io/pinpoint/resources" target="_blank">Pinpoint Blogs</a></li>
+                
+                
+                
+                <!-- entries with drop-downs appear here -->
+                <!-- conditional logic to control which topnav appears for the audience defined in the configuration file.-->
+                
+                
+			<li>
+
+
+
+  <a class="email" title="Submit feedback" href="#" onclick="javascript:window.location='mailto:roy.kim@navercorp.com?subject=pinpoint feedback&body=If it\'s an issue please check QnA page in the homepage or Pinpoint GitHub repository https://github.com/naver/pinpoint/issues' "><i class="fa fa-envelope-o"></i> Feedback</a>
+
+</li>
+
+		
+                <!--comment out this block if you want to hide search-->
+                <li>
+                    <!--start search-->
+                    <div id="search-demo-container">
+                        <input type="text" id="search-input" placeholder="search...">
+                        <ul id="results-container"></ul>
+                    </div>
+                    <script src="js/jekyll-search.js" type="text/javascript"></script>
+                    <script type="text/javascript">
+                            SimpleJekyllSearch.init({
+                                searchInput: document.getElementById('search-input'),
+                                resultsContainer: document.getElementById('results-container'),
+                                dataSource: 'search.json',
+                                searchResultTemplate: '<li><a href="{url}" title="Installation">{title}</a></li>',
+                    noResultsText: 'No results found.',
+                            limit: 10,
+                            fuzzy: true,
+                    })
+                    </script>
+                    <!--end search-->
+                </li>
+            </ul>
+        </div>
+        </div>
+        <!-- /.container -->
+</nav>
+
+<!-- Page Content -->
+
+<div class="container">
+
+  <div id="main">
+    <!-- Content Row -->
+    <div class="row">
+        
+        
+            <!-- Sidebar Column -->
+            <div class="col-md-3" id="tg-sb-sidebar">
+                <script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        GetVersionInfo();
+    });
+
+    function GetVersionInfo() {
+
+        var pathname = window.location.pathname;
+        var path = pathname.slice(10,15);
+        var versioned = true;
+        var tempNum1 = path.slice(0,1);
+        var tempNum2 = path.slice(2,3);
+        var tempNum3 = path.slice(4,5);
+
+        if($.isEmptyObject(path)){
+            versioned = false;
+        }else{
+            if(isNaN(tempNum1) || isNaN(tempNum2) && isNaN(tempNum3)){
+                versioned = false;
+            }
+        }
+
+        $.getJSON("https://raw.githubusercontent.com/naver/pinpoint/gh-pages/version.json").done(function (data){
+
+            $.each(data, function(key, value) {
+
+                if(versioned && path == value.ver){
+                    $('#selbox').append('<option selected="selected" value="http://naver.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                }else{
+                    $('#selbox').append('<option value="http://naver.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                }
+            })
+        });
+    }
+</script>
+
+
+
+
+<ul id="mysidebar" class="nav">
+    <li class="sidebarTitle">
+        <tr>
+            <td>
+                Pinpoint
+            </td>
+            <td>
+                <select id="selbox" name="ver" onchange="document.location.href=this.value">
+                </select>
+            </td>
+        </tr>
+    </li>
+    <tr></tr>
+    <tr> <td><iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=star&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    <iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=fork&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    </td> </tr>
+  
+  
+  
+
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="main.html">What's New</a></li>
+        
+    </li>
+    
+      
+  
+  <li>
+      <a href="#">Pinpoint</a>
+      <ul>
+          
+          
+          
+          <li><a href="overview.html">Overview</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="history.html">History</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="techdetail.html">Technical Details</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="additionalplugins.html">Additional Plugins</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Getting Started</a>
+      <ul>
+          
+          
+          
+          <li><a href="quickstart.html">QuickStart</a></li>
+          
+          
+          
+          
+          
+          
+          <li class="active"><a href="installation.html">Installation</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="docker.html">Install with Docker</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="troubleshooting_network.html">TrobleShooting(Network)</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Documents</a>
+      <ul>
+          
+          
+          
+          <li><a href="plugindevguide.html">Plugin Developer Guide</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="alarm.html">Setting Alarms</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="applicationinspector.html">How to use Application Inspector</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="perrequestfeatureguide.html">Separate Log Per Request</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="httpstatuscodefailure.html">Marking Transaction as Fail</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="proxyhttpheader.html">Monitoring Proxy Server</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="hbaseupgrade.html">Upgrade Database Hbase2</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Contribution</a>
+      <ul>
+          
+          
+          
+          <li><a href="contribution.html">Readme</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="https://github.com/naver/pinpoint/labels/proposal" target="_blank">Open to Contribution</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="videos.html">Videos</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="performance.html">Performance Analysis</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="http://125.209.240.10:10123" target="_blank">Live Demo</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://twitter.com/Pinpoint_APM" target="_blank">Twitter</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/naver/pinpoint/releases" target="_blank">Release Notes</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="faq.html">FAQ</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="poweredby.html">Powered by Pinpoint</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/naver/pinpoint/issues" target="_blank">Questions and answers</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/naver/pinpoint" target="_blank">Fork me at Github</a></li>
+        
+    </li>
+    
+      
+      
+      <!-- if you aren't using the accordion, uncomment this block:
+         <p class="external">
+             <a href="#" id="collapseAll">Collapse All</a> | <a href="#" id="expandAll">Expand All</a>
+         </p>
+         -->
+</ul>
+
+<!-- this highlights the active parent class in the navgoco sidebar. this is critical so that the parent expands when you're viewing a page. This must appear below the sidebar code above. Otherwise, if placed inside customscripts.js, the script runs before the sidebar code runs and the class never gets inserted.-->
+<script>$("li.active").parents('li').toggleClass("active");</script>
+
+            </div>
+            
+        
+
+        <!-- Content Column -->
+        <div class="col-md-9" id="tg-sb-content">
+            <a no_icon href="https://github.com/naver/pinpoint"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+            <script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        GetUrl();
+    });
+
+    function GetUrl() {
+
+        var pathname = window.location.pathname;
+        if(pathname == "/pinpoint/main.html"){
+            document.getElementById("pathname").innerHTML = "Snapshot(Unstable)";
+        }
+    }
+</script>
+
+<div class="post-header">
+   <h1 class="post-title-main" id="pathname">Installation</h1>
+</div>
+
+
+
+<div class="post-content">
+
+   
+
+    
+    
+<!-- this handles the automatic toc. use ## for subheads to auto-generate the on-page minitoc. if you use html tags, you must supply an ID for the heading element in order for it to appear in the minitoc. -->
+<script>
+$( document ).ready(function() {
+  // Handler for .ready() called.
+
+$('#toc').toc({ minimumHeaders: 0, listType: 'ul', showSpeed: 0, headers: 'h2,h3,h4' });
+
+/* this offset helps account for the space taken up by the floating toolbar. */
+$('#toc').on('click', 'a', function() {
+  var target = $(this.getAttribute('href'))
+    , scroll_target = target.offset().top
+
+  $(window).scrollTop(scroll_target - 10);
+  return false
+})
+  
+});
+</script>
+
+<div id="toc"></div>
+
+    
+
+
+    
+
+
+    
+
+  <p>To set up your very own Pinpoint instance you can either <strong>download the build results</strong> from our <a href="https://github.com/naver/pinpoint/releases/latest"><strong>latest release</strong></a>, or manually build from your Git clone.
+In order to run your own Pinpoint instance, you will need to run below components:</p>
+
+<ul>
+  <li><strong>HBase</strong> (for storage)</li>
+  <li><strong>Pinpoint Collector</strong> (deployed on a web container)</li>
+  <li><strong>Pinpoint Web</strong> (deployed on a web container)</li>
+  <li><strong>Pinpoint Agent</strong> (attached to a java application for profiling)</li>
+</ul>
+
+<p>To try out a simple quickstart project, please refer to the <a href="./quickstart.html">quick-start guide</a>.</p>
+
+<h2 id="quick-overview-of-installation">Quick Overview of Installation</h2>
+<ol>
+  <li>HBase (<a href="#1-hbase">details</a>)
+    <ol>
+      <li>Set up HBase cluster - <a href="http://hbase.apache.org">Apache HBase</a></li>
+      <li>Create HBase Schemas - feed <code class="highlighter-rouge">/scripts/hbase-create.hbase</code> to hbase shell.</li>
+    </ol>
+  </li>
+  <li>Build Pinpoint (Optional)(<a href="#2-building-pinpoint-optional">details</a>) - No need if you use the binaries.(<a href="https://github.com/naver/pinpoint/releases">here</a>).
+    <ol>
+      <li>Clone Pinpoint - <code class="highlighter-rouge">git clone $PINPOINT_GIT_REPOSITORY</code></li>
+      <li>Set JAVA_HOME environment variable to JDK 8 home directory.</li>
+      <li>Set JAVA_6_HOME environment variable to JDK 6 home directory (1.6.0_45 recommended).</li>
+      <li>Set JAVA_7_HOME environment variable to JDK 7 home directory (1.7.0_80 recommended).</li>
+      <li>Set JAVA_8_HOME environment variable to JDK 8 home directory.</li>
+      <li>Set JAVA_9_HOME environment variable to JDK 9 home directory.</li>
+      <li>Run <code class="highlighter-rouge">./mvnw clean install -DskipTests=true</code> (or <code class="highlighter-rouge">./mvnw.cmd</code> for Windows)</li>
+    </ol>
+  </li>
+  <li>Pinpoint Collector (<a href="#3-pinpoint-collector">details</a>)
+    <ol>
+      <li>Deploy <em>pinpoint-collector-$VERSION.war</em> to a web container.</li>
+      <li>Configure <em>pinpoint-collector.properties</em>, <em>hbase.properties</em>.</li>
+      <li>Start container.</li>
+    </ol>
+  </li>
+  <li>Pinpoint Web (<a href="#4-pinpoint-web">details</a>)
+    <ol>
+      <li>Deploy <em>pinpoint-web-$VERSION.war</em> to a web container as a ROOT application.</li>
+      <li>Configure <em>pinpoint-web.properties</em>, <em>hbase.properties</em>.</li>
+      <li>Start container.</li>
+    </ol>
+  </li>
+  <li>Pinpoint Agent (<a href="#5-pinpoint-agent">details</a>)
+    <ol>
+      <li>Extract/move <em>pinpoint-agent/</em> to a convenient location (<code class="highlighter-rouge">$AGENT_PATH</code>).</li>
+      <li>Set <code class="highlighter-rouge">-javaagent:$AGENT_PATH/pinpoint-bootstrap-$VERSION.jar</code> JVM argument to attach the agent to a java application.</li>
+      <li>Set <code class="highlighter-rouge">-Dpinpoint.agentId</code> and <code class="highlighter-rouge">-Dpinpoint.applicationName</code> command-line arguments.<br />
+ a) If you’re launching an agent in a containerized environment with dynamically changing <em>agent id</em>, consider adding <code class="highlighter-rouge">-Dpinpoint.container</code> command-line argument.</li>
+      <li>Launch java application with the options above.</li>
+    </ol>
+  </li>
+</ol>
+
+<h2 id="1-hbase">1. HBase</h2>
+<p>Pinpoint uses HBase as its storage backend for the Collector and the Web.</p>
+
+<p>To set up your own cluster, take a look at the <a href="http://hbase.apache.org">HBase website</a> for instructions. The HBase compatibility table is given below:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Pinpoint Version</th>
+      <th>HBase 0.98.x</th>
+      <th>HBase 1.0.x</th>
+      <th>HBase 1.2.x</th>
+      <th>HBase 2.0.x</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.5.x</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>not tested</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>1.6.x</td>
+      <td>not tested</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>1.7.x</td>
+      <td>not tested</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>1.8.x</td>
+      <td>not tested</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>2.0.x</td>
+      <td>not tested</td>
+      <td>not tested</td>
+      <td>yes</td>
+      <td>optional</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Once you have HBase up and running, make sure the Collector and the Web are configured properly and are able to connect to HBase.</p>
+
+<h3 id="creating-schemas-for-hbase">Creating Schemas for HBase</h3>
+<p>There are 2 scripts available to create tables for Pinpoint: <em>hbase-create.hbase</em>, and <em>hbase-create-snappy.hbase</em>. Use <em>hbase-create-snappy.hbase</em> for snappy compression (requires <a href="http://google.github.io/snappy/">snappy</a>), otherwise use <em>hbase-create.hbase</em> instead.</p>
+
+<p>To run these scripts, feed them into the HBase shell like below:</p>
+
+<p><code class="highlighter-rouge">$HBASE_HOME/bin/hbase shell hbase-create.hbase</code></p>
+
+<p>See <a href="https://github.com/naver/pinpoint/tree/master/hbase/scripts" title="Pinpoint HBase scripts">here</a> for a complete list of scripts.</p>
+
+<h2 id="2-building-pinpoint">2. Building Pinpoint</h2>
+
+<p>There are two options:</p>
+
+<ol>
+  <li>
+    <p>Download the build results from our <a href="https://github.com/naver/pinpoint/releases/latest"><strong>latest release</strong></a> and skip building process. <strong>(Recommended)</strong></p>
+  </li>
+  <li>
+    <p>Build Pinpoint manually from the Git clone. <strong>(Optional)</strong></p>
+
+    <p>In order to do so, the following <strong>requirements</strong> must be met:</p>
+
+    <ul>
+      <li>JDK 6 installed (<a href="http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase6-419409.html#jdk-6u45-oth-JPR">jdk1.6.0_45</a> recommended)</li>
+      <li>JDK 7 installed (<a href="http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html#jdk-7u80-oth-JPR">jdk1.7.0_80</a> recommended)</li>
+      <li>JDK 8 installed</li>
+      <li>JDK 9 installed</li>
+      <li>JAVA_HOME environment variable set to JDK 8 home directory.</li>
+      <li>JAVA_6_HOME environment variable set to JDK 6 home directory.</li>
+      <li>JAVA_7_HOME environment variable set to JDK 7 home directory.</li>
+      <li>JAVA_8_HOME environment variable set to JDK 8 home directory.</li>
+      <li>JAVA_9_HOME environment variable set to JDK 9 home directory.</li>
+    </ul>
+
+    <p>Additionally, the required Java version to run each Pinpoint component is given below:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Agent Version</th>
+          <th>Collector 1.5.x</th>
+          <th>Collector 1.6.x</th>
+          <th>Collector 1.7.x</th>
+          <th>Collector 1.8.x</th>
+          <th>Collector 2.0.x</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1.5.x</td>
+          <td>yes</td>
+          <td>yes</td>
+          <td>yes</td>
+          <td>yes</td>
+          <td>yes</td>
+        </tr>
+        <tr>
+          <td>1.6.x</td>
+          <td>not tested</td>
+          <td>yes</td>
+          <td>yes</td>
+          <td>yes</td>
+          <td>yes</td>
+        </tr>
+        <tr>
+          <td>1.7.x</td>
+          <td>no</td>
+          <td>no</td>
+          <td>yes</td>
+          <td>yes</td>
+          <td>yes</td>
+        </tr>
+        <tr>
+          <td>1.8.x</td>
+          <td>no</td>
+          <td>no</td>
+          <td>no</td>
+          <td>yes</td>
+          <td>yes</td>
+        </tr>
+        <tr>
+          <td>2.0.x</td>
+          <td>no</td>
+          <td>no</td>
+          <td>no</td>
+          <td>no</td>
+          <td>yes</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Once the above requirements are met, simply run the command below (you may need to add permission for <strong>mvnw</strong> so that it can be executed) :</p>
+
+    <p><code class="highlighter-rouge">./mvnw install -DskipTests=true</code></p>
+
+    <p>The default agent built this way will have log level set to DEBUG by default. If you’re building an agent for release and need a higher log level, you can set maven profile to <em>release</em> when building :<br />
+ <code class="highlighter-rouge">./mvnw install -Prelease -DskipTests=true</code></p>
+
+    <p>Note that having multibyte characters in maven local repository path, or any class paths may cause the build to fail.</p>
+
+    <p>The guide will refer to the full path of the pinpoint home directory as <code class="highlighter-rouge">$PINPOINT_PATH</code>.</p>
+  </li>
+</ol>
+
+<p>Regardless of your method, you should end up with the files and directories mentioned in the following sections.</p>
+
+<h2 id="3-pinpoint-collector">3. Pinpoint Collector</h2>
+<p>You should have the following <strong>war</strong> file that can be deployed to a web container.</p>
+
+<p><em>pinpoint-collector-$VERSION.war</em></p>
+
+<p>The path to this file should look like <em>$PINPOINT_PATH/collector/target/pinpoint-collector-$VERSION.war</em> if you built it manually.</p>
+
+<h3 id="installation">Installation</h3>
+<p>Since Pinpoint Collector is packaged as a deployable war file, you may deploy them to a web container as you would any other web applications.</p>
+
+<h3 id="configuration">Configuration</h3>
+<p>There are 3 configuration files available for Pinpoint Collector: <em>pinpoint-collector.properties</em>, <em>pinpoint-grpc-collector.properties</em>, and <em>hbase.properties</em>.</p>
+
+<ul>
+  <li>pinpoint-collector.properties - contains configurations for the collector. Check the following values with the agent’s configuration options :
+    <ul>
+      <li><code class="highlighter-rouge">collector.receiver.base.port</code> (agent’s <em>profiler.collector.tcp.port</em> - default: 9994/TCP)</li>
+      <li><code class="highlighter-rouge">collector.receiver.stat.udp.port</code> (agent’s <em>profiler.collector.stat.port</em> - default: 9995/UDP)</li>
+      <li><code class="highlighter-rouge">collector.receiver.span.udp.port</code> (agent’s <em>profiler.collector.span.port</em> - default: 9996/UDP)</li>
+    </ul>
+  </li>
+  <li>pinpoint-grpc-collector.properties - contains configurations for the grpc.
+    <ul>
+      <li><code class="highlighter-rouge">collector.receiver.grpc.agent.port</code> (agent’s <em>profiler.transport.grpc.agent.collector.port</em>, <em>profiler.transport.grpc.metadata.collector.port</em> - default: 9991/TCP)</li>
+      <li><code class="highlighter-rouge">collector.receiver.grpc.stat.port</code> (agent’s <em>profiler.transport.grpc.stat.collector.port</em> - default: 9992/TCP)</li>
+      <li><code class="highlighter-rouge">collector.receiver.grpc.span.port</code> (agent’s <em>profiler.transport.grpc.span.collector.port</em> - default: 9993/TCP)</li>
+    </ul>
+  </li>
+  <li>hbase.properties - contains configurations to connect to HBase.
+    <ul>
+      <li><code class="highlighter-rouge">hbase.client.host</code> (default: localhost)</li>
+      <li><code class="highlighter-rouge">hbase.client.port</code> (default: 2181)</li>
+    </ul>
+  </li>
+</ul>
+
+<p>These files are located under <code class="highlighter-rouge">WEB-INF/classes/</code> inside the war file.</p>
+
+<p>You may take a look at the default configuration files here</p>
+<ul>
+  <li><a href="https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-collector.properties">pinpoint-collector.properties</a></li>
+  <li><a href="https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-grpc-collector.properties">pinpoint-grpc-collector.properties</a></li>
+  <li><a href="https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/hbase.properties">hbase.properties</a></li>
+</ul>
+
+<h3 id="profiles">Profiles</h3>
+<p>Add <code class="highlighter-rouge">-Dkey=value</code> to Java System Properties</p>
+<ul>
+  <li>WEB-INF/classes/profiles/$PROFILE
+    <ul>
+      <li><code class="highlighter-rouge">-Dspring.profiles.active=release or local</code></li>
+      <li>Default profile : <code class="highlighter-rouge">release</code></li>
+    </ul>
+  </li>
+  <li>Support external property
+    <ul>
+      <li><code class="highlighter-rouge">-Dpinpoint.zookeeper.address=$MY_ZOOKEEPER_ADDRESS</code> <code class="highlighter-rouge">-Dcollector.receiver.span.worker.threadSize=1024</code> …</li>
+    </ul>
+  </li>
+  <li>Support external config
+    <ul>
+      <li><code class="highlighter-rouge">-Dpinpoint.collector.config.location=$MY_EXTERNAL_CONFIG_PATH</code></li>
+    </ul>
+  </li>
+  <li>Add custom profile
+    <ol>
+      <li>Create a custom profile in WEB-INF/classes/profiles/MyProfile
+        <ul>
+          <li>Add *.config &amp; log4j.xml</li>
+        </ul>
+      </li>
+      <li>Add <code class="highlighter-rouge">-Dspring.profiles.active=MyProfile</code></li>
+    </ol>
+  </li>
+</ul>
+
+<h2 id="4-pinpoint-web">4. Pinpoint Web</h2>
+<p>You should have the following <strong>war</strong> file that can be deployed to a web container.</p>
+
+<p><em>pinpoint-web-$VERSION.war</em></p>
+
+<p>The path to this file should look like <em>$PINPOINT_PATH/web/target/pinpoint-web-$VERSION.war</em> if you built it manually.</p>
+
+<p>Pinpoint Web Supported Browsers:</p>
+
+<ul>
+  <li>Chrome</li>
+</ul>
+
+<h3 id="installation-1">Installation</h3>
+<p>Since Pinpoint Web is packaged as a deployable war file, you may deploy them to a web container as you would any other web applications. The web module must also be deployed as a ROOT application.</p>
+
+<h3 id="configuration-1">Configuration</h3>
+<p>Similar to the Collector, Pinpoint Web has configuration files related to installation: <em>pinpoint-web.properties</em>, and <em>hbase.properties</em>.</p>
+
+<p>Make sure you check the following configuration options :</p>
+
+<ul>
+  <li>hbase.properties - contains configurations to connect to HBase.
+    <ul>
+      <li><code class="highlighter-rouge">hbase.client.host</code> (default: localhost)</li>
+      <li><code class="highlighter-rouge">hbase.client.port</code> (default: 2181)</li>
+    </ul>
+  </li>
+</ul>
+
+<p>These files are located under <code class="highlighter-rouge">WEB-INF/classes/</code> inside the war file.</p>
+
+<p>You may take a look at the default configuration files here</p>
+<ul>
+  <li><a href="https://github.com/naver/pinpoint/blob/master/web/src/main/resources/pinpoint-web.properties">pinpoint-web.properties</a></li>
+  <li><a href="https://github.com/naver/pinpoint/blob/master/web/src/main/resources/hbase.properties">hbase.properties</a></li>
+</ul>
+
+<h3 id="profiles-1">Profiles</h3>
+<p>Add <code class="highlighter-rouge">-Dkey=value</code> to Java System Properties</p>
+<ul>
+  <li>WEB-INF/classes/profiles/$PROFILE
+    <ul>
+      <li><code class="highlighter-rouge">-Dspring.profiles.active=release or local</code></li>
+      <li>Default profile : <code class="highlighter-rouge">release</code></li>
+    </ul>
+  </li>
+  <li>Support external property
+    <ul>
+      <li><code class="highlighter-rouge">-Dpinpoint.zookeeper.address=$MY_ZOOKEEPER_ADDRESS</code> <code class="highlighter-rouge">-Dhbase.rpc.timeout=30000</code> …</li>
+    </ul>
+  </li>
+  <li>Support external config
+    <ul>
+      <li><code class="highlighter-rouge">-Dpinpoint.web.config.location=$MY_EXTERNAL_CONFIG_PATH</code></li>
+    </ul>
+  </li>
+  <li>Add custom profile
+    <ol>
+      <li>Create a custom profile in WEB-INF/classes/profiles/MyProfile
+        <ul>
+          <li>Add *.config &amp; log4j.xml</li>
+        </ul>
+      </li>
+      <li>Add <code class="highlighter-rouge">-Dspring.profiles.active=MyProfile</code></li>
+    </ol>
+  </li>
+</ul>
+
+<h2 id="5-pinpoint-agent">5. Pinpoint Agent</h2>
+<p>If downloaded, unzip the Pinpoint Agent file. You should have a <strong>pinpoint-agent</strong> directory with the layout below :</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pinpoint-agent
+|-- boot
+|   |-- pinpoint-annotations-$VERSION.jar
+|   |-- pinpoint-bootstrap-core-$VERSION.jar
+|   |-- pinpoint-bootstrap-java7-$VERSION.jar
+|   |-- pinpoint-bootstrap-java8-$VERSION.jar
+|   |-- pinpoint-bootstrap-java9-$VERSION.jar
+|   |-- pinpoint-commons-$VERSION.jar
+|-- lib
+|   |-- pinpoint-profiler-$VERSION.jar
+|   |-- pinpoint-profiler-optional-$VERSION.jar
+|   |-- pinpoint-rpc-$VERSION.jar
+|   |-- pinpoint-thrift-$VERSION.jar
+|   |-- ...
+|-- plugin
+|   |-- pinpoint-activemq-client-plugin-$VERSION.jar
+|   |-- pinpoint-tomcat-plugin-$VERSION.jar
+|   |-- ...
+|-- profiles
+|   |-- local
+|   |   |-- log4j.xml
+|   |   |-- pinpoint.config
+|   |-- release
+|       |-- log4j.xml
+|       |-- pinpoint.config
+|-- pinpoint-bootstrap-$VERSION.jar
+|-- pinpoint-root.config
+</code></pre></div></div>
+<p>The path to this directory should look like <em>$PINPOINT_PATH/agent/target/pinpoint-agent</em> if you built it manually.</p>
+
+<p>You may move/extract the contents of <strong>pinpoint-agent</strong> directory to any location of your choice. The guide will refer to the full path of this directory as <code class="highlighter-rouge">$AGENT_PATH</code>.</p>
+
+<blockquote>
+  <p>Note that you may change the agent’s log level by modifying the <em>log4j.xml</em> located in the <em>profiles/$PROFILE/log4j.xml</em> directory above.</p>
+</blockquote>
+
+<p>Agent compatibility to Collector table:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Pinpoint Version</th>
+      <th>Agent</th>
+      <th>Collector</th>
+      <th>Web</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.5.x</td>
+      <td>6-8</td>
+      <td>7-8</td>
+      <td>7-8</td>
+    </tr>
+    <tr>
+      <td>1.6.x</td>
+      <td>6-8</td>
+      <td>7-8</td>
+      <td>7-8</td>
+    </tr>
+    <tr>
+      <td>1.7.x</td>
+      <td>6-8</td>
+      <td>8</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>1.8.0</td>
+      <td>6-10</td>
+      <td>8</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>1.8.1+</td>
+      <td>6-11</td>
+      <td>8</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>2.0.x</td>
+      <td>6-11</td>
+      <td>8</td>
+      <td>8</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="installation-2">Installation</h3>
+<p>Pinpoint Agent runs as a java agent attached to an application to be profiled (such as Tomcat).</p>
+
+<p>To wire up the agent, pass <em>$AGENT_PATH/pinpoint-bootstrap-$VERSION.jar</em> to the <em>-javaagent</em> JVM argument when running the application:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">-javaagent:$AGENT_PATH/pinpoint-bootstrap-$VERSION.jar</code></li>
+</ul>
+
+<p>Additionally, Pinpoint Agent requires 2 command-line arguments in order to identify itself in the distributed system:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">-Dpinpoint.agentId</code> - uniquely identifies the application instance in which the agent is running on</li>
+  <li><code class="highlighter-rouge">-Dpinpoint.applicationName</code> - groups a number of identical application instances as a single service</li>
+</ul>
+
+<p>Note that <em>pinpoint.agentId</em> must be globally unique to identify an application instance, and all applications that share the same <em>pinpoint.applicationName</em> are treated as multiple instances of a single service.</p>
+
+<p>If you’re launching the agent in a containerized environment, you might have set your <em>agent id</em> to be auto-generated every time the container is launched. With frequent deployment and auto-scaling, this will lead to the Web UI being cluttered with all the list of agents that were launched and destroyed previously. For such cases, you might want to add <code class="highlighter-rouge">-Dpinpoint.container</code> in addition to the 2 required command-line arguments above when launching the agent.</p>
+
+<p><strong>Tomcat Example</strong></p>
+
+<p>Add <em>-javaagent</em>, <em>-Dpinpoint.agentId</em>, <em>-Dpinpoint.applicationName</em> to <em>CATALINA_OPTS</em> in the Tomcat startup script (<em>catalina.sh</em>).</p>
+
+<pre>
+CATALINA_OPTS="$CATALINA_OPTS <b>-javaagent</b>:$AGENT_PATH/pinpoint-bootstrap-$VERSION.jar"
+CATALINA_OPTS="$CATALINA_OPTS <b>-Dpinpoint.agentId</b>=$AGENT_ID"
+CATALINA_OPTS="$CATALINA_OPTS <b>-Dpinpoint.applicationName</b>=$APPLICATION_NAME"
+</pre>
+
+<p>Start up Tomcat to start profiling your web application.</p>
+
+<p>Some application servers require additional configuration and/or may have caveats. Please take a look at the links below for further details.</p>
+<ul>
+  <li><a href="https://github.com/naver/pinpoint/tree/master/plugins/jboss#pinpoint-jboss-plugin-configuration">JBoss</a></li>
+  <li><a href="https://github.com/naver/pinpoint/blob/master/plugins/jetty/README.md">Jetty</a></li>
+  <li><a href="https://github.com/naver/pinpoint/tree/master/plugins/resin#pinpoint-resin-plugin-configuration">Resin</a></li>
+</ul>
+
+<h3 id="configuration-2">Configuration</h3>
+
+<p>There are various configuration options for Pinpoint Agent available in <em>$AGENT_PATH/pinpoint-root.config</em>.</p>
+
+<p>Most of these options are self explanatory, but the most important configuration options you must check are <strong>Collector ip address</strong>, and the <strong>TCP/UDP ports</strong>. These values are required for the agent to establish connection to the <em>Collector</em> and function correctly.</p>
+
+<p>Set these values appropriately in <em>pinpoint-root.config</em>:</p>
+
+<p><strong>THRIFT</strong></p>
+<ul>
+  <li><code class="highlighter-rouge">profiler.collector.ip</code> (default: 127.0.0.1)</li>
+  <li><code class="highlighter-rouge">profiler.collector.tcp.port</code> (collector’s <em>collector.receiver.base.port</em> - default: 9994/TCP)</li>
+  <li><code class="highlighter-rouge">profiler.collector.stat.port</code> (collector’s <em>collector.receiver.stat.udp.port</em> - default: 9995/UDP)</li>
+  <li><code class="highlighter-rouge">profiler.collector.span.port</code> (collector’s <em>collector.receiver.span.udp.port</em> - default: 9996/UDP)</li>
+</ul>
+
+<p><strong>GRPC</strong></p>
+<ul>
+  <li><code class="highlighter-rouge">profiler.transport.grpc.collector.ip</code>  (default: 127.0.0.1)</li>
+  <li><code class="highlighter-rouge">profiler.transport.grpc.agent.collector.port</code> (collector’s <em>collector.receiver.grpc.agent.port</em> - default: 9991/TCP)</li>
+  <li><code class="highlighter-rouge">profiler.transport.grpc.metadata.collector.port</code> (collector’s <em>collector.receiver.grpc.agent.port</em> - default: 9991/TCP)</li>
+  <li><code class="highlighter-rouge">profiler.transport.grpc.stat.collector.port</code> (collector’s <em>collector.receiver.grpc.stat.port</em> - default: 9992/TCP)</li>
+  <li><code class="highlighter-rouge">profiler.transport.grpc.span.collector.port</code> (collector’s <em>collector.receiver.grpc.span.port</em> - default: 9993/TCP)</li>
+</ul>
+
+<p>You may take a look at the default <em>pinpoint-root.config</em> file <a href="https://github.com/naver/pinpoint/blob/master/agent/src/main/resources/pinpoint-root.config" title="pinpoint.config">here</a> along with all the available configuration options.</p>
+
+<h3 id="profiles-2">Profiles</h3>
+<p>Add <code class="highlighter-rouge">-Dkey=value</code> to Java System Properties</p>
+<ul>
+  <li>$PINPOINT_AGENT_DIR/profiles/$PROFILE
+    <ul>
+      <li><code class="highlighter-rouge">-Dpinpoint.profiler.profiles.active=release or local</code></li>
+      <li>Modify <code class="highlighter-rouge">pinpoint.profiler.profiles.active=release</code> in $PINPOINT_AGENT_DIR/pinpoint-root.config</li>
+      <li>Default profile : <code class="highlighter-rouge">release</code></li>
+    </ul>
+  </li>
+  <li>Custom Profile
+    <ol>
+      <li>Create a custom profile in $PINPOINT_AGENT_HOME/profiles/MyProfile
+        <ul>
+          <li>Add pinpoint.config &amp; log4j.xml</li>
+        </ul>
+      </li>
+      <li>Add <code class="highlighter-rouge">-Dpinpoint.profiler.profiles.active=MyProfile</code></li>
+    </ol>
+  </li>
+  <li>Support external config
+    <ul>
+      <li><code class="highlighter-rouge">-Dpinpoint.config=$MY_EXTERNAL_CONFIG_PATH</code></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="miscellaneous">Miscellaneous</h2>
+
+<h3 id="hbase-region-servers-hostname-resolution">HBase region servers hostname resolution</h3>
+<p>Please note that collector/web must be able to resolve the hostnames of HBase region servers. 
+This is because HBase region servers are registered to ZooKeeper by their hostnames, so when the collector/web asks ZooKeeper for a list of region servers to connect to, it receives their hostnames.
+Please ensure that these hostnames are in your DNS server, or add these entries to the collector/web instances’ <em>hosts</em> file.</p>
+
+<h3 id="routing-web-requests-to-agents">Routing Web requests to Agents</h3>
+
+<p>Starting from 1.5.0, Pinpoint can send requests from the Web to Agents directly via the Collector (and vice-versa). To make this possible, we use Zookeeper to co-ordinate the communication channels established between Agents and Collectors, and those between Collectors and Web instances. With this addition, real-time communication (for things like active thread count monitoring) is now possible.</p>
+
+<p>We typically use the Zookeeper instance provided by the HBase backend so no additional Zookeeper configuration is required. Related configuration options are shown below.</p>
+
+<ul>
+  <li><strong>Collector</strong> - <em>pinpoint-collector.properties</em>
+    <ul>
+      <li><code class="highlighter-rouge">cluster.enable</code></li>
+      <li><code class="highlighter-rouge">cluster.zookeeper.address</code></li>
+      <li><code class="highlighter-rouge">cluster.zookeeper.sessiontimeout</code></li>
+      <li><code class="highlighter-rouge">cluster.listen.ip</code></li>
+      <li><code class="highlighter-rouge">cluster.listen.port</code></li>
+    </ul>
+  </li>
+  <li><strong>Web</strong> - <em>pinpoint-web.properties</em>
+    <ul>
+      <li><code class="highlighter-rouge">cluster.enable</code></li>
+      <li><code class="highlighter-rouge">cluster.web.tcp.port</code></li>
+      <li><code class="highlighter-rouge">cluster.zookeeper.address</code></li>
+      <li><code class="highlighter-rouge">cluster.zookeeper.sessiontimeout</code></li>
+      <li><code class="highlighter-rouge">cluster.zookeeper.retry.interval</code></li>
+      <li><code class="highlighter-rouge">cluster.connect.address</code></li>
+    </ul>
+  </li>
+</ul>
+
+
+
+    <div class="tags">
+        
+    </div>
+
+</div>
+
+
+
+<hr class="shaded"/>
+
+<footer>
+            <div class="row">
+                <div class="col-lg-12 footer">
+               &copy;2020 Naver. All rights reserved. <br />
+<span>Page last updated:</span> Feb 1, 2018<br/>
+
+<p><img src="images/company_logo.png" alt="Company logo"/></p>
+                </div>
+            </div>
+</footer>
+
+
+        </div>
+    <!-- /.row -->
+</div>
+<!-- /.container -->
+</div>
+<!-- /#main -->
+    </div>
+
+</body>
+
+<!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-57786344-4','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+</html>
