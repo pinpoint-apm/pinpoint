@@ -5,12 +5,13 @@ permalink: main.html
 sidebar: mydoc_sidebar
 ---
 
-## What's New in 2.0.4
+[Check out updates on lastest stable release](https://naver.github.io/pinpoint/2.0.4/main.html)
 
-v2.0.4 is release for bug fixes.
+## What's Next in 2.1.0
 
- - Add custom ignore-error-handler
- - Kafka plugin bug fix
+We plan to change pinpoint-collector and pinpoint-web to spring boot.
+
+Existing WARs will no longer be attached in the release.
 
 ## Upgrade consideration
 
