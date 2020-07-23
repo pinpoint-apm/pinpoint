@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.ClientOption;
 import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
+import com.navercorp.pinpoint.grpc.client.ForwardClientCall;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
 import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
@@ -35,7 +36,6 @@ import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
 import io.grpc.ClientInterceptor;
-import io.grpc.ForwardingClientCall.SimpleForwardingClientCall;
 import io.grpc.ManagedChannel;
 import io.grpc.MethodDescriptor;
 import io.grpc.stub.StreamObserver;
@@ -61,7 +61,7 @@ public class SpanClientMock {
         this.spanStub = SpanGrpc.newStub(channel).withInterceptors(new ClientInterceptor() {
             @Override
             public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
-                return new SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
+                return new ForwardClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
                     AtomicLong counter = new AtomicLong(0);
                     @Override
                     public void sendMessage(ReqT message) {

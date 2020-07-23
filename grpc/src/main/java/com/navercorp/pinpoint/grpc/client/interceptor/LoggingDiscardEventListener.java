@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.sender.grpc;
+package com.navercorp.pinpoint.grpc.client.interceptor;
 
-import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,8 +61,7 @@ public class LoggingDiscardEventListener<ReqT>  implements DiscardEventListener<
         return message.getClass().getSimpleName();
     }
 
-    @VisibleForTesting
-    long getDiscardCount() {
+    public long getDiscardCount() {
         return discardCounter.get();
     }
 }
