@@ -21,22 +21,19 @@ import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultModuleFactoryResolver;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactoryResolver;
 import com.navercorp.pinpoint.profiler.context.provider.ShutdownHookRegisterProvider;
-import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
+import com.navercorp.pinpoint.profiler.logging.Log4jLoggingSystem;
+import com.navercorp.pinpoint.profiler.logging.LoggingSystem;
 import com.navercorp.pinpoint.profiler.util.SystemPropertyDumper;
 import com.navercorp.pinpoint.rpc.ClassPreLoader;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,9 +45,8 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultAgent implements Agent {
 
+    private final LoggingSystem loggingSystem;
     private final Logger logger;
-
-    private final PLoggerBinder binder;
 
     private final ProfilerConfig profilerConfig;
 
@@ -61,23 +57,17 @@ public class DefaultAgent implements Agent {
 
 
     public DefaultAgent(AgentOption agentOption) {
-        if (agentOption == null) {
-            throw new NullPointerException("agentOption");
-        }
-        if (agentOption.getInstrumentation() == null) {
-            throw new NullPointerException("instrumentation");
-        }
-        if (agentOption.getProfilerConfig() == null) {
-            throw new NullPointerException("profilerConfig");
-        }
+        Assert.requireNonNull(agentOption, "agentOption");
+        Assert.requireNonNull(agentOption.getInstrumentation() , "instrumentation");
+        Assert.requireNonNull(agentOption.getProfilerConfig() , "profilerConfig");
 
-        initLogger(agentOption.getProfilerConfig());
+
+        final String logConfigPath = getLogConfigPath(agentOption.getProfilerConfig());
+        this.loggingSystem = newLoggingSystem(logConfigPath);
+        this.loggingSystem.start();
 
         logger = LoggerFactory.getLogger(this.getClass());
         logger.info("AgentOption:{}", agentOption);
-
-        this.binder = new Slf4jLoggerBinder();
-        bindPLoggerFactory(this.binder);
 
         dumpSystemProperties();
         dumpConfig(agentOption.getProfilerConfig());
@@ -94,6 +84,10 @@ public class DefaultAgent implements Agent {
 
         this.applicationContext = newApplicationContext(agentOption);
 
+    }
+
+    private LoggingSystem newLoggingSystem(String logConfigPath) {
+        return new Log4jLoggingSystem(logConfigPath);
     }
 
     protected ApplicationContext newApplicationContext(AgentOption agentOption) {
@@ -128,22 +122,12 @@ public class DefaultAgent implements Agent {
         }
     }
 
-    private void bindPLoggerFactory(PLoggerBinder binder) {
-        final String binderClassName = binder.getClass().getName();
-        PLogger pLogger = binder.getLogger(binder.getClass().getName());
-        pLogger.info("PLoggerFactory.initialize() bind:{} cl:{}", binderClassName, binder.getClass().getClassLoader());
-        // Set binder to static LoggerFactory
-        // Should we unset binder at shutdown hook or stop()?
-        PLoggerFactory.initialize(binder);
-    }
-
-    private void initLogger(ProfilerConfig config) {
+    private String getLogConfigPath(ProfilerConfig config) {
         final String location = config.readString(Profiles.LOG_CONFIG_LOCATION_KEY, null);
         if (location == null) {
             throw new IllegalStateException("$PINPOINT_DIR/profiles/${profile}/log4j.xml not found");
         }
-        // log4j init
-        DOMConfigurator.configure(location);
+        return location;
     }
 
 
@@ -200,7 +184,7 @@ public class DefaultAgent implements Agent {
 
         // for testcase
         if (profilerConfig.getStaticResourceCleanup()) {
-            PLoggerFactory.unregister(this.binder);
+            this.loggingSystem.stop();
         }
     }
 
