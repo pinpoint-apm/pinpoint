@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.sender.grpc;
+package com.navercorp.pinpoint.grpc.client.interceptor;
 
 /**
  * @author Woonduk Kang(emeroad)

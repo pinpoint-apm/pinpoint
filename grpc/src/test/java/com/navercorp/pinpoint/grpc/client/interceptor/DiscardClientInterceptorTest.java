@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.sender.grpc;
+package com.navercorp.pinpoint.grpc.client.interceptor;
 
 import io.grpc.Attributes;
 import io.grpc.CallOptions;
@@ -64,7 +64,7 @@ public class DiscardClientInterceptorTest {
 
     private DiscardClientInterceptor interceptor;
 
-    private DiscardClientInterceptor.DiscardClientCall<String, Integer> call ;
+    private DiscardClientCall<String, Integer> call ;
 
     @Before
     public void setUp() throws Exception {
@@ -81,7 +81,7 @@ public class DiscardClientInterceptorTest {
         discardEventListener = spy(new LoggingDiscardEventListener<String>(DiscardClientInterceptorTest.class.getName(), 1));
         this.interceptor = new DiscardClientInterceptor(discardEventListener, 1);
 
-        this.call = (DiscardClientInterceptor.DiscardClientCall<String, Integer>) interceptor.interceptCall(descriptor, callOptions, channel);
+        this.call = (DiscardClientCall<String, Integer>) interceptor.interceptCall(descriptor, callOptions, channel);
     }
 
     @Test
