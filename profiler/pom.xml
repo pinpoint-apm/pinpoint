@@ -172,6 +172,12 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-profiler-logging</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- commons-logging-adapter -->
         <dependency>
             <groupId>org.slf4j</groupId>
