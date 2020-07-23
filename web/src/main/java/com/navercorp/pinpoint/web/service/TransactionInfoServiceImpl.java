@@ -159,7 +159,20 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
         // find the endTime to use as reference
         long endTime = getEndTime(alignList);
-        recordSet.setEndTime(endTime);
+
+        /*
+         * Workaround codes to prevent issues occurred
+         * when endTime is too far away from startTime
+         */
+        long rootEndTime = getRootEndTime(alignList);
+
+        if (rootEndTime - startTime <= 0) {
+            recordSet.setEndTime(endTime);
+        } else if ((double)(rootEndTime - startTime) / (endTime-startTime) < 0.1) {
+            recordSet.setEndTime(rootEndTime);
+        } else {
+            recordSet.setEndTime(endTime);
+        }
 
         recordSet.setLoggingTransactionInfo(findIsLoggingTransactionInfo(alignList));
 
@@ -243,6 +256,14 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             min = Math.min(min, align.getStartTime());
         }
         return min;
+    }
+
+    private long getRootEndTime(List<Align> alignList) {
+        if (CollectionUtils.isEmpty(alignList)) {
+            return 0;
+        }
+
+        return alignList.get(0).getEndTime();
     }
 
     private long getEndTime(List<Align> alignList) {
