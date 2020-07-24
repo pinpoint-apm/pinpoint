@@ -105,6 +105,12 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.navercorp.pinpoint:pinpoint-common-servlet</include>
+                                    <includes>com.navercorp.pinpoint:pinpoint-jboss-plugin</includes>
+                                </includes>
+                            </artifactSet>
                             <filters>
                                 <filter>
                                     <artifact>com.navercorp.pinpoint:pinpoint-jboss-plugin</artifact>

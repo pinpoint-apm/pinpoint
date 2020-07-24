@@ -99,6 +99,11 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.navercorp.pinpoint:pinpoint-common-servlet</include>
+                                </includes>
+                            </artifactSet>
                             <relocations>
                                 <relocation>
                                     <pattern>com.navercorp.pinpoint.plugin.common.servlet</pattern>
