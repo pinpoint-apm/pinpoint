@@ -13,9 +13,9 @@ You may run a sample Pinpoint instance in your own machine by running four simpl
 
 Once the components are running, you should be able to visit http://localhost:28080 to view the Pinpoint Web UI, and http://localhost:28081 to generate transactions on the Sample TestApp.
 
-Pinpoint is comprised of 3 main components (Collector, Web, Agent), and uses HBase as its storage. Collector and Web are packaged as simple WAR files, and the Agent is packaged so that it may be attached to applications as a java agent.
+Pinpoint is comprised of 3 main components (Collector, Web, Agent), and uses HBase as its storage. Collector and Web are packaged as runnable JAR files, and the Agent is packaged so that it may be attached to applications as a java agent.
 
-Pinpoint QuickStart provides a sample TestApp for the Agent to attach itself to, and launches all three components using [Tomcat Maven Plugin](http://tomcat.apache.org/maven-plugin.html).
+Pinpoint QuickStart provides a sample TestApp for the Agent to attach itself to.
 
 ## Requirements
 In order to build Pinpoint, the following requirements must be met:
@@ -97,6 +97,6 @@ Please ref this [link](./quickstart.Win.en.md)
 ### Using mysql
 Pinpoint Web uses Mysql to persist users, user groups, and alarm configurations.<br/>
 However Quickstart uses MockDAO to reduce memory usage.<br/>
-Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web's [applicationContext-dao-config.xml](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/applicationContext-dao-config.xml), [jdbc.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/jdbc.properties).
+Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web's [applicationContext-dao-config.xml](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/applicationContext-web-dao-config.xml), [jdbc.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/jdbc-root.properties).
 
 Additionally, if you would like to enable alerts, you need to implement additional logic. Please ref this [link](./alarm.html)
