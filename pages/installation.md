@@ -30,13 +30,17 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 	6. Set JAVA_9_HOME environment variable to JDK 9 home directory.
 	7. Run `./mvnw clean install -DskipTests=true` (or `./mvnw.cmd` for Windows)
 3. Pinpoint Collector ([details](#3-pinpoint-collector))
-	1. Deploy *pinpoint-collector-$VERSION.war* to a web container.
-	2. Configure *pinpoint-collector.properties*, *hbase.properties*.
-	3. Start container.
+	1. Start *pinpoint-collector-boot-$VERSION.jar* with java -jar command.
+	
+	    e.g.) `java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-collector-boot-2.1.0-SNAPSHOT.jar`
+	    
+	2. It will start with default settings. To learn more about default values or how to override them, please see the details below.
 4. Pinpoint Web ([details](#4-pinpoint-web))
-	1. Deploy *pinpoint-web-$VERSION.war* to a web container as a ROOT application.
-	2. Configure *pinpoint-web.properties*, *hbase.properties*.
-	3. Start container.
+	1. Start *pinpoint-web-boot-$VERSION.jar* with java -jar command.
+	
+	    e.g.) `java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-web-boot-2.1.0-SNAPSHOT.jar`
+	    
+    2. It will start with default settings. To learn more about default values or how to override them, please see the details below.
 5. Pinpoint Agent ([details](#5-pinpoint-agent))
 	1. Extract/move *pinpoint-agent/* to a convenient location (`$AGENT_PATH`).
 	2. Set `-javaagent:$AGENT_PATH/pinpoint-bootstrap-$VERSION.jar` JVM argument to attach the agent to a java application.
@@ -101,23 +105,25 @@ There are two options:
 Regardless of your method, you should end up with the files and directories mentioned in the following sections.
 
 ## 3. Pinpoint Collector
-You should have the following **war** file that can be deployed to a web container. 
+You should have the following **executable jar** file. 
 
-*pinpoint-collector-$VERSION.war*
+*pinpoint-collector-boot-$VERSION.jar*
 
-The path to this file should look like *$PINPOINT_PATH/collector/target/pinpoint-collector-$VERSION.war* if you built it manually. 
+The path to this file should look like *$PINPOINT_PATH/collector/target/deploy/pinpoint-collector-boot-$VERSION.jar* if you built it manually. 
 
 ### Installation
-Since Pinpoint Collector is packaged as a deployable war file, you may deploy them to a web container as you would any other web applications.
+Since Pinpoint Collector is packaged as an executable jar file, you can start Collector by running it directly.
+
+e.g.) `java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-collector-boot-2.1.0-SNAPSHOT.jar`
 
 ### Configuration
-There are 3 configuration files available for Pinpoint Collector: *pinpoint-collector.properties*, *pinpoint-grpc-collector.properties*, and *hbase.properties*.
+There are 3 configuration files used for Pinpoint Collector: *pinpoint-collector-root.properties*, *pinpoint-collector-grpc.properties*, and *hbase.properties*.
 
-* pinpoint-collector.properties - contains configurations for the collector. Check the following values with the agent's configuration options :
+* pinpoint-collector-root.properties - contains configurations for the collector. Check the following values with the agent's configuration options :
 	* `collector.receiver.base.port` (agent's *profiler.collector.tcp.port* - default: 9994/TCP)
 	* `collector.receiver.stat.udp.port` (agent's *profiler.collector.stat.port* - default: 9995/UDP)
 	* `collector.receiver.span.udp.port` (agent's *profiler.collector.span.port* - default: 9996/UDP)
-* pinpoint-grpc-collector.properties - contains configurations for the grpc.
+* pinpoint-collector-grpc.properties - contains configurations for the grpc.
     * `collector.receiver.grpc.agent.port` (agent's *profiler.transport.grpc.agent.collector.port*, *profiler.transport.grpc.metadata.collector.port* - default: 9991/TCP)
 	* `collector.receiver.grpc.stat.port` (agent's *profiler.transport.grpc.stat.collector.port* - default: 9992/TCP)
 	* `collector.receiver.grpc.span.port` (agent's *profiler.transport.grpc.span.collector.port* - default: 9993/TCP)
@@ -125,70 +131,114 @@ There are 3 configuration files available for Pinpoint Collector: *pinpoint-coll
 	* `hbase.client.host` (default: localhost)
 	* `hbase.client.port` (default: 2181)
 
-These files are located under `WEB-INF/classes/` inside the war file.
+You may take a look at the full list of default configurations here:
+- [pinpoint-collector-root.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-collector-root.properties)
+- [pinpoint-collector-grpc.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/profiles/local/pinpoint-collector-grpc.properties)
+- [hbase.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/profiles/local/hbase.properties)
 
-You may take a look at the default configuration files here
-- [pinpoint-collector.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-collector.properties)
-- [pinpoint-grpc-collector.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-grpc-collector.properties)
-- [hbase.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/hbase.properties)
+#### When Building Manually
+You can modify default configuration values or add new profiles under `collector/src/main/resources/profiles/`.
+
+#### When Using Released Binary **(Recommended)**
+- You can override any configuration values with `-D` option. For example,
+    - `java -jar -Dspring.profiles.active=release -Dpinpoint.zookeeper.address=localhost -Dhbase.client.port=1234 pinpoint-collector-boot-2.1.0-SNAPSHOT.jar`
+
+- To import a list of your customized configuration values from a file, you can use `--spring.config.additional-location` option. For example,
+    - Create a file `./config/collector.properties`, and list the configuration values you want to override.
+        >
+        > spring.profiles.active=release
+        >
+        > pinpoint.zookeeper.address=localhost
+        >
+        > collector.receiver.grpc.agent.port=9999
+        >
+        > collector.receiver.stat.udp.receiveBufferSize=1234567
+        >
+
+    - Execute with `java -jar pinpoint-collector-boot-2.1.0-SNAPSHOT.jar --spring.config.additional-location=./config/collector.properties`
+
+- To further explore how to use externalized configurations, refer to [Spring Boot Reference Document](https://docs.spring.io/spring-boot/docs/2.2.x/reference/html/spring-boot-features.html#boot-features-external-config-application-property-files).
 
 ### Profiles
-Add `-Dkey=value` to Java System Properties
-* WEB-INF/classes/profiles/$PROFILE
-  - `-Dspring.profiles.active=release or local`
-  - Default profile : `release`
-* Support external property
-  - `-Dpinpoint.zookeeper.address=$MY_ZOOKEEPER_ADDRESS` `-Dcollector.receiver.span.worker.threadSize=1024` ...
-* Support external config
-  - `-Dpinpoint.collector.config.location=$MY_EXTERNAL_CONFIG_PATH`
-* Add custom profile
-  1. Create a custom profile in WEB-INF/classes/profiles/MyProfile
-     - Add *.config & log4j.xml
-  2. Add `-Dspring.profiles.active=MyProfile`
+Pinpoint Collector provides two profiles: [release](https://github.com/naver/pinpoint/tree/master/collector/src/main/resources/profiles/release) and [local](https://github.com/naver/pinpoint/tree/master/collector/src/main/resources/profiles/local) (default).
+
+To specify which profile to use, configure `spring.profiles.active` value as described in the previous section.
+    
+#### Adding a custom profile
+
+To add a custom profile, you need to rebuild `pinpoint-collector` module.
+
+  1. Add a new folder under `collector/src/main/resources/profiles` with a profile name.
+  2. Copy files from local or release profiles folder, and modify configuration values as needed.
+  3. To use the new profile, rebuild `pinpoint-collector` module and configure `spring.profiles.active` as described in the previous section.
+
+When using released binary, you cannot add a custom profile. Instead, you can manage your configuration values in separate files and use them to override default values as described in the [previous section](#3-pinpoint-collector).
 
 
 ## 4. Pinpoint Web
-You should have the following **war** file that can be deployed to a web container.
+You should have the following **executable jar** file.
 
-*pinpoint-web-$VERSION.war*
+*pinpoint-web-boot-$VERSION.jar*
 
-The path to this file should look like *$PINPOINT_PATH/web/target/pinpoint-web-$VERSION.war* if you built it manually.
+The path to this file should look like *$PINPOINT_PATH/web/target/deploy/pinpoint-web-boot-$VERSION.jar* if you built it manually.
 
 Pinpoint Web Supported Browsers:
 
 * Chrome
 
 ### Installation
-Since Pinpoint Web is packaged as a deployable war file, you may deploy them to a web container as you would any other web applications. The web module must also be deployed as a ROOT application.
+Since Pinpoint Web is packaged as an executable jar file, you can start Web by running it directly.
+
+e.g.) `java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-web-boot-2.1.0-SNAPSHOT.jar`
 
 ### Configuration
-Similar to the Collector, Pinpoint Web has configuration files related to installation: *pinpoint-web.properties*, and *hbase.properties*. 
-
-Make sure you check the following configuration options :
+There are 2 configuration files used for Pinpoint Web: *pinpoint-web-root.properties*, and *hbase.properties*. 
 
 * hbase.properties - contains configurations to connect to HBase.
 	* `hbase.client.host` (default: localhost)
 	* `hbase.client.port` (default: 2181)
 
-These files are located under `WEB-INF/classes/` inside the war file.
-
 You may take a look at the default configuration files here
-  - [pinpoint-web.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/pinpoint-web.properties)
-  - [hbase.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/hbase.properties)
+  - [pinpoint-web-root.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/pinpoint-web-root.properties)
+  - [hbase.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/profiles/release/hbase.properties)
+  - [pinpoint-web.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/profiles/release/pinpoint-web.properties)
+
+#### When Building Manually
+You can modify default configuration values or add new profiles under `web/src/main/resources/profiles/`.
+
+#### When Using Released Binary **(Recommended)**
+- You can override any configuration values with `-D` option. For example,
+    - `java -jar -Dspring.profiles.active=release -Dpinpoint.zookeeper.address=localhost -Dhbase.client.port=1234 pinpoint-web-boot-2.1.0-SNAPSHOT.jar`
+
+- To import a list of your customized configuration values from a file, you can use `--spring.config.additional-location` option. For example,
+    - Create a file `./config/web.properties`, and list the configuration values you want to override.
+        >
+        > spring.profiles.active=release
+        >
+        > pinpoint.zookeeper.address=localhost
+        >
+        > cluster.zookeeper.sessiontimeout=10000
+        >
+
+    - Execute with `java -jar pinpoint-web-boot-2.1.0-SNAPSHOT.jar --spring.config.additional-location=./config/web.properties`
+
+- To further explore how to use externalized configurations, refer to [Spring Boot Reference Document](https://docs.spring.io/spring-boot/docs/2.2.x/reference/html/spring-boot-features.html#boot-features-external-config-application-property-files).
 
 ### Profiles
-Add `-Dkey=value` to Java System Properties
-* WEB-INF/classes/profiles/$PROFILE
-  - `-Dspring.profiles.active=release or local`
-  - Default profile : `release`
-* Support external property
-  - `-Dpinpoint.zookeeper.address=$MY_ZOOKEEPER_ADDRESS` `-Dhbase.rpc.timeout=30000` ...
-* Support external config
-  - `-Dpinpoint.web.config.location=$MY_EXTERNAL_CONFIG_PATH`
-* Add custom profile
-  1. Create a custom profile in WEB-INF/classes/profiles/MyProfile
-     - Add *.config & log4j.xml
-  2. Add `-Dspring.profiles.active=MyProfile`
+
+Pinpoint Web provides two profiles: [release](https://github.com/naver/pinpoint/tree/master/web/src/main/resources/profiles/release) (default) and [local](https://github.com/naver/pinpoint/tree/master/web/src/main/resources/profiles/local).
+
+To specify which profile to use, configure `spring.profiles.active` value as described in the previous section.
+    
+#### Adding a custom profile
+
+To add a custom profile, you need to rebuild `pinpoint-web` module.
+
+  1. Add a new folder under `web/src/main/resources/profiles` with a profile name.
+  2. Copy files from local or release profiles folder, and modify configuration values as needed.
+  3. To use the new profile, rebuild `pinpoint-web` module and configure `spring.profiles.active` as described in the previous section.
+
+When using released binary, you cannot add a custom profile. Instead, you can manage your configuration values in separate files and use them to override default values as described in the [previous section](#4-pinpoint-web).
 
 ## 5. Pinpoint Agent
 If downloaded, unzip the Pinpoint Agent file. You should have a **pinpoint-agent** directory with the layout below :
