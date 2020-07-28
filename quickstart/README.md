@@ -1,81 +1,78 @@
 # QuickStart
-Pinpoint is comprised of 3 main components (Collector, Web, Agent), and uses HBase as its storage. Collector and Web are packaged as simple WAR files, and the Agent is packaged so that it may be attached to applications as a java agent.
+Pinpoint QuickStart provides a sample TestApp for the Agent.
 
-Pinpoint QuickStart provides a sample TestApp for the Agent to attach itself to, and launches all three components using [Tomcat Maven Plugin](http://tomcat.apache.org/maven-plugin.html).
 
-## Requirements
+## Java
+
+### Requirements
 In order to build Pinpoint, the following requirements must be met:
 
-* JDK 6 installed ([jdk1.6.0_45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase6-419409.html#jdk-6u45-oth-JPR) recommended)
-* JDK 7 installed ([jdk1.7.0_80](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html#jdk-7u80-oth-JPR) recommended)
 * JDK 8 installed
-* JAVA_HOME environment variable set to JDK 8+ home directory.
-* JAVA_6_HOME environment variable set to JDK 6 home directory.
-* JAVA_7_HOME environment variable set to JDK 7 home directory.
-* JAVA_8_HOME environment variable set to JDK 8 home directory.
 
-QuickStart supports Linux, OSX, and Windows.
+### When Using Released Binary(Recommended) 
+Download Pinpoint from [Latest Release](https://github.com/naver/pinpoint/releases/latest).
 
+Extract the downloaded file.
+~~~
+$ tar xvzf pinpoint-agent-2.1.0-SNAPSHOT.tar.gz
+~~~
 
-## Starting 
+Run the JAR file, as follows:
+~~~
+$ java -jar -javaagent:pinpoint-agent-2.1.0-SNAPSHOT/pinpoint-bootstrap-2.1.0-SNAPSHOT.jar -Dpinpoint.agentId=test-agent -Dpinpoint.applicationName=TESTAPP pinpoint-quickstart-testapp-2.1.0-SNAPSHOT.jar
+~~~
+
+### When Building Manually
 Download Pinpoint with `git clone https://github.com/naver/pinpoint.git` or [download](https://github.com/naver/pinpoint/archive/master.zip) the project as a zip file and unzip.
 
-Install Pinpoint by running `./mvnw install -DskipTests=true`
+Change to the pinpoint directory, and build.
+~~~
+$ cd pinpoint
+$ ./mvnw install -DskipTests=true 
+~~~
 
-### Install & Start HBase
+Change to the quickstart testapp directory, and build.
+Let's build and run.
+~~~
+$ cd quickstart/testapp
+$ ./mvnw clean package
+~~~
 
-The following script downloads HBase standalone from [Apache download site](http://apache.mirror.cdnetworks.com/hbase/).
+Change to the pinpoint directory, and run.
+~~~
+$ cd ../../
+$ java -jar -javaagent:agent/target/pinpoint-agent-2.1.0-SNAPSHOT/pinpoint-bootstrap-2.1.0-SNAPSHOT.jar -Dpinpoint.agentId=test-agent -Dpinpoint.applicationName=TESTAPP quickstart/testapp/target/pinpoint-quickstart-testapp-2.1.0-SNAPSHOT.jar
+~~~
 
-**Download & Start** - Run `quickstart/bin/start-hbase.sh`
+### Get Started
+You should see some output that looks very similar to this:
+~~~
 
-**Initialize Tables** - Run `quickstart/bin/init-hbase.sh`
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::        (v2.3.2.RELEASE)
 
-### Start Pinpoint Daemons
+2020-08-06 17:24:59.519  INFO 19236 --- [           main] com.navercorp.pinpoint.testapp.TestApp   : Starting TestApp on AD01160256 with PID 19236 (C:\repository\github\pinpoint\quickstart\testapp\target\classes started by Naver in C:\repository\github\pinpoint)
+2020-08-06 17:24:59.520  INFO 19236 --- [           main] com.navercorp.pinpoint.testapp.TestApp   : No active profile set, falling back to default profiles: default
+2020-08-06 17:24:59.520 DEBUG 19236 --- [           main] o.s.boot.SpringApplication               : Loading source class com.navercorp.pinpoint.testapp.TestApp
+2020-08-06 17:24:59.558 DEBUG 19236 --- [           main] o.s.b.c.c.ConfigFileApplicationListener  : Loaded config file 'file:/C:/repository/github/pinpoint/quickstart/testapp/target/classes/application.yml' (classpath:/application.yml)
+2020-08-06 17:24:59.558 DEBUG 19236 --- [           main] ConfigServletWebServerApplicationContext : Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@46185a1b
+08-06 17:24:59.059 [           main] INFO  .n.p.p.DefaultDynamicTransformerRegistry:67  -- added dynamic transformer classLoader: sun.misc.Launcher$AppClassLoader@18b4aac2, className: com.navercorp.pinpoint.testapp.controller.ApisController, registry size: 1
+08-06 17:24:59.059 [           main] INFO  .n.p.p.DefaultDynamicTransformerRegistry:67  -- added dynamic transformer classLoader: sun.misc.Launcher$AppClassLoader@18b4aac2, className: com.navercorp.pinpoint.testapp.controller.CallSelfController, registry size: 2
+08-06 17:24:59.059 [           main] INFO  .n.p.p.DefaultDynamicTransformerRegistry:67  -- added dynamic transformer classLoader: sun.misc.Launcher$AppClassLoader@18b4aac2, className: com.navercorp.pinpoint.testapp.controller.HttpClient4Controller, registry size: 3
+08-06 17:24:59.059 [           main] INFO  .n.p.p.DefaultDynamicTransformerRegistry:67  -- added dynamic transformer classLoader: sun.misc.Launcher$AppClassLoader@18b4aac2, className: com.navercorp.pinpoint.testapp.controller.SimpleController, registry size: 4
+08-06 17:24:59.059 [           main] INFO  .n.p.p.DefaultDynamicTransformerRegistry:67  -- added dynamic transformer classLoader: sun.misc.Launcher$AppClassLoader@18b4aac2, className: com.navercorp.pinpoint.testapp.controller.StressController, registry size: 5
+2020-08-06 17:25:00.313 DEBUG 19236 --- [           main] .s.b.w.e.t.TomcatServletWebServerFactory : Code archive: C:\Users\Naver\.m2\repository\org\springframework\boot\spring-boot\2.3.2.RELEASE\spring-boot-2.3.2.RELEASE.jar
+2020-08-06 17:25:00.313 DEBUG 19236 --- [           main] .s.b.w.e.t.TomcatServletWebServerFactory : Code archive: C:\Users\Naver\.m2\repository\org\springframework\boot\spring-boot\2.3.2.RELEASE\spring-boot-2.3.2.RELEASE.jar
+2020-08-06 17:25:00.314 DEBUG 19236 --- [           main] .s.b.w.e.t.TomcatServletWebServerFactory : None of the document roots [src/main/webapp, public, static] point to a directory and will be ignored.
+2020-08-06 17:25:00.347  INFO 19236 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2020-08-06 17:25:00.355  INFO 19236 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2020-08-06 17:25:00.356  INFO 19236 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.37]
+~~~
 
-**Collector** - Run `quickstart/bin/start-collector.sh`
-
-**TestApp** - Run `quickstart/bin/start-testapp.sh`
-
-**Web UI** - Run `quickstart/bin/start-web.sh`
-
-
-Once the startup scripts are completed, the last 10 lines of the Tomcat log are tailed to the console:
-
-**Collector** ![Collector quick start successful](../doc/images/ss_quickstart-collector-log.png)
-
-**TestApp** ![TestApp quick start successful](../doc/images/ss_quickstart-testapp-log.png)
-
-**Web UI** ![Web quick start successful](../doc/images/ss_quickstart-web-log.png)
-
-### Check Status
-Once HBase and the 3 daemons are running, you may visit the following addresses to test out your very own Pinpoint instance.
-
-* Web UI - http://localhost:28080
-* TestApp - http://localhost:28081
-
-You can feed trace data to Pinpoint using the TestApp UI, and check them using Pinpoint Web UI. TestApp registers itself as *test-agent* under *TESTAPP*.
-
-
-## Stopping
-
-**Web UI** - Run `quickstart/bin/stop-web.sh`
-
-**TestApp** - Run `quickstart/bin/stop-testapp.sh`
-
-**Collector** - Run `quickstart/bin/stop-collector.sh`
-
-**HBase** - Run `quickstart/bin/stop-hbase.sh`
-
-## Extra
-
-### Running in Windows 
-Please ref this [link](./README.Win.en.md)
-
-### Using mysql
-Pinpoint Web uses Mysql to persist users, user groups, and alarm configurations.<br/>
-However Quickstart uses MockDAO to reduce memory usage.<br/>
-Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web's [applicationContext-dao-config.xml
-](../web/src/main/resources/applicationContext-dao-config.xml
-), [jdbc.properties](../web/src/main/resources/jdbc.properties).
-
-Additionally, if you would like to enable alerts, you need to implement additional logic. Please ref this [link](../doc/alarm.md)
+The last couple of lines here tell us that Spring has started. Spring Boot’s embedded Apache Tomcat server is acting as a webserver and is listening for requests on localhost port 8080. Open your browser and in the address bar at the top enter http://localhost:8080
+ 
