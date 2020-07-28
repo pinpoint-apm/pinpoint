@@ -45,5 +45,4 @@ public class HttpClient4Controller {
     public Map<String, Object> getEplLeagueTable() throws Exception {
         return remoteService.get(EPL_LEAGUE_TABLE_URL, Map.class);
     }
-
 }
