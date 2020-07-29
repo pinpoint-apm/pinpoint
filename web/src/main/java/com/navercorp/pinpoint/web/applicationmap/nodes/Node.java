@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.nodes;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.appender.metric.DBMetric;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.view.NodeSerializer;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -25,6 +26,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -51,6 +54,8 @@ public class Node {
     private NodeHistogram nodeHistogram;
     
     private boolean authorized = true;
+
+    private List<DBMetric> dbMetricList = new ArrayList<>(0);
 
     public Node(Application application) {
         this(NodeType.DETAILED, application);
@@ -128,4 +133,13 @@ public class Node {
     public String toString() {
         return "Node [" + application + "]";
     }
+
+    public void addDBMetric(DBMetric dbMetric) {
+        dbMetricList.add(dbMetric);
+    }
+
+    public List<DBMetric> getDBMetricList() {
+        return dbMetricList;
+    }
+
 }

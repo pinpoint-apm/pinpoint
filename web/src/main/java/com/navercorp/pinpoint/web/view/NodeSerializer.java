@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.appender.metric.DBMetric;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
@@ -65,8 +66,27 @@ public class NodeSerializer extends JsonSerializer<Node>  {
 
         writeHistogram(jgen, node);
         writeServerInstanceList(jgen, node);
+        writeMetricDB(jgen, node);
 
         jgen.writeEndObject();
+    }
+
+    private void writeMetricDB(JsonGenerator jgen, Node node) throws IOException {
+        if (node.getDBMetricList().isEmpty()) {
+            writeEmptyArray(jgen, "DBMetric");
+        } else {
+            jgen.writeArrayFieldStart("DBMetric");
+
+            for (DBMetric dbMetric : node.getDBMetricList()) {
+                jgen.writeStartObject();
+                jgen.writeStringField("databaseName", dbMetric.getDatabaseName());
+                jgen.writeStringField("databaseType", dbMetric.getDatabaseType().toString());
+                jgen.writeStringField("matchingKey", dbMetric.getMatchingKey());
+                jgen.writeEndObject();
+            }
+            jgen.writeEndArray();
+        }
+
     }
 
     private void writeServerInstanceList(JsonGenerator jgen, Node node) throws IOException {
