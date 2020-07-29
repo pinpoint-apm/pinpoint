@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.EmptyNodeHis
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppender;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.metric.MetricInfoAppender;
+import com.navercorp.pinpoint.web.applicationmap.appender.metric.MetricInfoAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.EmptyServerInstanceListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppender;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
@@ -53,16 +55,18 @@ public class ApplicationMapBuilder {
 
     private final NodeHistogramAppenderFactory nodeHistogramAppenderFactory;
     private final ServerInfoAppenderFactory serverInfoAppenderFactory;
+    private final MetricInfoAppenderFactory metricInfoAppenderFactory;
 
     private NodeType nodeType;
     private LinkType linkType;
     private NodeHistogramFactory nodeHistogramFactory;
     private ServerInstanceListFactory serverInstanceListFactory;
 
-    public ApplicationMapBuilder(Range range, NodeHistogramAppenderFactory nodeHistogramAppenderFactory, ServerInfoAppenderFactory serverInfoAppenderFactory) {
+    public ApplicationMapBuilder(Range range, NodeHistogramAppenderFactory nodeHistogramAppenderFactory, ServerInfoAppenderFactory serverInfoAppenderFactory, MetricInfoAppenderFactory metricInfoAppenderFactory) {
         this.range = Objects.requireNonNull(range, "range");
         this.nodeHistogramAppenderFactory = Objects.requireNonNull(nodeHistogramAppenderFactory, "nodeHistogramAppenderFactory");
         this.serverInfoAppenderFactory = Objects.requireNonNull(serverInfoAppenderFactory, "serverInfoAppenderFactory");
+        this.metricInfoAppenderFactory = Objects.requireNonNull(metricInfoAppenderFactory, "metricInfoAppenderFactory");;
     }
 
     public ApplicationMapBuilder nodeType(NodeType nodeType) {
@@ -147,6 +151,9 @@ public class ApplicationMapBuilder {
         }
         ServerInfoAppender serverInfoAppender = serverInfoAppenderFactory.create(serverInstanceListFactory);
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+
+        MetricInfoAppender metricInfoAppender = metricInfoAppenderFactory.create();
+        metricInfoAppender.appendMetricInfo(range, nodeList, linkDataDuplexMap);
 
         return new DefaultApplicationMap(range, nodeList, linkList);
     }
