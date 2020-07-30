@@ -250,22 +250,61 @@ class PinpointStarter {
 
         return libUrlList.toArray(new URL[0]);
     }
+    private static String PINPIONT_PREFIX = "pinpoint-";
 
     private List<URL> resolveLib(List<URL> urlList) {
         if (DEFAULT_AGENT.equalsIgnoreCase(getAgentType())) {
-            final List<URL> releaseLib = new ArrayList<URL>(urlList.size());
-            for (URL url : urlList) {
-                //
-                if (!url.toExternalForm().contains("pinpoint-profiler-test")) {
-                    releaseLib.add(url);
-                }
-            }
-            return releaseLib;
+            final List<URL> releaseLib = filterTest(urlList);
+            return order(releaseLib);
         } else {
             logger.info("load " + PLUGIN_TEST_AGENT + " lib");
             // plugin test
-            return urlList;
+            return order(urlList);
         }
+    }
+
+    private List<URL> order(List<URL> releaseLib) {
+        final List<URL> orderList = new ArrayList<URL>(releaseLib.size());
+        // pinpoint module first
+        for (URL url : releaseLib) {
+            String fileName = getFileName(url);
+            if (fileName == null) {
+                continue;
+            }
+            if (fileName.startsWith(PINPIONT_PREFIX)) {
+                orderList.add(url);
+            }
+        }
+        for (URL url : releaseLib) {
+            String fileName = getFileName(url);
+            if (fileName == null) {
+                continue;
+            }
+            if (!fileName.startsWith(PINPIONT_PREFIX)) {
+                orderList.add(url);
+            }
+        }
+        return orderList;
+    }
+
+    private String getFileName(URL url) {
+        final String externalFrom = url.toExternalForm();
+        final int lastIndex = externalFrom.lastIndexOf('/');
+        if (lastIndex == -1) {
+            return null;
+        }
+        return externalFrom.substring(lastIndex + 1);
+    }
+
+    private List<URL> filterTest(List<URL> urlList) {
+        final List<URL> releaseLib = new ArrayList<URL>(urlList.size());
+        for (URL url : urlList) {
+            String externalFrom = url.toExternalForm();
+            if (!externalFrom.contains("pinpoint-profiler-test")) {
+                releaseLib.add(url);
+            }
+        }
+        return releaseLib;
     }
 
 }

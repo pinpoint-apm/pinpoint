@@ -127,7 +127,7 @@
         <plugin.shade.version>3.1.1</plugin.shade.version>
         <plugin.assembly.version>3.1.1</plugin.assembly.version>
         <plugin.war.version>3.2.2</plugin.war.version>
-        <plugin.jar.version>3.1.0</plugin.jar.version>
+        <plugin.jar.version>3.2.0</plugin.jar.version>
         <plugin.antrun.version>1.8</plugin.antrun.version>
 
         <!--<plugin.clover.verison>4.3.0</plugin.clover.verison>-->

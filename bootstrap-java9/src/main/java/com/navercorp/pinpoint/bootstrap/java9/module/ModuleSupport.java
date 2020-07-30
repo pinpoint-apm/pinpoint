@@ -62,6 +62,8 @@ public class ModuleSupport {
         baseModule.addExports("jdk.internal.misc", bootstrapModule);
         baseModule.addExports("jdk.internal.module", bootstrapModule);
 
+//        baseModule.addExports("java.lang.reflect", bootstrapModule);
+
     }
 
     public void defineAgentModule(ClassLoader classLoader, URL[] jarFileList) {
@@ -70,7 +72,8 @@ public class ModuleSupport {
 
         prepareAgentModule(classLoader, agentModule);
 
-        addPermissionToLog4jModule(agentModule);
+//        addPermissionToLog4jModule(agentModule);
+        addPermissionToLog4j2Module(agentModule);
         addPermissionToGuiceModule(agentModule);
 
     }
@@ -95,6 +98,18 @@ public class ModuleSupport {
         // PropertySetter bean.Introspector
         JavaModule desktopModule = loadModule("java.desktop");
         agentModule.addReads(desktopModule);
+    }
+
+    private void addPermissionToLog4j2Module(JavaModule agentModule) {
+        // required org.apache.logging.log4j.util.Reflection
+//        JavaModule reflect = loadModule("java.lang.reflect");
+//        agentModule.addReads(reflect);
+        // required log4j2
+        // java.xml
+        // pinpoint.agent/pinpoint.agent/org.apache.logging.log4j.core.config.xml.XmlConfiguration.<init>(XmlConfiguration.java:138)
+        // java.desktop
+        // pinpoint.agent/pinpoint.agent/org.apache.logging.log4j.core.LoggerContext.setConfiguration(LoggerContext.java:369)
+        addPermissionToLog4jModule(agentModule);
     }
 
     private void addPermissionToGuiceModule(JavaModule agentModule) {
