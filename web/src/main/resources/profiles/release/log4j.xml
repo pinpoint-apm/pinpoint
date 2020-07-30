@@ -52,11 +52,6 @@
         <appender-ref ref="console"/>
     </logger>
 
-    <logger name="com.navercorp.pinpoint.web.calltree.server" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="console"/>
-    </logger>
-
     <logger name="com.navercorp.pinpoint.web.mapper" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
@@ -77,10 +72,6 @@
         <appender-ref ref="console"/>
     </logger>
 
-    <logger name="org.apache.ibatis" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="console"/>
-    </logger>
     <logger name="org.mybatis" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>

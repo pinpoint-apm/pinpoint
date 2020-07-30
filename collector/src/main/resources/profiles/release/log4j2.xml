@@ -61,11 +61,6 @@
             <AppenderRef ref="rollingFile"/>
         </Logger>
 
-        <Logger name="com.navercorp.pinpoint.cluster.route.filter" level="INFO" additivity="false">
-            <AppenderRef ref="console"/>
-            <Appenderref ref="rollingFile"/>
-        </Logger>
-
         <Logger name="com.navercorp.pinpoint.collector.handler" level="INFO" additivity="false">
             <AppenderRef ref="console"/>
             <Appenderref ref="rollingFile"/>

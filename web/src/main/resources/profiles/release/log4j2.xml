@@ -57,10 +57,6 @@
             <AppenderRef ref="console"/>
         </Logger>
 
-        <Logger name="com.navercorp.pinpoint.web.calltree.server" level="INFO" additivity="false">
-            <AppenderRef ref="console"/>
-        </Logger>
-
         <Logger name="com.navercorp.pinpoint.web.mapper" level="INFO" additivity="false">
             <AppenderRef ref="console"/>
         </Logger>
@@ -77,9 +73,6 @@
             <AppenderRef ref="console"/>
         </Logger>
 
-        <Logger name="org.apache.ibatis" level="INFO" additivity="false">
-            <AppenderRef ref="console"/>
-        </Logger>
         <Logger name="org.mybatis" level="INFO" additivity="false">
             <AppenderRef ref="console"/>
         </Logger>
