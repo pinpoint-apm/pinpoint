@@ -69,7 +69,7 @@ public class LinkMap {
                     if (span.getCollectorAcceptTime() == collectorAcceptTime) {
                         // replace value
                         spanToLinkMap.put(spanIdPairKey, Collections.singletonList(node));
-                        duplicatedNodeList.add(node);
+                        duplicatedNodeList.add(firstNode);
                         logger.warn("Duplicated span - choose focus {}", node);
                     } else {
                         // add remove list
