@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Configuration status="info">
+<Configuration status="INFO">
     <Properties>
         <Property name="console_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %clr{%-5level} %clr{%-40.40logger{1.}}{cyan}:%3L -- %msg%n</Property>
         <Property name="file_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.}:%3L -- %msg%n</Property>

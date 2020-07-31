@@ -2,17 +2,35 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.navercorp.pinpoint</groupId>
-        <artifactId>pinpoint</artifactId>
-        <version>2.1.0-SNAPSHOT</version>
-    </parent>
 
+    <groupId>com.navercorp.pinpoint</groupId>
     <artifactId>pinpoint-testcase</artifactId>
     <name>pinpoint-testcase</name>
+    <version>2.1.0-SNAPSHOT</version>
+
     <packaging>jar</packaging>
+
+
+    <properties>
+        <!-- http://openclover.org/ -->
+        <!-- https://bitbucket.org/openclover/clover/issues/61/430-support-java-9 -->
+        <!-- 4.3 will support java9 -->
+        <plugin.clover.skip>true</plugin.clover.skip>
+    </properties>
 
     <dependencies>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openclover</groupId>
+                <artifactId>clover-maven-plugin</artifactId>
+                <configuration>
+                    <skip>${plugin.clover.skip}</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
