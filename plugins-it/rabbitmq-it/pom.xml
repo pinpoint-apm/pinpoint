@@ -38,7 +38,6 @@
         <dependency>
             <groupId>org.springframework.amqp</groupId>
             <artifactId>spring-rabbit</artifactId>
-            <version>1.7.5.RELEASE</version>
             <scope>test</scope>
         </dependency>
         <dependency>

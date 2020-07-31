@@ -49,7 +49,6 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver</artifactId>
-            <version>3.7.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
