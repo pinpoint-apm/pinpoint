@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTable;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
@@ -125,7 +125,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private byte[] createKey(Application parentApplication, long time) {
         Buffer buffer = new AutomaticBuffer();
-        buffer.putPadString(parentApplication.getName(), HbaseTableConstatns.APPLICATION_NAME_MAX_LEN);
+        buffer.putPadString(parentApplication.getName(), HbaseTableConstants.APPLICATION_NAME_MAX_LEN);
         buffer.putShort(parentApplication.getServiceTypeCode());
         buffer.putLong(time);
         return buffer.getBuffer();

@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.mapper;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
@@ -45,7 +45,7 @@ public class AgentInfoMapper implements RowMapper<AgentInfo> {
 
         byte[] rowKey = result.getRow();
         String agentId = BytesUtils.safeTrim(BytesUtils.toString(rowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN));
-        long reverseStartTime = BytesUtils.bytesToLong(rowKey, HbaseTableConstatns.AGENT_NAME_MAX_LEN);
+        long reverseStartTime = BytesUtils.bytesToLong(rowKey, HbaseTableConstants.AGENT_NAME_MAX_LEN);
         long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
 
         byte[] serializedAgentInfo = result.getValue(AGENTINFO_INFO.getName(), AGENTINFO_INFO.QUALIFIER_IDENTIFIER);

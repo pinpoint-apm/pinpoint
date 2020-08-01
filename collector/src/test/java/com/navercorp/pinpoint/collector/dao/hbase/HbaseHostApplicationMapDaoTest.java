@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.server.util.DefaultTimeSlot;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
@@ -43,7 +43,7 @@ public class HbaseHostApplicationMapDaoTest {
         logger.debug("rowKey size:{}", parentApps.length);
 
         Buffer readBuffer = new FixedBuffer(parentApps);
-        String appName = readBuffer.readPadStringAndRightTrim(HbaseTableConstatns.APPLICATION_NAME_MAX_LEN);
+        String appName = readBuffer.readPadStringAndRightTrim(HbaseTableConstants.APPLICATION_NAME_MAX_LEN);
         short code = readBuffer.readShort();
         long time = TimeUtils.recoveryTimeMillis(readBuffer.readLong());
 

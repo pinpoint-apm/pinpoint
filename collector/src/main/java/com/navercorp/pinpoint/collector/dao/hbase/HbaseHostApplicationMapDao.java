@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
@@ -139,13 +139,13 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
         // even if  a agentId be added for additional specifications, it may be safe to scan rows.
         // But is it needed to add parentAgentServiceType?
-        final int SIZE = HbaseTableConstatns.APPLICATION_NAME_MAX_LEN + 2 + 8;
+        final int SIZE = HbaseTableConstants.APPLICATION_NAME_MAX_LEN + 2 + 8;
         final Buffer rowKeyBuffer = new AutomaticBuffer(SIZE);
-        rowKeyBuffer.putPadString(parentApplicationName, HbaseTableConstatns.APPLICATION_NAME_MAX_LEN);
+        rowKeyBuffer.putPadString(parentApplicationName, HbaseTableConstants.APPLICATION_NAME_MAX_LEN);
         rowKeyBuffer.putShort(parentServiceType);
         rowKeyBuffer.putLong(TimeUtils.reverseTimeMillis(statisticsRowSlot));
         // there is no parentAgentId for now.  if it added later, need to comment out below code for compatibility.
-//        rowKeyBuffer.putPadString(parentAgentId, HbaseTableConstatns.AGENT_NAME_MAX_LEN);
+//        rowKeyBuffer.putPadString(parentAgentId, HbaseTableConstants.AGENT_NAME_MAX_LEN);
         return rowKeyBuffer.getBuffer();
     }
 

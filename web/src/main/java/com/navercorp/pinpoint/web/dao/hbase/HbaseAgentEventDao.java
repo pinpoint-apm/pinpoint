@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
@@ -125,7 +125,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
     private byte[] createRowKey(String agentId, long timestamp) {
         byte[] agentIdKey = BytesUtils.toBytes(agentId);
         long reverseTimestamp = TimeUtils.reverseTimeMillis(timestamp);
-        return RowKeyUtils.concatFixedByteAndLong(agentIdKey, HbaseTableConstatns.AGENT_NAME_MAX_LEN, reverseTimestamp);
+        return RowKeyUtils.concatFixedByteAndLong(agentIdKey, HbaseTableConstants.AGENT_NAME_MAX_LEN, reverseTimestamp);
     }
 
 
