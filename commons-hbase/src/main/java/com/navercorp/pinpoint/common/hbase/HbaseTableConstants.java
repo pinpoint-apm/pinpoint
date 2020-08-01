@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 /**
  * @author Taejin Koo
  */
-public final class HbaseTableConstatns {
+public final class HbaseTableConstants {
 
     public static final int APPLICATION_NAME_MAX_LEN = PinpointConstants.APPLICATION_NAME_MAX_LEN;
     public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_NAME_MAX_LEN;

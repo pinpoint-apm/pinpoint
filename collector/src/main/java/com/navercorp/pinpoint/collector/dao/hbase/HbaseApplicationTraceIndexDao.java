@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
@@ -79,7 +79,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         // Assert applicationName
         CollectorUtils.checkApplicationName(span.getApplicationId());
 
-        final Buffer buffer = new AutomaticBuffer(10 + HbaseTableConstatns.AGENT_NAME_MAX_LEN);
+        final Buffer buffer = new AutomaticBuffer(10 + HbaseTableConstants.AGENT_NAME_MAX_LEN);
         buffer.putVInt(span.getElapsed());
         buffer.putSVInt(span.getErrCode());
         buffer.putPrefixedString(span.getAgentId());
