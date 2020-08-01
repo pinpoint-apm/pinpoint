@@ -50,8 +50,8 @@ public final class NetUtils {
     private NetUtils() {
     }
 
-    public static List<InetSocketAddress> toInetSocketAddressLIst(List<String> addressList) {
-        return toHostAndPortLIst(addressList, inetSocketAddressFactory);
+    public static List<InetSocketAddress> toInetSocketAddressList(List<String> addressList) {
+        return toHostAndPortList(addressList, inetSocketAddressFactory);
     }
 
 
@@ -59,7 +59,7 @@ public final class NetUtils {
         T newInstance(String host, int port);
     }
 
-    public static <T> List<T> toHostAndPortLIst(List<String> addressList, HostAndPortFactory<T> hostAndPortFactory) {
+    public static <T> List<T> toHostAndPortList(List<String> addressList, HostAndPortFactory<T> hostAndPortFactory) {
         if (CollectionUtils.isEmpty(addressList)) {
             return Collections.emptyList();
         }

@@ -257,7 +257,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
 
         for (Map.Entry<Long, List<JoinTransactionBo>> entry  : joinTransactionBoMap.entrySet()) {
             List<JoinTransactionBo> joinTransactionBoList = entry.getValue();
-            JoinTransactionBo joinTransactionBo = JoinTransactionBo.joinTransactionBoLIst(joinTransactionBoList, entry.getKey());
+            JoinTransactionBo joinTransactionBo = JoinTransactionBo.joinTransactionBoList(joinTransactionBoList, entry.getKey());
             newJoinTransactionBoList.add(joinTransactionBo);
         }
 

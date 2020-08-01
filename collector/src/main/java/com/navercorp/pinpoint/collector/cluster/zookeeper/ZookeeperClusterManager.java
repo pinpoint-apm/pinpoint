@@ -278,7 +278,7 @@ public class ZookeeperClusterManager {
                 logger.warn("Failed to process getting detail address. message:{}", e.getMessage(), e);
             }
 
-            return AddressParser.parseAddressLIst(childNodeList);
+            return AddressParser.parseAddressList(childNodeList);
         }
 
         private List<String> createHostList(String[] hostAddresses, String representativeHostAddress) {
