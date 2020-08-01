@@ -35,7 +35,7 @@ public class JoinTransactionSampler implements ApplicationStatSampler<JoinTransa
             return AggreJoinTransactionBo.createUncollectedObject(timestamp);
         }
 
-        JoinTransactionBo joinTransactionBo = JoinTransactionBo.joinTransactionBoLIst(joinTransactionBoList, timestamp);
+        JoinTransactionBo joinTransactionBo = JoinTransactionBo.joinTransactionBoList(joinTransactionBoList, timestamp);
         String id = joinTransactionBo.getId();
         long collectInterval = joinTransactionBo.getCollectInterval();
         final JoinLongFieldBo totalCountJoinValue = joinTransactionBo.getTotalCountJoinValue();

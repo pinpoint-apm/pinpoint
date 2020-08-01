@@ -750,22 +750,22 @@ public class JoinApplicationStatBoTest {
     public void joinApplicationStatBoByTimeSlice12Test() {
         List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
 
-        List<JoinDataSourceListBo> joinDataSourceLIstBoList1 = new ArrayList<JoinDataSourceListBo>();
+        List<JoinDataSourceListBo> joinDataSourceListBoList1 = new ArrayList<JoinDataSourceListBo>();
         List<JoinDataSourceBo> joinDataSourceBoList1 = new ArrayList<JoinDataSourceBo>();
         joinDataSourceBoList1.add(new JoinDataSourceBo((short)1000, "jdbc:mysql", 100, 60, "agent1", 200, "agent1"));
         JoinDataSourceListBo joinDataSourceListBo1_1 = new JoinDataSourceListBo("agent1", joinDataSourceBoList1, 1498462545000L);
         JoinDataSourceListBo joinDataSourceListBo1_2 = new JoinDataSourceListBo("agent1", joinDataSourceBoList1, 1498462550000L);
         JoinDataSourceListBo joinDataSourceListBo1_3 = new JoinDataSourceListBo("agent1", joinDataSourceBoList1, 1498462555000L);
-        joinDataSourceLIstBoList1.add(joinDataSourceListBo1_1);
-        joinDataSourceLIstBoList1.add(joinDataSourceListBo1_2);
-        joinDataSourceLIstBoList1.add(joinDataSourceListBo1_3);
+        joinDataSourceListBoList1.add(joinDataSourceListBo1_1);
+        joinDataSourceListBoList1.add(joinDataSourceListBo1_2);
+        joinDataSourceListBoList1.add(joinDataSourceListBo1_3);
         JoinApplicationStatBo joinApplicationStatBo1 = new JoinApplicationStatBo();
         joinApplicationStatBo1.setId("test_app");
-        joinApplicationStatBo1.setJoinDataSourceListBoList(joinDataSourceLIstBoList1);
+        joinApplicationStatBo1.setJoinDataSourceListBoList(joinDataSourceListBoList1);
         joinApplicationStatBo1.setTimestamp(1498462545000L);
         joinApplicationStatBoList.add(joinApplicationStatBo1);
 
-        List<JoinDataSourceListBo> joinDataSourceLIstBoList2 = new ArrayList<JoinDataSourceListBo>();
+        List<JoinDataSourceListBo> joinDataSourceListBoList2 = new ArrayList<JoinDataSourceListBo>();
         List<JoinDataSourceBo> joinDataSourceBoList2_1 = new ArrayList<JoinDataSourceBo>();
         joinDataSourceBoList2_1.add(new JoinDataSourceBo((short)1000, "jdbc:mysql", 50, 20, "agent1", 230, "agent1"));
         JoinDataSourceListBo joinResponseTimeBo2_1 = new JoinDataSourceListBo("agent1", joinDataSourceBoList2_1, 1498462545000L);
@@ -778,13 +778,13 @@ public class JoinApplicationStatBoTest {
         List<JoinDataSourceBo> joinDataSourceBoList2_4 = new ArrayList<JoinDataSourceBo>();
         joinDataSourceBoList2_4.add(new JoinDataSourceBo((short)1000, "jdbc:mysql", 400, 60, "agent3", 500, "agent3"));
         JoinDataSourceListBo joinResponseTimeBo2_4 = new JoinDataSourceListBo("agent3", joinDataSourceBoList2_4, 1498462560000L);
-        joinDataSourceLIstBoList2.add(joinResponseTimeBo2_1);
-        joinDataSourceLIstBoList2.add(joinResponseTimeBo2_2);
-        joinDataSourceLIstBoList2.add(joinResponseTimeBo2_3);
-        joinDataSourceLIstBoList2.add(joinResponseTimeBo2_4);
+        joinDataSourceListBoList2.add(joinResponseTimeBo2_1);
+        joinDataSourceListBoList2.add(joinResponseTimeBo2_2);
+        joinDataSourceListBoList2.add(joinResponseTimeBo2_3);
+        joinDataSourceListBoList2.add(joinResponseTimeBo2_4);
         JoinApplicationStatBo joinApplicationStatBo2 = new JoinApplicationStatBo();
         joinApplicationStatBo2.setId("test_app");
-        joinApplicationStatBo2.setJoinDataSourceListBoList(joinDataSourceLIstBoList2);
+        joinApplicationStatBo2.setJoinDataSourceListBoList(joinDataSourceListBoList2);
         joinApplicationStatBo2.setTimestamp(1498462545000L);
         joinApplicationStatBoList.add(joinApplicationStatBo2);
 
