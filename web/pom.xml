@@ -37,6 +37,7 @@
         <!-- java back-end development option -->
         <build.frontend.skip>false</build.frontend.skip>
 
+        <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
         <spring.version>${spring5.version}</spring.version>
         <spring.security.version>${spring.security5.version}</spring.security.version>
         <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
@@ -107,27 +108,9 @@
             <artifactId>libthrift</artifactId>
         </dependency>
 
-
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- web -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jstl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.taglibs</groupId>
-            <artifactId>taglibs-standard-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jsp-api</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Spring depedencies -->

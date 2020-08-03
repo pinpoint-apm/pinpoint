@@ -9,7 +9,7 @@ import org.springframework.context.annotation.ImportResource;
 
 @SpringBootConfiguration
 @EnableAutoConfiguration(exclude = {SecurityAutoConfiguration.class, TransactionAutoConfiguration.class})
-@ImportResource({ "classpath:applicationContext-web.xml", "classpath:servlet-context.xml"})
+@ImportResource({ "classpath:applicationContext-web.xml", "classpath:servlet-context-web.xml"})
 public class WebApp {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(WebApp.class);
 

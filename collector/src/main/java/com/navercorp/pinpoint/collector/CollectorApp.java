@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ImportResource;
 
 @SpringBootConfiguration
 @EnableAutoConfiguration
-@ImportResource({ "classpath:applicationContext-collector.xml", "classpath:servlet-context.xml"})
+@ImportResource({ "classpath:applicationContext-collector.xml", "classpath:servlet-context-collector.xml"})
 public class CollectorApp {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(CollectorApp.class);
 

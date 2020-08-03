@@ -57,7 +57,7 @@ import com.navercorp.pinpoint.web.vo.UserGroupMember;
 @Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(locations = {"classpath:servlet-context.xml", "classpath:applicationContext-web.xml"})
+@ContextConfiguration(locations = {"classpath:servlet-context-web.xml", "classpath:applicationContext-web.xml"})
 public class UserGroupControllerTest {
     
     private final static String TEST_USER_GROUP_ID = "testUserGroup";

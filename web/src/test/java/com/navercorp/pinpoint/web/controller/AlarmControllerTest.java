@@ -52,7 +52,7 @@ import com.navercorp.pinpoint.web.dao.AlarmDao;
 @Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(locations = {"classpath:servlet-context.xml", "classpath:applicationContext-web.xml"})
+@ContextConfiguration(locations = {"classpath:servlet-context-web.xml", "classpath:applicationContext-web.xml"})
 public class AlarmControllerTest {
     private final static String APPLICATION_ID = "test-application";
     private final static String APPLICATION_ID_UPDATED = "test-application-tomcat";
