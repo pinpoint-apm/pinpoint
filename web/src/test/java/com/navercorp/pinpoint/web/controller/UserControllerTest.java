@@ -45,7 +45,7 @@ import com.navercorp.pinpoint.web.dao.UserDao;
 @Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(locations = {"classpath:servlet-context.xml", "classpath:applicationContext-web.xml"})
+@ContextConfiguration(locations = {"classpath:servlet-context-web.xml", "classpath:applicationContext-web.xml"})
 public class UserControllerTest {
     
     private final static String USER_ID = "naver00";

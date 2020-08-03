@@ -112,6 +112,10 @@
         <log4j2.version>${log4j2-jdk6.version}</log4j2.version>
 
 
+        <javax.servlet4.version>4.0.1</javax.servlet4.version>
+        <javax.servlet.version>3.0.1</javax.servlet.version>
+
+
         <asm.version>7.2</asm.version>
         <!-- 0.13.0 required Java 1.8 https://github.com/apache/thrift/pull/1657 -->
         <thrift.version>0.12.0</thrift.version>
@@ -763,26 +767,11 @@
                 <version>1.9.5</version>
             </dependency>
 
-
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
-                <version>3.1.0</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>jsp-api</artifactId>
-                <version>2.0</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>jstl</artifactId>
-                <version>1.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.taglibs</groupId>
-                <artifactId>taglibs-standard-impl</artifactId>
-                <version>1.2.5</version>
+                <version>${javax.servlet.version}</version>
+                <scope>provided</scope>
             </dependency>
 
 
@@ -907,16 +896,6 @@
                             </goals>
                         </execution>
                     </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <version>${plugin.war.version}</version>
-                    <configuration>
-                        <attachClasses>true</attachClasses>
-                        <classesClassifier>classes</classesClassifier>
-                        <webappDirectory>${project.build.directory}/deploy</webappDirectory>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

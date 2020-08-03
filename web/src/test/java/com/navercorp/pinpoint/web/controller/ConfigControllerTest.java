@@ -47,7 +47,7 @@ import com.navercorp.pinpoint.web.vo.User;
 @Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(locations = {"classpath:servlet-context.xml", "classpath:applicationContext-web.xml"})
+@ContextConfiguration(locations = {"classpath:servlet-context-web.xml", "classpath:applicationContext-web.xml"})
 public class ConfigControllerTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
