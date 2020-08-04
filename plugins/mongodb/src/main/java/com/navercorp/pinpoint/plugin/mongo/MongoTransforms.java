@@ -69,12 +69,73 @@ public class MongoTransforms {
     private static final String MONGO_SCOPE = MongoConstants.MONGO_SCOPE;
 
     public static abstract class AbstractMongoTransformCallback implements TransformCallback {
+
+        private static int MONGO_MAJOR_VERSION = 0;
+
+        public boolean supportedVersion(ClassLoader classLoader) {
+            int supportedMajorVersion = 3; // 3.x.x only
+            return getMongoMajorVersion(classLoader) == supportedMajorVersion;
+        }
+
+        public static int getMongoMajorVersion(ClassLoader classLoader) {
+            if (MONGO_MAJOR_VERSION != 0) {
+                return MONGO_MAJOR_VERSION;
+            }
+            int majorVersion;
+            try {
+                final String versionCheckClassVersionAll = "com.mongodb.MongoException"; //for all versions
+                final Class<?> checkClazz = Class.forName(versionCheckClassVersionAll, false, classLoader);
+                final String implementationVersion = checkClazz.getPackage().getImplementationVersion();
+                if (implementationVersion != null) {
+                    final String[] versionsString = implementationVersion.split("\\.");
+                    majorVersion = Integer.parseInt(versionsString[0]);
+                } else {
+                    final String versionCheckClassV1 = "com.mongodb.ByteEncoder"; //only exist in version 1.x
+                    final String versionCheckClassV2 = "com.mongodb.Response"; //only exist in version 2.x
+                    final String versionCheckClassV3 = "com.mongodb.MongoBulkWriteException"; //only exist in version 3.x
+                    if (classExist(classLoader, versionCheckClassV3)) {
+                        majorVersion = 3;
+                    } else {
+                        if (classExist(classLoader, versionCheckClassV2)) {
+                            majorVersion = 2;
+                        } else {
+                            if (classExist(classLoader, versionCheckClassV1)) {
+                                majorVersion = 1;
+                            } else {
+                                majorVersion = -1;
+                            }
+                        }
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                majorVersion = -2;
+            } catch (NumberFormatException e) {
+                majorVersion = -3;
+            } catch (Exception e) {
+                majorVersion = -4;
+            }
+            MONGO_MAJOR_VERSION = majorVersion;
+            return majorVersion;
+        }
+
+        private static boolean classExist(ClassLoader classLoader, String className) {
+            try {
+                Class.forName(className, false, classLoader);
+                return true;
+            } catch (ClassNotFoundException e) {
+                return false;
+            }
+        }
+
     }
 
     //@TODO how about. pullByFilter under Updates
     public static class FilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             if (!target.isInterceptable()) {
@@ -144,6 +205,9 @@ public class MongoTransforms {
     public static class GeometryOperatorTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             if (!nestedTarget.isInterceptable()) {
                 return null;
@@ -162,6 +226,9 @@ public class MongoTransforms {
     public static class AndFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             if (!nestedTarget.isInterceptable()) {
                 return null;
@@ -175,6 +242,9 @@ public class MongoTransforms {
     public static class ClientConnectionTransform3_0_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             if (!target.isInterceptable()) {
@@ -198,6 +268,9 @@ public class MongoTransforms {
     public static class DatabaseConnectionTransform3_0_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             if (!target.isInterceptable()) {
@@ -216,6 +289,9 @@ public class MongoTransforms {
     public static class CollectionConnectionTransform3_0_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             if (!target.isInterceptable()) {
@@ -240,6 +316,9 @@ public class MongoTransforms {
     public static class ClientConnectionTransform3_7_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             if (!target.isInterceptable()) {
@@ -259,6 +338,9 @@ public class MongoTransforms {
     public static class DatabaseConnectionTransform3_7_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             if (!target.isInterceptable()) {
@@ -280,6 +362,9 @@ public class MongoTransforms {
     public static class CollectionConnectionTransform3_7_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             if (!target.isInterceptable()) {
@@ -305,6 +390,9 @@ public class MongoTransforms {
     public static class DatabaseConnectionTransform3_8_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             if (!target.isInterceptable()) {
@@ -326,6 +414,9 @@ public class MongoTransforms {
     public static class SessionTransform3_0_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             if (!target.isInterceptable()) {
@@ -357,6 +448,9 @@ public class MongoTransforms {
     public static class SessionTransform3_7_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             if (!target.isInterceptable()) {
@@ -389,6 +483,9 @@ public class MongoTransforms {
     public static class ObservableToPublisherTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             target.addField(AsyncContextAccessor.class);
 
@@ -403,6 +500,9 @@ public class MongoTransforms {
     public static class NotFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             if (!nestedTarget.isInterceptable()) {
                 return null;
@@ -416,6 +516,9 @@ public class MongoTransforms {
     public static class SimpleEncodingFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             if (!nestedTarget.isInterceptable()) {
                 return null;
@@ -430,6 +533,9 @@ public class MongoTransforms {
     public static class IterableOperatorFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             if (!nestedTarget.isInterceptable()) {
                 return null;
@@ -447,6 +553,9 @@ public class MongoTransforms {
     public static class OrFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             if (!nestedTarget.isInterceptable()) {
                 return null;
@@ -460,6 +569,9 @@ public class MongoTransforms {
     public static class OperatorFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             if (!nestedTarget.isInterceptable()) {
                 return null;
@@ -475,6 +587,9 @@ public class MongoTransforms {
     public static class SimpleFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             nestedTarget.addGetter(FieldNameGetter.class, "fieldName");
             nestedTarget.addGetter(BsonValueGetter.class, "value");
@@ -485,6 +600,9 @@ public class MongoTransforms {
     public static class TextFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             if (!nestedTarget.isInterceptable()) {
                 return null;
@@ -499,6 +617,9 @@ public class MongoTransforms {
     public static class OrNorFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             if (!nestedTarget.isInterceptable()) {
                 return null;
@@ -520,6 +641,9 @@ public class MongoTransforms {
     public static class UpdatesTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             if (!target.isInterceptable()) {
@@ -564,6 +688,9 @@ public class MongoTransforms {
     public static class SimpleUpdateTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             if (!nestedTarget.isInterceptable()) {
                 return null;
@@ -578,6 +705,9 @@ public class MongoTransforms {
     public static class WithEachUpdateTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             if (!nestedTarget.isInterceptable()) {
                 return null;
@@ -592,6 +722,9 @@ public class MongoTransforms {
     public static class PushUpdateTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             if (!nestedTarget.isInterceptable()) {
                 return null;
@@ -604,6 +737,9 @@ public class MongoTransforms {
     public static class PullAllUpdateTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             if (!nestedTarget.isInterceptable()) {
                 return null;
@@ -617,6 +753,9 @@ public class MongoTransforms {
     public static class CompositeUpdateTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             if (!nestedTarget.isInterceptable()) {
                 return null;
@@ -629,6 +768,9 @@ public class MongoTransforms {
     public static class SortsTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (!supportedVersion(loader)) {
+                return null;
+            }
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             if (!target.isInterceptable()) {
@@ -646,6 +788,9 @@ public class MongoTransforms {
                     instrumentor.transform(loader, nestedClass.getName(), new AbstractMongoTransformCallback() {
                         @Override
                         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                            if (!supportedVersion(loader)) {
+                                return null;
+                            }
                             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
                             if (!nestedTarget.isInterceptable()) {
                                 return null;
