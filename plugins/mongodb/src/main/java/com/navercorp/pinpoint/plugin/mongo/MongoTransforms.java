@@ -68,8 +68,11 @@ public class MongoTransforms {
 
     private static final String MONGO_SCOPE = MongoConstants.MONGO_SCOPE;
 
+    public static abstract class AbstractMongoTransformCallback implements TransformCallback {
+    }
+
     //@TODO how about. pullByFilter under Updates
-    public static class FilterTransform implements TransformCallback {
+    public static class FilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -138,7 +141,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class GeometryOperatorTransform implements TransformCallback {
+    public static class GeometryOperatorTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -156,7 +159,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class AndFilterTransform implements TransformCallback {
+    public static class AndFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -169,7 +172,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class ClientConnectionTransform3_0_X implements TransformCallback {
+    public static class ClientConnectionTransform3_0_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -192,7 +195,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class DatabaseConnectionTransform3_0_X implements TransformCallback {
+    public static class DatabaseConnectionTransform3_0_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -210,7 +213,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class CollectionConnectionTransform3_0_X implements TransformCallback {
+    public static class CollectionConnectionTransform3_0_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -234,7 +237,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class ClientConnectionTransform3_7_X implements TransformCallback {
+    public static class ClientConnectionTransform3_7_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -253,7 +256,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class DatabaseConnectionTransform3_7_X implements TransformCallback {
+    public static class DatabaseConnectionTransform3_7_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -274,7 +277,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class CollectionConnectionTransform3_7_X implements TransformCallback {
+    public static class CollectionConnectionTransform3_7_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -299,7 +302,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class DatabaseConnectionTransform3_8_X implements TransformCallback {
+    public static class DatabaseConnectionTransform3_8_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -320,7 +323,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class SessionTransform3_0_X implements TransformCallback {
+    public static class SessionTransform3_0_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -351,7 +354,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class SessionTransform3_7_X implements TransformCallback {
+    public static class SessionTransform3_7_X extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -383,7 +386,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class ObservableToPublisherTransform implements TransformCallback {
+    public static class ObservableToPublisherTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -397,7 +400,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class NotFilterTransform implements TransformCallback {
+    public static class NotFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -410,7 +413,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class SimpleEncodingFilterTransform implements TransformCallback {
+    public static class SimpleEncodingFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -424,7 +427,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class IterableOperatorFilterTransform implements TransformCallback {
+    public static class IterableOperatorFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -441,7 +444,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class OrFilterTransform implements TransformCallback {
+    public static class OrFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -454,7 +457,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class OperatorFilterTransform implements TransformCallback {
+    public static class OperatorFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -469,7 +472,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class SimpleFilterTransform implements TransformCallback {
+    public static class SimpleFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -479,7 +482,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class TextFilterTransform implements TransformCallback {
+    public static class TextFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -493,7 +496,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class OrNorFilterTransform implements TransformCallback {
+    public static class OrNorFilterTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -514,7 +517,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class UpdatesTransform implements TransformCallback {
+    public static class UpdatesTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -558,7 +561,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class SimpleUpdateTransform implements TransformCallback {
+    public static class SimpleUpdateTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -572,7 +575,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class WithEachUpdateTransform implements TransformCallback {
+    public static class WithEachUpdateTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -586,7 +589,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class PushUpdateTransform implements TransformCallback {
+    public static class PushUpdateTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -598,7 +601,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class PullAllUpdateTransform implements TransformCallback {
+    public static class PullAllUpdateTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -611,7 +614,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class CompositeUpdateTransform implements TransformCallback {
+    public static class CompositeUpdateTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -623,7 +626,7 @@ public class MongoTransforms {
         }
     }
 
-    public static class SortsTransform implements TransformCallback {
+    public static class SortsTransform extends AbstractMongoTransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -640,7 +643,7 @@ public class MongoTransforms {
 
                 //CompositeUpdate
                 if (nestedClass.getName().equals(MongoConstants.MONGO_SORT_COMPOSITE)) {
-                    instrumentor.transform(loader, nestedClass.getName(), new TransformCallback() {
+                    instrumentor.transform(loader, nestedClass.getName(), new AbstractMongoTransformCallback() {
                         @Override
                         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                             final InstrumentClass nestedTarget = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
