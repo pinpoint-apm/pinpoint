@@ -12,10 +12,11 @@
 
 
     <properties>
-        <!-- http://openclover.org/ -->
-        <!-- https://bitbucket.org/openclover/clover/issues/61/430-support-java-9 -->
-        <!-- 4.3 will support java9 -->
-        <plugin.clover.skip>true</plugin.clover.skip>
+        <!-- copy parent pom -->
+        <plugin.clover.version>4.2.1</plugin.clover.version>
+        <plugin.spotbugs.version>3.1.12</plugin.spotbugs.version>
+        <plugin.pmd.version>3.12.0</plugin.pmd.version>
+        <plugin.jshint.version>1.6.0</plugin.jshint.version>
     </properties>
 
     <dependencies>
@@ -27,15 +28,25 @@
             <plugin>
                 <groupId>org.openclover</groupId>
                 <artifactId>clover-maven-plugin</artifactId>
+                <version>${plugin.clover.version}</version>
                 <configuration>
-                    <skip>${plugin.clover.skip}</skip>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${plugin.spotbugs.version}</version>
                 <configuration>
-                    <excludeFilterFile>${maven.multiModuleProjectDirectory}/spotbugs-exclude.xml</excludeFilterFile>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.cj.jshintmojo</groupId>
+                <artifactId>jshint-maven-plugin</artifactId>
+                <version>${plugin.jshint.version}</version>
+                <configuration>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>
