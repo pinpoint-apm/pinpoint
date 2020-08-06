@@ -41,7 +41,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"com.alibaba:fastjson:[1.2.10],[1.2.20],[1.2.30],[1.2.40,)"})
+@Dependency({"com.alibaba:fastjson:[1.2.10],[1.2.20],[1.2.30],[1.2.40],[1.2.40,1.2.70]"})
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-fastjson-plugin")
 @PinpointConfig("fastjson/pinpoint-fastjson-test.config")
 public class FastjsonIT {
