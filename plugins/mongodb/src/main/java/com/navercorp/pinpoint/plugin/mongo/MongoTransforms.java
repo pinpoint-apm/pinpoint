@@ -261,6 +261,11 @@ public class MongoTransforms {
             InstrumentMethod close = InstrumentUtils.findMethod(target, "close");
             close.addScopedInterceptor(ConnectionCloseInterceptor.class, MONGO_SCOPE);
 
+            InstrumentMethod getDB = target.getDeclaredMethod("getDB", "java.lang.String");
+            if (getDB != null) {
+                getDB.addScopedInterceptor(MongoDriverGetDatabaseInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+            }
+
             return target.toBytecode();
         }
     }
@@ -803,6 +808,93 @@ public class MongoTransforms {
             }
             return target.toBytecode();
         }
+    }
+
+    public static class DBCollectionTransform extends AbstractMongoTransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                throws InstrumentException {
+
+            if (!supportedVersion(loader)) {
+                return null;
+            }
+
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            if (!target.isInterceptable()) {
+                return null;
+            }
+
+            MongoConfig config = new MongoConfig(instrumentor.getProfilerConfig());
+
+            target.addField(DatabaseInfoAccessor.class);
+            List<InstrumentMethod> declaredReadMethods = target.getDeclaredMethods(MethodFilters
+                    .chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getDBCollectionReadMethodList())));
+
+            for (InstrumentMethod method : declaredReadMethods) {
+                method.addScopedInterceptor(MongoRSessionInterceptor.class,
+                        va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE,
+                        ExecutionPolicy.BOUNDARY);
+            }
+
+            List<InstrumentMethod> declaredCUDMethods = target.getDeclaredMethods(MethodFilters
+                    .chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getDBCollectionCUDMethodList())));
+            for (InstrumentMethod method : declaredCUDMethods) {
+                method.addScopedInterceptor(MongoCUDSessionInterceptor.class,
+                        va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE,
+                        ExecutionPolicy.BOUNDARY);
+            }
+
+            InstrumentMethod setReadPreferenceMethod = target.getDeclaredMethod("setReadPreference",
+                    "com.mongodb.ReadPreference");
+            if (setReadPreferenceMethod != null) {
+                setReadPreferenceMethod.addScopedInterceptor(MongoReadPreferenceInterceptor.class, MONGO_SCOPE,
+                        ExecutionPolicy.BOUNDARY);
+            }
+
+            InstrumentMethod writeConcernMethod = target.getDeclaredMethod("setWriteConcern",
+                    "com.mongodb.WriteConcern");
+            if (writeConcernMethod != null) {
+                writeConcernMethod.addScopedInterceptor(MongoWriteConcernInterceptor.class, MONGO_SCOPE,
+                        ExecutionPolicy.BOUNDARY);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class DBTransformer extends AbstractMongoTransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                throws InstrumentException {
+
+            if (!supportedVersion(loader)) {
+                return null;
+            }
+
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            if (!target.isInterceptable()) {
+                return null;
+            }
+            target.addField(DatabaseInfoAccessor.class);
+
+            InstrumentMethod collection = target.getDeclaredMethod("getCollection", "java.lang.String");
+            if (collection != null) {
+                collection.addScopedInterceptor(MongoDriverGetCollectionInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    private static String[] getDBCollectionCUDMethodList() {
+        return new String[]{"insert", "save", "replaceOrInsert", "update", "updateMulti", "remove",
+                "rename", "createIndex", "drop", "dropIndex", "dropIndexes"};
+    }
+
+    private static String[] getDBCollectionReadMethodList() {
+        return new String[]{"find", "findOne", "count", "distinct", "getCount", "findAndModify"};
     }
 
     private static String[] getMethodListR3_0_x() {

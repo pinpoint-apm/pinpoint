@@ -55,6 +55,9 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
         addSessionTransformer3_7_X();
         // Reactive stream
         addSessionTransformerReactive();
+        //mongo DB/DBCollection
+        addDBCollectionTransformer();
+        addDBTransformer();
     }
 
     private void addConnectionTransformer3_0_X() {
@@ -125,6 +128,14 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private void addSortsTransformer() {
         transformTemplate.transform("com.mongodb.client.model.Sorts", MongoTransforms.SortsTransform.class);
+    }
+
+    private void addDBCollectionTransformer() {
+        transformTemplate.transform("com.mongodb.DBCollection", MongoTransforms.DBCollectionTransform.class);
+    }
+
+    private void addDBTransformer() {
+        transformTemplate.transform("com.mongodb.DB", MongoTransforms.DBTransformer.class);
     }
 
     @Override
