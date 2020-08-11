@@ -55,7 +55,7 @@ public class UserController {
         if (ValueValidator.validateUser(user) == false) {
             Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
-            result.put("errorMessage", "User information validation failed to creating user infomation.");
+            result.put("errorMessage", "User information validation failed to creating user information.");
             return result;
         }
 
@@ -114,7 +114,7 @@ public class UserController {
         if (ValueValidator.validateUser(user) == false) {
             Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
-            result.put("errorMessage", "User information validation failed to creating user infomation.");
+            result.put("errorMessage", "User information validation failed to creating user information.");
             return result;
         }
 
