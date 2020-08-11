@@ -31,6 +31,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.jboss.interceptor.ContextInvocationInterceptor;
 import com.navercorp.pinpoint.plugin.jboss.interceptor.MethodInvocationHandlerInterceptor;
+import com.navercorp.pinpoint.plugin.jboss.interceptor.RemotingClientInvocationInterceptor;
+import com.navercorp.pinpoint.plugin.jboss.interceptor.RemotingServerInvocationInterceptor;
 import com.navercorp.pinpoint.plugin.jboss.interceptor.RequestStartAsyncInterceptor;
 import com.navercorp.pinpoint.plugin.jboss.interceptor.StandardHostValveInvokeInterceptor;
 
@@ -90,6 +92,9 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
             requestFacade();
             // Clear bind trace. defense code
             addStandardHostValveEditor();
+            // JBoss Remoting
+            addRemotingClientEditor();
+            addRemotingServerEditor();
         }
     }
 
@@ -200,6 +205,55 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
             final InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response");
             if (invokeMethod != null) {
                 invokeMethod.addInterceptor(StandardHostValveInvokeInterceptor.class);
+            }
+            return target.toBytecode();
+        }
+    }
+
+
+    /**
+     * Adds the remoting client editor.
+     */
+    private void addRemotingClientEditor() {
+        transformTemplate.transform("org.jboss.remoting.MicroRemoteClientInvoker", RemotingClientTransform.class);
+    }
+
+    public static class RemotingClientTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(final Instrumentor instrumentor, final ClassLoader classLoader, final String className, final Class<?> classBeingRedefined,
+        final ProtectionDomain protectionDomain,
+        final byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Clear bind trace
+            // public Object invoke(InvocationRequest invocationReq) throws Throwable
+            final InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "org.jboss.remoting.InvocationRequest");
+            if (invokeMethod != null) {
+                invokeMethod.addInterceptor(RemotingClientInvocationInterceptor.class);
+            }
+            return target.toBytecode();
+        }
+    }
+
+    /**
+     * Adds the remoting server editor.
+     */
+    private void addRemotingServerEditor() {
+        transformTemplate.transform("org.jboss.remoting.ServerInvoker", RemotingServerTransform.class);
+    }
+
+    public static class RemotingServerTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(final Instrumentor instrumentor, final ClassLoader classLoader, final String className, final Class<?> classBeingRedefined,
+        final ProtectionDomain protectionDomain,
+        final byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Clear bind trace
+            // public Object invoke(InvocationRequest invocationReq) throws Throwable
+            final InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "org.jboss.remoting.InvocationRequest");
+            if (invokeMethod != null) {
+                invokeMethod.addInterceptor(RemotingServerInvocationInterceptor.class);
             }
             return target.toBytecode();
         }
