@@ -41,9 +41,6 @@ public class CorePublisherInterceptor extends AsyncContextSpanEventSimpleAroundI
             // Set AsyncContext to CoreSubscriber
             if (args[0] instanceof AsyncContextAccessor) {
                 ((AsyncContextAccessor) (args[0]))._$PINPOINT$_setAsyncContext(publisherAsyncContext);
-                if(isDebug) {
-                    logger.debug("Set AsyncContext args[0]={}", args[0]);
-                }
             }
         }
     }

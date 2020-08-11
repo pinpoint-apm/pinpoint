@@ -44,9 +44,6 @@ public class SchedulerAndWorkerTaskRunMethodInterceptor extends AsyncContextSpan
 
         if (target instanceof AsyncContextAccessor) {
             // Defense code. Clear AsyncContext
-            if (isDebug) {
-                logger.debug("Clear AsyncContext, target={}", target);
-            }
             ((AsyncContextAccessor) target)._$PINPOINT$_setAsyncContext(null);
         }
     }
