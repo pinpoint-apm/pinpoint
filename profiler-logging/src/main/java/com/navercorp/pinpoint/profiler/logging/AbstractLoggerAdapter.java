@@ -101,6 +101,7 @@ public abstract class AbstractLoggerAdapter {
     protected static StringBuilder logMethod(TYPE type, Object target, String className, String methodName, String parameterDescription, Object[] args) {
         StringBuilder sb = new StringBuilder(BUFFER_SIZE);
         sb.append(type.toString());
+        sb.append(' ');
         sb.append(getTarget(target));
         sb.append(' ');
         sb.append(className);
@@ -115,6 +116,7 @@ public abstract class AbstractLoggerAdapter {
     protected static StringBuilder logMethod(TYPE type, Object target, Object[] args) {
         StringBuilder sb = new StringBuilder(BUFFER_SIZE);
         sb.append(type.toString());
+        sb.append(' ');
         sb.append(getTarget(target));
         sb.append(' ');
         sb.append(" args:");
