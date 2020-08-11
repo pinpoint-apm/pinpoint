@@ -81,7 +81,7 @@ public class Rule {
         return userGroupId;
     }
 
-    public void setuserGroupId(String userGroupId) {
+    public void setUserGroupId(String userGroupId) {
         this.userGroupId = userGroupId;
     }
 

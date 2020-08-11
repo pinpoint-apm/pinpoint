@@ -112,7 +112,7 @@ public class MemoryAlarmDao implements AlarmDao {
         List<Rule> ruleList = selectRuleByUserGroupId(beforeUserGroupId);
         
         for (Rule rule : ruleList) {
-            rule.setuserGroupId(updatedUserGroup.getId());
+            rule.setUserGroupId(updatedUserGroup.getId());
         }
     }
 
