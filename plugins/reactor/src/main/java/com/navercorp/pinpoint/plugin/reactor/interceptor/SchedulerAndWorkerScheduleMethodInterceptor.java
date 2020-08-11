@@ -49,9 +49,6 @@ public class SchedulerAndWorkerScheduleMethodInterceptor extends SpanEventSimple
             // Trace to Disposable object
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
             ((AsyncContextAccessor) (result))._$PINPOINT$_setAsyncContext(asyncContext);
-            if (isDebug) {
-                logger.debug("Set AsyncContext {}, result={}", asyncContext, result);
-            }
         }
     }
 
