@@ -35,11 +35,11 @@ public final class JbossConstants {
     /** The Constant JBOSS_METHOD. */
     public static final ServiceType JBOSS_METHOD = ServiceTypeFactory.of(1041, "JBOSS_METHOD");
 
-    /** The Constant JBOSS_REMOTING_SERVER. */
-    public static final ServiceType JBOSS_REMOTING_SERVER = ServiceTypeFactory.of(1042, "JBOSS_REMOTING_SERVER", RECORD_STATISTICS);
+    /** The Constant JBOSS_REMOTING. */
+    public static final ServiceType JBOSS_REMOTING = ServiceTypeFactory.of(1042, "JBOSS_REMOTING", RECORD_STATISTICS);
 
     /** The Constant JBOSS_REMOTING_CLIENT. */
-    public static final ServiceType JBOSS_REMOTING_CLIENT = ServiceTypeFactory.of(9042, "JBOSS_REMOTING_CLIENT", RECORD_STATISTICS);
+    public static final ServiceType JBOSS_REMOTING_CLIENT = ServiceTypeFactory.of(9042, "JBOSS_REMOTING_CLIENT", "JBOSS_REMOTING", RECORD_STATISTICS);
 
     public static final String META_DO_NOT_TRACE = "PINPOINT_DO_NOT_TRACE";
     public static final String META_TRANSACTION_ID = "PINPOINT_TRASACTION_ID";

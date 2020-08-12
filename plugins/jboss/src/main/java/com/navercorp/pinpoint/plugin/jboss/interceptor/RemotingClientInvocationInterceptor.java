@@ -102,16 +102,17 @@ public class RemotingClientInvocationInterceptor implements AroundInterceptor {
             final Invocation invocation = (Invocation) invocationReq.getParameter();;
             logger.debug("XXX invocation={}", invocation);
  
-            final String oid = (String)invocation.getMetaData("DISPATCHER", "OID");
+            /*final String oid = (String)invocation.getMetaData("DISPATCHER", "OID");
             logger.debug("XXX oid={}", oid);
 
-            recorder.recordDestinationId(oid);
+            recorder.recordDestinationId(oid);*/
 
             InvokerLocator locator = (InvokerLocator)invocation.getMetaData("REMOTING", "INVOKER_LOCATOR");
             logger.debug("XXX locator={}", locator);
         
             final String endPoint = HostAndPort.toHostAndPortString(locator.getHost(), locator.getPort());
 
+            recorder.recordDestinationId(endPoint);
             recorder.recordEndPoint(endPoint);
             logger.debug("XXX End Point={}", endPoint);
 

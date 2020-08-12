@@ -34,11 +34,16 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
+import com.navercorp.pinpoint.plugin.jboss.descriptor.RemotingInvocationMethodDescriptor;
 
 public class RemotingServerInvocationInterceptor extends SpanSimpleAroundInterceptor {
-    
+
+    protected static final RemotingInvocationMethodDescriptor REMOTING_INVOCATION_METHOD_DESCRIPTOR = new RemotingInvocationMethodDescriptor();
+
     public RemotingServerInvocationInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor, RemotingServerInvocationInterceptor.class);
+
+        traceContext.cacheApi(REMOTING_INVOCATION_METHOD_DESCRIPTOR);
     }
 
     /**
@@ -104,7 +109,7 @@ public class RemotingServerInvocationInterceptor extends SpanSimpleAroundInterce
             metadata = new HashMap<String, Object>();
         }
         
-        recorder.recordServiceType(JbossConstants.JBOSS_REMOTING_SERVER);
+        recorder.recordServiceType(JbossConstants.JBOSS_REMOTING);
         
         String remoteAddress = (String) metadata.get(JbossConstants.META_CLIENT_ADDRESS);
         logger.debug("XXX remoteAddress={}", remoteAddress);
@@ -151,7 +156,7 @@ public class RemotingServerInvocationInterceptor extends SpanSimpleAroundInterce
             metadata = new HashMap<String, Object>();
         }
 
-        recorder.recordApi(methodDescriptor);
+        recorder.recordApi(REMOTING_INVOCATION_METHOD_DESCRIPTOR);
         //recorder.recordAttribute(JbossConstants.MY_RPC_ARGUMENT_ANNOTATION_KEY, request.getArgument());
         
         if (throwable == null) {

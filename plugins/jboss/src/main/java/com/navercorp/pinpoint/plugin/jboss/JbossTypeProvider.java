@@ -35,7 +35,7 @@ public class JbossTypeProvider implements TraceMetadataProvider {
     public void setup(final TraceMetadataSetupContext context) {
         context.addServiceType(JbossConstants.JBOSS);
         context.addServiceType(JbossConstants.JBOSS_METHOD);
-        context.addServiceType(JbossConstants.JBOSS_REMOTING_SERVER);
+        context.addServiceType(JbossConstants.JBOSS_REMOTING);
         context.addServiceType(JbossConstants.JBOSS_REMOTING_CLIENT);
     }
 
