@@ -33,8 +33,8 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.CassandraContainer;
-import org.testcontainers.utility.DockerMachineClient;
 
 import java.lang.reflect.Method;
 
@@ -70,7 +70,8 @@ public abstract class CassandraDatastaxITBase {
     private static Cluster cluster;
 
     public static void startCassandra(String dockerImageVersion) {
-        Assume.assumeTrue("Docker not enabled", DockerMachineClient.instance().isInstalled());
+        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+
         cassandra = new CassandraContainer(dockerImageVersion);
         cassandra.start();
 
