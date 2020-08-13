@@ -18,7 +18,6 @@ import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.remoting.InvocationRequest;
 import org.jboss.remoting.InvokerLocator;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -40,125 +39,93 @@ public class RemotingServerInvocationInterceptor extends SpanSimpleAroundInterce
 
     protected static final RemotingInvocationMethodDescriptor REMOTING_INVOCATION_METHOD_DESCRIPTOR = new RemotingInvocationMethodDescriptor();
 
-    public RemotingServerInvocationInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public RemotingServerInvocationInterceptor(final TraceContext traceContext, final MethodDescriptor descriptor) {
         super(traceContext, descriptor, RemotingServerInvocationInterceptor.class);
 
         traceContext.cacheApi(REMOTING_INVOCATION_METHOD_DESCRIPTOR);
     }
 
-    /**
-     * In this method, you have to check if the current request contains following
-     * informations:
-     * 
-     * 1. Marker that indicates this transaction must not be traced 2. Data required
-     * to continue tracing a transaction. transaction id, paraent id and so on.
-     * 
-     * Then you have to create appropriate Trace object.
-     */
     @Override
-    protected Trace createTrace(Object target, Object[] args) {
+    protected Trace createTrace(final Object target, final Object[] args) {
         final InvocationRequest invocationReq = (InvocationRequest) args[0];
-        logger.debug("XXX invocationReq={}", invocationReq);
-
         final String subsystem = invocationReq.getSubsystem();
 
         // For now we are only interested in Aspect Oriented Programming subsystem
         if (!subsystem.equalsIgnoreCase("AOP")) {
-            logger.debug("XXX subsystem not AOP, disable tracing");
+            logger.debug("Subsystem not AOP, disable tracing");
             return traceContext.disableSampling();
         }
 
+        @SuppressWarnings("unchecked")
         Map<String, Object> metadata = invocationReq.getRequestPayload();
 
-        if (metadata == null) {
-            logger.debug("XXX There is no metadata in createTrace");
-            metadata = new HashMap<String, Object>();
-        }
-        
-        // If this transaction is not traceable, mark as disabled.
-        if (metadata.get(JbossConstants.META_DO_NOT_TRACE) != null) {
-            return traceContext.disableSampling();
-        }
-        
-        String transactionId = (String) metadata.get(JbossConstants.META_TRANSACTION_ID);
-        logger.debug("XXX transactionId={}", transactionId);
+        if (metadata != null) {
+            // If this transaction is not traceable, mark as disabled.
+            if (metadata.get(JbossConstants.META_DO_NOT_TRACE) != null) {
+                return traceContext.disableSampling();
+            }
 
-        // If there's no trasanction id, a new trasaction begins here. 
-        if (transactionId == null) {
-            return traceContext.newTraceObject();
+            final String transactionId = (String) metadata.get(JbossConstants.META_TRANSACTION_ID);
+            // If there is a transaction ID continue tracing
+            if (transactionId != null) {
+                final long parentSpanID = NumberUtils
+                        .parseLong((String) metadata.get(JbossConstants.META_PARENT_SPAN_ID), SpanId.NULL);
+                final long spanID = NumberUtils.parseLong((String) metadata.get(JbossConstants.META_SPAN_ID),
+                        SpanId.NULL);
+                final short flags = NumberUtils.parseShort((String) metadata.get(JbossConstants.META_FLAGS), (short) 0);
+                final TraceId traceId = traceContext.createTraceId(transactionId, parentSpanID, spanID, flags);
+
+                return traceContext.continueTraceObject(traceId);
+            }
+
         }
 
-        // otherwise, continue tracing with given data.
-        long parentSpanID = NumberUtils.parseLong((String) metadata.get(JbossConstants.META_PARENT_SPAN_ID), SpanId.NULL);
-        long spanID = NumberUtils.parseLong((String) metadata.get(JbossConstants.META_SPAN_ID), SpanId.NULL);
-        short flags = NumberUtils.parseShort((String) metadata.get(JbossConstants.META_FLAGS), (short) 0);
-        logger.debug("XXX parentSpanID={}, spanID={}, flags={}", parentSpanID, spanID, flags);
-        TraceId traceId = traceContext.createTraceId(transactionId, parentSpanID, spanID, flags);
-
-        return traceContext.continueTraceObject(traceId);
+        return traceContext.newTraceObject();
     }
-    
-    
+
     @Override
-    protected void doInBeforeTrace(SpanRecorder recorder, Object target, Object[] args) {
-        //ServerInvoker server = (ServerInvoker)target;
-        final InvocationRequest invocationReq = (InvocationRequest) args[0];
-        Map<String, Object> metadata = invocationReq.getRequestPayload();
-        if (metadata == null) {
-            logger.debug("XXX There is no metadata in doInBeforeTrace");
-            metadata = new HashMap<String, Object>();
-        }
-        
+    protected void doInBeforeTrace(final SpanRecorder recorder, final Object target, final Object[] args) {
         recorder.recordServiceType(JbossConstants.JBOSS_REMOTING);
-        
-        String remoteAddress = (String) metadata.get(JbossConstants.META_CLIENT_ADDRESS);
-        logger.debug("XXX remoteAddress={}", remoteAddress);
-        recorder.recordRemoteAddress(remoteAddress);
 
-        final Invocation invocation = (Invocation) invocationReq.getParameter();;
-        logger.debug("XXX invocation={}", invocation);
+        final InvocationRequest invocationReq = (InvocationRequest) args[0];
 
-        final String oid = (String)invocation.getMetaData("DISPATCHER", "OID");
-        logger.debug("XXX oid={}", oid);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> metadata = invocationReq.getRequestPayload();
+        if (metadata != null) {
+            final String remoteAddress = (String) metadata.get(JbossConstants.META_CLIENT_ADDRESS);
+            recorder.recordRemoteAddress(remoteAddress);
 
+            // If this transaction did not begin here, record parent(client who sent this
+            // request) information
+            if (!recorder.isRoot()) {
+                final String parentApplicationName = (String) metadata.get(JbossConstants.META_PARENT_APPLICATION_NAME);
+                if (parentApplicationName != null) {
+                    final short parentApplicationType = NumberUtils.parseShort(
+                            (String) metadata.get(JbossConstants.META_PARENT_APPLICATION_TYPE),
+                            ServiceType.UNDEFINED.getCode());
+                    recorder.recordParentApplication(parentApplicationName, parentApplicationType);
+                }
+            }
+        }
+
+        final Invocation invocation = (Invocation) invocationReq.getParameter();
+        final String oid = (String) invocation.getMetaData("DISPATCHER", "OID");
         recorder.recordRpcName(oid);
 
-        InvokerLocator locator = (InvokerLocator)invocation.getMetaData("REMOTING", "INVOKER_LOCATOR");
-        logger.debug("XXX locator={}", locator);
-
-        String serverHostName = locator.getHost();                
+        final InvokerLocator locator = (InvokerLocator) invocation.getMetaData("REMOTING", "INVOKER_LOCATOR");
+        final String serverHostName = locator.getHost();
         if (serverHostName != null) {
             final String endPoint = HostAndPort.toHostAndPortString(serverHostName, locator.getPort());
-            logger.debug("XXX endPoint={}", endPoint);
             recorder.recordEndPoint(endPoint);
             recorder.recordAcceptorHost(endPoint);
         }
 
-        // If this transaction did not begin here, record parent(client who sent this request) information 
-        if (!recorder.isRoot()) {
-            String parentApplicationName = (String) metadata.get(JbossConstants.META_PARENT_APPLICATION_NAME);
-            logger.debug("XXX parentApplicationName={}", parentApplicationName);
-            
-            if (parentApplicationName != null) {
-                short parentApplicationType = NumberUtils.parseShort((String) metadata.get(JbossConstants.META_PARENT_APPLICATION_TYPE), ServiceType.UNDEFINED.getCode());
-                logger.debug("XXX parentApplicationType={}", parentApplicationType);
-                recorder.recordParentApplication(parentApplicationName, parentApplicationType);
-            }
-        }
     }
 
     @Override
-    protected void doInAfterTrace(SpanRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        final InvocationRequest invocationReq = (InvocationRequest) args[0];
-        Map<String, Object> metadata = invocationReq.getRequestPayload();
-        if (metadata == null) {
-            logger.debug("XXX There is no metadata in doInAfterTrace");
-            metadata = new HashMap<String, Object>();
-        }
-
+    protected void doInAfterTrace(final SpanRecorder recorder, final Object target, final Object[] args,
+            final Object result, final Throwable throwable) {
         recorder.recordApi(REMOTING_INVOCATION_METHOD_DESCRIPTOR);
-        //recorder.recordAttribute(JbossConstants.MY_RPC_ARGUMENT_ANNOTATION_KEY, request.getArgument());
-        
         if (throwable == null) {
             recorder.recordAttribute(AnnotationKey.RETURN_DATA, result);
         } else {

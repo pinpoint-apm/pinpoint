@@ -53,7 +53,7 @@ public class RemotingClientInvocationInterceptor implements AroundInterceptor {
 
     protected final String HOSTNAME = getHostname();
 
-    public RemotingClientInvocationInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public RemotingClientInvocationInterceptor(final TraceContext traceContext, final MethodDescriptor descriptor) {
         this.logger = PLoggerFactory.getLogger(this.getClass());
         this.isDebug = logger.isDebugEnabled();
 
@@ -64,7 +64,9 @@ public class RemotingClientInvocationInterceptor implements AroundInterceptor {
     /*
      * (non-Javadoc)
      * 
-     * @see com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor#before(java.lang.Object, java.lang.Object[])
+     * @see
+     * com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor#before(java.
+     * lang.Object, java.lang.Object[])
      */
     @Override
     public void before(final Object target, final Object[] args) {
@@ -72,53 +74,34 @@ public class RemotingClientInvocationInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
 
         final InvocationRequest invocationReq = (InvocationRequest) args[0];
-        logger.debug("XXX invocationReq={}", invocationReq);
 
+        @SuppressWarnings("unchecked")
         Map<String, Object> metadata = invocationReq.getRequestPayload();
         if (metadata == null) {
-            logger.debug("XXX There is no metadata");
             metadata = new HashMap<String, Object>();
             invocationReq.setRequestPayload(metadata);
         }
-  
-        if (trace.canSampled()) {
-            SpanEventRecorder recorder = trace.traceBlockBegin();
 
-            // RPC call trace have to be recorded with a service code in RPC client code range.
+        if (trace.canSampled()) {
+            final SpanEventRecorder recorder = trace.traceBlockBegin();
+
             recorder.recordServiceType(JbossConstants.JBOSS_REMOTING_CLIENT);
 
-            // You have to issue a TraceId the receiver of this request will use.
-            TraceId nextId = trace.getTraceId().getNextTraceId();
-
-            // Then record it as next span id.
+            final TraceId nextId = trace.getTraceId().getNextTraceId();
             recorder.recordNextSpanId(nextId.getSpanId());
 
-            final Invocation invocation = (Invocation) invocationReq.getParameter();;
-            logger.debug("XXX invocation={}", invocation);
- 
-            /*final String oid = (String)invocation.getMetaData("DISPATCHER", "OID");
-            logger.debug("XXX oid={}", oid);
-
-            recorder.recordDestinationId(oid);*/
-
-            InvokerLocator locator = (InvokerLocator)invocation.getMetaData("REMOTING", "INVOKER_LOCATOR");
-            logger.debug("XXX locator={}", locator);
-        
+            final Invocation invocation = (Invocation) invocationReq.getParameter();
+            final InvokerLocator locator = (InvokerLocator) invocation.getMetaData("REMOTING", "INVOKER_LOCATOR");
             final String endPoint = HostAndPort.toHostAndPortString(locator.getHost(), locator.getPort());
-
             recorder.recordDestinationId(endPoint);
             recorder.recordEndPoint(endPoint);
-            logger.debug("XXX End Point={}", endPoint);
 
-            // Finally, pass some tracing data to the server.
-            // How to put them in a message is protocol specific.
-            // This example assumes that the target protocol message can include any metadata (like HTTP headers).
             metadata.put(JbossConstants.META_TRANSACTION_ID, nextId.getTransactionId());
             metadata.put(JbossConstants.META_SPAN_ID, Long.toString(nextId.getSpanId()));
             metadata.put(JbossConstants.META_PARENT_SPAN_ID, Long.toString(nextId.getParentSpanId()));
@@ -127,7 +110,6 @@ public class RemotingClientInvocationInterceptor implements AroundInterceptor {
             metadata.put(JbossConstants.META_FLAGS, Short.toString(nextId.getFlags()));
             metadata.put(JbossConstants.META_CLIENT_ADDRESS, HOSTNAME);
         } else {
-            // If sampling this transaction is disabled, pass only that infomation to the server.  
             metadata.put(JbossConstants.META_DO_NOT_TRACE, "1");
         }
     }
@@ -135,35 +117,26 @@ public class RemotingClientInvocationInterceptor implements AroundInterceptor {
     /*
      * (non-Javadoc)
      * 
-     * @see com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor#after(java.lang.Object, java.lang.Object[],
-     * java.lang.Object, java.lang.Throwable)
+     * @see
+     * com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor#after(java.
+     * lang.Object, java.lang.Object[], java.lang.Object, java.lang.Throwable)
      */
     @Override
     public void after(final Object target, final Object[] args, final Object result, final Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
 
         try {
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
 
             recorder.recordApi(descriptor);
 
             if (throwable == null) {
-                //TargetClass13_Request request = (TargetClass13_Request) arg0;
-                // Optionally, record the destination id (logical name of server. e.g. DB name)
-                /*recorder.recordDestinationId(request.getNamespace());
-                recorder.recordAttribute(JbossConstants.MY_RPC_PROCEDURE_ANNOTATION_KEY, request.getProcedure());
-                recorder.recordAttribute(JbossConstants.MY_RPC_ARGUMENT_ANNOTATION_KEY, request.getArgument());
-                */
-                /*final Method method = (Method) args[1];
-                final String methodName = getMethodName(method);
-                logger.debug("XXX Method Name = {}", methodName);
-                recorder.recordAttribute(JbossConstants.JBOSS_METHOD_ANNOTATION_KEY, methodName);*/
                 recorder.recordAttribute(AnnotationKey.RETURN_DATA, result);
             } else {
                 recorder.recordException(throwable);
@@ -172,7 +145,6 @@ public class RemotingClientInvocationInterceptor implements AroundInterceptor {
             trace.traceBlockEnd();
         }
     }
-
  
     private String getHostname() {
         String hostname = "localhost";

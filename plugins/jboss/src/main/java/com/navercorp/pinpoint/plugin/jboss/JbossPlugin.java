@@ -92,9 +92,11 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
             requestFacade();
             // Clear bind trace. defense code
             addStandardHostValveEditor();
-            // JBoss Remoting
-            addRemotingClientEditor();
-            addRemotingServerEditor();
+
+            if (jbossConfig.isTraceRemoting()) {
+                addRemotingClientEditor();
+                addRemotingServerEditor();
+            }            
         }
     }
 
