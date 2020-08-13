@@ -33,8 +33,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MSSQLServerContainer;
-import org.testcontainers.utility.DockerMachineClient;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -59,7 +59,8 @@ public class MSSSqlConnectionIT extends BasePinpointTest {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        Assume.assumeTrue("Docker not enabled", DockerMachineClient.instance().isInstalled());
+        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+
         mssqlserver.start();
 
         driverClass = new MSSqlJDBCDriverClass();
