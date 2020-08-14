@@ -73,6 +73,9 @@ com.navercorp.pinpoint.common,com.navercorp.pinpoint.exception" boot-time="true"
 #### Set ```profiler.jboss.traceEjb=true``` for remote ejb based application in *pinpoint.config* file
 #### Set ```profiler.jboss.traceEjb=false``` for non-ejb based application in *pinpoint.config* file
 
+#### Set ```profiler.jboss.traceremoting=true``` to enable remoting tracing in *pinpoint.config* file
+#### Set ```profiler.jboss.traceremoting=false``` to disable remoting tracing in *pinpoint.config* file
+
 ### If your application shows up as *STAND_ALONE*
 Pinpoint agent throws an exception if multiple class file transformers are registered for a class. Since multiple
 plugins register class file transformers for `org.apache.catalina.core.StandardHostValve`, the agent will throw an

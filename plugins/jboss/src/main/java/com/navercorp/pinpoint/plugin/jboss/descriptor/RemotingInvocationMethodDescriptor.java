@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Pinpoint contributors and NAVER Corp.
+ * Copyright 2020 Pinpoint contributors and NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jboss;
+package com.navercorp.pinpoint.plugin.jboss.descriptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.MethodType;
 
 /**
- * The Class ContextInvocationMethodDescriptor.
+ * The Class RemotingInvocationMethodDescriptor.
  *
- * @author <a href="mailto:suraj.raturi89@gmail.com">Suraj Raturi</a>
+ * @author <a href="mailto:guillermoadrianmolina@hotmail.com">Guillermo Adrian
+ *         Molina</a>
+ * @author Guillermo Adrian Molina
  */
-public class ContextInvocationMethodDescriptor implements MethodDescriptor {
+public class RemotingInvocationMethodDescriptor implements MethodDescriptor {
 
     /** The api id. */
     private int apiId = 0;
 
     /** The type. */
-    private int type = MethodType.WEB_REQUEST;
+    private int type = MethodType.INVOCATION;
 
     /*
      * (non-Javadoc)
@@ -39,7 +41,7 @@ public class ContextInvocationMethodDescriptor implements MethodDescriptor {
      */
     @Override
     public String getMethodName() {
-        return "";
+        return null;
     }
 
     /*
@@ -49,7 +51,7 @@ public class ContextInvocationMethodDescriptor implements MethodDescriptor {
      */
     @Override
     public String getClassName() {
-        return "";
+        return null;
     }
 
     /*
@@ -99,7 +101,7 @@ public class ContextInvocationMethodDescriptor implements MethodDescriptor {
      */
     @Override
     public String getFullName() {
-        return ContextInvocationMethodDescriptor.class.getName();
+        return RemotingInvocationMethodDescriptor.class.getName();
     }
 
     /*
@@ -129,7 +131,7 @@ public class ContextInvocationMethodDescriptor implements MethodDescriptor {
      */
     @Override
     public String getApiDescriptor() {
-        return "Jboss Context Invocation Process";
+        return "Jboss Remoting Invocation";
     }
 
     /*

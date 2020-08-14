@@ -47,6 +47,7 @@ public class JbossConfig {
      */
     private final boolean traceEjb;
     private final boolean enable;
+    private final boolean traceRemoting;
 
     private final List<String> bootstrapMains;
 
@@ -54,6 +55,7 @@ public class JbossConfig {
     private final String realIpEmptyValue;
     private final boolean traceRequestParam;
     private final Filter<String> excludeProfileMethodFilter;
+
 
     /**
      * Instantiates a new jboss configuration.
@@ -63,6 +65,7 @@ public class JbossConfig {
     public JbossConfig(final ProfilerConfig config) {
         this.enable = config.readBoolean("profiler.jboss.enable", true);
         this.traceEjb = config.readBoolean("profiler.jboss.traceEjb", false);
+        this.traceRemoting = config.readBoolean("profiler.jboss.traceremoting", false);
 
         this.bootstrapMains = config.readList("profiler.jboss.bootstrap.main");
         this.hidePinpointHeader = config.readBoolean("profiler.jboss.hidepinpointheader", true);
@@ -120,6 +123,14 @@ public class JbossConfig {
         return traceEjb;
     }
 
+    /**
+     * Checks if is jboss trace remoting.
+     *
+     * @return true, if is jboss trace remoting
+     */
+    public boolean isTraceRemoting() {
+        return traceRemoting;
+    }
 
     public String getRealIpHeader() {
         return realIpHeader;
@@ -143,6 +154,7 @@ public class JbossConfig {
         sb.append("hidePinpointHeader=").append(hidePinpointHeader);
         sb.append(", excludeUrlFilter=").append(excludeUrlFilter);
         sb.append(", traceEjb=").append(traceEjb);
+        sb.append(", traceRemoting=").append(traceRemoting);
         sb.append(", enable=").append(enable);
         sb.append(", bootstrapMains=").append(bootstrapMains);
         sb.append(", realIpHeader='").append(realIpHeader).append('\'');

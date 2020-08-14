@@ -48,6 +48,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1031</td><td>JETTY_METHOD</td></tr>
  * <tr><td>1040</td><td>JBOSS</td></tr>
  * <tr><td>1041</td><td>JBOSS_METHOD</td></tr>
+ * <tr><td>1042</td><td>JBOSS_REMOTING</td></tr>
  * <tr><td>1050</td><td>VERTX</td></tr>
  * <tr><td>1051</td><td>VERTX_INTERNAL</td></tr>
  * <tr><td>1052</td><td>VERTX_HTTP_SERVER</td></tr>
@@ -186,6 +187,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * 
  * <h3>RPC (9000 ~ 9899)</h3>
  * <table>
+ * <tr><td>9042</td><td>JBOSS_REMOTING_CLIENT</td></tr>
  * <tr><td>9050</td><td>HTTP_CLIENT_3</td></tr>
  * <tr><td>9051</td><td>HTTP_CLIENT_3_INTERNAL</td></tr>
  * <tr><td>9052</td><td>HTTP_CLIENT_4</td></tr>

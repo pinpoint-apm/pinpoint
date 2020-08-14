@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jboss;
+package com.navercorp.pinpoint.plugin.jboss.descriptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.MethodType;
 
 /**
- * The Class MethodInvocationHandlerMethodDescriptor.
+ * The Class ContextInvocationMethodDescriptor.
  *
  * @author <a href="mailto:suraj.raturi89@gmail.com">Suraj Raturi</a>
  */
-public class MethodInvocationHandlerMethodDescriptor implements MethodDescriptor {
+public class ContextInvocationMethodDescriptor implements MethodDescriptor {
 
     /** The api id. */
     private int apiId = 0;
@@ -99,7 +99,7 @@ public class MethodInvocationHandlerMethodDescriptor implements MethodDescriptor
      */
     @Override
     public String getFullName() {
-        return MethodInvocationHandlerMethodDescriptor.class.getName();
+        return ContextInvocationMethodDescriptor.class.getName();
     }
 
     /*
@@ -129,7 +129,7 @@ public class MethodInvocationHandlerMethodDescriptor implements MethodDescriptor
      */
     @Override
     public String getApiDescriptor() {
-        return "Jboss Method Invocation Handler Process";
+        return "Jboss Context Invocation Process";
     }
 
     /*
