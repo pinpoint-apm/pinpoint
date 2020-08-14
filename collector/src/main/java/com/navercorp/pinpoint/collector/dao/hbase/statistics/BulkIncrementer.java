@@ -36,23 +36,31 @@ public interface BulkIncrementer {
 
     boolean increment(TableName tableName, RowKey rowKey, ColumnName columnName);
 
+    boolean increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition);
+
     Map<TableName, List<Increment>> getIncrements(RowKeyDistributorByHashPrefix rowKeyDistributor);
 
+    void updateMax(TableName tableName, RowKey rowKey, ColumnName columnName, long value);
+
+    Map<RowInfo, Long> getMaxUpdate();
 
     class DefaultBulkIncrementer implements BulkIncrementer {
 
         private final RowKeyMerge rowKeyMerge;
 
-        final AtomicLongMap<RowInfo> counter = AtomicLongMap.create();
+        protected final AtomicLongMap<RowInfo> counter = AtomicLongMap.create();
 
         DefaultBulkIncrementer(RowKeyMerge rowKeyMerge) {
             this.rowKeyMerge = Objects.requireNonNull(rowKeyMerge, "rowKeyMerge");
         }
 
-        @Override
         public boolean increment(TableName tableName, RowKey rowKey, ColumnName columnName) {
+            return increment(tableName, rowKey, columnName, 1L);
+        }
+
+        public boolean increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition) {
             RowInfo rowInfo = new DefaultRowInfo(tableName, rowKey, columnName);
-            counter.incrementAndGet(rowInfo);
+            counter.addAndGet(rowInfo, addition);
             return true;
         }
 
@@ -61,7 +69,19 @@ public interface BulkIncrementer {
             final Map<RowInfo, Long> snapshot = AtomicLongMapUtils.remove(counter);
             return rowKeyMerge.createBulkIncrement(snapshot, rowKeyDistributor);
         }
+
+        private final AtomicLongMap<RowInfo> max = AtomicLongMap.create();
+
+        public void updateMax(TableName tableName, RowKey rowKey, ColumnName columnName, long value) {
+            RowInfo rowInfo = new DefaultRowInfo(tableName, rowKey, columnName);
+            max.accumulateAndGet(rowInfo, value, Long::max);
+        }
+
+        public Map<RowInfo, Long> getMaxUpdate() {
+            return AtomicLongMapUtils.remove(max);
+        }
     }
+
 
     class SizeLimitedBulkIncrementer extends DefaultBulkIncrementer {
         private final AtomicLong count = new AtomicLong();
@@ -79,7 +99,7 @@ public interface BulkIncrementer {
         }
 
         @Override
-        public boolean increment(TableName tableName, RowKey rowKey, ColumnName columnName) {
+        public boolean increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition) {
             if (count.incrementAndGet() % checkIntervalCount == 0) {
                 checkState();
             }
@@ -90,7 +110,7 @@ public interface BulkIncrementer {
                     return false;
                 }
             }
-            counter.incrementAndGet(rowInfo);
+            counter.addAndGet(rowInfo, addition);
             return true;
         }
 

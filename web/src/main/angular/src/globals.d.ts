@@ -26,6 +26,10 @@ interface IResponseTime {
     '5s': number;
     'Slow': number;
     'Error': number;
+    'Avg': number;
+    'Max': number;
+    'Sum': number;
+    'Tot': number;
     [key: string]: number;
 }
 // @store
@@ -40,6 +44,10 @@ interface IResponseMilliSecondTime {
     '500ms': number;
     'Error': number;
     'Slow': number;
+    'Avg': number;
+    'Max': number;
+    'Sum': number;
+    'Tot': number;
     [key: string]: number;
 }
 interface IInstanceStatus {
@@ -122,6 +130,9 @@ interface ILinkInfo {
     to: string;
     toAgent?: string[];
     totalCount: number;
+    maxElapsed: number;
+    sumElapsed: number;
+    avgElapsed: number;
 }
 interface INodeInfo {
     agentHistogram?: { [key:string]: IResponseTime | IResponseMilliSecondTime }[];
@@ -144,6 +155,9 @@ interface INodeInfo {
     slowCount: number;
     timeSeriesHistogram: IHistogram[];
     totalCount: number;
+    maxElapsed: number;
+    sumElapsed: number;
+    avgElapsed: number;
 }
 interface IQueryRange {
     from: number;

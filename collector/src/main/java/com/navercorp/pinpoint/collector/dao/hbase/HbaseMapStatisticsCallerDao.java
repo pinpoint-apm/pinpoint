@@ -21,11 +21,13 @@ import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementer;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.CallRowKey;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.CalleeColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowInfo;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.profiler.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
@@ -117,17 +119,25 @@ public class HbaseMapStatisticsCallerDao extends MonitoredCachedStatisticsDao im
 
         final short calleeSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(calleeServiceType, elapsed, isError);
         final ColumnName calleeColumnName = new CalleeColumnName(callerAgentid, calleeServiceType.getCode(), calleeApplicationName, calleeHost, calleeSlotNumber);
+
+        HistogramSchema histogramSchema = callerServiceType.getHistogramSchema();
+        final ColumnName sumColumnName = new CalleeColumnName(callerAgentid, calleeServiceType.getCode(), calleeApplicationName, calleeHost, histogramSchema.getSumStatSlot().getSlotTime());
+        final ColumnName maxColumnName = new CalleeColumnName(callerAgentid, calleeServiceType.getCode(), calleeApplicationName, calleeHost, histogramSchema.getMaxStatSlot().getSlotTime());
         if (useBulk) {
             TableName mapStatisticsCalleeTableName = descriptor.getTableName();
             boolean success = bulkIncrementer.increment(mapStatisticsCalleeTableName, callerRowKey, calleeColumnName);
             if (!success) {
                 reportReject();
             }
+            bulkIncrementer.increment(mapStatisticsCalleeTableName, callerRowKey, sumColumnName, elapsed);
+            bulkIncrementer.updateMax(mapStatisticsCalleeTableName, callerRowKey, maxColumnName, elapsed);
         } else {
             final byte[] rowKey = getDistributedKey(callerRowKey.getRowKey());
             // column name is the name of caller app.
             byte[] columnName = calleeColumnName.getColumnName();
             increment(rowKey, columnName, 1L);
+            increment(rowKey, sumColumnName.getColumnName(), elapsed);
+            checkAndMax(rowKey, maxColumnName.getColumnName(), elapsed);
         }
     }
 
@@ -137,6 +147,13 @@ public class HbaseMapStatisticsCallerDao extends MonitoredCachedStatisticsDao im
 
         TableName mapStatisticsCalleeTableName = descriptor.getTableName();
         hbaseTemplate.incrementColumnValue(mapStatisticsCalleeTableName, rowKey, descriptor.getColumnFamilyName(), columnName, increment);
+    }
+
+    private void checkAndMax(byte[] rowKey, byte[] columnName, long value) {
+        Objects.requireNonNull(rowKey, "rowKey");
+        Objects.requireNonNull(columnName, "columnName");
+
+        hbaseTemplate.maxColumnValue(descriptor.getTableName(), rowKey, descriptor.getColumnFamilyName(), columnName, value);
     }
 
     @Override
@@ -156,6 +173,13 @@ public class HbaseMapStatisticsCallerDao extends MonitoredCachedStatisticsDao im
                 logger.debug("flush {} to [{}] Increment:{}", this.getClass().getSimpleName(), tableName.getNameAsString(), increments.size());
             }
             hbaseTemplate.increment(tableName, increments);
+        }
+
+        Map<RowInfo, Long> maxUpdateMap = bulkIncrementer.getMaxUpdate();
+        for (RowInfo rowInfo : maxUpdateMap.keySet()) {
+            Long val = maxUpdateMap.get(rowInfo);
+            final byte[] rowKey = getDistributedKey(rowInfo.getRowKey().getRowKey());
+            checkAndMax(rowKey, rowInfo.getColumnName().getColumnName(), val);
         }
     }
 

@@ -108,6 +108,8 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
         this.agentHistogramDataService.getData(key, applicationName, serviceTypeCode, this.serverMapData, this.previousRange).pipe(
             map((data: any) => this.isAllAgent() ? data['histogram'] : data['agentHistogram'][this.selectedAgent])
         ).pipe(
+            map((data: IResponseTime | IResponseMilliSecondTime) => this.cleanIntermediateChartData(data))
+        ).pipe(
             map((data: IResponseTime | IResponseMilliSecondTime) => this.makeChartData(data)),
             withLatestFrom(this.storeHelperService.getResponseSummaryChartYMax(this.unsubscribe))
         ).subscribe(([chartData, yMax]: [PrimitiveArray[], number]) => {
@@ -220,6 +222,8 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
                 }),
             )
         ).pipe(
+            map((data: IResponseTime | IResponseMilliSecondTime) => this.cleanIntermediateChartData(data))
+        ).pipe(
             map((data) => this.makeChartData(data)),
             switchMap((data: PrimitiveArray[]) => {
                 if (this.shouldUpdateYMax()) {
@@ -257,6 +261,12 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
         return this.selectedTarget.isNode
             ? this.serverMapData.getNodeData(this.selectedTarget.node[0])
             : this.serverMapData.getLinkData(this.selectedTarget.link[0]);
+    }
+
+    private cleanIntermediateChartData(data: IResponseTime | IResponseMilliSecondTime): any {
+        delete data["Sum"];
+        delete data["Tot"];
+        return data;
     }
 
     private makeChartData(data: IResponseTime | IResponseMilliSecondTime): PrimitiveArray[] {
