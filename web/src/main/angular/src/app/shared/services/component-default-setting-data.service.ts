@@ -48,7 +48,9 @@ export class ComponentDefaultSettingDataService {
         'rgba(81, 175, 223, 0.5)',  // #51afdf
         'rgba(255, 186, 0, 0.5)',   // #ffba00
         'rgba(230, 127, 34, 0.5)',  // #e67f22
-        'rgba(233, 84, 89, 0.5)'    // #e95459
+        'rgba(233, 84, 89, 0.5)',    // #e95459
+        'rgb(151,227,134)',    // #97E386
+        'rgb(19,182,231)'    // #13B6E7
     ];
     private dateFormatList = [
         // [default, default + timezone, default + millisecond, time+millisecond, year+month+day, time, variation1, variation2]

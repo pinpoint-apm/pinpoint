@@ -32,6 +32,14 @@ import java.util.Objects;
 @JsonSerialize(using = HistogramSerializer.class)
 public class Histogram {
 
+    public static final String AVG_ELAPSED_TIME = "Avg";
+
+    public static final String MAX_ELAPSED_TIME = "Max";
+
+    public static final String SUM_ELAPSED_TIME = "Sum";
+
+    public static final String TOTAL_COUNT = "Tot";
+
     private final HistogramSchema schema;
 
     private long fastCount;
@@ -43,6 +51,8 @@ public class Histogram {
     private long normalErrorCount;
     private long slowErrorCount;
     private long verySlowErrorCount;
+    private long sumElapsed;
+    private long maxElapsed;
 
     public Histogram(ServiceType serviceType) {
         Objects.requireNonNull(serviceType, "serviceType");
@@ -56,12 +66,23 @@ public class Histogram {
     public void addCallCountByElapsedTime(int elapsedTime, boolean error) {
         final HistogramSlot histogramSlot = this.schema.findHistogramSlot(elapsedTime, error);
         short slotTime = histogramSlot.getSlotTime();
+        this.sumElapsed += elapsedTime;
+        updateMaxElapsed(elapsedTime);
         addCallCount(slotTime, 1);
     }
 
     // TODO one may extract slot number from this class
     public void addCallCount(final short slotTime, final long count) {
         final HistogramSchema schema = this.schema;
+
+        if (slotTime == schema.getSumStatSlot().getSlotTime()) {
+            this.sumElapsed += count;
+            return;
+        }
+        if (slotTime == schema.getMaxStatSlot().getSlotTime()) {
+            updateMaxElapsed(count);
+            return;
+        }
 
         if (slotTime <= schema.getVerySlowErrorSlot().getSlotTime()) {
             this.verySlowErrorCount += count;
@@ -110,6 +131,12 @@ public class Histogram {
         }
 
         throw new IllegalArgumentException("slot not found slotTime=" + slotTime + ", count=" + count + ", schema=" + schema);
+    }
+
+    private void updateMaxElapsed(long elapsedTime) {
+        if (elapsedTime > this.maxElapsed) {
+            this.maxElapsed = elapsedTime;
+        }
     }
 
     public HistogramSchema getHistogramSchema() {
@@ -164,6 +191,19 @@ public class Histogram {
         return fastCount + normalCount + slowCount + verySlowCount;
     }
 
+    public long getSumElapsed() {
+        return sumElapsed;
+    }
+
+    public long getMaxElapsed() {
+        return maxElapsed;
+    }
+
+    public long getAvgElapsed() {
+        final long totalCount = getTotalCount();
+        return totalCount > 0 ? sumElapsed / totalCount : 0L;
+    }
+
     public long getCount(SlotType slotType) {
         Objects.requireNonNull(slotType, "slotType");
 
@@ -187,6 +227,10 @@ public class Histogram {
             case ERROR:
                 // for backward compatibility.
                 return errorCount + fastErrorCount + normalErrorCount + slowErrorCount + verySlowErrorCount;
+            case SUM_STAT:
+                return sumElapsed;
+            case MAX_STAT:
+                return maxElapsed;
         }
         throw new IllegalArgumentException("slotType:" + slotType);
     }
@@ -207,6 +251,8 @@ public class Histogram {
         this.slowErrorCount += histogram.getSlowErrorCount();
         this.verySlowCount += histogram.getVerySlowCount();
         this.verySlowErrorCount += histogram.getVerySlowErrorCount();
+        this.sumElapsed += histogram.getSumElapsed();
+        updateMaxElapsed(histogram.getMaxElapsed());
     }
 
     @Override
@@ -239,6 +285,8 @@ public class Histogram {
         sb.append(", normalErrorCount=").append(normalErrorCount);
         sb.append(", slowErrorCount=").append(slowErrorCount);
         sb.append(", verySlowErrorCount=").append(verySlowErrorCount);
+        sb.append(", sumElapsed=").append(sumElapsed);
+        sb.append(", maxElapsed=").append(maxElapsed);
         sb.append('}');
         return sb.toString();
     }

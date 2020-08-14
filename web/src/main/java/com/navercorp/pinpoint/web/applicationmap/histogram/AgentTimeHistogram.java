@@ -94,7 +94,7 @@ public class AgentTimeHistogram {
     }
 
     public List<ResponseTimeViewModel> createResponseTimeViewModel(List<TimeHistogram> timeHistogramList) {
-        final List<ResponseTimeViewModel> value = new ArrayList<>(5);
+        final List<ResponseTimeViewModel> value = new ArrayList<>(8);
         ServiceType serviceType = application.getServiceType();
         HistogramSchema schema = serviceType.getHistogramSchema();
         value.add(new ResponseTimeViewModel(schema.getFastSlot().getSlotName(), getColumnValue(SlotType.FAST, timeHistogramList)));
@@ -106,6 +106,10 @@ public class AgentTimeHistogram {
         value.add(new ResponseTimeViewModel(schema.getVerySlowSlot().getSlotName(), getColumnValue(SlotType.VERY_SLOW, timeHistogramList)));
 //        value.add(new ResponseTimeViewModel(schema.getVerySlowErrorSlot().getSlotName(), getColumnValue(SlotType.VERY_SLOW_ERROR, timeHistogramList)));
         value.add(new ResponseTimeViewModel(schema.getErrorSlot().getSlotName(), getColumnValue(SlotType.ERROR, timeHistogramList)));
+        value.add(new ResponseTimeViewModel(Histogram.AVG_ELAPSED_TIME, getAvgValue(timeHistogramList)));
+        value.add(new ResponseTimeViewModel(Histogram.SUM_ELAPSED_TIME, getColumnValue(SlotType.SUM_STAT, timeHistogramList)));
+        value.add(new ResponseTimeViewModel(Histogram.MAX_ELAPSED_TIME, getColumnValue(SlotType.MAX_STAT, timeHistogramList)));
+        value.add(new ResponseTimeViewModel(Histogram.TOTAL_COUNT, getTotalCount(timeHistogramList)));
         return value;
     }
 
@@ -113,6 +117,29 @@ public class AgentTimeHistogram {
         List<ResponseTimeViewModel.TimeCount> result = new ArrayList<>(timeHistogramList.size());
         for (TimeHistogram timeHistogram : timeHistogramList) {
             result.add(new ResponseTimeViewModel.TimeCount(timeHistogram.getTimeStamp(), getCount(timeHistogram, slotType)));
+        }
+        return result;
+    }
+
+    private List<ResponseTimeViewModel.TimeCount> getAvgValue(List<TimeHistogram> timeHistogramList) {
+        List<ResponseTimeViewModel.TimeCount> result = new ArrayList<>(timeHistogramList.size());
+        for (TimeHistogram timeHistogram : timeHistogramList) {
+            final long timeStamp = timeHistogram.getTimeStamp();
+            final long totalCount = timeHistogram.getTotalCount();
+            final long sumElapsed = getCount(timeHistogram, SlotType.SUM_STAT);
+            final long avgElapsed = totalCount > 0 ? sumElapsed / totalCount : 0L;
+
+            result.add(new ResponseTimeViewModel.TimeCount(timeStamp, avgElapsed));
+        }
+        return result;
+    }
+
+    private List<ResponseTimeViewModel.TimeCount> getTotalCount(List<TimeHistogram> timeHistogramList) {
+        List<ResponseTimeViewModel.TimeCount> result = new ArrayList<>(timeHistogramList.size());
+        for (TimeHistogram timeHistogram : timeHistogramList) {
+            final long timeStamp = timeHistogram.getTimeStamp();
+            final long totalCount = timeHistogram.getTotalCount();
+            result.add(new ResponseTimeViewModel.TimeCount(timeStamp, totalCount));
         }
         return result;
     }

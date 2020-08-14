@@ -138,6 +138,9 @@ public class NodeSerializer extends JsonSerializer<Node>  {
                 jgen.writeNumberField("totalCount", applicationHistogram.getTotalCount()); // for go.js
                 jgen.writeNumberField("errorCount", applicationHistogram.getTotalErrorCount());
                 jgen.writeNumberField("slowCount", applicationHistogram.getSlowCount());
+                jgen.writeNumberField("avgElapsed", applicationHistogram.getAvgElapsed());
+                jgen.writeNumberField("maxElapsed", applicationHistogram.getMaxElapsed());
+                jgen.writeNumberField("sumElapsed", applicationHistogram.getSumElapsed());
 
                 if (applicationHistogram.getTotalCount() == 0) {
                     jgen.writeBooleanField("hasAlert", false);  // for go.js

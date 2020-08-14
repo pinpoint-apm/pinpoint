@@ -51,6 +51,18 @@ public class HistogramSerializer extends JsonSerializer<Histogram> {
         jgen.writeFieldName(schema.getErrorSlot().getSlotName());
         jgen.writeNumber(histogram.getTotalErrorCount());
 
+        jgen.writeFieldName(Histogram.AVG_ELAPSED_TIME);
+        jgen.writeNumber(histogram.getAvgElapsed());
+
+        jgen.writeFieldName(Histogram.MAX_ELAPSED_TIME);
+        jgen.writeNumber(histogram.getMaxElapsed());
+
+        jgen.writeFieldName(Histogram.SUM_ELAPSED_TIME);
+        jgen.writeNumber(histogram.getSumElapsed());
+
+        jgen.writeFieldName(Histogram.TOTAL_COUNT);
+        jgen.writeNumber(histogram.getTotalCount());
+
         jgen.writeEndObject();
     }
 }

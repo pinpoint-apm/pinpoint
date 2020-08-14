@@ -116,6 +116,10 @@ public class FilteredMapBuilder {
             }
 
             final short slotTime = getHistogramSlotTime(span, spanApplication.getServiceType());
+            final HistogramSchema histogramSchema = spanApplication.getServiceType().getHistogramSchema();
+            final short sumElapsedSlotTime = histogramSchema.getSumStatSlot().getSlotTime();
+            final short maxElapsedSlotTime = histogramSchema.getMaxStatSlot().getSlotTime();
+            final int elapsed = span.getElapsed();
             // might need to reconsider using collector's accept time for link statistics.
             // we need to convert to time window's timestamp. If not, it may lead to OOM due to mismatch in timeslots.
             long timestamp = timeWindow.refineTimestamp(span.getCollectorAcceptTime());
@@ -127,6 +131,8 @@ public class FilteredMapBuilder {
                 }
                 final LinkDataMap sourceLinkData = linkDataDuplexMap.getSourceLinkDataMap();
                 sourceLinkData.addLinkData(parentApplication, span.getAgentId(), spanApplication, span.getAgentId(), timestamp, slotTime, 1);
+                sourceLinkData.addLinkData(parentApplication, span.getAgentId(), spanApplication, span.getAgentId(), timestamp, maxElapsedSlotTime, elapsed);
+                sourceLinkData.addLinkData(parentApplication, span.getAgentId(), spanApplication, span.getAgentId(), timestamp, sumElapsedSlotTime, elapsed);
 
                 if (logger.isTraceEnabled()) {
                     logger.trace("span target user:{} {} -> span:{} {}", parentApplication, span.getAgentId(), spanApplication, span.getAgentId());
@@ -134,6 +140,8 @@ public class FilteredMapBuilder {
                 // Inbound data
                 final LinkDataMap targetLinkDataMap = linkDataDuplexMap.getTargetLinkDataMap();
                 targetLinkDataMap.addLinkData(parentApplication, span.getAgentId(), spanApplication, span.getAgentId(), timestamp, slotTime, 1);
+                targetLinkDataMap.addLinkData(parentApplication, span.getAgentId(), spanApplication, span.getAgentId(), timestamp, maxElapsedSlotTime, elapsed);
+                targetLinkDataMap.addLinkData(parentApplication, span.getAgentId(), spanApplication, span.getAgentId(), timestamp, sumElapsedSlotTime, elapsed);
             } else {
                 // Inbound data
                 if (logger.isTraceEnabled()) {
@@ -141,6 +149,8 @@ public class FilteredMapBuilder {
                 }
                 final LinkDataMap targetLinkDataMap = linkDataDuplexMap.getTargetLinkDataMap();
                 targetLinkDataMap.addLinkData(parentApplication, span.getAgentId(), spanApplication, span.getAgentId(), timestamp, slotTime, 1);
+                targetLinkDataMap.addLinkData(parentApplication, span.getAgentId(), spanApplication, span.getAgentId(), timestamp, maxElapsedSlotTime, elapsed);
+                targetLinkDataMap.addLinkData(parentApplication, span.getAgentId(), spanApplication, span.getAgentId(), timestamp, sumElapsedSlotTime, elapsed);
             }
 
             addDot(span, spanApplication);
