@@ -23,7 +23,7 @@
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
             <!-- 3.5.x java8 -->
-            <version>3.2.8</version>
+            <version>${mybatis.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
