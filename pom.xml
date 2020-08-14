@@ -85,12 +85,12 @@
         <plugin.animal-sniffer.skip>false</plugin.animal-sniffer.skip>
 
         <!-- library -->
-        <slf4j.version>1.7.30</slf4j.version>
         <metrics.version>3.2.6</metrics.version>
 
         <!-- jdk 6 compatibility version -->
         <fastxml.jackson-jdk6.version>2.6.6</fastxml.jackson-jdk6.version>
         <fastxml.jackson.version>2.10.4</fastxml.jackson.version>
+        <snakeyaml.version>1.26</snakeyaml.version>
 
         <httpcomponents.version>4.5.6</httpcomponents.version>
         <httpcomponents-core.version>4.4.10</httpcomponents-core.version>
@@ -107,9 +107,12 @@
 
         <spring.boot.version>2.2.8.RELEASE</spring.boot.version>
 
+        <slf4j.version>1.7.30</slf4j.version>
         <log4j2-jdk6.version>2.3</log4j2-jdk6.version>
         <log4j2-jdk8.version>2.13.3</log4j2-jdk8.version>
         <log4j2.version>${log4j2-jdk6.version}</log4j2.version>
+        <!-- for plugin & hbase client -->
+        <log4j1.version>1.2.17</log4j1.version>
 
 
         <javax.servlet4.version>4.0.1</javax.servlet4.version>
@@ -122,6 +125,9 @@
         <ehcache.version>2.10.6</ehcache.version>
         <netty3.version>3.10.6.Final</netty3.version>
         <netty4.version>4.1.50.Final</netty4.version>
+
+        <mybatis.spring.version>1.3.3</mybatis.spring.version>
+        <mybatis.version>3.4.6</mybatis.version>
 
         <!-- maven-plugin -->
         <plugin.compiler.version>3.8.1</plugin.compiler.version>
@@ -470,6 +476,7 @@
                 <artifactId>hbase-shaded-client</artifactId>
                 <version>${hbase.shaded.client.version}</version>
                 <exclusions>
+                    <!-- Do not remove the log4j  -->
 <!--                    <exclusion>-->
 <!--                        <groupId>log4j</groupId>-->
 <!--                        <artifactId>log4j</artifactId>-->
@@ -515,7 +522,6 @@
             </dependency>
 
 
-
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-slf4j-impl</artifactId>
@@ -540,22 +546,34 @@
             </dependency>
 
             <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${log4j1.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-dbcp2</artifactId>
                 <version>2.7.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.mybatis</groupId>
                 <artifactId>mybatis</artifactId>
                 <!-- build error mybatis-plugin 3.5.5 requried java8 -->
 <!--                <version>3.5.5</version>-->
-                <version>3.4.6</version>
+                <version>${mybatis.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mybatis</groupId>
                 <artifactId>mybatis-spring</artifactId>
                 <!-- 2.0.x java8 & spring5 https://mybatis.org/spring/index.html -->
-                <version>1.3.3</version>
+                <version>${mybatis.spring.version}</version>
             </dependency>
             <dependency>
                 <groupId>mysql</groupId>

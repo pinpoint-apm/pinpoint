@@ -99,6 +99,13 @@
             <artifactId>log4j-jcl</artifactId>
             <version>${log4j2.version}</version>
         </dependency>
+
+        <!-- for hbase library-->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
 

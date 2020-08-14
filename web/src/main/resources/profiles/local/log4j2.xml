@@ -81,7 +81,7 @@
             <AppenderRef ref="console"/>
         </Logger>
 
-        <Logger name="org.apache.zookeeper" level="DEBUG" additivity="false">
+        <Logger name="org.apache.zookeeper" level="INFO" additivity="false">
             <AppenderRef ref="console"/>
         </Logger>
 

@@ -27,6 +27,11 @@
     <artifactId>pinpoint-profiler</artifactId>
     <name>pinpoint-profiler</name>
     <packaging>jar</packaging>
+    
+    <properties>
+        
+    </properties>
+
 
     <dependencies>
         <dependency>
