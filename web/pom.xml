@@ -240,9 +240,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-        </dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+    </dependency>
 
         <!-- Caching dependecies -->
         <dependency>
@@ -320,13 +320,7 @@
             <version>${spring.batch.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <!-- spring-batch-test dependency -->
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-            <version>1.4</version>
-            <scope>test</scope>
-        </dependency>
+
 
         <!-- for zookeeper test -->
         <dependency>
