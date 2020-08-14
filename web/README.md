@@ -6,14 +6,17 @@
 mvnw install -pl web -am -Dmaven.test.skip=true
 ```
  
-Skip frontend build
-```
-mvnw install -pl web -am -Dbuild.frontend.skip=true -Dmaven.test.skip=true
-```
+or
 
 ``` 
 cd web
 ../mvnw install -pl web -am -Dbuild.frontend.skip=true -Dmaven.test.skip=true -f ../pom.xml
+```
+
+
+Skip frontend build
+```
+mvnw install -pl web -am -Dbuild.frontend.skip=true -Dmaven.test.skip=true
 ```
 
 ## run
