@@ -61,5 +61,18 @@ public class VertxHttpServerConfigTest {
         assertEquals("", config.getRealIpHeader());
         assertEquals("", config.getRealIpEmptyValue());
         assertEquals(false, config.getExcludeProfileMethodFilter().filter("CHUNK"));
+
+        properties = new Properties();
+        properties.setProperty("profiler.vertx.http.server.tracerequestparam", "true");
+        properties.setProperty("profiler.server.tracerequestparam", "false");
+        properties.setProperty("profiler.vertx.http.server.excludeurl", "/l7/check");
+        properties.setProperty("profiler.server.excludeurl", "/health");
+        properties.setProperty("profiler.vertx.http.server.realipheader", "RealIp");
+        properties.setProperty("profiler.server.realipheader", "X-Forward-Ip");
+        properties.setProperty("profiler.vertx.http.server.realipemptyvalue", "unknown");
+        properties.setProperty("profiler.server.realipemptyvalue", "UFO");
+        properties.setProperty("profiler.vertx.http.server.excludemethod", "chunk, continue");
+        properties.setProperty("profiler.server.excludemethod", "POST, PUT");
+
     }
 }

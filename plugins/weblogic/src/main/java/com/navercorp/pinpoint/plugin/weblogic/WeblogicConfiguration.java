@@ -17,11 +17,9 @@ package com.navercorp.pinpoint.plugin.weblogic;
 
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.config.ExcludeMethodFilter;
-import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
+import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
 
 /**
  * @author andyspan
@@ -40,23 +38,14 @@ public class WeblogicConfiguration {
     public WeblogicConfiguration(ProfilerConfig config) {
         this.enable = config.readBoolean("profiler.weblogic.enable", true);
         this.bootstrapMains = config.readList("profiler.weblogic.bootstrap.main");
-        final String weblogicExcludeURL = config.readString("profiler.weblogic.excludeurl", "");
-
-        this.realIpHeader = config.readString("profiler.weblogic.realipheader", null);
-        this.realIpEmptyValue = config.readString("profiler.weblogic.realipemptyvalue", null);
-        if (!weblogicExcludeURL.isEmpty()) {
-            this.excludeUrlFilter = new ExcludePathFilter(weblogicExcludeURL);
-        } else {
-            this.excludeUrlFilter = new SkipFilter<String>();
-        }
-        final String excludeProfileMethod = config.readString("profiler.weblogic.excludemethod", "");
-        if (!excludeProfileMethod.isEmpty()) {
-            this.excludeProfileMethodFilter = new ExcludeMethodFilter(excludeProfileMethod);
-        } else {
-            this.excludeProfileMethodFilter = new SkipFilter<String>();
-        }
-        this.traceRequestParam = config.readBoolean("profiler.weblogic.tracerequestparam", true);
-        this.hidePinpointHeader = config.readBoolean("profiler.weblogic.hidepinpointheader", true);
+        // Server
+        final ServerConfig serverConfig = new ServerConfig(config);
+        this.excludeUrlFilter = serverConfig.getExcludeUrlFilter("profiler.weblogic.excludeurl");
+        this.realIpHeader = serverConfig.getRealIpHeader("profiler.weblogic.realipheader");
+        this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.weblogic.realipemptyvalue");
+        this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.weblogic.excludemethod");
+        this.traceRequestParam = serverConfig.isTraceRequestParam("profiler.weblogic.tracerequestparam");
+        this.hidePinpointHeader = serverConfig.isHidePinpointHeader("profiler.weblogic.hidepinpointheader");
     }
 
     public Filter<String> getExcludeUrlFilter() {

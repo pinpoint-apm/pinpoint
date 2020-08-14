@@ -15,11 +15,9 @@
  */
 package com.navercorp.pinpoint.plugin.vertx;
 
-import com.navercorp.pinpoint.bootstrap.config.ExcludeMethodFilter;
-import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
+import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
 
 /**
  * @author jaehong.kim
@@ -39,25 +37,15 @@ public class VertxHttpServerConfig {
             throw new NullPointerException("config");
         }
 
-        // runtime
-        this.traceRequestParam = config.readBoolean("profiler.vertx.http.server.tracerequestparam", true);
-        final String tomcatExcludeURL = config.readString("profiler.vertx.http.server.excludeurl", "");
-        if (!tomcatExcludeURL.isEmpty()) {
-            this.excludeUrlFilter = new ExcludePathFilter(tomcatExcludeURL);
-        } else {
-            this.excludeUrlFilter = new SkipFilter<String>();
-        }
-        this.realIpHeader = config.readString("profiler.vertx.http.server.realipheader", null);
-        this.realIpEmptyValue = config.readString("profiler.vertx.http.server.realipemptyvalue", null);
-
-        final String tomcatExcludeProfileMethod = config.readString("profiler.vertx.http.server.excludemethod", "");
-        if (!tomcatExcludeProfileMethod.isEmpty()) {
-            this.excludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
-        } else {
-            this.excludeProfileMethodFilter = new SkipFilter<String>();
-        }
-        this.hidePinpointHeader = config.readBoolean("profiler.vertx.http.server.hidepinpointheader", true);
         this.requestHandlerMethodName = config.readString("profiler.vertx.http.server.request-handler.method.name", "io.vertx.ext.web.impl.RouterImpl.accept");
+        // Server
+        final ServerConfig serverConfig = new ServerConfig(config);
+        this.traceRequestParam = serverConfig.isTraceRequestParam("profiler.vertx.http.server.tracerequestparam");
+        this.excludeUrlFilter = serverConfig.getExcludeUrlFilter("profiler.vertx.http.server.excludeurl");
+        this.realIpHeader = serverConfig.getRealIpHeader("profiler.vertx.http.server.realipheader");
+        this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.vertx.http.server.realipemptyvalue");
+        this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.vertx.http.server.excludemethod");
+        this.hidePinpointHeader = serverConfig.isHidePinpointHeader("profiler.vertx.http.server.hidepinpointheader");
     }
 
     public boolean isTraceRequestParam() {
