@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.alarm.checker;
 
 
 import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.web.alarm.vo.AlarmCheckerValue;
+import com.navercorp.pinpoint.web.alarm.vo.CheckerValue;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +32,7 @@ import java.util.List;
  * @author minwoo.jung
  */
 public abstract class AlarmChecker<T> {
-
+    
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     protected final DataCollector dataCollector;
     protected final Rule rule;
@@ -66,9 +68,9 @@ public abstract class AlarmChecker<T> {
     public String getUnit() {
         return unit;
     }
-
+    
     protected abstract boolean decideResult(T value);
-
+    
     public void check() {
         dataCollector.collect();
         detected = decideResult(getDetectedValue());
@@ -86,5 +88,8 @@ public abstract class AlarmChecker<T> {
     }
     
     protected abstract T getDetectedValue();
-
+    
+    public CheckerValue getCheckerValue() {
+        return new AlarmCheckerValue(unit, getDetectedValue());
+    }
 }
