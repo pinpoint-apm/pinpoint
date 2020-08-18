@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author koo.taejin
@@ -86,5 +87,7 @@ public abstract class AlarmChecker<T> {
     }
     
     protected abstract T getDetectedValue();
-
+    public Map<String, T> getDetectedAgents(){
+        throw new UnsupportedOperationException(this.getClass() + "is not support getDetectedAgents function. you should use getDetectedValue");
+    };
 }

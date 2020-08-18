@@ -78,6 +78,11 @@ public abstract class AgentChecker<T> extends AlarmChecker<T> {
         
         return message.toString();
     }
+
+    @Override
+    public Map<String, T> getDetectedAgents() {
+        return detectedAgents;
+    }
     
     protected abstract Map<String, T> getAgentValues();
     

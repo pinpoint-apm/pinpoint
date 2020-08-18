@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.alarm;
 
+import com.navercorp.pinpoint.web.alarm.checker.AgentChecker;
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import java.text.SimpleDateFormat;
@@ -28,6 +29,7 @@ public class AlarmMailTemplate {
     private static final String LINE_FEED = "<br>";
     private static final String LINK_FORMAT = "<a href=\"%s\" >%s</a>";
     private static final String SCATTER_CHART_LINK_FORMAT = "<a href=\"%s/main/%s@%s/5m/%s\" >Scatter Chart Link</a>";
+    private static final String INSPECTOR_LINK_FORMAT = "<a href=\"%s/inspector/%s@%s/5m/%s/%s\" >Inspector Link</a>";
 
     private final String pinpointUrl;
     private final AlarmChecker checker;
@@ -64,6 +66,14 @@ public class AlarmMailTemplate {
         body.append(String.format(LINK_FORMAT, pinpointUrl, pinpointUrl));
         body.append(LINE_FEED);
         body.append(String.format(SCATTER_CHART_LINK_FORMAT, pinpointUrl, rule.getApplicationId(), rule.getServiceType(),getCurrentTime()));
+        body.append(LINE_FEED);
+        if(checker instanceof AgentChecker) {
+            checker.getDetectedAgents().forEach((key, value) -> {
+                body.append(String.format(INSPECTOR_LINK_FORMAT, pinpointUrl, rule.getApplicationId(), rule.getServiceType(), getCurrentTime(), key));
+                body.append(LINE_FEED);
+            });
+        }
+
 
         return body.toString();
     }
