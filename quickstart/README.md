@@ -1,8 +1,44 @@
 # QuickStart
 Pinpoint QuickStart provides a sample TestApp for the Agent.
 
+## Docker
+Installing Pinpoint with these docker files will take approximately 10min.
 
-## Java
+Visit [Official Pinpoint-Docker repository](https://github.com/naver/pinpoint-docker) for more information.
+
+## Installation
+To set up your very own Pinpoint instance you can either **download the build results** from our [**latest release**](https://github.com/naver/pinpoint/releases/latest).
+
+### HBase
+Download, Configure, and Start HBase - [1. Hbase](https://naver.github.io/pinpoint/installation.html#1-hbase).
+
+~~~
+$ tar xzvf hbase-x.x.x-bin.tar.gz
+$ cd hbase-x.x.x/
+$ ./bin/start-hbase.sh
+~~~
+
+See [scripts](https://github.com/naver/pinpoint/tree/master/hbase/scripts) and Run.
+
+~~~
+$ ./bin/hbase shell hbase-create.hbase
+~~~
+
+### Pinpoint Collector
+Download, and Start Collector - [3. Pinpoint Collector](https://naver.github.io/pinpoint/installation.html#3-pinpoint-collector)
+
+~~~
+$ java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-collector-boot-2.1.0-SNAPSHOT.jar
+~~~
+
+### Pinpoint Web
+Download, and Start Web - [4. Pinpoint Web](https://naver.github.io/pinpoint/installation.html#4-pinpoint-web)
+
+~~~
+$ java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-web-boot-2.1.0-SNAPSHOT.jar
+~~~
+
+## Java Agent
 
 ### Requirements
 In order to build Pinpoint, the following requirements must be met:
@@ -69,10 +105,10 @@ You should see some output that looks very similar to this:
 2020-08-06 17:25:00.313 DEBUG 19236 --- [           main] .s.b.w.e.t.TomcatServletWebServerFactory : Code archive: C:\Users\Naver\.m2\repository\org\springframework\boot\spring-boot\2.3.2.RELEASE\spring-boot-2.3.2.RELEASE.jar
 2020-08-06 17:25:00.313 DEBUG 19236 --- [           main] .s.b.w.e.t.TomcatServletWebServerFactory : Code archive: C:\Users\Naver\.m2\repository\org\springframework\boot\spring-boot\2.3.2.RELEASE\spring-boot-2.3.2.RELEASE.jar
 2020-08-06 17:25:00.314 DEBUG 19236 --- [           main] .s.b.w.e.t.TomcatServletWebServerFactory : None of the document roots [src/main/webapp, public, static] point to a directory and will be ignored.
-2020-08-06 17:25:00.347  INFO 19236 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2020-08-06 17:25:00.347  INFO 19236 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8082 (http)
 2020-08-06 17:25:00.355  INFO 19236 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
 2020-08-06 17:25:00.356  INFO 19236 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.37]
 ~~~
 
-The last couple of lines here tell us that Spring has started. Spring Boot’s embedded Apache Tomcat server is acting as a webserver and is listening for requests on localhost port 8080. Open your browser and in the address bar at the top enter http://localhost:8080
+The last couple of lines here tell us that Spring has started. Spring Boot’s embedded Apache Tomcat server is acting as a webserver and is listening for requests on localhost port 8082. Open your browser and in the address bar at the top enter http://localhost:8082
  
