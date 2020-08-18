@@ -20,5 +20,7 @@ package com.navercorp.pinpoint.web.applicationmap.appender.metric;
  */
 public enum DatabaseType {
     MYSQL,
-    ORACLE
+    ORACLE,
+    MSSQL,
+    CUBRID
 }
