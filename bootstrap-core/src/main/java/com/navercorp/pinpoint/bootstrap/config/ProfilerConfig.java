@@ -38,6 +38,8 @@ public interface ProfilerConfig {
 
     ThriftTransportConfig getThriftTransportConfig();
 
+    List<String> getAllowJdkClassName();
+
     boolean isTraceAgentActiveThread();
 
     boolean isTraceAgentDataSource();

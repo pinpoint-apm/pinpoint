@@ -16,16 +16,36 @@
 
 package com.navercorp.pinpoint.profiler.transformer;
 
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
+
 import java.security.ProtectionDomain;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author emeroad
  */
 public class UnmodifiableClassFilter implements ClassFileFilter {
-    private static final String COMPLETABLE_FUTURE = "java/util/concurrent/CompletableFuture";
-    private static final String PROCESS_BUILDER = "java/lang/ProcessBuilder";
+    private static final Object PRESENT = new Object();
+
+    private final Map<String, Object> allowJdkClassNames;
 
     public UnmodifiableClassFilter() {
+        this(Collections.<String>emptyList());
+    }
+    public UnmodifiableClassFilter(List<String> allowJdkClassNames) {
+        this.allowJdkClassNames = newJdkClassNameMap(allowJdkClassNames);
+    }
+
+    private Map<String, Object> newJdkClassNameMap(List<String> allowJdkClassNames) {
+        Map<String, Object> allowJdkClass = new HashMap<String, Object>();
+        for (String allowJdkClassName : allowJdkClassNames) {
+            String jvmName = JavaAssistUtils.javaNameToJvmName(allowJdkClassName);
+            allowJdkClass.put(jvmName, PRESENT);
+        }
+        return allowJdkClass;
     }
 
     @Override
@@ -37,10 +57,7 @@ public class UnmodifiableClassFilter implements ClassFileFilter {
         // fast skip java classes
         if (className.startsWith("java")) {
             if (className.startsWith("/", 4) || className.startsWith("x/", 4)) {
-                if (isCompletableFutureClass(className)) {
-                    return CONTINUE;
-                }
-                if (isProcessBuilder(className)) {
+                if (allowJdkClassName(className)) {
                     return CONTINUE;
                 }
                 return SKIP;
@@ -50,19 +67,7 @@ public class UnmodifiableClassFilter implements ClassFileFilter {
         return CONTINUE;
     }
 
-    private static boolean isCompletableFutureClass(final String className) {
-        // Check java/util/concurrent/CompletableFuture
-        if (!className.startsWith("u", 5) || !className.startsWith("/C", 20)) {
-            return false;
-        }
-        return className.equals(COMPLETABLE_FUTURE);
-    }
-
-    private static boolean isProcessBuilder(final String className) {
-        // Check java/lang/ProcessBuilder
-        if (!className.startsWith("l", 5) || !className.startsWith("/P", 9)) {
-            return false;
-        }
-        return className.equals(PROCESS_BUILDER);
+    private boolean allowJdkClassName(String className) {
+        return allowJdkClassNames.containsKey(className);
     }
 }

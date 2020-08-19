@@ -39,9 +39,11 @@ import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
+import com.navercorp.pinpoint.profiler.transformer.ClassFileFilter;
 import com.navercorp.pinpoint.profiler.transformer.DefaultClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.transformer.DelegateTransformerRegistry;
 import com.navercorp.pinpoint.profiler.transformer.DynamicTransformerRegistry;
+import com.navercorp.pinpoint.profiler.transformer.UnmodifiableClassFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,11 +77,13 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
     @Override
     public ClassFileTransformer get() {
 
-        final LambdaClassFileResolver lambdaClassFileResolver = newLambdaClassFileResolver(profilerConfig);
+        final LambdaClassFileResolver lambdaClassFileResolver = newLambdaClassFileResolver(profilerConfig.isSupportLambdaExpressions());
 
         final TransformerRegistry transformerRegistry = newTransformerRegistry();
 
-        return new DefaultClassFileTransformerDispatcher(transformerRegistry, dynamicTransformerRegistry, lambdaClassFileResolver);
+        final List<String> allowJdkClassName = profilerConfig.getAllowJdkClassName();
+        final ClassFileFilter unmodifiableFilter = new UnmodifiableClassFilter(allowJdkClassName);
+        return new DefaultClassFileTransformerDispatcher(unmodifiableFilter, transformerRegistry, dynamicTransformerRegistry, lambdaClassFileResolver);
     }
 
     private TransformerRegistry newTransformerRegistry() {
@@ -108,8 +112,8 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
     }
 
 
-    private LambdaClassFileResolver newLambdaClassFileResolver(ProfilerConfig profilerConfig) {
-        if (profilerConfig.isSupportLambdaExpressions()) {
+    private LambdaClassFileResolver newLambdaClassFileResolver(boolean isSupportLambdaExpressions) {
+        if (isSupportLambdaExpressions) {
             return new DefaultLambdaClassFileResolver();
         }
         return new BypassLambdaClassFileResolver();
