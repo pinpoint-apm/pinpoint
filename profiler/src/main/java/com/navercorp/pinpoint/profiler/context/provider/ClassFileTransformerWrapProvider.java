@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
+import com.navercorp.pinpoint.profiler.transformer.ClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
 import org.slf4j.Logger;

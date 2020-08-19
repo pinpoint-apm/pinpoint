@@ -20,8 +20,8 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.DynamicTransformService;
-import com.navercorp.pinpoint.profiler.DynamicTransformerRegistry;
+import com.navercorp.pinpoint.profiler.transformer.DynamicTransformService;
+import com.navercorp.pinpoint.profiler.transformer.DynamicTransformerRegistry;
 
 import java.lang.instrument.Instrumentation;
 

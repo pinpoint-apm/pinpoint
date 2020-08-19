@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler;
+package com.navercorp.pinpoint.profiler.transformer;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentMap;
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.instrument.RequestHandle;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.ProfilerException;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,12 +40,8 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
 
     @Override
     public RequestHandle onRetransformRequest(Class<?> target, final ClassFileTransformer transformer) {
-        if (target == null) {
-            throw new NullPointerException("target");
-        }
-        if (transformer == null) {
-            throw new NullPointerException("transformer");
-        }
+        Assert.requireNonNull(target, "target");
+        Assert.requireNonNull(transformer, "transformer");
 
         final TransformerKey key = createTransformKey(target);
         add(key, transformer);
