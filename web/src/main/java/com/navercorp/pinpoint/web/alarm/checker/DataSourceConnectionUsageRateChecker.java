@@ -78,7 +78,6 @@ public class DataSourceConnectionUsageRateChecker extends AgentChecker<List<Data
             for (DataSourceAlarmVO dataSourceAlarmVO : detected.getValue()) {
                 if (decideResult0(dataSourceAlarmVO)) {
                     message.append(String.format(" Value of agent(%s) has %s%s(DataSource %s connection pool usage) during the past 5 mins.(Threshold : %s%s)", detected.getKey(), dataSourceAlarmVO.getConnectionUsedRate(), unit, dataSourceAlarmVO.getDatabaseName(), rule.getThreshold(), unit));
-                    message.append("<br>");
                 }
             }
 
