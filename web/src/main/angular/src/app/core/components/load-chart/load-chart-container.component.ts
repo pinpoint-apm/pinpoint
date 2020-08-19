@@ -259,7 +259,7 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
     }
 
     private cleanIntermediateChartData(data: IHistogram[]): any {
-        return data.filter(i => i.key != "Sum" && i.key != "Tot");
+        return data ? data.filter(i => i.key != "Sum" && i.key != "Tot") : [];
     }
 
     private makeChartData(data: IHistogram[]): PrimitiveArray[] {

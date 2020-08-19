@@ -256,8 +256,10 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
     }
 
     private cleanIntermediateChartData(data: IResponseTime | IResponseMilliSecondTime): any {
-        delete data["Sum"];
-        delete data["Tot"];
+        if (data) {
+            delete data["Sum"];
+            delete data["Tot"];
+        }
         return data;
     }
 
