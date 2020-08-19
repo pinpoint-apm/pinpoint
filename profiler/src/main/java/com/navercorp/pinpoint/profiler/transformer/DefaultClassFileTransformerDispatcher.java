@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler;
+package com.navercorp.pinpoint.profiler.transformer;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -35,19 +35,16 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
     private final TransformerRegistry transformerRegistry;
     private final DynamicTransformerRegistry dynamicTransformerRegistry;
 
-    private final TransformerRegistry debugTransformerRegistry;
-
     private final ClassFileFilter classLoaderFilter;
     private final ClassFileFilter pinpointClassFilter;
     private final ClassFileFilter unmodifiableFilter;
 
     private final LambdaClassFileResolver lambdaClassFileResolver;
 
-    public DefaultClassFileTransformerDispatcher(TransformerRegistry transformerRegistry, TransformerRegistry debugTransformerRegistry,
+    public DefaultClassFileTransformerDispatcher(TransformerRegistry transformerRegistry,
                                                  DynamicTransformerRegistry dynamicTransformerRegistry, LambdaClassFileResolver lambdaClassFileResolver) {
 
         this.baseClassFileTransformer = new BaseClassFileTransformer(this.getClass().getClassLoader());
-        this.debugTransformerRegistry = Assert.requireNonNull(debugTransformerRegistry, "debugTransformerRegistry");
 
         this.classLoaderFilter = new PinpointClassLoaderFilter(this.getClass().getClassLoader());
         this.pinpointClassFilter = new PinpointClassFilter();
@@ -82,14 +79,9 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
             return null;
         }
 
-        ClassFileTransformer transformer = this.transformerRegistry.findTransformer(classLoader, internalName, classFileBuffer);
+        final ClassFileTransformer transformer = this.transformerRegistry.findTransformer(classLoader, internalName, classFileBuffer);
         if (transformer == null) {
-            // For debug
-            // TODO What if a modifier is duplicated?
-            transformer = this.debugTransformerRegistry.findTransformer(classLoader, internalName, classFileBuffer);
-            if (transformer == null) {
-                return null;
-            }
+            return null;
         }
 
         return baseClassFileTransformer.transform(classLoader, internalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);

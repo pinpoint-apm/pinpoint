@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,30 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.navercorp.pinpoint.profiler.transformer;
 
-package com.navercorp.pinpoint.profiler;
+import com.navercorp.pinpoint.common.util.Assert;
 
 import java.security.ProtectionDomain;
 
 /**
- * @author emeroad
+ * @author jaehong.kim
  */
-public class PinpointClassFilter implements ClassFileFilter {
+public class PinpointClassLoaderFilter implements ClassFileFilter {
+    private final ClassLoader agentLoader;
 
-    public PinpointClassFilter() {
+    public PinpointClassLoaderFilter(ClassLoader agentLoader) {
+
+        this.agentLoader = Assert.requireNonNull(agentLoader, "agentLoader");
     }
 
     @Override
     public boolean accept(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) {
-        if (className == null) {
-            return SKIP;
+        // bootstrap classLoader
+        if (classLoader == null) {
+            return CONTINUE;
         }
-
-        // Skip pinpoint packages too.
-        if (className.startsWith("com/navercorp/pinpoint/")) {
-            if (className.startsWith("com/navercorp/pinpoint/web/")) {
-                return CONTINUE;
-            }
+        if (classLoader == agentLoader) {
+            // skip classes loaded by agent class loader.
             return SKIP;
         }
 

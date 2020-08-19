@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler;
+package com.navercorp.pinpoint.profiler.transformer;
 
 import org.junit.Assert;
 

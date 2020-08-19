@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler;
+package com.navercorp.pinpoint.profiler.transformer;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 
 import com.navercorp.pinpoint.bootstrap.instrument.RequestHandle;
+import com.navercorp.pinpoint.profiler.ProfilerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
