@@ -1,17 +1,17 @@
 import cytoscape from 'cytoscape';
 import dagre from 'cytoscape-dagre';
-import { from as fromArray, fromEvent, iif, zip, merge, Observable } from 'rxjs';
-import { mergeMap, map, pluck, switchMap, take, reduce } from 'rxjs/operators';
+import { from as fromArray, fromEvent, iif, zip, merge, Observable, forkJoin } from 'rxjs';
+import { mergeMap, map, pluck, switchMap, take, reduce, tap } from 'rxjs/operators';
 
 import ServerMapTheme from './server-map-theme';
 import { ServerMapDiagram } from './server-map-diagram.class';
 import { ServerMapData } from './server-map-data.class';
 import { IServerMapOption } from './server-map-factory';
 import { ServerMapTemplate } from './server-map-template';
-import { NodeGroup } from './node-group.class';
 
 export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
     private cy: any;
+    private addedElements: any[] = [];
 
     constructor(
         private option: IServerMapOption
@@ -105,23 +105,72 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
 
     private bindEvent(): void {
         this.cy.on('layoutready', () => {
+            if (!this.shouldRefresh) {
+                // if (!this.isElementInDiagram(this.cy.elements(':selected').id())) {
+                if (!this.isElementInDiagram(this.selectedElement.id())) {
+                    this.selectElement(this.baseApplicationKey);
+                    return;
+                }
+
+                return;
+            }
+
             this.resetViewport();
             this.selectBaseApp();
             this.outRenderCompleted.emit();
         });
 
-        this.cy.nodes().on('select', ({target}: any) => {
+        this.cy.on('layoutstop', () => {
+            this.cy.nodes().unlock();
+            // Check overlay and adjust the position
+            this.addedElements.forEach((addedNode: any) => {
+                const isOverlaid = this.cy.nodes().toArray().some((node: any) => addedNode.id() !== node.id() && this.areTheyOverlaid(addedNode, node));
+
+                if (!isOverlaid) {
+                    return;
+                }
+
+                const {x, y} = addedNode.position();
+                const {h, y1} = addedNode.boundingBox();
+                const labelHeight = h - (y - y1) * 2;
+
+                const nodesAtSameX = this.cy.nodes().filter((node: any) => {
+                    return x === node.position().x;
+                });
+                const topY = Math.min(...nodesAtSameX.map((node: any) => node.boundingBox().y1));
+                const newY2 = topY - 30; // 30: padding between nodes
+                const newY1 = newY2 - h;
+                const newY = (h - labelHeight) / 2 + newY1;
+
+                addedNode.position({
+                    x,
+                    y: newY
+                });
+            });
+        });
+
+        this.cy.on('select', 'node', ({target}: any) => {
+            this.selectedElement = target;
             const nodeKey = target.id();
             const nodeData = this.getNodeData(nodeKey);
+
+            if (!target.data('alive')) {
+                return;
+            }
 
             this.outClickNode.emit(nodeData);
             this.initStyle();
             this.setStyle(target, 'node');
         });
 
-        this.cy.edges().on('select', ({target}: any) => {
+        this.cy.on('select', 'edge', ({target}: any) => {
+            this.selectedElement = target;
             const edgeKey = target.id();
             const linkData = this.getLinkData(edgeKey);
+
+            if (!target.data('alive')) {
+                return;
+            }
 
             this.outClickLink.emit(linkData);
             this.initStyle();
@@ -134,16 +183,9 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
             setTimeout(() => {
                 if (target === this.cy) {
                     this.outContextClickBackground.emit({coordX: clientX, coordY: clientY});
-                } else if (target.isEdge() && !NodeGroup.isGroupKey(target.id())) {
-                    this.outContextClickLink.emit({
-                        key: target.id(),
-                        coord: {coordX: clientX, coordY: clientY}
-                    });
-                } else if (target.isNode() && !NodeGroup.isGroupKey(target.id())) {
-                    this.outContextClickNode.emit({
-                        key: target.id(),
-                        coord: {coordX: clientX, coordY: clientY}
-                    });
+                } else if (!this.isMergedElement(target) && target.data('alive')) {
+                    target.isEdge() ? this.outContextClickLink.emit({key: target.id(), coord: {coordX: clientX, coordY: clientY}})
+                        : this.outContextClickNode.emit({key: target.id(), coord: {coordX: clientX, coordY: clientY}});
                 }
             });
         });
@@ -151,53 +193,154 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
         this.cy.on('mousemove', ({target}: any) => {
             this.setCursorStyle(target === this.cy ? 'default' : 'pointer');
         });
+
+        this.cy.on('tapend', 'node', ({target}: any) => {
+            this.outMoveNode.emit();
+        });
     }
 
-    setMapData(serverMapData: ServerMapData, baseApplicationKey = ''): void {
+    setMapData(serverMapData: ServerMapData, baseApplicationKey: string, shouldRefresh: boolean): void {
+        this.shouldRefresh = shouldRefresh;
+        if (!shouldRefresh) {
+            const prevNodeList = this.serverMapData.getNodeList();
+            const currNodeList = serverMapData.getNodeList();
+            const {addedNodeList, updatedNodeList} = currNodeList.reduce((acc: {[key: string]: INodeInfo[]}, curr: INodeInfo) => {
+                const shouldUpdated = prevNodeList.some(({key}: INodeInfo) => key === curr.key);
+
+                shouldUpdated ? acc.updatedNodeList.push(curr) : acc.addedNodeList.push(curr);
+                return acc;
+            }, {addedNodeList: [], updatedNodeList: []});
+
+            const removedNodeList = prevNodeList.filter((node: INodeInfo) => !currNodeList.some(({key}: INodeInfo) => node.key === key));
+
+            const prevEdgeList = this.serverMapData.getLinkList();
+            const currEdgeList = serverMapData.getLinkList();
+            const {addedEdgeList, updatedEdgeList} = currEdgeList.reduce((acc: {[key: string]: ILinkInfo[]}, curr: ILinkInfo) => {
+                const shouldUpdated = prevEdgeList.some(({key}: ILinkInfo) => key === curr.key);
+
+                shouldUpdated ? acc.updatedEdgeList.push(curr) : acc.addedEdgeList.push(curr);
+                return acc;
+            }, {addedEdgeList: [], updatedEdgeList: []});
+
+            const addedNodes$ = this.getNodesObs(addedNodeList);
+            const updateNodes$ = this.getNodesObs(updatedNodeList);
+
+            forkJoin(
+                addedNodes$,
+                updateNodes$.pipe(
+                    tap((nodes: {[key: string]: any}[]) => {
+                        nodes.forEach(({data: {id, imgStr}}: {[key: string]: any}) => {
+                            this.cy.getElementById(id).data({imgStr, alive: true});
+                        });
+
+                        updatedEdgeList.forEach(({key, totalCount, hasAlert}: {[key: string]: any}) => {
+                            this.cy.getElementById(key).data({label: totalCount.toLocaleString(), hasAlert, alive: true});
+                        });
+                    })
+                )
+            ).pipe(
+                tap(() => {
+                    this.cy.nodes().forEach((ele: any) => {
+                        const nodeKey = ele.id();
+                        const isRemovedNode = removedNodeList.some(({key}: {[key: string]: any}) => key === nodeKey);
+
+                        if (!isRemovedNode) {
+                            return;
+                        }
+
+                        if (this.isMergedElement(ele)) {
+                            this.cy.remove(ele);
+                        } else {
+                            ele.data({alive: false});
+                            ele.connectedEdges().forEach((edge: any) => {
+                                edge.data({label: 0, alive: false});
+                                edge.removeAllListeners();
+                            });
+
+                            ele.removeAllListeners();
+                        }
+                    });
+                }),
+                map(([nodes, _]: {[key: string]: any}[][]) => {
+                    const edges = addedEdgeList.map((edge: {[key: string]: any}) => {
+                        const {from, to, key, totalCount, hasAlert} = edge;
+
+                        return {
+                            data: {
+                                id: key,
+                                source: from,
+                                target: to,
+                                label: totalCount.toLocaleString(),
+                                hasAlert,
+                                alive: true
+                            }
+                        };
+                    });
+
+                    return {nodes, edges};
+                })
+            ).subscribe((elements: {[key: string]: any}) => {
+                this.cy.nodes().lock();
+                this.addedElements = this.cy.add(elements).nodes().toArray();
+                this.adjustStyle(elements);
+                this.initLayout();
+                // const filteredElems = this.cy.elements().filter((ele: any) => {
+                //     return ele.isNode() ? !this.movedElement.has(ele.id()) : !ele.connectedNodes().map((node: any) => node.id()).some((id: string) => this.movedElement.has(id));
+                //     // return !this.movedElement.has(ele.id());
+                // });
+
+                // filteredElems.layout({
+                //     name: 'dagre',
+                //     rankDir: 'LR',
+                //     fit: false,
+                //     rankSep: 200,
+                // }).run();
+            });
+        } else {
+            // * Update Entirely
+            const edgeList = serverMapData.getLinkList();
+            const edges = edgeList.map((link: ILinkInfo) => {
+                const {from, to, key, totalCount, isFiltered, isMerged, hasAlert} = link;
+
+                return {
+                    data: {
+                        id: key,
+                        source: from,
+                        target: to,
+                        isMerged,
+                        // [임시]label에서 이미지를 지원하지않아서, filteredMap페이지에서 필터아이콘을 "Filtered" 텍스트로 대체.
+                        // label: isFiltered ? ` [Filtered]\n${totalCount.toLocaleString()} ` : ` ${totalCount.toLocaleString()} `,
+                        // TODO: Filter Icon 처리
+                        label: totalCount.toLocaleString(),
+                        hasAlert,
+                        alive: true
+                    }
+                };
+            });
+            const nodeList = serverMapData.getNodeList();
+            const nodes$ = this.getNodesObs(nodeList);
+
+            nodes$.subscribe((nodes: {[key: string]: any}[]) => {
+                this.cy.elements().remove();
+                this.cy.removeAllListeners();
+                this.cy.add({nodes, edges});
+                this.bindEvent();
+                this.initLayout();
+            });
+        }
+
         this.serverMapData = serverMapData;
         this.baseApplicationKey = baseApplicationKey;
-
-        const edges = serverMapData.getLinkList().map((link: {[key: string]: any}) => {
-            const {from, to, key, totalCount, isFiltered, hasAlert} = link;
-
-            return {
-                data: {
-                    id: key,
-                    source: from,
-                    target: to,
-                    // [임시]label에서 이미지를 지원하지않아서, filteredMap페이지에서 필터아이콘을 "Filtered" 텍스트로 대체.
-                    // label: isFiltered ? ` [Filtered]\n${totalCount.toLocaleString()} ` : ` ${totalCount.toLocaleString()} `,
-                    // TODO: Filter Icon 처리
-                    label: totalCount.toLocaleString(),
-                    hasAlert
-                }
-            };
-        });
-        const nodeList = serverMapData.getNodeList();
-        const nodes$ = this.getNodesObs(nodeList);
-
-        nodes$.subscribe((nodes: {[key: string]: any}[]) => {
-            this.cy.elements().remove();
-            this.cy.add({nodes, edges});
-            this.bindEvent();
-            this.cy.layout({
-                name: 'dagre',
-                rankDir: 'LR',
-                fit: false,
-                rankSep: 200
-            }).run();
-        });
     }
 
     private getMergedNodeLabel(topCountNodes: {[key: string]: any}[]): string {
         return topCountNodes[0].applicationName;
     }
 
-    private getNodesObs(nodeList: {[key: string]: any}[]): Observable<{[key: string]: any}> {
+    private getNodesObs(nodeList: INodeInfo[]): Observable<{[key: string]: any}[]> {
         return fromArray(nodeList).pipe(
             mergeMap((node: {[key: string]: any}) => {
-                const {key, applicationName, serviceType, isAuthorized, hasAlert, topCountNodes} = node;
-                const isMergedNode = NodeGroup.isGroupKey(key);
+                const {key, applicationName, serviceType, isAuthorized, hasAlert, isMerged, topCountNodes} = node;
                 const serviceTypeImg = new Image();
 
                 serviceTypeImg.src = ServerMapTheme.general.common.funcServerMapImagePath(serviceType);
@@ -237,8 +380,10 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                         return {
                             data: {
                                 id: key,
-                                label: isMergedNode ? this.getMergedNodeLabel(topCountNodes) : applicationName,
-                                imgStr
+                                isMerged,
+                                label: isMerged ? this.getMergedNodeLabel(topCountNodes) : applicationName,
+                                imgStr,
+                                alive: true
                             },
                         };
                     })
@@ -251,16 +396,28 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
         );
     }
 
-    private getNodeData(key: string): {[key: string]: any} {
-        return NodeGroup.isGroupKey(key) ? this.serverMapData.getMergedNodeData(key) : this.serverMapData.getNodeData(key);
+    private isMergedElement(ele: any): boolean {
+        return ele.data('isMerged');
     }
 
-    private getLinkData(key: string): {[key: string]: any} {
-        return NodeGroup.isGroupKey(key) ? this.serverMapData.getMergedLinkData(key) : this.serverMapData.getLinkData(key);
+    private areTheyOverlaid(ele1: any, ele2: any): boolean {
+        const {x1, x2, y1, y2} = ele1.boundingBox();
+        const {x1: x3, x2: x4, y1: y3, y2: y4} = ele2.boundingBox();
+
+        return ((x1 <= x3 && x3 <= x2) || (x1 <= x4 && x4 <= x2) || (x3 <= x1 && x4 >= x2)) &&
+            ((y1 <= y3 && y3 <= y2) || (y1 <= y4 && y4 <= y2) || (y3 <= y1 && y4 >= y2));
     }
 
-    private isNodeInDiagram(key: string): boolean {
-        return this.cy.getElementById(key).length !== 0;
+    private getNodeData(key: string): INodeInfo {
+        return this.serverMapData.getNodeData(key);
+    }
+
+    private getLinkData(key: string): ILinkInfo {
+        return this.serverMapData.getLinkData(key);
+    }
+
+    private isElementInDiagram(key: string): boolean {
+        return this.cy.getElementById(key).inside();
     }
 
     private setCursorStyle(cursorStyle: string): void {
@@ -273,7 +430,12 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
     }
 
     private selectBaseApp(): void {
-        this.cy.getElementById(this.baseApplicationKey).emit('select');
+        this.selectElement(this.baseApplicationKey);
+    }
+
+    private selectElement(key: string): void {
+        // this.cy.getElementById(key).select();
+        this.cy.getElementById(key).emit('select');
     }
 
     private initStyle(): void {
@@ -321,13 +483,34 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
         };
     }
 
+    private adjustStyle({nodes, edges}: {[key: string]: any[]}): void {
+        if (nodes.length === 0) {
+            return;
+        }
+
+        // Use it after clarifying the select event.
+        // const selectedElement = this.cy.elements(':selected');
+
+        this.setStyle(this.selectedElement, this.selectedElement.isNode() ? 'node' : 'edge');
+    }
+
+    private initLayout(): void {
+        this.cy.layout({
+            name: 'dagre',
+            rankDir: 'LR',
+            fit: false,
+            rankSep: 200,
+        }).run();
+    }
+
     redraw(): void {
-        this.setMapData(this.serverMapData, this.baseApplicationKey);
+        this.setMapData(this.serverMapData, this.baseApplicationKey, this.shouldRefresh);
     }
 
     refresh(): void {
         this.resetViewport();
         this.selectBaseApp();
+        this.initLayout();
     }
 
     clear(): void {
@@ -336,17 +519,17 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
 
     selectNodeBySearch(selectedAppKey: string): void {
         let selectedNodeId = selectedAppKey;
-        const isMergedNode = !this.isNodeInDiagram(selectedAppKey);
+        const isMergedNode = !this.isElementInDiagram(selectedAppKey);
 
         if (isMergedNode) {
-            const selectedMergedNode = this.serverMapData.getNodeList().find(({key, mergedNodes}: {key: string, mergedNodes: {[key: string]: any}[]}) => {
-                return NodeGroup.isGroupKey(key) && mergedNodes.some(({key: nodeKey}: {key: string}) => nodeKey === selectedAppKey);
+            const selectedMergedNode = this.serverMapData.getNodeList().find(({isMerged, mergedNodes}: INodeInfo) => {
+                return isMerged && mergedNodes.some(({key}: any) => key === selectedAppKey);
             });
 
             selectedNodeId = selectedMergedNode.key;
         }
 
         this.cy.center(this.cy.getElementById(selectedNodeId));
-        this.cy.getElementById(selectedNodeId).emit('select');
+        this.selectElement(selectedNodeId);
     }
 }

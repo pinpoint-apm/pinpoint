@@ -20,12 +20,14 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
     @Input() funcImagePath: Function;
     @Input() funcServerMapImagePath: Function;
     @Input() type: ServerMapType;
+    @Input() shouldRefresh = true;
     @Output() outClickNode = new EventEmitter<any>();
     @Output() outContextClickNode = new EventEmitter<string>();
     @Output() outClickLink = new EventEmitter<any>();
     @Output() outContextClickLink = new EventEmitter<string>();
     @Output() outContextClickBackground = new EventEmitter<ICoordinate>();
     @Output() outRenderCompleted = new EventEmitter<void>();
+    @Output() outMoveNode = new EventEmitter<void>();
 
     private hasRenderData = false;
     private serverMapDiagram: ServerMapDiagram;
@@ -38,10 +40,12 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
     ) {}
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes['mapData'] && changes['mapData']['currentValue']) {
+        const mapDataChange = changes['mapData'];
+
+        if (mapDataChange && mapDataChange.currentValue) {
             this.hasDataUpdated = true;
             if (this.serverMapDiagram) {
-                this.serverMapDiagram.setMapData(this.mapData, this.baseApplicationKey);
+                this.serverMapDiagram.setMapData(this.mapData, this.baseApplicationKey, this.shouldRefresh);
                 this.hasRenderData = false;
             } else {
                 this.hasRenderData = true;
@@ -74,7 +78,7 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
         });
         this.addEventHandler();
         if (this.hasRenderData) {
-            this.serverMapDiagram.setMapData(this.mapData, this.baseApplicationKey);
+            this.serverMapDiagram.setMapData(this.mapData, this.baseApplicationKey, this.shouldRefresh);
             this.hasRenderData = false;
         }
     }
@@ -109,6 +113,9 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
         });
         this.serverMapDiagram.outContextClickBackground.subscribe((coord: ICoordinate) => {
             this.outContextClickBackground.emit(coord);
+        });
+        this.serverMapDiagram.outMoveNode.subscribe(() => {
+            this.outMoveNode.emit();
         });
     }
 

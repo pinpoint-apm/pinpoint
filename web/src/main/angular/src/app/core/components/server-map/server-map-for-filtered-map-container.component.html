@@ -10,7 +10,8 @@
             (outClickLink)="onClickLink($event)"
             (outContextClickNode)="onContextClickNode($event)"
             (outContextClickLink)="onContextClickLink($event)"
-            (outRenderCompleted)="onRenderCompleted()">
+            (outRenderCompleted)="onRenderCompleted()"
+            (outMoveNode)="onMoveNode()">
         </pp-server-map>
     </ng-template>
     <ng-template [ngIf]="loadingCompleted && isEmpty">
