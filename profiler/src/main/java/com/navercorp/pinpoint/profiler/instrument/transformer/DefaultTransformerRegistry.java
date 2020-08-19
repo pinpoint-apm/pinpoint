@@ -24,8 +24,12 @@ import java.util.Map;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.MultiClassNameMatcher;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
+import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
@@ -34,11 +38,30 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
  * @author Minwoo Jung
  * @author jaehong.kim
  */
-public class DefaultTransformerRegistry implements BaseTransformerRegistry {
+public class DefaultTransformerRegistry implements TransformerRegistry {
 
-    // No concurrent issue because only one thread put entries to the map and get operations are started AFTER the map is completely build.
-    // Set the map size big intentionally to keep hash collision low.
-    private final Map<String, ClassFileTransformer> registry = new HashMap<String, ClassFileTransformer>(512);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Map<String, ClassFileTransformer> registry;
+
+    public DefaultTransformerRegistry(List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
+        Assert.requireNonNull(matchableClassFileTransformerList, "matchableClassFileTransformerList");
+
+        this.registry = newRegistry(matchableClassFileTransformerList);
+    }
+
+    private Map<String, ClassFileTransformer> newRegistry(List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
+        final Map<String, ClassFileTransformer> registry = new HashMap<String, ClassFileTransformer>(512);
+        for (MatchableClassFileTransformer transformer : matchableClassFileTransformerList) {
+            try {
+                addTransformer(registry, transformer.getMatcher(), transformer);
+            } catch (Exception ex) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Failed to add transformer {}", transformer, ex);
+                }
+            }
+        }
+        return registry;
+    }
 
     @Override
     public ClassFileTransformer findTransformer(final ClassLoader classLoader, final String classInternalName, final byte[] classFileBuffer) {
@@ -50,25 +73,24 @@ public class DefaultTransformerRegistry implements BaseTransformerRegistry {
         return registry.get(classInternalName);
     }
 
-    @Override
-    public void addTransformer(Matcher matcher, ClassFileTransformer transformer) {
+    private void addTransformer(Map<String, ClassFileTransformer> registry, Matcher matcher, ClassFileTransformer transformer) {
         // TODO extract matcher process
         if (matcher instanceof ClassNameMatcher) {
             final ClassNameMatcher classNameMatcher = (ClassNameMatcher) matcher;
             String className = classNameMatcher.getClassName();
-            addModifier0(transformer, className);
+            addModifier0(registry, transformer, className);
         } else if (matcher instanceof MultiClassNameMatcher) {
             final MultiClassNameMatcher classNameMatcher = (MultiClassNameMatcher) matcher;
             List<String> classNameList = classNameMatcher.getClassNames();
             for (String className : classNameList) {
-                addModifier0(transformer, className);
+                addModifier0(registry, transformer, className);
             }
         } else {
             throw new IllegalArgumentException("unsupported matcher :" + matcher);
         }
     }
 
-    private void addModifier0(ClassFileTransformer transformer, String className) {
+    private void addModifier0(Map<String, ClassFileTransformer> registry, ClassFileTransformer transformer, String className) {
         final String classInternalName = JavaAssistUtils.javaNameToJvmName(className);
         final ClassFileTransformer old = registry.put(classInternalName, transformer);
         if (old != null) {
