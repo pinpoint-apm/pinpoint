@@ -163,8 +163,10 @@ public class NodeSerializer extends JsonSerializer<Node>  {
                 Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
                 if (agentHistogramMap == null) {
                     writeEmptyObject(jgen, "agentHistogram");
+                    writeEmptyObject(jgen, ResponseTimeStatics.AGENT_RESPONSE_STATISTICS);
                 } else {
                     jgen.writeObjectField("agentHistogram", agentHistogramMap);
+                    jgen.writeObjectField(ResponseTimeStatics.AGENT_RESPONSE_STATISTICS, nodeHistogram.getAgentResponseStatisticsMap());
                 }
             }
         } else {

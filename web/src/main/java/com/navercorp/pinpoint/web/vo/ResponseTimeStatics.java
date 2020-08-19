@@ -9,6 +9,8 @@ public class ResponseTimeStatics {
 
     public static final String RESPONSE_STATISTICS = "responseStatistics";
 
+    public static final String AGENT_RESPONSE_STATISTICS = "agentResponseStatistics";
+
     public static final String TOTAL_COUNT = "Tot";
 
     public static final String SUM_ELAPSED_TIME = "Sum";
