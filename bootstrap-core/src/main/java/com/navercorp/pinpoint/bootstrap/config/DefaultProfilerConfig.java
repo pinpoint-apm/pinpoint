@@ -113,6 +113,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private ThriftTransportConfig thriftTransportConfig;
 
+    private List<String> allowJdkClassNames = Collections.emptyList();
+
     private boolean traceAgentActiveThread = true;
 
     private boolean traceAgentDataSource = false;
@@ -206,6 +208,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 //          // TODO ?
 //        }
         return thriftTransportConfig;
+    }
+
+    @Override
+    public List<String> getAllowJdkClassName() {
+        return allowJdkClassNames;
     }
 
     @Override
@@ -419,6 +426,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.activeProfile = readString(Profiles.ACTIVE_PROFILE_KEY, Profiles.DEFAULT_ACTIVE_PROFILE);
         this.profileInstrumentEngine = readString("profiler.instrument.engine", INSTRUMENT_ENGINE_ASM);
         this.instrumentMatcherEnable = readBoolean("profiler.instrument.matcher.enable", true);
+        this.allowJdkClassNames = readList("profiler.instrument.jdk.allow.classnames");
 
         this.instrumentMatcherCacheConfig.setInterfaceCacheSize(readInt("profiler.instrument.matcher.interface.cache.size", 4));
         this.instrumentMatcherCacheConfig.setInterfaceCacheEntrySize(readInt("profiler.instrument.matcher.interface.cache.entry.size", 16));
@@ -431,6 +439,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         final String transportModuleString = readString("profiler.transport.module", DEFAULT_TRANSPORT_MODULE.name());
         this.transportModule = TransportModule.parse(transportModuleString, DEFAULT_TRANSPORT_MODULE);
+
         this.thriftTransportConfig = readThriftTransportConfig(this);
 
         this.traceAgentActiveThread = readBoolean("profiler.pinpoint.activethread", true);
