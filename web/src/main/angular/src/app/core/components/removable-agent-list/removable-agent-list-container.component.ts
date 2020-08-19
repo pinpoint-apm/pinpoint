@@ -36,8 +36,10 @@ export class RemovableAgentListContainerComponent implements OnInit, OnDestroy {
         cancelButton: '',
         removeButton: '',
         removeAllAgents: '',
-        removeAgent: ''
+        removeAgent: '',
+        passwordGuide: ''
     };
+    password: string;
 
     constructor(
         private translateService: TranslateService,
@@ -96,18 +98,21 @@ export class RemovableAgentListContainerComponent implements OnInit, OnDestroy {
             this.translateService.get('COMMON.CANCEL'),
             this.translateService.get('CONFIGURATION.AGENT_MANAGEMENT.REMOVE_APPLICATION'),
             this.translateService.get('CONFIGURATION.AGENT_MANAGEMENT.REMOVE_AGENT'),
-        ).subscribe(([selectApp, removeBtnLabel, cancelBtnLabel, removeApp, removeAgent]: string[]) => {
+            this.translateService.get('CONFIGURATION.AGENT_MANAGEMENT.PASSWORD_GUIDE')
+        ).subscribe(([selectApp, removeBtnLabel, cancelBtnLabel, removeApp, removeAgent, passwordGuide]: string[]) => {
             this.i18nText.select = selectApp;
             this.i18nText.removeButton = removeBtnLabel;
             this.i18nText.cancelButton = cancelBtnLabel;
             this.i18nText.removeApplication = removeApp;
             this.i18nText.removeAgent = removeAgent;
+            this.i18nText.passwordGuide = passwordGuide;
         });
     }
 
     private set removeType(type: REMOVE_TYPE) {
         this._removeType = type;
         this.isOnRemovePhase = type !== REMOVE_TYPE.NONE;
+        this.password = '';
     }
 
     private get removeType(): REMOVE_TYPE {
@@ -125,7 +130,7 @@ export class RemovableAgentListContainerComponent implements OnInit, OnDestroy {
         // this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_ALL_INACTIVE_AGENTS_REMOVE_CONFIRM_VIEW);
     }
 
-    onRemoveCancel(): void {
+    onClose(): void {
         this.removeType = REMOVE_TYPE.NONE;
     }
 
@@ -133,7 +138,10 @@ export class RemovableAgentListContainerComponent implements OnInit, OnDestroy {
         this.showProcessing();
 
         if (this.isAppRemove()) {
-            this.removableAgentDataService.removeApplication(this.selectedApplication.getApplicationName()).pipe(
+            this.removableAgentDataService.removeApplication({
+                applicationName: this.selectedApplication.getApplicationName(),
+                password: this.password
+            }).pipe(
                 filter((response: string) => response === 'OK')
             ).subscribe(() => {
                 this.messageQueueService.sendMessage({
@@ -153,7 +161,8 @@ export class RemovableAgentListContainerComponent implements OnInit, OnDestroy {
         } else {
             this.removableAgentDataService.removeAgentId({
                 applicationName: this.selectedApplication.getApplicationName(),
-                agentId: this.removeAgent
+                agentId: this.removeAgent,
+                password: this.password
             }).pipe(
                 tap(() => this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_ONE_AGENT)),
                 filter((response: string) => response === 'OK'),
