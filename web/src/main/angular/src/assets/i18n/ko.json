@@ -45,7 +45,8 @@
     "CONFIGURATION": {
         "AGENT_MANAGEMENT": {
             "REMOVE_APPLICATION": "선택한 Application을 삭제합니다.",
-            "REMOVE_AGENT": "선택한 Agent를 삭제합니다."
+            "REMOVE_AGENT": "선택한 Agent를 삭제합니다.",
+            "PASSWORD_GUIDE": "설정한 비밀번호가 있다면 입력하세요."
         },
         "AGENT_STATISTIC": {
             "ZOOM_GUIDE": "마우스를 통해 차트를 Zoom In/Out 할 수 있습니다.",

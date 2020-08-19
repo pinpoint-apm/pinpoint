@@ -12,7 +12,10 @@ export class RemovableAgentDataService {
     private removeAgentUrl = 'admin/removeAgentId.pinpoint';
     // private removeInactiveUrl = 'admin/removeInactiveAgents.pinpoint';
 
-    constructor(private http: HttpClient) {}
+    constructor(
+        private http: HttpClient
+    ) {}
+
     getAgentList(appName: string): Observable<IAgentList> {
         return this.http.get<IAgentList>(this.listUrl, {
             params: new HttpParams().set('application', appName)
@@ -20,16 +23,23 @@ export class RemovableAgentDataService {
             retry(3)
         );
     }
-    removeApplication(applicationName: string): Observable<string> {
+
+    removeApplication({applicationName, password}: {applicationName: string, password: string}): Observable<string> {
         return this.http.get<string>(this.removeApplicationUrl, {
-            params: new HttpParams().set('applicationName', applicationName)
+            params: new HttpParams()
+                .set('applicationName', applicationName)
+                .set('password', password)
         }).pipe(
             retry(3)
         );
     }
-    removeAgentId({applicationName, agentId}: {applicationName: string, agentId: string}): Observable<string> {
+
+    removeAgentId({applicationName, agentId, password}: {applicationName: string, agentId: string, password: string}): Observable<string> {
         return this.http.get<string>(this.removeAgentUrl, {
-            params: new HttpParams().set('applicationName', applicationName).set('agentId', agentId)
+            params: new HttpParams()
+                .set('applicationName', applicationName)
+                .set('agentId', agentId)
+                .set('password', password)
         }).pipe(
             retry(3)
         );

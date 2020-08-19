@@ -38,6 +38,42 @@
     justify-content: center;
 }
 
+.l-password-wrapper {
+    position: relative;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+.l-password {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 0 1px 0 #ccc;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #333;
+    background-color: #fff;
+    outline: 0;
+}
+
+.l-password:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0px 1px 1px var(--primary-color);
+}
+
+.l-password-guide-text {
+    position: absolute;
+    right: 0;
+    font-style: italic;
+    font-size: 13px;
+    font-weight: normal;
+    left: 100%;
+    top: 50%;
+    display: inline-block;
+    width: max-content;
+    transform: translateY(-50%);
+    margin-left: 10px;
+}
+
 .l-submit-btn {
     border-radius: 5px;
     outline: none;
@@ -54,7 +90,7 @@
     width: 100%;
     height: 100%;
     display: flex;
-    font-size: 40px;
+    /* font-size: 40px; */
     background: linear-gradient(135deg, rgba(226,226,226,0.7) 0%, rgba(219,219,219,0.7) 43%, rgba(209,209,209,0.7) 51%, rgba(254,254,254,0.7) 100%);
     align-items: center;
     /* flex-direction: column; */
@@ -62,6 +98,7 @@
 }
 
 .l-remove-confirm-content-section {
+    position: relative;
     width: 90%;
     padding: 30px 0px 15px;
     text-align: center;
@@ -85,6 +122,7 @@
     display: block;
     font-size: 16px;
     font-weight: normal;
+    padding: 5px 0;
 }
 
 .l-key {
@@ -107,6 +145,8 @@
     background-color: #c70606;
 }
 
-.l-submit-btn:first-child {
-    margin-right: 15px;
+.l-close {
+    top: 0px;
+    right: 0px;
+    position: absolute;
 }
