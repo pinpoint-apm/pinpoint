@@ -16,6 +16,7 @@
         <ng-container *ngIf="isOnRemovePhase">
             <section class="l-remove-confirm-section">
                 <section class="l-remove-confirm-content-section">
+                    <button class="btn btn-black l-close" (click)="onClose()"><i class="fas fa-times"></i></button>
                     <span class="l-warning-icon fas fa-exclamation-triangle"></span>
                     <ng-container *ngIf="isAppRemove(); then app; else agent"></ng-container>
                     <ng-template #app>
@@ -30,8 +31,11 @@
                             <span class="l-remove-target-info">Agent Id: <span class="l-key">{{removeAgent}}</span></span>
                         </p>
                     </ng-template>
+                    <div class="l-password-wrapper">
+                        <input type="password" class="l-password" [(ngModel)]="password" placeholder="Password">
+                        <span class="l-password-guide-text">{{i18nText.passwordGuide}}</span>
+                    </div>
                     <section class="l-btn-section">
-                        <button class="l-submit-btn l-cancel-btn" (click)="onRemoveCancel()">{{i18nText.cancelButton}}</button>            
                         <button class="l-submit-btn l-remove-btn" (click)="onRemoveConfirm()">{{i18nText.removeButton}}</button>            
                     </section>
                 </section>
