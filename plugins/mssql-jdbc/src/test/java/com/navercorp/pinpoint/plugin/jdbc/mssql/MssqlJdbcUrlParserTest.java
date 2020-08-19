@@ -70,4 +70,17 @@ public class MssqlJdbcUrlParserTest {
                 dbInfo.getUrl());
     }
 
+    @Test
+    public void mssql_jdbc_string_should_be_parsed_3() {
+        DatabaseInfo dbInfo = jdbcUrlParser
+                .parse("jdbc:sqlserver://localhost:1433;DatabaseName=AdventureWorks;integratedSecurity=true;applicationName=MyApp");
+        Assert.assertTrue(dbInfo.isParsingComplete());
+
+        Assert.assertEquals(MssqlConstants.MSSQL_JDBC, dbInfo.getType());
+        Assert.assertEquals(("localhost:1433"), dbInfo.getHost().get(0));
+        Assert.assertEquals("AdventureWorks", dbInfo.getDatabaseId());
+        Assert.assertEquals("jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks",
+                dbInfo.getUrl());
+    }
+
 }
