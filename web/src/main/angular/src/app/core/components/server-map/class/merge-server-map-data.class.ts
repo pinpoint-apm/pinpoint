@@ -9,12 +9,10 @@ export class MergeServerMapData {
         old.totalCount += neo.totalCount;
         old.instanceCount = Math.max(old.instanceCount, neo.instanceCount);
         old.instanceErrorCount = Math.max(old.instanceErrorCount, neo.instanceErrorCount);
-        old.maxElapsed = Math.max(old.maxElapsed, neo.maxElapsed);
-        old.sumElapsed += neo.sumElapsed;
-        old.avgElapsed = old.totalCount > 0 ? Math.floor(old.sumElapsed / old.totalCount) : 0;
 
         mergeAgentIds(old, neo);
         mergeHistogram(old, neo);
+        mergeResponseStatistics(old, neo);
         mergeAgentHistogram(old, neo);
         mergeTimeSeriesHistogram(old, neo);
         mergeAgentTimeSeriesHistogramByType(old, neo, 'agentTimeSeriesHistogram');
@@ -28,15 +26,15 @@ export class MergeServerMapData {
         old.slowCount += neo.slowCount;
         old.errorCount += neo.errorCount;
         old.totalCount += neo.totalCount;
-        old.maxElapsed = Math.max(old.maxElapsed, neo.maxElapsed);
-        old.sumElapsed += neo.sumElapsed;
-        old.avgElapsed = old.totalCount > 0 ? Math.floor(old.sumElapsed / old.totalCount) : 0;
 
         mergeHistogram(old, neo);
+        mergeResponseStatistics(old, neo);
         mergeTimeSeriesHistogram(old, neo);
         mergeAgentTimeSeriesHistogramByType(old, neo, 'sourceTimeSeriesHistogram');
         mergeHistogramByType(old, neo, 'sourceHistogram');
         mergeHistogramByType(old, neo, 'targetHistogram');
+        mergeResponseStatisticsByType(old, neo, 'sourceResponseStatistics');
+        mergeResponseStatisticsByType(old, neo, 'targetResponseStatistics');
     }
 }
 function mergeAgentIds(old: INodeInfo, neo: INodeInfo): void {
@@ -53,19 +51,35 @@ function mergeHistogram(old: INodeInfo | ILinkInfo, neo: INodeInfo | ILinkInfo):
         } else {
             old.histogram = neo.histogram;
         }
-        old.histogram.Avg = old.avgElapsed;
+    }
+}
+function mergeResponseStatistics(old: INodeInfo | ILinkInfo, neo: INodeInfo | ILinkInfo): void {
+    if (neo.responseStatistics) {
+        if (old.responseStatistics) {
+            mergeResponseStatisticsType(old.responseStatistics, neo.responseStatistics);
+        } else {
+            old.responseStatistics = neo.responseStatistics;
+        }
+    }
+}
+function mergeResponseStatisticsType(old: IResponseStatistics, neo: IResponseStatistics): void {
+    if (neo) {
+        Object.keys(neo).forEach((key: string) => {
+            if (key === 'Max') {
+                old.Max = Math.max(old.Max, neo.Max);
+                return;
+            }
+            if (key === 'Avg') {
+                return;
+            }
+            old[key] += neo[key];
+        });
+        old.Avg = old.Tot > 0 ? Math.floor(old.Sum / old.Tot) : 0;
     }
 }
 function mergeHistogramType(oldHistogram: IResponseTime | IResponseMilliSecondTime, neoHistogram: IResponseTime | IResponseMilliSecondTime): void {
     if (neoHistogram) {
         Object.keys(neoHistogram).forEach((key: string) => {
-            if (key === "Max") {
-                oldHistogram[key] = Math.max(oldHistogram[key], neoHistogram[key]);
-                return;
-            }
-            if (key === "Avg") {
-                return;
-            }
             oldHistogram[key] += neoHistogram[key];
         });
     }
@@ -77,8 +91,6 @@ function mergeAgentHistogram(old: INodeInfo, neo: INodeInfo): void {
         } else {
             old.agentHistogram[key] = neo.agentHistogram[key];
         }
-        old.agentHistogram[key].Avg = old.agentHistogram[key].Tot > 0 ?
-            Math.floor(old.agentHistogram[key].Sum / old.agentHistogram[key].Tot) : 0;
     });
 }
 // 내부 값의 순서가 보장되어야한 유의미한 코드
@@ -86,10 +98,10 @@ function mergeTimeSeriesHistogram(old: INodeInfo | ILinkInfo, neo: INodeInfo | I
     if (neo.timeSeriesHistogram) {
         if (old.timeSeriesHistogram) {
             neo.timeSeriesHistogram.forEach((obj: any, outerIndex: number) => {
-                if (obj.key === "Avg") {
+                if (obj.key === 'Avg') {
                     return;
                 }
-                if (obj.key === "Max") {
+                if (obj.key === 'Max') {
                     obj.values.forEach((chartValue: any, innerIndex: number) => {
                         old.timeSeriesHistogram[outerIndex].values[innerIndex][1] =
                             Math.max(old.timeSeriesHistogram[outerIndex].values[innerIndex][1], chartValue[1]);
@@ -109,26 +121,26 @@ function mergeTimeSeriesHistogram(old: INodeInfo | ILinkInfo, neo: INodeInfo | I
 function updateAvgTimeSeriesHistogram(histArray: IHistogram[]) {
     const mapSum = {};
     const mapTot = {};
-    let avgHistogram:IHistogram;
-    let avgHistogramIndex: number = -1;
-    histArray.forEach((histogram:IHistogram, outerIndex:number) => {
-        if (histogram.key === "Avg") {
+    let avgHistogram: IHistogram;
+    let avgHistogramIndex = -1;
+    histArray.forEach((histogram: IHistogram, outerIndex: number) => {
+        if (histogram.key === 'Avg') {
             avgHistogram = histogram;
             avgHistogramIndex = outerIndex;
         }
-        if (histogram.key === "Tot") {
+        if (histogram.key === 'Tot') {
             histogram.values.forEach((chartValue: any) => {
                 mapTot[chartValue[0]] = chartValue[1];
             });
         }
-        if (histogram.key === "Sum") {
+        if (histogram.key === 'Sum') {
             histogram.values.forEach((chartValue: any) => {
                 mapSum[chartValue[0]] = chartValue[1];
             });
         }
     });
     if (avgHistogram) {
-        avgHistogram.values.forEach((info:number[]) => {
+        avgHistogram.values.forEach((info: number[]) => {
             const timestamp = info[0];
             info[1] = mapTot[timestamp] > 0 ? Math.floor(mapSum[timestamp] / mapTot[timestamp]) : 0;
         });
@@ -143,10 +155,10 @@ function mergeAgentTimeSeriesHistogramByType(old: INodeInfo | ILinkInfo, neo: IN
             Object.keys(neo[type]).forEach((agentId: string) => {
                 if (old[type][agentId]) {
                     neo[type][agentId].forEach((obj: any, outerIndex: number) => {
-                        if (obj.key === "Avg") {
+                        if (obj.key === 'Avg') {
                             return;
                         }
-                        if (obj.key === "Max") {
+                        if (obj.key === 'Max') {
                             obj.values.forEach((chartValue: any, innerIndex: number) => {
                                 old[type][agentId][outerIndex].values[innerIndex][1] =
                                     Math.max(old[type][agentId][outerIndex].values[innerIndex][1], chartValue[1]);
@@ -173,7 +185,7 @@ function mergeServerList(old: INodeInfo, neo: INodeInfo): void {
             Object.keys(neo.serverList).forEach((key: string) => {
                 if (old.serverList[key]) {
                     Object.keys(neo.serverList[key].instanceList).forEach((instanceKey: string) => {
-                        if ((instanceKey in old.serverList[key].instanceList) === false) {
+                        if (!(instanceKey in old.serverList[key].instanceList)) {
                             old.serverList[key].instanceList[instanceKey] = neo.serverList[key].instanceList[instanceKey];
                         }
                     });
@@ -187,26 +199,43 @@ function mergeServerList(old: INodeInfo, neo: INodeInfo): void {
     }
 }
 function mergeHistogramByType(old: ILinkInfo, neo: ILinkInfo, histogramType: string): void {
+    if (!neo[histogramType]) {
+        return;
+    }
     if (old[histogramType]) {
         Object.keys(neo[histogramType]).forEach((key: string) => {
             if (old[histogramType][key]) {
                 Object.keys(neo[histogramType][key]).forEach((histogramKey: string) => {
-                    if (histogramKey === "Max") {
-                        old[histogramType][key][histogramKey] = Math.max(old[histogramType][key][histogramKey], neo[histogramType][key][histogramKey]);
-                        return;
-                    }
-                    if (histogramKey === "Avg") {
-                        return;
-                    }
                     old[histogramType][key][histogramKey] += neo[histogramType][key][histogramKey];
                 });
-                old[histogramType][key]["Avg"] = old[histogramType][key]["Tot"] > 0 ?
-                    Math.floor(old[histogramType][key]["Sum"] / old[histogramType][key]["Tot"]) : 0;
             } else {
                 old[histogramType][key] = neo[histogramType][key];
             }
         });
-    } else {
-        old[histogramType] = neo[histogramType];
+    }
+}
+function mergeResponseStatisticsByType(old: ILinkInfo, neo: ILinkInfo, srcOrTarget: string): void {
+    if (!neo[srcOrTarget]) {
+        return;
+    }
+    if (old[srcOrTarget]) {
+        Object.keys(neo[srcOrTarget]).forEach((agentId: string) => {
+            if (old[srcOrTarget][agentId]) {
+                Object.keys(neo[srcOrTarget][agentId]).forEach((type: string) => {
+                    if (type === 'Max') {
+                        old[srcOrTarget][agentId][type] = Math.max(old[srcOrTarget][agentId][type], neo[srcOrTarget][agentId][type]);
+                        return;
+                    }
+                    if (type === 'Avg') {
+                        return;
+                    }
+                    old[srcOrTarget][agentId][type] += neo[srcOrTarget][agentId][type];
+                });
+                old[srcOrTarget][agentId]['Avg'] = old[srcOrTarget][agentId]['Tot'] > 0 ?
+                    Math.floor(old[srcOrTarget][agentId]['Sum'] / old[srcOrTarget][agentId]['Tot']) : 0;
+            } else {
+                old[srcOrTarget][agentId] = neo[srcOrTarget][agentId];
+            }
+        });
     }
 }
