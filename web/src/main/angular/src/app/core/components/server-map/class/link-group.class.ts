@@ -1,15 +1,16 @@
 export class LinkGroup {
     SEPERATOR = '~';
     linkData: any;
-    constructor(private fromNodeKey: string, private toNodeKey: string) {
+    constructor(private fromNodeKey: string) {
         this.init();
     }
     init() {
         this.linkData = {
-            'key': this.fromNodeKey + this.SEPERATOR + this.toNodeKey,
+            'key': '',
             'from': this.fromNodeKey,
-            'to': this.toNodeKey,
+            'to': '',
             'hasAlert': false,
+            'isMerged': true,
             'slowCount': 0,
             'histogram': {},
             'sourceInfo': {},
@@ -36,5 +37,10 @@ export class LinkGroup {
     }
     getLinkGroupData(): any {
         return this.linkData;
+    }
+
+    setGroupKey(toNodeKey: string): void {
+        this.linkData.to = toNodeKey;
+        this.linkData.key = `${this.linkData.from}${this.SEPERATOR}${this.linkData.to}`;
     }
 }

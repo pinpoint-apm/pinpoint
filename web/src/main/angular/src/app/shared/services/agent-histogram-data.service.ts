@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 
+import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
+
 @Injectable()
 export class AgentHistogramDataService {
     readonly url = 'getResponseTimeHistogramDataV2.pinpoint';
@@ -18,9 +20,11 @@ export class AgentHistogramDataService {
         private http: HttpClient,
     ) {}
 
-    getData(key: string, applicationName: string, serviceTypeCode: string, serverMapData: any, [from, to]: number[]): Observable<any> {
+    getData(serverMapData: ServerMapData, [from, to]: number[], target: any): Observable<any> {
+        const {key, applicationName, serviceTypeCode} = target;
+
         if (!this.isCached(key, applicationName, serviceTypeCode, [from, to])) {
-            this.previousObservable = this.http.post(this.url, this.makeBodyData(key, serverMapData), this.makeRequestOptionsArgs(applicationName, serviceTypeCode, [from, to])).pipe(
+            this.previousObservable = this.http.post(this.url, this.makeBodyData(serverMapData, key), this.makeRequestOptionsArgs(applicationName, serviceTypeCode, [from, to])).pipe(
                 shareReplay(1)
             );
             this.previousFrom = from;
@@ -52,14 +56,14 @@ export class AgentHistogramDataService {
         };
     }
 
-    private makeBodyData(nodeKey: string, serverMapData: any): any {
-        const linkedNodeData: { [key: string]: any } = {
+    private makeBodyData(serverMapData: ServerMapData, selectedNodeKey: string): any {
+        const linkedNodeData: {[key: string]: any} = {
             from: [],
             to: []
         };
 
-        serverMapData.linkList.forEach((link: ILinkInfo) => {
-            if (link.from === nodeKey) {
+        serverMapData.getOriginalLinkList().forEach((link: ILinkInfo) => {
+            if (link.from === selectedNodeKey) {
                 if (link.targetInfo instanceof Array) {
                     link.targetInfo.forEach((targetLinkInfo: ILinkInfo) => {
                         linkedNodeData.to.push([targetLinkInfo.targetInfo.applicationName, targetLinkInfo.targetInfo.serviceTypeCode]);
@@ -67,7 +71,7 @@ export class AgentHistogramDataService {
                 } else {
                     linkedNodeData.to.push([link.targetInfo.applicationName, link.targetInfo.serviceTypeCode]);
                 }
-            } else if (link.to === nodeKey) {
+            } else if (link.to === selectedNodeKey) {
                 linkedNodeData.from.push([link.sourceInfo.applicationName, link.sourceInfo.serviceTypeCode]);
             }
         });

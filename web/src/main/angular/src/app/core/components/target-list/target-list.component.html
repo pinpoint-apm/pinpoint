@@ -5,10 +5,10 @@
             <button *ngIf="isLink" (click)="onOpenFilterWizard($event, target)"><i class="fas fa-filter"></i></button>
             <i class="fas fa-arrow-circle-right"></i> {{getApplicationName(target)}}
         </span>
-        <span class="l-request-count">{{target[0].totalCount | number}}</span>
+        <span class="l-request-count">{{target.totalCount | number}}</span>
     </div>
-    <ng-container *ngIf="target[0].fromList">
-        <div class="l-target-sub-item" *ngFor="let from of target[0].fromList" [class.selected]="isSelected([from])" (click)="onSelectTarget([from])">
+    <ng-container *ngIf="target.fromList">
+        <div class="l-target-sub-item" *ngFor="let from of target.fromList" [class.selected]="isSelected(from)" (click)="onSelectTarget(from)">
             <span class="l-application-name">
                 {{from.sourceInfo.applicationName}} <i class="fas fa-arrow-circle-right"></i>
             </span>

@@ -1,5 +1,7 @@
 import { PrimitiveArray } from 'billboard.js';
 
+import { isEmpty } from './util';
+
 export function makeXData(data: number[]): number[] {
     return data;
 }
@@ -28,7 +30,7 @@ export function getMaxTickValue(data: PrimitiveArray[], startIndex: number, endI
 }
 
 export function getStackedData(data: PrimitiveArray[]): PrimitiveArray[] {
-    return [
+    return isEmpty(data) ? [] : [
         data[0],
         ['rs', ...data.slice(1).map((d: PrimitiveArray) => d.slice(1)).reduce((acc: number[], curr: number[]) => {
             return acc.map((v: number, i: number) => v + curr[i]);

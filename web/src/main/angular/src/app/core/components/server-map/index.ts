@@ -1,5 +1,5 @@
-
 import { NgModule } from '@angular/core';
+
 import { SharedModule } from 'app/shared';
 import { ServerMapInteractionService } from './server-map-interaction.service';
 import { ServerMapComponent } from './server-map.component';
@@ -13,6 +13,7 @@ import { LinkContextPopupModule } from 'app/core/components/link-context-popup';
 import { NodeContextPopupModule } from 'app/core/components/node-context-popup';
 import { ServerMapContextPopupModule } from 'app/core/components/server-map-context-popup';
 import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
+import { ServerMapRangeHandlerService } from './server-map-range-handler.service';
 
 @NgModule({
     declarations: [
@@ -38,7 +39,8 @@ import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
         ServerMapInteractionService,
         ServerMapChangeNotificationService,
         ServerMapDataService,
-        ServerMapForFilteredMapDataService
+        ServerMapForFilteredMapDataService,
+        ServerMapRangeHandlerService
     ]
 })
 export class ServerMapModule { }

@@ -15,7 +15,7 @@ import {
     MESSAGE_TO
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store';
-import { ServerMapData, IShortNodeInfo } from 'app/core/components/server-map/class/server-map-data.class';
+import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Component({
@@ -81,8 +81,8 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
     }
 
     private listenToEmitter(): void {
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe((data: ServerMapData) => {
-            this.serverMapData = data;
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe(({serverMapData}: {serverMapData: ServerMapData}) => {
+            this.serverMapData = serverMapData;
         });
 
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe((target: ISelectedTarget) => {
@@ -95,13 +95,13 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
             filter(() => this.selectedTarget && this.selectedTarget.isNode),
             filter((visibleState: boolean) => visibleState ? true : (this.hide(), this.cd.detectChanges(), false)),
             map(() => this.serverMapData.getNodeData(this.selectedTarget.node[0])),
-            switchMap((node: INodeInfo | IShortNodeInfo) => {
+            switchMap((node: INodeInfo) => {
                 const range = [
                     this.newUrlStateNotificationService.getStartTimeToNumber(),
                     this.newUrlStateNotificationService.getEndTimeToNumber()
                 ];
 
-                return this.agentHistogramDataService.getData(node.key, node.applicationName, node.serviceTypeCode, this.serverMapData, range).pipe(
+                return this.agentHistogramDataService.getData(this.serverMapData, range, node).pipe(
                     tap((histogramData = {}) => {
                         this.agentHistogramData = { isWas: node.isWas, ...histogramData };
                         this.selectedAgent = this.selectedAgent ? this.selectedAgent : this.getFirstAgent();

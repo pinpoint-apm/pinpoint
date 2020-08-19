@@ -1,5 +1,4 @@
 import ServerMapTheme from './server-map-theme';
-import { NodeGroup } from './node-group.class';
 
 export abstract class ServerMapTemplate {
     private static readonly MIN_ARC_RATIO = 0.05;
@@ -84,11 +83,10 @@ export abstract class ServerMapTemplate {
     }
 
     public static getSVGString(img: HTMLImageElement[], nodeData: {[key: string]: any}): string {
-        const {key, isAuthorized, isWas, histogram, instanceCount} = nodeData;
-        const isMergedNode = NodeGroup.isGroupKey(key);
+        const {key, isAuthorized, isMerged, isWas, histogram, instanceCount} = nodeData;
 
         return `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" xmlns:xlink="http://www.w3.org/1999/xlink">` +
-            ServerMapTemplate.getCompleteSVGCircleString(isMergedNode || !(isAuthorized && isWas), histogram) +
+            ServerMapTemplate.getCompleteSVGCircleString(isMerged || !(isAuthorized && isWas), histogram) +
             (img[1] ? ServerMapTemplate.getAlertSVGImgString(img[1]) : ``) +
             ServerMapTemplate.getServiceTypeSVGImgString(img[0]) +
             ServerMapTemplate.getInstanceCountTextString(instanceCount) +

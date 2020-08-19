@@ -41,8 +41,8 @@ export class FilterInformationContainerComponent implements OnInit, OnDestroy {
     }
 
     private listenToEmitter(): void {
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe((data: ServerMapData) => {
-            this.serverMapData = data;
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe(({serverMapData}: {serverMapData: ServerMapData}) => {
+            this.serverMapData = serverMapData;
         });
 
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe((target: ISelectedTarget) => {

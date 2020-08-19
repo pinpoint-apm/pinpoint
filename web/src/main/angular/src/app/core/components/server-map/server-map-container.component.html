@@ -5,12 +5,14 @@
             [mapData]="mapData"
             [funcServerMapImagePath]="funcServerMapImagePath"
             [type]="type"
+            [shouldRefresh]="shouldRefresh"
             (outContextClickBackground)="onContextClickBackground($event)"
             (outClickNode)="onClickNode($event)"
             (outClickLink)="onClickLink($event)"
             (outContextClickNode)="onContextClickNode($event)"
             (outContextClickLink)="onContextClickLink($event)"
             (outRenderCompleted)="onRenderCompleted()">
+            (outMoveNode)="onMoveNode()">
         </pp-server-map>
     </ng-container>
     <ng-template #noAgentGuide>

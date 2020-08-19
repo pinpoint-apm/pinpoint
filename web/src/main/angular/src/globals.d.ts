@@ -112,15 +112,15 @@ interface IServerInfo {
 }
 interface ILinkInfo {
     errorCount: number;
-    filterApplicationName: string;
-    filterApplicationServiceTypeCode: number;
-    filterApplicationServiceTypeName: string;
+    filterApplicationName?: string;
+    filterApplicationServiceTypeCode?: number;
+    filterApplicationServiceTypeName?: string;
     filterTargetRpcList?: any[];
     from: string;
     fromAgent?: string[];
     hasAlert: boolean;
-    histogram: IResponseTime | IResponseMilliSecondTime;
-    responseStatistics: IResponseStatistics;
+    histogram?: IResponseTime | IResponseMilliSecondTime;
+    responseStatistics?: IResponseStatistics;
     key: string;
     slowCount: number;
     sourceHistogram?: { [key: string]: IResponseTime | IResponseMilliSecondTime };
@@ -130,34 +130,41 @@ interface ILinkInfo {
     targetHistogram?: { [key: string]: IResponseTime | IResponseMilliSecondTime };
     targetResponseStatistics?: { [key: string]: IResponseStatistics };
     targetInfo: ISourceInfo;
-    timeSeriesHistogram: IHistogram[];
+    timeSeriesHistogram?: IHistogram[];
     to: string;
     toAgent?: string[];
     totalCount: number;
+    isMerged?: boolean;
+    isFiltered?: boolean;
 }
 interface INodeInfo {
     agentHistogram?: { [key: string]: IResponseTime | IResponseMilliSecondTime }[];
     agentTimeSeriesHistogram?: { [key: string]: IHistogram[] };
-    agentIds: string[];
+    agentIds?: string[];
     applicationName: string;
     category: string;
-    errorCount: number;
-    hasAlert: boolean;
-    histogram: IResponseTime | IResponseMilliSecondTime;
-    responseStatistics: IResponseStatistics;
+    errorCount?: number;
+    hasAlert?: boolean;
+    histogram?: IResponseTime | IResponseMilliSecondTime;
+    responseStatistics?: IResponseStatistics;
     agentResponseStatistics?: { [key: string]: IResponseStatistics};
     instanceCount: number;
-    instanceErrorCount: number;
+    instanceErrorCount?: number;
     isAuthorized: boolean;
-    isQueue: boolean;
-    isWas: boolean;
+    isQueue?: boolean;
+    isWas?: boolean;
     key: string;
     serverList?: { [key: string]: IServerInfo };
     serviceType: string;
-    serviceTypeCode: string;
-    slowCount: number;
-    timeSeriesHistogram: IHistogram[];
-    totalCount: number;
+    serviceTypeCode?: string;
+    slowCount?: number;
+    timeSeriesHistogram?: IHistogram[];
+    totalCount?: number;
+
+    isMerged?: boolean;
+    mergedNodes?: any[];
+    topCountNodes?: any[];
+    mergedSourceNodes?: any[];
 }
 interface IQueryRange {
     from: number;
