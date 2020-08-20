@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.ClassFileTransformer;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,7 +62,8 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         Assert.requireNonNull(instrumentMatcherCacheConfig, "instrumentMatcherCacheConfig");
         Assert.requireNonNull(matchableClassFileTransformerList, "matchableClassFileTransformerList");
 
-        this.defaultTransformerRegistry = new DefaultTransformerRegistry(matchableClassFileTransformerList);
+        final List<MatchableClassFileTransformer> defaultTransfomerList = filterDefaultMatcher(matchableClassFileTransformerList);
+        this.defaultTransformerRegistry = new DefaultTransformerRegistry(defaultTransfomerList);
 
         // sorted by package name length.
         this.packageNameBasedIndex = new TreeMap<String, Set<IndexValue>>(new Comparator<String>() {
@@ -71,7 +73,8 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
             }
         });
 
-        for (MatchableClassFileTransformer transformer : matchableClassFileTransformerList) {
+        final List<MatchableClassFileTransformer> baseTransformer = filterBaseMatcher(matchableClassFileTransformerList);
+        for (MatchableClassFileTransformer transformer : baseTransformer) {
             try {
                 addTransformer(transformer.getMatcher(), transformer);
             } catch (Exception ex) {
@@ -168,11 +171,34 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
     }
 
     private void addTransformer(final Matcher matcher, final ClassFileTransformer transformer) {
-        if (MatcherType.isBasedMatcher(matcher)) {
-            // class or package based.
-            MatcherOperand matcherOperand = ((BasedMatcher) matcher).getMatcherOperand();
-            addIndex(matcherOperand, transformer);
+        if (!MatcherType.isBasedMatcher(matcher)) {
+            throw new IllegalArgumentException("unsupported baseMatcher");
         }
+        // class or package based.
+        MatcherOperand matcherOperand = ((BasedMatcher) matcher).getMatcherOperand();
+        addIndex(matcherOperand, transformer);
+    }
+
+    private List<MatchableClassFileTransformer> filterBaseMatcher(List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
+        // class name
+        final List<MatchableClassFileTransformer> filter = new ArrayList<MatchableClassFileTransformer>();
+        for (MatchableClassFileTransformer transformer : matchableClassFileTransformerList) {
+            if (MatcherType.isBasedMatcher(transformer.getMatcher())) {
+                filter.add(transformer);
+            }
+        }
+        return filter;
+    }
+
+    private List<MatchableClassFileTransformer> filterDefaultMatcher(List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
+        // class name
+        final List<MatchableClassFileTransformer> filter = new ArrayList<MatchableClassFileTransformer>();
+        for (MatchableClassFileTransformer transformer : matchableClassFileTransformerList) {
+            if (!MatcherType.isBasedMatcher(transformer.getMatcher())) {
+                filter.add(transformer);
+            }
+        }
+        return filter;
     }
 
     private void addIndex(final MatcherOperand condition, final ClassFileTransformer transformer) {
