@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.monitor;
 
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.util.LoggerUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.JvmAttributeGaugeSet;
@@ -110,7 +111,13 @@ public class CollectorMetric {
         reporterList.add(slf4jReporter);
 
         if (collectorConfiguration.isMetricJmxEnable()) {
-            final JmxReporter jmxReporter = createJmxReporter();
+
+            final String metricJmxDomainName = collectorConfiguration.getMetricJmxDomainName();
+            if (StringUtils.isEmpty(metricJmxDomainName)) {
+                throw new IllegalArgumentException("metricJmxDomainName may not be empty");
+            }
+
+            final JmxReporter jmxReporter = createJmxReporter(metricJmxDomainName);
             jmxReporter.start();
             reporterList.add(jmxReporter);
         }
@@ -125,10 +132,11 @@ public class CollectorMetric {
         return builder.build();
     }
 
-    private JmxReporter createJmxReporter() {
+    private JmxReporter createJmxReporter(String metricJmxDomainName) {
         final JmxReporter.Builder builder = JmxReporter.forRegistry(metricRegistry);
         builder.convertRatesTo(TimeUnit.SECONDS);
         builder.convertDurationsTo(TimeUnit.MILLISECONDS);
+        builder.inDomain(metricJmxDomainName);
 
         return builder.build();
     }
