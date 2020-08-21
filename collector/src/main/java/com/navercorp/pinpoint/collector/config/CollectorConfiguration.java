@@ -49,6 +49,9 @@ public class CollectorConfiguration {
     @Value("${collector.metric.jmx:false}")
     private boolean metricJmxEnable;
 
+    @Value("${collector.metric.jmx.domain:pinpoint.collector.metrics}")
+    private String metricJmxDomainName;
+
     @Value("${cluster.enable}")
     private boolean clusterEnable;
 
@@ -97,6 +100,14 @@ public class CollectorConfiguration {
 
     public void setMetricJmxEnable(boolean metricJmxEnable) {
         this.metricJmxEnable = metricJmxEnable;
+    }
+
+    public String getMetricJmxDomainName() {
+        return metricJmxDomainName;
+    }
+
+    public void setMetricJmxDomainName(String metricJmxDomainName) {
+        this.metricJmxDomainName = metricJmxDomainName;
     }
 
     public boolean isClusterEnable() {
@@ -154,6 +165,7 @@ public class CollectorConfiguration {
         sb.append(", agentEventWorkerQueueSize=").append(agentEventWorkerQueueSize);
         sb.append(", l4IpList=").append(Arrays.toString(l4IpList));
         sb.append(", metricJmxEnable=").append(metricJmxEnable);
+        sb.append(", metricJmxDomainName='").append(metricJmxDomainName).append('\'');
         sb.append(", clusterEnable=").append(clusterEnable);
         sb.append(", clusterAddress='").append(clusterAddress).append('\'');
         sb.append(", clusterSessionTimeout=").append(clusterSessionTimeout);
