@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.trace.MethodType;
 /**
  * @author Taejin Koo
  */
-public class GrpcServerCallMethodDescritpro implements MethodDescriptor {
+public class GrpcServerCallMethodDescriptor implements MethodDescriptor {
 
     private int apiId = 0;
     private int type = MethodType.WEB_REQUEST;
@@ -59,7 +59,7 @@ public class GrpcServerCallMethodDescritpro implements MethodDescriptor {
 
     @Override
     public String getFullName() {
-        return GrpcServerCallMethodDescritpro.class.getName();
+        return GrpcServerCallMethodDescriptor.class.getName();
     }
 
     @Override
