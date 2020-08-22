@@ -30,14 +30,14 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestRecorder;
 import com.navercorp.pinpoint.plugin.grpc.GrpcConstants;
-import com.navercorp.pinpoint.plugin.grpc.descriptor.GrpcServerCallMethodDescritpro;
+import com.navercorp.pinpoint.plugin.grpc.descriptor.GrpcServerCallMethodDescriptor;
 
 /**
  * @author Taejin Koo
  */
 public class ServerStreamCreatedInterceptor implements AroundInterceptor {
 
-    private static final GrpcServerCallMethodDescritpro GRPC_SERVER_CALL_METHOD_DESCRIPTOR = new GrpcServerCallMethodDescritpro();
+    private static final GrpcServerCallMethodDescriptor GRPC_SERVER_CALL_METHOD_DESCRIPTOR = new GrpcServerCallMethodDescriptor();
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
