@@ -30,9 +30,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.utility.DockerMachineClient;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -64,7 +64,7 @@ public class InformixConnectionIT extends BasePinpointTest {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        Assume.assumeTrue("Docker not enabled", DockerMachineClient.instance().isInstalled());
+        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
         container.withPrivilegedMode(true);
         container.withExposedPorts(9088, 9089, 27017, 27018, 27883);

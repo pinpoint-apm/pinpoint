@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.profiler.trace.AnnotationKeyMatcherRegistry;
 import com.navercorp.pinpoint.common.profiler.trace.AnnotationKeyRegistry;
 import com.navercorp.pinpoint.common.profiler.trace.ServiceTypeRegistry;
@@ -30,7 +29,6 @@ import com.navercorp.pinpoint.common.util.Filter;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.loader.plugins.trace.TraceMetadataProviderLoader;
 import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -75,7 +73,8 @@ public class ServerTraceMetadataLoaderService implements TraceMetadataLoaderServ
         List<URL> typeProviderUrls = getTypeProviderUrls(classLoader, typeProviderPaths);
         logger.info("Additional type providers : {}", typeProviderUrls);
 
-        TraceMetadataProviderLoader traceMetadataProviderLoader = new TraceMetadataProviderLoader(typeProviderUrls, new ServerVersionPluginProviderUrlFilter());
+        Filter<URL> pluginTypeProviderUrlFilter = newPluginTypeProviderUrlFilter();
+        TraceMetadataProviderLoader traceMetadataProviderLoader = new TraceMetadataProviderLoader(typeProviderUrls, pluginTypeProviderUrlFilter);
         List<TraceMetadataProvider> traceMetadataProviderList = traceMetadataProviderLoader.load(classLoader);
 
         TraceMetadataLoader traceMetadataLoader = new TraceMetadataLoader(commonLoggerFactory);
@@ -85,6 +84,27 @@ public class ServerTraceMetadataLoaderService implements TraceMetadataLoaderServ
         this.annotationKeyRegistry = traceMetadataLoader.createAnnotationKeyRegistry();
         this.annotationKeyMatcherRegistry = traceMetadataLoader.createAnnotationKeyMatcherRegistry();
     }
+
+    private Filter<URL> newPluginTypeProviderUrlFilter() {
+        final URL agentAttached = agentAttached();
+        if (agentAttached != null) {
+            logger.info("Attached Agent found:{}", agentAttached);
+            return new AgentLibraryPluginFilter();
+        }
+        return new Filter<URL> () {
+
+            @Override
+            public boolean filter(URL value) {
+                return NOT_FILTERED;
+            }
+        };
+    }
+
+    private URL agentAttached() {
+        String agentClass = AgentLibraryPluginFilter.BOOTSTRAP;
+        return ClassLoader.getSystemClassLoader().getResource(agentClass);
+    }
+
 
     private List<URL> getTypeProviderUrls(ClassLoader classLoader, Collection<String> typeProviderPaths) {
         ResourcePatternResolver resourceLoader = new PathMatchingResourcePatternResolver(classLoader);
@@ -129,20 +149,5 @@ public class ServerTraceMetadataLoaderService implements TraceMetadataLoaderServ
         return annotationKeyMatcherRegistry;
     }
 
-    private static class ServerVersionPluginProviderUrlFilter implements Filter<URL> {
-
-        @Override
-        public boolean filter(URL url) {
-            if (url == null || url.getFile() == null) {
-                return FILTERED;
-            }
-
-            if (url.getFile().contains(Version.VERSION + ".jar")) {
-                return NOT_FILTERED;
-            }
-
-            return FILTERED;
-        }
-    }
 
 }

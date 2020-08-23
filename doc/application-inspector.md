@@ -75,7 +75,8 @@ In order to enable application inspector, you will need to do the following and 
     flink.cluster.zookeeper.sessiontimeout=3000
 ```
 
-**G.** Enable application inspector in the web-ui by enabling the following configuration in [pinpoint-web.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/pinpoint-web.properties).
+**G.** Enable application inspector in the web-ui by enabling the following configuration in [pinpoint-web.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/pinpoint-web-root.properties).
+
 ```properties
     config.show.applicationStat=true
 ```
@@ -171,15 +172,16 @@ application inspector 기능을 실행하기 위해서 아래와 같이 설정�
   - 실행방법은 [flink 사이트](https://flink.apache.org)를 참조한다.
   - 반드시 실행시 job이 위에서 설정한 설정파일을 참고 할수 있도록 job parameter로 `spring.profiles.active release` or `spring.profiles.active local`를 넣어주야 한다. job 내부에서 spring profile 기능을 사용하여 설정파일을 참고 하고 있기때문에 반드시 입력해야한다.
 
+**F.** Collector에서 flink와 연결을 맺을 수 있도록 설정파일([Pinpoint-Collector.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-collector.properties))에 zookeeper 주소를 설정한다.
 
-**F.** Collector에서 flink와 연결을 맺을 수 있도록 설정파일([Pinpoint-Collector.porperties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-collector.properties))에 zookeeper 주소를 설정한다.
 ```properties
     flink.cluster.enable=true
     flink.cluster.zookeeper.address=YOUR_ZOOKEEPER_ADDRESS
     flink.cluster.zookeeper.sessiontimeout=3000
 ```
 
-**G.** web에서 application inspector 버튼을 활성화 하기 위해서 설정파일(pinpoint-web.porperties)을 수정한다.
+**G.** web에서 application inspector 버튼을 활성화 하기 위해서 설정파일(pinpoint-web.properties)을 수정한다.
+
 ```properties
     config.show.applicationStat=true
 ```

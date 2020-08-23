@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import org.springframework.stereotype.Component;
 
-import static com.navercorp.pinpoint.common.hbase.HbaseTableConstatns.AGENT_NAME_MAX_LEN;
+import static com.navercorp.pinpoint.common.hbase.HbaseTableConstants.AGENT_NAME_MAX_LEN;
 import static com.navercorp.pinpoint.common.server.bo.stat.AgentStatType.TYPE_CODE_BYTE_LENGTH;
 
 /**

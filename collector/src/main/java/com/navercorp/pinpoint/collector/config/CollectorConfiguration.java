@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.config;
 
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +45,12 @@ public class CollectorConfiguration {
 //    private List<String> l4IpList = Collections.emptyList();
     @Value("${collector.l4.ip:}")
     private String[] l4IpList = new String[0];
+
+    @Value("${collector.metric.jmx:false}")
+    private boolean metricJmxEnable;
+
+    @Value("${collector.metric.jmx.domain:pinpoint.collector.metrics}")
+    private String metricJmxDomainName;
 
     @Value("${cluster.enable}")
     private boolean clusterEnable;
@@ -85,6 +92,22 @@ public class CollectorConfiguration {
     public void setL4IpList(List<String> l4IpList) {
         Objects.requireNonNull(l4IpList, "l4IpList");
         this.l4IpList = l4IpList.toArray(new String[0]);
+    }
+
+    public boolean isMetricJmxEnable() {
+        return metricJmxEnable;
+    }
+
+    public void setMetricJmxEnable(boolean metricJmxEnable) {
+        this.metricJmxEnable = metricJmxEnable;
+    }
+
+    public String getMetricJmxDomainName() {
+        return metricJmxDomainName;
+    }
+
+    public void setMetricJmxDomainName(String metricJmxDomainName) {
+        this.metricJmxDomainName = metricJmxDomainName;
     }
 
     public boolean isClusterEnable() {
@@ -141,6 +164,8 @@ public class CollectorConfiguration {
         sb.append("agentEventWorkerThreadSize=").append(agentEventWorkerThreadSize);
         sb.append(", agentEventWorkerQueueSize=").append(agentEventWorkerQueueSize);
         sb.append(", l4IpList=").append(Arrays.toString(l4IpList));
+        sb.append(", metricJmxEnable=").append(metricJmxEnable);
+        sb.append(", metricJmxDomainName='").append(metricJmxDomainName).append('\'');
         sb.append(", clusterEnable=").append(clusterEnable);
         sb.append(", clusterAddress='").append(clusterAddress).append('\'');
         sb.append(", clusterSessionTimeout=").append(clusterSessionTimeout);

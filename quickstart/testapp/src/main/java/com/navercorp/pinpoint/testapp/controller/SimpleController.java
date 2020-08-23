@@ -60,5 +60,4 @@ public class SimpleController {
 
         return map;
     }
-
 }

@@ -46,7 +46,8 @@
     "CONFIGURATION": {
         "AGENT_MANAGEMENT": {
             "REMOVE_APPLICATION": "Remove selected application.",
-            "REMOVE_AGENT": "Remove selected agent."
+            "REMOVE_AGENT": "Remove selected agent.",
+            "PASSWORD_GUIDE": "Enter password if you have set one."
         },
         "AGENT_STATISTIC": {
             "ZOOM_GUIDE": "You can zoom in/out the chart through the mouse.",

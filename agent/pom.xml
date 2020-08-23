@@ -35,6 +35,7 @@
     <properties>
         <!-- for development option -->
         <skip.agent.distribution>false</skip.agent.distribution>
+        <snakeyaml.version>1.23-p1</snakeyaml.version>
     </properties>
 
     <dependencies>
@@ -118,6 +119,24 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-tools</artifactId>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- Logging dependencies -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
         </dependency>
 
     </dependencies>

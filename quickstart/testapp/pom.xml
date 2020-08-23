@@ -15,7 +15,7 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <organization>
         <name>Naver Corporation</name>
@@ -24,123 +24,39 @@
     <groupId>com.navercorp.pinpoint</groupId>
     <artifactId>pinpoint-quickstart-testapp</artifactId>
     <name>Pinpoint TestApp QuickStart</name>
-    <version>${maven.pinpoint.version}</version>
-    <packaging>war</packaging>
+    <version>2.1.0-SNAPSHOT</version>
 
     <properties>
-        <encoding>UTF-8</encoding>
-        <jdk.version>1.6</jdk.version>
-        <spring.version>4.1.7.RELEASE</spring.version>
-        <slf4j.version>1.7.5</slf4j.version>
-        <tomcat.version>7.0.47</tomcat.version>
-        <quickstart.root.dir>${basedir}/..</quickstart.root.dir>
+        <java.version>1.8</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <spring.boot.version>2.3.2.RELEASE</spring.boot.version>
+        <start-class>com.navercorp.pinpoint.testapp.TestApp</start-class>
     </properties>
 
     <dependencies>
-        <!-- Spring -->
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${spring.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                 </exclusion>
-            </exclusions>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-
-        <!-- Logging -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>${slf4j.version}</version>
-            <scope>runtime</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4j.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <!-- Tomcat -->
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-servlet-api</artifactId>
-            <version>${tomcat.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Web -->
-        <dependency>
-            <groupId>javax.servlet.jsp</groupId>
-            <artifactId>jsp-api</artifactId>
-            <version>2.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet.jsp.jstl</groupId>
-            <artifactId>jstl-api</artifactId>
-            <version>1.2</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.web</groupId>
-            <artifactId>jstl-impl</artifactId>
-            <version>1.2</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>taglibs</groupId>
-            <artifactId>standard</artifactId>
-            <version>1.1.2</version>
-        </dependency>
-
         <!-- Apache HTTP Client -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.6</version>
-        </dependency>
-
-        <!-- Jackson -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.9.10.1</version>
-        </dependency>
-
-        <dependency>
-            <artifactId>commons-io</artifactId>
-              <groupId>commons-io</groupId>
-            <version>2.4</version>
         </dependency>
     </dependencies>
 
@@ -150,82 +66,22 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
-                <configuration>
-                    <source>${jdk.version}</source>
-                    <target>${jdk.version}</target>
-                    <debug>true</debug>
-                    <optimize>true</optimize>
-                    <encoding>${encoding}</encoding>
-                    <showDeprecation>true</showDeprecation>
-                </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.2.2</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.version}</version>
                 <configuration>
-                    <webappDirectory>${basedir}/target/deploy</webappDirectory>
+                    <mainClass>${start-class}</mainClass>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <version>1.0.0</version>
                 <executions>
                     <execution>
-                        <phase>initialize</phase>
                         <goals>
-                            <goal>read-project-properties</goal>
+                            <goal>repackage</goal>
                         </goals>
-                        <configuration>
-                            <files>
-                                <file>${quickstart.root.dir}/conf/quickstart.properties</file>
-                            </files>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.cargo</groupId>
-                <artifactId>cargo-maven2-plugin</artifactId>
-                <version>1.4.8</version>
-                <configuration>
-                    <container>
-                        <containerId>tomcat8x</containerId>
-                        <artifactInstaller>
-                            <groupId>org.apache.tomcat</groupId>
-                            <artifactId>tomcat</artifactId>
-                            <version>8.5.28</version>
-                        </artifactInstaller>
-                    </container>
-                    <configuration>
-                        <home>${project.build.directory}/catalina-base</home>
-                        <type>standalone</type>
-                        <properties>
-                            <cargo.servlet.port>${quickstart.testapp.port}</cargo.servlet.port>
-                            <cargo.rmi.port>${quickstart.testapp.rmi.port}</cargo.rmi.port>
-                            <cargo.tomcat.ajp.port>${quickstart.testapp.ajp.port}</cargo.tomcat.ajp.port>
-                            <cargo.jvmargs>
-                                -javaagent:${quickstart.root.dir}/../agent/target/pinpoint-agent-${project.version}/pinpoint-bootstrap-${project.version}.jar
-                                -Dpinpoint.config=${quickstart.root.dir}/conf/pinpoint.config
-                                -Dpinpoint.agentId=${quickstart.testapp.agentId}
-                                -Dpinpoint.applicationName=${quickstart.testapp.applicationName}
-                                -Dmaven.pinpoint.identifier=${maven.pinpoint.identifier}
-                            </cargo.jvmargs>
-                        </properties>
-                    </configuration>
-                    <deployables>
-                        <deployable>
-                            <location>${project.build.directory}/${project.artifactId}-${project.version}.war</location>
-                            <type>war</type>
-                            <properties>
-                                <context>${quickstart.testapp.context.path}</context>
-                            </properties>
-                        </deployable>
-                    </deployables>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
-
 </project>

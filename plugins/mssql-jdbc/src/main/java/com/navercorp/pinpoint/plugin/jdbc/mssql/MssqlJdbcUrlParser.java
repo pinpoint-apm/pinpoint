@@ -36,6 +36,10 @@ public class MssqlJdbcUrlParser implements JdbcUrlParserV2 {
     //    jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
     private static final String MSSQL_URL_PREFIX = "jdbc:sqlserver:";
 
+    // https://docs.microsoft.com/ko-kr/sql/connect/jdbc/setting-the-connection-properties?view=sql-server-ver15#remarks
+    // Property names are case-insensitive
+    private static final String DATABASE_NAME_PROPERTY = "databaseName=";
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -64,6 +68,9 @@ public class MssqlJdbcUrlParser implements JdbcUrlParserV2 {
     private DatabaseInfo parse0(String url) {
         // jdbc:sqlserver://localhost;databaseName=AdventureWorks;integratedSecurity=true;applicationName=MyApp;
         StringMaker maker = new StringMaker(url);
+        maker.lower();
+
+        final String databaseNamePropertyLowerCase = DATABASE_NAME_PROPERTY.toLowerCase();
 
         maker.after(MSSQL_URL_PREFIX);
 
@@ -72,9 +79,9 @@ public class MssqlJdbcUrlParser implements JdbcUrlParserV2 {
         hostList.add(host);
         // String port = maker.next().after(':').before(';').value();
 
-        String databaseId = maker.next().after("databaseName=").before(';').value();
+        String databaseId = maker.next().after(databaseNamePropertyLowerCase).before(';').value();
         String normalizedUrl =
-                maker.clear().before("databaseName=").value() + "databaseName=" + databaseId;
+                maker.clear().before(databaseNamePropertyLowerCase).value() + DATABASE_NAME_PROPERTY + databaseId;
         return new DefaultDatabaseInfo(MssqlConstants.MSSQL_JDBC, MssqlConstants.MSSQL_JDBC_QUERY, url,
                 normalizedUrl, hostList, databaseId);
     }
