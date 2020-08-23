@@ -131,7 +131,7 @@ public class TransactionDataSource implements DataSource {
         return 0;
     }
 
-    @Override public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         return null;
     }
 
@@ -377,32 +377,30 @@ public class TransactionDataSource implements DataSource {
             return delegate.createStruct(typeName, attributes);
         }
 
-        @Override public void setSchema(String schema) throws SQLException {
+        public void setSchema(String schema) throws SQLException {
 
         }
 
-        @Override public String getSchema() throws SQLException {
+        public String getSchema() throws SQLException {
             return null;
         }
 
-        @Override public void abort(Executor executor) throws SQLException {
+        public void abort(Executor executor) throws SQLException {
 
         }
 
-        @Override public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
+        public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
 
         }
 
-        @Override public int getNetworkTimeout() throws SQLException {
+        public int getNetworkTimeout() throws SQLException {
             return 0;
         }
 
-        @Override
         public <T> T unwrap(Class<T> iface) throws SQLException {
             return delegate.unwrap(iface);
         }
 
-        @Override
         public boolean isWrapperFor(Class<?> iface) throws SQLException {
             return delegate.isWrapperFor(iface);
         }
