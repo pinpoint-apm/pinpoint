@@ -74,7 +74,6 @@ public class BeanMethodInterceptor extends ExceptionStackAroundInterceptor { //i
 
             ProfilerConfig config = traceContext.getProfilerConfig();
             Throwable spanThrowable = processThrowable(config, target, args, result, throwable);
-            System.out.println("============================");
             recorder.recordException(markError, spanThrowable);
         } finally {
             trace.traceBlockEnd();

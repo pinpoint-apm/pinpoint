@@ -73,7 +73,7 @@ public class DriverManagerDataSource implements DataSource {
         return 0;
     }
 
-    @Override public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         return null;
     }
 }
