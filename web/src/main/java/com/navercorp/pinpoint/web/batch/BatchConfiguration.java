@@ -47,12 +47,17 @@ public class BatchConfiguration {
     @Value("${pinpoint.url}")
     private String pinpointUrl;
 
+    @Value("${webhook.enable}")
+    private boolean webhookEnable;
+
+    @Value("${webhook.receiver.url}")
+    private String webhookReceiverUrl;
+
     @Value("${batch.server.env}")
     private String batchEnv;
 
     @Value("${batch.flink.server}")
     private String[] flinkServerList = new String[0];
-
 
     @Value("${job.cleanup.inactive.agents:false}")
     private boolean enableCleanupInactiveAgents;
@@ -99,7 +104,6 @@ public class BatchConfiguration {
         annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
 
-
     public String getPinpointUrl() {
         return pinpointUrl;
     }
@@ -136,12 +140,20 @@ public class BatchConfiguration {
         return cleanupInactiveAgentsCron;
     }
 
+    public String getWebhookReceiverUrl() { return webhookReceiverUrl; }
+
+    public boolean getWebhookEnable() {
+        return webhookEnable;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("BatchConfiguration{");
         sb.append("batchServerIp='").append(batchServerIp).append('\'');
         sb.append(", emailServerUrl='").append(emailServerUrl).append('\'');
         sb.append(", senderEmailAddress='").append(senderEmailAddress).append('\'');
+        sb.append(", enableWebhook='").append(webhookEnable).append('\'');
+        sb.append(", webhookReceiverUrl='").append(webhookReceiverUrl).append('\'');
         sb.append(", pinpointUrl='").append(pinpointUrl).append('\'');
         sb.append(", batchEnv='").append(batchEnv).append('\'');
         sb.append(", flinkServerList=").append(Arrays.toString(flinkServerList));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.navercorp.pinpoint.web.alarm;
 
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 import org.springframework.batch.core.StepExecution;
 
-/**
- * @author minwoo.jung
- */
-public interface AlarmMessageSender {
-    void sendSms(AlarmChecker checker, int sequenceCount, StepExecution stepExecution);
-    void sendEmail(AlarmChecker checker, int sequenceCount, StepExecution stepExecution);
+public interface WebhookSender {
     void triggerWebhook(AlarmChecker checker, int sequenceCount, StepExecution stepExecution);
 }

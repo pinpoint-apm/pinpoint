@@ -26,5 +26,8 @@
             </props>
         </property>
     </bean>
-
+    <bean id="webHookSender" class="com.navercorp.pinpoint.web.alarm.SpringWebhookSender">
+        <constructor-arg ref="batchConfiguration"/>
+        <constructor-arg ref="restTemplate" />
+    </bean>
 </beans>
