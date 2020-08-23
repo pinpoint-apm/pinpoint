@@ -18,7 +18,10 @@ package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionStackAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
@@ -60,7 +63,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.ResultFutureGetter;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements AroundInterceptor {
+public class DefaultClientExchangeHandlerImplStartMethodInterceptor extends ExceptionStackAroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -214,7 +217,10 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
                 this.entityRecorder.record(recorder, httpRequest, throwable);
             }
             recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
+
+            ProfilerConfig config = traceContext.getProfilerConfig();
+            Throwable spanThrowable = processThrowable(config, target, args, result, throwable);
+            recorder.recordException(spanThrowable);
         } finally {
             trace.traceBlockEnd();
         }

@@ -17,14 +17,17 @@ package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanThrowable;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionStackAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
@@ -45,7 +48,7 @@ import io.vertx.core.http.HttpServerResponse;
 /**
  * @author jaehong.kim
  */
-public class ServerConnectionHandleRequestInterceptor implements AroundInterceptor {
+public class ServerConnectionHandleRequestInterceptor extends ExceptionStackAroundInterceptor {
     private static final String SCOPE_NAME = "##VERTX_SERVER_CONNECTION_TRACE";
     private static final VertxHttpServerMethodDescriptor VERTX_HTTP_SERVER_METHOD_DESCRIPTOR = new VertxHttpServerMethodDescriptor();
 
@@ -202,7 +205,10 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
+
+            ProfilerConfig config = traceContext.getProfilerConfig();
+            Throwable spanThrowable = processThrowable(config, target, args, result, throwable);
+            recorder.recordException(spanThrowable);
             if (validate(args)) {
                 final HttpServerRequest request = (HttpServerRequest) args[0];
                 parameterRecorder.record(recorder, request, throwable);

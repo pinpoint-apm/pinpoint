@@ -4,8 +4,10 @@ import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.RpcInvocation;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionStackAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
@@ -14,7 +16,7 @@ import com.navercorp.pinpoint.plugin.dubbo.DubboConstants;
 /**
  * @author Jinkai.Ma
  */
-public class DubboConsumerInterceptor implements AroundInterceptor {
+public class DubboConsumerInterceptor extends ExceptionStackAroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -115,7 +117,10 @@ public class DubboConsumerInterceptor implements AroundInterceptor {
                 recorder.recordAttribute(DubboConstants.DUBBO_ARGS_ANNOTATION_KEY, invocation.getArguments());
                 recorder.recordAttribute(DubboConstants.DUBBO_RESULT_ANNOTATION_KEY, result);
             } else {
-                recorder.recordException(throwable);
+                ProfilerConfig config = traceContext.getProfilerConfig();
+                Throwable spanThrowable = processThrowable(config, target, args, result, throwable);
+
+                recorder.recordException(spanThrowable);
             }
         } finally {
             trace.traceBlockEnd();

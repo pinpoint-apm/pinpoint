@@ -136,6 +136,10 @@ public interface ProfilerConfig {
 
     Map<String, String> readPattern(String propertyNamePatternRegex);
 
+    boolean getExceptionStackTraceEnable();
+
+    int getExceptionStackTraceLine();
+
     interface ValueResolver {
         String resolve(String value, Properties properties);
     }

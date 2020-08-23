@@ -17,13 +17,17 @@
 package com.navercorp.pinpoint.plugin.grpc.interceptor.server;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanThrowable;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionStackAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
@@ -35,7 +39,7 @@ import com.navercorp.pinpoint.plugin.grpc.descriptor.GrpcServerCallMethodDescrit
 /**
  * @author Taejin Koo
  */
-public class ServerStreamCreatedInterceptor implements AroundInterceptor {
+public class ServerStreamCreatedInterceptor extends ExceptionStackAroundInterceptor {
 
     private static final GrpcServerCallMethodDescritpro GRPC_SERVER_CALL_METHOD_DESCRIPTOR = new GrpcServerCallMethodDescritpro();
 
@@ -125,6 +129,9 @@ public class ServerStreamCreatedInterceptor implements AroundInterceptor {
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
+
+            ProfilerConfig config = traceContext.getProfilerConfig();
+            Throwable spanThrowable = processThrowable(config, target, args, result, throwable);
             if (throwable != null) {
                 recorder.recordException(throwable);
             }

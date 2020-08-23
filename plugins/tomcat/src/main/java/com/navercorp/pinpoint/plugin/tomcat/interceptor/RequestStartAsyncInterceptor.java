@@ -14,11 +14,13 @@
  */
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionStackAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatAsyncListener;
@@ -31,7 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author jaehong.kim
  */
-public class RequestStartAsyncInterceptor implements AroundInterceptor {
+public class RequestStartAsyncInterceptor extends ExceptionStackAroundInterceptor {
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private boolean isDebug = logger.isDebugEnabled();
 
@@ -85,7 +87,10 @@ public class RequestStartAsyncInterceptor implements AroundInterceptor {
             }
             recorder.recordServiceType(TomcatConstants.TOMCAT_METHOD);
             recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
+
+            ProfilerConfig config = traceContext.getProfilerConfig();
+            Throwable spanThrowable = processThrowable(config, target, args, result, throwable);
+            recorder.recordException(spanThrowable);
         } catch (Throwable t) {
             logger.warn("Failed to AFTER process. {}", t.getMessage(), t);
         } finally {

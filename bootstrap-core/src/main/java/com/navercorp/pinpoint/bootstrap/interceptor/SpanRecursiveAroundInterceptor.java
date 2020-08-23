@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanThrowable;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
@@ -28,7 +30,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 /**
  * @author jaehong.kim
  */
-public abstract class SpanRecursiveAroundInterceptor implements AroundInterceptor {
+public abstract class SpanRecursiveAroundInterceptor extends ExceptionStackAroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
@@ -146,8 +148,11 @@ public abstract class SpanRecursiveAroundInterceptor implements AroundIntercepto
 
         // ------------------------------------------------------
         try {
+            ProfilerConfig config = traceContext.getProfilerConfig();
+            Throwable spanThrowable = processThrowable(config, target, args, result, throwable);
+
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            doInAfterTrace(recorder, target, args, result, throwable);
+            doInAfterTrace(recorder, target, args, result, spanThrowable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER. Caused:{}", th.getMessage(), th);

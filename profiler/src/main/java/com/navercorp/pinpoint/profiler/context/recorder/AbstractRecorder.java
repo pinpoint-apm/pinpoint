@@ -16,11 +16,16 @@
 package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanThrowable;
+import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -48,14 +53,54 @@ public abstract class AbstractRecorder {
         recordException(true, throwable);
     }
 
+    public void recordException(SpanThrowable throwable) {
+        recordException(true, throwable);
+    }
+
+    private final PLogger logger = PLoggerFactory.getLogger(AbstractRecorder.class);
+
+//    public void recordException(boolean markError, Throwable throwable) {
+//        if (throwable == null) {
+//            return;
+//        }
+//
+//        final String drop = StringUtils.abbreviate(throwable.getMessage(), 256);
+//
+//        // An exception that is an instance of a proxy class could make something wrong because the class name will vary.
+//        final int exceptionId = stringMetaDataService.cacheString(throwable.getClass().getName());
+//        setExceptionInfo(exceptionId, drop);
+//
+//        if (markError) {
+//            if (!ignoreErrorHandler.handleError(throwable)) {
+//                recordError();
+//            }
+//        }
+//    }
+
     public void recordException(boolean markError, Throwable throwable) {
         if (throwable == null) {
             return;
         }
+
+        StringBuffer sb = new StringBuffer();
         final String drop = StringUtils.abbreviate(throwable.getMessage(), 256);
+        sb.append(drop);
+
+        // Record exception
+        if (throwable instanceof SpanThrowable) {
+            StackTraceElement[] stackArray = ((SpanThrowable)throwable).getStackTraceElements();
+            if (stackArray != null && stackArray.length > 0) {
+                for (StackTraceElement stackTraceElement : stackArray) {
+                    sb.append("\n" + stackTraceElement.toString());
+                }
+            }
+        }
+
         // An exception that is an instance of a proxy class could make something wrong because the class name will vary.
         final int exceptionId = stringMetaDataService.cacheString(throwable.getClass().getName());
-        setExceptionInfo(exceptionId, drop);
+        // setExceptionInfo(exceptionId, drop);
+        setExceptionInfo(exceptionId, sb.toString());
+
         if (markError) {
             if (!ignoreErrorHandler.handleError(throwable)) {
                 recordError();

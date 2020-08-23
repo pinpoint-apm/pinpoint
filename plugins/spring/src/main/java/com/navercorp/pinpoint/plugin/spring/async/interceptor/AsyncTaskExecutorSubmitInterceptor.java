@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanThrowable;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.spring.async.SpringAsyncConstants;
@@ -69,5 +70,4 @@ public class AsyncTaskExecutorSubmitInterceptor extends SpanEventSimpleAroundInt
         recorder.recordServiceType(SpringAsyncConstants.SPRING_ASYNC);
         recorder.recordException(throwable);
     }
-
 }

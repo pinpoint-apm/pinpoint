@@ -2,6 +2,9 @@ package com.navercorp.pinpoint.pluginit.jdbc.template;
 
 import com.navercorp.pinpoint.pluginit.jdbc.JdbcUtils;
 
+import java.sql.SQLFeatureNotSupportedException;
+import java.util.concurrent.Executor;
+import java.util.logging.Logger;
 import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Array;
@@ -126,6 +129,10 @@ public class TransactionDataSource implements DataSource {
     @Override
     public int getLoginTimeout() throws SQLException {
         return 0;
+    }
+
+    @Override public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        return null;
     }
 
     public static class UnclosedConnection implements Connection {
@@ -368,6 +375,26 @@ public class TransactionDataSource implements DataSource {
         @Override
         public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
             return delegate.createStruct(typeName, attributes);
+        }
+
+        @Override public void setSchema(String schema) throws SQLException {
+
+        }
+
+        @Override public String getSchema() throws SQLException {
+            return null;
+        }
+
+        @Override public void abort(Executor executor) throws SQLException {
+
+        }
+
+        @Override public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
+
+        }
+
+        @Override public int getNetworkTimeout() throws SQLException {
+            return 0;
         }
 
         @Override

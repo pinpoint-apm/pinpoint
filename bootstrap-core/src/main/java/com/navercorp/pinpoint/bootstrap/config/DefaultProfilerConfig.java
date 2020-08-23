@@ -167,6 +167,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private boolean customMetricEnable = false;
     private int customMetricLimitSize = 10;
 
+    private boolean exceptionStackTraceEnable = false;
+    private int exceptionStackTraceLine = 20;
+
     public DefaultProfilerConfig() {
         this.properties = new Properties();
         this.thriftTransportConfig = new DefaultThriftTransportConfig();
@@ -412,6 +415,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return customMetricLimitSize;
     }
 
+    @Override
+    public boolean getExceptionStackTraceEnable () {
+        return exceptionStackTraceEnable;
+    }
+
+    @Override
+    public int getExceptionStackTraceLine() {
+        return exceptionStackTraceLine;
+    }
+
     // for test
     void readPropertyValues() {
 
@@ -508,6 +521,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.customMetricEnable = readBoolean("profiler.custommetric.enable", false);
         this.customMetricLimitSize = readInt("profiler.custommetric.limit.size", 10);
+
+        this.exceptionStackTraceEnable = readBoolean("profiler.exception.stacktrace.enable", false);
+        this.exceptionStackTraceLine = readInt("profiler.exception.stacktrace.line", 20);
 
         logger.info("configuration loaded successfully.");
     }
@@ -654,6 +670,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", pluginLoadOrder=").append(pluginLoadOrder);
         sb.append(", disabledPlugins=").append(disabledPlugins);
         sb.append(", propagateInterceptorException=").append(propagateInterceptorException);
+        sb.append(", exceptionStackTraceEnable=").append(exceptionStackTraceEnable);
+        sb.append(", exceptionStackTraceLine=").append(exceptionStackTraceLine);
         sb.append(", supportLambdaExpressions=").append(supportLambdaExpressions);
         sb.append(", proxyHttpHeaderEnable=").append(proxyHttpHeaderEnable);
         sb.append(", httpStatusCodeErrors=").append(httpStatusCodeErrors);

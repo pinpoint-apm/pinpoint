@@ -14,15 +14,17 @@
  */
 package com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionStackAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.plugin.elasticsearchbboss.ElasticsearchConstants;
 
 /**
  * @author yinbp[yin-bp@163.com]
  */
-public class ElasticsearchOperationAsyncInitiatorInterceptor  implements AroundInterceptor {
+public class ElasticsearchOperationAsyncInitiatorInterceptor  extends ExceptionStackAroundInterceptor {
 
     private final MethodDescriptor descriptor;
     private final TraceContext traceContext;
@@ -65,8 +67,11 @@ public class ElasticsearchOperationAsyncInitiatorInterceptor  implements AroundI
 
         try {
             if (throwable != null) {
+                ProfilerConfig config = traceContext.getProfilerConfig();
+                Throwable spanThrowable = processThrowable(config, target, result, throwable);
+
                 SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                recorder.recordException(throwable);
+                recorder.recordException(spanThrowable);
             }
         } finally {
             trace.traceBlockEnd();

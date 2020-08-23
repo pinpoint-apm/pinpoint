@@ -39,6 +39,7 @@ public class WrappedAsyncSpanEventRecorder extends WrappedSpanEventRecorder {
                                          AsyncState asyncState) {
 
         super(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaCacheService, errorHandler);
+   
         this.asyncState = Assert.requireNonNull(asyncState, "asyncState");
     }
 
