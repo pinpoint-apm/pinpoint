@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.logging;
 import org.apache.logging.log4j.core.impl.Log4jContextFactory;
 import org.apache.logging.log4j.core.selector.ClassLoaderContextSelector;
 import org.apache.logging.log4j.core.selector.ContextSelector;
-import org.apache.logging.log4j.core.util.DefaultShutdownCallbackRegistry;
 import org.apache.logging.log4j.core.util.ShutdownCallbackRegistry;
 
 /**
@@ -35,6 +34,6 @@ public class Log4j2ContextFactory extends Log4jContextFactory {
     }
 
     private static ShutdownCallbackRegistry createShutdownCallbackRegistry() {
-        return new DefaultShutdownCallbackRegistry();
+        return new EmptyShutdownCallbackRegistry();
     }
 }
