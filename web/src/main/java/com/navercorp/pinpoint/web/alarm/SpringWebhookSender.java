@@ -33,7 +33,7 @@ import java.util.Objects;
 
 public class SpringWebhookSender implements WebhookSender {
     
-    private static final String CHECKER_TYPE = "CheckerType";
+    private static final String CHECKER_TYPE = "Checker-Type";
     private static final String AGENT_CHECKER = "AgentChecker";
     private static final String ALARM_CHECKER = "AlarmChecker";
     
