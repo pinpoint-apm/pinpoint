@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.web.alarm;
 
 import com.navercorp.pinpoint.web.alarm.checker.AgentChecker;
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
-import com.navercorp.pinpoint.web.alarm.vo.WebHookPayload;
+import com.navercorp.pinpoint.web.alarm.vo.WebhookPayload;
 import com.navercorp.pinpoint.web.batch.BatchConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,27 +32,27 @@ import java.net.URI;
 import java.util.Objects;
 
 public class SpringWebhookSender implements WebhookSender {
-
+    
     private static final String CHECKER_TYPE = "CheckerType";
     private static final String AGENT_CHECKER = "AgentChecker";
     private static final String ALARM_CHECKER = "AlarmChecker";
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final BatchConfiguration batchConfiguration;
     private final RestTemplate springRestTemplate;
     private final String webhookReceiverUrl;
     private final boolean webhookEnable;
-
+    
     public SpringWebhookSender(BatchConfiguration batchConfiguration, RestTemplate springRestTemplate) {
         Objects.requireNonNull(batchConfiguration, "batchConfiguration");
         Objects.requireNonNull(springRestTemplate, "springRestTemplate");
-
+        
         this.batchConfiguration = batchConfiguration;
         this.webhookReceiverUrl = batchConfiguration.getWebhookReceiverUrl();
         this.webhookEnable = batchConfiguration.getWebhookEnable();
         this.springRestTemplate = springRestTemplate;
     }
-
+    
     @Override
     public void triggerWebhook(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
         if (webhookReceiverUrl.isEmpty()) {
@@ -61,23 +61,23 @@ public class SpringWebhookSender implements WebhookSender {
         if (!webhookEnable) {
             return;
         }
-
+        
         try {
-            WebHookPayload webHookPayload = new WebHookPayload(checker, batchConfiguration, sequenceCount);
+            WebhookPayload webhookPayload = new WebhookPayload(checker, batchConfiguration, sequenceCount);
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-
-            if(checker instanceof AgentChecker) {
+            
+            if (checker instanceof AgentChecker) {
                 httpHeaders.set(CHECKER_TYPE, AGENT_CHECKER);
             } else {
                 httpHeaders.set(CHECKER_TYPE, ALARM_CHECKER);
             }
-
-            HttpEntity<WebHookPayload> httpEntity = new HttpEntity<>(webHookPayload, httpHeaders);
+            
+            HttpEntity<WebhookPayload> httpEntity = new HttpEntity<>(webhookPayload, httpHeaders);
             springRestTemplate.exchange(new URI(webhookReceiverUrl), HttpMethod.POST, httpEntity, String.class);
-            logger.info("send WebHook : {}", checker.getRule());
+            logger.info("send webhook : {}", checker.getRule());
         } catch (Exception e) {
-            logger.error("can't send WebHook. {}", checker.getRule(), e);
+            logger.error("can't send webhook. {}", checker.getRule(), e);
         }
     }
 }
