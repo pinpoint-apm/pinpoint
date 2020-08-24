@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionStackAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
@@ -59,7 +61,7 @@ import org.apache.commons.httpclient.URI;
  * @author Minwoo Jung
  * @author jaehong.kim
  */
-public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor {
+public class HttpMethodBaseExecuteMethodInterceptor extends ExceptionStackAroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -184,7 +186,10 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
+
+            ProfilerConfig config = traceContext.getProfilerConfig();
+            Throwable spanThrowable = processThrowable(config, target, args, result, throwable);
+            recorder.recordException(spanThrowable);
             if (target instanceof HttpMethod) {
                 final HttpMethod httpMethod = (HttpMethod) target;
                 final HttpConnection httpConnection = getHttpConnection(args);

@@ -16,10 +16,12 @@
 
 package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionStackAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansConstants;
@@ -29,7 +31,7 @@ import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansConstants;
  * @author netspider
  * @author emeroad
  */
-public class BeanMethodInterceptor implements ApiIdAwareAroundInterceptor {
+public class BeanMethodInterceptor extends ExceptionStackAroundInterceptor { //implements ApiIdAwareAroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(BeanMethodInterceptor.class);
     private final boolean isDebug = logger.isDebugEnabled();
@@ -41,8 +43,7 @@ public class BeanMethodInterceptor implements ApiIdAwareAroundInterceptor {
         this.traceContext = traceContext;
         this.markError = markError;
     }
-    
-    @Override
+
     public void before(Object target, int apiId, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
@@ -57,7 +58,6 @@ public class BeanMethodInterceptor implements ApiIdAwareAroundInterceptor {
         recorder.recordServiceType(SpringBeansConstants.SERVICE_TYPE);
     }
 
-    @Override
     public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args);
@@ -71,9 +71,20 @@ public class BeanMethodInterceptor implements ApiIdAwareAroundInterceptor {
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApiId(apiId);
-            recorder.recordException(markError, throwable);
+
+            ProfilerConfig config = traceContext.getProfilerConfig();
+            Throwable spanThrowable = processThrowable(config, target, args, result, throwable);
+            recorder.recordException(markError, spanThrowable);
         } finally {
             trace.traceBlockEnd();
         }
+    }
+
+    @Override public void before(Object target, Object[] args) {
+
+    }
+
+    @Override public void after(Object target, Object[] args, Object result, Throwable throwable) {
+
     }
 }

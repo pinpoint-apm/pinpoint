@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionStackAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
@@ -56,7 +58,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterceptor {
+public class HttpRequestExecutorExecuteMethodInterceptor extends ExceptionStackAroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -178,7 +180,10 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             }
 
             recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
+
+            ProfilerConfig config = traceContext.getProfilerConfig();
+            Throwable spanThrowable = processThrowable(config, target, args, result, throwable);
+            recorder.recordException(spanThrowable);
 
             final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
             final Object attachment = getAttachment(invocation);

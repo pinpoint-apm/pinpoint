@@ -2,6 +2,9 @@ package com.navercorp.pinpoint.pluginit.jdbc.template;
 
 import com.navercorp.pinpoint.pluginit.jdbc.JdbcUtils;
 
+import java.sql.SQLFeatureNotSupportedException;
+import java.util.concurrent.Executor;
+import java.util.logging.Logger;
 import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Array;
@@ -126,6 +129,10 @@ public class TransactionDataSource implements DataSource {
     @Override
     public int getLoginTimeout() throws SQLException {
         return 0;
+    }
+
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        return null;
     }
 
     public static class UnclosedConnection implements Connection {
@@ -370,12 +377,30 @@ public class TransactionDataSource implements DataSource {
             return delegate.createStruct(typeName, attributes);
         }
 
-        @Override
+        public void setSchema(String schema) throws SQLException {
+
+        }
+
+        public String getSchema() throws SQLException {
+            return null;
+        }
+
+        public void abort(Executor executor) throws SQLException {
+
+        }
+
+        public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
+
+        }
+
+        public int getNetworkTimeout() throws SQLException {
+            return 0;
+        }
+
         public <T> T unwrap(Class<T> iface) throws SQLException {
             return delegate.unwrap(iface);
         }
 
-        @Override
         public boolean isWrapperFor(Class<?> iface) throws SQLException {
             return delegate.isWrapperFor(iface);
         }

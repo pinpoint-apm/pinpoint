@@ -16,18 +16,21 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanThrowable;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
+
 /**
  * @author emeroad
  * @author jaehong.kim
  */
-public abstract class SpanEventSimpleAroundInterceptorForPlugin implements AroundInterceptor {
+public abstract class SpanEventSimpleAroundInterceptorForPlugin extends ExceptionStackAroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
@@ -90,9 +93,13 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Aroun
         if (trace == null) {
             return;
         }
+
         try {
+            ProfilerConfig config = traceContext.getProfilerConfig();
+            Throwable spanThrowable = processThrowable(config, target, args, result, throwable);
+
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            doInAfterTrace(recorder, target, args, result, throwable);
+            doInAfterTrace(recorder, target, args, result, spanThrowable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER error. Caused:{}", th.getMessage(), th);

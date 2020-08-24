@@ -14,11 +14,13 @@
  */
 package com.navercorp.pinpoint.plugin.fastjson.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionStackAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.fastjson.FastjsonConstants;
@@ -33,7 +35,7 @@ import java.io.InputStream;
  * @version 1.8.1
  * @since 2017/07/17
  */
-public class ParseObjectInterceptor implements AroundInterceptor {
+public class ParseObjectInterceptor extends ExceptionStackAroundInterceptor {
 
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
@@ -85,7 +87,10 @@ public class ParseObjectInterceptor implements AroundInterceptor {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordServiceType(FastjsonConstants.SERVICE_TYPE);
             recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
+
+            ProfilerConfig config = traceContext.getProfilerConfig();
+            Throwable spanThrowable = processThrowable(config, target, args, result, throwable);
+            recorder.recordException(spanThrowable);
 
             if (args[0] != null) {
                 if (args[0] instanceof String) {

@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.pluginit.jdbc.template;
 
+import java.sql.SQLFeatureNotSupportedException;
+import java.util.logging.Logger;
 import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -69,5 +71,9 @@ public class DriverManagerDataSource implements DataSource {
     @Override
     public int getLoginTimeout() throws SQLException {
         return 0;
+    }
+
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        return null;
     }
 }

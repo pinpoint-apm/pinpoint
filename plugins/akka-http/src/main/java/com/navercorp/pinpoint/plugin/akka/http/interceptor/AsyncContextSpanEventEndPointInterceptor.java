@@ -17,15 +17,18 @@
 package com.navercorp.pinpoint.plugin.akka.http.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.AsyncStateSupport;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanThrowable;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionStackAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.util.Assert;
@@ -33,7 +36,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 /**
  * @author jaehong.kim
  */
-public abstract class AsyncContextSpanEventEndPointInterceptor implements AroundInterceptor {
+public abstract class AsyncContextSpanEventEndPointInterceptor extends ExceptionStackAroundInterceptor {
 
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
@@ -117,8 +120,11 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
         }
 
         try {
+            ProfilerConfig config = traceContext.getProfilerConfig();
+            Throwable spanThrowable = processThrowable(config, target, args, result, throwable);
+
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            doInAfterTrace(recorder, target, args, result, throwable);
+            doInAfterTrace(recorder, target, args, result, spanThrowable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
