@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2018 NAVER Corp.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pinpoint</artifactId>
+        <version>2.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pinpoint-agent-testweb</artifactId>
+    <packaging>pom</packaging>
+
+    <properties>
+        <jdk.version>1.8</jdk.version>
+        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+        <sniffer.artifactid>java18</sniffer.artifactid>
+
+        <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
+        <spring.version>${spring5.version}</spring.version>
+        <spring.security.version>${spring.security5.version}</spring.security.version>
+        <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
+        <pinpoint.plugintest.executable.name>${project.artifactId}-boot-${project.version}</pinpoint.plugintest.executable.name>
+
+        <pinpoint.agent.profile>local</pinpoint.agent.profile>
+        <pinpoint.agent.sampling-rate>1</pinpoint.agent.sampling-rate>
+        <pinpoint.agent.default.jvmargument>
+            -D${project.name}
+            -Dpinpoint.profiler.profiles.active=${pinpoint.agent.profile}
+            -Dpinpoint.applicationName=PluginTest
+            -Dpinpoint.agentId=PluginTestAgent
+            -Dprofiler.sampling.rate=${pinpoint.agent.sampling-rate}
+        </pinpoint.agent.default.jvmargument>
+        <pinpoint.agent.jvmargument>${pinpoint.agent.default.jvmargument}</pinpoint.agent.jvmargument>
+    </properties>
+
+    <modules>
+        <module>thread-plugin-test</module>
+    </modules>
+
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-logging</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-tomcat</artifactId>
+                <version>${spring.boot.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-actuator</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-ui</artifactId>
+                <version>1.4.4</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/deploy</outputDirectory>
+                    <executable>true</executable>
+                    <attach>false</attach>
+
+                    <finalName>${pinpoint.plugintest.executable.name}</finalName>
+                    <jvmArguments>${pinpoint.agent.jvmargument}</jvmArguments>
+                    <agents>${maven.multiModuleProjectDirectory}/agent/target/pinpoint-agent-${project.version}/pinpoint-bootstrap.jar</agents>
+                    <commandlineArguments>
+                        --server.port=18080
+                        --logging.level.root=info
+                        --springdoc.swagger-ui.path=/
+                    </commandlineArguments>
+
+                    <fork>true</fork>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
