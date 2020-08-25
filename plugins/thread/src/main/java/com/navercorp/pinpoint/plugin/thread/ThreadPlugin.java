@@ -38,21 +38,34 @@ public class ThreadPlugin implements ProfilerPlugin, MatchableTransformTemplateA
         ThreadConfig threadConfig = new ThreadConfig(context.getConfig());
 
         logger.info("init {},config:{}", this.getClass().getSimpleName(), threadConfig);
-        String threadMatchPackages = threadConfig.getThreadMatchPackage();
+        final String threadMatchPackages = threadConfig.getThreadMatchPackage();
         if (StringUtils.isEmpty(threadMatchPackages)) {
-            logger.info("thread plugin package is empty,skip it");
+            logger.info("thread plugin package is empty, skip it");
             return;
         }
-        List<String> threadMatchPackageList = StringUtils.tokenizeToStringList(threadMatchPackages, ",");
+
+        final List<String> threadMatchPackageList = StringUtils.tokenizeToStringList(threadMatchPackages, ",");
         for (String threadMatchPackage : threadMatchPackageList) {
-            addRunnableInterceptor(threadMatchPackage);
-            addCallableInterceptor(threadMatchPackage);
+            addInterceptor(threadMatchPackage, threadConfig);
         }
     }
 
-    private void addRunnableInterceptor(String threadMatchPackage) {
-        Matcher matcher = Matchers.newPackageBasedMatcher(threadMatchPackage, new InterfaceInternalNameMatcherOperand("java.lang.Runnable", true));
-        transformTemplate.transform(matcher, RunnableTransformCallback.class);
+    private void addInterceptor(String threadMatchPackage, ThreadConfig threadConfig) {
+        if (threadConfig.isRunnableSupport()) {
+            addInterceptor(threadMatchPackage, ThreadConfig.RUNNABLE, RunnableTransformCallback.class);
+        }
+        if (threadConfig.isCallableSupport()) {
+            addInterceptor(threadMatchPackage, ThreadConfig.CALLABLE, CallableTransformCallback.class);
+        }
+        if (threadConfig.isSupplierSupport()) {
+            addInterceptor(threadMatchPackage, ThreadConfig.SUPPLIER, SupplierTransformCallback.class);
+        }
+    }
+
+
+    private void addInterceptor(String threadMatchPackage, String className, Class<? extends TransformCallback> transformCallback) {
+        Matcher matcher = Matchers.newPackageBasedMatcher(threadMatchPackage, new InterfaceInternalNameMatcherOperand(className, true));
+        transformTemplate.transform(matcher, transformCallback);
     }
 
     public static class RunnableTransformCallback implements TransformCallback {
@@ -72,10 +85,6 @@ public class ThreadPlugin implements ProfilerPlugin, MatchableTransformTemplateA
         }
     }
 
-    private void addCallableInterceptor(String threadMatchPackage) {
-        Matcher matcher = Matchers.newPackageBasedMatcher(threadMatchPackage, new InterfaceInternalNameMatcherOperand("java.util.concurrent.Callable", true));
-        transformTemplate.transform(matcher, CallableTransformCallback.class);
-    }
 
     public static class CallableTransformCallback implements TransformCallback {
         @Override
@@ -87,6 +96,23 @@ public class ThreadPlugin implements ProfilerPlugin, MatchableTransformTemplateA
             }
             target.addField(AsyncContextAccessor.class);
             final InstrumentMethod callMethod = target.getDeclaredMethod("call");
+            if (callMethod != null) {
+                callMethod.addInterceptor(ThreadCallInterceptor.class);
+            }
+            return target.toBytecode();
+        }
+    }
+
+    public static class SupplierTransformCallback implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, protectionDomain, classfileBuffer);
+            List<InstrumentMethod> allConstructor = target.getDeclaredConstructors();
+            for (InstrumentMethod instrumentMethod : allConstructor) {
+                instrumentMethod.addScopedInterceptor(ThreadConstructorInterceptor.class, ThreadConstants.SCOPE_NAME);
+            }
+            target.addField(AsyncContextAccessor.class);
+            final InstrumentMethod callMethod = target.getDeclaredMethod("get");
             if (callMethod != null) {
                 callMethod.addInterceptor(ThreadCallInterceptor.class);
             }
