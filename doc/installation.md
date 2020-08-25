@@ -86,7 +86,7 @@ There are two options:
 	* JAVA_8_HOME environment variable set to JDK 8 home directory.
 	* JAVA_9_HOME environment variable set to JDK 9 home directory.
 
-	Additionally, the required Java version to run each Pinpoint component is given below:
+	Agent compatibility to Collector table:
 
 	{% include_relative compatibilityPinpoint.md %}
     

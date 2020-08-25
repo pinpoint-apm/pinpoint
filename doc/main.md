@@ -36,7 +36,7 @@ Agent compatibility to Collector table:
 
 {% include_relative compatibilityPinpoint.md %}
 
-Agent compatibility to Collector table:
+Additionally, the required Java version to run each Pinpoint component is given below:
 
 {% include_relative compatibilityJava.md %}
 
