@@ -13,5 +13,6 @@ When running the sample app in IDE, use the built-in maven feature
 eg) IDEA
 
 Maven-tab > $SAMPLE_APP > Plugins > spring-boot:start
+
 ![ex_screenshot](./img/intellij-spring-boot-start.png)
 
