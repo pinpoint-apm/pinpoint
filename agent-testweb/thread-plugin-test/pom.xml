@@ -8,7 +8,7 @@
         <version>2.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-thread-testweb</artifactId>
+    <artifactId>pinpoint-thread-plugin-testweb</artifactId>
 
     <packaging>jar</packaging>
 
