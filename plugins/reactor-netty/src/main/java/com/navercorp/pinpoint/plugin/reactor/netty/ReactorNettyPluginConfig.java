@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.plugin.reactor.netty;
 
-import com.navercorp.pinpoint.bootstrap.config.ExcludeMethodFilter;
-import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
+import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
 
 import java.util.List;
 
@@ -48,24 +46,13 @@ public class ReactorNettyPluginConfig {
         this.enable = config.readBoolean("profiler.reactor-netty.enable", true);
         this.bootstrapMains = config.readList("profiler.reactor-netty.server.bootstrap.main");
         this.enableAsyncEndPoint = config.readBoolean("profiler.reactor-netty.server.end-point.async.enable", true);
-
-        // runtime
-        this.traceRequestParam = config.readBoolean("profiler.reactor-netty.server.tracerequestparam", true);
-        final String tomcatExcludeURL = config.readString("profiler.reactor-netty.server.excludeurl", "");
-        if (!tomcatExcludeURL.isEmpty()) {
-            this.excludeUrlFilter = new ExcludePathFilter(tomcatExcludeURL);
-        } else {
-            this.excludeUrlFilter = new SkipFilter<String>();
-        }
-        this.realIpHeader = config.readString("profiler.reactor-netty.server.realipheader", null);
-        this.realIpEmptyValue = config.readString("profiler.reactor-netty.server.realipemptyvalue", null);
-
-        final String tomcatExcludeProfileMethod = config.readString("profiler.reactor-netty.server.excludemethod", "");
-        if (!tomcatExcludeProfileMethod.isEmpty()) {
-            this.excludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
-        } else {
-            this.excludeProfileMethodFilter = new SkipFilter<String>();
-        }
+        // Server
+        final ServerConfig serverConfig = new ServerConfig(config);
+        this.traceRequestParam = serverConfig.isTraceRequestParam("profiler.reactor-netty.server.tracerequestparam");
+        this.excludeUrlFilter = serverConfig.getExcludeUrlFilter("profiler.reactor-netty.server.excludeurl");
+        this.realIpHeader = serverConfig.getRealIpHeader("profiler.reactor-netty.server.realipheader");
+        this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.reactor-netty.server.realipemptyvalue");
+        this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.reactor-netty.server.excludemethod");
         // Reactor
         this.traceSubscribeError = config.readBoolean("profiler.reactor-netty.trace.subscribe.error", true);
         this.traceSubscribeErrorExcludeMessageList = config.readList("profiler.reactor-netty.trace.subscribe.error.exclude.message");

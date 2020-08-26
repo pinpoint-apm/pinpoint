@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.undertow;
 
-import com.navercorp.pinpoint.bootstrap.config.ExcludeMethodFilter;
 import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
+import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
 
 import java.util.List;
 
@@ -32,7 +31,6 @@ public class UndertowConfig {
     private final boolean enable;
     private final List<String> bootstrapMains;
     private final boolean hidePinpointHeader;
-
     private final boolean traceRequestParam;
     private final Filter<String> excludeUrlFilter;
     private final String realIpHeader;
@@ -40,7 +38,6 @@ public class UndertowConfig {
     private final Filter<String> excludeProfileMethodFilter;
     private final boolean deployServlet;
     private final Filter<String> httpHandlerClassNameFilter;
-
 
     public UndertowConfig(ProfilerConfig config) {
         if (config == null) {
@@ -51,25 +48,14 @@ public class UndertowConfig {
         this.enable = config.readBoolean("profiler.undertow.enable", true);
         this.deployServlet = config.readBoolean("profiler.undertow.deploy.servlet", true);
         this.bootstrapMains = config.readList("profiler.undertow.bootstrap.main");
-        this.hidePinpointHeader = config.readBoolean("profiler.undertow.hidepinpointheader", true);
-
-        // runtime
-        this.traceRequestParam = config.readBoolean("profiler.undertow.tracerequestparam", true);
-        final String tomcatExcludeURL = config.readString("profiler.undertow.excludeurl", "");
-        if (!tomcatExcludeURL.isEmpty()) {
-            this.excludeUrlFilter = new ExcludePathFilter(tomcatExcludeURL);
-        } else {
-            this.excludeUrlFilter = new SkipFilter<String>();
-        }
-        this.realIpHeader = config.readString("profiler.undertow.realipheader", null);
-        this.realIpEmptyValue = config.readString("profiler.undertow.realipemptyvalue", null);
-
-        final String tomcatExcludeProfileMethod = config.readString("profiler.undertow.excludemethod", "");
-        if (!tomcatExcludeProfileMethod.isEmpty()) {
-            this.excludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
-        } else {
-            this.excludeProfileMethodFilter = new SkipFilter<String>();
-        }
+        // Server
+        final ServerConfig serverConfig = new ServerConfig(config);
+        this.hidePinpointHeader = serverConfig.isHidePinpointHeader("profiler.undertow.hidepinpointheader");
+        this.traceRequestParam = serverConfig.isTraceRequestParam("profiler.undertow.tracerequestparam");
+        this.excludeUrlFilter = serverConfig.getExcludeUrlFilter("profiler.undertow.excludeurl");
+        this.realIpHeader = serverConfig.getRealIpHeader("profiler.undertow.realipheader");
+        this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.undertow.realipemptyvalue");
+        this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.undertow.excludemethod");
 
         final String httpHandlerClassName = config.readString("profiler.undertow.http-handler.class.name", "");
         if (!httpHandlerClassName.isEmpty()) {

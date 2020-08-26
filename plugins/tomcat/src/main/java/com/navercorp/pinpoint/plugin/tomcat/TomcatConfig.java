@@ -17,11 +17,9 @@
 
 package com.navercorp.pinpoint.plugin.tomcat;
 
-import com.navercorp.pinpoint.bootstrap.config.ExcludeMethodFilter;
-import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
+import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
 
 import java.util.List;
 
@@ -48,25 +46,14 @@ public class TomcatConfig {
         // plugin
         this.enable = config.readBoolean("profiler.tomcat.enable", true);
         this.bootstrapMains = config.readList("profiler.tomcat.bootstrap.main");
-        this.hidePinpointHeader = config.readBoolean("profiler.tomcat.hidepinpointheader", true);
-
-        // runtime
-        this.traceRequestParam = config.readBoolean("profiler.tomcat.tracerequestparam", true);
-        final String tomcatExcludeURL = config.readString("profiler.tomcat.excludeurl", "");
-        if (!tomcatExcludeURL.isEmpty()) {
-            this.excludeUrlFilter = new ExcludePathFilter(tomcatExcludeURL);
-        } else {
-            this.excludeUrlFilter = new SkipFilter<String>();
-        }
-        this.realIpHeader = config.readString("profiler.tomcat.realipheader", null);
-        this.realIpEmptyValue = config.readString("profiler.tomcat.realipemptyvalue", null);
-
-        final String tomcatExcludeProfileMethod = config.readString("profiler.tomcat.excludemethod", "");
-        if (!tomcatExcludeProfileMethod.isEmpty()) {
-            this.excludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
-        } else {
-            this.excludeProfileMethodFilter = new SkipFilter<String>();
-        }
+        // Server
+        final ServerConfig serverConfig = new ServerConfig(config);
+        this.hidePinpointHeader = serverConfig.isHidePinpointHeader("profiler.tomcat.hidepinpointheader");
+        this.traceRequestParam = serverConfig.isTraceRequestParam("profiler.tomcat.tracerequestparam");
+        this.excludeUrlFilter = serverConfig.getExcludeUrlFilter("profiler.tomcat.excludeurl");
+        this.realIpHeader = serverConfig.getRealIpHeader("profiler.tomcat.realipheader");
+        this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.tomcat.realipemptyvalue");
+        this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.tomcat.excludemethod");
     }
 
     public boolean isEnable() {
