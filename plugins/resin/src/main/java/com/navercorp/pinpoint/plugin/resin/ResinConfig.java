@@ -1,9 +1,8 @@
 package com.navercorp.pinpoint.plugin.resin;
 
-import com.navercorp.pinpoint.bootstrap.config.ExcludeMethodFilter;
-import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
 
 /**
  * @author huangpengjie@fang.com
@@ -11,24 +10,15 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 public class ResinConfig {
 
     private final boolean enable;
-
     private final String bootstrapMains;
-
     private final boolean hidePinpointHeader;
-
     private final boolean traceRequestParam;
-
     private final Filter<String> excludeUrlFilter;
-
     private final String realIpHeader;
-
     private final String realIpEmptyValue;
-
     private final Filter<String> excludeProfileMethodFilter;
 
-
     public ResinConfig(ProfilerConfig config) {
-
         if (config == null) {
             throw new NullPointerException("config");
         }
@@ -36,25 +26,14 @@ public class ResinConfig {
         // plugin
         this.enable = config.readBoolean("profiler.resin.enable", true);
         this.bootstrapMains = config.readString("profiler.resin.bootstrap.main", "");
-
-        // runtime
-        this.traceRequestParam = config.readBoolean("profiler.resin.tracerequestparam", true);
-        final String resinExcludeURL = config.readString("profiler.resin.excludeurl", "");
-        if (!resinExcludeURL.isEmpty()) {
-            this.excludeUrlFilter = new ExcludePathFilter(resinExcludeURL);
-        } else {
-            this.excludeUrlFilter = new ExcludePathFilter("");
-        }
-        this.realIpHeader = config.readString("profiler.resin.realipheader", null);
-        this.realIpEmptyValue = config.readString("profiler.resin.realipemptyvalue", null);
-
-        final String resinExcludeProfileMethod = config.readString("profiler.resin.excludemethod", "");
-        if (!resinExcludeProfileMethod.isEmpty()) {
-            this.excludeProfileMethodFilter = new ExcludeMethodFilter(resinExcludeProfileMethod);
-        } else {
-            this.excludeProfileMethodFilter = new ExcludeMethodFilter("");
-        }
-        this.hidePinpointHeader = config.readBoolean("profiler.resin.hidepinpointheader", true);
+        // Server
+        final ServerConfig serverConfig = new ServerConfig(config);
+        this.traceRequestParam = serverConfig.isTraceRequestParam("profiler.resin.tracerequestparam");
+        this.excludeUrlFilter = serverConfig.getExcludeUrlFilter("profiler.resin.excludeurl");
+        this.realIpHeader = serverConfig.getRealIpHeader("profiler.resin.realipheader");
+        this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.resin.realipemptyvalue");
+        this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.resin.excludemethod");
+        this.hidePinpointHeader = serverConfig.isHidePinpointHeader("profiler.resin.hidepinpointheader");
     }
 
     public boolean isEnable() {
