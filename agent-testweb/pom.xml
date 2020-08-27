@@ -51,7 +51,7 @@
     </properties>
 
     <modules>
-        <module>thread-plugin-test</module>
+        <module>thread-plugin-testweb</module>
     </modules>
 
 
