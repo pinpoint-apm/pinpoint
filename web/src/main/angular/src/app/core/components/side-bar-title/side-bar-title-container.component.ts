@@ -80,13 +80,13 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
             this.isWAS = this.selectedTarget.isWAS;
             this.isNode = true;
             const node = this.serverMapData.getNodeData(this.selectedTarget.node[0]);
-            this.toAppData = this.formatToAppData({ node: node });
+            this.toAppData = this.formatToAppData({node});
         } else if (this.selectedTarget.isLink) {
             this.isWAS = false;
             this.isNode = false;
             const link = this.serverMapData.getLinkData(this.selectedTarget.link[0]);
             this.fromAppData = this.formatFromAppData(link);
-            this.toAppData = this.formatToAppData({ link: link });
+            this.toAppData = this.formatToAppData({link});
         }
     }
 
