@@ -37,6 +37,7 @@
         <!-- java back-end development option -->
         <build.frontend.skip>false</build.frontend.skip>
 
+        <guava.version>${guava-jdk8.version}</guava.version>
         <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
         <spring.version>${spring5.version}</spring.version>
         <spring.security.version>${spring.security5.version}</spring.security.version>
