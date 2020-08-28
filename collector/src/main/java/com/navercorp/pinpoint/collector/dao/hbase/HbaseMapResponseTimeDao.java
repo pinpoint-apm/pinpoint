@@ -121,7 +121,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
             TableName mapStatisticsSelfTableName = descriptor.getTableName();
             bulkIncrementer.increment(mapStatisticsSelfTableName, selfRowKey, selfColumnName);
             bulkIncrementer.increment(mapStatisticsSelfTableName, selfRowKey, sumColumnName, elapsed);
-            bulkIncrementer.checkAndMax(mapStatisticsSelfTableName, selfRowKey, maxColumnName, elapsed);
+            bulkIncrementer.updateMax(mapStatisticsSelfTableName, selfRowKey, maxColumnName, elapsed);
         } else {
             final byte[] rowKey = getDistributedKey(selfRowKey.getRowKey());
             // column name is the name of caller app.
@@ -141,12 +141,9 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
     }
 
     private void checkAndMax(byte[] rowKey, byte[] columnName, long val) {
-        if (rowKey == null) {
-            throw new NullPointerException("rowKey");
-        }
-        if (columnName == null) {
-            throw new NullPointerException("columnName");
-        }
+        Objects.requireNonNull(rowKey, "rowKey");
+        Objects.requireNonNull(columnName, "columnName");
+
         hbaseTemplate.maxColumnValue(descriptor.getTableName(), rowKey, descriptor.getColumnFamilyName(), columnName, val);
     }
 

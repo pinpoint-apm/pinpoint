@@ -50,12 +50,9 @@ public class BulkIncrementer {
         counter.addAndGet(rowInfo, addition);
     }
 
-    public void checkAndMax(TableName tableName, RowKey rowKey, ColumnName columnName, long value) {
+    public void updateMax(TableName tableName, RowKey rowKey, ColumnName columnName, long value) {
         RowInfo rowInfo = new DefaultRowInfo(tableName, rowKey, columnName);
-        long old = max.get(rowInfo);
-        if (value > old) {
-            max.put(rowInfo, value);
-        }
+        max.accumulateAndGet(rowInfo, value, Long::max);
     }
 
     public Map<TableName, List<Increment>> getIncrements(RowKeyDistributorByHashPrefix rowKeyDistributor) {

@@ -127,7 +127,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
             TableName tableName = descriptor.getTableName();
             bulkIncrementer.increment(tableName, callerRowKey, calleeColumnName);
             bulkIncrementer.increment(tableName, callerRowKey, sumColumnName, elapsed);
-            bulkIncrementer.checkAndMax(tableName, callerRowKey, maxColumnName, elapsed);
+            bulkIncrementer.updateMax(tableName, callerRowKey, maxColumnName, elapsed);
         } else {
             final byte[] rowKey = getDistributedKey(callerRowKey.getRowKey());
             // column name is the name of caller app.
@@ -147,12 +147,9 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     }
 
     private void checkAndMax(byte[] rowKey, byte[] columnName, long value) {
-        if (rowKey == null) {
-            throw new NullPointerException("rowKey");
-        }
-        if (columnName == null) {
-            throw new NullPointerException("columnName");
-        }
+        Objects.requireNonNull(rowKey, "rowKey");
+        Objects.requireNonNull(columnName, "columnName");
+
         hbaseTemplate.maxColumnValue(descriptor.getTableName(), rowKey, descriptor.getColumnFamilyName(), columnName, value);
     }
 
