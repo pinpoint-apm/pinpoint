@@ -52,6 +52,7 @@
 
     <modules>
         <module>thread-plugin-testweb</module>
+        <module>paho-mqtt-plugin-testweb</module>
     </modules>
 
 

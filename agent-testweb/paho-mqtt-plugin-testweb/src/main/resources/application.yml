@@ -1,0 +1,11 @@
+# Defined in commandlineArgument of agent-test pom.xml
+
+mqtt:
+  v3:
+    broker:
+      url: tcp://localhost:1883
+    topic: pinpoint_mqttv3
+  v5:
+    broker:
+      url: tcp://localhost:1883
+    topic: pinpoint_mqttv5

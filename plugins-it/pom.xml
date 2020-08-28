@@ -74,6 +74,7 @@
         <module>spring-it</module>
         <module>thread-it</module>
         <module>process-it</module>
+        <module>paho-mqtt-it</module>
     </modules>
 
     <properties>

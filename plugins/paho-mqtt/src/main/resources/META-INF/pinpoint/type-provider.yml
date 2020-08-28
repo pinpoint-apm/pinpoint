@@ -1,0 +1,28 @@
+serviceTypes:
+  - code: 8501
+    name: 'PAHO_MQTT_CLIENT'
+    desc: 'PAHO_MQTT_CLIENT'
+    property:
+      queue: true
+      recordStatistics: true
+  - code: 8502
+    name: 'PAHO_MQTT_CLIENT_INTERNAL'
+    desc: 'PAHO_MQTT_CLIENT'
+
+annotationKeys:
+  - code: 191
+    name: 'mqtt.topic'
+    property:
+      viewInRecordSet: true
+  - code: 192
+    name: 'mqtt.broker.uri'
+    property:
+      viewInRecordSet: true
+  - code: 193
+    name: 'mqtt.message.payload'
+    property:
+      viewInRecordSet: true
+  - code: 194
+    name: 'mqtt.qos'
+    property:
+      viewInRecordSet: true
