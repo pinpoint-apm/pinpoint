@@ -127,6 +127,11 @@
         <netty3.version>3.10.6.Final</netty3.version>
         <netty4.version>4.1.50.Final</netty4.version>
 
+
+        <guava-jdk6.version>20.0</guava-jdk6.version>
+        <guava-jdk8.version>29.0-jre</guava-jdk8.version>
+        <guava.version>${guava-jdk6.version}</guava.version>
+
         <mybatis.spring.version>1.3.3</mybatis.spring.version>
         <mybatis.version>3.4.6</mybatis.version>
 
@@ -890,7 +895,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>20.0</version>
+                <version>${guava.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.inject</groupId>
