@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pinpoint-agent-testweb</artifactId>
+        <version>2.1.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pinpoint-paho-mqtt-plugin-testweb</artifactId>
+
+    <packaging>jar</packaging>
+
+    <properties>
+        <pinpoint.agent.jvmargument>
+            ${pinpoint.agent.default.jvmargument}
+            -Dprofiler.paho.mqtt.client.enable=true
+            -Dprofiler.paho.mqtt.client.v3.enable=true
+            -Dprofiler.paho.mqtt.client.v5.enable=true
+            -Dprofiler.paho.mqtt.client.publisher.enable=true
+            -Dprofiler.paho.mqtt.client.subscriber.enable=true
+        </pinpoint.agent.jvmargument>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.paho</groupId>
+            <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+            <version>1.2.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.paho</groupId>
+            <artifactId>org.eclipse.paho.mqttv5.client</artifactId>
+            <version>1.2.5</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+</project>
