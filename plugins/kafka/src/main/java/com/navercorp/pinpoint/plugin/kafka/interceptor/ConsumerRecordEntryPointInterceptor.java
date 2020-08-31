@@ -95,12 +95,12 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
     }
 
     private Trace createTrace(ConsumerRecord consumerRecord) {
-        TraceFactoryProvider.TraceFactory createTrace = tracyFactoryReference.get();
-        if (createTrace == null) {
-            createTrace = TraceFactoryProvider.get(consumerRecord);
-            tracyFactoryReference.compareAndSet(null, createTrace);
+        TraceFactoryProvider.TraceFactory traceFactory = tracyFactoryReference.get();
+        if (traceFactory == null) {
+            traceFactory = TraceFactoryProvider.get(consumerRecord);
+            tracyFactoryReference.compareAndSet(null, traceFactory);
         }
-        return createTrace.createTrace(traceContext, consumerRecord);
+        return traceFactory.createTrace(traceContext, consumerRecord);
     }
 
     private static class TraceFactoryProvider {
