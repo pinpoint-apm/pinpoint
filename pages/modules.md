@@ -56,8 +56,8 @@
 | MariaDB Connector/J                                                                        | mariadb-java-client        | 1.3.0   | 2.6.2   |                        | <AG>
 | MongoDB Java Driver                                                                        | mongodb-driver             | 3.0.0   | 3.12.7  |                        | <AG>
 | [Elasticsearch](https://github.com/naver/pinpoint/tree/master/plugins/elasticsearch-bboss) | bboss-elasticsearch-rest-jdbc | 5.6.9   | 5.8.2   |                     | <AG>
-| Elasticsearch                                                                              | elasticsearch-rest-high-level-client | 6.0.0   | 7.8.1   |              | <AG>
-| Datastax Java Driver                                                                       | cassandra-driver-core      | 2.0.10  | 3.10.1  |                        | <AG>
+| Elasticsearch                                                                              | elasticsearch-rest-high-level-client | 6.0.0   | 7.9.0   |              | <AG>
+| Datastax Java Driver                                                                       | cassandra-driver-core      | 2.0.10  | 3.10.2  |                        | <AG>
 | Druid                                                                                      | druid                      | 1.0.0   | 1.1.23  |                        | <AG>
 | \*Cubrid                                                                                   | cubrid-jdbc-driver         | 8.4.1   | 10.0.0  |                        | 
 | \*Commons DBCP                                                                             | commons-dbcp               | 1.0     | 1.4     |                        | 
