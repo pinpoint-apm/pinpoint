@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotSame;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.checker.SlowCountChecker;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 

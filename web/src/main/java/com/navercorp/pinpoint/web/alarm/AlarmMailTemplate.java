@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.web.alarm;
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
+import java.util.Objects;
+
 /**
  * @author minwoo.jung
  */
@@ -33,29 +35,32 @@ public class AlarmMailTemplate {
     private final int sequenceCount;
 
     public AlarmMailTemplate(AlarmChecker checker, String pinpointUrl, String batchEnv, int sequenceCount) {
-        this.checker = checker;
-        this.pinpointUrl =pinpointUrl;
-        this.batchEnv = batchEnv;
+        this.checker = Objects.requireNonNull(checker, "checker");
+        this.pinpointUrl = Objects.requireNonNull(pinpointUrl, "pinpointUrl");
+        this.batchEnv = Objects.requireNonNull(batchEnv, "batchEnv");
         this.sequenceCount = sequenceCount;
     }
-    
+
     public String createSubject() {
         Rule rule = checker.getRule();
-        return String.format("[PINPOINT-" + batchEnv + "] %s Alarm for %s Service. #%d", rule.getCheckerName(), rule.getApplicationId(), sequenceCount);
+        return String.format("[PINPOINT-%s] %s Alarm for %s Service. #%d", batchEnv, rule.getCheckerName(), rule.getApplicationId(), sequenceCount);
     }
 
     public String createBody() {
         Rule rule = checker.getRule();
+        return newBody(createSubject(), rule.getCheckerName());
+    }
 
+    private String newBody(String subject, String rule) {
         StringBuilder body = new StringBuilder();
-        body.append("<strong>").append(createSubject()).append("</strong>");
+        body.append("<strong>").append(subject).append("</strong>");
         body.append(LINE_FEED);
         body.append(LINE_FEED);
-        body.append(String.format("Rule : %s", rule.getCheckerName()));
+        body.append(String.format("Rule : %s", rule));
         body.append(LINE_FEED);
         body.append(checker.getEmailMessage());
         body.append(String.format(LINK_FORMAT, pinpointUrl, pinpointUrl));
-        
+
         return body.toString();
     }
 }
