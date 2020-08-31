@@ -156,7 +156,7 @@ public class PinpointPluginTestRunner extends BlockJUnit4ClassRunner {
         };
     }
 
-    boolean isAvaiable(Filter filter) {
+    boolean isAvailable(Filter filter) {
         synchronized (childrenLock) {
             List<FrameworkMethod> children = new ArrayList<FrameworkMethod>(getFilteredChildren());
             for (FrameworkMethod method : children) {
