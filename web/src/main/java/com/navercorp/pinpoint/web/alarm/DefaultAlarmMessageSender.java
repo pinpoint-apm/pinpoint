@@ -19,24 +19,32 @@ import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Objects;
+import java.util.Optional;
+
 /**
  * @author minwoo.jung
  */
 public class DefaultAlarmMessageSender implements AlarmMessageSender {
 
-    @Autowired
-    private MailSender mailSender;
+    private final MailSender mailSender;
 
-    @Autowired(required = false)
-    private SmsSender smsSender = new EmptySmsSender();
+    private final SmsSender smsSender;
+
+    @Autowired
+    public DefaultAlarmMessageSender(MailSender mailSender,
+                                     Optional<SmsSender> smsSender) {
+        this.mailSender = Objects.requireNonNull(mailSender, "mailSender");
+        this.smsSender = smsSender.orElseGet(EmptySmsSender::new);
+    }
 
     @Override
     public void sendSms(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
-        smsSender.sendSms(checker, sequenceCount, stepExecution);
+        this.smsSender.sendSms(checker, sequenceCount, stepExecution);
     }
 
     @Override
     public void sendEmail(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
-        mailSender.sendEmail(checker, sequenceCount, stepExecution);
+        this.mailSender.sendEmail(checker, sequenceCount, stepExecution);
     }
 }

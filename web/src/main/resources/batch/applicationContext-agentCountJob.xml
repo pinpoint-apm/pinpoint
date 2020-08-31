@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:batch="http://www.springframework.org/schema/batch"
-    xmlns:p="http://www.springframework.org/schema/p"
-    xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:task="http://www.springframework.org/schema/task"
-    xsi:schemaLocation="
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
-    <context:component-scan base-package="com.navercorp.pinpoint.web.batch.job" />
-                                         
+    <context:component-scan base-package="com.navercorp.pinpoint.web.batch.job"/>
+
     <batch:job id="agentCountJob">
         <batch:step id="agentCountPartitionStep">
             <batch:partition step="agentCountStep" partitioner="agentCountPartitioner">
-                <batch:handler task-executor="agentCountPoolTaskExecutorForPartition" />
+                <batch:handler task-executor="agentCountPoolTaskExecutorForPartition"/>
             </batch:partition>
         </batch:step>
         <batch:listeners>
@@ -26,9 +26,10 @@
 
     <batch:step id="agentCountStep">
         <batch:tasklet>
-            <batch:chunk reader="agentCountReader" processor="agentCountProcessor" writer="agentCountWriter" commit-interval="1" retry-limit="2">
+            <batch:chunk reader="agentCountReader" processor="agentCountProcessor" writer="agentCountWriter"
+                         commit-interval="1" retry-limit="2">
                 <batch:retryable-exception-classes>
-                    <batch:include class="org.springframework.batch.core.JobExecutionException" />
+                    <batch:include class="org.springframework.batch.core.JobExecutionException"/>
                 </batch:retryable-exception-classes>
             </batch:chunk>
         </batch:tasklet>
@@ -39,5 +40,5 @@
     <bean id="agentCountProcessor" class="com.navercorp.pinpoint.web.batch.job.AgentCountProcessor" scope="step"/>
     <bean id="agentCountWriter" class="com.navercorp.pinpoint.web.batch.job.AgentCountWriter" scope="step"/>
 
-    <task:executor id="agentCountPoolTaskExecutorForPartition" pool-size="1" />
+    <task:executor id="agentCountPoolTaskExecutorForPartition" pool-size="1"/>
 </beans>

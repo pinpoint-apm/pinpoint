@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -42,7 +41,7 @@ public class AlarmWriterIsolationTest {
     private static final String CHECKER_NAME = CheckerCategory.SLOW_COUNT.getName();
     private static final String RULE_ID = "TEST_RULE";
     
-    AlarmWriter writer;
+    private AlarmWriter writer;
     
     @Mock
     AlarmMessageSender alarmMessageSender;
@@ -54,11 +53,8 @@ public class AlarmWriterIsolationTest {
     
     @Before
     public void setUp() throws Exception {
-        writer = new AlarmWriter();
-    
-        ReflectionTestUtils.setField(writer, "alarmService", alarmService);
-        ReflectionTestUtils.setField(writer, "alarmMessageSender", alarmMessageSender);
-        
+        writer = new AlarmWriter(alarmMessageSender, alarmService);
+
         beforeCheckerResults = new HashMap<>();
     }
     

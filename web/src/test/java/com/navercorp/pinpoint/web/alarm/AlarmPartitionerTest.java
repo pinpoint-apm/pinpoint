@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.springframework.batch.item.ExecutionContext;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class AlarmPartitionerTest {
 
@@ -29,7 +30,7 @@ public class AlarmPartitionerTest {
     
     @Test
     public void partitionTest() {
-        AlarmPartitioner partitioner = new AlarmPartitioner();
+        AlarmPartitioner partitioner = new AlarmPartitioner(Optional.empty());
         Map<String, ExecutionContext> partitions = partitioner.partition(0);
         Assert.assertEquals(1, partitions.size());
     }

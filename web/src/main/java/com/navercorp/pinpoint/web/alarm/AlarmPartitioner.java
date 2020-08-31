@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author minwoo.jung
@@ -36,10 +37,11 @@ public class AlarmPartitioner implements Partitioner {
     private static final String PARTITION_NAME_PREFIX = "alarm_partition_number_";
     private static final String BATCH_NAME = "alarm_batch";
 
+    private final Divider divider;
 
-    @Autowired(required = false)
-    @Qualifier("divider")
-    private Divider divider = new DefaultDivider();
+    public AlarmPartitioner(@Qualifier("divider") Optional<Divider> divider) {
+        this.divider = divider.orElseGet(DefaultDivider::new);
+    }
 
     @Override
     public Map<String, ExecutionContext> partition(int gridSize) {

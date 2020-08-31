@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.web.alarm;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
@@ -33,13 +33,16 @@ import com.navercorp.pinpoint.web.service.AlarmService;
  */
 public class AlarmWriter implements ItemWriter<AlarmChecker> {
 
-    @Autowired
-    private AlarmMessageSender alarmMessageSender;
+    private final AlarmMessageSender alarmMessageSender;
 
-    @Autowired
-    private AlarmService alarmService;
+    private final AlarmService alarmService;
 
     private StepExecution stepExecution;
+
+    public AlarmWriter(AlarmMessageSender alarmMessageSender, AlarmService alarmService) {
+        this.alarmMessageSender = Objects.requireNonNull(alarmMessageSender, "alarmMessageSender");
+        this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
+    }
 
     @BeforeStep
     public void beforeStep(StepExecution stepExecution) {

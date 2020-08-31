@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -40,24 +41,18 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  */
 public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListener {
     
-    @Autowired
-    private DataCollectorFactory dataCollectorFactory;
+    private final DataCollectorFactory dataCollectorFactory;
     
-    @Autowired
-    private ApplicationIndexDao applicationIndexDao;
+    private final ApplicationIndexDao applicationIndexDao;
     
-    @Autowired
-    private AlarmService alarmService;
+    private final AlarmService alarmService;
     
     private final Queue<AlarmChecker> checkers = new ConcurrentLinkedDeque<>();
 
-    public AlarmReader() {
-    }
-    
-    protected AlarmReader(DataCollectorFactory dataCollectorFactory, ApplicationIndexDao applicationIndexDao, AlarmService alarmService) {
-        this.dataCollectorFactory = dataCollectorFactory;
-        this.applicationIndexDao = applicationIndexDao;
-        this.alarmService = alarmService;
+    public AlarmReader(DataCollectorFactory dataCollectorFactory, ApplicationIndexDao applicationIndexDao, AlarmService alarmService) {
+        this.dataCollectorFactory = Objects.requireNonNull(dataCollectorFactory, "dataCollectorFactory");
+        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+        this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
     }
     
     public AlarmChecker read() {

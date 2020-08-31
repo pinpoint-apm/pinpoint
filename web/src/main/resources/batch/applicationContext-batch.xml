@@ -1,30 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:batch="http://www.springframework.org/schema/batch"
-	xmlns:p="http://www.springframework.org/schema/p"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:task="http://www.springframework.org/schema/task"
-	xmlns:util="http://www.springframework.org/schema/util"
-	xsi:schemaLocation="http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="batchJobLauncher" class="com.navercorp.pinpoint.web.batch.BatchJobLauncher"/>
+    <bean id="batchJobLauncher" class="com.navercorp.pinpoint.web.batch.BatchJobLauncher"/>
 
     <bean id="jobLauncher"
-        class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
-        <property name="jobRepository" ref="jobRepository" />
-    </bean>
- 
- 	<batch:job-repository id="jobRepository" data-source="metaDataDataSource" transaction-manager="metaDataTransactionManager"/>
-	
-	<bean id="jobRegistry" class="org.springframework.batch.core.configuration.support.MapJobRegistry" />
-	
-	<bean id="jobRegistryBeanPostProcessor" class="org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor">
-    	<property name="jobRegistry" ref="jobRegistry"/>
+          class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+        <property name="jobRepository" ref="jobRepository"/>
     </bean>
 
-	<bean id="jobFailListener" class="com.navercorp.pinpoint.web.batch.JobFailListener"/>
+    <batch:job-repository id="jobRepository" data-source="metaDataDataSource"
+                          transaction-manager="metaDataTransactionManager"/>
+
+    <bean id="jobRegistry" class="org.springframework.batch.core.configuration.support.MapJobRegistry"/>
+
+    <bean id="jobRegistryBeanPostProcessor"
+          class="org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor">
+        <property name="jobRegistry" ref="jobRegistry"/>
+    </bean>
+
+    <bean id="jobFailListener" class="com.navercorp.pinpoint.web.batch.JobFailListener"/>
 
     <bean id="alarmMessageSender" class="com.navercorp.pinpoint.web.alarm.DefaultAlarmMessageSender"/>
 
