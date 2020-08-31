@@ -386,7 +386,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         }
 
         if (each instanceof PinpointPluginTestRunner) {
-            return ((PinpointPluginTestRunner) each).isAvaiable(filter);
+            return ((PinpointPluginTestRunner) each).isAvailable(filter);
         }
 
         return false;
