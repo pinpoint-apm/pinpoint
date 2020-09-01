@@ -32,6 +32,8 @@ import java.util.Map.Entry;
  */
 public abstract class AgentChecker<T> extends AlarmChecker<T> {
     
+    private static final String AGENT_CHECKER_TYPE = "AgentChecker";
+    
     protected final Map<String, T> detectedAgents = new HashMap<>();
 
     protected AgentChecker(Rule rule, String unit, DataCollector dataCollector) {
@@ -86,5 +88,10 @@ public abstract class AgentChecker<T> extends AlarmChecker<T> {
     @Override
     public CheckerValue getCheckerValue() {
         return new AgentCheckerValue(unit, detectedAgents);
+    }
+    
+    @Override
+    public String getCheckerType() {
+        return AGENT_CHECKER_TYPE;
     }
 }

@@ -33,6 +33,8 @@ import java.util.List;
  */
 public abstract class AlarmChecker<T> {
     
+    private static final String ALARM_CHECKER_TYPE = "AlarmChecker";
+    
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     protected final DataCollector dataCollector;
     protected final Rule rule;
@@ -95,5 +97,9 @@ public abstract class AlarmChecker<T> {
     
     public CheckerValue getCheckerValue() {
         return new AlarmCheckerValue(unit, getDetectedValue());
+    }
+    
+    public String getCheckerType() {
+        return ALARM_CHECKER_TYPE;
     }
 }
