@@ -67,8 +67,21 @@ public class AgentInfoController {
     public ApplicationAgentsList getAgentList(
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
+        ApplicationAgentsList.Filter filter = agentInfo -> {
+            AgentStatus agentStatus = agentInfo.getStatus();
+            if (agentStatus == null) {
+                return ApplicationAgentsList.Filter.REJECT;
+            }
+            if (agentStatus.getState() == AgentLifeCycleState.RUNNING) {
+                return ApplicationAgentsList.Filter.ACCEPT;
+            }
+            if (agentStatus.getEventTimestamp() >= from) {
+                return ApplicationAgentsList.Filter.ACCEPT;
+            }
+            return ApplicationAgentsList.Filter.REJECT;
+        };
         long timestamp = to;
-        return this.agentInfoService.getAllApplicationAgentsList(ApplicationAgentsList.Filter.NONE, timestamp);
+        return this.agentInfoService.getAllApplicationAgentsList(filter, timestamp);
     }
 
     @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
