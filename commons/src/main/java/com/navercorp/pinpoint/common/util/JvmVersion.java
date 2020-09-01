@@ -38,6 +38,9 @@ public enum JvmVersion {
     JAVA_11(11.0f, 55),
     JAVA_12(12.0f, 56),
     JAVA_13(13.0f, 57),
+    JAVA_14(14.0f, 58),
+    JAVA_15(15.0f, 59),
+    JAVA_16(16.0f, 60),
     JAVA_RECENT(99.0f, 99),
     UNSUPPORTED(-1, -1);
 
@@ -51,6 +54,10 @@ public enum JvmVersion {
     JvmVersion(float version, int classVersion) {
         this.version = version;
         this.classVersion = classVersion;
+    }
+
+    public int getClassVersion() {
+        return classVersion;
     }
 
     public boolean onOrAfter(JvmVersion other) {
