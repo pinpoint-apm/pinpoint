@@ -21,6 +21,7 @@
                         "assets": [
                             "src/favicon.ico",
                             "src/assets",
+                            "src/not_authorized.html",
                             {
                                 "glob": "utils.js",
                                 "input": "node_modules/intl-tel-input/build/js",
