@@ -23,4 +23,8 @@ import com.navercorp.pinpoint.web.vo.Application;
  */
 public interface LinkFilter {
     boolean filter(Application foundApplication);
+
+    static boolean skip(Application foundApplication) {
+        return false;
+    }
 }

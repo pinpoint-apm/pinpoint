@@ -61,7 +61,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     public MapStatisticsCallerMapper() {
-        this(SkipLinkFilter.FILTER);
+        this(LinkFilter::skip);
     }
 
     public MapStatisticsCallerMapper(LinkFilter filter) {
