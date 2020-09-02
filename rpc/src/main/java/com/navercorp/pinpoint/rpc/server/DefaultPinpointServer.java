@@ -404,7 +404,7 @@ public class DefaultPinpointServer implements PinpointServer {
         }
 
         String id = MapUtils.getString(cluster, "id", "");
-        List<Role> roles = getRoles((List) cluster.get("roles"));
+        List<Role> roles = getRoles(cluster.get("roles"));
 
         if (StringUtils.isEmpty(id)) {
             return ClusterOption.DISABLE_CLUSTER_OPTION;
