@@ -63,7 +63,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     public MapStatisticsCalleeMapper() {
-        this(SkipLinkFilter.FILTER);
+        this(LinkFilter::skip);
     }
 
     public MapStatisticsCalleeMapper(LinkFilter filter) {

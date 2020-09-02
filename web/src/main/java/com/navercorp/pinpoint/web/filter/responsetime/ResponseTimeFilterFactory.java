@@ -30,7 +30,7 @@ public class ResponseTimeFilterFactory {
 
     public ResponseTimeFilter createFilter() {
         if (from == null && to == null) {
-            return new AcceptResponseTimeFilter();
+            return ResponseTimeFilter::filterAccept;
         }
         // TODO default value is 0 or Long.MIN_VALUE ??
         final long fromLong = defaultLong(from, Long.MIN_VALUE);

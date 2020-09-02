@@ -133,7 +133,7 @@ public class LinkFilter implements Filter<List<SpanBo>> {
     private URLPatternFilter createAcceptUrlFilter(FilterDescriptor.Option option) {
         final String urlPattern = option.getUrlPattern();
         if (StringUtils.isEmpty(urlPattern)) {
-            return new BypassURLPatternFilter();
+            return URLPatternFilter::filterAccept;
         }
         // TODO remove decode
         return new AcceptUrlFilter(urlPattern);
@@ -142,7 +142,7 @@ public class LinkFilter implements Filter<List<SpanBo>> {
     private URLPatternFilter createRpcUrlFilter(FilterDescriptor.Option option, AnnotationKeyRegistryService annotationKeyRegistryService) {
         final String urlPattern = option.getUrlPattern();
         if (StringUtils.isEmpty(urlPattern)) {
-            return new BypassURLPatternFilter();
+            return URLPatternFilter::filterAccept;
         }
         return new RpcURLPatternFilter(urlPattern, serviceTypeRegistryService, annotationKeyRegistryService);
     }

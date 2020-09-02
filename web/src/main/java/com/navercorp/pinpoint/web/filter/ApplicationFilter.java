@@ -99,7 +99,7 @@ public class ApplicationFilter implements Filter<List<SpanBo>> {
 
     private URLPatternFilter createAcceptUrlFilter(FilterDescriptor.Option option) {
         if (StringUtils.isEmpty(option.getUrlPattern())) {
-            return new BypassURLPatternFilter();
+            return URLPatternFilter::filterAccept;
         }
         return new AcceptUrlFilter(option.getUrlPattern());
     }
