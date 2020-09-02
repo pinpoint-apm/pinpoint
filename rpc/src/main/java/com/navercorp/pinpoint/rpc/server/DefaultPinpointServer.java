@@ -413,9 +413,14 @@ public class DefaultPinpointServer implements PinpointServer {
         }
     }
 
-    private List<Role> getRoles(List roleNames) {
-        List<Role> roles = new ArrayList<Role>();
-        for (Object roleName : roleNames) {
+    private List<Role> getRoles(Object roleNames) {
+        final List<Role> roles = new ArrayList<Role>();
+        if (roleNames == null || !(roleNames instanceof List)) {
+            return roles;
+        }
+
+        final List list = (List) roleNames;
+        for (Object roleName : list) {
             if (roleName instanceof String && StringUtils.hasLength((String) roleName)) {
                 roles.add(Role.getValue((String) roleName));
             }
