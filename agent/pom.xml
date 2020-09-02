@@ -33,6 +33,10 @@
     <packaging>jar</packaging>
 
     <properties>
+        <jdk.version>1.8</jdk.version>
+        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+        <sniffer.artifactid>java18</sniffer.artifactid>
+
         <!-- for development option -->
         <skip.agent.distribution>false</skip.agent.distribution>
         <snakeyaml.version>1.23-p1</snakeyaml.version>
