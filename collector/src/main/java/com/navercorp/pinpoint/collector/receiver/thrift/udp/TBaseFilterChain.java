@@ -20,6 +20,7 @@ import org.apache.thrift.TBase;
 
 import java.net.DatagramSocket;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -30,9 +31,7 @@ public class TBaseFilterChain<T> implements TBaseFilter<T> {
 
 
     public TBaseFilterChain(List<TBaseFilter<T>> tBaseFilter) {
-        if (tBaseFilter == null) {
-            throw new NullPointerException("tBaseFilter");
-        }
+        Objects.requireNonNull(tBaseFilter, "tBaseFilter");
 
         @SuppressWarnings("unchecked")
         final TBaseFilter<T>[] newArray = (TBaseFilter<T>[]) new TBaseFilter[0];

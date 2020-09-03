@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -307,9 +308,7 @@ public class GrpcSpanBinder {
 
     // for test
     public SpanEventBo buildSpanEventBo(PSpanEvent pSpanEvent, SpanEventBo prevSpanEvent) {
-        if (pSpanEvent == null) {
-            throw new NullPointerException("pSpanEvent");
-        }
+        Objects.requireNonNull(pSpanEvent, "pSpanEvent");
 
         final SpanEventBo spanEvent = new SpanEventBo();
         bind(spanEvent, pSpanEvent, prevSpanEvent);
@@ -317,9 +316,8 @@ public class GrpcSpanBinder {
     }
 
     private AnnotationBo newAnnotationBo(PAnnotation pAnnotation) {
-        if (pAnnotation == null) {
-            throw new NullPointerException("annotation");
-        }
+        Objects.requireNonNull(pAnnotation, "pAnnotation");
+
         AnnotationBo annotationBo = annotationFactory.buildAnnotation(pAnnotation);
         return annotationBo;
     }

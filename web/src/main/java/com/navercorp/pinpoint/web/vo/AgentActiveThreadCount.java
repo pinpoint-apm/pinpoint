@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.vo;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -93,15 +94,9 @@ public class AgentActiveThreadCount {
         }
 
         AgentActiveThreadCount build() {
-            if (agentId == null) {
-                throw new NullPointerException("agentId");
-            }
-            if (activeThreadCountList == null) {
-                throw new NullPointerException("activeThreadCountList");
-            }
-            if (status == null) {
-                throw new NullPointerException("status");
-            }
+            Objects.requireNonNull(agentId, "agentId");
+            Objects.requireNonNull(activeThreadCountList, "activeThreadCountList");
+            Objects.requireNonNull(status, "status");
 
             return new AgentActiveThreadCount(this);
         }

@@ -98,10 +98,8 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         Objects.requireNonNull(transactionIdList, "transactionIdList");
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(filter, "filter");
-        if (range == null) {
-            // TODO range is not used - check the logic again
-            throw new NullPointerException("range");
-        }
+        // TODO range is not used - check the logic again
+        Objects.requireNonNull(range, "range");
 
         List<List<SpanBo>> traceList;
 
@@ -366,9 +364,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     private class SpanAlignPopulate {
         private List<Record> populateSpanRecord(CallTreeIterator callTreeIterator) {
-            if (callTreeIterator == null) {
-                throw new NullPointerException("callTreeIterator");
-            }
+            Objects.requireNonNull(callTreeIterator, "callTreeIterator");
 
             final List<Record> recordList = new ArrayList<>(callTreeIterator.size() * 2);
             final RecordFactory factory = new RecordFactory(annotationKeyMatcherService, registry, annotationKeyRegistryService, proxyRequestTypeRegistryService);

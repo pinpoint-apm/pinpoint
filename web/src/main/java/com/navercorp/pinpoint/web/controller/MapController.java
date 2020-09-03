@@ -48,6 +48,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -203,15 +204,9 @@ public class MapController {
     }
 
     private MapWrap selectApplicationMap(Application application, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType) {
-        if (application == null) {
-            throw new NullPointerException("application");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
-        if (searchOption == null) {
-            throw new NullPointerException("searchOption");
-        }
+        Objects.requireNonNull(application, "application");
+        Objects.requireNonNull(range, "range");
+        Objects.requireNonNull(searchOption, "searchOption");
 
         logger.info("getServerMap() application:{} range:{} searchOption:{}", application, range, searchOption);
 

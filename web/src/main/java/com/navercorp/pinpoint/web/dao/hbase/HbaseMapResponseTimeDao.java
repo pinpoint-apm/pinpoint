@@ -76,9 +76,8 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
     @Override
     public List<ResponseTime> selectResponseTime(Application application, Range range) {
-        if (application == null) {
-            throw new NullPointerException("application");
-        }
+        Objects.requireNonNull(application, "application");
+
         if (logger.isDebugEnabled()) {
             logger.debug("selectResponseTime applicationName:{}, {}", application, range);
         }

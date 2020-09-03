@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -22,9 +23,8 @@ public class SpanChunkSerializerV2 implements HbaseSerializer<SpanChunkBo, Put> 
 
     @Override
     public void serialize(SpanChunkBo spanChunkBo, Put put, SerializationContext context) {
-        if (spanChunkBo == null) {
-            throw new NullPointerException("spanChunkBo");
-        }
+        Objects.requireNonNull(spanChunkBo, "spanChunkBo");
+
 
         SpanEncodingContext<SpanChunkBo> encodingContext = new SpanEncodingContext<SpanChunkBo>(spanChunkBo);
 

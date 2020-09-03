@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -44,9 +45,8 @@ public class RowKeyMerge {
     }
 
     public RowKeyMerge(byte[] family) {
-        if (family == null) {
-            throw new NullPointerException("family");
-        }
+        Objects.requireNonNull(family, "family");
+
         this.family = Arrays.copyOf(family, family.length);
     }
 

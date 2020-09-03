@@ -45,7 +45,7 @@ public class ApplicationMapBuilderFactory {
             Optional<MetricInfoAppenderFactory> metricInfoAppenderFactory) {
         this.nodeHistogramAppenderFactory = nodeHistogramAppenderFactory;
         this.serverInfoAppenderFactory = serverInfoAppenderFactory;
-        this.metricInfoAppenderFactory = Objects.requireNonNull(metricInfoAppenderFactory, "metricInfoAppenderFactory").orElse(new DefaultMetricInfoAppenderFactory());
+        this.metricInfoAppenderFactory = Objects.requireNonNull(metricInfoAppenderFactory, "metricInfoAppenderFactory").orElseGet(DefaultMetricInfoAppenderFactory::new);
 
     }
 

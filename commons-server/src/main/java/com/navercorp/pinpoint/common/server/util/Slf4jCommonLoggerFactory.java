@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -44,10 +46,7 @@ public class Slf4jCommonLoggerFactory implements CommonLoggerFactory {
         }
 
         private Sl4jCommonLogger(Logger logger) {
-            if (logger == null) {
-                throw new NullPointerException("logger");
-            }
-            this.logger = logger;
+            this.logger = Objects.requireNonNull(logger, "logger");
         }
 
         @Override

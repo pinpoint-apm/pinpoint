@@ -220,14 +220,8 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
 
         public AgentKey(String applicationId, String agentId, long agentStartTime, long spanId) {
-            if (applicationId == null) {
-                throw new NullPointerException("applicationId");
-            }
-            if (agentId == null) {
-                throw new NullPointerException("agentId");
-            }
-            this.applicationId = applicationId;
-            this.agentId = agentId;
+            this.applicationId = Objects.requireNonNull(applicationId, "applicationId");
+            this.agentId = Objects.requireNonNull(agentId, "agentId");
             this.agentStartTime = agentStartTime;
             this.spanId = spanId;
         }

@@ -48,9 +48,8 @@ public class TCPServerResponse implements ServerResponse<TBase<?, ?>> {
 
     @Override
     public void write(TBase<?, ?> message) {
-        if (message == null) {
-            throw new NullPointerException("message");
-        }
+        Objects.requireNonNull(message, "message");
+
         if (closed) {
             throw new IllegalStateException("ServerResponse is closed");
         }

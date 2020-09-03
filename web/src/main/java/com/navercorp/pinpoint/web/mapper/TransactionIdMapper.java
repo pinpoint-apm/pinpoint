@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.mapper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
@@ -64,9 +65,8 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
     }
 
     public static TransactionId parseVarTransactionId(byte[] bytes, int offset, int length) {
-        if (bytes == null) {
-            throw new NullPointerException("bytes");
-        }
+        Objects.requireNonNull(bytes, "bytes");
+
         final Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
         
         // skip elapsed time (not used) hbase column prefix - only used for filtering.

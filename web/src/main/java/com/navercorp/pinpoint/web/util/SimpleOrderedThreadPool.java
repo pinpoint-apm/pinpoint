@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.util;
 
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -35,9 +36,6 @@ public class SimpleOrderedThreadPool implements Executor {
     private final ExecutorService[] childExecutors;
 
     public SimpleOrderedThreadPool(int threadCount, int workerQueueSize, ThreadFactory threadFactory) {
-        if (threadFactory == null) {
-            throw new NullPointerException("threadFactory");
-        }
         if (threadCount < 0) {
             throw new IllegalArgumentException("threadCount workerQueueSize");
         }
@@ -46,7 +44,7 @@ public class SimpleOrderedThreadPool implements Executor {
         }
         this.threadCount = threadCount;
         this.workerQueueSize = workerQueueSize;
-        this.threadFactory = threadFactory;
+        this.threadFactory = Objects.requireNonNull(threadFactory, "threadFactory");
         this.childExecutors = createChildExecutor(threadCount);
     }
 

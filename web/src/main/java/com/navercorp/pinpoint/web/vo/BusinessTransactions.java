@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.vo;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 
@@ -33,9 +34,8 @@ public class BusinessTransactions {
     private int totalCallCount;
 
     public void add(SpanBo span) {
-        if (span == null) {
-            throw new NullPointerException("span");
-        }
+        Objects.requireNonNull(span, "span");
+
         totalCallCount++;
 
         String rpc = span.getRpc();

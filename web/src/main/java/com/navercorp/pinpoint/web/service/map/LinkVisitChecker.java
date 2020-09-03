@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -47,9 +48,8 @@ public class LinkVisitChecker {
     }
 
     private boolean visit(Set<Application> visitedSet, Application application, String type) {
-        if (application == null) {
-            throw new NullPointerException("application");
-        }
+        Objects.requireNonNull(visitedSet, "application");
+
         final boolean alreadyVisited = !visitedSet.add(application);
         if (logger.isDebugEnabled()) {
             if (alreadyVisited) {

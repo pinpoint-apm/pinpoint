@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.vo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
@@ -36,9 +37,7 @@ public class BusinessTransaction {
     private long minTime = 0;
 
     public BusinessTransaction(SpanBo span) {
-        if (span == null) {
-            throw new NullPointerException("span");
-        }
+        Objects.requireNonNull(span, "span");
 
         this.rpc = span.getRpc();
 
@@ -55,9 +54,7 @@ public class BusinessTransaction {
     }
 
     public void add(SpanBo span) {
-        if (span == null) {
-            throw new NullPointerException("span");
-        }
+        Objects.requireNonNull(span, "span");
 
         long elapsed = span.getElapsed();
 

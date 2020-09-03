@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -56,9 +57,8 @@ public class DateLimiter implements Limiter {
 
     @Override
     public void limit(Range range) {
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
+        Objects.requireNonNull(range, "range");
+
         final long elapsedTime = range.getRange();
         if (elapsedTime < 0) {
             throw new  IllegalArgumentException("to - from < 0 " + range);

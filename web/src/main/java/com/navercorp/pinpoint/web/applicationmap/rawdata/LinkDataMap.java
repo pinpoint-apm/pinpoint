@@ -86,9 +86,8 @@ public class LinkDataMap {
     }
 
     public LinkData getLinkData(LinkKey findLinkKey) {
-        if (findLinkKey == null) {
-            throw new NullPointerException("findLinkKey");
-        }
+        Objects.requireNonNull(findLinkKey, "findLinkKey");
+
         return this.linkDataMap.get(findLinkKey);
     }
 

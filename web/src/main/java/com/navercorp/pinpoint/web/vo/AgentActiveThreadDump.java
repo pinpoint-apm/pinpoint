@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -154,12 +156,8 @@ public class AgentActiveThreadDump {
         }
 
         AgentActiveThreadDump build() {
-            if (threadName == null) {
-                throw new NullPointerException("threadName");
-            }
-            if (threadState == null) {
-                throw new NullPointerException("threadState");
-            }
+            Objects.requireNonNull(threadName, "threadName");
+            Objects.requireNonNull(threadState, "threadState");
 
             if (startTime <= 0) {
                 throw new IllegalArgumentException("startTime must be positive number");
@@ -169,9 +167,7 @@ public class AgentActiveThreadDump {
                 LOGGER.warn("execTime is {}, you can get negativeNumber because of time issues between servers", execTime);
             }
 
-            if (detailMessage == null) {
-                throw new NullPointerException("detailMessage");
-            }
+            Objects.requireNonNull(detailMessage, "detailMessage");
 
             return new AgentActiveThreadDump(this);
         }

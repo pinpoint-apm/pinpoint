@@ -120,9 +120,8 @@ public class ApplicationMapBuilder {
     }
 
     public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap) {
-        if (linkDataDuplexMap == null) {
-            throw new NullPointerException("linkDataDuplexMap");
-        }
+        Objects.requireNonNull(linkDataDuplexMap, "linkDataDuplexMap");
+
         logger.info("Building application map");
 
         NodeType nodeType = this.nodeType;

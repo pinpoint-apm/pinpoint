@@ -56,7 +56,7 @@ public class GrpcAgentStatHandlerV2 implements SimpleHandler {
                                   Optional<List<AgentStatService>> agentStatServiceList) {
         this.agentStatMapper = Objects.requireNonNull(agentStatMapper, "agentStatMapper");
         this.agentStatBatchMapper = Objects.requireNonNull(agentStatBatchMapper, "agentStatBatchMapper");
-        this.agentStatServiceList = Objects.requireNonNull(agentStatServiceList, "agentStatServiceList2").orElse(Collections.emptyList());
+        this.agentStatServiceList = Objects.requireNonNull(agentStatServiceList, "agentStatServiceList2").orElseGet(Collections::emptyList);
     }
 
     @Override

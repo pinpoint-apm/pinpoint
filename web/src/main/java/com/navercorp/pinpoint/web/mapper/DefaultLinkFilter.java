@@ -39,9 +39,8 @@ public class DefaultLinkFilter implements LinkFilter {
     }
 
     public boolean filter(Application foundApplication) {
-        if (foundApplication == null) {
-            throw new NullPointerException("foundApplication");
-        }
+        Objects.requireNonNull(foundApplication, "foundApplication");
+
         if (this.calleeApplication.getServiceType().isWas() && this.callerApplication.getServiceType().isWas()) {
             logger.debug("check was to was.");
             // if not from same source, drop

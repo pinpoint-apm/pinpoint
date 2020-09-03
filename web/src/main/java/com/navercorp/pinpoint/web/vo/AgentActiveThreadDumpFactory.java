@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -60,9 +61,8 @@ public class AgentActiveThreadDumpFactory {
     }
 
     private AgentActiveThreadDump create1(TActiveThreadDump tActiveThreadDump) {
-        if (tActiveThreadDump == null) {
-            throw new NullPointerException("tActiveThreadDump");
-        }
+        Objects.requireNonNull(tActiveThreadDump, "tActiveThreadDump");
+
 
         TThreadDump activeThreadDump = tActiveThreadDump.getThreadDump();
 
@@ -102,9 +102,8 @@ public class AgentActiveThreadDumpFactory {
     }
 
     private AgentActiveThreadDump create2(TActiveThreadLightDump tActiveThreadLightDump) {
-        if (tActiveThreadLightDump == null) {
-            throw new NullPointerException("tActiveThreadLightDump");
-        }
+        Objects.requireNonNull(tActiveThreadLightDump, "tActiveThreadLightDump");
+
 
         TThreadLightDump activeThreadDump = tActiveThreadLightDump.getThreadDump();
         AgentActiveThreadDump.Builder builder = new AgentActiveThreadDump.Builder();

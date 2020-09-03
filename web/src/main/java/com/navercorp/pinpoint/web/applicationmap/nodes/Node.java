@@ -86,10 +86,7 @@ public class Node {
 
     // TODO remove setter
     public void setServerInstanceList(ServerInstanceList serverInstanceList) {
-        if (serverInstanceList == null) {
-            throw new NullPointerException("serverInstanceList");
-        }
-        this.serverInstanceList = serverInstanceList;
+        this.serverInstanceList = Objects.requireNonNull(serverInstanceList, "serverInstanceList");
     }
 
     public ServerInstanceList getServerInstanceList() {

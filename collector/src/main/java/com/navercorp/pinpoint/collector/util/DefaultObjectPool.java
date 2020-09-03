@@ -31,10 +31,7 @@ public class DefaultObjectPool<T> implements ObjectPool<T> {
     private final ObjectPoolFactory<T> factory;
 
     public DefaultObjectPool(ObjectPoolFactory<T> factory, int size) {
-        if (factory == null) {
-            throw new NullPointerException("factory");
-        }
-        this.factory = factory;
+        this.factory = Objects.requireNonNull(factory, "factory");
         fill(size);
     }
 

@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.common.server.util;
 
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
+import java.util.Objects;
+
 
 /**
  * @author emeroad
@@ -28,9 +30,8 @@ public final class SpanEventUtils {
     }
 
     public static boolean hasException(TSpanEvent spanEvent) {
-        if (spanEvent == null) {
-            throw new NullPointerException("spanEvent");
-        }
+        Objects.requireNonNull(spanEvent, "spanEvent");
+
         if (spanEvent.isSetExceptionInfo()) {
             return true;
         }

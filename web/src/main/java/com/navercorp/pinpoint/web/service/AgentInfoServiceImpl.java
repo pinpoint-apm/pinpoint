@@ -108,12 +108,9 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public ApplicationAgentsList getApplicationAgentsList(ApplicationAgentsList.GroupBy groupBy, ApplicationAgentsList.Filter filter, String applicationName, long timestamp) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
-        if (groupBy == null) {
-            throw new NullPointerException("groupBy");
-        }
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(groupBy, "groupBy");
+
         ApplicationAgentsList applicationAgentsList = new ApplicationAgentsList(groupBy, filter);
         Set<AgentInfo> agentInfos = getAgentsByApplicationName(applicationName, timestamp);
         if (agentInfos.isEmpty()) {
@@ -215,9 +212,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, long timestamp) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
+        Objects.requireNonNull(applicationName, "applicationName");
+
         if (timestamp < 0) {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
@@ -253,9 +249,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public AgentInfo getAgentInfo(String agentId, long timestamp) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+
         if (timestamp < 0) {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
@@ -268,9 +263,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public AgentStatus getAgentStatus(String agentId, long timestamp) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+
         if (timestamp < 0) {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }

@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.common.server.util;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 
+import java.util.Objects;
+
 import static com.navercorp.pinpoint.common.PinpointConstants.AGENT_NAME_MAX_LEN;
 import static com.navercorp.pinpoint.common.util.BytesUtils.INT_BYTE_LENGTH;
 import static com.navercorp.pinpoint.common.util.BytesUtils.LONG_BYTE_LENGTH;
@@ -32,9 +34,8 @@ public final class RowKeyUtils {
     }
 
     public static byte[] concatFixedByteAndLong(byte[] fixedBytes, int maxFixedLength, long l) {
-        if (fixedBytes == null) {
-            throw new NullPointerException("fixedBytes must not null");
-        }
+        Objects.requireNonNull(fixedBytes, "fixedBytes");
+
         if (fixedBytes.length > maxFixedLength) {
             throw new IndexOutOfBoundsException("fixedBytes.length too big. length:" + fixedBytes.length);
         }
@@ -46,9 +47,7 @@ public final class RowKeyUtils {
 
 
     public static byte[] getMetaInfoRowKey(String agentId, long agentStartTime, int keyCode) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
+        Objects.requireNonNull(agentId, "agentId");
 
         final byte[] agentBytes = BytesUtils.toBytes(agentId);
         if (agentBytes.length > AGENT_NAME_MAX_LEN) {

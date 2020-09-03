@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.util;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -31,9 +32,8 @@ public class AtomicLongUpdateMap<T> {
 
 
     public boolean update(final T cacheKey, final long time) {
-        if (cacheKey == null) {
-            throw new NullPointerException("cacheKey");
-        }
+        Objects.requireNonNull(cacheKey, "cacheKey");
+
         final AtomicLong hitSlot = cache.get(cacheKey);
         if (hitSlot == null ) {
             final AtomicLong newTime = new AtomicLong(time);

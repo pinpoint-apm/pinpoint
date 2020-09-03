@@ -165,9 +165,7 @@ public class Histogram {
     }
 
     public long getCount(SlotType slotType) {
-        if (slotType == null) {
-            throw new NullPointerException("slotType");
-        }
+        Objects.requireNonNull(slotType, "slotType");
 
         switch (slotType) {
             case FAST:
@@ -194,9 +192,8 @@ public class Histogram {
     }
 
     public void add(final Histogram histogram) {
-        if (histogram == null) {
-            throw new NullPointerException("histogram");
-        }
+        Objects.requireNonNull(histogram, "histogram");
+
         if (this.schema != histogram.schema) {
             throw new IllegalArgumentException("schema not equals. this=" + this + ", histogram=" + histogram);
 

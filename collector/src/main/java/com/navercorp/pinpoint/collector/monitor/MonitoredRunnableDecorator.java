@@ -50,9 +50,8 @@ public class MonitoredRunnableDecorator implements RunnableDecorator {
 
     @Override
     public Runnable decorate(Runnable runnable) {
-        if (runnable == null) {
-            throw new NullPointerException("runnable");
-        }
+        Objects.requireNonNull(runnable, "runnable");
+
         submitted.mark();
         return instrument(runnable);
     }
@@ -64,9 +63,7 @@ public class MonitoredRunnableDecorator implements RunnableDecorator {
 
     @Override
     public <T> Callable<T> decorate(Callable<T> task) {
-        if (task == null) {
-            throw new NullPointerException("task");
-        }
+        Objects.requireNonNull(task, "task");
 
         submitted.mark();
         return instrument(task);
@@ -79,9 +76,8 @@ public class MonitoredRunnableDecorator implements RunnableDecorator {
 
     @Override
     public <T> Collection<? extends Callable<T>> decorate(Collection<? extends Callable<T>> tasks) {
-        if (tasks == null) {
-            throw new NullPointerException("tasks");
-        }
+        Objects.requireNonNull(tasks, "tasks");
+
         submitted.mark(tasks.size());
         return instrument(tasks);
     }

@@ -127,9 +127,8 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Map<String, List<Application>> getInactiveAgents(String applicationName, int durationDays) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
+        Objects.requireNonNull(applicationName, "applicationName");
+
         if (durationDays < MIN_DURATION_DAYS_FOR_INACTIVITY) {
             throw new IllegalArgumentException("duration may not be less than " + MIN_DURATION_DAYS_FOR_INACTIVITY + " days");
         }

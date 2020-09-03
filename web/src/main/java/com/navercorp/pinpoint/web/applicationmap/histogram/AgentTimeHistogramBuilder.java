@@ -55,16 +55,14 @@ public class AgentTimeHistogramBuilder {
     }
 
     public AgentTimeHistogram buildSource(LinkCallDataMap linkCallDataMap) {
-        if (linkCallDataMap == null) {
-            throw new NullPointerException("linkCallDataMap");
-        }
+        Objects.requireNonNull(linkCallDataMap, "linkCallDataMap");
+
         return build(linkCallDataMap.getSourceList());
     }
 
     public AgentTimeHistogram buildTarget(LinkCallDataMap linkCallDataMap) {
-        if (linkCallDataMap == null) {
-            throw new NullPointerException("linkCallDataMap");
-        }
+        Objects.requireNonNull(linkCallDataMap, "linkCallDataMap");
+
         return build(linkCallDataMap.getTargetList());
     }
 

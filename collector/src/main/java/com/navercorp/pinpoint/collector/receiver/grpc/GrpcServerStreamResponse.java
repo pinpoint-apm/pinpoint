@@ -33,9 +33,8 @@ public class GrpcServerStreamResponse<T>  implements ServerResponse<T> {
 
     @Override
     public void write(final T message) {
-        if (message == null) {
-            throw new NullPointerException("message");
-        }
+        Objects.requireNonNull(message, "message");
+
         responseObserver.onNext(message);
     }
 }
