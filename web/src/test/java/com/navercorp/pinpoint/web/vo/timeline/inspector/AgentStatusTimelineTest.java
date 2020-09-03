@@ -417,9 +417,7 @@ public class AgentStatusTimelineTest {
     }
 
     private AgentStatus createAgentStatus(long timestamp, AgentLifeCycleState state) {
-        AgentStatus agentStatus = new AgentStatus("testAgent");
-        agentStatus.setEventTimestamp(timestamp);
-        agentStatus.setState(state);
+        AgentStatus agentStatus = new AgentStatus("testAgent", state, timestamp);
         return agentStatus;
     }
 

@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
@@ -96,7 +97,9 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public ApplicationAgentsList getAllApplicationAgentsList(ApplicationAgentsList.Filter filter, long timestamp) {
+    public ApplicationAgentsList getAllApplicationAgentsList(AgentInfoFilter filter, long timestamp) {
+        Objects.requireNonNull(filter, "filter");
+
         ApplicationAgentsList.GroupBy groupBy = ApplicationAgentsList.GroupBy.APPLICATION_NAME;
         ApplicationAgentsList applicationAgentList = new ApplicationAgentsList(groupBy, filter);
         List<Application> applications = applicationIndexDao.selectAllApplicationNames();
@@ -107,9 +110,10 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public ApplicationAgentsList getApplicationAgentsList(ApplicationAgentsList.GroupBy groupBy, ApplicationAgentsList.Filter filter, String applicationName, long timestamp) {
-        Objects.requireNonNull(applicationName, "applicationName");
+    public ApplicationAgentsList getApplicationAgentsList(ApplicationAgentsList.GroupBy groupBy, AgentInfoFilter filter, String applicationName, long timestamp) {
         Objects.requireNonNull(groupBy, "groupBy");
+        Objects.requireNonNull(filter, "filter");
+        Objects.requireNonNull(applicationName, "applicationName");
 
         ApplicationAgentsList applicationAgentsList = new ApplicationAgentsList(groupBy, filter);
         Set<AgentInfo> agentInfos = getAgentsByApplicationName(applicationName, timestamp);
@@ -213,7 +217,6 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     @Override
     public Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, long timestamp) {
         Objects.requireNonNull(applicationName, "applicationName");
-
         if (timestamp < 0) {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }

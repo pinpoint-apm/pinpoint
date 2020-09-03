@@ -88,27 +88,18 @@ public class ApplicationAgentsList {
         String value();
     }
 
-    public interface Filter {
-
-        boolean ACCEPT = true;
-        boolean REJECT = false;
-
-        boolean filter(AgentInfo agentInfo);
-
-        Filter NONE = agentInfo -> ACCEPT;
-    }
 
     private final GroupBy groupBy;
-    private final Filter filter;
+    private final AgentInfoFilter filter;
     private final SortedMap<GroupingKey, List<AgentInfo>> agentsMap = new TreeMap<>();
 
-    public ApplicationAgentsList(GroupBy groupBy, Filter filter) {
+    public ApplicationAgentsList(GroupBy groupBy, AgentInfoFilter filter) {
         this.groupBy = Objects.requireNonNull(groupBy, "groupBy");
         this.filter = Objects.requireNonNull(filter, "filter");
     }
 
     public void add(AgentInfo agentInfo) {
-        if (filter.filter(agentInfo) == Filter.REJECT) {
+        if (filter.filter(agentInfo) == AgentInfoFilter.REJECT) {
             return;
         }
         GroupingKey key = groupBy.extractKey(agentInfo);

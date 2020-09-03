@@ -141,11 +141,9 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
     private AgentStatus createAgentStatus(String agentId, AgentLifeCycleBo agentLifeCycle) {
         if (agentLifeCycle == null) {
-            AgentStatus agentStatus = new AgentStatus(agentId);
-            agentStatus.setState(AgentLifeCycleState.UNKNOWN);
-            return agentStatus;
+            return new AgentStatus(agentId, AgentLifeCycleState.UNKNOWN, 0);
         } else {
-            return new AgentStatus(agentLifeCycle);
+            return new AgentStatus(agentLifeCycle.getAgentId(), agentLifeCycle.getAgentLifeCycleState(), agentLifeCycle.getEventTimestamp());
         }
     }
 
