@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.util;
 
 import java.util.LinkedList;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -26,9 +27,7 @@ public class Stack<T> {
     private final LinkedList<T> stack = new LinkedList<>();
 
     public void push(T obj) {
-        if (obj == null) {
-            throw new NullPointerException("obj");
-        }
+        Objects.requireNonNull(obj, "obj");
 
         stack.add(obj);
     }

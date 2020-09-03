@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.collector.util;
 import org.slf4j.Logger;
 import org.slf4j.spi.LocationAwareLogger;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -40,9 +42,8 @@ public final class LoggerUtils {
     }
 
     public static int getLoggerLevel(Logger logger) {
-        if (logger == null) {
-            throw new NullPointerException("logger");
-        }
+        Objects.requireNonNull(logger, "logger");
+
         if (logger.isTraceEnabled()) {
             return TRACE_LEVEL;
         }

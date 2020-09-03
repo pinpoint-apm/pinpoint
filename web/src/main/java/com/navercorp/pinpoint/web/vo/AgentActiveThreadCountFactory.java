@@ -24,6 +24,7 @@ import org.apache.thrift.TBase;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -42,9 +43,7 @@ public class AgentActiveThreadCountFactory {
     }
 
     public AgentActiveThreadCount create(TBase<?, ?> value) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
+        Objects.requireNonNull(value, "value");
 
         if (value instanceof TCmdActiveThreadCountRes) {
             TCmdActiveThreadCountRes response = (TCmdActiveThreadCountRes) value;
@@ -69,9 +68,7 @@ public class AgentActiveThreadCountFactory {
     }
 
     public AgentActiveThreadCount createFail(short code, String message) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
+        Objects.requireNonNull(code, "code");
 
         return createFail0(code, message);
     }

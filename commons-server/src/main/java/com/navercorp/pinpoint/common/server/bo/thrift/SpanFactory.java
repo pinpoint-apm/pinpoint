@@ -46,6 +46,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -371,9 +372,7 @@ public class SpanFactory {
 
     // for test
     public SpanEventBo buildSpanEventBo(TSpanEvent tSpanEvent) {
-        if (tSpanEvent == null) {
-            throw new NullPointerException("tSpanEvent");
-        }
+        Objects.requireNonNull(tSpanEvent, "tSpanEvent");
 
         final SpanEventBo spanEvent = new SpanEventBo();
         bind(spanEvent, tSpanEvent);
@@ -381,9 +380,8 @@ public class SpanFactory {
     }
 
     private AnnotationBo newAnnotationBo(TAnnotation tAnnotation) {
-        if (tAnnotation == null) {
-            throw new NullPointerException("annotation");
-        }
+        Objects.requireNonNull(tAnnotation, "tAnnotation");
+
         AnnotationBo annotationBo = annotationFactory.buildAnnotation(tAnnotation);
         return annotationBo;
     }

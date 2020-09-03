@@ -24,6 +24,7 @@ import org.apache.thrift.TException;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -40,9 +41,7 @@ public class AgentEventMessageSerializer {
     }
 
     public byte[] serialize(AgentEventType agentEventType, Object eventMessage) throws UnsupportedEncodingException {
-        if (agentEventType == null) {
-            throw new NullPointerException("agentEventType");
-        }
+        Objects.requireNonNull(agentEventType, "agentEventType");
 
         Class<?> eventMessageType = agentEventType.getMessageType();
         if (eventMessageType == Void.class) {

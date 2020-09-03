@@ -98,9 +98,8 @@ public class AgentHistogramList {
 
 
     public void addAgentHistogram(AgentHistogram agentHistogram) {
-        if (agentHistogram == null) {
-            throw new NullPointerException("agentHistogram");
-        }
+        Objects.requireNonNull(agentHistogram, "agentHistogram");
+
         final String hostName = agentHistogram.getId();
         ServiceType serviceType = agentHistogram.getServiceType();
 
@@ -110,9 +109,8 @@ public class AgentHistogramList {
     }
 
     public void addAgentHistogram(AgentHistogramList addAgentHistogramList) {
-        if (addAgentHistogramList == null) {
-            throw new NullPointerException("agentHistogram");
-        }
+        Objects.requireNonNull(addAgentHistogramList, "addAgentHistogramList");
+
         for (AgentHistogram agentHistogram : addAgentHistogramList.agentHistogramMap.values()) {
             addAgentHistogram(agentHistogram);
         }

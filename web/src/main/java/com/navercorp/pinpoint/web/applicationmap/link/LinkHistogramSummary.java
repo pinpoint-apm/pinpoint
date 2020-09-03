@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.view.LinkHistogramSummarySerializer;
 import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -34,9 +35,8 @@ public class LinkHistogramSummary {
     private final List<ResponseTimeViewModel> timeSeriesHistogram;
 
     public LinkHistogramSummary(Link link) {
-        if (link == null) {
-            throw new NullPointerException("link");
-        }
+        Objects.requireNonNull(link, "link");
+
         linkName = link.getLinkName();
         histogram = link.getHistogram();
         timeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();

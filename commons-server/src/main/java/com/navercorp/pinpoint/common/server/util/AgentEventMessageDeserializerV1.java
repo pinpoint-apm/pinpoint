@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.thrift.dto.TDeadlock;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -36,9 +37,8 @@ import java.util.List;
 public class AgentEventMessageDeserializerV1 {
 
     public Object deserialize(AgentEventType agentEventType, byte[] eventBody) throws UnsupportedEncodingException {
-        if (agentEventType == null) {
-            throw new NullPointerException("agentEventType");
-        }
+        Objects.requireNonNull(agentEventType, "agentEventType");
+
         Class<?> eventMessageType = agentEventType.getMessageType();
         if (eventMessageType == Void.class) {
             return null;

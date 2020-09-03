@@ -39,12 +39,9 @@ public class CpuLoadService implements AgentStatService<CpuLoadBo> {
 
     @Override
     public List<CpuLoadBo> selectAgentStatList(String agentId, Range range) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(cpuLoadDao, "cpuLoadDao");
+
         return this.cpuLoadDao.getAgentStatList(agentId, range);
     }
 }

@@ -47,9 +47,7 @@ public class ApplicationTimeHistogramBuilder {
     }
 
     public ApplicationTimeHistogram build(List<ResponseTime> responseHistogramList) {
-        if (responseHistogramList == null) {
-            throw new NullPointerException("responseHistogramList");
-        }
+        Objects.requireNonNull(responseHistogramList, "responseHistogramList");
 
         Map<Long, TimeHistogram> applicationLevelHistogram = new HashMap<>();
 

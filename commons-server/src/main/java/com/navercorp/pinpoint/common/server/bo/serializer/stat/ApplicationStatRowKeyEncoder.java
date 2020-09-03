@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 import static com.navercorp.pinpoint.common.hbase.HbaseTableConstants.APPLICATION_NAME_MAX_LEN;
 
 /**
@@ -31,9 +33,8 @@ public class ApplicationStatRowKeyEncoder implements RowKeyEncoder<ApplicationSt
 
     @Override
     public byte[] encodeRowKey(ApplicationStatRowKeyComponent component) {
-        if (component == null) {
-            throw new NullPointerException("component");
-        }
+        Objects.requireNonNull(component, "component");
+
         byte[] bApplicationId = BytesUtils.toBytes(component.getApplicationId());
         byte[] bStatType = new byte[]{component.getStatType().getRawTypeCode()};
         byte[] rowKey = new byte[APPLICATION_NAME_MAX_LEN + bStatType.length + BytesUtils.LONG_BYTE_LENGTH];

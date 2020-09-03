@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.link;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -32,10 +33,7 @@ public abstract class MatcherGroup {
     }
 
     public void setDefaultMatcher(ServerMatcher defaultMatcher) {
-        if (defaultMatcher == null) {
-            throw new NullPointerException("defaultMatcher");
-        }
-        this.defaultMatcher = defaultMatcher;
+        this.defaultMatcher = Objects.requireNonNull(defaultMatcher, "defaultMatcher");
     }
     
     public ServerMatcher getDefaultMatcher() {
@@ -43,9 +41,8 @@ public abstract class MatcherGroup {
     }
 
     public void addServerMatcher(ServerMatcher serverMatcher) {
-        if (serverMatcher == null) {
-            throw new NullPointerException("serverMatcher");
-        }
+        Objects.requireNonNull(serverMatcher, "serverMatcher");
+
         serverMatcherList.add(serverMatcher);
     }
     
@@ -61,10 +58,9 @@ public abstract class MatcherGroup {
     public LinkInfo makeLinkInfo(Object data) {
         ServerMatcher serverMatcher = defaultMatcher;
         String value = getMatchingSource(data);
-        
-        if (value == null) {
-            throw new NullPointerException("link source to make link information");
-        }
+
+        Objects.requireNonNull(value, "value");
+
 
         for (ServerMatcher matcher : serverMatcherList) {
             if(matcher.isMatched(value)) {

@@ -91,9 +91,8 @@ public class LinkCallData {
     }
 
     public void addRawCallData(LinkCallData copyLinkCallData) {
-        if (copyLinkCallData == null) {
-            throw new NullPointerException("copyLinkCallData");
-        }
+        Objects.requireNonNull(copyLinkCallData, "copyLinkCallData");
+
         if (!this.source.equals(copyLinkCallData.source)) {
             throw new IllegalArgumentException("source not equals");
         }

@@ -48,9 +48,7 @@ public class AgentHistogram {
     }
 
     public AgentHistogram(AgentHistogram copyAgentHistogram) {
-        if (copyAgentHistogram == null) {
-            throw new NullPointerException("copyAgentHistogram");
-        }
+        Objects.requireNonNull(copyAgentHistogram, "copyAgentHistogram");
 
         this.agentId = copyAgentHistogram.agentId;
 
@@ -97,9 +95,8 @@ public class AgentHistogram {
     }
 
     public void addTimeHistogram(Collection<TimeHistogram> histogramList) {
-        if (histogramList == null) {
-            throw new NullPointerException("histogramList");
-        }
+        Objects.requireNonNull(histogramList, "histogramList");
+
         for (TimeHistogram timeHistogram : histogramList) {
             addTimeHistogram(timeHistogram);
         }

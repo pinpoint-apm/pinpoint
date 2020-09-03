@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -29,10 +31,7 @@ public class ApplicationFilter implements LinkDataMapProcessor {
     private final Application application;
 
     public ApplicationFilter(Application application) {
-        if (application == null) {
-            throw new NullPointerException("application");
-        }
-        this.application = application;
+        this.application = Objects.requireNonNull(application, "application");
     }
 
     @Override

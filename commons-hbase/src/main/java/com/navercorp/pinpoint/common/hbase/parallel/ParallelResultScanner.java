@@ -44,15 +44,10 @@ public class ParallelResultScanner implements ResultScanner {
     private Result next = null;
 
     public ParallelResultScanner(TableName tableName, HbaseAccessor hbaseAccessor, ExecutorService executor, Scan originalScan, AbstractRowKeyDistributor keyDistributor, int numParallelThreads) throws IOException {
-        if (hbaseAccessor == null) {
-            throw new NullPointerException("hbaseAccessor");
-        }
-        if (executor == null) {
-            throw new NullPointerException("executor");
-        }
-        if (originalScan == null) {
-            throw new NullPointerException("originalScan");
-        }
+        Objects.requireNonNull(hbaseAccessor, "hbaseAccessor");
+        Objects.requireNonNull(executor, "executor");
+        Objects.requireNonNull(originalScan, "originalScan");
+
         this.keyDistributor = Objects.requireNonNull(keyDistributor, "keyDistributor");
 
         final ScanTaskConfig scanTaskConfig = new ScanTaskConfig(tableName, hbaseAccessor, keyDistributor, originalScan.getCaching());

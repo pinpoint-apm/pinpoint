@@ -85,12 +85,9 @@ public class MapServiceImpl implements MapService {
      */
     @Override
     public ApplicationMap selectApplicationMap(Application sourceApplication, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType) {
-        if (sourceApplication == null) {
-            throw new NullPointerException("sourceApplication");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
+        Objects.requireNonNull(sourceApplication, "sourceApplication");
+        Objects.requireNonNull(range, "range");
+
         logger.debug("SelectApplicationMap");
 
         StopWatch watch = new StopWatch("ApplicationMap");

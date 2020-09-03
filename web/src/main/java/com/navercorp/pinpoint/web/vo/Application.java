@@ -53,12 +53,9 @@ public final class Application {
     }
 
     public boolean equals(String thatName, ServiceType thatServiceType) {
-        if (thatName == null) {
-            throw new NullPointerException("thatName");
-        }
-        if (thatServiceType == null) {
-            throw new NullPointerException("thatServiceType");
-        }
+        Objects.requireNonNull(thatName, "thatName");
+        Objects.requireNonNull(thatServiceType, "thatServiceType");
+
         if (!name.equals(thatName)) return false;
         return serviceType.equals(thatServiceType);
     }

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -33,16 +34,14 @@ public class DestinationApplicationFilter implements LinkDataMapProcessor {
     private final Set<Application> destinationApplications;
 
     public DestinationApplicationFilter(Application destinationApplication) {
-        if (destinationApplication == null) {
-            throw new NullPointerException("destinationApplication");
-        }
+        Objects.requireNonNull(destinationApplication, "destinationApplication");
+
         this.destinationApplications = Sets.newHashSet(destinationApplication);
     }
 
     public DestinationApplicationFilter(Collection<Application> destinationApplications) {
-        if (destinationApplications == null) {
-            throw new NullPointerException("destinationApplications");
-        }
+        Objects.requireNonNull(destinationApplications, "destinationApplications");
+
         this.destinationApplications = Sets.newHashSet(destinationApplications);
     }
 

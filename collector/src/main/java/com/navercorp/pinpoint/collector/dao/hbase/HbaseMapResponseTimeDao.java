@@ -122,12 +122,9 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
     }
 
     private void increment(byte[] rowKey, byte[] columnName, long increment) {
-        if (rowKey == null) {
-            throw new NullPointerException("rowKey");
-        }
-        if (columnName == null) {
-            throw new NullPointerException("columnName");
-        }
+        Objects.requireNonNull(rowKey, "rowKey");
+        Objects.requireNonNull(columnName, "columnName");
+
         TableName mapStatisticsSelfTableName = descriptor.getTableName();
         hbaseTemplate.incrementColumnValue(mapStatisticsSelfTableName, rowKey, descriptor.getColumnFamilyName(), columnName, increment);
     }

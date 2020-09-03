@@ -128,12 +128,9 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
     }
 
     private void increment(byte[] rowKey, byte[] columnName, long increment) {
-        if (rowKey == null) {
-            throw new NullPointerException("rowKey");
-        }
-        if (columnName == null) {
-            throw new NullPointerException("columnName");
-        }
+        Objects.requireNonNull(rowKey, "rowKey");
+        Objects.requireNonNull(columnName, "columnName");
+
         TableName mapStatisticsCallerTableName = descriptor.getTableName();
         hbaseTemplate.incrementColumnValue(mapStatisticsCallerTableName, rowKey, descriptor.getColumnFamilyName(), columnName, increment);
     }

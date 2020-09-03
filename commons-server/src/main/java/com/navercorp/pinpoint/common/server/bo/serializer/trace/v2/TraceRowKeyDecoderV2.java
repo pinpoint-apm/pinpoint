@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -44,9 +46,7 @@ public class TraceRowKeyDecoderV2 implements RowKeyDecoder<TransactionId> {
 
     @Override
     public TransactionId decodeRowKey(byte[] rowkey) {
-        if (rowkey == null) {
-            throw new NullPointerException("rowkey");
-        }
+        Objects.requireNonNull(rowkey, "rowkey");
 
         return readTransactionId(rowkey, distributeHashSize);
     }

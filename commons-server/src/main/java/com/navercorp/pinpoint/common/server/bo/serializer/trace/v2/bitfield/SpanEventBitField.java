@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.profiler.encoding.BitFieldUtils;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -51,9 +52,8 @@ public class SpanEventBitField {
 
 
     public static SpanEventBitField buildFirst(SpanEventBo spanEventBo) {
-        if (spanEventBo == null) {
-            throw new NullPointerException("spanEventBo");
-        }
+        Objects.requireNonNull(spanEventBo, "spanEventBo");
+
         final SpanEventBitField bitFiled = new SpanEventBitField();
 
         if (spanEventBo.getRpc() != null) {
@@ -94,12 +94,8 @@ public class SpanEventBitField {
     }
 
     public static SpanEventBitField build(SpanEventBo spanEventBo, SpanEventBo prevSpanEventBo) {
-        if (spanEventBo == null) {
-            throw new NullPointerException("spanEventBo");
-        }
-        if (prevSpanEventBo == null) {
-            throw new NullPointerException("prevSpanEventBo");
-        }
+        Objects.requireNonNull(spanEventBo, "spanEventBo");
+        Objects.requireNonNull(prevSpanEventBo, "prevSpanEventBo");
 
         final SpanEventBitField bitFiled = buildFirst(spanEventBo);
 

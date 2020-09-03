@@ -34,9 +34,7 @@ public class LinkList {
     }
 
     public void addLinkList(LinkList linkList) {
-        if (linkList == null) {
-            throw new NullPointerException("linkList");
-        }
+        Objects.requireNonNull(linkList, "linkList");
 
         for (Link link : linkList.getLinkList()) {
             addLink(link);
@@ -49,9 +47,7 @@ public class LinkList {
      * @return
      */
     public List<Link> findToLink(Application toApplication) {
-        if (toApplication == null) {
-            throw new NullPointerException("toApplication");
-        }
+        Objects.requireNonNull(toApplication, "toApplication");
 
         List<Link> findList = new ArrayList<>();
         for (Link link : linkMap.values()) {
@@ -70,9 +66,7 @@ public class LinkList {
      * @return
      */
     public List<Link> findFromLink(Application fromApplication) {
-        if (fromApplication == null) {
-            throw new NullPointerException("fromApplication");
-        }
+        Objects.requireNonNull(fromApplication, "fromApplication");
 
         List<Link> findList = new ArrayList<>();
         for (Link link : linkMap.values()) {
@@ -86,9 +80,7 @@ public class LinkList {
     }
 
     public boolean addLink(Link link) {
-        if (link == null) {
-            throw new NullPointerException("link");
-        }
+        Objects.requireNonNull(link, "link");
 
         final LinkKey linkId = link.getLinkKey();
         final Link find = this.linkMap.get(linkId);
@@ -103,9 +95,8 @@ public class LinkList {
     }
 
     public boolean containsNode(Link link) {
-        if (link == null) {
-            throw new NullPointerException("linkKey");
-        }
+        Objects.requireNonNull(link, "link");
+
         return linkMap.containsKey(link.getLinkKey());
     }
 

@@ -20,6 +20,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -39,9 +40,7 @@ public class ApiDescriptionParser {
 
     // org.apache.catalina.core.StandardHostValve.invoke(org.apache.catalina.connector.Request request, org.apache.catalina.connector.Response response):110
     public ApiDescription parse(String apiDescriptionString) {
-        if (apiDescriptionString == null) {
-            throw new NullPointerException("apiDescriptionString");
-        }
+        Objects.requireNonNull(apiDescriptionString, "apiDescriptionString");
 
         final int methodStart = apiDescriptionString.lastIndexOf(METHOD_PARAM_START);
         if (methodStart == -1) {

@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -51,9 +52,8 @@ public class ResponseHistograms {
         private final Map<Long, Map<Application, ResponseTime>> responseTimeApplicationMap = new HashMap<>();
 
         public Builder(Range range) {
-            if (range == null) {
-                throw new NullPointerException("range");
-            }
+            Objects.requireNonNull(range, "range");
+
             // don't sample for now
             this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         }

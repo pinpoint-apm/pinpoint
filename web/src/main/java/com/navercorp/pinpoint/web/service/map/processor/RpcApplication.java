@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.service.map.processor;
 
 import com.navercorp.pinpoint.web.vo.Application;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -26,15 +28,8 @@ class RpcApplication {
     private final Application application;
 
     RpcApplication(String rpcUrl, Application sourceApplication) {
-        if (rpcUrl == null) {
-            throw new NullPointerException("rpcUrl");
-        }
-        if (sourceApplication == null) {
-            throw new NullPointerException("sourceApplication");
-        }
-
-        this.host = rpcUrl;
-        this.application = sourceApplication;
+        this.host = Objects.requireNonNull(rpcUrl, "rpcUrl");
+        this.application = Objects.requireNonNull(sourceApplication, "sourceApplication");
     }
 
     public String getHost() {
