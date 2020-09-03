@@ -105,8 +105,7 @@ public class ApplicationMapBuilderTest {
             public Set<AgentInfo> answer(InvocationOnMock invocation) throws Throwable {
                 String applicationName = invocation.getArgument(0);
                 AgentInfo agentInfo = ApplicationMapBuilderTestHelper.createAgentInfoFromApplicationName(applicationName);
-                AgentStatus agentStatus = new AgentStatus(agentInfo.getAgentId());
-                agentStatus.setState(AgentLifeCycleState.RUNNING);
+                AgentStatus agentStatus = new AgentStatus(agentInfo.getAgentId(), AgentLifeCycleState.RUNNING, 0);
                 agentInfo.setStatus(agentStatus);
                 Set<AgentInfo> agentInfos = new HashSet<>();
                 agentInfos.add(agentInfo);
@@ -127,9 +126,7 @@ public class ApplicationMapBuilderTest {
             @Override
             public AgentStatus answer(InvocationOnMock invocation) throws Throwable {
                 String agentId = invocation.getArgument(0);
-                AgentStatus agentStatus = new AgentStatus(agentId);
-                agentStatus.setEventTimestamp(System.currentTimeMillis());
-                agentStatus.setState(AgentLifeCycleState.RUNNING);
+                AgentStatus agentStatus = new AgentStatus(agentId, AgentLifeCycleState.RUNNING, System.currentTimeMillis());
                 return agentStatus;
             }
         });
@@ -138,9 +135,7 @@ public class ApplicationMapBuilderTest {
             public Void answer(InvocationOnMock invocation) throws Throwable {
                 Collection<AgentInfo> agentInfos = invocation.getArgument(0);
                 for (AgentInfo agentInfo : agentInfos) {
-                    AgentStatus agentStatus = new AgentStatus(agentInfo.getAgentId());
-                    agentStatus.setEventTimestamp(System.currentTimeMillis());
-                    agentStatus.setState(AgentLifeCycleState.RUNNING);
+                    AgentStatus agentStatus = new AgentStatus(agentInfo.getAgentId(), AgentLifeCycleState.RUNNING, System.currentTimeMillis());
                     agentInfo.setStatus(agentStatus);
                 }
                 return null;

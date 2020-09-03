@@ -17,9 +17,10 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.view.AgentLifeCycleStateSerializer;
+
+import java.util.Objects;
 
 /**
  * 
@@ -33,16 +34,12 @@ public class AgentStatus {
     private long eventTimestamp;
 
     @JsonSerialize(using = AgentLifeCycleStateSerializer.class)
-    private AgentLifeCycleState state = AgentLifeCycleState.UNKNOWN;
+    private final AgentLifeCycleState state;
 
-    public AgentStatus(String agentId) {
-        this.agentId = agentId;
-    }
-
-    public AgentStatus(AgentLifeCycleBo agentLifeCycleBo) {
-        this.agentId = agentLifeCycleBo.getAgentId();
-        this.eventTimestamp = agentLifeCycleBo.getEventTimestamp();
-        this.state = agentLifeCycleBo.getAgentLifeCycleState();
+    public AgentStatus(String agentId, AgentLifeCycleState state, long eventTimestamp) {
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.state = Objects.requireNonNull(state, "state");
+        this.eventTimestamp = eventTimestamp;
     }
 
     public String getAgentId() {
@@ -53,47 +50,28 @@ public class AgentStatus {
         return eventTimestamp;
     }
 
-    public void setEventTimestamp(long eventTimestamp) {
-        this.eventTimestamp = eventTimestamp;
-    }
-
     public AgentLifeCycleState getState() {
         return state;
     }
 
-    public void setState(AgentLifeCycleState state) {
-        this.state = state;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AgentStatus that = (AgentStatus) o;
+
+        if (eventTimestamp != that.eventTimestamp) return false;
+        if (!agentId.equals(that.agentId)) return false;
+        return state == that.state;
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((agentId == null) ? 0 : agentId.hashCode());
-        result = prime * result + (int)(eventTimestamp ^ (eventTimestamp >>> 32));
-        result = prime * result + ((state == null) ? 0 : state.hashCode());
+        int result = agentId.hashCode();
+        result = 31 * result + (int) (eventTimestamp ^ (eventTimestamp >>> 32));
+        result = 31 * result + state.hashCode();
         return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        AgentStatus other = (AgentStatus)obj;
-        if (agentId == null) {
-            if (other.agentId != null)
-                return false;
-        } else if (!agentId.equals(other.agentId))
-            return false;
-        if (eventTimestamp != other.eventTimestamp)
-            return false;
-        if (state != other.state)
-            return false;
-        return true;
     }
 
     @Override
