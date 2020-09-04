@@ -67,7 +67,7 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            if (valicateThreadContextMethod(instrumentor, loader) == false) {
+            if (!validateThreadContextMethod(instrumentor, loader)) {
                 return null;
             }
 
@@ -91,7 +91,7 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            if (valicateThreadContextMethod(instrumentor, loader) == false) {
+            if (!validateThreadContextMethod(instrumentor, loader)) {
                 return null;
             }
 
@@ -115,7 +115,7 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            if (valicateThreadContextMethod(instrumentor, loader) == false) {
+            if (!validateThreadContextMethod(instrumentor, loader)) {
                 return null;
             }
 
@@ -137,7 +137,7 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
     public static abstract class LogEventFactoryTransform implements TransformCallback {
         private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-        protected boolean valicateThreadContextMethod(Instrumentor instrumentor, ClassLoader loader) {
+        protected boolean validateThreadContextMethod(Instrumentor instrumentor, ClassLoader loader) {
             InstrumentClass mdcClass = instrumentor.getInstrumentClass(loader, "org.apache.logging.log4j.ThreadContext", null);
 
             if (mdcClass == null) {
