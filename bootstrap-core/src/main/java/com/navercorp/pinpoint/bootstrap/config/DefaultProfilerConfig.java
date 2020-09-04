@@ -75,6 +75,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         }
     }
 
+    // For test
     public static ProfilerConfig load(String pinpointConfigFileName) throws IOException {
         final Properties properties = loadProperties(pinpointConfigFileName);
         return new DefaultProfilerConfig(properties);
@@ -168,12 +169,30 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private boolean customMetricEnable = false;
     private int customMetricLimitSize = 10;
+    private static DefaultProfilerConfig defaultProfilerConfig;
 
+    public static DefaultProfilerConfig getInstance () {
+        return getInstance(null);
+    }
+
+    public static DefaultProfilerConfig getInstance (Properties properties) {
+        if (defaultProfilerConfig == null) {
+            synchronized(DefaultProfilerConfig.class) {
+                if (defaultProfilerConfig == null) {
+                    defaultProfilerConfig = new DefaultProfilerConfig(properties);
+                }
+            }
+        }
+        return defaultProfilerConfig;
+    }
+
+    // For test
     public DefaultProfilerConfig() {
         this.properties = new Properties();
         this.thriftTransportConfig = new DefaultThriftTransportConfig();
     }
 
+    // For test
     public DefaultProfilerConfig(Properties properties) {
         if (properties == null) {
             throw new NullPointerException("properties");

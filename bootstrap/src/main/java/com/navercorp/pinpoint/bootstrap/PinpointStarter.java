@@ -109,7 +109,8 @@ class PinpointStarter {
         try {
             final Properties properties = loadProperties();
 
-            ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+            // ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+            ProfilerConfig profilerConfig = DefaultProfilerConfig.getInstance(properties);
 
             // set the path of log file as a system property
             saveLogFilePath(agentDirectory);
