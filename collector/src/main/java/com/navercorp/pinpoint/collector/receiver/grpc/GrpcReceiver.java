@@ -35,8 +35,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.NestedExceptionUtils;
 
 import java.io.Closeable;
+import java.net.BindException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -113,7 +115,17 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         if (logger.isInfoEnabled()) {
             logger.info("Start {} server {}", this.beanName, this.server);
         }
-        this.server.start();
+        try {
+            this.server.start();
+        } catch (Throwable th) {
+            final Throwable rootCause = NestedExceptionUtils.getRootCause(th);
+            if (rootCause instanceof BindException) {
+                logger.error("Server bind failed. {} address:{}/{}", this.beanName, this.bindIp, this.bindPort, rootCause);
+            } else {
+                logger.error("Server start failed. {} address:{}/{}", this.beanName, this.bindIp, this.bindPort);
+            }
+            throw th;
+        }
     }
 
     private void addService() {
