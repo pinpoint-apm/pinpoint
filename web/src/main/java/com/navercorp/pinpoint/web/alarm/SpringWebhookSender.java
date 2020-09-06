@@ -15,10 +15,12 @@
  */
 package com.navercorp.pinpoint.web.alarm;
 
-import com.navercorp.pinpoint.web.alarm.checker.AgentChecker;
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
+import com.navercorp.pinpoint.web.alarm.vo.UserGroupMemberPayload;
+import com.navercorp.pinpoint.web.alarm.vo.UserMember;
 import com.navercorp.pinpoint.web.alarm.vo.WebhookPayload;
 import com.navercorp.pinpoint.web.batch.BatchConfiguration;
+import com.navercorp.pinpoint.web.service.UserGroupService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepExecution;
@@ -29,24 +31,24 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class SpringWebhookSender implements WebhookSender {
-    
-    private static final String CHECKER_TYPE = "Checker-Type";
-    private static final String AGENT_CHECKER = "AgentChecker";
-    private static final String ALARM_CHECKER = "AlarmChecker";
-    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final BatchConfiguration batchConfiguration;
+    private final UserGroupService userGroupService;
     private final RestTemplate springRestTemplate;
     private final String webhookReceiverUrl;
     private final boolean webhookEnable;
     
-    public SpringWebhookSender(BatchConfiguration batchConfiguration, RestTemplate springRestTemplate) {
+    public SpringWebhookSender(BatchConfiguration batchConfiguration, UserGroupService userGroupService, RestTemplate springRestTemplate) {
         Objects.requireNonNull(batchConfiguration, "batchConfiguration");
         Objects.requireNonNull(springRestTemplate, "springRestTemplate");
+        Objects.requireNonNull(userGroupService, "userGroupService");
         
+        this.userGroupService = userGroupService;
         this.batchConfiguration = batchConfiguration;
         this.webhookReceiverUrl = batchConfiguration.getWebhookReceiverUrl();
         this.webhookEnable = batchConfiguration.getWebhookEnable();
@@ -63,15 +65,15 @@ public class SpringWebhookSender implements WebhookSender {
         }
         
         try {
-            WebhookPayload webhookPayload = new WebhookPayload(checker, batchConfiguration, sequenceCount);
+            List<UserMember> userMembers = userGroupService.selectMember(checker.getRule().getUserGroupId())
+                    .stream()
+                    .map((UserMember::new))
+                    .collect(Collectors.toList());
+            UserGroupMemberPayload userGroupMemberPayload = new UserGroupMemberPayload(checker.getRule().getUserGroupId(), userMembers);
+            
+            WebhookPayload webhookPayload = new WebhookPayload(checker, batchConfiguration, sequenceCount, userGroupMemberPayload);
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-            
-            if (checker instanceof AgentChecker) {
-                httpHeaders.set(CHECKER_TYPE, AGENT_CHECKER);
-            } else {
-                httpHeaders.set(CHECKER_TYPE, ALARM_CHECKER);
-            }
             
             HttpEntity<WebhookPayload> httpEntity = new HttpEntity<>(webhookPayload, httpHeaders);
             springRestTemplate.exchange(new URI(webhookReceiverUrl), HttpMethod.POST, httpEntity, String.class);
