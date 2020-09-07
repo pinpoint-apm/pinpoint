@@ -39,29 +39,24 @@ public class IdValidator {
         this(MAX_ID_LENGTH);
     }
 
-    public boolean validate(AgentIds agentIds) {
-        Assert.requireNonNull(agentIds, "agentIds");
+    public boolean validateAgentId(AgentIdSourceType type, String agentId) {
+        Assert.requireNonNull(agentId, "agentId");
 
-        final AgentIdSourceType type = agentIds.getSourceType();
-        
-        final String agentId = agentIds.getAgentId();
-        validate0(type + " agentId", agentId);
-
-        final String applicationName = agentIds.getApplicationName();
-        validate0(type + " applicationName", applicationName);
-
-        if (logger.isInfoEnabled()) {
-            logger.info("check success. Source:" + type + " agentId:" + agentId + " applicationName:" + applicationName);
-        }
-        return true;
+        return validate0(type + " agentId", agentId);
     }
 
-    private void validate0(String keyName, String keyValue) {
+    public boolean validateApplicatonName(AgentIdSourceType type, String applicationName) {
+        Assert.requireNonNull(applicationName, "applicationName");
+        return validate0(type + " applicationName", applicationName);
+    }
+
+    private boolean validate0(String keyName, String keyValue) {
         logger.info("check " + keyName + ":" + keyValue);
         if (!IdValidateUtils.validateId(keyValue, maxSize)) {
-            logger.warn("invalid Id. " + keyName + " can only contain [a-zA-Z0-9], '.', '-', '_'. maxLength:" + maxSize + " value:" + keyValue);
-            throw new IllegalArgumentException(keyName + " validation fail keyName:" + keyValue);
+            logger.info("invalid Id. " + keyName + " can only contain [a-zA-Z0-9], '.', '-', '_'. maxLength:" + maxSize + " value:" + keyValue);
+            return false;
         }
+        return true;
     }
 
 }

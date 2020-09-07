@@ -88,18 +88,18 @@ class PinpointStarter {
     boolean start() {
         final AgentIds agentIds = resolveAgentIds();
         if (agentIds == null) {
+            logger.warn("Failed to resolve AgentId and ApplicationId");
             return false;
         }
 
-        final IdValidator idValidator = new IdValidator();
-        idValidator.validate(agentIds);
-
         final String agentId = agentIds.getAgentId();
         if (agentId == null) {
+            logger.warn("agentId is null");
             return false;
         }
         final String applicationName = agentIds.getApplicationName();
         if (applicationName == null) {
+            logger.warn("applicationName is null");
             return false;
         }
 
