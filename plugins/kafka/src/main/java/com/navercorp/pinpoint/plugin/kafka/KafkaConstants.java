@@ -39,6 +39,7 @@ public class KafkaConstants {
     public static final AnnotationKey KAFKA_PARTITION_ANNOTATION_KEY = AnnotationKeyFactory.of(141, "kafka.partition", VIEW_IN_RECORD_SET);
     public static final AnnotationKey KAFKA_OFFSET_ANNOTATION_KEY = AnnotationKeyFactory.of(142, "kafka.offset", VIEW_IN_RECORD_SET);
     public static final AnnotationKey KAFKA_BATCH_ANNOTATION_KEY = AnnotationKeyFactory.of(143, "kafka.batch", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey KAFKA_CONSUME_SPAN_ID = AnnotationKeyFactory.of(144, "kafka.consume.spanId");
 
 
 

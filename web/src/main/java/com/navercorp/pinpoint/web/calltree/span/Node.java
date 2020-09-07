@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.calltree.span;
 
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -100,6 +101,7 @@ public class Node {
         final List<Node> nodeList = new ArrayList<>(spans.size());
         // init sorted node list
         for (SpanBo span : spans) {
+            restoreKafkaSpanId(span);
             SpanCallTree spanCallTree = new SpanCallTree(new SpanAlign(span));
             final Node node = Node.build(span, spanCallTree);
             nodeList.add(node);
@@ -113,6 +115,21 @@ public class Node {
             }
         });
         return nodeList;
+    }
+
+    private static void restoreKafkaSpanId(SpanBo spanBo) {
+        final short kafkaServiceType = 8660;
+        final int kafkaSpanIdAnnotationKey = 144;
+
+        if (spanBo.getServiceType() != kafkaServiceType) {
+            return;
+        }
+        for (AnnotationBo annotationBo : spanBo.getAnnotationBoList()) {
+            if (annotationBo.getKey() == kafkaSpanIdAnnotationKey) {
+                final long spanId = Long.parseLong((String) annotationBo.getValue());
+                spanBo.setSpanId(spanId);
+            }
+        }
     }
 
     public static Node build(SpanBo spanBo, SpanCallTree spanCallTree) {

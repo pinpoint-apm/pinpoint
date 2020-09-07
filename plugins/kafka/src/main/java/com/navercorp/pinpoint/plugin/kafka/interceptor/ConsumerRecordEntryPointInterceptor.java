@@ -259,7 +259,10 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
                     return null;
                 }
 
-                TraceId traceId = traceContext.createTraceId(transactionId, Long.parseLong(parentSpanID), Long.parseLong(spanID), Short.parseShort(flags));
+                long spanIdReplace = SpanId.nextSpanID(Long.parseLong(spanID), Long.parseLong(parentSpanID));
+                TraceId traceId = traceContext.createTraceId(transactionId, Long.parseLong(parentSpanID), spanIdReplace, Short.parseShort(flags));
+
+                //TraceId traceId = traceContext.createTraceId(transactionId, Long.parseLong(parentSpanID), Long.parseLong(spanID), Short.parseShort(flags));
                 return traceId;
             }
 
@@ -272,6 +275,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
 
                 String parentApplicationName = null;
                 String parentApplicationType = null;
+                String spanID = null;
 
                 org.apache.kafka.common.header.Headers headers = consumerRecord.headers();
                 for (org.apache.kafka.common.header.Header header : headers.toArray()) {
@@ -279,12 +283,17 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
                         parentApplicationName = new String(header.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
                     } else if (header.key().equals(Header.HTTP_PARENT_APPLICATION_TYPE.toString())) {
                         parentApplicationType = new String(header.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
+                    } else if (header.key().equals(Header.HTTP_SPAN_ID.toString())) {
+                        spanID = new String(header.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
                     }
                 }
 
                 if (trace.canSampled()) {
                     final SpanRecorder recorder = trace.getSpanRecorder();
                     recordRootSpan(recorder, consumerRecord, parentApplicationName, parentApplicationType);
+                    if (spanID != null) {
+                        recorder.recordAttribute(KafkaConstants.KAFKA_CONSUME_SPAN_ID, spanID);
+                    }
                 }
                 return trace;
             }
