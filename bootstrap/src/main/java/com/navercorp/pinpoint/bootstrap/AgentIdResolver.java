@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap;
 import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
+
 import java.util.List;
 
 /**
@@ -36,42 +37,59 @@ public class AgentIdResolver {
 
     private final List<AgentProperties> agentPropertyList;
 
+    private final IdValidator idValidator = new IdValidator();
+
     public AgentIdResolver(List<AgentProperties> agentPropertyList) {
         this.agentPropertyList = Assert.requireNonNull(agentPropertyList, "agentPropertyList");
     }
 
     public AgentIds resolve() {
-        for (AgentProperties agentProperty : agentPropertyList) {
-            final String agentId = agentProperty.getAgentId();
-            boolean touch = false;
-            if (agentId != null) {
-                logger.info(agentProperty.getType() + " " + agentProperty.getAgentKey() +"=" + agentId);
-                touch = true;
-            }
-
-            final String applicationName = agentProperty.getApplicationName();
-            if (applicationName != null) {
-                logger.info(agentProperty.getType() + " " + agentProperty.getApplicationNameKey() + "=" + applicationName);
-                touch = true;
-            }
-
-            if (touch) {
-                if (StringUtils.isEmpty(agentId)) {
-                    String error = agentProperty.getType() + " agentId is missing";
-                    logger.warn(error);
-                    return null;
-                }
-                if (StringUtils.isEmpty(applicationName)) {
-                    String error = agentProperty.getType() + " applicationName is missing";
-                    logger.warn(error);
-                    return null;
-                }
-                return new AgentIds(agentProperty.getType(), agentId, applicationName);
-            }
+        final String agentId = getAgentId();
+        if (StringUtils.isEmpty(agentId)) {
+            String error = "Failed to resolve AgentId(-Dpinpoint.agentId)";
+            logger.warn(error);
+            return null;
         }
-        
-        return null;
+
+        final String applicationName = getApplicationName();
+        if (StringUtils.isEmpty(applicationName)) {
+            String error = "Failed to resolve ApplicationName(-Dpinpoint.applicationName)";
+            logger.warn(error);
+            return null;
+        }
+        return new AgentIds(agentId, applicationName);
     }
 
+
+
+    private String getAgentId() {
+        String source = null;
+        for (AgentProperties agentProperty : agentPropertyList) {
+            final String agentId = agentProperty.getAgentId();
+            if (StringUtils.isEmpty(agentId)) {
+                continue;
+            }
+            if (idValidator.validateAgentId(agentProperty.getType(), agentId)) {
+                logger.info(agentProperty.getType() + " " + agentProperty.getAgentKey() + "=" + agentId);
+                source = agentId;
+            }
+        }
+        return source;
+    }
+
+    private String getApplicationName() {
+        String source = null;
+        for (AgentProperties agentProperty : agentPropertyList) {
+            final String applicationName = agentProperty.getApplicationName();
+            if (StringUtils.isEmpty(applicationName)) {
+                continue;
+            }
+            if (idValidator.validateApplicatonName(agentProperty.getType(), applicationName)) {
+                logger.info(agentProperty.getType() + " " + agentProperty.getApplicationName() + "=" + applicationName);
+                source = applicationName;
+            }
+        }
+        return source;
+    }
 
 }

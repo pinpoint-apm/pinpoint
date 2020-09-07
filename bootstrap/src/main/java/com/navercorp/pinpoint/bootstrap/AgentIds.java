@@ -24,17 +24,12 @@ import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 public class AgentIds {
     private final String agentId;
     private final String applicationName;
-    private final AgentIdSourceType type;
 
-    public AgentIds(AgentIdSourceType type, String agentId, String applicationName) {
-        this.type = Assert.requireNonNull(type, "type");
+    public AgentIds(String agentId, String applicationName) {
         this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
     }
 
-    public AgentIdSourceType getSourceType() {
-        return type;
-    }
 
     public String getAgentId() {
         return agentId;
