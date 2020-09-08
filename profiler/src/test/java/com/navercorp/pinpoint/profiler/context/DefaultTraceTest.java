@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -53,6 +54,8 @@ public class DefaultTraceTest {
     private TraceRoot traceRoot;
     @Mock
     private Shared shared;
+    @Mock
+    private ProfilerConfig profilerConfig;
     @Mock
     private StringMetaDataService stringMetaDataService;
     @Mock
@@ -160,8 +163,8 @@ public class DefaultTraceTest {
 
         final Span span = spanFactory.newSpan(traceRoot);
         final boolean root = span.getTraceRoot().getTraceId().isRoot();
-        final SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService, errorHandler);
-        final WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler);
+        final SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, profilerConfig, stringMetaDataService, sqlMetaDataService, errorHandler);
+        final WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, profilerConfig, stringMetaDataService, sqlMetaDataService, errorHandler);
 
         return new DefaultTrace(span, callStack, storage, true, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
     }
