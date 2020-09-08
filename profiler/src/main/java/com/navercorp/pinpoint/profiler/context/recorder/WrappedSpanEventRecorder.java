@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.profiler.context.recorder;
 
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -50,10 +51,10 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
     private SpanEvent spanEvent;
 
-    public WrappedSpanEventRecorder(TraceRoot traceRoot, AsyncContextFactory asyncContextFactory,
+    public WrappedSpanEventRecorder(TraceRoot traceRoot, AsyncContextFactory asyncContextFactory, ProfilerConfig profilerConfig,
                                     final StringMetaDataService stringMetaDataService, final SqlMetaDataService sqlMetaCacheService,
                                     final IgnoreErrorHandler errorHandler) {
-        super(stringMetaDataService, sqlMetaCacheService, errorHandler);
+        super(profilerConfig, stringMetaDataService, sqlMetaCacheService, errorHandler);
         this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
 
         this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory");

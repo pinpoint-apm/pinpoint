@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.context.recorder;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -41,10 +42,10 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     private final boolean isRoot;
     private final boolean sampling;
     
-    public DefaultSpanRecorder(final Span span, final boolean isRoot, final boolean sampling,
+    public DefaultSpanRecorder(final Span span, final boolean isRoot, final boolean sampling, ProfilerConfig profilerConfig,
                                final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService,
                                final IgnoreErrorHandler errorHandler) {
-        super(stringMetaDataService, sqlMetaDataService, errorHandler);
+        super(profilerConfig, stringMetaDataService, sqlMetaDataService, errorHandler);
         this.span = span;
         this.isRoot = isRoot;
         this.sampling = sampling;

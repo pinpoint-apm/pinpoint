@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.context.recorder;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
@@ -30,11 +31,13 @@ import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
  */
 public abstract class AbstractRecorder {
 
+    protected final ProfilerConfig profilerConfig;
     protected final StringMetaDataService stringMetaDataService;
     protected final SqlMetaDataService sqlMetaDataService;
     protected final IgnoreErrorHandler ignoreErrorHandler;
 
-    public AbstractRecorder(final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService, IgnoreErrorHandler ignoreErrorHandler) {
+    public AbstractRecorder(final ProfilerConfig profilerConfig, final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService, IgnoreErrorHandler ignoreErrorHandler) {
+        this.profilerConfig = profilerConfig;
         this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService");
         this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
         this.ignoreErrorHandler = Assert.requireNonNull(ignoreErrorHandler, "ignoreErrorHandler");
@@ -52,10 +55,33 @@ public abstract class AbstractRecorder {
         if (throwable == null) {
             return;
         }
+
+        StringBuffer sb = new StringBuffer();
         final String drop = StringUtils.abbreviate(throwable.getMessage(), 256);
+        sb.append(drop);
+
+        // Record exception
+        boolean exceptionStackTraceEnable = profilerConfig.getExceptionStackTraceEnable();
+        if (exceptionStackTraceEnable) {
+            int exceptionStackTraceLine = profilerConfig.getExceptionStackTraceLine();
+            StackTraceElement[] stackTraceElementArray = throwable.getStackTrace();
+            int length = stackTraceElementArray.length;
+            if (exceptionStackTraceLine != -1) {
+                length = exceptionStackTraceLine < length ? exceptionStackTraceLine : length;
+            }
+
+            StackTraceElement[] newStackTraceElementArray = new StackTraceElement[length];
+            for (int i = 0; i < length; i++) {
+                StackTraceElement stackTraceElement = stackTraceElementArray[i];
+                if (stackTraceElement != null) {
+                    sb.append("\n" + stackTraceElement.toString());
+                }
+            }
+        }
+
         // An exception that is an instance of a proxy class could make something wrong because the class name will vary.
         final int exceptionId = stringMetaDataService.cacheString(throwable.getClass().getName());
-        setExceptionInfo(exceptionId, drop);
+        setExceptionInfo(exceptionId, sb.toString());
         if (markError) {
             if (!ignoreErrorHandler.handleError(throwable)) {
                 recordError();
