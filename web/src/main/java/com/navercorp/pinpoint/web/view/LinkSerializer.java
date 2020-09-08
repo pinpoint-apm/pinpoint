@@ -28,6 +28,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -68,9 +69,9 @@ public class LinkSerializer extends JsonSerializer<Link> {
         jgen.writeNumberField("totalCount", histogram.getTotalCount()); // for go.js
         jgen.writeNumberField("errorCount", histogram.getTotalErrorCount());
         jgen.writeNumberField("slowCount", histogram.getSlowCount());
-        jgen.writeNumberField("avgElapsed", histogram.getAvgElapsed());
-        jgen.writeNumberField("maxElapsed", histogram.getMaxElapsed());
-        jgen.writeNumberField("sumElapsed", histogram.getSumElapsed());
+
+        ResponseTimeStatics responseTimeStatics = ResponseTimeStatics.fromHistogram(histogram);
+        jgen.writeObjectField(ResponseTimeStatics.RESPONSE_STATISTICS, responseTimeStatics);
 
 
         jgen.writeObjectField("histogram", histogram);
@@ -81,6 +82,8 @@ public class LinkSerializer extends JsonSerializer<Link> {
             writeAgentHistogram("sourceHistogram", link.getSourceList(), jgen);
             writeAgentHistogram("targetHistogram", link.getTargetList(), jgen);
             writeSourceAgentTimeSeriesHistogram(link, jgen);
+            writeAgentResponseStatistics("sourceResponseStatistics", link.getSourceList(), jgen);
+            writeAgentResponseStatistics("targetResponseStatistics", link.getTargetList(), jgen);
         }
 
 //        String state = link.getLinkState();
@@ -128,6 +131,15 @@ public class LinkSerializer extends JsonSerializer<Link> {
         jgen.writeObject(sourceApplicationTimeSeriesHistogram);
     }
 
+    private void writeAgentResponseStatistics(String fieldName, AgentHistogramList agentHistogramList, JsonGenerator jgen) throws IOException {
+        jgen.writeFieldName(fieldName);
+        jgen.writeStartObject();
+        for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
+            jgen.writeFieldName(agentHistogram.getId());
+            jgen.writeObject(ResponseTimeStatics.fromHistogram(agentHistogram.getHistogram()));
+        }
+        jgen.writeEndObject();
+    }
 
     private void writeAgentHistogram(String fieldName, AgentHistogramList agentHistogramList, JsonGenerator jgen) throws IOException {
         jgen.writeFieldName(fieldName);

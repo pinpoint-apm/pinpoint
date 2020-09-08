@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 
+import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,10 +64,10 @@ public class ApplicationTimeHistogram {
         value.add(new ResponseTimeViewModel(schema.getVerySlowSlot().getSlotName(), getColumnValue(SlotType.VERY_SLOW)));
 //        value.add(new ResponseTimeViewModel(schema.getVerySlowErrorSlot().getSlotName(), getColumnValue(SlotType.VERY_SLOW_ERROR)));
         value.add(new ResponseTimeViewModel(schema.getErrorSlot().getSlotName(), getColumnValue(SlotType.ERROR)));
-        value.add(new ResponseTimeViewModel(Histogram.AVG_ELAPSED_TIME, getAvgValue()));
-        value.add(new ResponseTimeViewModel(Histogram.MAX_ELAPSED_TIME, getColumnValue(SlotType.MAX_STAT)));
-        value.add(new ResponseTimeViewModel(Histogram.SUM_ELAPSED_TIME, getColumnValue(SlotType.SUM_STAT)));
-        value.add(new ResponseTimeViewModel(Histogram.TOTAL_COUNT, getTotalCount()));
+        value.add(new ResponseTimeViewModel(ResponseTimeStatics.AVG_ELAPSED_TIME, getAvgValue()));
+        value.add(new ResponseTimeViewModel(ResponseTimeStatics.MAX_ELAPSED_TIME, getColumnValue(SlotType.MAX_STAT)));
+        value.add(new ResponseTimeViewModel(ResponseTimeStatics.SUM_ELAPSED_TIME, getColumnValue(SlotType.SUM_STAT)));
+        value.add(new ResponseTimeViewModel(ResponseTimeStatics.TOTAL_COUNT, getTotalCount()));
 
         return value;
     }

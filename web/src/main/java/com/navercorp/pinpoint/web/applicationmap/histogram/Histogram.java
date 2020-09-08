@@ -30,15 +30,7 @@ import java.util.Objects;
  * @author netspider
  */
 @JsonSerialize(using = HistogramSerializer.class)
-public class Histogram {
-
-    public static final String AVG_ELAPSED_TIME = "Avg";
-
-    public static final String MAX_ELAPSED_TIME = "Max";
-
-    public static final String SUM_ELAPSED_TIME = "Sum";
-
-    public static final String TOTAL_COUNT = "Tot";
+public class Histogram implements StatisticsHistogram {
 
     private final HistogramSchema schema;
 

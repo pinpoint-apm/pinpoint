@@ -27,6 +27,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
 import java.io.IOException;
 import java.util.List;
@@ -138,9 +139,6 @@ public class NodeSerializer extends JsonSerializer<Node>  {
                 jgen.writeNumberField("totalCount", applicationHistogram.getTotalCount()); // for go.js
                 jgen.writeNumberField("errorCount", applicationHistogram.getTotalErrorCount());
                 jgen.writeNumberField("slowCount", applicationHistogram.getSlowCount());
-                jgen.writeNumberField("avgElapsed", applicationHistogram.getAvgElapsed());
-                jgen.writeNumberField("maxElapsed", applicationHistogram.getMaxElapsed());
-                jgen.writeNumberField("sumElapsed", applicationHistogram.getSumElapsed());
 
                 if (applicationHistogram.getTotalCount() == 0) {
                     jgen.writeBooleanField("hasAlert", false);  // for go.js
@@ -154,6 +152,8 @@ public class NodeSerializer extends JsonSerializer<Node>  {
                 }
             }
 
+            ResponseTimeStatics responseTimeStatics = ResponseTimeStatics.fromHistogram(applicationHistogram);
+            jgen.writeObjectField(ResponseTimeStatics.RESPONSE_STATISTICS, responseTimeStatics);
             if (applicationHistogram == null) {
                 writeEmptyObject(jgen, "histogram");
             } else {
