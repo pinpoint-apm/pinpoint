@@ -122,9 +122,9 @@ Pinpoint Version | flink 1.3.X | flink 1.4.X | flink 1.5.X | flink 1.6.X | flink
 
 We have Chinese community now, welcome to join!
 
-QQ Group: 897594820 | DING Group
-:----------------: | :-----------: 
-![QQ Group](doc/images/NAVERPinpoint.png) | ![DING Group](doc/images/NaverPinpoint交流群-DING.jpg)
+QQ Group1: 897594820 | QQ Group2: 812507584 | DING Group
+:----------------: | :-----------: | :-----------: 
+![QQ Group1](doc/images/NAVERPinpoint.png) | ![QQ Group2](doc/images/NAVERPinpoint2.png) | ![DING Group](doc/images/NaverPinpoint交流群-DING.jpg)
 
 
 ## License
