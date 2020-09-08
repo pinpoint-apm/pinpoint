@@ -129,12 +129,17 @@ public class Rule {
         sb.append(", userGroupId='").append(userGroupId).append('\'');
         sb.append(", smsSend=").append(smsSend);
         sb.append(", emailSend=").append(emailSend);
+        sb.append(", webhookSend=").append(webhookSend);
         sb.append(", notes='").append(notes).append('\'');
         sb.append('}');
         return sb.toString();
     }
 
     public boolean isWebhookSend() {
-        return true;
+        return webhookSend;
+    }
+    
+    public void setWebhookSend(boolean webhookSend) {
+        this.webhookSend = webhookSend;
     }
 }

@@ -125,7 +125,7 @@ public class SpringWebhookSenderTest {
     private BatchConfiguration getConfigurationStub(boolean webhookEnable) {
         BatchConfiguration batchConfigurationMock = mock(BatchConfiguration.class);
         
-        when(batchConfigurationMock.getWebhookEnable())
+        when(batchConfigurationMock.isWebhookEnable())
                 .thenReturn(webhookEnable);
         when(batchConfigurationMock.getWebhookReceiverUrl())
                 .thenReturn("test-url");

@@ -142,7 +142,7 @@ public class BatchConfiguration {
 
     public String getWebhookReceiverUrl() { return webhookReceiverUrl; }
 
-    public boolean getWebhookEnable() {
+    public boolean isWebhookEnable() {
         return webhookEnable;
     }
 

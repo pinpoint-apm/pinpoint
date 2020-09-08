@@ -45,6 +45,7 @@
                     <option value="all">All</option>
                     <option value="email">Email</option>
                     <option value="sms">SMS</option>
+                    <option *ngIf="systemConfiguration.webhookEnable" value="webhook">Webhook</option>
                     <option value="none">None</option>
                 </select>
                 <span class="fas fa-angle-down"></span>

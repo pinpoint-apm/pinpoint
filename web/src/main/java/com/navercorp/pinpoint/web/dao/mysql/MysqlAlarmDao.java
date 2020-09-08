@@ -46,6 +46,12 @@ public class MysqlAlarmDao implements AlarmDao {
         sqlSessionTemplate.insert(NAMESPACE + "insertRule", rule);
         return rule.getRuleId();
     }
+    
+    @Override
+    public String insertRuleExceptWebhookSend(Rule rule) {
+        sqlSessionTemplate.insert(NAMESPACE + "insertRuleExceptWebhookSend", rule);
+        return rule.getRuleId();
+    }
 
     @Override
     public void deleteRule(Rule rule) {
@@ -71,7 +77,12 @@ public class MysqlAlarmDao implements AlarmDao {
     public void updateRule(Rule rule) {
         sqlSessionTemplate.update(NAMESPACE + "updateRule", rule);
     }
-
+    
+    @Override
+    public void updateRuleExceptWebhookSend(Rule rule) {
+        sqlSessionTemplate.update(NAMESPACE + "updateRuleExceptWebhookSend", rule);
+    }
+    
     @Override
     public void updateUserGroupIdOfRule(UserGroup userGroup) {
         sqlSessionTemplate.update(NAMESPACE + "updateUserGroupIdOfRule", userGroup);

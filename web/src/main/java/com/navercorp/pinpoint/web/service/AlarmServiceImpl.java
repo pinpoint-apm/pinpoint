@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.navercorp.pinpoint.web.batch.BatchConfiguration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
@@ -37,15 +39,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class AlarmServiceImpl implements AlarmService {
 
     private final AlarmDao alarmDao;
-
-    public AlarmServiceImpl(AlarmDao alarmDao) {
+    private final boolean webhookEnable;
+    
+    public AlarmServiceImpl(AlarmDao alarmDao, BatchConfiguration batchConfiguration) {
+        Objects.requireNonNull(batchConfiguration, "batchConfiguration");;
         this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
+        this.webhookEnable = batchConfiguration.isWebhookEnable();
     }
-
+    
     @Override
     public String insertRule(Rule rule) {
-        return alarmDao.insertRule(rule);
-        
+        if (webhookEnable) {
+            return alarmDao.insertRule(rule);
+        }
+        return alarmDao.insertRuleExceptWebhookSend(rule);
     }
 
     @Override
@@ -68,7 +75,11 @@ public class AlarmServiceImpl implements AlarmService {
 
     @Override
     public void updateRule(Rule rule) {
-        alarmDao.updateRule(rule);
+        if (webhookEnable) {
+            alarmDao.updateRule(rule);
+        } else {
+            alarmDao.updateRuleExceptWebhookSend(rule);
+        }
         alarmDao.deleteCheckerResult(rule.getRuleId());
     }
 
@@ -99,7 +110,7 @@ public class AlarmServiceImpl implements AlarmService {
             alarmDao.insertCheckerResult(new CheckerResult(checker.getRule().getRuleId(), checker.getRule().getApplicationId(), checker.getRule().getCheckerName(), false, 0, 1));
         }
         
-         
+        
     }
 
     @Override

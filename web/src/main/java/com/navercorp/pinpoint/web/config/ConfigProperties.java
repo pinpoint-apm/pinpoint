@@ -65,6 +65,9 @@ public class ConfigProperties {
 
     @Value("${websocket.allowedOrigins:#{null}}")
     private String webSocketAllowedOrigins;
+    
+    @Value("${webhook.enable:false}")
+    private boolean webhookEnable;
 
     public String getSecurityGuideUrl() {
         return securityGuideUrl;
@@ -105,11 +108,15 @@ public class ConfigProperties {
     public boolean isShowStackTraceOnError() {
         return showStackTraceOnError;
     }
-
+    
     public String getWebSocketAllowedOrigins() {
         return webSocketAllowedOrigins;
     }
-
+    
+    public boolean isWebhookEnable() {
+        return webhookEnable;
+    }
+    
     @PostConstruct
     public void log() {
         logger.info("{}", this);
@@ -131,6 +138,7 @@ public class ConfigProperties {
         sb.append(", showApplicationStat=").append(showApplicationStat);
         sb.append(", showStackTraceOnError=").append(showStackTraceOnError);
         sb.append(", webSocketAllowedOrigins=").append(webSocketAllowedOrigins);
+        sb.append(", webhookEnable=").append(webhookEnable);
         sb.append('}');
         return sb.toString();
     }

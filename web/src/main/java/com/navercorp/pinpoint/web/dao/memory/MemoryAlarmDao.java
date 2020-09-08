@@ -51,7 +51,15 @@ public class MemoryAlarmDao implements AlarmDao {
         alarmRule.put(ruleId, rule);
         return rule.getRuleId();
     }
-
+    
+    @Override
+    public String insertRuleExceptWebhookSend(Rule rule) {
+        String ruleId = String.valueOf(ruleIdGenerator.getAndIncrement());
+        rule.setRuleId(ruleId);
+        alarmRule.put(ruleId, rule);
+        return rule.getRuleId();
+    }
+    
     @Override
     public void deleteRule(Rule rule) {
         alarmRule.remove(rule.getRuleId());
@@ -96,7 +104,12 @@ public class MemoryAlarmDao implements AlarmDao {
     public void updateRule(Rule rule) {
         alarmRule.put(rule.getRuleId(), rule);
     }
-
+    
+    @Override
+    public void updateRuleExceptWebhookSend(Rule rule) {
+        alarmRule.put(rule.getRuleId(), rule);
+    }
+    
     @Override
     public void updateUserGroupIdOfRule(UserGroup updatedUserGroup) {
         List<UserGroup> userGroupList = userGroupDao.selectUserGroup();
