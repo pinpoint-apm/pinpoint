@@ -1,30 +1,42 @@
 ---
-title: "Pinpoint 2.0.2"
-keywords: pinpoint release, 2.0.2
+title: "Pinpoint 2.1.0"
+keywords: pinpoint release, 2.1.0
 permalink: main.html
 sidebar: mydoc_sidebar
 ---
 
-## What's New in 2.0.2
+## What's New in 2.1.0
 
- Fixed minor bugs and addiotional plugins added.
+ Pinpoint-collector and Pinpoint-web has changed to spring boot. 
+ Please check new guide for [installation](./installation.html).
  
-### Pinpoint Plugin
-
- - Started to support Async Thread Plugin
-   * Servermap
-   ![Async Thread Plugin](https://user-images.githubusercontent.com/10057874/80352564-06070880-88af-11ea-81a4-22f5e6ac0f91.jpg)
-   Thank you @zifeihan  for your contribution
  
- - Started to support Informix JDBC Plugin
-   * Mix view
-   ![Informix Plugin](https://user-images.githubusercontent.com/10057874/80352447-dfe16880-88ae-11ea-8502-7f76fdf61ca7.png)
-   Thank you @guillermomolina for your contribution
-    
-### Bugs
-
- Fixed problem that does not retransmit when metadata transmission fails. [#6662](https://github.com/naver/pinpoint/issues/6662)
- Fixed problem where completed transaction is not recognized in certain cases while using Webflux. [#6465](https://github.com/naver/pinpoint/issues/6465)
+ ### Improve Timeline Visibility
+ 
+ * Async call  
+    ![image](https://user-images.githubusercontent.com/3798235/84853547-60943800-b09a-11ea-9184-d737ad8f050d.png)
+ * Database call  
+    ![Screen Shot 2020-06-30 at 2 00 13 PM](https://user-images.githubusercontent.com/3798235/86085910-52eba300-badb-11ea-8f5c-ff420f432af1.png)
+ 
+ ### Class Loading Metric
+ 
+ * Inspector  
+    ![클래스로딩 메트릭](https://user-images.githubusercontent.com/10057874/92567646-f2d26380-f2b8-11ea-8ecf-b1a103a74bc1.jpg)
+ 
+ ### Record Request Header & Cookie
+ 
+ * Configuration
+      ```
+     # record HTTP request headers case-sensitive
+     # e.g. profiler.http.record.request.headers=X-AccessKey,X-Device-UUID
+     profiler.http.record.request.headers=user-agent,accept
+     
+     # record HTTP request cookies(case-sensitive) in Cookie header
+     # e.g. profiler.http.record.request.cookies=userid,device-id,uuid
+     profiler.http.record.request.cookies=_ga
+     ```
+ * Distributed callstack  
+     ![image](https://user-images.githubusercontent.com/7564547/86888566-57e0d000-c135-11ea-9e06-8b6a943f017d.png)
 
 ## Upgrade consideration
 
