@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.common.util.Assert;
@@ -26,6 +25,7 @@ import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.metadata.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
@@ -34,7 +34,7 @@ import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
  */
 public class DefaultRecorderFactory implements RecorderFactory {
 
-    private final ProfilerConfig profilerConfig;
+    private final ExceptionRecordingService exceptionRecordingService;
     private final StringMetaDataService stringMetaDataService;
     private final SqlMetaDataService sqlMetaDataService;
     private final Provider<AsyncContextFactory> asyncContextFactoryProvider;
@@ -42,9 +42,9 @@ public class DefaultRecorderFactory implements RecorderFactory {
 
 
     @Inject
-    public DefaultRecorderFactory(ProfilerConfig profilerConfig, Provider<AsyncContextFactory> asyncContextFactoryProvider,
+    public DefaultRecorderFactory(Provider<AsyncContextFactory> asyncContextFactoryProvider, ExceptionRecordingService exceptionRecordingService,
                                   StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService, IgnoreErrorHandler errorHandler) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.exceptionRecordingService = Assert.requireNonNull(exceptionRecordingService, "exceptionRecordingService");
         this.asyncContextFactoryProvider = Assert.requireNonNull(asyncContextFactoryProvider, "asyncContextFactoryProvider");
         this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService");
         this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
@@ -53,7 +53,7 @@ public class DefaultRecorderFactory implements RecorderFactory {
 
     @Override
     public SpanRecorder newSpanRecorder(Span span, boolean isRoot, boolean sampling) {
-        return new DefaultSpanRecorder(span, isRoot, sampling, profilerConfig, stringMetaDataService, sqlMetaDataService, errorHandler);
+        return new DefaultSpanRecorder(span, isRoot, sampling, exceptionRecordingService, stringMetaDataService, sqlMetaDataService, errorHandler);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class DefaultRecorderFactory implements RecorderFactory {
     @Override
     public WrappedSpanEventRecorder newWrappedSpanEventRecorder(TraceRoot traceRoot) {
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
-        return new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, profilerConfig, stringMetaDataService, sqlMetaDataService, errorHandler);
+        return new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, exceptionRecordingService, stringMetaDataService, sqlMetaDataService, errorHandler);
     }
 
     @Override
@@ -72,6 +72,6 @@ public class DefaultRecorderFactory implements RecorderFactory {
         Assert.requireNonNull(asyncState, "asyncState");
 
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
-        return new WrappedAsyncSpanEventRecorder(traceRoot, asyncContextFactory, profilerConfig, stringMetaDataService, sqlMetaDataService, errorHandler, asyncState);
+        return new WrappedAsyncSpanEventRecorder(traceRoot, asyncContextFactory, exceptionRecordingService, stringMetaDataService, sqlMetaDataService, errorHandler, asyncState);
     }
 }
