@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.service.stat.ApplicationTransactionService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationFileDescriptorService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationTotalThreadCountService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationLoadedClassService;
+import com.navercorp.pinpoint.web.service.stat.ApplicationContainerService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -172,6 +173,15 @@ public class ApplicationStatController {
         @Autowired
         public ApplicationLoadedClassController(ApplicationLoadedClassService applicationLoadedClassService) {
             super(applicationLoadedClassService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getApplicationStat/container/chart")
+    public static class ApplicationContainerController extends ApplicationStatController {
+        @Autowired
+        public ApplicationContainerController(ApplicationContainerService applicationContainerService) {
+            super(applicationContainerService);
         }
     }
 }

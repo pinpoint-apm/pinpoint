@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.module;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.context.provider.stat.activethread.ActiveTraceMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.buffer.BufferMetricCollectorProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.container.ContainerMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.cpu.CpuLoadMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.datasource.DataSourceMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.deadlock.DeadlockMetricCollectorProvider;
@@ -33,6 +34,7 @@ import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollecto
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.container.ContainerMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
@@ -105,6 +107,10 @@ public class ThriftStatsModule extends AbstractModule {
         // loadedClass
         TypeLiteral<AgentStatMetricCollector<LoadedClassMetricSnapshot>> loadedClassCollector = new TypeLiteral<AgentStatMetricCollector<LoadedClassMetricSnapshot>>() {};
         bind(loadedClassCollector).toProvider(LoadedClassMetricCollectorProvider.class).in(Scopes.SINGLETON);
+
+        // container
+        TypeLiteral<AgentStatMetricCollector<ContainerMetricSnapshot>> containerCollector = new TypeLiteral<AgentStatMetricCollector<ContainerMetricSnapshot>>() {};
+        bind(containerCollector).toProvider(ContainerMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // stat
         TypeLiteral<AgentStatMetricCollector<AgentStatMetricSnapshot>> statMetric = new TypeLiteral<AgentStatMetricCollector<AgentStatMetricSnapshot>>() {};

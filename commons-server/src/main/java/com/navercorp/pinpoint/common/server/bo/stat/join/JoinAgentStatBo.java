@@ -44,6 +44,7 @@ public class JoinAgentStatBo implements JoinStatBo {
     private final List<JoinDirectBufferBo> joinDirectBufferBoList;
     private final List<JoinTotalThreadCountBo> joinTotalThreadCountBoList;
     private final List<JoinLoadedClassBo> joinLoadedClassBoList;
+    private final List<JoinContainerBo> joinContainerBoList;
 
     protected JoinAgentStatBo(JoinAgentStatBo joinAgentStatBo) {
         Objects.requireNonNull(joinAgentStatBo, "joinAgentStatBo");
@@ -61,6 +62,7 @@ public class JoinAgentStatBo implements JoinStatBo {
         this.joinDirectBufferBoList = joinAgentStatBo.getJoinDirectBufferBoList();
         this.joinTotalThreadCountBoList = joinAgentStatBo.getJoinTotalThreadCountBoList();
         this.joinLoadedClassBoList = joinAgentStatBo.getJoinLoadedClassBoList();
+        this.joinContainerBoList = joinAgentStatBo.getJoinContainerBoList();
     }
 
     private JoinAgentStatBo(JoinAgentStatBo.Builder joinAgentStatBo) {
@@ -80,6 +82,7 @@ public class JoinAgentStatBo implements JoinStatBo {
         this.joinDirectBufferBoList = FilterUtils.filter(joinAgentStatBo.statList, JoinDirectBufferBo.class);
         this.joinTotalThreadCountBoList = FilterUtils.filter(joinAgentStatBo.statList, JoinTotalThreadCountBo.class);
         this.joinLoadedClassBoList = FilterUtils.filter(joinAgentStatBo.statList, JoinLoadedClassBo.class);
+        this.joinContainerBoList = FilterUtils.filter(joinAgentStatBo.statList, JoinContainerBo.class);
     }
 
     public List<JoinResponseTimeBo> getJoinResponseTimeBoList() {
@@ -115,6 +118,9 @@ public class JoinAgentStatBo implements JoinStatBo {
         return joinLoadedClassBoList;
     }
 
+    public List<JoinContainerBo> getJoinContainerBoList() {
+        return joinContainerBoList;
+    }
 
     public long getAgentStartTimestamp() {
         return agentStartTimestamp;
@@ -212,6 +218,11 @@ public class JoinAgentStatBo implements JoinStatBo {
             this.statList.add(loadedClass);
         }
 
+        public void addContainer(JoinContainerBo container) {
+            Objects.requireNonNull(container, "container");
+            this.statList.add(container);
+        }
+
         public void addMemory(JoinMemoryBo memory) {
             Objects.requireNonNull(memory, "memory");
             this.statList.add(memory);
@@ -250,6 +261,7 @@ public class JoinAgentStatBo implements JoinStatBo {
                 ", joinDirectBufferBoList=" + joinDirectBufferBoList +
                 ", joinTotalThreadCountBoList=" + joinTotalThreadCountBoList +
                 ", joinLoadedClassBoList=" + joinLoadedClassBoList +
+                ", joinContainerBoList=" + joinContainerBoList +
                 '}';
     }
 }

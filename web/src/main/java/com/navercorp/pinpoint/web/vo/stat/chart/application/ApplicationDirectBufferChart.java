@@ -49,7 +49,7 @@ public class ApplicationDirectBufferChart implements StatChart {
 
     public static class ApplicationDirectBufferChartGroup implements StatChartGroup {
 
-        private static final LongApplicationStatPoint.UncollectedCreator UNCOLLECTED_FILE_DESCRIPTOR_POINT = new LongApplicationStatPoint.UncollectedCreator(JoinDirectBufferBo.UNCOLLECTED_VALUE);
+        private static final LongApplicationStatPoint.UncollectedCreator UNCOLLECTED_DIRECT_BUFFER_POINT = new LongApplicationStatPoint.UncollectedCreator(JoinDirectBufferBo.UNCOLLECTED_VALUE);
 
         private final TimeWindow timeWindow;
         private final Map<ChartType, Chart<? extends Point>> directBufferChartMap;
@@ -79,7 +79,7 @@ public class ApplicationDirectBufferChart implements StatChart {
 
         private Chart<LongApplicationStatPoint> newChart(List<AggreJoinDirectBufferBo> directBufferList, Function<AggreJoinDirectBufferBo, LongApplicationStatPoint> filter) {
 
-            TimeSeriesChartBuilder<LongApplicationStatPoint> builder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_FILE_DESCRIPTOR_POINT);
+            TimeSeriesChartBuilder<LongApplicationStatPoint> builder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_DIRECT_BUFFER_POINT);
             return builder.build(directBufferList, filter);
         }
 

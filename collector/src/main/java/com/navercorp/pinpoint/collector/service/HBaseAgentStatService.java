@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.service;
 import com.navercorp.pinpoint.collector.dao.AgentStatDaoV2;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ContainerBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
@@ -25,10 +26,10 @@ import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
-import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
-import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
-import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
+import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
+import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -67,6 +68,8 @@ public class HBaseAgentStatService implements AgentStatService {
 
     private final AgentStatDaoV2<LoadedClassBo> loadedClassDao;
 
+    private final AgentStatDaoV2<ContainerBo> containerDao;
+
     public HBaseAgentStatService(AgentStatDaoV2<JvmGcBo> jvmGcDao,
                                  AgentStatDaoV2<JvmGcDetailedBo> jvmGcDetailedDao,
                                  AgentStatDaoV2<CpuLoadBo> cpuLoadDao,
@@ -78,7 +81,8 @@ public class HBaseAgentStatService implements AgentStatService {
                                  AgentStatDaoV2<FileDescriptorBo> fileDescriptorDao,
                                  AgentStatDaoV2<DirectBufferBo> directBufferDao,
                                  AgentStatDaoV2<TotalThreadCountBo> totalThreadCountDao,
-                                 AgentStatDaoV2<LoadedClassBo> loadedClassDao) {
+                                 AgentStatDaoV2<LoadedClassBo> loadedClassDao,
+                                 AgentStatDaoV2<ContainerBo> containerDao) {
         this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
         this.jvmGcDetailedDao = Objects.requireNonNull(jvmGcDetailedDao, "jvmGcDetailedDao");
         this.cpuLoadDao = Objects.requireNonNull(cpuLoadDao, "cpuLoadDao");
@@ -91,6 +95,7 @@ public class HBaseAgentStatService implements AgentStatService {
         this.directBufferDao = Objects.requireNonNull(directBufferDao, "directBufferDao");
         this.totalThreadCountDao = Objects.requireNonNull(totalThreadCountDao, "totalThreadCountDao");
         this.loadedClassDao = Objects.requireNonNull(loadedClassDao, "loadedClassDao");
+        this.containerDao = Objects.requireNonNull(containerDao, "containerDao");
     }
 
     @Override
@@ -109,6 +114,7 @@ public class HBaseAgentStatService implements AgentStatService {
             this.directBufferDao.insert(agentId, agentStatBo.getDirectBufferBos());
             this.totalThreadCountDao.insert(agentId, agentStatBo.getTotalThreadCountBos());
             this.loadedClassDao.insert(agentId, agentStatBo.getLoadedClassBos());
+            this.containerDao.insert(agentId, agentStatBo.getContainerBos());
         } catch (Exception e) {
             logger.warn("Error inserting AgentStatBo. Caused:{}", e.getMessage(), e);
         }
