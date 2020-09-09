@@ -102,7 +102,7 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
         this.agentHistogramDataService.getData(key, applicationName, serviceTypeCode, this.serverMapData, this.previousRange).pipe(
             map((data: any) => this.isAllAgent() ? data['timeSeriesHistogram'] : data['agentTimeSeriesHistogram'][this.selectedAgent])
         ).pipe(
-            map((data: IHistogram[]) => this.cleanIntermediateChartData(data))
+            map((data: IHistogram[]) => this.cleanStatisticsChartData(data))
         ).pipe(
             map((data: IHistogram[]) => this.makeChartData(data)),
             withLatestFrom(this.storeHelperService.getLoadChartYMax(this.unsubscribe))
@@ -217,7 +217,7 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
                 }),
             )
         ).pipe(
-            map((data: IHistogram[]) => this.cleanIntermediateChartData(data))
+            map((data: IHistogram[]) => this.cleanStatisticsChartData(data))
         ).pipe(
             map((data) => this.makeChartData(data)),
             switchMap((data: PrimitiveArray[]) => {
@@ -258,8 +258,9 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
             : this.serverMapData.getLinkData(this.selectedTarget.link[0]);
     }
 
-    private cleanIntermediateChartData(data: IHistogram[]): any {
-        return data ? data.filter(i => i.key != "Sum" && i.key != "Tot") : [];
+    private cleanStatisticsChartData(data: IHistogram[]): any {
+        const excludes = ["Sum", "Tot", "Avg", "Max"];
+        return data ? data.filter(i => excludes.indexOf(i.key) == -1) : [];
     }
 
     private makeChartData(data: IHistogram[]): PrimitiveArray[] {

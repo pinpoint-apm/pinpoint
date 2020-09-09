@@ -16,6 +16,7 @@ export interface IShortNodeInfo {
     hasAlert?: boolean;
     slowCount?: number;
     histogram?: IResponseTime | IResponseMilliSecondTime;
+    responseStatistics?: IResponseStatistics;
     errorCount?: number;
     totalCount?: number;
     serviceType: string;
@@ -53,9 +54,12 @@ export interface IShortLinkInfo {
     filterTargetRpcList?: any[];
     fromAgent?: string[];
     histogram?: IResponseTime | IResponseMilliSecondTime;
+    responseStatistics?: IResponseStatistics;
     sourceHistogram?: { [key: string]: IResponseTime | IResponseMilliSecondTime };
+    sourceResponseStatistics?: { [key: string]: IResponseStatistics };
     sourceTimeSeriesHistogram?: { [key: string]: IHistogram }[];
     targetHistogram?: { [key: string]: IResponseTime | IResponseMilliSecondTime };
+    targetResponseStatistics?: { [key: string]: IResponseStatistics };
     timeSeriesHistogram?: IHistogram[];
     toAgent?: string[];
 }
@@ -145,6 +149,7 @@ export class ServerMapData {
                 hasAlert: node.hasAlert,
                 slowCount: node.slowCount,
                 histogram: node.histogram,
+                responseStatistics: node.responseStatistics,
                 errorCount: node.errorCount,
                 totalCount: node.totalCount,
                 serviceType: node.serviceType,

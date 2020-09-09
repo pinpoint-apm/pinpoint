@@ -15,30 +15,19 @@ import {
     NewUrlStateNotificationService,
     MESSAGE_TO
 } from 'app/shared/services';
-import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 import { getMaxTickValue } from 'app/core/utils/chart-util';
 import { Actions } from 'app/shared/store';
-
-export enum SourceType {
-    MAIN = 'MAIN',
-    FILTERED = 'FILTERED',
-    INFO_PER_SERVER = 'INFO_PER_SERVER'
-}
-
-export enum Layer {
-    LOADING = 'loading',
-    RETRY = 'retry',
-    CHART = 'chart'
-}
+import { SourceType } from 'app/core/components/response-summary-chart/response-summary-chart-container.component';
+import { Layer } from 'app/core/components/response-summary-chart/response-summary-chart-container.component';
 
 @Component({
-    selector: 'pp-response-summary-chart-container',
-    templateUrl: './response-summary-chart-container.component.html',
-    styleUrls: ['./response-summary-chart-container.component.css'],
+    selector: 'pp-response-avg-max-chart-container',
+    templateUrl: './response-avg-max-chart-container.component.html',
+    styleUrls: ['./response-avg-max-chart-container.component.css'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy {
+export class ResponseAvgMaxChartContainerComponent implements OnInit, OnDestroy {
     @Input() sourceType: string;
 
     private unsubscribe = new Subject<void>();
@@ -106,10 +95,12 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
         const {key, applicationName, serviceTypeCode} = this.getTargetInfo();
 
         this.agentHistogramDataService.getData(key, applicationName, serviceTypeCode, this.serverMapData, this.previousRange).pipe(
-            map((data: any) => this.isAllAgent() ? data['histogram'] : data['agentHistogram'][this.selectedAgent])
+            map((data: any) => this.isAllAgent() ? data['responseStatistics'] : data['agentResponseStatistics'][this.selectedAgent])
         ).pipe(
-            map((data: IResponseTime | IResponseMilliSecondTime) => this.makeChartData(data)),
-            withLatestFrom(this.storeHelperService.getResponseSummaryChartYMax(this.unsubscribe))
+            map((data: IResponseStatistics) => this.cleanIntermediateChartData(data))
+        ).pipe(
+            map((data: IResponseStatistics) => this.makeChartData(data)),
+            withLatestFrom(this.storeHelperService.getResponseAvgMaxChartYMax(this.unsubscribe))
         ).subscribe(([chartData, yMax]: [PrimitiveArray[], number]) => {
             this.chartConfig = {
                 dataConfig: this.makeDataOption(chartData),
@@ -121,7 +112,7 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
     }
 
     private initChartColors(): void {
-        this.chartColors = this.webAppSettingDataService.getColorByRequest();
+        this.chartColors = this.webAppSettingDataService.getColorByResponseStatistics();
     }
 
     private initI18nText(): void {
@@ -149,7 +140,7 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
 
                     return !target.isMerged;
                 }),
-                map(() => this.getTargetInfo().histogram),
+                map(() => this.getTargetInfo().responseStatistics),
             ),
             this.storeHelperService.getAgentSelection(this.unsubscribe).pipe(
                 filter(() => this.sourceType !== SourceType.INFO_PER_SERVER),
@@ -159,7 +150,7 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
                 map(() => this.getTargetInfo()),
                 switchMap((target: any) => {
                     if (this.isAllAgent()) {
-                        return of(target.histogram);
+                        return of(target.responseStatistics);
                     } else {
                         let data;
 
@@ -178,7 +169,7 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
                         }
 
                         return data.pipe(
-                            pluck('agentHistogram', this.selectedAgent)
+                            pluck('agentResponseStatistics', this.selectedAgent)
                         );
                     }
                 }),
@@ -189,7 +180,7 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
                 tap(({key}: any) => {
                     this.isOriginalNode = this.selectedTarget.isNode ? this.selectedTarget.node.includes(key) : this.selectedTarget.link.includes(key);
                 }),
-                map((target: any) => target.histogram),
+                map((target: any) => target.responseStatistics),
             ),
             this.storeHelperService.getAgentSelectionForServerList(this.unsubscribe).pipe(
                 filter(() => this.sourceType === SourceType.INFO_PER_SERVER),
@@ -207,10 +198,12 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
                     return this.agentHistogramDataService.getData(key, applicationName, serviceTypeCode, this.serverMapData, range).pipe(
                         catchError(() => of(null)),
                         filter((res: any) => !!res),
-                        map((data: any) => this.isAllAgent() ? data['histogram'] : data['agentHistogram'][this.selectedAgent])
+                        map((data: any) => this.isAllAgent() ? data['responseStatistics'] : data['agentResponseStatistics'][this.selectedAgent])
                     );
                 }),
             )
+        ).pipe(
+            map((data: IResponseStatistics) => this.cleanIntermediateChartData(data))
         ).pipe(
             map((data) => this.makeChartData(data)),
             switchMap((data: PrimitiveArray[]) => {
@@ -218,12 +211,12 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
                     const maxTickValue = getMaxTickValue(data, 1);
                     const yMax = maxTickValue === 0 ? this.defaultYMax : maxTickValue;
 
-                    this.storeHelperService.dispatch(new Actions.UpdateResponseSummaryChartYMax(yMax));
+                    this.storeHelperService.dispatch(new Actions.UpdateResponseAvgMaxChartYMax(yMax));
 
                     return of([data, yMax]);
                 } else {
                     return of(data).pipe(
-                        withLatestFrom(this.storeHelperService.getResponseSummaryChartYMax(this.unsubscribe))
+                        withLatestFrom(this.storeHelperService.getResponseAvgMaxChartYMax(this.unsubscribe))
                     );
                 }
             }),
@@ -251,7 +244,15 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
             : this.serverMapData.getLinkData(this.selectedTarget.link[0]);
     }
 
-    private makeChartData(data: IResponseTime | IResponseMilliSecondTime): PrimitiveArray[] {
+    private cleanIntermediateChartData(data: IResponseStatistics): any {
+        if (data) {
+            delete data["Sum"];
+            delete data["Tot"];
+        }
+        return data;
+    }
+
+    private makeChartData(data: IResponseStatistics): PrimitiveArray[] {
         return data
             ? [['x', ...Object.keys(data)], ['rs', ...Object.values(data)]]
             : [];
@@ -286,6 +287,7 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
                 show: false
             },
             axis: {
+                rotated: true,
                 x: {
                     type: 'category'
                 },
@@ -334,7 +336,7 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
     }
 
     onClickColumn(columnName: string): void {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_RESPONSE_GRAPH);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_RESPONSE_AVG_MAX_GRAPH);
         if (columnName === 'Error') {
             // scope.$emit('responseTimeSummaryChartDirective.showErrorTransactionList', type);
             // @TODO Scatter Chart의 에러 부분만 Drag 하도록 하는 액션
@@ -349,20 +351,4 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
 
     }
 
-    onShowHelp($event: MouseEvent): void {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.TOGGLE_HELP_VIEWER, HELP_VIEWER_LIST.RESPONSE_SUMMARY);
-        const {left, top, width, height} = ($event.target as HTMLElement).getBoundingClientRect();
-
-        this.dynamicPopupService.openPopup({
-            data: HELP_VIEWER_LIST.RESPONSE_SUMMARY,
-            coord: {
-                coordX: left + width / 2,
-                coordY: top + height / 2
-            },
-            component: HelpViewerPopupContainerComponent
-        }, {
-            resolver: this.componentFactoryResolver,
-            injector: this.injector
-        });
-    }
 }

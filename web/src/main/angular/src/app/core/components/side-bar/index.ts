@@ -11,6 +11,8 @@ import { ServerStatusContainerComponent } from 'app/core/components/server-statu
 import { FilterInformationContainerComponent } from 'app/core/components/filter-information';
 import { SideBarContainerComponent } from './side-bar-container.component';
 import { SideBarForFilteredMapContainerComponent } from './side-bar-for-filtered-map-container.component';
+import {ResponseAvgMaxChartModule} from "../response-avg-max-chart";
+import {LoadAvgMaxChartModule} from "../load-avg-max-chart";
 
 @NgModule({
     declarations: [
@@ -26,7 +28,9 @@ import { SideBarForFilteredMapContainerComponent } from './side-bar-for-filtered
         ScatterChartModule,
         TargetListModule,
         ResponseSummaryChartModule,
-        LoadChartModule
+        LoadChartModule,
+        ResponseAvgMaxChartModule,
+        LoadAvgMaxChartModule
     ],
     exports: [
         SideBarContainerComponent,

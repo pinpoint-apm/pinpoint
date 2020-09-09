@@ -26,12 +26,16 @@ interface IResponseTime {
     '5s': number;
     'Slow': number;
     'Error': number;
+    [key: string]: number;
+}
+
+interface IResponseStatistics {
     'Avg': number;
     'Max': number;
     'Sum': number;
     'Tot': number;
-    [key: string]: number;
 }
+
 // @store
 interface IHistogram {
     key: string;
@@ -44,10 +48,6 @@ interface IResponseMilliSecondTime {
     '500ms': number;
     'Error': number;
     'Slow': number;
-    'Avg': number;
-    'Max': number;
-    'Sum': number;
-    'Tot': number;
     [key: string]: number;
 }
 interface IInstanceStatus {
@@ -119,20 +119,20 @@ interface ILinkInfo {
     fromAgent?: string[];
     hasAlert: boolean;
     histogram: IResponseTime | IResponseMilliSecondTime;
+    responseStatistics: IResponseStatistics;
     key: string;
     slowCount: number;
     sourceHistogram?: { [key: string]: IResponseTime | IResponseMilliSecondTime };
+    sourceResponseStatistics?: { [key: string]: IResponseStatistics };
     sourceInfo: ISourceInfo;
     sourceTimeSeriesHistogram?: { [key: string]: IHistogram }[];
     targetHistogram?: { [key: string]: IResponseTime | IResponseMilliSecondTime };
+    targetResponseStatistics?: { [key: string]: IResponseStatistics };
     targetInfo: ISourceInfo;
     timeSeriesHistogram: IHistogram[];
     to: string;
     toAgent?: string[];
     totalCount: number;
-    maxElapsed: number;
-    sumElapsed: number;
-    avgElapsed: number;
 }
 interface INodeInfo {
     agentHistogram?: { [key:string]: IResponseTime | IResponseMilliSecondTime }[];
@@ -143,6 +143,7 @@ interface INodeInfo {
     errorCount: number;
     hasAlert: boolean;
     histogram: IResponseTime | IResponseMilliSecondTime;
+    responseStatistics: IResponseStatistics;
     instanceCount: number;
     instanceErrorCount: number;
     isAuthorized: boolean;
@@ -155,9 +156,6 @@ interface INodeInfo {
     slowCount: number;
     timeSeriesHistogram: IHistogram[];
     totalCount: number;
-    maxElapsed: number;
-    sumElapsed: number;
-    avgElapsed: number;
 }
 interface IQueryRange {
     from: number;
