@@ -161,10 +161,13 @@ public class NodeSerializer extends JsonSerializer<Node>  {
             }
             if (NodeType.DETAILED == node.getNodeType()) {
                 Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
+                final String agentRespStatFiledName = "agentResponseStatistics";
                 if (agentHistogramMap == null) {
                     writeEmptyObject(jgen, "agentHistogram");
+                    writeEmptyObject(jgen, agentRespStatFiledName);
                 } else {
                     jgen.writeObjectField("agentHistogram", agentHistogramMap);
+                    jgen.writeObjectField(agentRespStatFiledName, nodeHistogram.getAgentResponseStatisticsMap());
                 }
             }
         } else {
