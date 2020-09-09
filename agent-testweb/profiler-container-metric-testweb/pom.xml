@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pinpoint-agent-testweb</artifactId>
+        <version>2.3.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pinpoint-profiler-container-metric-testweb</artifactId>
+
+    <packaging>jar</packaging>
+
+    <properties>
+        <jdk.version>8</jdk.version>
+        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+        <pinpoint.agent.jvmargument>
+            -D${project.name}
+            -Dpinpoint.profiler.profiles.active=${pinpoint.agent.profile}
+            -Dpinpoint.applicationName=ProfilerTest
+            -Dpinpoint.agentId=ProfilerTestAgent
+            -Dprofiler.sampling.rate=${pinpoint.agent.sampling-rate}
+        </pinpoint.agent.jvmargument>
+        <plugin.animal-sniffer.skip>true</plugin.animal-sniffer.skip>
+    </properties>
+</project>

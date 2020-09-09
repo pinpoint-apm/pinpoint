@@ -1,0 +1,98 @@
+/*
+ * Copyright 2020 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.navercorp.pinpoint.web.vo.stat.chart.agent;
+
+import com.google.common.collect.ImmutableMap;
+import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.vo.chart.Chart;
+import com.navercorp.pinpoint.web.vo.chart.Point;
+import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
+import com.navercorp.pinpoint.web.vo.stat.SampledContainer;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+/**
+ * @author Hyunjoon Cho
+ */
+public class ContainerChart implements StatChart {
+
+    private final ContainerChartGroup containerChartGroup;
+
+    public ContainerChart(TimeWindow timeWindow, List<SampledContainer> sampledContainers){
+        this.containerChartGroup = new ContainerChartGroup(timeWindow, sampledContainers);
+    }
+
+    @Override
+    public StatChartGroup getCharts() {
+        return containerChartGroup;
+    }
+
+    public static class ContainerChartGroup implements StatChartGroup {
+
+        private final TimeWindow timeWindow;
+
+        private final Map<ChartType, Chart<? extends Point>> containerCharts;
+
+        public enum ContainerChartType implements AgentChartType {
+            USER_CPU_USAGE,
+            SYSTEM_CPU_USAGE,
+            MEMORY_MAX,
+            MEMORY_USAGE
+        }
+
+        private ContainerChartGroup(TimeWindow timeWindow, List<SampledContainer> sampledContainers) {
+            this.timeWindow = timeWindow;
+            this.containerCharts = newChart(sampledContainers);
+        }
+
+        private Map<ChartType, Chart<? extends Point>> newChart(List<SampledContainer> sampledContainers){
+            Chart<AgentStatPoint<Double>> userCpuUsage = newChartDouble(sampledContainers, SampledContainer::getUserCpuUsage);
+            Chart<AgentStatPoint<Double>> systemCpuUsage = newChartDouble(sampledContainers, SampledContainer::getSystemCpuUsage);
+            Chart<AgentStatPoint<Long>> memoryMax = newChartLong(sampledContainers, SampledContainer::getMemoryMax);
+            Chart<AgentStatPoint<Long>> memoryUsage = newChartLong(sampledContainers, SampledContainer::getMemoryUsage);
+
+            return ImmutableMap.of(ContainerChartType.USER_CPU_USAGE, userCpuUsage,
+                    ContainerChartType.SYSTEM_CPU_USAGE, systemCpuUsage,
+                    ContainerChartType.MEMORY_MAX, memoryMax,
+                    ContainerChartType.MEMORY_USAGE, memoryUsage);
+        }
+
+        private Chart<AgentStatPoint<Double>> newChartDouble(List<SampledContainer> sampledActiveTraces, Function<SampledContainer, AgentStatPoint<Double>> function) {
+            TimeSeriesChartBuilder<AgentStatPoint<Double>> builder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledContainer.UNCOLLECTED_DOUBLE_POINT_CREATOR);
+            return builder.build(sampledActiveTraces, function);
+        }
+
+        private Chart<AgentStatPoint<Long>> newChartLong(List<SampledContainer> sampledActiveTraces, Function<SampledContainer, AgentStatPoint<Long>> function) {
+            TimeSeriesChartBuilder<AgentStatPoint<Long>> builder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledContainer.UNCOLLECTED_LONG_POINT_CREATOR);
+            return builder.build(sampledActiveTraces, function);
+        }
+
+        @Override
+        public TimeWindow getTimeWindow() {
+            return timeWindow;
+        }
+
+        @Override
+        public Map<ChartType, Chart<? extends Point>> getCharts() {
+            return containerCharts;
+        }
+    }
+}

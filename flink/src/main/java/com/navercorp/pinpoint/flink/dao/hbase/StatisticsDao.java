@@ -49,6 +49,7 @@ public class StatisticsDao extends RichOutputFormat<Tuple3<String, JoinStatBo, L
     private transient DirectBufferDao directBufferDao;
     private transient TotalThreadCountDao totalThreadCountDao;
     private transient LoadedClassDao loadedClassDao;
+    private transient ContainerDao containerDao;
     private transient StatisticsDaoInterceptor statisticsDaoInterceptor;
 
     @Override
@@ -65,6 +66,7 @@ public class StatisticsDao extends RichOutputFormat<Tuple3<String, JoinStatBo, L
         directBufferDao = bootstrap.getDirectBufferDao();
         totalThreadCountDao = bootstrap.getTotalThreadCountDao();
         loadedClassDao = bootstrap.getLoadedClassDao();
+        containerDao = bootstrap.getContainerDao();
         statisticsDaoInterceptor = bootstrap.getStatisticsDaoInterceptor();
     }
 
@@ -103,6 +105,7 @@ public class StatisticsDao extends RichOutputFormat<Tuple3<String, JoinStatBo, L
         List<JoinStatBo> joinDirectBufferBoList = castJoinStatBoList(joinApplicationStatBo.getJoinDirectBufferBoList());
         List<JoinStatBo> joinTotalThreadCountBoList = castJoinStatBoList(joinApplicationStatBo.getJoinTotalThreadCountBoList());
         List<JoinStatBo> joinLoadedClassBoList = castJoinStatBoList(joinApplicationStatBo.getJoinLoadedClassBoList());
+        List<JoinStatBo> joinContainerBoList = castJoinStatBoList(joinApplicationStatBo.getJoinContainerBoList());
 
         if (joinApplicationStatBo.getStatType() == StatType.APP_STST_AGGRE) {
 //            logger.info("insert application aggre : " + new Date(joinApplicationStatBo.getTimestamp()) + " ("+ joinApplicationStatBo.getApplicationId() + " )");
@@ -119,6 +122,7 @@ public class StatisticsDao extends RichOutputFormat<Tuple3<String, JoinStatBo, L
             directBufferDao.insert(id, timestamp, joinDirectBufferBoList, StatType.APP_DIRECT_BUFFER);
             totalThreadCountDao.insert(id, timestamp, joinTotalThreadCountBoList, StatType.APP_TOTAL_THREAD_COUNT);
             loadedClassDao.insert(id, timestamp, joinLoadedClassBoList, StatType.APP_LOADED_CLASS);
+            containerDao.insert(id, timestamp, joinContainerBoList, StatType.APP_CONTAINER);
         }
     }
 

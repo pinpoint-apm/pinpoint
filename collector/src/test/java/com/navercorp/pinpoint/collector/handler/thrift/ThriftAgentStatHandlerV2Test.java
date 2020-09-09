@@ -83,6 +83,9 @@ public class ThriftAgentStatHandlerV2Test {
     @Mock
     private AgentStatDaoV2<LoadedClassBo> loadedClassDao;
 
+    @Mock
+    private AgentStatDaoV2<ContainerBo> containerDao;
+
     @Spy
     private List<AgentStatService> agentStatServiceList = new ArrayList<>();
 
@@ -93,7 +96,7 @@ public class ThriftAgentStatHandlerV2Test {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         hBaseAgentStatService = new HBaseAgentStatService(jvmGcDao, jvmGcDetailedDao, cpuLoadDao, transactionDao,
-                activeTraceDao, dataSourceDao, responseTimeDao, deadlockDao, fileDescriptorDao, directBufferDao, totalThreadCountDao, loadedClassDao);
+                activeTraceDao, dataSourceDao, responseTimeDao, deadlockDao, fileDescriptorDao, directBufferDao, totalThreadCountDao, loadedClassDao, containerDao);
         agentStatServiceList.add(hBaseAgentStatService);
         thriftAgentStatHandlerV2 = new ThriftAgentStatHandlerV2(agentStatMapper, agentStatBatchMapper, Optional.of(agentStatServiceList));
     }

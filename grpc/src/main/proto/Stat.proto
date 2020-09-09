@@ -76,6 +76,7 @@ message PAgentStat {
     string metadata = 12;
     PTotalThread totalThread = 13;
     PLoadedClass loadedClass = 14;
+    PContainer container = 15;
 }
 
 message PAgentStatBatch {
@@ -181,6 +182,13 @@ message PEachUriStat {
     string uri = 1;
     PUriHistogram totalHistogram = 2;
     PUriHistogram failedHistogram = 3;
+}
+
+message PContainer {
+    double userCpuUsage = 1;
+    double systemCpuUsage = 2;
+    int64 memoryMax = 3;
+    int64 memoryUsage = 4;
 }
 
 message PUriHistogram {

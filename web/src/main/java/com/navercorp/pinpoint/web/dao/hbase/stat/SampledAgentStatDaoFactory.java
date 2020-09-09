@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.web.dao.stat.SampledResponseTimeDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledTransactionDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledTotalThreadCountDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledLoadedClassCountDao;
+import com.navercorp.pinpoint.web.dao.stat.SampledContainerDao;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentUriStat;
@@ -45,6 +46,7 @@ import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
 import com.navercorp.pinpoint.web.vo.stat.SampledTotalThreadCount;
 import com.navercorp.pinpoint.web.vo.stat.SampledLoadedClassCount;
+import com.navercorp.pinpoint.web.vo.stat.SampledContainer;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -339,6 +341,31 @@ abstract class SampledAgentStatDaoFactory<S extends SampledAgentStatDataPoint, D
 
         @Override
         public boolean isSingleton() { return true; }
+    }
+
+    @Repository("sampledContainerDaoFactory")
+    public static class SampledContainerDaoFactory
+            extends SampledAgentStatDaoFactory<SampledContainer, SampledContainerDao>
+            implements FactoryBean<SampledContainerDao> {
+
+        @Autowired
+        public void setV2(@Qualifier("sampledContainerDaoV2") SampledContainerDao v2) {
+                    this.v2 = v2;
+        }
+        @Override
+        public SampledContainerDao getObject() throws Exception {
+            return super.getDao();
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+            return SampledContainerDao.class;
+        }
+
+        @Override
+        public boolean isSingleton() {
+            return true;
+        }
     }
 
     @Repository("sampledAgentUriStatDaoFactory")

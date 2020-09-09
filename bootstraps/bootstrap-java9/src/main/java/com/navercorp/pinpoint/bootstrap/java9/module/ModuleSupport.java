@@ -157,6 +157,12 @@ public class ModuleSupport {
             } else {
                 logger.info(internalAccessModule + " package not found");
             }
+            final String internalPlatformModule = "jdk.internal.platform";
+            if (baseModule.getPackages().contains(internalPlatformModule)) {
+                baseModule.addExports(internalPlatformModule, agentModule);
+            } else {
+                logger.info(internalPlatformModule + " package not found");
+            }
         }
 
         agentModule.addReads(baseModule);

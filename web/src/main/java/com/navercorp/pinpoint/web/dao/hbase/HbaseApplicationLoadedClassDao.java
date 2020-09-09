@@ -40,8 +40,8 @@ public class HbaseApplicationLoadedClassDao implements ApplicationLoadedClassDao
     private final HbaseApplicationStatDaoOperations operations;
 
     public HbaseApplicationLoadedClassDao(LoadedClassDecoder loadedClassDecoder, ApplicationStatSampler<JoinLoadedClassBo> loadedClassSampler, HbaseApplicationStatDaoOperations operations) {
-        this.loadedClassDecoder = Objects.requireNonNull(loadedClassDecoder, "directBufferDecoder");
-        this.loadedClassSampler = Objects.requireNonNull(loadedClassSampler, "directBufferSampler");
+        this.loadedClassDecoder = Objects.requireNonNull(loadedClassDecoder, "loadedClassDecoder");
+        this.loadedClassSampler = Objects.requireNonNull(loadedClassSampler, "loadedClassSampler");
         this.operations = Objects.requireNonNull(operations, "operations");
     }
 

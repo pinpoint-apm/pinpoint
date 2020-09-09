@@ -32,6 +32,7 @@
         <module>profiler-optional-jdk7</module>
         <module>profiler-optional-jdk8</module>
         <module>profiler-optional-jdk9</module>
+        <module>profiler-container-metric</module>
         <module>profiler-optional-parent</module>
     </modules>
 
@@ -49,6 +50,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-profiler-optional-jdk9</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-profiler-container-metric</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

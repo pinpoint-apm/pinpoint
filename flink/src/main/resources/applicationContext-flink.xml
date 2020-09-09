@@ -69,6 +69,9 @@
     <bean id="joinLoadedClassCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.LoadedClassCodec"/>
     <bean id="loadedClassEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.LoadedClassEncoder"/>
     <bean id="loadedClassSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.LoadedClassSerializer"/>
+    <bean id="joinContainerCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ContainerCodec"/>
+    <bean id="containerEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ContainerEncoder"/>
+    <bean id="containerSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ContainerSerializer"/>
 
     <bean id="joinAgentStatBoMapper" class="com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper"/>
 
@@ -141,6 +144,13 @@
         <constructor-arg index="0" ref="hbaseTemplate"/>
         <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
         <constructor-arg index="2" ref="loadedClassSerializer"/>
+        <constructor-arg index="3" ref="tableNameProvider"/>
+    </bean>
+
+    <bean id="containererDao" class="com.navercorp.pinpoint.flink.dao.hbase.ContainerDao">
+        <constructor-arg index="0" ref="hbaseTemplate"/>
+        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
+        <constructor-arg index="2" ref="containerSerializer"/>
         <constructor-arg index="3" ref="tableNameProvider"/>
     </bean>
 

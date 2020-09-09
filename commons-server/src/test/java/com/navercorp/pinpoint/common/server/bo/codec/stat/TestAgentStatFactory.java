@@ -460,6 +460,34 @@ public class TestAgentStatFactory {
         return loadedClassBos;
     }
 
+    public static List<ContainerBo> createContainerBos(String agentId, long startTimestamp, long initialTimestamp) {
+        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        return createContainerBos(agentId, startTimestamp, initialTimestamp, numValues);
+    }
+
+    public static List<ContainerBo> createContainerBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
+        List<ContainerBo> containerBos = new ArrayList<ContainerBo>(numValues);
+        List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
+        List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
+        List<Double> containers1 = createRandomPercentageValues(numValues);
+        List<Double> containers2 = createRandomPercentageValues(numValues);
+        List<Long> containers3 = TestAgentStatDataPointFactory.LONG.createRandomValues(1L, 10000L, numValues);
+        List<Long> containers4 = TestAgentStatDataPointFactory.LONG.createRandomValues(1L, 10000L, numValues);
+
+        for (int i = 0; i < numValues; i++) {
+            ContainerBo containerBo = new ContainerBo();
+            containerBo.setStartTimestamp(startTimestamps.get(i));
+            containerBo.setAgentId(agentId);
+            containerBo.setTimestamp(timestamps.get(i));
+            containerBo.setUserCpuUsage(containers1.get(i));
+            containerBo.setSystemCpuUsage(containers2.get(i));
+            containerBo.setMemoryMax(containers3.get(i));
+            containerBo.setMemoryUsage(containers4.get(i));
+            containerBos.add(containerBo);
+        }
+        return containerBos;
+    }
+
     public static List<AgentUriStatBo> createAgentUriStatBo(String agentId, long startTimestamp, long initialTimestamp) {
         final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
         return createAgentUriStatBo(agentId, startTimestamp, initialTimestamp, numValues);
