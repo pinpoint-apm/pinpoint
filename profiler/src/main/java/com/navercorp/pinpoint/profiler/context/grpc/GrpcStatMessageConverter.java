@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.grpc.trace.PActiveTraceHistogram;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
+import com.navercorp.pinpoint.grpc.trace.PContainer;
 import com.navercorp.pinpoint.grpc.trace.PCpuLoad;
 import com.navercorp.pinpoint.grpc.trace.PCustomMetricMessage;
 import com.navercorp.pinpoint.grpc.trace.PDataSource;
@@ -45,6 +46,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshotBat
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcDetailedMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.container.ContainerMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSource;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetricSnapshot;
@@ -168,6 +170,12 @@ public class GrpcStatMessageConverter implements MessageConverter<GeneratedMessa
         if (loadedClassMetricSnapshot != null) {
             final PLoadedClass loadedClass = convertLoadedClass(loadedClassMetricSnapshot);
             agentStatBuilder.setLoadedClass(loadedClass);
+        }
+
+        final ContainerMetricSnapshot containerMetricSnapshot = agentStatMetricSnapshot.getContainer();
+        if (containerMetricSnapshot != null){
+            final PContainer container = convertContainer(containerMetricSnapshot);
+            agentStatBuilder.setContainer(container);
         }
 
         return agentStatBuilder.build();
@@ -303,5 +311,14 @@ public class GrpcStatMessageConverter implements MessageConverter<GeneratedMessa
         loadedClassBuilder.setLoadedClassCount(loadedClassCountData.getLoadedClassCount());
         loadedClassBuilder.setUnloadedClassCount(loadedClassCountData.getUnloadedClassCount());
         return loadedClassBuilder.build();
+    }
+
+    private PContainer convertContainer(ContainerMetricSnapshot containerMetricSnapshot){
+        final PContainer.Builder containerBuilder = PContainer.newBuilder();
+        containerBuilder.setUserCpuUsage(containerMetricSnapshot.getUserCpuUsage());
+        containerBuilder.setSystemCpuUsage(containerMetricSnapshot.getSystemCpuUsage());
+        containerBuilder.setMemoryMax(containerMetricSnapshot.getMemoryMax());
+        containerBuilder.setMemoryUsage(containerMetricSnapshot.getMemoryUsage());
+        return containerBuilder.build();
     }
 }

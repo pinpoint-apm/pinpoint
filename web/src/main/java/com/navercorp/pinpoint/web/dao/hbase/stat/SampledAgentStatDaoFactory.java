@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.web.dao.SampledAgentStatDao;
 
 import com.navercorp.pinpoint.web.dao.stat.SampledActiveTraceDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledAgentUriStatDao;
+import com.navercorp.pinpoint.web.dao.stat.SampledContainerDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledCpuLoadDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledDataSourceDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledDeadlockDao;
@@ -34,6 +35,7 @@ import com.navercorp.pinpoint.web.dao.stat.SampledLoadedClassCountDao;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentUriStat;
+import com.navercorp.pinpoint.web.vo.stat.SampledContainer;
 import com.navercorp.pinpoint.web.vo.stat.SampledCpuLoad;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSourceList;
 import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
@@ -361,4 +363,28 @@ abstract class SampledAgentStatDaoFactory<S extends SampledAgentStatDataPoint, D
         public boolean isSingleton() { return true; }
     }
 
+     @Repository("sampledContainerDaoFactory")
+     public static class SampledContainerDaoFactory
+             extends SampledAgentStatDaoFactory<SampledContainer, SampledContainerDao>
+             implements FactoryBean<SampledContainerDao> {
+
+        @Autowired
+        public void setV2(@Qualifier("sampledContainerDaoV2") SampledContainerDao v2) {
+            this.v2 = v2;
+        }
+
+        @Override
+        public SampledContainerDao getObject() throws Exception {
+            return super.getDao();
+        }
+        @Override
+        public Class<?> getObjectType() {
+            return SampledContainerDao.class;
+        }
+
+        @Override
+        public boolean isSingleton() {
+            return true;
+        }
+    }
 }

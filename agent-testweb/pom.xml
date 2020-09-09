@@ -55,6 +55,7 @@
         <module>paho-mqtt-plugin-testweb</module>
         <module>reactor-netty-plugin-testweb</module>
         <module>rocketmq-plugin-testweb</module>
+        <module>profiler-container-metric-testweb</module>
     </modules>
 
 

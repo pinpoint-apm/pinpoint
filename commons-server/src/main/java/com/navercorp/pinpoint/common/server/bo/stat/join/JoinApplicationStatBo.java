@@ -52,6 +52,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
     private final List<JoinDirectBufferBo> joinDirectBufferBoList;
     private final List<JoinTotalThreadCountBo> joinTotalThreadCountBoList;
     private final List<JoinLoadedClassBo> joinLoadedClassBoList;
+    private final List<JoinContainerBo> joinContainerBoList;
 
     private final long timestamp;
     private final StatType statType;
@@ -70,6 +71,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
         this.joinDirectBufferBoList = joinApplicationStatBo.getJoinDirectBufferBoList();
         this.joinTotalThreadCountBoList = joinApplicationStatBo.getJoinTotalThreadCountBoList();
         this.joinLoadedClassBoList = joinApplicationStatBo.getJoinLoadedClassBoList();
+        this.joinContainerBoList = joinApplicationStatBo.getJoinContainerBoList();
 
         this.timestamp = joinApplicationStatBo.getTimestamp();
         this.statType = joinApplicationStatBo.getStatType();
@@ -90,10 +92,10 @@ public class JoinApplicationStatBo implements JoinStatBo {
         this.joinDirectBufferBoList = FilterUtils.filter(builder.statList, JoinDirectBufferBo.class);
         this.joinTotalThreadCountBoList = FilterUtils.filter(builder.statList, JoinTotalThreadCountBo.class);
         this.joinLoadedClassBoList = FilterUtils.filter(builder.statList, JoinLoadedClassBo.class);
+        this.joinContainerBoList = FilterUtils.filter(builder.statList, JoinContainerBo.class);
 
         this.timestamp = builder.timestamp;
         this.statType = builder.statType;
-
     }
 
     public static JoinApplicationStatBo joinApplicationStatBoByTimeSlice(final List<JoinApplicationStatBo> joinApplicationStatBoList) {
@@ -115,6 +117,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
         joiner.join(JoinApplicationStatBo::getJoinDirectBufferBoList, JoinDirectBufferBo::apply);
         joiner.join(JoinApplicationStatBo::getJoinTotalThreadCountBoList, JoinTotalThreadCountBo::apply);
         joiner.join(JoinApplicationStatBo::getJoinLoadedClassBoList, JoinLoadedClassBo::apply);
+        joiner.join(JoinApplicationStatBo::getJoinContainerBoList, JoinContainerBo::apply);
 
         return builder.build();
     }
@@ -177,6 +180,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
             minTimestamp = minTimestamp(joinApplicationStatBo.getJoinDirectBufferBoList(), minTimestamp);
             minTimestamp = minTimestamp(joinApplicationStatBo.getJoinTotalThreadCountBoList(), minTimestamp);
             minTimestamp = minTimestamp(joinApplicationStatBo.getJoinLoadedClassBoList(), minTimestamp);
+            minTimestamp = minTimestamp(joinApplicationStatBo.getJoinContainerBoList(), minTimestamp);
         }
         return minTimestamp;
     }
@@ -247,6 +251,10 @@ public class JoinApplicationStatBo implements JoinStatBo {
         return joinLoadedClassBoList;
     }
 
+    public List<JoinContainerBo> getJoinContainerBoList() {
+        return joinContainerBoList;
+    }
+
     public static List<JoinApplicationStatBo> createJoinApplicationStatBo(String applicationId, JoinAgentStatBo joinAgentStatBo, long rangeTime) {
         List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<>();
         List<JoinAgentStatBo> joinAgentStatBoList = splitJoinAgentStatBo(applicationId, joinAgentStatBo, rangeTime);
@@ -264,6 +272,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
             sliceJoinAgentStatBo.getJoinDirectBufferBoList().forEach(builder::addDirectBuffer);
             sliceJoinAgentStatBo.getJoinTotalThreadCountBoList().forEach(builder::addTotalThreadCount);
             sliceJoinAgentStatBo.getJoinLoadedClassBoList().forEach(builder::addLoadedClass);
+            sliceJoinAgentStatBo.getJoinContainerBoList().forEach(builder::addContainer);
 
             joinApplicationStatBoList.add(builder.build());
         }
@@ -284,6 +293,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
         slicer.slice(joinAgentStatBo.getJoinDirectBufferBoList(), JoinAgentStatBo.Builder::addDirectBuffer);
         slicer.slice(joinAgentStatBo.getJoinTotalThreadCountBoList(), JoinAgentStatBo.Builder::addTotalThreadCount);
         slicer.slice(joinAgentStatBo.getJoinLoadedClassBoList(), JoinAgentStatBo.Builder::addLoadedClass);
+        slicer.slice(joinAgentStatBo.getJoinContainerBoList(), JoinAgentStatBo.Builder::addContainer);
         return slicer.build();
     }
 
@@ -418,6 +428,11 @@ public class JoinApplicationStatBo implements JoinStatBo {
             this.statList.add(joinLoadedClass);
         }
 
+        public void addContainer(JoinContainerBo joinContainer) {
+            Objects.requireNonNull(joinContainer, "joinContainer");
+            this.statList.add(joinContainer);
+        }
+
         public JoinApplicationStatBo build() {
 
             return new JoinApplicationStatBo(this);
@@ -441,6 +456,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
                 ", joinDirectBufferBoList=" + joinDirectBufferBoList +
                 ", joinTotalThreadCountBoList=" + joinTotalThreadCountBoList +
                 ", joinLoadedClassBoList=" + joinLoadedClassBoList +
+                ", joinContainerBoList=" + joinContainerBoList +
                 ", statType=" + statType +
                 '}';
     }

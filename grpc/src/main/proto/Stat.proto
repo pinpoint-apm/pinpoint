@@ -76,6 +76,7 @@ message PAgentStat {
     string metadata = 12;
     PTotalThread totalThread = 13;
     PLoadedClass loadedClass = 14;
+    PContainer container = 15;
 }
 
 message PAgentStatBatch {
@@ -188,4 +189,11 @@ message PUriHistogram {
     double avg = 2;
     int64 max = 3;
     repeated int32 histogram = 4;
+}
+
+message PContainer {
+    double userCpuUsage = 1;
+    double systemCpuUsage = 2;
+    int64 memoryMax = 3;
+    int64 memoryUsage = 4;
 }
