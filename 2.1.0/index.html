@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="keywords" content=" pinpoint apm, apm, pinpoint, pinpoint homepage, pinpoint gitpage">
+<title>Pinpoint | Leading Open-Source APM</title>
+<link rel="stylesheet" href="css/syntax.css">
+
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<!--<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">-->
+<link rel="stylesheet" href="css/modern-business.css">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="css/customstyles.css">
+<link rel="stylesheet" href="css/boxshadowproperties.css">
+<!-- most color styles are extracted out to here -->
+<link rel="stylesheet" href="css/theme-black.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="js/jquery.navgoco.min.js"></script>
+
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<!-- Anchor.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/2.0.0/anchor.min.js"></script>
+<script src="js/toc.js"></script>
+<script src="js/customscripts.js"></script>
+
+<link rel="shortcut icon" href="images/favicon.ico">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="pinpoint" href="http://localhost:4000/feed.xml">
+
+
+
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $("#tg-sb-link").click(function() {
+                $("#tg-sb-sidebar").toggle();
+                $("#tg-sb-content").toggleClass('col-md-12');
+                $("#tg-sb-icon").toggleClass('fa-toggle-on');
+                $("#tg-sb-icon").toggleClass('fa-toggle-off');
+            });
+        });
+    </script>
+
+
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container topnavlinks">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="fa fa-home fa-lg navbar-brand" href="/pinpoint/index.html">&nbsp;<span class="projectTitle"> <img src="./images/logo2.png"> </span></a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <!-- toggle sidebar button -->
+                <li><a id="tg-sb-link" href="#"><i id="tg-sb-icon" class="fa fa-toggle-on"></i> Nav</a></li>
+                <!-- entries without drop-downs appear here -->
+
+
+
+
+                
+                
+                
+                <li><a href="https://github.com/naver/pinpoint" target="_blank">GitHub</a></li>
+                
+                
+                
+                <li><a href="https://twitter.com/Pinpoint_APM" target="_blank">News</a></li>
+                
+                
+                
+                <li><a href="https://naver.github.io/pinpoint/resources" target="_blank">Pinpoint Blogs</a></li>
+                
+                
+                
+                <!-- entries with drop-downs appear here -->
+                <!-- conditional logic to control which topnav appears for the audience defined in the configuration file.-->
+                
+                
+			<li>
+
+
+
+  <a class="email" title="Submit feedback" href="#" onclick="javascript:window.location='mailto:pinpoint.helper@navercorp.com?subject=pinpoint feedback&body=If it\'s an issue please check QnA page in the homepage or Pinpoint GitHub repository https://github.com/naver/pinpoint/issues' "><i class="fa fa-envelope-o"></i> Feedback</a>
+
+</li>
+
+		
+                <!--comment out this block if you want to hide search-->
+                <li>
+                    <!--start search-->
+                    <div id="search-demo-container">
+                        <input type="text" id="search-input" placeholder="search...">
+                        <ul id="results-container"></ul>
+                    </div>
+                    <script src="js/jekyll-search.js" type="text/javascript"></script>
+                    <script type="text/javascript">
+                            SimpleJekyllSearch.init({
+                                searchInput: document.getElementById('search-input'),
+                                resultsContainer: document.getElementById('results-container'),
+                                dataSource: 'search.json',
+                                searchResultTemplate: '<li><a href="{url}" title="Pinpoint">{title}</a></li>',
+                    noResultsText: 'No results found.',
+                            limit: 10,
+                            fuzzy: true,
+                    })
+                    </script>
+                    <!--end search-->
+                </li>
+            </ul>
+        </div>
+        </div>
+        <!-- /.container -->
+</nav>
+
+<!-- Page Content -->
+
+<div class="container">
+
+    <div id="main">
+        <!-- Content Row -->
+        <div class="row">
+            
+
+            <!-- Content Column -->
+            <div class="col-md-8" id="tg-sb-content">
+                <a no_icon href="https://github.com/naver/pinpoint"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+                <div class="post-header">
+   <h1 class="post-title-main">Pinpoint</h1>
+</div>
+
+
+
+<div class="post-content">
+
+   
+
+    
+
+
+    
+
+
+    
+
+  <p><img src="https://travis-ci.org/naver/pinpoint.svg?branch=master" alt="Build Status" />
+<img src="https://codecov.io/gh/naver/pinpoint/branch/master/graph/badge.svg" alt="codecov" /></p>
+
+<p><a class="twitter-timeline" data-lang="en" data-width="550" data-height="400" data-theme="light" data-link-color="#19CF86" href="https://twitter.com/Pinpoint_APM?ref_src=twsrc%5Etfw">Tweets by Pinpoint_APM</a> <script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+
+<h2 id="is-your-application-created-with-php">Is your application created with PHP?</h2>
+
+<p>Pinpoint has started to support application written in PHP. <a href="https://github.com/naver/pinpoint-c-agent">Check-out our php-agent repository</a>.</p>
+
+<h2 id="looking-for-place-to-ask-questions">Looking for place to ask questions?</h2>
+
+<p><a href="./faq.html">Questions and FAQ</a></p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p><strong>Pinpoint</strong> is an APM (Application Performance Management) tool for large-scale distributed systems written in Java / <a href="https://github.com/naver/pinpoint-c-agent">PHP</a>.
+Inspired by <a href="http://research.google.com/pubs/pub36356.html" title="Google Dapper">Dapper</a>,
+Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.</p>
+
+<p>You should definitely check <strong>Pinpoint</strong> out If you want to</p>
+
+<ul>
+  <li>understand your <a href="./overview.html">application topology</a> at a glance</li>
+  <li>monitor your application in <em>Real-Time</em></li>
+  <li>gain code-level visibility to every transaction</li>
+  <li>install APM Agents without changing a single line of code</li>
+  <li>have minimal impact on the performance (approximately 3% increase in resource usage)</li>
+</ul>
+
+<p><img src="/pinpoint/images/ss_server-map.png" alt="Pinpoint" /></p>
+
+<h2 id="live-demo">Live Demo</h2>
+<ul>
+  <li><a href="http://125.209.240.10:10123">Demo</a> - Here is a Demo, So that you can take a look at Pinpoint right away.</li>
+</ul>
+
+<h2 id="want-a-quick-tour">Want a quick tour?</h2>
+<ul>
+  <li><a href="./overview.html">Overview</a>/<a href="./history.html">History</a>/<a href="./techdetail.html">Tech Details</a> to get to know more about Pinpoint</li>
+  <li><a href="./videos.html">Videos</a> - Checkout our videos on Pinpoint</li>
+</ul>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/U4EwnB34Dus" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen=""></iframe>
+
+<h2 id="getting-started">Getting Started</h2>
+<ul>
+  <li><a href="./quickstart.html">Quick-start guide(Lastest Snapshot)</a> for simple test run of Pinpoint</li>
+  <li><a href="./installation.html">Installation guide(Lastest Snapshot)</a> for further instructions.</li>
+</ul>
+
+<h2 id="google-analytics">Google Analytics</h2>
+<p>The web module has google analytics attached that tracks the number and the order of button clicks in the server map, transaction list, and the inspector view.</p>
+
+<p>This data is used to better understand how users interact with the Web UI which gives us valuable information in improving Pinpoint Web’s user experience.
+To disable this for any reason, set the following option to false in <em>pinpoint-web.properties</em> for your web instance.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>config.sendUsage=false
+</code></pre></div></div>
+
+<h2 id="license">License</h2>
+<p>Pinpoint is licensed under the Apache License, Version 2.0.
+See <a href="https://github.com/naver/pinpoint/blob/master/LICENSE">LICENSE</a> for full license text.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Copyright 2019 NAVER Corp.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+</code></pre></div></div>
+
+
+    <div class="tags">
+        
+    </div>
+
+</div>
+
+
+
+
+
+            </div>
+            <div class="col-md-4">
+                <script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        buildHtmlTable();
+    });
+
+    function buildHtmlTable() {
+
+        $.getJSON("https://raw.githubusercontent.com/naver/pinpoint/gh-pages/version.json").done(function (data){
+            $.each(data, function(key, value) {
+                var tr = $('<tr/>');
+
+                $(tr).append("<td>" + value.ver + "</td>");
+                $(tr).append("<td><a href=\"" + value.url + "\">Reference</a></td>");
+                $('#versionTable').append(tr);
+            })
+        });
+
+    }
+</script>
+
+
+        <h2>Releases</h2>
+        <table id="versionTable" class="table table-striped">
+            <thead><tr><th>Release</th><th>Documentation</th></tr></thead>
+        </table>
+
+<br>
+
+
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.container -->
+    </div>
+    <!-- /#main -->
+</div>
+
+</body>
+
+<!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-57786344-4','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+</html>
+
