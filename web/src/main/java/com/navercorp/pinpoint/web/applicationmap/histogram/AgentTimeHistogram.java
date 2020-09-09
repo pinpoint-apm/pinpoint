@@ -95,7 +95,7 @@ public class AgentTimeHistogram {
     }
 
     public List<ResponseTimeViewModel> createResponseTimeViewModel(List<TimeHistogram> timeHistogramList) {
-        final List<ResponseTimeViewModel> value = new ArrayList<>(8);
+        final List<ResponseTimeViewModel> value = new ArrayList<>(9);
         ServiceType serviceType = application.getServiceType();
         HistogramSchema schema = serviceType.getHistogramSchema();
         value.add(new ResponseTimeViewModel(schema.getFastSlot().getSlotName(), getColumnValue(SlotType.FAST, timeHistogramList)));
