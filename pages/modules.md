@@ -20,7 +20,7 @@
 |                                                                                            |                            |         |         |                        |
 | SpringMVC Framework                                                                        | spring-webmvc              | 3.0.7   | 5.2.8   |                        | <AG>
 | Spring Web                                                                                 | spring-web                 | 4.1.2   | 4.3.28  |                        | <AG>
-| Spring RabbitMQ                                                                            | spring-rabbit              | 1.3.3   | 2.2.9   |                        | <AG>
+| Spring RabbitMQ                                                                            | spring-rabbit              | 1.3.3   | 2.2.10  |                        | <AG>
 | Spring IBatis                                                                              | spring-ibatis              | 2.0.7   | 2.0.8   |                        | <AG>
 | Spring MyBatis                                                                             | mybatis-spring             | 1.1.0   | 1.3.3   |                        | <AG>
 | \*Spring Boot                                                                              | spring-boot-autoconfigure  |         |         |                        |
@@ -39,7 +39,7 @@
 | Apache HttpAsyncClient                                                                     | httpasyncclient            | 4.0     | 4.1.3   |                        | <AG>
 | \*Akka HTTP                                                                                | akka-http_2.12             | 10.1.0  | 10.1.x  |                        | 
 | \*[Kafka](https://github.com/naver/pinpoint/tree/master/plugins/kafka)                     | kafka-clients              | 0.11.0.1|         |                        |
-| GRPC                                                                                       | grpc-stub                  | 1.8.0   | 1.31.0  |                        | <AG>
+| GRPC                                                                                       | grpc-stub                  | 1.8.0   | 1.31.1  |                        | <AG>
 | \*[Reactor](https://github.com/naver/pinpoint/tree/master/plugins/reactor)                 | reactor-core               | 3.3.0   | 3.3.1   |                        |
 | \*[Reactor Netty](https://github.com/naver/pinpoint/tree/master/plugins/reactor-netty)     | reactor-netty              | 0.8.0   | 0.9.2   |                        | 
 |                                                                                            |                            |         |         |                        | 
@@ -52,11 +52,11 @@
 | \*MsSQL                                                                                    | mssql-jdbc                 |         |         |                        | 
 | HikariCP                                                                                   | HikariCP-java6             | 2.3.0   | 2.3.13  |                        | <AG>
 | Jackson-mapper-asl                                                                         | jackson-mapper-asl         | 1.0.1   | 1.8.11  |                        | <AG>
-| Jackson Databind                                                                           | jackson-databind           | 2.0.6   | 2.11.1  |                        | <AG>
+| Jackson Databind                                                                           | jackson-databind           | 2.0.6   | 2.11.2  |                        | <AG>
 | MariaDB Connector/J                                                                        | mariadb-java-client        | 1.3.0   | 2.6.2   |                        | <AG>
 | MongoDB Java Driver                                                                        | mongodb-driver             | 3.0.0   | 3.12.7  |                        | <AG>
 | [Elasticsearch](https://github.com/naver/pinpoint/tree/master/plugins/elasticsearch-bboss) | bboss-elasticsearch-rest-jdbc | 5.6.9   | 5.8.2   |                     | <AG>
-| Elasticsearch                                                                              | elasticsearch-rest-high-level-client | 6.0.0   | 7.9.0   |              | <AG>
+| Elasticsearch                                                                              | elasticsearch-rest-high-level-client | 6.0.0   | 7.9.1   |              | <AG>
 | Datastax Java Driver                                                                       | cassandra-driver-core      | 2.0.10  | 3.10.2  |                        | <AG>
 | Druid                                                                                      | druid                      | 1.0.0   | 1.1.23  |                        | <AG>
 | \*Cubrid                                                                                   | cubrid-jdbc-driver         | 8.4.1   | 10.0.0  |                        | 
