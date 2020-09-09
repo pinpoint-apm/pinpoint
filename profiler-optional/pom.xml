@@ -33,6 +33,7 @@
         <module>profiler-optional-jdk7</module>
         <module>profiler-optional-jdk8</module>
         <module>profiler-optional-jdk9</module>
+        <module>profiler-optional-jdk11</module>
         <module>profiler-optional-parent</module>
     </modules>
 
