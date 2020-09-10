@@ -69,7 +69,6 @@ public class WrappedSpanEventRecorderTest {
 
         final String exceptionMessage1 = "exceptionMessage1";
         final Exception exception1 = new Exception(exceptionMessage1);
-        System.out.println("======xxxxxxxxxxxxx======="+recorder);
         recorder.recordException(false, exception1);
 
         Assert.assertEquals("Exception recoding", exceptionMessage1, spanEvent.getExceptionInfo().getStringValue());

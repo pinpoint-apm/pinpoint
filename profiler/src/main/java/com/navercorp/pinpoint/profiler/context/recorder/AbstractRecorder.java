@@ -59,7 +59,7 @@ public abstract class AbstractRecorder {
         String drop = StringUtils.abbreviate(throwable.getMessage(), 256);
         String exceptionStack = exceptionRecordingService.recordException(throwable);
         if (exceptionStack != null && exceptionStack.length() > 0) {
-            drop += exceptionStack;g
+            drop += exceptionStack;
         }
 
         // An exception that is an instance of a proxy class could make something wrong because the class name will vary.
