@@ -70,6 +70,7 @@
         <module>hbase</module>
         <module>flink</module>
         <module>testcase</module>
+        <module>batch</module>
     </modules>
 
     <properties>
