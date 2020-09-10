@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
+import com.navercorp.pinpoint.profiler.metadata.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
@@ -30,11 +31,13 @@ import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
  */
 public abstract class AbstractRecorder {
 
+    protected final ExceptionRecordingService exceptionRecordingService;
     protected final StringMetaDataService stringMetaDataService;
     protected final SqlMetaDataService sqlMetaDataService;
     protected final IgnoreErrorHandler ignoreErrorHandler;
 
-    public AbstractRecorder(final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService, IgnoreErrorHandler ignoreErrorHandler) {
+    public AbstractRecorder(final ExceptionRecordingService exceptionRecordingService, final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService, IgnoreErrorHandler ignoreErrorHandler) {
+        this.exceptionRecordingService = Assert.requireNonNull(exceptionRecordingService, "exceptionRecordingService");
         this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService");
         this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
         this.ignoreErrorHandler = Assert.requireNonNull(ignoreErrorHandler, "ignoreErrorHandler");
@@ -52,7 +55,13 @@ public abstract class AbstractRecorder {
         if (throwable == null) {
             return;
         }
-        final String drop = StringUtils.abbreviate(throwable.getMessage(), 256);
+
+        String drop = StringUtils.abbreviate(throwable.getMessage(), 256);
+        String exceptionStack = exceptionRecordingService.recordException(throwable);
+        if (exceptionStack != null && exceptionStack.length() > 0) {
+            drop += exceptionStack;
+        }
+
         // An exception that is an instance of a proxy class could make something wrong because the class name will vary.
         final int exceptionId = stringMetaDataService.cacheString(throwable.getClass().getName());
         setExceptionInfo(exceptionId, drop);

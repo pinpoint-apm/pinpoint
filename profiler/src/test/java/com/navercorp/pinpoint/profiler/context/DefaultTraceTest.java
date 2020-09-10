@@ -30,10 +30,13 @@ import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
+import com.navercorp.pinpoint.profiler.metadata.ExceptionRecordingService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
-
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
@@ -53,6 +56,8 @@ public class DefaultTraceTest {
     private TraceRoot traceRoot;
     @Mock
     private Shared shared;
+    @Mock
+    private ExceptionRecordingService exceptionRecordingService;
     @Mock
     private StringMetaDataService stringMetaDataService;
     @Mock
@@ -160,8 +165,8 @@ public class DefaultTraceTest {
 
         final Span span = spanFactory.newSpan(traceRoot);
         final boolean root = span.getTraceRoot().getTraceId().isRoot();
-        final SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService, errorHandler);
-        final WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler);
+        final SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, exceptionRecordingService, stringMetaDataService, sqlMetaDataService, errorHandler);
+        final WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, exceptionRecordingService, stringMetaDataService, sqlMetaDataService, errorHandler);
 
         return new DefaultTrace(span, callStack, storage, true, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
     }
