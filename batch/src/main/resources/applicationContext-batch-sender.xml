@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <bean id="mailSender" class="com.navercorp.pinpoint.batch.alarm.SpringSmtpMailSender">
+        <constructor-arg ref="batchConfiguration"/>
+        <constructor-arg ref="userGroupService"/>
+        <constructor-arg ref="javaMailSenderImpl"/>
+    </bean>
+
+    <bean id="javaMailSenderImpl" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="${alarm.mail.server.url:}" />
+        <property name="port" value="${alarm.mail.server.port:587}" />
+        <property name="username" value="${alarm.mail.server.username:}" />
+        <property name="password" value="${alarm.mail.server.password:}" />
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.transport.protocol">${alarm.mail.transport.protocol:}</prop>
+                <prop key="mail.smtp.port">${alarm.mail.smtp.port:}</prop>
+                <prop key="mail.smtp.from">${alarm.mail.sender.address:}</prop>
+                <prop key="mail.smtp.auth">${alarm.mail.smtp.auth:false}</prop>
+                <prop key="mail.smtp.starttls.enable">${alarm.mail.smtp.starttls.enable:false}</prop>
+                <prop key="mail.smtp.starttls.required">${alarm.mail.smtp.starttls.required:false}</prop>
+                <prop key="mail.debug">${alarm.mail.debug:false}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="configProperties" class="com.navercorp.pinpoint.web.config.ConfigProperties"/>
+
+    <bean id="userGroupDao" class="com.navercorp.pinpoint.web.dao.mysql.MysqlUserGroupDao"/>
+    <bean id="userDao" class="com.navercorp.pinpoint.web.dao.mysql.MysqlUserDao"/>
+
+    <bean id="userGroupService" class="com.navercorp.pinpoint.web.service.UserGroupServiceImpl"/>
+    <bean id="alarmService" class="com.navercorp.pinpoint.web.service.AlarmServiceImpl"/>
+    <bean id="userService" class="com.navercorp.pinpoint.web.service.UserServiceImpl"/>
+
+</beans>
