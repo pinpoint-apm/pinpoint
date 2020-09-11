@@ -57,6 +57,7 @@ public class DataSourceConnectionUsageRateChecker extends AgentChecker<List<Data
         return ((DataSourceDataCollector) dataCollector).getDataSourceConnectionUsageRate();
     }
 
+    @Override
     public List<String> getSmsMessage() {
         List<String> messages = new LinkedList<>();
 
