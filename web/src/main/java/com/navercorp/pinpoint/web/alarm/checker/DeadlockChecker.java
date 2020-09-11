@@ -46,6 +46,7 @@ public class DeadlockChecker extends AgentChecker<Boolean> {
         return ((AgentEventDataCollector) dataCollector).getAgentDeadlockEventDetected();
     }
 
+    @Override
     public List<String> getSmsMessage() {
         List<String> messages = new LinkedList<>();
 
