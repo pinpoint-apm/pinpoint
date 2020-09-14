@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import org.apache.commons.lang3.StringUtils;
+
 
 import java.util.Comparator;
 
@@ -27,18 +29,8 @@ import java.util.Comparator;
  */
 public class AgentInfoBo {
 
-    public static final Comparator<AgentInfoBo> AGENT_NAME_ASC_COMPARATOR = new Comparator<AgentInfoBo>() {
-        @Override
-        public int compare(AgentInfoBo that, AgentInfoBo other) {
-            final String thatAgentId = defaultString(that.agentId);
-            final String otherAgentId = defaultString(other.agentId);
-            return thatAgentId.compareTo(otherAgentId);
-        }
-
-        private String defaultString(String string) {
-            return string == null ? "" : string;
-        }
-    };
+    public static final Comparator<AgentInfoBo> AGENT_NAME_ASC_COMPARATOR
+            = Comparator.comparing(agentInfoBo -> StringUtils.defaultString(agentInfoBo.getAgentId()));
 
     private final String hostName;
     private final String ip;

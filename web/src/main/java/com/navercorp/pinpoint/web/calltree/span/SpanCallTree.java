@@ -17,7 +17,11 @@ package com.navercorp.pinpoint.web.calltree.span;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -293,12 +297,7 @@ public class SpanCallTree implements CallTree {
         }
 
         // order by abs.
-        spans.sort(new Comparator<CallTreeNode>() {
-            @Override
-            public int compare(CallTreeNode source, CallTreeNode target) {
-                return (int) (source.getAlign().getStartTime() - target.getAlign().getStartTime());
-            }
-        });
+        spans.sort(Comparator.comparingLong((CallTreeNode node) -> node.getAlign().getStartTime()));
 
         // sort
         final List<CallTreeNode> nodes = new ArrayList<>();

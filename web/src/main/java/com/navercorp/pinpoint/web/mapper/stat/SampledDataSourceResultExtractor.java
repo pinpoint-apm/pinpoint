@@ -31,6 +31,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -89,12 +90,7 @@ public class SampledDataSourceResultExtractor implements ResultsExtractor<List<S
     }
 
     private SampledDataSourceList getSampleData(List<DataSourceBo> dataSourceBoList) {
-        dataSourceBoList.sort(new Comparator<DataSourceBo>() {
-            @Override
-            public int compare(DataSourceBo o1, DataSourceBo o2) {
-                return Long.compare(o2.getTimestamp(), o1.getTimestamp());
-            }
-        });
+        dataSourceBoList.sort(Collections.reverseOrder(Comparator.comparingLong(DataSourceBo::getTimestamp)));
 
         AgentStatSamplingHandler<DataSourceBo, SampledDataSource> samplingHandler = new EagerSamplingHandler<>(timeWindow, sampler);
         for (DataSourceBo dataSourceBo : dataSourceBoList) {

@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
+import com.navercorp.pinpoint.common.profiler.util.IntegerUtils;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorType;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
@@ -150,7 +151,7 @@ public class ASMMethodVariables {
         Collections.sort(localVariableNodes, new Comparator<LocalVariableNode>() {
             @Override
             public int compare(LocalVariableNode o1, LocalVariableNode o2) {
-                return o1.index - o2.index;
+                return IntegerUtils.compare(o1.index, o2.index);
             }
         });
         String[] names = new String[this.argumentTypes.length];

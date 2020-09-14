@@ -106,12 +106,7 @@ public class Node {
         }
 
         // sort
-        nodeList.sort(new Comparator<Node>() {
-            @Override
-            public int compare(Node first, Node second) {
-                return (int) (first.getSpanBo().getStartTime() - second.getSpanBo().getStartTime());
-            }
-        });
+        nodeList.sort(Comparator.comparingLong(node -> node.getSpanBo().getStartTime()));
         return nodeList;
     }
 

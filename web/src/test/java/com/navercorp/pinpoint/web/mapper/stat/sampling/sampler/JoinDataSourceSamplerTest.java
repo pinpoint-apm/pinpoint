@@ -36,6 +36,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class JoinDataSourceSamplerTest {
 
+    private final Comparator<JoinDataSourceBo> COMPARATOR = Comparator.comparingInt(JoinDataSourceBo::getServiceTypeCode);
+
     @Test
     public void sampleDataPointsTest() {
         final String id = "test_app";
@@ -47,7 +49,7 @@ public class JoinDataSourceSamplerTest {
         assertEquals(aggreJoinDataSourceListBo.getId(), id);
         assertEquals(aggreJoinDataSourceListBo.getTimestamp(), timestamp);
         List<AggreJoinDataSourceBo> joinDataSourceBoList = aggreJoinDataSourceListBo.getAggreJoinDataSourceBoList();
-        joinDataSourceBoList.sort(new ComparatorImpl());
+        joinDataSourceBoList.sort(COMPARATOR);
 
         assertEquals(joinDataSourceBoList.size(), 5);
 
@@ -77,12 +79,6 @@ public class JoinDataSourceSamplerTest {
         assertEquals(aggreJoinDataSourceBo5.getActiveConnectionSizeJoinValue(), new JoinIntFieldBo(80, 35, "agent_id_5_10", 130, "agent_id_10_50"));
     }
 
-    private class ComparatorImpl implements Comparator<JoinDataSourceBo> {
-        @Override
-        public int compare(JoinDataSourceBo bo1, JoinDataSourceBo bo2) {
-            return bo1.getServiceTypeCode() < bo2.getServiceTypeCode() ? -1 : 1;
-        }
-    }
 
     private List<JoinDataSourceListBo> createJoinDataSourceListBoList(String id, long currentTime) {
         List<JoinDataSourceListBo> joinDataSourceListBoList = new ArrayList<JoinDataSourceListBo>();

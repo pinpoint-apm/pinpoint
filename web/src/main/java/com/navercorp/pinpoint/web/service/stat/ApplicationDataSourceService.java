@@ -37,7 +37,8 @@ public class ApplicationDataSourceService {
 
     private final ServiceTypeRegistryService serviceTypeRegistryService;
 
-    private static final AggreJoinDataSourceBoComparator comparator = new AggreJoinDataSourceBoComparator();
+    private static final Comparator<AggreJoinDataSourceBo> comparator
+            = Comparator.comparingLong(AggreJoinDataSourceBo::getTimestamp);
 
     public ApplicationDataSourceService(ApplicationDataSourceDao applicationDataSourceDao, ServiceTypeRegistryService serviceTypeRegistryService) {
         this.applicationDataSourceDao = Objects.requireNonNull(applicationDataSourceDao, "applicationDataSourceDao");
@@ -88,10 +89,4 @@ public class ApplicationDataSourceService {
         return aggreJoinDataSourceBoMap;
     }
 
-    private static class AggreJoinDataSourceBoComparator implements Comparator<AggreJoinDataSourceBo> {
-        @Override
-        public int compare(AggreJoinDataSourceBo bo1, AggreJoinDataSourceBo bo2) {
-            return bo1.getTimestamp() < bo2.getTimestamp() ? -1 : 1;
-        }
-    }
 }

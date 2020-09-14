@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.common.profiler.util.IntegerUtils;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
@@ -57,7 +58,7 @@ public class ASMTryCatch {
         Collections.sort(this.methodNode.tryCatchBlocks, new Comparator<TryCatchBlockNode>() {
             @Override
             public int compare(TryCatchBlockNode o1, TryCatchBlockNode o2) {
-                return blockLength(o1) - blockLength(o2);
+                return IntegerUtils.compare(blockLength(o1), blockLength(o2));
             }
 
             private int blockLength(TryCatchBlockNode block) {

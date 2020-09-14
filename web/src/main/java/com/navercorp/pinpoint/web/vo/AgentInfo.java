@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
 import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
 import com.navercorp.pinpoint.web.view.AgentInfoSerializer;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author HyunGil Jeong
@@ -30,14 +31,8 @@ import com.navercorp.pinpoint.web.view.AgentInfoSerializer;
 @JsonSerialize(using = AgentInfoSerializer.class)
 public class AgentInfo {
 
-    public static final Comparator<AgentInfo> AGENT_NAME_ASC_COMPARATOR = new Comparator<AgentInfo>() {
-        @Override
-        public int compare(AgentInfo lhs, AgentInfo rhs) {
-            final String lhsAgentId = lhs.agentId == null ? "" : lhs.agentId;
-            final String rhsAgentId = rhs.agentId == null ? "" : rhs.agentId;
-            return lhsAgentId.compareTo(rhsAgentId);
-        }
-    };
+    public static final Comparator<AgentInfo> AGENT_NAME_ASC_COMPARATOR
+            = Comparator.comparing(agentInfo -> StringUtils.defaultString(agentInfo.agentId));
 
     private String applicationName;
     private String agentId;
