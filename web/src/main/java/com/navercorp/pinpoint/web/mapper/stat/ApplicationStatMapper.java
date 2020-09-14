@@ -39,14 +39,8 @@ import java.util.List;
  */
 public class ApplicationStatMapper implements RowMapper<List<JoinStatBo>> {
 
-    public final static Comparator<JoinStatBo> REVERSE_TIMESTAMP_COMPARATOR = new Comparator<JoinStatBo>() {
-        @Override
-        public int compare(JoinStatBo o1, JoinStatBo o2) {
-            long x = o2.getTimestamp();
-            long y = o1.getTimestamp();
-            return Long.compare(x, y);
-        }
-    };
+    public final static Comparator<JoinStatBo> REVERSE_TIMESTAMP_COMPARATOR
+            = Collections.reverseOrder(Comparator.comparingLong(JoinStatBo::getTimestamp));
 
     private final ApplicationStatHbaseOperationFactory hbaseOperationFactory;
     private final ApplicationStatDecoder decoder;

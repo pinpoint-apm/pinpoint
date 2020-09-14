@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.scatter;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
@@ -38,6 +39,8 @@ public class ScatterData {
 
     private final long oldestAcceptedTime;
     private final long latestAcceptedTime;
+
+    private static final Comparator<Long> REVERSE = Collections.reverseOrder(Long::compare);
 
     public ScatterData(long from,
                        long to,
@@ -73,7 +76,7 @@ public class ScatterData {
     }
 
     public Map<Long, DotGroups> getSortedScatterDataMap() {
-        TreeMap<Long, DotGroups> sortedMap = new TreeMap<>(new XCoordinatesComparator());
+        TreeMap<Long, DotGroups> sortedMap = new TreeMap<>(REVERSE);
         sortedMap.putAll(scatterData);
 
         return sortedMap;
@@ -111,15 +114,6 @@ public class ScatterData {
             return -1;
         }
         return latestAcceptedTime;
-    }
-
-    private static class XCoordinatesComparator implements Comparator<Long> {
-
-        @Override
-        public int compare(Long o1, Long o2) {
-            return Long.compare(o2, o1);
-        }
-
     }
 
 }

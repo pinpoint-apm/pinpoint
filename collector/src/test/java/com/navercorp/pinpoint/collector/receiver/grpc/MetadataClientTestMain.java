@@ -32,12 +32,7 @@ public class MetadataClientTestMain {
 
         Uninterruptibles.sleepUninterruptibly(60, SECONDS.SECONDS);
         List<String> list = clientMock.getResponseList();
-        Collections.sort(list, new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                return Integer.valueOf(o1) - Integer.valueOf(o2);
-            }
-        });
+        Collections.sort(list, Comparator.comparingInt(Integer::valueOf));
 
         System.out.println("Response size=" + list.size());
         for (String response : list) {

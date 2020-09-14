@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.compress;
 
+import com.navercorp.pinpoint.common.profiler.util.IntegerUtils;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 
 import java.util.Comparator;
@@ -29,10 +30,7 @@ public class SpanEventSequenceComparator implements Comparator<SpanEvent> {
 
     @Override
     public int compare(SpanEvent o1, SpanEvent o2) {
-        return compareShort(o1.getSequence(), o2.getSequence());
+        return IntegerUtils.compare(o1.getSequence(), o2.getSequence());
     }
 
-    private static int compareShort(short x, short y) {
-        return x - y;
-    }
 }

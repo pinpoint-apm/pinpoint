@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -31,8 +32,11 @@ import java.util.TreeSet;
  * @author Taejin Koo
  */
 public class DotGroups {
+//    private static final Comparator<Dot> DOT_COMPARATOR
+//            = Collections.reverseOrder(Comparator.comparingLong(Dot::getAcceptedTime));
 
-    private static final DotComparator DOT_COMPARATOR = new DotComparator();
+    private static final Comparator<Dot> DOT_COMPARATOR = new DotComparator();
+
 
     private final long xCoordinates;
     private final Map<Key, DotGroup> dotGroupMap = new HashMap<>();

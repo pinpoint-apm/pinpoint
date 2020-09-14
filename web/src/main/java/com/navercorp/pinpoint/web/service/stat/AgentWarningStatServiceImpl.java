@@ -95,14 +95,7 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
     }
 
     private List<AgentStatusTimelineSegment> createTimelineSegment(List<AgentWarningStatDataPoint> agentWarningStatDataPointList) {
-        agentWarningStatDataPointList.sort(new Comparator<AgentWarningStatDataPoint>() {
-            @Override
-            public int compare(AgentWarningStatDataPoint o1, AgentWarningStatDataPoint o2) {
-                int eventTimestampComparison = Long.compare(o1.getTimestamp(), o2.getTimestamp());
-                return eventTimestampComparison;
-            }
-        });
-
+        agentWarningStatDataPointList.sort(Comparator.comparingLong(AgentWarningStatDataPoint::getTimestamp));
         return createTimelineSegment0(agentWarningStatDataPointList);
     }
 

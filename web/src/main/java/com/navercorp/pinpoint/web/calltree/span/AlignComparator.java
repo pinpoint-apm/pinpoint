@@ -26,7 +26,7 @@ import java.util.Comparator;
  */
 public final class AlignComparator implements Comparator<Align> {
 
-    public static final AlignComparator INSTANCE = new AlignComparator();
+    public static final Comparator<Align> INSTANCE = new AlignComparator();
 
     @Override
     public int compare(Align a1, Align a2) {

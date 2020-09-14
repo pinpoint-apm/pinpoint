@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.common.profiler.trace;
 
+import com.navercorp.pinpoint.common.profiler.util.IntegerUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.DefaultServiceTypeInfo;
@@ -253,7 +254,7 @@ public class TraceMetadataLoader {
                     short code1 = o1.value.getCode();
                     short code2 = o2.value.getCode();
 
-                    return code1 > code2 ? 1 : (code1 < code2 ? -1 : 0);
+                    return IntegerUtils.compare(code1, code2);
                 }
             });
 
@@ -286,7 +287,7 @@ public class TraceMetadataLoader {
                     int code1 = o1.value.getCode();
                     int code2 = o2.value.getCode();
 
-                    return code1 > code2 ? 1 : (code1 < code2 ? -1 : 0);
+                    return IntegerUtils.compare(code1, code2);
                 }
             });
 

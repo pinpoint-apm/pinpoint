@@ -427,12 +427,7 @@ public class SpanAligner {
                 return null;
             }
 
-            linkList.sort(new Comparator<Link>() {
-                @Override
-                public int compare(Link first, Link second) {
-                    return (int) (first.getStartTimeMillis() - second.getStartTimeMillis());
-                }
-            });
+            linkList.sort(Comparator.comparingLong(Link::getStartTimeMillis));
 
             for (Link link : linkList) {
                 if (link.getStartTimeMillis() <= span.getStartTime()) {

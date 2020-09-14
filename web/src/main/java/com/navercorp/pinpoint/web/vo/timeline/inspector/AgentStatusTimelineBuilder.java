@@ -299,12 +299,8 @@ public class AgentStatusTimelineBuilder {
 
     private static class AgentLifeCycle {
 
-        private static final Comparator<AgentLifeCycle> START_TIMESTAMP_ASC_COMPARATOR = new Comparator<AgentLifeCycle>() {
-            @Override
-            public int compare(AgentLifeCycle o1, AgentLifeCycle o2) {
-                return Long.compare(o1.getStartTimestamp(), o2.getStartTimestamp());
-            }
-        };
+        private static final Comparator<AgentLifeCycle> START_TIMESTAMP_ASC_COMPARATOR
+                = Comparator.comparingLong(AgentLifeCycle::getStartTimestamp);
 
         private final long startTimestamp;
         private final long endTimestamp;

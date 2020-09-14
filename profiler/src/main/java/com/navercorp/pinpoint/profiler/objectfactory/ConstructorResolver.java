@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.objectfactory;
 
+import com.navercorp.pinpoint.common.profiler.util.IntegerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,8 +97,9 @@ public class ConstructorResolver {
             int p1 = o1.getParameterTypes().length;
             int p2 = o2.getParameterTypes().length;
             
-            return (p1 < p2) ? 1 : ((p1 == p2) ? 0 : -1);
+            return IntegerUtils.compare(p2, p1);
         }
+
         
     };
 }

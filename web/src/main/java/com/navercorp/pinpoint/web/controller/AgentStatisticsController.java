@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -91,16 +92,7 @@ public class AgentStatisticsController {
         Range range = Range.newRange(DateTimeUtils.timestampToStartOfDay(from), DateTimeUtils.timestampToStartOfDay(to));
         List<AgentCountStatistics> agentCountStatisticsList = agentStatisticsService.selectAgentCount(range);
 
-        agentCountStatisticsList.sort(new Comparator<AgentCountStatistics>() {
-            @Override
-            public int compare(AgentCountStatistics o1, AgentCountStatistics o2) {
-                if (o1.getTimestamp() > o2.getTimestamp()) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            }
-        });
+        agentCountStatisticsList.sort(Collections.reverseOrder(Comparator.comparingLong(AgentCountStatistics::getTimestamp)));
 
         return agentCountStatisticsList;
     }

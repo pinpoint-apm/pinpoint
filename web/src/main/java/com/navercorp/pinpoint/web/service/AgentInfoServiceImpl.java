@@ -308,6 +308,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private volatile AgentDownloadInfo cachedAgentDownloadInfo;
 
+    private static final Comparator<AgentDownloadInfo> REVERSE = Collections.reverseOrder(Comparator.comparing(AgentDownloadInfo::getVersion));
+
     @Override
     public AgentDownloadInfo getLatestStableAgentDownloadInfo() {
         if (cachedAgentDownloadInfo != null) {
@@ -319,12 +321,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             return null;
         }
 
-        downloadInfoList.sort(new Comparator<AgentDownloadInfo>() {
-            @Override
-            public int compare(AgentDownloadInfo o1, AgentDownloadInfo o2) {
-                return o2.getVersion().compareTo(o1.getVersion());
-            }
-        });
+        downloadInfoList.sort(REVERSE);
 
         // 1st. find same
         for (AgentDownloadInfo downloadInfo : downloadInfoList) {

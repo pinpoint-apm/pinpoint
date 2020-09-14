@@ -40,14 +40,8 @@ import java.util.List;
  */
 public class AgentStatMapperV2<T extends AgentStatDataPoint> implements AgentStatMapper<T> {
 
-    public final static Comparator<AgentStatDataPoint> REVERSE_TIMESTAMP_COMPARATOR = new Comparator<AgentStatDataPoint>() {
-        @Override
-        public int compare(AgentStatDataPoint o1, AgentStatDataPoint o2) {
-            long x = o2.getTimestamp();
-            long y = o1.getTimestamp();
-            return Long.compare(x, y);
-        }
-    };
+    public final static Comparator<AgentStatDataPoint> REVERSE_TIMESTAMP_COMPARATOR
+            = Collections.reverseOrder(Comparator.comparingLong(AgentStatDataPoint::getTimestamp));
 
     private final AgentStatHbaseOperationFactory hbaseOperationFactory;
     private final AgentStatDecoder<T> decoder;
