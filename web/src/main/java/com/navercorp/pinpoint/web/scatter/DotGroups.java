@@ -19,24 +19,19 @@ import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.function.ToIntFunction;
 
 /**
  * @author Taejin Koo
  */
 public class DotGroups {
-//    private static final Comparator<Dot> DOT_COMPARATOR
-//            = Collections.reverseOrder(Comparator.comparingLong(Dot::getAcceptedTime));
 
-    private static final Comparator<Dot> DOT_COMPARATOR = new DotComparator();
-
+    private static final Comparator<Dot> DOT_COMPARATOR = Comparator.comparingLong(Dot::getAcceptedTime);
 
     private final long xCoordinates;
     private final Map<Key, DotGroup> dotGroupMap = new HashMap<>();
@@ -46,9 +41,10 @@ public class DotGroups {
     }
 
     void addDot(Coordinates coordinates, Dot dot) {
+        Objects.requireNonNull(coordinates, "coordinates");
         Objects.requireNonNull(dot, "dot");
 
-        Key key = new Key(coordinates, dot.getSimpleExceptionCode());
+        final Key key = new Key(coordinates, dot.getSimpleExceptionCode());
 
         DotGroup dotGroup = dotGroupMap.get(key);
         if (dotGroup == null) {
@@ -68,7 +64,7 @@ public class DotGroups {
         for (Map.Entry<Key, DotGroup> entry : dotGroupMap.entrySet()) {
             Key key = entry.getKey();
 
-            DotGroup dotGroup = this.dotGroupMap.get(key);
+            final DotGroup dotGroup = this.dotGroupMap.get(key);
             if (dotGroup == null) {
                 this.dotGroupMap.put(key, entry.getValue());
             } else {
@@ -85,23 +81,27 @@ public class DotGroups {
         return dotGroupMap;
     }
 
-    public Set<Dot> getSortedDotSet() {
+    public Collection<Dot> getSortedDotSet() {
         Collection<DotGroup> dotGroupList = dotGroupMap.values();
 
-        int size = 0;
-        for (DotGroup dotGroup : dotGroupList) {
-            size += dotGroup.getDotSize();
-        }
+        int size = getSize(dotGroupList, DotGroup::getDotSize);
 
         List<Dot> dotList = new ArrayList<>(size);
         for (DotGroup dotGroup : dotGroupList) {
             dotList.addAll(dotGroup.getDotList());
         }
 
-        Set<Dot> sortedSet = new TreeSet<>(DOT_COMPARATOR);
-        sortedSet.addAll(dotList);
+        dotList.sort(DOT_COMPARATOR);
+        return dotList;
 
-        return sortedSet;
+    }
+
+    private <T> int getSize(Collection<T> collection, ToIntFunction<? super T> keyExtractor) {
+        int size = 0;
+        for (T t : collection) {
+            size += keyExtractor.applyAsInt(t);
+        }
+        return size;
     }
 
     public Map<Dot, DotGroup> getDotGroupLeaders() {
@@ -140,19 +140,6 @@ public class DotGroups {
         return "DotGroups{" + "xCoordinates=" + xCoordinates + ", dotGroupMap=" + dotGroupMap + '}';
     }
 
-    private static class DotComparator implements Comparator<Dot> {
-
-        @Override
-        public int compare(Dot o1, Dot o2) {
-            int compare = Long.compare(o2.getAcceptedTime(), o1.getAcceptedTime());
-            if (compare == 0) {
-                return -1;
-            }
-
-            return compare;
-        }
-    }
-
     static class Key {
 
         private final Coordinates coordinates;
@@ -161,7 +148,7 @@ public class DotGroups {
         private int hashCode = 0;
 
         public Key(Coordinates coordinates, int code) {
-            this.coordinates = coordinates;
+            this.coordinates = Objects.requireNonNull(coordinates, "coordinates");
             this.code = code;
 
             hashCode();
