@@ -78,13 +78,8 @@ public class ScatterDataBuilder {
         Coordinates coordinates = new Coordinates(x, y);
         addDot(coordinates, new Dot(dot.getTransactionId(), acceptedTimeDiff, dot.getElapsedTime(), dot.getExceptionCode(), dot.getAgentId()));
 
-        if (oldestAcceptedTime > dot.getAcceptedTime()) {
-            oldestAcceptedTime = dot.getAcceptedTime();
-        }
-
-        if (latestAcceptedTime < dot.getAcceptedTime()) {
-            latestAcceptedTime = dot.getAcceptedTime();
-        }
+        oldestAcceptedTime = Math.min(oldestAcceptedTime, dot.getAcceptedTime());
+        latestAcceptedTime = Math.max(latestAcceptedTime, dot.getAcceptedTime());
     }
 
     private void addDot(Coordinates coordinates, Dot dot) {
@@ -100,11 +95,11 @@ public class ScatterDataBuilder {
             return;
         }
 
-        Map<Long, DotGroups> scatterDataMap = scatterData.getScatterDataMap();
+        final Map<Long, DotGroups> scatterDataMap = scatterData.getScatterDataMap();
         for (Map.Entry<Long, DotGroups> entry : scatterDataMap.entrySet()) {
-            Long key = entry.getKey();
+            final Long key = entry.getKey();
 
-            DotGroups dotGroups = this.scatterData.get(key);
+            final DotGroups dotGroups = this.scatterData.get(key);
             if (dotGroups == null) {
                 this.scatterData.put(key, entry.getValue());
             } else {
@@ -114,13 +109,9 @@ public class ScatterDataBuilder {
 
         scatterAgentMetadataRepository.merge(scatterData.getScatterAgentMetadataRepository());
 
-        if (oldestAcceptedTime > scatterData.getOldestAcceptedTime()) {
-            oldestAcceptedTime = scatterData.getOldestAcceptedTime();
-        }
 
-        if (latestAcceptedTime < scatterData.getLatestAcceptedTime()) {
-            latestAcceptedTime = scatterData.getLatestAcceptedTime();
-        }
+        oldestAcceptedTime = Math.min(oldestAcceptedTime, scatterData.getOldestAcceptedTime());
+        latestAcceptedTime = Math.max(latestAcceptedTime, scatterData.getLatestAcceptedTime());
     }
 
     public long getFrom() {

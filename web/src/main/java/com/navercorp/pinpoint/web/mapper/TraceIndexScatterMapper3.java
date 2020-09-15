@@ -73,7 +73,7 @@ public class TraceIndexScatterMapper3 implements RowMapper<ScatterData> {
 
         Cell[] rawCells = result.rawCells();
         for (Cell cell : rawCells) {
-            if (logger.isDebugEnabled()) {
+            if (logger.isTraceEnabled()) {
                 String row = Bytes.toStringBinary(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
                 logger.debug("row:{} {}", row, cell.getRowLength());
             }
