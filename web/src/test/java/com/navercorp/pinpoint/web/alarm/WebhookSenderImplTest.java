@@ -2,51 +2,64 @@ package com.navercorp.pinpoint.web.alarm;
 
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.web.alarm.checker.SlowCountToCalleeChecker;
-import com.navercorp.pinpoint.web.alarm.vo.*;
+import com.navercorp.pinpoint.web.alarm.vo.AlarmCheckerValue;
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
+import com.navercorp.pinpoint.web.alarm.vo.sender.WebhookPayload;
 import com.navercorp.pinpoint.web.batch.BatchConfiguration;
-
 import com.navercorp.pinpoint.web.service.UserGroupService;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.hamcrest.Matchers.*;
 
-public class SpringWebhookSenderTest {
-
+public class WebhookSenderImplTest {
+    
     private static final String USER_GROUP_ID = "TEST-GROUP-ID";
-    SpringWebhookSender sender;
+    WebhookSenderImpl sender;
 
     @Mock BatchConfiguration batchConfiguration;
     @Mock UserGroupService userGroupService;
+    
     @Mock RestTemplate restTemplate;
 
     @Test
     public void constructorRequiresNotNullTest() throws Exception {
         try {
-            new SpringWebhookSender(null , userGroupService, restTemplate);
+            new WebhookSenderImpl(null , userGroupService,  restTemplate);
             fail();
         } catch(NullPointerException npe) {
             // pass
         }
         try {
-            new SpringWebhookSender(new BatchConfiguration(), null, restTemplate);
+            new WebhookSenderImpl(new BatchConfiguration(), null, restTemplate);
             fail();
         } catch (NullPointerException npe) {
             // pass
         }
         try {
-            new SpringWebhookSender(null, userGroupService, null);
+            new WebhookSenderImpl(new BatchConfiguration(), userGroupService, restTemplate);
+            fail();
+        } catch (NullPointerException npe) {
+            // pass
+        }
+        try {
+            new WebhookSenderImpl(null, userGroupService, null);
             fail();
         } catch (NullPointerException npe) {
             // pass
@@ -54,16 +67,16 @@ public class SpringWebhookSenderTest {
     }
     
     @Test
-    public void whenWebhookEnableFalseDoNotTriggerWebhook() throws Exception {
+    public void whenWebhookEnableFalseDoNotSendWebhook() throws Exception {
         // given
         BatchConfiguration configurationStub = getConfigurationStub(false);
         RestTemplate restTemplateStub = getRestTemplateStubSuccessToSend();
         UserGroupService userGroupServiceStub = getUserGroupServiceStub();
 
-        sender = new SpringWebhookSender(configurationStub, userGroupServiceStub, restTemplateStub);
+        sender = new WebhookSenderImpl(configurationStub, userGroupServiceStub, restTemplateStub);
 
         // when
-        sender.triggerWebhook(null, 0, null);
+        sender.sendWebhook(null, 0, null);
         
         // then
         verify(restTemplateStub, never())
@@ -71,16 +84,16 @@ public class SpringWebhookSenderTest {
     }
     
     @Test
-    public void whenWebhookEnableTrueDoTriggerWebhook() throws Exception {
+    public void whenWebhookEnableTrueDoSendWebhook() throws Exception {
         // given
         BatchConfiguration configurationStub = getConfigurationStub(true);
         RestTemplate restTemplateStub = getRestTemplateStubSuccessToSend();
         UserGroupService userGroupServiceStub = getUserGroupServiceStub();
 
-        sender = new SpringWebhookSender(configurationStub, userGroupServiceStub, restTemplateStub);
+        sender = new WebhookSenderImpl(configurationStub, userGroupServiceStub, restTemplateStub);
         
         // when
-        sender.triggerWebhook(getAlarmCheckerStub(), 0, null);
+        sender.sendWebhook(getAlarmCheckerStub(), 0, null);
         
         // then
         verify(restTemplateStub, times(1))
@@ -89,18 +102,18 @@ public class SpringWebhookSenderTest {
     }
     
     @Test
-    public void testTriggerWebhookWithSpringRestTemplateSuccess() throws Exception {
+    public void testSendWebhookWithSpringRestTemplateSuccess() throws Exception {
         // given
         BatchConfiguration configurationStub = getConfigurationStub(true);
         RestTemplate restTemplateStub = getRestTemplateStubSuccessToSend();
         UserGroupService userGroupServiceStub = getUserGroupServiceStub();
 
-        sender = new SpringWebhookSender(configurationStub, userGroupServiceStub, restTemplateStub);
+        sender = new WebhookSenderImpl(configurationStub, userGroupServiceStub, restTemplateStub);
     
         ArgumentCaptor<HttpEntity<WebhookPayload>> argumentCaptor = ArgumentCaptor.forClass(HttpEntity.class);
     
         // when
-        sender.triggerWebhook(getAlarmCheckerStub(), 0, null);
+        sender.sendWebhook(getAlarmCheckerStub(), 0, null);
         verify(restTemplateStub)
                 .exchange(any(URI.class), any(HttpMethod.class), argumentCaptor.capture(), any(Class.class));
     
@@ -137,7 +150,7 @@ public class SpringWebhookSenderTest {
         
         return batchConfigurationMock;
     }
-
+    
     private UserGroupService getUserGroupServiceStub() {
         UserGroupService mock = mock(UserGroupService.class);
         UserGroupMember member1 = new UserGroupMember(USER_GROUP_ID, "member1");

@@ -1,6 +1,7 @@
-package com.navercorp.pinpoint.web.alarm.vo;
+package com.navercorp.pinpoint.web.alarm.vo.sender;
 
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
+import com.navercorp.pinpoint.web.alarm.vo.CheckerValue;
 import com.navercorp.pinpoint.web.batch.BatchConfiguration;
 
 public class WebhookPayload {

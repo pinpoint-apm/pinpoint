@@ -16,9 +16,9 @@
 package com.navercorp.pinpoint.web.alarm;
 
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
-import com.navercorp.pinpoint.web.alarm.vo.UserGroupMemberPayload;
-import com.navercorp.pinpoint.web.alarm.vo.UserMember;
-import com.navercorp.pinpoint.web.alarm.vo.WebhookPayload;
+import com.navercorp.pinpoint.web.alarm.vo.sender.UserGroupMemberPayload;
+import com.navercorp.pinpoint.web.alarm.vo.sender.UserMember;
+import com.navercorp.pinpoint.web.alarm.vo.sender.WebhookPayload;
 import com.navercorp.pinpoint.web.batch.BatchConfiguration;
 import com.navercorp.pinpoint.web.service.UserGroupService;
 import org.slf4j.Logger;
@@ -35,7 +35,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class SpringWebhookSender implements WebhookSender {
+public class WebhookSenderImpl implements WebhookSender {
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final BatchConfiguration batchConfiguration;
     private final UserGroupService userGroupService;
@@ -43,7 +44,7 @@ public class SpringWebhookSender implements WebhookSender {
     private final String webhookReceiverUrl;
     private final boolean webhookEnable;
     
-    public SpringWebhookSender(BatchConfiguration batchConfiguration, UserGroupService userGroupService, RestTemplate springRestTemplate) {
+    public WebhookSenderImpl(BatchConfiguration batchConfiguration, UserGroupService userGroupService, RestTemplate springRestTemplate) {
         Objects.requireNonNull(batchConfiguration, "batchConfiguration");
         Objects.requireNonNull(springRestTemplate, "springRestTemplate");
         Objects.requireNonNull(userGroupService, "userGroupService");
@@ -56,20 +57,22 @@ public class SpringWebhookSender implements WebhookSender {
     }
     
     @Override
-    public void triggerWebhook(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
-        if (webhookReceiverUrl.isEmpty()) {
-            return;
-        }
+    public void sendWebhook(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
         if (!webhookEnable) {
             return;
         }
-        
+        if (webhookReceiverUrl.isEmpty()) {
+            return;
+        }
         try {
-            List<UserMember> userMembers = userGroupService.selectMember(checker.getRule().getUserGroupId())
+            String userGroupId = checker.getRule().getUserGroupId();
+            
+            List<UserMember> userMembers = userGroupService.selectMember(userGroupId)
                     .stream()
-                    .map((UserMember::new))
+                    .map(UserMember::from)
                     .collect(Collectors.toList());
-            UserGroupMemberPayload userGroupMemberPayload = new UserGroupMemberPayload(checker.getRule().getUserGroupId(), userMembers);
+
+            UserGroupMemberPayload userGroupMemberPayload = new UserGroupMemberPayload(userGroupId, userMembers);
             
             WebhookPayload webhookPayload = new WebhookPayload(checker, batchConfiguration, sequenceCount, userGroupMemberPayload);
             HttpHeaders httpHeaders = new HttpHeaders();

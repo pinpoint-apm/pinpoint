@@ -117,7 +117,15 @@ public class Rule {
     public void setNotes(String notes) {
         this.notes = notes;
     }
-
+    
+    public boolean isWebhookSend() {
+        return webhookSend;
+    }
+    
+    public void setWebhookSend(boolean webhookSend) {
+        this.webhookSend = webhookSend;
+    }
+    
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Rule{");
@@ -135,11 +143,4 @@ public class Rule {
         return sb.toString();
     }
 
-    public boolean isWebhookSend() {
-        return webhookSend;
-    }
-    
-    public void setWebhookSend(boolean webhookSend) {
-        this.webhookSend = webhookSend;
-    }
 }

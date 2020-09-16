@@ -9,6 +9,9 @@ export interface IGroupMember {
     name: string;
     number: string;
     userGroupId: string;
+    phoneNumber: string;
+    phoneCountryCode: number;
+    email: string;
 }
 export interface IGroupMemberResponse {
     result: string;

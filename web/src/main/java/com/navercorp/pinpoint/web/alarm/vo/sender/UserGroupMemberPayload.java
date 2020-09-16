@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.alarm.vo;
+package com.navercorp.pinpoint.web.alarm.vo.sender;
 
 import java.util.List;
 
@@ -16,15 +16,15 @@ public class UserGroupMemberPayload {
         return userGroupId;
     }
     
-    public List<UserMember> getUserGroupMembers() {
-        return userGroupMembers;
-    }
-    
     public void setUserGroupId(String userGroupId) {
         this.userGroupId = userGroupId;
     }
     
-    public void setUserGroupMembers(List<UserMember> userMembers) {
-        this.userGroupMembers = userMembers;
+    public List<UserMember> getUserGroupMembers() {
+        return userGroupMembers;
+    }
+    
+    public void setUserGroupMembers(List<UserMember> userGroupMembers) {
+        this.userGroupMembers = userGroupMembers;
     }
 }

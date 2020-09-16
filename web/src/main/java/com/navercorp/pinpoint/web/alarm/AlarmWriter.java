@@ -16,17 +16,16 @@
 
 package com.navercorp.pinpoint.web.alarm;
 
-import java.util.List;
-import java.util.Map;
-
+import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
+import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
+import com.navercorp.pinpoint.web.service.AlarmService;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
-import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
-import com.navercorp.pinpoint.web.service.AlarmService;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author minwoo.jung
@@ -74,7 +73,7 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
                 alarmMessageSender.sendEmail(checker, beforeCheckerResult.getSequenceCount() + 1, stepExecution);
             }
             if (checker.isWebhookSend()) {
-                alarmMessageSender.triggerWebhook(checker, beforeCheckerResult.getSequenceCount() + 1, stepExecution);
+                alarmMessageSender.sendWebhook(checker, beforeCheckerResult.getSequenceCount() + 1, stepExecution);
             }
         }
 
