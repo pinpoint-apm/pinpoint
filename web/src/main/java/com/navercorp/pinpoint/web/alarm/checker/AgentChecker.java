@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.alarm.checker;
 
 import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
-import com.navercorp.pinpoint.web.alarm.vo.AgentCheckerValue;
-import com.navercorp.pinpoint.web.alarm.vo.CheckerValue;
+import com.navercorp.pinpoint.web.alarm.vo.AgentCheckerDetectedValue;
+import com.navercorp.pinpoint.web.alarm.vo.CheckerDetectedValue;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 import java.util.HashMap;
@@ -32,10 +32,8 @@ import java.util.Map.Entry;
  */
 public abstract class AgentChecker<T> extends AlarmChecker<T> {
     
-    private static final String AGENT_CHECKER_TYPE = "AgentChecker";
-    
     protected final Map<String, T> detectedAgents = new HashMap<>();
-
+    
     protected AgentChecker(Rule rule, String unit, DataCollector dataCollector) {
         super(rule, unit, dataCollector);
     }
@@ -43,10 +41,10 @@ public abstract class AgentChecker<T> extends AlarmChecker<T> {
     @Override
     public void check() {
         dataCollector.collect();
-
+        
         Map<String, T> agents = getAgentValues();
         
-        for(Entry<String, T> agent : agents.entrySet()) {
+        for (Entry<String, T> agent : agents.entrySet()) {
             if (decideResult(agent.getValue())) {
                 detected = true;
                 detectedAgents.put(agent.getKey(), agent.getValue());
@@ -60,7 +58,7 @@ public abstract class AgentChecker<T> extends AlarmChecker<T> {
     protected T getDetectedValue() {
         throw new UnsupportedOperationException(this.getClass() + "is not support getDetectedValue function. you should use getAgentValues");
     }
-
+    
     public List<String> getSmsMessage() {
         List<String> messages = new LinkedList<>();
         
@@ -86,12 +84,10 @@ public abstract class AgentChecker<T> extends AlarmChecker<T> {
     protected abstract Map<String, T> getAgentValues();
     
     @Override
-    public CheckerValue getCheckerValue() {
-        return new AgentCheckerValue(unit, detectedAgents);
+    public CheckerDetectedValue getCheckerDetectedValue() {
+        return new AgentCheckerDetectedValue<>(unit, getAgentValues());
     }
     
-    @Override
-    public String getCheckerType() {
-        return AGENT_CHECKER_TYPE;
-    }
+    public abstract String getCheckerType();
+    
 }

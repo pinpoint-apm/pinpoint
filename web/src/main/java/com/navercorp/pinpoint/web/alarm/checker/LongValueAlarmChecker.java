@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.web.alarm.checker;
 
 import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.web.alarm.vo.AlarmCheckerDetectedValue;
+import com.navercorp.pinpoint.web.alarm.vo.CheckerDetectedValue;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 /**
@@ -32,5 +34,17 @@ public abstract class LongValueAlarmChecker extends AlarmChecker<Long> {
     protected boolean decideResult(Long value) {
         return value >= rule.getThreshold();
     }
-
+    
+    @Override
+    public String getCheckerType() {
+        return LongValueAlarmChecker.class.getSimpleName();
+    }
+    
+    @Override
+    public CheckerDetectedValue getCheckerDetectedValue() {
+        return new AlarmCheckerDetectedValue<>(unit, getDetectedValue());
+    }
+    
+    protected abstract Long getDetectedValue();
+    
 }

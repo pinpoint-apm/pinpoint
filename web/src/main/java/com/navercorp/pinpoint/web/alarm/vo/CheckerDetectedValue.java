@@ -1,10 +1,10 @@
 package com.navercorp.pinpoint.web.alarm.vo;
 
-public abstract class CheckerValue {
+public abstract class CheckerDetectedValue {
     
     private final String unit;
     
-    public CheckerValue(String unit) {
+    protected CheckerDetectedValue(String unit) {
         this.unit = unit;
     }
     

@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.web.alarm;
 
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.web.alarm.checker.SlowCountToCalleeChecker;
-import com.navercorp.pinpoint.web.alarm.vo.AlarmCheckerValue;
+import com.navercorp.pinpoint.web.alarm.vo.AlarmCheckerDetectedValue;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.alarm.vo.sender.WebhookPayload;
 import com.navercorp.pinpoint.web.batch.BatchConfiguration;
@@ -165,7 +165,7 @@ public class WebhookSenderImplTest {
     
     private AlarmChecker<Long> getAlarmCheckerStub() {
         SlowCountToCalleeChecker checker = mock(SlowCountToCalleeChecker.class);
-        doReturn(new AlarmCheckerValue<Long>("unit", 1000L)).when(checker).getCheckerValue();
+        doReturn(new AlarmCheckerDetectedValue<>("unit", 1000L)).when(checker).getCheckerDetectedValue();
 
         doReturn(new Rule(
                 "app-id",

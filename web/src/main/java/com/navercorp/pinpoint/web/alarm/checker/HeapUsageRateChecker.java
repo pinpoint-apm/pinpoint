@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * @author minwoo.jung
  */
-public class HeapUsageRateChecker extends AgentChecker<Long> {
+public class HeapUsageRateChecker extends LongValueAgentChecker {
     
     public HeapUsageRateChecker(AgentStatDataCollector dataCollector, Rule rule) {
         super(rule, "%", dataCollector);
@@ -33,11 +33,6 @@ public class HeapUsageRateChecker extends AgentChecker<Long> {
     @Override
     protected Map<String, Long> getAgentValues() {
         return ((AgentStatDataCollector)dataCollector).getHeapUsageRate();
-    }
-
-    @Override
-    protected boolean decideResult(Long value) {
-        return value >= rule.getThreshold();
     }
 
 }

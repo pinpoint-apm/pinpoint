@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.alarm.vo.sender;
 
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
-import com.navercorp.pinpoint.web.alarm.vo.CheckerValue;
+import com.navercorp.pinpoint.web.alarm.vo.CheckerDetectedValue;
 import com.navercorp.pinpoint.web.batch.BatchConfiguration;
 
 public class WebhookPayload {
@@ -14,8 +14,8 @@ public class WebhookPayload {
     private Integer threshold;
     private String notes;
     private String checkerType;
-    private CheckerValue checkerValue;
     private UserGroupMemberPayload userGroupMemberPayload;
+    private CheckerDetectedValue checkerDetectedValue;
     
     public WebhookPayload(AlarmChecker checker, BatchConfiguration batchConfiguration, int sequenceCount, UserGroupMemberPayload userGroupMemberPayload) {
         this.pinpointUrl = batchConfiguration.getPinpointUrl();
@@ -26,8 +26,8 @@ public class WebhookPayload {
         this.threshold = checker.getRule().getThreshold();
         this.notes = checker.getRule().getNotes();
         this.checkerType = checker.getCheckerType();
-        this.checkerValue = checker.getCheckerValue();
         this.userGroupMemberPayload = userGroupMemberPayload;
+        this.checkerDetectedValue = checker.getCheckerDetectedValue();
     }
     
     public UserGroupMemberPayload getUserGroupMemberPayload() {
@@ -36,10 +36,6 @@ public class WebhookPayload {
     
     public String getPinpointUrl() {
         return pinpointUrl;
-    }
-    
-    public String getCheckerType() {
-        return checkerType;
     }
     
     public String getBatchEnv() {
@@ -66,7 +62,11 @@ public class WebhookPayload {
         return notes;
     }
     
-    public CheckerValue getCheckerValue() {
-        return checkerValue;
+    public String getCheckerType() {
+        return checkerType;
+    }
+    
+    public CheckerDetectedValue getCheckerDetectedValue() {
+        return checkerDetectedValue;
     }
 }

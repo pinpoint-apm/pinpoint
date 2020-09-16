@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * @author minwoo.jung
  */
-public class FileDescriptorChecker extends AgentChecker<Long> {
+public class FileDescriptorChecker extends LongValueAgentChecker {
 
     public FileDescriptorChecker(FileDescriptorDataCollector dataCollector, Rule rule) {
         super(rule, "", dataCollector);
@@ -34,8 +34,4 @@ public class FileDescriptorChecker extends AgentChecker<Long> {
         return ((FileDescriptorDataCollector)dataCollector).getFileDescriptorCount();
     }
 
-    @Override
-    protected boolean decideResult(Long value) {
-        return value >= rule.getThreshold();
-    }
 }
