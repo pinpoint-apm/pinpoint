@@ -16,12 +16,12 @@
         </Console>
 
         <RollingFile name="rollingFile" filename="${logging_dir}/pinpoint.log"
-                     filepattern="${logging_dir}/pinpoint-${rolling-date-format}-%i.log">
+                     filepattern="${logging_dir}/pinpoint-%i.log">
             <PatternLayout>
                 <Pattern>${file_message_pattern}</Pattern>
             </PatternLayout>
             <Policies>
-                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${backupsize}" />
             </Policies>
             <DefaultRolloverStrategy max="20"/>
         </RollingFile>
