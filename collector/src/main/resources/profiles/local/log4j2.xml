@@ -38,7 +38,7 @@
         </RollingFile>
 
         <RollingFile name="stat-appender" filename="${logging_dir}/pinpoint-stat.log"
-                     filepattern="${logging_dir}/pinpoint-stat-%d{yyyy-dd-mm}-%i.log" >
+                     filepattern="${logging_dir}/pinpoint-stat-%d{yyyy-MM-dd-mm}-%i.log" >
             <PatternLayout>
                 <Pattern>${file_message_pattern}</Pattern>
             </PatternLayout>
