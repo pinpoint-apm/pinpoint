@@ -3,6 +3,7 @@
         <select class="font-opensans" #searchType>
             <option value="self">Self &gt;=</option>
             <option value="argument" [attr.disabled]="useArgument ? null : ''">Argument</option>
+            <option value="exception" [attr.disabled]="useArgument ? null : ''">Exception</option>
             <option value="all" [attr.disabled]="useArgument ? null : ''">All</option>
         </select>
         <span class="fas fa-angle-down"></span>

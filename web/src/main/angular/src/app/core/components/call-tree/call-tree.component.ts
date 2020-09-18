@@ -472,6 +472,11 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
                 return +data.selp >= +value;
             case 'argument':
                 return data.argument.indexOf(value) !== -1;
+            case 'exception':
+                return data.hasException && (
+                    (data.method && data.method.indexOf(value) !== -1) ||
+                    (data.argument && data.argument.indexOf(value) !== -1)
+                )
         }
     }
 
