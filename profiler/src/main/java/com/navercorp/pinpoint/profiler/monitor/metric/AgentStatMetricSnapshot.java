@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.monitor.metric;
 
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.container.ContainerMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
@@ -36,6 +37,7 @@ public class AgentStatMetricSnapshot {
     private long timestamp;
     private long collectInterval;
     private JvmGcMetricSnapshot gc;
+    private ContainerMetricSnapshot container;
     private CpuLoadMetricSnapshot cpuLoad;
     private TransactionMetricSnapshot transaction;
     private ActiveTraceHistogram activeTrace;
@@ -86,6 +88,14 @@ public class AgentStatMetricSnapshot {
 
     public void setGc(JvmGcMetricSnapshot gc) {
         this.gc = gc;
+    }
+
+    public ContainerMetricSnapshot getContainer() {
+        return container;
+    }
+
+    public void setContainer(ContainerMetricSnapshot container) {
+        this.container = container;
     }
 
     public CpuLoadMetricSnapshot getCpuLoad() {
@@ -176,6 +186,7 @@ public class AgentStatMetricSnapshot {
         sb.append(", timestamp=").append(timestamp);
         sb.append(", collectInterval=").append(collectInterval);
         sb.append(", gc=").append(gc);
+        sb.append(", container=").append(container);
         sb.append(", cpuLoad=").append(cpuLoad);
         sb.append(", transaction=").append(transaction);
         sb.append(", activeTrace=").append(activeTrace);

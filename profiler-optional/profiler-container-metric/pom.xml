@@ -26,10 +26,10 @@
         <version>2.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-profiler-optional-jdk11</artifactId>
-    <name>pinpoint-profiler-optional-jdk11</name>
+    <artifactId>pinpoint-profiler-container-metric</artifactId>
+    <name>pinpoint-profiler-container-metric</name>
     <packaging>jar</packaging>
-    <description>pinpoint profiler optional package for jdk 11</description>
+    <description>pinpoint profiler optional package for linux container metric</description>
 
     <properties>
         <jdk.version>11</jdk.version>
@@ -91,6 +91,16 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgs>
+                        <arg>--add-exports=java.base/jdk.internal.platform=ALL-UNNAMED</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

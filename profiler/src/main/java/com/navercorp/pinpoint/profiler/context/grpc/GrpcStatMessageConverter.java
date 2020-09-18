@@ -16,25 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.grpc;
 
-import com.navercorp.pinpoint.grpc.trace.PActiveTrace;
-import com.navercorp.pinpoint.grpc.trace.PActiveTraceHistogram;
-import com.navercorp.pinpoint.grpc.trace.PAgentStat;
-import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
-import com.navercorp.pinpoint.grpc.trace.PCpuLoad;
-import com.navercorp.pinpoint.grpc.trace.PCustomMetricMessage;
-import com.navercorp.pinpoint.grpc.trace.PDataSource;
-import com.navercorp.pinpoint.grpc.trace.PDataSourceList;
-import com.navercorp.pinpoint.grpc.trace.PDeadlock;
-import com.navercorp.pinpoint.grpc.trace.PDirectBuffer;
-import com.navercorp.pinpoint.grpc.trace.PFileDescriptor;
-import com.navercorp.pinpoint.grpc.trace.PJvmGc;
-import com.navercorp.pinpoint.grpc.trace.PJvmGcDetailed;
-import com.navercorp.pinpoint.grpc.trace.PJvmGcType;
-import com.navercorp.pinpoint.grpc.trace.PResponseTime;
-import com.navercorp.pinpoint.grpc.trace.PThreadDump;
-import com.navercorp.pinpoint.grpc.trace.PTotalThread;
-import com.navercorp.pinpoint.grpc.trace.PTransaction;
-import com.navercorp.pinpoint.grpc.trace.PLoadedClass;
+import com.navercorp.pinpoint.grpc.trace.*;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -44,6 +26,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshotBat
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcDetailedMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.container.ContainerMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSource;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetricSnapshot;
@@ -101,6 +84,12 @@ public class GrpcStatMessageConverter implements MessageConverter<GeneratedMessa
         if (jvmGcMetricSnapshot != null) {
             final PJvmGc jvmGc = convertJvmGc(jvmGcMetricSnapshot);
             agentStatBuilder.setGc(jvmGc);
+        }
+
+        final ContainerMetricSnapshot containerMetricSnapshot = agentStatMetricSnapshot.getContainer();
+        if (containerMetricSnapshot != null){
+            final PContainer container = convertContainer(containerMetricSnapshot);
+            agentStatBuilder.setContainer(container);
         }
 
         final CpuLoadMetricSnapshot cpuLoadMetricSnapshot = agentStatMetricSnapshot.getCpuLoad();
@@ -191,6 +180,14 @@ public class GrpcStatMessageConverter implements MessageConverter<GeneratedMessa
             jvmGcBuilder.setJvmGcDetailed(jvmGcDetailedBuilder.build());
         }
         return jvmGcBuilder.build();
+    }
+
+    private PContainer convertContainer(ContainerMetricSnapshot containerMetricSnapshot){
+        final PContainer.Builder containerBuilder = PContainer.newBuilder();
+        containerBuilder.setUserCpuUsage(containerMetricSnapshot.getUserCpuUsage());
+        containerBuilder.setSystemCpuUsage(containerMetricSnapshot.getSystemCpuUsage());
+        containerBuilder.setMemoryUsage(containerMetricSnapshot.getMemoryUsage());
+        return containerBuilder.build();
     }
 
     private PCpuLoad convertCpuLoad(CpuLoadMetricSnapshot cpuLoadMetricSnapshot) {

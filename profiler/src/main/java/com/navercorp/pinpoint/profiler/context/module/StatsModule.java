@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.module;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.navercorp.pinpoint.profiler.context.provider.stat.activethread.ActiveTraceMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.container.ContainerMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.cpu.CpuLoadMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.datasource.DataSourceMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.deadlock.DeadlockMetricProvider;
@@ -33,6 +34,7 @@ import com.navercorp.pinpoint.profiler.context.provider.stat.response.ResponseTi
 import com.navercorp.pinpoint.profiler.context.provider.stat.totalthread.TotalThreadMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.transaction.TransactionMetricProvider;
 import com.navercorp.pinpoint.profiler.monitor.metric.activethread.ActiveTraceMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.container.ContainerMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetric;
@@ -68,6 +70,9 @@ public class StatsModule extends AbstractModule {
         bind(DetailedMemoryMetric.class).toProvider(DetailedMemoryMetricProvider.class).in(Scopes.SINGLETON);
         bind(GarbageCollectorMetric.class).toProvider(GarbageCollectorMetricProvider.class).in(Scopes.SINGLETON);
         bind(DetailedGarbageCollectorMetric.class).toProvider(DetailedGarbageCollectorMetricProvider.class).in(Scopes.SINGLETON);
+
+        // container
+        bind(ContainerMetric.class).toProvider(ContainerMetricProvider.class).in(Scopes.SINGLETON);
 
         // cpu
         bind(CpuLoadMetric.class).toProvider(CpuLoadMetricProvider.class).in(Scopes.SINGLETON);

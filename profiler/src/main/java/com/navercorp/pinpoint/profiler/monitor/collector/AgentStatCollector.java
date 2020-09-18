@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.container.ContainerMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
@@ -41,6 +42,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<AgentStatMet
     private final String agentId;
     private final long agentStartTimestamp;
     private final AgentStatMetricCollector<JvmGcMetricSnapshot> jvmGcMetricCollector;
+    private final AgentStatMetricCollector<ContainerMetricSnapshot> containerMetricCollector;
     private final AgentStatMetricCollector<CpuLoadMetricSnapshot> cpuLoadMetricCollector;
     private final AgentStatMetricCollector<TransactionMetricSnapshot> transactionMetricCollector;
     private final AgentStatMetricCollector<ActiveTraceHistogram> activeTraceMetricCollector;
@@ -57,6 +59,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<AgentStatMet
             @AgentId String agentId,
             @AgentStartTime long agentStartTimestamp,
             AgentStatMetricCollector<JvmGcMetricSnapshot> jvmGcMetricCollector,
+            AgentStatMetricCollector<ContainerMetricSnapshot> containerMetricCollector,
             AgentStatMetricCollector<CpuLoadMetricSnapshot> cpuLoadMetricCollector,
             AgentStatMetricCollector<TransactionMetricSnapshot> transactionMetricCollector,
             AgentStatMetricCollector<ActiveTraceHistogram> activeTraceMetricCollector,
@@ -70,6 +73,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<AgentStatMet
         this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.agentStartTimestamp = agentStartTimestamp;
         this.jvmGcMetricCollector = Assert.requireNonNull(jvmGcMetricCollector, "jvmGcMetricCollector");
+        this.containerMetricCollector = Assert.requireNonNull(containerMetricCollector, "containerMetricCollector");
         this.cpuLoadMetricCollector = Assert.requireNonNull(cpuLoadMetricCollector, "cpuLoadMetricCollector");
         this.transactionMetricCollector = Assert.requireNonNull(transactionMetricCollector, "transactionMetricCollector");
         this.activeTraceMetricCollector = Assert.requireNonNull(activeTraceMetricCollector, "activeTraceMetricCollector");
@@ -88,6 +92,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<AgentStatMet
         agentStat.setAgentId(agentId);
         agentStat.setStartTimestamp(agentStartTimestamp);
         agentStat.setGc(jvmGcMetricCollector.collect());
+        agentStat.setContainer(containerMetricCollector.collect());
         agentStat.setCpuLoad(cpuLoadMetricCollector.collect());
         agentStat.setTransaction(transactionMetricCollector.collect());
         agentStat.setActiveTrace(activeTraceMetricCollector.collect());
@@ -108,6 +113,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<AgentStatMet
         sb.append("agentId='").append(agentId).append('\'');
         sb.append(", agentStartTimestamp=").append(agentStartTimestamp);
         sb.append(", jvmGcMetricCollector=").append(jvmGcMetricCollector);
+        sb.append(", containerMetricCollector=").append(containerMetricCollector);
         sb.append(", cpuLoadMetricCollector=").append(cpuLoadMetricCollector);
         sb.append(", transactionMetricCollector=").append(transactionMetricCollector);
         sb.append(", activeTraceMetricCollector=").append(activeTraceMetricCollector);

@@ -75,6 +75,7 @@ message PAgentStat {
     string metadata = 12;
     PTotalThread totalThread = 13;
     PLoadedClass loadedClass = 14;
+    PContainer container = 15;
 }
 
 message PAgentStatBatch {
@@ -118,6 +119,12 @@ message PJvmGcDetailed {
     double jvmPoolSurvivorSpaceUsed = 6;
     double jvmPoolPermGenUsed = 7;
     double jvmPoolMetaspaceUsed = 8;
+}
+
+message PContainer {
+    int64 userCpuUsage = 1;
+    int64 systemCpuUsage = 2;
+    int64 memoryUsage = 3;
 }
 
 message PCpuLoad {
