@@ -27,10 +27,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.mockito.Mockito.*;
 
@@ -53,7 +50,7 @@ public class AlarmWriterIsolationTest {
     
     @Before
     public void setUp() throws Exception {
-        writer = new AlarmWriter(alarmMessageSender, alarmService);
+        writer = new AlarmWriter(alarmMessageSender, alarmService, Optional.empty());
 
         beforeCheckerResults = new HashMap<>();
     }

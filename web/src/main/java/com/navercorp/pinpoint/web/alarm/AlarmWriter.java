@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.alarm;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
@@ -34,14 +35,15 @@ import com.navercorp.pinpoint.web.service.AlarmService;
 public class AlarmWriter implements ItemWriter<AlarmChecker> {
 
     private final AlarmMessageSender alarmMessageSender;
-
     private final AlarmService alarmService;
+    private final AlarmWriterInterceptor interceptor;
 
     private StepExecution stepExecution;
 
-    public AlarmWriter(AlarmMessageSender alarmMessageSender, AlarmService alarmService) {
+    public AlarmWriter(AlarmMessageSender alarmMessageSender, AlarmService alarmService, Optional<AlarmWriterInterceptor> alarmWriterInterceptor) {
         this.alarmMessageSender = Objects.requireNonNull(alarmMessageSender, "alarmMessageSender");
         this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
+        this.interceptor = alarmWriterInterceptor.orElseGet(DefaultAlarmWriterInterceptor::new);
     }
 
     @BeforeStep
@@ -51,6 +53,14 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
 
     @Override
     public void write(List<? extends AlarmChecker> checkers) throws Exception {
+        interceptor.before(checkers);
+
+        execute(checkers);
+
+        interceptor.after(checkers);
+    }
+
+    private void execute(List<? extends AlarmChecker> checkers) {
         Map<String, CheckerResult> beforeCheckerResults = alarmService.selectBeforeCheckerResults(checkers.get(0).getRule().getApplicationId());
 
         for (AlarmChecker checker : checkers) {
