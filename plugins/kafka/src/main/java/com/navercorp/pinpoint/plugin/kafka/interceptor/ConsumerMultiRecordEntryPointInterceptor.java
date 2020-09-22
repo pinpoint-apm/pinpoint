@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -120,8 +121,12 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
 
                 int size = consumerRecordsDesc.size();
 
+                String endPointAddress = consumerRecordsDesc.getEndPointAddress();
                 String remoteAddress = consumerRecordsDesc.getRemoteAddress();
-                recorder.recordEndPoint(remoteAddress);
+                if (StringUtils.isEmpty(endPointAddress)) {
+                    endPointAddress = remoteAddress;
+                }
+                recorder.recordEndPoint(endPointAddress);
                 recorder.recordRemoteAddress(remoteAddress);
                 recorder.recordAcceptorHost(remoteAddress);
 

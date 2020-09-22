@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.plugin.kafka.interceptor;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
+import com.navercorp.pinpoint.plugin.kafka.field.accessor.EndPointFieldAccessor;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
@@ -31,11 +33,13 @@ import java.util.Set;
 public class ConsumerRecordsDesc {
 
     private final Set<String> topicSet;
+    private final String endPointAddress;
     private final String remoteAddress;
     private final int size;
 
-    private ConsumerRecordsDesc(Set<String> topicSet, String remoteAddress, int size) {
+    private ConsumerRecordsDesc(Set<String> topicSet, String endPointAddress, String remoteAddress, int size) {
         this.topicSet = topicSet;
+        this.endPointAddress = endPointAddress;
         this.remoteAddress = remoteAddress;
         this.size = size;
     }
@@ -51,6 +55,10 @@ public class ConsumerRecordsDesc {
 
         // [topica, topicb, topicc]
         return topicSet.toString();
+    }
+
+    String getEndPointAddress() {
+        return endPointAddress;
     }
 
     String getRemoteAddress() {
@@ -77,13 +85,17 @@ public class ConsumerRecordsDesc {
     static ConsumerRecordsDesc create(Iterator consumerRecordIterator) {
         Set<String> topicSet = new HashSet<String>(1);
         String remoteAddress = null;
+        String endPointAddress  = null;
         int count = 0;
 
         while (consumerRecordIterator.hasNext()) {
             Object consumerRecord = consumerRecordIterator.next();
             if (consumerRecord instanceof ConsumerRecord) {
-                if (remoteAddress == null) {
+                if (StringUtils.isEmpty(remoteAddress)) {
                     remoteAddress = getRemoteAddress(consumerRecord);
+                }
+                if (StringUtils.isEmpty(endPointAddress)) {
+                    endPointAddress = getEndPointAddress(consumerRecord);
                 }
 
                 String topic = ((ConsumerRecord) consumerRecord).topic();
@@ -93,10 +105,19 @@ public class ConsumerRecordsDesc {
         }
 
         if (count > 0) {
-            return new ConsumerRecordsDesc(topicSet, remoteAddress, count);
+            return new ConsumerRecordsDesc(topicSet, endPointAddress, remoteAddress, count);
         }
 
         return null;
+    }
+
+    private static String getEndPointAddress(Object endPointFieldAccessor) {
+        String endPointAddress = null;
+        if (endPointFieldAccessor instanceof EndPointFieldAccessor) {
+            endPointAddress = ((EndPointFieldAccessor) endPointFieldAccessor)._$PINPOINT$_getEndPoint();
+        }
+
+        return endPointAddress;
     }
 
     private static String getRemoteAddress(Object remoteAddressFieldAccessor) {

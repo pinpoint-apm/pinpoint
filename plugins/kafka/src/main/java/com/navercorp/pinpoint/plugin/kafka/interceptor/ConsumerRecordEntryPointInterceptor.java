@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.descriptor.EntryPointMethodDescriptor;
+import com.navercorp.pinpoint.plugin.kafka.field.accessor.EndPointFieldAccessor;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
@@ -160,8 +161,13 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
                 recorder.recordServiceType(KafkaConstants.KAFKA_CLIENT);
                 recorder.recordApi(ConsumerRecordEntryPointInterceptor.ENTRY_POINT_METHOD_DESCRIPTOR);
 
+                String endPointAddress = getEndPointAddress(consumerRecord);
                 String remoteAddress = getRemoteAddress(consumerRecord);
-                recorder.recordEndPoint(remoteAddress);
+                if (StringUtils.isEmpty(endPointAddress)) {
+                    endPointAddress = remoteAddress;
+                }
+
+                recorder.recordEndPoint(endPointAddress);
                 recorder.recordRemoteAddress(remoteAddress);
 
                 String topic = consumerRecord.topic();
@@ -175,6 +181,15 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
                 if (StringUtils.hasText(parentApplicationName) && StringUtils.hasText(parentApplicationType)) {
                     recorder.recordParentApplication(parentApplicationName, NumberUtils.parseShort(parentApplicationType, ServiceType.UNDEFINED.getCode()));
                 }
+            }
+
+            private String getEndPointAddress(Object endPointFieldAccessor) {
+                String endPointAddress = null;
+                if (endPointFieldAccessor instanceof EndPointFieldAccessor) {
+                    endPointAddress = ((EndPointFieldAccessor) endPointFieldAccessor)._$PINPOINT$_getEndPoint();
+                }
+
+                return endPointAddress;
             }
 
             private String getRemoteAddress(Object remoteAddressFieldAccessor) {
