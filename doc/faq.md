@@ -27,8 +27,8 @@ You can change the log level by modifying the agent's *log4j.xml* located in *PI
 
 ### Why is only the first/some of the requests traced?
 There is a sampling rate option in the agent's pinpoint.config file (profiler.sampling.rate).
-Pinpoint agent samples 1 trace every N transactions if this value was set as N.
-Changing this value to 1 will allow you to trace every transaction.
+Pinpoint agent samples N traces every 100 transactions if this value was set as N.
+Changing this value to 100 will allow you to trace every transaction.
 
 ### Request count in the Scatter Chart is different from the ones in Response Summary chart. Why is this?
 The Scatter Chart data have a second granularity, so the requests counted here can be differentiated by a second interval.

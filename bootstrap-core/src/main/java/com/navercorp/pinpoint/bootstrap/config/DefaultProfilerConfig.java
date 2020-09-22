@@ -462,7 +462,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
 
         this.samplingEnable = readBoolean("profiler.sampling.enable", true);
-        this.samplingRate = readInt("profiler.sampling.rate", 1);
+        this.samplingRate = readInt("profiler.sampling.rate", 100);
         // Throughput sampling
         this.samplingNewThroughput = readInt("profiler.sampling.new.throughput", 0);
         this.samplingContinueThroughput = readInt("profiler.sampling.continue.throughput", 0);

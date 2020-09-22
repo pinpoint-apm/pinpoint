@@ -26,7 +26,7 @@ public class SamplerFactory {
         if (!sampling || samplingRate <= 0) {
             return new FalseSampler();
         }
-        if (samplingRate == 1) {
+        if (samplingRate == 100) {
             return new TrueSampler();
         }
         return new SamplingRateSampler(samplingRate);

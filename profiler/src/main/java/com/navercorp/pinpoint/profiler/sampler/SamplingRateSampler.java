@@ -28,21 +28,29 @@ public class SamplingRateSampler implements Sampler {
 
     private final AtomicInteger counter = new AtomicInteger(0);
     private final int samplingRate;
+    private final int samplingMaxSeqNum;
+    private final int samplingOutOfNum;
 
     public SamplingRateSampler(int samplingRate) {
-        if (samplingRate <= 0) {
+        if (samplingRate <= 0 || samplingRate > 100) {
             throw new IllegalArgumentException("Invalid samplingRate " + samplingRate);
         }
         this.samplingRate = samplingRate;
+        boolean percentSampling = (samplingRate % 10) != 0;
+        if (percentSampling) { //ex. 1% 15%
+            this.samplingOutOfNum = 100;
+            this.samplingMaxSeqNum = samplingRate;
+        } else { // 10% 20% 30% ...
+            this.samplingOutOfNum = 10;
+            this.samplingMaxSeqNum = samplingRate / 10;
+        }
     }
-
-
 
     @Override
     public boolean isSampling() {
         int samplingCount = MathUtils.fastAbs(counter.getAndIncrement());
-        int isSampling = samplingCount % samplingRate;
-        return isSampling == 0;
+        int mod = samplingCount % samplingOutOfNum;
+        return mod < samplingMaxSeqNum;
     }
 
     @Override

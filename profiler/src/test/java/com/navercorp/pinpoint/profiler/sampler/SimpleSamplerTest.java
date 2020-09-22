@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.sampler;
 
-
-import com.navercorp.pinpoint.profiler.sampler.SamplingRateSampler;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -32,18 +29,36 @@ public class SimpleSamplerTest {
 
 
     @Test
-    public void test() {
-        SamplingRateSampler simpleSampler = new SamplingRateSampler(1);
-        assertChoice(simpleSampler);
-        assertChoice(simpleSampler);
-        assertChoice(simpleSampler);
-        assertChoice(simpleSampler);
+    public void testSamplingAll() {
+        SamplingRateSampler simpleSampler = new SamplingRateSampler(100);
+        for (int i = 0; i < 100; i++) {
+            assertChoice(simpleSampler);
+        }
+    }
 
-         SamplingRateSampler simpleSampler2 = new SamplingRateSampler(2);
-        assertChoice(simpleSampler2);
-        assertDrop(simpleSampler2);
-        assertChoice(simpleSampler2);
-        assertDrop(simpleSampler2);
+    @Test
+    public void testSamplingBy10() {
+        SamplingRateSampler simpleSampler2 = new SamplingRateSampler(30);
+        for (int i = 0; i < 10; i++) {
+            if (i >= 3) {
+                assertDrop(simpleSampler2);
+            } else {
+                assertChoice(simpleSampler2);
+            }
+        }
+    }
+
+    @Test
+    public void testSamplingPercent() {
+        int rate = 75;
+        SamplingRateSampler simpleSampler2 = new SamplingRateSampler(rate);
+        for (int i = 0; i < 100; i++) {
+            if (i < rate) {
+                assertChoice(simpleSampler2);
+            } else {
+                assertDrop(simpleSampler2);
+            }
+        }
     }
 
     @Test
