@@ -233,6 +233,10 @@ public final class DefaultTrace implements Trace {
         return this.getTraceId().isRoot();
     }
 
+    public boolean isLiteModeTrace() {
+        return this.getTraceId().isLiteModeTrace();
+    }
+
     private void logSpan(SpanEvent spanEvent) {
         this.storage.store(spanEvent);
     }

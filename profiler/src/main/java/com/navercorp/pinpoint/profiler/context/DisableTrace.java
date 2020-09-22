@@ -92,6 +92,11 @@ public class DisableTrace implements Trace {
     }
 
     @Override
+    public boolean isLiteModeTrace() {
+        return false;
+    }
+
+    @Override
     public boolean isAsync() {
         return false;
     }

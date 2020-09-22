@@ -37,5 +37,9 @@ public interface TraceId {
 
     short getFlags();
 
+    boolean isLiteModeTrace();
+
+    boolean isFullModeTrace();
+
     boolean isRoot();
 }

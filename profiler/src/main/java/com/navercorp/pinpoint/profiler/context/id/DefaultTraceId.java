@@ -34,11 +34,11 @@ public class DefaultTraceId implements TraceId {
     private final short flags;
 
     public DefaultTraceId(String agentId, long agentStartTime, long transactionId) {
-        this(agentId, agentStartTime, transactionId, SpanId.NULL, SpanId.newSpanId(), (short) 0);
+        this(agentId, agentStartTime, transactionId, (short) 0);
     }
 
-    public TraceId getNextTraceId() {
-        return new DefaultTraceId(this.agentId, this.agentStartTime, transactionSequence, spanId, SpanId.nextSpanID(spanId, parentSpanId), flags);
+    public DefaultTraceId(String agentId, long agentStartTime, long transactionId, short flags) {
+        this(agentId, agentStartTime, transactionId, SpanId.NULL, SpanId.newSpanId(), flags);
     }
 
     public DefaultTraceId(String agentId, long agentStartTime, long transactionId, long parentSpanId, long spanId, short flags) {
@@ -52,6 +52,10 @@ public class DefaultTraceId implements TraceId {
         this.parentSpanId = parentSpanId;
         this.spanId = spanId;
         this.flags = flags;
+    }
+
+    public TraceId getNextTraceId() {
+        return new DefaultTraceId(this.agentId, this.agentStartTime, transactionSequence, spanId, SpanId.nextSpanID(spanId, parentSpanId), flags);
     }
 
     public String getTransactionId() {
@@ -82,6 +86,14 @@ public class DefaultTraceId implements TraceId {
 
     public short getFlags() {
         return flags;
+    }
+
+    public boolean isLiteModeTrace() {
+        return (flags & 1) == 1;
+    }
+
+    public boolean isFullModeTrace() {
+        return (flags & 1) == 0;
     }
 
     public boolean isRoot() {

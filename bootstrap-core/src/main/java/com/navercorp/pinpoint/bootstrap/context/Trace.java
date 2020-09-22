@@ -43,6 +43,8 @@ public interface Trace extends StackOperation {
 
     boolean isRoot();
 
+    boolean isLiteModeTrace();
+
     boolean isAsync();
     
     SpanRecorder getSpanRecorder();

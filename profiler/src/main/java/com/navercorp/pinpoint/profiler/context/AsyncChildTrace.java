@@ -209,6 +209,11 @@ public class AsyncChildTrace implements Trace {
         return this.getTraceId().isRoot();
     }
 
+    @Override
+    public boolean isLiteModeTrace() {
+        return this.getTraceId().isLiteModeTrace();
+    }
+
     private void logSpan(SpanEvent spanEvent) {
         this.storage.store(spanEvent);
     }

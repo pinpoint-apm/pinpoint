@@ -66,6 +66,11 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
+    public boolean isLiteModeTrace() {
+        return this.traceRoot.getTraceId().isLiteModeTrace();
+    }
+
+    @Override
     public SpanEventRecorder traceBlockBegin() {
         return trace.traceBlockBegin();
     }
