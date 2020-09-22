@@ -17,7 +17,6 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.google.common.collect.Ordering;
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
@@ -203,7 +202,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             }
         }
 
-        applicationNameList.sort(Ordering.usingToString());
+        applicationNameList.sort(String::compareTo);
         return applicationNameList;
     }
 

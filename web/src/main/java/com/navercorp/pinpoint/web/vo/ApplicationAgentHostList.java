@@ -62,15 +62,7 @@ public class ApplicationAgentHostList {
             return;
         }
 
-        List<AgentInfo> value = null;
-        if (map.containsKey(applicationName)) {
-            value = map.get(applicationName);
-        }
-
-        if (value == null) {
-            value = new ArrayList<>();
-            map.put(applicationName, value);
-        }
+        List<AgentInfo> value = map.computeIfAbsent(applicationName, k -> new ArrayList<>());
 
         if (agentInfoList == null) {
             return;

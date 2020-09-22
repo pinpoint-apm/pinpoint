@@ -64,7 +64,7 @@ public class ApplicationStatHbaseOperationFactory {
         }
 
         Map<Long, List<JoinStatBo>> timeslots = slotApplicationStatDataPoints(joinStatBoList);
-        List<Put> puts = new ArrayList<Put>();
+        List<Put> puts = new ArrayList<>();
         for (Map.Entry<Long, List<JoinStatBo>> timeslot : timeslots.entrySet()) {
             long baseTimestamp = timeslot.getKey();
             List<JoinStatBo> slottedApplicationStatDataPoints = timeslot.getValue();
@@ -103,15 +103,11 @@ public class ApplicationStatHbaseOperationFactory {
     }
 
     private <T extends JoinStatBo> Map<Long, List<T>> slotApplicationStatDataPoints(List<T> joinStatBoList) {
-        Map<Long, List<T>> timeslots = new TreeMap<Long, List<T>>();
+        Map<Long, List<T>> timeslots = new TreeMap<>();
         for (T joinStatBo : joinStatBoList) {
             long timestamp = joinStatBo.getTimestamp();
             long timeslot = AgentStatUtils.getBaseTimestamp(timestamp);
-            List<T> slottedDataPoints = timeslots.get(timeslot);
-            if (slottedDataPoints == null) {
-                slottedDataPoints = new ArrayList<T>();
-                timeslots.put(timeslot, slottedDataPoints);
-            }
+            List<T> slottedDataPoints = timeslots.computeIfAbsent(timeslot, k -> new ArrayList<>());
             slottedDataPoints.add(joinStatBo);
         }
         return timeslots;

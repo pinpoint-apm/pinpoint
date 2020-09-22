@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.google.common.collect.Ordering;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -73,10 +72,10 @@ public class AdminServiceImpl implements AdminService {
         if (durationDays < MIN_DURATION_DAYS_FOR_INACTIVITY) {
             throw new IllegalArgumentException("duration may not be less than " + MIN_DURATION_DAYS_FOR_INACTIVITY + " days");
         }
-        Map<String, List<String>> inactiveAgentMap = new TreeMap<>(Ordering.usingToString());
+        Map<String, List<String>> inactiveAgentMap = new TreeMap<>(String::compareTo);
 
         List<Application> applications = this.applicationIndexDao.selectAllApplicationNames();
-        Set<String> applicationNames = new TreeSet<>(Ordering.usingToString());
+        Set<String> applicationNames = new TreeSet<>(String::compareTo);
         // remove duplicates (same application name but different service type)
         for (Application application : applications) {
             applicationNames.add(application.getName());
@@ -97,15 +96,13 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Map<String, List<Application>> getAgentIdMap() {
-        Map<String, List<Application>> agentIdMap = new TreeMap<>(Ordering.usingToString());
+        Map<String, List<Application>> agentIdMap = new TreeMap<>(String::compareTo);
         List<Application> applications = this.applicationIndexDao.selectAllApplicationNames();
         for (Application application : applications) {
             List<String> agentIds = this.applicationIndexDao.selectAgentIds(application.getName());
             for (String agentId : agentIds) {
-                if (!agentIdMap.containsKey(agentId)) {
-                    agentIdMap.put(agentId, new ArrayList<Application>());
-                }
-                agentIdMap.get(agentId).add(application);
+                List<Application> applicationList = agentIdMap.computeIfAbsent(agentId, k -> new ArrayList<>());
+                applicationList.add(application);
             }
         }
         return agentIdMap;
@@ -113,7 +110,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Map<String, List<Application>> getDuplicateAgentIdMap() {
-        Map<String, List<Application>> duplicateAgentIdMap = new TreeMap<>(Ordering.usingToString());
+        Map<String, List<Application>> duplicateAgentIdMap = new TreeMap<>(String::compareTo);
         Map<String, List<Application>> agentIdMap = this.getAgentIdMap();
         for (Map.Entry<String, List<Application>> entry : agentIdMap.entrySet()) {
             String agentId = entry.getKey();
@@ -137,7 +134,7 @@ public class AdminServiceImpl implements AdminService {
             return Collections.emptyMap();
         }
         Map<String, List<Application>> agentIdMap = this.getAgentIdMap();
-        Map<String, List<Application>> inactiveAgentMap = new TreeMap<>(Ordering.usingToString());
+        Map<String, List<Application>> inactiveAgentMap = new TreeMap<>(String::compareTo);
         List<String> inactiveAgentIds = filterInactiveAgents(agentIds, durationDays);
         for (String inactiveAgentId : inactiveAgentIds) {
             List<Application> applications = agentIdMap.get(inactiveAgentId);
