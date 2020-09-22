@@ -63,6 +63,8 @@ public interface ProfilerConfig {
 
     int getSamplingRate();
 
+    int getSamplingLiteRate();
+
     int getSamplingNewThroughput();
 
     int getSamplingContinueThroughput();

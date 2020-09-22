@@ -109,6 +109,8 @@ public class ConfigModule extends AbstractModule {
         Named callstackMaxDepth = Names.named("profiler.callstack.max.depth");
         bindConstant().annotatedWith(callstackMaxDepth).to(profilerConfig.getCallStackMaxDepth());
 
+        bindConstant().annotatedWith(ProfilerSamplingLiteRate.class).to(profilerConfig.getSamplingLiteRate());
+
         bindConstant().annotatedWith(TraceAgentActiveThread.class).to(profilerConfig.isTraceAgentActiveThread());
 
         bindConstant().annotatedWith(DeadlockMonitorEnable.class).to(profilerConfig.isDeadlockMonitorEnable());

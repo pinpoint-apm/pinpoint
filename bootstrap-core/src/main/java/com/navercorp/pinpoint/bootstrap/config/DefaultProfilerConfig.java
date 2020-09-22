@@ -132,6 +132,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     // Sampling
     private boolean samplingEnable = true;
     private int samplingRate = 1;
+    private int samplingLiteRate = 0;
     private int samplingNewThroughput = 0;
     private int samplingContinueThroughput = 0;
 
@@ -268,6 +269,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public int getSamplingRate() {
         return samplingRate;
+    }
+
+    @Override
+    public int getSamplingLiteRate() {
+        return samplingLiteRate;
     }
 
     @Override
@@ -463,6 +469,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.samplingEnable = readBoolean("profiler.sampling.enable", true);
         this.samplingRate = readInt("profiler.sampling.rate", 1);
+        this.samplingLiteRate = readInt("profiler.sampling.lite.rate", 0);
         // Throughput sampling
         this.samplingNewThroughput = readInt("profiler.sampling.new.throughput", 0);
         this.samplingContinueThroughput = readInt("profiler.sampling.continue.throughput", 0);
@@ -647,6 +654,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", maxSqlBindValueSize=").append(maxSqlBindValueSize);
         sb.append(", samplingEnable=").append(samplingEnable);
         sb.append(", samplingRate=").append(samplingRate);
+        sb.append(", samplingLiteRate=").append(samplingLiteRate);
         sb.append(", samplingNewThroughput=").append(samplingNewThroughput);
         sb.append(", samplingContinueThroughput=").append(samplingContinueThroughput);
         sb.append(", ioBufferingEnable=").append(ioBufferingEnable);
