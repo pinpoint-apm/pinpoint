@@ -100,7 +100,7 @@ public enum StatType {
     }
 
     private static IntHashMap<StatType> toStatTypeMap() {
-        final IntHashMap<StatType> map = new IntHashMap<StatType>();
+        final IntHashMap<StatType> map = new IntHashMap<>();
         for (StatType agentStatType : StatType.values()) {
             map.put(agentStatType.getTypeCode(), agentStatType);
         }

@@ -44,7 +44,7 @@ public class JoinFileDescriptorBo implements JoinStatBo {
     }
 
     public static JoinFileDescriptorBo joinFileDescriptorBoList(List<JoinFileDescriptorBo> joinFileDescriptorBoList, Long timestamp) {
-        int boCount = joinFileDescriptorBoList.size();
+
         if (joinFileDescriptorBoList.size() == 0) {
             return EMPTY_JOIN_FILE_DESCRIPTOR_BO;
         }

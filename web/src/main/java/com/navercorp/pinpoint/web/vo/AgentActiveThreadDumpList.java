@@ -52,24 +52,7 @@ public class AgentActiveThreadDumpList {
 
     public List<AgentActiveThreadDump> getSortOldestAgentActiveThreadDumpRepository() {
         List<AgentActiveThreadDump> copied = new ArrayList<>(agentActiveThreadDumpRepository);
-        copied.sort(new Comparator<AgentActiveThreadDump>() {
-
-            private static final int CHANGE_TO_NEW_ELEMENT = 1;
-            private static final int KEEP_OLD_ELEMENT = -1;
-
-            @Override
-            public int compare(AgentActiveThreadDump oldElement, AgentActiveThreadDump newElement) {
-                long diff = oldElement.getStartTime() - newElement.getStartTime();
-
-                if (diff <= 0) {
-                    return KEEP_OLD_ELEMENT;
-                }
-
-                return CHANGE_TO_NEW_ELEMENT;
-            }
-
-        });
-
+        copied.sort(Comparator.comparingLong(AgentActiveThreadDump::getStartTime));
         return Collections.unmodifiableList(copied);
     }
 

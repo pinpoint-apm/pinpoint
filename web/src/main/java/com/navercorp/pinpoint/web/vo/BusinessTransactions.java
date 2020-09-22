@@ -39,8 +39,9 @@ public class BusinessTransactions {
         totalCallCount++;
 
         String rpc = span.getRpc();
-        if (transactions.containsKey(rpc)) {
-            transactions.get(rpc).add(span);
+        final BusinessTransaction businessTransaction = transactions.get(rpc);
+        if (businessTransaction != null) {
+            businessTransaction.add(span);
         } else {
             transactions.put(rpc, new BusinessTransaction(span));
         }
