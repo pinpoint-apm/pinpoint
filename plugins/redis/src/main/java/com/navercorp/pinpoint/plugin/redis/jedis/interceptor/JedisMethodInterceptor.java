@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.redis.jedis.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
@@ -44,6 +45,11 @@ public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForP
 
         this.interceptorScope = interceptorScope;
         this.io = io;
+    }
+
+    @Override
+    protected boolean canTrace(Trace trace) {
+        return super.notInLiteMode(trace);
     }
 
     @Override
