@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.plugin.jackson.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.jackson.JacksonConstants;
@@ -35,6 +36,11 @@ public class ReadValueInterceptor extends SpanEventSimpleAroundInterceptorForPlu
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordServiceType(JacksonConstants.SERVICE_TYPE);
+    }
+
+    @Override
+    protected boolean canTrace(Trace trace) {
+        return super.notInLiteMode(trace);
     }
 
     @Override

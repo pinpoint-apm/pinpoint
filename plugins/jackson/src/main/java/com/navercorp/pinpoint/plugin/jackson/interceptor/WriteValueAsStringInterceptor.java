@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.plugin.jackson.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.jackson.JacksonConstants;
@@ -29,6 +30,11 @@ public class WriteValueAsStringInterceptor extends SpanEventSimpleAroundIntercep
 
     public WriteValueAsStringInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
+    }
+
+    @Override
+    protected boolean canTrace(Trace trace) {
+        return super.notInLiteMode(trace);
     }
 
     @Override
