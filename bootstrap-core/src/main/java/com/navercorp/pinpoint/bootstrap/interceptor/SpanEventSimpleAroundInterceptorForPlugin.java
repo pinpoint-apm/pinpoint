@@ -54,7 +54,7 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Aroun
         prepareBeforeTrace(target, args);
 
         final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
+        if (trace == null || !canTrace(trace)) {
             return;
         }
         
@@ -76,6 +76,14 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Aroun
 
     }
 
+    protected boolean canTrace(Trace trace) {
+        return true;
+    }
+
+    protected boolean notInLiteMode(Trace trace) {
+        return trace != null && !trace.isLiteModeTrace();
+    }
+
     protected abstract void doInBeforeTrace(final SpanEventRecorder recorder, final Object target, final Object[] args) throws Exception;
 
     @Override
@@ -87,7 +95,7 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Aroun
         prepareAfterTrace(target, args, result, throwable);
 
         final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
+        if (trace == null || !canTrace(trace)) {
             return;
         }
         try {
