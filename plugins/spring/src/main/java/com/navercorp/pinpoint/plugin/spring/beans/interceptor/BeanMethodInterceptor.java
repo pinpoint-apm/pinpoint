@@ -49,7 +49,7 @@ public class BeanMethodInterceptor implements ApiIdAwareAroundInterceptor {
         }
 
         final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
+        if (trace == null || trace.isLiteModeTrace()) {
             return;
         }
 
@@ -64,7 +64,7 @@ public class BeanMethodInterceptor implements ApiIdAwareAroundInterceptor {
         }
 
         final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
+        if (trace == null || trace.isLiteModeTrace()) {
             return;
         }
 
