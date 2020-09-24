@@ -81,7 +81,7 @@ public class PostgreSQLConnectionCreateInterceptor implements AroundInterceptor 
         }
 
         final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
+        if (trace == null || trace.isLiteModeTrace()) {
             return;
         }
 
