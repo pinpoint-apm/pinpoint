@@ -15,12 +15,12 @@
 
 package com.navercorp.pinpoint.web.scatter;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.view.ScatterDataSerializer;
@@ -40,7 +40,13 @@ public class ScatterData {
     private final long oldestAcceptedTime;
     private final long latestAcceptedTime;
 
-    private static final Comparator<Long> REVERSE = Collections.reverseOrder(Long::compare);
+    private static final Comparator<DotGroups> REVERSE = new Comparator<DotGroups>() {
+        @Override
+        public int compare(DotGroups left, DotGroups right) {
+            return Long.compare(right.getXCoordinates(), left.getXCoordinates());
+        }
+    };
+
 
     public ScatterData(long from,
                        long to,
@@ -75,11 +81,10 @@ public class ScatterData {
         return scatterData;
     }
 
-    public Map<Long, DotGroups> getSortedScatterDataMap() {
-        TreeMap<Long, DotGroups> sortedMap = new TreeMap<>(REVERSE);
-        sortedMap.putAll(scatterData);
-
-        return sortedMap;
+    public List<DotGroups> getScatterData() {
+        List<DotGroups> list = new ArrayList<>(scatterData.values());
+        list.sort(REVERSE);
+        return list;
     }
 
     public int getDotSize() {

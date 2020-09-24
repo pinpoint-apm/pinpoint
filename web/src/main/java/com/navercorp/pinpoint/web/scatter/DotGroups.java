@@ -81,7 +81,7 @@ public class DotGroups {
         return dotGroupMap;
     }
 
-    public Collection<Dot> getSortedDotSet() {
+    public List<Dot> getSortedDotSet() {
         Collection<DotGroup> dotGroupList = dotGroupMap.values();
 
         int size = getSize(dotGroupList, DotGroup::getDotSize);

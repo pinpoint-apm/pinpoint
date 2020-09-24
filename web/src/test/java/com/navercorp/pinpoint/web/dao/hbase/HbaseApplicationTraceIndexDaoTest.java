@@ -121,7 +121,7 @@ public class HbaseApplicationTraceIndexDaoTest {
                                                                                 1, 5, 10, false);
         Assert.assertEquals(1000L, result.getFrom());
         Assert.assertEquals(5000L, result.getTo());
-        Assert.assertEquals(0, result.getScatterDataMap().size());
+        Assert.assertEquals(0, result.getScatterData().size());
     }
 
     @Test
