@@ -75,7 +75,7 @@ public class StatementCreateInterceptor implements AroundInterceptor {
             return;
         }
         Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
+        if (trace == null || trace.isLiteModeTrace()) {
             return;
         }
         if (CONNECTION_CLASS.isInstance(target)) {

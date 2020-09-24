@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
@@ -37,6 +38,10 @@ public class StatementExecuteQueryInterceptor extends SpanEventSimpleAroundInter
         super(traceContext, descriptor);
     }
 
+    @Override
+    protected boolean canTrace(Trace trace) {
+        return super.notInLiteMode(trace);
+    }
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, final Object target, Object[] args) {

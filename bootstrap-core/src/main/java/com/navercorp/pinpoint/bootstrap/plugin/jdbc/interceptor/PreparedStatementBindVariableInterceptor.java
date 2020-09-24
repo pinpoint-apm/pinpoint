@@ -58,7 +58,7 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
         }
 
         final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
+        if (trace == null || trace.isLiteModeTrace()) {
             return;
         }
 

@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
@@ -55,6 +56,11 @@ public class PreparedStatementExecuteQueryInterceptor extends SpanEventSimpleAro
     public PreparedStatementExecuteQueryInterceptor(TraceContext traceContext, MethodDescriptor descriptor, int maxSqlBindValueLength) {
         super(traceContext, descriptor);
         this.maxSqlBindValueLength = maxSqlBindValueLength;
+    }
+
+    @Override
+    protected boolean canTrace(Trace trace) {
+        return super.notInLiteMode(trace);
     }
 
     @Override
