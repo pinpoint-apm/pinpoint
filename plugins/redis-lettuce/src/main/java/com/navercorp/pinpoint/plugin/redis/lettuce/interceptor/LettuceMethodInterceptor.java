@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.redis.lettuce.EndPointAccessor;
@@ -34,6 +35,11 @@ public class LettuceMethodInterceptor extends SpanEventSimpleAroundInterceptorFo
 
     public LettuceMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
+    }
+
+    @Override
+    protected boolean canTrace(Trace trace) {
+        return super.notInLiteMode(trace);
     }
 
     @Override
