@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
@@ -38,9 +39,12 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -100,7 +104,7 @@ public class FilteredMapBuilder {
     }
 
     public FilteredMapBuilder addTransaction(List<SpanBo> transaction) {
-        final Map<Long, SpanBo> transactionSpanMap = checkDuplicatedSpanId(transaction);
+        final MultiValueMap<Long, SpanBo> transactionSpanMap = createTransactionSpanMap(transaction);
 
         for (SpanBo span : transaction) {
             final Application parentApplication = createParentApplication(span, transactionSpanMap, version);
@@ -159,19 +163,21 @@ public class FilteredMapBuilder {
         this.dotExtractor.addDot(srcApplication, dot);
     }
 
-    private Map<Long, SpanBo> checkDuplicatedSpanId(List<SpanBo> transaction) {
-        final Map<Long, SpanBo> transactionSpanMap = new HashMap<>();
+    private MultiValueMap<Long, SpanBo> createTransactionSpanMap(List<SpanBo> transaction) {
+        final MultiValueMap<Long, SpanBo> transactionSpanMap = new LinkedMultiValueMap<>(transaction.size());
         for (SpanBo span : transaction) {
-            final SpanBo old = transactionSpanMap.put(span.getSpanId(), span);
-            if (old != null) {
-                logger.warn("duplicated span found:{}", old);
+            if (transactionSpanMap.containsKey(span.getSpanId())) {
+                logger.warn("duplicated span found:{}", span);
             }
+
+            transactionSpanMap.add(span.getSpanId(), span);
         }
         return transactionSpanMap;
     }
 
-    private Application createParentApplication(SpanBo span, Map<Long, SpanBo> transactionSpanMap, int version) {
-        final SpanBo parentSpan = transactionSpanMap.get(span.getParentSpanId());
+    private Application createParentApplication(SpanBo span, MultiValueMap<Long, SpanBo> transactionSpanMap, int version) {
+        final SpanBo parentSpan = getParentsSpan(span, transactionSpanMap);
+
         if (span.isRoot() || parentSpan == null) {
             ServiceType spanServiceType = this.registry.findServiceType(span.getServiceType());
             if (spanServiceType.isQueue()) {
@@ -213,7 +219,38 @@ public class FilteredMapBuilder {
         }
     }
 
-    private void addNodeFromSpanEvent(SpanBo span, Application srcApplication, Map<Long, SpanBo> transactionSpanMap) {
+    private SpanBo getParentsSpan(SpanBo currentSpan, MultiValueMap<Long, SpanBo> transactionSpanMap) {
+        List<SpanBo> parentSpanCandidateList = transactionSpanMap.get(currentSpan.getParentSpanId());
+        if (parentSpanCandidateList == null) {
+            return null;
+        }
+
+        if (CollectionUtils.nullSafeSize(parentSpanCandidateList) == 1) {
+            return parentSpanCandidateList.get(0);
+        } else {
+            for (SpanBo parentSpanCandidate : parentSpanCandidateList) {
+                SpanAcceptor acceptor = new SpanReader(Collections.singletonList(parentSpanCandidate));
+                boolean accept = acceptor.accept(new SpanEventVisitAdaptor(new SpanEventVisitor() {
+                    @Override
+                    public boolean visit(SpanEventBo spanEventBo) {
+                        if (spanEventBo.getNextSpanId() == currentSpan.getSpanId()) {
+                            return SpanVisitor.ACCEPT;
+                        }
+                        return SpanVisitor.REJECT;
+                    }
+                }));
+
+                if (accept) {
+                    return parentSpanCandidate;
+                }
+            }
+
+            logger.warn("Can not find suitable ParentSpan.(CurrentSpan:{})", currentSpan);
+            return parentSpanCandidateList.get(0);
+        }
+    }
+
+    private void addNodeFromSpanEvent(SpanBo span, Application srcApplication, MultiValueMap<Long, SpanBo> transactionSpanMap) {
         /*
          * add span event statistics
          */
@@ -229,7 +266,7 @@ public class FilteredMapBuilder {
         }));
     }
 
-    private void addNode(SpanBo span, Map<Long, SpanBo> transactionSpanMap, Application srcApplication, LinkDataMap sourceLinkDataMap, SpanEventBo spanEvent) {
+    private void addNode(SpanBo span, MultiValueMap<Long, SpanBo> transactionSpanMap, Application srcApplication, LinkDataMap sourceLinkDataMap, SpanEventBo spanEvent) {
         ServiceType destServiceType = registry.findServiceType(spanEvent.getServiceType());
 
         if (destServiceType.isAlias()) {
