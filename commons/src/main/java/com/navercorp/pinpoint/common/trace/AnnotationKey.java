@@ -56,6 +56,7 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_
  * <tr><td>15</td><td><i>RESERVED</i></td></tr>
  * <tr><td>16</td><td><i>RESERVED</i></td></tr>
  * <tr><td>17</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>18</td><td><i>TRACE-MODE</i></td></tr>
  * <tr><td>20</td><td>SQL-ID</td></tr>
  * <tr><td>21</td><td>SQL</td></tr>
  * <tr><td>22</td><td>SQL-METADATA</td></tr>
@@ -181,6 +182,8 @@ public interface AnnotationKey {
 
     // it's not clear to handle a error code.  so ApiMetaDataError with searching ERROR_API_META_DATA has been used.
     // automatically generated id
+
+    AnnotationKey TRACE_MODE = AnnotationKeyFactory.of(18, "Trace-Mode", VIEW_IN_RECORD_SET);
 
     AnnotationKey SQL_ID = AnnotationKeyFactory.of(20, "SQL-ID");
     AnnotationKey SQL = AnnotationKeyFactory.of(21, "SQL", VIEW_IN_RECORD_SET);

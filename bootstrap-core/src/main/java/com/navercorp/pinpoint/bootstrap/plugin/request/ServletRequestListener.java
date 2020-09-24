@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.method.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 
@@ -126,6 +127,9 @@ public class ServletRequestListener<REQ> {
             this.serverRequestRecorder.record(recorder, request);
             // record proxy HTTP header.
             this.proxyRequestRecorder.record(recorder, request);
+            if (trace.isRoot()) {
+                recorder.recordAttribute(AnnotationKey.TRACE_MODE, trace.isLiteModeTrace() ? "Lite" : "Full");
+            }
         }
         return trace;
     }
