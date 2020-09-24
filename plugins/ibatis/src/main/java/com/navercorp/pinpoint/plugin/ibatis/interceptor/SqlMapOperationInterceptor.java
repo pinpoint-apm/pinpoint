@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.ibatis.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -33,6 +34,11 @@ public class SqlMapOperationInterceptor extends SpanEventSimpleAroundInterceptor
     public SqlMapOperationInterceptor(TraceContext context, MethodDescriptor descriptor, ServiceType serviceType) {
         super(context, descriptor);
         this.serviceType = serviceType;
+    }
+
+    @Override
+    protected boolean canTrace(Trace trace) {
+        return super.notInLiteMode(trace);
     }
 
     @Override
