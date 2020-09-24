@@ -74,7 +74,7 @@ public class MySQL_6_X_ConnectionCreateInterceptor implements AroundInterceptor 
         }
 
         final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
+        if (trace == null || trace.isLiteModeTrace()) {
             return;
         }
 
