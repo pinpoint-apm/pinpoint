@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.redis.redisson.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.redis.redisson.RedissonConstants;
@@ -28,6 +29,11 @@ import com.navercorp.pinpoint.plugin.redis.redisson.RedissonConstants;
 public class RedissonMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
     public RedissonMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
+    }
+
+    @Override
+    protected boolean canTrace(Trace trace) {
+        return super.notInLiteMode(trace);
     }
 
     @Override
