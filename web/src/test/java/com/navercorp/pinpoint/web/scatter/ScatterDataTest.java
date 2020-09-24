@@ -22,7 +22,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -83,8 +82,7 @@ public class ScatterDataTest {
         builder.addDot(dot2);
         ScatterData scatterData = builder.build();
 
-        Map<Long, DotGroups> scatterDataMap = scatterData.getScatterDataMap();
-        Collection<DotGroups> values = scatterDataMap.values();
+        List<DotGroups> values = scatterData.getScatterData();
         Assert.assertTrue(values.size() == 1);
 
         for (DotGroups dotGroups : values) {
@@ -168,7 +166,7 @@ public class ScatterDataTest {
     private List<Dot> extractDotList(ScatterData scatterData) {
         List<Dot> dotList = new ArrayList<>();
 
-        for (DotGroups dotGroups : scatterData.getScatterDataMap().values()) {
+        for (DotGroups dotGroups : scatterData.getScatterData()) {
             dotList.addAll(dotGroups.getSortedDotSet());
         }
 

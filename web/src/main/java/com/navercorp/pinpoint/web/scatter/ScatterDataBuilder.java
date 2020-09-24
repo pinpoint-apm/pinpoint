@@ -83,7 +83,12 @@ public class ScatterDataBuilder {
     }
 
     private void addDot(Coordinates coordinates, Dot dot) {
-        DotGroups dotGroups = scatterData.computeIfAbsent(coordinates.getX(), k -> new DotGroups(coordinates.getX()));
+        final Long x = coordinates.getX();
+        DotGroups dotGroups = this.scatterData.get(x);
+        if (dotGroups == null) {
+            dotGroups = new DotGroups(x);
+            this.scatterData.put(x, dotGroups);
+        }
 
         dotGroups.addDot(coordinates, dot);
 
