@@ -37,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -116,9 +115,6 @@ public class ScatterChartController {
 
         limit = LimitUtils.checkRange(limit);
 
-        StopWatch watch = new StopWatch();
-        watch.start("getScatterData");
-
         // TODO range check verification exception occurs. "from" is bigger than "to"
         final Range range = Range.newUncheckedRange(from, to);
         logger.debug("fetch scatter data. RANGE={}, X-Group-Unit:{}, Y-Group-Unit:{}, LIMIT={}, BACKWARD_DIRECTION:{}, FILTER:{}", range, xGroupUnit, yGroupUnit, limit, backwardDirection, filterText);
@@ -129,13 +125,8 @@ public class ScatterChartController {
         } else {
             dotView = selectFilterScatterData(applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection, filterText);
         }
+
         ScatterView.Status status = new ScatterView.Status(System.currentTimeMillis(), range);
-        watch.stop();
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
-        }
-
         return ScatterView.wrapResult(dotView, status);
     }
 

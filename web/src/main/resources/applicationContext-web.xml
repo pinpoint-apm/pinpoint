@@ -197,4 +197,8 @@
     <bean id="rewriteFilter" class="com.navercorp.pinpoint.web.servlet.RewriteForV2Filter">
         <constructor-arg index="0" value="true"/>
     </bean>
+
+    <bean class="com.navercorp.pinpoint.web.interceptor.PerformanceLoggingInterceptor">
+        <constructor-arg value="1000"/>
+    </bean>
 </beans>
