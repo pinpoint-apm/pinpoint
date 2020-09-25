@@ -14,16 +14,35 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.mapper.thrift.stat;
+package com.navercorp.pinpoint.collector.mapper.flink;
 
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
+import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFLoadedClass;
+import org.springframework.stereotype.Component;
 
-public class TFLoadedClassMapper {
+import java.util.List;
+
+@Component
+public class TFLoadedClassMapper implements FlinkStatMapper<LoadedClassBo, TFAgentStat> {
+
     public TFLoadedClass map(LoadedClassBo loadedClassBo) {
         TFLoadedClass tFLoadedClass = new TFLoadedClass();
         tFLoadedClass.setLoadedClassCount(loadedClassBo.getLoadedClassCount());
         tFLoadedClass.setUnloadedClassCount(loadedClassBo.getUnloadedClassCount());
         return tFLoadedClass;
+    }
+
+    @Override
+    public void map(LoadedClassBo loadedClassBo, TFAgentStat tfAgentStat) {
+        tfAgentStat.setLoadedClass(map(loadedClassBo));
+    }
+
+    @Override
+    public void build(TFAgentStatMapper.TFAgentStatBuilder builder) {
+        AgentStatBo agentStat = builder.getAgentStat();
+        List<LoadedClassBo> loadedClassList = agentStat.getLoadedClassBos();
+        builder.build(loadedClassList, this);
     }
 }

@@ -47,9 +47,12 @@ public class JoinCpuLoadBo implements JoinStatBo {
         this.timestamp = timestamp;
     }
 
+    public static void apply(JoinApplicationStatBo.Builder builder, List<JoinCpuLoadBo> joinCpuLoadBoList, Long timestamp) {
+        builder.addCpuLoad(joinCpuLoadBoList(joinCpuLoadBoList, timestamp));
+    }
+
     public static JoinCpuLoadBo joinCpuLoadBoList(List<JoinCpuLoadBo> joinCpuLoadBoList, Long timestamp) {
-        int boCount = joinCpuLoadBoList.size();
-        if (boCount == 0) {
+        if (joinCpuLoadBoList.isEmpty()) {
             return EMPTY_JOIN_CPU_LOAD_BO;
         }
 

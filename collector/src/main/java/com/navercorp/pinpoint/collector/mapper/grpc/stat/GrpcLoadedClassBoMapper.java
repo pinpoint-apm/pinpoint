@@ -16,16 +16,28 @@
 
 package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
+import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PLoadedClass;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GrpcLoadedClassBoMapper {
+public class GrpcLoadedClassBoMapper implements GrpcStatMapper {
     public LoadedClassBo map(final PLoadedClass loadedClass) {
         final LoadedClassBo loadedClassBo = new LoadedClassBo();
         loadedClassBo.setLoadedClassCount(loadedClass.getLoadedClassCount());
         loadedClassBo.setUnloadedClassCount(loadedClass.getUnloadedClassCount());
         return loadedClassBo;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder builder, PAgentStat agentStat) {
+        // loadedClass
+        if (agentStat.hasLoadedClass()) {
+            final PLoadedClass loadedClass = agentStat.getLoadedClass();
+            final LoadedClassBo loadedClassBo = this.map(loadedClass);
+            builder.addLoadedClass(loadedClassBo);
+        }
     }
 }

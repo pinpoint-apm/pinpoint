@@ -38,7 +38,7 @@ public class JoinIntFieldBo extends AbstractJoinFieldBo<Integer> {
     }
 
     protected static JoinIntFieldBo merge(List<JoinIntFieldBo> joinIntFieldBoList) {
-        int size = CollectionUtils.nullSafeSize(joinIntFieldBoList);
+        final int size = CollectionUtils.nullSafeSize(joinIntFieldBoList);
         if (size == 0) {
             return UNCOLLECTED_FIELD_BO;
         }

@@ -13,19 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.collector.mapper.thrift.stat;
+
+package com.navercorp.pinpoint.collector.mapper.flink;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFResponseTime;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung
  */
-public class TFResponseTimeMapper {
+public class TFResponseTimeMapperTest {
 
-    public TFResponseTime map(ResponseTimeBo responseTimeBo) {
-        TFResponseTime tFResponseTime = new TFResponseTime();
-        tFResponseTime.setAvg(responseTimeBo.getAvg());
-        return tFResponseTime;
+    @Test
+    public void mapTest() {
+        TFResponseTimeMapper mapper = new TFResponseTimeMapper();
+        ResponseTimeBo responseTimeBo = new ResponseTimeBo();
+        responseTimeBo.setAvg(50);
+        TFResponseTime tFResponseTime = mapper.map(responseTimeBo);
+        assertEquals(tFResponseTime.getAvg(), 50);
     }
 }

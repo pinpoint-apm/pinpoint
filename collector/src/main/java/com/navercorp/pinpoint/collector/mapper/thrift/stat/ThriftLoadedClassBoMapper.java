@@ -16,18 +16,24 @@
 
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TLoadedClass;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ThriftLoadedClassBoMapper implements ThriftBoMapper<LoadedClassBo, TLoadedClass> {
+public class ThriftLoadedClassBoMapper implements ThriftStatMapper<LoadedClassBo, TLoadedClass> {
     @Override
     public LoadedClassBo map(TLoadedClass thriftObject) {
         LoadedClassBo loadedClassBo = new LoadedClassBo();
         loadedClassBo.setLoadedClassCount(thriftObject.getLoadedClassCount());
         loadedClassBo.setUnloadedClassCount(thriftObject.getUnloadedClassCount());
         return loadedClassBo;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder agentStatBo, TAgentStat tAgentStat) {
+        // not supported
     }
 }

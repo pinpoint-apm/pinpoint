@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.collector.mapper.thrift.stat;
+package com.navercorp.pinpoint.collector.mapper.flink;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTrace;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTraceHistogram;
+import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +29,7 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class TFActiveTraceMapper {
+public class TFActiveTraceMapper implements FlinkStatMapper<ActiveTraceBo, TFAgentStat> {
 
     public TFActiveTrace map(ActiveTraceBo activeTraceBo) {
         TFActiveTraceHistogram tFActiveTraceHistogram = new TFActiveTraceHistogram();
@@ -51,5 +53,17 @@ public class TFActiveTraceMapper {
         activeTraceCountList.add(2, activeTraceCountMap.getSlowCount());
         activeTraceCountList.add(3, activeTraceCountMap.getVerySlowCount());
         return activeTraceCountList;
+    }
+
+    @Override
+    public void map(ActiveTraceBo activeTraceBo, TFAgentStat tfAgentStat) {
+        tfAgentStat.setActiveTrace(map(activeTraceBo));
+    }
+
+    @Override
+    public void build(TFAgentStatMapper.TFAgentStatBuilder builder) {
+        AgentStatBo agentStat = builder.getAgentStat();
+        List<ActiveTraceBo> activeTraceBoList = agentStat.getActiveTraceBos();
+        builder.build(activeTraceBoList, this);
     }
 }

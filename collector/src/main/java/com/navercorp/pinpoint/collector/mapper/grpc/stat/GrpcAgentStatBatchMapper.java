@@ -16,41 +16,12 @@
 
 package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
-import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
-import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
-import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
-import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
-import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
-import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
-import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
-import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
-import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
-import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
-import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
-import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
 import com.navercorp.pinpoint.grpc.Header;
-import com.navercorp.pinpoint.grpc.trace.PActiveTrace;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
-import com.navercorp.pinpoint.grpc.trace.PCpuLoad;
-import com.navercorp.pinpoint.grpc.trace.PDataSource;
-import com.navercorp.pinpoint.grpc.trace.PDataSourceList;
-import com.navercorp.pinpoint.grpc.trace.PDeadlock;
-import com.navercorp.pinpoint.grpc.trace.PDirectBuffer;
-import com.navercorp.pinpoint.grpc.trace.PFileDescriptor;
-import com.navercorp.pinpoint.grpc.trace.PJvmGc;
-import com.navercorp.pinpoint.grpc.trace.PJvmGcDetailed;
-import com.navercorp.pinpoint.grpc.trace.PResponseTime;
-import com.navercorp.pinpoint.grpc.trace.PTransaction;
-import com.navercorp.pinpoint.grpc.trace.PTotalThread;
-import com.navercorp.pinpoint.grpc.trace.PLoadedClass;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -59,43 +30,11 @@ import java.util.Objects;
 @Component
 public class GrpcAgentStatBatchMapper {
 
-    private final GrpcJvmGcBoMapper jvmGcBoMapper;
 
-    private final GrpcJvmGcDetailedBoMapper jvmGcDetailedBoMapper;
+    private final GrpcAgentStatMapper mapper;
 
-    private final GrpcCpuLoadBoMapper cpuLoadBoMapper;
-
-    private final GrpcTransactionBoMapper transactionBoMapper;
-
-    private final GrpcActiveTraceBoMapper activeTraceBoMapper;
-
-    private final GrpcDataSourceBoMapper dataSourceBoMapper;
-
-    private final GrpcResponseTimeBoMapper responseTimeBoMapper;
-
-    private final GrpcDeadlockThreadCountBoMapper deadlockThreadCountBoMapper;
-
-    private final GrpcFileDescriptorBoMapper fileDescriptorBoMapper;
-
-    private final GrpcDirectBufferBoMapper directBufferBoMapper;
-
-    private final GrpcTotalThreadCountBoMapper totalThreadCountBoMapper;
-
-    private final GrpcLoadedClassBoMapper loadedClassBoMapper;
-
-    public GrpcAgentStatBatchMapper(GrpcJvmGcBoMapper jvmGcBoMapper, GrpcJvmGcDetailedBoMapper jvmGcDetailedBoMapper, GrpcCpuLoadBoMapper cpuLoadBoMapper, GrpcTransactionBoMapper transactionBoMapper, GrpcActiveTraceBoMapper activeTraceBoMapper, GrpcDataSourceBoMapper dataSourceBoMapper, GrpcResponseTimeBoMapper responseTimeBoMapper, GrpcDeadlockThreadCountBoMapper deadlockThreadCountBoMapper, GrpcFileDescriptorBoMapper fileDescriptorBoMapper, GrpcDirectBufferBoMapper directBufferBoMapper, GrpcTotalThreadCountBoMapper totalThreadCountBoMapper, GrpcLoadedClassBoMapper loadedClassBoMapper) {
-        this.jvmGcBoMapper = Objects.requireNonNull(jvmGcBoMapper, "jvmGcBoMapper");
-        this.jvmGcDetailedBoMapper = Objects.requireNonNull(jvmGcDetailedBoMapper, "jvmGcDetailedBoMapper");
-        this.cpuLoadBoMapper = Objects.requireNonNull(cpuLoadBoMapper, "cpuLoadBoMapper");
-        this.transactionBoMapper = Objects.requireNonNull(transactionBoMapper, "transactionBoMapper");
-        this.activeTraceBoMapper = Objects.requireNonNull(activeTraceBoMapper, "activeTraceBoMapper");
-        this.dataSourceBoMapper = Objects.requireNonNull(dataSourceBoMapper, "dataSourceBoMapper");
-        this.responseTimeBoMapper = Objects.requireNonNull(responseTimeBoMapper, "responseTimeBoMapper");
-        this.deadlockThreadCountBoMapper = Objects.requireNonNull(deadlockThreadCountBoMapper, "deadlockThreadCountBoMapper");
-        this.fileDescriptorBoMapper = Objects.requireNonNull(fileDescriptorBoMapper, "fileDescriptorBoMapper");
-        this.directBufferBoMapper = Objects.requireNonNull(directBufferBoMapper, "directBufferBoMapper");
-        this.totalThreadCountBoMapper = Objects.requireNonNull(totalThreadCountBoMapper, "totalThreadCountBoMapper");
-        this.loadedClassBoMapper = Objects.requireNonNull(loadedClassBoMapper, "loadedClassBoMapper");
+    public GrpcAgentStatBatchMapper(GrpcAgentStatMapper mapper) {
+        this.mapper = Objects.requireNonNull(mapper, "mapper");
     }
 
     public AgentStatBo map(final PAgentStatBatch agentStatBatch, final Header header) {
@@ -105,149 +44,11 @@ public class GrpcAgentStatBatchMapper {
         final String agentId = header.getAgentId();
         final long startTimestamp = header.getAgentStartTime();
 
-        final AgentStatBo agentStatBo = new AgentStatBo();
-        agentStatBo.setAgentId(agentId);
-        agentStatBo.setStartTimestamp(startTimestamp);
-        final int agentStatsSize = agentStatBatch.getAgentStatCount();
-
-        final List<JvmGcBo> jvmGcBos = new ArrayList<>(agentStatsSize);
-        final List<JvmGcDetailedBo> jvmGcDetailedBos = new ArrayList<>(agentStatsSize);
-        final List<CpuLoadBo> cpuLoadBos = new ArrayList<>(agentStatsSize);
-        final List<TransactionBo> transactionBos = new ArrayList<>(agentStatsSize);
-        final List<ActiveTraceBo> activeTraceBos = new ArrayList<>(agentStatsSize);
-        final List<DataSourceListBo> dataSourceListBos = new ArrayList<DataSourceListBo>(agentStatsSize);
-        final List<ResponseTimeBo> responseTimeBos = new ArrayList<>(agentStatsSize);
-        final List<DeadlockThreadCountBo> deadlockThreadCountBos = new ArrayList<>(agentStatsSize);
-        final List<FileDescriptorBo> fileDescriptorBos = new ArrayList<>(agentStatsSize);
-        final List<DirectBufferBo> directBufferBos = new ArrayList<>(agentStatsSize);
-        final List<TotalThreadCountBo> totalThreadCountBos = new ArrayList<>(agentStatsSize);
-        final List<LoadedClassBo> loadedClassBos = new ArrayList<>(agentStatsSize);
-
+        final AgentStatBo.Builder builder = new AgentStatBo.Builder(agentId, startTimestamp);
         for (PAgentStat agentStat : agentStatBatch.getAgentStatList()) {
-            final long timestamp = agentStat.getTimestamp();
-            // jvmGc
-            if (agentStat.hasGc()) {
-                final PJvmGc jvmGc = agentStat.getGc();
-                final JvmGcBo jvmGcBo = this.jvmGcBoMapper.map(jvmGc);
-                setBaseData(jvmGcBo, agentId, startTimestamp, timestamp);
-                jvmGcBos.add(jvmGcBo);
-
-                // jvmGcDetailed
-                if (jvmGc.hasJvmGcDetailed()) {
-                    final PJvmGcDetailed jvmGcDetailed = jvmGc.getJvmGcDetailed();
-                    final JvmGcDetailedBo jvmGcDetailedBo = this.jvmGcDetailedBoMapper.map(jvmGcDetailed);
-                    setBaseData(jvmGcDetailedBo, agentId, startTimestamp, timestamp);
-                    jvmGcDetailedBos.add(jvmGcDetailedBo);
-                }
-            }
-
-            // cpuLoad
-            if (agentStat.hasCpuLoad()) {
-                final PCpuLoad cpuLoad = agentStat.getCpuLoad();
-                final CpuLoadBo cpuLoadBo = this.cpuLoadBoMapper.map(cpuLoad);
-                setBaseData(cpuLoadBo, agentId, startTimestamp, timestamp);
-                cpuLoadBos.add(cpuLoadBo);
-            }
-
-            // transaction
-            if (agentStat.hasTransaction()) {
-                final PTransaction transaction = agentStat.getTransaction();
-                final TransactionBo transactionBo = this.transactionBoMapper.map(transaction);
-                setBaseData(transactionBo, agentId, startTimestamp, timestamp);
-                transactionBo.setCollectInterval(agentStat.getCollectInterval());
-                transactionBos.add(transactionBo);
-            }
-
-            // activeTrace
-            if (agentStat.hasActiveTrace()) {
-                final PActiveTrace activeTrace = agentStat.getActiveTrace();
-                if (activeTrace.hasHistogram()) {
-                    final ActiveTraceBo activeTraceBo = this.activeTraceBoMapper.map(activeTrace);
-                    setBaseData(activeTraceBo, agentId, startTimestamp, timestamp);
-                    activeTraceBos.add(activeTraceBo);
-                }
-            }
-
-            // datasource
-            if (agentStat.hasDataSourceList()) {
-                final PDataSourceList dataSourceList = agentStat.getDataSourceList();
-                final DataSourceListBo dataSourceListBo = new DataSourceListBo();
-                setBaseData(dataSourceListBo, agentId, startTimestamp, timestamp);
-                for (PDataSource dataSource : dataSourceList.getDataSourceList()) {
-                    final DataSourceBo dataSourceBo = dataSourceBoMapper.map(dataSource);
-                    setBaseData(dataSourceBo, agentId, startTimestamp, timestamp);
-                    dataSourceListBo.add(dataSourceBo);
-                }
-                dataSourceListBos.add(dataSourceListBo);
-            }
-
-            // response time
-            if (agentStat.hasResponseTime()) {
-                final PResponseTime responseTime = agentStat.getResponseTime();
-                final ResponseTimeBo responseTimeBo = this.responseTimeBoMapper.map(responseTime);
-                setBaseData(responseTimeBo, agentId, startTimestamp, timestamp);
-                responseTimeBos.add(responseTimeBo);
-            }
-
-            // deadlock
-            if (agentStat.hasDeadlock()) {
-                final PDeadlock deadlock = agentStat.getDeadlock();
-                final DeadlockThreadCountBo deadlockThreadCountBo = this.deadlockThreadCountBoMapper.map(deadlock);
-                setBaseData(deadlockThreadCountBo, agentId, startTimestamp, timestamp);
-                deadlockThreadCountBos.add(deadlockThreadCountBo);
-            }
-
-            // fileDescriptor
-            if (agentStat.hasFileDescriptor()) {
-                final PFileDescriptor fileDescriptor = agentStat.getFileDescriptor();
-                final FileDescriptorBo fileDescriptorBo = this.fileDescriptorBoMapper.map(fileDescriptor);
-                setBaseData(fileDescriptorBo, agentId, startTimestamp, timestamp);
-                fileDescriptorBos.add(fileDescriptorBo);
-            }
-
-            // directBuffer
-            if (agentStat.hasDirectBuffer()) {
-                final PDirectBuffer directBuffer = agentStat.getDirectBuffer();
-                final DirectBufferBo directBufferBo = this.directBufferBoMapper.map(directBuffer);
-                setBaseData(directBufferBo, agentId, startTimestamp, timestamp);
-                directBufferBos.add(directBufferBo);
-            }
-
-            // totalThreadCount
-            if (agentStat.hasTotalThread()) {
-                final PTotalThread totalThreadCount = agentStat.getTotalThread();
-                final TotalThreadCountBo totalThreadCountBo = this.totalThreadCountBoMapper.map(totalThreadCount);
-                setBaseData(totalThreadCountBo, agentId, startTimestamp, timestamp);
-                totalThreadCountBos.add(totalThreadCountBo);
-            }
-
-            // loadedClass
-            if (agentStat.hasLoadedClass()) {
-                final PLoadedClass loadedClass = agentStat.getLoadedClass();
-                final LoadedClassBo loadedClassBo = this.loadedClassBoMapper.map(loadedClass);
-                setBaseData(loadedClassBo, agentId, startTimestamp, timestamp);
-                loadedClassBos.add(loadedClassBo);
-            }
+            this.mapper.map(agentStat, builder);
         }
-
-        agentStatBo.setJvmGcBos(jvmGcBos);
-        agentStatBo.setJvmGcDetailedBos(jvmGcDetailedBos);
-        agentStatBo.setCpuLoadBos(cpuLoadBos);
-        agentStatBo.setTransactionBos(transactionBos);
-        agentStatBo.setActiveTraceBos(activeTraceBos);
-        agentStatBo.setDataSourceListBos(dataSourceListBos);
-        agentStatBo.setResponseTimeBos(responseTimeBos);
-        agentStatBo.setDeadlockThreadCountBos(deadlockThreadCountBos);
-        agentStatBo.setFileDescriptorBos(fileDescriptorBos);
-        agentStatBo.setDirectBufferBos(directBufferBos);
-        agentStatBo.setTotalThreadCountBos(totalThreadCountBos);
-        agentStatBo.setLoadedClassBos(loadedClassBos);
-        return agentStatBo;
+        return builder.build();
     }
 
-    private void setBaseData(AgentStatDataPoint agentStatDataPoint, String agentId, long startTimestamp, long timestamp) {
-        agentStatDataPoint.setAgentId(agentId);
-        agentStatDataPoint.setStartTimestamp(startTimestamp);
-        agentStatDataPoint.setTimestamp(timestamp);
-    }
 }

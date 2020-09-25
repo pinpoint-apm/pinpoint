@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2014 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
+import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
+import org.apache.thrift.TBase;
 
 /**
- * @author minwoo.jung
+ * @author hyungil.jeong
  */
-public class TFJvmGcMapper {
+public interface ThriftStatMapper<T, F extends TBase<?,?>> extends ThriftBoMapper<T, F> {
 
-    public TFJvmGc map(JvmGcBo jvmGcBo) {
-        TFJvmGc tFJvmGc = new TFJvmGc();
-        tFJvmGc.setJvmMemoryHeapUsed(jvmGcBo.getHeapUsed());
-        tFJvmGc.setJvmMemoryNonHeapUsed(jvmGcBo.getNonHeapUsed());
-        return tFJvmGc;
-    }
+    void map(AgentStatBo.Builder.StatBuilder builder, TAgentStat tAgentStat);
 }

@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
-import com.navercorp.pinpoint.flink.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFDirectBuffer;
 
 /**
  * @author Roy Kim
  */
-public class JoinDirectBufferBoMapper implements ThriftBoMapper<JoinDirectBufferBo, TFAgentStat> {
+public class JoinDirectBufferBoMapper implements ThriftStatMapper<JoinDirectBufferBo, TFAgentStat> {
 
     @Override
     public JoinDirectBufferBo map(TFAgentStat tFAgentStat) {
@@ -53,5 +53,16 @@ public class JoinDirectBufferBoMapper implements ThriftBoMapper<JoinDirectBuffer
         joinDirectBufferBo.setMappedMemoryUsedJoinValue(new JoinLongFieldBo(mappedMemoryUsed, mappedMemoryUsed, agentId, mappedMemoryUsed, agentId));
 
         return joinDirectBufferBo;
+    }
+
+    @Override
+    public void build(TFAgentStat tFAgentStat, JoinAgentStatBo.Builder builder) {
+        JoinDirectBufferBo joinDirectBufferBo = this.map(tFAgentStat);
+
+        if (joinDirectBufferBo == JoinDirectBufferBo.EMPTY_JOIN_DIRECT_BUFFER_BO) {
+            return;
+        }
+
+        builder.addDirectBuffer(joinDirectBufferBo);
     }
 }

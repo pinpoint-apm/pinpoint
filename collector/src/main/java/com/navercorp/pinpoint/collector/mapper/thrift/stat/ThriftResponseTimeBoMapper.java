@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TResponseTime;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +26,7 @@ import org.springframework.stereotype.Component;
  * @author Taejin Koo
  */
 @Component
-public class ThriftResponseTimeBoMapper implements ThriftBoMapper<ResponseTimeBo, TResponseTime> {
+public class ThriftResponseTimeBoMapper implements ThriftStatMapper<ResponseTimeBo, TResponseTime> {
 
     @Override
     public ResponseTimeBo map(TResponseTime tResponseTime) {
@@ -33,5 +34,14 @@ public class ThriftResponseTimeBoMapper implements ThriftBoMapper<ResponseTimeBo
         responseTimeBo.setAvg(tResponseTime.getAvg());
         responseTimeBo.setMax(tResponseTime.getMax());
         return responseTimeBo;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder agentStatBo, TAgentStat tAgentStat) {
+        // response time
+        if (tAgentStat.isSetResponseTime()) {
+            ResponseTimeBo responseTimeBo = this.map(tAgentStat.getResponseTime());
+            agentStatBo.addResponseTime(responseTimeBo);
+        }
     }
 }

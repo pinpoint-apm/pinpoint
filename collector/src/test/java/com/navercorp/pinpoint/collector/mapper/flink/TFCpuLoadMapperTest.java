@@ -14,25 +14,27 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.mapper.thrift.stat;
+package com.navercorp.pinpoint.collector.mapper.flink;
 
-import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
-import com.navercorp.pinpoint.thrift.dto.flink.TFResponseTime;
+import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.thrift.dto.flink.TFCpuLoad;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung
  */
-public class TFResponseTimeMapperTest {
-
+public class TFCpuLoadMapperTest {
     @Test
-    public void mapTest() {
-        TFResponseTimeMapper mapper = new TFResponseTimeMapper();
-        ResponseTimeBo responseTimeBo = new ResponseTimeBo();
-        responseTimeBo.setAvg(50);
-        TFResponseTime tFResponseTime = mapper.map(responseTimeBo);
-        assertEquals(tFResponseTime.getAvg(), 50);
+    public void mapTest() throws Exception {
+        TFCpuLoadMapper tFCpuLoadMapper = new TFCpuLoadMapper();
+        CpuLoadBo cpuLoadBo = new CpuLoadBo();
+        cpuLoadBo.setJvmCpuLoad(30);
+        cpuLoadBo.setSystemCpuLoad(50);
+        TFCpuLoad tFCpuLoad = tFCpuLoadMapper.map(cpuLoadBo);
+        assertEquals(tFCpuLoad.getJvmCpuLoad(), 30, 0);
+        assertEquals(tFCpuLoad.getSystemCpuLoad(), 50, 0);
     }
+
 }

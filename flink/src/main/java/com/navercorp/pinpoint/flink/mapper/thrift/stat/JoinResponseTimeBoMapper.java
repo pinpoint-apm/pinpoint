@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 import com.navercorp.pinpoint.flink.mapper.thrift.ThriftBoMapper;
@@ -24,7 +25,7 @@ import com.navercorp.pinpoint.thrift.dto.flink.TFResponseTime;
 /**
  * @author minwoo.jung
  */
-public class JoinResponseTimeBoMapper implements ThriftBoMapper<JoinResponseTimeBo, TFAgentStat> {
+public class JoinResponseTimeBoMapper implements ThriftStatMapper<JoinResponseTimeBo, TFAgentStat> {
 
     public JoinResponseTimeBo map(TFAgentStat tFAgentStat) {
         if (!tFAgentStat.isSetResponseTime()) {
@@ -41,5 +42,17 @@ public class JoinResponseTimeBoMapper implements ThriftBoMapper<JoinResponseTime
         joinResponseTimeBo.setResponseTimeJoinValue(new JoinLongFieldBo(avg, avg, agentId, avg, agentId));
 
         return joinResponseTimeBo;
+    }
+
+
+    @Override
+    public void build(TFAgentStat tFAgentStat, JoinAgentStatBo.Builder builder) {
+        JoinResponseTimeBo joinResponseTimeBo = this.map(tFAgentStat);
+
+        if (joinResponseTimeBo == joinResponseTimeBo.EMPTY_JOIN_RESPONSE_TIME_BO) {
+            return;
+        }
+
+        builder.addResponseTime(joinResponseTimeBo);
     }
 }

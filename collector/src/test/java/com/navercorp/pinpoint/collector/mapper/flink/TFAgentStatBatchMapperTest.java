@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.mapper.thrift.stat;
+package com.navercorp.pinpoint.collector.mapper.flink;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
@@ -22,10 +22,9 @@ import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -39,12 +38,10 @@ public class TFAgentStatBatchMapperTest {
 
     @Test
     public void mapTest() throws Exception {
-        final AgentStatBo agentStatBo = new AgentStatBo();
-        agentStatBo.setStartTimestamp(startTimestamp);
-        agentStatBo.setAgentId(TEST_AGENT);
-        agentStatBo.setCpuLoadBos(createCpuLoadBoList());
+        AgentStatBo agentStatBo = createCpuLoadBoList();
 
-        TFAgentStatBatchMapper mapper = new TFAgentStatBatchMapper();
+        TFAgentStatMapper tFAgentStatMapper = new TFAgentStatMapper(new TFCpuLoadMapper[]{new TFCpuLoadMapper()});
+        TFAgentStatBatchMapper mapper = new TFAgentStatBatchMapper(tFAgentStatMapper);
         TFAgentStatBatch tFAgentStatBatch = mapper.map(agentStatBo);
 
         assertEquals(TEST_AGENT, tFAgentStatBatch.getAgentId());
@@ -54,24 +51,20 @@ public class TFAgentStatBatchMapperTest {
         assertEquals(agentStatList.size(), 3);
     }
 
-    private List<CpuLoadBo> createCpuLoadBoList() {
-        final List<CpuLoadBo> cpuLoadBoList = new ArrayList<>();
+    private AgentStatBo createCpuLoadBoList() {
+        AgentStatBo.Builder builder = AgentStatBo.newBuilder(TEST_AGENT, startTimestamp);
 
         CpuLoadBo cpuLoadBo1 = new CpuLoadBo();
-        cpuLoadBo1.setAgentId(TEST_AGENT);
-        cpuLoadBo1.setTimestamp(collectTime1st);
-        cpuLoadBo1.setStartTimestamp(startTimestamp);
         cpuLoadBo1.setJvmCpuLoad(4);
         cpuLoadBo1.setSystemCpuLoad(3);
-        cpuLoadBoList.add(cpuLoadBo1);
+        AgentStatBo.Builder.StatBuilder statBuilder1 = builder.newStatBuilder(collectTime1st);
+        statBuilder1.addCpuLoad(cpuLoadBo1);
 
         CpuLoadBo cpuLoadBo3 = new CpuLoadBo();
-        cpuLoadBo3.setAgentId(TEST_AGENT);
-        cpuLoadBo3.setTimestamp(collectTime3rd);
-        cpuLoadBo3.setStartTimestamp(startTimestamp);
         cpuLoadBo3.setJvmCpuLoad(8);
         cpuLoadBo3.setSystemCpuLoad(9);
-        cpuLoadBoList.add(cpuLoadBo3);
+        AgentStatBo.Builder.StatBuilder statBuilder3 = builder.newStatBuilder(collectTime3rd);
+        statBuilder3.addCpuLoad(cpuLoadBo3);
 
         CpuLoadBo cpuLoadBo2 = new CpuLoadBo();
         cpuLoadBo2.setAgentId(TEST_AGENT);
@@ -79,9 +72,10 @@ public class TFAgentStatBatchMapperTest {
         cpuLoadBo2.setStartTimestamp(startTimestamp);
         cpuLoadBo2.setJvmCpuLoad(5);
         cpuLoadBo2.setSystemCpuLoad(6);
-        cpuLoadBoList.add(cpuLoadBo2);
+        AgentStatBo.Builder.StatBuilder statBuilder2 = builder.newStatBuilder(collectTime2nd);
+        statBuilder2.addCpuLoad(cpuLoadBo2);
 
-        return cpuLoadBoList;
+        return builder.build();
     }
 
 }

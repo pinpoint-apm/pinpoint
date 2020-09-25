@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.collector.mapper.thrift.stat;
+package com.navercorp.pinpoint.collector.mapper.flink;
 
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
+import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFTransaction;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * @author minwoo.jung
  */
-public class TFTransactionMapper {
+@Component
+public class TFTransactionMapper implements FlinkStatMapper<TransactionBo, TFAgentStat> {
     public TFTransaction map(TransactionBo transactionBo) {
         TFTransaction tFTransaction = new TFTransaction();
         tFTransaction.setSampledNewCount(transactionBo.getSampledNewCount());
@@ -31,5 +37,18 @@ public class TFTransactionMapper {
         tFTransaction.setSkippedNewCount(transactionBo.getSkippedNewSkipCount());
         tFTransaction.setSkippedContinuationCount(transactionBo.getSkippedContinuationCount());
         return tFTransaction;
+    }
+
+    @Override
+    public void map(TransactionBo transactionBo, TFAgentStat tfAgentStat) {
+        tfAgentStat.setCollectInterval(transactionBo.getCollectInterval());
+        tfAgentStat.setTransaction(map(transactionBo));
+    }
+
+    @Override
+    public void build(TFAgentStatMapper.TFAgentStatBuilder builder) {
+        AgentStatBo agentStat = builder.getAgentStat();
+        List<TransactionBo> transactionList = agentStat.getTransactionBos();
+        builder.build(transactionList, this);
     }
 }

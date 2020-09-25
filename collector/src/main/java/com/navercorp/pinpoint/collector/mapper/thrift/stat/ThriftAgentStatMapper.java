@@ -16,28 +16,12 @@
 
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
-import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
-import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
-import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
-import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
-import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
-import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
-import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
-import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
-import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
-import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
-import com.navercorp.pinpoint.thrift.dto.TDataSource;
-import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -45,46 +29,15 @@ import java.util.Objects;
  */
 @Component
 public class ThriftAgentStatMapper {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ThriftJvmGcBoMapper jvmGcBoMapper;
+    private final ThriftStatMapper<?, ?>[] mappers;
 
-    private final ThriftJvmGcDetailedBoMapper jvmGcDetailedBoMapper;
-
-    private final ThriftCpuLoadBoMapper cpuLoadBoMapper;
-
-    private final ThriftTransactionBoMapper transactionBoMapper;
-
-    private final ThriftActiveTraceBoMapper activeTraceBoMapper;
-
-    private final ThriftDataSourceBoMapper dataSourceBoMapper;
-
-    private final ThriftResponseTimeBoMapper responseTimeBoMapper;
-
-    private final ThriftDeadlockThreadCountBoMapper deadlockThreadCountBoMapper;
-
-    private final ThriftFileDescriptorBoMapper fileDescriptorBoMapper;
-
-    private final ThriftDirectBufferBoMapper directBufferBoMapper;
-
-    private final ThriftTotalThreadCountBoMapper totalThreadCountBoMapper;
-
-    public ThriftAgentStatMapper(ThriftJvmGcBoMapper jvmGcBoMapper, ThriftJvmGcDetailedBoMapper jvmGcDetailedBoMapper,
-                                 ThriftCpuLoadBoMapper cpuLoadBoMapper, ThriftTransactionBoMapper transactionBoMapper,
-                                 ThriftActiveTraceBoMapper activeTraceBoMapper, ThriftDataSourceBoMapper dataSourceBoMapper,
-                                 ThriftResponseTimeBoMapper responseTimeBoMapper, ThriftDeadlockThreadCountBoMapper deadlockThreadCountBoMapper,
-                                 ThriftFileDescriptorBoMapper fileDescriptorBoMapper, ThriftDirectBufferBoMapper directBufferBoMapper,
-                                 ThriftTotalThreadCountBoMapper totalThreadCountBoMapper) {
-        this.jvmGcBoMapper = Objects.requireNonNull(jvmGcBoMapper, "jvmGcBoMapper");
-        this.jvmGcDetailedBoMapper = Objects.requireNonNull(jvmGcDetailedBoMapper, "jvmGcDetailedBoMapper");
-        this.cpuLoadBoMapper = Objects.requireNonNull(cpuLoadBoMapper, "cpuLoadBoMapper");
-        this.transactionBoMapper = Objects.requireNonNull(transactionBoMapper, "transactionBoMapper");
-        this.activeTraceBoMapper = Objects.requireNonNull(activeTraceBoMapper, "activeTraceBoMapper");
-        this.dataSourceBoMapper = Objects.requireNonNull(dataSourceBoMapper, "dataSourceBoMapper");
-        this.responseTimeBoMapper = Objects.requireNonNull(responseTimeBoMapper, "responseTimeBoMapper");
-        this.deadlockThreadCountBoMapper = Objects.requireNonNull(deadlockThreadCountBoMapper, "deadlockThreadCountBoMapper");
-        this.fileDescriptorBoMapper = Objects.requireNonNull(fileDescriptorBoMapper, "fileDescriptorBoMapper");
-        this.directBufferBoMapper = Objects.requireNonNull(directBufferBoMapper, "directBufferBoMapper");
-        this.totalThreadCountBoMapper = Objects.requireNonNull(totalThreadCountBoMapper, "totalThreadCountBoMapper");
+    public ThriftAgentStatMapper(ThriftStatMapper<?, ?>[] mappers) {
+        this.mappers = Objects.requireNonNull(mappers, "mappers");
+        for (ThriftStatMapper<?, ?> mapper : mappers) {
+            logger.info("ThriftStatMapper:{}", mapper.getClass().getSimpleName());
+        }
     }
 
     public AgentStatBo map(TAgentStat tAgentStat) {
@@ -93,94 +46,18 @@ public class ThriftAgentStatMapper {
         }
         final String agentId = tAgentStat.getAgentId();
         final long startTimestamp = tAgentStat.getStartTimestamp();
+
+        AgentStatBo.Builder builder = AgentStatBo.newBuilder(agentId, startTimestamp);
+        this.map(builder, tAgentStat);
+        return builder.build();
+    }
+
+    void map(AgentStatBo.Builder builder, TAgentStat tAgentStat) {
         final long timestamp = tAgentStat.getTimestamp();
-        AgentStatBo agentStatBo = new AgentStatBo();
-        agentStatBo.setAgentId(agentId);
-        // jvmGc
-        if (tAgentStat.isSetGc()) {
-            JvmGcBo jvmGcBo = this.jvmGcBoMapper.map(tAgentStat.getGc());
-            setBaseData(jvmGcBo, agentId, startTimestamp, timestamp);
-            agentStatBo.setJvmGcBos(asList(jvmGcBo));
+        final AgentStatBo.Builder.StatBuilder agentStatBuilder = builder.newStatBuilder(timestamp);
+        for (ThriftStatMapper<?, ?> mapper : mappers) {
+            mapper.map(agentStatBuilder, tAgentStat);
         }
-        // jvmGcDetailed
-        if (tAgentStat.isSetGc()) {
-            if (tAgentStat.getGc().isSetJvmGcDetailed()) {
-                JvmGcDetailedBo jvmGcDetailedBo = this.jvmGcDetailedBoMapper.map(tAgentStat.getGc().getJvmGcDetailed());
-                setBaseData(jvmGcDetailedBo, agentId, startTimestamp, timestamp);
-                agentStatBo.setJvmGcDetailedBos(asList(jvmGcDetailedBo));
-            }
-        }
-        // cpuLoad
-        if (tAgentStat.isSetCpuLoad()) {
-            CpuLoadBo cpuLoadBo = this.cpuLoadBoMapper.map(tAgentStat.getCpuLoad());
-            setBaseData(cpuLoadBo, agentId, startTimestamp, timestamp);
-            agentStatBo.setCpuLoadBos(asList(cpuLoadBo));
-        }
-        // transaction
-        if (tAgentStat.isSetTransaction()) {
-            TransactionBo transactionBo = this.transactionBoMapper.map(tAgentStat.getTransaction());
-            setBaseData(transactionBo, agentId, startTimestamp, timestamp);
-            transactionBo.setCollectInterval(tAgentStat.getCollectInterval());
-            agentStatBo.setTransactionBos(asList(transactionBo));
-        }
-        // activeTrace
-        if (tAgentStat.isSetActiveTrace() && tAgentStat.getActiveTrace().isSetHistogram()) {
-            ActiveTraceBo activeTraceBo = this.activeTraceBoMapper.map(tAgentStat.getActiveTrace());
-            setBaseData(activeTraceBo, agentId, startTimestamp, timestamp);
-            agentStatBo.setActiveTraceBos(asList(activeTraceBo));
-        }
-        // datasource
-        if (tAgentStat.isSetDataSourceList()) {
-            DataSourceListBo dataSourceListBo = new DataSourceListBo();
-            setBaseData(dataSourceListBo, agentId, startTimestamp, timestamp);
-
-            TDataSourceList dataSourceList = tAgentStat.getDataSourceList();
-            for (TDataSource dataSource : dataSourceList.getDataSourceList()) {
-                DataSourceBo dataSourceBo = dataSourceBoMapper.map(dataSource);
-                setBaseData(dataSourceBo, agentId, startTimestamp, timestamp);
-                dataSourceListBo.add(dataSourceBo);
-            }
-            agentStatBo.setDataSourceListBos(asList(dataSourceListBo));
-        }
-        // response time
-        if (tAgentStat.isSetResponseTime()) {
-            ResponseTimeBo responseTimeBo = this.responseTimeBoMapper.map(tAgentStat.getResponseTime());
-            setBaseData(responseTimeBo, agentId, startTimestamp, timestamp);
-            agentStatBo.setResponseTimeBos(asList(responseTimeBo));
-        }
-        // deadlock
-        if (tAgentStat.isSetDeadlock()) {
-            DeadlockThreadCountBo deadlockThreadCountBo = this.deadlockThreadCountBoMapper.map(tAgentStat.getDeadlock());
-            setBaseData(deadlockThreadCountBo, agentId, startTimestamp, timestamp);
-            agentStatBo.setDeadlockThreadCountBos(asList(deadlockThreadCountBo));
-        }
-        // fileDescriptor
-        if (tAgentStat.isSetFileDescriptor()) {
-            FileDescriptorBo fileDescriptorBo = this.fileDescriptorBoMapper.map(tAgentStat.getFileDescriptor());
-            setBaseData(fileDescriptorBo, agentId, startTimestamp, timestamp);
-            agentStatBo.setFileDescriptorBos(asList(fileDescriptorBo));
-        }
-        // directBuffer
-        if (tAgentStat.isSetDirectBuffer()) {
-            DirectBufferBo directBufferBo = this.directBufferBoMapper.map(tAgentStat.getDirectBuffer());
-            setBaseData(directBufferBo, agentId, startTimestamp, timestamp);
-            agentStatBo.setDirectBufferBos(asList(directBufferBo));
-        }
-
-        // TODO: totalThreadCount
-        if (tAgentStat.isSetTotalThreadCount()) {
-            TotalThreadCountBo totalThreadCountBo = this.totalThreadCountBoMapper.map(tAgentStat.getTotalThreadCount());
-        }
-        return agentStatBo;
     }
 
-    private <T> List<T> asList(T object) {
-        return Collections.singletonList(object);
-    }
-
-    private void setBaseData(AgentStatDataPoint agentStatDataPoint, String agentId, long startTimestamp, long timestamp) {
-        agentStatDataPoint.setAgentId(agentId);
-        agentStatDataPoint.setStartTimestamp(startTimestamp);
-        agentStatDataPoint.setTimestamp(timestamp);
-    }
 }

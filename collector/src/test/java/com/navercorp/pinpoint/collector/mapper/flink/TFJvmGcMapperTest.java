@@ -14,27 +14,29 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.mapper.thrift.stat;
+package com.navercorp.pinpoint.collector.mapper.flink;
 
-import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
-import com.navercorp.pinpoint.thrift.dto.flink.TFCpuLoad;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung
  */
-public class TFCpuLoadMapperTest {
+public class TFJvmGcMapperTest {
+
     @Test
     public void mapTest() throws Exception {
-        TFCpuLoadMapper tFCpuLoadMapper = new TFCpuLoadMapper();
-        CpuLoadBo cpuLoadBo = new CpuLoadBo();
-        cpuLoadBo.setJvmCpuLoad(30);
-        cpuLoadBo.setSystemCpuLoad(50);
-        TFCpuLoad tFCpuLoad = tFCpuLoadMapper.map(cpuLoadBo);
-        assertEquals(tFCpuLoad.getJvmCpuLoad(), 30, 0);
-        assertEquals(tFCpuLoad.getSystemCpuLoad(), 50, 0);
+        TFJvmGcMapper tFJvmGcMapper = new TFJvmGcMapper();
+        JvmGcBo jvmGcBo = new JvmGcBo();
+        jvmGcBo.setHeapUsed(3000);
+        jvmGcBo.setNonHeapUsed(500);
+        TFJvmGc tFJvmGc = tFJvmGcMapper.map(jvmGcBo);
+
+        assertEquals(tFJvmGc.getJvmMemoryHeapUsed(), 3000);
+        assertEquals(tFJvmGc.getJvmMemoryNonHeapUsed(), 500);
     }
 
 }

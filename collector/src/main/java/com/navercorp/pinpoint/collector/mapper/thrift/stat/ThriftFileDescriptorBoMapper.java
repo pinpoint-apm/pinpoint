@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TFileDescriptor;
 import org.springframework.stereotype.Component;
 
@@ -25,12 +26,21 @@ import org.springframework.stereotype.Component;
  * @author Roy Kim
  */
 @Component
-public class ThriftFileDescriptorBoMapper implements ThriftBoMapper<FileDescriptorBo, TFileDescriptor> {
+public class ThriftFileDescriptorBoMapper implements ThriftStatMapper<FileDescriptorBo, TFileDescriptor> {
 
     @Override
     public FileDescriptorBo map(TFileDescriptor tOpenFileDescriptor) {
         FileDescriptorBo fileDescriptorBo = new FileDescriptorBo();
         fileDescriptorBo.setOpenFileDescriptorCount(tOpenFileDescriptor.getOpenFileDescriptorCount());
         return fileDescriptorBo;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder agentStatBo, TAgentStat tAgentStat) {
+        // fileDescriptor
+        if (tAgentStat.isSetFileDescriptor()) {
+            FileDescriptorBo fileDescriptorBo = this.map(tAgentStat.getFileDescriptor());
+            agentStatBo.addFileDescriptor(fileDescriptorBo);
+        }
     }
 }

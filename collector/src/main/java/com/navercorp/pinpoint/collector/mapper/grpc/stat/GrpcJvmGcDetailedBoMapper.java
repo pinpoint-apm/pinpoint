@@ -16,7 +16,10 @@
 
 package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
+import com.navercorp.pinpoint.grpc.trace.PAgentStat;
+import com.navercorp.pinpoint.grpc.trace.PJvmGc;
 import com.navercorp.pinpoint.grpc.trace.PJvmGcDetailed;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +27,7 @@ import org.springframework.stereotype.Component;
  * @author HyunGil Jeong
  */
 @Component
-public class GrpcJvmGcDetailedBoMapper {
+public class GrpcJvmGcDetailedBoMapper implements GrpcStatMapper {
 
     public JvmGcDetailedBo map(final PJvmGcDetailed jvmGcDetailed) {
         final JvmGcDetailedBo jvmGcDetailedBo = new JvmGcDetailedBo();
@@ -37,5 +40,20 @@ public class GrpcJvmGcDetailedBoMapper {
         jvmGcDetailedBo.setPermGenUsed(jvmGcDetailed.getJvmPoolPermGenUsed());
         jvmGcDetailedBo.setMetaspaceUsed(jvmGcDetailed.getJvmPoolMetaspaceUsed());
         return jvmGcDetailedBo;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder builder, PAgentStat agentStat) {
+        // jvmGc
+        if (agentStat.hasGc()) {
+            final PJvmGc jvmGc = agentStat.getGc();
+
+            // jvmGcDetailed
+            if (jvmGc.hasJvmGcDetailed()) {
+                final PJvmGcDetailed jvmGcDetailed = jvmGc.getJvmGcDetailed();
+                final JvmGcDetailedBo jvmGcDetailedBo = this.map(jvmGcDetailed);
+                builder.addJvmGcDetailed(jvmGcDetailedBo);
+            }
+        }
     }
 }

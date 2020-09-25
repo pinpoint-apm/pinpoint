@@ -16,15 +16,27 @@
 
 package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
+import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PTotalThread;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GrpcTotalThreadCountBoMapper {
+public class GrpcTotalThreadCountBoMapper implements GrpcStatMapper {
     public TotalThreadCountBo map(final PTotalThread tTotalThread) {
         final TotalThreadCountBo totalThreadCountBo = new TotalThreadCountBo();
         totalThreadCountBo.setTotalThreadCount(tTotalThread.getTotalThreadCount());
         return totalThreadCountBo;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder builder, PAgentStat agentStat) {
+        // totalThreadCount
+        if (agentStat.hasTotalThread()) {
+            final PTotalThread totalThread = agentStat.getTotalThread();
+            final TotalThreadCountBo totalThreadCountBo = this.map(totalThread);
+            builder.addTotalThreadCount(totalThreadCountBo);
+        }
     }
 }

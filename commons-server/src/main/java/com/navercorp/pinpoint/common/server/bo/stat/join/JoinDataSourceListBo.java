@@ -63,6 +63,10 @@ public class JoinDataSourceListBo implements JoinStatBo {
         this.timestamp = timestamp;
     }
 
+    public static void apply(JoinApplicationStatBo.Builder builder, List<JoinDataSourceListBo> joinDataSourceListBoList, Long timestamp) {
+        builder.addDataSourceList(joinDataSourceListBoList(joinDataSourceListBoList, timestamp));
+    }
+
     public static JoinDataSourceListBo joinDataSourceListBoList(List<JoinDataSourceListBo> joinDataSourceListBoList, Long timestamp) {
         if (joinDataSourceListBoList.isEmpty()) {
             return EMPTY_JOIN_DATA_SOURCE_LIST_BO;

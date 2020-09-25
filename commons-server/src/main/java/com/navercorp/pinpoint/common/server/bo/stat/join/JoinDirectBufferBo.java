@@ -61,22 +61,25 @@ public class JoinDirectBufferBo implements JoinStatBo {
     }
 
 
+    public static void apply(JoinApplicationStatBo.Builder builder, List<JoinDirectBufferBo> joinDirectBufferBoList, Long timestamp) {
+        builder.addDirectBuffer(joinDirectBufferBoList(joinDirectBufferBoList, timestamp));
+    }
+
     public static JoinDirectBufferBo joinDirectBufferBoList(List<JoinDirectBufferBo> joinDirectBufferBoList, Long timestamp) {
-        int boCount = joinDirectBufferBoList.size();
-        if (boCount == 0) {
+        if (joinDirectBufferBoList.isEmpty()) {
             return EMPTY_JOIN_DIRECT_BUFFER_BO;
         }
 
-        List<JoinLongFieldBo> directCountFieldBoList = joinDirectBufferBoList.stream().map(e -> e.getDirectCountJoinValue()).collect(Collectors.toList());
+        List<JoinLongFieldBo> directCountFieldBoList = joinDirectBufferBoList.stream().map(JoinDirectBufferBo::getDirectCountJoinValue).collect(Collectors.toList());
         JoinLongFieldBo directCountJoinValue = JoinLongFieldBo.merge(directCountFieldBoList);
 
-        List<JoinLongFieldBo> directMemoryUsedFieldBoList = joinDirectBufferBoList.stream().map(e -> e.getDirectMemoryUsedJoinValue()).collect(Collectors.toList());
+        List<JoinLongFieldBo> directMemoryUsedFieldBoList = joinDirectBufferBoList.stream().map(JoinDirectBufferBo::getDirectMemoryUsedJoinValue).collect(Collectors.toList());
         JoinLongFieldBo directMemoryUsedJoinValue = JoinLongFieldBo.merge(directMemoryUsedFieldBoList);
 
-        List<JoinLongFieldBo> mappedCountFieldBoList = joinDirectBufferBoList.stream().map(e -> e.getMappedCountJoinValue()).collect(Collectors.toList());
+        List<JoinLongFieldBo> mappedCountFieldBoList = joinDirectBufferBoList.stream().map(JoinDirectBufferBo::getMappedCountJoinValue).collect(Collectors.toList());
         JoinLongFieldBo mappedCountJoinValue = JoinLongFieldBo.merge(mappedCountFieldBoList);
 
-        List<JoinLongFieldBo> mappedMemoryUsedFieldBoList = joinDirectBufferBoList.stream().map(e -> e.getMappedMemoryUsedJoinValue()).collect(Collectors.toList());
+        List<JoinLongFieldBo> mappedMemoryUsedFieldBoList = joinDirectBufferBoList.stream().map(JoinDirectBufferBo::getMappedMemoryUsedJoinValue).collect(Collectors.toList());
         JoinLongFieldBo mappedMemoryUsedJoinValue = JoinLongFieldBo.merge(mappedMemoryUsedFieldBoList);
 
         JoinDirectBufferBo firstJoinDirectBufferBo = joinDirectBufferBoList.get(0);

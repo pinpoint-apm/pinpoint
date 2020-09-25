@@ -15,16 +15,16 @@
  */
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
-import com.navercorp.pinpoint.flink.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
 
 /**
  * @author minwoo.jung
  */
-public class JoinMemoryBoMapper implements ThriftBoMapper<JoinMemoryBo, TFAgentStat> {
+public class JoinMemoryBoMapper implements ThriftStatMapper<JoinMemoryBo, TFAgentStat> {
 
     public JoinMemoryBo map(TFAgentStat tFAgentStat) {
         if (!tFAgentStat.isSetGc()) {
@@ -45,5 +45,16 @@ public class JoinMemoryBoMapper implements ThriftBoMapper<JoinMemoryBo, TFAgentS
         joinMemoryBo.setNonHeapUsedJoinValue(new JoinLongFieldBo(jvmMemoryNonHeapUsed, jvmMemoryNonHeapUsed, agentId,  jvmMemoryNonHeapUsed, agentId));
 
         return joinMemoryBo;
+    }
+
+    @Override
+    public void build(TFAgentStat tFAgentStat, JoinAgentStatBo.Builder builder) {
+        JoinMemoryBo joinMemoryBo = this.map(tFAgentStat);
+
+        if (joinMemoryBo == JoinMemoryBo.EMPTY_JOIN_MEMORY_BO) {
+            return;
+        }
+
+        builder.addMemory(joinMemoryBo);
     }
 }

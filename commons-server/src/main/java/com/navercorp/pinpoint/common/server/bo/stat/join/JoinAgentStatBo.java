@@ -15,35 +15,38 @@
  */
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
+import com.navercorp.pinpoint.common.server.util.FilterUtils;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
 public class JoinAgentStatBo implements JoinStatBo {
-    public static final JoinAgentStatBo EMPTY_JOIN_AGENT_STAT_BO = new JoinAgentStatBo();
+    public static final JoinAgentStatBo EMPTY_JOIN_AGENT_STAT_BO = newEmptyAgentStatBo();
 
+    private static JoinAgentStatBo newEmptyAgentStatBo() {
+        return JoinAgentStatBo.newBuilder(UNKNOWN_AGENT, Long.MIN_VALUE, Long.MIN_VALUE).build();
+    }
 
-    private String agentId = UNKNOWN_AGENT;
-    private long agentStartTimestamp = Long.MIN_VALUE;
-    private long timestamp = Long.MIN_VALUE;
-    private List<JoinCpuLoadBo> joinCpuLoadBoList = Collections.emptyList();
-    private List<JoinMemoryBo> joinMemoryBoList = Collections.emptyList();
-    private List<JoinTransactionBo> joinTransactionBoList = Collections.emptyList();
-    private List<JoinActiveTraceBo> joinActiveTraceBoList = Collections.emptyList();
-    private List<JoinResponseTimeBo> joinResponseTimeBoList = Collections.emptyList();
-    private List<JoinDataSourceListBo> joinDataSourceListBoList = Collections.emptyList();
-    private List<JoinFileDescriptorBo> joinFileDescriptorBoList = Collections.emptyList();
-    private List<JoinDirectBufferBo> joinDirectBufferBoList = Collections.emptyList();
-    private List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = Collections.emptyList();
-    private List<JoinLoadedClassBo> joinLoadedClassBoList = Collections.emptyList();
+    private final String agentId;
+    private final long agentStartTimestamp;
+    private final long timestamp;
+    private final List<JoinCpuLoadBo> joinCpuLoadBoList;
+    private final List<JoinMemoryBo> joinMemoryBoList;
+    private final List<JoinTransactionBo> joinTransactionBoList;
+    private final List<JoinActiveTraceBo> joinActiveTraceBoList;
+    private final List<JoinResponseTimeBo> joinResponseTimeBoList;
+    private final List<JoinDataSourceListBo> joinDataSourceListBoList;
+    private final List<JoinFileDescriptorBo> joinFileDescriptorBoList;
+    private final List<JoinDirectBufferBo> joinDirectBufferBoList;
+    private final List<JoinTotalThreadCountBo> joinTotalThreadCountBoList;
+    private final List<JoinLoadedClassBo> joinLoadedClassBoList;
 
     protected JoinAgentStatBo(JoinAgentStatBo joinAgentStatBo) {
-        if (joinAgentStatBo == null) {
-            throw new IllegalArgumentException("joinAgentStatBo cannot be null");
-        }
+        Objects.requireNonNull(joinAgentStatBo, "joinAgentStatBo");
 
         this.agentId = joinAgentStatBo.getId();
         this.agentStartTimestamp = joinAgentStatBo.getAgentStartTimestamp();
@@ -60,36 +63,33 @@ public class JoinAgentStatBo implements JoinStatBo {
         this.joinLoadedClassBoList = joinAgentStatBo.getJoinLoadedClassBoList();
     }
 
-    public JoinAgentStatBo() {
+    private JoinAgentStatBo(JoinAgentStatBo.Builder joinAgentStatBo) {
+        Objects.requireNonNull(joinAgentStatBo, "joinAgentStatBo");
+
+        this.agentId = joinAgentStatBo.agentId;
+        this.agentStartTimestamp = joinAgentStatBo.agentStartTimestamp;
+        this.timestamp = joinAgentStatBo.timestamp;
+
+        this.joinCpuLoadBoList = FilterUtils.filter(joinAgentStatBo.statList, JoinCpuLoadBo.class);
+        this.joinMemoryBoList = FilterUtils.filter(joinAgentStatBo.statList, JoinMemoryBo.class);
+        this.joinTransactionBoList = FilterUtils.filter(joinAgentStatBo.statList, JoinTransactionBo.class);
+        this.joinActiveTraceBoList = FilterUtils.filter(joinAgentStatBo.statList, JoinActiveTraceBo.class);
+        this.joinResponseTimeBoList = FilterUtils.filter(joinAgentStatBo.statList, JoinResponseTimeBo.class);
+        this.joinDataSourceListBoList = FilterUtils.filter(joinAgentStatBo.statList, JoinDataSourceListBo.class);
+        this.joinFileDescriptorBoList = FilterUtils.filter(joinAgentStatBo.statList, JoinFileDescriptorBo.class);
+        this.joinDirectBufferBoList = FilterUtils.filter(joinAgentStatBo.statList, JoinDirectBufferBo.class);
+        this.joinTotalThreadCountBoList = FilterUtils.filter(joinAgentStatBo.statList, JoinTotalThreadCountBo.class);
+        this.joinLoadedClassBoList = FilterUtils.filter(joinAgentStatBo.statList, JoinLoadedClassBo.class);
     }
 
     public List<JoinResponseTimeBo> getJoinResponseTimeBoList() {
         return joinResponseTimeBoList;
     }
 
-    public void setJoinResponseTimeBoList(List<JoinResponseTimeBo> joinResponseTimeBoList) {
-        this.joinResponseTimeBoList = joinResponseTimeBoList;
-    }
-
-    public void setId(String id) {
-        this.agentId = id;
-    }
-
-    public void setJoinCpuLoadBoList(List<JoinCpuLoadBo> joinCpuLoadBoList) {
-        this.joinCpuLoadBoList = joinCpuLoadBoList;
-    }
-
-    public void setJoinDataSourceListBoList(List<JoinDataSourceListBo> joinDataSourceListBoList) {
-        this.joinDataSourceListBoList = joinDataSourceListBoList;
-    }
-
     public String getId() {
         return agentId;
     }
 
-    public void setTimestamp(long timeStamp) {
-        this.timestamp = timeStamp;
-    }
 
     public long getTimestamp() {
         return timestamp;
@@ -97,10 +97,6 @@ public class JoinAgentStatBo implements JoinStatBo {
 
     public List<JoinFileDescriptorBo> getJoinFileDescriptorBoList() {
         return joinFileDescriptorBoList;
-    }
-
-    public void setJoinFileDescriptorBoList(List<JoinFileDescriptorBo> joinFileDescriptorBoList) {
-        this.joinFileDescriptorBoList = joinFileDescriptorBoList;
     }
 
     public List<JoinCpuLoadBo> getJoinCpuLoadBoList() {
@@ -111,71 +107,44 @@ public class JoinAgentStatBo implements JoinStatBo {
         return joinDirectBufferBoList;
     }
 
-    public void setJoinDirectBufferBoList(List<JoinDirectBufferBo> joinDirectBufferBoList) {
-        this.joinDirectBufferBoList = joinDirectBufferBoList;
+    public List<JoinTotalThreadCountBo> getJoinTotalThreadCountBoList() {
+        return joinTotalThreadCountBoList;
     }
 
-    public List<JoinTotalThreadCountBo> getJoinTotalThreadCountBoList() { return joinTotalThreadCountBoList; }
-
-    public void setJoinTotalThreadCountBoList(List<JoinTotalThreadCountBo> joinTotalThreadCountBoList) {
-        this.joinTotalThreadCountBoList = joinTotalThreadCountBoList;
+    public List<JoinLoadedClassBo> getJoinLoadedClassBoList() {
+        return joinLoadedClassBoList;
     }
 
-    public List<JoinLoadedClassBo> getJoinLoadedClassBoList() { return joinLoadedClassBoList; }
-
-    public void setJoinLoadedClassBoList(List<JoinLoadedClassBo> joinLoadedClassBoList) {
-        this.joinLoadedClassBoList = joinLoadedClassBoList;
-    }
 
     public long getAgentStartTimestamp() {
         return agentStartTimestamp;
     }
 
-    public void setAgentStartTimestamp(long agentStartTimestamp) {
-        this.agentStartTimestamp = agentStartTimestamp;
-    }
-
     public static JoinAgentStatBo joinAgentStatBo(List<JoinAgentStatBo> joinAgentStatBoList) {
-        JoinAgentStatBo newJoinAgentStatBo = new JoinAgentStatBo();
-        int boCount = joinAgentStatBoList.size();
-        if (boCount == 0) {
-            return newJoinAgentStatBo;
+        if (joinAgentStatBoList.isEmpty()) {
+            return newEmptyAgentStatBo();
         }
 
-        List<JoinCpuLoadBo> joinCpuLoadBoList = new ArrayList<JoinCpuLoadBo>();
+        List<JoinCpuLoadBo> joinCpuLoadBoList = new ArrayList<>();
         for (JoinAgentStatBo joinAgentStatBo : joinAgentStatBoList) {
             joinCpuLoadBoList.addAll(joinAgentStatBo.getJoinCpuLoadBoList());
         }
 
         JoinCpuLoadBo joinCpuLoadBo = JoinCpuLoadBo.joinCpuLoadBoList(joinCpuLoadBoList, joinCpuLoadBoList.get(0).getTimestamp());
-        List<JoinCpuLoadBo> newJoinCpuLoadBoList = new ArrayList<JoinCpuLoadBo>();
-        newJoinCpuLoadBoList.add(joinCpuLoadBo);
-        newJoinAgentStatBo.setJoinCpuLoadBoList(newJoinCpuLoadBoList);
-        newJoinAgentStatBo.setId(joinCpuLoadBo.getId());
-        newJoinAgentStatBo.setTimestamp(joinCpuLoadBo.getTimestamp());
 
-        return newJoinAgentStatBo;
+        JoinAgentStatBo.Builder builder = JoinAgentStatBo.newBuilder(joinCpuLoadBo.getId(), Long.MIN_VALUE, joinCpuLoadBo.getTimestamp());
+        builder.addCpuLoadBo(joinCpuLoadBo);
 
-    }
+        return builder.build();
 
-    public void setJoinMemoryBoList(List<JoinMemoryBo> joinMemoryBoList) {
-        this.joinMemoryBoList = joinMemoryBoList;
     }
 
     public List<JoinMemoryBo> getJoinMemoryBoList() {
         return joinMemoryBoList;
     }
 
-    public void setJoinTransactionBoList(List<JoinTransactionBo> joinTransactionBoList) {
-        this.joinTransactionBoList = joinTransactionBoList;
-    }
-
     public List<JoinTransactionBo> getJoinTransactionBoList() {
         return joinTransactionBoList;
-    }
-
-    public void setJoinActiveTraceBoList(List<JoinActiveTraceBo> joinActiveTraceBoList) {
-        this.joinActiveTraceBoList = joinActiveTraceBoList;
     }
 
     public List<JoinActiveTraceBo> getJoinActiveTraceBoList() {
@@ -186,22 +155,101 @@ public class JoinAgentStatBo implements JoinStatBo {
         return joinDataSourceListBoList;
     }
 
+    public static Builder newBuilder(String agentId, long agentStartTimestamp, long timestamp) {
+        return new Builder(agentId, agentStartTimestamp, timestamp);
+    }
+
+    public static class Builder {
+        private final String agentId;
+        private final long agentStartTimestamp;
+        private final long timestamp;
+
+        private final List<JoinStatBo> statList = new ArrayList<>();
+
+
+        Builder(String agentId, long agentStartTimestamp, long timestamp) {
+            this.agentId = Objects.requireNonNull(agentId, "agentId");
+            this.agentStartTimestamp = agentStartTimestamp;
+            this.timestamp = timestamp;
+        }
+
+        public long getTimestamp() {
+            return timestamp;
+        }
+
+        public void addCpuLoadBo(JoinCpuLoadBo cpuLoadBo) {
+            Objects.requireNonNull(cpuLoadBo, "cpuLoadBo");
+            this.statList.add(cpuLoadBo);
+        }
+
+        public void addDataSourceListBo(JoinDataSourceListBo dataSourceListBo) {
+            Objects.requireNonNull(dataSourceListBo, "dataSourceListBo");
+            this.statList.add(dataSourceListBo);
+        }
+
+        public void addResponseTime(JoinResponseTimeBo responseTime) {
+            Objects.requireNonNull(responseTime, "responseTime");
+            this.statList.add(responseTime);
+        }
+
+        public void addFileDescriptor(JoinFileDescriptorBo fileDescriptor) {
+            Objects.requireNonNull(fileDescriptor, "fileDescriptor");
+            this.statList.add(fileDescriptor);
+        }
+
+        public void addDirectBuffer(JoinDirectBufferBo directBuffer) {
+            Objects.requireNonNull(directBuffer, "directBuffer");
+            this.statList.add(directBuffer);
+        }
+
+        public void addTotalThreadCount(JoinTotalThreadCountBo totalThreadCount) {
+            Objects.requireNonNull(totalThreadCount, "totalThreadCount");
+            this.statList.add(totalThreadCount);
+        }
+
+        public void addLoadedClass(JoinLoadedClassBo loadedClass) {
+            Objects.requireNonNull(loadedClass, "loadedClass");
+            this.statList.add(loadedClass);
+        }
+
+        public void addMemory(JoinMemoryBo memory) {
+            Objects.requireNonNull(memory, "memory");
+            this.statList.add(memory);
+        }
+
+
+        public void addTransaction(JoinTransactionBo transaction) {
+            Objects.requireNonNull(transaction, "transaction");
+            this.statList.add(transaction);
+        }
+
+
+        public void addActiveTrace(JoinActiveTraceBo activeTrace) {
+            Objects.requireNonNull(activeTrace, "activeTrace");
+            this.statList.add(activeTrace);
+        }
+
+        public JoinAgentStatBo build() {
+            return new JoinAgentStatBo(this);
+        }
+    }
+
     @Override
     public String toString() {
         return "JoinAgentStatBo{" +
-            "agentId='" + agentId + '\'' +
-            ", agentStartTimestamp=" + agentStartTimestamp +
-            ", timestamp=" + timestamp +
-            ", joinCpuLoadBoList=" + joinCpuLoadBoList +
-            ", joinMemoryBoList=" + joinMemoryBoList +
-            ", joinTransactionBoList=" + joinTransactionBoList +
-            ", joinActiveTraceBoList=" + joinActiveTraceBoList +
-            ", joinResponseTimeBoList=" + joinResponseTimeBoList +
-            ", joinDataSourceListBoList=" + joinDataSourceListBoList +
-            ", joinFileDescriptorBoList=" + joinFileDescriptorBoList +
-            ", joinDirectBufferBoList=" + joinDirectBufferBoList +
-            ", joinTotalThreadCountBoList=" + joinTotalThreadCountBoList +
-            ", joinLoadedClassBoList=" + joinLoadedClassBoList +
-            '}';
+                "agentId='" + agentId + '\'' +
+                ", agentStartTimestamp=" + agentStartTimestamp +
+                ", timestamp=" + timestamp +
+                ", joinCpuLoadBoList=" + joinCpuLoadBoList +
+                ", joinMemoryBoList=" + joinMemoryBoList +
+                ", joinTransactionBoList=" + joinTransactionBoList +
+                ", joinActiveTraceBoList=" + joinActiveTraceBoList +
+                ", joinResponseTimeBoList=" + joinResponseTimeBoList +
+                ", joinDataSourceListBoList=" + joinDataSourceListBoList +
+                ", joinFileDescriptorBoList=" + joinFileDescriptorBoList +
+                ", joinDirectBufferBoList=" + joinDirectBufferBoList +
+                ", joinTotalThreadCountBoList=" + joinTotalThreadCountBoList +
+                ", joinLoadedClassBoList=" + joinLoadedClassBoList +
+                '}';
     }
 }

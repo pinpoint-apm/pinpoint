@@ -79,9 +79,12 @@ public class JoinTransactionBo implements JoinStatBo {
         this.id = id;
     }
 
+    public static void apply(JoinApplicationStatBo.Builder builder, List<JoinTransactionBo> joinTransactionBoList, Long timestamp) {
+        builder.addTransaction(joinTransactionBoList(joinTransactionBoList, timestamp));
+    }
+
     public static JoinTransactionBo joinTransactionBoList(List<JoinTransactionBo> joinTransactionBoList, Long timestamp) {
-        final int boCount = joinTransactionBoList.size();
-        if (boCount == 0) {
+        if (joinTransactionBoList.isEmpty()) {
             return JoinTransactionBo.EMPTY_JOIN_TRANSACTION_BO;
         }
 

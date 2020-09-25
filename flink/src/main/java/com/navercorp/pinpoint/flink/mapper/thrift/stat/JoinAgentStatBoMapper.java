@@ -16,30 +16,33 @@
 
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.common.server.bo.stat.join.*;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
 import com.navercorp.pinpoint.flink.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author minwoo.jung
  */
 public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TFAgentStatBatch> {
+    private final ThriftStatMapper<?, ?>[] mappers = new ThriftStatMapper[] {
+            new JoinCpuLoadBoMapper(),
+            new JoinMemoryBoMapper(),
+            new JoinTransactionBoMapper(),
+            new JoinActiveTraceBoMapper(),
+            new JoinResponseTimeBoMapper(),
+            new JoinDataSourceListBoMapper(),
+            new JoinFileDescriptorBoMapper(),
+            new JoinDirectBufferBoMapper(),
+            new JoinTotalThreadCountBoMapper(),
+            new JoinLoadedClassBoMapper()
+    };
 
-    private final JoinCpuLoadBoMapper joinCpuLoadBoMapper = new JoinCpuLoadBoMapper();
-    private final JoinMemoryBoMapper joinMemoryBoMapper = new JoinMemoryBoMapper();
-    private final JoinTransactionBoMapper joinTransactionBoMapper = new JoinTransactionBoMapper();
-    private final JoinActiveTraceBoMapper joinActiveTraceBoMapper = new JoinActiveTraceBoMapper();
-    private final JoinResponseTimeBoMapper joinResponseTimeBoMapper = new JoinResponseTimeBoMapper();
-    private final JoinDataSourceListBoMapper joinDataSourceListBoMapper = new JoinDataSourceListBoMapper();
-    private final JoinFileDescriptorBoMapper joinFileDescriptorBoMapper = new JoinFileDescriptorBoMapper();
-    private final JoinDirectBufferBoMapper joinDirectBufferBoMapper = new JoinDirectBufferBoMapper();
-    private final JoinTotalThreadCountBoMapper joinTotalThreadCountBoMapper = new JoinTotalThreadCountBoMapper();
-    private final JoinLoadedClassBoMapper joinLoadedClassBoMapper = new JoinLoadedClassBoMapper();
+    public JoinAgentStatBoMapper() {
+    }
 
     @Override
     public JoinAgentStatBo map(TFAgentStatBatch tFAgentStatBatch) {
@@ -51,209 +54,27 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
             return JoinAgentStatBo.EMPTY_JOIN_AGENT_STAT_BO;
         }
 
-        JoinAgentStatBo joinAgentStatBo = new JoinAgentStatBo();
-        int agentStatSize = tFAgentStatBatch.getAgentStats().size();
-        List<JoinCpuLoadBo> joinCpuLoadBoList = new ArrayList<>(agentStatSize);
-        List<JoinMemoryBo> joinMemoryBoList = new ArrayList<>(agentStatSize);
-        List<JoinTransactionBo> joinTransactionBoList = new ArrayList<>(agentStatSize);
-        List<JoinActiveTraceBo> joinActiveTraceBoList = new ArrayList<>(agentStatSize);
-        List<JoinResponseTimeBo> joinResponseTimeBoList = new ArrayList<>(agentStatSize);
-        List<JoinDataSourceListBo> joinDataSourceListBoList = new ArrayList<>(agentStatSize);
-        List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<>(agentStatSize);
-        List<JoinDirectBufferBo> joinDirectBufferBoList = new ArrayList<>(agentStatSize);
-        List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = new ArrayList<>(agentStatSize);
-        List<JoinLoadedClassBo> joinLoadedClassBoList = new ArrayList<>(agentStatSize);
+        final String agentId = tFAgentStatBatch.getAgentId();
+        final long startTimestamp = tFAgentStatBatch.getStartTimestamp();
+        final long timeStamp = getTimeStamp(tFAgentStatBatch);
 
-        for (TFAgentStat tFAgentStat : tFAgentStatBatch.getAgentStats()) {
-            createAndAddJoinCpuLoadBo(tFAgentStat, joinCpuLoadBoList);
-            createAndAddJoinMemoryBo(tFAgentStat, joinMemoryBoList);
-            createAndAddJoinTransactionBo(tFAgentStat, joinTransactionBoList);
-            createAndAddJoinActiveTraceBo(tFAgentStat, joinActiveTraceBoList);
-            createAndAddJoinResponseTimeBo(tFAgentStat, joinResponseTimeBoList);
-            createAndAddJoinDataSourceListBo(tFAgentStat, joinDataSourceListBoList);
-            createAndAddJoinFileDescriptorBo(tFAgentStat, joinFileDescriptorBoList);
-            createAndAddJoinDirectBufferBo(tFAgentStat, joinDirectBufferBoList);
-            createAndAddJoinTotalThreadCountBo(tFAgentStat, joinTotalThreadCountBoList);
-            createAndAddJoinLoadedClassBo(tFAgentStat, joinLoadedClassBoList);
+        JoinAgentStatBo.Builder builder = JoinAgentStatBo.newBuilder(agentId, startTimestamp, timeStamp);
+        for (TFAgentStat agentStat : tFAgentStatBatch.getAgentStats()) {
+            for (ThriftStatMapper<?, ?> mapper : mappers) {
+                mapper.build(agentStat, builder);
+            }
         }
 
-        joinAgentStatBo.setJoinCpuLoadBoList(joinCpuLoadBoList);
-        joinAgentStatBo.setJoinMemoryBoList(joinMemoryBoList);
-        joinAgentStatBo.setJoinTransactionBoList(joinTransactionBoList);
-        joinAgentStatBo.setJoinActiveTraceBoList(joinActiveTraceBoList);
-        joinAgentStatBo.setJoinResponseTimeBoList(joinResponseTimeBoList);
-        joinAgentStatBo.setJoinDataSourceListBoList(joinDataSourceListBoList);
-        joinAgentStatBo.setJoinFileDescriptorBoList(joinFileDescriptorBoList);
-        joinAgentStatBo.setJoinDirectBufferBoList(joinDirectBufferBoList);
-        joinAgentStatBo.setJoinTotalThreadCountBoList(joinTotalThreadCountBoList);
-        joinAgentStatBo.setJoinLoadedClassBoList(joinLoadedClassBoList);
-        joinAgentStatBo.setId(tFAgentStatBatch.getAgentId());
-        joinAgentStatBo.setAgentStartTimestamp(tFAgentStatBatch.getStartTimestamp());
-        joinAgentStatBo.setTimestamp(getTimeStamp(joinAgentStatBo));
-        return joinAgentStatBo;
+        return builder.build();
     }
 
-    private void createAndAddJoinDataSourceListBo(TFAgentStat tFAgentStat, List<JoinDataSourceListBo> joinDataSourceListBoList) {
-        JoinDataSourceListBo joinDataSourceListBo = joinDataSourceListBoMapper.map(tFAgentStat);
 
-        if (joinDataSourceListBo == JoinDataSourceListBo.EMPTY_JOIN_DATA_SOURCE_LIST_BO) {
-            return;
+    private long getTimeStamp(TFAgentStatBatch joinAgentStatBo) {
+        List<TFAgentStat> agentStats = joinAgentStatBo.getAgentStats();
+        for (TFAgentStat agentStat : agentStats) {
+            return agentStat.getTimestamp();
         }
-
-        joinDataSourceListBoList.add(joinDataSourceListBo);
-    }
-
-    private void createAndAddJoinResponseTimeBo(TFAgentStat tFAgentStat, List<JoinResponseTimeBo> joinResponseTimeBoList) {
-        JoinResponseTimeBo joinResponseTimeBo = joinResponseTimeBoMapper.map(tFAgentStat);
-
-        if (joinResponseTimeBo == joinResponseTimeBo.EMPTY_JOIN_RESPONSE_TIME_BO) {
-            return;
-        }
-
-        joinResponseTimeBoList.add(joinResponseTimeBo);
-    }
-
-    private void createAndAddJoinActiveTraceBo(TFAgentStat tFAgentStat, List<JoinActiveTraceBo> joinActiveTraceBoList) {
-        JoinActiveTraceBo joinActiveTraceBo = joinActiveTraceBoMapper.map(tFAgentStat);
-
-        if (joinActiveTraceBo == joinActiveTraceBo.EMPTY_JOIN_ACTIVE_TRACE_BO) {
-            return;
-        }
-
-        joinActiveTraceBoList.add(joinActiveTraceBo);
-    }
-
-    private void createAndAddJoinTransactionBo(TFAgentStat tFAgentStat, List<JoinTransactionBo> joinTransactionBoList) {
-        JoinTransactionBo joinTransactionBo = joinTransactionBoMapper.map(tFAgentStat);
-
-        if (joinTransactionBo == JoinTransactionBo.EMPTY_JOIN_TRANSACTION_BO) {
-            return;
-        }
-
-        joinTransactionBoList.add(joinTransactionBo);
-    }
-
-    private long getTimeStamp(JoinAgentStatBo joinAgentStatBo) {
-        List<JoinCpuLoadBo> joinCpuLoadBoList = joinAgentStatBo.getJoinCpuLoadBoList();
-
-        if (joinCpuLoadBoList.size() != 0) {
-            return joinCpuLoadBoList.get(0).getTimestamp();
-        }
-
-        List<JoinMemoryBo> joinMemoryBoList = joinAgentStatBo.getJoinMemoryBoList();
-
-        if (joinMemoryBoList.size() != 0) {
-            return joinMemoryBoList.get(0).getTimestamp();
-        }
-
-        List<JoinTransactionBo> joinTransactionBoList = joinAgentStatBo.getJoinTransactionBoList();
-
-        if (joinTransactionBoList.size() != 0) {
-            return joinTransactionBoList.get(0).getTimestamp();
-        }
-
-        List<JoinActiveTraceBo> joinActiveTraceBoList = joinAgentStatBo.getJoinActiveTraceBoList();
-
-        if (joinActiveTraceBoList.size() != 0) {
-            return joinActiveTraceBoList.get(0).getTimestamp();
-        }
-
-        List<JoinResponseTimeBo> joinResponseTimeBoList = joinAgentStatBo.getJoinResponseTimeBoList();
-
-        if (joinResponseTimeBoList.size() != 0) {
-            return joinResponseTimeBoList.get(0).getTimestamp();
-        }
-
-        List<JoinDataSourceListBo> joinDataSourceListBoList = joinAgentStatBo.getJoinDataSourceListBoList();
-
-        if (joinDataSourceListBoList.size() != 0) {
-            return joinDataSourceListBoList.get(0).getTimestamp();
-        }
-
-        List<JoinFileDescriptorBo> joinFileDescriptorBoList = joinAgentStatBo.getJoinFileDescriptorBoList();
-
-        if (joinFileDescriptorBoList.size() != 0) {
-            return joinFileDescriptorBoList.get(0).getTimestamp();
-        }
-
-        List<JoinDirectBufferBo> joinDirectBufferBoList = joinAgentStatBo.getJoinDirectBufferBoList();
-
-        if (joinDirectBufferBoList.size() != 0) {
-            return joinDirectBufferBoList.get(0).getTimestamp();
-        }
-
-        List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = joinAgentStatBo.getJoinTotalThreadCountBoList();
-
-        if(joinTotalThreadCountBoList.size() != 0) {
-            return joinTotalThreadCountBoList.get(0).getTimestamp();
-        }
-
-        List<JoinLoadedClassBo> joinLoadedClassBoList = joinAgentStatBo.getJoinLoadedClassBoList();
-
-        if(joinLoadedClassBoList.size() != 0) {
-            return joinLoadedClassBoList.get(0).getTimestamp();
-        }
-
         return Long.MIN_VALUE;
     }
 
-    public void createAndAddJoinCpuLoadBo(TFAgentStat tFAgentStat, List<JoinCpuLoadBo> joinCpuLoadBoList) {
-        JoinCpuLoadBo joinCpuLoadBo = joinCpuLoadBoMapper.map(tFAgentStat);
-
-        if (joinCpuLoadBo == JoinCpuLoadBo.EMPTY_JOIN_CPU_LOAD_BO) {
-            return;
-        }
-
-        joinCpuLoadBoList.add(joinCpuLoadBo);
-    }
-
-    private void createAndAddJoinMemoryBo(TFAgentStat tFAgentStat, List<JoinMemoryBo> joinMemoryBoList) {
-        JoinMemoryBo joinMemoryBo = joinMemoryBoMapper.map(tFAgentStat);
-
-        if (joinMemoryBo == JoinMemoryBo.EMPTY_JOIN_MEMORY_BO) {
-            return;
-        }
-
-        joinMemoryBoList.add(joinMemoryBo);
-    }
-
-    public void createAndAddJoinFileDescriptorBo(TFAgentStat tFAgentStat, List<JoinFileDescriptorBo> joinFileDescriptorBoList) {
-        JoinFileDescriptorBo joinFileDescriptorBo = joinFileDescriptorBoMapper.map(tFAgentStat);
-
-        if (joinFileDescriptorBo == JoinFileDescriptorBo.EMPTY_JOIN_FILE_DESCRIPTOR_BO) {
-            return;
-        }
-
-        joinFileDescriptorBoList.add(joinFileDescriptorBo);
-    }
-
-    public void createAndAddJoinDirectBufferBo(TFAgentStat tFAgentStat, List<JoinDirectBufferBo> joinDirectBufferBoList) {
-        JoinDirectBufferBo joinDirectBufferBo = joinDirectBufferBoMapper.map(tFAgentStat);
-
-        if (joinDirectBufferBo == JoinDirectBufferBo.EMPTY_JOIN_DIRECT_BUFFER_BO) {
-            return;
-        }
-
-        joinDirectBufferBoList.add(joinDirectBufferBo);
-    }
-
-    public void createAndAddJoinTotalThreadCountBo(TFAgentStat tfAgentStat, List<JoinTotalThreadCountBo> joinTotalThreadCountBoList) {
-        JoinTotalThreadCountBo joinTotalThreadCountBo = joinTotalThreadCountBoMapper.map(tfAgentStat);
-
-        if (joinTotalThreadCountBo == JoinTotalThreadCountBo.EMPTY_TOTAL_THREAD_COUNT_BO) {
-            return;
-        }
-
-        joinTotalThreadCountBoList.add(joinTotalThreadCountBo);
-    }
-
-    public void createAndAddJoinLoadedClassBo(TFAgentStat tfAgentStat, List<JoinLoadedClassBo> joinLoadedClassBoList) {
-        JoinLoadedClassBo joinLoadedClassBo = joinLoadedClassBoMapper.map(tfAgentStat);
-
-        if (joinLoadedClassBo == JoinLoadedClassBo.EMPTY_JOIN_LOADED_CLASS_BO) {
-            return;
-        }
-
-        joinLoadedClassBoList.add(joinLoadedClassBo);
-    }
 }

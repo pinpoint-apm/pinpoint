@@ -80,9 +80,12 @@ public class JoinMemoryBo implements JoinStatBo {
         this.id = id;
     }
 
+    public static void apply(JoinApplicationStatBo.Builder builder, List<JoinMemoryBo> joinMemoryBoList, Long timestamp) {
+        builder.addMemory(joinMemoryBoList(joinMemoryBoList, timestamp));
+    }
+
     public static JoinMemoryBo joinMemoryBoList(List<JoinMemoryBo> joinMemoryBoList, Long timestamp) {
-        final int boCount = joinMemoryBoList.size();
-        if (boCount == 0) {
+        if (joinMemoryBoList.isEmpty()) {
             return JoinMemoryBo.EMPTY_JOIN_MEMORY_BO;
         }
 
