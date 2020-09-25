@@ -77,7 +77,7 @@ public class TBaseFlatMapper extends RichFlatMapFunction<RawData, Tuple3<String,
 
         try {
             List<Tuple3<String, JoinStatBo, Long>> outData = serverRequestFlatMap(tBase);
-            if (outData.size() == 0) {
+            if (outData.isEmpty()) {
                 return;
             }
 
@@ -111,12 +111,12 @@ public class TBaseFlatMapper extends RichFlatMapFunction<RawData, Tuple3<String,
                 return EMPTY_LIST;
             }
 
-            outData.add(new Tuple3<String, JoinStatBo, Long>(joinAgentStatBo.getId(), joinAgentStatBo, joinAgentStatBo.getTimestamp()));
+            outData.add(new Tuple3<>(joinAgentStatBo.getId(), joinAgentStatBo, joinAgentStatBo.getTimestamp()));
 
             final ApplicationCache.ApplicationKey applicationKey = new ApplicationCache.ApplicationKey(joinAgentStatBo.getId(), joinAgentStatBo.getAgentStartTimestamp());
             final String applicationId = applicationCache.findApplicationId(applicationKey);
 
-            if (applicationId.equals(ApplicationCache.NOT_FOUND_APP_ID)) {
+            if (ApplicationCache.NOT_FOUND_APP_ID.equals(applicationId)) {
                 logger.warn("can't found application id. agent id : {}, start time : {}.",joinAgentStatBo.getId(), joinAgentStatBo.getTimestamp());
                 return EMPTY_LIST;
             }
@@ -124,7 +124,7 @@ public class TBaseFlatMapper extends RichFlatMapFunction<RawData, Tuple3<String,
             List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo(applicationId, joinAgentStatBo, ApplicationStatBoWindow.WINDOW_SIZE);
 
             for (JoinApplicationStatBo joinApplicationStatBo : joinApplicationStatBoList) {
-                outData.add(new Tuple3<String, JoinStatBo, Long>(applicationId, joinApplicationStatBo, joinApplicationStatBo.getTimestamp()));
+                outData.add(new Tuple3<>(applicationId, joinApplicationStatBo, joinApplicationStatBo.getTimestamp()));
             }
         }
 

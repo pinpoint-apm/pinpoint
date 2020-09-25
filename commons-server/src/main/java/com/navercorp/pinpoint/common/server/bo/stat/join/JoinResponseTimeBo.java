@@ -71,13 +71,16 @@ public class JoinResponseTimeBo implements JoinStatBo {
         return responseTimeJoinValue;
     }
 
+    public static void apply(JoinApplicationStatBo.Builder builder, List<JoinResponseTimeBo> joinResponseTimeBoList, Long timestamp) {
+        builder.addResponseTime(joinResponseTimeBoList(joinResponseTimeBoList, timestamp));
+    }
+
     public static JoinResponseTimeBo joinResponseTimeBoList(List<JoinResponseTimeBo> joinResponseTimeBoList, Long timestamp) {
-        final int boCount = joinResponseTimeBoList.size();
-        if (boCount == 0) {
+        if (joinResponseTimeBoList.isEmpty()) {
             return JoinResponseTimeBo.EMPTY_JOIN_RESPONSE_TIME_BO;
         }
 
-        List<JoinLongFieldBo> responseTimeFieldBoList = joinResponseTimeBoList.stream().map(e -> e.getResponseTimeJoinValue()).collect(Collectors.toList());
+        List<JoinLongFieldBo> responseTimeFieldBoList = joinResponseTimeBoList.stream().map(JoinResponseTimeBo::getResponseTimeJoinValue).collect(Collectors.toList());
         final JoinLongFieldBo responseTimeJoinValue = JoinLongFieldBo.merge(responseTimeFieldBoList);
 
         final JoinResponseTimeBo firstJoinResponseTimeBo = joinResponseTimeBoList.get(0);

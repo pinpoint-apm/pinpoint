@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +26,7 @@ import org.springframework.stereotype.Component;
  * @author HyunGil Jeong
  */
 @Component
-public class ThriftCpuLoadBoMapper implements ThriftBoMapper<CpuLoadBo, TCpuLoad> {
+public class ThriftCpuLoadBoMapper implements ThriftStatMapper<CpuLoadBo, TCpuLoad> {
 
     @Override
     public CpuLoadBo map(TCpuLoad tCpuLoad) {
@@ -33,5 +34,11 @@ public class ThriftCpuLoadBoMapper implements ThriftBoMapper<CpuLoadBo, TCpuLoad
         cpuLoadBo.setJvmCpuLoad(tCpuLoad.getJvmCpuLoad());
         cpuLoadBo.setSystemCpuLoad(tCpuLoad.getSystemCpuLoad());
         return cpuLoadBo;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder agentStatBuilder, TAgentStat tAgentStat) {
+        CpuLoadBo cpuLoadBo = this.map(tAgentStat.getCpuLoad());
+        agentStatBuilder.addCpuLoad(cpuLoadBo);
     }
 }

@@ -91,9 +91,12 @@ public class JoinActiveTraceBo implements JoinStatBo {
         this.totalCountJoinValue = totalCountJoinValue;
     }
 
+    public static void apply(JoinApplicationStatBo.Builder builder, List<JoinActiveTraceBo> joinActiveTraceBoList, Long timestamp) {
+        builder.addActiveTrace(joinActiveTraceBoList(joinActiveTraceBoList, timestamp));
+    }
+
     public static JoinActiveTraceBo joinActiveTraceBoList(List<JoinActiveTraceBo> joinActiveTraceBoList, Long timestamp) {
-        final int boCount = joinActiveTraceBoList.size();
-        if (boCount == 0) {
+        if (joinActiveTraceBoList.isEmpty()) {
             return JoinActiveTraceBo.EMPTY_JOIN_ACTIVE_TRACE_BO;
         }
 

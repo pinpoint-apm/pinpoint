@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLoadedClassBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
-import com.navercorp.pinpoint.flink.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 
-public class JoinLoadedClassBoMapper implements ThriftBoMapper<JoinLoadedClassBo, TFAgentStat> {
+public class JoinLoadedClassBoMapper implements ThriftStatMapper<JoinLoadedClassBo, TFAgentStat> {
     @Override
     public JoinLoadedClassBo map(TFAgentStat thriftObject) {
         if(!thriftObject.isSetLoadedClass()) {
@@ -39,5 +39,17 @@ public class JoinLoadedClassBoMapper implements ThriftBoMapper<JoinLoadedClassBo
         joinLoadedClassBo.setUnloadedClassJoinValue(new JoinLongFieldBo(unloadedClass, unloadedClass, agentId, unloadedClass, agentId));
 
         return joinLoadedClassBo;
+    }
+
+
+    @Override
+    public void build(TFAgentStat tFAgentStat, JoinAgentStatBo.Builder builder) {
+        JoinLoadedClassBo joinLoadedClassBo = this.map(tFAgentStat);
+
+        if (joinLoadedClassBo == JoinLoadedClassBo.EMPTY_JOIN_LOADED_CLASS_BO) {
+            return;
+        }
+
+        builder.addLoadedClass(joinLoadedClassBo);
     }
 }

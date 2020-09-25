@@ -48,9 +48,12 @@ public class JoinLoadedClassBo implements JoinStatBo {
         this.timestamp = timestamp;
     }
 
+    public static void apply(JoinApplicationStatBo.Builder builder, List<JoinLoadedClassBo> joinLoadedClassBoList, Long timestamp) {
+        builder.addLoadedClass(joinLoadedClassBoList(joinLoadedClassBoList, timestamp));
+    }
+
     public static JoinLoadedClassBo joinLoadedClassBoList(List<JoinLoadedClassBo> joinLoadedClassBoList, Long timestamp) {
-        int boCount = joinLoadedClassBoList.size();
-        if (boCount == 0) {
+        if (joinLoadedClassBoList.isEmpty()) {
             return EMPTY_JOIN_LOADED_CLASS_BO;
         }
 

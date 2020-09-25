@@ -57,7 +57,7 @@ public class GrpcThreadDumpBoMapper {
         threadDumpBo.setThreadState(this.threadStateMapper.map(threadState));
         threadDumpBo.setStackTraceList(threadDump.getStackTraceList());
 
-        if (!CollectionUtils.isEmpty(threadDump.getLockedMonitorList())) {
+        if (CollectionUtils.hasLength(threadDump.getLockedMonitorList())) {
             final List<MonitorInfoBo> monitorInfoBoList = new ArrayList<>();
             for (PMonitorInfo monitorInfo : threadDump.getLockedMonitorList()) {
                 final MonitorInfoBo monitorInfoBo = this.monitorInfoBoMapper.map(monitorInfo);

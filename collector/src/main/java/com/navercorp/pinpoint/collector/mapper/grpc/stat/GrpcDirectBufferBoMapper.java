@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
+import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PDirectBuffer;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +26,7 @@ import org.springframework.stereotype.Component;
  * @author Roy Kim
  */
 @Component
-public class GrpcDirectBufferBoMapper {
+public class GrpcDirectBufferBoMapper implements GrpcStatMapper {
 
     public DirectBufferBo map(final PDirectBuffer tOpenDirectBuffer) {
         final DirectBufferBo directBufferBo = new DirectBufferBo();
@@ -33,5 +35,15 @@ public class GrpcDirectBufferBoMapper {
         directBufferBo.setMappedCount(tOpenDirectBuffer.getMappedCount());
         directBufferBo.setMappedMemoryUsed(tOpenDirectBuffer.getMappedMemoryUsed());
         return directBufferBo;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder builder, PAgentStat agentStat) {
+        // directBuffer
+        if (agentStat.hasDirectBuffer()) {
+            final PDirectBuffer directBuffer = agentStat.getDirectBuffer();
+            final DirectBufferBo directBufferBo = this.map(directBuffer);
+            builder.addDirectBuffer(directBufferBo);
+        }
     }
 }

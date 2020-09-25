@@ -16,16 +16,19 @@
 
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TDataSource;
+import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
 import org.springframework.stereotype.Component;
 
 /**
  * @author Taejin Koo
  */
 @Component
-public class ThriftDataSourceBoMapper implements ThriftBoMapper<DataSourceBo, TDataSource> {
+public class ThriftDataSourceBoMapper implements ThriftStatMapper<DataSourceBo, TDataSource> {
 
     @Override
     public DataSourceBo map(TDataSource dataSource) {
@@ -37,5 +40,21 @@ public class ThriftDataSourceBoMapper implements ThriftBoMapper<DataSourceBo, TD
         dataSourceBo.setActiveConnectionSize(dataSource.getActiveConnectionSize());
         dataSourceBo.setMaxConnectionSize(dataSource.getMaxConnectionSize());
         return dataSourceBo;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder agentStatBuilder, TAgentStat tAgentStat) {
+        // datasource
+        if (tAgentStat.isSetDataSourceList()) {
+            DataSourceListBo dataSourceListBo = new DataSourceListBo();
+
+            TDataSourceList dataSourceList = tAgentStat.getDataSourceList();
+            for (TDataSource dataSource : dataSourceList.getDataSourceList()) {
+                DataSourceBo dataSourceBo = map(dataSource);
+
+                dataSourceListBo.add(dataSourceBo);
+            }
+            agentStatBuilder.addDataSourceList(dataSourceListBo);
+        }
     }
 }

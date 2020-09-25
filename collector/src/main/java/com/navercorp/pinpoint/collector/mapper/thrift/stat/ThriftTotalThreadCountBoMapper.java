@@ -16,17 +16,26 @@
 
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TTotalThreadCount;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ThriftTotalThreadCountBoMapper implements ThriftBoMapper<TotalThreadCountBo, TTotalThreadCount> {
+public class ThriftTotalThreadCountBoMapper implements ThriftStatMapper<TotalThreadCountBo, TTotalThreadCount> {
     @Override
     public TotalThreadCountBo map(TTotalThreadCount thriftObject) {
         TotalThreadCountBo totalThreadCountBo = new TotalThreadCountBo();
         totalThreadCountBo.setTotalThreadCount(thriftObject.getTotalThreadCount());
         return totalThreadCountBo;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder agentStatBo, TAgentStat tAgentStat) {
+        // TODO: not supported
+//        if (tAgentStat.isSetTotalThreadCount()) {
+//            TotalThreadCountBo totalThreadCountBo = this.map(tAgentStat.getTotalThreadCount());
+//        }
     }
 }

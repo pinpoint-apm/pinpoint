@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TDirectBuffer;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +26,7 @@ import org.springframework.stereotype.Component;
  * @author Roy Kim
  */
 @Component
-public class ThriftDirectBufferBoMapper implements ThriftBoMapper<DirectBufferBo, TDirectBuffer> {
+public class ThriftDirectBufferBoMapper implements ThriftStatMapper<DirectBufferBo, TDirectBuffer> {
 
     @Override
     public DirectBufferBo map(TDirectBuffer tOpenDirectBuffer) {
@@ -35,5 +36,14 @@ public class ThriftDirectBufferBoMapper implements ThriftBoMapper<DirectBufferBo
         directBufferBo.setMappedCount(tOpenDirectBuffer.getMappedCount());
         directBufferBo.setMappedMemoryUsed(tOpenDirectBuffer.getMappedMemoryUsed());
         return directBufferBo;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder agentStatBo, TAgentStat tAgentStat) {
+        // directBuffer
+        if (tAgentStat.isSetDirectBuffer()) {
+            DirectBufferBo directBufferBo = this.map(tAgentStat.getDirectBuffer());
+            agentStatBo.addDirectBuffer(directBufferBo);
+        }
     }
 }

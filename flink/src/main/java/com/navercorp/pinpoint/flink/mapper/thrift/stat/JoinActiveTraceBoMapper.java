@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTrace;
@@ -27,8 +28,9 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class JoinActiveTraceBoMapper {
+public class JoinActiveTraceBoMapper implements ThriftStatMapper<JoinActiveTraceBo, TFAgentStat> {
 
+    @Override
     public JoinActiveTraceBo map(TFAgentStat tFAgentStat) {
         if (!tFAgentStat.isSetActiveTrace()) {
             return JoinActiveTraceBo.EMPTY_JOIN_ACTIVE_TRACE_BO;
@@ -66,5 +68,16 @@ public class JoinActiveTraceBoMapper {
         }
 
         return totalCount;
+    }
+
+    @Override
+    public void build(TFAgentStat tFAgentStat, JoinAgentStatBo.Builder builder) {
+        JoinActiveTraceBo joinActiveTraceBo = this.map(tFAgentStat);
+
+        if (joinActiveTraceBo == joinActiveTraceBo.EMPTY_JOIN_ACTIVE_TRACE_BO) {
+            return;
+        }
+
+        builder.addActiveTrace(joinActiveTraceBo);
     }
 }

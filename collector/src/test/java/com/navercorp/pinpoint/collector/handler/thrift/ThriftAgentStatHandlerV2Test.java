@@ -104,7 +104,7 @@ public class ThriftAgentStatHandlerV2Test {
         final String agentId = "agentId";
         final long startTimestamp = Long.MAX_VALUE;
         final TAgentStat agentStat = createAgentStat(agentId, startTimestamp);
-        final AgentStatBo mappedAgentStat = new AgentStatBo();
+        final AgentStatBo mappedAgentStat = mock(AgentStatBo.class);
         when(this.agentStatMapper.map(agentStat)).thenReturn(mappedAgentStat);
         // When
         thriftAgentStatHandlerV2.handleSimple(agentStat);
@@ -130,7 +130,7 @@ public class ThriftAgentStatHandlerV2Test {
         final String agentId = "agentId";
         final long startTimestamp = Long.MAX_VALUE;
         final TAgentStatBatch agentStatBatch = createAgentStatBatch(agentId, startTimestamp, numBatches);
-        final AgentStatBo mappedAgentStat = new AgentStatBo();
+        final AgentStatBo mappedAgentStat = mock(AgentStatBo.class);
         when(this.agentStatBatchMapper.map(agentStatBatch)).thenReturn(mappedAgentStat);
         // When
         thriftAgentStatHandlerV2.handleSimple(agentStatBatch);

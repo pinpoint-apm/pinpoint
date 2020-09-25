@@ -16,130 +16,232 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
+
+import com.navercorp.pinpoint.common.server.util.FilterUtils;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 public class AgentStatBo {
 
-    private String agentId;
+    private final String agentId;
+    private final long startTimestamp;
 
-    private long startTimestamp;
+    private final List<JvmGcBo> jvmGcBos;
+    private final List<JvmGcDetailedBo> jvmGcDetailedBos;
+    private final List<CpuLoadBo> cpuLoadBos;
+    private final List<TransactionBo> transactionBos;
+    private final List<ActiveTraceBo> activeTraceBos;
+    private final List<DataSourceListBo> dataSourceListBos;
+    private final List<ResponseTimeBo> responseTimeBos;
+    private final List<DeadlockThreadCountBo> deadlockThreadCountBos;
+    private final List<FileDescriptorBo> fileDescriptorBos;
+    private final List<DirectBufferBo> directBufferBos;
+    private final List<TotalThreadCountBo> totalThreadCountBos;
+    private final List<LoadedClassBo> loadedClassBos;
 
-    private List<JvmGcBo> jvmGcBos;
-    private List<JvmGcDetailedBo> jvmGcDetailedBos;
-    private List<CpuLoadBo> cpuLoadBos;
-    private List<TransactionBo> transactionBos;
-    private List<ActiveTraceBo> activeTraceBos;
-    private List<DataSourceListBo> dataSourceListBos;
-    private List<ResponseTimeBo> responseTimeBos;
-    private List<DeadlockThreadCountBo> deadlockThreadCountBos;
-    private List<FileDescriptorBo> fileDescriptorBos;
-    private List<DirectBufferBo> directBufferBos;
-    private List<TotalThreadCountBo> totalThreadCountBos;
-    private List<LoadedClassBo> loadedClassBos;
+
+    public AgentStatBo(Builder builder) {
+        this.agentId = builder.agentId;
+        this.startTimestamp = builder.startTimestamp;
+        this.jvmGcBos = FilterUtils.filter(builder.statList, JvmGcBo.class);
+        this.jvmGcDetailedBos = FilterUtils.filter(builder.statList, JvmGcDetailedBo.class);
+        this.cpuLoadBos = FilterUtils.filter(builder.statList, CpuLoadBo.class);
+        this.transactionBos = FilterUtils.filter(builder.statList, TransactionBo.class);
+        this.activeTraceBos = FilterUtils.filter(builder.statList, ActiveTraceBo.class);
+        this.dataSourceListBos = FilterUtils.filter(builder.statList, DataSourceListBo.class);
+        this.responseTimeBos = FilterUtils.filter(builder.statList, ResponseTimeBo.class);
+        this.deadlockThreadCountBos = FilterUtils.filter(builder.statList, DeadlockThreadCountBo.class);
+        this.fileDescriptorBos = FilterUtils.filter(builder.statList, FileDescriptorBo.class);
+        this.directBufferBos = FilterUtils.filter(builder.statList, DirectBufferBo.class);
+        this.totalThreadCountBos = FilterUtils.filter(builder.statList, TotalThreadCountBo.class);
+        this.loadedClassBos = FilterUtils.filter(builder.statList, LoadedClassBo.class);
+    }
+
 
     public long getStartTimestamp() {
         return startTimestamp;
-    }
-
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
     }
 
     public String getAgentId() {
         return agentId;
     }
 
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
     public List<JvmGcBo> getJvmGcBos() {
         return jvmGcBos;
-    }
-
-    public void setJvmGcBos(List<JvmGcBo> jvmGcBos) {
-        this.jvmGcBos = jvmGcBos;
     }
 
     public List<JvmGcDetailedBo> getJvmGcDetailedBos() {
         return jvmGcDetailedBos;
     }
 
-    public void setJvmGcDetailedBos(List<JvmGcDetailedBo> jvmGcDetailedBos) {
-        this.jvmGcDetailedBos = jvmGcDetailedBos;
-    }
-
     public List<CpuLoadBo> getCpuLoadBos() {
         return cpuLoadBos;
-    }
-
-    public void setCpuLoadBos(List<CpuLoadBo> cpuLoadBos) {
-        this.cpuLoadBos = cpuLoadBos;
     }
 
     public List<TransactionBo> getTransactionBos() {
         return transactionBos;
     }
 
-    public void setTransactionBos(List<TransactionBo> transactionBos) {
-        this.transactionBos = transactionBos;
-    }
-
     public List<ActiveTraceBo> getActiveTraceBos() {
         return activeTraceBos;
-    }
-
-    public void setActiveTraceBos(List<ActiveTraceBo> activeTraceBos) {
-        this.activeTraceBos = activeTraceBos;
     }
 
     public List<DataSourceListBo> getDataSourceListBos() {
         return dataSourceListBos;
     }
 
-    public void setDataSourceListBos(List<DataSourceListBo> dataSourceListBos) {
-        this.dataSourceListBos = dataSourceListBos;
-    }
-
     public List<ResponseTimeBo> getResponseTimeBos() {
         return responseTimeBos;
     }
 
-    public void setResponseTimeBos(List<ResponseTimeBo> responseTimeBos) {
-        this.responseTimeBos = responseTimeBos;
-    }
 
     public List<DeadlockThreadCountBo> getDeadlockThreadCountBos() {
         return deadlockThreadCountBos;
-    }
-
-    public void setDeadlockThreadCountBos(List<DeadlockThreadCountBo> deadlockThreadCountBos) {
-        this.deadlockThreadCountBos = deadlockThreadCountBos;
     }
 
     public List<FileDescriptorBo> getFileDescriptorBos() {
         return fileDescriptorBos;
     }
 
-    public void setFileDescriptorBos(List<FileDescriptorBo> fileDescriptorBos) {
-        this.fileDescriptorBos = fileDescriptorBos;
+    public List<DirectBufferBo> getDirectBufferBos() {
+        return directBufferBos;
     }
 
-    public List<DirectBufferBo> getDirectBufferBos() { return directBufferBos; }
-
-    public void setDirectBufferBos(List<DirectBufferBo> directBufferBos) { this.directBufferBos = directBufferBos; }
-
-    public List<TotalThreadCountBo> getTotalThreadCountBos() { return totalThreadCountBos; }
-
-    public void setTotalThreadCountBos(List<TotalThreadCountBo> totalThreadCountBos) {
-        this.totalThreadCountBos = totalThreadCountBos;
+    public List<TotalThreadCountBo> getTotalThreadCountBos() {
+        return totalThreadCountBos;
     }
-    public List<LoadedClassBo> getLoadedClassBos() { return loadedClassBos; }
 
-    public void setLoadedClassBos(List<LoadedClassBo> loadedClassBos) { this.loadedClassBos = loadedClassBos; }
+    public List<LoadedClassBo> getLoadedClassBos() {
+        return loadedClassBos;
+    }
+
+    public static Builder newBuilder(String agentId, long startTimestamp) {
+        return new Builder(agentId, startTimestamp);
+    }
+
+    public static class Builder {
+        private final String agentId;
+        private final long startTimestamp;
+
+        private final List<AgentStatDataPoint> statList = new ArrayList<>();
+
+        public Builder(String agentId, long startTimestamp) {
+            this.agentId = Objects.requireNonNull(agentId, "agentId");
+            this.startTimestamp = startTimestamp;
+        }
+
+        public StatBuilder newStatBuilder(long timestamp) {
+            return new StatBuilder(timestamp);
+        }
+
+        public class StatBuilder {
+            private final long timestamp;
+
+            public StatBuilder(long timestamp) {
+                this.timestamp = timestamp;
+            }
+
+            private void setBaseData(AgentStatDataPoint agentStatDataPoint) {
+                agentStatDataPoint.setAgentId(agentId);
+                agentStatDataPoint.setStartTimestamp(startTimestamp);
+                agentStatDataPoint.setTimestamp(this.timestamp);
+            }
+
+            public void addJvmGc(JvmGcBo jvmGc) {
+                Objects.requireNonNull(jvmGc, "jvmGc");
+                setBaseData(jvmGc);
+                statList.add(jvmGc);
+            }
+
+            public void addJvmGcDetailed(JvmGcDetailedBo jvmGcDetailed) {
+                Objects.requireNonNull(jvmGcDetailed, "jvmGcDetailed");
+                setBaseData(jvmGcDetailed);
+                statList.add(jvmGcDetailed);
+            }
+
+
+            public void addCpuLoad(CpuLoadBo cpuLoad) {
+                Objects.requireNonNull(cpuLoad, "cpuLoad");
+                setBaseData(cpuLoad);
+                statList.add(cpuLoad);
+            }
+
+
+            public void addTransaction(TransactionBo transaction) {
+                Objects.requireNonNull(transaction, "transaction");
+                setBaseData(transaction);
+                statList.add(transaction);
+            }
+
+
+            public void addActiveTrace(ActiveTraceBo activeTrace) {
+                Objects.requireNonNull(activeTrace, "activeTrace");
+                setBaseData(activeTrace);
+                statList.add(activeTrace);
+            }
+
+            public void addDataSourceList(DataSourceListBo dataSourceList) {
+                Objects.requireNonNull(dataSourceList, "dataSourceList");
+                setBaseData(dataSourceList);
+                for (DataSourceBo dataSourceBo : dataSourceList.getList()) {
+                    setBaseData(dataSourceBo);
+                }
+                statList.add(dataSourceList);
+            }
+
+
+            public void addResponseTime(ResponseTimeBo responseTime) {
+                Objects.requireNonNull(responseTime, "responseTime");
+                setBaseData(responseTime);
+                statList.add(responseTime);
+            }
+
+
+            public void addDeadlockThreadCount(DeadlockThreadCountBo deadlockThreadCount) {
+                Objects.requireNonNull(deadlockThreadCount, "deadlockThreadCount");
+                setBaseData(deadlockThreadCount);
+                statList.add(deadlockThreadCount);
+            }
+
+
+            public void addFileDescriptor(FileDescriptorBo fileDescriptor) {
+                Objects.requireNonNull(fileDescriptor, "fileDescriptor");
+                setBaseData(fileDescriptor);
+                statList.add(fileDescriptor);
+            }
+
+
+            public void addDirectBuffer(DirectBufferBo directBuffer) {
+                Objects.requireNonNull(directBuffer, "directBuffer");
+                setBaseData(directBuffer);
+                statList.add(directBuffer);
+            }
+
+
+            public void addTotalThreadCount(TotalThreadCountBo totalThreadCount) {
+                Objects.requireNonNull(totalThreadCount, "totalThreadCount");
+                setBaseData(totalThreadCount);
+                statList.add(totalThreadCount);
+            }
+
+
+            public void addLoadedClass(LoadedClassBo loadedClass) {
+                Objects.requireNonNull(loadedClass, "loadedClass");
+                setBaseData(loadedClass);
+                statList.add(loadedClass);
+            }
+
+        }
+
+        public AgentStatBo build() {
+            return new AgentStatBo(this);
+        }
+    }
 
     @Override
     public String toString() {

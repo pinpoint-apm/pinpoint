@@ -18,9 +18,11 @@ package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.trace.PActiveTrace;
 import com.navercorp.pinpoint.grpc.trace.PActiveTraceHistogram;
+import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -29,7 +31,7 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 @Component
-public class GrpcActiveTraceBoMapper {
+public class GrpcActiveTraceBoMapper implements GrpcStatMapper {
 
     public ActiveTraceBo map(final PActiveTrace activeTrace) {
         final PActiveTraceHistogram histogram = activeTrace.getHistogram();
@@ -54,5 +56,17 @@ public class GrpcActiveTraceBoMapper {
         final int verySlow = activeTraceCounts.get(3);
 
         return new ActiveTraceHistogram(fast, normal, slow, verySlow);
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder builder, PAgentStat agentStat) {
+        // activeTrace
+        if (agentStat.hasActiveTrace()) {
+            final PActiveTrace activeTrace = agentStat.getActiveTrace();
+            if (activeTrace.hasHistogram()) {
+                final ActiveTraceBo activeTraceBo = this.map(activeTrace);
+                builder.addActiveTrace(activeTraceBo);
+            }
+        }
     }
 }

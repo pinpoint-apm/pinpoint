@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TJvmGcDetailed;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +26,7 @@ import org.springframework.stereotype.Component;
  * @author HyunGil Jeong
  */
 @Component
-public class ThriftJvmGcDetailedBoMapper implements ThriftBoMapper<JvmGcDetailedBo, TJvmGcDetailed> {
+public class ThriftJvmGcDetailedBoMapper implements ThriftStatMapper<JvmGcDetailedBo, TJvmGcDetailed> {
 
     @Override
     public JvmGcDetailedBo map(TJvmGcDetailed tJvmGcDetailed) {
@@ -39,5 +40,16 @@ public class ThriftJvmGcDetailedBoMapper implements ThriftBoMapper<JvmGcDetailed
         jvmGcDetailedBo.setPermGenUsed(tJvmGcDetailed.getJvmPoolPermGenUsed());
         jvmGcDetailedBo.setMetaspaceUsed(tJvmGcDetailed.getJvmPoolMetaspaceUsed());
         return jvmGcDetailedBo;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder agentStatBo, TAgentStat tAgentStat) {
+        // jvmGcDetailed
+        if (tAgentStat.isSetGc()) {
+            if (tAgentStat.getGc().isSetJvmGcDetailed()) {
+                JvmGcDetailedBo jvmGcDetailedBo = this.map(tAgentStat.getGc().getJvmGcDetailed());
+                agentStatBo.addJvmGcDetailed(jvmGcDetailedBo);
+            }
+        }
     }
 }

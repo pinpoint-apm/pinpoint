@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PJvmGc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,7 +27,7 @@ import org.springframework.stereotype.Component;
  * @author HyunGil Jeong
  */
 @Component
-public class GrpcJvmGcBoMapper {
+public class GrpcJvmGcBoMapper implements GrpcStatMapper {
 
     @Autowired
     private GrpcJvmGcTypeMapper jvmGcTypeMapper;
@@ -40,5 +42,15 @@ public class GrpcJvmGcBoMapper {
         jvmGcBo.setGcOldCount(jvmGc.getJvmGcOldCount());
         jvmGcBo.setGcOldTime(jvmGc.getJvmGcOldTime());
         return jvmGcBo;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder builder, PAgentStat agentStat) {
+        // jvmGc
+        if (agentStat.hasGc()) {
+            final PJvmGc jvmGc = agentStat.getGc();
+            final JvmGcBo jvmGcBo = this.map(jvmGc);
+            builder.addJvmGc(jvmGcBo);
+        }
     }
 }

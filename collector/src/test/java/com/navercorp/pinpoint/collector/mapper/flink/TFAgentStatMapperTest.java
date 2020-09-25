@@ -14,17 +14,32 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.mapper.thrift.stat;
+package com.navercorp.pinpoint.collector.mapper.flink;
 
 import com.navercorp.pinpoint.common.server.bo.JvmGcType;
-import com.navercorp.pinpoint.common.server.bo.stat.*;
-import com.navercorp.pinpoint.thrift.dto.flink.*;
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
+import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
+import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTrace;
+import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTraceHistogram;
+import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
+import com.navercorp.pinpoint.thrift.dto.flink.TFDataSource;
+import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
+import com.navercorp.pinpoint.thrift.dto.flink.TFResponseTime;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author minwoo.jung
@@ -37,14 +52,28 @@ public class TFAgentStatMapperTest {
     public static final long collectTime2nd = collectTime1st + 5000;
     public static final long collectTime3rd = collectTime2nd + 5000;
 
-    @Test
-    public void mapTest() throws Exception {
-        final AgentStatBo agentStatBo = new AgentStatBo();
-        agentStatBo.setStartTimestamp(startTimestamp);
-        agentStatBo.setAgentId(TEST_AGENT);
-        agentStatBo.setCpuLoadBos(createCpuLoadBoList());
+    private final FlinkStatMapper<?, ?>[] statMappers = {
+            new TFActiveTraceMapper(),
+            new TFCpuLoadMapper(),
+            new TFDataSourceListBoMapper(),
+            new TFDirectBufferMapper(),
+            new TFFileDescriptorMapper(),
+            new TFJvmGcMapper(),
+            new TFLoadedClassMapper(),
+            new TFResponseTimeMapper(),
+            new TFTotalThreadCountMapper(),
+            new TFTransactionMapper(),
+    };
 
-        List<TFAgentStat> tFAgentStatList = new TFAgentStatMapper().map(agentStatBo);
+    private TFAgentStatMapper newAgentStatMapper() {
+        return new TFAgentStatMapper(statMappers);
+    }
+
+    @Test
+    public void mapTest() {
+        AgentStatBo agentStatBo = createCpuLoadBoList();
+
+        List<TFAgentStat> tFAgentStatList = newAgentStatMapper().map(agentStatBo);
         assertEquals(3, tFAgentStatList.size());
 
         TFAgentStat tFAgentStat1 = tFAgentStatList.get(0);
@@ -69,44 +98,38 @@ public class TFAgentStatMapperTest {
         assertEquals(9, tFAgentStat3.getCpuLoad().getSystemCpuLoad(), 0);
     }
 
-    private List<CpuLoadBo> createCpuLoadBoList() {
-        final List<CpuLoadBo> cpuLoadBoList = new ArrayList<>();
+
+
+    private AgentStatBo createCpuLoadBoList() {
+        AgentStatBo.Builder builder = newBuilder();
 
         CpuLoadBo cpuLoadBo1 = new CpuLoadBo();
-        cpuLoadBo1.setAgentId(TEST_AGENT);
-        cpuLoadBo1.setTimestamp(collectTime1st);
-        cpuLoadBo1.setStartTimestamp(startTimestamp);
         cpuLoadBo1.setJvmCpuLoad(4);
         cpuLoadBo1.setSystemCpuLoad(3);
-        cpuLoadBoList.add(cpuLoadBo1);
+        AgentStatBo.Builder.StatBuilder statBuilder1 = builder.newStatBuilder(collectTime1st);
+        statBuilder1.addCpuLoad(cpuLoadBo1);
 
         CpuLoadBo cpuLoadBo3 = new CpuLoadBo();
-        cpuLoadBo3.setAgentId("test_agent");
-        cpuLoadBo3.setTimestamp(collectTime3rd);
-        cpuLoadBo3.setStartTimestamp(startTimestamp);
         cpuLoadBo3.setJvmCpuLoad(8);
         cpuLoadBo3.setSystemCpuLoad(9);
-        cpuLoadBoList.add(cpuLoadBo3);
+        AgentStatBo.Builder.StatBuilder statBuilder3 = builder.newStatBuilder(collectTime3rd);
+        statBuilder3.addCpuLoad(cpuLoadBo3);
 
         CpuLoadBo cpuLoadBo2 = new CpuLoadBo();
-        cpuLoadBo2.setAgentId("test_agent");
-        cpuLoadBo2.setTimestamp(collectTime2nd);
-        cpuLoadBo2.setStartTimestamp(startTimestamp);
         cpuLoadBo2.setJvmCpuLoad(5);
         cpuLoadBo2.setSystemCpuLoad(6);
-        cpuLoadBoList.add(cpuLoadBo2);
 
-        return cpuLoadBoList;
+        AgentStatBo.Builder.StatBuilder statBuilder2 = builder.newStatBuilder(collectTime2nd);
+        statBuilder2.addCpuLoad(cpuLoadBo2);
+
+        return builder.build();
     }
 
     @Test
-    public void map2Test() throws Exception {
-        final AgentStatBo agentStatBo = new AgentStatBo();
-        agentStatBo.setStartTimestamp(startTimestamp);
-        agentStatBo.setAgentId(TEST_AGENT);
-        agentStatBo.setDataSourceListBos(createDataSourceListBoList());
+    public void map2Test() {
+        AgentStatBo agentStatBo = createDataSourceListBoList();
 
-        List<TFAgentStat> tFAgentStatList = new TFAgentStatMapper().map(agentStatBo);
+        List<TFAgentStat> tFAgentStatList = newAgentStatMapper().map(agentStatBo);
         assertEquals(2, tFAgentStatList.size());
 
         TFAgentStat tFAgentStat1 = tFAgentStatList.get(0);
@@ -155,27 +178,19 @@ public class TFAgentStatMapperTest {
         assertEquals(tfDataSource2_2.getDatabaseName(), "pinpoint2");
     }
 
-    private List<DataSourceListBo> createDataSourceListBoList() {
-        List<DataSourceListBo> dataSourceListBoList = new ArrayList<>();
+    private AgentStatBo createDataSourceListBoList() {
+        AgentStatBo.Builder builder = AgentStatBo.newBuilder(TEST_AGENT, startTimestamp);
 
         DataSourceListBo dataSourceListBo1 = new DataSourceListBo();
-        dataSourceListBo1.setAgentId("test_agent1");
-        dataSourceListBo1.setStartTimestamp(startTimestamp);
-        dataSourceListBo1.setTimestamp(collectTime1st);
-
         DataSourceBo dataSourceBo1_1 = new DataSourceBo();
-        dataSourceBo1_1.setAgentId("test_agent1");
-        dataSourceBo1_1.setTimestamp(collectTime1st);
         dataSourceBo1_1.setServiceTypeCode((short) 1000);
         dataSourceBo1_1.setJdbcUrl("jdbc:mysql");
         dataSourceBo1_1.setActiveConnectionSize(15);
         dataSourceBo1_1.setMaxConnectionSize(30);
         dataSourceBo1_1.setId(1);
         dataSourceBo1_1.setDatabaseName("pinpoint1");
+
         DataSourceBo dataSourceBo1_2 = new DataSourceBo();
-        dataSourceBo1_2.setAgentId("test_agent1");
-        dataSourceBo1_2.setTimestamp(collectTime1st);
-        dataSourceBo1_2.setAgentId("test_agent1");
         dataSourceBo1_2.setServiceTypeCode((short) 2000);
         dataSourceBo1_2.setJdbcUrl("jdbc:mssql");
         dataSourceBo1_2.setActiveConnectionSize(25);
@@ -186,13 +201,7 @@ public class TFAgentStatMapperTest {
         dataSourceListBo1.add(dataSourceBo1_2);
 
         DataSourceListBo dataSourceListBo2 = new DataSourceListBo();
-        dataSourceListBo2.setAgentId("test_agent1");
-        dataSourceListBo2.setStartTimestamp(startTimestamp);
-        dataSourceListBo2.setTimestamp(collectTime2nd);
-
         DataSourceBo dataSourceBo2_1 = new DataSourceBo();
-        dataSourceBo2_1.setAgentId("test_agent1");
-        dataSourceBo2_1.setTimestamp(collectTime2nd);
         dataSourceBo2_1.setServiceTypeCode((short) 1000);
         dataSourceBo2_1.setJdbcUrl("jdbc:mysql");
         dataSourceBo2_1.setActiveConnectionSize(16);
@@ -200,9 +209,6 @@ public class TFAgentStatMapperTest {
         dataSourceBo2_1.setId(1);
         dataSourceBo2_1.setDatabaseName("pinpoint1");
         DataSourceBo dataSourceBo2_2 = new DataSourceBo();
-        dataSourceBo2_2.setAgentId("test_agent1");
-        dataSourceBo2_2.setTimestamp(collectTime2nd);
-        dataSourceBo2_2.setAgentId("test_agent1");
         dataSourceBo2_2.setServiceTypeCode((short) 2000);
         dataSourceBo2_2.setJdbcUrl("jdbc:mssql");
         dataSourceBo2_2.setActiveConnectionSize(26);
@@ -212,20 +218,19 @@ public class TFAgentStatMapperTest {
         dataSourceListBo2.add(dataSourceBo2_1);
         dataSourceListBo2.add(dataSourceBo2_2);
 
-        dataSourceListBoList.add(dataSourceListBo1);
-        dataSourceListBoList.add(dataSourceListBo2);
+        AgentStatBo.Builder.StatBuilder statBuilder1 = builder.newStatBuilder(collectTime1st);
+        statBuilder1.addDataSourceList(dataSourceListBo1);
+        AgentStatBo.Builder.StatBuilder statBuilder2 = builder.newStatBuilder(collectTime2nd);
+        statBuilder2.addDataSourceList(dataSourceListBo2);
 
-        return dataSourceListBoList;
+        return builder.build();
     }
 
     @Test
     public void map3Test() throws Exception {
-        final AgentStatBo agentStatBo = new AgentStatBo();
-        agentStatBo.setStartTimestamp(startTimestamp);
-        agentStatBo.setAgentId(TEST_AGENT);
-        agentStatBo.setJvmGcBos(createJvmGcBoList());
+        AgentStatBo agentStatBo = createJvmGcBoList();
 
-        List<TFAgentStat> tFAgentStatList = new TFAgentStatMapper().map(agentStatBo);
+        List<TFAgentStat> tFAgentStatList = newAgentStatMapper().map(agentStatBo);
         assertEquals(2, tFAgentStatList.size());
 
         TFAgentStat tFAgentStat1 = tFAgentStatList.get(0);
@@ -245,13 +250,10 @@ public class TFAgentStatMapperTest {
         assertEquals(tFJvmGc2.getJvmMemoryNonHeapUsed(), 310);
     }
 
-    private List<JvmGcBo> createJvmGcBoList() {
-        List<JvmGcBo> jvmGcBoList = new ArrayList<>();
+    private AgentStatBo createJvmGcBoList() {
+        AgentStatBo.Builder builder = newBuilder();
 
         JvmGcBo jvmGcBo1 = new JvmGcBo();
-        jvmGcBo1.setAgentId("test_agent1");
-        jvmGcBo1.setStartTimestamp(startTimestamp);
-        jvmGcBo1.setTimestamp(collectTime1st);
         jvmGcBo1.setGcType(JvmGcType.G1);
         jvmGcBo1.setHeapUsed(3000);
         jvmGcBo1.setHeapMax(5000);
@@ -259,12 +261,10 @@ public class TFAgentStatMapperTest {
         jvmGcBo1.setNonHeapMax(500);
         jvmGcBo1.setGcOldCount(5);
         jvmGcBo1.setGcOldTime(10);
-        jvmGcBoList.add(jvmGcBo1);
+        AgentStatBo.Builder.StatBuilder statBuilder1 = builder.newStatBuilder(collectTime1st);
+        statBuilder1.addJvmGc(jvmGcBo1);
 
         JvmGcBo jvmGcBo2 = new JvmGcBo();
-        jvmGcBo2.setAgentId("test_agent1");
-        jvmGcBo2.setStartTimestamp(startTimestamp);
-        jvmGcBo2.setTimestamp(collectTime2nd);
         jvmGcBo2.setGcType(JvmGcType.G1);
         jvmGcBo2.setHeapUsed(3100);
         jvmGcBo2.setHeapMax(5100);
@@ -272,19 +272,18 @@ public class TFAgentStatMapperTest {
         jvmGcBo2.setNonHeapMax(510);
         jvmGcBo2.setGcOldCount(15);
         jvmGcBo2.setGcOldTime(20);
-        jvmGcBoList.add(jvmGcBo2);
+        AgentStatBo.Builder.StatBuilder statBuilder2 = builder.newStatBuilder(collectTime2nd);
+        statBuilder2.addJvmGc(jvmGcBo2);
 
-        return jvmGcBoList;
+        return builder.build();
     }
 
     @Test
     public void map4Test() {
-        final AgentStatBo agentStatBo = new AgentStatBo();
-        agentStatBo.setStartTimestamp(startTimestamp);
-        agentStatBo.setAgentId(TEST_AGENT);
-        agentStatBo.setActiveTraceBos(createActiveTraceBoList());
+        AgentStatBo agentStatBo = createActiveTraceBoList();
 
-        List<TFAgentStat> tFAgentStatList = new TFAgentStatMapper().map(agentStatBo);
+
+        List<TFAgentStat> tFAgentStatList = newAgentStatMapper().map(agentStatBo);
         assertEquals(2, tFAgentStatList.size());
 
         TFAgentStat tFAgentStat1 = tFAgentStatList.get(0);
@@ -294,10 +293,10 @@ public class TFAgentStatMapperTest {
         TFActiveTrace activeTrace1 = tFAgentStat1.getActiveTrace();
         TFActiveTraceHistogram histogram1 = activeTrace1.getHistogram();
         List<Integer> activeTraceCount1 = histogram1.getActiveTraceCount();
-        assertEquals((int)activeTraceCount1.get(0), 30);
-        assertEquals((int)activeTraceCount1.get(1), 40);
-        assertEquals((int)activeTraceCount1.get(2), 10);
-        assertEquals((int)activeTraceCount1.get(3), 50);
+        assertEquals((int) activeTraceCount1.get(0), 30);
+        assertEquals((int) activeTraceCount1.get(1), 40);
+        assertEquals((int) activeTraceCount1.get(2), 10);
+        assertEquals((int) activeTraceCount1.get(3), 50);
 
         TFAgentStat tFAgentStat2 = tFAgentStatList.get(1);
         assertEquals(tFAgentStat2.getAgentId(), TEST_AGENT);
@@ -306,47 +305,44 @@ public class TFAgentStatMapperTest {
         TFActiveTrace activeTrace2 = tFAgentStat2.getActiveTrace();
         TFActiveTraceHistogram histogram2 = activeTrace2.getHistogram();
         List<Integer> activeTraceCount2 = histogram2.getActiveTraceCount();
-        assertEquals((int)activeTraceCount2.get(0), 31);
-        assertEquals((int)activeTraceCount2.get(1), 41);
-        assertEquals((int)activeTraceCount2.get(2), 11);
-        assertEquals((int)activeTraceCount2.get(3), 51);
+        assertEquals((int) activeTraceCount2.get(0), 31);
+        assertEquals((int) activeTraceCount2.get(1), 41);
+        assertEquals((int) activeTraceCount2.get(2), 11);
+        assertEquals((int) activeTraceCount2.get(3), 51);
     }
 
-    private List<ActiveTraceBo> createActiveTraceBoList() {
-        List<ActiveTraceBo> activeTraceBoList = new ArrayList<>();
+    private AgentStatBo createActiveTraceBoList() {
+        AgentStatBo.Builder builder = newBuilder();
 
         ActiveTraceBo activeTraceBo1 = new ActiveTraceBo();
-        activeTraceBo1.setAgentId("test_agent1");
-        activeTraceBo1.setStartTimestamp(startTimestamp);
-        activeTraceBo1.setTimestamp(collectTime1st);
+
         activeTraceBo1.setVersion((short) 1);
         activeTraceBo1.setHistogramSchemaType(2);
         ActiveTraceHistogram activeTraceHistogram1 = new ActiveTraceHistogram(30, 40, 10, 50);
         activeTraceBo1.setActiveTraceHistogram(activeTraceHistogram1);
-        activeTraceBoList.add(activeTraceBo1);
+        AgentStatBo.Builder.StatBuilder statBuilder1 = builder.newStatBuilder(collectTime1st);
+        statBuilder1.addActiveTrace(activeTraceBo1);
 
         ActiveTraceBo activeTraceBo2 = new ActiveTraceBo();
-        activeTraceBo2.setAgentId("test_agent1");
-        activeTraceBo2.setStartTimestamp(startTimestamp);
         activeTraceBo2.setTimestamp(collectTime2nd);
         activeTraceBo2.setVersion((short) 1);
         activeTraceBo2.setHistogramSchemaType(2);
 
         ActiveTraceHistogram activeTraceHistogram2 = new ActiveTraceHistogram(31, 41, 11, 51);
         activeTraceBo2.setActiveTraceHistogram(activeTraceHistogram2);
-        activeTraceBoList.add(activeTraceBo2);
 
-        return activeTraceBoList;
+        AgentStatBo.Builder.StatBuilder statBuilder2 = builder.newStatBuilder(collectTime2nd);
+        statBuilder2.addActiveTrace(activeTraceBo2);
+
+        return builder.build();
     }
 
     @Test
     public void map5Test() {
-        final AgentStatBo agentStatBo = new AgentStatBo();
-        agentStatBo.setStartTimestamp(startTimestamp);
-        agentStatBo.setAgentId(TEST_AGENT);
-        agentStatBo.setResponseTimeBos(createResponseTimeBoList());
 
-        List<TFAgentStat> tFAgentStatList = new TFAgentStatMapper().map(agentStatBo);
+        AgentStatBo agentStatBo = createResponseTimeBoList();
+
+        List<TFAgentStat> tFAgentStatList = newAgentStatMapper().map(agentStatBo);
         assertEquals(2, tFAgentStatList.size());
 
         TFAgentStat tFAgentStat1 = tFAgentStatList.get(0);
@@ -364,34 +360,28 @@ public class TFAgentStatMapperTest {
         assertEquals(responseTime2.getAvg(), 2000);
     }
 
-    private List<ResponseTimeBo> createResponseTimeBoList() {
-        List<ResponseTimeBo> responseTimeBoList = new ArrayList<>();
+    private AgentStatBo createResponseTimeBoList() {
+        AgentStatBo.Builder builder = newBuilder();
 
         ResponseTimeBo responseTimeBo1 = new ResponseTimeBo();
         responseTimeBo1.setAvg(1000);
-        responseTimeBo1.setStartTimestamp(startTimestamp);
-        responseTimeBo1.setAgentId(TEST_AGENT);
-        responseTimeBo1.setTimestamp(collectTime1st);
-        responseTimeBoList.add(responseTimeBo1);
+        AgentStatBo.Builder.StatBuilder statBuilder1 = builder.newStatBuilder(collectTime1st);
+        statBuilder1.addResponseTime(responseTimeBo1);
 
         ResponseTimeBo responseTimeBo2 = new ResponseTimeBo();
         responseTimeBo2.setAvg(2000);
-        responseTimeBo2.setStartTimestamp(startTimestamp);
-        responseTimeBo2.setAgentId(TEST_AGENT);
-        responseTimeBo2.setTimestamp(collectTime2nd);
-        responseTimeBoList.add(responseTimeBo2);
+        AgentStatBo.Builder.StatBuilder statBuilder2 = builder.newStatBuilder(collectTime2nd);
+        statBuilder2.addResponseTime(responseTimeBo2);
 
-        return responseTimeBoList;
+        return builder.build();
     }
 
     @Test
     public void map6Test() throws Exception {
-        final AgentStatBo agentStatBo = new AgentStatBo();
-        agentStatBo.setStartTimestamp(startTimestamp);
-        agentStatBo.setAgentId(TEST_AGENT);
-        agentStatBo.setFileDescriptorBos(createFileDescriptorBoList());
 
-        List<TFAgentStat> tFAgentStatList = new TFAgentStatMapper().map(agentStatBo);
+        AgentStatBo agentStatBo = createFileDescriptorBoList();
+
+        List<TFAgentStat> tFAgentStatList = newAgentStatMapper().map(agentStatBo);
         assertEquals(3, tFAgentStatList.size());
 
         TFAgentStat tFAgentStat1 = tFAgentStatList.get(0);
@@ -413,41 +403,37 @@ public class TFAgentStatMapperTest {
         assertEquals(8, tFAgentStat3.getFileDescriptor().getOpenFileDescriptorCount(), 0);
     }
 
-    private List<FileDescriptorBo> createFileDescriptorBoList() {
-        final List<FileDescriptorBo> fileDescriptorBoList = new ArrayList<>();
+    private AgentStatBo createFileDescriptorBoList() {
+        final AgentStatBo.Builder builder = newBuilder();
 
         FileDescriptorBo fileDescriptorBo1 = new FileDescriptorBo();
-        fileDescriptorBo1.setAgentId(TEST_AGENT);
-        fileDescriptorBo1.setTimestamp(collectTime1st);
-        fileDescriptorBo1.setStartTimestamp(startTimestamp);
         fileDescriptorBo1.setOpenFileDescriptorCount(4);
-        fileDescriptorBoList.add(fileDescriptorBo1);
+        AgentStatBo.Builder.StatBuilder statBuilder1 = builder.newStatBuilder(collectTime1st);
+        statBuilder1.addFileDescriptor(fileDescriptorBo1);
+
 
         FileDescriptorBo fileDescriptorBo2 = new FileDescriptorBo();
-        fileDescriptorBo2.setAgentId(TEST_AGENT);
-        fileDescriptorBo2.setTimestamp(collectTime2nd);
-        fileDescriptorBo2.setStartTimestamp(startTimestamp);
         fileDescriptorBo2.setOpenFileDescriptorCount(5);
-        fileDescriptorBoList.add(fileDescriptorBo2);
+        AgentStatBo.Builder.StatBuilder statBuilder2 = builder.newStatBuilder(collectTime2nd);
+        statBuilder2.addFileDescriptor(fileDescriptorBo2);
 
         FileDescriptorBo fileDescriptorBo3 = new FileDescriptorBo();
-        fileDescriptorBo3.setAgentId(TEST_AGENT);
-        fileDescriptorBo3.setTimestamp(collectTime3rd);
-        fileDescriptorBo3.setStartTimestamp(startTimestamp);
         fileDescriptorBo3.setOpenFileDescriptorCount(8);
-        fileDescriptorBoList.add(fileDescriptorBo3);
+        AgentStatBo.Builder.StatBuilder statBuilder3 = builder.newStatBuilder(collectTime3rd);
+        statBuilder3.addFileDescriptor(fileDescriptorBo3);
 
-        return fileDescriptorBoList;
+        return builder.build();
+    }
+
+    private AgentStatBo.Builder newBuilder() {
+        return AgentStatBo.newBuilder(TEST_AGENT, startTimestamp);
     }
 
     @Test
     public void map7Test() {
-        final AgentStatBo agentStatBo = new AgentStatBo();
-        agentStatBo.setStartTimestamp(startTimestamp);
-        agentStatBo.setAgentId(TEST_AGENT);
-        agentStatBo.setTotalThreadCountBos(createTotalThreadCountBoList());
+        AgentStatBo agentStatBo = createTotalThreadCountBoList();
 
-        List<TFAgentStat> tFAgentStatList = new TFAgentStatMapper().map(agentStatBo);
+        List<TFAgentStat> tFAgentStatList = newAgentStatMapper().map(agentStatBo);
         assertEquals(3, tFAgentStatList.size());
 
         TFAgentStat tFAgentStat1 = tFAgentStatList.get(0);
@@ -469,41 +455,34 @@ public class TFAgentStatMapperTest {
         assertEquals(8, tFAgentStat3.getTotalThreadCount().getTotalThreadCount(), 0);
     }
 
-    private List<TotalThreadCountBo> createTotalThreadCountBoList() {
-        final List<TotalThreadCountBo> totalThreadCountBoList = new ArrayList<>();
+    private AgentStatBo createTotalThreadCountBoList() {
+        AgentStatBo.Builder builder = newBuilder();
 
         TotalThreadCountBo totalThreadCountBo1 = new TotalThreadCountBo();
         totalThreadCountBo1.setAgentId(TEST_AGENT);
         totalThreadCountBo1.setTimestamp(collectTime1st);
         totalThreadCountBo1.setStartTimestamp(startTimestamp);
         totalThreadCountBo1.setTotalThreadCount(4);
-        totalThreadCountBoList.add(totalThreadCountBo1);
+        AgentStatBo.Builder.StatBuilder statBuilder1 = builder.newStatBuilder(collectTime1st);
+        statBuilder1.addTotalThreadCount(totalThreadCountBo1);
 
         TotalThreadCountBo totalThreadCountBo2 = new TotalThreadCountBo();
-        totalThreadCountBo2.setAgentId(TEST_AGENT);
-        totalThreadCountBo2.setTimestamp(collectTime2nd);
-        totalThreadCountBo2.setStartTimestamp(startTimestamp);
         totalThreadCountBo2.setTotalThreadCount(5);
-        totalThreadCountBoList.add(totalThreadCountBo2);
+        AgentStatBo.Builder.StatBuilder statBuilder2 = builder.newStatBuilder(collectTime2nd);
+        statBuilder2.addTotalThreadCount(totalThreadCountBo2);
 
         TotalThreadCountBo totalThreadCountBo3 = new TotalThreadCountBo();
-        totalThreadCountBo3.setAgentId(TEST_AGENT);
-        totalThreadCountBo3.setTimestamp(collectTime3rd);
-        totalThreadCountBo3.setStartTimestamp(startTimestamp);
         totalThreadCountBo3.setTotalThreadCount(8);
-        totalThreadCountBoList.add(totalThreadCountBo3);
-
-        return totalThreadCountBoList;
+        AgentStatBo.Builder.StatBuilder statBuilder3 = builder.newStatBuilder(collectTime3rd);
+        statBuilder3.addTotalThreadCount(totalThreadCountBo3);
+        return builder.build();
     }
 
     @Test
     public void map8Test() {
-        final AgentStatBo agentStatBo = new AgentStatBo();
-        agentStatBo.setStartTimestamp(startTimestamp);
-        agentStatBo.setAgentId(TEST_AGENT);
-        agentStatBo.setLoadedClassBos(createLoadedClassCountBoList());
+        AgentStatBo agentStatBo = createLoadedClassCountBoList();
 
-        List<TFAgentStat> tFAgentStatList = new TFAgentStatMapper().map(agentStatBo);
+        List<TFAgentStat> tFAgentStatList = newAgentStatMapper().map(agentStatBo);
         assertEquals(3, tFAgentStatList.size());
 
         TFAgentStat tFAgentStat1 = tFAgentStatList.get(0);
@@ -528,33 +507,27 @@ public class TFAgentStatMapperTest {
         assertEquals(6, tFAgentStat3.getLoadedClass().getUnloadedClassCount(), 0);
     }
 
-    private List<LoadedClassBo> createLoadedClassCountBoList() {
-        final List<LoadedClassBo> loadedClassBoList = new ArrayList<>();
+    private AgentStatBo createLoadedClassCountBoList() {
+        AgentStatBo.Builder builder = newBuilder();
 
         LoadedClassBo loadedClassBo1 = new LoadedClassBo();
-        loadedClassBo1.setAgentId(TEST_AGENT);
-        loadedClassBo1.setTimestamp(collectTime1st);
-        loadedClassBo1.setStartTimestamp(startTimestamp);
         loadedClassBo1.setLoadedClassCount(4);
         loadedClassBo1.setUnloadedClassCount(4);
-        loadedClassBoList.add(loadedClassBo1);
+        AgentStatBo.Builder.StatBuilder statBuilder1 = builder.newStatBuilder(collectTime1st);
+        statBuilder1.addLoadedClass(loadedClassBo1);
 
         LoadedClassBo loadedClassBo2 = new LoadedClassBo();
-        loadedClassBo2.setAgentId(TEST_AGENT);
-        loadedClassBo2.setTimestamp(collectTime2nd);
-        loadedClassBo2.setStartTimestamp(startTimestamp);
         loadedClassBo2.setLoadedClassCount(5);
         loadedClassBo2.setUnloadedClassCount(5);
-        loadedClassBoList.add(loadedClassBo2);
+        AgentStatBo.Builder.StatBuilder statBuilder2 = builder.newStatBuilder(collectTime2nd);
+        statBuilder2.addLoadedClass(loadedClassBo2);
 
         LoadedClassBo loadedClassBo3 = new LoadedClassBo();
-        loadedClassBo3.setAgentId(TEST_AGENT);
-        loadedClassBo3.setTimestamp(collectTime3rd);
-        loadedClassBo3.setStartTimestamp(startTimestamp);
         loadedClassBo3.setLoadedClassCount(6);
         loadedClassBo3.setUnloadedClassCount(6);
-        loadedClassBoList.add(loadedClassBo3);
+        AgentStatBo.Builder.StatBuilder statBuilder3 = builder.newStatBuilder(collectTime3rd);
+        statBuilder3.addLoadedClass(loadedClassBo3);
 
-        return loadedClassBoList;
+        return builder.build();
     }
 }

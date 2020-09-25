@@ -63,9 +63,12 @@ public class JoinTotalThreadCountBo implements JoinStatBo {
         this.totalThreadCountJoinValue = totalThreadCountJoinValue;
     }
 
+    public static void apply(JoinApplicationStatBo.Builder builder, List<JoinTotalThreadCountBo> joinTotalThreadCountBoList, Long timestamp) {
+        builder.addTotalThreadCount(joinTotalThreadCountBoList(joinTotalThreadCountBoList, timestamp));
+    }
+
     public static JoinTotalThreadCountBo joinTotalThreadCountBoList(List<JoinTotalThreadCountBo> joinTotalThreadCountBoList, Long timestamp) {
-        final int boCount = joinTotalThreadCountBoList.size();
-        if (boCount == 0) {
+        if (joinTotalThreadCountBoList.isEmpty()) {
             return JoinTotalThreadCountBo.EMPTY_TOTAL_THREAD_COUNT_BO;
         }
 

@@ -14,15 +14,33 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.mapper.thrift.stat;
+package com.navercorp.pinpoint.collector.mapper.flink;
 
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
+import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFTotalThreadCount;
+import org.springframework.stereotype.Component;
 
-public class TFTotalThreadCountMapper {
+import java.util.List;
+
+@Component
+public class TFTotalThreadCountMapper implements FlinkStatMapper<TotalThreadCountBo, TFAgentStat> {
     public TFTotalThreadCount map(TotalThreadCountBo totalThreadCountBo) {
         TFTotalThreadCount tFTotalThreadCount = new TFTotalThreadCount();
         tFTotalThreadCount.setTotalThreadCount(totalThreadCountBo.getTotalThreadCount());
         return tFTotalThreadCount;
+    }
+
+    @Override
+    public void map(TotalThreadCountBo totalThreadCountBo, TFAgentStat tfAgentStat) {
+        tfAgentStat.setTotalThreadCount(map(totalThreadCountBo));
+    }
+
+    @Override
+    public void build(TFAgentStatMapper.TFAgentStatBuilder builder) {
+        AgentStatBo agentStat = builder.getAgentStat();
+        List<TotalThreadCountBo> totalThreadCountList = agentStat.getTotalThreadCountBos();
+        builder.build(totalThreadCountList, this);
     }
 }

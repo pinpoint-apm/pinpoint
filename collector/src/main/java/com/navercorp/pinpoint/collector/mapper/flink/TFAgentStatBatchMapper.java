@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.collector.mapper.thrift.stat;
+package com.navercorp.pinpoint.collector.mapper.flink;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
@@ -22,15 +22,22 @@ import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
+@Component
 public class TFAgentStatBatchMapper {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    public final TFAgentStatMapper tFAgentStatMapper = new TFAgentStatMapper();
+    public final TFAgentStatMapper tFAgentStatMapper;
+
+    public TFAgentStatBatchMapper(TFAgentStatMapper tFAgentStatMapper) {
+        this.tFAgentStatMapper = Objects.requireNonNull(tFAgentStatMapper, "tFAgentStatMapper");
+    }
 
     public TFAgentStatBatch map(AgentStatBo agentStatBo) {
         try {
@@ -48,7 +55,7 @@ public class TFAgentStatBatchMapper {
     private long getStartTimestamp(AgentStatBo agentStatBo) {
         List<CpuLoadBo> cpuLoadBos = agentStatBo.getCpuLoadBos();
 
-        if (CollectionUtils.isEmpty(cpuLoadBos) == false) {
+        if (CollectionUtils.hasLength(cpuLoadBos)) {
             CpuLoadBo cpuLoadBo = cpuLoadBos.get(0);
 
             if (cpuLoadBo != null) {
