@@ -21,8 +21,8 @@ package com.navercorp.pinpoint.grpc.client.interceptor;
  */
 public interface DiscardEventListener<ReqT> {
 
-    void onDiscard(ReqT message);
+    void onDiscard(ReqT message, String cause);
 
-    void onCancel(String message, Throwable cause);
+    void onCancel(String message, Throwable throwable);
 
 }

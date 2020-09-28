@@ -38,20 +38,20 @@ public class LoggingDiscardEventListener<ReqT>  implements DiscardEventListener<
     }
 
     @Override
-    public void onDiscard(ReqT message) {
+    public void onDiscard(ReqT message, String cause) {
         final long beforeDiscardCount = this.discardCounter.getAndIncrement();
         if ((beforeDiscardCount % this.rateLimitCount) == 0) {
-            logDiscardMessage(message, beforeDiscardCount+1);
+            logDiscardMessage(message, cause, beforeDiscardCount+1);
         }
     }
 
-    private void logDiscardMessage(ReqT message, long discardCount) {
-        logger.info("Discard {} message, stream not ready. discardCount:{}", getMessageType(message), discardCount);
+    private void logDiscardMessage(ReqT message, String cause, long discardCount) {
+        logger.info("Discard {} message, {}. discardCount:{}", getMessageType(message), cause, discardCount);
     }
 
     @Override
-    public void onCancel(String message, Throwable cause) {
-        logger.info("Cancel message. message={}, cause={}", message, cause.getMessage(), cause);
+    public void onCancel(String message, Throwable throwable) {
+        logger.info("Cancel message. message={}, cause={}", message, throwable.getMessage(), throwable);
     }
 
     private String getMessageType(ReqT message) {

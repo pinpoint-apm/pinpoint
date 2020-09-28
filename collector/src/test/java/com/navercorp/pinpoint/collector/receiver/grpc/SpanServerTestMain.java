@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerReque
 import com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamExecutorServerInterceptorFactory;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
+import com.navercorp.pinpoint.grpc.server.AgentHeaderReader;
+import com.navercorp.pinpoint.grpc.server.HeaderPropagationInterceptor;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -31,6 +33,7 @@ import io.grpc.ServerServiceDefinition;
 import org.springframework.beans.factory.FactoryBean;
 
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -60,6 +63,10 @@ public class SpanServerTestMain {
         grpcReceiver.setExecutor(Executors.newFixedThreadPool(8));
         grpcReceiver.setEnable(true);
         grpcReceiver.setServerOption(new ServerOption.Builder().build());
+
+        AgentHeaderReader agentHeaderReader = new AgentHeaderReader();
+        HeaderPropagationInterceptor interceptor = new HeaderPropagationInterceptor(agentHeaderReader);
+        grpcReceiver.setServerInterceptorList(Arrays.asList(interceptor));
 
         grpcReceiver.afterPropertiesSet();
 
