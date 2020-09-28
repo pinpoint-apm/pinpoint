@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 class DiscardClientCall<ReqT, RespT> extends ForwardClientCall<ReqT, RespT> {
-
+    private static final State OK = new State(true, "OK");
     private final AtomicBoolean onReadyState = new AtomicBoolean(false);
     private final AtomicLong pendingCounter = new AtomicLong();
     private final long maxPendingThreshold;
@@ -41,28 +41,33 @@ class DiscardClientCall<ReqT, RespT> extends ForwardClientCall<ReqT, RespT> {
 
     @Override
     public void sendMessage(ReqT message) {
-        if (readyState()) {
+        final State state = readyState();
+        if (OK == state) {
             super.sendMessage(message);
         } else {
-            discardMessage(message);
+            discardMessage(message, state.getCause());
         }
     }
 
-    private void discardMessage(ReqT message) {
-        this.listener.onDiscard(message);
-    }
-
-
-    private boolean readyState() {
+    private State readyState() {
         // skip pending queue state : DelayedStream
         if (this.onReadyState.get() == false) {
             final long pendingCount = this.pendingCounter.incrementAndGet();
             if (pendingCount > this.maxPendingThreshold) {
-                return false;
+                final String cause = "maximum pending requests " + pendingCount + "/" + this.maxPendingThreshold;
+                return new State(false, cause);
             }
-            return true;
+            return OK;
         }
-        return isReady();
+
+        if (isReady() == false) {
+            return new State(false, "stream not ready");
+        }
+        return OK;
+    }
+
+    private void discardMessage(ReqT message, String cause) {
+        this.listener.onDiscard(message, cause);
     }
 
     @Override
@@ -79,4 +84,19 @@ class DiscardClientCall<ReqT, RespT> extends ForwardClientCall<ReqT, RespT> {
     public long getPendingCount() {
         return pendingCounter.get();
     }
+
+    private static class State {
+        private final boolean state;
+        private final String cause;
+
+        public State(boolean state, String cause) {
+            this.state = state;
+            this.cause = cause;
+        }
+
+        public String getCause() {
+            return cause;
+        }
+    }
+
 }
