@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Renderer2, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Observable, Subject, of, forkJoin, Subscription } from 'rxjs';
-import { takeUntil, delay } from 'rxjs/operators';
+import { takeUntil, delay, tap } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import {
@@ -101,17 +101,21 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
         this.scatterChartDataService.outRealTimeScatterData$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((scatterData: IScatterData) => {
-            if (scatterData.reset === true) {
-                this.fromX = scatterData.currentServerTime - this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds();
-                this.toX = scatterData.currentServerTime;
-                this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
-                of(1).pipe(delay(1000)).subscribe((useless: number) => {
-                    this.getScatterData();
-                });
-            } else {
-                this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData);
-            }
+            this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData);
         });
+
+        this.scatterChartDataService.onReset$.pipe(
+            takeUntil(this.unsubscribe),
+            tap(() => {
+                this.toX = Date.now();
+                this.fromX = this.toX - this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds();
+                this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
+            }),
+            delay(1000)
+        ).subscribe(() => {
+            this.getScatterData();
+        });
+
         this.scatterChartDataService.outScatterErrorData$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((error: IServerErrorFormat) => {

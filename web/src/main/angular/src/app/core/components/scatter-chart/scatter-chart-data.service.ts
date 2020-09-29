@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of, Subject, ReplaySubject } from 'rxjs';
-import { switchMap, delay, retry, filter } from 'rxjs/operators';
+import { Observable, of, Subject, ReplaySubject, throwError } from 'rxjs';
+import { switchMap, delay, retry, filter, catchError } from 'rxjs/operators';
 
 import { isThatType } from 'app/core/utils/util';
 
@@ -33,17 +33,24 @@ export class ScatterChartDataService {
     private outRealTimeScatterData = new Subject<IScatterData>();
     private outScatterErrorData = new Subject<IServerErrorFormat>();
     private outRealTimeScatterErrorData = new Subject<IServerErrorFormat>();
+    private outReset = new Subject<void>();
+
     outScatterData$: Observable<IScatterData>;
     outScatterErrorData$: Observable<IServerErrorFormat>;
     outRealTimeScatterData$: Observable<IScatterData>;
     outRealTimeScatterErrorData$: Observable<IServerErrorFormat>;
     savedScatterData$: Observable<IScatterData>;
-    constructor(private http: HttpClient) {
+    onReset$: Observable<void>;
+
+    constructor(
+        private http: HttpClient
+    ) {
         this.outScatterData$ = this.outScatterData.asObservable();
         this.outScatterErrorData$ = this.outScatterErrorData.asObservable();
         this.outRealTimeScatterData$ = this.outRealTimeScatterData.asObservable();
         this.outRealTimeScatterErrorData$ = this.outRealTimeScatterErrorData.asObservable();
         this.savedScatterData$ = this.savedScatterData.asObservable();
+        this.onReset$ = this.outReset.asObservable();
         this.connectDataRequest();
     }
     private connectDataRequest(): void {
@@ -51,7 +58,7 @@ export class ScatterChartDataService {
             switchMap((params: IScatterRequest) => {
                 return this.requestHttp(params).pipe(
                     retry(3),
-                    filter((d: IScatterData | AjaxException) => !isThatType<AjaxException>(d, 'exception'))
+                    switchMap((res: IScatterData | IServerErrorFormat) => isThatType(res, 'exception') ? throwError(res) : of(res))
                 );
             })
         ).subscribe((scatterData: IScatterData) => {
@@ -63,12 +70,22 @@ export class ScatterChartDataService {
             filter(() => this.loadStart),
             switchMap((params: IScatterRequest) => {
                 return this.requestHttp(params).pipe(
-                    retry(3)
+                    retry(3),
+                    catchError((error: IServerErrorFormat) => of(error)),
+                    filter((res: IScatterData | IServerErrorFormat) => {
+                        if (isThatType(res, 'exception')) {
+                            this.outReset.next();
+                            return false;
+                        } else {
+                            return true;
+                        }
+                    })
                 );
             }),
         ).subscribe((scatterData: IScatterData) => {
             this.subscribeRealTimeRequest(scatterData);
         }, (error: IServerErrorFormat) => {
+            // this.outScatterErrorData.next(error);
         });
     }
     private requestHttp(params: IScatterRequest): Observable<IScatterData> {
@@ -170,8 +187,7 @@ export class ScatterChartDataService {
             delayTime = 0;
         }
         if (scatterData.currentServerTime - toNext >= this.realtime.resetTimeGap) {
-            scatterData.reset = true;
-            this.outRealTimeScatterData.next(scatterData);
+            this.outReset.next();
         } else {
             this.outRealTimeScatterData.next(scatterData);
             of(1).pipe(delay(delayTime)).subscribe((useless: number) => {
