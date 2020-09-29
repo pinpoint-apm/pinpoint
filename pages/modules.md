@@ -75,6 +75,8 @@
 | ActiveMQ                                                                                   | activemq-all               | 5.1.0   | 5.16.0  |                        | <AG> 
 | [RxJAVA](https://github.com/naver/pinpoint/tree/master/plugins/rxjava)                     | rxjava                     | 1.0.0   | 1.3.8   |                        | <AG> 
 | [RabbitMQ](https://github.com/naver/pinpoint/tree/master/plugins/rabbitmq)                 | amqp-client                | 2.7.0   | 5.9.0   |                        | <AG> 
+| [Paho MQTT](https://github.com/naver/pinpoint/tree/master/plugins/paho-mqtt)               | org.eclipse.paho.client.mqttv3 | 1.0.2   | 1.2.5   |                        | <AG>
+| [Paho MQTT](https://github.com/naver/pinpoint/tree/master/plugins/paho-mqtt)               | org.eclipse.paho.mqttv5.client | 1.2.5   | 1.2.5   |                        | <AG>
 |                                                                                            |                            |         |         |                        |
 | Gson                                                                                       | gson                       | 1.1     | 2.8.3   |                        | <AG>
 | Json                                                                                       | json-lib                   | 1.0     | 2.2.2   |                        | <AG>
