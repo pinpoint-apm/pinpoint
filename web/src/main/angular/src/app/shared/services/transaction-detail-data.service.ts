@@ -1,64 +1,45 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-
-import { Observable, Subject } from 'rxjs';
-import { tap, shareReplay } from 'rxjs/operators';
-
-export interface ITransactionDetailPartInfo {
-    completeState: string;
-    logPageUrl: string;
-    logButtonName: string;
-    logLinkEnable: boolean;
-    disableButtonMessage: string;
-    loggingTransactionInfo: boolean;
-}
+import { Observable } from 'rxjs';
+import { shareReplay } from 'rxjs/operators';
 
 @Injectable()
 export class TransactionDetailDataService {
     private requestURL = 'transactionInfo.pinpoint';
-    private partInfo: Subject<any> = new Subject();
-    private lastKey: string;
-    cachedData: { [key: string]: Observable<ITransactionDetailData> } = {};
-    partInfo$: Observable<any>;
-
     private requestTimelineURL = 'transactionTimelineInfo.pinpoint';
+    private lastKey: string;
     private lastTimelineKey: string;
-    cachedTimelineData: { [key: string]: Observable<ITransactionTimelineData> } = {};
+
+    cachedData: {[key: string]: Observable<ITransactionDetailData>} = {};
+    cachedTimelineData: {[key: string]: Observable<ITransactionTimelineData>} = {};
 
     constructor(
         private http: HttpClient
-    ) {
-        this.partInfo$ = this.partInfo.asObservable();
-    }
+    ) {}
+
     getData(agentId: string, spanId: string, traceId: string, focusTimestamp: number): Observable<ITransactionDetailData> {
         this.lastKey = agentId + spanId + traceId + focusTimestamp;
-        if ( this.hasData() ) {
+
+        if (this.hasData()) {
             return this.cachedData[this.lastKey];
         } else {
             const httpRequest$ = this.http.get<ITransactionDetailData>(this.requestURL, this.makeRequestOptionsArgs(agentId, spanId, traceId, focusTimestamp));
+
             this.cachedData[this.lastKey] = httpRequest$.pipe(
-                tap((transactionInfo: any) => {
-                    this.partInfo.next({
-                        logButtonName: transactionInfo.logButtonName,
-                        logLinkEnable: transactionInfo.logLinkEnable,
-                        logPageUrl: transactionInfo.logPageUrl,
-                        loggingTransactionInfo: transactionInfo.loggingTransactionInfo,
-                        disableButtonMessage: transactionInfo.disableButtonMessage,
-                        completeState: transactionInfo.completeState,
-                    });
-                }),
                 shareReplay(3)
             );
+
             return this.cachedData[this.lastKey];
         }
     }
+
     private hasData(): boolean {
         return !!this.cachedData[this.lastKey];
     }
 
     getTimelineData(agentId: string, spanId: string, traceId: string, focusTimestamp: number): Observable<ITransactionTimelineData> {
         this.lastTimelineKey = agentId + spanId + traceId + focusTimestamp;
-        if ( this.hasTimelineData() ) {
+        if (this.hasTimelineData()) {
             return this.cachedTimelineData[this.lastTimelineKey];
         } else {
             const httpRequest$ = this.http.get<ITransactionTimelineData>(this.requestTimelineURL, this.makeRequestOptionsArgs(agentId, spanId, traceId, focusTimestamp));
