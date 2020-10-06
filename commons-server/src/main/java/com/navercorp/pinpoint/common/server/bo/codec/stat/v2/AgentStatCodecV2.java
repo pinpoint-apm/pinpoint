@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHead
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
-import org.apache.commons.collections.CollectionUtils;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class AgentStatCodecV2<T extends AgentStatDataPoint> implements AgentStat
 
     @Override
     public void encodeValues(Buffer valueBuffer, List<T> statDataPointList) {
-        Assert.isTrue(!CollectionUtils.isEmpty(statDataPointList), "statDataPointList must not be empty");
+        Assert.isTrue(CollectionUtils.hasLength(statDataPointList), "statDataPointList must not be empty");
 
         final int numValues = statDataPointList.size();
         valueBuffer.putVInt(numValues);

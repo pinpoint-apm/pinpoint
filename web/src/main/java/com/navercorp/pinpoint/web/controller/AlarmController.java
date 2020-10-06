@@ -99,7 +99,7 @@ public class AlarmController {
             return result;
         }
         
-        if (!StringUtils.isEmpty(userGroupId)) {
+        if (StringUtils.hasLength(userGroupId)) {
             return alarmService.selectRuleByUserGroupId(userGroupId);
         }
         

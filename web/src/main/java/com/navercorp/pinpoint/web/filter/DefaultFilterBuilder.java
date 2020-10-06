@@ -28,7 +28,6 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -36,6 +35,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 /**
  *
@@ -87,7 +87,7 @@ public class DefaultFilterBuilder implements FilterBuilder<List<SpanBo>> {
         logger.debug("build filter from string. {}", filterText);
 
 
-        if (!StringUtils.isEmpty(filterHint)) {
+        if (StringUtils.hasLength(filterHint)) {
             filterHint = decode(filterHint);
         } else {
             filterHint = FilterHint.EMPTY_JSON;

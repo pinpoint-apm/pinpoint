@@ -333,12 +333,12 @@ public class MapController {
         dateLimit.limit(range);
 
         Application fromApplication = null;
-        if (!StringUtils.isEmpty(fromApplicationName)) {
+        if (StringUtils.hasLength(fromApplicationName)) {
             fromApplication = applicationFactory.createApplication(fromApplicationName, fromServiceTypeCode);
         }
 
         Application toApplication = null;
-        if (!StringUtils.isEmpty(toApplicationName)) {
+        if (StringUtils.hasLength(toApplicationName)) {
             toApplication = applicationFactory.createApplication(toApplicationName, toServiceTypeCode);
         }
 

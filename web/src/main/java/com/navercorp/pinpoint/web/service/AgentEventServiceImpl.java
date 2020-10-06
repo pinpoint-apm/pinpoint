@@ -107,7 +107,7 @@ public class AgentEventServiceImpl implements AgentEventService {
             if (agentEventBo.getEventType().isCategorizedAs(AgentEventTypeCategory.DURATIONAL)) {
                 durationalAgentEvents.add(createDurationalAgentEvent(agentEventBo, false));
             } else {
-                boolean hasMessage = !ArrayUtils.isEmpty(agentEventBo.getEventBody());
+                boolean hasMessage = ArrayUtils.hasLength(agentEventBo.getEventBody());
                 agentEvents.add(createAgentEvent(agentEventBo, hasMessage));
             }
         }

@@ -231,7 +231,7 @@ public class RabbitMQConsumerDispatchInterceptor implements AroundInterceptor {
         }
         recorder.recordAttribute(RabbitMQClientConstants.RABBITMQ_ROUTINGKEY_ANNOTATION_KEY, envelope.getRoutingKey());
 
-        if (!MapUtils.isEmpty(headers)) {
+        if (MapUtils.hasLength(headers)) {
             Object parentApplicationName = headers.get(RabbitMQClientConstants.META_PARENT_APPLICATION_NAME);
             if (!recorder.isRoot() && parentApplicationName != null) {
                 Object parentApplicationType = headers.get(RabbitMQClientConstants.META_PARENT_APPLICATION_TYPE);

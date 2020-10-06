@@ -17,20 +17,14 @@
 package com.navercorp.pinpoint.plugin.log4j2;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.plugin.log4j2.interceptor.LogEventFactoryInterceptor;
-import org.apache.logging.log4j.ThreadContext;
-import org.junit.Assert;
 import org.junit.Test;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * @author https://github.com/licoco/pinpoint
