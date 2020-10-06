@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 
@@ -113,7 +113,7 @@ public class GithubAgentDownloadInfo extends AgentDownloadInfo {
                 }
 
                 String download = downloadNode.asText();
-                if (!StringUtils.isEmpty(download)) {
+                if (StringUtils.hasLength(download)) {
                     return download;
                 }
             }

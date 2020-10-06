@@ -89,9 +89,9 @@ public class UserGroupController {
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     public List<UserGroup> getUserGroup(@RequestParam(value = USER_ID, required = false) String userId, @RequestParam(value = USER_GROUP_ID, required = false) String userGroupId) {
-        if (!StringUtils.isEmpty(userId)) {
+        if (StringUtils.hasLength(userId)) {
             return userGroupService.selectUserGroupByUserId(userId);
-        } else if (!StringUtils.isEmpty(userGroupId)) {
+        } else if (StringUtils.hasLength(userGroupId)) {
             return userGroupService.selectUserGroupByUserGroupId(userGroupId);
         }
         return userGroupService.selectUserGroup();

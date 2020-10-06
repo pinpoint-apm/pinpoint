@@ -26,11 +26,11 @@ import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
 import com.navercorp.pinpoint.web.vo.Range;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.BinaryComparator;
@@ -87,7 +87,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
         scan.setStopRow(createRowKey(agentId, range.getFrom()));
         scan.addFamily(descriptor.getColumnFamilyName());
 
-        if (!CollectionUtils.isEmpty(excludeEventTypes)) {
+        if (CollectionUtils.hasLength(excludeEventTypes)) {
             FilterList filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL);
             for (AgentEventType excludeEventType : excludeEventTypes) {
                 byte[] excludeQualifier = Bytes.toBytes(excludeEventType.getCode());

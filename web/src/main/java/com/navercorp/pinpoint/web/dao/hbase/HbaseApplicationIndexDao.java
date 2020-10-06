@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.web.vo.Application;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
@@ -34,6 +33,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -127,7 +127,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
             }
             Delete delete = new Delete(Bytes.toBytes(applicationName));
             for (String agentId : agentIds) {
-                if (!StringUtils.isEmpty(agentId)) {
+                if (StringUtils.hasLength(agentId)) {
                     delete.addColumns(descriptor.getColumnFamilyName(), Bytes.toBytes(agentId));
                 }
             }

@@ -67,7 +67,7 @@ public class MqttClientConstructorInterceptor implements AroundInterceptor {
             return UNKNOWN;
         }
 
-        if (args[0] instanceof String && !StringUtils.isEmpty((String)args[0])) {
+        if (args[0] instanceof String && StringUtils.hasLength((String)args[0])) {
             return (String) args[0];
         }
 

@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -33,8 +32,8 @@ public class Log4j2ConfigTest {
     public void testLog4j2Config() {
         ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
         Log4j2Config log4j2Config = new Log4j2Config(profilerConfig);
-        Assert.assertTrue(!StringUtils.isEmpty(log4j2Config.toString()));
-        Assert.assertTrue(!log4j2Config.isLog4j2LoggingTransactionInfo());
+        Assert.assertTrue(StringUtils.hasLength(log4j2Config.toString()));
+        Assert.assertFalse(log4j2Config.isLog4j2LoggingTransactionInfo());
     }
 
 }

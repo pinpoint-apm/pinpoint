@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -84,7 +84,7 @@ public class AdminServiceImpl implements AdminService {
             List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
             Collections.sort(agentIds);
             List<String> inactiveAgentIds = filterInactiveAgents(agentIds, durationDays);
-            if (!CollectionUtils.isEmpty(inactiveAgentIds)) {
+            if (CollectionUtils.hasLength(inactiveAgentIds)) {
                 inactiveAgentMap.put(applicationName, inactiveAgentIds);
             }
         }

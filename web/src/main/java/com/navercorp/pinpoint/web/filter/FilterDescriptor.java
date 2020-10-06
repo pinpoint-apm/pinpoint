@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.navercorp.pinpoint.common.Charsets;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -100,7 +100,7 @@ public class FilterDescriptor {
         }
 
         public boolean isValid() {
-            return !StringUtils.isEmpty(applicationName) && !StringUtils.isEmpty(serviceType);
+            return StringUtils.hasLength(applicationName) && StringUtils.hasLength(serviceType);
         }
 
         @Override
@@ -178,7 +178,7 @@ public class FilterDescriptor {
 
 
         public boolean isValid() {
-            return !((fromResponseTime == null && !StringUtils.isEmpty(toResponseTime)) || (fromResponseTime != null && StringUtils.isEmpty(toResponseTime)));
+            return !((fromResponseTime == null && StringUtils.hasLength(toResponseTime)) || (fromResponseTime != null && StringUtils.isEmpty(toResponseTime)));
         }
 
         @Override

@@ -101,7 +101,7 @@ public final class ThreadDumpUtils {
 
         // set Locks
         List<String> lockedSynchronizers = threadDump.getLockedSynchronizers();
-        if (!CollectionUtils.isEmpty(lockedSynchronizers)) {
+        if (CollectionUtils.hasLength(lockedSynchronizers)) {
             message.append(LINE_SEPARATOR + TAB_SEPARATOR + "Number of locked synchronizers = ").append(lockedSynchronizers.size());
             message.append(LINE_SEPARATOR);
             for (String lockedSynchronizer : lockedSynchronizers) {
