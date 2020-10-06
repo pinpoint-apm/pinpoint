@@ -8,7 +8,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 export class TransactionDetailMenuComponent implements OnInit {
     @Input() activeTabKey: string;
-    @Input() partInfo: any;
+    @Input() transactionDetailInfo: ITransactionDetailData;
     @Output() outSelectViewType = new EventEmitter<string>();
     @Output() outOpenDetailView = new EventEmitter<void>();
     @Output() outOpenExtraView = new EventEmitter<any>();
@@ -48,25 +48,25 @@ export class TransactionDetailMenuComponent implements OnInit {
     }
 
     hasLogView(): boolean {
-        return this.partInfo && this.partInfo.logLinkEnable;
+        return this.transactionDetailInfo && this.transactionDetailInfo.logLinkEnable;
     }
 
     openLogView(): void {
-        this.partInfo.loggingTransactionInfo === true
-            ? this.outOpenExtraView.next({open: true, url: this.partInfo.logPageUrl})
-            : this.outOpenExtraView.next({open: false, message: this.partInfo.disableButtonMessage});
+        this.transactionDetailInfo.loggingTransactionInfo === true
+            ? this.outOpenExtraView.next({open: true, url: this.transactionDetailInfo.logPageUrl})
+            : this.outOpenExtraView.next({open: false, message: this.transactionDetailInfo.disableButtonMessage});
     }
 
     hasInfo(): boolean {
-        return this.partInfo && this.partInfo.loggingTransactionInfo;
+        return this.transactionDetailInfo && this.transactionDetailInfo.loggingTransactionInfo;
     }
 
     getStateClass(): string {
-        return this.partInfo ? `l-transaction-${this.partInfo.completeState.toLowerCase()}` : '';
+        return this.transactionDetailInfo ? `l-transaction-${this.transactionDetailInfo.completeState.toLowerCase()}` : '';
     }
 
     hasState(): boolean {
-        return !!this.partInfo;
+        return !!this.transactionDetailInfo;
     }
 
     getLogIcon(): string {

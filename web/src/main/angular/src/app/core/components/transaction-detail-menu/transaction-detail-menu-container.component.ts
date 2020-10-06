@@ -1,12 +1,10 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 
 import {
     StoreHelperService,
     UrlRouteManagerService,
-    TransactionDetailDataService,
-    ITransactionDetailPartInfo,
     AnalyticsService,
     TRACKED_EVENT_LIST,
     DynamicPopupService,
@@ -27,12 +25,11 @@ export class TransactionDetailMenuContainerComponent implements OnInit, OnDestro
     private transactionInfo: ITransactionMetaData;
 
     activeTabKey: string;
-    partInfo: ITransactionDetailPartInfo;
+    transactionDetailInfo: ITransactionDetailData;
 
     constructor(
         private storeHelperService: StoreHelperService,
         private urlRouteManagerService: UrlRouteManagerService,
-        private transactionDetailDataService: TransactionDetailDataService,
         private analyticsService: AnalyticsService,
         private dynamicPopupService: DynamicPopupService,
         private componentFactoryResolver: ComponentFactoryResolver,
@@ -41,18 +38,6 @@ export class TransactionDetailMenuContainerComponent implements OnInit, OnDestro
     ) {}
 
     ngOnInit() {
-        this.storeHelperService.getTransactionViewType(this.unsubscribe).subscribe((viewType: string) => {
-            this.activeTabKey = viewType;
-            this.cd.detectChanges();
-        });
-
-        this.transactionDetailDataService.partInfo$.pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((partInfo: ITransactionDetailPartInfo) => {
-            this.partInfo = partInfo;
-            this.cd.detectChanges();
-        });
-
         this.connectStore();
     }
 
@@ -62,11 +47,21 @@ export class TransactionDetailMenuContainerComponent implements OnInit, OnDestro
     }
 
     private connectStore(): void {
+        this.storeHelperService.getTransactionViewType(this.unsubscribe).subscribe((viewType: string) => {
+            this.activeTabKey = viewType;
+            this.cd.detectChanges();
+        });
+
         this.storeHelperService.getTransactionData(this.unsubscribe).pipe(
             filter((data: ITransactionMetaData) => !!data),
             filter(({application, agentId, traceId}: ITransactionMetaData) => !!application && !!agentId && !!traceId)
         ).subscribe((transactionInfo: ITransactionMetaData) => {
             this.transactionInfo = transactionInfo;
+            this.cd.detectChanges();
+        });
+
+        this.storeHelperService.getTransactionDetailData(this.unsubscribe).subscribe((transactionDetailInfo: ITransactionDetailData) => {
+            this.transactionDetailInfo = transactionDetailInfo;
             this.cd.detectChanges();
         });
     }
@@ -97,7 +92,7 @@ export class TransactionDetailMenuContainerComponent implements OnInit, OnDestro
             this.dynamicPopupService.openPopup({
                 data: {
                     title: 'Notice',
-                    contents: this.partInfo.disableButtonMessage
+                    contents: this.transactionDetailInfo.disableButtonMessage
                 },
                 component: MessagePopupContainerComponent
             }, {

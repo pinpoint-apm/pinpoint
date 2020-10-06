@@ -4,8 +4,6 @@ import { Subject } from 'rxjs';
 import {
     NewUrlStateNotificationService,
     UrlRouteManagerService,
-    TransactionDetailDataService,
-    ITransactionDetailPartInfo,
     AnalyticsService,
     TRACKED_EVENT_LIST,
     DynamicPopupService,
@@ -25,13 +23,12 @@ export class TransactionDetailMenuForDetailContainerComponent implements OnInit 
     private unsubscribe = new Subject<void>();
 
     activeTabKey: string;
-    partInfo: ITransactionDetailPartInfo;
+    transactionDetailInfo: ITransactionDetailData;
 
     constructor(
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private storeHelperService: StoreHelperService,
         private urlRouteManagerService: UrlRouteManagerService,
-        private transactionDetailDataService: TransactionDetailDataService,
         private analyticsService: AnalyticsService,
         private dynamicPopupService: DynamicPopupService,
         private componentFactoryResolver: ComponentFactoryResolver,
@@ -43,8 +40,8 @@ export class TransactionDetailMenuForDetailContainerComponent implements OnInit 
             this.activeTabKey = viewType;
         });
 
-        this.transactionDetailDataService.partInfo$.subscribe((partInfo: ITransactionDetailPartInfo) => {
-            this.partInfo = partInfo;
+        this.storeHelperService.getTransactionDetailData(this.unsubscribe).subscribe((transactionDetailInfo: ITransactionDetailData) => {
+            this.transactionDetailInfo = transactionDetailInfo;
         });
     }
 
@@ -74,7 +71,7 @@ export class TransactionDetailMenuForDetailContainerComponent implements OnInit 
             this.dynamicPopupService.openPopup({
                 data: {
                     title: 'Notice',
-                    contents: this.partInfo.disableButtonMessage
+                    contents: this.transactionDetailInfo.disableButtonMessage
                 },
                 component: MessagePopupContainerComponent
             }, {
