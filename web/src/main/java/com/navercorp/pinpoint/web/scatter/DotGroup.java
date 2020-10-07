@@ -27,12 +27,21 @@ import java.util.Objects;
 public class DotGroup {
 
     private final Coordinates coordinates;
-    private final List<Dot> dotList = new ArrayList<>();
+    private final List<Dot> dotList;
 
     private Dot dotLeader;
 
     public DotGroup(Coordinates coordinates) {
         this.coordinates = Objects.requireNonNull(coordinates, "coordinates");
+        this.dotList = new ArrayList<>();
+    }
+
+
+    public DotGroup(DotGroup dotGroup) {
+        Objects.requireNonNull(dotGroup, "dotGroup");
+        this.coordinates = dotGroup.coordinates;
+        this.dotList = new ArrayList<>(dotGroup.dotList);
+        this.dotLeader = dotGroup.dotLeader;
     }
 
     public Coordinates getCoordinates() {

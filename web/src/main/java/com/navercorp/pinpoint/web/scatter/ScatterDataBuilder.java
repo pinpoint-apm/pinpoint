@@ -15,21 +15,16 @@
 
 package com.navercorp.pinpoint.web.scatter;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.web.view.ScatterDataSerializer;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.DotAgentInfo;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Taejin Koo
  */
-@JsonSerialize(using = ScatterDataSerializer.class)
 public class ScatterDataBuilder {
 
     private final long from;
@@ -37,8 +32,8 @@ public class ScatterDataBuilder {
     private final int xGroupUnitMillis;
     private final int yGroupUnitMillis;
 
-    private final ScatterAgentMetadataRepository scatterAgentMetadataRepository = new ScatterAgentMetadataRepository();
-    private final Map<Long, DotGroups> scatterData = new HashMap<>();
+    private ScatterAgentMetadataRepository scatterAgentMetadataRepository = new ScatterAgentMetadataRepository();
+    private Map<Long, DotGroups> scatterData = new HashMap<>();
 
     private long oldestAcceptedTime = Long.MAX_VALUE;
     private long latestAcceptedTime = Long.MIN_VALUE;
@@ -103,12 +98,14 @@ public class ScatterDataBuilder {
         final Map<Long, DotGroups> scatterDataMap = scatterData.getScatterDataMap();
         for (Map.Entry<Long, DotGroups> entry : scatterDataMap.entrySet()) {
             final Long key = entry.getKey();
+            final DotGroups value = entry.getValue();
 
-            final DotGroups dotGroups = this.scatterData.get(key);
+            DotGroups dotGroups = this.scatterData.get(key);
             if (dotGroups == null) {
-                this.scatterData.put(key, entry.getValue());
+                dotGroups = new DotGroups(value);
+                this.scatterData.put(key, dotGroups);
             } else {
-                dotGroups.merge(entry.getValue());
+                dotGroups.merge(value);
             }
         }
 
@@ -128,9 +125,12 @@ public class ScatterDataBuilder {
     }
 
     public ScatterData build() {
-        Map<Long, DotGroups> copyScatterData = new HashMap<>(this.scatterData);
-        Set<DotAgentInfo> dotAgentInfoSet = new HashSet<>(this.scatterAgentMetadataRepository.getDotAgentInfoSet());
-        ScatterAgentMetadataRepository copyRepo = new ScatterAgentMetadataRepository(dotAgentInfoSet);
+        Map<Long, DotGroups> copyScatterData = this.scatterData;
+        this.scatterData = new HashMap<>();
+
+        ScatterAgentMetadataRepository copyRepo = new ScatterAgentMetadataRepository(this.scatterAgentMetadataRepository.getDotAgentInfoSet());
+        this.scatterAgentMetadataRepository = new ScatterAgentMetadataRepository();
+
         return new ScatterData(from, to, this.oldestAcceptedTime, this.latestAcceptedTime, copyScatterData, copyRepo);
     }
 
