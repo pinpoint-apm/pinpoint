@@ -34,10 +34,27 @@ public class DotGroups {
     private static final Comparator<Dot> DOT_COMPARATOR = Comparator.comparingLong(Dot::getAcceptedTime);
 
     private final long xCoordinates;
-    private final Map<Key, DotGroup> dotGroupMap = new HashMap<>();
+    private final Map<Key, DotGroup> dotGroupMap;
 
     public DotGroups(long xCoordinates) {
         this.xCoordinates = xCoordinates;
+         this.dotGroupMap = new HashMap<>();
+    }
+
+    public DotGroups(DotGroups dotGroups) {
+        Objects.requireNonNull(dotGroups, "dotGroups");
+        this.xCoordinates = dotGroups.xCoordinates;
+        this.dotGroupMap = copy(dotGroups.dotGroupMap);
+    }
+
+    private Map<Key, DotGroup> copy(Map<Key, DotGroup> dotGroupMap) {
+        final Map<Key, DotGroup> copy = new HashMap<>(dotGroupMap.size());
+        for (Map.Entry<Key, DotGroup> entry : dotGroupMap.entrySet()) {
+            final Key key = entry.getKey();
+            final DotGroup dotGroup = entry.getValue();
+            copy.put(key, new DotGroup(dotGroup));
+        }
+        return copy;
     }
 
     void addDot(Coordinates coordinates, Dot dot) {
@@ -62,13 +79,15 @@ public class DotGroups {
 
         Map<Key, DotGroup> dotGroupMap = dotGroups.getDotGroupMap();
         for (Map.Entry<Key, DotGroup> entry : dotGroupMap.entrySet()) {
-            Key key = entry.getKey();
+            final Key key = entry.getKey();
+            final DotGroup value = entry.getValue();
 
-            final DotGroup dotGroup = this.dotGroupMap.get(key);
+            DotGroup dotGroup = this.dotGroupMap.get(key);
             if (dotGroup == null) {
-                this.dotGroupMap.put(key, entry.getValue());
+                dotGroup = new DotGroup(value);
+                this.dotGroupMap.put(key, dotGroup);
             } else {
-                dotGroup.merge(entry.getValue());
+                dotGroup.merge(value);
             }
         }
     }
