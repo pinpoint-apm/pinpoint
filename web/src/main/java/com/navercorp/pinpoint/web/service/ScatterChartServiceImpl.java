@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
+import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
@@ -98,8 +99,11 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     public ScatterData selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
+        LimitedScanResult<List<Dot>> scanResult = applicationTraceIndexDao.scanTraceScatterData(applicationName, range, limit, backwardDirection);
 
-        return applicationTraceIndexDao.scanTraceScatterData(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
+        ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
+        builder.addDot(scanResult.getScanData());
+        return builder.build();
     }
 
     @Override

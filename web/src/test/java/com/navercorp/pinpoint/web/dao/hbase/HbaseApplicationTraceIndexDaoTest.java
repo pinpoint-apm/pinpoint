@@ -19,9 +19,8 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.*;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
-import com.navercorp.pinpoint.web.scatter.DotGroups;
-import com.navercorp.pinpoint.web.scatter.ScatterAgentMetadataRepository;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
+import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -109,7 +108,7 @@ public class HbaseApplicationTraceIndexDaoTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void scanTraceScatterDataExceptionTest() {
-        this.applicationTraceIndexDao.scanTraceScatterData("app", Range.newRange(1000L, 5000L), 1, 5, -10, false);
+        this.applicationTraceIndexDao.scanTraceScatterData("app", Range.newRange(1000L, 5000L), -10, false);
     }
 
     @Test
@@ -117,8 +116,13 @@ public class HbaseApplicationTraceIndexDaoTest {
         List<ScatterData> scannedList = new ArrayList<>();
         when(this.hbaseOperations2.findParallel(any(TableName.class), any(Scan.class), any(AbstractRowKeyDistributor.class),
                 anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(scannedList);
-        ScatterData result = this.applicationTraceIndexDao.scanTraceScatterData("app", Range.newRange(1000L, 5000L),
-                                                                                1, 5, 10, false);
+        Range range = Range.newRange(1000L, 5000L);
+        LimitedScanResult<List<Dot>> scanResult
+                = this.applicationTraceIndexDao.scanTraceScatterData("app", range,10, false);
+        ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), 1, 5);
+        scanResult.getScanData().forEach(builder::addDot);
+        ScatterData result = builder.build();
+
         Assert.assertEquals(1000L, result.getFrom());
         Assert.assertEquals(5000L, result.getTo());
         Assert.assertEquals(0, result.getScatterData().size());
@@ -126,16 +130,34 @@ public class HbaseApplicationTraceIndexDaoTest {
 
     @Test
     public void scanTraceScatterDataTest() {
-        List<ScatterData> scannedList = createScatterDataList();
+        List<List<Dot>> scatterDotList = createScatterDotList();
         when(this.hbaseOperations2.findParallel(any(TableName.class), any(Scan.class), any(AbstractRowKeyDistributor.class),
-                anyInt(), any(RowMapper.class), anyInt())).thenReturn(scannedList);
-        ScatterData result = this.applicationTraceIndexDao.scanTraceScatterData("app", Range.newRange(1000L, 5000L),
-                1, 5, 10, false);
-        Assert.assertEquals(1005L, result.getFrom());
-        Assert.assertEquals(3000L, result.getTo());
+                anyInt(), any(RowMapper.class), anyInt())).thenReturn(scatterDotList);
+        Range range = Range.newRange(1000L, 5000L);
+        LimitedScanResult<List<Dot>> scanResult
+                = this.applicationTraceIndexDao.scanTraceScatterData("app", range,10, false);
+        ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), 1, 5);
+        scanResult.getScanData().forEach(builder::addDot);
+        ScatterData result = builder.build();
+        Assert.assertEquals(1000L, result.getFrom());
+        Assert.assertEquals(5000L, result.getTo());
         Assert.assertEquals(2000L, result.getOldestAcceptedTime());
-        Assert.assertEquals(2020L, result.getLatestAcceptedTime());
+        Assert.assertEquals(3000L, result.getLatestAcceptedTime());
     }
+
+    private List<List<Dot>> createScatterDotList() {
+        List<List<Dot>> ret = new ArrayList<>();
+        TransactionId transactionId = new TransactionId("A", 1, 1);
+        addDot(ret, new Dot(transactionId, 2000L, 1000, 0, "a1"));
+        addDot(ret, new Dot(transactionId, 3000L, 5000, 0, "a2"));
+        addDot(ret, new Dot(transactionId, 2400L, 3000, 0, "a3"));
+        return ret;
+    }
+
+    private void addDot(List<List<Dot>> list, Dot dot) {
+        list.add(Collections.singletonList(dot));
+    }
+
 
     private List<List<TransactionId>> createTraceIndexList() {
         List<List<TransactionId>> ret = new ArrayList<>();
@@ -148,13 +170,4 @@ public class HbaseApplicationTraceIndexDaoTest {
         return ret;
     }
 
-    private List<ScatterData> createScatterDataList() {
-        List<ScatterData> ret = new ArrayList<ScatterData>();
-        Map<Long, DotGroups> scatterData = new HashMap<Long, DotGroups>();
-        ScatterAgentMetadataRepository repository = new ScatterAgentMetadataRepository();
-        ret.add(new ScatterData(1005L, 3000L, 2000L, 1010L, scatterData, repository));
-        ret.add(new ScatterData(1000L, 3005L, 3000L, 1001L, scatterData, repository));
-        ret.add(new ScatterData(2000L, 2500L, 2400L, 2020L, scatterData, repository));
-        return ret;
-    }
 }

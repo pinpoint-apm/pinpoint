@@ -119,27 +119,6 @@ public class ScatterDataTest {
         Assert.assertEquals(2, dots.size());
     }
 
-    @Test
-    public void mergeTest() throws Exception {
-        int count = 100;
-
-        long from = 1000;
-        long to = 10000;
-        int xGroupUnit = 100;
-        int yGroupUnit = 100;
-
-        ScatterDataBuilder builder = new ScatterDataBuilder(from, to, xGroupUnit, yGroupUnit);
-        List<Dot> dotList = createDotList(agentId, transactionAgentId, count, from);
-        for (Dot dot : dotList) {
-            ScatterDataBuilder newScatterDataBuilder = new ScatterDataBuilder(from, to, xGroupUnit, yGroupUnit);
-            newScatterDataBuilder.addDot(dot);
-            builder.merge(newScatterDataBuilder.build());
-        }
-
-        List<Dot> dots = extractDotList(builder.build());
-        Assert.assertEquals(count, dots.size());
-    }
-
     private List<Dot> createDotList(String agentId, String transactionAgentId, int createSize, long from) {
         long currentTime = System.currentTimeMillis();
 

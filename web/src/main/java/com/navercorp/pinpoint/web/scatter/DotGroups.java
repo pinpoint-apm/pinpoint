@@ -38,24 +38,9 @@ public class DotGroups {
 
     public DotGroups(long xCoordinates) {
         this.xCoordinates = xCoordinates;
-         this.dotGroupMap = new HashMap<>();
+        this.dotGroupMap = new HashMap<>();
     }
 
-    public DotGroups(DotGroups dotGroups) {
-        Objects.requireNonNull(dotGroups, "dotGroups");
-        this.xCoordinates = dotGroups.xCoordinates;
-        this.dotGroupMap = copy(dotGroups.dotGroupMap);
-    }
-
-    private Map<Key, DotGroup> copy(Map<Key, DotGroup> dotGroupMap) {
-        final Map<Key, DotGroup> copy = new HashMap<>(dotGroupMap.size());
-        for (Map.Entry<Key, DotGroup> entry : dotGroupMap.entrySet()) {
-            final Key key = entry.getKey();
-            final DotGroup dotGroup = entry.getValue();
-            copy.put(key, new DotGroup(dotGroup));
-        }
-        return copy;
-    }
 
     void addDot(Coordinates coordinates, Dot dot) {
         Objects.requireNonNull(coordinates, "coordinates");
@@ -72,25 +57,6 @@ public class DotGroups {
         dotGroup.addDot(dot);
     }
 
-    void merge(DotGroups dotGroups) {
-        if (dotGroups == null) {
-            return;
-        }
-
-        Map<Key, DotGroup> dotGroupMap = dotGroups.getDotGroupMap();
-        for (Map.Entry<Key, DotGroup> entry : dotGroupMap.entrySet()) {
-            final Key key = entry.getKey();
-            final DotGroup value = entry.getValue();
-
-            DotGroup dotGroup = this.dotGroupMap.get(key);
-            if (dotGroup == null) {
-                dotGroup = new DotGroup(value);
-                this.dotGroupMap.put(key, dotGroup);
-            } else {
-                dotGroup.merge(value);
-            }
-        }
-    }
 
     public long getXCoordinates() {
         return xCoordinates;
