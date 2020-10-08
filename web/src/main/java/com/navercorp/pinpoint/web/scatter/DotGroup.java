@@ -36,14 +36,6 @@ public class DotGroup {
         this.dotList = new ArrayList<>();
     }
 
-
-    public DotGroup(DotGroup dotGroup) {
-        Objects.requireNonNull(dotGroup, "dotGroup");
-        this.coordinates = dotGroup.coordinates;
-        this.dotList = new ArrayList<>(dotGroup.dotList);
-        this.dotLeader = dotGroup.dotLeader;
-    }
-
     public Coordinates getCoordinates() {
         return coordinates;
     }
@@ -54,14 +46,6 @@ public class DotGroup {
         if (dotLeader == null) {
             dotLeader = dot;
         }
-    }
-
-    void merge(DotGroup dotGroup) {
-        if (dotGroup == null) {
-            return;
-        }
-
-        this.dotList.addAll(dotGroup.getDotList());
     }
 
     public List<Dot> getDotList() {

@@ -22,23 +22,18 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
-import com.navercorp.pinpoint.web.mapper.TraceIndexScatterMapper3;
 import com.navercorp.pinpoint.web.mapper.TransactionIdMapper;
-import com.navercorp.pinpoint.web.scatter.ScatterData;
-import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
-
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.TableName;
@@ -113,8 +108,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         return new LimitedScanResult<>(lastTime, transactionIdSum);
     }
 
-    private long getLastTime(Range range, int limit, LastRowAccessor lastRowAccessor, List<TransactionId> transactionIdSum) {
-        if (transactionIdSum.size() >= limit) {
+    private <T> long getLastTime(Range range, int limit, LastRowAccessor lastRowAccessor, List<T> list) {
+        if (list.size() >= limit) {
             Long lastRowTimestamp = lastRowAccessor.getLastRowTimestamp();
             if (logger.isDebugEnabled()) {
                 logger.debug("lastRowTimestamp lastTime:{}", DateTimeFormatUtils.format(lastRowTimestamp));
@@ -197,35 +192,26 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         return scan;
     }
 
-
     @Override
-    public ScatterData scanTraceScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean scanBackward) {
+    public LimitedScanResult<List<Dot>> scanTraceScatterData(String applicationName, Range range, int limit, boolean scanBackward) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);
         }
         logger.debug("scanTraceScatterDataMadeOfDotGroup");
+        LastRowAccessor lastRowAccessor = new LastRowAccessor();
+
         Scan scan = createScan(applicationName, range, scanBackward);
 
-        RowMapper<ScatterData> mapper = new TraceIndexScatterMapper3(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
-
         TableName applicationTraceIndexTableName = descriptor.getTableName();
-        List<ScatterData> dotGroupList = hbaseOperations2.findParallel(applicationTraceIndexTableName, scan, traceIdRowKeyDistributor, limit, mapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
+        List<List<Dot>> listList = hbaseOperations2.findParallel(applicationTraceIndexTableName, scan, traceIdRowKeyDistributor, limit, this.traceIndexScatterMapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
+        List<Dot> dots = ListListUtils.toList(listList);
 
-        if (CollectionUtils.isEmpty(dotGroupList)) {
-            ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
-            return builder.build();
-        } else {
-            ScatterData firstScatterData = dotGroupList.get(0);
-            ScatterDataBuilder builder = new ScatterDataBuilder(firstScatterData.getFrom(), firstScatterData.getTo(), xGroupUnit, yGroupUnit);
-            for (ScatterData scatterData : dotGroupList) {
-                builder.merge(scatterData);
-            }
-            return builder.build();
-        }
+        final long lastTime = getLastTime(range, limit, lastRowAccessor, dots);
+
+        return new LimitedScanResult<>(lastTime, dots);
     }
-
 
 
 }

@@ -90,31 +90,6 @@ public class ScatterDataBuilder {
         scatterAgentMetadataRepository.addDotAgentInfo(new DotAgentInfo(dot));
     }
 
-    public void merge(ScatterData scatterData) {
-        if (scatterData == null) {
-            return;
-        }
-
-        final Map<Long, DotGroups> scatterDataMap = scatterData.getScatterDataMap();
-        for (Map.Entry<Long, DotGroups> entry : scatterDataMap.entrySet()) {
-            final Long key = entry.getKey();
-            final DotGroups value = entry.getValue();
-
-            DotGroups dotGroups = this.scatterData.get(key);
-            if (dotGroups == null) {
-                dotGroups = new DotGroups(value);
-                this.scatterData.put(key, dotGroups);
-            } else {
-                dotGroups.merge(value);
-            }
-        }
-
-        scatterAgentMetadataRepository.merge(scatterData.getScatterAgentMetadataRepository());
-
-
-        oldestAcceptedTime = Math.min(oldestAcceptedTime, scatterData.getOldestAcceptedTime());
-        latestAcceptedTime = Math.max(latestAcceptedTime, scatterData.getLatestAcceptedTime());
-    }
 
     public long getFrom() {
         return from;
