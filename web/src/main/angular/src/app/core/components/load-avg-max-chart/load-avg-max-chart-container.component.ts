@@ -91,8 +91,7 @@ export class LoadAvgMaxChartContainerComponent implements OnInit, OnDestroy {
         this.agentHistogramDataService.getData(key, applicationName, serviceTypeCode, this.serverMapData, this.previousRange).pipe(
             map((data: any) => this.isAllAgent() ? data['timeSeriesHistogram'] : data['agentTimeSeriesHistogram'][this.selectedAgent])
         ).pipe(
-            map((data: IHistogram[]) => this.cleanIntermediateChartData(data))
-        ).pipe(
+            map((data: IHistogram[]) => this.cleanIntermediateChartData(data)),
             map((data: IHistogram[]) => this.makeChartData(data)),
             withLatestFrom(this.storeHelperService.getLoadAvgMaxChartYMax(this.unsubscribe))
         ).subscribe(([chartData, yMax]: [PrimitiveArray[], number]) => {
@@ -206,8 +205,7 @@ export class LoadAvgMaxChartContainerComponent implements OnInit, OnDestroy {
                 }),
             )
         ).pipe(
-            map((data: IHistogram[]) => this.cleanIntermediateChartData(data))
-        ).pipe(
+            map((data: IHistogram[]) => this.cleanIntermediateChartData(data)),
             map((data) => this.makeChartData(data)),
             switchMap((data: PrimitiveArray[]) => {
                 if (this.shouldUpdateYMax()) {

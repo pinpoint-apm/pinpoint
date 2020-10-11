@@ -97,8 +97,7 @@ export class ResponseAvgMaxChartContainerComponent implements OnInit, OnDestroy 
         this.agentHistogramDataService.getData(key, applicationName, serviceTypeCode, this.serverMapData, this.previousRange).pipe(
             map((data: any) => this.isAllAgent() ? data['responseStatistics'] : data['agentResponseStatistics'][this.selectedAgent])
         ).pipe(
-            map((data: IResponseStatistics) => this.cleanIntermediateChartData(data))
-        ).pipe(
+            map((data: IResponseStatistics) => this.cleanIntermediateChartData(data)),
             map((data: IResponseStatistics) => this.makeChartData(data)),
             withLatestFrom(this.storeHelperService.getResponseAvgMaxChartYMax(this.unsubscribe))
         ).subscribe(([chartData, yMax]: [PrimitiveArray[], number]) => {
@@ -203,8 +202,7 @@ export class ResponseAvgMaxChartContainerComponent implements OnInit, OnDestroy 
                 }),
             )
         ).pipe(
-            map((data: IResponseStatistics) => this.cleanIntermediateChartData(data))
-        ).pipe(
+            map((data: IResponseStatistics) => this.cleanIntermediateChartData(data)),
             map((data) => this.makeChartData(data)),
             switchMap((data: PrimitiveArray[]) => {
                 if (this.shouldUpdateYMax()) {
