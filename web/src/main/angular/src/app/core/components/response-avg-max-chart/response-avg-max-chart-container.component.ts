@@ -244,12 +244,8 @@ export class ResponseAvgMaxChartContainerComponent implements OnInit, OnDestroy 
             : this.serverMapData.getLinkData(this.selectedTarget.link[0]);
     }
 
-    private cleanIntermediateChartData(data: IResponseStatistics): any {
-        if (data) {
-            delete data["Sum"];
-            delete data["Tot"];
-        }
-        return data;
+    private cleanIntermediateChartData(data: IResponseStatistics): IResponseStatistics {
+        return data ? filterObj((key: string) => key === 'Max' || key === 'Avg', data) : data;
     }
 
     private makeChartData(data: IResponseStatistics): PrimitiveArray[] {
@@ -272,7 +268,7 @@ export class ResponseAvgMaxChartContainerComponent implements OnInit, OnDestroy 
             labels: {
                 colors: '#333',
                 format: {
-                    rs: (v: number) => this.addComma(v.toString())
+                    rs: (v: number) => this.convertWithUnit(v)
                 }
             }
         };

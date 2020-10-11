@@ -258,9 +258,10 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
             : this.serverMapData.getLinkData(this.selectedTarget.link[0]);
     }
 
-    private cleanStatisticsChartData(data: IHistogram[]): any {
-        const excludes = ["Sum", "Tot", "Avg", "Max"];
-        return data ? data.filter(i => excludes.indexOf(i.key) == -1) : [];
+    private cleanStatisticsChartData(data: IHistogram[]): IHistogram[] {
+        const excludes = ['Sum', 'Tot', 'Avg', 'Max'];
+        
+        return data ? data.filter(({key}: IHistogram) => excludes.indexOf(key) === -1) : null;
     }
 
     private makeChartData(data: IHistogram[]): PrimitiveArray[] {

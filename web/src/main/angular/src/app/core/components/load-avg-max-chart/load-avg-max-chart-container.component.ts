@@ -247,8 +247,8 @@ export class LoadAvgMaxChartContainerComponent implements OnInit, OnDestroy {
             : this.serverMapData.getLinkData(this.selectedTarget.link[0]);
     }
 
-    private cleanIntermediateChartData(data: IHistogram[]): any {
-        return data ? data.filter(i => i.key == "Max" || i.key == "Avg") : [];
+    private cleanIntermediateChartData(data: IHistogram[]): IHistogram[] {
+        return data ? data.filter(({key}: IHistogram) => key === 'Max' || key === 'Avg') : null;
     }
 
     private makeChartData(data: IHistogram[]): PrimitiveArray[] {
