@@ -20,6 +20,7 @@ import { getMaxTickValue } from 'app/core/utils/chart-util';
 import { Actions } from 'app/shared/store';
 import { SourceType } from 'app/core/components/response-summary-chart/response-summary-chart-container.component';
 import { Layer } from 'app/core/components/response-summary-chart/response-summary-chart-container.component';
+import { filterObj } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-response-avg-max-chart-container',
@@ -313,12 +314,8 @@ export class ResponseAvgMaxChartContainerComponent implements OnInit, OnDestroy 
         };
     }
 
-    private addComma(str: string): string {
-        return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
-    }
-
     private convertWithUnit(value: number): string {
-        const unitList = ['', 'K', 'M', 'G'];
+        const unitList = ['ms', 'sec'];
 
         return [...unitList].reduce((acc: string, curr: string, i: number, arr: string[]) => {
             const v = Number(acc);
@@ -331,18 +328,6 @@ export class ResponseAvgMaxChartContainerComponent implements OnInit, OnDestroy 
 
     onClickColumn(columnName: string): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_RESPONSE_AVG_MAX_GRAPH);
-        if (columnName === 'Error') {
-            // scope.$emit('responseTimeSummaryChartDirective.showErrorTransactionList', type);
-            // @TODO Scatter Chart의 에러 부분만 Drag 하도록 하는 액션
-        }
-        // @TODO FilteredMap transaction에서 만 처리되는 이벤트
-        // if (useFilterTransaction) {
-        //     scope.$emit('responseTimeSummaryChartDirective.itemClicked.' + scope.namespace, {
-        //         "responseTime": type,
-        //         "count": aTarget[0]._chart.config.data.datasets[0].data[aTarget[0]._index]
-        //     });
-        // }
-
     }
 
 }

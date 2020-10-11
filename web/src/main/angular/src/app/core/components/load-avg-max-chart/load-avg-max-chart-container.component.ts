@@ -322,7 +322,7 @@ export class LoadAvgMaxChartContainerComponent implements OnInit, OnDestroy {
             tooltip: {
                 order: '',
                 format: {
-                    value: (v: number) => this.addComma(v.toString())
+                    value: (v: number) => this.convertWithUnit(v)
                 }
             },
             transition: {
@@ -331,12 +331,8 @@ export class LoadAvgMaxChartContainerComponent implements OnInit, OnDestroy {
         };
     }
 
-    private addComma(str: string): string {
-        return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
-    }
-
     private convertWithUnit(value: number): string {
-        const unitList = ['', 'K', 'M', 'G'];
+        const unitList = ['ms', 'sec'];
 
         return [...unitList].reduce((acc: string, curr: string, i: number, arr: string[]) => {
             const v = Number(acc);
