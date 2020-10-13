@@ -54,6 +54,8 @@ public class ServerInfoAppenderTest {
 
     private ServerInfoAppender serverInfoAppender;
 
+    private long timeoutMillis = 1000;
+
     @Before
     public void setUp() {
         serverInstanceListDataSource = mock(ServerInstanceListDataSource.class);
@@ -81,7 +83,7 @@ public class ServerInfoAppenderTest {
         NodeList nodeList = null;
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
         // When
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
         Assert.assertNull(nodeList);
         verifyZeroInteractions(serverInstanceListDataSource);
@@ -95,7 +97,7 @@ public class ServerInfoAppenderTest {
         NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
         // When
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
         Assert.assertTrue(nodeList.getNodeList().isEmpty());
         verifyZeroInteractions(serverInstanceListDataSource);
@@ -115,7 +117,7 @@ public class ServerInfoAppenderTest {
         ServerInstanceList serverInstanceList = new ServerInstanceList();
         when(serverInstanceListDataSource.createServerInstanceList(wasNode, range.getTo())).thenReturn(serverInstanceList);
         // When
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
         Assert.assertSame(serverInstanceList, wasNode.getServerInstanceList());
         verifyZeroInteractions(linkDataDuplexMap);
@@ -138,7 +140,7 @@ public class ServerInfoAppenderTest {
         ServerInstanceList serverInstanceList2 = new ServerInstanceList();
         when(serverInstanceListDataSource.createServerInstanceList(wasNode2, range.getTo())).thenReturn(serverInstanceList2);
         // When
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
         Assert.assertSame(serverInstanceList1, wasNode1.getServerInstanceList());
         Assert.assertSame(serverInstanceList2, wasNode2.getServerInstanceList());
@@ -165,7 +167,7 @@ public class ServerInfoAppenderTest {
                 System.currentTimeMillis(), terminalType.getHistogramSchema().getNormalSlot().getSlotTime(), 1);
         linkDataDuplexMap.addSourceLinkData(linkData);
         // When
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
         Assert.assertEquals(1, terminalNode.getServerInstanceList().getInstanceCount());
     }
@@ -194,7 +196,7 @@ public class ServerInfoAppenderTest {
                 System.currentTimeMillis(), terminalType.getHistogramSchema().getNormalSlot().getSlotTime(), 1);
         linkDataDuplexMap.addSourceLinkData(linkData);
         // When
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
         Assert.assertEquals(2, terminalNode.getServerInstanceList().getInstanceCount());
     }
@@ -209,7 +211,7 @@ public class ServerInfoAppenderTest {
         Node userNode = new Node(new Application("User", ServiceType.USER));
         nodeList.addNode(userNode);
         // When
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
         Assert.assertEquals(0, userNode.getServerInstanceList().getInstanceCount());
         verifyZeroInteractions(linkDataDuplexMap);
@@ -225,7 +227,7 @@ public class ServerInfoAppenderTest {
         Node unknownNode = new Node(new Application("Unknown", ServiceType.UNKNOWN));
         nodeList.addNode(unknownNode);
         // When
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
         Assert.assertEquals(0, unknownNode.getServerInstanceList().getInstanceCount());
         verifyZeroInteractions(linkDataDuplexMap);

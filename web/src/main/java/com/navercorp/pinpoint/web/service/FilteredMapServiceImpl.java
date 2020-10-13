@@ -46,6 +46,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
@@ -83,6 +84,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private final ApplicationMapBuilderFactory applicationMapBuilderFactory;
 
     private static final Object V = new Object();
+
+    @Value("${web.servermap.build.timeout:600000}")
+    private long buildTimeoutMillis;
 
     public FilteredMapServiceImpl(AgentInfoService agentInfoService,
                                   @Qualifier("hbaseTraceDaoFactory") TraceDao traceDao, ApplicationTraceIndexDao applicationTraceIndexDao,
@@ -192,7 +196,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         applicationMapBuilder.linkType(LinkType.DETAILED);
         applicationMapBuilder.includeNodeHistogram(nodeHistogramFactory);
         applicationMapBuilder.includeServerInfo(serverInstanceListFactory);
-        ApplicationMap map = applicationMapBuilder.build(filteredMap.getLinkDataDuplexMap());
+        ApplicationMap map = applicationMapBuilder.build(filteredMap.getLinkDataDuplexMap(), buildTimeoutMillis);
 
         if (serverMapDataFilter != null) {
             map = serverMapDataFilter.dataFiltering(map);

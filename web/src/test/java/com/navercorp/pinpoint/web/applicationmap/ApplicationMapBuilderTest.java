@@ -73,6 +73,8 @@ public class ApplicationMapBuilderTest {
 
     private AgentInfoServerInstanceListDataSource agentInfoServerInstanceListDataSource;
 
+    private long buildTimeoutMillis = 1000;
+
     @Before
     public void setUp() {
         MapResponseDao mapResponseDao = mock(MapResponseDao.class);
@@ -174,10 +176,10 @@ public class ApplicationMapBuilderTest {
         ApplicationMapBuilder applicationMapBuilder_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range, parallelExecutor);
         ApplicationMap applicationMap = applicationMapBuilder
                 .includeServerInfo(serverInstanceListFactory)
-                .build(application);
+                .build(application, buildTimeoutMillis);
         ApplicationMap applicationMap_parallelAppenders = applicationMapBuilder_parallelAppenders
                 .includeServerInfo(serverInstanceListFactory)
-                .build(application);
+                .build(application, buildTimeoutMillis);
 
         Assert.assertEquals(1, applicationMap.getNodes().size());
         Assert.assertEquals(1, applicationMap.getNodes().size());
@@ -204,11 +206,11 @@ public class ApplicationMapBuilderTest {
         ApplicationMap applicationMap = applicationMapBuilder
                 .includeNodeHistogram(nodeHistogramFactory)
                 .includeServerInfo(serverInstanceListFactory)
-                .build(linkDataDuplexMap);
+                .build(linkDataDuplexMap, buildTimeoutMillis);
         ApplicationMap applicationMap_parallelAppenders = applicationMapBuilder_parallelAppenders
                 .includeNodeHistogram(nodeHistogramFactory)
                 .includeServerInfo(serverInstanceListFactory)
-                .build(linkDataDuplexMap);
+                .build(linkDataDuplexMap, buildTimeoutMillis);
 
         Assert.assertTrue(applicationMap.getNodes().isEmpty());
         Assert.assertTrue(applicationMap.getNodes().isEmpty());
@@ -306,11 +308,11 @@ public class ApplicationMapBuilderTest {
         ApplicationMap applicationMap_MapResponseDao = applicationMapBuilder
                 .includeNodeHistogram(nodeHistogramFactory_MapResponseDao)
                 .includeServerInfo(serverInstanceListFactory)
-                .build(linkDataDuplexMap);
+                .build(linkDataDuplexMap, buildTimeoutMillis);
         ApplicationMap applicationMap_MapResponseDao_parallelAppenders = applicationMapBuilder_parallelAppenders
                 .includeNodeHistogram(nodeHistogramFactory_MapResponseDao)
                 .includeServerInfo(serverInstanceListFactory)
-                .build(linkDataDuplexMap);
+                .build(linkDataDuplexMap, buildTimeoutMillis);
         Assert.assertEquals(expectedNumNodes, applicationMap_MapResponseDao.getNodes().size());
         Assert.assertEquals(expectedNumNodes, applicationMap_MapResponseDao_parallelAppenders.getNodes().size());
         Assert.assertEquals(expectedNumLinks, applicationMap_MapResponseDao.getLinks().size());
@@ -323,11 +325,11 @@ public class ApplicationMapBuilderTest {
         ApplicationMap applicationMap_ResponseHistogramBuilder = applicationMapBuilder
                 .includeNodeHistogram(nodeHistogramFactory_ResponseHistogramBuilder)
                 .includeServerInfo(serverInstanceListFactory)
-                .build(linkDataDuplexMap);
+                .build(linkDataDuplexMap, buildTimeoutMillis);
         ApplicationMap applicationMap_ResponseHistogramBuilder_parallelAppenders = applicationMapBuilder_parallelAppenders
                 .includeNodeHistogram(nodeHistogramFactory_ResponseHistogramBuilder)
                 .includeServerInfo(serverInstanceListFactory)
-                .build(linkDataDuplexMap);
+                .build(linkDataDuplexMap, buildTimeoutMillis);
         Assert.assertEquals(expectedNumNodes, applicationMap_ResponseHistogramBuilder.getNodes().size());
         Assert.assertEquals(expectedNumNodes, applicationMap_ResponseHistogramBuilder_parallelAppenders.getNodes().size());
         Assert.assertEquals(expectedNumLinks, applicationMap_ResponseHistogramBuilder.getLinks().size());
