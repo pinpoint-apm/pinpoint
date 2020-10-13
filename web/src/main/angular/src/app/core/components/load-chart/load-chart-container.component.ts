@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, Input, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subject, forkJoin, merge, of } from 'rxjs';
-import { filter, map, tap, switchMap, catchError, pluck, withLatestFrom } from 'rxjs/operators';
+import { filter, map, tap, switchMap, catchError, pluck, withLatestFrom, takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimitiveArray, Data } from 'billboard.js';
 import * as moment from 'moment-timezone';
@@ -129,6 +129,13 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
     }
 
     private listenToEmitter(): void {
+        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            takeUntil((this.unsubscribe)),
+        ).subscribe(() => {
+            this.serverMapData = null;
+            this.selectedTarget = null;
+        });
+
         this.storeHelperService.getTimezone(this.unsubscribe).subscribe((timezone: string) => {
             this.timezone = timezone;
         });

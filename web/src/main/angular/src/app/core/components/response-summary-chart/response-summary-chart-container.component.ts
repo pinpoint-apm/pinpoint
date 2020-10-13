@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, Input, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subject, forkJoin, of, merge } from 'rxjs';
-import { filter, tap, switchMap, pluck, map, catchError, withLatestFrom } from 'rxjs/operators';
+import { filter, tap, switchMap, pluck, map, catchError, withLatestFrom, takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimitiveArray, Data, DataItem } from 'billboard.js';
 
@@ -135,6 +135,13 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
     }
 
     private listenToEmitter(): void {
+        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            takeUntil((this.unsubscribe)),
+        ).subscribe(() => {
+            this.serverMapData = null;
+            this.selectedTarget = null;
+        });
+
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe((data: ServerMapData) => {
             this.serverMapData = data;
         });

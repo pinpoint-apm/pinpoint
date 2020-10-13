@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Subject, combineLatest } from 'rxjs';
-import { takeUntil, filter, map, take } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { Actions } from 'app/shared/store';
 import { StoreHelperService, NewUrlStateNotificationService, UrlRouteManagerService, AnalyticsService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
@@ -15,6 +15,7 @@ import { ServerMapData } from 'app/core/components/server-map/class/server-map-d
 export class ServerStatusContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
     private _isInfoPerServerShow: boolean;
+    private selectedAgent = '';
 
     enableRealTime: boolean;
     node: INodeInfo;
@@ -63,6 +64,10 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
             this.node = (target.isNode === true ? this.serverMapData.getNodeData(target.node[0]) as INodeInfo : null);
             this.cd.detectChanges();
         });
+
+        this.storeHelperService.getAgentSelection(this.unsubscribe).subscribe((agent: string) => {
+            this.selectedAgent = agent;
+        });
     }
 
     set isInfoPerServerShow(show: boolean) {
@@ -86,15 +91,6 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
 
     onClickOpenInspector(): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_INSPECTOR);
-        combineLatest(
-            this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-                map((urlService: NewUrlStateNotificationService) => urlService.isRealTimeMode())
-            ),
-            this.storeHelperService.getAgentSelection(this.unsubscribe)
-        ).pipe(
-            take(1),
-        ).subscribe(([isRealTimeMode, selectedAgent]: [boolean, string]) => {
-            this.urlRouteManagerService.openInspectorPage(isRealTimeMode, `${this.node.applicationName}@${this.node.serviceType}`, selectedAgent);
-        });
+        this.urlRouteManagerService.openInspectorPage(this.enableRealTime, `${this.node.applicationName}@${this.node.serviceType}`, this.selectedAgent);
     }
 }
