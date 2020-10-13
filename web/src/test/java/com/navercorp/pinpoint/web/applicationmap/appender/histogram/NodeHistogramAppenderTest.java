@@ -35,11 +35,11 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -57,6 +57,8 @@ public class NodeHistogramAppenderTest {
     private WasNodeHistogramDataSource wasNodeHistogramDataSource;
 
     private NodeHistogramAppender nodeHistogramAppender;
+
+    private long buildTimeoutMillis = 1000;
 
     @Before
     public void setUp() {
@@ -85,7 +87,7 @@ public class NodeHistogramAppenderTest {
         NodeList nodeList = new NodeList();
         LinkList linkList = new LinkList();
         // When
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList);
+        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
         // Then
         Assert.assertTrue(nodeList.getNodeList().isEmpty());
         verifyZeroInteractions(wasNodeHistogramDataSource);
@@ -106,7 +108,7 @@ public class NodeHistogramAppenderTest {
         NodeHistogram nodeHistogram = new NodeHistogram(node.getApplication(), range);
         when(wasNodeHistogramDataSource.createNodeHistogram(node.getApplication(), range)).thenReturn(nodeHistogram);
         // When
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList);
+        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
         // Then
         Node actualNode = nodeList.getNodeList().iterator().next();
         Assert.assertSame(nodeHistogram, actualNode.getNodeHistogram());
@@ -147,7 +149,7 @@ public class NodeHistogramAppenderTest {
         linkList.addLink(link);
 
         // When
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList);
+        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
 
         // Then
         Node actualNode = nodeList.getNodeList().iterator().next();
@@ -201,7 +203,7 @@ public class NodeHistogramAppenderTest {
         linkList.addLink(link);
 
         // When
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList);
+        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
 
         // Then
         Node actualNode = nodeList.getNodeList().iterator().next();
@@ -263,7 +265,7 @@ public class NodeHistogramAppenderTest {
         linkList.addLink(cacheLink);
 
         // When
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList);
+        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
 
         // Then
         // Database node
@@ -328,7 +330,7 @@ public class NodeHistogramAppenderTest {
         linkList.addLink(link);
 
         // When
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList);
+        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
 
         NodeHistogram nodeHistogram = userNode.getNodeHistogram();
         // verify application-level histogram
@@ -351,5 +353,45 @@ public class NodeHistogramAppenderTest {
         LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
         linkCallDataMap.addCallData(fromAgentId, fromAgentServiceType, toAgentId, toAgentServiceType, currentTimestamp, slot.getSlotTime(), callCount);
         return linkCallDataMap;
+    }
+
+    @Test
+    public void appendNodeHistogram() throws InterruptedException {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(16);
+        executor.setMaxPoolSize(16);
+        executor.setQueueCapacity(1024);
+
+        int maxCount = 100;
+        CompletableFuture[] array = new CompletableFuture[maxCount];
+        AtomicBoolean timeout = new AtomicBoolean(false);
+        for(int i = 0; i < maxCount; i++) {
+            array[i] = makeCompletableFuture(i, timeout);
+        }
+
+        CompletableFuture completableFuture = CompletableFuture.allOf(array);
+        try {
+            completableFuture.get(100, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            timeout.set(Boolean.TRUE);
+        }
+        TimeUnit.SECONDS.sleep(3);
+        System.out.println("END");
+    }
+
+    private CompletableFuture makeCompletableFuture(final int sleepMillis, final AtomicBoolean timeout) {
+        CompletableFuture<String> completableFuture = CompletableFuture.supplyAsync(() -> {
+            if(timeout.get()) {
+                System.out.println("Timeout");
+                return "Timeout";
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+            }
+            System.out.println("RUN " + sleepMillis);
+            return "Completed";
+        }, executor);
+        return completableFuture;
     }
 }
