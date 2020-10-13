@@ -266,6 +266,14 @@ export class WebAppSettingDataService {
         this.localStorageService.set(WebAppSettingDataService.KEYS.LANGUAGE, value);
     }
     private getLanguage(): string {
-        return this.localStorageService.get(WebAppSettingDataService.KEYS.LANGUAGE) || window.navigator.language.substring(0, 2);
+        let userLang = this.localStorageService.get<string>(WebAppSettingDataService.KEYS.LANGUAGE);
+
+        if (!userLang) {
+            const systemLang = window.navigator.language.substring(0, 2);
+
+            userLang = systemLang.match(/en|ko/) ? systemLang : 'en';
+        }
+
+        return userLang;
     }
 }
