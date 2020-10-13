@@ -25,5 +25,5 @@ import com.navercorp.pinpoint.web.vo.Range;
  */
 public interface ServerInfoAppender {
 
-    void appendServerInfo(Range range, NodeList source, LinkDataDuplexMap linkDataDuplexMap);
+    void appendServerInfo(Range range, NodeList source, LinkDataDuplexMap linkDataDuplexMap, long timeoutMillis);
 }

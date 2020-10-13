@@ -66,7 +66,7 @@ public class ApplicationMapBuilder {
         this.range = Objects.requireNonNull(range, "range");
         this.nodeHistogramAppenderFactory = Objects.requireNonNull(nodeHistogramAppenderFactory, "nodeHistogramAppenderFactory");
         this.serverInfoAppenderFactory = Objects.requireNonNull(serverInfoAppenderFactory, "serverInfoAppenderFactory");
-        this.metricInfoAppenderFactory = Objects.requireNonNull(metricInfoAppenderFactory, "metricInfoAppenderFactory");;
+        this.metricInfoAppenderFactory = Objects.requireNonNull(metricInfoAppenderFactory, "metricInfoAppenderFactory");
     }
 
     public ApplicationMapBuilder nodeType(NodeType nodeType) {
@@ -89,7 +89,7 @@ public class ApplicationMapBuilder {
         return this;
     }
 
-    public ApplicationMap build(Application application) {
+    public ApplicationMap build(Application application, long timeoutMillis) {
         logger.info("Building empty application map");
 
         NodeList nodeList = new NodeList();
@@ -114,12 +114,12 @@ public class ApplicationMapBuilder {
             nodeHistogramFactory = new EmptyNodeHistogramFactory();
         }
         NodeHistogramAppender nodeHistogramAppender = nodeHistogramAppenderFactory.create(nodeHistogramFactory);
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, emptyLinkList);
+        nodeHistogramAppender.appendNodeHistogram(range, nodeList, emptyLinkList, timeoutMillis);
 
         return new DefaultApplicationMap(range, nodeList, emptyLinkList);
     }
 
-    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap) {
+    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, long timeoutMillis) {
         Objects.requireNonNull(linkDataDuplexMap, "linkDataDuplexMap");
 
         logger.info("Building application map");
@@ -141,19 +141,39 @@ public class ApplicationMapBuilder {
         if (nodeHistogramFactory == null) {
             nodeHistogramFactory = new EmptyNodeHistogramFactory();
         }
+
         NodeHistogramAppender nodeHistogramAppender = nodeHistogramAppenderFactory.create(nodeHistogramFactory);
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList);
+        final TimeoutWatcher timeoutWatcher = new TimeoutWatcher(timeoutMillis);
+        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, timeoutWatcher.remainingTimeMillis());
 
         ServerInstanceListFactory serverInstanceListFactory = this.serverInstanceListFactory;
         if (serverInstanceListFactory == null) {
             serverInstanceListFactory = new EmptyServerInstanceListFactory();
         }
         ServerInfoAppender serverInfoAppender = serverInfoAppenderFactory.create(serverInstanceListFactory);
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutWatcher.remainingTimeMillis());
 
         MetricInfoAppender metricInfoAppender = metricInfoAppenderFactory.create();
         metricInfoAppender.appendMetricInfo(range, nodeList, linkDataDuplexMap);
 
         return new DefaultApplicationMap(range, nodeList, linkList);
+    }
+
+    private class TimeoutWatcher {
+        private final long timeoutMillis;
+        private final long startTimeMillis;
+
+        public TimeoutWatcher(long timeoutMillis) {
+            this.timeoutMillis = timeoutMillis;
+            this.startTimeMillis = System.currentTimeMillis();
+        }
+
+        public long remainingTimeMillis() {
+            long elapsedTimeMillis = System.currentTimeMillis() - this.startTimeMillis;
+            if (this.timeoutMillis <= elapsedTimeMillis) {
+                return 0;
+            }
+            return this.timeoutMillis - elapsedTimeMillis;
+        }
     }
 }

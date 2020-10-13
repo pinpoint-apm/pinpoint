@@ -42,6 +42,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
@@ -70,14 +71,20 @@ public class MapServiceImpl implements MapService {
 
     private final ApplicationMapBuilderFactory applicationMapBuilderFactory;
 
+    private final LinkDataLimiter linkDataLimiter;
+
+    @Value("${web.servermap.build.timeout:600000}")
+    private long buildTimeoutMillis;
+
     public MapServiceImpl(LinkSelectorFactory linkSelectorFactory, AgentInfoService agentInfoService,
                           MapResponseDao mapResponseDao,
-                          Optional<ServerMapDataFilter> serverMapDataFilter, ApplicationMapBuilderFactory applicationMapBuilderFactory) {
+                          Optional<ServerMapDataFilter> serverMapDataFilter, ApplicationMapBuilderFactory applicationMapBuilderFactory, LinkDataLimiter linkDataLimiter) {
         this.linkSelectorFactory = Objects.requireNonNull(linkSelectorFactory, "linkSelectorFactory");
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
         this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
         this.serverMapDataFilter = Objects.requireNonNull(serverMapDataFilter, "serverMapDataFilter").orElse(null);
         this.applicationMapBuilderFactory = Objects.requireNonNull(applicationMapBuilderFactory, "applicationMapBuilderFactory");
+        this.linkDataLimiter = linkDataLimiter;
     }
 
     /**
@@ -106,18 +113,22 @@ public class MapServiceImpl implements MapService {
         LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(Collections.singletonList(sourceApplication), range, callerSearchDepth, calleeSearchDepth);
         watch.stop();
 
+        if (linkDataLimiter.excess(linkDataDuplexMap.getTotalCount())) {
+            throw new RuntimeException("Too many link data. Reduce the values of the Inbound/outbound or do not select the bidirectional option. limiter=" + linkDataLimiter.toString(linkDataDuplexMap.getTotalCount()));
+        }
+
         watch.start("ApplicationMap MapBuilding(Response) Time");
 
         ApplicationMapBuilder builder = createApplicationMapBuilder(range, nodeType, linkType);
-        ApplicationMap map = builder.build(linkDataDuplexMap);
+        ApplicationMap map = builder.build(linkDataDuplexMap, buildTimeoutMillis);
         if (map.getNodes().isEmpty()) {
-            map = builder.build(sourceApplication);
+            map = builder.build(sourceApplication, buildTimeoutMillis);
         }
         watch.stop();
         if (logger.isInfoEnabled()) {
             logger.info("ApplicationMap BuildTime: {}", watch.prettyPrint());
         }
-        if(serverMapDataFilter != null) {
+        if (serverMapDataFilter != null) {
             map = serverMapDataFilter.dataFiltering(map);
         }
         return map;

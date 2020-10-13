@@ -32,6 +32,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 /**
@@ -51,7 +54,7 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
     }
 
     @Override
-    public void appendServerInfo(Range range, NodeList source, LinkDataDuplexMap linkDataDuplexMap) {
+    public void appendServerInfo(Range range, NodeList source, LinkDataDuplexMap linkDataDuplexMap, long timeoutMillis) {
         if (source == null) {
             return;
         }
@@ -59,24 +62,34 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
         if (CollectionUtils.isEmpty(nodes)) {
             return;
         }
-        CompletableFuture[] futures = getServerInstanceListFutures(range, nodes, linkDataDuplexMap);
-        CompletableFuture.allOf(futures).join();
+        final AtomicBoolean stopSign = new AtomicBoolean();
+        CompletableFuture[] futures = getServerInstanceListFutures(range, nodes, linkDataDuplexMap, stopSign);
+        try {
+            CompletableFuture.allOf(futures).get(timeoutMillis, TimeUnit.MILLISECONDS);
+        } catch (Exception e) { // InterruptedException, ExecutionException, TimeoutException
+            stopSign.set(Boolean.TRUE);
+            String cause = "an error occurred while adding server info";
+            if (e instanceof TimeoutException) {
+                cause += " build timed out. timeout=" + timeoutMillis + "ms";
+            }
+            throw new RuntimeException(cause, e);
+        }
     }
 
-    private CompletableFuture[] getServerInstanceListFutures(Range range, Collection<Node> nodes, LinkDataDuplexMap linkDataDuplexMap) {
+    private CompletableFuture[] getServerInstanceListFutures(Range range, Collection<Node> nodes, LinkDataDuplexMap linkDataDuplexMap, AtomicBoolean stopSign) {
         List<CompletableFuture<Void>> serverInstanceListFutures = new ArrayList<>();
         for (Node node : nodes) {
             if (node.getServiceType().isUnknown()) {
                 // we do not know the server info for unknown nodes
                 continue;
             }
-            CompletableFuture<Void> serverInstanceListFuture = getServerInstanceListFuture(range, node, linkDataDuplexMap);
+            CompletableFuture<Void> serverInstanceListFuture = getServerInstanceListFuture(range, node, linkDataDuplexMap, stopSign);
             serverInstanceListFutures.add(serverInstanceListFuture);
         }
         return serverInstanceListFutures.toArray(new CompletableFuture[0]);
     }
 
-    private CompletableFuture<Void> getServerInstanceListFuture(Range range, Node node, LinkDataDuplexMap linkDataDuplexMap) {
+    private CompletableFuture<Void> getServerInstanceListFuture(Range range, Node node, LinkDataDuplexMap linkDataDuplexMap, AtomicBoolean stopSign) {
         CompletableFuture<ServerInstanceList> serverInstanceListFuture;
         ServiceType nodeServiceType = node.getServiceType();
         if (nodeServiceType.isWas()) {
@@ -84,6 +97,9 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
             serverInstanceListFuture = CompletableFuture.supplyAsync(new Supplier<ServerInstanceList>() {
                 @Override
                 public ServerInstanceList get() {
+                    if (Boolean.TRUE == stopSign.get()) { // Stop
+                        return serverInstanceListFactory.createEmptyNodeInstanceList();
+                    }
                     return serverInstanceListFactory.createWasNodeInstanceList(node, to);
                 }
             }, executor);

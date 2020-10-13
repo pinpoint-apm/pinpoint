@@ -25,5 +25,5 @@ import com.navercorp.pinpoint.web.vo.Range;
  */
 public interface NodeHistogramAppender {
 
-    void appendNodeHistogram(Range range, NodeList nodeList, LinkList linkList);
+    void appendNodeHistogram(Range range, NodeList nodeList, LinkList linkList, long timeoutMillis);
 }

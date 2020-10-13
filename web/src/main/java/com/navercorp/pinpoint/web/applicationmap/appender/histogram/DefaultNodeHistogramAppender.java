@@ -29,12 +29,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 /**
  * @author HyunGil Jeong
+ * @author jaehong.kim
  */
 public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
 
@@ -48,7 +53,7 @@ public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
     }
 
     @Override
-    public void appendNodeHistogram(Range range, NodeList nodeList, LinkList linkList) {
+    public void appendNodeHistogram(Range range, NodeList nodeList, LinkList linkList, long timeoutMillis) {
         if (nodeList == null) {
             return;
         }
@@ -56,20 +61,30 @@ public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
         if (CollectionUtils.isEmpty(nodes)) {
             return;
         }
-        CompletableFuture[] futures = getNodeHistogramFutures(range, nodes, linkList);
-        CompletableFuture.allOf(futures).join();
+        final AtomicBoolean stopSign = new AtomicBoolean();
+        CompletableFuture[] futures = getNodeHistogramFutures(range, nodes, linkList, stopSign);
+        try {
+            CompletableFuture.allOf(futures).get(timeoutMillis, TimeUnit.MILLISECONDS);
+        } catch (Exception e) { // InterruptedException, ExecutionException, TimeoutException
+            stopSign.set(Boolean.TRUE);
+            String cause = "an error occurred while adding node histogram";
+            if (e instanceof TimeoutException) {
+                cause += " build timed out. timeout=" + timeoutMillis + "ms";
+            }
+            throw new RuntimeException(cause, e);
+        }
     }
 
-    private CompletableFuture[] getNodeHistogramFutures(Range range, Collection<Node> nodes, LinkList linkList) {
+    private CompletableFuture[] getNodeHistogramFutures(Range range, Collection<Node> nodes, LinkList linkList, AtomicBoolean stopSign) {
         List<CompletableFuture<Void>> nodeHistogramFutures = new ArrayList<>();
         for (Node node : nodes) {
-            CompletableFuture<Void> nodeHistogramFuture = getNodeHistogramFuture(range, node, linkList);
+            CompletableFuture<Void> nodeHistogramFuture = getNodeHistogramFuture(range, node, linkList, stopSign);
             nodeHistogramFutures.add(nodeHistogramFuture);
         }
         return nodeHistogramFutures.toArray(new CompletableFuture[0]);
     }
 
-    private CompletableFuture<Void> getNodeHistogramFuture(Range range, Node node, LinkList linkList) {
+    private CompletableFuture<Void> getNodeHistogramFuture(Range range, Node node, LinkList linkList, AtomicBoolean stopSign) {
         CompletableFuture<NodeHistogram> nodeHistogramFuture;
         final Application application = node.getApplication();
         final ServiceType serviceType = application.getServiceType();
@@ -80,6 +95,9 @@ public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
             nodeHistogramFuture = CompletableFuture.supplyAsync(new Supplier<NodeHistogram>() {
                 @Override
                 public NodeHistogram get() {
+                    if (Boolean.TRUE == stopSign.get()) { // Stop
+                        return nodeHistogramFactory.createEmptyNodeHistogram(application, range);
+                    }
                     return nodeHistogramFactory.createWasNodeHistogram(wasNode, range);
                 }
             }, executor);
