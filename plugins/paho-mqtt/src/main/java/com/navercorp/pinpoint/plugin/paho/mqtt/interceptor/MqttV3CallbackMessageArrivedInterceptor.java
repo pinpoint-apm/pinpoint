@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.plugin.paho.mqtt.accessor.MqttV3ClientCommsGetter;
 import com.navercorp.pinpoint.plugin.paho.mqtt.accessor.SocketGetter;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -66,9 +67,9 @@ public class MqttV3CallbackMessageArrivedInterceptor extends MqttCallbackMessage
     @Override
     protected void recordDataByVersion(Object target, SpanRecorder recorder, Object[] args) {
 
-        if(args[0] instanceof MqttPublish){
+        if (args[0] instanceof MqttPublish) {
 
-            MqttPublish mqttPublish = (MqttPublish)args[0];
+            MqttPublish mqttPublish = (MqttPublish) args[0];
 
             recorder.recordRpcName(buildRpcName(mqttPublish.getTopicName(), mqttPublish.getMessage().getQos()));
 
@@ -84,12 +85,12 @@ public class MqttV3CallbackMessageArrivedInterceptor extends MqttCallbackMessage
     private String getEndPoint(Object target) {
 
         ClientComms clientComms = ((MqttV3ClientCommsGetter) target)._$PINPOINT$_getMqttV3ClientComms();
-        if(clientComms == null) {
+        if (clientComms == null) {
             return UNKNOWN;
         }
 
         NetworkModule networkModule = clientComms.getNetworkModules()[clientComms.getNetworkModuleIndex()];
-        if(networkModule == null){
+        if (networkModule == null) {
             return UNKNOWN;
         }
 

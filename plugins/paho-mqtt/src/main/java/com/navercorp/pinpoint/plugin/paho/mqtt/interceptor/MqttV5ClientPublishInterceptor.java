@@ -42,7 +42,7 @@ public class MqttV5ClientPublishInterceptor extends MqttClientPublishInterceptor
     @Override
     protected void setCallerDataWhenSampled(Trace trace, SpanEventRecorder recorder, Object[] args, boolean canSampled) {
         MqttProperties mqttProperties = getMqttProperties(args[1]);
-        if(mqttProperties == null){
+        if (mqttProperties == null) {
             return;
         }
         List<UserProperty> mqttUserProperties = mqttProperties.getUserProperties(); // mqttUserProperties may be AbstractList
@@ -67,8 +67,8 @@ public class MqttV5ClientPublishInterceptor extends MqttClientPublishInterceptor
     }
 
     private MqttProperties getMqttProperties(Object arg) {
-        if(arg instanceof org.eclipse.paho.mqttv5.common.MqttMessage) {
-            org.eclipse.paho.mqttv5.common.MqttMessage mqttMessage = (org.eclipse.paho.mqttv5.common.MqttMessage)arg;
+        if (arg instanceof org.eclipse.paho.mqttv5.common.MqttMessage) {
+            org.eclipse.paho.mqttv5.common.MqttMessage mqttMessage = (org.eclipse.paho.mqttv5.common.MqttMessage) arg;
             return mqttMessage.getProperties();
         }
         return null;

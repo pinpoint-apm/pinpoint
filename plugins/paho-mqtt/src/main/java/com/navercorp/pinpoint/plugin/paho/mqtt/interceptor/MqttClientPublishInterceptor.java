@@ -25,7 +25,13 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.paho.mqtt.PahoMqttPluginConfig;
 import com.navercorp.pinpoint.plugin.paho.mqtt.accessor.BrokerUriFieldAccessor;
 
-import static com.navercorp.pinpoint.plugin.paho.mqtt.PahoMqttConstants.*;
+import static com.navercorp.pinpoint.plugin.paho.mqtt.PahoMqttConstants.DEFAULT_CHARSET;
+import static com.navercorp.pinpoint.plugin.paho.mqtt.PahoMqttConstants.MQTT_BROKER_URI_ANNOTATION_KEY;
+import static com.navercorp.pinpoint.plugin.paho.mqtt.PahoMqttConstants.MQTT_MESSAGE_PAYLOAD_ANNOTATION_KEY;
+import static com.navercorp.pinpoint.plugin.paho.mqtt.PahoMqttConstants.MQTT_QOS_ANNOTATION_KEY;
+import static com.navercorp.pinpoint.plugin.paho.mqtt.PahoMqttConstants.MQTT_TOPIC_ANNOTATION_KEY;
+import static com.navercorp.pinpoint.plugin.paho.mqtt.PahoMqttConstants.PAHO_MQTT_CLIENT;
+import static com.navercorp.pinpoint.plugin.paho.mqtt.PahoMqttConstants.UNKNOWN;
 
 /**
  * @author Younsung Hwang
@@ -108,8 +114,8 @@ public abstract class MqttClientPublishInterceptor implements AroundInterceptor 
     }
 
     private String getTopic(Object args[]) {
-        if(args[0] instanceof String){
-            return (String)args[0];
+        if (args[0] instanceof String) {
+            return (String) args[0];
         }
         return null;
     }
@@ -127,12 +133,12 @@ public abstract class MqttClientPublishInterceptor implements AroundInterceptor 
     }
 
     private int getQos(Object args[]) {
-        if(this.config.isEnableTracePahoMqttClientV3() && args[1] instanceof org.eclipse.paho.client.mqttv3.MqttMessage){
-            org.eclipse.paho.client.mqttv3.MqttMessage mqttMessage = (org.eclipse.paho.client.mqttv3.MqttMessage)args[1];
+        if (this.config.isEnableTracePahoMqttClientV3() && args[1] instanceof org.eclipse.paho.client.mqttv3.MqttMessage) {
+            org.eclipse.paho.client.mqttv3.MqttMessage mqttMessage = (org.eclipse.paho.client.mqttv3.MqttMessage) args[1];
             return mqttMessage.getQos();
         }
-        if(this.config.isEnableTracePahoMqttClientV5() && args[1] instanceof org.eclipse.paho.mqttv5.common.MqttMessage){
-            org.eclipse.paho.mqttv5.common.MqttMessage mqttMessage =  (org.eclipse.paho.mqttv5.common.MqttMessage)args[1];
+        if (this.config.isEnableTracePahoMqttClientV5() && args[1] instanceof org.eclipse.paho.mqttv5.common.MqttMessage) {
+            org.eclipse.paho.mqttv5.common.MqttMessage mqttMessage = (org.eclipse.paho.mqttv5.common.MqttMessage) args[1];
             return mqttMessage.getQos();
         }
         return 0;
