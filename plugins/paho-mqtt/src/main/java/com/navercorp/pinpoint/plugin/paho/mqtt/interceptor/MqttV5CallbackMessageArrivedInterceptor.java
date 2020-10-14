@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.plugin.paho.mqtt.accessor.MqttV5ClientCommsGetter;
 import com.navercorp.pinpoint.plugin.paho.mqtt.accessor.SocketGetter;
 import org.eclipse.paho.mqttv5.client.internal.ClientComms;
@@ -74,9 +75,9 @@ public class MqttV5CallbackMessageArrivedInterceptor extends MqttCallbackMessage
     @Override
     protected void recordDataByVersion(Object target, SpanRecorder recorder, Object[] args) {
 
-        if(args[0] instanceof MqttPublish){
+        if (args[0] instanceof MqttPublish) {
 
-            MqttPublish mqttPublish = (MqttPublish)args[0];
+            MqttPublish mqttPublish = (MqttPublish) args[0];
             recorder.recordRpcName(buildRpcName(mqttPublish.getTopicName(), mqttPublish.getQoS()));
             recorder.recordAttribute(MQTT_MESSAGE_PAYLOAD_ANNOTATION_KEY, new String(mqttPublish.getPayload()));
 
@@ -123,8 +124,8 @@ public class MqttV5CallbackMessageArrivedInterceptor extends MqttCallbackMessage
 
     private boolean isPreviousSpanSampled(List<UserProperty> userProperties) {
         UserProperty sampledProperty = null;
-        for(UserProperty userProperty : userProperties) {
-            if(userProperty.getKey().equals(Header.HTTP_SAMPLED.toString())){
+        for (UserProperty userProperty : userProperties) {
+            if (userProperty.getKey().equals(Header.HTTP_SAMPLED.toString())) {
                 sampledProperty = userProperty;
                 break;
             }
@@ -137,7 +138,10 @@ public class MqttV5CallbackMessageArrivedInterceptor extends MqttCallbackMessage
 
     private TraceId createTraceIdFromProperties(List<UserProperty> userProperties) {
 
-        String transactionId = null, spanID = null, parentSpanID = null, flags = null;
+        String transactionId = null;
+        String spanID = null;
+        String parentSpanID = null;
+        String flags = null;
 
         for (UserProperty property : userProperties) {
             if (property.getKey().equals(Header.HTTP_TRACE_ID.toString())) {
@@ -161,12 +165,12 @@ public class MqttV5CallbackMessageArrivedInterceptor extends MqttCallbackMessage
     private String getEndPoint(Object target) {
 
         ClientComms clientComms = ((MqttV5ClientCommsGetter) target)._$PINPOINT$_getMqttV5ClientComms();
-        if(clientComms == null) {
+        if (clientComms == null) {
             return UNKNOWN;
         }
 
         NetworkModule networkModule = clientComms.getNetworkModules()[clientComms.getNetworkModuleIndex()];
-        if(networkModule == null){
+        if (networkModule == null) {
             return UNKNOWN;
         }
 
