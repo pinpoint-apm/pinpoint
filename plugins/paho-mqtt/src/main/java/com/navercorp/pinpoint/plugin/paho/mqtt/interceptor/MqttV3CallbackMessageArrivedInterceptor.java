@@ -32,7 +32,6 @@ import org.eclipse.paho.client.mqttv3.internal.NetworkModule;
 import org.eclipse.paho.client.mqttv3.internal.wire.MqttPublish;
 
 import java.net.Socket;
-import java.nio.charset.Charset;
 
 import static com.navercorp.pinpoint.plugin.paho.mqtt.PahoMqttConstants.MQTT_MESSAGE_PAYLOAD_ANNOTATION_KEY;
 import static com.navercorp.pinpoint.plugin.paho.mqtt.PahoMqttConstants.UNKNOWN;
@@ -74,7 +73,7 @@ public class MqttV3CallbackMessageArrivedInterceptor extends MqttCallbackMessage
             recorder.recordRpcName(buildRpcName(mqttPublish.getTopicName(), mqttPublish.getMessage().getQos()));
 
             MqttMessage mqttMessage = mqttPublish.getMessage();
-            String payload = new String(mqttMessage.getPayload(), Charset.forName("UTF-8"));
+            String payload = BytesUtils.toString(mqttMessage.getPayload());
             recorder.recordAttribute(MQTT_MESSAGE_PAYLOAD_ANNOTATION_KEY, payload);
 
             String endPoint = getEndPoint(target);

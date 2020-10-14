@@ -78,7 +78,7 @@ public class MqttV5ClientPublishInterceptor extends MqttClientPublishInterceptor
         for (UserProperty userProperty : userPropertiesWithHeader) {
             String key = userProperty.getKey();
             if (Header.startWithPinpointHeader(key)) {
-                userPropertiesWithHeader.remove(key);
+                userPropertiesWithHeader.remove(userProperty);
             }
         }
     }

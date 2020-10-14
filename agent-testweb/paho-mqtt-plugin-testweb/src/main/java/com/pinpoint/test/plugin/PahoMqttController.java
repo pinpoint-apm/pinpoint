@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 /**
@@ -47,7 +48,7 @@ public class PahoMqttController {
         try (org.eclipse.paho.client.mqttv3.MqttAsyncClient mqttClient =
                      new org.eclipse.paho.client.mqttv3.MqttAsyncClient(v3BrokerUrl, UUID.randomUUID().toString(), new org.eclipse.paho.client.mqttv3.persist.MemoryPersistence())) {
             mqttClient.connect().waitForCompletion(3000);
-            mqttClient.publish(v3Topic, new org.eclipse.paho.client.mqttv3.MqttMessage(payload.getBytes())).waitForCompletion(3000);
+            mqttClient.publish(v3Topic, new org.eclipse.paho.client.mqttv3.MqttMessage(getBytes(payload))).waitForCompletion(3000);
             mqttClient.disconnect();
         } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
             logger.error("Failed to publish message.", e);
@@ -61,12 +62,16 @@ public class PahoMqttController {
         try {
             org.eclipse.paho.mqttv5.client.MqttAsyncClient mqttClient = new org.eclipse.paho.mqttv5.client.MqttAsyncClient(v5BrokerUrl, UUID.randomUUID().toString(), new org.eclipse.paho.mqttv5.client.persist.MemoryPersistence());
             mqttClient.connect().waitForCompletion(3000);
-            mqttClient.publish(v5Topic, new org.eclipse.paho.mqttv5.common.MqttMessage(payload.getBytes())).waitForCompletion(3000);
+            mqttClient.publish(v5Topic, new org.eclipse.paho.mqttv5.common.MqttMessage(getBytes(payload))).waitForCompletion(3000);
             mqttClient.disconnect();
         } catch (org.eclipse.paho.mqttv5.common.MqttException e) {
             logger.error("Failed to publish message.", e);
             return "Failed to publish message, cause : " + e.getMessage();
         }
         return "Successfully publish message[" + payload + "]";
+    }
+
+    private byte[] getBytes(@RequestParam(defaultValue = "todareistodo") String payload) {
+        return payload.getBytes(StandardCharsets.UTF_8);
     }
 }
