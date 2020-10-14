@@ -4,10 +4,10 @@ Pinpoint QuickStart provides a sample TestApp for the Agent.
 ## Docker
 Installing Pinpoint with these docker files will take approximately 10min.
 
-Visit [Official Pinpoint-Docker repository](https://github.com/naver/pinpoint-docker) for more information.
+Visit [Official Pinpoint-Docker repository](https://github.com/pinpoint-apm/pinpoint-docker) for more information.
 
 ## Installation
-To set up your very own Pinpoint instance you can either **download the build results** from our [**latest release**](https://github.com/naver/pinpoint/releases/latest).
+To set up your very own Pinpoint instance you can either **download the build results** from our [**latest release**](https://github.com/pinpoint-apm/pinpoint/releases/latest).
 
 ### HBase
 Download, Configure, and Start HBase - [1. Hbase](https://naver.github.io/pinpoint/installation.html#1-hbase).
@@ -18,7 +18,7 @@ $ cd hbase-x.x.x/
 $ ./bin/start-hbase.sh
 ~~~
 
-See [scripts](https://github.com/naver/pinpoint/tree/master/hbase/scripts) and Run.
+See [scripts](https://github.com/pinpoint-apm/pinpoint/tree/master/hbase/scripts) and Run.
 
 ~~~
 $ ./bin/hbase shell hbase-create.hbase
@@ -46,7 +46,7 @@ In order to build Pinpoint, the following requirements must be met:
 * JDK 8 installed
 
 ### When Using Released Binary(Recommended) 
-Download Pinpoint from [Latest Release](https://github.com/naver/pinpoint/releases/latest).
+Download Pinpoint from [Latest Release](https://github.com/pinpoint-apm/pinpoint/releases/latest).
 
 Extract the downloaded file.
 ~~~
@@ -59,7 +59,7 @@ $ java -jar -javaagent:pinpoint-agent-2.1.0/pinpoint-bootstrap-2.1.0.jar -Dpinpo
 ~~~
 
 ### When Building Manually
-Download Pinpoint with `git clone https://github.com/naver/pinpoint.git` or [download](https://github.com/naver/pinpoint/archive/master.zip) the project as a zip file and unzip.
+Download Pinpoint with `git clone https://github.com/pinpoint-apm/pinpoint.git` or [download](https://github.com/pinpoint-apm/pinpoint/archive/master.zip) the project as a zip file and unzip.
 
 Change to the pinpoint directory, and build.
 ~~~

@@ -18,8 +18,8 @@ Feel free to contact us anytime. We are glad to add more links.
 
 ## Resources (ENGLISH)
 * Anyone who would like to share any document are always welcome
-* [Technical Overview of Pinpoint](https://github.com/naver/pinpoint/wiki/Technical-Overview-Of-Pinpoint)
-* [Official Docker Repository](https://github.com/naver/pinpoint-docker)
+* [Technical Overview of Pinpoint](https://github.com/pinpoint-apm/pinpoint/wiki/Technical-Overview-Of-Pinpoint)
+* [Official Docker Repository](https://github.com/pinpoint-apm/pinpoint-docker)
 * [Notes on Jetty Plugin for Pinpoint](https://github.com/cijung/Docs/blob/master/JettyPluginNotes.md) ([@cijung](https://github.com/cijung))
 
 ## Resources (中文)
