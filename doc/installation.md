@@ -7,7 +7,7 @@ permalink: installation.html
 disqus: false
 ---
 
-To set up your very own Pinpoint instance you can either **download the build results** from our [**latest release**](https://github.com/naver/pinpoint/releases/latest), or manually build from your Git clone.
+To set up your very own Pinpoint instance you can either **download the build results** from our [**latest release**](https://github.com/pinpoint-apm/pinpoint/releases/latest), or manually build from your Git clone.
 In order to run your own Pinpoint instance, you will need to run below components:
 
 * **HBase** (for storage)
@@ -21,7 +21,7 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 1. HBase ([details](#1-hbase))
 	1. Set up HBase cluster - [Apache HBase](http://hbase.apache.org)
 	2. Create HBase Schemas - feed `/scripts/hbase-create.hbase` to hbase shell.
-2. Build Pinpoint (Optional)([details](#2-building-pinpoint-optional)) - No need if you use the binaries.([here](https://github.com/naver/pinpoint/releases)).
+2. Build Pinpoint (Optional)([details](#2-building-pinpoint-optional)) - No need if you use the binaries.([here](https://github.com/pinpoint-apm/pinpoint/releases)).
 	1. Clone Pinpoint - `git clone $PINPOINT_GIT_REPOSITORY`
 	2. Set JAVA_HOME environment variable to JDK 8 home directory.
 	3. Set JAVA_6_HOME environment variable to JDK 6 home directory (1.6.0_45 recommended).
@@ -64,13 +64,13 @@ To run these scripts, feed them into the HBase shell like below:
 
 `$HBASE_HOME/bin/hbase shell hbase-create.hbase`
 
-See [here](https://github.com/naver/pinpoint/tree/master/hbase/scripts "Pinpoint HBase scripts") for a complete list of scripts.
+See [here](https://github.com/pinpoint-apm/pinpoint/tree/master/hbase/scripts "Pinpoint HBase scripts") for a complete list of scripts.
 
 ## 2. Building Pinpoint 
 
 There are two options:
 
-1. Download the build results from our [**latest release**](https://github.com/naver/pinpoint/releases/latest) and skip building process. **(Recommended)**
+1. Download the build results from our [**latest release**](https://github.com/pinpoint-apm/pinpoint/releases/latest) and skip building process. **(Recommended)**
 
 2. Build Pinpoint manually from the Git clone. **(Optional)**
 	
@@ -132,9 +132,9 @@ There are 3 configuration files used for Pinpoint Collector: *pinpoint-collector
 	* `hbase.client.port` (default: 2181)
 
 You may take a look at the full list of default configurations here:
-- [pinpoint-collector-root.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-collector-root.properties)
-- [pinpoint-collector-grpc.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/profiles/local/pinpoint-collector-grpc.properties)
-- [hbase.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/profiles/local/hbase.properties)
+- [pinpoint-collector-root.properties](https://github.com/pinpoint-apm/pinpoint/blob/master/collector/src/main/resources/pinpoint-collector-root.properties)
+- [pinpoint-collector-grpc.properties](https://github.com/pinpoint-apm/pinpoint/blob/master/collector/src/main/resources/profiles/local/pinpoint-collector-grpc.properties)
+- [hbase.properties](https://github.com/pinpoint-apm/pinpoint/blob/master/collector/src/main/resources/profiles/local/hbase.properties)
 
 #### When Building Manually
 You can modify default configuration values or add new profiles under `collector/src/main/resources/profiles/`.
@@ -160,7 +160,7 @@ You can modify default configuration values or add new profiles under `collector
 - To further explore how to use externalized configurations, refer to [Spring Boot Reference Document](https://docs.spring.io/spring-boot/docs/2.2.x/reference/html/spring-boot-features.html#boot-features-external-config-application-property-files).
 
 ### Profiles
-Pinpoint Collector provides two profiles: [release](https://github.com/naver/pinpoint/tree/master/collector/src/main/resources/profiles/release) and [local](https://github.com/naver/pinpoint/tree/master/collector/src/main/resources/profiles/local) (default).
+Pinpoint Collector provides two profiles: [release](https://github.com/pinpoint-apm/pinpoint/tree/master/collector/src/main/resources/profiles/release) and [local](https://github.com/pinpoint-apm/pinpoint/tree/master/collector/src/main/resources/profiles/local) (default).
 
 To specify which profile to use, configure `spring.profiles.active` value as described in the previous section.
     
@@ -199,9 +199,9 @@ There are 2 configuration files used for Pinpoint Web: *pinpoint-web-root.proper
 	* `hbase.client.port` (default: 2181)
 
 You may take a look at the default configuration files here
-  - [pinpoint-web-root.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/pinpoint-web-root.properties)
-  - [hbase.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/profiles/release/hbase.properties)
-  - [pinpoint-web.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/profiles/release/pinpoint-web.properties)
+  - [pinpoint-web-root.properties](https://github.com/pinpoint-apm/pinpoint/blob/master/web/src/main/resources/pinpoint-web-root.properties)
+  - [hbase.properties](https://github.com/pinpoint-apm/pinpoint/blob/master/web/src/main/resources/profiles/release/hbase.properties)
+  - [pinpoint-web.properties](https://github.com/pinpoint-apm/pinpoint/blob/master/web/src/main/resources/profiles/release/pinpoint-web.properties)
 
 #### When Building Manually
 You can modify default configuration values or add new profiles under `web/src/main/resources/profiles/`.
@@ -226,7 +226,7 @@ You can modify default configuration values or add new profiles under `web/src/m
 
 ### Profiles
 
-Pinpoint Web provides two profiles: [release](https://github.com/naver/pinpoint/tree/master/web/src/main/resources/profiles/release) (default) and [local](https://github.com/naver/pinpoint/tree/master/web/src/main/resources/profiles/local).
+Pinpoint Web provides two profiles: [release](https://github.com/pinpoint-apm/pinpoint/tree/master/web/src/main/resources/profiles/release) (default) and [local](https://github.com/pinpoint-apm/pinpoint/tree/master/web/src/main/resources/profiles/local).
 
 To specify which profile to use, configure `spring.profiles.active` value as described in the previous section.
     
@@ -311,9 +311,9 @@ CATALINA_OPTS="$CATALINA_OPTS <b>-Dpinpoint.applicationName</b>=$APPLICATION_NAM
 Start up Tomcat to start profiling your web application.
 
 Some application servers require additional configuration and/or may have caveats. Please take a look at the links below for further details.
-* [JBoss](https://github.com/naver/pinpoint/tree/master/plugins/jboss#pinpoint-jboss-plugin-configuration)
-* [Jetty](https://github.com/naver/pinpoint/blob/master/plugins/jetty/README.md)
-* [Resin](https://github.com/naver/pinpoint/tree/master/plugins/resin#pinpoint-resin-plugin-configuration)
+* [JBoss](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/jboss#pinpoint-jboss-plugin-configuration)
+* [Jetty](https://github.com/pinpoint-apm/pinpoint/blob/master/plugins/jetty/README.md)
+* [Resin](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/resin#pinpoint-resin-plugin-configuration)
 
 ### Configuration
 
@@ -336,7 +336,7 @@ Set these values appropriately in *pinpoint-root.config*:
 * `profiler.transport.grpc.stat.collector.port` (collector's *collector.receiver.grpc.stat.port* - default: 9992/TCP)
 * `profiler.transport.grpc.span.collector.port` (collector's *collector.receiver.grpc.span.port* - default: 9993/TCP)
 
-You may take a look at the default *pinpoint-root.config* file [here](https://github.com/naver/pinpoint/blob/master/agent/src/main/resources/pinpoint-root.config "pinpoint.config") along with all the available configuration options.
+You may take a look at the default *pinpoint-root.config* file [here](https://github.com/pinpoint-apm/pinpoint/blob/master/agent/src/main/resources/pinpoint-root.config "pinpoint.config") along with all the available configuration options.
 
 ### Profiles
 Add `-Dkey=value` to Java System Properties

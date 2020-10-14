@@ -12,7 +12,7 @@ This tool checks the network status between Pinpoint-Agent and Pinpoint-Collecto
 
 ### Testing with binary release
 
-If you have downloaded the build results from our [**latest release**](https://github.com/naver/pinpoint/releases/latest). 
+If you have downloaded the build results from our [**latest release**](https://github.com/pinpoint-apm/pinpoint/releases/latest). 
 
 1. Start your collector server
 2. With any terminal that you are using, go to *script* folder which is under *pinpoint-agent-VERSION.tar.gz* package that you have downloaded.
@@ -63,4 +63,4 @@ The idea is basically the same.
 
 Results should be same as shown above.
 
- >  If you face error for v1.7.3 take a look at this [issue](https://github.com/naver/pinpoint/issues/4668)
+ >  If you face error for v1.7.3 take a look at this [issue](https://github.com/pinpoint-apm/pinpoint/issues/4668)

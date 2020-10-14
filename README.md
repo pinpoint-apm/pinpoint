@@ -10,9 +10,9 @@
 ## Latest Release (2020/09/09)
 
 We're happy to announce the release of Pinpoint v2.1.0.
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/v2.1.0).
+Please check the release note at (https://github.com/pinpoint-apm/pinpoint/releases/tag/v2.1.0).
 
-The current stable version is [v2.1.0](https://github.com/naver/pinpoint/releases/tag/v2.1.0).
+The current stable version is [v2.1.0](https://github.com/pinpoint-apm/pinpoint/releases/tag/v2.1.0).
 
 ## Live Demo
 
@@ -20,11 +20,11 @@ Take a quick look at Pinpoint with our [demo](http://125.209.240.10:10123/main/A
 
 ## PHP, PYTHON
 
-Pinpoint also supports application written in PHP, Python. [Check-out our agent repository](https://github.com/naver/pinpoint-c-agent).
+Pinpoint also supports application written in PHP, Python. [Check-out our agent repository](https://github.com/pinpoint-apm/pinpoint-c-agent).
 
 ## About Pinpoint
 
-**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java / [PHP](https://github.com/naver/pinpoint-c-agent)/[PYTHON]((https://github.com/naver/pinpoint-c-agent)).
+**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java / [PHP](https://github.com/pinpoint-apm/pinpoint-c-agent)/[PYTHON]((https://github.com/pinpoint-apm/pinpoint-c-agent)).
 Inspired by [Dapper](http://research.google.com/pubs/pub36356.html "Google Dapper"),
 Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
 
@@ -42,7 +42,7 @@ You should definitely check **Pinpoint** out If you want to
  
 ## Overview
 Services nowadays often consist of many different components, communicating amongst themselves as well as making API calls to external services. How each and every transaction gets executed is often left as a blackbox. Pinpoint traces transaction flows between these components and provides a clear view to identify problem areas and potential bottlenecks.<br/>
-For a more intimate guide, please check out our *[Introduction to Pinpoint](http://naver.github.io/pinpoint/#want-a-quick-tour)* video clip.
+For a more intimate guide, please check out our *[Introduction to Pinpoint](http://pinpoint-apm.github.io/pinpoint/#want-a-quick-tour)* video clip.
 
 * **ServerMap** - Understand the topology of any distributed systems by visualizing how their components are interconnected. Clicking on a node reveals details about the component, such as its current status, and transaction count.
 * **Realtime Active Thread Chart** - Monitor active threads inside applications in real-time.
@@ -60,13 +60,13 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 
 ## Supported Modules
 * JDK 6+
-* [Tomcat 6/7/8/9](https://github.com/naver/pinpoint/tree/master/plugins/tomcat), [Jetty 8/9](https://github.com/naver/pinpoint/tree/master/plugins/jetty), [JBoss EAP 6/7](https://github.com/naver/pinpoint/tree/master/plugins/jboss), [Resin 4](https://github.com/naver/pinpoint/tree/master/plugins/resin), [Websphere 6/7/8](https://github.com/naver/pinpoint/tree/master/plugins/websphere), [Vertx 3.3/3.4/3.5](https://github.com/naver/pinpoint/tree/master/plugins/vertx), [Weblogic 10/11g/12c](https://github.com/naver/pinpoint/tree/master/plugins/weblogic), [Undertow](https://github.com/naver/pinpoint/tree/master/plugins/undertow)
+* [Tomcat 6/7/8/9](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/tomcat), [Jetty 8/9](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/jetty), [JBoss EAP 6/7](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/jboss), [Resin 4](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/resin), [Websphere 6/7/8](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/websphere), [Vertx 3.3/3.4/3.5](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/vertx), [Weblogic 10/11g/12c](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/weblogic), [Undertow](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/undertow)
 * Spring, Spring Boot (Embedded Tomcat, Jetty, Undertow), Spring asynchronous communication
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient, Akka-http, Apache CXF
 * Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER, GRPC
 * ActiveMQ, RabbitMQ, Kafka
 * MySQL, Oracle, MSSQL(jtds), CUBRID, POSTGRESQL, MARIA
-* Arcus, Memcached, Redis([Jedis](https://github.com/naver/pinpoint/blob/master/plugins/redis), [Lettuce](https://github.com/naver/pinpoint/tree/master/plugins/redis-lettuce)), CASSANDRA, MongoDB, Hbase, Elasticsearch
+* Arcus, Memcached, Redis([Jedis](https://github.com/pinpoint-apm/pinpoint/blob/master/plugins/redis), [Lettuce](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/redis-lettuce)), CASSANDRA, MongoDB, Hbase, Elasticsearch
 * iBATIS, MyBatis
 * DBCP, DBCP2, HIKARICP, DRUID
 * gson, Jackson, Json Lib, Fastjson
@@ -120,7 +120,7 @@ Pinpoint Version | flink 1.3.X | flink 1.4.X | flink 1.5.X | flink 1.6.X | flink
 
 ## Community
 
-[Github issues](https://github.com/naver/pinpoint/issues)  
+[Github issues](https://github.com/pinpoint-apm/pinpoint/issues)  
 [Google group](https://groups.google.com/forum/#!forum/pinpoint_user)  
 [Gitter](https://gitter.im/naver/pinpoint)  
 
