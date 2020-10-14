@@ -5,7 +5,7 @@
 [![Build Status](https://travis-ci.org/naver/pinpoint.svg?branch=master)](https://travis-ci.org/naver/pinpoint)
 [![codecov](https://codecov.io/gh/naver/pinpoint/branch/master/graph/badge.svg)](https://codecov.io/gh/naver/pinpoint)
 
-**Visit [our official web site](http://pinpoint-apm.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://naver.github.io/pinpoint/news.html)**.
+**Visit [our official web site](https://pinpoint-apm.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://pinpoint-apm.github.io/pinpoint/news.html)**.
 
 ## Latest Release (2020/09/09)
 
@@ -30,19 +30,19 @@ Pinpoint provides a solution to help analyze the overall structure of the system
 
 You should definitely check **Pinpoint** out If you want to
 
-* understand your *[application topology](https://naver.github.io/pinpoint/overview.html#overview)* at a glance
+* understand your *[application topology](https://pinpoint-apm.github.io/pinpoint/overview.html#overview)* at a glance
 * monitor your application in *Real-Time*
 * gain *code-level visibility* to every transaction
 * install APM Agents *without changing a single line of code*
 * have minimal impact on the performance (approximately 3% increase in resource usage)
 
 ## Getting Started
- * [Quick-start guide](https://naver.github.io/pinpoint/quickstart.html) for simple test run of Pinpoint
- * [Installation guide](https://naver.github.io/pinpoint/installation.html) for further instructions.
+ * [Quick-start guide](https://pinpoint-apm.github.io/pinpoint/quickstart.html) for simple test run of Pinpoint
+ * [Installation guide](https://pinpoint-apm.github.io/pinpoint/installation.html) for further instructions.
  
 ## Overview
 Services nowadays often consist of many different components, communicating amongst themselves as well as making API calls to external services. How each and every transaction gets executed is often left as a blackbox. Pinpoint traces transaction flows between these components and provides a clear view to identify problem areas and potential bottlenecks.<br/>
-For a more intimate guide, please check out our *[Introduction to Pinpoint](http://pinpoint-apm.github.io/pinpoint/#want-a-quick-tour)* video clip.
+For a more intimate guide, please check out our *[Introduction to Pinpoint](https://pinpoint-apm.github.io/pinpoint#want-a-quick-tour)* video clip.
 
 * **ServerMap** - Understand the topology of any distributed systems by visualizing how their components are interconnected. Clicking on a node reveals details about the component, such as its current status, and transaction count.
 * **Realtime Active Thread Chart** - Monitor active threads inside applications in real-time.
@@ -94,8 +94,8 @@ Pinpoint Version | HBase 1.0.x | HBase 1.2.x | HBase 1.4.x | HBase 2.0.x
 1.6.x | not tested | yes | yes | no
 1.7.x | not tested | yes | yes | no
 1.8.x | not tested | yes | yes | no
-2.0.x | not tested | yes | yes | [optional](https://naver.github.io/pinpoint/hbaseupgrade.html#do-you-like-to-use-hbase-2x-for-pinpoint)
-2.1.x | not tested | yes | yes | [optional](https://naver.github.io/pinpoint/hbaseupgrade.html#do-you-like-to-use-hbase-2x-for-pinpoint)
+2.0.x | not tested | yes | yes | [optional](https://pinpoint-apm.github.io/pinpoint/hbaseupgrade.html#do-you-like-to-use-hbase-2x-for-pinpoint)
+2.1.x | not tested | yes | yes | [optional](https://pinpoint-apm.github.io/pinpoint/hbaseupgrade.html#do-you-like-to-use-hbase-2x-for-pinpoint)
 
 Agent - Collector compatibility table:
 
