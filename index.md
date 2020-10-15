@@ -17,7 +17,7 @@ layout: firstpage
  
 ## Is your application created with PHP?
 
-Pinpoint has started to support application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
+Pinpoint has started to support application written in PHP. [Check-out our php-agent repository](https://github.com/pinpoint-apm/pinpoint-c-agent).
 
 ## Looking for place to ask questions?
 
@@ -25,7 +25,7 @@ Pinpoint has started to support application written in PHP. [Check-out our php-a
 
 ## Introduction  
   
-**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java / [PHP](https://github.com/naver/pinpoint-c-agent).
+**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java / [PHP](https://github.com/pinpoint-apm/pinpoint-c-agent).
 Inspired by [Dapper](http://research.google.com/pubs/pub36356.html "Google Dapper"),
 Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
 
@@ -63,7 +63,7 @@ config.sendUsage=false
 
 ## License
 Pinpoint is licensed under the Apache License, Version 2.0.
-See [LICENSE](https://github.com/naver/pinpoint/blob/master/LICENSE) for full license text.
+See [LICENSE](https://github.com/pinpoint-apm/pinpoint/blob/master/LICENSE) for full license text.
 
 ```
 Copyright 2019 NAVER Corp.
