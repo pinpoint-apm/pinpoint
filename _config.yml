@@ -1,4 +1,4 @@
-repository: naver/pinpoint
+repository: pinpoint-apm/pinpoint
 
 theme: false
 
@@ -49,7 +49,7 @@ exclude:
 
 feedback_subject_line: pinpoint
 
-feedback_email: pinpoint.helper@navercorp.com
+feedback_email: pinpoint.helper@google.com
 # used as a contact email for the Feedback link in the top navigation bar
 
 # feedback_disable: true
@@ -118,5 +118,5 @@ description: "Intended as a documentation theme based on Jekyll for technical wr
 # the description is used in the feed.xml file
 
 # needed for sitemap.xml file only
-url: https://github.com/naver/pinpoint
+url: https://github.com/pinpoint-apm/pinpoint
 baseurl: /pinpoint

@@ -114,7 +114,7 @@ entries:
       output: web, pdf
 
     - title: Open to Contribution
-      external_url: https://github.com/naver/pinpoint/labels/proposal
+      external_url: https://github.com/pinpoint-apm/pinpoint/labels/proposal
       output: web, pdf
 
   - title: Videos
@@ -134,7 +134,7 @@ entries:
     output: link
 
   - title: Release Notes
-    external_url: https://github.com/naver/pinpoint/releases
+    external_url: https://github.com/pinpoint-apm/pinpoint/releases
     output: link
 
   - title: FAQ
@@ -146,9 +146,9 @@ entries:
     output: link
 
   - title: Questions and answers
-    external_url: https://github.com/naver/pinpoint/issues
+    external_url: https://github.com/pinpoint-apm/pinpoint/issues
     output: link
 
   - title: Fork me at Github
-    external_url: https://github.com/naver/pinpoint
+    external_url: https://github.com/pinpoint-apm/pinpoint
     output: link
