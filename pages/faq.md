@@ -8,7 +8,7 @@ toc: false
 disqus: false
 ---
 
-[Github issues](https://github.com/naver/pinpoint/issues)  
+[Github issues](https://github.com/pinpoint-apm/pinpoint/issues)  
 [Google group](https://groups.google.com/forum/#!forum/pinpoint_user)  
 [Gitter](https://gitter.im/naver/pinpoint)  
 

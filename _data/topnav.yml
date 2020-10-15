@@ -4,11 +4,11 @@ topnav:
 - title: Topnav
   items:
     - title: GitHub
-      external_url: https://github.com/naver/pinpoint
+      external_url: https://github.com/pinpoint-apm/pinpoint
     - title: News
       external_url: https://twitter.com/Pinpoint_APM
     - title: Pinpoint Blogs
-      external_url: https://naver.github.io/pinpoint/resources
+      external_url: https://pinpoint-apm.github.io/pinpoint/resources
 
 
 #Topnav dropdowns

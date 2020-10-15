@@ -8,6 +8,6 @@
 {% if site.feedback_link %}
   <a class="email" title="Submit feedback" href="{{site.feedback_link}}">{{feedback_text}}</a>
 {% else %}
-  <a class="email" title="Submit feedback" href="#" onclick="javascript:window.location='mailto:{{site.feedback_email}}?subject={{site.feedback_subject_line}} feedback&body=If it\'s an issue please check QnA page in the homepage or Pinpoint GitHub repository https://github.com/naver/pinpoint/issues' "><i class="fa fa-envelope-o"></i> {{feedback_text}}</a>
+  <a class="email" title="Submit feedback" href="#" onclick="javascript:window.location='mailto:{{site.feedback_email}}?subject={{site.feedback_subject_line}} feedback&body=If it\'s an issue please check QnA page on the homepage or Pinpoint GitHub repository https://github.com/pinpoint-apm/pinpoint/issues' "><i class="fa fa-envelope-o"></i> {{feedback_text}}</a>
 {% endif %}
 </li>
