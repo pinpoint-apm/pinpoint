@@ -31,8 +31,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MSSQLServerContainer;
-import org.testcontainers.utility.DockerMachineClient;
 
 import java.util.Properties;
 
@@ -64,7 +64,7 @@ public class MSSqlIT extends DataBaseTestCase {
 
     @BeforeClass
     public static void setup() {
-        Assume.assumeTrue("Docker not enabled", DockerMachineClient.instance().isInstalled());
+        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
         mssqlserver.start();
 
         driverProperties = new DriverProperties(mssqlserver.getJdbcUrl(), mssqlserver.getUsername(), mssqlserver.getPassword(), new Properties());
