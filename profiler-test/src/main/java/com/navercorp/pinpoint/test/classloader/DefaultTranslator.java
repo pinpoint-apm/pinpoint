@@ -112,12 +112,12 @@ public class DefaultTranslator implements Translator {
     }
 
     private byte[] customTransformer(String jvmClassName) {
-        logger.info("Modify find classname:{}, loader:{}", jvmClassName, loader);
+        logger.debug("Modify find classname:{}, loader:{}", jvmClassName, loader);
         MatchableClassFileTransformer transformer = transformerMap.get(jvmClassName);
         if (transformer == null) {
             return null;
         }
-        logger.info("Modify jvmClassName:{},  modifier{}, loader:{}", jvmClassName, transformer, loader);
+        logger.debug("Modify jvmClassName:{},  modifier{}, loader:{}", jvmClassName, transformer, loader);
 
 
         final Thread thread = Thread.currentThread();
