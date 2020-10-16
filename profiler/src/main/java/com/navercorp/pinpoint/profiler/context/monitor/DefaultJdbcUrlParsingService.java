@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.Assert;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,13 +30,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultJdbcUrlParsingService implements JdbcUrlParsingService {
 
-    private final List<JdbcUrlParserV2> jdbcUrlParserList;
+    private final JdbcUrlParserV2[] jdbcUrlParsers;
 
     private final ConcurrentHashMap<String, DatabaseInfo> cache = new ConcurrentHashMap<String, DatabaseInfo>();
     private final ConcurrentHashMap<CacheKey, DatabaseInfo> eachServiceTypeCache = new ConcurrentHashMap<CacheKey, DatabaseInfo>();
 
-    public DefaultJdbcUrlParsingService(List<JdbcUrlParserV2> jdbcUrlParserList) {
-        this.jdbcUrlParserList = jdbcUrlParserList;
+    public DefaultJdbcUrlParsingService(List<JdbcUrlParserV2> jdbcUrlParsers) {
+        Assert.requireNonNull(jdbcUrlParsers, "jdbcUrlParserList");
+        this.jdbcUrlParsers = jdbcUrlParsers.toArray(new JdbcUrlParserV2[0]);
     }
 
     @Override
@@ -56,10 +58,7 @@ public class DefaultJdbcUrlParsingService implements JdbcUrlParsingService {
 
     @Override
     public DatabaseInfo parseJdbcUrl(ServiceType serviceType, String jdbcUrl) {
-        if (serviceType == null) {
-            return UnKnownDatabaseInfo.INSTANCE;
-        }
-
+        Assert.requireNonNull(serviceType, "serviceType");
         if (jdbcUrl == null) {
             return UnKnownDatabaseInfo.INSTANCE;
         }
@@ -70,7 +69,7 @@ public class DefaultJdbcUrlParsingService implements JdbcUrlParsingService {
             return cacheValue;
         }
 
-        for (JdbcUrlParserV2 parser : jdbcUrlParserList) {
+        for (JdbcUrlParserV2 parser : jdbcUrlParsers) {
             if (parser.getServiceType() != null && serviceType.getCode() == parser.getServiceType().getCode()) {
                 DatabaseInfo databaseInfo = parser.parse(jdbcUrl);
                 return putCacheIfAbsent(cacheKey, databaseInfo);

@@ -31,7 +31,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptorV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor;
@@ -61,8 +60,6 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private final JdbcUrlParserV2 jdbcUrlParser = new PostgreSqlJdbcUrlParser();
-
     private TransformTemplate transformTemplate;
 
     @Override
@@ -74,16 +71,16 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
         }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        context.addJdbcUrlParser(jdbcUrlParser);
+        context.addJdbcUrlParser(new PostgreSqlJdbcUrlParser());
 
         addDriverTransformer();
-        addConnectionTransformers(config);
-        addStatementTransformers(config);
-        addPreparedStatementTransformers(config);
+        addConnectionTransformers();
+        addStatementTransformers();
+        addPreparedStatementTransformers();
 
         // pre 9.4.1207
-        addLegacyConnectionTransformers(config);
-        addLegacyStatementTransformers(config);
+        addLegacyConnectionTransformers();
+        addLegacyStatementTransformers();
     }
 
     private void addDriverTransformer() {
@@ -104,7 +101,7 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
         }
     }
 
-    private void addConnectionTransformers(final PostgreSqlConfig config) {
+    private void addConnectionTransformers() {
         transformTemplate.transform("org.postgresql.jdbc.PgConnection", PgConnectionTransform.class);
     }
 
@@ -170,7 +167,7 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
         }
     }
 
-    private void addStatementTransformers(final PostgreSqlConfig config) {
+    private void addStatementTransformers() {
 
         transformTemplate.transform("org.postgresql.jdbc.PgStatement", PgStatementTransform.class);
     }
@@ -230,7 +227,7 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
         }
     };
 
-    private void addPreparedStatementTransformers(final PostgreSqlConfig config) {
+    private void addPreparedStatementTransformers() {
 
         transformTemplate.transform("org.postgresql.jdbc.PgPreparedStatement", PgPreparedStatementTransform.class);
     }
@@ -272,7 +269,7 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
         }
     };
 
-    private void addLegacyConnectionTransformers(final PostgreSqlConfig config) {
+    private void addLegacyConnectionTransformers() {
         transformTemplate.transform("org.postgresql.jdbc2.AbstractJdbc2Connection", AbstractJdbc2ConnectionTransform.class);
 
         transformTemplate.transform("org.postgresql.jdbc3.AbstractJdbc3Connection", AbstractJdbc3ConnectionTransform.class);
@@ -387,7 +384,7 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
         }
     };
 
-    private void addLegacyStatementTransformers(final PostgreSqlConfig config) {
+    private void addLegacyStatementTransformers() {
         transformTemplate.transform("org.postgresql.jdbc2.AbstractJdbc2Statement", AbstractJdbc2StatementTransform.class);
         transformTemplate.transform("org.postgresql.jdbc3.AbstractJdbc3Statement", AbstractJdbc3StatementTransform.class);
     }
