@@ -73,6 +73,7 @@
         <module>rxjava-it</module>
         <module>spring-it</module>
         <module>thread-it</module>
+        <module>postgresql-jdbc-it</module>
         <module>process-it</module>
         <module>paho-mqtt-it</module>
     </modules>
