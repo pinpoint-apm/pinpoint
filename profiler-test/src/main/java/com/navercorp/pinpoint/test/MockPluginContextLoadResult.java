@@ -85,7 +85,13 @@ public class MockPluginContextLoadResult implements PluginContextLoadResult {
 
     @Override
     public List<JdbcUrlParserV2> getJdbcUrlParserList() {
-        return Collections.emptyList();
+        final List<JdbcUrlParserV2> result = new ArrayList<JdbcUrlParserV2>();
+        PluginsSetupResult pluginsSetupResult = getPluginsSetupResult();
+        for (PluginSetupResult context : pluginsSetupResult.getPluginSetupResults()) {
+            List<JdbcUrlParserV2> jdbcUrlParserList = context.getJdbcUrlParserList();
+            result.addAll(jdbcUrlParserList);
+        }
+        return result;
     }
 
 }
