@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.Assert;
 
 import java.util.List;
 
@@ -40,14 +41,8 @@ public class DefaultDatabaseInfo implements DatabaseInfo {
     }
 
     public DefaultDatabaseInfo(ServiceType type, ServiceType executeQueryType, String realUrl, String normalizedUrl, List<String> host, String databaseId, boolean parsingComplete) {
-        if (type == null) {
-            throw new NullPointerException("type");
-        }
-        if (executeQueryType == null) {
-            throw new NullPointerException("executeQueryType");
-        }
-        this.type = type;
-        this.executeQueryType = executeQueryType;
+        this.type = Assert.requireNonNull(type, "type");
+        this.executeQueryType = Assert.requireNonNull(executeQueryType, "executeQueryType");
         this.realUrl = realUrl;
         this.normalizedUrl = normalizedUrl;
         this.host = host;
