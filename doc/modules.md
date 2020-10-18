@@ -18,9 +18,9 @@
 |                                                                                            |                            |         |         |                        |
 | OpenWhisk                                                                                  | whisk.core                 |         |         |                        | 
 |                                                                                            |                            |         |         |                        |
-| SpringMVC Framework                                                                        | spring-webmvc              | 3.0.7   | 5.2.8   |                        | <AG>
-| Spring Web                                                                                 | spring-web                 | 4.1.2   | 4.3.28  |                        | <AG>
-| Spring RabbitMQ                                                                            | spring-rabbit              | 1.3.3   | 2.2.10  |                        | <AG>
+| SpringMVC Framework                                                                        | spring-webmvc              | 3.0.7   | 5.2.9   |                        | <AG>
+| Spring Web                                                                                 | spring-web                 | 4.1.2   | 4.3.29  |                        | <AG>
+| Spring RabbitMQ                                                                            | spring-rabbit              | 1.3.3   | 2.2.11  |                        | <AG>
 | Spring IBatis                                                                              | spring-ibatis              | 2.0.7   | 2.0.8   |                        | <AG>
 | Spring MyBatis                                                                             | mybatis-spring             | 1.1.0   | 1.3.3   |                        | <AG>
 | \*Spring Boot                                                                              | spring-boot-autoconfigure  |         |         |                        |
@@ -33,7 +33,7 @@
 | Httpclient3                                                                                | commons-httpclient         | 3.0     | 3.1     |                        | <AG>
 | Httpclient4                                                                                | httpclient                 | 4.0     | 4.5.4   |                        | <AG>  
 | Thrift                                                                                     | libthrift                  | 0.9.1   | 0.13.0  |                        | <AG> 
-| Google HTTP Client                                                                         | google-http-client         | 1.19.0  | 1.36.0  |                        | <AG> 
+| Google HTTP Client                                                                         | google-http-client         | 1.19.0  | 1.37.0  |                        | <AG> 
 | AsyncHttpClient                                                                            | async-http-client          | 1.7.24  | 1.8.17  |                        | <AG> 
 | OkHttp                                                                                     | okhttp                     | 2.0.0   | 3.3.1   |                        | <AG> 
 | Apache HttpAsyncClient                                                                     | httpasyncclient            | 4.0     | 4.1.3   |                        | <AG>
@@ -52,13 +52,13 @@
 | \*MsSQL                                                                                    | mssql-jdbc                 |         |         |                        | 
 | HikariCP                                                                                   | HikariCP-java6             | 2.3.0   | 2.3.13  |                        | <AG>
 | Jackson-mapper-asl                                                                         | jackson-mapper-asl         | 1.0.1   | 1.8.11  |                        | <AG>
-| Jackson Databind                                                                           | jackson-databind           | 2.0.6   | 2.11.2  |                        | <AG>
-| MariaDB Connector/J                                                                        | mariadb-java-client        | 1.3.0   | 2.6.2   |                        | <AG>
+| Jackson Databind                                                                           | jackson-databind           | 2.0.6   | 2.11.3  |                        | <AG>
+| MariaDB Connector/J                                                                        | mariadb-java-client        | 1.3.0   | 2.7.0   |                        | <AG>
 | MongoDB Java Driver                                                                        | mongodb-driver             | 3.0.0   | 3.12.7  |                        | <AG>
 | [Elasticsearch](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/elasticsearch-bboss) | bboss-elasticsearch-rest-jdbc | 5.6.9   | 5.8.2   |                     | <AG>
-| Elasticsearch                                                                              | elasticsearch-rest-high-level-client | 6.0.0   | 7.9.1   |              | <AG>
+| Elasticsearch                                                                              | elasticsearch-rest-high-level-client | 6.0.0   | 7.9.2   |              | <AG>
 | Datastax Java Driver                                                                       | cassandra-driver-core      | 2.0.10  | 3.10.2  |                        | <AG>
-| Druid                                                                                      | druid                      | 1.0.0   | 1.1.23  |                        | <AG>
+| Druid                                                                                      | druid                      | 1.0.0   | 1.2.1   |                        | <AG>
 | \*Cubrid                                                                                   | cubrid-jdbc-driver         | 8.4.1   | 10.0.0  |                        | 
 | \*Commons DBCP                                                                             | commons-dbcp               | 1.0     | 1.4     |                        | 
 | \*Commons DBCP2                                                                            | commons-dbcp2              | 2.0     | 2.5.0   |                        | 
@@ -70,7 +70,7 @@
 | \*[Redis](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/redis-lettuce)             | lettuce-core               | 5.0.0   | 5.1.2   |                        |
 | \*[Redis](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/redis-redisson)            | redisson                   | 3.10.0  | 3.10.4  |                        |
 |                                                                                            |                            |         |         |                        |
-| Apache CXF                                                                                 | cxf-rt-rs-client           | 3.0.0   | 3.3.7   |                        | <AG> 
+| Apache CXF                                                                                 | cxf-rt-rs-client           | 3.0.0   | 3.4.0   |                        | <AG> 
 | Netty                                                                                      | netty-all                  | 4.1.0   | 4.1.51  |                        | <AG> 
 | ActiveMQ                                                                                   | activemq-all               | 5.1.0   | 5.16.0  |                        | <AG> 
 | [RxJAVA](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/rxjava)                     | rxjava                     | 1.0.0   | 1.3.8   |                        | <AG> 
