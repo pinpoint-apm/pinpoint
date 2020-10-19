@@ -36,7 +36,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 /**
  * @author jaehong.kim
  */
-public class AsyncListenerInterceptorHelper {
+public class AsyncListenerInterceptorHelper implements AsyncListenerInterceptor {
     private static final MethodDescriptor ASYNC_LISTENER_ON_COMPLETE_METHOD_DESCRIPTOR = new AsyncListenerOnCompleteMethodDescriptor();
     private static final MethodDescriptor ASYNC_LISTENER_ON_ERROR_METHOD_DESCRIPTOR = new AsyncListenerOnErrorMethodDescriptor();
     private static final MethodDescriptor ASYNC_LISTENER_ON_TIMEOUT_METHOD_DESCRIPTOR = new AsyncListenerOnTimeoutMethodDescriptor();

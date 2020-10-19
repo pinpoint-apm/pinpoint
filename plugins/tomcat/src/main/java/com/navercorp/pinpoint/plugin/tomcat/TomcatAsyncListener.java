@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.AsyncListenerInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.AsyncListenerInterceptorHelper;
 
 import javax.servlet.AsyncEvent;
@@ -30,7 +31,7 @@ import java.io.IOException;
 /**
  * @author jaehong.kim
  */
-public class TomcatAsyncListener implements AsyncListener {
+public class TomcatAsyncListener implements AsyncListener, AsyncListenerInterceptor {
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
@@ -56,12 +57,17 @@ public class TomcatAsyncListener implements AsyncListener {
 
         try {
             final int statusCode = getStatusCode(asyncEvent);
-            this.asyncListenerInterceptorHelper.complete(asyncEvent.getThrowable(), statusCode);
+            complete(asyncEvent.getThrowable(), statusCode);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to async event handle. event={}", asyncEvent, t);
             }
         }
+    }
+
+    @Override
+    public void complete(Throwable throwable, int statusCode) {
+        this.asyncListenerInterceptorHelper.complete(throwable, statusCode);
     }
 
     @Override
@@ -78,10 +84,15 @@ public class TomcatAsyncListener implements AsyncListener {
         }
 
         try {
-            this.asyncListenerInterceptorHelper.timeout(asyncEvent.getThrowable());
+            timeout(asyncEvent.getThrowable());
         } catch (Throwable t) {
             logger.info("Failed to async event handle. event={}", asyncEvent, t);
         }
+    }
+
+    @Override
+    public void timeout(Throwable throwable) {
+        this.asyncListenerInterceptorHelper.timeout(throwable);
     }
 
     @Override
@@ -98,12 +109,17 @@ public class TomcatAsyncListener implements AsyncListener {
         }
 
         try {
-            this.asyncListenerInterceptorHelper.error(asyncEvent.getThrowable());
+            error(asyncEvent.getThrowable());
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to async event handle. event={}", asyncEvent, t);
             }
         }
+    }
+
+    @Override
+    public void error(Throwable throwable) {
+        this.asyncListenerInterceptorHelper.error(throwable);
     }
 
     @Override

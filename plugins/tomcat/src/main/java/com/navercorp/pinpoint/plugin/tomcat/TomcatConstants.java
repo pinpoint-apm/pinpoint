@@ -33,4 +33,14 @@ public final class TomcatConstants {
 
     public static final String TOMCAT_SERVLET_ASYNC_SCOPE = "TomcatServletAsyncScope";
     public static final String TOMCAT_SERVLET_REQUEST_TRACE = "com.navercorp.pinpoint.trace";
+
+    /**
+     * The name of the request attribute that should be set by the container
+     * when custom error-handling servlet or JSP page is invoked. The value of
+     * the attribute is of type {@code java.lang.Throwable}. See the chapter
+     * "Error Handling" in the Servlet Specification for details.
+     *
+     * @since Servlet 3.0
+     */
+    public static final String ERROR_EXCEPTION = "javax.servlet.error.exception";
 }
