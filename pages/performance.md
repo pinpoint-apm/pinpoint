@@ -54,7 +54,7 @@ disqus: false
  2. JVM option 
    - use G1 for the GC Type
    - fix initial/maximum memory allocation pool with same size. ex) -Xms4g -Xmx4g
- 3. Change [sampling rate](https://naver.github.io/pinpoint/faq.html#why-is-only-the-firstsome-of-the-requests-traced). Even 1~2% would be enough if you are dealing big data.  
+ 3. Change [sampling rate](https://pinpoint-apm.github.io/pinpoint/faq.html#why-is-only-the-firstsome-of-the-requests-traced). Even 1~2% would be enough if you are dealing big data.  
  
  When certain transaction doesn't bypass database, it may appear that Pinpoint is consuming much more resources than 3%, since instrumentation time is not relative, but absolute.
  But this phenomenon appears in all APM, not only Pinpoint.
