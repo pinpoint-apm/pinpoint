@@ -79,7 +79,7 @@ public class MqttV5CallbackMessageArrivedInterceptor extends MqttCallbackMessage
 
             MqttPublish mqttPublish = (MqttPublish) args[0];
             recorder.recordRpcName(buildRpcName(mqttPublish.getTopicName(), mqttPublish.getQoS()));
-            recorder.recordAttribute(MQTT_MESSAGE_PAYLOAD_ANNOTATION_KEY, new String(mqttPublish.getPayload()));
+            recorder.recordAttribute(MQTT_MESSAGE_PAYLOAD_ANNOTATION_KEY, BytesUtils.toString(mqttPublish.getPayload()));
 
             List<UserProperty> userProperties = mqttPublish.getProperties().getUserProperties();
             recordParentApplication(recorder, userProperties);
