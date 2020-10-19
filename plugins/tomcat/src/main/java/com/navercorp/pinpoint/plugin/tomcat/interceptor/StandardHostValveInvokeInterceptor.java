@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.AsyncListenerInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerCookieRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerHeaderRecorder;
@@ -89,8 +90,8 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
 
         try {
             final HttpServletRequest request = (HttpServletRequest) args[0];
-            final Trace asyncTrace = (Trace) request.getAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE);
-            if (asyncTrace != null) {
+            final AsyncListenerInterceptor asyncListenerInterceptor = (AsyncListenerInterceptor) request.getAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE);
+            if (asyncListenerInterceptor != null) {
                 if (isDebug) {
                     logger.debug("Skip async servlet request event.");
                 }
@@ -119,6 +120,17 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             final HttpServletRequest request = (HttpServletRequest) args[0];
             final HttpServletResponse response = (HttpServletResponse) args[1];
             int statusCode = getStatusCode(response);
+            final Throwable t = (Throwable) request.getAttribute(TomcatConstants.ERROR_EXCEPTION);
+            if (t != null) {
+                final AsyncListenerInterceptor asyncListenerInterceptor = (AsyncListenerInterceptor) request.getAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE);
+                if (asyncListenerInterceptor != null) {
+                    // Has an error occurred during async processing that needs to be processed by the application's error page mechanism
+                    asyncListenerInterceptor.complete(t, statusCode);
+                    if (isDebug) {
+                        logger.debug("Has an error occurred during async processing, asyncListener={}, throwable={}, statusCode={}", asyncListenerInterceptor, t, statusCode);
+                    }
+                }
+            }
             this.servletRequestListener.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
             if (isInfo) {

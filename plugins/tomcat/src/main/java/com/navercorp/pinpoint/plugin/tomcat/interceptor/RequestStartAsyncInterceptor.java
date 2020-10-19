@@ -71,14 +71,10 @@ public class RequestStartAsyncInterceptor implements AroundInterceptor {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (validate(target, result, throwable)) {
                 final HttpServletRequest request = (HttpServletRequest) target;
-                request.setAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE, trace);
-                if (isDebug) {
-                    logger.debug("Set request attribute {}={}", TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE, trace);
-                }
-
                 final AsyncContext asyncContext = (AsyncContext) result;
                 final AsyncListener asyncListener = new TomcatAsyncListener(this.traceContext, recorder.recordNextAsyncContext(true));
                 asyncContext.addListener(asyncListener);
+                request.setAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE, asyncListener);
                 if (isDebug) {
                     logger.debug("Add async listener {}", asyncListener);
                 }
