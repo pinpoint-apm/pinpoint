@@ -128,7 +128,7 @@
                 
                 
                 
-                <li><a href="https://naver.github.io/pinpoint/resources" target="_blank">Pinpoint Blogs</a></li>
+                <li><a href="https://pinpoint-apm.github.io/pinpoint/resources" target="_blank">Pinpoint Blogs</a></li>
                 
                 
                 
@@ -210,9 +210,9 @@
             $.each(data, function(key, value) {
 
                 if(versioned && path == value.ver){
-                    $('#selbox').append('<option selected="selected" value="http://naver.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                    $('#selbox').append('<option selected="selected" value="http://pinpoint-apm.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
                 }else{
-                    $('#selbox').append('<option value="http://naver.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                    $('#selbox').append('<option value="http://pinpoint-apm.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
                 }
             })
         });
@@ -630,7 +630,7 @@ $('#toc').on('click', 'a', function() {
       <li>fix initial/maximum memory allocation pool with same size. ex) -Xms4g -Xmx4g</li>
     </ul>
   </li>
-  <li>Change <a href="https://naver.github.io/pinpoint/faq.html#why-is-only-the-firstsome-of-the-requests-traced">sampling rate</a>. Even 1~2% would be enough if you are dealing big data.</li>
+  <li>Change <a href="https://pinpoint-apm.github.io/pinpoint/faq.html#why-is-only-the-firstsome-of-the-requests-traced">sampling rate</a>. Even 1~2% would be enough if you are dealing big data.</li>
 </ol>
 
 <p>When certain transaction doesn’t bypass database, it may appear that Pinpoint is consuming much more resources than 3%, since instrumentation time is not relative, but absolute.
