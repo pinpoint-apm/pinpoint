@@ -32,8 +32,9 @@ public class ServerListenerInterceptor extends GrpcAsyncContextSpanEventEndPoint
         super(traceContext, methodDescriptor);
     }
 
+    // BEFORE
     @Override
-    protected AsyncContext getAsyncContext(Object target) {
+    protected AsyncContext getAsyncContext(Object target, Object[] args) {
         if (target instanceof AsyncContextAccessor) {
             return ((AsyncContextAccessor) target)._$PINPOINT$_getAsyncContext();
         }
@@ -44,7 +45,17 @@ public class ServerListenerInterceptor extends GrpcAsyncContextSpanEventEndPoint
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    }
 
+    // AFTER
+    @Override
+    protected AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
+        if (target instanceof AsyncContextAccessor) {
+            return ((AsyncContextAccessor) target)._$PINPOINT$_getAsyncContext();
+        }
+
+        logger.info("failed to get AsyncContext");
+        return null;
     }
 
     @Override
@@ -52,5 +63,4 @@ public class ServerListenerInterceptor extends GrpcAsyncContextSpanEventEndPoint
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(GrpcConstants.SERVER_SERVICE_TYPE_INTERNAL);
     }
-
 }
