@@ -109,8 +109,8 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
         final Scan scan = new Scan();
         scan.setCaching(this.scanCacheSize);
-        scan.setStartRow(startKey);
-        scan.setStopRow(endKey);
+        scan.withStartRow(startKey);
+        scan.withStopRow(endKey);
         scan.addFamily(family);
         scan.setId("ApplicationSelfScan");
 

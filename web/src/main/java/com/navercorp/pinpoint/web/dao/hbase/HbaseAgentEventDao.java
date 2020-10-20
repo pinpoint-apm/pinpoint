@@ -83,8 +83,8 @@ public class HbaseAgentEventDao implements AgentEventDao {
         scan.setMaxVersions(1);
         scan.setCaching(SCANNER_CACHE_SIZE);
 
-        scan.setStartRow(createRowKey(agentId, range.getTo()));
-        scan.setStopRow(createRowKey(agentId, range.getFrom()));
+        scan.withStartRow(createRowKey(agentId, range.getTo()));
+        scan.withStopRow(createRowKey(agentId, range.getFrom()));
         scan.addFamily(descriptor.getColumnFamilyName());
 
         if (CollectionUtils.hasLength(excludeEventTypes)) {

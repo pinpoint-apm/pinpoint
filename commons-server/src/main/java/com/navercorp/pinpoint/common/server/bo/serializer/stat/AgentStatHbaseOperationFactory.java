@@ -80,10 +80,13 @@ public class AgentStatHbaseOperationFactory {
 
     public Scan createScan(String agentId, AgentStatType agentStatType, long startTimestamp, long endTimestamp) {
         final AgentStatRowKeyComponent startRowKeyComponent = new AgentStatRowKeyComponent(agentId, agentStatType, AgentStatUtils.getBaseTimestamp(endTimestamp));
-        final AgentStatRowKeyComponent endRowKeyComponenet = new AgentStatRowKeyComponent(agentId, agentStatType, AgentStatUtils.getBaseTimestamp(startTimestamp) - HbaseColumnFamily.AGENT_STAT_STATISTICS.TIMESPAN_MS);
+        final AgentStatRowKeyComponent endRowKeyComponent = new AgentStatRowKeyComponent(agentId, agentStatType, AgentStatUtils.getBaseTimestamp(startTimestamp) - HbaseColumnFamily.AGENT_STAT_STATISTICS.TIMESPAN_MS);
         byte[] startRowKey = this.rowKeyEncoder.encodeRowKey(startRowKeyComponent);
-        byte[] endRowKey = this.rowKeyEncoder.encodeRowKey(endRowKeyComponenet);
-        return new Scan(startRowKey, endRowKey);
+        byte[] endRowKey = this.rowKeyEncoder.encodeRowKey(endRowKeyComponent);
+        Scan scan = new Scan();
+        scan.withStartRow(startRowKey);
+        scan.withStopRow(endRowKey);
+        return scan;
     }
 
     public AbstractRowKeyDistributor getRowKeyDistributor() {
