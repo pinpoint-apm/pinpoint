@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.collector.cluster.AgentInfo;
+import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
+import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCount;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDump;
@@ -54,6 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -77,12 +80,14 @@ public class PinpointGrpcServer {
     private final InetSocketAddress remoteAddress;
     private final AgentInfo agentInfo;
     private final RequestManager requestManager;
+    private final ProfilerClusterManager profilerClusterManager;
     private final StreamObserver<PCmdRequest> requestObserver;
 
-    public PinpointGrpcServer(InetSocketAddress remoteAddress, AgentInfo agentInfo, RequestManager requestManager, StreamObserver<PCmdRequest> requestObserver) {
+    public PinpointGrpcServer(InetSocketAddress remoteAddress, AgentInfo agentInfo, RequestManager requestManager, ProfilerClusterManager profilerClusterManager, StreamObserver<PCmdRequest> requestObserver) {
         this.remoteAddress = Objects.requireNonNull(remoteAddress, "remoteAddress");
         this.agentInfo = Objects.requireNonNull(agentInfo, "agentInfo");
         this.requestManager = Objects.requireNonNull(requestManager, "requestManager");
+        this.profilerClusterManager = Objects.requireNonNull(profilerClusterManager, "profilerClusterManager");
         this.requestObserver = Objects.requireNonNull(requestObserver, "requestObserver");
     }
 
@@ -106,6 +111,17 @@ public class PinpointGrpcServer {
 
     private SocketStateChangeResult toState(SocketStateCode socketStateCode) {
         SocketStateChangeResult result = state.to(socketStateCode);
+        if (result.isChange()) {
+            if (SocketStateCode.RUN_DUPLEX == socketStateCode) {
+                GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(this, supportCommandServiceList.get());
+                profilerClusterManager.register(grpcAgentConnection);
+            } else if (SocketStateCode.isClosed(socketStateCode)) {
+                GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(this, Collections.emptyList());
+                profilerClusterManager.unregister(grpcAgentConnection);
+            }
+        }
+
+
         if (logger.isDebugEnabled()) {
             logger.debug(result.toString());
         }
@@ -290,6 +306,11 @@ public class PinpointGrpcServer {
                     }
                 }
 
+            } catch (Exception e) {
+                // It could throw exception when requestObserver is already completed.
+            }
+
+            try {
                 SocketStateCode currentStateCode = getState();
                 if (SocketStateCode.BEING_CLOSE_BY_SERVER == currentStateCode) {
                     toState(SocketStateCode.CLOSED_BY_SERVER);
