@@ -125,6 +125,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 final AsyncListenerInterceptor asyncListenerInterceptor = (AsyncListenerInterceptor) request.getAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE);
                 if (asyncListenerInterceptor != null) {
                     // Has an error occurred during async processing that needs to be processed by the application's error page mechanism
+                    // Affected version: Tomcat 7, 8, 9, 10. https://bz.apache.org/bugzilla/show_bug.cgi?id=56739
                     asyncListenerInterceptor.complete(t, statusCode);
                     if (isDebug) {
                         logger.debug("Has an error occurred during async processing, asyncListener={}, throwable={}, statusCode={}", asyncListenerInterceptor, t, statusCode);
