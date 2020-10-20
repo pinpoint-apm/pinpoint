@@ -85,7 +85,10 @@ public class ApplicationStatHbaseOperationFactory {
         final ApplicationStatRowKeyComponent endRowKeyComponenet = new ApplicationStatRowKeyComponent(applicationId, statType, AgentStatUtils.getBaseTimestamp(startTimestamp) - HbaseColumnFamily.APPLICATION_STAT_STATISTICS.TIMESPAN_MS);
         byte[] startRowKey = this.rowKeyEncoder.encodeRowKey(startRowKeyComponent);
         byte[] endRowKey = this.rowKeyEncoder.encodeRowKey(endRowKeyComponenet);
-        return new Scan(startRowKey, endRowKey);
+        Scan scan = new Scan();
+        scan.withStartRow(startRowKey);
+        scan.withStopRow(endRowKey);
+        return scan;
     }
 
     public AbstractRowKeyDistributor getRowKeyDistributor() {

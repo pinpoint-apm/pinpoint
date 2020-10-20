@@ -111,9 +111,9 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
         Scan scan = new Scan();
         scan.setCaching(SCAN_CACHE_SIZE);
-        scan.setStartRow(startKey);
-        scan.setStopRow(endKey);
-        for(byte[] family : familyArgs) {
+        scan.withStartRow(startKey);
+        scan.withStopRow(endKey);
+        for (byte[] family : familyArgs) {
             scan.addFamily(family);
         }
         scan.setId("ApplicationStatisticsScan");

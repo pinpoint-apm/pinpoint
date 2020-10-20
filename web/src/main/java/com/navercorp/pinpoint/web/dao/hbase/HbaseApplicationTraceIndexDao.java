@@ -176,12 +176,12 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         if (scanBackward) {
             // start key is replaced by end key because key has been reversed
-            scan.setStartRow(traceIndexEndKey);
-            scan.setStopRow(traceIndexStartKey);
+            scan.withStartRow(traceIndexEndKey);
+            scan.withStopRow(traceIndexStartKey);
         } else {
             scan.setReversed(true);
-            scan.setStartRow(traceIndexStartKey);
-            scan.setStopRow(traceIndexEndKey);
+            scan.withStartRow(traceIndexStartKey);
+            scan.withStopRow(traceIndexEndKey);
         }
 
         scan.addFamily(descriptor.getColumnFamilyName());

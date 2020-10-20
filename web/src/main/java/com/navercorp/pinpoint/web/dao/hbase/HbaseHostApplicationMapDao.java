@@ -116,8 +116,8 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
         Scan scan = new Scan();
         scan.setCaching(this.scanCacheSize);
-        scan.setStartRow(startKey);
-        scan.setStopRow(endKey);
+        scan.withStartRow(startKey);
+        scan.withStopRow(endKey);
         scan.setId("HostApplicationScan_Ver2");
 
         return scan;
