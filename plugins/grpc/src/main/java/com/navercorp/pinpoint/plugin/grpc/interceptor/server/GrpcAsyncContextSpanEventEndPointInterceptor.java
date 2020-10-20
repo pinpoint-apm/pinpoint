@@ -43,7 +43,7 @@ public abstract class GrpcAsyncContextSpanEventEndPointInterceptor extends Async
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        final AsyncContext asyncContext = getAsyncContext(target);
+        final AsyncContext asyncContext = getAsyncContext(target, args, result, throwable);
         if (asyncContext == null) {
             logger.debug("Not found asynchronous invocation metadata");
             return;

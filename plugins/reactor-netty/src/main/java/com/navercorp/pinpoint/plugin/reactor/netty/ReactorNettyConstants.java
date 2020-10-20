@@ -25,4 +25,6 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
 public class ReactorNettyConstants {
     public static final ServiceType REACTOR_NETTY = ServiceTypeProvider.getByName("REACTOR_NETTY");
     public static final ServiceType REACTOR_NETTY_INTERNAL = ServiceTypeProvider.getByName("REACTOR_NETTY_INTERNAL");
+    public static final ServiceType REACTOR_NETTY_CLIENT = ServiceTypeProvider.getByName("REACTOR_NETTY_CLIENT");
+    public static final ServiceType REACTOR_NETTY_CLIENT_INTERNAL = ServiceTypeProvider.getByName("REACTOR_NETTY_CLIENT_INTERNAL");
 }

@@ -1,5 +1,5 @@
 ## Reactor Netty
-* Version: 1.0
+* Version: 1.1
 * Since: Pinpoint 2.0.0
 * See: https://github.com/reactor/reactor-netty
 * See: [Project Reactor](https://projectreactor.io/)
@@ -34,6 +34,12 @@ profiler.reactor-netty.server.excludeurl=
 #profiler.reactor-netty.server.realipheader=X-Real-IP
 # optional parameter, If the header value is ${profiler.reactor-netty.realipemptyvalue}, Ignore header value.
 #profiler.reactor-netty.server.realipemptyvalue=unknown
+
+# Client
+profiler.reactor-netty.client.enable=true
+# Record Parameter.
+profiler.reactor-netty.client.param=true
+# Unsupported cookie and entity information
 ~~~
 
 If you use Spring boot starter, if you set main class as profiler.spring boot.bootstrap.main setting value.
@@ -44,3 +50,6 @@ profiler.springboot.bootstrap.main=foo.bar.SampleApplication
 
 ### Web Server
 * Netty(Reactor Netty) HTTP Server
+
+### HTTP Client
+* Netty(Reactor Netty) HTTP Client

@@ -48,7 +48,7 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final SpringWebFluxPluginConfig config = new SpringWebFluxPluginConfig(context.getConfig());
-        if (!config.isEnable()) {
+        if (Boolean.FALSE == config.isEnable()) {
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
@@ -59,9 +59,12 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
         transformTemplate.transform("org.springframework.web.server.adapter.DefaultServerWebExchange", ServerWebExchangeTransform.class);
 
         // Client
-        transformTemplate.transform("org.springframework.web.reactive.function.client.DefaultWebClient$DefaultRequestBodyUriSpec", DefaultWebClientTransform.class);
-        transformTemplate.transform("org.springframework.web.reactive.function.client.ExchangeFunctions$DefaultExchangeFunction", ExchangeFunctionTransform.class);
-        transformTemplate.transform("org.springframework.web.reactive.function.client.DefaultClientRequestBuilder$BodyInserterRequest", BodyInserterRequestTransform.class);
+        if (Boolean.TRUE == config.isClientEnable()) {
+            // If there is a conflict with Reactor-Netty, set it to false.
+            transformTemplate.transform("org.springframework.web.reactive.function.client.DefaultWebClient$DefaultRequestBodyUriSpec", DefaultWebClientTransform.class);
+            transformTemplate.transform("org.springframework.web.reactive.function.client.ExchangeFunctions$DefaultExchangeFunction", ExchangeFunctionTransform.class);
+            transformTemplate.transform("org.springframework.web.reactive.function.client.DefaultClientRequestBuilder$BodyInserterRequest", BodyInserterRequestTransform.class);
+        }
     }
 
     @Override
