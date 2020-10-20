@@ -200,7 +200,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
     private PinpointGrpcServer createPinpointGrpcServer(StreamObserver<PCmdRequest> requestObserver, AgentInfo agentInfo) {
         final RequestManager requestManager = new RequestManager(timer, 3000);
-        return new PinpointGrpcServer(getRemoteAddress(), agentInfo, requestManager, requestObserver);
+        return new PinpointGrpcServer(getRemoteAddress(), agentInfo, requestManager, profilerClusterManager, requestObserver);
     }
 
     private DisabledStreamObserver handleServerRegistrationFailed(StreamObserver<PCmdRequest> requestObserver, AgentInfo agentInfo, Long transportId) {
@@ -212,11 +212,6 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
     private boolean registerAgentCommandList(PinpointGrpcServer pinpointGrpcServer, List<Integer> supportCommandServiceCodeList) {
         logger.info("{} => local. execute supportCommandServiceCodeList:{}", getAgentInfo().getAgentKey(), supportCommandServiceCodeList);
         boolean handshakeSucceed = pinpointGrpcServer.handleHandshake(supportCommandServiceCodeList);
-        if (handshakeSucceed) {
-            GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(pinpointGrpcServer, supportCommandServiceCodeList);
-            profilerClusterManager.register(grpcAgentConnection);
-        }
-
         return handshakeSucceed;
     }
 
