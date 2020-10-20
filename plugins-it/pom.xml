@@ -76,6 +76,7 @@
         <module>postgresql-jdbc-it</module>
         <module>process-it</module>
         <module>paho-mqtt-it</module>
+        <module>kafka-it</module>
     </modules>
 
     <properties>
