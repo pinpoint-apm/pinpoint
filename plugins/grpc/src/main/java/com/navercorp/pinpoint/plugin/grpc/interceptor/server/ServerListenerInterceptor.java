@@ -33,7 +33,17 @@ public class ServerListenerInterceptor extends GrpcAsyncContextSpanEventEndPoint
     }
 
     @Override
-    protected AsyncContext getAsyncContext(Object target) {
+    protected AsyncContext getAsyncContext(Object target, Object[] args) {
+        if (target instanceof AsyncContextAccessor) {
+            return ((AsyncContextAccessor) target)._$PINPOINT$_getAsyncContext();
+        }
+
+        logger.info("failed to get AsyncContext");
+        return null;
+    }
+
+    @Override
+    protected AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
         if (target instanceof AsyncContextAccessor) {
             return ((AsyncContextAccessor) target)._$PINPOINT$_getAsyncContext();
         }

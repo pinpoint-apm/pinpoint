@@ -48,6 +48,7 @@ public class HttpServerExchangeAdaptor implements RequestAdaptor<HttpServerExcha
     public String getEndPoint(HttpServerExchange request) {
         final InetSocketAddress address = request.getDestinationAddress();
         if (address != null) {
+            // TODO fix
             return HostAndPort.toHostAndPortString(SocketAddressUtils.getHostNameFirst(address), address.getPort());
         }
         return "Unknown";
