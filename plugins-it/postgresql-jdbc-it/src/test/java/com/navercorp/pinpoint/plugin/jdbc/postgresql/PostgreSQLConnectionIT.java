@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.DockerClientFactory;
+import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.sql.Connection;
@@ -42,7 +43,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -54,31 +54,14 @@ public class PostgreSQLConnectionIT extends BasePinpointTest {
 
     private static final Logger logger = LoggerFactory.getLogger(PostgreSQLConnectionIT.class);
 
-    private static PostgreSQLContainer<?> container = new PostgreSQLContainer();
+    public static JdbcDatabaseContainer<?> container = PostgreSQLContainerFactory.newContainer(logger);
 
-    private static JDBCDriverClass driverClass = new PostgreSQLJDBCDriverClass();
+    private static final JDBCDriverClass driverClass = new PostgreSql_9_4_1207_JDBCDriverClass();
 
     @BeforeClass
     public static void beforeClass() throws Exception {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
         container.start();
-
-        Driver driver = driverClass.getDriver().newInstance();
-        DriverManager.registerDriver(driver);
-
-        Connection connection = null;
-        try {
-            connection = createConnection(container.getJdbcUrl(), container.getUsername(), container.getPassword());
-            Statement statement = connection.createStatement();
-
-            List<String> tableQuery = createTableQuery();
-
-            for (String query : tableQuery) {
-                statement.execute(query);
-            }
-        } finally {
-            close(connection);
-        }
     }
 
     @AfterClass
@@ -92,6 +75,7 @@ public class PostgreSQLConnectionIT extends BasePinpointTest {
         DriverManager.registerDriver(driver);
     }
 
+
     @After
     public void deregisterDriver() throws Exception {
         DriverManagerUtils.deregisterDriver();
@@ -104,15 +88,6 @@ public class PostgreSQLConnectionIT extends BasePinpointTest {
         return DriverManager.getConnection(url, properties);
     }
 
-    private static List<String> createTableQuery() {
-        String create1 = "CREATE TABLE member \n" +
-                "   (\n" +
-                "   id  INT PRIMARY KEY,\n" +
-                "   name    CHAR(20)\n" +
-                "   );";
-
-        return Arrays.asList(create1);
-    }
 
     @Test
     public void execute() throws SQLException {
@@ -144,7 +119,7 @@ public class PostgreSQLConnectionIT extends BasePinpointTest {
     }
 
     @Test
-    public void localbalance() throws SQLException {
+    public void loadbalance() throws SQLException {
         Connection connection = null;
         try {
             Integer port = container.getFirstMappedPort();
