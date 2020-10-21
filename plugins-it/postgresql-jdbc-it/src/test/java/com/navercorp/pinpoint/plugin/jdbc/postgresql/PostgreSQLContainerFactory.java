@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.pluginit.utils;
+package com.navercorp.pinpoint.plugin.jdbc.postgresql;
+
+import org.slf4j.Logger;
+import org.testcontainers.containers.JdbcDatabaseContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public final class TestcontainersOption {
-    private TestcontainersOption() {
+public class PostgreSQLContainerFactory {
+    public static JdbcDatabaseContainer newContainer(Logger logger) {
+        PostgreSQLContainer container = new PostgreSQLContainer();
+        container.withInitScript("init_postgresql.sql");
+        container.withLogConsumer(new Slf4jLogConsumer(logger));
+        return container;
     }
-
-    public static final String VERSION = "1.14.3";
-
-    public static final String TEST_CONTAINER = "org.testcontainers:testcontainers:" + VERSION;
-    public static final String MSSQL = "org.testcontainers:mssqlserver:" + VERSION;
-    public static final String POSTGRESQL = "org.testcontainers:postgresql:" + VERSION;
 }

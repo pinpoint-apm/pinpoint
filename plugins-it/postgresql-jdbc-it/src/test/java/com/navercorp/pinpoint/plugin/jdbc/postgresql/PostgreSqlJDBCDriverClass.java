@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.pluginit.utils;
+package com.navercorp.pinpoint.plugin.jdbc.postgresql;
+
+
+import com.navercorp.pinpoint.pluginit.jdbc.AbstractJDBCDriverClass;
+
+import java.sql.Statement;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public final class TestcontainersOption {
-    private TestcontainersOption() {
+public abstract class PostgreSqlJDBCDriverClass extends AbstractJDBCDriverClass {
+
+    public Class<Statement> getStatementForExecuteUpdate() {
+        return getStatement();
     }
-
-    public static final String VERSION = "1.14.3";
-
-    public static final String TEST_CONTAINER = "org.testcontainers:testcontainers:" + VERSION;
-    public static final String MSSQL = "org.testcontainers:mssqlserver:" + VERSION;
-    public static final String POSTGRESQL = "org.testcontainers:postgresql:" + VERSION;
 }
