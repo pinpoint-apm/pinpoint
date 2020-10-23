@@ -96,6 +96,12 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     }
 
     @Override
+    public List<SpanBo> selectTransactionMetadata(TransactionId transactionId) {
+        final List<SpanBo> selectedSpans = traceDao.selectSpan(transactionId);
+        return selectedSpans;
+    }
+
+    @Override
     public ScatterData selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
