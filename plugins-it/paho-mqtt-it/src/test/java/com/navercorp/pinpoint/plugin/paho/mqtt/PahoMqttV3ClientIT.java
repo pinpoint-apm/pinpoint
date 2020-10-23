@@ -20,7 +20,12 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
-import com.navercorp.pinpoint.test.plugin.*;
+import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.PinpointConfig;
+import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -36,23 +41,30 @@ import org.junit.runner.RunWith;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.root;
 
 /**
  * @author Younsung Hwang
+ * @author Taejin Koo
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-paho-mqtt-plugin")
 @PinpointConfig("pinpoint-paho-mqttv3-plugin-test.config")
-@Dependency({"org.eclipse.paho:org.eclipse.paho.client.mqttv3:[1.2.5][1.1.1][1.0.2]"})
+@Dependency({"org.eclipse.paho:org.eclipse.paho.client.mqttv3:[1.2.5][1.1.1][1.0.2]",
+        "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
+        "org.testcontainers:testcontainers:1.14.3"
+})
 public class PahoMqttV3ClientIT {
+
+    private static PahoMqttContainer container = new PahoMqttV3Container();
 
     static String MESSAGE_PAYLOAD = "todareistodo";
     static String TOPIC = "pahotest";
     static String PAHO_MQTT_CLIENT = "PAHO_MQTT_CLIENT";
     static String PAHO_MQTT_CLIENT_INTERNAL = "PAHO_MQTT_CLIENT_INTERNAL";
-    static String BROKER_URL = "tcp://localhost:1883";
     static int QOS = 2;
     static int WAIT_FOR_COMPLETION = 3000;
 
@@ -60,7 +72,9 @@ public class PahoMqttV3ClientIT {
 
     @BeforeClass
     public static void before() throws MqttException {
-        mqttClient = new MqttAsyncClient(BROKER_URL, UUID.randomUUID().toString(), new MemoryPersistence());
+        container.start();
+
+        mqttClient = new MqttAsyncClient(container.getBrokerUrl(), UUID.randomUUID().toString(), new MemoryPersistence());
         IMqttToken token = mqttClient.connect();
         token.waitForCompletion(WAIT_FOR_COMPLETION);
         subscribe();
@@ -74,6 +88,8 @@ public class PahoMqttV3ClientIT {
     @AfterClass
     public static void after() throws MqttException {
         mqttClient.disconnect();
+
+        container.stop();
     }
 
     @Test
@@ -97,15 +113,15 @@ public class PahoMqttV3ClientIT {
                 Object.class,
                 org.eclipse.paho.client.mqttv3.IMqttActionListener.class
         );
-        ExpectedTrace publishExpected = event(PAHO_MQTT_CLIENT, publishMethod, annotation("mqtt.broker.uri", BROKER_URL), annotation("mqtt.topic", TOPIC),
+        ExpectedTrace publishExpected = event(PAHO_MQTT_CLIENT, publishMethod, annotation("mqtt.broker.uri", container.getBrokerUrl()), annotation("mqtt.topic", TOPIC),
                 annotation("mqtt.message.payload", MESSAGE_PAYLOAD), annotation("mqtt.qos", QOS));
 
-        String expectedRpcName = "mqtt://topic="+TOPIC+"&qos="+QOS;
+        String expectedRpcName = "mqtt://topic=" + TOPIC + "&qos=" + QOS;
         ExpectedTrace messageArrivedInvocationExpected = root(PAHO_MQTT_CLIENT,
                 "MQTT Message Arrived Invocation",
                 expectedRpcName,
                 null,
-                BROKER_URL, annotation("mqtt.message.payload", MESSAGE_PAYLOAD));
+                container.getBrokerUrl(), annotation("mqtt.message.payload", MESSAGE_PAYLOAD));
 
         Method messageArrivedMethod = CommsCallback.class.getDeclaredMethod("messageArrived", MqttPublish.class);
         ExpectedTrace messageArrivedExpected = event(PAHO_MQTT_CLIENT_INTERNAL, messageArrivedMethod);
@@ -113,6 +129,24 @@ public class PahoMqttV3ClientIT {
         verifier.verifyDiscreteTrace(publishExpected, messageArrivedInvocationExpected, messageArrivedExpected);
     }
 
+    private static class PahoMqttV3Container extends PahoMqttContainer {
+
+        @Override
+        boolean checkBrokerStarted() throws Exception {
+
+            MqttAsyncClient mqttClient = null;
+            try {
+                mqttClient = new MqttAsyncClient(getBrokerUrl(), UUID.randomUUID().toString(), new MemoryPersistence());
+                IMqttToken token = mqttClient.connect();
+                token.waitForCompletion(WAIT_FOR_COMPLETION);
+                return true;
+            } finally {
+                if (mqttClient != null) {
+                    mqttClient.disconnect();
+                }
+            }
+        }
+
+    }
 
 }
-
