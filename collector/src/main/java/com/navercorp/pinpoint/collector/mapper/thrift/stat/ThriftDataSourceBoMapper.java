@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.thrift.dto.TDataSource;
 import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * @author Taejin Koo
  */
@@ -49,10 +51,13 @@ public class ThriftDataSourceBoMapper implements ThriftStatMapper<DataSourceBo, 
             DataSourceListBo dataSourceListBo = new DataSourceListBo();
 
             TDataSourceList dataSourceList = tAgentStat.getDataSourceList();
-            for (TDataSource dataSource : dataSourceList.getDataSourceList()) {
-                DataSourceBo dataSourceBo = map(dataSource);
+            List<TDataSource> innerDataSourceList = dataSourceList.getDataSourceList();
+            if (innerDataSourceList != null) {
+                for (TDataSource dataSource : innerDataSourceList) {
+                    DataSourceBo dataSourceBo = map(dataSource);
 
-                dataSourceListBo.add(dataSourceBo);
+                    dataSourceListBo.add(dataSourceBo);
+                }
             }
             agentStatBuilder.addDataSourceList(dataSourceListBo);
         }
