@@ -23,7 +23,7 @@
 | Spring RabbitMQ                                                                            | spring-rabbit              | 1.3.3   | 2.2.11  |                        | <AG>
 | Spring IBatis                                                                              | spring-ibatis              | 2.0.7   | 2.0.8   |                        | <AG>
 | Spring MyBatis                                                                             | mybatis-spring             | 1.1.0   | 1.3.3   |                        | <AG>
-| \*Spring Boot                                                                              | spring-boot-autoconfigure  |         |         |                        |
+| \*[Spring Boot](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/spring-boot)  | spring-boot-autoconfigure  |         |         |                        |
 | \*[Spring Webflux](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/spring-webflux)   | spring-webflux             |         |         |                        |    
 |                                                                                            |                            |         |         |                        | 
 | MyBatis                                                                                    | mybatis                    | 3.0.3   | 3.3.1   |                        | <AG>
