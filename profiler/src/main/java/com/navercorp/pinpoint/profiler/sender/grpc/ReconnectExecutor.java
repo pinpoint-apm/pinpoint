@@ -68,7 +68,7 @@ public class ReconnectExecutor {
     public Reconnector newReconnector(Runnable reconnectJob) {
         Assert.requireNonNull(reconnectJob, "reconnectJob");
         if (logger.isInfoEnabled()) {
-            logger.info("newReconnector(reconnectJob = [{}])", reconnectJob);
+            logger.info("newReconnector({})", reconnectJob);
         }
 
         final Executor dispatch = new Executor() {

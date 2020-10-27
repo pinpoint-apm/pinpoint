@@ -87,8 +87,8 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
 
         final ClientInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getSpanRequestTimeout());
         channelFactoryBuilder.addClientInterceptor(unaryCallDeadlineInterceptor);
-        final ClientInterceptor discardClientInterceptor = newDiscardClientInterceptor();
-        channelFactoryBuilder.addClientInterceptor(discardClientInterceptor);
+//        final ClientInterceptor discardClientInterceptor = newDiscardClientInterceptor();
+//        channelFactoryBuilder.addClientInterceptor(discardClientInterceptor);
 
         channelFactoryBuilder.setExecutorQueueSize(channelExecutorQueueSize);
         channelFactoryBuilder.setClientOption(clientOption);

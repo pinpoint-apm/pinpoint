@@ -36,6 +36,16 @@
             <AppenderRef ref="rollingFile"/>
         </Logger>
 
+        <Logger name="io.grpc.Context" level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Logger>
+        <Logger name="io.grpc.netty.Utils" level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Logger>
+
+
         <Root level="INFO">
             <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>
