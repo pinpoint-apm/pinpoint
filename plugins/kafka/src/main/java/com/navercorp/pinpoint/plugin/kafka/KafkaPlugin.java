@@ -35,12 +35,14 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.EndPointFieldAccessor;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.SocketChannelListFieldAccessor;
+import com.navercorp.pinpoint.plugin.kafka.field.getter.ApiVersionsGetter;
 import com.navercorp.pinpoint.plugin.kafka.field.getter.SelectorGetter;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerMultiRecordEntryPointInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerPollInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerRecordEntryPointInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerRecordsInterceptor;
+import com.navercorp.pinpoint.plugin.kafka.interceptor.ProducerAddHeaderInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.NetworkClientPollInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ProducerConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ProducerSendInterceptor;
@@ -53,6 +55,7 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
  * @author Harris Gwag (gwagdalf)
+ * @author Taejin Koo
  */
 public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
 
@@ -143,7 +146,17 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
                 sendMethod.addInterceptor(ProducerSendInterceptor.class);
             }
 
+            // Version 0.11.0+ is supported.
+            InstrumentMethod setReadOnlyMethod = target.getDeclaredMethod("setReadOnly", "org.apache.kafka.common.header.Headers");
+            if (setReadOnlyMethod != null) {
+                setReadOnlyMethod.addInterceptor(ProducerAddHeaderInterceptor.class);
+            }
+            if (target.hasField("apiVersions")) {
+                target.addGetter(ApiVersionsGetter.class, "apiVersions");
+            }
+
             target.addField(RemoteAddressFieldAccessor.class);
+
             return target.toBytecode();
         }
 
