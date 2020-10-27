@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
+import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
@@ -97,6 +98,9 @@ public class StatService extends StatGrpc.StatImplBase {
 
             @Override
             public void onCompleted() {
+                com.navercorp.pinpoint.grpc.Header header = ServerContext.getAgentInfo();
+                logger.info("onCompleted {}", header);
+
                 responseObserver.onNext(Empty.newBuilder().build());
                 responseObserver.onCompleted();
             }
