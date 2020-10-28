@@ -8,8 +8,11 @@ export class ScatterChartRendererManager {
     private ctxMap: {[key: string]: CanvasRenderingContext2D[]};
 
     private elementScroller: HTMLElement;
-    private scrollOrder: number[];
+    private scrollOrder = [0, 1];
     private requestAnimationFrameRef: any;
+
+    private spareCanvasMap = new Map<string, CanvasRenderingContext2D[]>();
+
     constructor(
         private options: IOptions,
         private coordinateManager: ScatterChartSizeCoordinateManager,
@@ -91,7 +94,6 @@ export class ScatterChartRendererManager {
                 }
             });
         });
-        this.scrollOrder = [0, 1];
     }
     private createCanvas(attrs: object, styles: string): HTMLCanvasElement {
         const elementCanvas = document.createElement('canvas');
@@ -105,7 +107,7 @@ export class ScatterChartRendererManager {
         const viewType = typeChecked ? 'block' : 'none';
         Object.keys(this.canvasMap).forEach((key: string) => {
             this.canvasMap[key].forEach((canvas: HTMLCanvasElement) => {
-                if (key.endsWith(typeName)) {
+                if (key.startsWith(agentName) && key.endsWith(typeName)) {
                     canvas.style.display = viewType;
                 }
             });
@@ -151,31 +153,81 @@ export class ScatterChartRendererManager {
             });
         }
     }
-    drawTransaction(key: string, color: string, data: number[]): void {
-        const bubbleRadius = this.options.bubbleRadius;
+
+    private getCoord(data: number[]): any {
         const rangeY = this.coordinateManager.getY();
 
-        let x = (data[DataIndex.X] - this.coordinateManager.getInitFromX()) * this.coordinateManager.getPixelPerTime();
-        const y = this.coordinateManager.parseYDataToYChart(Math.min(rangeY.to, Math.max(rangeY.from, data[DataIndex.Y])));
+        return {
+            x: (data[DataIndex.X] - this.coordinateManager.getInitFromX()) * this.coordinateManager.getPixelPerTime(),
+            y: this.coordinateManager.parseYDataToYChart(Math.min(rangeY.to, Math.max(rangeY.from, data[DataIndex.Y])))
+        };
+    }
+
+    private drawPoint(context: CanvasRenderingContext2D, {x, y}: any, {color, alpha}: any): void {
+        const bubbleRadius = this.options.bubbleRadius;
         const r = this.coordinateManager.parseZDataToZChart(bubbleRadius);
+
+        context.beginPath();
+        context.fillStyle = color;
+        context.strokeStyle = color;
+        context.arc(x, y, r, 0, Math.PI * 2, true);
+        context.globalAlpha = alpha >= 1 ? 1 : alpha;
+        context.fill();
+    }
+
+    private generateCanvas(order: number): CanvasRenderingContext2D {
+        const canvas = document.createElement('canvas');
+
+        canvas.width = this.coordinateManager.getCanvasWidth();
+        canvas.height = this.coordinateManager.getHeightOfChartSpace() + this.coordinateManager.getBubbleSize();
+        canvas.setAttribute('data-order', `${order}`);
+
+        return canvas.getContext('2d');
+    }
+
+    drawTransaction(key: string, color: string, data: number[]): void {
+        const {x, y} = this.getCoord(data);
+        let renderedX;
 
         let ctxIndex = this.scrollOrder[0];
         const canvasWidth = this.coordinateManager.getCanvasWidth();
         const zeroLeft = Math.round(parseInt(this.canvasMap[key][ctxIndex].style.left, 10));
         const currentMaxX = zeroLeft + canvasWidth;
+        const alpha = 0.3 + (0.1 * data[DataIndex.GROUP_COUNT]);
+
         if (x > currentMaxX) {
-            ctxIndex = this.scrollOrder[1];
-            x -= currentMaxX;
+            if ((x - currentMaxX) <= canvasWidth) {
+                // when it's drawable in the following canvas
+                ctxIndex = this.scrollOrder[1];
+                renderedX = x - currentMaxX;
+            } else {
+                // if not, draw it in a spare canvas and keep it there till the first canvas gets out of the area and moves to the tail.
+                const canvasCount = Math.floor(x / canvasWidth);
+                let context: CanvasRenderingContext2D;
+
+                renderedX = x - (canvasCount * canvasWidth);
+                if (!this.spareCanvasMap.has(key)) {
+                    context = this.generateCanvas(canvasCount + 1);
+                    this.spareCanvasMap.set(key, [context]);
+                } else {
+                    const c = this.spareCanvasMap.get(key).find((ctx: CanvasRenderingContext2D) => ctx.canvas.getAttribute('data-order') === `${canvasCount + 1}`);
+
+                    if (!!c) {
+                        context = c;
+                    } else {
+                        context = this.generateCanvas(canvasCount + 1);
+                        this.spareCanvasMap.set(key, [...this.spareCanvasMap.get(key), context]);
+                    }
+                }
+
+                this.drawPoint(context, {x: renderedX, y}, {color, alpha});
+                return;
+            }
         } else {
-            x -= zeroLeft;
+            renderedX = x - zeroLeft;
         }
 
-        this.ctxMap[key][ctxIndex].beginPath();
-        this.ctxMap[key][ctxIndex].fillStyle = color;
-        this.ctxMap[key][ctxIndex].strokeStyle = color;
-        this.ctxMap[key][ctxIndex].arc(x, y, r, 0, Math.PI * 2, true);
-        this.ctxMap[key][ctxIndex].globalAlpha = 0.3 + (0.1 * data[DataIndex.GROUP_COUNT]);
-        this.ctxMap[key][ctxIndex].fill();
+        this.drawPoint(this.ctxMap[key][ctxIndex], {x: renderedX, y}, {color, alpha});
     }
     moveChart(moveXValue: number, duration: number): void {
         const canvasWidth = this.coordinateManager.getCanvasWidth();
@@ -201,10 +253,18 @@ export class ScatterChartRendererManager {
                 let bOverBoundary = false;
                 Object.keys(self.canvasMap).forEach((key: string): void => {
                     const canvasArr = self.canvasMap[key];
+
                     if (Math.abs(nextLeft) > (parseInt(canvasArr[orderFirst].style.left, 10) + canvasWidth)) {
                         bOverBoundary = true;
                         canvasArr[orderFirst].style.left = (parseInt(canvasArr[orderSecond].style.left, 10) + canvasWidth) + 'px';
                         self.ctxMap[key][orderFirst].clearRect(0, 0, canvasWidth, height);
+                        if (self.spareCanvasMap.has(key)) {
+                            // draw the points in the spare canvas to the existent one as image.
+                            self.ctxMap[key][orderFirst].globalAlpha = 1; // needs to reset the globalAlpha of the destination canvas.
+                            self.ctxMap[key][orderFirst].drawImage(self.spareCanvasMap.get(key)[0].canvas, 0, 0);
+                            self.spareCanvasMap.get(key)[0].canvas.remove();
+                            self.spareCanvasMap.get(key).shift();
+                        }
                     }
                 });
                 if (bOverBoundary) {
@@ -234,6 +294,8 @@ export class ScatterChartRendererManager {
                 ctx.clearRect(0, 0, width, height);
             });
         });
+
+        this.scrollOrder = [0, 1];
     }
     drawToCanvas(ctxDownload: CanvasRenderingContext2D, topPadding: number): CanvasRenderingContext2D {
         const padding = this.coordinateManager.getPadding();
