@@ -16,7 +16,7 @@ jdk:
 
 env:
   global:
-   - secure: FpEVxxTvDeACV2FTjXPOlO0ua6Jq7D2yOuYPjY0iDh4LlPgGeLIei797iC6pFKdehRaHu0s3K3k09x+ffAm0LmQ6Fc/iENg17TkxJ/fDfyl0CHVU5bGA1L7Pp8pOBC0sVISZ3JQgCMRd/CxvV9rgzEdZkm8WeGipi0Jkv6Eomh8=
+   - secure: "a9HD/C1/+/XVnCXiNp819HvUgi9NPIVAhnRm1QMzaTedY/QQXciIecI2puZLnNa0Vj207X6kJqOurlw6/RkUxS2HIOBGwTa1MjNbOrTMh0z1rdV50XgfGeoD1GR6x1BEZo3Hhxv2RjEB0GUEcNfmrQiXzXI9LYmtxby8/a03zyg="
    - JAVA_6_HOME=/usr/lib/jvm/java-6-openjdk-amd64
      JAVA_7_HOME=/usr/lib/jvm/java-7-openjdk-amd64
      JAVA_8_HOME=/usr/lib/jvm/java-8-oracle
