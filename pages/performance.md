@@ -22,7 +22,7 @@ disqus: false
  JVM : 1.8.0_77 (G1, -Xms4g, -Xmx4g)  
  Server : Tomcat  
  Database : Cubrid   
- Stress test generator : [NGrinder](https://github.com/naver/ngrinder)  
+ Stress test generator : [NGrinder](https://github.com/pinpoint-apm/ngrinder)  
 
 # Test Result
 

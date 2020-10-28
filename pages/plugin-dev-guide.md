@@ -35,7 +35,7 @@ On start up, Pinpoint Agent, Collector, and Web iterates through each of these p
 * META-INF/pinpoint/type-provider.yml
 * META-INF/services/com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin
 
-Here is a [template plugin project](https://github.com/naver/pinpoint-plugin-template) you can use to start creating your own plugin.
+Here is a [template plugin project](https://github.com/pinpoint-apm/pinpoint-plugin-template) you can use to start creating your own plugin.
 
 
 ### 1. type-provider.yml
@@ -140,7 +140,7 @@ ERROR_API_METADATA | This property is not for plugins.
 
 
 #### Example
-You can find *type-provider.yml* sample [here](https://github.com/naver/pinpoint-plugin-sample/blob/master/plugin/src/main/resources/META-INF/pinpoint/type-provider.yml).
+You can find *type-provider.yml* sample [here](https://github.com/pinpoint-apm/pinpoint-plugin-sample/blob/master/plugin/src/main/resources/META-INF/pinpoint/type-provider.yml).
 
 You may also define and attach an `AnnotationKeyMatcher` with a `ServiceType` (`matcher` element in the sample *type-provider* code above). If you attach an `AnnotationKeyMatcher` this way, matching annotations will be displayed as representative annotation when the `ServiceType`'s `Span` or `SpanEvent` is displayed in the transaction call tree.
 
@@ -165,12 +165,12 @@ You may also define and attach an `AnnotationKeyMatcher` with a `ServiceType` (`
 12. The interceptor records the trace data.
 
 The most important points to consider when writing a plugin are 1) figuring out which methods are interesting enough to warrant tracing, and 2) injecting interceptors to actually trace these methods. 
-These interceptors are used to extract, store, and pass trace data around before they are sent off to the Collector. Interceptors may even cooperate with each other, sharing context between them. Plugins may also aid in tracing by adding getters or even custom fields to the target class so that the interceptors may access them during execution. [Pinpoint plugin sample](https://github.com/naver/pinpoint-plugin-sample) shows you how the `TransformerCallback` modifies classes and what the injected interceptors do to trace a method.
+These interceptors are used to extract, store, and pass trace data around before they are sent off to the Collector. Interceptors may even cooperate with each other, sharing context between them. Plugins may also aid in tracing by adding getters or even custom fields to the target class so that the interceptors may access them during execution. [Pinpoint plugin sample](https://github.com/pinpoint-apm/pinpoint-plugin-sample) shows you how the `TransformerCallback` modifies classes and what the injected interceptors do to trace a method.
 
 We will now describe what interceptors must do to trace different kinds of methods.
 
 #### 2.1 Plain method
-*Plain method* refers to anything that is not a top-level method of a node, or is not related to remote or asynchronous invocation. [Sample 2](https://github.com/naver/pinpoint-plugin-sample/tree/master/plugin/src/main/java/com/navercorp/pinpoint/plugin/sample/_02_Injecting_Custom_Interceptor) shows you how to trace these plain methods.
+*Plain method* refers to anything that is not a top-level method of a node, or is not related to remote or asynchronous invocation. [Sample 2](https://github.com/pinpoint-apm/pinpoint-plugin-sample/tree/master/plugin/src/main/java/com/navercorp/pinpoint/plugin/sample/_02_Injecting_Custom_Interceptor) shows you how to trace these plain methods.
 
 #### 2.2 Top level method of a node
 *Top level method of a node* is a method in which its interceptor begins a new trace in a node. These methods are typically acceptors for RPCs, and the trace is recorded as a `Span` with `ServiceType` categorized as a server.
@@ -202,7 +202,7 @@ Sometimes, the previous node marks the transaction to not be traced. In this cas
 
 As you can see, the client plugin must be able pass trace data to the server plugin, and how to do this is protocol dependent.
 
-You can find an example of top-level method server interceptor [here](https://github.com/naver/pinpoint-plugin-sample/tree/master/plugin/src/main/java/com/navercorp/pinpoint/plugin/sample/_14_RPC_Server).
+You can find an example of top-level method server interceptor [here](https://github.com/pinpoint-apm/pinpoint-plugin-sample/tree/master/plugin/src/main/java/com/navercorp/pinpoint/plugin/sample/_14_RPC_Server).
 
 #### 2.3 Methods invoking a remote node
 
@@ -233,7 +233,7 @@ Pinpoint finds out caller-callee relation by matching *destinationId* of client 
 
 The interceptor's recorded `ServiceType` must be from the RPC client category.
 
-You can find an example for these interceptors [here](https://github.com/naver/pinpoint-plugin-sample/tree/master/plugin/src/main/java/com/navercorp/pinpoint/plugin/sample/_13_RPC_Client).
+You can find an example for these interceptors [here](https://github.com/pinpoint-apm/pinpoint-plugin-sample/tree/master/plugin/src/main/java/com/navercorp/pinpoint/plugin/sample/_13_RPC_Client).
 
 ##### 2.3.2 If the next node is not traceable
 If the next node is not traceable, your `ServiceType` must have the `TERMINAL` property. 
@@ -254,12 +254,12 @@ The initiating method's interceptor has to issue an **AsyncContext** and pass it
 The handling method's interceptor must then continue the trace using the propagated **AsyncContext** and bind it to it's own thread. However, it is very strongly recommended that you simply extend the **AsyncContextSpanEventSimpleAroundInterceptor** so that you do not have to handle this manually.
 
 Keep in mind that since the shared object must be able have **AsyncContext** injected into it, you have to add a field using `AsyncContextAccessor` during it's class transformation.
-You can find an example for tracing asynchronous tasks [here](https://github.com/naver/pinpoint-plugin-sample/tree/master/plugin/src/main/java/com/navercorp/pinpoint/plugin/sample/_12_Asynchronous_Trace).
+You can find an example for tracing asynchronous tasks [here](https://github.com/pinpoint-apm/pinpoint-plugin-sample/tree/master/plugin/src/main/java/com/navercorp/pinpoint/plugin/sample/_12_Asynchronous_Trace).
 
 #### 2.5 Case Study: HTTP
-HTTP client is an example of _a method invoking a remote node_ (client), and HTTP server is an example of a _top level method of a node_ (server). As mentioned before, client plugins must have a way to pass transaction data to server plugins to continue the trace. Note that the implementation is protocol dependent, and [HttpMethodBaseExecuteMethodInterceptor](https://github.com/naver/pinpoint/blob/master/plugins/httpclient3/src/main/java/com/navercorp/pinpoint/plugin/httpclient3/interceptor/HttpMethodBaseExecuteMethodInterceptor.java) of [HttpClient3 plugin](https://github.com/naver/pinpoint/tree/master/plugins/httpclient3) and [StandardHostValveInvokeInterceptor](https://github.com/naver/pinpoint/blob/master/plugins/tomcat/src/main/java/com/navercorp/pinpoint/plugin/tomcat/interceptor/StandardHostValveInvokeInterceptor.java) of [Tomcat plugin](https://github.com/naver/pinpoint/tree/master/plugins/tomcat) show a working example of this for HTTP:
+HTTP client is an example of _a method invoking a remote node_ (client), and HTTP server is an example of a _top level method of a node_ (server). As mentioned before, client plugins must have a way to pass transaction data to server plugins to continue the trace. Note that the implementation is protocol dependent, and [HttpMethodBaseExecuteMethodInterceptor](https://github.com/pinpoint-apm/pinpoint/blob/master/plugins/httpclient3/src/main/java/com/navercorp/pinpoint/plugin/httpclient3/interceptor/HttpMethodBaseExecuteMethodInterceptor.java) of [HttpClient3 plugin](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/httpclient3) and [StandardHostValveInvokeInterceptor](https://github.com/pinpoint-apm/pinpoint/blob/master/plugins/tomcat/src/main/java/com/navercorp/pinpoint/plugin/tomcat/interceptor/StandardHostValveInvokeInterceptor.java) of [Tomcat plugin](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/tomcat) show a working example of this for HTTP:
 
-1. Pass transaction data as HTTP headers. You can find header names [here](https://github.com/naver/pinpoint/blob/master/bootstrap-core/src/main/java/com/navercorp/pinpoint/bootstrap/context/Header.java)
+1. Pass transaction data as HTTP headers. You can find header names [here](https://github.com/pinpoint-apm/pinpoint/blob/master/bootstrap-core/src/main/java/com/navercorp/pinpoint/bootstrap/context/Header.java)
 2. Client plugin records `IP:PORT` of the server as `destinationId`.
 3. Client plugin passes `destinationId` value to server as `Header.HTTP_HOST` header.
 4. Server plugin records `Header.HTTP_HOST` header value as `acceptorHost`.
@@ -267,11 +267,11 @@ HTTP client is an example of _a method invoking a remote node_ (client), and HTT
 One more thing you have to remember is that all the clients and servers using the same protocol must pass the transaction data in the same way to ensure compatibility. So if you are writing a plugin of some other HTTP client or server, your plugin has to record and pass transaction data as described above.
 
 ### 3. Plugin Integration Test
-You can run plugin integration tests (`mvn integration-test`) with [PinointPluginTestSuite](https://github.com/naver/pinpoint/blob/master/test/src/main/java/com/navercorp/pinpoint/test/plugin/PinpointPluginTestSuite.java), which is a *JUnit Runner*. It downloads all the required dependencies from maven repositories and launches a new JVM with the Pinpoint Agent and the aforementioned dependencies. The JUnit tests are executed in this JVM.
+You can run plugin integration tests (`mvn integration-test`) with [PinointPluginTestSuite](https://github.com/pinpoint-apm/pinpoint/blob/master/test/src/main/java/com/navercorp/pinpoint/test/plugin/PinpointPluginTestSuite.java), which is a *JUnit Runner*. It downloads all the required dependencies from maven repositories and launches a new JVM with the Pinpoint Agent and the aforementioned dependencies. The JUnit tests are executed in this JVM.
 
 To run the plugin integration test, it needs a complete agent distribution - which is why integration tests are in the *plugin-sample-agent* module and why they are run in **integration-test phase**.
 
-For the actual integration test, you will want to first invoke the method you are tracing, and then use [PluginTestVerifier](https://github.com/naver/pinpoint/blob/master/bootstrap-core/src/main/java/com/navercorp/pinpoint/bootstrap/plugin/test/PluginTestVerifier.java) to check if the trace data is correctly recorded.
+For the actual integration test, you will want to first invoke the method you are tracing, and then use [PluginTestVerifier](https://github.com/pinpoint-apm/pinpoint/blob/master/bootstrap-core/src/main/java/com/navercorp/pinpoint/bootstrap/plugin/test/PluginTestVerifier.java) to check if the trace data is correctly recorded.
 
 
 #### 3.1 Test Dependency
@@ -290,7 +290,7 @@ Dependencies are declared as following. You may specify versions or version rang
 You can specify the JVM version for a test using `@JvmVersion`. If `@JvmVersion` is not present, JVM at `java.home property` will be used.
 
 #### 3.3 Application Test
-`PinpointPluginTestSuite` is not for applications that has to be launched by its own main class. You can extend [AbstractPinpointPluginTestSuite](https://github.com/naver/pinpoint/blob/master/test/src/main/java/com/navercorp/pinpoint/test/plugin/AbstractPinpointPluginTestSuite.java) and related types to test such applications.
+`PinpointPluginTestSuite` is not for applications that has to be launched by its own main class. You can extend [AbstractPinpointPluginTestSuite](https://github.com/pinpoint-apm/pinpoint/blob/master/test/src/main/java/com/navercorp/pinpoint/test/plugin/AbstractPinpointPluginTestSuite.java) and related types to test such applications.
 
 
 ### 4. Adding Images

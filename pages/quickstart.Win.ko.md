@@ -3,7 +3,7 @@ Pinpoint는 공식적으로는 Linux와 OS X를 지원한다. 하지만 Pinpoint
 
 ## 시작하기
 
-`git clone https://github.com/naver/pinpoint.git`로 Pinpoint를 다운로드 하거나 zip 파일로 프로젝트를 [다운로드](https://github.com/naver/pinpoint/archive/master.zip)하고 압축을 해제한다.
+`git clone https://github.com/pinpoint-apm/pinpoint.git`로 Pinpoint를 다운로드 하거나 zip 파일로 프로젝트를 [다운로드](https://github.com/pinpoint-apm/pinpoint/archive/master.zip)하고 압축을 해제한다.
 
 `mvnw.cmd install -DskipTests=true`를 실행하여 Pinpoint를 설치한다.
 
