@@ -100,7 +100,8 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
             this.storeHelperService.dispatch(new Actions.ChangeAgentForServerList({
                 agent: this.selectedAgent,
                 responseSummary: this.agentHistogramData['agentHistogram'][this.selectedAgent],
-                load: this.agentHistogramData['agentTimeSeriesHistogram'][this.selectedAgent]
+                load: this.agentHistogramData['agentTimeSeriesHistogram'][this.selectedAgent],
+                responseStatistics: this.agentHistogramData['agentResponseStatistics'][this.selectedAgent]
             }));
             this.cd.detectChanges();
         });
@@ -131,7 +132,8 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
         this.storeHelperService.dispatch(new Actions.ChangeAgentForServerList({
             agent,
             responseSummary: this.agentHistogramData['agentHistogram'][agent],
-            load: this.agentHistogramData['agentTimeSeriesHistogram'][agent]
+            load: this.agentHistogramData['agentTimeSeriesHistogram'][agent],
+            responseStatistics: this.agentHistogramData['agentResponseStatistics'][agent]
         }));
         this.selectedAgent = agent;
     }

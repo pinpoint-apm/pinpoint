@@ -186,7 +186,7 @@ export class ResponseAvgMaxChartContainerComponent implements OnInit, OnDestroy 
                 filter(() => this.sourceType === SourceType.INFO_PER_SERVER),
                 filter((data: IAgentSelection) => !!data),
                 tap(({agent}: IAgentSelection) => this.selectedAgent = agent),
-                pluck('responseSummary'),
+                pluck('responseStatistics'),
             ),
             this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.REAL_TIME_SCATTER_CHART_X_RANGE).pipe(
                 filter(() => this.sourceType === SourceType.MAIN),

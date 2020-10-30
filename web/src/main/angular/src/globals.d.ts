@@ -93,10 +93,11 @@ interface IAgent {
     vmVersion: string;
 }
 // @store
-interface IAgentSelection { 
+interface IAgentSelection {
     agent: string;
     responseSummary: IResponseTime | IResponseMilliSecondTime;
     load: IHistogram[];
+    responseStatistics: IResponseStatistics;
 }
 interface IInstanceInfo {
     hasInspector: boolean;
