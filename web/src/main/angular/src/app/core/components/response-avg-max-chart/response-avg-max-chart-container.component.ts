@@ -276,7 +276,8 @@ export class ResponseAvgMaxChartContainerComponent implements OnInit, OnDestroy 
     private makeElseOption(yMax: number): {[key: string]: any} {
         return {
             padding: {
-                top: 20
+                top: 20,
+                right: 20  // (or 25)
             },
             legend: {
                 show: false
