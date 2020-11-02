@@ -71,6 +71,7 @@
         <module>flink</module>
         <module>testcase</module>
         <module>batch</module>
+        <module>metric</module>
     </modules>
 
     <properties>
@@ -312,6 +313,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-metric</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

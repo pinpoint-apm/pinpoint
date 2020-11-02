@@ -7,25 +7,28 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 
-import java.util.Objects;
-
 public class WebStarter {
-    private static final ServerBootLogger logger = ServerBootLogger.getLogger(WebApp.class);
+    private final ServerBootLogger logger = ServerBootLogger.getLogger(WebApp.class);
 
-    private final Class<?>[] sources;
+    private final SpringApplicationBuilder builder;
 
     public WebStarter(Class<?>... sources) {
-        this.sources = Objects.requireNonNull(sources, "sources");
+        this.builder = new SpringApplicationBuilder();
+        this.builder.web(WebApplicationType.SERVLET);
+        this.builder.bannerMode(Banner.Mode.OFF);
+
+        builder.sources(sources);
     }
 
+    public void sibling(Class<?>... childs) {
+        this.builder.sibling(childs);
+    }
+
+    public void child(Class<?>... childs) {
+        this.builder.child(childs);
+    }
 
     public void start(String[] args) {
-        SpringApplicationBuilder builder = new SpringApplicationBuilder();
-        builder.sources(sources);
-        builder.web(WebApplicationType.SERVLET);
-        builder.bannerMode(Banner.Mode.OFF);
-
-
         SpringApplication springApplication = builder.build();
         springApplication.addListeners(new ProfileApplicationListener());
 
