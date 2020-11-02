@@ -136,8 +136,8 @@ interface ILinkInfo {
     totalCount: number;
 }
 interface INodeInfo {
-    agentHistogram?: { [key:string]: IResponseTime | IResponseMilliSecondTime }[];
-    agentTimeSeriesHistogram?: { [key:string]: IHistogram[] };
+    agentHistogram?: { [key: string]: IResponseTime | IResponseMilliSecondTime }[];
+    agentTimeSeriesHistogram?: { [key: string]: IHistogram[] };
     agentIds: string[];
     applicationName: string;
     category: string;
@@ -145,6 +145,7 @@ interface INodeInfo {
     hasAlert: boolean;
     histogram: IResponseTime | IResponseMilliSecondTime;
     responseStatistics: IResponseStatistics;
+    agentResponseStatistics: { [key: string]: IResponseStatistics};
     instanceCount: number;
     instanceErrorCount: number;
     isAuthorized: boolean;
