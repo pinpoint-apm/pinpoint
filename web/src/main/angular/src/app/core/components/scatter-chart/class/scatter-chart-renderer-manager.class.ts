@@ -1,3 +1,4 @@
+import { isEmpty } from 'app/core/utils/util';
 import { IOptions } from './scatter-chart.class';
 import { DataIndex, ScatterChartDataBlock } from './scatter-chart-data-block.class';
 import { ScatterChartSizeCoordinateManager } from './scatter-chart-size-coordinate-manager.class';
@@ -258,7 +259,9 @@ export class ScatterChartRendererManager {
                         bOverBoundary = true;
                         canvasArr[orderFirst].style.left = (parseInt(canvasArr[orderSecond].style.left, 10) + canvasWidth) + 'px';
                         self.ctxMap[key][orderFirst].clearRect(0, 0, canvasWidth, height);
-                        if (self.spareCanvasMap.has(key)) {
+                        const queuedCtxList = self.spareCanvasMap.get(key);
+
+                        if (self.spareCanvasMap.has(key) && !isEmpty(queuedCtxList)) {
                             // draw the points in the spare canvas to the existent one as image.
                             self.ctxMap[key][orderFirst].globalAlpha = 1; // needs to reset the globalAlpha of the destination canvas.
                             self.ctxMap[key][orderFirst].drawImage(self.spareCanvasMap.get(key)[0].canvas, 0, 0);
