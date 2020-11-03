@@ -145,7 +145,7 @@ interface INodeInfo {
     hasAlert: boolean;
     histogram: IResponseTime | IResponseMilliSecondTime;
     responseStatistics: IResponseStatistics;
-    agentResponseStatistics: { [key: string]: IResponseStatistics};
+    agentResponseStatistics?: { [key: string]: IResponseStatistics};
     instanceCount: number;
     instanceErrorCount: number;
     isAuthorized: boolean;

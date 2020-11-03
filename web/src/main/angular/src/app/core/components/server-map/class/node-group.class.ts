@@ -55,8 +55,7 @@ export class NodeGroup {
             'instanceCount': 0,
             'topCountNodes': [],
             'serviceTypeCode': '',
-            'applicationName': this.applicationName,
-            'agentResponseStatistics':  {}
+            'applicationName': this.applicationName
         };
     }
     protected randomValue(): string {

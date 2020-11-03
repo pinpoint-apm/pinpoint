@@ -17,7 +17,7 @@ export interface IShortNodeInfo {
     slowCount?: number;
     histogram?: IResponseTime | IResponseMilliSecondTime;
     responseStatistics?: IResponseStatistics;
-    agentResponseStatistics:  { [key: string]: IResponseStatistics};
+    agentResponseStatistics?:  { [key: string]: IResponseStatistics};
     errorCount?: number;
     totalCount?: number;
     serviceType: string;

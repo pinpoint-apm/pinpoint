@@ -37,8 +37,7 @@ export class MultiConnectNodeGroup extends NodeGroup {
             'instanceCount': 0,
             'topCountNodes': [],
             'applicationName': this.applicationName,
-            'mergedSourceNodes': [],
-            'agentResponseStatistics':  {}
+            'mergedSourceNodes': []
         };
     }
     // private randomValue(): string {
