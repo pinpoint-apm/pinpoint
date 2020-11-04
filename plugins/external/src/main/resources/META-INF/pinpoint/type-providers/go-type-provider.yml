@@ -12,4 +12,5 @@ serviceTypes:
       property:
           recordStatistics: true
       matcher:
-          type: 'args'
+          type: 'exact'
+          code: 40
