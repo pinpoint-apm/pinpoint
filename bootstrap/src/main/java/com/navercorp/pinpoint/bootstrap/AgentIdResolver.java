@@ -17,10 +17,12 @@
 package com.navercorp.pinpoint.bootstrap;
 
 import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
+import com.navercorp.pinpoint.common.util.AgentUuidUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -44,23 +46,25 @@ public class AgentIdResolver {
     }
 
     public AgentIds resolve() {
-        final String agentId = getAgentId();
+        String agentId = getAgentId();
         if (StringUtils.isEmpty(agentId)) {
-            String error = "Failed to resolve AgentId(-Dpinpoint.agentId)";
-            logger.warn(error);
-            return null;
+            logger.info("Failed to resolve AgentId(-Dpinpoint.agentId)");
+            agentId = newRandomAgentId();
+            logger.info("Auto generate AgentId='" + agentId + "'");
         }
 
         final String applicationName = getApplicationName();
         if (StringUtils.isEmpty(applicationName)) {
-            String error = "Failed to resolve ApplicationName(-Dpinpoint.applicationName)";
-            logger.warn(error);
+            logger.warn("Failed to resolve ApplicationName(-Dpinpoint.applicationName)");
             return null;
         }
         return new AgentIds(agentId, applicationName);
     }
 
-
+    private String newRandomAgentId() {
+        UUID agentUUID = UUID.randomUUID();
+        return AgentUuidUtils.encode(agentUUID);
+    }
 
     private String getAgentId() {
         String source = null;
