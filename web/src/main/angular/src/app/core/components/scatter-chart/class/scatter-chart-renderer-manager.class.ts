@@ -13,6 +13,7 @@ export class ScatterChartRendererManager {
     private requestAnimationFrameRef: any;
 
     private spareCanvasMap = new Map<string, CanvasRenderingContext2D[]>();
+    private t0 = -1;
 
     constructor(
         private options: IOptions,
@@ -230,63 +231,65 @@ export class ScatterChartRendererManager {
 
         this.drawPoint(this.ctxMap[key][ctxIndex], {x: renderedX, y}, {color, alpha});
     }
-    moveChart(moveXValue: number, duration: number): void {
+    moveChart(timestamp: number): void {
+        if (this.t0 === -1) {
+            this.t0 = timestamp;
+        }
+
+        const deltaT = timestamp - this.t0;
+        const deltaX =  this.coordinateManager.getPixelPerTime() * deltaT;
         const canvasWidth = this.coordinateManager.getCanvasWidth();
         const height = this.coordinateManager.getHeight();
-        const baseLeft = parseInt(this.elementScroller.style.left, 10);
-        const nextLeft = baseLeft - moveXValue;
+        // const baseLeft = parseInt(this.elementScroller.style.left, 10);
+        const baseLeft = 0;
+        const nextLeft = baseLeft - deltaX;
 
-        const self = this;
-        let startTime = -1;
-        function moveElement(timestamp: number, inMoveXValue: number, inDuration: number): void {
-            const runTime = timestamp - startTime;
-            let progress = runTime / inDuration;
-            progress = Math.min(progress, 1);
+        const orderFirst = this.scrollOrder[0];
+        const orderSecond = this.scrollOrder[1];
+        let bOverBoundary = false;
 
-            self.elementScroller.style.left = (baseLeft + -(inMoveXValue * progress)).toFixed(2) + 'px';
-            if (runTime < inDuration) {
-                self.requestAnimationFrameRef = window.requestAnimationFrame((time: number) => {
-                    moveElement(time, inMoveXValue, inDuration);
-                });
-            } else {
-                const orderFirst = self.scrollOrder[0];
-                const orderSecond = self.scrollOrder[1];
-                let bOverBoundary = false;
-                Object.keys(self.canvasMap).forEach((key: string): void => {
-                    const canvasArr = self.canvasMap[key];
+        // this.elementScroller.style.left = nextLeft.toFixed(2) + 'px';
+        // this.elementScroller.style.transform = `translateX(${nextLeft}px)`;
+        this.elementScroller.style.transform = `translate3d(${nextLeft}px, 0, 0)`;
+        Object.keys(this.canvasMap).forEach((key: string): void => {
+            const canvasArr = this.canvasMap[key];
 
-                    if (Math.abs(nextLeft) > (parseInt(canvasArr[orderFirst].style.left, 10) + canvasWidth)) {
-                        bOverBoundary = true;
-                        canvasArr[orderFirst].style.left = (parseInt(canvasArr[orderSecond].style.left, 10) + canvasWidth) + 'px';
-                        self.ctxMap[key][orderFirst].clearRect(0, 0, canvasWidth, height);
-                        const queuedCtxList = self.spareCanvasMap.get(key);
+            if (Math.abs(nextLeft) > (parseInt(canvasArr[orderFirst].style.left, 10) + canvasWidth)) {
+                bOverBoundary = true;
+                canvasArr[orderFirst].style.left = (parseInt(canvasArr[orderSecond].style.left, 10) + canvasWidth) + 'px';
+                this.ctxMap[key][orderFirst].clearRect(0, 0, canvasWidth, height);
+                const queuedCtxList = this.spareCanvasMap.get(key);
 
-                        if (self.spareCanvasMap.has(key) && !isEmpty(queuedCtxList)) {
-                            // draw the points in the spare canvas to the existent one as image.
-                            self.ctxMap[key][orderFirst].globalAlpha = 1; // needs to reset the globalAlpha of the destination canvas.
-                            self.ctxMap[key][orderFirst].drawImage(self.spareCanvasMap.get(key)[0].canvas, 0, 0);
-                            self.spareCanvasMap.get(key)[0].canvas.remove();
-                            self.spareCanvasMap.get(key).shift();
-                        }
-                    }
-                });
-                if (bOverBoundary) {
-                    self.scrollOrder[0] = orderSecond;
-                    self.scrollOrder[1] = orderFirst;
+                if (this.spareCanvasMap.has(key) && !isEmpty(queuedCtxList)) {
+                    // draw the points in the spare canvas to the existent one as image.
+                    this.ctxMap[key][orderFirst].globalAlpha = 1; // needs to reset the globalAlpha of the destination canvas.
+                    this.ctxMap[key][orderFirst].drawImage(this.spareCanvasMap.get(key)[0].canvas, 0, 0);
+                    this.spareCanvasMap.get(key)[0].canvas.remove();
+                    this.spareCanvasMap.get(key).shift();
                 }
             }
-        }
-        this.requestAnimationFrameRef = window.requestAnimationFrame((timestamp: number) => {
-            startTime = timestamp;
-            moveElement(timestamp, moveXValue, 300);
         });
+
+        if (bOverBoundary) {
+            this.scrollOrder[0] = orderSecond;
+            this.scrollOrder[1] = orderFirst;
+        }
+
+        this.requestAnimationFrameRef = requestAnimationFrame((t) => this.moveChart(t));
     }
-    reset() {
-        window.cancelAnimationFrame(this.requestAnimationFrameRef);
+    reset(mode: string) {
+        this.t0 = -1;
         this.scrollOrder = [0, 1];
         this.elementScroller.style.left = '0px';
         this.elementScroller.innerHTML = '';
         this.initVariable();
+
+        if (mode === 'realtime') {
+            cancelAnimationFrame(this.requestAnimationFrameRef);
+            this.requestAnimationFrameRef = requestAnimationFrame((t) => this.moveChart(t));
+        } else {
+            cancelAnimationFrame(this.requestAnimationFrameRef);
+        }
     }
     clear() {
         const width = this.coordinateManager.getCanvasWidth();

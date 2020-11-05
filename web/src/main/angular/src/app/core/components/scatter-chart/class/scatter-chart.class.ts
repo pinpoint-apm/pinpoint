@@ -245,7 +245,7 @@ export class ScatterChart {
         this.dataBlocks = [];
         this.agentList = [];
         this.axisRenderer.reset();
-        this.rendererManager.reset();
+        this.rendererManager.reset(mode);
         if (typeCheck) {
             this.changeShowType(typeCheck);
         }
@@ -301,7 +301,7 @@ export class ScatterChart {
             const moveXValue = moveXTime * this.coordinateManager.getPixelPerTime();
             this.coordinateManager.setX(xRange.from + moveXTime, xRange.to + moveXTime);
             this.axisRenderer.updateAxisValue(true, duration * 2);
-            this.rendererManager.moveChart(Math.floor(moveXValue), nextRequestTime < duration ? 0 : duration);
+            // this.rendererManager.moveChart(Math.floor(moveXValue), nextRequestTime < duration ? 0 : duration);
             this.outChangeRangeX.next({
                 from: xRange.from + moveXTime,
                 to: xRange.to + moveXTime
