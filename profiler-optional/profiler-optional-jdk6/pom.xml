@@ -16,8 +16,8 @@
     <description>pinpoint profiler optional package for jdk 6</description>
 
     <properties>
-        <jdk.version>1.6</jdk.version>
-        <jdk.home>${env.JAVA_6_HOME}</jdk.home>
+        <jdk.version>1.7</jdk.version>
+        <jdk.home>${env.JAVA_7_HOME}</jdk.home>
         
 <!--        <plugin.animal-sniffer.skip>true</plugin.animal-sniffer.skip>-->
     </properties>

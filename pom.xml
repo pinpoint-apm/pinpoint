@@ -75,8 +75,8 @@
 
     <properties>
         <encoding>UTF-8</encoding>
-        <jdk.version>1.6</jdk.version>
-        <jdk.home>${env.JAVA_6_HOME}</jdk.home>
+        <jdk.version>1.7</jdk.version>
+        <jdk.home>${env.JAVA_7_HOME}</jdk.home>
         <test.jdk.home>${jdk.home}</test.jdk.home>
 
         <!-- hbase -->
@@ -154,7 +154,7 @@
         <plugin.enforcer.version>3.0.0-M2</plugin.enforcer.version>
         <plugin.animal-sniffer.version>1.18</plugin.animal-sniffer.version>
 
-        <sniffer.artifactid>java16</sniffer.artifactid>
+        <sniffer.artifactid>java17</sniffer.artifactid>
 
         <!-- frontend-plugin -->
         <plugin.frontend.version>1.9.0</plugin.frontend.version>
@@ -1052,9 +1052,6 @@
                                 </requireJavaVersion>
                                 <requireEnvironmentVariable>
                                     <variableName>JAVA_HOME</variableName>
-                                </requireEnvironmentVariable>
-                                <requireEnvironmentVariable>
-                                    <variableName>JAVA_6_HOME</variableName>
                                 </requireEnvironmentVariable>
                                 <requireEnvironmentVariable>
                                     <variableName>JAVA_7_HOME</variableName>

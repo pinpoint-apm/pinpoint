@@ -34,6 +34,8 @@
     <properties>
         <jdk.version>1.7</jdk.version>
         <jdk.home>${env.JAVA_7_HOME}</jdk.home>
+        <!-- TODO       -->
+        <plugin.animal-sniffer.skip>true</plugin.animal-sniffer.skip>
     </properties>
 
     <dependencies>
