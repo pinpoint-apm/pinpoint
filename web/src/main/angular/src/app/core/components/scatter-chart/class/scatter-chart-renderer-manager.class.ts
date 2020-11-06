@@ -280,7 +280,7 @@ export class ScatterChartRendererManager {
     reset(mode: string) {
         this.t0 = -1;
         this.scrollOrder = [0, 1];
-        this.elementScroller.style.left = '0px';
+        this.elementScroller.style.transform = `translate3d(0, 0, 0)`;
         this.elementScroller.innerHTML = '';
         this.initVariable();
 
