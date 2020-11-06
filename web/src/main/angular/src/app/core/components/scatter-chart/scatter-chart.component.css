@@ -4,6 +4,8 @@
 }
 .l-wrapper {
     display: block;
+    height: 100%;
+    position: relative;
 }
 .l-scatter {
     width: 100%;
