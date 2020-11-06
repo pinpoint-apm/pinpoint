@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <jdk.version>1.6</jdk.version>
+        <jdk.version>1.7</jdk.version>
         <grpc.version>1.14.0</grpc.version>
         <protoc.version>3.5.1-1</protoc.version>
     </properties>
