@@ -98,8 +98,10 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
     private ClientInterceptor newDiscardClientInterceptor() {
         final int spanDiscardLogRateLimit = grpcTransportConfig.getSpanDiscardLogRateLimit();
         final long spanDiscardMaxPendingThreshold = grpcTransportConfig.getSpanDiscardMaxPendingThreshold();
+        final long spanDiscardCountForReconnect = grpcTransportConfig.getSpanDiscardCountForReconnect();
+        final long spanNotReadyTimeoutMillis = grpcTransportConfig.getSpanNotReadyTimeoutMillis();
         final DiscardEventListener<?> discardEventListener = new LoggingDiscardEventListener(SpanGrpcDataSender.class.getName(), spanDiscardLogRateLimit);
-        return new DiscardClientInterceptor(discardEventListener, spanDiscardMaxPendingThreshold);
+        return new DiscardClientInterceptor(discardEventListener, spanDiscardMaxPendingThreshold, spanDiscardCountForReconnect, spanNotReadyTimeoutMillis);
     }
 
 }

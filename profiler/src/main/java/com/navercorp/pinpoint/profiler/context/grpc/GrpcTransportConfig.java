@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.grpc.client.ClientOption;
 
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim
  */
 public class GrpcTransportConfig {
 
@@ -48,6 +49,8 @@ public class GrpcTransportConfig {
 
     private static final int DEFAULT_DISCARD_LOG_RATE_LIMIT = 100;
     private static final long DEFAULT_DISCARD_MAX_PENDING_THRESHOLD = 1024;
+    private static final long DEFAULT_DISCARD_COUNT_FOR_RECONNECT = 1000;
+    private static final long DEFAULT_NOT_READY_TIMEOUT_MILLIS = 5 * 60 * 1000;
 
     private static final int DEFAULT_METADATA_RETRY_MAX_COUNT = 3;
     private static final int DEFAULT_METADATA_RETRY_DELAY_MILLIS = 1000;
@@ -92,6 +95,8 @@ public class GrpcTransportConfig {
 
     private int spanDiscardLogRateLimit = DEFAULT_DISCARD_LOG_RATE_LIMIT;
     private long spanDiscardMaxPendingThreshold = DEFAULT_DISCARD_MAX_PENDING_THRESHOLD;
+    private long spanDiscardCountForReconnect = DEFAULT_DISCARD_COUNT_FOR_RECONNECT;
+    private long spanNotReadyTimeoutMillis = DEFAULT_NOT_READY_TIMEOUT_MILLIS;
 
     public void read(ProfilerConfig profilerConfig) {
         final ProfilerConfig.ValueResolver placeHolderResolver = new DefaultProfilerConfig.PlaceHolderResolver();
@@ -130,6 +135,8 @@ public class GrpcTransportConfig {
         this.spanChannelExecutorQueueSize = profilerConfig.readInt("profiler.transport.grpc.span.sender.channel.executor.queue.size", DEFAULT_SPAN_CHANNEL_EXECUTOR_QUEUE_SIZE);
         this.spanDiscardLogRateLimit = profilerConfig.readInt("profiler.transport.grpc.span.sender.discardpolicy.logger.discard.ratelimit", DEFAULT_DISCARD_LOG_RATE_LIMIT);
         this.spanDiscardMaxPendingThreshold = profilerConfig.readLong("profiler.transport.grpc.span.sender.discardpolicy.maxpendingthreshold", DEFAULT_DISCARD_MAX_PENDING_THRESHOLD);
+        this.spanDiscardCountForReconnect = profilerConfig.readLong("profiler.transport.grpc.span.sender.discardpolicy.discard-count-for-reconnect", DEFAULT_DISCARD_COUNT_FOR_RECONNECT);
+        this.spanNotReadyTimeoutMillis = profilerConfig.readLong("profiler.transport.grpc.span.sender.discardpolicy.not-ready-timeout-millis", DEFAULT_NOT_READY_TIMEOUT_MILLIS);
 
         // Netty
         this.nettySystemPropertyTryReflectiveSetAccessible = profilerConfig.readBoolean(KEY_PROFILER_CONFIG_NETTY_TRY_REFLECTION_SET_ACCESSIBLE, DEFAULT_NETTY_SYSTEM_PROPERTY_TRY_REFLECTIVE_SET_ACCESSIBLE);
@@ -223,6 +230,14 @@ public class GrpcTransportConfig {
 
     public long getSpanDiscardMaxPendingThreshold() {
         return spanDiscardMaxPendingThreshold;
+    }
+
+    public long getSpanDiscardCountForReconnect() {
+        return spanDiscardCountForReconnect;
+    }
+
+    public long getSpanNotReadyTimeoutMillis() {
+        return spanNotReadyTimeoutMillis;
     }
 
     public long getAgentRequestTimeout() {
