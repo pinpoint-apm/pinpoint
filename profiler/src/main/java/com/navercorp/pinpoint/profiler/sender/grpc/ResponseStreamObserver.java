@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim
  */
 public class ResponseStreamObserver<ReqT, RespT> implements ClientResponseObserver<ReqT, RespT> {
 
@@ -39,11 +40,10 @@ public class ResponseStreamObserver<ReqT, RespT> implements ClientResponseObserv
     public ResponseStreamObserver(StreamId name, Reconnector reconnector) {
         this.name = Assert.requireNonNull(name, "name");
         this.reconnector = Assert.requireNonNull(reconnector, "reconnector");
-
     }
 
     @Override
-    public void beforeStart(ClientCallStreamObserver<ReqT> requestStream) {
+    public void beforeStart(final ClientCallStreamObserver<ReqT> requestStream) {
         logger.info("beforeStart:{}", name);
         requestStream.setOnReadyHandler(new Runnable() {
             private final AtomicInteger counter = new AtomicInteger();
@@ -75,7 +75,8 @@ public class ResponseStreamObserver<ReqT, RespT> implements ClientResponseObserv
 
     @Override
     public void onCompleted() {
-        logger.debug("{} onCompleted", name);
+        logger.warn("{} onCompleted", name);
+        reconnector.reconnect();
     }
 
     @Override

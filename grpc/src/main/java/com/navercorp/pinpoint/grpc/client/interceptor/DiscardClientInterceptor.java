@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim
  */
 public class DiscardClientInterceptor implements ClientInterceptor {
 
@@ -34,10 +35,14 @@ public class DiscardClientInterceptor implements ClientInterceptor {
 
     private final DiscardEventListener listener;
     private final long maxPendingThreshold;
+    private final long discardCountForReconnect;
+    private final long notReadyTimeoutMillis;
 
-    public DiscardClientInterceptor(DiscardEventListener listener, long maxPendingThreshold) {
+    public DiscardClientInterceptor(DiscardEventListener listener, long maxPendingThreshold, long discardCountForReconnect, long notReadyTimeoutMillis) {
         this.listener = Assert.requireNonNull(listener, "listener");
         this.maxPendingThreshold = maxPendingThreshold;
+        this.discardCountForReconnect = discardCountForReconnect;
+        this.notReadyTimeoutMillis = notReadyTimeoutMillis;
     }
 
     @Override
@@ -47,7 +52,7 @@ public class DiscardClientInterceptor implements ClientInterceptor {
                 logger.debug("interceptCall {}", method.getFullMethodName());
             }
             final ClientCall<ReqT, RespT> newCall = next.newCall(method, callOptions);
-            return new DiscardClientCall<ReqT, RespT>(newCall, this.listener, maxPendingThreshold);
+            return new DiscardClientCall<ReqT, RespT>(newCall, this.listener, maxPendingThreshold, discardCountForReconnect, notReadyTimeoutMillis);
         } else {
             return next.newCall(method, callOptions);
         }
