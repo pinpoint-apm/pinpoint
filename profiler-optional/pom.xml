@@ -29,7 +29,6 @@
     <description>pinpoint profiler optional package</description>
 
     <modules>
-        <module>profiler-optional-jdk6</module>
         <module>profiler-optional-jdk7</module>
         <module>profiler-optional-jdk8</module>
         <module>profiler-optional-jdk9</module>
@@ -37,11 +36,6 @@
     </modules>
 
     <dependencies>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-profiler-optional-jdk6</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-profiler-optional-jdk7</artifactId>

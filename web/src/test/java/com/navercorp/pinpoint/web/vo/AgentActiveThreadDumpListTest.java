@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.navercorp.pinpoint.bootstrap.util.jdk.ThreadLocalRandom;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.profiler.context.thrift.ThreadDumpThriftMessageConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.ThreadStateThriftMessageConverter;
@@ -32,6 +31,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author Taejin Koo

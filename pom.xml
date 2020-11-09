@@ -46,7 +46,6 @@
         <module>agent-plugins</module>
         <module>bootstrap</module>
         <module>bootstrap-core</module>
-        <module>bootstrap-java7</module>
         <module>bootstrap-java8</module>
         <module>bootstrap-java9</module>
         <module>collector</module>
@@ -258,11 +257,6 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-bootstrap-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-bootstrap-java7</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

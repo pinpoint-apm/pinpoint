@@ -14,25 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.oracle;
+package com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.ibm;
 
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
 
-import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.ManagementFactory;
 
 /**
  * @author Roy Kim
  */
-public class DefaultFileDescriptorMetric implements FileDescriptorMetric {
+public class IbmFileDescriptorMetric implements FileDescriptorMetric {
 
-    private final com.sun.management.UnixOperatingSystemMXBean unixOperatingSystemMXBean;
+    private final com.ibm.lang.management.UnixOperatingSystemMXBean unixOperatingSystemMXBean;
 
-    public DefaultFileDescriptorMetric(OperatingSystemMXBean operatingSystemMXBean) {
-        if (operatingSystemMXBean == null) {
-            throw new NullPointerException("operatingSystemMXBean");
-        }
-        this.unixOperatingSystemMXBean = (com.sun.management.UnixOperatingSystemMXBean) operatingSystemMXBean;
+    public IbmFileDescriptorMetric() {
+        this.unixOperatingSystemMXBean = (com.ibm.lang.management.UnixOperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
     }
 
     @Override
@@ -44,6 +41,6 @@ public class DefaultFileDescriptorMetric implements FileDescriptorMetric {
 
     @Override
     public String toString() {
-        return "FileDescriptorMetric for Oracle Java 1.5+";
+        return "FileDescriptorMetric for IBM Java 1.8+";
     }
 }

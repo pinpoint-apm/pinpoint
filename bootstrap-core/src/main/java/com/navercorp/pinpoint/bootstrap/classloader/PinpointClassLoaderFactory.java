@@ -57,12 +57,8 @@ public final class PinpointClassLoaderFactory {
             return new URLClassLoaderFactory();
         }
 
-        if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
-            return newParallelClassLoaderFactory();
-        }
 
-        // JDK6 --
-        return new Java6ClassLoaderFactory();
+        return newParallelClassLoaderFactory();
     }
 
     private static boolean disableChildFirst() {
