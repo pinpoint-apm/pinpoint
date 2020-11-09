@@ -188,6 +188,10 @@ public class ModuleSupport {
         Class<?> nameResolverProviderClazz = forName(nameResolverProviderName, classLoader);
         agentModule.addUses(nameResolverProviderClazz);
 
+        final String loadBalancerProviderName = "io.grpc.LoadBalancerProvider";
+        Class<?> loadBalancerProviderClazz = forName(loadBalancerProviderName, classLoader);
+        agentModule.addUses(loadBalancerProviderClazz);
+
         List<Providers> providersList = agentModule.getProviders();
         for (Providers providers : providersList) {
             final String service = providers.getService();
@@ -196,6 +200,8 @@ public class ModuleSupport {
                 Class<?> serviceClass = forName(providers.getService(), classLoader);
                 List<Class<?>> providerClassList = loadProviderClassList(providers.getProviders(), classLoader);
                 agentModule.addProvides(serviceClass, providerClassList);
+            } else {
+                logger.info("discard provider:" + providers);
             }
         }
     }

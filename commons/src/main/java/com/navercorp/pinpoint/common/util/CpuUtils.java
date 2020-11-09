@@ -31,6 +31,11 @@ public final class CpuUtils {
         return CPU_COUNT;
     }
 
+    /**
+     * io.grpc.netty.Utils.DefaultEventLoopGroupResource
+     * availableProcessors configuration is changed
+     * @return
+     */
     public static int workerCount() {
         return WORKER_COUNT;
     }
