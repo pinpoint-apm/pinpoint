@@ -31,7 +31,7 @@
             <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>
         </Logger>
-        <Logger name="io.grpc" level="INFO" additivity="false">
+        <Logger name="io.grpc" level="DEBUG" additivity="false">
             <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>
         </Logger>

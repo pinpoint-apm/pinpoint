@@ -17,12 +17,13 @@
 package io.grpc.internal;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.navercorp.pinpoint.common.util.Assert;
-import io.grpc.Attributes;
+import io.grpc.NameResolver;
 import io.grpc.NameResolverProvider;
 
 import java.net.URI;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 
 /**
  * copy from : https://github.com/grpc/grpc-java/blob/master/core/src/main/java/io/grpc/internal/DnsNameResolverProvider.java
@@ -31,16 +32,16 @@ public final class PinpointDnsNameResolverProvider extends NameResolverProvider 
 
     private static final String SCHEME = "dns";
 
-    private final ExecutorService dnsExecutorService;
+    private final Executor dnsExecutor;
     private final String name;
 
-    public PinpointDnsNameResolverProvider(String name, ExecutorService dnsExecutorService) {
+    public PinpointDnsNameResolverProvider(String name, Executor dnsExecutor) {
         this.name = Assert.requireNonNull(name, "name");
-        this.dnsExecutorService = Assert.requireNonNull(dnsExecutorService, "dnsExecutorService");
+        this.dnsExecutor = Assert.requireNonNull(dnsExecutor, "dnsExecutorService");
     }
 
     @Override
-    public DnsNameResolver newNameResolver(URI targetUri, Attributes params) {
+    public DnsNameResolver newNameResolver(URI targetUri, NameResolver.Args args) {
         if (SCHEME.equals(targetUri.getScheme())) {
             String targetPath = Preconditions.checkNotNull(targetUri.getPath(), "targetPath");
             Preconditions.checkArgument(targetPath.startsWith("/"),
@@ -49,24 +50,24 @@ public final class PinpointDnsNameResolverProvider extends NameResolverProvider 
             return new DnsNameResolver(
                     targetUri.getAuthority(),
                     name,
-                    params,
+                    args,
                     // rename thread
-                    wrapDnsExecutor(this.dnsExecutorService),
-                    GrpcUtil.getDefaultProxyDetector());
+                    wrapExecutor(this.dnsExecutor),
+                    Stopwatch.createUnstarted(), false);
         } else {
             return null;
         }
     }
 
-    private SharedResourceHolder.Resource<ExecutorService> wrapDnsExecutor(final ExecutorService dnsExecutorService) {
-        return new SharedResourceHolder.Resource<ExecutorService>() {
+    private SharedResourceHolder.Resource<Executor> wrapExecutor(final Executor executor) {
+        return new SharedResourceHolder.Resource<Executor>() {
             @Override
-            public ExecutorService create() {
-                return dnsExecutorService;
+            public Executor create() {
+                return executor;
             }
 
             @Override
-            public void close(ExecutorService instance) {
+            public void close(Executor instance) {
 //                instance.shutdown();
                 // ignore
             }

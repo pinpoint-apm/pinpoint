@@ -34,7 +34,8 @@ public class ModuleSupportFactory {
                 "io.grpc.NameResolverProvider",
                 "com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestMetadataProvider",
                 "com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParserProvider",
-                "io.grpc.ManagedChannelProvider"
+                "io.grpc.ManagedChannelProvider",
+                "io.grpc.LoadBalancerProvider"
         );
 
         return new ModuleSupport(instrumentation, allowedProviders);

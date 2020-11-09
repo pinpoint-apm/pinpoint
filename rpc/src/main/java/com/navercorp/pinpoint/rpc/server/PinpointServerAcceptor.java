@@ -65,7 +65,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final int WORKER_COUNT = CpuUtils.workerCount();
+    private static final int WORKER_COUNT = CpuUtils.cpuCount();
 
     private volatile boolean released;
 
