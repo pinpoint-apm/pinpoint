@@ -56,7 +56,7 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>${log4j2-jdk6.version}</version>
+            <version>${log4j2-jdk7.version}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -70,55 +70,7 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>compile-java-6</id>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <source>${jdk.version}</source>
-                            <source>${jdk.version}</source>
-                            <executable>${jdk.home}/bin/javac</executable>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>compile-java-9</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <release>9</release>
-                            <compileSourceRoots>
-                                <compileSourceRoot>${project.basedir}/src/main/java9</compileSourceRoot>
-                            </compileSourceRoots>
-                            <multiReleaseOutput>true</multiReleaseOutput>
-                            <executable>${env.JAVA_9_HOME}/bin/javac</executable>
-<!--                            <release>9</release>-->
-<!--                            <compileSourceRoots>-->
-<!--                                <compileSourceRoot>${project.basedir}/src/main/java9</compileSourceRoot>-->
-<!--                            </compileSourceRoots>-->
-<!--                            <outputDirectory>${project.build.outputDirectory}/META-INF/versions/9</outputDirectory>-->
-<!--                            <executable>${env.JAVA_9_HOME}/bin/javac</executable>-->
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Multi-Release>true</Multi-Release>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
+
         </plugins>
     </build>
 </project>

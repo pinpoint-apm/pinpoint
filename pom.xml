@@ -108,9 +108,9 @@
         <spring.boot.version>2.2.8.RELEASE</spring.boot.version>
 
         <slf4j.version>1.7.30</slf4j.version>
-        <log4j2-jdk6.version>2.3</log4j2-jdk6.version>
+        <log4j2-jdk7.version>2.12.1</log4j2-jdk7.version>
         <log4j2-jdk8.version>2.13.3</log4j2-jdk8.version>
-        <log4j2.version>${log4j2-jdk6.version}</log4j2.version>
+        <log4j2.version>${log4j2-jdk7.version}</log4j2.version>
         <!-- for plugin & hbase client -->
         <log4j1.version>1.2.17</log4j1.version>
 
