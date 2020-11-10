@@ -16,6 +16,11 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
+import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
+import com.navercorp.pinpoint.common.profiler.sql.OutputParameterParser;
+import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
@@ -25,12 +30,8 @@ import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.common.server.util.AnnotationUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
-import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
-import com.navercorp.pinpoint.common.profiler.sql.OutputParameterParser;
-import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
 import com.navercorp.pinpoint.common.util.StringStringValue;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
 import com.navercorp.pinpoint.web.calltree.span.Align;
@@ -97,9 +98,14 @@ public class SpanServiceImpl implements SpanService {
 
     @Override
     public SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint) {
+        return selectSpan(transactionId, selectedSpanHint, null);
+    }
+
+    @Override
+    public SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint, ColumnGetCount columnGetCount) {
         Objects.requireNonNull(transactionId, "transactionId");
 
-        final List<SpanBo> spans = traceDao.selectSpan(transactionId);
+        final List<SpanBo> spans = traceDao.selectSpan(transactionId, columnGetCount);
         if (CollectionUtils.isEmpty(spans)) {
             return new SpanResult(TraceState.State.ERROR, new CallTreeIterator(null));
         }
@@ -113,10 +119,10 @@ public class SpanServiceImpl implements SpanService {
         transitionMongoJson(values);
         transitionCachedString(values);
         transitionException(values);
-        // TODO need to at least show the row data when root span is not found. 
+
+        // TODO need to at least show the row data when root span is not found.
         return result;
     }
-
 
     private void transitionAnnotation(List<Align> spans, AnnotationReplacementCallback annotationReplacementCallback) {
         for (Align align : spans) {

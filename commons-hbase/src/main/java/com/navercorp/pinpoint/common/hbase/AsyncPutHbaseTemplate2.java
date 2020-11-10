@@ -1,6 +1,24 @@
+/*
+ * Copyright 2020 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.common.hbase;
 
+import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
@@ -13,6 +31,9 @@ import org.apache.hadoop.hbase.client.Scan;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * @author Taejin Koo
+ */
 public class AsyncPutHbaseTemplate2 implements HbaseOperations2 {
     private final HbaseOperations2 delegate;
 
@@ -91,14 +112,30 @@ public class AsyncPutHbaseTemplate2 implements HbaseOperations2 {
     }
 
     @Override
+    public <T> T get(TableName tableName, byte[] rowName, RowMapper<T> mapper, ColumnGetCount columnGetCount) {
+        return delegate.get(tableName, rowName, mapper, columnGetCount);
+    }
+
+    @Override
     public <T> T get(TableName tableName, byte[] rowName, byte[] familyName, RowMapper<T> mapper) {
         return delegate.get(tableName, rowName, familyName, mapper);
+    }
+
+    @Override
+    public <T> T get(TableName tableName, byte[] rowName, byte[] familyName, RowMapper<T> mapper, ColumnGetCount columnGetCount) {
+        return delegate.get(tableName, rowName, familyName, mapper, columnGetCount);
     }
 
     @Override
     public <T> T get(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, RowMapper<T> mapper) {
         return delegate.get(tableName, rowName, familyName, qualifier, mapper);
     }
+
+    @Override
+    public <T> T get(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, RowMapper<T> mapper, ColumnGetCount columnGetCount) {
+        return delegate.get(tableName, rowName, familyName, qualifier, mapper, columnGetCount);
+    }
+
 
     @Override
     public <T> T get(TableName tableName, Get get, RowMapper<T> mapper) {
@@ -271,12 +308,28 @@ public class AsyncPutHbaseTemplate2 implements HbaseOperations2 {
     }
 
     @Override
+    public <T> T get(TableName tableName, String rowName, RowMapper<T> mapper, ColumnGetCount columnGetCount) {
+        return delegate.get(tableName, rowName, mapper, columnGetCount);
+    }
+
+    @Override
     public <T> T get(TableName tableName, String rowName, String familyName, RowMapper<T> mapper) {
         return delegate.get(tableName, rowName, familyName, mapper);
+    }
+
+    @Override
+    public <T> T get(TableName tableName, String rowName, String familyName, RowMapper<T> mapper, ColumnGetCount columnGetCount) {
+        return delegate.get(tableName, rowName, familyName, mapper, columnGetCount);
     }
 
     @Override
     public <T> T get(TableName tableName, String rowName, String familyName, String qualifier, RowMapper<T> mapper) {
         return delegate.get(tableName, rowName, familyName, qualifier, mapper);
     }
+
+    @Override
+    public <T> T get(TableName tableName, String rowName, String familyName, String qualifier, RowMapper<T> mapper, ColumnGetCount columnGetCount) {
+        return delegate.get(tableName, rowName, familyName, qualifier, mapper, columnGetCount);
+    }
+
 }

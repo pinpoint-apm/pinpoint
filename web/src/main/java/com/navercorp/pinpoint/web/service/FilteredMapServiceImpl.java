@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.google.common.collect.Lists;
+import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
@@ -43,6 +43,8 @@ import com.navercorp.pinpoint.web.service.map.FilteredMapBuilder;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
+
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -131,13 +133,18 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     @Override
     public ApplicationMap selectApplicationMap(TransactionId transactionId, int version) {
+        return selectApplicationMap(transactionId, version, null);
+    }
+
+    @Override
+    public ApplicationMap selectApplicationMap(TransactionId transactionId, int version, ColumnGetCount columnGetCount) {
         Objects.requireNonNull(transactionId, "transactionId");
 
         List<TransactionId> transactionIdList = Collections.singletonList(transactionId);
         // FIXME from,to -1
         Range range = Range.newRange(-1, -1);
 
-        final List<List<SpanBo>> filterList = selectFilteredSpan(transactionIdList, Filter.acceptAllFilter());
+        final List<List<SpanBo>> filterList = selectFilteredSpan(transactionIdList, Filter.acceptAllFilter(), columnGetCount);
         FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, range, version);
         filteredMapBuilder.serverMapDataFilter(serverMapDataFilter);
         filteredMapBuilder.addTransactions(filterList);
@@ -157,7 +164,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         StopWatch watch = new StopWatch();
         watch.start();
 
-        final List<List<SpanBo>> filterList = selectFilteredSpan(transactionIdList, filter);
+        final List<List<SpanBo>> filterList = selectFilteredSpan(transactionIdList, filter, null);
         FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, originalRange, version);
         filteredMapBuilder.serverMapDataFilter(serverMapDataFilter);
         filteredMapBuilder.addTransactions(filterList);
@@ -174,13 +181,13 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return applicationMapWithScatterData;
     }
 
-    private List<List<SpanBo>> selectFilteredSpan(List<TransactionId> transactionIdList, Filter<List<SpanBo>> filter) {
+    private List<List<SpanBo>> selectFilteredSpan(List<TransactionId> transactionIdList, Filter<List<SpanBo>> filter, ColumnGetCount columnGetCount) {
         // filters out recursive calls by looking at each objects
         // do not filter here if we change to a tree-based collision check in the future. 
         final List<TransactionId> recursiveFilterList = recursiveCallFilter(transactionIdList);
 
         // FIXME might be better to simply traverse the List<Span> and create a process chain for execution
-        final List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(recursiveFilterList);
+        final List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(recursiveFilterList, columnGetCount);
 
         return filterList2(originalList, filter);
     }
