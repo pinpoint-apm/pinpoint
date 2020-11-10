@@ -37,6 +37,10 @@ import com.navercorp.pinpoint.rpc.ClassPreLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+
 
 /**
  * @author emeroad
@@ -58,8 +62,8 @@ public class DefaultAgent implements Agent {
 
     public DefaultAgent(AgentOption agentOption) {
         Assert.requireNonNull(agentOption, "agentOption");
-        Assert.requireNonNull(agentOption.getInstrumentation() , "instrumentation");
-        Assert.requireNonNull(agentOption.getProfilerConfig() , "profilerConfig");
+        Assert.requireNonNull(agentOption.getInstrumentation(), "instrumentation");
+        Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
 
         this.profilerConfig = agentOption.getProfilerConfig();
 
@@ -67,8 +71,10 @@ public class DefaultAgent implements Agent {
         this.loggingSystem = newLoggingSystem(logConfigPath);
         this.loggingSystem.start();
 
-        logger = LoggerFactory.getLogger(this.getClass());
-        logger.info("AgentOption:{}", agentOption);
+        this.logger = LoggerFactory.getLogger(this.getClass());
+        this.logger.info("AgentOption:{}", agentOption);
+
+        setupGrpcLogger(loggingSystem);
 
         dumpSystemProperties();
         dumpConfig(agentOption.getProfilerConfig());
@@ -84,6 +90,29 @@ public class DefaultAgent implements Agent {
         this.applicationContext = newApplicationContext(agentOption);
 
     }
+
+    private void setupGrpcLogger(LoggingSystem loggingSystem) {
+
+        String key = "pinpoint.profiler.grpc.log.enable";
+        final boolean enableGrpcLog = Boolean.parseBoolean(System.getProperty(key));
+        logger.info("{}:{}", key, enableGrpcLog);
+//        if(!enableGrpcLog) {
+//            return;
+//        }
+        final Handler handler = loggingSystem.getJulHandler();
+        if (handler == null) {
+            return;
+        }
+        logger.info("java.util.logging.LogManager {}", LogManager.getLogManager().getClass().getName());
+        java.util.logging.Logger grpcLogger = java.util.logging.Logger.getLogger("io.grpc");
+
+        Level level = grpcLogger.getLevel();
+        handler.setLevel(Level.FINE);
+        logger.info("io.grpc log level:{}", level);
+        grpcLogger.setLevel(Level.FINE);
+        grpcLogger.addHandler(handler);
+    }
+
 
     private LoggingSystem newLoggingSystem(String profilePath) {
 //        return new Log4jLoggingSystem(logConfigPath);

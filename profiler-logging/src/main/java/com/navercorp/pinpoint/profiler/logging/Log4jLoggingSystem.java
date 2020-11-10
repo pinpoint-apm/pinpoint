@@ -11,6 +11,8 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.logging.Handler;
+
 public class Log4jLoggingSystem implements LoggingSystem {
 
     private final String profilePath;
@@ -31,6 +33,11 @@ public class Log4jLoggingSystem implements LoggingSystem {
 
         this.binder = new Slf4jLoggerBinder();
         bindPLoggerFactory(this.binder);
+    }
+
+    @Override
+    public Handler getJulHandler() {
+        return null;
     }
 
     @Override

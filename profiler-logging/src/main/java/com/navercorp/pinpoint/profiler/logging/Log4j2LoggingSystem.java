@@ -13,6 +13,7 @@ import org.apache.logging.log4j.util.ReflectionUtil;
 import java.io.File;
 import java.net.URI;
 import java.security.CodeSource;
+import java.util.logging.Handler;
 
 public class Log4j2LoggingSystem implements LoggingSystem {
     public static final String CONTEXT_NAME = "pinpoint-agent-logging-context";
@@ -50,6 +51,15 @@ public class Log4j2LoggingSystem implements LoggingSystem {
 
         this.binder = new Log4j2Binder(loggerContext);
         bindPLoggerFactory(this.binder);
+    }
+
+    @Override
+    public Handler getJulHandler() {
+        final LoggerContext loggerContext = this.loggerContext;
+        if (loggerContext == null) {
+            return null;
+        }
+        return new JulAdaptorHandler(loggerContext);
     }
 
     private void patchReflectionUtilForJava9(BootLogger bootLogger) {
