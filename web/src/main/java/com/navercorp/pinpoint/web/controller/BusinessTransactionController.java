@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.controller;
 
+import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
+import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCountFactory;
 import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
 import com.navercorp.pinpoint.common.profiler.sql.OutputParameterParser;
 import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
@@ -23,6 +25,7 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
+import com.navercorp.pinpoint.web.calltree.span.TraceState;
 import com.navercorp.pinpoint.web.config.LogConfiguration;
 import com.navercorp.pinpoint.web.service.FilteredMapService;
 import com.navercorp.pinpoint.web.service.SpanResult;
@@ -39,6 +42,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -50,6 +54,7 @@ import java.util.List;
 /**
  * @author emeroad
  * @author jaehong.kim
+ * @author Taejin Koo
  */
 @Controller
 public class BusinessTransactionController {
@@ -67,6 +72,10 @@ public class BusinessTransactionController {
 
     @Autowired
     private LogConfiguration logConfiguration;
+
+    @Value("${web.callstack.selectSpans.limit:-1}")
+    private int callstackSelectSpansLimit;
+
 
     private final SqlParser sqlParser = new DefaultSqlParser();
     private final OutputParameterParser parameterParser = new OutputParameterParser();
@@ -92,16 +101,20 @@ public class BusinessTransactionController {
 
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceIdParam);
 
+        final ColumnGetCount columnGetCount = ColumnGetCountFactory.create(callstackSelectSpansLimit);
+
         // select spans
-        final SpanResult spanResult = this.spanService.selectSpan(transactionId, focusTimestamp);
+        final SpanResult spanResult = this.spanService.selectSpan(transactionId, focusTimestamp, columnGetCount);
         final CallTreeIterator callTreeIterator = spanResult.getCallTree();
 
         // application map
-        ApplicationMap map = filteredMapService.selectApplicationMap(transactionId, viewVersion);
+        ApplicationMap map = filteredMapService.selectApplicationMap(transactionId, viewVersion, columnGetCount);
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp, agentId, spanId);
 
-        TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, spanResult.getTraceState(), logConfiguration);
-        return result;
+        if (spanResult.getTraceState() == TraceState.State.PROGRESS && columnGetCount.isreachedLimit()) {
+            return new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, TraceState.State.OVERFLOW, logConfiguration);
+        }
+        return new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, spanResult.getTraceState(), logConfiguration);
     }
 
     /**
@@ -121,8 +134,10 @@ public class BusinessTransactionController {
 
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceIdParam);
 
+        final ColumnGetCount columnGetCount = ColumnGetCountFactory.create(callstackSelectSpansLimit);
+
         // select spans
-        final CallTreeIterator callTreeIterator = this.spanService.selectSpan(transactionId, focusTimestamp).getCallTree();
+        final CallTreeIterator callTreeIterator = this.spanService.selectSpan(transactionId, focusTimestamp, columnGetCount).getCallTree();
 
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp, agentId, spanId);
 

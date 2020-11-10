@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2020 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service;
-
-import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+package com.navercorp.pinpoint.common.hbase.bo;
 
 /**
- * @author emeroad
+ * @author Taejin Koo
  */
-public interface SpanService {
+public class ColumnGetCountFactory {
 
-    SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint);
-
-    SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint, ColumnGetCount columnGetCount);
+    public static ColumnGetCount create(int columnGetCountValue) {
+        if (columnGetCountValue == -1 || columnGetCountValue == Integer.MAX_VALUE) {
+            return ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT;
+        } else {
+            return new ColumnGetCount(columnGetCountValue);
+        }
+    }
 
 }
