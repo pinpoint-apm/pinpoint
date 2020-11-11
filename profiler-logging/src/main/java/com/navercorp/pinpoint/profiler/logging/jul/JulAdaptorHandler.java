@@ -40,12 +40,12 @@ public class JulAdaptorHandler extends Handler {
     public void publish(LogRecord record) {
         final String loggerName = record.getLoggerName();
         final Logger logger = loggerContext.getLogger(loggerName);
-        
+
         final Level level = JulLogLevel.toLevel(record.getLevel().intValue());
         if (logger.isEnabled(level)) {
+
+            String message = format(record);
             final Throwable thrown = record.getThrown();
-            MessageFormat format = new MessageFormat(record.getMessage());
-            String message = format.format(record.getParameters());
             if (thrown == null) {
                 logger.log(level, message);
             } else {
@@ -54,6 +54,22 @@ public class JulAdaptorHandler extends Handler {
         }
     }
 
+    String format(LogRecord record) {
+        final Object[] parameters = record.getParameters();
+        final String message = record.getMessage();
+        if (parameters == null || parameters.length == 0) {
+            return message;
+        }
+        if (checkPattern(message)) {
+            return MessageFormat.format(message, parameters);
+        }
+        return message;
+    }
+
+    private boolean checkPattern(String message) {
+        return message.indexOf("{0") >= 0 || message.indexOf("{1") >= 0 ||
+                message.indexOf("{2") >= 0 || message.indexOf("{3") >= 0;
+    }
 
     @Override
     public void flush() {
