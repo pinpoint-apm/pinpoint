@@ -58,8 +58,8 @@ public class DefaultAgent implements Agent {
 
     public DefaultAgent(AgentOption agentOption) {
         Assert.requireNonNull(agentOption, "agentOption");
-        Assert.requireNonNull(agentOption.getInstrumentation() , "instrumentation");
-        Assert.requireNonNull(agentOption.getProfilerConfig() , "profilerConfig");
+        Assert.requireNonNull(agentOption.getInstrumentation(), "instrumentation");
+        Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
 
         this.profilerConfig = agentOption.getProfilerConfig();
 
