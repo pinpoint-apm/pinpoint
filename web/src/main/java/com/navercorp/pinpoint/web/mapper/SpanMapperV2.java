@@ -18,8 +18,10 @@ package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.buffer.StringCacheableBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -29,8 +31,8 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.LRUCache;
 import com.navercorp.pinpoint.io.SpanVersion;
 
 import com.google.common.collect.LinkedListMultimap;
@@ -44,6 +46,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,8 +54,11 @@ import java.util.Objects;
 
 /**
  * @author emeroad
+ * @author Taejin Koo
  */
 public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
+
+    private static final int DISABLED_CACHE = -1;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -60,13 +66,24 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
     private final RowKeyDecoder<TransactionId> rowKeyDecoder;
 
+    private final int cacheSize;
+
     public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder) {
-        this(rowKeyDecoder, new SpanDecoderV0());
+        this(rowKeyDecoder, new SpanDecoderV0(), DISABLED_CACHE);
+    }
+
+    public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder, int cacheSize) {
+        this(rowKeyDecoder, new SpanDecoderV0(), cacheSize);
     }
 
     public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder, SpanDecoder spanDecoder) {
+        this(rowKeyDecoder, spanDecoder, DISABLED_CACHE);
+    }
+
+    public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder, SpanDecoder spanDecoder, int cacheSize) {
         this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
         this.spanDecoder = Objects.requireNonNull(spanDecoder, "spanDecoder");
+        this.cacheSize = cacheSize;
     }
 
     @Override
@@ -87,6 +104,8 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         final SpanDecodingContext decodingContext = new SpanDecodingContext();
         decodingContext.setTransactionId(transactionId);
 
+        final LRUCache<ByteBuffer, String> stringCache = createStringCache();
+
         for (Cell cell : rawCells) {
             SpanDecoder spanDecoder = null;
             // only if family name is "span"
@@ -94,8 +113,8 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
                 decodingContext.setCollectorAcceptedTime(cell.getTimestamp());
 
-                final Buffer qualifier = new FixedBuffer(CellUtil.cloneQualifier(cell));
-                final Buffer columnValue = new FixedBuffer(CellUtil.cloneValue(cell));
+                final Buffer qualifier = createBuffer(CellUtil.cloneQualifier(cell), stringCache);
+                final Buffer columnValue = createBuffer(CellUtil.cloneValue(cell), stringCache);
 
                 spanDecoder = resolveDecoder(columnValue);
                 final Object decodeObject = spanDecoder.decode(qualifier, columnValue, decodingContext);
@@ -127,6 +146,22 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
         return buildSpanBoList(spanMap, spanChunkList);
 
+    }
+
+    private LRUCache<ByteBuffer, String> createStringCache() {
+        if (cacheSize > 0) {
+            return new LRUCache<>(cacheSize);
+        } else {
+            return null;
+        }
+    }
+
+    private Buffer createBuffer(byte[] buffer, LRUCache<ByteBuffer, String> stringCache) {
+        if (stringCache != null) {
+            return new StringCacheableBuffer(buffer, stringCache);
+        } else {
+            return new FixedBuffer(buffer);
+        }
     }
 
     private void nextCell(SpanDecoder spanDecoder, SpanDecodingContext decodingContext) {
