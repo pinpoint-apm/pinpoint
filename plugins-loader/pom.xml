@@ -14,16 +14,8 @@
     <packaging>jar</packaging>
 
     <properties>
-        <snakeyaml.version>1.23-p1</snakeyaml.version>
+        <snakeyaml.version>1.27</snakeyaml.version>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>project-internal</id>
-            <name>Project Internal Repository</name>
-            <url>file://${project.basedir}/libs</url>
-        </repository>
-    </repositories>
 
     <dependencyManagement>
         <dependencies>
