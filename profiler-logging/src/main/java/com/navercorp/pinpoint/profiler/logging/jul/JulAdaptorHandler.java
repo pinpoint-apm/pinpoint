@@ -55,8 +55,11 @@ public class JulAdaptorHandler extends Handler {
     }
 
     String format(LogRecord record) {
-        final Object[] parameters = record.getParameters();
         final String message = record.getMessage();
+        if (message == null) {
+            return "";
+        }
+        final Object[] parameters = record.getParameters();
         if (parameters == null || parameters.length == 0) {
             return message;
         }
