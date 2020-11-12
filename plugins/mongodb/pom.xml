@@ -45,7 +45,7 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <scope>test</scope>
-            <version>${fastxml.jackson-jdk6.version}</version>
+            <version>${fastxml.jackson.version}</version>
         </dependency>
     </dependencies>
 </project>
