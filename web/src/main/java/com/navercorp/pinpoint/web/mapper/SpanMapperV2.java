@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.CachedStringAllocator;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.buffer.StringAllocator;
 import com.navercorp.pinpoint.common.buffer.StringCacheableBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
@@ -50,8 +52,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-
 /**
  * @author emeroad
  * @author Taejin Koo
@@ -104,7 +106,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         final SpanDecodingContext decodingContext = new SpanDecodingContext();
         decodingContext.setTransactionId(transactionId);
 
-        final LRUCache<ByteBuffer, String> stringCache = createStringCache();
+        final BufferFactory bufferFactory = new BufferFactory(cacheSize);
 
         for (Cell cell : rawCells) {
             SpanDecoder spanDecoder = null;
@@ -113,8 +115,8 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
                 decodingContext.setCollectorAcceptedTime(cell.getTimestamp());
 
-                final Buffer qualifier = createBuffer(CellUtil.cloneQualifier(cell), stringCache);
-                final Buffer columnValue = createBuffer(CellUtil.cloneValue(cell), stringCache);
+                final Buffer qualifier = bufferFactory.createBuffer(CellUtil.cloneQualifier(cell));
+                final Buffer columnValue = bufferFactory.createBuffer(CellUtil.cloneValue(cell));
 
                 spanDecoder = resolveDecoder(columnValue);
                 final Object decodeObject = spanDecoder.decode(qualifier, columnValue, decodingContext);
@@ -148,19 +150,25 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
     }
 
-    private LRUCache<ByteBuffer, String> createStringCache() {
-        if (cacheSize > 0) {
-            return new LRUCache<>(cacheSize);
-        } else {
-            return null;
-        }
-    }
+    public static class BufferFactory {
 
-    private Buffer createBuffer(byte[] buffer, LRUCache<ByteBuffer, String> stringCache) {
-        if (stringCache != null) {
-            return new StringCacheableBuffer(buffer, stringCache);
-        } else {
-            return new FixedBuffer(buffer);
+        private final StringAllocator stringAllocator;
+
+        public BufferFactory(int cacheSize) {
+            if (cacheSize > 0) {
+                Map<ByteBuffer, String> lruCache = new LRUCache<>(cacheSize);
+                this.stringAllocator = new CachedStringAllocator(lruCache);
+            } else {
+                this.stringAllocator = null;
+            }
+        }
+
+        public Buffer createBuffer(byte[] buffer) {
+            if (stringAllocator != null) {
+                return new StringCacheableBuffer(buffer, stringAllocator);
+            } else {
+                return new FixedBuffer(buffer);
+            }
         }
     }
 
