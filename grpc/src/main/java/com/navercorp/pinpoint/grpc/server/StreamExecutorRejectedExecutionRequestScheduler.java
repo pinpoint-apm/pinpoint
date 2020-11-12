@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author jaehong.kim
  */
 public class StreamExecutorRejectedExecutionRequestScheduler {
+    private static final int REQUEST_IMMEDIATELY = -1;
     private final int periodMillis;
     private final ScheduledExecutorService scheduledExecutorService;
     private final long recoveryMessagesCount;
@@ -70,10 +71,19 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
         }
 
         public void onRejectedExecution() {
-            this.rejectedExecutionCounter.incrementAndGet();
+            if (REQUEST_IMMEDIATELY == this.recoveryMessagesCount) {
+                // Request immediately
+                this.serverCall.request(1);
+            } else {
+                this.rejectedExecutionCounter.incrementAndGet();
+            }
         }
 
         public void onSchedule() {
+            if (REQUEST_IMMEDIATELY == this.recoveryMessagesCount) {
+                return;
+            }
+
             final long currentRejectCount = this.rejectedExecutionCounter.get();
             if (currentRejectCount > 0) {
                 final long recovery = Math.min(currentRejectCount, recoveryMessagesCount);
@@ -145,7 +155,6 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
             return sb.toString();
         }
     }
-
 
     private interface ServerCallWrapper<ReqT, ResT> {
         void request(int numMessages);
