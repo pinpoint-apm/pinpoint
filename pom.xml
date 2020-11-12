@@ -698,8 +698,9 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
+                <!-- https://commons.apache.org/proper/commons-lang/changes-report.html -->
                 <!-- Lang 3.9 and onwards now targets Java 8, making use of features that arrived with Java 8.-->
-                <version>3.10</version>
+                <version>3.8.1</version>
             </dependency>
             <dependency>
                 <groupId>commons-lang</groupId>
