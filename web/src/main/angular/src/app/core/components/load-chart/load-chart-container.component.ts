@@ -209,6 +209,7 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
             ),
             this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.REAL_TIME_SCATTER_CHART_X_RANGE).pipe(
                 filter(() => this.sourceType === SourceType.MAIN),
+                filter(() => !!this.serverMapData),
                 map(({from, to}: IScatterXRange) => [from, to]),
                 tap((range: number[]) => this.previousRange = range),
                 switchMap((range: number[]) => {

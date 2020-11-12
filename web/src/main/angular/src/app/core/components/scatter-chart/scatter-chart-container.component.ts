@@ -115,6 +115,7 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
                     false
                 );
             }
+
             this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData);
             this.cd.detectChanges();
         });
