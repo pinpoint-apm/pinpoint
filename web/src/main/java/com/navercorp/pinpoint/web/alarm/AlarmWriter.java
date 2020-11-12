@@ -55,9 +55,13 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
     public void write(List<? extends AlarmChecker> checkers) throws Exception {
         interceptor.before(checkers);
 
-        execute(checkers);
-
-        interceptor.after(checkers);
+        try {
+            execute(checkers);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            interceptor.after(checkers);
+        }
     }
 
     private void execute(List<? extends AlarmChecker> checkers) {
