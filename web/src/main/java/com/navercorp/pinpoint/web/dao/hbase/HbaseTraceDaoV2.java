@@ -64,6 +64,7 @@ import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
+ * @author Taejin Koo
  */
 @Repository
 public class HbaseTraceDaoV2 implements TraceDao {
@@ -84,6 +85,9 @@ public class HbaseTraceDaoV2 implements TraceDao {
     @Value("${web.hbase.selectAllSpans.limit:500}")
     private int selectAllSpansLimit;
 
+    @Value("${web.hbase.mapper.cache.string.size:-1}")
+    private int stringCacheSize;
+
     private final Filter spanFilter = createSpanQualifierFilter();
 
     private final TableDescriptor<HbaseColumnFamily.Trace> descriptor;
@@ -97,7 +101,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     @PostConstruct
     private void setup() {
-        SpanMapperV2 spanMapperV2 = new SpanMapperV2(rowKeyDecoder);
+        SpanMapperV2 spanMapperV2 = new SpanMapperV2(rowKeyDecoder, stringCacheSize);
         final Logger logger = LoggerFactory.getLogger(spanMapperV2.getClass());
         if (logger.isDebugEnabled()) {
             this.spanMapperV2 = CellTraceMapper.wrap(spanMapperV2);
@@ -203,7 +207,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
         final SpanHint hint = getTraceInfo.getHint();
         if (hint.isSet()) {
             final SpanDecoder targetSpanDecoder = new TargetSpanDecoder(new SpanDecoderV0(), getTraceInfo);
-            final RowMapper<List<SpanBo>> spanMapper = new SpanMapperV2(rowKeyDecoder, targetSpanDecoder);
+            final RowMapper<List<SpanBo>> spanMapper = new SpanMapperV2(rowKeyDecoder, targetSpanDecoder, stringCacheSize);
             return spanMapper;
         } else {
             return spanMapperV2;
