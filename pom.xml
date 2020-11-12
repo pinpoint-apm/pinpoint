@@ -87,9 +87,7 @@
         <!-- library -->
         <metrics.version>3.2.6</metrics.version>
 
-        <!-- jdk 6 compatibility version -->
-        <fastxml.jackson-jdk6.version>2.6.6</fastxml.jackson-jdk6.version>
-        <fastxml.jackson.version>2.10.4</fastxml.jackson.version>
+        <fastxml.jackson.version>2.11.3</fastxml.jackson.version>
         <snakeyaml.version>1.26</snakeyaml.version>
 
         <httpcomponents.version>4.5.6</httpcomponents.version>
