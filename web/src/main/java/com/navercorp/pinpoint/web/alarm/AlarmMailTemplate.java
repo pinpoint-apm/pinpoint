@@ -33,6 +33,7 @@ public class AlarmMailTemplate {
     private static final String LINK_FORMAT = "<a href=\"%s\" >pinpoint site</a>";
     private static final String SCATTER_CHART_LINK_FORMAT = "<a href=\"%s/main/%s@%s/5m/%s\" >scatter chart of %s</a>";
     private static final String INSPECTOR_LINK_FORMAT = " <a href=\"%s/inspector/%s@%s/5m/%s/%s\" >inspector of %s</a>";
+    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 
     private final String pinpointUrl;
     private final AlarmChecker checker;
@@ -52,7 +53,6 @@ public class AlarmMailTemplate {
     }
 
     public String getCurrentTime() {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         return format.format(System.currentTimeMillis());
     }
 
