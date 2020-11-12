@@ -53,8 +53,10 @@ export class ScatterChartDataService {
         this.onReset$ = this.outReset.asObservable();
         this.connectDataRequest();
     }
+
     private connectDataRequest(): void {
         this.innerDataRequest.pipe(
+            filter(() => this.loadStart),
             switchMap((params: IScatterRequest) => {
                 return this.requestHttp(params).pipe(
                     retry(3),
@@ -123,6 +125,7 @@ export class ScatterChartDataService {
         return this.innerRealTimeDataRequest.next(params);
     }
     loadData(application: string, fromX: number, toX: number, groupUnitX: number, groupUnitY: number, initLastData?: boolean): void {
+        this.loadStart = true;
         this.application = application;
         this.groupUnitX = groupUnitX;
         this.groupUnitY = groupUnitY;
@@ -169,23 +172,24 @@ export class ScatterChartDataService {
             fromNext = scatterData.to;
             toNext = fromNext + this.realtime.interval;
             if (delayTime > 0) {
+                // When the response arrives on time
                 const timeGapInterServerAndClient = scatterData.currentServerTime - toNext;
-                if (timeGapInterServerAndClient >= delayTime) {
-                    if ( timeGapInterServerAndClient >= this.realtime.interval ) {
+                // if (timeGapInterServerAndClient >= delayTime) {
+                    if (timeGapInterServerAndClient >= this.realtime.interval) {
                         delayTime = 0;
                     } else {
-                        delayTime = Math.min(Math.abs(timeGapInterServerAndClient), delayTime);
+                        // delayTime = Math.min(Math.abs(timeGapInterServerAndClient), delayTime);
                     }
-                }
+                // }
             } else {
                 delayTime = 0;
             }
         } else {
-            // TODO: 처리해야 함.
-            fromNext = scatterData.from;
-            toNext = scatterData.resultFrom;
+            fromNext = scatterData.resultTo;
+            toNext = scatterData.to;
             delayTime = 0;
         }
+
         if (scatterData.currentServerTime - toNext >= this.realtime.resetTimeGap) {
             this.outReset.next();
         } else {
