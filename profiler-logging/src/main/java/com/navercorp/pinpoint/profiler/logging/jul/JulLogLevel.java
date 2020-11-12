@@ -25,23 +25,33 @@ public class JulLogLevel {
     private JulLogLevel() {
     }
 
+    public static final int JUL_ALL     = Integer.MIN_VALUE;
+    public static final int JUL_FINEST  = 300;
+    public static final int JUL_FINER   = 400;
+    public static final int JUL_FINE    = 500;
+    public static final int JUL_CONFIG  = 700;
+    public static final int JUL_INFO    = 800;
+    public static final int JUL_WARNING = 900;
+    public static final int JUL_SEVERE  = 1000;
+    public static final int JUL_OFF     = Integer.MAX_VALUE;
+
     public static Level toLevel(int julLevel) {
         switch (julLevel) {
-            case Integer.MIN_VALUE:
+            case JUL_ALL:
                 return Level.ALL;
-            case 300:
-            case 400:
+            case JUL_FINEST:
+            case JUL_FINER:
                 return Level.TRACE;
-            case 500:
-            case 700:
+            case JUL_FINE:
+            case JUL_CONFIG:
                 return Level.DEBUG;
-            case 800:
+            case JUL_INFO:
                 return Level.INFO;
-            case 900:
+            case JUL_WARNING:
                 return Level.WARN;
-            case 1000:
+            case JUL_SEVERE:
                 return Level.ERROR;
-            case Integer.MAX_VALUE:
+            case JUL_OFF:
                 return Level.OFF;
             default:
                 return Level.OFF;
