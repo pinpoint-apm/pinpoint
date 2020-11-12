@@ -17,39 +17,25 @@
 package com.navercorp.pinpoint.common.buffer;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.LRUCache;
-
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.util.Map;
 
 /**
  * @author Taejin Koo
  */
 public class StringCacheableBuffer extends FixedBuffer {
 
-    private final LRUCache<ByteBuffer, String> cache;
+    private final StringAllocator stringAllocator;
 
-    public StringCacheableBuffer(byte[] buffer, LRUCache<ByteBuffer, String> cache) {
+    public StringCacheableBuffer(byte[] buffer, StringAllocator stringAllocator) {
         super(buffer);
-        this.cache = Assert.requireNonNull(cache, "cache");
+        this.stringAllocator = Assert.requireNonNull(stringAllocator, "stringAllocator");
     }
 
     protected String readString(final int size) {
         checkBounds(buffer, offset, size);
 
-        ByteBuffer wrapByteBuffer = ByteBuffer.wrap(buffer, offset, size);
-
-        String value = cache.get(wrapByteBuffer);
-        if (value != null) {
-            this.offset = offset + size;
-            return value;
-        } else {
-            String newValue = newString(size);
-            cache.put(wrapByteBuffer, newValue);
-            this.offset = offset + size;
-            return newValue;
-        }
+        String newValue = stringAllocator.allocate(buffer, offset, size, Buffer.UTF8_CHARSET);
+        this.offset = offset + size;
+        return newValue;
     }
 
     private void checkBounds(byte[] bytes, int offset, int size) {
