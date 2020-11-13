@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
-
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
@@ -44,7 +42,6 @@ public interface HbaseOperations2 {
      * @return object mapping the target row
      */
     <T> T get(TableName tableName, byte[] rowName, final RowMapper<T> mapper);
-    <T> T get(TableName tableName, byte[] rowName, final RowMapper<T> mapper, ColumnGetCount columnGetCount);
 
 
     /**
@@ -57,7 +54,6 @@ public interface HbaseOperations2 {
      * @return object mapping the target row
      */
     <T> T get(TableName tableName, byte[] rowName, byte[] familyName, final RowMapper<T> mapper);
-    <T> T get(TableName tableName, byte[] rowName, byte[] familyName, final RowMapper<T> mapper, ColumnGetCount columnGetCount);
 
     /**
      * Gets an individual row from the given table. The content is mapped by the given action.
@@ -70,7 +66,6 @@ public interface HbaseOperations2 {
      * @return object mapping the target row
      */
     <T> T get(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final RowMapper<T> mapper);
-    <T> T get(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final RowMapper<T> mapper, ColumnGetCount columnGetCount);
 
     <T> T get(TableName tableName, final Get get, final RowMapper<T> mapper);
 
@@ -248,7 +243,6 @@ public interface HbaseOperations2 {
      * @return object mapping the target row
      */
     <T> T get(TableName tableName, String rowName, final RowMapper<T> mapper);
-    <T> T get(TableName tableName, String rowName, final RowMapper<T> mapper, ColumnGetCount columnGetCount);
 
     /**
      * Gets an individual row from the given table. The content is mapped by the given action.
@@ -261,7 +255,6 @@ public interface HbaseOperations2 {
      * @return object mapping the target row
      */
     <T> T get(TableName tableName, String rowName, String familyName, final RowMapper<T> mapper);
-    <T> T get(TableName tableName, String rowName, String familyName, final RowMapper<T> mapper, ColumnGetCount columnGetCount);
 
     /**
      * Gets an individual row from the given table. The content is mapped by the given action.
@@ -275,5 +268,4 @@ public interface HbaseOperations2 {
      * @return object mapping the target row
      */
     <T> T get(TableName tableName, final String rowName, final String familyName, final String qualifier, final RowMapper<T> mapper);
-    <T> T get(TableName tableName, final String rowName, final String familyName, final String qualifier, final RowMapper<T> mapper, ColumnGetCount columnGetCount);
 }

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.TableCallback;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareDynamicRowMapper;
@@ -42,6 +43,8 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
 import org.apache.hadoop.hbase.filter.ColumnCountGetFilter;
 import org.apache.hadoop.hbase.filter.CompareFilter;
@@ -120,8 +123,28 @@ public class HbaseTraceDaoV2 implements TraceDao {
         Objects.requireNonNull(transactionId, "transactionId");
 
         byte[] transactionIdRowKey = rowKeyEncoder.encodeRowKey(transactionId);
+        final Get get = new Get(transactionIdRowKey);
+        get.addFamily(descriptor.getColumnFamilyName());
+
         TableName traceTableName = descriptor.getTableName();
-        return template2.get(traceTableName, transactionIdRowKey, descriptor.getColumnFamilyName(), spanMapperV2, columnGetCount);
+        return template2.execute(traceTableName, new TableCallback<List<SpanBo>>() {
+
+            @Override
+            public List<SpanBo> doInTable(Table table) throws Throwable {
+                if (columnGetCount != null && columnGetCount != ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT) {
+                    Filter columnCountGetFilter = new ColumnCountGetFilter(columnGetCount.getLimit());
+                    get.setFilter(columnCountGetFilter);
+                }
+
+                Result result = table.get(get);
+                if (columnGetCount != null && columnGetCount != ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT) {
+                    int size = result.size();
+                    columnGetCount.setResultSize(size);
+                }
+                return spanMapperV2.mapRow(result, 0);
+            }
+        });
+
     }
 
     @Override

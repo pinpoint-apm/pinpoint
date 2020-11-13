@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.hbase.parallel.ParallelResultScanner;
 import com.navercorp.pinpoint.common.hbase.parallel.ScanTaskException;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
@@ -37,8 +36,6 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.filter.ColumnCountGetFilter;
-import org.apache.hadoop.hbase.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -226,46 +223,26 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public <T> T get(TableName tableName, String rowName, final RowMapper<T> mapper) {
-        return get0(tableName, rowName, null, null, mapper, null);
-    }
-
-    @Override
-    public <T> T get(TableName tableName, String rowName, RowMapper<T> mapper, ColumnGetCount columnGetCount) {
-        return get0(tableName, rowName, null, null, mapper, columnGetCount);
+        return get0(tableName, rowName, null, null, mapper);
     }
 
     @Override
     public <T> T get(TableName tableName, String rowName, String familyName, final RowMapper<T> mapper) {
-        return get0(tableName, rowName, familyName, null, mapper, null);
-    }
-
-    @Override
-    public <T> T get(TableName tableName, String rowName, String familyName, RowMapper<T> mapper, ColumnGetCount columnGetCount) {
-        return get0(tableName, rowName, familyName, null, mapper, columnGetCount);
+        return get0(tableName, rowName, familyName, null, mapper);
     }
 
     @Override
     public <T> T get(TableName tableName, final String rowName, final String familyName, final String qualifier, final RowMapper<T> mapper) {
-        return get0(tableName, rowName, familyName, qualifier, mapper, null);
+        return get0(tableName, rowName, familyName, qualifier, mapper);
     }
 
-    @Override
-    public <T> T get(TableName tableName, String rowName, String familyName, String qualifier, RowMapper<T> mapper, ColumnGetCount columnGetCount) {
-        return get0(tableName, rowName, familyName, qualifier, mapper, columnGetCount);
-    }
-
-    private <T> T get0(TableName tableName, final String rowName, final String familyName, final String qualifier, final RowMapper<T> mapper, final ColumnGetCount columnGetCount) {
+    private <T> T get0(TableName tableName, final String rowName, final String familyName, final String qualifier, final RowMapper<T> mapper) {
         return execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
                 Get get = new Get(rowName.getBytes(getCharset()));
                 if (familyName != null) {
                     byte[] family = familyName.getBytes(getCharset());
-
-                    if (columnGetCount != null && columnGetCount != ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT) {
-                        Filter columnCountGetFilter = new ColumnCountGetFilter(columnGetCount.getLimit());
-                        get.setFilter(columnCountGetFilter);
-                    }
 
                     if (qualifier != null) {
                         get.addColumn(family, qualifier.getBytes(getCharset()));
@@ -274,11 +251,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
                     }
                 }
                 Result result = table.get(get);
-                if (columnGetCount != null && columnGetCount != ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT) {
-                    int size = result.size();
-                    columnGetCount.setResultSize(size);
-                }
-
                 return mapper.mapRow(result, 0);
             }
         });
@@ -286,44 +258,24 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public <T> T get(TableName tableName, byte[] rowName, RowMapper<T> mapper) {
-        return get0(tableName, rowName, null, null, mapper, null);
-    }
-
-    @Override
-    public <T> T get(TableName tableName, byte[] rowName, RowMapper<T> mapper, ColumnGetCount columnGetCount) {
-        return get0(tableName, rowName, null, null, mapper, columnGetCount);
+        return get0(tableName, rowName, null, null, mapper);
     }
 
     @Override
     public <T> T get(TableName tableName, byte[] rowName, byte[] familyName, RowMapper<T> mapper) {
-        return get0(tableName, rowName, familyName, null, mapper, null);
-    }
-
-    @Override
-    public <T> T get(TableName tableName, byte[] rowName, byte[] familyName, RowMapper<T> mapper, ColumnGetCount columnGetCount) {
-        return get0(tableName, rowName, familyName, null, mapper, columnGetCount);
+        return get0(tableName, rowName, familyName, null, mapper);
     }
 
     @Override
     public <T> T get(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final RowMapper<T> mapper) {
-        return get0(tableName, rowName, familyName, qualifier, mapper, null);
+        return get0(tableName, rowName, familyName, qualifier, mapper);
     }
 
-    @Override
-    public <T> T get(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, RowMapper<T> mapper, ColumnGetCount columnGetCount) {
-        return get0(tableName, rowName, familyName, qualifier, mapper, columnGetCount);
-    }
-
-    private <T> T get0(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final RowMapper<T> mapper, ColumnGetCount columnGetCount) {
+    private <T> T get0(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final RowMapper<T> mapper) {
         return execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
                 Get get = new Get(rowName);
-
-                if (columnGetCount != null && columnGetCount != ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT) {
-                    Filter columnCountGetFilter = new ColumnCountGetFilter(columnGetCount.getLimit());
-                    get.setFilter(columnCountGetFilter);
-                }
 
                 if (familyName != null) {
                     if (qualifier != null) {
@@ -334,10 +286,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
                 }
 
                 Result result = table.get(get);
-                if (columnGetCount != null && columnGetCount != ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT) {
-                    int size = result.size();
-                    columnGetCount.setResultSize(size);
-                }
                 return mapper.mapRow(result, 0);
             }
         });
