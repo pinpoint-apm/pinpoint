@@ -256,48 +256,13 @@ public class AsyncPutHbaseTemplate2 implements HbaseOperations2 {
     }
 
     @Override
-    public <T> T find(TableName tableName, String family, ResultsExtractor<T> action) {
-        return delegate.find(tableName, family, action);
-    }
-
-    @Override
-    public <T> T find(TableName tableName, String family, String qualifier, ResultsExtractor<T> action) {
-        return delegate.find(tableName, family, qualifier, action);
-    }
-
-    @Override
     public <T> T find(TableName tableName, Scan scan, ResultsExtractor<T> action) {
         return delegate.find(tableName, scan, action);
     }
 
     @Override
-    public <T> List<T> find(TableName tableName, String family, RowMapper<T> action) {
-        return delegate.find(tableName, family, action);
-    }
-
-    @Override
-    public <T> List<T> find(TableName tableName, String family, String qualifier, RowMapper<T> action) {
-        return delegate.find(tableName, family, qualifier, action);
-    }
-
-    @Override
     public <T> List<T> find(TableName tableName, Scan scan, RowMapper<T> action) {
         return delegate.find(tableName, scan, action);
-    }
-
-    @Override
-    public <T> T get(TableName tableName, String rowName, RowMapper<T> mapper) {
-        return delegate.get(tableName, rowName, mapper);
-    }
-
-    @Override
-    public <T> T get(TableName tableName, String rowName, String familyName, RowMapper<T> mapper) {
-        return delegate.get(tableName, rowName, familyName, mapper);
-    }
-
-    @Override
-    public <T> T get(TableName tableName, String rowName, String familyName, String qualifier, RowMapper<T> mapper) {
-        return delegate.get(tableName, rowName, familyName, qualifier, mapper);
     }
 
 }
