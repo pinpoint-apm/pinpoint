@@ -19,7 +19,7 @@
 | OpenWhisk                                                                                  | whisk.core                 |         |         |                        | 
 |                                                                                            |                            |         |         |                        |
 | SpringMVC Framework                                                                        | spring-webmvc              | 3.0.7   | 5.2.9   |                        | <AG>
-| Spring Web                                                                                 | spring-web                 | 4.1.2   | 4.3.28  |                        | <AG>
+| Spring Web                                                                                 | spring-web                 | 4.1.2   | 4.3.29  |                        | <AG>
 | Spring RabbitMQ                                                                            | spring-rabbit              | 1.3.3   | 2.2.12  |                        | <AG>
 | Spring IBatis                                                                              | spring-ibatis              | 2.0.7   | 2.0.8   |                        | <AG>
 | Spring MyBatis                                                                             | mybatis-spring             | 1.1.0   | 1.3.3   |                        | <AG>
@@ -71,7 +71,7 @@
 | \*[Redis](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/redis-redisson)            | redisson                   | 3.10.0  | 3.10.4  |                        |
 |                                                                                            |                            |         |         |                        |
 | Apache CXF                                                                                 | cxf-rt-rs-client           | 3.0.0   | 3.4.1   |                        | <AG> 
-| Netty                                                                                      | netty-all                  | 4.1.0   | 4.1.51  |                        | <AG> 
+| Netty                                                                                      | netty-all                  | 4.1.0   | 4.1.54  |                        | <AG> 
 | ActiveMQ                                                                                   | activemq-all               | 5.1.0   | 5.16.0  |                        | <AG> 
 | [RxJAVA](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/rxjava)                     | rxjava                     | 1.0.0   | 1.3.8   |                        | <AG> 
 | [RabbitMQ](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/rabbitmq)                 | amqp-client                | 2.7.0   | 5.10.0  |                        | <AG> 
