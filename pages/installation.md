@@ -248,7 +248,6 @@ pinpoint-agent
 |-- boot
 |   |-- pinpoint-annotations-$VERSION.jar
 |   |-- pinpoint-bootstrap-core-$VERSION.jar
-|   |-- pinpoint-bootstrap-java7-$VERSION.jar
 |   |-- pinpoint-bootstrap-java8-$VERSION.jar
 |   |-- pinpoint-bootstrap-java9-$VERSION.jar
 |   |-- pinpoint-commons-$VERSION.jar
