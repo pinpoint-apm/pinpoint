@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="keywords" content=" tech, technology">
+<title>Technical Details | Leading Open-Source APM</title>
+<link rel="stylesheet" href="css/syntax.css">
+
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<!--<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">-->
+<link rel="stylesheet" href="css/modern-business.css">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="css/customstyles.css">
+<link rel="stylesheet" href="css/boxshadowproperties.css">
+<!-- most color styles are extracted out to here -->
+<link rel="stylesheet" href="css/theme-black.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="js/jquery.navgoco.min.js"></script>
+
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<!-- Anchor.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/2.0.0/anchor.min.js"></script>
+<script src="js/toc.js"></script>
+<script src="js/customscripts.js"></script>
+
+<link rel="shortcut icon" href="images/favicon.ico">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="pinpoint" href="http://localhost:4000/feed.xml">
+
+    <script>
+        $(document).ready(function() {
+            // Initialize navgoco with default options
+            $("#mysidebar").navgoco({
+                caretHtml: '',
+                accordion: true,
+                openClass: 'active', // open
+                save: false, // leave false or nav highlighting doesn't work right
+                cookie: {
+                    name: 'navgoco',
+                    expires: false,
+                    path: '/'
+                },
+                slide: {
+                    duration: 400,
+                    easing: 'swing'
+                }
+            });
+
+            $("#collapseAll").click(function(e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', false);
+            });
+
+            $("#expandAll").click(function(e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', true);
+            });
+
+        });
+
+    </script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+    <script>
+        $(document).ready(function() {
+            $("#tg-sb-link").click(function() {
+                $("#tg-sb-sidebar").toggle();
+                $("#tg-sb-content").toggleClass('col-md-9');
+                $("#tg-sb-content").toggleClass('col-md-12');
+                $("#tg-sb-icon").toggleClass('fa-toggle-on');
+                $("#tg-sb-icon").toggleClass('fa-toggle-off');
+            });
+        });
+    </script>
+    
+
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container topnavlinks">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="fa fa-home fa-lg navbar-brand" href="/pinpoint/index.html">&nbsp;<span class="projectTitle"> <img src="./images/logo2.png"> </span></a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <!-- toggle sidebar button -->
+                <li><a id="tg-sb-link" href="#"><i id="tg-sb-icon" class="fa fa-toggle-on"></i> Nav</a></li>
+                <!-- entries without drop-downs appear here -->
+
+
+
+
+                
+                
+                
+                <li><a href="https://github.com/pinpoint-apm/pinpoint" target="_blank">GitHub</a></li>
+                
+                
+                
+                <li><a href="https://twitter.com/Pinpoint_APM" target="_blank">News</a></li>
+                
+                
+                
+                <li><a href="https://pinpoint-apm.github.io/pinpoint/resources" target="_blank">Pinpoint Blogs</a></li>
+                
+                
+                
+                <!-- entries with drop-downs appear here -->
+                <!-- conditional logic to control which topnav appears for the audience defined in the configuration file.-->
+                
+                
+			<li>
+
+
+
+  <a class="email" title="Submit feedback" href="#" onclick="javascript:window.location='mailto:pinpoint.helper@google.com?subject=pinpoint feedback&body=If it\'s an issue please check QnA page on the homepage or Pinpoint GitHub repository https://github.com/pinpoint-apm/pinpoint/issues' "><i class="fa fa-envelope-o"></i> Feedback</a>
+
+</li>
+
+		
+                <!--comment out this block if you want to hide search-->
+                <li>
+                    <!--start search-->
+                    <div id="search-demo-container">
+                        <input type="text" id="search-input" placeholder="search...">
+                        <ul id="results-container"></ul>
+                    </div>
+                    <script src="js/jekyll-search.js" type="text/javascript"></script>
+                    <script type="text/javascript">
+                            SimpleJekyllSearch.init({
+                                searchInput: document.getElementById('search-input'),
+                                resultsContainer: document.getElementById('results-container'),
+                                dataSource: 'search.json',
+                                searchResultTemplate: '<li><a href="{url}" title="Technical Details">{title}</a></li>',
+                    noResultsText: 'No results found.',
+                            limit: 10,
+                            fuzzy: true,
+                    })
+                    </script>
+                    <!--end search-->
+                </li>
+            </ul>
+        </div>
+        </div>
+        <!-- /.container -->
+</nav>
+
+<!-- Page Content -->
+
+<div class="container">
+
+  <div id="main">
+    <!-- Content Row -->
+    <div class="row">
+        
+        
+            <!-- Sidebar Column -->
+            <div class="col-md-3" id="tg-sb-sidebar">
+                <script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        GetVersionInfo();
+    });
+
+    function GetVersionInfo() {
+
+        var pathname = window.location.pathname;
+        var path = pathname.slice(10,15);
+        var versioned = true;
+        var tempNum1 = path.slice(0,1);
+        var tempNum2 = path.slice(2,3);
+        var tempNum3 = path.slice(4,5);
+
+        if($.isEmptyObject(path)){
+            versioned = false;
+        }else{
+            if(isNaN(tempNum1) || isNaN(tempNum2) && isNaN(tempNum3)){
+                versioned = false;
+            }
+        }
+
+        $.getJSON("https://raw.githubusercontent.com/naver/pinpoint/gh-pages/version.json").done(function (data){
+
+            $.each(data, function(key, value) {
+
+                if(versioned && path == value.ver){
+                    $('#selbox').append('<option selected="selected" value="http://pinpoint-apm.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                }else{
+                    $('#selbox').append('<option value="http://pinpoint-apm.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                }
+            })
+        });
+    }
+</script>
+
+
+
+
+<ul id="mysidebar" class="nav">
+    <li class="sidebarTitle">
+        <tr>
+            <td>
+                Pinpoint
+            </td>
+            <td>
+                <select id="selbox" name="ver" onchange="document.location.href=this.value">
+                </select>
+            </td>
+        </tr>
+    </li>
+    <tr></tr>
+    <tr> <td><iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=star&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    <iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=fork&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    </td> </tr>
+  
+  
+  
+
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="main.html">What's New</a></li>
+        
+    </li>
+    
+      
+  
+  <li>
+      <a href="#">Pinpoint</a>
+      <ul>
+          
+          
+          
+          <li><a href="overview.html">Overview</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="history.html">History</a></li>
+          
+          
+          
+          
+          
+          
+          <li class="active"><a href="techdetail.html">Technical Details</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="additionalplugins.html">Additional Plugins</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Getting Started</a>
+      <ul>
+          
+          
+          
+          <li><a href="quickstart.html">QuickStart</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="installation.html">Installation</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="docker.html">Install with Docker</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="troubleshooting_network.html">TrobleShooting(Network)</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Documents</a>
+      <ul>
+          
+          
+          
+          <li><a href="plugindevguide.html">Plugin Developer Guide</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="alarm.html">Setting Alarms</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="applicationinspector.html">How to use Application Inspector</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="perrequestfeatureguide.html">Separate Log Per Request</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="httpstatuscodefailure.html">Marking Transaction as Fail</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="proxyhttpheader.html">Monitoring Proxy Server</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="hbaseupgrade.html">Upgrade Database Hbase2</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Contribution</a>
+      <ul>
+          
+          
+          
+          <li><a href="contribution.html">Readme</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="https://github.com/pinpoint-apm/pinpoint/labels/proposal" target="_blank">Open to Contribution</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="videos.html">Videos</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="performance.html">Performance Analysis</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="http://125.209.240.10:10123" target="_blank">Live Demo</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://twitter.com/Pinpoint_APM" target="_blank">Twitter</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/pinpoint-apm/pinpoint/releases" target="_blank">Release Notes</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="faq.html">FAQ</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="poweredby.html">Powered by Pinpoint</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/pinpoint-apm/pinpoint/issues" target="_blank">Questions and answers</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/pinpoint-apm/pinpoint" target="_blank">Fork me at Github</a></li>
+        
+    </li>
+    
+      
+      
+      <!-- if you aren't using the accordion, uncomment this block:
+         <p class="external">
+             <a href="#" id="collapseAll">Collapse All</a> | <a href="#" id="expandAll">Expand All</a>
+         </p>
+         -->
+</ul>
+
+<!-- this highlights the active parent class in the navgoco sidebar. this is critical so that the parent expands when you're viewing a page. This must appear below the sidebar code above. Otherwise, if placed inside customscripts.js, the script runs before the sidebar code runs and the class never gets inserted.-->
+<script>$("li.active").parents('li').toggleClass("active");</script>
+
+            </div>
+            
+        
+
+        <!-- Content Column -->
+        <div class="col-md-9" id="tg-sb-content">
+            <a no_icon href="https://github.com/naver/pinpoint"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+            <script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        GetUrl();
+    });
+
+    function GetUrl() {
+
+        var pathname = window.location.pathname;
+        if(pathname == "/pinpoint/main.html"){
+            document.getElementById("pathname").innerHTML = "Snapshot(Unstable)";
+        }
+    }
+</script>
+
+<div class="post-header">
+   <h1 class="post-title-main" id="pathname">Technical Details</h1>
+</div>
+
+
+
+<div class="post-content">
+
+   
+
+    
+    
+<!-- this handles the automatic toc. use ## for subheads to auto-generate the on-page minitoc. if you use html tags, you must supply an ID for the heading element in order for it to appear in the minitoc. -->
+<script>
+$( document ).ready(function() {
+  // Handler for .ready() called.
+
+$('#toc').toc({ minimumHeaders: 0, listType: 'ul', showSpeed: 0, headers: 'h2,h3,h4' });
+
+/* this offset helps account for the space taken up by the floating toolbar. */
+$('#toc').on('click', 'a', function() {
+  var target = $(this.getAttribute('href'))
+    , scroll_target = target.offset().top
+
+  $(window).scrollTop(scroll_target - 10);
+  return false
+})
+  
+});
+</script>
+
+<div id="toc"></div>
+
+    
+
+
+    
+
+
+    
+
+  <p>In this article, we describe the Pinpoint’s techniques such as transaction tracing and bytecode instrumentation. And we explain the optimization method applied to Pinpoint Agent, which modifies bytecode and record performance data.</p>
+
+<h2 id="distributed-transaction-tracing-modeled-after-googles-dapper">Distributed Transaction Tracing, Modeled after Google’s Dapper</h2>
+
+<p>Pinpoint traces distributed requests in a single transaction, modeled after Google’s Dapper.</p>
+
+<h3 id="how-distributed-transaction-tracing-works-in-googles-dapper">How Distributed Transaction Tracing Works in Google’s Dapper</h3>
+
+<p>The purpose of a distributed tracing system is to identify relationships between Node 1 and Node 2 in a distributed system when a message is sent from Node 1 to Node 2 (Figure 1).</p>
+
+<p><img src="images/td_figure1.png" alt="Figure 1. Message relationship in a distributed system" /></p>
+
+<p>Figure 1. Message relationship in a distributed system</p>
+
+<p>The problem is that there is no way to identify relationships between messages. For example, we cannot recognize relationships between N messages sent from Node 1 and N’ messages received in Node 2. In other words, when X-th message is sent from Node 1, the X-th message cannot be identified among N’ messages received in Node 2. An attempt was made to trace messages at TCP or operating system level. However, implementation complexity was high with low performance because it should be implemented separately for each protocol. In addition, it was difficult to accurately trace messages.</p>
+
+<p>However, a simple solution to resolve such issues has been implemented in Google’s Dapper. The solution is to add application-level tags that can be a link between messages when sending a message. For example, it includes tag information for a message in the HTTP header at an HTTP request and traces the message using this tag.</p>
+
+<blockquote>
+  <p>Google’s Dapper</p>
+</blockquote>
+
+<blockquote>
+  <p>For more information on Google’s Dapper, see “<a href="http://research.google.com/pubs/pub36356.html">Dapper, a Large-Scale Distributed Systems Tracing Infrastructure</a>.”</p>
+</blockquote>
+
+<p>Pinpoint is modeled on the tracing technique of Google’s Dapper but has been modified to add application-level tag data in the call header to trace distributed transactions at a remote call. The tag data consists of a collection of keys, which is defined as a TraceId.</p>
+
+<h3 id="data-structure-in-pinpoint">Data Structure in Pinpoint</h3>
+
+<p>In Pinpoint, the core of data structure consists of Spans, Traces, and TraceIds.</p>
+<ul>
+  <li>Span: The basic unit of RPC (remote procedure call) tracing; it indicates work processed when an RPC arrives and contains trace data. To ensure the code-level visibility, a Span has children labeled SpanEvent as a data structure. Each Span contains a TraceId.</li>
+  <li>Trace: A collection of Spans; it consists of associated RPCs (Spans). Spans in the same trace share the same TransactionId. A Trace is sorted as a hierarchical tree structure through SpanIds and ParentSpanIds.</li>
+  <li>TraceId: A collections of keys consisting of TransactionId, SpanId, and ParentSpanId. The TransactionId indicates the message ID, and both the SpanId and the ParentSpanId represent the parent-child relationship of RPCs.</li>
+  <li>TransactionId (TxId): The ID of the message sent/received across distributed systems from a single transaction; it must be globally unique across the entire group of servers.</li>
+  <li>SpanId: The ID of a job processed when receiving RPC messages; it is generated when an RPC arrives at a node.</li>
+  <li>ParentSpanId (pSpanId): The SpanId of the parent span which generated the RPC. If a node is the starting point of a transaction, there will not be a parent span - for these cases, we use a value of -1 to denote that the span is the root span of a transaction.</li>
+</ul>
+
+<blockquote>
+  <p>Differences in terms between Google’s Dapper and NAVER’s Pinpoint</p>
+</blockquote>
+
+<blockquote>
+  <p>The term “TransactionId” in Pinpoint has the same meaning as the term “TraceId” in Google’s Dapper and the term “TraceId” in Pinpoint refers to a collection of keys.</p>
+</blockquote>
+
+<h3 id="how-traceid-works">How TraceId Works</h3>
+<p>The figure below illustrates the behavior of a TraceId in which RPCs were made 3 times within 4 nodes.</p>
+
+<p><img src="images/td_figure2.png" alt="Figure 2. Example of a TraceId behavior" /></p>
+
+<p>Figure 2. Example of a TraceId behavior</p>
+
+<p>A TransactionId (TxId) represents that three different RPCs are associated with each other as a single transaction in Figure 2. However, a TransactionId itself can’t explicitly describe the relationship between RPCs. To identify the relationships between RPCs, a SpanId and a ParentSpanId (pSpanId) are required. Suppose that a node is Tomcat. You can think of a SpanId as a thread which handles HTTP requests. A ParentSpanId indicates the SpainId of a parent that makes RPC calls.</p>
+
+<p>Pinpoint can find associated n Spans using a TransactionId and can sort them as a hierarchical tree structure using a SpanId and a ParentSpanId.</p>
+
+<p>A SpanId and a ParentSpanId are 64-bit long integers. A conflict might arise because the number is generated arbitrarily, but considering the range of value from -9223372036854775808 to 9223372036854775807, this is unlikely to happen. If there is a conflict between keys, Pinpoint as well as Google’s Dapper lets developers know what happened, instead of resolving the conflict.</p>
+
+<p>A TransactionId consists of AgentIds, JVM (Java virtual machine) startup time, and SequenceNumbers.</p>
+
+<ul>
+  <li>AgentId: A user-created ID when JVM starts; it must be globally unique across the entire group of servers where Pinpoint has been installed. The easiest way to make it unique is to use a hostname ($HOSTNAME) because the hostname is not duplicate in general. If you need to run multiple JVMs within the server group, add a postfix to the hostname to avoid duplicates.</li>
+  <li>JVM startup time: Required to guarantee a unique SequenceNumber which starts with zero. This value is used to prevent ID conflicts when a user creates duplicate AgentId by mistake.</li>
+  <li>SequenceNumber: ID issued by the Pinpoint Agent, with sequentially increasing numbers that start with zero; it is issued per message.</li>
+</ul>
+
+<p>Dapper and <a href="https://github.com/twitter/zipkin">Zipkin</a>, a distributed systems tracing platform at Twitter, generate random TraceIds (TransactionIds in Pinpoint) and consider conflict situations as a normal case. However, we wanted to avoid this conflict as much as possible in Pinpoint. We had two available options for this; one with a method in which the amount of data is small but the probability of conflict is high; the other is a method in which the amount of data is large but the probability of conflict is low; We chose the second option.</p>
+
+<p>There may be a better ways to handle transactions. We came up with several ideas such as key issue by a central key server. But we didn’t implement this in the system due to performance issues and network errors. We are still considering issuing keys in bulk as an alternative Solution. So maybe later in the future, such methods can be developed; But for now, a simple method is adopted. In Pinpoint, a TransactionId is regarded as changeable data.</p>
+
+<h2 id="bytecode-instrumentation-not-requiring-code-modifications">Bytecode Instrumentation, Not Requiring Code Modifications</h2>
+
+<p>Earlier, we explained distributed transaction tracing. One way for implementing this is that developers to modify their code by themselves. Allow developers to add tag information when an RPC is made. However, it could be a burden to modify code even though such functionality is useful to developers.</p>
+
+<p>Twitter’s Zipkin provides the functionality of distributed transaction tracing using modified libraries and its container (Finagle). However, it requires the code to be modified if needed. We wanted the functionality to work without code modifications and desired to ensure code-level visibility. To solve such problems, the bytecode instrumentation technique was adopted in Pinpoint. The Pinpoint Agent intervenes code to make RPCs so as to automatically handle tag information.</p>
+
+<h3 id="overcoming-disadvantages-of-bytecode-instrumentation">Overcoming Disadvantages of Bytecode Instrumentation</h3>
+
+<p>There are two ways for distributed transaction tracing as below. Bytecode instrumentation is one of an automatic method.</p>
+<ul>
+  <li>Manual method: Developers develop code that records data at important points using APIs provided by Pinpoint.</li>
+  <li>Automatic method: Developers do not involve code modifications because Pinpoint decides which API is to be intervened and developed.</li>
+</ul>
+
+<p>Advantages and disadvantages of each method are as follows:</p>
+
+<p>Table 1 Advantages and disadvantage of each method</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Item</th>
+      <th>Advantage</th>
+      <th>Disadvantage</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Manual Tracing</strong></td>
+      <td>- Requires less development resources.<br />- An API can become simpler and consequently the number of bugs can be reduced.</td>
+      <td>- Developers must modify the code.<br />- Tracing level is low.</td>
+    </tr>
+    <tr>
+      <td><strong>Automatic Tracing</strong></td>
+      <td>- Developers are not required to modify the code.<br />- More precise data can be collected due to more information in bytecode.</td>
+      <td>- It would cost 10 times more to develop Pinpoint with automatic method.<br />- Requires highly competent developers who can instantly recognize the library code to be traced and make decisions on the tracing points.<br />- Can increase the possibility of a bug due to high-level development skills such as bytecode instrumentation.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Bytecode instrumentation is a technique that includes high difficulty level and risks. Nevertheless, using this technique has many benefits.</p>
+
+<p>Although it requires a large number of development resources, it requires almost none for applying the service. For example, the following shows the costs between an automatic method which uses bytecode instrumentation and a manual method which uses libraries (in this context, costs are random numbers assumed for clarity).</p>
+
+<ul>
+  <li>Automatic method: Total of 100</li>
+  <li>Cost of Pinpoint development: 100</li>
+  <li>Cost of services applied: 0</li>
+  <li>Manual method: Total of 30</li>
+  <li>Cost of Pinpoint development: 20</li>
+  <li>Cost of services applied: 10</li>
+</ul>
+
+<p>The data above tells us that a manual method is more cost-effective than an automatic one. However, it will not guarantee the same result for NAVER since we have thousands of services. For example, if we have 10 services which require being modified, the total cost will be calculated as follows:</p>
+
+<ul>
+  <li>Cost of Pinpoint development 20 + Cost of services applied 10 x 10 services = 120</li>
+</ul>
+
+<p>As you can see, the automatic method was more cost-efficient for us.</p>
+
+<p>We are lucky to have many developers who are highly competent and specialized in Java in the Pinpoint team. Therefore, we believed it was only a matter of time to overcome the technical difficulties in Pinpoint development.</p>
+
+<h3 id="the-value-of-bytecode-instrumentation">The Value of Bytecode Instrumentation</h3>
+
+<p>The reason we chose to implement bytecode instrumentation(Automatic method) is not only those that we have already explained but also the following points.</p>
+
+<h4 id="hidden-api">Hidden API</h4>
+
+<p>If the API is exposed for developers to use. We, as API providers, are restricted to modify the API as we desire. Such a restriction can impose stress on us.</p>
+
+<p>We may modify an API to correct mistaken design or add new functions. However, if there is a restriction to do this, it would be difficult for us to improve the API. The best answer for solving such a problem is a scalable system design, which is not an easy option as everyone knows. It is almost impossible to create perfect API design as we can’t predict the future.</p>
+
+<p>With bytecode instrumentation, we don’t have to worry about the problems caused by exposing the tracing APIs and can continuously improve the design, without considering dependency relationships. For those who are planning to develop their applications using Pinpoint, please note that API can be changed by the Pinpoint developers since improving performance and design is our first priority.</p>
+
+<h4 id="easy-to-enable-or-disable">Easy to Enable or Disable</h4>
+
+<p>The disadvantage of using bytecode instrumentation is that it could affect your applications when a problem occurs in the profiling section of a library or Pinpoint itself. However, you can easily solve it by just disabling the Pinpoint since you don’t have to change any code.</p>
+
+<p>You can easily enable Pinpoint for your applications by adding the three lines (associated with the configuration of the Pinpoint Agent) below into your JVM startup script:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-javaagent:$AGENT_PATH/pinpoint-bootstrap-$VERSION.jar
+-Dpinpoint.agentId=&lt;Agent's UniqueId&gt;
+-Dpinpoint.applicationName=&lt;The name indicating a same service (AgentId collection)&gt;
+</code></pre></div></div>
+
+<p>If any problem occurs due to Pinpoint, you can just delete the configuration data in the JVM startup script.</p>
+
+<h3 id="how-bytecode-instrumentation-works">How Bytecode Instrumentation Works</h3>
+
+<p>Since bytecode instrumentation technique has to deal with Java bytecode, it tends to increase the risk of development while it decreases productivity. In addition, developers are prone to make mistakes. In Pinpoint, we improved productivity and accessibility by abstraction with the interceptor. Pinpoint injects necessary codes to track distributed transactions and performance information by intervening application code at class loading time. This increases performance since tracking codes are directly injected into the application code.</p>
+
+<p><img src="images/td_figure3.png" alt="Figure 3. Behavior of bytecode instrumentation" /></p>
+
+<p>Figure 3. Basic principle of bytecode instrumentation</p>
+
+<p>In Pinpoint, the API intercepting part and data recording part are separated. Interceptor is injected into the method that we’d like to track and calls before() and after() methods where data recording is taken care of. Through bytecode instrumentation, Pinpoint Agent can record data only from the necessary method which makes the size of profiling data compact.</p>
+
+<h2 id="optimizing-performance-of-the-pinpoint-agent">Optimizing Performance of the Pinpoint Agent</h2>
+
+<p>Finally, we will describe how to optimize the performance of Pinpoint Agent.</p>
+
+<h3 id="using-binary-format-thrift">Using Binary Format (Thrift)</h3>
+
+<p>You can increase encoding speed by using a binary format (<a href="https://thrift.apache.org/">Thrift</a>). Although it is difficult to use and debug, It can improve the efficiency of network usage by reducing the size of data generated.</p>
+
+<h3 id="optimize-recorded-data-for-variable-length-encoding-and-format">Optimize Recorded Data for Variable-Length Encoding and Format</h3>
+
+<p>If you convert a long integer into a fixed-length string, the data size will be 8 bytes. However, if you use variable-length encoding, the data size can vary from 1 to 10 bytes depending on the size of a given number. To reduce data size, Pinpoint encodes data as a variable-length string through Compact Protocol of Thrift and records data to be optimized for encoding format. Pinpoint Agent reduces data size by converting remaining time based on root method into a vector value.</p>
+
+<blockquote>
+  <p>Variable-length encoding</p>
+</blockquote>
+
+<blockquote>
+  <p>For more information on the variable-length encoding, see “<a href="https://developers.google.com/protocol-buffers/docs/encoding#varints">Base 128 Varints</a>” in Google Developers.</p>
+</blockquote>
+
+<p><img src="images/td_figure4.png" alt="Figure 4. Comparison between fixed-length encoding and variable-length encoding" /></p>
+
+<p>Figure 4. Comparison between fixed-length encoding and variable-length encoding</p>
+
+<p>As you can see in Figure 4, you need to measure the time of 6 different points to get information of when three different methods are called and finished(Figure 4); With fixed-length encoding, this process requires 48 bytes (6points × 8bytes).</p>
+
+<p>Meanwhile, Pinpoint Agent uses variable-length encoding and records the data according to its corresponding format. And calculate time information on other points with the difference(in vector value) based on the start time of the root method. Since vector value is a small number, it consumes a small number of bytes resulting only 13 bytes consumed rather than 48bytes.</p>
+
+<p>If it takes more time to execute a method, it will increase the number of bytes even though variable-length encoding is used. However, it is still more efficient than fixed-length encoding.</p>
+
+<h3 id="replacing-repeated-api-information-sqls-and-strings-with-constant-tables">Replacing Repeated API Information, SQLs, and Strings with Constant Tables</h3>
+
+<p>We wanted Pinpoint to enable code-level tracing. However, it had a problem in terms of increasing data size. Every time data with a high degree of precision is sent to a server, due to the size of the data it increased network usage.</p>
+
+<p>To solve such a problem, we adopted a strategy by creating a constant table in a remote HBase server. Since there will be an overload to send data of “method A” to Pinpoint Collector each time, Pinpoint Agent converts “method A” data to an ID and stores this information as a constant table in HBase, and continue tracing data with the ID. When a user retrieves trace data on the Website, the Pinpoint Web searches for the method information of the corresponding ID in the constant table and reorganize them. The same way is used to reduce data size in SQLs or frequently-used strings.</p>
+
+<h3 id="handling-samples-for-bulk-requests">Handling Samples for Bulk Requests</h3>
+
+<p>The requests to online portal services which Naver is providing are huge. A single service handles more than 20 billion requests a day. A simple way to trace such request is by expanding network infrastructure and servers as much as needed to suit the number of requests. However, this is not a cost-effective way to handle such situations.</p>
+
+<p>In Pinpoint, you can collect only sampling data rather than tracking every request. In a development environment where requests are few, every data is collected. While in the production environment where requests are large, only 1~5% out of whole data is collected which is sufficient to analyze the status of entire applications. With sampling, you can minimize network overhead in applications and reduce costs of infrastructure such as networks and servers.</p>
+
+<blockquote>
+  <p>Sampling method in Pinpoint</p>
+</blockquote>
+
+<blockquote>
+  <p>Pinpoint supports a Counting sampler, which collects data only for one of 10 requests if it is set to 10. We plan to add new samplers that can collect data more effectively.</p>
+</blockquote>
+
+<h3 id="minimizing-application-threads-being-aborted-using-asynchronous-data-transfer">Minimizing Application Threads Being Aborted Using Asynchronous Data Transfer</h3>
+
+<p>Pinpoint does not interfere with application threads since encoded data or remote messages are transferred asynchronously by another thread.</p>
+
+<h4 id="transferring-data-via-udp">Transferring Data via UDP</h4>
+
+<p>Unlike Google’s Dapper, Pinpoint transfers data through a network to ensure data speed. Sharing network with your service can be an issue when data traffic bursts out. In such situations, the Pinpoint Agent starts to use UDP protocol to give the network connection priority to your service.</p>
+
+<blockquote>
+  <p>Note</p>
+</blockquote>
+
+<blockquote>
+  <p>The data transfer APIs can be replaced since it’s separated as an interface. It can be changed into an implementation that stores data in a different way, like local files.</p>
+</blockquote>
+
+<h2 id="example-of-pinpoint-applied">Example of Pinpoint Applied</h2>
+
+<p>Here is an example of how to get data from your application so that you can comprehensively understand the contents described earlier.</p>
+
+<p>Figure 5 shows what you can see when you install Pinpoint in TomcatA and TomcatB. You can see the trace data of an individual node as a single transaction, which represents the flow of distributed transaction tracing.</p>
+
+<p><img src="images/td_figure5.png" alt="Figure 5. Example 1: Pinpoint applied" /></p>
+
+<p>Figure 5. Example of Pinpoint in action</p>
+
+<p>The following describes what Pinpoint does for each method.</p>
+
+<ol>
+  <li>Pinpoint Agent issues a TraceId when a request arrives at TomcatA.
+    <ul>
+      <li>TX_ID: TomcatA^TIME^1</li>
+      <li>SpanId: 10</li>
+      <li>ParentSpanId: -1(Root)</li>
+    </ul>
+  </li>
+  <li>
+    <p>Records data from Spring MVC controllers.</p>
+  </li>
+  <li>Intervene the calls of HttpClient.execute() method and configure the TraceId in HttpGet.
+    <ul>
+      <li>Creates a child TraceId.</li>
+    </ul>
+    <ul>
+      <li>TX_ID: TomcatA^TIME^1 -&gt; TomcatA^TIME^1</li>
+      <li>SPAN_ID: 10 -&gt; 20</li>
+      <li>PARENT_SPAN_ID: -1 -&gt; 10 (parent SpanId)
+      - Configures the child TraceId in the HTTP header.</li>
+      <li>HttpGet.setHeader(PINPOINT_TX_ID, “TomcatA^TIME^1”)</li>
+      <li>HttpGet.setHeader(PINPOINT_SPAN_ID, “20”)</li>
+      <li>HttpGet.setHeader(PINPOINT_PARENT_SPAN_ID, “10”)</li>
+    </ul>
+  </li>
+  <li>Transfer tagged request to TomcatB.
+    <ul>
+      <li>TomcatB checks the header from the transferred request.</li>
+    </ul>
+    <ul>
+      <li>HttpServletRequest.getHeader(PINPOINT_TX_ID)
+      - TomcatB becomes a child node as it identifies a TraceId in the header.</li>
+      <li>TX_ID: TomcatA^TIME^1</li>
+      <li>SPAN_ID: 20</li>
+      <li>PARENT_SPAN_ID: 10</li>
+    </ul>
+  </li>
+  <li>Records data from Spring MVC controllers and completes the request.</li>
+</ol>
+
+<p><img src="images/td_figure6.png" alt="Figure 6. Example 2: Pinpoint applied " /></p>
+
+<ol>
+  <li>
+    <p>Pinpoint Agent sends trace data to Pinpoint Collector to store it in HBase when the request from TomcatB is completed.</p>
+  </li>
+  <li>
+    <p>After the HTTP calls from TomcatB is terminated, then the request from TomcatA is complete. The Pinpoint Agent sends trace data to Pinpoint Collector to store it in HBase.</p>
+  </li>
+  <li>
+    <p>UI reads the trace data from HBase and creates a call stack by sorting trees.</p>
+  </li>
+</ol>
+
+<h2 id="conclusions">Conclusions</h2>
+
+<p>Pinpoint is another application that runs along with your applications. Using bytecode instrumentation makes Pinpoint seem like that it does not require code modifications. In general, the bytecode instrumentation technique makes applications vulnerable to risks; if a problem occurs in Pinpoint, it will affect your applications as well. But for now, instead of getting rid of such threats, we are focusing on improving performance and design of Pinpoint. Because we think this makes Pinpoint more valuable. So whether or not to use Pinpoint is for you to decide.</p>
+
+<p>We still have a large amount of work to be done to improve Pinpoint. Despite its incompleteness, Pinpoint was released as an open-source project; we are continuously trying to develop and improve Pinpoint so as to meet your expectations.</p>
+
+<blockquote>
+  <p>Written by Woonduk Kang</p>
+</blockquote>
+
+<blockquote>
+  <p>In 2011, I wrote about myself like this—As a developer, I would like to make a software program that users are willing to pay for, like those of Microsoft or Oracle. As Pinpoint was launched as an open-source project, it seems that my dreams somewhat came true. For now, my desire is to make Pinpoint more valuable and attractive to users.</p>
+</blockquote>
+
+
+    <div class="tags">
+        
+    </div>
+
+</div>
+
+
+
+<hr class="shaded"/>
+
+<footer>
+            <div class="row">
+                <div class="col-lg-12 footer">
+               &copy;2020 Naver. All rights reserved. <br />
+<span>Page last updated:</span> Feb 1, 2018<br/>
+
+<p><img src="images/company_logo.png" alt="Company logo"/></p>
+                </div>
+            </div>
+</footer>
+
+
+        </div>
+    <!-- /.row -->
+</div>
+<!-- /.container -->
+</div>
+<!-- /#main -->
+    </div>
+
+</body>
+
+<!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-57786344-4','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+</html>
