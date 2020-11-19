@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="keywords" content=",  ">
+<title>1.7.2 Release | Leading Open-Source APM</title>
+<link rel="stylesheet" href="css/syntax.css">
+
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<!--<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">-->
+<link rel="stylesheet" href="css/modern-business.css">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="css/customstyles.css">
+<link rel="stylesheet" href="css/boxshadowproperties.css">
+<!-- most color styles are extracted out to here -->
+<link rel="stylesheet" href="css/theme-black.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="js/jquery.navgoco.min.js"></script>
+
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<!-- Anchor.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/2.0.0/anchor.min.js"></script>
+<script src="js/toc.js"></script>
+<script src="js/customscripts.js"></script>
+
+<link rel="shortcut icon" href="images/favicon.ico">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="pinpoint" href="http://localhost:4000/feed.xml">
+
+    <script>
+        $(document).ready(function() {
+            // Initialize navgoco with default options
+            $("#mysidebar").navgoco({
+                caretHtml: '',
+                accordion: true,
+                openClass: 'active', // open
+                save: false, // leave false or nav highlighting doesn't work right
+                cookie: {
+                    name: 'navgoco',
+                    expires: false,
+                    path: '/'
+                },
+                slide: {
+                    duration: 400,
+                    easing: 'swing'
+                }
+            });
+
+            $("#collapseAll").click(function(e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', false);
+            });
+
+            $("#expandAll").click(function(e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', true);
+            });
+
+        });
+
+    </script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+    <script>
+        $(document).ready(function() {
+            $("#tg-sb-link").click(function() {
+                $("#tg-sb-sidebar").toggle();
+                $("#tg-sb-content").toggleClass('col-md-9');
+                $("#tg-sb-content").toggleClass('col-md-12');
+                $("#tg-sb-icon").toggleClass('fa-toggle-on');
+                $("#tg-sb-icon").toggleClass('fa-toggle-off');
+            });
+        });
+    </script>
+    
+
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container topnavlinks">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="fa fa-home fa-lg navbar-brand" href="/pinpoint/index.html">&nbsp;<span class="projectTitle"> <img src="./images/logo2.png"> </span></a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <!-- toggle sidebar button -->
+                <li><a id="tg-sb-link" href="#"><i id="tg-sb-icon" class="fa fa-toggle-on"></i> Nav</a></li>
+                <!-- entries without drop-downs appear here -->
+
+
+
+
+                
+                
+                
+                <li><a href="https://github.com/pinpoint-apm/pinpoint" target="_blank">GitHub</a></li>
+                
+                
+                
+                <li><a href="https://twitter.com/Pinpoint_APM" target="_blank">News</a></li>
+                
+                
+                
+                <li><a href="https://pinpoint-apm.github.io/pinpoint/resources" target="_blank">Pinpoint Blogs</a></li>
+                
+                
+                
+                <!-- entries with drop-downs appear here -->
+                <!-- conditional logic to control which topnav appears for the audience defined in the configuration file.-->
+                
+                
+			<li>
+
+
+
+  <a class="email" title="Submit feedback" href="#" onclick="javascript:window.location='mailto:pinpoint.helper@google.com?subject=pinpoint feedback&body=If it\'s an issue please check QnA page on the homepage or Pinpoint GitHub repository https://github.com/pinpoint-apm/pinpoint/issues' "><i class="fa fa-envelope-o"></i> Feedback</a>
+
+</li>
+
+		
+                <!--comment out this block if you want to hide search-->
+                <li>
+                    <!--start search-->
+                    <div id="search-demo-container">
+                        <input type="text" id="search-input" placeholder="search...">
+                        <ul id="results-container"></ul>
+                    </div>
+                    <script src="js/jekyll-search.js" type="text/javascript"></script>
+                    <script type="text/javascript">
+                            SimpleJekyllSearch.init({
+                                searchInput: document.getElementById('search-input'),
+                                resultsContainer: document.getElementById('results-container'),
+                                dataSource: 'search.json',
+                                searchResultTemplate: '<li><a href="{url}" title="1.7.2 Release">{title}</a></li>',
+                    noResultsText: 'No results found.',
+                            limit: 10,
+                            fuzzy: true,
+                    })
+                    </script>
+                    <!--end search-->
+                </li>
+            </ul>
+        </div>
+        </div>
+        <!-- /.container -->
+</nav>
+
+<!-- Page Content -->
+
+<div class="container">
+
+  <div id="main">
+    <!-- Content Row -->
+    <div class="row">
+        
+        
+            <!-- Sidebar Column -->
+            <div class="col-md-3" id="tg-sb-sidebar">
+                <script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        GetVersionInfo();
+    });
+
+    function GetVersionInfo() {
+
+        var pathname = window.location.pathname;
+        var path = pathname.slice(10,15);
+        var versioned = true;
+        var tempNum1 = path.slice(0,1);
+        var tempNum2 = path.slice(2,3);
+        var tempNum3 = path.slice(4,5);
+
+        if($.isEmptyObject(path)){
+            versioned = false;
+        }else{
+            if(isNaN(tempNum1) || isNaN(tempNum2) && isNaN(tempNum3)){
+                versioned = false;
+            }
+        }
+
+        $.getJSON("https://raw.githubusercontent.com/naver/pinpoint/gh-pages/version.json").done(function (data){
+
+            $.each(data, function(key, value) {
+
+                if(versioned && path == value.ver){
+                    $('#selbox').append('<option selected="selected" value="http://pinpoint-apm.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                }else{
+                    $('#selbox').append('<option value="http://pinpoint-apm.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                }
+            })
+        });
+    }
+</script>
+
+
+
+
+<ul id="mysidebar" class="nav">
+    <li class="sidebarTitle">
+        <tr>
+            <td>
+                Pinpoint
+            </td>
+            <td>
+                <select id="selbox" name="ver" onchange="document.location.href=this.value">
+                </select>
+            </td>
+        </tr>
+    </li>
+    <tr></tr>
+    <tr> <td><iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=star&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    <iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=fork&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    </td> </tr>
+  
+  
+  
+
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="main.html">What's New</a></li>
+        
+    </li>
+    
+      
+  
+  <li>
+      <a href="#">Pinpoint</a>
+      <ul>
+          
+          
+          
+          <li><a href="overview.html">Overview</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="history.html">History</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="techdetail.html">Technical Details</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="additionalplugins.html">Additional Plugins</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Getting Started</a>
+      <ul>
+          
+          
+          
+          <li><a href="quickstart.html">QuickStart</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="installation.html">Installation</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="docker.html">Install with Docker</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="troubleshooting_network.html">TrobleShooting(Network)</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Documents</a>
+      <ul>
+          
+          
+          
+          <li><a href="plugindevguide.html">Plugin Developer Guide</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="alarm.html">Setting Alarms</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="applicationinspector.html">How to use Application Inspector</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="perrequestfeatureguide.html">Separate Log Per Request</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="httpstatuscodefailure.html">Marking Transaction as Fail</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="proxyhttpheader.html">Monitoring Proxy Server</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="hbaseupgrade.html">Upgrade Database Hbase2</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Contribution</a>
+      <ul>
+          
+          
+          
+          <li><a href="contribution.html">Readme</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="https://github.com/pinpoint-apm/pinpoint/labels/proposal" target="_blank">Open to Contribution</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="videos.html">Videos</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="performance.html">Performance Analysis</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="http://125.209.240.10:10123" target="_blank">Live Demo</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://twitter.com/Pinpoint_APM" target="_blank">Twitter</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/pinpoint-apm/pinpoint/releases" target="_blank">Release Notes</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="faq.html">FAQ</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="poweredby.html">Powered by Pinpoint</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/pinpoint-apm/pinpoint/issues" target="_blank">Questions and answers</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/pinpoint-apm/pinpoint" target="_blank">Fork me at Github</a></li>
+        
+    </li>
+    
+      
+      
+      <!-- if you aren't using the accordion, uncomment this block:
+         <p class="external">
+             <a href="#" id="collapseAll">Collapse All</a> | <a href="#" id="expandAll">Expand All</a>
+         </p>
+         -->
+</ul>
+
+<!-- this highlights the active parent class in the navgoco sidebar. this is critical so that the parent expands when you're viewing a page. This must appear below the sidebar code above. Otherwise, if placed inside customscripts.js, the script runs before the sidebar code runs and the class never gets inserted.-->
+<script>$("li.active").parents('li').toggleClass("active");</script>
+
+            </div>
+            
+        
+
+        <!-- Content Column -->
+        <div class="col-md-9" id="tg-sb-content">
+            <a no_icon href="https://github.com/naver/pinpoint"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+            <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">1.7.2 Release</h1>
+        <p class="post-meta"><time datetime="2018-03-30T00:00:00+09:00" itemprop="datePublished">Mar 30, 2018</time> /
+            
+            
+            
+
+        </p>
+
+
+    </header>
+
+    <div class="post-content" itemprop="articleBody">
+
+        
+
+        <p>We’re happy to announce the release of Pinpoint v1.7.2.
+Please check the release note at <a href="https://github.com/naver/pinpoint/releases/tag/1.7.2">https://github.com/naver/pinpoint/releases/tag/1.7.2</a>.</p>
+
+<p>The current stable version is <a href="https://github.com/naver/pinpoint/releases/tag/1.7.2"><strong>v1.7.2</strong></a>.</p>
+
+    </div>
+
+
+
+</article>
+
+
+
+<hr class="shaded"/>
+
+<footer>
+            <div class="row">
+                <div class="col-lg-12 footer">
+               &copy;2020 Naver. All rights reserved. <br />
+
+
+<p><img src="images/company_logo.png" alt="Company logo"/></p>
+                </div>
+            </div>
+</footer>
+
+
+        </div>
+    <!-- /.row -->
+</div>
+<!-- /.container -->
+</div>
+<!-- /#main -->
+    </div>
+
+</body>
+
+<!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-57786344-4','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+</html>
