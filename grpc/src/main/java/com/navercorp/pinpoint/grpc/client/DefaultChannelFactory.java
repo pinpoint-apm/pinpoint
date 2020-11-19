@@ -100,7 +100,7 @@ public class DefaultChannelFactory implements ChannelFactory {
 
     private ChannelType getChannelType() {
         ChannelTypeFactory factory = new ChannelTypeFactory();
-        return factory.newChannelType(ChannelTypeEnum.AUTO);
+        return factory.newChannelType(clientOption.getChannelTypeEnum());
     }
 
 

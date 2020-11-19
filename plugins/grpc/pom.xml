@@ -16,6 +16,8 @@
         <jdk.version>1.7</jdk.version>
         <grpc.version>1.14.0</grpc.version>
         <protoc.version>3.5.1-1</protoc.version>
+<!--        <grpc.version>1.33.1</grpc.version>-->
+<!--        <protoc.version>3.12.4</protoc.version>-->
     </properties>
 
     <dependencies>
