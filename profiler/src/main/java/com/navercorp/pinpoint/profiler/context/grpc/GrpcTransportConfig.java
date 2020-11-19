@@ -168,6 +168,7 @@ public class GrpcTransportConfig {
         builder.setFlowControlWindow(readByteSize(profilerConfig, transportName + ".flow-control.window.size", ClientOption.DEFAULT_FLOW_CONTROL_WINDOW));
         builder.setWriteBufferHighWaterMark(readByteSize(profilerConfig, transportName + ".write.buffer.highwatermark", ClientOption.DEFAULT_WRITE_BUFFER_HIGH_WATER_MARK));
         builder.setWriteBufferLowWaterMark(readByteSize(profilerConfig, transportName + ".write.buffer.lowwatermark", ClientOption.DEFAULT_WRITE_BUFFER_LOW_WATER_MARK));
+        builder.setChannelTypeEnum(profilerConfig.readString(transportName + ".channel-type", ClientOption.DEFAULT_CHANNEL_TYPE));
 
         return builder.build();
     }

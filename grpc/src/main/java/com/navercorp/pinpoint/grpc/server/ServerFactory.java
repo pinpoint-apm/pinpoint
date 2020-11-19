@@ -90,7 +90,7 @@ public class ServerFactory {
 
     private ServerChannelType getChannelType() {
         final ServerChannelTypeFactory factory = new ServerChannelTypeFactory();
-        return factory.newChannelType(ChannelTypeEnum.AUTO);
+        return factory.newChannelType(serverOption.getChannelTypeEnum());
     }
 
 
