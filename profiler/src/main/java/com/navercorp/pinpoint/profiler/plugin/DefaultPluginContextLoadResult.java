@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.loader.plugins.profiler.ProfilerPluginLoader;
@@ -82,5 +83,18 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
 
         return result;
     }
+
+    @Override
+    public List<UriExtractorProvider> getUriExtractorProviderList() {
+        final List<UriExtractorProvider> result = new ArrayList<UriExtractorProvider>();
+
+        for (PluginSetupResult context : pluginsSetupResult.getPluginSetupResults()) {
+            List<UriExtractorProvider> uriExtractorProviderList= context.getUriExtractorProviderList();
+            result.addAll(uriExtractorProviderList);
+        }
+
+        return result;
+    }
+
 
 }

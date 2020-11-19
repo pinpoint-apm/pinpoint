@@ -15,8 +15,6 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
-import com.google.inject.Provider;
-import com.google.inject.util.Providers;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
@@ -24,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
@@ -86,6 +85,9 @@ import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRe
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
+
+import com.google.inject.Provider;
+import com.google.inject.util.Providers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -122,7 +124,10 @@ public class ASMClassTest {
 
     private final ExceptionHandlerFactory exceptionHandlerFactory = new ExceptionHandlerFactory(false);
     private final RequestRecorderFactory requestRecorderFactory = mock(RequestRecorderFactory.class);
-    private final ObjectBinderFactory objectBinderFactory = new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService, customMetricRegistryService, apiMetaDataService, exceptionHandlerFactory, requestRecorderFactory);
+    private final Provider<UriStatRecorderFactory> uriStatRecorderFactoryProvider = Providers.of(mock(UriStatRecorderFactory.class));
+
+    private final ObjectBinderFactory objectBinderFactory = new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService, customMetricRegistryService, apiMetaDataService, exceptionHandlerFactory,
+            requestRecorderFactory, uriStatRecorderFactoryProvider);
     private final ScopeFactory scopeFactory = new ScopeFactory();
     private final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
 

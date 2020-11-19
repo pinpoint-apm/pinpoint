@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.method.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 
@@ -54,6 +55,7 @@ public class ServletRequestListener<REQ> {
 
     private final ProxyRequestRecorder<REQ> proxyRequestRecorder;
 
+    private final UriStatRecorder<REQ> uriStatRecorder;
 
     public ServletRequestListener(final ServiceType serviceType,
                                   final TraceContext traceContext,
@@ -63,7 +65,8 @@ public class ServletRequestListener<REQ> {
                                   final ParameterRecorder<REQ> parameterRecorder,
                                   final ProxyRequestRecorder<REQ> proxyRequestRecorder,
                                   final ServerRequestRecorder<REQ> serverRequestRecorder,
-                                  final HttpStatusCodeRecorder httpStatusCodeRecorder) {
+                                  final HttpStatusCodeRecorder httpStatusCodeRecorder,
+                                  final UriStatRecorder<REQ> uriStatRecorder) {
         this.serviceType = Assert.requireNonNull(serviceType, "serviceType");
         this.traceContext = Assert.requireNonNull(traceContext, "traceContext");
         this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
@@ -80,6 +83,7 @@ public class ServletRequestListener<REQ> {
 
         this.httpStatusCodeRecorder = Assert.requireNonNull(httpStatusCodeRecorder, "httpStatusCodeRecorder");
 
+        this.uriStatRecorder = Assert.requireNonNull(uriStatRecorder, "uriStatRecorder");
 
         this.traceContext.cacheApi(SERVLET_SYNC_METHOD_DESCRIPTOR);
     }
@@ -140,10 +144,13 @@ public class ServletRequestListener<REQ> {
             return;
         }
 
+        final String rpcName = requestAdaptor.getRpcName(request);
+
         // TODO STATDISABLE this logic was added to disable statistics tracing
         if (!trace.canSampled()) {
             traceContext.removeTraceObject();
             trace.close();
+            uriStatRecorder.record(request, rpcName, statusCode, trace.getStartTime(), System.currentTimeMillis());
             return;
         }
 
@@ -157,6 +164,7 @@ public class ServletRequestListener<REQ> {
             trace.traceBlockEnd();
             this.traceContext.removeTraceObject();
             trace.close();
+            uriStatRecorder.record(request, rpcName, statusCode, trace.getStartTime(), System.currentTimeMillis());
         }
     }
 }
