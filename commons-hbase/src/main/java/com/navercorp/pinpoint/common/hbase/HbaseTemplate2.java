@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.hbase.parallel.ParallelResultScanner;
 import com.navercorp.pinpoint.common.hbase.parallel.ScanTaskException;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.StopWatch;
+
+import com.google.common.collect.Lists;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.DistributedScanner;
 import org.apache.hadoop.conf.Configuration;
@@ -57,6 +58,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author emeroad
  * @author HyunGil Jeong
  * @author minwoo.jung
+ * @author Taejin Koo
  */
 public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, InitializingBean, DisposableBean {
 
@@ -172,20 +174,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public <T> T find(TableName tableName, String family, final ResultsExtractor<T> action) {
-        Scan scan = new Scan();
-        scan.addFamily(family.getBytes(getCharset()));
-        return find(tableName, scan, action);
-    }
-
-    @Override
-    public <T> T find(TableName tableName, String family, String qualifier, final ResultsExtractor<T> action) {
-        Scan scan = new Scan();
-        scan.addColumn(family.getBytes(getCharset()), qualifier.getBytes(getCharset()));
-        return find(tableName, scan, action);
-    }
-
-    @Override
     public <T> T find(TableName tableName, final Scan scan, final ResultsExtractor<T> action) {
         return execute(tableName, new TableCallback<T>() {
             @Override
@@ -201,71 +189,31 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public <T> List<T> find(TableName tableName, String family, final RowMapper<T> action) {
-        Scan scan = new Scan();
-        scan.addFamily(family.getBytes(getCharset()));
-        return find(tableName, scan, action);
-    }
-
-    @Override
-    public <T> List<T> find(TableName tableName, String family, String qualifier, final RowMapper<T> action) {
-        Scan scan = new Scan();
-        scan.addColumn(family.getBytes(getCharset()), qualifier.getBytes(getCharset()));
-        return find(tableName, scan, action);
-    }
-
-    @Override
     public <T> List<T> find(TableName tableName, final Scan scan, final RowMapper<T> action) {
         return find(tableName, scan, new RowMapperResultsExtractor<>(action));
     }
 
     @Override
-    public <T> T get(TableName tableName, String rowName, final RowMapper<T> mapper) {
-        return get(tableName, rowName, null, null, mapper);
-    }
-
-    @Override
-    public <T> T get(TableName tableName, String rowName, String familyName, final RowMapper<T> mapper) {
-        return get(tableName, rowName, familyName, null, mapper);
-    }
-
-    @Override
-    public <T> T get(TableName tableName, final String rowName, final String familyName, final String qualifier, final RowMapper<T> mapper) {
-        return execute(tableName, new TableCallback<T>() {
-            @Override
-            public T doInTable(Table table) throws Throwable {
-                Get get = new Get(rowName.getBytes(getCharset()));
-                if (familyName != null) {
-                    byte[] family = familyName.getBytes(getCharset());
-
-                    if (qualifier != null) {
-                        get.addColumn(family, qualifier.getBytes(getCharset()));
-                    } else {
-                        get.addFamily(family);
-                    }
-                }
-                Result result = table.get(get);
-                return mapper.mapRow(result, 0);
-            }
-        });
-    }
-
-    @Override
     public <T> T get(TableName tableName, byte[] rowName, RowMapper<T> mapper) {
-        return get(tableName, rowName, null, null, mapper);
+        return get0(tableName, rowName, null, null, mapper);
     }
 
     @Override
     public <T> T get(TableName tableName, byte[] rowName, byte[] familyName, RowMapper<T> mapper) {
-        return get(tableName, rowName, familyName, null, mapper);
+        return get0(tableName, rowName, familyName, null, mapper);
     }
 
     @Override
     public <T> T get(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final RowMapper<T> mapper) {
+        return get0(tableName, rowName, familyName, qualifier, mapper);
+    }
+
+    private <T> T get0(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final RowMapper<T> mapper) {
         return execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
                 Get get = new Get(rowName);
+
                 if (familyName != null) {
                     if (qualifier != null) {
                         get.addColumn(familyName, qualifier);
@@ -273,11 +221,13 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
                         get.addFamily(familyName);
                     }
                 }
+
                 Result result = table.get(get);
                 return mapper.mapRow(result, 0);
             }
         });
     }
+
 
     @Override
     public <T> T get(TableName tableName, final Get get, final RowMapper<T> mapper) {

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.grpc.client;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.ChannelTypeEnum;
 
 import java.util.concurrent.TimeUnit;
 
@@ -37,6 +38,7 @@ public class ClientOption {
     public static final int DEFAULT_CONNECT_TIMEOUT = 3000;
     public static final int DEFAULT_WRITE_BUFFER_HIGH_WATER_MARK = 32 * 1024 * 1024;
     public static final int DEFAULT_WRITE_BUFFER_LOW_WATER_MARK = 16 * 1024 * 1024;
+    public static final String DEFAULT_CHANNEL_TYPE = ChannelTypeEnum.AUTO.name();
 
     private final long keepAliveTime;
     private final long keepAliveTimeout;
@@ -51,8 +53,11 @@ public class ClientOption {
     private final int connectTimeout;
     private final int writeBufferHighWaterMark;
     private final int writeBufferLowWaterMark;
+    private final ChannelTypeEnum channelTypeEnum;
 
-    private ClientOption(long keepAliveTime, long keepAliveTimeout, int maxHeaderListSize, int maxInboundMessageSize, int flowControlWindow, int connectTimeout, int writeBufferHighWaterMark, int writeBufferLowWaterMark) {
+    private ClientOption(long keepAliveTime, long keepAliveTimeout, int maxHeaderListSize, int maxInboundMessageSize,
+                         int flowControlWindow, int connectTimeout, int writeBufferHighWaterMark, int writeBufferLowWaterMark,
+                         ChannelTypeEnum channelTypeEnum) {
         this.keepAliveTime = keepAliveTime;
         this.keepAliveTimeout = keepAliveTimeout;
         this.flowControlWindow = flowControlWindow;
@@ -61,6 +66,8 @@ public class ClientOption {
         this.connectTimeout = connectTimeout;
         this.writeBufferHighWaterMark = writeBufferHighWaterMark;
         this.writeBufferLowWaterMark = writeBufferLowWaterMark;
+
+        this.channelTypeEnum = Assert.requireNonNull(channelTypeEnum, "channelTypeEnum");
     }
 
     public int getFlowControlWindow() {
@@ -103,6 +110,10 @@ public class ClientOption {
         return writeBufferLowWaterMark;
     }
 
+    public ChannelTypeEnum getChannelTypeEnum() {
+        return channelTypeEnum;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ClientOption{");
@@ -116,7 +127,9 @@ public class ClientOption {
         sb.append(", connectTimeout=").append(connectTimeout);
         sb.append(", writeBufferHighWaterMark=").append(writeBufferHighWaterMark);
         sb.append(", writeBufferLowWaterMark=").append(writeBufferLowWaterMark);
+        sb.append(", channelTypeEnum=").append(channelTypeEnum);
         sb.append('}');
+
         return sb.toString();
     }
 
@@ -131,9 +144,12 @@ public class ClientOption {
         private int connectTimeout = DEFAULT_CONNECT_TIMEOUT;
         private int writeBufferHighWaterMark = DEFAULT_WRITE_BUFFER_HIGH_WATER_MARK;
         private int writeBufferLowWaterMark = DEFAULT_WRITE_BUFFER_LOW_WATER_MARK;
+        private ChannelTypeEnum channelTypeEnum = ChannelTypeEnum.valueOf(DEFAULT_CHANNEL_TYPE);
 
         public ClientOption build() {
-            final ClientOption clientOption = new ClientOption(keepAliveTime, keepAliveTimeout, maxHeaderListSize, maxInboundMessageSize, flowControlWindow, connectTimeout, writeBufferHighWaterMark, writeBufferLowWaterMark);
+            final ClientOption clientOption = new ClientOption(keepAliveTime, keepAliveTimeout, maxHeaderListSize, maxInboundMessageSize,
+                    flowControlWindow, connectTimeout,
+                    writeBufferHighWaterMark, writeBufferLowWaterMark, channelTypeEnum);
             return clientOption;
         }
 
@@ -179,6 +195,11 @@ public class ClientOption {
             this.writeBufferLowWaterMark = writeBufferLowWaterMark;
         }
 
+        public void setChannelTypeEnum(String channelTypeEnum) {
+            Assert.requireNonNull(channelTypeEnum, "channelTypeEnum");
+            this.channelTypeEnum = ChannelTypeEnum.valueOf(channelTypeEnum);
+        }
+
         @Override
         public String toString() {
             final StringBuilder sb = new StringBuilder("Builder{");
@@ -190,6 +211,7 @@ public class ClientOption {
             sb.append(", connectTimeout=").append(connectTimeout);
             sb.append(", writeBufferHighWaterMark=").append(writeBufferHighWaterMark);
             sb.append(", writeBufferLowWaterMark=").append(writeBufferLowWaterMark);
+            sb.append(", channelTypeEnum=").append(channelTypeEnum);
             sb.append('}');
             return sb.toString();
         }

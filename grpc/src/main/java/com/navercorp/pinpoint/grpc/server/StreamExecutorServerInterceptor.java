@@ -52,8 +52,6 @@ public class StreamExecutorServerInterceptor implements ServerInterceptor {
         this.initNumMessages = initNumMessages;
         Assert.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
         Assert.isTrue(periodMillis > 0, "periodMillis must be positive");
-
-        Assert.isTrue(recoveryMessagesCount > 0, "recoveryMessagesCount must be positive");
         this.scheduler = new StreamExecutorRejectedExecutionRequestScheduler(scheduledExecutorService, periodMillis, recoveryMessagesCount);
     }
 

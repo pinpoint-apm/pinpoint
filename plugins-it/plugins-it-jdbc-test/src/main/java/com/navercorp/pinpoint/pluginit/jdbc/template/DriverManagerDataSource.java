@@ -5,7 +5,9 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 public class DriverManagerDataSource implements DataSource {
     private String jdbcUrl;
@@ -69,5 +71,10 @@ public class DriverManagerDataSource implements DataSource {
     @Override
     public int getLoginTimeout() throws SQLException {
         return 0;
+    }
+
+    @Override
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        return null;
     }
 }

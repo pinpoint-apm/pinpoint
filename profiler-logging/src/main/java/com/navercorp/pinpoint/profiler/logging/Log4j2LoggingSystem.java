@@ -5,14 +5,16 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.logging.jul.JulAdaptorHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.util.ReflectionUtil;
 
 import java.io.File;
 import java.net.URI;
 import java.security.CodeSource;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 
 public class Log4j2LoggingSystem implements LoggingSystem {
     public static final String CONTEXT_NAME = "pinpoint-agent-logging-context";
@@ -38,8 +40,7 @@ public class Log4j2LoggingSystem implements LoggingSystem {
 
         BootLogger bootLogger = BootLogger.getLogger(this.getClass());
         bootLogger.info("logPath:" + uri);
-        patchReflectionUtilForJava9(bootLogger);
-        
+
         this.loggerContext = getLoggerContext(uri);
 //        this.loggerContext = getLoggerContext2(uri);
 
@@ -50,13 +51,33 @@ public class Log4j2LoggingSystem implements LoggingSystem {
 
         this.binder = new Log4j2Binder(loggerContext);
         bindPLoggerFactory(this.binder);
+
+        this.setupGrpcLogger(loggerContext);
     }
 
-    private void patchReflectionUtilForJava9(BootLogger bootLogger) {
-        Class<ReflectionUtil> reflectionUtilClass = ReflectionUtil.class;
-        CodeSource codeSource = reflectionUtilClass.getProtectionDomain().getCodeSource();
-        bootLogger.info("patch ReflectionUtil codeSource:" + codeSource);
+
+    private void setupGrpcLogger(LoggerContext loggerContext) {
+        final Logger logger = loggerContext.getLogger(this.getClass().getName());
+
+        String key = "pinpoint.profiler.grpc.log.enable";
+        final boolean enableGrpcLog = Boolean.parseBoolean(System.getProperty(key));
+        logger.info("{}:{}", key, enableGrpcLog);
+        if (!enableGrpcLog) {
+            return;
+        }
+
+        final Handler handler = new JulAdaptorHandler(loggerContext);
+        logger.info("java.util.logging.LogManager={}", java.util.logging.LogManager.getLogManager().getClass().getName());
+        java.util.logging.Logger julLogger = java.util.logging.Logger.getLogger("io.grpc");
+
+        Level level = julLogger.getLevel();
+        handler.setLevel(Level.FINE);
+        logger.info("io.grpc log level:{}", level);
+        julLogger.setLevel(Level.FINE);
+        julLogger.addHandler(handler);
+        julLogger.info("enable grpc log");
     }
+
 
     private Logger getLoggerContextLogger() {
         return loggerContext.getLogger(getClass().getName());

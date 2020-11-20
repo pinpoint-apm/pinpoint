@@ -106,31 +106,8 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
             })
         ).subscribe((dataWrapper: {instanceKey: string, data: IScatterData}) => {
             const typeManager = this.scatterChartInstance.getTypeManager();
-            const dataSize = dataWrapper.data.scatter.dotList.length;
-            if (dataSize > this.BLOCK_MAX_SIZE) {
-                const from = dataWrapper.data.from;
-                const to =  dataWrapper.data.to;
-                let rangeStart = 0;
-                let rangeEnd = Math.min(dataSize, this.BLOCK_MAX_SIZE) - 1;
-                do {
-                    this.scatterChartInstance.addData(new ScatterChartDataBlock({
-                        complete: false,
-                        currentServerTime: dataWrapper.data.currentServerTime,
-                        from: from,
-                        resultFrom: dataWrapper.data.scatter.dotList[rangeEnd][0] + from,
-                        resultTo: dataWrapper.data.scatter.dotList[rangeStart][0] + from,
-                        scatter: {
-                            dotList: dataWrapper.data.scatter.dotList.slice(rangeStart, rangeEnd + 1),
-                            metadata: dataWrapper.data.scatter.metadata
-                        },
-                        to: to
-                    }, typeManager));
-                    rangeStart = rangeEnd + 1;
-                    rangeEnd = Math.min(dataSize, rangeStart + this.BLOCK_MAX_SIZE) - 1;
-                } while (rangeStart < dataSize);
-            } else {
-                this.scatterChartInstance.addData(new ScatterChartDataBlock(dataWrapper.data, typeManager));
-            }
+
+            this.scatterChartInstance.addData(new ScatterChartDataBlock(dataWrapper.data, typeManager));
             this.dataLoaded = true;
             this.hasError = false;
         });

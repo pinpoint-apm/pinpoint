@@ -25,8 +25,6 @@ import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescrip
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Constructor;
 import java.util.EnumSet;
 
@@ -37,8 +35,8 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
 
     private static final String UNSUPPORTED_METRIC = "UNSUPPORTED_FILE_DESCRIPTOR_METRIC";
 
-    private static final String ORACLE_FILE_DESCRIPTOR_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.oracle.DefaultFileDescriptorMetric";
-    private static final String IBM_FILE_DESCRIPTOR_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.ibm.DefaultFileDescriptorMetric";
+    private static final String ORACLE_FILE_DESCRIPTOR_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.oracle.OracleFileDescriptorMetric";
+    private static final String IBM_FILE_DESCRIPTOR_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.ibm.IbmFileDescriptorMetric";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -47,9 +45,7 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
 
     @Inject
     public FileDescriptorMetricProvider(ProfilerConfig profilerConfig) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig");
-        }
+        Assert.requireNonNull(profilerConfig, "profilerConfig");
         vendorName = profilerConfig.getProfilerJvmVendorName();
         osName = profilerConfig.getProfilerOSName();
     }
@@ -124,16 +120,12 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
             return FileDescriptorMetric.UNSUPPORTED_FILE_DESCRIPTOR_METRIC;
         }
 
-        OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
-        if (operatingSystemMXBean == null) {
-            return FileDescriptorMetric.UNSUPPORTED_FILE_DESCRIPTOR_METRIC;
-        }
         try {
             @SuppressWarnings("unchecked")
             Class<FileDescriptorMetric> fileDescriptorMetricClass = (Class<FileDescriptorMetric>) Class.forName(classToLoad);
             try {
-                Constructor<FileDescriptorMetric> fileDescriptorMetricConstructor = fileDescriptorMetricClass.getConstructor(OperatingSystemMXBean.class);
-                return fileDescriptorMetricConstructor.newInstance(operatingSystemMXBean);
+                Constructor<FileDescriptorMetric> fileDescriptorMetricConstructor = fileDescriptorMetricClass.getConstructor();
+                return fileDescriptorMetricConstructor.newInstance();
             } catch (NoSuchMethodException e) {
                 logger.warn("Unknown FileDescriptorMetric : {}", classToLoad);
                 return FileDescriptorMetric.UNSUPPORTED_FILE_DESCRIPTOR_METRIC;

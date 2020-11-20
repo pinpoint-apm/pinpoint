@@ -112,6 +112,7 @@ class PinpointStarter {
             ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
 
             // set the path of log file as a system property
+            saveAgentIdForLog(agentIds);
             saveLogFilePath(agentDirectory);
             savePinpointVersion();
 
@@ -220,10 +221,13 @@ class PinpointStarter {
         this.systemProperty = systemProperty;
     }
 
+    private void saveAgentIdForLog(AgentIds agentIds) {
+        systemProperty.setProperty(AgentIdResolver.AGENT_ID_SYSTEM_PROPERTY, agentIds.getAgentId());
+    }
+
     private void saveLogFilePath(AgentDirectory agentDirectory) {
         String agentLogFilePath = agentDirectory.getAgentLogFilePath();
         logger.info("logPath:" + agentLogFilePath);
-
         systemProperty.setProperty(ProductInfo.NAME + ".log", agentLogFilePath);
     }
 

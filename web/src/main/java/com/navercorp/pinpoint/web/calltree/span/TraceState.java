@@ -28,7 +28,9 @@ public class TraceState {
         // transaction completed successfully
         COMPLETE(1,"Complete"),
         // transaction in-flight or missing data
-        PROGRESS(2, "Progress");
+        PROGRESS(2, "Progress"),
+        // when data fetch, limit is reached
+        OVERFLOW(3, "Overflow");
 
         private final int code;
         private final String message;

@@ -17,9 +17,13 @@
 package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.CachedStringAllocator;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.buffer.StringAllocator;
+import com.navercorp.pinpoint.common.buffer.StringCacheableBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -29,8 +33,8 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.LRUCache;
 import com.navercorp.pinpoint.io.SpanVersion;
 
 import com.google.common.collect.LinkedListMultimap;
@@ -44,15 +48,19 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-
 /**
  * @author emeroad
+ * @author Taejin Koo
  */
 public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
+
+    private static final int DISABLED_CACHE = -1;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -60,13 +68,24 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
     private final RowKeyDecoder<TransactionId> rowKeyDecoder;
 
+    private final int cacheSize;
+
     public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder) {
-        this(rowKeyDecoder, new SpanDecoderV0());
+        this(rowKeyDecoder, new SpanDecoderV0(), DISABLED_CACHE);
+    }
+
+    public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder, int cacheSize) {
+        this(rowKeyDecoder, new SpanDecoderV0(), cacheSize);
     }
 
     public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder, SpanDecoder spanDecoder) {
+        this(rowKeyDecoder, spanDecoder, DISABLED_CACHE);
+    }
+
+    public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder, SpanDecoder spanDecoder, int cacheSize) {
         this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
         this.spanDecoder = Objects.requireNonNull(spanDecoder, "spanDecoder");
+        this.cacheSize = cacheSize;
     }
 
     @Override
@@ -87,6 +106,8 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         final SpanDecodingContext decodingContext = new SpanDecodingContext();
         decodingContext.setTransactionId(transactionId);
 
+        final BufferFactory bufferFactory = new BufferFactory(cacheSize);
+
         for (Cell cell : rawCells) {
             SpanDecoder spanDecoder = null;
             // only if family name is "span"
@@ -94,8 +115,8 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
                 decodingContext.setCollectorAcceptedTime(cell.getTimestamp());
 
-                final Buffer qualifier = new FixedBuffer(CellUtil.cloneQualifier(cell));
-                final Buffer columnValue = new FixedBuffer(CellUtil.cloneValue(cell));
+                final Buffer qualifier = bufferFactory.createBuffer(CellUtil.cloneQualifier(cell));
+                final Buffer columnValue = bufferFactory.createBuffer(CellUtil.cloneValue(cell));
 
                 spanDecoder = resolveDecoder(columnValue);
                 final Object decodeObject = spanDecoder.decode(qualifier, columnValue, decodingContext);
@@ -127,6 +148,28 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
         return buildSpanBoList(spanMap, spanChunkList);
 
+    }
+
+    public static class BufferFactory {
+
+        private final StringAllocator stringAllocator;
+
+        public BufferFactory(int cacheSize) {
+            if (cacheSize > 0) {
+                Map<ByteBuffer, String> lruCache = new LRUCache<>(cacheSize);
+                this.stringAllocator = new CachedStringAllocator(lruCache);
+            } else {
+                this.stringAllocator = null;
+            }
+        }
+
+        public Buffer createBuffer(byte[] buffer) {
+            if (stringAllocator != null) {
+                return new StringCacheableBuffer(buffer, stringAllocator);
+            } else {
+                return new FixedBuffer(buffer);
+            }
+        }
     }
 
     private void nextCell(SpanDecoder spanDecoder, SpanDecodingContext decodingContext) {

@@ -20,6 +20,7 @@ public class GrpcPropertiesServerOptionBuilder {
     private static final String HANDSHAKE_TIMEOUT = ".handshake.timeout.millis";
     private static final String MAX_INBOUND_MESSAGE_SIZE = ".inbound.message.size.max";
     private static final String RECEIVE_BUFFER_SIZE = ".receive.buffer.size";
+    private static final String CHANNEL_TYPE = ".channel-type";
 
     public static ServerOption.Builder newBuilder(final Properties properties, final String transportName) {
         final ServerOption.Builder builder = new ServerOption.Builder();
@@ -35,6 +36,7 @@ public class GrpcPropertiesServerOptionBuilder {
         builder.setFlowControlWindow(readByteSize(properties, transportName + FLOW_CONTROL_WINDOW, ServerOption.DEFAULT_FLOW_CONTROL_WINDOW));
         builder.setMaxHeaderListSize(readByteSize(properties, transportName + MAX_HEADER_LIST_SIZE, ServerOption.DEFAULT_MAX_HEADER_LIST_SIZE));
         builder.setReceiveBufferSize(readByteSize(properties, transportName + RECEIVE_BUFFER_SIZE, ServerOption.DEFAULT_RECEIVE_BUFFER_SIZE));
+        builder.setChannelTypeEnum(ConfigurationUtils.readString(properties, transportName + CHANNEL_TYPE, ServerOption.DEFAULT_CHANNEL_TYPE));
 
         return builder;
     }

@@ -16,11 +16,16 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 
 /**
  * @author emeroad
  */
 public interface SpanService {
+
     SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint);
+
+    SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint, ColumnGetCount columnGetCount);
+
 }

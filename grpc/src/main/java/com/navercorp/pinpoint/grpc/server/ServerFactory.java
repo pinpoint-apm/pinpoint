@@ -19,9 +19,8 @@ package com.navercorp.pinpoint.grpc.server;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CpuUtils;
+import com.navercorp.pinpoint.grpc.ChannelTypeEnum;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
-import com.navercorp.pinpoint.grpc.Header;
-import com.navercorp.pinpoint.grpc.HeaderReader;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerInterceptor;
@@ -31,8 +30,8 @@ import io.grpc.netty.InternalNettyServerBuilder;
 import io.grpc.netty.NettyServerBuilder;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.ServerChannel;
 import io.netty.channel.WriteBufferWaterMark;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,9 +52,11 @@ public class ServerFactory {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final String name;
+
     private String hostname;
     private final int port;
 
+    private final Class<? extends ServerChannel> channelType;
     private final ExecutorService bossExecutor;
     private final EventLoopGroup bossEventLoopGroup;
 
@@ -76,22 +77,26 @@ public class ServerFactory {
         this.serverOption = Assert.requireNonNull(serverOption, "serverOption");
         this.port = port;
 
+        final ServerChannelType serverChannelType = getChannelType();
+        this.channelType = serverChannelType.getChannelType();
+
         this.bossExecutor = newExecutor(name + "-Channel-Boss");
-        this.bossEventLoopGroup = newEventLoopGroup(1, this.bossExecutor);
+        this.bossEventLoopGroup = serverChannelType.newEventLoopGroup(1, this.bossExecutor);
         this.workerExecutor = newExecutor(name + "-Channel-Worker");
-        this.workerEventLoopGroup = newEventLoopGroup(CpuUtils.workerCount(), workerExecutor);
+        this.workerEventLoopGroup = serverChannelType.newEventLoopGroup(CpuUtils.cpuCount(), workerExecutor);
 
         this.serverExecutor = Assert.requireNonNull(serverExecutor, "executor");
     }
 
+    private ServerChannelType getChannelType() {
+        final ServerChannelTypeFactory factory = new ServerChannelTypeFactory();
+        return factory.newChannelType(serverOption.getChannelTypeEnum());
+    }
+
+
     private ExecutorService newExecutor(String name) {
         ThreadFactory threadFactory = new PinpointThreadFactory(PinpointThreadFactory.DEFAULT_THREAD_NAME_PREFIX + name, true);
         return Executors.newCachedThreadPool(threadFactory);
-    }
-
-    private NioEventLoopGroup newEventLoopGroup(int i, ExecutorService executorService) {
-        Assert.requireNonNull(executorService, "executorService");
-        return new NioEventLoopGroup(i, executorService);
     }
 
 
@@ -118,6 +123,9 @@ public class ServerFactory {
     public Server build() {
         InetSocketAddress bindAddress = new InetSocketAddress(this.hostname, this.port);
         NettyServerBuilder serverBuilder = NettyServerBuilder.forAddress(bindAddress);
+
+        logger.info("ChannelType:{}", channelType.getSimpleName());
+        serverBuilder.channelType(channelType);
         serverBuilder.bossEventLoopGroup(bossEventLoopGroup);
         serverBuilder.workerEventLoopGroup(workerEventLoopGroup);
 
@@ -168,7 +176,7 @@ public class ServerFactory {
         builder.flowControlWindow(this.serverOption.getFlowControlWindow());
 
         builder.maxInboundMessageSize(this.serverOption.getMaxInboundMessageSize());
-        builder.maxHeaderListSize(this.serverOption.getMaxHeaderListSize());
+        builder.maxInboundMetadataSize(this.serverOption.getMaxHeaderListSize());
 
         builder.keepAliveTime(this.serverOption.getKeepAliveTime(), TimeUnit.MILLISECONDS);
         builder.keepAliveTimeout(this.serverOption.getKeepAliveTimeout(), TimeUnit.MILLISECONDS);

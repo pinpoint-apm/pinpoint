@@ -28,7 +28,8 @@
 .l-transaction-complete {
     background-color: #5CB85C;
 }
-.l-transaction-progress {
+.l-transaction-progress,
+.l-transaction-overflow {
     background-color: rgb(91, 192, 222);
 }
 .l-transaction-error {

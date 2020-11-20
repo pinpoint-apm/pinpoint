@@ -32,7 +32,7 @@ public class PinpointClassLoaderTest {
 
     @Test
     public void testOnLoadClass() throws Exception {
-        ClassLoader classLoader = onLoadTest(Java6ClassLoader.class, slf4jClass);
+        ClassLoader classLoader = onLoadTest(ParallelClassLoader.class, slf4jClass);
 
         ClassLoaderUtils.close(classLoader);
     }

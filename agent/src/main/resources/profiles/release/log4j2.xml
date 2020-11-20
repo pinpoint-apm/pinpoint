@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Configuration status="INFO">
+<Configuration status="WARN">
     <Properties>
         <Property name="logging_dir">${sys:pinpoint.log}/${sys:pinpoint.agentId}/</Property>
 
@@ -30,6 +30,9 @@
     <Loggers>
         <Logger name="com.navercorp.pinpoint" level="INFO" additivity="false">
             <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Logger>
+        <Logger name="io.grpc" level="INFO" additivity="false">
             <AppenderRef ref="rollingFile"/>
         </Logger>
 
