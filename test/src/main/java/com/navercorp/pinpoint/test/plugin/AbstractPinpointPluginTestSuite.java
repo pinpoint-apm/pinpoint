@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.exception.PinpointException;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
@@ -53,11 +54,13 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
     };
 
     private static final String[] MAVEN_DEPENDENCY_CLASS_PATHS = new String[]{
-            "aether",
+            "maven-resolver",
             "apache/maven",
             "guava",
             "plexus",
             "pinpoint-test",
+            "slf4j-api",
+            "slf4j-jdk14",
             "/test/target/classes" // pinpoint-test build output directory
     };
 
@@ -95,8 +98,8 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         ImportPlugin importPlugin = testClass.getAnnotation(ImportPlugin.class);
         this.importPluginIds = getImportPlugin(importPlugin);
 
-        this.requiredLibraries = getClassPathList(REQUIRED_CLASS_PATHS);
-        this.mavenDependencyLibraries = getClassPathList(MAVEN_DEPENDENCY_CLASS_PATHS);
+        this.requiredLibraries = getClassPathList(new LibraryFilter(REQUIRED_CLASS_PATHS));
+        this.mavenDependencyLibraries = getClassPathList(new LibraryFilter(MAVEN_DEPENDENCY_CLASS_PATHS));
         this.testClassLocation = resolveTestClassLocation(testClass);
         this.debug = isDebugMode();
     }
@@ -156,7 +159,7 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
     }
 
 
-    private List<String> getClassPathList(String[] classPathCandidates) {
+    private List<String> getClassPathList(LibraryFilter classPathFilter) {
         List<String> result = new ArrayList<String>();
 
         ClassLoader cl = getClass().getClassLoader();
@@ -164,7 +167,7 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         while (true) {
             if (cl instanceof URLClassLoader) {
                 URLClassLoader ucl = ((URLClassLoader) cl);
-                Collection<String> requiredLibraries = findLibraries(ucl.getURLs(), classPathCandidates);
+                Collection<String> requiredLibraries = classPathFilter.filter(ucl.getURLs());
                 result.addAll(requiredLibraries);
             }
 
@@ -178,22 +181,34 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         return result;
     }
 
-    private Collection<String> findLibraries(URL[] urls, String[] paths) {
-        final Set<String> result = new HashSet<String>();
-        outer:
-        for (URL url : urls) {
-            for (String required : paths) {
-                if (url.getFile().contains(required)) {
-                    result.add(toPathString(url));
+    public static class LibraryFilter {
+        private final String[] paths;
 
-                    continue outer;
+        public LibraryFilter(String[] paths) {
+            this.paths = Assert.requireNonNull(paths, "paths");
+        }
+
+        public Collection<String> filter(URL[] urls) {
+            final Set<String> result = new HashSet<>();
+            for (URL url : urls) {
+                if (include(url.getFile())) {
+                    result.add(toPathString(url));
                 }
             }
+            return result;
         }
-        return result;
+
+        private boolean include(String filePath) {
+            for (String required : paths) {
+                if (filePath.contains(required)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
-    private String toPathString(URL url) {
+    private static String toPathString(URL url) {
         return new File(url.getFile()).getAbsolutePath();
     }
 
