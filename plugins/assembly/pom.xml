@@ -7,7 +7,7 @@
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
         <relativePath>../..</relativePath>
-        <version>2.1.2-SNAPSHOT</version>
+        <version>2.1.2</version>
     </parent>
 
     <artifactId>pinpoint-plugins-assembly</artifactId>
