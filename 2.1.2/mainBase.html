@@ -5,8 +5,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="">
-<meta name="keywords" content=" pinpoint release, 2.1.1">
-<title>Pinpoint 2.1.1 | Leading Open-Source APM</title>
+<meta name="keywords" content=" pinpoint release, 1.8.4">
+<title>Pinpoint 1.8.4 | Leading Open-Source APM</title>
 <link rel="stylesheet" href="css/syntax.css">
 
 <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -158,7 +158,7 @@
                                 searchInput: document.getElementById('search-input'),
                                 resultsContainer: document.getElementById('results-container'),
                                 dataSource: 'search.json',
-                                searchResultTemplate: '<li><a href="{url}" title="Pinpoint 2.1.1">{title}</a></li>',
+                                searchResultTemplate: '<li><a href="{url}" title="Pinpoint 1.8.4">{title}</a></li>',
                     noResultsText: 'No results found.',
                             limit: 10,
                             fuzzy: true,
@@ -249,7 +249,7 @@
     
     <li>
         
-        <li class="active"><a href="main.html">What's New</a></li>
+        <li><a href="main.html">What's New</a></li>
         
     </li>
     
@@ -540,7 +540,7 @@
 </script>
 
 <div class="post-header">
-   <h1 class="post-title-main" id="pathname">Pinpoint 2.1.1</h1>
+   <h1 class="post-title-main" id="pathname">Pinpoint 1.8.4</h1>
 </div>
 
 
@@ -580,74 +580,9 @@ $('#toc').on('click', 'a', function() {
 
     
 
-  <h2 id="whats-new-in-211">What’s New in 2.1.1</h2>
+  <h2 id="whats-new-in-220">What’s New in 2.2.0</h2>
 
-<p>Few performance realted issues has been resolved and can be configured in v2.1.1.<br />
- Paho MQTT plugin added. Details are below.</p>
-
-<h3 id="paho-mqtt-plugin">Paho MQTT Plugin</h3>
-
-<ul>
-  <li>Call Stack</li>
-</ul>
-
-<p><img src="https://user-images.githubusercontent.com/10057874/99467602-1cc39880-2982-11eb-8691-85770f761712.jpg" alt="pahomqimage" /></p>
-
-<p>(Thank you @acafela for your contribution)</p>
-
-<h3 id="add-limiter-when-drawing-servermap">Add limiter when drawing Servermap</h3>
-
-<p>Add limiter on the number of link data and on build time for preventing OOM when drawing Servermap</p>
-
-<ul>
-  <li>configuration</li>
-</ul>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Limit number of link data
-web.servermap.linkData.limit=500000000
-# ApplicationMap build timeout in milliseconds
-web.servermap.build.timeout=600000
-</code></pre></div></div>
-
-<h3 id="add-limiter-when-making-callstack">Add limiter when making Callstack</h3>
-
-<p>Add limiter on the number of Span and SpanChunk Data when making Callstack</p>
-
-<ul>
-  <li>screenshot</li>
-</ul>
-
-<p><img src="https://user-images.githubusercontent.com/10057874/99467743-5dbbad00-2982-11eb-815c-6ba6ce430074.jpg" alt="3b367f00-2903-11eb-9c83-4cbae7bff5e3" /></p>
-
-<ul>
-  <li>configuration</li>
-</ul>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Limit number of Span and SpanChunk data
-# If -1, there is no limit
-web.callstack.selectSpans.limit=10000
-</code></pre></div></div>
-
-<h3 id="support-cache-when-making-callstack">Support cache when making Callstack</h3>
-
-<p>Support that reuse string value in SpanDecoder.</p>
-
-<ul>
-  <li>configuration</li>
-</ul>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Limit number of string cache size in SpanMapper
-# If -1, cache will be disabled
-web.hbase.mapper.cache.string.size=-1
-</code></pre></div></div>
-
-<h3 id="auto-generate-agentid">Auto generate AgentId</h3>
-
-<p>If AgentID is not present, the agent automatically generates it.</p>
-
-<h3 id="header-support-according-to-kafka-broker">Header support according to Kafka Broker</h3>
-
-<p>Determining whether to insert a header according to the broker in Kafka Plugin</p>
+<p><a href="https://naver.github.io/pinpoint/2.1.2/main.html">Check out updates on lastest stable release</a></p>
 
 <h2 id="upgrade-consideration">Upgrade consideration</h2>
 
@@ -964,7 +899,7 @@ web.hbase.mapper.cache.string.size=-1
       <td>Spring Web</td>
       <td>spring-web</td>
       <td>4.1.2</td>
-      <td>4.3.28</td>
+      <td>4.3.29</td>
       <td> </td>
       <td><AG></AG></td>
     </tr>
@@ -1380,7 +1315,7 @@ web.hbase.mapper.cache.string.size=-1
       <td>Netty</td>
       <td>netty-all</td>
       <td>4.1.0</td>
-      <td>4.1.51</td>
+      <td>4.1.54</td>
       <td> </td>
       <td><AG></AG></td>
     </tr>
