@@ -55,6 +55,7 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
 
     private static final String[] MAVEN_DEPENDENCY_CLASS_PATHS = new String[]{
             "maven-resolver",
+            "commons-lang3",
             "apache/maven",
             "guava",
             "plexus",

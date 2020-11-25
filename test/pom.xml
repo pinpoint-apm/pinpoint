@@ -82,6 +82,10 @@
             <artifactId>maven-resolver-provider</artifactId>
             <version>3.6.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
 
         <!-- Logging dependencies -->
         <dependency>
