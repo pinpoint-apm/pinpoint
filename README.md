@@ -18,9 +18,9 @@ The current stable version is [v2.1.2](https://github.com/pinpoint-apm/pinpoint/
 
 Take a quick look at Pinpoint with our [demo](http://125.209.240.10:10123/main/ApiGateway@SPRING_BOOT/5m?inbound=1&outbound=4&wasOnly=false&bidirectional=false)!
 
-## PHP, PYTHON
+## PHP, PYTHON，C/C++
 
-Pinpoint also supports application written in PHP, Python. [Check-out our agent repository](https://github.com/pinpoint-apm/pinpoint-c-agent).
+Pinpoint also supports application written in PHP, Python,C/C++. [Check-out our agent repository](https://github.com/pinpoint-apm/pinpoint-c-agent).
 
 ## About Pinpoint
 
