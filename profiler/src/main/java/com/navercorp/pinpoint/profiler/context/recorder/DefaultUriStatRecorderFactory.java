@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.recorder;
 
+import com.navercorp.pinpoint.bootstrap.plugin.uri.DisabledUriStatRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorService;
@@ -43,7 +44,12 @@ public class DefaultUriStatRecorderFactory implements UriStatRecorderFactory {
     public <T> UriStatRecorder<T> create(UriExtractorService<T> uriExtractorService) {
         Assert.requireNonNull(uriExtractorService, "uriExtractorService");
         UriExtractor<T> uriExtractor = uriExtractorService.get(uriExtractorProviderLocator);
-        return new DefaultUriStatRecorder<T>(uriExtractor);
+
+        if (uriExtractor == null) {
+            return DisabledUriStatRecorder.create();
+        } else {
+            return new DefaultUriStatRecorder<T>(uriExtractor);
+        }
     }
 
 }
