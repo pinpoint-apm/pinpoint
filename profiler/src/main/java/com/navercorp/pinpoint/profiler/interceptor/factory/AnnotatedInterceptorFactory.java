@@ -64,6 +64,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedStaticAroundInte
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetricRegistry;
+import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
+import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.instrument.ScopeInfo;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
@@ -83,6 +85,7 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
     private final InstrumentContext pluginContext;
     private final ExceptionHandlerFactory exceptionHandlerFactory;
     private final RequestRecorderFactory requestRecorderFactory;
+    private final UriStatRecorderFactory uriStatRecorderFactory;
 
     public AnnotatedInterceptorFactory(ProfilerConfig profilerConfig,
                                        TraceContext traceContext,
@@ -91,7 +94,8 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
                                        ApiMetaDataService apiMetaDataService,
                                        InstrumentContext pluginContext,
                                        ExceptionHandlerFactory exceptionHandlerFactory,
-                                       RequestRecorderFactory requestRecorderFactory) {
+                                       RequestRecorderFactory requestRecorderFactory,
+                                       UriStatRecorderFactory uriStatRecorderFactory) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
         this.traceContext = Assert.requireNonNull(traceContext, "traceContext");
         this.dataSourceMonitorRegistry = Assert.requireNonNull(dataSourceMonitorRegistry, "dataSourceMonitorRegistry");
@@ -100,6 +104,7 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
         this.pluginContext = Assert.requireNonNull(pluginContext, "pluginContext");
         this.exceptionHandlerFactory = Assert.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
         this.requestRecorderFactory = Assert.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
+        this.uriStatRecorderFactory = Assert.requireNonNull(uriStatRecorderFactory, "uriStatRecorderFactory");
     }
 
     @Override
@@ -108,7 +113,7 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
         Assert.requireNonNull(scopeInfo, "scopeInfo");
 
         final InterceptorScope interceptorScope = scopeInfo.getInterceptorScope();
-        InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(dataSourceMonitorRegistry, customMetricRegistry, apiMetaDataService, requestRecorderFactory, interceptorScope, target, targetMethod);
+        InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(dataSourceMonitorRegistry, customMetricRegistry, apiMetaDataService, requestRecorderFactory, uriStatRecorderFactory, interceptorScope, target, targetMethod);
 
         AutoBindingObjectFactory factory = new AutoBindingObjectFactory(profilerConfig, traceContext, pluginContext, interceptorClass.getClassLoader());
         Interceptor interceptor = (Interceptor) factory.createInstance(interceptorClass, providedArguments, interceptorArgumentProvider);

@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.plugin.kafka.field.getter.SelectorGetter;
 import org.apache.kafka.clients.ClientResponse;
 import org.apache.kafka.common.requests.FetchResponse;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
@@ -96,7 +95,6 @@ public class NetworkClientPollInterceptor implements AroundInterceptor {
 
                     if (endPointFieldAccessor._$PINPOINT$_getEndPoint() == null) {
                         endPointFieldAccessor._$PINPOINT$_setEndPoint(endPointAddress);
-                        endPointFieldAccessor._$PINPOINT$_setEndPoint(endPointAddress);
                     }
                 }
 
@@ -114,11 +112,15 @@ public class NetworkClientPollInterceptor implements AroundInterceptor {
         List<String> endPointAddressList = new ArrayList<String>(socketChannels.size());
         for (SocketChannel socketChannel : socketChannels) {
             try {
+                if (!socketChannel.isConnected()) {
+                    continue;
+                }
+
                 SocketAddress localAddress = socketChannel.getLocalAddress();
 
                 String ipPort = getIpPort(localAddress);
                 endPointAddressList.add(ipPort);
-            } catch (IOException e) {
+            } catch (Exception e) {
             }
         }
 

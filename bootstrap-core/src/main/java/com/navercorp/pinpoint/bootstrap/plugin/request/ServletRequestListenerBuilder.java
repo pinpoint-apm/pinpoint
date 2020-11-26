@@ -27,6 +27,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.DisableParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.uri.DisabledUriStatRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
@@ -54,6 +56,7 @@ public class ServletRequestListenerBuilder<REQ> {
 
     private List<String> recordRequestHeaders;
     private List<String> recordRequestCookies;
+    private UriStatRecorder<REQ> uriStatRecorder = DisabledUriStatRecorder.create();
 
     public ServletRequestListenerBuilder(final ServiceType serviceType,
                                          final TraceContext traceContext,
@@ -96,6 +99,10 @@ public class ServletRequestListenerBuilder<REQ> {
         this.recordRequestCookies = recordRequestCookies;
     }
 
+    public void setReqUriStatRecorder(UriStatRecorder<REQ> reqUriStatRecorder) {
+        Assert.requireNonNull(reqUriStatRecorder, "reqUriStatRecorder");
+        this.uriStatRecorder = reqUriStatRecorder;
+    }
 
     private <T> Filter<T> newExcludeUrlFilter(Filter<T> excludeUrlFilter) {
         if (excludeUrlFilter == null) {
@@ -137,7 +144,7 @@ public class ServletRequestListenerBuilder<REQ> {
 
 
         return new ServletRequestListener<REQ>(serviceType, traceContext, requestAdaptor, requestTraceReader,
-                excludeUrlFilter, parameterRecorder, proxyRequestRecorder, serverRequestRecorder, httpStatusCodeRecorder);
+                excludeUrlFilter, parameterRecorder, proxyRequestRecorder, serverRequestRecorder, httpStatusCodeRecorder, uriStatRecorder);
     }
 
 

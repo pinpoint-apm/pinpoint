@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.*;
-
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -27,15 +27,19 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.AsyncListenerInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerCookieRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerHeaderRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListener;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
+import com.navercorp.pinpoint.plugin.common.servlet.ServletRequestUriExtractorService;
 import com.navercorp.pinpoint.plugin.common.servlet.util.ArgumentValidator;
 import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
 import com.navercorp.pinpoint.plugin.common.servlet.util.ServletArgumentValidator;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConfig;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
+
 import org.apache.catalina.connector.Response;
 
 import javax.servlet.http.HttpServletRequest;
@@ -56,7 +60,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private final ServletRequestListener<HttpServletRequest> servletRequestListener;
 
 
-    public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
+    public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory<HttpServletRequest> requestRecorderFactory, UriStatRecorderFactory uriStatRecorderFactory) {
         this.methodDescriptor = descriptor;
         this.argumentValidator = new ServletArgumentValidator(logger, 0, HttpServletRequest.class, 1, HttpServletResponse.class);
         final TomcatConfig config = new TomcatConfig(traceContext.getProfilerConfig());
@@ -75,6 +79,10 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         builder.setHttpStatusCodeRecorder(profilerConfig.getHttpStatusCodeErrors());
         builder.setServerHeaderRecorder(profilerConfig.readList(ServerHeaderRecorder.CONFIG_KEY_RECORD_REQ_HEADERS));
         builder.setServerCookieRecorder(profilerConfig.readList(ServerCookieRecorder.CONFIG_KEY_RECORD_REQ_COOKIES));
+
+        UriStatRecorder<HttpServletRequest> httpServletRequestUriStatRecorder = uriStatRecorderFactory.create(new ServletRequestUriExtractorService());
+        builder.setReqUriStatRecorder(httpServletRequestUriStatRecorder);
+
         this.servletRequestListener = builder.build();
     }
 

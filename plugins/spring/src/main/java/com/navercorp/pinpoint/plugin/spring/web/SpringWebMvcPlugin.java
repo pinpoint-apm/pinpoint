@@ -15,10 +15,6 @@
  */
 package com.navercorp.pinpoint.plugin.spring.web;
 
-import static com.navercorp.pinpoint.common.util.VarArgs.va;
-
-import java.security.ProtectionDomain;
-
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -29,11 +25,15 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate
 import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.uri.UriMappingExtractorProvider;
+
+import java.security.ProtectionDomain;
+
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 
 /**
  * @author Jongho Moon
- *
  */
 public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAware {
 
@@ -43,6 +43,14 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
     public void setup(ProfilerPluginSetupContext context) {
         transformTemplate.transform("org.springframework.web.servlet.FrameworkServlet", FrameworkServletTransform.class);
 
+        SpringWebMvcConfig config = new SpringWebMvcConfig(context.getConfig());
+        if (config.isUriStatEnable()) {
+            UriMappingExtractorProvider uriMappingExtractorProvider = new UriMappingExtractorProvider(
+                    SpringWebMvcConstants.SPRING_MVC_URI_EXTRACTOR_TYPE,
+                    SpringWebMvcConstants.SPRING_MVC_URI_MAPPING_ATTRIBUTE_KEYS
+            );
+            context.addUriExtractor(uriMappingExtractorProvider);
+        }
     }
 
     public static class FrameworkServletTransform implements TransformCallback {
