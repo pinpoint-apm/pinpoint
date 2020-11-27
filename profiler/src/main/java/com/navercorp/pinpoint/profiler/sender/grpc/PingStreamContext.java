@@ -55,11 +55,11 @@ public class PingStreamContext {
 
         this.streamId = StreamId.newStreamId("PingStream");
 
-        this.responseObserver = new PingClientResponseObserver();
-        this.requestObserver = agentStub.pingSession(responseObserver);
-
         this.reconnector = Assert.requireNonNull(reconnector, "reconnector");
         this.retransmissionExecutor = Assert.requireNonNull(retransmissionExecutor, "retransmissionExecutor");
+        // WARNING
+        this.responseObserver = new PingClientResponseObserver();
+        this.requestObserver = agentStub.pingSession(responseObserver);
     }
 
     private PPing newPing() {
@@ -87,7 +87,7 @@ public class PingStreamContext {
                 logger.warn("Failed to ping stream, streamId={}, cause={}", streamId, statusError.getMessage(), statusError.getThrowable());
             }
             cancelPingScheduler();
-            reconnector.reconnect();
+            PingStreamContext.this.reconnector.reconnect();
         }
 
 
@@ -95,7 +95,7 @@ public class PingStreamContext {
         public void onCompleted() {
             logger.info("{} completed", streamId);
             cancelPingScheduler();
-            reconnector.reconnect();
+            PingStreamContext.this.reconnector.reconnect();
         }
 
         private void cancelPingScheduler() {
@@ -113,7 +113,7 @@ public class PingStreamContext {
                 @Override
                 public void run() {
                     logger.info("{} onReady", streamId);
-                    reconnector.reset();
+                    PingStreamContext.this.reconnector.reset();
 
                     final Runnable pingRunnable = new Runnable() {
                         @Override
