@@ -150,7 +150,8 @@ public class ServletRequestListener<REQ> {
         if (!trace.canSampled()) {
             traceContext.removeTraceObject();
             trace.close();
-            uriStatRecorder.record(request, rpcName, statusCode, trace.getStartTime(), System.currentTimeMillis());
+            boolean status = isNotFailedStatus(statusCode);
+            uriStatRecorder.record(request, rpcName, status, trace.getStartTime(), System.currentTimeMillis());
             return;
         }
 
@@ -164,7 +165,20 @@ public class ServletRequestListener<REQ> {
             trace.traceBlockEnd();
             this.traceContext.removeTraceObject();
             trace.close();
-            uriStatRecorder.record(request, rpcName, statusCode, trace.getStartTime(), System.currentTimeMillis());
+            boolean status = isNotFailedStatus(statusCode);
+            uriStatRecorder.record(request, rpcName, status, trace.getStartTime(), System.currentTimeMillis());
         }
     }
+
+    public static boolean isNotFailedStatus(int statusCode) {
+        int statusPrefix = statusCode / 100;
+
+        // 2 : success. 3 : redirect, 1: information
+        if (statusPrefix == 2 || statusPrefix == 3 || statusPrefix == 1) {
+            return true;
+        }
+
+        return false;
+    }
+
 }

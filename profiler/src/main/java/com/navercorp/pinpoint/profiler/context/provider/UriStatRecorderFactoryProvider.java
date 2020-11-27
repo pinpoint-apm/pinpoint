@@ -16,18 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.context.provider;
 
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProvider;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderRegistry;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultUriStatRecorderFactory;
-import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
+import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-
-import java.util.List;
 
 /**
  * @author Taejin Koo
@@ -35,15 +31,17 @@ import java.util.List;
 public class UriStatRecorderFactoryProvider implements Provider<UriStatRecorderFactory> {
 
     private final Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider;
+    private final Provider<UriStatStorage> uriStatStorageProvider;
 
     @Inject
-    public UriStatRecorderFactoryProvider(Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider) {
+    public UriStatRecorderFactoryProvider(Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider, Provider<UriStatStorage> uriStatStorageProvider) {
         this.uriExtractorProviderLocatorProvider = Assert.requireNonNull(uriExtractorProviderLocatorProvider, "uriExtractorProviderLocatorProvider");
+        this.uriStatStorageProvider = Assert.requireNonNull(uriStatStorageProvider, "uriStatStorageProvider");
     }
 
     @Override
     public UriStatRecorderFactory get() {
-        return new DefaultUriStatRecorderFactory(uriExtractorProviderLocatorProvider);
+        return new DefaultUriStatRecorderFactory(uriExtractorProviderLocatorProvider, uriStatStorageProvider);
     }
 
 }
