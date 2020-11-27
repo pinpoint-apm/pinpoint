@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.uri;
+package com.navercorp.pinpoint.profiler.context.storage;
+
+import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatInfo;
 
 /**
- * Class that store information that obtained from Request and URIExtractor inside Pinpoint
- *
  * @author Taejin Koo
  */
-public interface UriStatRecorder<T> {
+public interface UriStatStorage {
 
-    void record(T request, String rawUri, boolean status, long startTime, long endTime);
+    void store(UriStatInfo uriStatInfo);
 
 }
-

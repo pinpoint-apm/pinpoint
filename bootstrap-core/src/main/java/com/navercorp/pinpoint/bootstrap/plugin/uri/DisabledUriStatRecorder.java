@@ -28,7 +28,7 @@ public class DisabledUriStatRecorder implements UriStatRecorder {
     }
 
     @Override
-    public void record(Object request, String rawUri, int status, long startTime, long endTime) {
+    public void record(Object request, String rawUri, boolean status, long startTime, long endTime) {
         // do nothing
     }
 

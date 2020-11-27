@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorService;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 
 import com.google.inject.Provider;
 
@@ -32,12 +33,16 @@ import com.google.inject.Provider;
 public class DefaultUriStatRecorderFactory implements UriStatRecorderFactory {
 
     private final UriExtractorProviderLocator uriExtractorProviderLocator;
+    private final UriStatStorage uriStatStorage;
 
-    public DefaultUriStatRecorderFactory(Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider) {
+    public DefaultUriStatRecorderFactory(Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider, Provider<UriStatStorage> uriStatStorageProvider) {
         Assert.requireNonNull(uriExtractorProviderLocatorProvider, "uriExtractorProviderLocatorProvider");
 
         UriExtractorProviderLocator uriExtractorProviderLocator = uriExtractorProviderLocatorProvider.get();
         this.uriExtractorProviderLocator = Assert.requireNonNull(uriExtractorProviderLocator, "uriExtractorProviderLocator");
+
+        Assert.requireNonNull(uriStatStorageProvider, "uriStatStorageProvider");
+        this.uriStatStorage = uriStatStorageProvider.get();
     }
 
     @Override
@@ -48,7 +53,7 @@ public class DefaultUriStatRecorderFactory implements UriStatRecorderFactory {
         if (uriExtractor == null) {
             return DisabledUriStatRecorder.create();
         } else {
-            return new DefaultUriStatRecorder<T>(uriExtractor);
+            return new DefaultUriStatRecorder<T>(uriExtractor, uriStatStorage);
         }
     }
 
