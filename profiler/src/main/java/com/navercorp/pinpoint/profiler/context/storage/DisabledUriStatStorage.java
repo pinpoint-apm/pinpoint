@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatInfo;
 public class DisabledUriStatStorage implements UriStatStorage {
 
     @Override
-    public void store(UriStatInfo uriStatInfo) {
+    public void store(String uri, boolean status, long elapsedTime) {
         // Do nothing
     }
 
