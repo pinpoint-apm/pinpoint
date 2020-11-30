@@ -16,41 +16,46 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.uri;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 /**
  * @author Taejin Koo
  */
-public class UriStatInfo {
+public class EachUriStatData {
 
     private final String uri;
-    private final boolean status;
-    private final long elapsed;
+    private final UriStatHistogram totalHistogram = new UriStatHistogram();
+    private final UriStatHistogram failedHistogram = new UriStatHistogram();
 
-    public UriStatInfo(String uri, boolean status, long elapsed) {
-        this.uri = Assert.requireNonNull(uri, "uri");
-        this.status = status;
-        this.elapsed = elapsed;
+    public EachUriStatData(String uri) {
+        this.uri = uri;
+    }
+
+    public void add(UriStatInfo uriStatInfo) {
+        boolean status = uriStatInfo.isStatus();
+        totalHistogram.add(uriStatInfo.getElapsed());
+
+        if (!status) {
+            failedHistogram.add(uriStatInfo.getElapsed());
+        }
     }
 
     public String getUri() {
         return uri;
     }
 
-    public boolean isStatus() {
-        return status;
+    public UriStatHistogram getTotalHistogram() {
+        return totalHistogram;
     }
 
-    public long getElapsed() {
-        return elapsed;
+    public UriStatHistogram getFailedHistogram() {
+        return failedHistogram;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("UriStatInfo{");
+        final StringBuilder sb = new StringBuilder("EachUriStatData{");
         sb.append("uri='").append(uri).append('\'');
-        sb.append(", status=").append(status);
-        sb.append(", elapsed=").append(elapsed);
+        sb.append(", totalHistogram=").append(totalHistogram);
+        sb.append(", failedHistogram=").append(failedHistogram);
         sb.append('}');
         return sb.toString();
     }

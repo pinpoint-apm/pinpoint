@@ -23,6 +23,6 @@ import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatInfo;
  */
 public interface UriStatStorage {
 
-    void store(UriStatInfo uriStatInfo);
+    void store(String uri, boolean status, long elapsedTime);
 
 }

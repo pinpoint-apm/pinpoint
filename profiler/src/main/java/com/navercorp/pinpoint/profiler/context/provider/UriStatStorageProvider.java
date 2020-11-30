@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.storage.AsyncQueueingUriStatStorage;
 import com.navercorp.pinpoint.profiler.context.storage.DisabledUriStatStorage;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 
@@ -29,6 +30,8 @@ import com.google.inject.Provider;
  */
 public class UriStatStorageProvider implements Provider<UriStatStorage> {
 
+    private static final String URI_STAT_STORAGE_EXECUTOR_NAME = "Pinpoint-StatStorageExecutor";
+
     private final ProfilerConfig profilerConfig;
 
     @Inject
@@ -39,8 +42,7 @@ public class UriStatStorageProvider implements Provider<UriStatStorage> {
     @Override
     public UriStatStorage get() {
         if (profilerConfig.isUriStatEnable()) {
-            // TO DO : have to change
-            return new DisabledUriStatStorage();
+            return new AsyncQueueingUriStatStorage(5012, profilerConfig.getUriStatCollectInterval(), URI_STAT_STORAGE_EXECUTOR_NAME);
         } else {
             return new DisabledUriStatStorage();
         }

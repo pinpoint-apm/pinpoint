@@ -45,10 +45,10 @@ public class DefaultUriStatRecorder<T> implements UriStatRecorder<T> {
         String uri = uriExtractor.getUri(request, rawUri);
         if (uri == null) {
             logger.warn("can not extract uri. request:{}, rawUri:{}", request, rawUri);
+            return;
         }
 
-        final UriStatInfo uriStatInfo = new UriStatInfo(uri, status, endTime, endTime - startTime);
-        uriStatStorage.store(uriStatInfo);
+        uriStatStorage.store(uri, status, endTime - startTime);
     }
 
 }

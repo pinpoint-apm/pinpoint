@@ -124,6 +124,8 @@ public interface ProfilerConfig {
 
     boolean isUriStatEnable();
 
+    int getUriStatCollectInterval();
+
     String readString(String propertyName, String defaultValue);
 
     String readString(String propertyName, String defaultValue, ValueResolver valueResolver);
