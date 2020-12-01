@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
+import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentCustomMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
@@ -65,6 +66,7 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
                                    @AgentId String agentId, @AgentStartTime long agentStartTimestamp,
                                    @Named("AgentStatCollector") AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
                                    CustomMetricRegistryService customMetricRegistryService,
+                                   UriStatStorage uriStatStorage,
                                    ProfilerConfig profilerConfig) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender");
@@ -100,6 +102,11 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
             runnableList.add(customMetricCollectionJob);
         }
 
+        if (profilerConfig.isUriStatEnable() && uriStatStorage != null) {
+            Runnable uriStatCollectingJob = new UriStatCollectingJob(dataSender, uriStatStorage);
+            runnableList.add(uriStatCollectingJob);
+        }
+
         this.statMonitorJob = new StatMonitorJob(runnableList);
 
         preLoadClass(agentId, agentStartTimestamp, agentStatCollector);
@@ -128,6 +135,9 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
 
     @Override
     public void stop() {
+
+        statMonitorJob.close();
+
         executor.shutdown();
         try {
             executor.awaitTermination(3000, TimeUnit.MILLISECONDS);

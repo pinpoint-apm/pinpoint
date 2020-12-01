@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
+import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatInfo;
 
 /**
@@ -26,6 +27,15 @@ public class DisabledUriStatStorage implements UriStatStorage {
     @Override
     public void store(String uri, boolean status, long elapsedTime) {
         // Do nothing
+    }
+
+    @Override
+    public AgentUriStatData poll() {
+        return null;
+    }
+
+    @Override
+    public void close() {
     }
 
 }

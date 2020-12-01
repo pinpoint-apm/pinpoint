@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
+import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatInfo;
 
 /**
@@ -24,5 +25,9 @@ import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatInfo;
 public interface UriStatStorage {
 
     void store(String uri, boolean status, long elapsedTime);
+
+    AgentUriStatData poll();
+
+    void close();
 
 }

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
+import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PCustomMetricMessage;
 import com.navercorp.pinpoint.grpc.trace.PStatMessage;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
@@ -116,6 +117,14 @@ public class StatGrpcDataSender extends GrpcDataSender {
             final PCustomMetricMessage customMetricMessage = (PCustomMetricMessage) message;
             logger.info("Message will not delivered. message:{}", message);
 
+            return true;
+        }
+        if (message instanceof PAgentUriStat) {
+            final PAgentUriStat agentUriStat = (PAgentUriStat) message;
+            final PStatMessage statMessage = PStatMessage.newBuilder().setAgentUriStat(agentUriStat).build();
+
+            // TODO remove comment
+            //  statStream.onNext(statMessage);
             return true;
         }
         throw new IllegalStateException("unsupported message " + message);
