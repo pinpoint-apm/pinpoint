@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.grpc.trace.PActiveTrace;
 import com.navercorp.pinpoint.grpc.trace.PActiveTraceHistogram;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
+import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PCpuLoad;
 import com.navercorp.pinpoint.grpc.trace.PCustomMetricMessage;
 import com.navercorp.pinpoint.grpc.trace.PDataSource;
@@ -54,8 +55,10 @@ import com.navercorp.pinpoint.profiler.monitor.metric.loadedclass.LoadedClassMet
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
 import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
 
 import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.Message;
 
 import java.util.List;
 
@@ -66,6 +69,8 @@ public class GrpcStatMessageConverter implements MessageConverter<GeneratedMessa
     private GrpcThreadDumpMessageConverter threadDumpMessageConverter = new GrpcThreadDumpMessageConverter();
     private GrpcJvmGcTypeMessageConverter jvmGcTypeConverter = new GrpcJvmGcTypeMessageConverter();
     private final GrpcCustomMetricMessageConverter customMetricMessageConverter = new GrpcCustomMetricMessageConverter();
+    private final GrpcUriStatMessageConverter uriStatMessageConverter = new GrpcUriStatMessageConverter();
+
 
     @Override
     public GeneratedMessageV3 toMessage(Object message) {
@@ -86,6 +91,10 @@ public class GrpcStatMessageConverter implements MessageConverter<GeneratedMessa
             final AgentCustomMetricSnapshotBatch agentCustomMetricSnapshotBatch = (AgentCustomMetricSnapshotBatch) message;
             final PCustomMetricMessage pCustomMetricMessage = customMetricMessageConverter.toMessage(agentCustomMetricSnapshotBatch);
             return pCustomMetricMessage;
+        } else if (message instanceof AgentUriStatData) {
+            final AgentUriStatData agentUriStatData = (AgentUriStatData) message;
+            final PAgentUriStat agentUriStat = uriStatMessageConverter.toMessage(agentUriStatData);
+            return agentUriStat;
         }
         return null;
     }

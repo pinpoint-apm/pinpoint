@@ -23,10 +23,12 @@ import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatInfo;
 import com.navercorp.pinpoint.profiler.sender.AsyncQueueingExecutor;
 import com.navercorp.pinpoint.profiler.sender.AsyncQueueingExecutorListener;
 
+import io.netty.util.internal.shaded.org.jctools.queues.atomic.SpscLinkedAtomicQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Queue;
 
 /**
  * @author Taejin Koo
@@ -54,11 +56,24 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
     }
 
     @Override
+    public AgentUriStatData poll() {
+        Queue<AgentUriStatData> completedDataQueue = executorListener.getCompletedDataQueue();
+        return completedDataQueue.poll();
+    }
+
+    @Override
+    public void close() {
+        stop();
+    }
+
+    @Override
     protected void pollTimeout(long timeout) {
         executorListener.executePollTimeout();
     }
 
     private static class ExecutorListener implements AsyncQueueingExecutorListener<UriStatInfo> {
+
+        private final SpscLinkedAtomicQueue<AgentUriStatData> completedAgentUriStatDataQueue = new SpscLinkedAtomicQueue<>();
 
         private AgentUriStatData agentUriStatData;
         private int collectInterval;
@@ -73,7 +88,7 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
             final long currentBaseTimestamp = getBaseTimestamp();
             checkAndFlushOldData(currentBaseTimestamp);
 
-            AgentUriStatData agentUriStatData = getUriStatBatchBuilder(currentBaseTimestamp);
+            AgentUriStatData agentUriStatData = getAgentUriStatData(currentBaseTimestamp);
 
             Object[] dataList = messageList.toArray();
             for (int i = 0; i < CollectionUtils.nullSafeSize(messageList); i++) {
@@ -90,7 +105,7 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
             long currentBaseTimestamp = getBaseTimestamp();
             checkAndFlushOldData(currentBaseTimestamp);
 
-            AgentUriStatData agentUriStatData = getUriStatBatchBuilder(currentBaseTimestamp);
+            AgentUriStatData agentUriStatData = getAgentUriStatData(currentBaseTimestamp);
             agentUriStatData.add(message);
         }
 
@@ -111,6 +126,11 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
             }
 
             if (currentBaseTimestamp > agentUriStatData.getBaseTimestamp()) {
+                if (completedAgentUriStatDataQueue.size() > 10) {
+                    completedAgentUriStatDataQueue.remove();
+                }
+
+                completedAgentUriStatDataQueue.offer(agentUriStatData);
                 // TODO FLUSH
                 agentUriStatData = null;
                 return true;
@@ -118,13 +138,16 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
             return false;
         }
 
-        private AgentUriStatData getUriStatBatchBuilder(long currentBaseTimestamp) {
+        private AgentUriStatData getAgentUriStatData(long currentBaseTimestamp) {
             if (agentUriStatData == null) {
                 agentUriStatData = new AgentUriStatData(currentBaseTimestamp, collectInterval);
             }
             return agentUriStatData;
         }
 
+        public Queue<AgentUriStatData> getCompletedDataQueue() {
+            return completedAgentUriStatDataQueue;
+        }
     }
 
 }

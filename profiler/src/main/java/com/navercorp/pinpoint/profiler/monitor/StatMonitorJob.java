@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.util.List;
 
 /**
@@ -46,6 +47,17 @@ class StatMonitorJob implements Runnable {
 
         for (Runnable runnable : runnableList) {
             runnable.run();
+        }
+    }
+
+    public void close() {
+        for (Runnable runnable : runnableList) {
+            if (runnable instanceof Closeable) {
+                try {
+                    ((Closeable) runnable).close();
+                } catch (Exception e) {
+                }
+            }
         }
     }
 
