@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2020 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,6 +14,7 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -29,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Jongho Moon
- *
+ * @author WonChul Heo(heowc)
  */
 public class DependencyResolverTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -38,9 +39,12 @@ public class DependencyResolverTest {
     public void test() {
         DependencyResolverFactory factory = new DependencyResolverFactory();
         DependencyResolver resolver = factory.get();
-        resolver.resolveDependencySets("junit:junit:[4.12,4.13)");
+        assertThat(resolver.resolveDependencySets("junit:junit:[4.12,4.13)").keySet(),
+                    hasItems("junit-4.12",
+                            "junit-4.13-beta-1", "junit-4.13-beta-2", "junit-4.13-beta-3",
+                            "junit-4.13-rc-1", "junit-4.13-rc-2"));
     }
-    
+
     @Test
     public void testClassifier() {
         DependencyResolverFactory factory = new DependencyResolverFactory();
