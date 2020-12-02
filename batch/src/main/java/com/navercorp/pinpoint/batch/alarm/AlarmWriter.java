@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.batch.alarm;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.batch.service.AlarmService;
 import com.navercorp.pinpoint.batch.alarm.vo.CheckerResult;
+
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.ItemWriter;
@@ -26,6 +27,7 @@ import org.springframework.batch.item.ItemWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author minwoo.jung
@@ -33,14 +35,15 @@ import java.util.Objects;
 public class AlarmWriter implements ItemWriter<AlarmChecker> {
 
     private final AlarmMessageSender alarmMessageSender;
-
     private final AlarmService alarmService;
+    private final AlarmWriterInterceptor interceptor;
 
     private StepExecution stepExecution;
 
-    public AlarmWriter(AlarmMessageSender alarmMessageSender, AlarmService alarmService) {
+    public AlarmWriter(AlarmMessageSender alarmMessageSender, AlarmService alarmService, Optional<AlarmWriterInterceptor> alarmWriterInterceptor) {
         this.alarmMessageSender = Objects.requireNonNull(alarmMessageSender, "alarmMessageSender");
         this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
+        this.interceptor = alarmWriterInterceptor.orElseGet(DefaultAlarmWriterInterceptor::new);
     }
 
     @BeforeStep
@@ -50,6 +53,18 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
 
     @Override
     public void write(List<? extends AlarmChecker> checkers) throws Exception {
+        interceptor.before(checkers);
+
+        try {
+            execute(checkers);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            interceptor.after(checkers);
+        }
+    }
+
+    private void execute(List<? extends AlarmChecker> checkers) {
         Map<String, CheckerResult> beforeCheckerResults = alarmService.selectBeforeCheckerResults(checkers.get(0).getRule().getApplicationId());
 
         for (AlarmChecker checker : checkers) {
