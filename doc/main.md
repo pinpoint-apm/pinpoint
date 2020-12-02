@@ -7,7 +7,7 @@ sidebar: mydoc_sidebar
 
 ## What's New in 2.2.0
 
-[Check out updates on lastest stable release](https://naver.github.io/pinpoint/2.1.1/main.html)
+[Check out updates on lastest stable release](https://naver.github.io/pinpoint/2.2.0/main.html)
 
 ## Upgrade consideration
 
