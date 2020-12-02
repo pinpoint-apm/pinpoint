@@ -29,12 +29,10 @@
     <bean id="batchConfiguration" class="com.navercorp.pinpoint.batch.common.BatchConfiguration"/>
 
     <task:scheduled-tasks scheduler="scheduler">
-<!--        <task:scheduled ref="batchJobLauncher" method="alarmJob" cron="0 0/3 * * * *"/>-->
-<!--        <task:scheduled ref="batchJobLauncher" method="agentCountJob" cron="0 01 20 * * *"/>-->
-        <!--시간도 설정다시 해야함-->
-<!--        <task:scheduled ref="batchJobLauncher" method="flinkCheckJob" cron="0 0/3 * * * *"/>-->
-        <task:scheduled ref="batchJobLauncher" method="cleanupInactiveAgentsJob"
-                        cron="0 34 12 * * *"/>
+        <task:scheduled ref="batchJobLauncher" method="alarmJob" cron="0 0/3 * * * *"/>
+        <task:scheduled ref="batchJobLauncher" method="agentCountJob" cron="0 0 2 * * *"/>
+        <task:scheduled ref="batchJobLauncher" method="flinkCheckJob" cron="0 0/10 * * * *"/>
+        <task:scheduled ref="batchJobLauncher" method="cleanupInactiveAgentsJob" cron="#{batchConfiguration['cleanupInactiveAgentsCron']}"/>
     </task:scheduled-tasks>
 
     <task:scheduler id="scheduler" pool-size="4"/>
