@@ -5,9 +5,9 @@ permalink: mainBase.html
 sidebar: mydoc_sidebar
 ---
 
-## What's New in 2.2.0
-
 [Check out updates on lastest stable release](https://naver.github.io/pinpoint/2.1.2/main.html)
+
+## What's Next? 
 
 ## Upgrade consideration
 
@@ -25,7 +25,7 @@ Additionally, the required Java version to run each Pinpoint component is given 
 
 ## Supported Modules
 
-* JDK 6+
+* JDK 7+
 * Supported versions of the \* indicated library may differ from the actual version.
 
 {% include_relative modules.md %}
