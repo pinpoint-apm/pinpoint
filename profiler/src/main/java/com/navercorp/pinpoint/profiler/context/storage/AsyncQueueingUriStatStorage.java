@@ -23,12 +23,11 @@ import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatInfo;
 import com.navercorp.pinpoint.profiler.sender.AsyncQueueingExecutor;
 import com.navercorp.pinpoint.profiler.sender.AsyncQueueingExecutorListener;
 
-import io.netty.util.internal.shaded.org.jctools.queues.atomic.SpscLinkedAtomicQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.Queue;
+import java.util.LinkedList;
 
 /**
  * @author Taejin Koo
@@ -39,8 +38,8 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
     private final ExecutorListener executorListener;
 
-    public AsyncQueueingUriStatStorage(int queueSize, int collectInterval, String executorName) {
-        this(queueSize, executorName, new ExecutorListener(collectInterval));
+    public AsyncQueueingUriStatStorage(int queueSize, int uriStatDataLimitSize, String executorName) {
+        this(queueSize, executorName, new ExecutorListener(uriStatDataLimitSize));
     }
 
     private AsyncQueueingUriStatStorage(int queueSize, String executorName, ExecutorListener executorListener) {
@@ -57,8 +56,7 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
     @Override
     public AgentUriStatData poll() {
-        Queue<AgentUriStatData> completedDataQueue = executorListener.getCompletedDataQueue();
-        return completedDataQueue.poll();
+        return executorListener.pollCompletedData();
     }
 
     @Override
@@ -73,14 +71,19 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
     private static class ExecutorListener implements AsyncQueueingExecutorListener<UriStatInfo> {
 
-        private final SpscLinkedAtomicQueue<AgentUriStatData> completedAgentUriStatDataQueue = new SpscLinkedAtomicQueue<>();
+        private static final int DEFAULT_COLLECT_INTERVAL = 60000; // 1minute
 
-        private AgentUriStatData agentUriStatData;
-        private int collectInterval;
+        private final Object lock = new Object();
 
-        public ExecutorListener(int collectInterval) {
-            Assert.isTrue(collectInterval > 0, "collectInterval must be ' > 0'");
-            this.collectInterval = collectInterval;
+        private final int uriStatDataLimitSize;
+        private final LinkedList<AgentUriStatData> completedUriStatDataList;
+
+        private AgentUriStatData currentAgentUriStatData;
+
+        public ExecutorListener(int uriStatDataLimitSize) {
+            Assert.isTrue(uriStatDataLimitSize > 0, "uriStatDataLimitSize must be ' > 0'");
+            this.uriStatDataLimitSize = uriStatDataLimitSize;
+            this.completedUriStatDataList = new LinkedList<>();
         }
 
         @Override
@@ -88,7 +91,7 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
             final long currentBaseTimestamp = getBaseTimestamp();
             checkAndFlushOldData(currentBaseTimestamp);
 
-            AgentUriStatData agentUriStatData = getAgentUriStatData(currentBaseTimestamp);
+            AgentUriStatData agentUriStatData = getCurrent(currentBaseTimestamp);
 
             Object[] dataList = messageList.toArray();
             for (int i = 0; i < CollectionUtils.nullSafeSize(messageList); i++) {
@@ -105,7 +108,7 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
             long currentBaseTimestamp = getBaseTimestamp();
             checkAndFlushOldData(currentBaseTimestamp);
 
-            AgentUriStatData agentUriStatData = getAgentUriStatData(currentBaseTimestamp);
+            AgentUriStatData agentUriStatData = getCurrent(currentBaseTimestamp);
             agentUriStatData.add(message);
         }
 
@@ -116,38 +119,51 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
         private long getBaseTimestamp() {
             long currentTimeMillis = System.currentTimeMillis();
-            long timestamp = currentTimeMillis - (currentTimeMillis % collectInterval);
+            long timestamp = currentTimeMillis - (currentTimeMillis % DEFAULT_COLLECT_INTERVAL);
             return timestamp;
         }
 
         private boolean checkAndFlushOldData(long currentBaseTimestamp) {
-            if (agentUriStatData == null) {
+            if (currentAgentUriStatData == null) {
                 return false;
             }
 
-            if (currentBaseTimestamp > agentUriStatData.getBaseTimestamp()) {
-                if (completedAgentUriStatDataQueue.size() > 10) {
-                    completedAgentUriStatDataQueue.remove();
-                }
+            if (currentBaseTimestamp > currentAgentUriStatData.getBaseTimestamp()) {
+                addCompletedData(currentAgentUriStatData);
 
-                completedAgentUriStatDataQueue.offer(agentUriStatData);
-                // TODO FLUSH
-                agentUriStatData = null;
+                currentAgentUriStatData = null;
                 return true;
             }
             return false;
         }
 
-        private AgentUriStatData getAgentUriStatData(long currentBaseTimestamp) {
-            if (agentUriStatData == null) {
-                agentUriStatData = new AgentUriStatData(currentBaseTimestamp, collectInterval);
+        private AgentUriStatData getCurrent(long currentBaseTimestamp) {
+            if (currentAgentUriStatData == null) {
+                currentAgentUriStatData = new AgentUriStatData(currentBaseTimestamp);
             }
-            return agentUriStatData;
+            return currentAgentUriStatData;
         }
 
-        public Queue<AgentUriStatData> getCompletedDataQueue() {
-            return completedAgentUriStatDataQueue;
+        private void addCompletedData(AgentUriStatData agentUriStatData) {
+            synchronized (lock) {
+                if (completedUriStatDataList.size() >= uriStatDataLimitSize) {
+                    completedUriStatDataList.remove();
+                }
+
+                completedUriStatDataList.add(agentUriStatData);
+            }
         }
+
+        private AgentUriStatData pollCompletedData() {
+            synchronized (lock) {
+                if (completedUriStatDataList.isEmpty()) {
+                    return null;
+                }
+
+                return completedUriStatDataList.remove();
+            }
+        }
+
     }
 
 }

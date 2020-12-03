@@ -28,24 +28,17 @@ import java.util.Map;
 public class AgentUriStatData {
 
     private final long baseTimestamp;
-    private final int interval;
 
     private Map<String, EachUriStatData> eachUriStatDataMap = new HashMap<>();
 
-    public AgentUriStatData(long baseTimestamp, int interval) {
+    public AgentUriStatData(long baseTimestamp) {
         Assert.isTrue(baseTimestamp > 0, "baseTimestamp must be  ` > 0`");
-        Assert.isTrue(interval > 0, "interval must be  ` > 0`");
 
         this.baseTimestamp = baseTimestamp;
-        this.interval = interval;
     }
 
     public long getBaseTimestamp() {
         return baseTimestamp;
-    }
-
-    public int getInterval() {
-        return interval;
     }
 
     public void add(UriStatInfo uriStatInfo) {
@@ -66,12 +59,10 @@ public class AgentUriStatData {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("UriStatData{");
+        final StringBuilder sb = new StringBuilder("AgentUriStatData{");
         sb.append("baseTimestamp=").append(baseTimestamp);
-        sb.append(", interval=").append(interval);
         sb.append(", eachUriStatDataMap=").append(eachUriStatDataMap);
         sb.append('}');
         return sb.toString();
     }
-
 }
