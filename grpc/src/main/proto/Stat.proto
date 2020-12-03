@@ -171,10 +171,9 @@ message PLoadedClass {
     int64 unloadedClassCount = 2;
 }
 
-
 message PAgentUriStat {
     int64 timestamp = 1;
-    int32 interval = 2;
+    int32 bucketVersion = 2;
     repeated PEachUriStat eachUriStat = 3;
 }
 

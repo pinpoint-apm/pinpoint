@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.EachUriStatData;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatHistogram;
+import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatHistogramBucket;
 
 import java.util.Collection;
 
@@ -44,11 +45,10 @@ public class GrpcUriStatMessageConverter implements MessageConverter<PAgentUriSt
 
     private PAgentUriStat createPAgentUriStat(AgentUriStatData agentUriStatData) {
         long baseTimestamp = agentUriStatData.getBaseTimestamp();
-        int interval = agentUriStatData.getInterval();
 
         PAgentUriStat.Builder builder = PAgentUriStat.newBuilder();
         builder.setTimestamp(baseTimestamp);
-        builder.setInterval(interval);
+        builder.setBucketVersion(UriStatHistogramBucket.getBucketVersion());
 
         Collection<EachUriStatData> allUriStatData = agentUriStatData.getAllUriStatData();
         for (EachUriStatData eachUriStatData : allUriStatData) {
@@ -88,6 +88,7 @@ public class GrpcUriStatMessageConverter implements MessageConverter<PAgentUriSt
         long total = uriStatHistogram.getTotal();
         long max = uriStatHistogram.getMax();
 
+        builder.setCount(count);
         builder.setAvg(total / count);
         builder.setMax(max);
 

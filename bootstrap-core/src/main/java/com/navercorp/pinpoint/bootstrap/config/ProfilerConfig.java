@@ -124,7 +124,7 @@ public interface ProfilerConfig {
 
     boolean isUriStatEnable();
 
-    int getUriStatCollectInterval();
+    int getCompletedUriStatDataLimitSize();
 
     String readString(String propertyName, String defaultValue);
 

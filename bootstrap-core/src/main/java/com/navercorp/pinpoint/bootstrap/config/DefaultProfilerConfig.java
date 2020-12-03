@@ -170,7 +170,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private int customMetricLimitSize = 10;
 
     private boolean uriStatEnable = false;
-    private int uriStatCollectInterval = 60 * 1000;
+    private int completedUriStatDataLimitSize = 3;
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
@@ -428,8 +428,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
-    public int getUriStatCollectInterval() {
-        return uriStatCollectInterval;
+    public int getCompletedUriStatDataLimitSize() {
+        return completedUriStatDataLimitSize;
     }
 
     // for test
@@ -480,7 +480,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.samplingNewThroughput = readInt("profiler.sampling.new.throughput", 0);
         this.samplingContinueThroughput = readInt("profiler.sampling.continue.throughput", 0);
 
-        // configuration for sampling and IO buffer 
+        // configuration for sampling and IO buffer
         this.ioBufferingEnable = readBoolean("profiler.io.buffering.enable", true);
 
         // it may be a problem to be here.  need to modify(delete or move or .. )  this configuration.
@@ -507,7 +507,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.disabledPlugins = readList(PLUGIN_DISABLE);
 
-        // TODO have to remove        
+        // TODO have to remove
         // profile package included in order to test "call stack view".
         // this config must not be used in service environment because the size of  profiling information will get heavy.
         // We may need to change this configuration to regular expression.
@@ -532,7 +532,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.customMetricLimitSize = readInt("profiler.custommetric.limit.size", 10);
 
         this.uriStatEnable = readBoolean("profiler.uri.stat.enable", false);
-        this.uriStatCollectInterval = readInt("profiler.uri.stat.collect.interval", 60000);
+        this.completedUriStatDataLimitSize = readInt("profiler.uri.stat.completed.data.limit.size", 3);
 
         logger.info("configuration loaded successfully.");
     }
@@ -687,7 +687,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", customMetricEnable=").append(customMetricEnable).append('\'');
         sb.append(", customMetricLimitSize=").append(customMetricLimitSize).append('\'');
         sb.append(", uriStatEnable=").append(uriStatEnable).append('\'');
-        sb.append(", uriStatCollectInterval=").append(uriStatCollectInterval);
+        sb.append(", getCompletedUriStatDataLimitSize=").append(completedUriStatDataLimitSize);
         sb.append('}');
         return sb.toString();
     }

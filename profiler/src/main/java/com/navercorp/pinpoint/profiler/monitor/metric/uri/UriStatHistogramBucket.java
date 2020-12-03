@@ -19,24 +19,22 @@ package com.navercorp.pinpoint.profiler.monitor.metric.uri;
 /**
  * @author Taejin Koo
  */
-public enum UriStatHistogramSchema {
+public enum UriStatHistogramBucket {
 
-    VERY_FAST(0, 10, 0),
-    FAST_1(10, 30, 1),
-    FAST_2(30, 50, 2),
-    FAST_3(50, 100, 3),
-    NORMAL_1(100, 300, 4),
-    NORMAL_2(300, 500, 5),
-    NORMAL_3(500, 1000, 6),
-    SLOW_1(1000, 3000, 7),
-    SLOW_2(3000, 5000, 8),
-    VERY_SLOW(5000, Long.MAX_VALUE, 9);
+    UNDER_100(0, 100, 0),
+    RANGE_100_300(100, 300, 1),
+    RANGE_300_500(300, 500, 2),
+    RANGE_500_1000(500, 1000, 3),
+    RANGE_1000_3000(1000, 3000, 4),
+    RANGE_3000_5000(3000, 5000, 5),
+    RANGE_5000_8000(5000, 8000, 6),
+    OVER_8000MS(8000, Long.MAX_VALUE, 7);
 
     private final long from;
     private final long to;
     private final int index;
 
-    UriStatHistogramSchema(long from, long to, int index) {
+    UriStatHistogramBucket(long from, long to, int index) {
         this.from = from;
         this.to = to;
         this.index = index;
@@ -54,14 +52,17 @@ public enum UriStatHistogramSchema {
         return index;
     }
 
-    public static UriStatHistogramSchema getValue(long elapsed) {
-        for (UriStatHistogramSchema histogram : values()) {
+    public static UriStatHistogramBucket getValue(long elapsed) {
+        for (UriStatHistogramBucket histogram : values()) {
             if (elapsed < histogram.getTo()) {
                 return histogram;
             }
         }
 
-        return VERY_SLOW;
+        return OVER_8000MS;
     }
 
+    public static byte getBucketVersion() {
+        return 0;
+    }
 }
