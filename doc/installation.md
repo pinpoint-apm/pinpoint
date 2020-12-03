@@ -24,11 +24,10 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 2. Build Pinpoint (Optional)([details](#2-building-pinpoint-optional)) - No need if you use the binaries.([here](https://github.com/pinpoint-apm/pinpoint/releases)).
 	1. Clone Pinpoint - `git clone $PINPOINT_GIT_REPOSITORY`
 	2. Set JAVA_HOME environment variable to JDK 8 home directory.
-	3. Set JAVA_6_HOME environment variable to JDK 6 home directory (1.6.0_45 recommended).
-	4. Set JAVA_7_HOME environment variable to JDK 7 home directory (1.7.0_80 recommended).
-	5. Set JAVA_8_HOME environment variable to JDK 8 home directory.
-	6. Set JAVA_9_HOME environment variable to JDK 9 home directory.
-	7. Run `./mvnw clean install -DskipTests=true` (or `./mvnw.cmd` for Windows)
+	3. Set JAVA_7_HOME environment variable to JDK 7 home directory (1.7.0_80 recommended).
+	4. Set JAVA_8_HOME environment variable to JDK 8 home directory.
+	5. Set JAVA_9_HOME environment variable to JDK 9 home directory.
+	6. Run `./mvnw clean install -DskipTests=true` (or `./mvnw.cmd` for Windows)
 3. Pinpoint Collector ([details](#3-pinpoint-collector))
 	1. Start *pinpoint-collector-boot-$VERSION.jar* with java -jar command.
 	
@@ -76,12 +75,10 @@ There are two options:
 	
 	In order to do so, the following **requirements** must be met:
 
-    * JDK 6 installed ([jdk1.6.0_45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase6-419409.html#jdk-6u45-oth-JPR) recommended)
     * JDK 7 installed ([jdk1.7.0_80](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html#jdk-7u80-oth-JPR) recommended)
     * JDK 8 installed
     * JDK 9 installed
 	* JAVA_HOME environment variable set to JDK 8 home directory.
-	* JAVA_6_HOME environment variable set to JDK 6 home directory.
 	* JAVA_7_HOME environment variable set to JDK 7 home directory.
 	* JAVA_8_HOME environment variable set to JDK 8 home directory.
 	* JAVA_9_HOME environment variable set to JDK 9 home directory.
