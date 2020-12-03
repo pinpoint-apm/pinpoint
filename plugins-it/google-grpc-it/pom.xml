@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-plugins-it</artifactId>
-        <version>2.2.0-SNAPSHOT</version>
+        <version>2.2.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-grpc-plugin-it</artifactId>
@@ -31,10 +31,10 @@
     <properties>
         <jdk.version>1.7</jdk.version>
         <jdk.home>${env.JAVA_7_HOME}</jdk.home>
-<!--        <grpc.version>1.14.0</grpc.version>-->
-<!--        <protoc.version>3.5.1-1</protoc.version>-->
-        <grpc.version>1.33.1</grpc.version>
-        <protoc.version>3.12.4</protoc.version>
+        <grpc.version>1.14.0</grpc.version>
+        <protoc.version>3.5.1-1</protoc.version>
+<!--        <grpc.version>1.33.1</grpc.version>-->
+<!--        <protoc.version>3.12.4</protoc.version>-->
     </properties>
 
     <dependencies>

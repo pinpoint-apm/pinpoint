@@ -31,6 +31,8 @@ import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.provider.UriExtractorProviderLocatorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.UriStatRecorderFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.UriStatStorageProvider;
+import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import com.navercorp.pinpoint.profiler.transformer.DefaultDynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.transformer.DynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.JvmInformation;
@@ -195,6 +197,7 @@ public class ApplicationContextModule extends AbstractModule {
 
         bind(UriExtractorProviderLocator.class).toProvider(UriExtractorProviderLocatorProvider.class).in(Scopes.SINGLETON);
         bind(UriStatRecorderFactory.class).toProvider(UriStatRecorderFactoryProvider.class).in(Scopes.SINGLETON);
+        bind(UriStatStorage.class).toProvider(UriStatStorageProvider.class).in(Scopes.SINGLETON);
 
         bind(AgentInformation.class).toProvider(AgentInformationProvider.class).in(Scopes.SINGLETON);
         // ProxyRequestRecorder

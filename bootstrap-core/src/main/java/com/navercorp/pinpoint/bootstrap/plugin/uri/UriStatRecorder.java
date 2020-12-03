@@ -23,7 +23,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.uri;
  */
 public interface UriStatRecorder<T> {
 
-    void record(T request, String rawUri, int status, long startTime, long endTime);
+    void record(T request, String rawUri, boolean status, long startTime, long endTime);
 
 }
 

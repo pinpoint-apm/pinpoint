@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="batchJobLauncher" class="com.navercorp.pinpoint.batch.common.BatchJobLauncher"/>
+
+    <bean id="jobLauncher"
+          class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+        <property name="jobRepository" ref="jobRepository"/>
+    </bean>
+
+    <batch:job-repository id="jobRepository" data-source="metaDataDataSource"
+                          transaction-manager="metaDataTransactionManager"/>
+
+    <bean id="jobRegistry" class="org.springframework.batch.core.configuration.support.MapJobRegistry"/>
+
+    <bean id="jobRegistryBeanPostProcessor"
+          class="org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor">
+        <property name="jobRegistry" ref="jobRegistry"/>
+    </bean>
+
+    <bean id="jobFailListener" class="com.navercorp.pinpoint.batch.common.JobFailListener"/>
+
+    <bean id="alarmMessageSender" class="com.navercorp.pinpoint.batch.alarm.DefaultAlarmMessageSender"/>
+
+    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+        <property name="messageConverters">
+            <list>
+                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                    <property name="objectMapper">
+                        <bean class="com.fasterxml.jackson.databind.ObjectMapper"/>
+                    </property>
+                    <property name="supportedMediaTypes">
+                        <list>
+                            <value>text/json</value>
+                            <value>application/json</value>
+                        </list>
+                    </property>
+                </bean>
+                <bean class="org.springframework.http.converter.FormHttpMessageConverter">
+                    <property name="supportedMediaTypes">
+                        <list>
+                            <value>application/x-www-form-urlencoded</value>
+                        </list>
+                    </property>
+                </bean>
+                <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                    <property name="supportedMediaTypes">
+                        <list>
+                            <value>text/plain</value>
+                            <value>text/html</value>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>

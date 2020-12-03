@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <context:component-scan base-package="com.navercorp.pinpoint.batch.alarm"/>
+
+    <batch:job id="alarmJob">
+        <batch:step id="alarmPartitionStep">
+            <batch:partition step="alarmStep" partitioner="alarmPartitioner">
+                <batch:handler task-executor="alarmPoolTaskExecutorForPartition"/>
+            </batch:partition>
+        </batch:step>
+        <batch:listeners>
+            <batch:listener ref="jobFailListener"/>
+        </batch:listeners>
+    </batch:job>
+
+    <batch:step id="alarmStep">
+        <batch:tasklet>
+            <batch:chunk reader="reader" processor="processor" writer="writer" commit-interval="1"/>
+        </batch:tasklet>
+    </batch:step>
+
+    <bean id="alarmPartitioner" class="com.navercorp.pinpoint.batch.alarm.AlarmPartitioner"/>
+    <bean id="reader" class="com.navercorp.pinpoint.batch.alarm.AlarmReader" scope="step"/>
+    <bean id="processor" class="com.navercorp.pinpoint.batch.alarm.AlarmProcessor" scope="step"/>
+    <bean id="writer" class="com.navercorp.pinpoint.batch.alarm.AlarmWriter" scope="step"/>
+
+    <task:executor id="alarmPoolTaskExecutorForPartition" pool-size="1"/>
+
+    <bean id="batchAlarmDao" class="com.navercorp.pinpoint.batch.dao.mysql.MysqlAlarmDao"/>
+    <bean id="batchAlarmService" class="com.navercorp.pinpoint.batch.service.AlarmServiceImpl">
+        <constructor-arg ref="batchAlarmDao"/>
+    </bean>
+
+</beans>

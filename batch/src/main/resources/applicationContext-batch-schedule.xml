@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <bean id="webPropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:hbase-root.properties</value>
+                <value>classpath:jdbc-root.properties</value>
+                <value>classpath:batch-root.properties</value>
+                <!-- override configuration -->
+                <value>classpath:profiles/${pinpoint.profiles.active}/hbase.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/jdbc.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/batch.properties</value>
+                <!-- external property for override -->
+                <value>file:#{ systemProperties['pinpoint.batch.config.location'] ?: '-Dpinpoint.batch.config.location does not set' }</value>
+            </list>
+        </property>
+
+        <property name="fileEncoding" value="UTF-8"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="ignoreResourceNotFound" value="true"/>
+    </bean>
+
+    <bean id="batchConfiguration" class="com.navercorp.pinpoint.batch.common.BatchConfiguration"/>
+
+    <task:scheduled-tasks scheduler="scheduler">
+        <task:scheduled ref="batchJobLauncher" method="alarmJob" cron="0 0/3 * * * *"/>
+        <task:scheduled ref="batchJobLauncher" method="agentCountJob" cron="0 0 2 * * *"/>
+        <task:scheduled ref="batchJobLauncher" method="flinkCheckJob" cron="0 0/10 * * * *"/>
+        <task:scheduled ref="batchJobLauncher" method="cleanupInactiveAgentsJob" cron="#{batchConfiguration['cleanupInactiveAgentsCron']}"/>
+    </task:scheduled-tasks>
+
+    <task:scheduler id="scheduler" pool-size="4"/>
+
+    <import resource="classpath:applicationContext-batch-common.xml"/>
+    <import resource="classpath:applicationContext-batch-datasource.xml"/>
+    <import resource="classpath:applicationContext-batch-dao-config.xml"/>
+    <import resource="classpath:applicationContext-batch-hbase.xml"/>
+    <import resource="classpath:applicationContext-batch-sender.xml"/>
+    <import resource="classpath:applicationContext-batch-namespace.xml"/>
+
+    <import resource="classpath:job/applicationContext-alarmJob.xml"/>
+    <import resource="classpath:job/applicationContext-agentCountJob.xml"/>
+    <import resource="classpath:job/applicationContext-flinkCheckJob.xml"/>
+    <import resource="classpath:job/applicationContext-cleanupInactiveAgentsJob.xml"/>
+</beans>

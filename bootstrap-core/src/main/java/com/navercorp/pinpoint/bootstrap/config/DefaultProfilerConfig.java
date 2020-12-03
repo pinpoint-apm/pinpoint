@@ -169,6 +169,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private boolean customMetricEnable = false;
     private int customMetricLimitSize = 10;
 
+    private boolean uriStatEnable = false;
+    private int uriStatCollectInterval = 60 * 1000;
+
     public DefaultProfilerConfig() {
         this.properties = new Properties();
         this.thriftTransportConfig = new DefaultThriftTransportConfig();
@@ -419,6 +422,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return customMetricLimitSize;
     }
 
+    @Override
+    public boolean isUriStatEnable() {
+        return uriStatEnable;
+    }
+
+    @Override
+    public int getUriStatCollectInterval() {
+        return uriStatCollectInterval;
+    }
+
     // for test
     void readPropertyValues() {
 
@@ -517,6 +530,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.customMetricEnable = readBoolean("profiler.custommetric.enable", false);
         this.customMetricLimitSize = readInt("profiler.custommetric.limit.size", 10);
+
+        this.uriStatEnable = readBoolean("profiler.uri.stat.enable", false);
+        this.uriStatCollectInterval = readInt("profiler.uri.stat.collect.interval", 60000);
 
         logger.info("configuration loaded successfully.");
     }
@@ -669,7 +685,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", injectionModuleFactoryClazzName='").append(injectionModuleFactoryClazzName).append('\'');
         sb.append(", applicationNamespace='").append(applicationNamespace).append('\'');
         sb.append(", customMetricEnable=").append(customMetricEnable).append('\'');
-        sb.append(", customMetricLimitSize=").append(customMetricLimitSize);
+        sb.append(", customMetricLimitSize=").append(customMetricLimitSize).append('\'');
+        sb.append(", uriStatEnable=").append(uriStatEnable).append('\'');
+        sb.append(", uriStatCollectInterval=").append(uriStatCollectInterval);
         sb.append('}');
         return sb.toString();
     }

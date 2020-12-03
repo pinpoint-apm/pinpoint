@@ -29,7 +29,7 @@
         <typeAlias type="com.navercorp.pinpoint.web.vo.User" alias="User"/>
         <typeAlias type="com.navercorp.pinpoint.web.vo.UserPhoneInfo" alias="UserPhoneInfo"/>
         <typeAlias type="com.navercorp.pinpoint.web.alarm.vo.Rule" alias="Rule"/>
-        <typeAlias type="com.navercorp.pinpoint.web.alarm.vo.CheckerResult" alias="ChecherResult"/>
+        <typeAlias type="com.navercorp.pinpoint.web.alarm.vo.CheckerResult" alias="CheckerResult"/>
 
         <typeAlias type="com.navercorp.pinpoint.web.vo.AgentCountStatistics" alias="AgentCountStatistics"/>
         <typeAlias type="com.navercorp.pinpoint.web.vo.Range" alias="Range"/>

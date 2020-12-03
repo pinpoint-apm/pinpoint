@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
+import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,19 +33,22 @@ public class DefaultUriStatRecorder<T> implements UriStatRecorder<T> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final UriExtractor<T> uriExtractor;
+    private final UriStatStorage uriStatStorage;
 
-    public DefaultUriStatRecorder(UriExtractor<T> uriExtractor) {
+    public DefaultUriStatRecorder(UriExtractor<T> uriExtractor, UriStatStorage uriStatStorage) {
         this.uriExtractor = Assert.requireNonNull(uriExtractor, "uriExtractor");
+        this.uriStatStorage = Assert.requireNonNull(uriStatStorage, "uriStatStorage");
     }
 
     @Override
-    public void record(T request, String rawUri, int status, long startTime, long endTime) {
+    public void record(T request, String rawUri, boolean status, long startTime, long endTime) {
         String uri = uriExtractor.getUri(request, rawUri);
         if (uri == null) {
             logger.warn("can not extract uri. request:{}, rawUri:{}", request, rawUri);
+            return;
         }
 
-        // TODO Store
+        uriStatStorage.store(uri, status, endTime - startTime);
     }
 
 }
