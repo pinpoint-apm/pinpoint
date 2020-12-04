@@ -26,11 +26,18 @@ import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzReporter;
+import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledReporter;
+import com.navercorp.pinpoint.profiler.sender.grpc.metric.DefaultChannelzReporter;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.ClientStreamingProvider;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.DefaultStreamTask;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.StreamExecutorFactory;
 import com.navercorp.pinpoint.profiler.util.NamedRunnable;
+import io.grpc.ConnectivityState;
+import io.grpc.ManagedChannel;
 import io.grpc.stub.ClientCallStreamObserver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
 
@@ -78,7 +85,7 @@ public class SpanGrpcDataSender extends GrpcDataSender {
                               int executorQueueSize,
                               MessageConverter<GeneratedMessageV3> messageConverter,
                               ReconnectExecutor reconnectExecutor,
-                              ChannelFactory channelFactory) {
+                              ChannelFactory channelFactory, ChannelzScheduledReporter scheduledReporter) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
 
         this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor");
@@ -95,26 +102,34 @@ public class SpanGrpcDataSender extends GrpcDataSender {
         ClientStreamingProvider<PSpanMessage, Empty> clientStreamProvider = new ClientStreamingProvider<PSpanMessage, Empty>() {
             @Override
             public ClientCallStreamObserver<PSpanMessage> newStream(ResponseStreamObserver<PSpanMessage, Empty> response) {
-                logger.info("newStream SpanGrpcStream");
+                final ManagedChannel managedChannel = SpanGrpcDataSender.this.managedChannel;
+                String authority = managedChannel.authority();
+                final ConnectivityState state = managedChannel.getState(false);
+                SpanGrpcDataSender.this.logger.info("newStream {}/{} state:{} isShutdown:{} isTerminated:{}", id, authority, state, managedChannel.isShutdown(), managedChannel.isTerminated());
+
                 SpanGrpc.SpanStub spanStub = SpanGrpc.newStub(managedChannel);
                 return (ClientCallStreamObserver<PSpanMessage>) spanStub.sendSpan(response);
             }
+
         };
-        this.clientStreamService = new ClientStreamingService<PSpanMessage, Empty >(clientStreamProvider, reconnector);
+        this.clientStreamService = new ClientStreamingService<PSpanMessage, Empty>(clientStreamProvider, reconnector);
         reconnectJob.run();
+
+        final Logger statChannelLogger = LoggerFactory.getLogger("com.navercorp.pinpoint.metric.SpanChannel");
+        ChannelzReporter statReporter = new DefaultChannelzReporter(statChannelLogger);
+        scheduledReporter.registerRootChannel(logId, statReporter);
     }
 
     private void startStream() {
         try {
-            StreamTask<PSpanMessage> streamTask =  new DefaultStreamTask<PSpanMessage, Empty>(id, clientStreamService,
+            StreamTask<PSpanMessage> streamTask = new DefaultStreamTask<PSpanMessage, Empty>(id, clientStreamService,
                     this.streamExecutorFactory, this.queue, this.dispatcher, failState);
             streamTask.start();
             this.currentStreamTask = streamTask;
         } catch (Throwable th) {
-            logger.error("Unexpected error", th);
+            logger.error("startStream error", th);
         }
     }
-
 
 
     @Override

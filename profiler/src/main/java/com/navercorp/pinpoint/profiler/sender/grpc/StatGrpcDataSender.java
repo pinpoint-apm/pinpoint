@@ -112,7 +112,7 @@ public class StatGrpcDataSender extends GrpcDataSender {
         ClientStreamingProvider<PStatMessage, Empty> clientStreamProvider = new ClientStreamingProvider<PStatMessage, Empty>() {
             @Override
             public ClientCallStreamObserver<PStatMessage> newStream(ResponseStreamObserver<PStatMessage, Empty> response) {
-                logger.info("newStream StatGrpcStream");
+                logger.info("newStream {}", id);
                 StatGrpc.StatStub statStub = StatGrpc.newStub(managedChannel);
                 return (ClientCallStreamObserver<PStatMessage>) statStub.sendAgentStat(response);
             }
