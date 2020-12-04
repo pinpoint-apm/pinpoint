@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.monitor.metric.uri;
+package com.navercorp.pinpoint.common.trace;
 
 /**
  * @author Taejin Koo
