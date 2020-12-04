@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.grpc.client.interceptor.DiscardEventListener;
 import com.navercorp.pinpoint.grpc.client.interceptor.LoggingDiscardEventListener;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import com.navercorp.pinpoint.profiler.sender.grpc.SpanGrpcDataSender;
+import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledReporter;
 import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
 
@@ -49,13 +50,14 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
     private final HeaderFactory headerFactory;
     private final Provider<ReconnectExecutor> reconnectExecutor;
     private final NameResolverProvider nameResolverProvider;
+    private final ChannelzScheduledReporter reporter;
 
     @Inject
     public SpanGrpcDataSenderProvider(GrpcTransportConfig grpcTransportConfig,
                                       @SpanConverter MessageConverter<GeneratedMessageV3> messageConverter,
                                       HeaderFactory headerFactory,
                                       Provider<ReconnectExecutor> reconnectExecutor,
-                                      NameResolverProvider nameResolverProvider) {
+                                      NameResolverProvider nameResolverProvider, ChannelzScheduledReporter reporter) {
         this.grpcTransportConfig = Assert.requireNonNull(grpcTransportConfig, "grpcTransportConfig");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
         this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory");
@@ -63,6 +65,7 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
         this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor");
 
         this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider");
+        this.reporter = Assert.requireNonNull(reporter, "reporter");
     }
 
     @Override
@@ -74,7 +77,7 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
         final ChannelFactory channelFactory = channelFactoryBuilder.build();
 
         final ReconnectExecutor reconnectExecutor = this.reconnectExecutor.get();
-        return new SpanGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, channelFactory);
+        return new SpanGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, channelFactory, reporter);
     }
 
     protected ChannelFactoryBuilder newChannelFactoryBuilder() {

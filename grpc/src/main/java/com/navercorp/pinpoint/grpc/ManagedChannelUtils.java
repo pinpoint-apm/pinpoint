@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.grpc;
 
+import io.grpc.Channel;
+import io.grpc.InternalWithLogId;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,5 +55,30 @@ public final class ManagedChannelUtils {
             Thread.currentThread().interrupt();
             return false;
         }
+    }
+
+    private static final String LOG_ID_STR = "logId=";
+
+    public static long getLogId(Channel channel) {
+        if (channel == null) {
+            return -1;
+        }
+        if (channel instanceof InternalWithLogId) {
+            InternalWithLogId logId = (InternalWithLogId) channel;
+            return logId.getLogId().getId();
+        }
+
+        final String channelString = channel.toString();
+        final int start = channelString.indexOf(LOG_ID_STR);
+        if (start == -1) {
+            return -1;
+        }
+        final int end = channelString.indexOf(',', start + LOG_ID_STR.length());
+        if (end == -1) {
+            return -1;
+        }
+        final String logId = channelString.substring(start + LOG_ID_STR.length(), end);
+        return Long.parseLong(logId);
+
     }
 }

@@ -50,6 +50,8 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
+import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledReporter;
+import com.navercorp.pinpoint.profiler.sender.grpc.metric.DefaultChannelzScheduledReporter;
 import io.grpc.NameResolverProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +68,8 @@ public class GrpcModule extends PrivateModule {
 
     private final ProfilerConfig profilerConfig;
 
+    private final ChannelzScheduledReporter reporter = new DefaultChannelzScheduledReporter();
+
     public GrpcModule(ProfilerConfig profilerConfig) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
     }
@@ -73,6 +77,7 @@ public class GrpcModule extends PrivateModule {
     @Override
     protected void configure() {
         logger.info("configure {}", this.getClass().getSimpleName());
+        bind(ChannelzScheduledReporter.class).toInstance(reporter);
 
         bind(GrpcTransportConfig.class).toProvider(GrpcTransportConfigProvider.class).in(Scopes.SINGLETON);
         // dns executor

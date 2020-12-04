@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 
 import com.google.protobuf.GeneratedMessageV3;
 
+import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,7 @@ public abstract class GrpcDataSender implements DataSender<Object> {
     protected final int port;
 
     protected final ManagedChannel managedChannel;
+    protected final long logId;
 
     // not thread safe
     protected final MessageConverter<GeneratedMessageV3> messageConverter;
@@ -78,9 +80,29 @@ public abstract class GrpcDataSender implements DataSender<Object> {
         this.executor = newExecutorService(name + "-Executor", executorQueueSize);
 
         this.managedChannel = channelFactory.build(host, port);
+        this.logId = ManagedChannelUtils.getLogId(managedChannel);
+
+        final ConnectivityState state = managedChannel.getState(false);
+        this.managedChannel.notifyWhenStateChanged(state, new ConnectivityStateMonitor(state));
+
 
         this.tLogger = ThrottledLogger.getLogger(logger, 100);
         this.queue = new LinkedBlockingQueue<Object>(executorQueueSize);
+    }
+
+    private class ConnectivityStateMonitor implements Runnable {
+        private final ConnectivityState before;
+
+        public ConnectivityStateMonitor(ConnectivityState before) {
+            this.before = Assert.requireNonNull(before, "before");
+        }
+
+        @Override
+        public void run() {
+            ConnectivityState change = managedChannel.getState(false);
+            logger.info("ConnectivityState changed before:{}, change:{}", before, change);
+            managedChannel.notifyWhenStateChanged(change, new ConnectivityStateMonitor(change));
+        }
     }
 
     protected ExecutorService newExecutorService(String name, int senderExecutorQueueSize) {

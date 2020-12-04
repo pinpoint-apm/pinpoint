@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.grpc.client;
 
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.ChannelTypeEnum;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
@@ -144,15 +143,20 @@ public class DefaultChannelFactory implements ChannelFactory {
         }
         setupClientOption(channelBuilder);
 
+        channelBuilder.maxTraceEvents(clientOption.getMaxTraceEvent());
+
         final ManagedChannel channel = channelBuilder.build();
 
         return channel;
     }
 
     private void setupInternal(NettyChannelBuilder channelBuilder) {
-        InternalNettyChannelBuilder.setStatsEnabled(channelBuilder, false);
         InternalNettyChannelBuilder.setTracingEnabled(channelBuilder, false);
+
+        InternalNettyChannelBuilder.setStatsEnabled(channelBuilder, false);
         InternalNettyChannelBuilder.setStatsRecordStartedRpcs(channelBuilder, false);
+        InternalNettyChannelBuilder.setStatsRecordFinishedRpcs(channelBuilder, false);
+        InternalNettyChannelBuilder.setStatsRecordRealTimeMetrics(channelBuilder, false);
     }
 
     private void addHeader(NettyChannelBuilder channelBuilder) {
