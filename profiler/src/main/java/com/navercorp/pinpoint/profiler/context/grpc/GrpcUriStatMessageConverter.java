@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.EachUriStatData;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatHistogram;
-import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatHistogramBucket;
+import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
 
 import java.util.Collection;
 

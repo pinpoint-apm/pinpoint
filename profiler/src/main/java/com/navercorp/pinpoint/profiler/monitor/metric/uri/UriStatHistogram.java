@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.uri;
 
+import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
+
 import java.util.Arrays;
 
 /**

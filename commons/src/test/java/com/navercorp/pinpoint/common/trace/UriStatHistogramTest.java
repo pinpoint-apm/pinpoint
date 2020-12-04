@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.monitor.metric.uri;
+package com.navercorp.pinpoint.common.trace;
 
-import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatHistogramBucket;
+import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
 
 import org.junit.Assert;
 import org.junit.Test;
