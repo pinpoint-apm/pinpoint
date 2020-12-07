@@ -26,6 +26,7 @@ public enum HbaseTable {
     AGENT_EVENT("AgentEvent"),
     AGENT_LIFECYCLE("AgentLifeCycle"),
     AGENT_STAT_VER2("AgentStatV2"),
+    AGENT_URI_STAT("AgentUriStat", false),
     API_METADATA("ApiMetaData"),
     APPLICATION_INDEX("ApplicationIndex"),
     APPLICATION_STAT_AGGRE("ApplicationStatAggre"),
@@ -39,13 +40,22 @@ public enum HbaseTable {
     TRACE_V2("TraceV2");
 
     private final String name;
+    private final boolean mustIncluded;
 
     HbaseTable(String name) {
+        this(name, true);
+    }
+
+    HbaseTable(String name, boolean mustIncluded) {
         this.name = name;
+        this.mustIncluded = mustIncluded;
     }
 
     public String getName() {
         return name;
     }
 
+    public boolean isMustIncluded() {
+        return mustIncluded;
+    }
 }

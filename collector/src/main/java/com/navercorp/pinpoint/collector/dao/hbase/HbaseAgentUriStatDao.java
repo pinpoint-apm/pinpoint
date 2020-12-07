@@ -17,13 +17,27 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.AgentUriStatDao;
+import com.navercorp.pinpoint.collector.util.CollectorUtils;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseTable;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentUriStatSerializer;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -32,16 +46,42 @@ import org.springframework.stereotype.Repository;
 public class HbaseAgentUriStatDao implements AgentUriStatDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
+
+
+    @Qualifier("asyncPutHbaseTemplate")
+    @Autowired
+    private HbaseOperations2 hbaseTemplate;
+
+    @Autowired
+    private TableNameProvider tableNameProvider;
 
     @Autowired
     private AgentStatHbaseOperationFactory agentStatHbaseOperationFactory;
+
+    @Autowired
+    private AgentUriStatSerializer agentUriStatSerializer;
 
     @Override
     public void insert(AgentUriStatBo agentUriStatBo) {
         String agentId = agentUriStatBo.getAgentId();
 
-        logger.info("insert() agentUriStatBo:{}", agentUriStatBo);
+        Objects.requireNonNull(agentId, "agentId");
+        // Assert agentId
+        CollectorUtils.checkAgentId(agentId);
+        if (CollectionUtils.isEmpty(agentUriStatBo.getEachUriStatBoList())) {
+            return;
+        }
 
+        if (logger.isDebugEnabled()) {
+            logger.debug("insert() agentUriStatBo:{}", agentUriStatBo);
+        }
+
+        List<Put> agentUriStatPuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.URI, Arrays.asList(agentUriStatBo), this.agentUriStatSerializer);
+        if (!agentUriStatPuts.isEmpty()) {
+            TableName agentStatTableName = tableNameProvider.getTableName(HbaseTable.AGENT_URI_STAT);
+            this.hbaseTemplate.asyncPut(agentStatTableName, agentUriStatPuts);
+        }
     }
 
 }
