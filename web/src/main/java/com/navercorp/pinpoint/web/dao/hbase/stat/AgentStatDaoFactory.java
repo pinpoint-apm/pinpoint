@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.dao.hbase.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
@@ -32,6 +33,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
 import com.navercorp.pinpoint.web.dao.stat.ActiveTraceDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
+import com.navercorp.pinpoint.web.dao.stat.AgentUriStatDao;
 import com.navercorp.pinpoint.web.dao.stat.CpuLoadDao;
 import com.navercorp.pinpoint.web.dao.stat.DataSourceDao;
 import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
@@ -332,4 +334,30 @@ abstract class AgentStatDaoFactory<T extends AgentStatDataPoint, D extends Agent
         @Override
         public boolean isSingleton() { return true; }
     }
+
+    @Repository("agentUriStatDao")
+    public static class AgentUriStatDaoFactory extends AgentStatDaoFactory<AgentUriStatBo, AgentUriStatDao>
+            implements FactoryBean<AgentUriStatDao> {
+
+        @Autowired
+        public void setV2(@Qualifier("agentUriStatDaoV2") AgentUriStatDao v2) {
+            this.v2 = v2;
+        }
+
+        @Override
+        public AgentUriStatDao getObject() throws Exception {
+            return super.getDao();
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+            return AgentUriStatDao.class;
+        }
+
+        @Override
+        public boolean isSingleton() {
+            return true;
+        }
+    }
+
 }

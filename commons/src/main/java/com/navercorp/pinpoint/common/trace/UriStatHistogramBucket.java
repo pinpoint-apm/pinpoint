@@ -62,6 +62,16 @@ public enum UriStatHistogramBucket {
         return OVER_8000MS;
     }
 
+    public static UriStatHistogramBucket getValueByIndex(int index) {
+        for (UriStatHistogramBucket histogram : values()) {
+            if (histogram.getIndex() == index) {
+                return histogram;
+            }
+        }
+
+        throw new IllegalArgumentException("Can not find index. index:" + index);
+    }
+
     public static byte getBucketVersion() {
         return 0;
     }

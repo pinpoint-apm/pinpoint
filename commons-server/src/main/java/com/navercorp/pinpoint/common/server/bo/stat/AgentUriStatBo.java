@@ -73,7 +73,7 @@ public class AgentUriStatBo implements AgentStatDataPoint {
 
     @Override
     public AgentStatType getAgentStatType() {
-        return null;
+        return AgentStatType.URI;
     }
 
     public boolean addEachUriStatBo(EachUriStatBo eachUriStatBo) {
