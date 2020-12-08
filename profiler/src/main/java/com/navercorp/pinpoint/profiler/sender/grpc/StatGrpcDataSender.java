@@ -84,7 +84,7 @@ public class StatGrpcDataSender extends GrpcDataSender {
                 final PStatMessage statMessage = PStatMessage.newBuilder().setAgentUriStat(agentUriStat).build();
 
                 // TODO remove comment
-                //  statStream.onNext(statMessage);
+                stream.onNext(statMessage);
                 return;
             }
             throw new IllegalStateException("unsupported message " + message);

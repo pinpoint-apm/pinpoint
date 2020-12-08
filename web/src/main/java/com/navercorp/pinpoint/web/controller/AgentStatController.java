@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
@@ -35,6 +36,8 @@ import com.navercorp.pinpoint.web.service.stat.ActiveTraceChartService;
 import com.navercorp.pinpoint.web.service.stat.ActiveTraceService;
 import com.navercorp.pinpoint.web.service.stat.AgentStatChartService;
 import com.navercorp.pinpoint.web.service.stat.AgentStatService;
+import com.navercorp.pinpoint.web.service.stat.AgentUriStatChartService;
+import com.navercorp.pinpoint.web.service.stat.AgentUriStatService;
 import com.navercorp.pinpoint.web.service.stat.CpuLoadChartService;
 import com.navercorp.pinpoint.web.service.stat.CpuLoadService;
 import com.navercorp.pinpoint.web.service.stat.DataSourceChartService;
@@ -272,4 +275,14 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
             super(loadedClassCountService, loadedClassCountChartService);
         }
     }
+
+    @Controller
+    @RequestMapping("/getAgentStat/uriStat")
+    public static class RequestsStatSummaryController extends AgentStatController<AgentUriStatBo> {
+        @Autowired
+        public RequestsStatSummaryController(AgentUriStatService agentUriStatService, AgentUriStatChartService agentUriStatChartService) {
+            super(agentUriStatService, agentUriStatChartService);
+        }
+    }
+
 }
