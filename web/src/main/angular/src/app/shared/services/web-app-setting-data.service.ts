@@ -83,6 +83,9 @@ export class WebAppSettingDataService {
     isApplicationInspectorActivated(): Observable<boolean> {
         return this.newUrlStateNotificationService.getConfiguration('showApplicationStat');
     }
+    isWebhookEnable(): Observable<boolean> {
+        return this.newUrlStateNotificationService.getConfiguration('webhookEnable');
+    }
     getImagePath(): string {
         return this.IMAGE_PATH;
     }

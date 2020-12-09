@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.web.vo.UserGroup;
 
 /**
  * @author minwoo.jung
+ * @author Jongjin.Bae
  */
 @Repository
 public class MysqlAlarmDao implements AlarmDao {
@@ -44,6 +45,12 @@ public class MysqlAlarmDao implements AlarmDao {
     @Override
     public String insertRule(Rule rule) {
         sqlSessionTemplate.insert(NAMESPACE + "insertRule", rule);
+        return rule.getRuleId();
+    }
+    
+    @Override
+    public String insertRuleExceptWebhookSend(Rule rule) {
+        sqlSessionTemplate.insert(NAMESPACE + "insertRuleExceptWebhookSend", rule);
         return rule.getRuleId();
     }
 
@@ -70,6 +77,11 @@ public class MysqlAlarmDao implements AlarmDao {
     @Override
     public void updateRule(Rule rule) {
         sqlSessionTemplate.update(NAMESPACE + "updateRule", rule);
+    }
+    
+    @Override
+    public void updateRuleExceptWebhookSend(Rule rule) {
+        sqlSessionTemplate.update(NAMESPACE + "updateRuleExceptWebhookSend", rule);
     }
 
     @Override

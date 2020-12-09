@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.navercorp.pinpoint.batch.alarm.checker;
 
 import com.navercorp.pinpoint.batch.alarm.collector.FileDescriptorDataCollector;
@@ -22,8 +23,9 @@ import java.util.Map;
 
 /**
  * @author minwoo.jung
+ * @author Jongjin.Bae
  */
-public class FileDescriptorChecker extends AgentChecker<Long> {
+public class FileDescriptorChecker extends LongValueAgentChecker {
 
     public FileDescriptorChecker(FileDescriptorDataCollector dataCollector, Rule rule) {
         super(rule, "", dataCollector);
@@ -32,10 +34,5 @@ public class FileDescriptorChecker extends AgentChecker<Long> {
     @Override
     protected Map<String, Long> getAgentValues() {
         return ((FileDescriptorDataCollector)dataCollector).getFileDescriptorCount();
-    }
-
-    @Override
-    protected boolean decideResult(Long value) {
-        return value >= rule.getThreshold();
     }
 }

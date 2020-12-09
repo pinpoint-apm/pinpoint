@@ -14,6 +14,7 @@ export class SystemConfigurationDataService {
         showActiveThread: false,
         showActiveThreadDump: false,
         showApplicationStat: false,
+        webhookEnable: false,
         version: '',
         userId: '',
         userName: '',

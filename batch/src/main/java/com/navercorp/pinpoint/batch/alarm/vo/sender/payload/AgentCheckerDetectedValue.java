@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2020 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.batch.alarm.checker;
+package com.navercorp.pinpoint.batch.alarm.vo.sender.payload;
 
-import com.navercorp.pinpoint.batch.alarm.collector.AgentStatDataCollector;
-import com.navercorp.pinpoint.web.alarm.vo.Rule;
-
-import java.util.Map;
+import java.util.List;
 
 /**
- * @author minwoo.jung
  * @author Jongjin.Bae
  */
-public class JvmCpuUsageRateChecker extends LongValueAgentChecker {
+public class AgentCheckerDetectedValue<T> implements CheckerDetectedValue {
     
-    public JvmCpuUsageRateChecker(AgentStatDataCollector dataCollector, Rule rule) {
-        super(rule, "%", dataCollector);
+    private List<DetectedAgent<T>> detectedAgents;
+    
+    public AgentCheckerDetectedValue(List<DetectedAgent<T>> detectedAgents) {
+        this.detectedAgents = detectedAgents;
     }
-
-    @Override
-    protected Map<String, Long> getAgentValues() {
-        return ((AgentStatDataCollector)dataCollector).getJvmCpuUsageRate();
+    
+    public List<DetectedAgent<T>> getDetectedAgents() {
+        return detectedAgents;
     }
 }
