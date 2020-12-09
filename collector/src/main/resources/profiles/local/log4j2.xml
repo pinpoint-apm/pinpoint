@@ -56,9 +56,9 @@
     </Appenders>
 
     <Loggers>
-         <Logger name="com.navercorp.pinpoint" level="DEBUG" additivity="false">
-            <AppenderRef  ref="console"/>
-            <AppenderRef  ref="rollingFile"/>
+        <Logger name="com.navercorp.pinpoint" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
         </Logger>
 
         <Logger name="com.navercorp.pinpoint.collector.handler" level="INFO" additivity="false">
@@ -75,6 +75,14 @@
             <AppenderRef ref="console"/>
             <Appenderref ref="rollingFile"/>
         </Logger>
+        <Logger name="io.grpc" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+            <Appenderref ref="rollingFile"/>
+        </Logger>
+        <Logger name="io.netty" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+            <Appenderref ref="rollingFile"/>
+        </Logger>
 
         <Logger name="org.apache.hadoop.hbase" level="INFO" additivity="false">
             <AppenderRef ref="console"/>
@@ -87,7 +95,7 @@
 <!--            <Appender-ref ref="console"/>-->
         </Logger>
 
-        <Root level="info">
+        <Root level="INFO">
             <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>
         </Root>
