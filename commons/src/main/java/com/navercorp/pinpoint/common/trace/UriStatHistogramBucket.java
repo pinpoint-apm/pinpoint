@@ -33,11 +33,18 @@ public enum UriStatHistogramBucket {
     private final long from;
     private final long to;
     private final int index;
+    private final String description;
 
     UriStatHistogramBucket(long from, long to, int index) {
         this.from = from;
         this.to = to;
         this.index = index;
+
+        if (to == Long.MAX_VALUE) {
+            description = from + " ~ ";
+        } else {
+            description = from + " ~ " + to;
+        }
     }
 
     public long getFrom() {
@@ -50,6 +57,10 @@ public enum UriStatHistogramBucket {
 
     public int getIndex() {
         return index;
+    }
+
+    public String getDesc() {
+        return description;
     }
 
     public static UriStatHistogramBucket getValue(long elapsed) {
@@ -70,6 +81,10 @@ public enum UriStatHistogramBucket {
         }
 
         throw new IllegalArgumentException("Can not find index. index:" + index);
+    }
+
+    public static int[] createNewArrayValue() {
+        return new int[values().length];
     }
 
     public static byte getBucketVersion() {
