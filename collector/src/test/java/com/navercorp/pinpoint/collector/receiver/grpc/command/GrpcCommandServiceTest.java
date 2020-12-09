@@ -179,7 +179,8 @@ public class GrpcCommandServiceTest {
     }
 
     private TransportMetadata createTransportMetaData(InetSocketAddress remoteAddress, long transportId) {
-        return new DefaultTransportMetadata(this.getClass().getSimpleName(), remoteAddress, transportId, System.currentTimeMillis());
+        InetSocketAddress localAddress = InetSocketAddress.createUnresolved("127.0.0.1", 1111);
+        return new DefaultTransportMetadata(this.getClass().getSimpleName(), remoteAddress, localAddress, transportId, System.currentTimeMillis(), -1L);
     }
 
     private void attachContext(TransportMetadata transportMetadata) {

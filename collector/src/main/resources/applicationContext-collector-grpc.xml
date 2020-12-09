@@ -129,6 +129,12 @@
         <ref bean="headerPropagationInterceptor"/>
     </util:list>
 
+    <util:list id="serverTransportFilterList" value-type="io.grpc.ServerTransportFilter">
+        <bean class="com.navercorp.pinpoint.grpc.channelz.ChannelzServerTransportFilter">
+            <constructor-arg ref="channelzRegistry"/>
+        </bean>
+    </util:list>
+
     <bean id="headerRader" class="com.navercorp.pinpoint.grpc.server.AgentHeaderReader"/>
 
     <bean id="headerPropagationInterceptor" class="com.navercorp.pinpoint.grpc.server.HeaderPropagationInterceptor">
@@ -201,6 +207,8 @@
         <property name="addressFilter" ref="addressFilter"/>
         <property name="bindableServiceList" ref="spanServiceList"/>
         <property name="serverInterceptorList" ref="interceptorList"/>
+        <property name="transportFilterList" ref="serverTransportFilterList"/>
+        <property name="channelzRegistry" ref="channelzRegistry"/>
         <property name="executor" ref="grpcSpanServerExecutor"/>
         <property name="enable" value="#{grpcSpanReceiverConfig.isGrpcEnable()}"/>
         <property name="serverOption" value="#{grpcSpanReceiverConfig.getGrpcServerOption()}"/>
