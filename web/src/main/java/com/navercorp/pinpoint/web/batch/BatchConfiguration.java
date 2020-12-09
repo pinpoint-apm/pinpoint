@@ -58,6 +58,7 @@ public class BatchConfiguration {
     private boolean enableCleanupInactiveAgents;
 
     private static final int DEFAULT_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS = 30;
+    private static final int MINIMUM_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS = 7;
 
     @Value("${job.cleanup.inactive.agents.duration.days:30}")
     private int cleanupInactiveAgentsDurationDays;
@@ -79,7 +80,7 @@ public class BatchConfiguration {
             cleanupInactiveAgentsDurationDays = DEFAULT_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS;
             cleanupInactiveAgentsCron = DISABLED_CLEANUP_INACTIVE_AGENTS_CRON;
         } else {
-            if (cleanupInactiveAgentsDurationDays < 30) {
+            if (cleanupInactiveAgentsDurationDays < MINIMUM_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS) {
                 throw new IllegalArgumentException("'cleanupInactiveAgentsDuration' must be 'cleanupInactiveAgentsDuration >= 30'");
             }
         }
