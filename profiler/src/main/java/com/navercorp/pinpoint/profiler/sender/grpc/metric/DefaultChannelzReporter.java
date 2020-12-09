@@ -4,6 +4,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.grpc.channelz.ChannelzUtils;
 import io.grpc.InternalChannelz;
 import io.grpc.InternalInstrumented;
 import io.grpc.InternalWithLogId;
@@ -35,7 +36,7 @@ public class DefaultChannelzReporter implements ChannelzReporter {
             return;
         }
         final String rootChannelName = "RootChannel-" + id;
-        final InternalChannelz.ChannelStats channelStats = getResult(rootChannelName, iRootChannel);
+        final InternalChannelz.ChannelStats channelStats = ChannelzUtils.getResult(rootChannelName, iRootChannel);
         if (channelStats == null) {
             logger.info("RootChannel channelStats.get() fail:{}", id);
             return;
@@ -55,7 +56,7 @@ public class DefaultChannelzReporter implements ChannelzReporter {
             }
 
             final String rootChannelName = rootChannelId + "-SubChannel-" + subChannelId;
-            final InternalChannelz.ChannelStats subChannelStats = getResult(rootChannelName, iSubChannelState);
+            final InternalChannelz.ChannelStats subChannelStats = ChannelzUtils.getResult(rootChannelName, iSubChannelState);
             if (subChannelStats == null) {
                 continue;
             }
@@ -75,7 +76,7 @@ public class DefaultChannelzReporter implements ChannelzReporter {
             return;
         }
         final String socketName = channelId + "-Socket-" + socketId;
-        final InternalChannelz.SocketStats socketStats = getResult(socketName, iSocket);
+        final InternalChannelz.SocketStats socketStats = ChannelzUtils.getResult(socketName, iSocket);
         if (socketStats == null) {
             return;
         }
@@ -192,20 +193,6 @@ public class DefaultChannelzReporter implements ChannelzReporter {
         return longs;
     }
 
-
-    private <T> T getResult(String name, InternalInstrumented<T> instrumented) {
-        ListenableFuture<T> future = instrumented.getStats();
-        try {
-            return future.get(timeout, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } catch (ExecutionException e) {
-            this.logger.info("ExecutionError {} {}", name, e.getMessage());
-        } catch (TimeoutException e) {
-            this.logger.info("Timeout {} {}", name, e.getMessage());
-        }
-        return null;
-    }
 
     public static long toMillis(long duration) {
         return TimeUnit.NANOSECONDS.toMillis(duration);

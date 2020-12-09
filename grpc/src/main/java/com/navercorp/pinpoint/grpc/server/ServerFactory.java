@@ -19,15 +19,16 @@ package com.navercorp.pinpoint.grpc.server;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CpuUtils;
-import com.navercorp.pinpoint.grpc.ChannelTypeEnum;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
+import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import io.grpc.BindableService;
+import io.grpc.InternalWithLogId;
 import io.grpc.Server;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
-import io.grpc.netty.InternalNettyServerBuilder;
-import io.grpc.netty.NettyServerBuilder;
+import io.grpc.netty.LogIdServerListenerDelegator;
+import io.grpc.netty.PinpointNettyServerBuilder;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
@@ -70,6 +71,7 @@ public class ServerFactory {
     private final List<ServerInterceptor> serverInterceptors = new ArrayList<ServerInterceptor>();
 
     private ServerOption serverOption;
+    private ChannelzRegistry channelzRegistry;
 
     public ServerFactory(String name, String hostname, int port, Executor serverExecutor, ServerOption serverOption) {
         this.name = Assert.requireNonNull(name, "name");
@@ -99,6 +101,9 @@ public class ServerFactory {
         return Executors.newCachedThreadPool(threadFactory);
     }
 
+    public void setChannelzRegistry(ChannelzRegistry channelzRegistry) {
+        this.channelzRegistry = Assert.requireNonNull(channelzRegistry, "channelzRegistry");
+    }
 
     public void addService(BindableService bindableService) {
         Assert.requireNonNull(bindableService, "bindableService");
@@ -122,7 +127,8 @@ public class ServerFactory {
 
     public Server build() {
         InetSocketAddress bindAddress = new InetSocketAddress(this.hostname, this.port);
-        NettyServerBuilder serverBuilder = NettyServerBuilder.forAddress(bindAddress);
+        PinpointNettyServerBuilder serverBuilder = PinpointNettyServerBuilder.forAddress(bindAddress);
+        serverBuilder.serverListenerDelegator(new LogIdServerListenerDelegator());
 
         logger.info("ChannelType:{}", channelType.getSimpleName());
         serverBuilder.channelType(channelType);
@@ -155,16 +161,29 @@ public class ServerFactory {
         setupServerOption(serverBuilder);
 
         Server server = serverBuilder.build();
+        if (server instanceof InternalWithLogId) {
+            final InternalWithLogId logId = (InternalWithLogId) server;
+            final long serverLogId = logId.getLogId().getId();
+            logger.info("{} serverLogId:{}", name, serverLogId);
+            if (channelzRegistry != null) {
+                channelzRegistry.addServer(serverLogId, name);
+            }
+        }
         return server;
     }
 
-    private void setupInternal(NettyServerBuilder serverBuilder) {
-        InternalNettyServerBuilder.setTracingEnabled(serverBuilder, false);
-        InternalNettyServerBuilder.setStatsRecordStartedRpcs(serverBuilder, false);
-        InternalNettyServerBuilder.setStatsEnabled(serverBuilder, false);
+
+    private void setupInternal(PinpointNettyServerBuilder serverBuilder) {
+
+        serverBuilder.setTracingEnabled(false);
+
+        serverBuilder.setStatsEnabled(false);
+        serverBuilder.setStatsRecordRealTimeMetrics(false);
+        serverBuilder.setStatsRecordStartedRpcs(false);
+
     }
 
-    private void setupServerOption(final NettyServerBuilder builder) {
+    private void setupServerOption(final PinpointNettyServerBuilder builder) {
         // TODO @see PinpointServerAcceptor
         builder.withChildOption(ChannelOption.TCP_NODELAY, true);
         builder.withChildOption(ChannelOption.SO_REUSEADDR, true);
