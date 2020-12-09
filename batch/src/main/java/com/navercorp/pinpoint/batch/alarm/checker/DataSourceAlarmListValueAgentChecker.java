@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2020 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,26 +17,23 @@
 package com.navercorp.pinpoint.batch.alarm.checker;
 
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.batch.alarm.vo.DataSourceAlarmVO;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 /**
- * @author Taejin Koo
  * @author Jongjin.Bae
  */
-public abstract class LongValueAlarmChecker extends AlarmChecker<Long> {
+import java.util.List;
 
-    protected LongValueAlarmChecker(Rule rule, String unit, DataCollector dataCollector) {
+public abstract class DataSourceAlarmListValueAgentChecker extends AgentChecker<List<DataSourceAlarmVO>> {
+    
+    protected DataSourceAlarmListValueAgentChecker(Rule rule, String unit, DataCollector dataCollector) {
         super(rule, unit, dataCollector);
-    }
-
-    @Override
-    protected boolean decideResult(Long value) {
-        return value >= rule.getThreshold();
     }
     
     @Override
     public String getCheckerType() {
-        return LongValueAlarmChecker.class.getSimpleName();
+        return DataSourceAlarmListValueAgentChecker.class.getSimpleName();
     }
     
 }

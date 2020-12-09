@@ -4,6 +4,12 @@
 <mapper namespace="com.navercorp.pinpoint.web.dao.AlarmDao">
 
     <insert id="insertRule" parameterType="Rule" useGeneratedKeys="true" keyProperty="ruleId">
+        INSERT INTO alarm_rule (application_id, service_type, checker_name, threshold, user_group_id, sms_send, email_send, webhook_send, notes)
+        VALUES
+            (#{applicationId}, #{serviceType}, #{checkerName}, #{threshold}, #{userGroupId}, #{smsSend}, #{emailSend}, #{webhookSend}, #{notes})
+    </insert>
+    
+    <insert id="insertRuleExceptWebhookSend" parameterType="Rule" useGeneratedKeys="true" keyProperty="ruleId">
         INSERT INTO alarm_rule (application_id, service_type, checker_name, threshold, user_group_id, sms_send, email_send, notes)
         VALUES
             (#{applicationId}, #{serviceType}, #{checkerName}, #{threshold}, #{userGroupId}, #{smsSend}, #{emailSend}, #{notes})
@@ -35,7 +41,14 @@
     
     <update id="updateRule">
         UPDATE alarm_rule
-        SET application_id = #{applicationId}, service_type = #{serviceType}, checker_name = #{checkerName}, threshold = #{threshold}, user_group_id = #{userGroupId}, sms_send = #{smsSend}, email_send = #{emailSend}, notes = #{notes} 
+        SET application_id = #{applicationId}, service_type = #{serviceType}, checker_name = #{checkerName}, threshold = #{threshold}, user_group_id = #{userGroupId}, sms_send = #{smsSend}, email_send = #{emailSend}, webhook_send = #{webhookSend}, notes = #{notes}
+        WHERE rule_id = #{ruleId}
+    </update>
+    
+    
+    <update id="updateRuleExceptWebhookSend">
+        UPDATE alarm_rule
+        SET application_id = #{applicationId}, service_type = #{serviceType}, checker_name = #{checkerName}, threshold = #{threshold}, user_group_id = #{userGroupId}, sms_send = #{smsSend}, email_send = #{emailSend}, notes = #{notes}
         WHERE rule_id = #{ruleId}
     </update>
     

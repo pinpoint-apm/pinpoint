@@ -26,8 +26,9 @@ import java.util.Map;
 
 /**
  * @author Taejin Koo
+ * @author Jongjin.Bae
  */
-public class DataSourceConnectionUsageRateChecker extends AgentChecker<List<DataSourceAlarmVO>> {
+public class DataSourceConnectionUsageRateChecker extends DataSourceAlarmListValueAgentChecker {
 
     public DataSourceConnectionUsageRateChecker(DataSourceDataCollector dataSourceDataCollector, Rule rule) {
         super(rule, "%", dataSourceDataCollector);

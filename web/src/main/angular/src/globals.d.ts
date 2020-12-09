@@ -373,6 +373,7 @@ interface ISystemConfiguration {
     showActiveThread: boolean;
     showActiveThreadDump: boolean;
     showApplicationStat: boolean;
+    webhookEnable: boolean;
     version: string;
     userId?: string;
     userName?: string;

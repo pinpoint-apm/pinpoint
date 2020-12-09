@@ -16,9 +16,13 @@
 
 package com.navercorp.pinpoint.batch.alarm.vo;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 /**
  * @author Taejin Koo
+ * @author Jongjin.Bae
  */
+@JsonSerialize(using = DataSourceAlarmVOSerializer.class)
 public class DataSourceAlarmVO {
 
     private final int id;

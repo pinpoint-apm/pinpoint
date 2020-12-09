@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2020 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,14 @@ import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 /**
- * @author Taejin Koo
  * @author Jongjin.Bae
  */
-public abstract class LongValueAlarmChecker extends AlarmChecker<Long> {
-
-    protected LongValueAlarmChecker(Rule rule, String unit, DataCollector dataCollector) {
+public abstract class LongValueAgentChecker extends AgentChecker<Long> {
+    
+    protected LongValueAgentChecker(Rule rule, String unit, DataCollector dataCollector) {
         super(rule, unit, dataCollector);
     }
-
+    
     @Override
     protected boolean decideResult(Long value) {
         return value >= rule.getThreshold();
@@ -36,7 +35,6 @@ public abstract class LongValueAlarmChecker extends AlarmChecker<Long> {
     
     @Override
     public String getCheckerType() {
-        return LongValueAlarmChecker.class.getSimpleName();
+        return LongValueAgentChecker.class.getSimpleName();
     }
-    
 }
