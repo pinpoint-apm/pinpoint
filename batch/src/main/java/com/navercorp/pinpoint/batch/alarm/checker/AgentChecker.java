@@ -17,16 +17,17 @@
 package com.navercorp.pinpoint.batch.alarm.checker;
 
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.AgentCheckerDetectedValue;
+import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.CheckerDetectedValue;
+import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.DetectedAgent;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 /**
  * @author minwoo.jung
+ * @author Jongjin.Bae
  */
 public abstract class AgentChecker<T> extends AlarmChecker<T> {
     
@@ -81,5 +82,16 @@ public abstract class AgentChecker<T> extends AlarmChecker<T> {
     public Map<String, T> getDetectedAgents() { return detectedAgents; }
     
     protected abstract Map<String, T> getAgentValues();
+    
+    @Override
+    public CheckerDetectedValue getCheckerDetectedValue() {
+        List<DetectedAgent<T>> detectedAgents = new ArrayList<>();
+        
+        for (Map.Entry<String, T> entry : this.detectedAgents.entrySet()) {
+            detectedAgents.add(new DetectedAgent(entry.getKey(), entry.getValue()));
+        }
+        
+        return new AgentCheckerDetectedValue<>(detectedAgents);
+    }
     
 }

@@ -60,6 +60,7 @@ public class ConfigController {
         result.put("showApplicationStat", webProperties.isShowApplicationStat());
         result.put("showStackTraceOnError", webProperties.isShowStackTraceOnError());
         result.put("openSource", webProperties.isOpenSource());
+        result.put("webhookEnable", webProperties.isWebhookEnable());
         result.put("version", Version.VERSION);
 
         String userId = userService.getUserIdFromSecurity();

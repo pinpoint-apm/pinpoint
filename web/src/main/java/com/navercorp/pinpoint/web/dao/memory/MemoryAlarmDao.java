@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.web.vo.UserGroup;
 
 /**
  * @author minwoo.jung
+ * @author Jongjin.Bae
  */
 @Repository
 public class MemoryAlarmDao implements AlarmDao {
@@ -46,6 +47,14 @@ public class MemoryAlarmDao implements AlarmDao {
     
     @Override
     public String insertRule(Rule rule) {
+        String ruleId = String.valueOf(ruleIdGenerator.getAndIncrement());
+        rule.setRuleId(ruleId);
+        alarmRule.put(ruleId, rule);
+        return rule.getRuleId();
+    }
+    
+    @Override
+    public String insertRuleExceptWebhookSend(Rule rule) {
         String ruleId = String.valueOf(ruleIdGenerator.getAndIncrement());
         rule.setRuleId(ruleId);
         alarmRule.put(ruleId, rule);
@@ -94,6 +103,11 @@ public class MemoryAlarmDao implements AlarmDao {
 
     @Override
     public void updateRule(Rule rule) {
+        alarmRule.put(rule.getRuleId(), rule);
+    }
+    
+    @Override
+    public void updateRuleExceptWebhookSend(Rule rule) {
         alarmRule.put(rule.getRuleId(), rule);
     }
 
