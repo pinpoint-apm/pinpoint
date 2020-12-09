@@ -278,9 +278,10 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
 
     @Controller
     @RequestMapping("/getAgentStat/uriStat")
-    public static class RequestsStatSummaryController extends AgentStatController<AgentUriStatBo> {
+    public static class UriStatController extends AgentStatController<AgentUriStatBo> {
         @Autowired
-        public RequestsStatSummaryController(AgentUriStatService agentUriStatService, AgentUriStatChartService agentUriStatChartService) {
+        public UriStatController(AgentUriStatService agentUriStatService,
+                                             AgentUriStatChartService agentUriStatChartService) {
             super(agentUriStatService, agentUriStatChartService);
         }
     }

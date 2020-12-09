@@ -16,12 +16,23 @@
 
 package com.navercorp.pinpoint.web.service.stat;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.rpc.util.ListUtils;
+import com.navercorp.pinpoint.web.dao.stat.SampledAgentUriStatDao;
 import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.vo.stat.SampledAgentUriStat;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentUriStatChart;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -29,14 +40,52 @@ import java.util.List;
 @Service
 public class AgentUriStatChartService implements AgentStatChartService {
 
+    private final SampledAgentUriStatDao sampledAgentUriStatDao;
+
+    public AgentUriStatChartService(@Qualifier("sampledAgentUriStatDaoFactory") SampledAgentUriStatDao sampledAgentUriStatDao) {
+        this.sampledAgentUriStatDao = Objects.requireNonNull(sampledAgentUriStatDao, "sampledAgentUriStatDao");
+    }
+
     @Override
     public StatChart selectAgentChart(String agentId, TimeWindow timeWindow) {
-        return null;
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(timeWindow, "timeWindow");
+
+        List<SampledAgentUriStat> sampledAgentUriStatList = sampledAgentUriStatDao.getSampledAgentStatList(agentId, timeWindow);
+
+        if (CollectionUtils.isEmpty(sampledAgentUriStatList)) {
+            return new AgentUriStatChart(timeWindow, Collections.emptyList());
+        } else {
+            SampledAgentUriStat first = ListUtils.getFirst(sampledAgentUriStatList);
+            return new AgentUriStatChart(timeWindow, first.getSampledEachUriStatBoList());
+        }
     }
 
     @Override
     public List<StatChart> selectAgentChartList(String agentId, TimeWindow timeWindow) {
-        return null;
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(timeWindow, "timeWindow");
+
+        List<SampledAgentUriStat> sampledAgentUriStatList = sampledAgentUriStatDao.getSampledAgentStatList(agentId, timeWindow);
+
+
+        if (CollectionUtils.isEmpty(sampledAgentUriStatList)) {
+            return Arrays.asList(new AgentUriStatChart(timeWindow, Collections.emptyList()));
+        } else {
+            List<StatChart> result = new ArrayList<>(sampledAgentUriStatList.size());
+            for (SampledAgentUriStat sampledAgentUriStat : sampledAgentUriStatList) {
+                result.add(new AgentUriStatChart(timeWindow, sampledAgentUriStat.getSampledEachUriStatBoList()));
+            }
+            Collections.sort(result, new Comparator<StatChart>() {
+                @Override
+                public int compare(StatChart o1, StatChart o2) {
+                    AgentUriStatChart chart1 = (AgentUriStatChart) o1;
+                    AgentUriStatChart chart2 = (AgentUriStatChart) o2;
+                    return Long.compare(chart2.getTotalCount(), chart1.getTotalCount());
+                }
+            });
+            return result;
+        }
     }
 
 }
