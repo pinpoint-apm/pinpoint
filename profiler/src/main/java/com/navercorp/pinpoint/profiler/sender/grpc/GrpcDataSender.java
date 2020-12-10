@@ -90,6 +90,10 @@ public abstract class GrpcDataSender implements DataSender<Object> {
         this.queue = new LinkedBlockingQueue<Object>(executorQueueSize);
     }
 
+    public long getLogId() {
+        return logId;
+    }
+
     private class ConnectivityStateMonitor implements Runnable {
         private final ConnectivityState before;
 

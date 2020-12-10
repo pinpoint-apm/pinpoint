@@ -26,9 +26,6 @@ import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
-import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzReporter;
-import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledReporter;
-import com.navercorp.pinpoint.profiler.sender.grpc.metric.DefaultChannelzReporter;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.ClientStreamingProvider;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.DefaultStreamTask;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.StreamExecutorFactory;
@@ -36,8 +33,6 @@ import com.navercorp.pinpoint.profiler.util.NamedRunnable;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.ClientCallStreamObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
 
@@ -85,7 +80,8 @@ public class SpanGrpcDataSender extends GrpcDataSender {
                               int executorQueueSize,
                               MessageConverter<GeneratedMessageV3> messageConverter,
                               ReconnectExecutor reconnectExecutor,
-                              ChannelFactory channelFactory, ChannelzScheduledReporter scheduledReporter) {
+                              ChannelFactory channelFactory,
+                              StreamState failState) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
 
         this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor");
@@ -96,7 +92,7 @@ public class SpanGrpcDataSender extends GrpcDataSender {
             }
         };
         this.reconnector = reconnectExecutor.newReconnector(reconnectJob);
-        this.failState = new SimpleStreamState(100, 5000);
+        this.failState = Assert.requireNonNull(failState, "failState");
         this.streamExecutorFactory = new StreamExecutorFactory<PSpanMessage>(executor);
 
         ClientStreamingProvider<PSpanMessage, Empty> clientStreamProvider = new ClientStreamingProvider<PSpanMessage, Empty>() {
@@ -114,10 +110,6 @@ public class SpanGrpcDataSender extends GrpcDataSender {
         };
         this.clientStreamService = new ClientStreamingService<PSpanMessage, Empty>(clientStreamProvider, reconnector);
         reconnectJob.run();
-
-        final Logger statChannelLogger = LoggerFactory.getLogger("com.navercorp.pinpoint.metric.SpanChannel");
-        ChannelzReporter statReporter = new DefaultChannelzReporter(statChannelLogger);
-        scheduledReporter.registerRootChannel(logId, statReporter);
     }
 
     private void startStream() {

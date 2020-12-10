@@ -21,8 +21,7 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.module.StatClientFactory;
-import com.navercorp.pinpoint.profiler.context.module.StatConverter;
+import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.MessageSerializer;
@@ -56,7 +55,7 @@ public class StatDataSenderProvider implements Provider<DataSender> {
     private final MessageConverter<TBase<?, ?>> messageConverter;
 
     @Inject
-    public StatDataSenderProvider(ProfilerConfig profilerConfig, @StatClientFactory Provider<PinpointClientFactory> clientFactoryProvider, @StatConverter MessageConverter<TBase<?, ?>> messageConverter) {
+    public StatDataSenderProvider(ProfilerConfig profilerConfig, @StatDataSender Provider<PinpointClientFactory> clientFactoryProvider, @StatDataSender MessageConverter<TBase<?, ?>> messageConverter) {
         Assert.requireNonNull(profilerConfig, "profilerConfig");
 
         this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider");

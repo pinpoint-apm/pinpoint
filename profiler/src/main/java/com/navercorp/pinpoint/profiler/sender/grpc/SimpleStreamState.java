@@ -32,5 +32,13 @@ public class SimpleStreamState implements StreamState {
         failCount = 0;
     }
 
-
+    @Override
+    public String toString() {
+        return "SimpleStreamState{" +
+                "limitCount=" + limitCount +
+                ", limitTime=" + limitTime +
+                ", failCount=" + failCount +
+                ", failureTime=" + failureTime +
+                '}';
+    }
 }

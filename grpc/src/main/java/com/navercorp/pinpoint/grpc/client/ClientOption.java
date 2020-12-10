@@ -39,7 +39,10 @@ public class ClientOption {
     public static final int DEFAULT_WRITE_BUFFER_HIGH_WATER_MARK = 32 * 1024 * 1024;
     public static final int DEFAULT_WRITE_BUFFER_LOW_WATER_MARK = 16 * 1024 * 1024;
     public static final String DEFAULT_CHANNEL_TYPE = ChannelTypeEnum.AUTO.name();
+
     public static final int DEFAULT_MAX_TRACE_EVENT = 0;
+    public static final int DEFAULT_LIMIT_COUNT = 100;
+    public static final int DEFAULT_LIMIT_TIME = 60 * 1000;
 
     private final long keepAliveTime;
     private final long keepAliveTimeout;
@@ -56,10 +59,12 @@ public class ClientOption {
     private final int writeBufferLowWaterMark;
     private final ChannelTypeEnum channelTypeEnum;
     private final int maxTraceEvent;
+    private final int limitCount;
+    private final long limitTime;
 
     private ClientOption(long keepAliveTime, long keepAliveTimeout, int maxHeaderListSize, int maxInboundMessageSize,
                          int flowControlWindow, int connectTimeout, int writeBufferHighWaterMark, int writeBufferLowWaterMark,
-                         ChannelTypeEnum channelTypeEnum, int maxTraceEvent) {
+                         ChannelTypeEnum channelTypeEnum, int maxTraceEvent, int limitCount, long limitTime) {
         this.keepAliveTime = keepAliveTime;
         this.keepAliveTimeout = keepAliveTimeout;
         this.flowControlWindow = flowControlWindow;
@@ -71,6 +76,9 @@ public class ClientOption {
 
         this.channelTypeEnum = Assert.requireNonNull(channelTypeEnum, "channelTypeEnum");
         this.maxTraceEvent = maxTraceEvent;
+
+        this.limitCount = limitCount;
+        this.limitTime = limitTime;
     }
 
     public int getFlowControlWindow() {
@@ -120,24 +128,32 @@ public class ClientOption {
         return maxTraceEvent;
     }
 
+    public int getLimitCount() {
+        return limitCount;
+    }
+
+    public long getLimitTime() {
+        return limitTime;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ClientOption{");
-        sb.append("keepAliveTime=").append(keepAliveTime);
-        sb.append(", keepAliveTimeout=").append(keepAliveTimeout);
-        sb.append(", keepAliveWithoutCalls=").append(keepAliveWithoutCalls);
-        sb.append(", idleTimeoutMillis=").append(idleTimeoutMillis);
-        sb.append(", maxHeaderListSize=").append(maxHeaderListSize);
-        sb.append(", maxInboundMessageSize=").append(maxInboundMessageSize);
-        sb.append(", flowControlWindow=").append(flowControlWindow);
-        sb.append(", connectTimeout=").append(connectTimeout);
-        sb.append(", writeBufferHighWaterMark=").append(writeBufferHighWaterMark);
-        sb.append(", writeBufferLowWaterMark=").append(writeBufferLowWaterMark);
-        sb.append(", channelTypeEnum=").append(channelTypeEnum);
-        sb.append(", maxTraceEvent=").append(maxTraceEvent);
-        sb.append('}');
-
-        return sb.toString();
+        return "ClientOption{" +
+                "keepAliveTime=" + keepAliveTime +
+                ", keepAliveTimeout=" + keepAliveTimeout +
+                ", keepAliveWithoutCalls=" + keepAliveWithoutCalls +
+                ", idleTimeoutMillis=" + idleTimeoutMillis +
+                ", maxHeaderListSize=" + maxHeaderListSize +
+                ", maxInboundMessageSize=" + maxInboundMessageSize +
+                ", flowControlWindow=" + flowControlWindow +
+                ", connectTimeout=" + connectTimeout +
+                ", writeBufferHighWaterMark=" + writeBufferHighWaterMark +
+                ", writeBufferLowWaterMark=" + writeBufferLowWaterMark +
+                ", channelTypeEnum=" + channelTypeEnum +
+                ", maxTraceEvent=" + maxTraceEvent +
+                ", limitCount=" + limitCount +
+                ", limitTime=" + limitTime +
+                '}';
     }
 
     public static class Builder {
@@ -154,10 +170,14 @@ public class ClientOption {
         private ChannelTypeEnum channelTypeEnum = ChannelTypeEnum.valueOf(DEFAULT_CHANNEL_TYPE);
         private int maxTraceEvent;
 
+        private int limitCount;
+        private long limitTime;
+
         public ClientOption build() {
             final ClientOption clientOption = new ClientOption(keepAliveTime, keepAliveTimeout, maxHeaderListSize, maxInboundMessageSize,
                     flowControlWindow, connectTimeout,
-                    writeBufferHighWaterMark, writeBufferLowWaterMark, channelTypeEnum, maxTraceEvent);
+                    writeBufferHighWaterMark, writeBufferLowWaterMark, channelTypeEnum,
+                    maxTraceEvent, limitCount, limitTime);
             return clientOption;
         }
 
@@ -213,21 +233,32 @@ public class ClientOption {
             this.maxTraceEvent = maxTraceEvent;
         }
 
+        public void setLimitCount(int limitCount) {
+            Assert.isTrue(limitCount >= 0, "limitCount must be positive");
+            this.limitCount = limitCount;
+        }
+
+        public void setLimitTime(long limitTime) {
+            Assert.isTrue(limitTime >= 0, "limitTime must be positive");
+            this.limitTime = limitTime;
+        }
+
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder("Builder{");
-            sb.append("flowControlWindow=").append(flowControlWindow);
-            sb.append(", maxHeaderListSize=").append(maxHeaderListSize);
-            sb.append(", keepAliveTime=").append(keepAliveTime);
-            sb.append(", keepAliveTimeout=").append(keepAliveTimeout);
-            sb.append(", maxInboundMessageSize=").append(maxInboundMessageSize);
-            sb.append(", connectTimeout=").append(connectTimeout);
-            sb.append(", writeBufferHighWaterMark=").append(writeBufferHighWaterMark);
-            sb.append(", writeBufferLowWaterMark=").append(writeBufferLowWaterMark);
-            sb.append(", channelTypeEnum=").append(channelTypeEnum);
-            sb.append(", maxTraceEvent=").append(maxTraceEvent);
-            sb.append('}');
-            return sb.toString();
+            return "Builder{" +
+                    "flowControlWindow=" + flowControlWindow +
+                    ", maxHeaderListSize=" + maxHeaderListSize +
+                    ", keepAliveTime=" + keepAliveTime +
+                    ", keepAliveTimeout=" + keepAliveTimeout +
+                    ", maxInboundMessageSize=" + maxInboundMessageSize +
+                    ", connectTimeout=" + connectTimeout +
+                    ", writeBufferHighWaterMark=" + writeBufferHighWaterMark +
+                    ", writeBufferLowWaterMark=" + writeBufferLowWaterMark +
+                    ", channelTypeEnum=" + channelTypeEnum +
+                    ", maxTraceEvent=" + maxTraceEvent +
+                    ", limitCount=" + limitCount +
+                    ", limitTime=" + limitTime +
+                    '}';
         }
     }
 }
