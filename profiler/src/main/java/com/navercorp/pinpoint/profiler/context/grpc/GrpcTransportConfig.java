@@ -171,6 +171,9 @@ public class GrpcTransportConfig {
         builder.setChannelTypeEnum(profilerConfig.readString(transportName + ".channel-type", ClientOption.DEFAULT_CHANNEL_TYPE));
         builder.setMaxTraceEvent(profilerConfig.readInt(transportName + ".maxtraceevent", ClientOption.DEFAULT_MAX_TRACE_EVENT));
 
+        builder.setLimitCount(profilerConfig.readInt(transportName + ".limitcount", ClientOption.DEFAULT_LIMIT_COUNT));
+        builder.setLimitTime(profilerConfig.readInt(transportName + ".limittime", ClientOption.DEFAULT_LIMIT_TIME));
+
         return builder.build();
     }
 

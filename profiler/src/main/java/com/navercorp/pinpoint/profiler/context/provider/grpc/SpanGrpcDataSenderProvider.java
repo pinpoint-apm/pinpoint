@@ -19,32 +19,41 @@ package com.navercorp.pinpoint.profiler.context.provider.grpc;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
-
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
-import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
-import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.grpc.client.ClientOption;
-
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
-import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
-import com.navercorp.pinpoint.profiler.context.module.SpanConverter;
-import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
-import com.navercorp.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.grpc.client.interceptor.DiscardClientInterceptor;
 import com.navercorp.pinpoint.grpc.client.interceptor.DiscardEventListener;
 import com.navercorp.pinpoint.grpc.client.interceptor.LoggingDiscardEventListener;
+import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
+import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
+import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
+import com.navercorp.pinpoint.profiler.sender.grpc.SimpleStreamState;
 import com.navercorp.pinpoint.profiler.sender.grpc.SpanGrpcDataSender;
+import com.navercorp.pinpoint.profiler.sender.grpc.StreamState;
+import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzReporter;
 import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledReporter;
+import com.navercorp.pinpoint.profiler.sender.grpc.metric.DefaultChannelzReporter;
 import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final GrpcTransportConfig grpcTransportConfig;
     private final MessageConverter<GeneratedMessageV3> messageConverter;
     private final HeaderFactory headerFactory;
@@ -52,9 +61,13 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
     private final NameResolverProvider nameResolverProvider;
     private final ChannelzScheduledReporter reporter;
 
+    private List<ClientInterceptor> clientInterceptorList;
+
+    public static final String SPAN_CHANNELZ = "com.navercorp.pinpoint.metric.SpanChannel";
+
     @Inject
     public SpanGrpcDataSenderProvider(GrpcTransportConfig grpcTransportConfig,
-                                      @SpanConverter MessageConverter<GeneratedMessageV3> messageConverter,
+                                      @SpanDataSender MessageConverter<GeneratedMessageV3> messageConverter,
                                       HeaderFactory headerFactory,
                                       Provider<ReconnectExecutor> reconnectExecutor,
                                       NameResolverProvider nameResolverProvider, ChannelzScheduledReporter reporter) {
@@ -68,6 +81,11 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
         this.reporter = Assert.requireNonNull(reporter, "reporter");
     }
 
+    @Inject(optional = true)
+    public void setClientInterceptor(@SpanDataSender List<ClientInterceptor> clientInterceptorList) {
+        this.clientInterceptorList = Assert.requireNonNull(clientInterceptorList, "clientInterceptorList");
+    }
+
     @Override
     public DataSender<Object> get() {
         final String collectorIp = grpcTransportConfig.getSpanCollectorIp();
@@ -77,10 +95,27 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
         final ChannelFactory channelFactory = channelFactoryBuilder.build();
 
         final ReconnectExecutor reconnectExecutor = this.reconnectExecutor.get();
-        return new SpanGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, channelFactory, reporter);
+
+        ClientOption spanClientOption = grpcTransportConfig.getSpanClientOption();
+        final StreamState failState = new SimpleStreamState(spanClientOption.getLimitCount(), spanClientOption.getLimitTime());
+        logger.info("failState:{}", failState);
+
+        final SpanGrpcDataSender spanGrpcDataSender = new SpanGrpcDataSender(collectorIp, collectorPort,
+                senderExecutorQueueSize, messageConverter,
+                reconnectExecutor, channelFactory, failState);
+
+        registerChannelzReporter(spanGrpcDataSender);
+
+        return spanGrpcDataSender;
     }
 
-    protected ChannelFactoryBuilder newChannelFactoryBuilder() {
+    private void registerChannelzReporter(SpanGrpcDataSender spanGrpcDataSender) {
+        final Logger statChannelLogger = LoggerFactory.getLogger(SPAN_CHANNELZ);
+        ChannelzReporter statReporter = new DefaultChannelzReporter(statChannelLogger);
+        reporter.registerRootChannel(spanGrpcDataSender.getLogId(), statReporter);
+    }
+
+    private ChannelFactoryBuilder newChannelFactoryBuilder() {
         final int channelExecutorQueueSize = grpcTransportConfig.getSpanChannelExecutorQueueSize();
         final ClientOption clientOption = grpcTransportConfig.getSpanClientOption();
 
@@ -92,6 +127,12 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
         channelFactoryBuilder.addClientInterceptor(unaryCallDeadlineInterceptor);
 //        final ClientInterceptor discardClientInterceptor = newDiscardClientInterceptor();
 //        channelFactoryBuilder.addClientInterceptor(discardClientInterceptor);
+        if (clientInterceptorList != null) {
+            for (ClientInterceptor clientInterceptor : clientInterceptorList) {
+                logger.info("addClientInterceptor:{}", clientInterceptor);
+                channelFactoryBuilder.addClientInterceptor(clientInterceptor);
+            }
+        }
 
         channelFactoryBuilder.setExecutorQueueSize(channelExecutorQueueSize);
         channelFactoryBuilder.setClientOption(clientOption);

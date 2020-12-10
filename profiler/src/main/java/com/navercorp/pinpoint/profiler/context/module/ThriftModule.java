@@ -98,31 +98,31 @@ public class ThriftModule extends PrivateModule {
         bind(metadataDataSender).to(dataSenderTypeLiteral).in(Scopes.SINGLETON);
         expose(metadataDataSender);
 
-        Key<Timer> spanStatConnectTimer = Key.get(Timer.class, SpanStatConnectTimer.class);
+        Key<Timer> spanStatConnectTimer = Key.get(Timer.class, SpanStatChannelFactory.class);
         bind(spanStatConnectTimer).toProvider(SpanStatConnectTimerProvider.class).in(Scopes.SINGLETON);
 
         Key<ChannelFactory> spanStatChannelFactory = Key.get(ChannelFactory.class, SpanStatChannelFactory.class);
         bind(spanStatChannelFactory).toProvider(SpanStatChannelFactoryProvider.class).in(Scopes.SINGLETON);
 
-        Key<PinpointClientFactory> spanClientFactory = Key.get(PinpointClientFactory.class, SpanClientFactory.class);
+        Key<PinpointClientFactory> spanClientFactory = Key.get(PinpointClientFactory.class, SpanDataSender.class);
         bind(spanClientFactory).toProvider(SpanClientFactoryProvider.class).in(Scopes.SINGLETON);
 
-        Key<PinpointClientFactory> statClientFactory = Key.get(PinpointClientFactory.class, StatClientFactory.class);
+        Key<PinpointClientFactory> statClientFactory = Key.get(PinpointClientFactory.class, StatDataSender.class);
         bind(statClientFactory).toProvider(StatClientFactoryProvider.class).in(Scopes.SINGLETON);
 
         TypeLiteral<MessageConverter<TBase<?, ?>>> thriftMessageConverter = new TypeLiteral<MessageConverter<TBase<?, ?>>>() {};
-        Key<MessageConverter<TBase<?, ?>>> spanMessageConverterKey = Key.get(thriftMessageConverter, SpanConverter.class);
+        Key<MessageConverter<TBase<?, ?>>> spanMessageConverterKey = Key.get(thriftMessageConverter, SpanDataSender.class);
         bind(spanMessageConverterKey).toProvider(SpanThriftMessageConverterProvider.class ).in(Scopes.SINGLETON);
 //        expose(spanMessageConverterKey);
 
-        Key<MessageConverter<TBase<?, ?>>> metadataMessageConverterKey = Key.get(thriftMessageConverter, MetadataConverter.class);
+        Key<MessageConverter<TBase<?, ?>>> metadataMessageConverterKey = Key.get(thriftMessageConverter, MetadataDataSender.class);
         bind(metadataMessageConverterKey).toProvider(MetadataMessageConverterProvider.class ).in(Scopes.SINGLETON);
 //        expose(metadataMessageConverterKey);
 
 
         // Stat Thrift Converter
         TypeLiteral<MessageConverter<TBase<?, ?>>> statMessageConverter = new TypeLiteral<MessageConverter<TBase<?, ?>>>() {};
-        Key<MessageConverter<TBase<?, ?>>> statMessageConverterKey = Key.get(statMessageConverter, StatConverter.class);
+        Key<MessageConverter<TBase<?, ?>>> statMessageConverterKey = Key.get(statMessageConverter, StatDataSender.class);
         bind(statMessageConverterKey).toProvider(StatThriftMessageConverterProvider.class ).in(Scopes.SINGLETON);
 
         Key<DataSender> spanDataSender = Key.get(DataSender.class, SpanDataSender.class);

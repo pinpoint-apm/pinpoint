@@ -29,7 +29,6 @@ public class ChannelzServerTransportFilter extends ServerTransportFilter {
         final InetSocketAddress remoteAddress = transportMetadata.getRemoteAddress();
         final InetSocketAddress localAddress = transportMetadata.getLocalAddress();
 
-
         if (logger.isDebugEnabled()) {
             logger.debug("Add logId:{} remoteAddress:{} localAddress:{}",
                     logId,
@@ -53,9 +52,6 @@ public class ChannelzServerTransportFilter extends ServerTransportFilter {
         final TransportMetadata transportMetadata = getTransportMetadata(transportAttrs);
 
         final InetSocketAddress remoteAddress = transportMetadata.getRemoteAddress();
-        final InetSocketAddress localAddress = transportMetadata.getLocalAddress();
-        final String target = remoteAddress.getHostString() + ":" + localAddress.getPort();
-
 
         final Long logId = registry.removeSocket(remoteAddress);
         if (logger.isDebugEnabled()) {
