@@ -34,6 +34,8 @@ public interface UserService {
 
     void updateUser(User user);
 
+    List<User> searchUser(String condition);
+
     List<User> selectUser();
 
     User selectUserByUserId(String userId);

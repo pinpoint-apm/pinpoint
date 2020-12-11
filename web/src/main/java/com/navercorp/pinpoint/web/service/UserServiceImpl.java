@@ -80,6 +80,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<User> searchUser(String condition) {
+        List<User> userList = userDao.searchUser(condition);
+        return userInfoDecoder.decodeUserInfoList(userList);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public User selectUserByUserId(String userId) {
         User user = userDao.selectUserByUserId(userId);
         return userInfoDecoder.decodeUserInfo(user);

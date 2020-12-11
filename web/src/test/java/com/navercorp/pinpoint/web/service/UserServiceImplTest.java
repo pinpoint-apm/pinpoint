@@ -199,6 +199,30 @@ public class UserServiceImplTest {
         }
     }
 
+    @Test
+    public void searchUser() {
+        String condition  = "part";
+
+        List<User> userList = new ArrayList<>(5);
+        userList.add(new User("1", "userId01", "name01", "departmentName", 82, "01012341234", "name01@pinpoint.com"));
+        userList.add(new User("2", "userId02", "name02", "departmentName", 82, "01012341234", "name02@pinpoint.com"));
+        userList.add(new User("3", "userId03", "name03", "departmentName", 82, "01012341234", "name03@pinpoint.com"));
+        userList.add(new User("4","userId04", "name04", "departmentName", 82, "01012341234", "name04@pinpoint.com"));
+        userList.add(new User("5", "userId05", "name05", "departmentName", 82, "01012341234", "name05@pinpoint.com"));
+
+        when(userDao.searchUser(condition)).thenReturn(userList);
+        List<User> result = userService.searchUser(condition);
+
+        assertEquals(result.size(), 5);
+        for (User user : result) {
+            assertTrue(user.getUserId().startsWith("userId"));
+            assertTrue(user.getName().startsWith("name"));
+            assertEquals(user.getPhoneCountryCode(), 82);
+            assertEquals(user.getPhoneNumber(), DECODED_PHONE_NUMBER);
+            assertEquals(user.getEmail(), DECODED_EMAIL);
+        }
+    }
+
     private class CustomUserInfoDecoder implements UserInfoDecoder {
 
         @Override
