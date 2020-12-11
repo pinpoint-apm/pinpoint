@@ -40,6 +40,8 @@ public interface UserDao {
 
     List<User> selectUserByUserName(String userName);
 
+    List<User> searchUser(String condition);
+
     void updateUser(User user);
 
     boolean isExistUserId(String userId);

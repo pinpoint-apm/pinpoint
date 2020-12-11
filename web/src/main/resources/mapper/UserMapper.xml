@@ -52,6 +52,13 @@
         ORDER BY department
     </select>
 
+    <select id="searchUser" resultType="User">
+        SELECT *
+        FROM puser
+        WHERE user_id LIKE CONCAT('%', #{condition}, '%') OR NAME LIKE CONCAT('%', #{condition}, '%') OR department LIKE CONCAT('%', #{condition}, '%')
+        ORDER BY department
+    </select>
+
     <select id="isExistUserId" resultType="java.lang.Boolean">
         SELECT EXISTS (
             SELECT 1

@@ -104,6 +104,11 @@ public class MemoryUserDao implements UserDao {
     }
 
     @Override
+    public List<User> searchUser(String condition) {
+        return new ArrayList<>(users.values());
+    }
+
+    @Override
     public void dropAndCreateUserTable() {
         users.clear();
         userNumGenerator.lazySet(1);

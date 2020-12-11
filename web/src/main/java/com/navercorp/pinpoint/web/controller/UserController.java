@@ -92,8 +92,7 @@ public class UserController {
                 users.add(userService.selectUserByUserId(userId));
                 return users;
             } else if (searchKey != null) {
-                List<User> users = userService.selectUserByDepartment(searchKey);
-                users.addAll(userService.selectUserByUserName(searchKey));
+                List<User> users = userService.searchUser(searchKey);
                 return users;
             } else {
                 return userService.selectUser();
