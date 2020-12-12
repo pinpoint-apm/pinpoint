@@ -169,6 +169,10 @@ public class GrpcTransportConfig {
         builder.setWriteBufferHighWaterMark(readByteSize(profilerConfig, transportName + ".write.buffer.highwatermark", ClientOption.DEFAULT_WRITE_BUFFER_HIGH_WATER_MARK));
         builder.setWriteBufferLowWaterMark(readByteSize(profilerConfig, transportName + ".write.buffer.lowwatermark", ClientOption.DEFAULT_WRITE_BUFFER_LOW_WATER_MARK));
         builder.setChannelTypeEnum(profilerConfig.readString(transportName + ".channel-type", ClientOption.DEFAULT_CHANNEL_TYPE));
+        builder.setMaxTraceEvent(profilerConfig.readInt(transportName + ".maxtraceevent", ClientOption.DEFAULT_MAX_TRACE_EVENT));
+
+        builder.setLimitCount(profilerConfig.readInt(transportName + ".limitcount", ClientOption.DEFAULT_LIMIT_COUNT));
+        builder.setLimitTime(profilerConfig.readInt(transportName + ".limittime", ClientOption.DEFAULT_LIMIT_TIME));
 
         return builder.build();
     }

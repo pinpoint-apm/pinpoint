@@ -214,6 +214,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9151</td><td>NETTY_INTERNAL</td></tr>
  * <tr><td>9152</td><td>NETTY_HTTP</td></tr>
  * <tr><td>9153</td><td>SPRING_WEBFLUX_CLIENT</td></tr>
+ * <tr><td>9154</td><td>REACTOR_NETTY_CLIENT</td></tr>
+ * <tr><td>9155</td><td>REACTOR_NETTY_CLIENT_INTERNAL</td></tr>
  * <tr><td>9160</td><td>GRPC</td></tr>
  * <tr><td>9161</td><td>GRPC_INTERNAL</td></tr>
  * <tr><td>9162</td><td>GRPC_SERVER_INTERNAL</td></tr>

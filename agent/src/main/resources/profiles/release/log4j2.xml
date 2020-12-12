@@ -25,14 +25,40 @@
             </Policies>
             <DefaultRolloverStrategy max="20"/>
         </RollingFile>
+
+        <RollingFile name="statRollingFile" filename="${logging_dir}/pinpoint-stat.log"
+                     filepattern="${logging_dir}/pinpoint-%i.log">
+            <PatternLayout>
+                <Pattern>${file_message_pattern}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="${backupsize}" />
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
     </Appenders>
 
     <Loggers>
+        <Logger name="com.navercorp.pinpoint.metric" level="INFO" additivity="false">
+            <AppenderRef ref="statRollingFile"/>
+<!--            <AppenderRef ref="console"/>-->
+<!--            <AppenderRef ref="rollingFile"/>-->
+        </Logger>
+
         <Logger name="com.navercorp.pinpoint" level="INFO" additivity="false">
             <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>
         </Logger>
         <Logger name="io.grpc" level="INFO" additivity="false">
+            <AppenderRef ref="rollingFile"/>
+        </Logger>
+
+        <Logger name="io.grpc.Context" level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Logger>
+        <Logger name="io.grpc.netty.Utils" level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>
         </Logger>
 

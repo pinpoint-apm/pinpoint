@@ -18,15 +18,19 @@ package com.navercorp.pinpoint.plugin.grpc;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Metadata;
 import io.grpc.examples.manualflowcontrol.StreamingGreeterGrpc;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
+import io.grpc.stub.MetadataUtils;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 /**
@@ -45,11 +49,14 @@ public class HelloWorldStreamClient implements HelloWorldClient {
      */
     @SuppressWarnings("deprecated")
     public HelloWorldStreamClient(String host, int port) {
-        this(ManagedChannelBuilder.forAddress(host, port)
-                // Channels are secure by default (via SSL/TLS). For the example we disable TLS to avoid
-                // needing certificates.
-                .usePlaintext()
-                .build());
+        this(newChannel(host, port));
+    }
+
+    private static ManagedChannel newChannel(String host, int port) {
+        ManagedChannelBuilder<?> builder = ManagedChannelBuilder.forAddress(host, port);
+        BuilderUtils.usePlainText(builder);
+        builder.intercept(MetadataUtils.newCaptureMetadataInterceptor(new AtomicReference<Metadata>(), new AtomicReference<Metadata>()));
+        return builder.build();
     }
 
     /**

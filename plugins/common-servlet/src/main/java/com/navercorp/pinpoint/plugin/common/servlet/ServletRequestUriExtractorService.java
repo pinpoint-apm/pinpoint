@@ -41,7 +41,11 @@ public class ServletRequestUriExtractorService implements UriExtractorService<Ht
             result.add(servletRequestAttributesMappingExtractor);
         }
 
-        return new UriExtractorChain<HttpServletRequest>(result);
+        if (result.isEmpty()) {
+            return null;
+        } else {
+            return new UriExtractorChain<HttpServletRequest>(result);
+        }
     }
 
 }

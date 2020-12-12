@@ -122,6 +122,10 @@ public interface ProfilerConfig {
 
     int getCustomMetricLimitSize();
 
+    boolean isUriStatEnable();
+
+    int getCompletedUriStatDataLimitSize();
+
     String readString(String propertyName, String defaultValue);
 
     String readString(String propertyName, String defaultValue, ValueResolver valueResolver);

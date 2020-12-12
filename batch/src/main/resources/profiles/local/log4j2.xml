@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration status="INFO">
+    <Properties>
+        <Property name="default_logging_dir">logs</Property>
+        <Property name="logging_dir">${sys:logging.file.path:-${default_logging_dir}}</Property>
+
+        <Property name="rolling-date-format">%d{yyyy-MM-dd}</Property>
+        <Property name="backupsize">1GB</Property>
+
+        <Property name="console_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %clr{%-5level} %clr{%-40.40logger{1.}}{cyan}:%3L -- %msg%n</Property>
+        <Property name="file_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.}:%3L -- %msg%n</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="console" target="system_out">
+            <PatternLayout pattern="${console_message_pattern}"/>
+        </Console>
+
+        <RollingFile name="rollingFile" filename="${logging_dir}/pinpoint-web.log"
+                     filepattern="${logging_dir}/pinpoint-web-${rolling-date-format}-%i.log"  >
+            <PatternLayout>
+                <Pattern>${file_message_pattern}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${backupsize}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20">
+                <Delete basePath="${logging_dir}/" maxDepth="1">
+                    <IfFileName glob="pinpoint-web-*-*.log">
+                        <IfAny>
+                            <IfAccumulatedFileSize exceeds="1GB" />
+                            <IfAccumulatedFileCount exceeds="50" />
+                        </IfAny>
+                    </IfFileName>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+    </Appenders>
+
+    <Loggers>
+         <Logger name="com.navercorp.pinpoint" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint.web.filter" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint.web.controller" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint.web.applicationmap" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint.web.mapper" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint.web.service" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint.web.dao" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint.web.mapper.ApiMetaDataMapper" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="org.mybatis" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="org.springframework" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="org.apache.zookeeper" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="org.apache.hadoop.hbase" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Logger name="org.apache.hadoop.ipc" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Logger name="org.apache.hadoop" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Root level="DEBUG">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Root>
+    </Loggers>
+</Configuration>

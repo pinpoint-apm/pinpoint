@@ -22,10 +22,8 @@ import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.google.protobuf.GeneratedMessageV3;
-
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
@@ -34,6 +32,7 @@ import com.navercorp.pinpoint.profiler.context.grpc.GrpcMessageToResultConverter
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcMetadataMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcStatMessageConverterProvider;
+import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.AgentGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.AgentHeaderFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.DnsExecutorServiceProvider;
@@ -50,6 +49,8 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
+import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledReporter;
+import com.navercorp.pinpoint.profiler.sender.grpc.metric.DefaultChannelzScheduledReporter;
 import io.grpc.NameResolverProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +67,8 @@ public class GrpcModule extends PrivateModule {
 
     private final ProfilerConfig profilerConfig;
 
+    private final ChannelzScheduledReporter reporter = new DefaultChannelzScheduledReporter();
+
     public GrpcModule(ProfilerConfig profilerConfig) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
     }
@@ -73,6 +76,7 @@ public class GrpcModule extends PrivateModule {
     @Override
     protected void configure() {
         logger.info("configure {}", this.getClass().getSimpleName());
+        bind(ChannelzScheduledReporter.class).toInstance(reporter);
 
         bind(GrpcTransportConfig.class).toProvider(GrpcTransportConfigProvider.class).in(Scopes.SINGLETON);
         // dns executor
@@ -87,7 +91,7 @@ public class GrpcModule extends PrivateModule {
 
         // Agent
         TypeLiteral<MessageConverter<GeneratedMessageV3>> metadataMessageConverter = new TypeLiteral<MessageConverter<GeneratedMessageV3>>() {};
-        Key<MessageConverter<GeneratedMessageV3>> metadataMessageConverterKey = Key.get(metadataMessageConverter, MetadataConverter.class);
+        Key<MessageConverter<GeneratedMessageV3>> metadataMessageConverterKey = Key.get(metadataMessageConverter, MetadataDataSender.class);
         bind(metadataMessageConverterKey).toProvider(GrpcMetadataMessageConverterProvider.class ).in(Scopes.SINGLETON);
 
         TypeLiteral<MessageConverter<ResultResponse>> resultMessageConverter = new TypeLiteral<MessageConverter<ResultResponse>>() {};
@@ -106,7 +110,7 @@ public class GrpcModule extends PrivateModule {
 
         // Span
         TypeLiteral<MessageConverter<GeneratedMessageV3>> protoMessageConverter = new TypeLiteral<MessageConverter<GeneratedMessageV3>>() {};
-        Key<MessageConverter<GeneratedMessageV3>> spanMessageConverterKey = Key.get(protoMessageConverter, SpanConverter.class);
+        Key<MessageConverter<GeneratedMessageV3>> spanMessageConverterKey = Key.get(protoMessageConverter, SpanDataSender.class);
         // not singleton
         bind(spanMessageConverterKey).toProvider(GrpcSpanMessageConverterProvider.class);
 
@@ -119,7 +123,7 @@ public class GrpcModule extends PrivateModule {
 
         // Stat
         TypeLiteral<MessageConverter<GeneratedMessageV3>> statMessageConverter = new TypeLiteral<MessageConverter<GeneratedMessageV3>>() {};
-        Key<MessageConverter<GeneratedMessageV3>> statMessageConverterKey = Key.get(statMessageConverter, StatConverter.class);
+        Key<MessageConverter<GeneratedMessageV3>> statMessageConverterKey = Key.get(statMessageConverter, StatDataSender.class);
         bind(statMessageConverterKey).toProvider(GrpcStatMessageConverterProvider.class ).in(Scopes.SINGLETON);
 
         Key<DataSender> statDataSender = Key.get(DataSender.class, StatDataSender.class);

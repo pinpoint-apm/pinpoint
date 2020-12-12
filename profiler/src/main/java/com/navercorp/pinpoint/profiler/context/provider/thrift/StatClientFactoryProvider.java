@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ByteSizeUnit;
 import com.navercorp.pinpoint.profiler.context.module.SpanStatChannelFactory;
-import com.navercorp.pinpoint.profiler.context.module.SpanStatConnectTimer;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.jboss.netty.channel.ChannelFactory;
@@ -38,7 +37,9 @@ public class StatClientFactoryProvider extends AbstractClientFactoryProvider imp
     private final Provider<Timer> connectTimerProvider;
 
     @Inject
-    public StatClientFactoryProvider(ThriftTransportConfig thriftTransportConfig, @SpanStatChannelFactory Provider<ChannelFactory> channelFactoryProvider, @SpanStatConnectTimer Provider<Timer> connectTimerProvider) {
+    public StatClientFactoryProvider(ThriftTransportConfig thriftTransportConfig,
+                                     @SpanStatChannelFactory Provider<ChannelFactory> channelFactoryProvider,
+                                     @SpanStatChannelFactory Provider<Timer> connectTimerProvider) {
         this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
         this.channelFactoryProvider = Assert.requireNonNull(channelFactoryProvider, "channelFactoryProvider");
         this.connectTimerProvider = Assert.requireNonNull(connectTimerProvider, "connectTimerProvider");

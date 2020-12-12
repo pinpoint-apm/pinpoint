@@ -70,10 +70,10 @@ public class ThriftModuleLifeCycle implements ModuleLifeCycle {
             Provider<CommandDispatcher> commandDispatcherProvider,
             @DefaultClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
             @AgentDataSender Provider<EnhancedDataSender<Object>> tcpDataSenderProvider,
-            @SpanStatConnectTimer Provider<Timer> spanStatConnectTimerProvider,
+            @SpanStatChannelFactory Provider<Timer> spanStatConnectTimerProvider,
             @SpanStatChannelFactory Provider<ChannelFactory> spanStatChannelFactoryProvider,
-            @SpanClientFactory Provider<PinpointClientFactory> spanClientFactoryProvider,
-            @StatClientFactory Provider<PinpointClientFactory> statClientFactoryProvider,
+            @SpanDataSender Provider<PinpointClientFactory> spanClientFactoryProvider,
+            @StatDataSender Provider<PinpointClientFactory> statClientFactoryProvider,
             @SpanDataSender Provider<DataSender> spanDataSenderProvider,
             @StatDataSender Provider<DataSender> statDataSenderProvider
             ) {

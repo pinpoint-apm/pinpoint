@@ -80,7 +80,7 @@ public class StreamExecutorServerInterceptor implements ServerInterceptor {
                 } catch (RejectedExecutionException ree) {
                     // Defense code, need log ?
                     scheduleListener.onRejectedExecution();
-                    // logger.warn("Failed to request. Rejected execution, count={}", scheduleListener.getRejectedExecutionCount());
+                    logger.warn("Failed to request. Rejected execution, count={}", scheduleListener.getRejectedExecutionCount());
                 }
             }
 

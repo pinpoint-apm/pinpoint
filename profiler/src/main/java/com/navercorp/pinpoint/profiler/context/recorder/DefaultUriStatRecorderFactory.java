@@ -16,12 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.context.recorder;
 
+import com.navercorp.pinpoint.bootstrap.plugin.uri.DisabledUriStatRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorService;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 
 import com.google.inject.Provider;
 
@@ -31,19 +33,28 @@ import com.google.inject.Provider;
 public class DefaultUriStatRecorderFactory implements UriStatRecorderFactory {
 
     private final UriExtractorProviderLocator uriExtractorProviderLocator;
+    private final UriStatStorage uriStatStorage;
 
-    public DefaultUriStatRecorderFactory(Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider) {
+    public DefaultUriStatRecorderFactory(Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider, Provider<UriStatStorage> uriStatStorageProvider) {
         Assert.requireNonNull(uriExtractorProviderLocatorProvider, "uriExtractorProviderLocatorProvider");
 
         UriExtractorProviderLocator uriExtractorProviderLocator = uriExtractorProviderLocatorProvider.get();
         this.uriExtractorProviderLocator = Assert.requireNonNull(uriExtractorProviderLocator, "uriExtractorProviderLocator");
+
+        Assert.requireNonNull(uriStatStorageProvider, "uriStatStorageProvider");
+        this.uriStatStorage = uriStatStorageProvider.get();
     }
 
     @Override
     public <T> UriStatRecorder<T> create(UriExtractorService<T> uriExtractorService) {
         Assert.requireNonNull(uriExtractorService, "uriExtractorService");
         UriExtractor<T> uriExtractor = uriExtractorService.get(uriExtractorProviderLocator);
-        return new DefaultUriStatRecorder<T>(uriExtractor);
+
+        if (uriExtractor == null) {
+            return DisabledUriStatRecorder.create();
+        } else {
+            return new DefaultUriStatRecorder<T>(uriExtractor, uriStatStorage);
+        }
     }
 
 }

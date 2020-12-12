@@ -20,8 +20,10 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
+import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
+import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PStatMessage;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
 import com.navercorp.pinpoint.io.header.Header;
@@ -74,6 +76,9 @@ public class StatService extends StatGrpc.StatImplBase {
                 } else if (statMessage.hasAgentStatBatch()) {
                     final Message<PAgentStatBatch> message = newMessage(statMessage.getAgentStatBatch(), DefaultTBaseLocator.AGENT_STAT_BATCH);
                     send(message, responseObserver);
+                } else if (statMessage.hasAgentUriStat()) {
+                    final Message<PAgentUriStat> message = newMessage(statMessage.getAgentUriStat(), DefaultTBaseLocator.AGENT_URI_STAT);
+                    send(message, responseObserver);
                 } else {
                     if (isDebug) {
                         logger.debug("Found empty stat message {}", MessageFormatUtils.debugLog(statMessage));
@@ -93,6 +98,9 @@ public class StatService extends StatGrpc.StatImplBase {
 
             @Override
             public void onCompleted() {
+                com.navercorp.pinpoint.grpc.Header header = ServerContext.getAgentInfo();
+                logger.info("onCompleted {}", header);
+
                 responseObserver.onNext(Empty.newBuilder().build());
                 responseObserver.onCompleted();
             }

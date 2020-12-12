@@ -17,6 +17,7 @@ message PStatMessage {
     oneof field {
         PAgentStat agentStat = 1;
         PAgentStatBatch agentStatBatch = 2;
+        PAgentUriStat agentUriStat = 3;
     }
 }
 
@@ -168,4 +169,23 @@ message PTotalThread {
 message PLoadedClass {
     int64 loadedClassCount = 1;
     int64 unloadedClassCount = 2;
+}
+
+message PAgentUriStat {
+    int64 timestamp = 1;
+    int32 bucketVersion = 2;
+    repeated PEachUriStat eachUriStat = 3;
+}
+
+message PEachUriStat {
+    string uri = 1;
+    PUriHistogram totalHistogram = 2;
+    PUriHistogram failedHistogram = 3;
+}
+
+message PUriHistogram {
+    int32 count = 1;
+    double avg = 2;
+    int64 max = 3;
+    repeated int32 histogram = 4;
 }

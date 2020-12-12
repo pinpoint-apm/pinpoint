@@ -36,10 +36,12 @@ import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
+import com.navercorp.pinpoint.profiler.sender.grpc.DefaultStreamEventListener;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import com.navercorp.pinpoint.profiler.sender.grpc.Reconnector;
 import com.navercorp.pinpoint.profiler.sender.grpc.ResponseStreamObserver;
 import com.navercorp.pinpoint.profiler.sender.grpc.SpanGrpcDataSender;
+import com.navercorp.pinpoint.profiler.sender.grpc.StreamEventListener;
 import com.navercorp.pinpoint.profiler.sender.grpc.StreamId;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
@@ -47,6 +49,7 @@ import io.grpc.ClientCall;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.MethodDescriptor;
+import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,7 +138,24 @@ public class SpanClientMock {
         System.out.println("NEW SpanStream");
         System.out.println("###");
         StreamId spanId = StreamId.newStreamId("SpanStream");
-        ResponseStreamObserver<PSpanMessage, Empty> responseStreamObserver = new ResponseStreamObserver<PSpanMessage, Empty>(spanId, spanStreamReconnector);
+        StreamEventListener<PSpanMessage> listener = new StreamEventListener<PSpanMessage>() {
+
+            @Override
+            public void start(ClientCallStreamObserver<PSpanMessage> requestStream) {
+                spanStreamReconnector.reset();
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                spanStreamReconnector.reconnect();
+            }
+
+            @Override
+            public void onCompleted() {
+                spanStreamReconnector.reconnect();
+            }
+        };
+        ResponseStreamObserver<PSpanMessage, Empty> responseStreamObserver = new ResponseStreamObserver<PSpanMessage, Empty>(listener);
         return spanStub.sendSpan(responseStreamObserver);
     }
 

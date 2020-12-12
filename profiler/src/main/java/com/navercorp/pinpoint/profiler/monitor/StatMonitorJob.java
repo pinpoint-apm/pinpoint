@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.util.List;
 
 /**
@@ -32,20 +33,32 @@ class StatMonitorJob implements Runnable {
     private final boolean isDebug = logger.isDebugEnabled();
 
 
-    private final List<Runnable> runnableList;
+    private final Runnable[] runnableList;
 
     public StatMonitorJob(List<Runnable> runnableList) {
-        this.runnableList = Assert.requireNonNull(runnableList, "runnableList");
+        Assert.requireNonNull(runnableList, "runnableList");
+        this.runnableList = runnableList.toArray(new Runnable[0]);
     }
 
     @Override
     public void run() {
         if (isDebug) {
-            logger.debug("StatMonitorJob started. jobSize=" + runnableList.size());
+            logger.debug("StatMonitorJob started. jobSize={}", runnableList.length);
         }
 
         for (Runnable runnable : runnableList) {
             runnable.run();
+        }
+    }
+
+    public void close() {
+        for (Runnable runnable : runnableList) {
+            if (runnable instanceof Closeable) {
+                try {
+                    ((Closeable) runnable).close();
+                } catch (Exception e) {
+                }
+            }
         }
     }
 
