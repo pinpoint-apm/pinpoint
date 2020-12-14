@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { forkJoin, Subject } from 'rxjs';
-import { takeUntil, filter } from 'rxjs/operators';
+import { takeUntil, filter, tap, switchMap  } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import {
@@ -29,6 +29,7 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 export class ScatterChartForInfoPerServerContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     private unsubscribe = new Subject<void>();
     private _hideSettingPopup = true;
+    private tempScatterDataList: IScatterData[] = [];
 
     wrapperClassName = '';
     instanceKey = 'info-per-server';
@@ -52,6 +53,7 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
     timezone: string;
     dateFormat: string[];
     showBlockMessagePopup = false;
+    enableServerSideScan: boolean;
 
     constructor(
         private storeHelperService: StoreHelperService,
@@ -70,6 +72,7 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
     ) {}
 
     ngOnInit() {
+        this.enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
         this.setScatterY();
         forkJoin(
             this.translateService.get('COMMON.NO_DATA'),
@@ -106,6 +109,13 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
         this.unsubscribe.complete();
     }
 
+    private reset(range?: {[key: string]: number}): void {
+        this.toX = range ? range.toX : Date.now();
+        this.fromX = range ? range.fromX : this.toX - this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds();
+
+        this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
+    }
+
     private setScatterY(): void {
         const {min, max} = this.webAppSettingDataService.getScatterY(this.instanceKey);
 
@@ -129,17 +139,19 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
             this.scatterChartInteractionService.changeAgent(this.instanceKey, agent);
             this.cd.detectChanges();
         });
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe((target: ISelectedTarget) => {
-            this.isChangedTarget = true;
-            this.selectedTarget = target;
-            this.selectedAgent = '';
-            this.selectedApplication = this.selectedTarget.node[0];
-            this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
-            this.scatterChartDataService.getSavedData().pipe(
-                takeUntil(this.unsubscribe)
-            ).subscribe((data: IScatterData) => {
-                this.scatterChartInteractionService.addChartData(this.instanceKey, data);
-            });
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).pipe(
+            tap((target: ISelectedTarget) => {
+                this.isChangedTarget = true;
+                this.selectedTarget = target;
+                this.selectedAgent = '';
+                this.selectedApplication = this.selectedTarget.node[0];
+                this.reset({fromX: this.fromX, toX: this.toX});
+            }),
+            switchMap(() => this.scatterChartDataService.getSavedData().pipe(
+                takeUntil(this.unsubscribe),
+                tap((data: IScatterData) => this.tempScatterDataList.push(data))))
+        ).subscribe((data: IScatterData) => {
+            this.scatterChartInteractionService.addChartData(this.instanceKey, data);
             this.cd.detectChanges();
         });
     }
@@ -163,6 +175,10 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
         });
         this.hideSettingPopup = true;
         this.webAppSettingDataService.setScatterY(this.instanceKey, { min: params.min, max: params.max });
+        this.reset({fromX: this.fromX, toX: this.toX});
+        this.tempScatterDataList.forEach((data: IScatterData) => {
+            this.scatterChartInteractionService.addChartData(this.instanceKey, data);
+        });
     }
 
     onCancelSetting(): void {

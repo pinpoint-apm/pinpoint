@@ -28,6 +28,7 @@
         [timezone]="timezone$ | async"
         [dateFormat]="dateFormat"
         [i18nText]="i18nText"
+        [enableServerSideScan]="enableServerSideScan"
         (outTransactionCount)="onChangeTransactionCount($event)"
         (outSelectArea)="onSelectArea($event)"
         (outChangeRangeX)="onChangeRangeX($event)">

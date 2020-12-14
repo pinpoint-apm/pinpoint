@@ -76,3 +76,11 @@
     height: 100%;
     outline: none;
 }
+
+.l-experimental-menu-link {
+    font-style: italic;
+}
+
+.l-experimental-menu-link i {
+    font-size: 13px;
+}

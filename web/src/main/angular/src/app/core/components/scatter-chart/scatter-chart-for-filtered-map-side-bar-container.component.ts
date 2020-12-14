@@ -52,6 +52,7 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
     dateFormat: string[];
     showBlockMessagePopup = false;
     shouldHide = true;
+    enableServerSideScan: boolean;
 
     constructor(
         private storeHelperService: StoreHelperService,
@@ -69,6 +70,7 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
     ) {}
 
     ngOnInit() {
+        this.enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
         this.setScatterY();
         forkJoin(
             this.translateService.get('COMMON.NO_DATA'),
@@ -99,6 +101,13 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+    }
+
+    private reset(range?: {[key: string]: number}): void {
+        this.toX = range ? range.toX : Date.now();
+        this.fromX = range ? range.fromX : this.toX - this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds();
+
+        this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
     }
 
     private setScatterY(): void {
@@ -140,7 +149,7 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
             if (!this.shouldHide) {
                 this.selectedAgent = '';
                 this.selectedApplication = this.selectedTarget.node[0];
-                this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
+                this.reset({fromX: this.fromX, toX: this.toX});
                 this.getScatterData(0);
             }
             this.cd.detectChanges();
@@ -180,6 +189,8 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
         });
         this.hideSettingPopup = true;
         this.webAppSettingDataService.setScatterY(this.instanceKey, { min: params.min, max: params.max });
+        this.reset({fromX: this.fromX, toX: this.toX});
+        this.getScatterData(0);
     }
 
     onCancelSetting(): void {
