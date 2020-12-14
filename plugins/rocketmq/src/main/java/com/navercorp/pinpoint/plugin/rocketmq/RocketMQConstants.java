@@ -35,10 +35,10 @@ public class RocketMQConstants {
     public static final ServiceType ROCKETMQ_CLIENT = ServiceTypeFactory.of(8400, "ROCKETMQ_CLIENT", "ROCKETMQ_CLIENT", QUEUE, RECORD_STATISTICS);
     public static final ServiceType ROCKETMQ_CLIENT_INTERNAL = ServiceTypeFactory.of(8401, "ROCKETMQ_CLIENT_INTERNAL", "ROCKETMQ_CLIENT");
 
-    public static final AnnotationKey ROCKETMQ_TOPIC_ANNOTATION_KEY = AnnotationKeyFactory.of(190, "rocketmq.topic", VIEW_IN_RECORD_SET);
-    public static final AnnotationKey ROCKETMQ_PARTITION_ANNOTATION_KEY = AnnotationKeyFactory.of(191, "rocketmq.message.queue", VIEW_IN_RECORD_SET);
-    public static final AnnotationKey ROCKETMQ_OFFSET_ANNOTATION_KEY = AnnotationKeyFactory.of(192, "rocketmq.offset", VIEW_IN_RECORD_SET);
-    public static final AnnotationKey ROCKETMQ_BATCH_ANNOTATION_KEY = AnnotationKeyFactory.of(193, "rocketmq.batch", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey ROCKETMQ_TOPIC_ANNOTATION_KEY = AnnotationKeyFactory.of(800, "rocketmq.topic", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey ROCKETMQ_PARTITION_ANNOTATION_KEY = AnnotationKeyFactory.of(801, "rocketmq.message.queue", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey ROCKETMQ_OFFSET_ANNOTATION_KEY = AnnotationKeyFactory.of(802, "rocketmq.offset", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey ROCKETMQ_BATCH_ANNOTATION_KEY = AnnotationKeyFactory.of(803, "rocketmq.batch", VIEW_IN_RECORD_SET);
 
     public static final String UNKNOWN = "Unknown";
 

@@ -378,6 +378,12 @@
             <artifactId>pinpoint-paho-mqtt-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-rocketmq-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

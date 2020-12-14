@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.rocketmq.interceptor;
 
-import org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyStatus;
+import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -30,12 +30,12 @@ import com.navercorp.pinpoint.plugin.rocketmq.RocketMQConstants;
 /**
  * @author messi-gao
  */
-public final class MessageListenerOrderlyInterceptor implements AroundInterceptor {
+public final class ConsumerMessageListenerConcurrentlyInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
 
-    public MessageListenerOrderlyInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public ConsumerMessageListenerConcurrentlyInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
     }
@@ -73,8 +73,8 @@ public final class MessageListenerOrderlyInterceptor implements AroundIntercepto
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT_INTERNAL);
             recorder.recordApi(descriptor);
-            ConsumeOrderlyStatus status = (ConsumeOrderlyStatus) result;
-            if (status == ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT) {
+            ConsumeConcurrentlyStatus status = (ConsumeConcurrentlyStatus) result;
+            if (status == ConsumeConcurrentlyStatus.RECONSUME_LATER) {
                 recorder.recordException(new RuntimeException(status.toString()));
             }
             recorder.recordException(throwable);

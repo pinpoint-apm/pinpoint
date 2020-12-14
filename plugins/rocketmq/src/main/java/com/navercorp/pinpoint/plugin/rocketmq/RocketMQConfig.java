@@ -27,10 +27,12 @@ public class RocketMQConfig {
 
     static final String CONSUMER_ENABLE = "profiler.rocketmq.consumer.enable";
     static final String CONSUMER_ENTRY_POINT = "profiler.rocketmq.consumer.entryPoint";
+    static final String CONSUMER_BASE_PACKAGE = "profiler.rocketmq.consumer.basePackage";
 
     private final boolean producerEnable;
     private final boolean consumerEnable;
     private final String rocketmqEntryPoint;
+    private final String consumerBasePackage;
 
     public RocketMQConfig(ProfilerConfig config) {
         /*
@@ -39,6 +41,7 @@ public class RocketMQConfig {
         producerEnable = config.readBoolean(PRODUCER_ENABLE, false);
         consumerEnable = config.readBoolean(CONSUMER_ENABLE, false);
         rocketmqEntryPoint = config.readString(CONSUMER_ENTRY_POINT, "");
+        consumerBasePackage = config.readString(CONSUMER_BASE_PACKAGE, "");
     }
 
     public boolean isProducerEnable() {
@@ -53,12 +56,17 @@ public class RocketMQConfig {
         return rocketmqEntryPoint;
     }
 
+    public String getConsumerBasePackage() {
+        return consumerBasePackage;
+    }
+
     @Override
     public String toString() {
         return "RocketMQConfig{" +
                "producerEnable=" + producerEnable +
                ", consumerEnable=" + consumerEnable +
-               ", kafkaEntryPoint='" + rocketmqEntryPoint + '\'' +
+               ", rocketmqEntryPoint='" + rocketmqEntryPoint + '\'' +
+               ", consumerBasePackege='" + consumerBasePackage + '\'' +
                '}';
     }
 }
