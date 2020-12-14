@@ -91,6 +91,9 @@
         },
         "ALARM": {
             "EMPTY": "No registered alarm."
+        },
+        "EXPERIMENTAL": {
+            "DESC": "* You may try the experimental features."
         }
     },
     "TRANSACTION": {

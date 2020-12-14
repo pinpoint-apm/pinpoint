@@ -33,3 +33,16 @@ export function isSameArray(arr1: any[], arr2: any[]): boolean {
         return arr2.includes(item) ? true : (arr.splice(i + 1), false);
     }, true);
 }
+
+
+export function sumObjByKey(...objs: {[key: string]: any}[]): {[key: string]: any} {
+    return objs.reduce((acc: {[key: string]: any}, curr: {[key: string]: any}) => {
+        for (const key in curr) {
+            if (curr.hasOwnProperty(key)) {
+                acc[key] = (acc[key] || 0) + curr[key];
+            }
+        }
+
+        return acc;
+      }, {});
+}

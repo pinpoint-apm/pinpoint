@@ -56,6 +56,7 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     timezone$: Observable<string>;
     dateFormat: string[];
     showBlockMessagePopup = false;
+    enableServerSideScan: boolean;
 
     constructor(
         private renderer: Renderer2,
@@ -73,6 +74,7 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
         private messageQueueService: MessageQueueService
     ) {}
     ngOnInit() {
+        this.enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
         this.setScatterY();
         this.getI18NText();
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
@@ -238,6 +240,8 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
         });
         this.onHideSetting();
         this.webAppSettingDataService.setScatterY(this.instanceKey, { min: params.min, max: params.max });
+        this.reset({fromX: this.fromX, toX: this.toX});
+        this.getScatterData();
     }
 
     onHideSetting(): void {

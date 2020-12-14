@@ -7,22 +7,20 @@ import { ScatterChartTransactionTypeManager, ITransactionTypeInfo } from './clas
 })
 export class ScatterChartStateViewComponent implements OnInit, OnChanges {
     @Input() instanceKey: string;
-    @Input() transactionTypeCount: any;
-    @Output() outChanged: EventEmitter<{instanceKey: string, name: string, checked: boolean}> = new EventEmitter();
+    @Input() transactionTypeCount: {[key: string]: number}; // {success: 123, failed: 444};
+    @Output() outChanged = new EventEmitter<{instanceKey: string, name: string, checked: boolean}>();
+
     sortedKeyArr: string[];
     transactionTypeInfo: {[key: string]: ITransactionTypeInfo};
+
     constructor() {}
     ngOnInit() {
         this.transactionTypeInfo = ScatterChartTransactionTypeManager.getDefaultTransactionTypeInfo();
         this.sortTypeInfo();
     }
-    ngOnChanges(simpleChanges: SimpleChanges) {
-        if (this.transactionTypeCount && this.transactionTypeInfo) {
-            Object.keys(this.transactionTypeCount).forEach((key: string) => {
-                this.transactionTypeInfo[key].checked = this.transactionTypeCount[key].checked;
-            });
-        }
-    }
+
+    ngOnChanges(simpleChanges: SimpleChanges) {}
+
     private sortTypeInfo(): void {
         this.sortedKeyArr = [];
         const temp: ITransactionTypeInfo[] = [];
@@ -40,7 +38,7 @@ export class ScatterChartStateViewComponent implements OnInit, OnChanges {
     }
     getTypeCount(name: string): number {
         if (this.transactionTypeCount && this.transactionTypeCount[name]) {
-            return this.transactionTypeCount[name].count;
+            return this.transactionTypeCount[name];
         } else {
             return 0;
         }

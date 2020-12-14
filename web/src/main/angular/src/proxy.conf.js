@@ -54,6 +54,7 @@ const PROXY_CONFIG = [
             "/admin/removeInactiveAgents.pinpoint",
             "/bind.pinpoint",
             "/getAgentStat/uriStat/chartList.pinpoint"
+            "/heatmap/drag.pinpoint"
         ],
         target: 'http://localhost:8080',
         secure: false

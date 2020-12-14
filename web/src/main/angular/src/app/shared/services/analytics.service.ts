@@ -20,6 +20,7 @@ export enum TRACKED_EVENT_LIST {
     SHOW_GROUPED_LINK_VIEW = 'Show Grouped Link View',
     CLICK_SCATTER_SETTING = 'Click Scatter Setting',
     DOWNLOAD_SCATTER = 'Download Scatter',
+    CHANGE_Y_RANGE_ON_SCATTER = 'Change Y Range on Scatter',
     GO_TO_FULL_SCREEN_SCATTER = 'Go to FullScreen Scatter',
     CLICK_RESPONSE_GRAPH = 'Click Response Graph',
     CLICK_RESPONSE_AVG_MAX_GRAPH = 'Click Response Avg Max Graph',

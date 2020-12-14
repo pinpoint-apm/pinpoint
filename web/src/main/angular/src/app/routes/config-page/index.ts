@@ -9,6 +9,7 @@ import { ConfigurationInspectorChartManagerModule } from 'app/core/components/co
 import { ConfigurationUserGroupModule } from 'app/core/components/configuration-user-group';
 import { ConfigurationInstallationModule } from 'app/core/components/configuration-installation';
 import { ConfigurationHelpModule } from 'app/core/components/configuration-help';
+import { ConfigurationExperimentalModule } from 'app/core/components/configuration-experimental';
 import { ConfigurationAlarmModule } from 'app/core/components/configuration-alarm';
 import { ConfigurationAgentStatisticModule } from 'app/core/components/configuration-agent-statistic';
 import { ConfigurationAgentManagementModule } from 'app/core/components/configuration-agent-management';
@@ -27,6 +28,7 @@ import { ConfigurationAgentManagementModule } from 'app/core/components/configur
         ConfigurationAlarmModule,
         ConfigurationInstallationModule,
         ConfigurationHelpModule,
+        ConfigurationExperimentalModule,
         ConfigurationAgentStatisticModule,
         ConfigurationAgentManagementModule
     ],

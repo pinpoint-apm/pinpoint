@@ -285,4 +285,11 @@ export class WebAppSettingDataService {
 
         return userLang;
     }
+    // TODO: set it as object?
+    setExperimentalOption(key: string, value: boolean): void {
+        this.localStorageService.set(key, value);
+    }
+    getExperimentalOption(key: string): boolean {
+        return this.localStorageService.get<boolean>(key) || false;
+    }
 }

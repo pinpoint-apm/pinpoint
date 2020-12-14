@@ -1,5 +1,5 @@
 import * as moment from 'moment-timezone';
-import { Subject, BehaviorSubject, Observable } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 import { ScatterChartSizeCoordinateManager } from './scatter-chart-size-coordinate-manager.class';
 import { ScatterChartRendererManager } from './scatter-chart-renderer-manager.class';
 import { ScatterChartDataBlock } from './scatter-chart-data-block.class';
@@ -7,6 +7,7 @@ import { ScatterChartGridRenderer } from './scatter-chart-grid-renderer.class';
 import { ScatterChartAxisRenderer } from './scatter-chart-axis-renderer.class';
 import { ScatterChartTransactionTypeManager } from './scatter-chart-transaction-type-manager.class';
 import { ScatterChartMouseManager } from './scatter-chart-mouse-manager.class';
+import { sumObjByKey } from 'app/core/utils/util';
 
 export interface IOptions {
     mode: string;
@@ -73,18 +74,20 @@ export class ScatterChart {
     private mouseManager: ScatterChartMouseManager;
     private dataBlocks: ScatterChartDataBlock[] = [];
     private agentList: string[] = [];
+    private countMap = new Map<string, {[key: number]: {[key: string]: number}}>();
     private selectedAgent = '';
 
     private downloadElement: HTMLElement;
 
-    private outTransactionCount: BehaviorSubject<{[key: string]: {count: number, checked: boolean}}>;
-    private outSelect: Subject<any> = new Subject();
-    private outError: Subject<any> = new Subject();
-    private outChangeRangeX: Subject<{from: number, to: number}> = new Subject();
+    private outTransactionCount = new Subject<{[key: string]: number}>();
+    private outSelect = new Subject<any>();
+    private outError = new Subject<any>();
+    private outChangeRangeX = new Subject<{from: number, to: number}>();
+
     onSelect$: Observable<any>;
     onError$: Observable<any>;
     onChangeRangeX$: Observable<{from: number, to: number}>;
-    onChangeTransactionCount$: Observable<{[key: string]: {count: number, checked: boolean}}>;
+    onChangeTransactionCount$: Observable<{[key: string]: number}>;
 
     constructor(
         private mode: string,
@@ -98,7 +101,8 @@ export class ScatterChart {
         private width: number,
         private height: number,
         private timezone: string,
-        private dateFormat: string[]
+        private dateFormat: string[],
+        private enableServerSideScan: boolean
     ) {
         this.downloadElement = document.createElement('a');
         this.selectedAgent = agent;
@@ -108,39 +112,26 @@ export class ScatterChart {
         this.onSelect$ = this.outSelect.asObservable();
         this.onError$ = this.outError.asObservable();
         this.onChangeRangeX$ = this.outChangeRangeX.asObservable();
-        this.outTransactionCount = new BehaviorSubject(this.getTransactionCount(true));
         this.onChangeTransactionCount$ = this.outTransactionCount.asObservable();
     }
-    private isAllowedAgent(selectedAgent: string, agent: string): boolean {
-        return selectedAgent === '' || selectedAgent === agent;
+    private isSelectedAgent(agent: string): boolean {
+        return this.selectedAgent === '' || this.selectedAgent === agent;
     }
-    private getTransactionCount(isInit: boolean) {
-        const count: {[key: string]: {count: number, checked: boolean}} = {};
+    private getTransactionCount(): {[key: string]: number} {
         const xRange = this.coordinateManager.getX();
-        // if (isInit) {
-            this.typeManager.getTypeNameList().forEach((typeName: string) => {
-                count[typeName] = {
-                    count: 0,
-                    checked: this.typeManager.isCheckedByName(typeName)
-                };
-            });
-        if (isInit === false) {
-            this.typeManager.getTypeNameList().forEach((typeName: string) => {
-                count[typeName].count = 0;
-                this.dataBlocks.forEach((dataBlock: ScatterChartDataBlock) => {
-                    const dataBlockXRange = dataBlock.getXRange();
-                    if (dataBlockXRange.to >= xRange.from) {
-                        const agentList = dataBlock.getAgentList();
-                        agentList.forEach((agentName: string) => {
-                            if (this.isAllowedAgent(this.selectedAgent, agentName)) {
-                                count[typeName].count += dataBlock.getCount(agentName, typeName, xRange.from, xRange.to);
-                            }
-                        });
-                    }
-                });
-            });
-        }
-        return count;
+        const mergeCount = (obj: {[key: number]: {[key: string]: number}}) => {
+            return Object.entries(obj).reduce((acc1, [to, countOb]) => {
+                if (Number(to) >= xRange.from) {
+                    return sumObjByKey(acc1, countOb);
+                } else {
+                    return acc1;
+                }
+            }, {});
+        };
+
+        return [...this.countMap]
+            .filter(([agent]: [string, any]) => this.isSelectedAgent(agent))
+            .reduce((acc, [_, obj]) => sumObjByKey(acc, mergeCount(obj)), {});
     }
     private setOptions() {
         this.options = {
@@ -227,11 +218,6 @@ export class ScatterChart {
         this.typeManager.setChecked(typeInfo.name, typeInfo.checked);
         this.rendererManager.setTypeView(this.selectedAgent, typeInfo.name, typeInfo.checked);
     }
-    private redrawDataBlock(): void {
-        this.dataBlocks.forEach((dataBlock: ScatterChartDataBlock) => {
-            this.drawDataBlock(dataBlock);
-        });
-    }
     reset(application: string, agent: string, fromX: number, toX: number, mode: string, typeCheck?: any): void {
         this.fromX = fromX;
         this.toX = toX;
@@ -242,14 +228,17 @@ export class ScatterChart {
         this.application = application;
         this.selectedAgent = agent;
 
-        this.dataBlocks = [];
         this.agentList = [];
         this.axisRenderer.reset();
         this.rendererManager.reset(mode);
+
+        this.dataBlocks = [];
+
+        this.countMap.clear();
+
         if (typeCheck) {
             this.changeShowType(typeCheck);
         }
-        this.outTransactionCount.next(this.getTransactionCount(true));
     }
     addAgent(agentList: string[]): void {
         agentList.forEach((agentName: string) => {
@@ -266,7 +255,10 @@ export class ScatterChart {
             return;
         }
         this.addAgent(dataBlock.getAgentList());
-        this.dataBlocks.push(dataBlock);
+        if (!this.enableServerSideScan) {
+            this.dataBlocks.push(dataBlock);
+        }
+        this.setCount(dataBlock);
         // if (this._bPause === true) return;
         this.drawDataBlock(dataBlock);
         if (this.options.mode !== ScatterChart.MODE.STATIC) {
@@ -274,6 +266,17 @@ export class ScatterChart {
             this.removeBubble();
         }
         this.changeSelectedAgent(this.selectedAgent);
+    }
+    private setCount(dataBlock: ScatterChartDataBlock): void {
+        const to = dataBlock.getXRange().to;
+
+        this.agentList.forEach((agent: string) => {
+            const countObj = this.typeManager.getTypeNameList().reduce((acc: {[key: string]: number}, curr: string) => {
+                return {...acc, [curr]: dataBlock.getCount(agent, curr)};
+            }, {});
+
+            this.countMap.has(agent) ? this.countMap.get(agent)[to] = countObj : this.countMap.set(agent, {[to]: countObj});
+        });
     }
     private drawDataBlock(dataBlock: ScatterChartDataBlock): void {
         const prefix = this.options.prefix;
@@ -310,13 +313,24 @@ export class ScatterChart {
     }
     private removeBubble() {
         const fromX = this.coordinateManager.getX().from;
-        for (let i = 0 ; i < this.dataBlocks.length ; i++) {
-            const dataBlock = this.dataBlocks[i];
-            if (dataBlock.getXRange().to < fromX) {
-                this.dataBlocks.shift();
-                i--;
-            } else {
-                break;
+
+        this.countMap.forEach((v: {[key: number]: {[key: string]: number}}) => {
+            Object.keys(v).forEach((to: string) => {
+                if (Number(to) < fromX) {
+                    delete v[Number(to)];
+                }
+            });
+        });
+
+        if (!this.enableServerSideScan) {
+            for (let i = 0 ; i < this.dataBlocks.length ; i++) {
+                const dataBlock = this.dataBlocks[i];
+                if (dataBlock.getXRange().to < fromX) {
+                    this.dataBlocks.shift();
+                    i--;
+                } else {
+                    break;
+                }
             }
         }
     }
@@ -341,7 +355,7 @@ export class ScatterChart {
                 }
                 const transactionData = dataBlock.getDataByIndex(j);
                 const agentName =  dataBlock.getAgentName(transactionData);
-                if (this.isAllowedAgent(selectedAgent, agentName)) {
+                if (this.isSelectedAgent(agentName)) {
                     const x = dataBlock.getX(transactionData);
                     const y = dataBlock.getY(transactionData);
 
@@ -359,52 +373,40 @@ export class ScatterChart {
         return data;
     }
     hasDataByXY(fromX: number, toX: number, fromY: number, toY: number): boolean {
-        fromX = +fromX;
-        toX = +toX;
-        fromY = +fromY;
-        toY = +toY;
+        if (this.enableServerSideScan) {
+            // TODO: Optimization the area
+            return true;
+        } else {
+            fromX = +fromX;
+            toX = +toX;
+            fromY = +fromY;
+            toY = +toY;
 
-        const yRange = this.coordinateManager.getY();
-        for (let i = 0 ; i < this.dataBlocks.length ; i++) {
-            const dataBlock = this.dataBlocks[i];
-            for (let j = 0, len = dataBlock.getTotalCount() ; j < len ; j++) {
-                const transactionData = dataBlock.getDataByIndex(j);
-                const agentName =  dataBlock.getAgentName(transactionData);
-                if (this.isAllowedAgent(this.selectedAgent, agentName)) {
-                    const x = dataBlock.getX(transactionData);
-                    const y = dataBlock.getY(transactionData);
-                    if (this.isInRange(fromX, toX, x)) {
-                        if (this.isInRange(fromY, toY, y) || (y > toY && toY >= yRange.to) || (y < fromY && fromY <= yRange.from)) {
-                            if (this.typeManager.isCheckedByIndex(dataBlock.getTypeIndex(transactionData))) {
-                                return true;
+            const yRange = this.coordinateManager.getY();
+            for (let i = 0 ; i < this.dataBlocks.length ; i++) {
+                const dataBlock = this.dataBlocks[i];
+                for (let j = 0, len = dataBlock.getTotalCount() ; j < len ; j++) {
+                    const transactionData = dataBlock.getDataByIndex(j);
+                    const agentName =  dataBlock.getAgentName(transactionData);
+                    if (this.isSelectedAgent(agentName)) {
+                        const x = dataBlock.getX(transactionData);
+                        const y = dataBlock.getY(transactionData);
+                        if (this.isInRange(fromX, toX, x)) {
+                            if (this.isInRange(fromY, toY, y) || (y > toY && toY >= yRange.to) || (y < fromY && fromY <= yRange.from)) {
+                                if (this.typeManager.isCheckedByIndex(dataBlock.getTypeIndex(transactionData))) {
+                                    return true;
+                                }
                             }
                         }
                     }
                 }
             }
+            return false;
         }
-        return false;
     }
     private isInRange(from: number, to: number, value: number): boolean {
         return value >= from && value <= to;
     }
-    // //destroy = function() {
-    // //	var self = this;
-    // //	this._unbindAllEvents();
-    // //	//this._empty();
-    // //	$.each(this, function (property, content) {
-    // //		delete self[property];
-    // //	});
-    // //	this._bDestroied = true;
-    // //
-    // //};
-    // //_empty = function() {
-    // //	this._$elContainer.empty();
-    // //};
-    // //_unbindAllEvents = function() {
-    // //	// this is for drag-selecting. it should be unbinded.
-    // //	jQuery(document).unbind('mousemove').unbind('mouseup');
-    // //};
     downloadChartAsImage(extension: string): void {
         const xRange = this.coordinateManager.getX();
         const titleArea = 60;
@@ -435,10 +437,8 @@ export class ScatterChart {
         this.typeManager.getTypeNameList().forEach((typeName: string, index: number) => {
             const color = this.typeManager.getColorByName(typeName);
             const check = this.typeManager.isCheckedByName(typeName);
-            let sumType = 0;
-            this.dataBlocks.forEach((dataBlock: ScatterChartDataBlock) => {
-                sumType += dataBlock.getCount(this.selectedAgent, typeName);
-            });
+            const count = this.getTransactionCount()[typeName];
+
             ctxDownloadCanvas.textAlign = 'left';
             ctxDownloadCanvas.font = '16px monospace';
             if (check) {
@@ -450,58 +450,27 @@ export class ScatterChart {
                 ctxDownloadCanvas.strokeRect((index * 200) + 10, height - countArea + 10, 20, 20);
             }
             ctxDownloadCanvas.fillStyle = '#000';
-            ctxDownloadCanvas.fillText(`${typeName} : ${sumType}`, (index * 200) + 40, height - countArea + 10);
+            ctxDownloadCanvas.fillText(`${typeName} : ${count}`, (index * 200) + 40, height - countArea + 10);
         });
 
         this.downloadElement.setAttribute('href', elementDownloadCanvas.toDataURL('image/' + extension));
         this.downloadElement.setAttribute('download', `Pinpoint_Scatter_Chart[${moment(xRange.from).tz(this.timezone).format(this.dateFormat[0] + '_' + this.dateFormat[1])}~${moment(xRange.to).tz(this.timezone).format(this.dateFormat[0] + '_' + this.dateFormat[1])}].png`);
         this.downloadElement.dispatchEvent(new MouseEvent('click'));
     }
-    // _hideServerError() {
-    //     this._$elContainer.css({
-    //         'backgroundImage': 'none'
-    //     });
-    // }
-    // _showServerError() {
-    //     this._$elContainer.css({
-    //         'backgroundImage': 'url(' + this.option('errorImage') + ')',
-    //         'backgroundRepeat': 'no-repeat',
-    //         'backgroundPosition': '88% 21%',
-    //         'backgroundSize': '30px 30px'
-    //     });
-    // }
-    redraw() {
-        this.rendererManager.clear();
-        this.axisRenderer.updateAxisValue();
-        this.redrawDataBlock();
-    }
-    // abort() {
-    //     this._bPause = true;
-    //     if (this._oDataLoadManager) {
-    //         this._oDataLoadManager.abort();
-    //     }
-    // }
     changeYRange(newYRange: {from: number, to: number}):  void {
-        this.fromY = +newYRange.from;
-        this.toY = +newYRange.to;
         this.coordinateManager.setY(+newYRange.from, +newYRange.to);
-        this.redraw();
     }
     changeSelectedAgent(agentName: string): void {
         this.selectedAgent = agentName;
         this.rendererManager.showSelectedAgent(agentName);
-        this.outTransactionCount.next(this.getTransactionCount(false));
+        this.outTransactionCount.next(this.getTransactionCount());
     }
     getCurrentAgent(): string {
         return this.selectedAgent;
     }
     isEmpty(): boolean {
         if (this.options.mode === ScatterChart.MODE.STATIC) {
-            let empty = true;
-            this.dataBlocks.forEach((dataBlock: ScatterChartDataBlock) => {
-                empty = empty && dataBlock.isEmpty();
-            });
-            return empty;
+            return this.countMap.size === 0;
         } else {
             return false;
         }

@@ -4,6 +4,7 @@ export interface ITransactionTypeInfo {
     color: string;
     dataIndex: number;
     checked: boolean;
+    value: number;
 }
 
 export class ScatterChartTransactionTypeManager {
@@ -30,14 +31,16 @@ export class ScatterChartTransactionTypeManager {
                 order: 10,
                 color: '#34B994',
                 checked: true,
-                dataIndex: 1
+                dataIndex: 1,
+                value: 0
             },
             failed: {
                 name: 'failed',
                 order: 20,
                 color: '#E95459',
                 checked: true,
-                dataIndex: 0
+                dataIndex: 0,
+                value: 0
             }
         };
     }
