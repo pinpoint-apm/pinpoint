@@ -20,25 +20,27 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.QUEUE;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
 
-import java.nio.charset.Charset;
-
-import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
+/**
+ * @author messi-gao
+ */
 public class RocketMQConstants {
 
     public static final String SCOPE = "ROCKETMQ_SCOPE";
+    public static final String ACCEPTOR_HOST = "ROCKETMQ_ACCEPTOR_HOST";
+    public static final String IS_ASYNC_SEND = "IS_ASYNC_SEND";
 
     public static final ServiceType ROCKETMQ_CLIENT = ServiceTypeFactory.of(8400, "ROCKETMQ_CLIENT", "ROCKETMQ_CLIENT", QUEUE, RECORD_STATISTICS);
     public static final ServiceType ROCKETMQ_CLIENT_INTERNAL = ServiceTypeFactory.of(8401, "ROCKETMQ_CLIENT_INTERNAL", "ROCKETMQ_CLIENT");
 
-    public static final AnnotationKey ROCKETMQ_TOPIC_ANNOTATION_KEY = AnnotationKeyFactory.of(190, "rocketmq.topic", VIEW_IN_RECORD_SET);
-    public static final AnnotationKey ROCKETMQ_PARTITION_ANNOTATION_KEY = AnnotationKeyFactory.of(191, "rocketmq.message.queue", VIEW_IN_RECORD_SET);
-    public static final AnnotationKey ROCKETMQ_OFFSET_ANNOTATION_KEY = AnnotationKeyFactory.of(192, "rocketmq.offset", VIEW_IN_RECORD_SET);
-    public static final AnnotationKey ROCKETMQ_BATCH_ANNOTATION_KEY = AnnotationKeyFactory.of(193, "rocketmq.batch", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey ROCKETMQ_TOPIC_ANNOTATION_KEY = AnnotationKeyFactory.of(800, "rocketmq.topic", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey ROCKETMQ_PARTITION_ANNOTATION_KEY = AnnotationKeyFactory.of(801, "rocketmq.message.queue", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey ROCKETMQ_OFFSET_ANNOTATION_KEY = AnnotationKeyFactory.of(802, "rocketmq.offset", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey ROCKETMQ_BATCH_ANNOTATION_KEY = AnnotationKeyFactory.of(803, "rocketmq.batch", VIEW_IN_RECORD_SET);
 
     public static final String UNKNOWN = "Unknown";
 

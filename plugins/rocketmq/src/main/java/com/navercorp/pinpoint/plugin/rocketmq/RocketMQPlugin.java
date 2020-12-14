@@ -16,65 +16,81 @@
 package com.navercorp.pinpoint.plugin.rocketmq;
 
 import java.security.ProtectionDomain;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInternalNameMatcherOperand;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.RemoteAddressFieldAccessor;
-import com.navercorp.pinpoint.plugin.rocketmq.interceptor.MessageListenerConcurrentlyInterceptor;
-import com.navercorp.pinpoint.plugin.rocketmq.interceptor.MessageListenerOrderlyInterceptor;
-import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ProducerSendCallBackInterceptor;
+import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.EndPointFieldAccessor;
+import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ConsumerMessageListenerConcurrentlyInterceptor;
+import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ConsumerMessageListenerOrderlyInterceptor;
+import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ProducerSendCallBackInterceptor.ConstructInterceptor;
+import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ProducerSendCallBackInterceptor.OnExceptionInterceptor;
+import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ProducerSendCallBackInterceptor.OnSuccessInterceptor;
 import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ProducerSendInterceptor;
 import com.navercorp.pinpoint.plugin.rocketmq.interceptor.UpdateNameServerAddressListInterceptor;
 
 /**
  * @author messi-gao
  */
-public class RocketMQPlugin implements ProfilerPlugin, TransformTemplateAware {
+public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
-    private TransformTemplate transformTemplate;
-
-    @Override
-    public void setTransformTemplate(TransformTemplate transformTemplate) {
-        this.transformTemplate = transformTemplate;
-    }
+    private MatchableTransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final RocketMQConfig config = new RocketMQConfig(context.getConfig());
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        if (config.isProducerEnable()) {
+        final List<String> basePackageNames = new ArrayList<>();
+        final List<String> basePackages = config.getBasePackages();
+        if (!basePackages.isEmpty()) {
+            basePackageNames.addAll(basePackages);
+        }
+
+        if (!basePackageNames.isEmpty() && config.isProducerEnable()) {
             transformTemplate.transform("org.apache.rocketmq.client.impl.MQClientAPIImpl",
                                         MQClientAPIImplTransform.class);
-            transformTemplate.transform("org.apache.rocketmq.client.producer.SendCallback",
-                                        SendCallbackTransform.class);
+            final Matcher matcher = Matchers.newPackageBasedMatcher(basePackageNames,
+                                                                    new InterfaceInternalNameMatcherOperand(
+                                                                            "org.apache.rocketmq.client.producer.SendCallback",
+                                                                            true));
+            transformTemplate.transform(matcher, SendCallbackTransform.class);
         }
 
         if (config.isConsumerEnable()) {
-            transformTemplate.transform(
-                    "org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently",
-                    MessageListenerConcurrentlyTransform.class);
-            transformTemplate.transform("org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly",
-                                        MessageListenerOrderlyTransform.class);
-        }
+            // rocketmq spring boot support
+            basePackageNames.add("org.apache.rocketmq.spring.support");
+            // rocketmq spring cloud stream support
+            basePackageNames.add("com.alibaba.cloud.stream.binder.rocketmq");
 
-        if (enableConsumerTransform(config)) {
-            if (StringUtils.hasText(config.getRocketmqEntryPoint())) {
-                transformEntryPoint(config.getRocketmqEntryPoint());
-            }
+            final Matcher matcher = Matchers.newPackageBasedMatcher(basePackageNames,
+                                                                    new InterfaceInternalNameMatcherOperand(
+                                                                            "org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently",
+                                                                            true));
+            transformTemplate.transform(matcher, MessageListenerConcurrentlyTransform.class);
+
+            final Matcher orderlyMatcher = Matchers.newPackageBasedMatcher(basePackageNames,
+                                                                           new InterfaceInternalNameMatcherOperand(
+                                                                                   "org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly",
+                                                                                   true));
+            transformTemplate.transform(orderlyMatcher, MessageListenerOrderlyTransform.class);
         }
     }
 
@@ -86,8 +102,8 @@ public class RocketMQPlugin implements ProfilerPlugin, TransformTemplateAware {
                                     byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
                                                                            classfileBuffer);
-
-            target.addField(RemoteAddressFieldAccessor.class);
+            target.addField(EndPointFieldAccessor.class);
+            target.addField(AsyncContextAccessor.class);
 
             final List<InstrumentMethod> sendMessageMethods = target.getDeclaredMethods(
                     MethodFilters.name("sendMessage"));
@@ -97,8 +113,8 @@ public class RocketMQPlugin implements ProfilerPlugin, TransformTemplateAware {
                 }
             }
 
-            InstrumentMethod updateNameServerAddressListMethod = target.getDeclaredMethod(
-                    "updateNameServerAddressList");
+            final InstrumentMethod updateNameServerAddressListMethod = target.getDeclaredMethod(
+                    "updateNameServerAddressList", "java.lang.String");
             if (updateNameServerAddressListMethod != null) {
                 updateNameServerAddressListMethod.addInterceptor(UpdateNameServerAddressListInterceptor.class);
             }
@@ -115,12 +131,17 @@ public class RocketMQPlugin implements ProfilerPlugin, TransformTemplateAware {
                                     byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
                                                                            classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
+            final List<InstrumentMethod> constructors = target.getDeclaredConstructors();
+            for (InstrumentMethod constructor : constructors) {
+                constructor.addInterceptor(ConstructInterceptor.class);
+            }
             final MethodFilter onSuccessFilter = MethodFilters.chain(
                     MethodFilters.name("onSuccess"),
                     MethodFilters.argAt(0, "org.apache.rocketmq.client.producer.SendResult"));
             final List<InstrumentMethod> onSuccessMethods = target.getDeclaredMethods(onSuccessFilter);
             for (InstrumentMethod instrumentMethod : onSuccessMethods) {
-                instrumentMethod.addInterceptor(ProducerSendCallBackInterceptor.OnSuccessInterceptor.class);
+                instrumentMethod.addScopedInterceptor(OnSuccessInterceptor.class, RocketMQConstants.SCOPE);
             }
 
             final MethodFilter onExceptionFilter = MethodFilters.chain(
@@ -128,54 +149,52 @@ public class RocketMQPlugin implements ProfilerPlugin, TransformTemplateAware {
                     MethodFilters.argAt(0, "java.lang.Throwable"));
             final List<InstrumentMethod> onExceptions = target.getDeclaredMethods(onExceptionFilter);
             for (InstrumentMethod instrumentMethod : onExceptions) {
-                instrumentMethod.addInterceptor(ProducerSendCallBackInterceptor.OnExceptionInterceptor.class);
+                instrumentMethod.addScopedInterceptor(OnExceptionInterceptor.class, RocketMQConstants.SCOPE);
+
             }
             return target.toBytecode();
         }
     }
 
     public static class MessageListenerConcurrentlyTransform implements TransformCallback {
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
                                     Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
                                     byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
                                                                            classfileBuffer);
-            target.getDeclaredMethod("consumeMessage")
-                  .addInterceptor(MessageListenerConcurrentlyInterceptor.class);
+            final List<InstrumentMethod> consumeMessageMethods = target.getDeclaredMethods(
+                    MethodFilters.name("consumeMessage"));
+            for (InstrumentMethod consumeMessage : consumeMessageMethods) {
+                consumeMessage.addScopedInterceptor(ConsumerMessageListenerConcurrentlyInterceptor.class,
+                                                    RocketMQConstants.SCOPE, ExecutionPolicy.BOUNDARY);
+            }
             return target.toBytecode();
         }
     }
 
     public static class MessageListenerOrderlyTransform implements TransformCallback {
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
                                     Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
                                     byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
                                                                            classfileBuffer);
-            target.getDeclaredMethod("consumeMessage")
-                  .addInterceptor(MessageListenerOrderlyInterceptor.class);
+            final List<InstrumentMethod> consumeMessageMethods = target.getDeclaredMethods(
+                    MethodFilters.name("consumeMessage"));
+            for (InstrumentMethod consumeMessage : consumeMessageMethods) {
+                consumeMessage.addScopedInterceptor(ConsumerMessageListenerOrderlyInterceptor.class,
+                                                    RocketMQConstants.SCOPE, ExecutionPolicy.BOUNDARY);
+            }
+
             return target.toBytecode();
         }
     }
 
-    private static boolean enableConsumerTransform(RocketMQConfig config) {
-        return config.isConsumerEnable() && StringUtils.hasText(config.getRocketmqEntryPoint());
-    }
-
-    public void transformEntryPoint(String entryPoint) {
-        final String clazzName = toClassName(entryPoint);
-//        transformTemplate.transform(clazzName, EntryPointTransform.class);
-    }
-
-    private String toClassName(String fullQualifiedMethodName) {
-        final int classEndPosition = fullQualifiedMethodName.lastIndexOf('.');
-        if (classEndPosition <= 0) {
-            throw new IllegalArgumentException(
-                    "invalid full qualified method name(" + fullQualifiedMethodName + "). not found method");
-        }
-
-        return fullQualifiedMethodName.substring(0, classEndPosition);
+    @Override
+    public void setTransformTemplate(MatchableTransformTemplate matchableTransformTemplate) {
+        this.transformTemplate = matchableTransformTemplate;
     }
 }

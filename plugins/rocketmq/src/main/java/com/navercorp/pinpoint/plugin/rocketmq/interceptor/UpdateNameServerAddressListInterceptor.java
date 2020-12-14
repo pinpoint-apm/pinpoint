@@ -17,21 +17,20 @@
 package com.navercorp.pinpoint.plugin.rocketmq.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
-import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.RemoteAddressFieldAccessor;
+import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.EndPointFieldAccessor;
 
 /**
  * @author messi-gao
  */
 public class UpdateNameServerAddressListInterceptor implements AroundInterceptor {
 
-    @IgnoreMethod
     @Override
     public void before(Object target, Object[] args) {
+        ((EndPointFieldAccessor) target)._$PINPOINT$_setEndPoint((String) args[0]);
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        ((RemoteAddressFieldAccessor) target)._$PINPOINT$_setRemoteAddress((String) args[0]);
+
     }
 }

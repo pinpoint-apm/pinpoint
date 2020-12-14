@@ -19,122 +19,85 @@ package com.navercorp.pinpoint.plugin.rocketmq.interceptor;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.client.producer.SendStatus;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.rocketmq.RocketMQConstants;
 
 /**
  * @author messi-gao
  */
 public final class ProducerSendCallBackInterceptor {
-    public static class OnSuccessInterceptor implements AroundInterceptor {
-        private final PLogger logger = PLoggerFactory.getLogger(getClass());
-        private final TraceContext traceContext;
-        private final MethodDescriptor descriptor;
-
-        public OnSuccessInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-            this.traceContext = traceContext;
-            this.descriptor = descriptor;
+    public static class ConstructInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+        public ConstructInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+            super(traceContext, descriptor);
         }
 
         @Override
-        public void before(Object target, Object[] args) {
-            if (logger.isDebugEnabled()) {
-                logger.beforeInterceptor(target, args);
-            }
-
-            final Trace trace = traceContext.currentRawTraceObject();
-            if (trace == null) {
-                return;
-            }
-
-            trace.traceBlockBegin();
+        protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+            ((AsyncContextAccessor) target)._$PINPOINT$_setAsyncContext(asyncContext);
         }
 
         @Override
-        public void after(Object target, Object[] args, Object result, Throwable throwable) {
-            if (logger.isDebugEnabled()) {
-                logger.afterInterceptor(target, args, result, throwable);
-            }
+        protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
+                                      Throwable throwable) {
+            recorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT_INTERNAL);
+            recorder.recordApi(methodDescriptor);
+            recorder.recordException(throwable);
+        }
+    }
 
-            final Trace trace = traceContext.currentTraceObject();
-            if (trace == null) {
-                return;
-            }
+    public static class OnSuccessInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+        public OnSuccessInterceptor(
+                TraceContext traceContext, MethodDescriptor methodDescriptor) {
+            super(traceContext, methodDescriptor);
+        }
 
-            if (!trace.canSampled()) {
-                return;
-            }
+        @Override
+        protected void doInBeforeTrace(SpanEventRecorder spanEventRecorder, AsyncContext asyncContext, Object o,
+                                       Object[] objects) {
+        }
 
-            try {
-                final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                recorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT_INTERNAL);
-                recorder.recordApi(descriptor);
-                final SendStatus sendStatus = ((SendResult) args[0]).getSendStatus();
-                if (sendStatus != SendStatus.SEND_OK) {
-                    recorder.recordException(new RuntimeException(sendStatus.toString()));
-                }
-                recorder.recordException(throwable);
-            } finally {
-                trace.traceBlockEnd();
+        @Override
+        protected void doInAfterTrace(SpanEventRecorder spanEventRecorder, Object target, Object[] args,
+                                      Object result, Throwable throwable) {
+            spanEventRecorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT_INTERNAL);
+            spanEventRecorder.recordApi(methodDescriptor);
+            final SendStatus sendStatus = ((SendResult) args[0]).getSendStatus();
+            if (throwable != null) {
+                spanEventRecorder.recordException(throwable);
+            } else if (sendStatus != SendStatus.SEND_OK) {
+                spanEventRecorder.recordException(new RuntimeException(sendStatus.toString()));
             }
         }
 
     }
 
-    public static class OnExceptionInterceptor implements AroundInterceptor {
-        private final PLogger logger = PLoggerFactory.getLogger(getClass());
-        private final TraceContext traceContext;
-        private final MethodDescriptor descriptor;
+    public static class OnExceptionInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
-        public OnExceptionInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-            this.traceContext = traceContext;
-            this.descriptor = descriptor;
+        public OnExceptionInterceptor(
+                TraceContext traceContext, MethodDescriptor methodDescriptor) {
+            super(traceContext, methodDescriptor);
         }
 
         @Override
-        public void before(Object target, Object[] args) {
-            if (logger.isDebugEnabled()) {
-                logger.beforeInterceptor(target, args);
-            }
+        protected void doInBeforeTrace(SpanEventRecorder spanEventRecorder, AsyncContext asyncContext, Object o,
+                                       Object[] objects) {
 
-            final Trace trace = traceContext.currentRawTraceObject();
-            if (trace == null) {
-                return;
-            }
-            trace.traceBlockBegin();
         }
 
         @Override
-        public void after(Object target, Object[] args, Object result, Throwable throwable) {
-            if (logger.isDebugEnabled()) {
-                logger.afterInterceptor(target, args, result, throwable);
-            }
-
-            final Trace trace = traceContext.currentTraceObject();
-            if (trace == null) {
-                return;
-            }
-
-            if (!trace.canSampled()) {
-                return;
-            }
-
-            try {
-                final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                recorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT_INTERNAL);
-                recorder.recordApi(descriptor);
-                recorder.recordException(throwable);
-            } finally {
-                trace.traceBlockEnd();
-            }
+        protected void doInAfterTrace(SpanEventRecorder spanEventRecorder, Object target, Object[] args,
+                                      Object result, Throwable throwable) {
+            spanEventRecorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT_INTERNAL);
+            spanEventRecorder.recordApi(methodDescriptor);
+            spanEventRecorder.recordException((Throwable) args[0]);
         }
-
     }
 
     private ProducerSendCallBackInterceptor() {

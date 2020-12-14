@@ -16,112 +16,287 @@
 
 package com.navercorp.pinpoint.plugin.rocketmq.interceptor;
 
+import static com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils.SAMPLING_RATE_FALSE;
 import static org.apache.rocketmq.common.message.MessageDecoder.NAME_VALUE_SEPARATOR;
 import static org.apache.rocketmq.common.message.MessageDecoder.PROPERTY_SEPARATOR;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.rocketmq.common.protocol.header.SendMessageRequestHeader;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.rocketmq.RocketMQConstants;
-import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.RemoteAddressFieldAccessor;
+import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.EndPointFieldAccessor;
 
 /**
  * @author messi-gao
  */
 public class ProducerSendInterceptor implements AroundInterceptor {
-
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
-
+    private final boolean isDebug = logger.isDebugEnabled();
+    private static final String SCOPE_NAME = "ROCKETMQ_ASYNC_TRACE_SCOPE";
+    private final MethodDescriptor methodDescriptor;
     private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
 
-    public ProducerSendInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public ProducerSendInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
+        this.methodDescriptor = methodDescriptor;
         this.traceContext = traceContext;
-        this.descriptor = descriptor;
     }
 
     @Override
     public void before(Object target, Object[] args) {
-        if (logger.isDebugEnabled()) {
+        if (isDebug) {
             logger.beforeInterceptor(target, args);
+        }
+        try {
+            Trace trace = traceContext.currentTraceObject();
+            final Object sendCallback = getSendCallback(args);
+            // async send process
+            if (sendCallback instanceof AsyncContextAccessor) {
+                if (isSkipTrace()) {
+                    return;
+                }
+                final AsyncContext asyncContext =
+                        ((AsyncContextAccessor) sendCallback)._$PINPOINT$_getAsyncContext();
+                ((AsyncContextAccessor) target)._$PINPOINT$_setAsyncContext(asyncContext);
+                // create async trace
+                trace = asyncContext.continueAsyncTraceObject();
+
+                if (isDebug) {
+                    logger.debug("Created trace. trace={}", trace);
+                }
+
+                if (trace == null) {
+                    // Skip
+                    return;
+                }
+
+                // init entry point scope
+                if (!initScope(trace)) {
+                    // Defense code
+                    deleteTrace(trace);
+                    return;
+                }
+
+                // entry point scope
+                entryScope(trace);
+
+            }
+            if (trace == null) {
+                return;
+            }
+            if (!trace.canSampled()) {
+                return;
+            }
+            final SpanEventRecorder recorder = trace.traceBlockBegin();
+            doInBeforeTrace(recorder, target, args);
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
+            }
+        }
+    }
+
+    @Override
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (isDebug) {
+            logger.afterInterceptor(target, args, result, throwable);
         }
 
         final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
+        // async send process
+        if (trace.isAsync()) {
+            if (!hasScope(trace)) {
+                // Not in scope
+                return;
+            }
 
-        if (trace.canSampled()) {
-            final SpanEventRecorder spanEventRecorder = trace.traceBlockBegin();
-            spanEventRecorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT);
-        }
-    }
+            if (!leaveScope(trace)) {
+                // Defense code
+                deleteTrace(trace);
+                return;
+            }
 
-    @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (logger.isDebugEnabled()) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
+            if (!isEndScope(trace)) {
+                // Ignored recursive call.
+                return;
+            }
 
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        if (!trace.canSampled()) {
-            return;
+            if (!trace.canSampled()) {
+                deleteTrace(trace);
+                return;
+            }
         }
 
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(descriptor);
+            doInAfterTrace(recorder, target, args, result, throwable);
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("AFTER. Caused:{}", th.getMessage(), th);
+            }
+        } finally {
+            trace.traceBlockEnd();
+            if (isAsyncTraceDestination(trace)) {
+                deleteTrace(trace);
+            }
+        }
+    }
 
-            recorder.recordEndPoint(((RemoteAddressFieldAccessor)target)._$PINPOINT$_getRemoteAddress());
-            recorder.recordDestinationId((String) args[0]);
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT);
+        recorder.recordApi(methodDescriptor);
 
-            final SendMessageRequestHeader sendMessageRequestHeader = (SendMessageRequestHeader) args[3];
-            recorder.recordAttribute(RocketMQConstants.ROCKETMQ_TOPIC_ANNOTATION_KEY,
-                                     sendMessageRequestHeader.getTopic());
-            recorder.recordAttribute(RocketMQConstants.ROCKETMQ_PARTITION_ANNOTATION_KEY,
-                                     sendMessageRequestHeader.getQueueId());
+        final String endPoint = ((EndPointFieldAccessor) target)._$PINPOINT$_getEndPoint();
+        recorder.recordEndPoint(endPoint);
+        recorder.recordDestinationId(endPoint);
 
-            final TraceId nextId = trace.getTraceId().getNextTraceId();
-            recorder.recordNextSpanId(nextId.getSpanId());
-
-            // set header
+        final SendMessageRequestHeader sendMessageRequestHeader = (SendMessageRequestHeader) args[3];
+        recorder.recordAttribute(RocketMQConstants.ROCKETMQ_TOPIC_ANNOTATION_KEY,
+                                 sendMessageRequestHeader.getTopic());
+        recorder.recordAttribute(RocketMQConstants.ROCKETMQ_PARTITION_ANNOTATION_KEY,
+                                 sendMessageRequestHeader.getQueueId());
+        final Trace trace = traceContext.currentRawTraceObject();
+        final TraceId nextTraceId = trace.getTraceId().getNextTraceId();
+        recorder.recordNextSpanId(nextTraceId.getSpanId());
+        // set header
+        final Map<String, Object> paramMap = new HashMap<>();
+        if (trace.canSampled()) {
             final StringBuilder properties = new StringBuilder(sendMessageRequestHeader.getProperties());
-            final Map<Header, String> paramMap = new EnumMap<>(Header.class);
-            paramMap.put(Header.HTTP_FLAGS, String.valueOf(nextId.getFlags()));
-            paramMap.put(Header.HTTP_PARENT_APPLICATION_NAME, traceContext.getApplicationName());
-            paramMap.put(Header.HTTP_PARENT_APPLICATION_TYPE, String.valueOf(traceContext.getServerTypeCode()));
-            paramMap.put(Header.HTTP_PARENT_SPAN_ID, String.valueOf(nextId.getParentSpanId()));
-            paramMap.put(Header.HTTP_SPAN_ID, String.valueOf(nextId.getSpanId()));
-            paramMap.put(Header.HTTP_TRACE_ID, nextId.getTransactionId());
+            paramMap.put(Header.HTTP_FLAGS.toString(), String.valueOf(nextTraceId.getFlags()));
+            paramMap.put(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
+            paramMap.put(Header.HTTP_PARENT_APPLICATION_TYPE.toString(),
+                         String.valueOf(traceContext.getServerTypeCode()));
+            paramMap.put(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextTraceId.getParentSpanId()));
+            paramMap.put(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextTraceId.getSpanId()));
+            paramMap.put(Header.HTTP_TRACE_ID.toString(), nextTraceId.getTransactionId());
+            paramMap.put(RocketMQConstants.ACCEPTOR_HOST, endPoint);
+            paramMap.put(RocketMQConstants.IS_ASYNC_SEND, trace.isAsync());
 
-            for (Map.Entry<Header, String> entry : paramMap.entrySet()) {
+            for (Map.Entry<String, Object> entry : paramMap.entrySet()) {
                 properties.append(entry.getKey());
                 properties.append(NAME_VALUE_SEPARATOR);
                 properties.append(entry.getValue());
                 properties.append(PROPERTY_SEPARATOR);
             }
             sendMessageRequestHeader.setProperties(properties.toString());
+        } else {
+            paramMap.put(Header.HTTP_SAMPLED.toString(), SAMPLING_RATE_FALSE);
+        }
 
-            if (throwable != null) {
-                recorder.recordException(throwable);
+    }
+
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args,
+                                  Object result, Throwable throwable) {
+        if (throwable != null) {
+            recorder.recordException(throwable);
+        }
+    }
+
+    private Object getSendCallback(Object[] args) {
+        return args[6];
+    }
+
+    private boolean isSkipTrace() {
+        final Trace trace = traceContext.currentRawTraceObject();
+        if (trace == null) {
+            return false;
+        }
+        if (hasScope(trace)) {
+            // Entry Scope
+            entryScope(trace);
+            if (isDebug) {
+                logger.debug("Skip recursive invoked");
             }
-        } finally {
-            trace.traceBlockEnd();
+        } else {
+            if (isDebug) {
+                logger.debug("Skip duplicated entry point");
+            }
+        }
+        // Skip recursive invoke or duplicated entry point
+        return true;
+    }
+
+    private boolean initScope(final Trace trace) {
+        final TraceScope oldScope = trace.addScope(SCOPE_NAME);
+        if (oldScope != null) {
+            // delete corrupted trace.
+            if (logger.isInfoEnabled()) {
+                logger.info("Duplicated trace scope={}.", oldScope.getName());
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    private void entryScope(final Trace trace) {
+        final TraceScope scope = trace.getScope(SCOPE_NAME);
+        if (scope != null) {
+            scope.tryEnter();
+            if (isDebug) {
+                logger.debug("Try enter trace scope={}", scope.getName());
+            }
+        }
+    }
+
+    private boolean leaveScope(final Trace trace) {
+        final TraceScope scope = trace.getScope(SCOPE_NAME);
+        if (scope != null) {
+            if (scope.canLeave()) {
+                scope.leave();
+                if (isDebug) {
+                    logger.debug("Leave trace scope={}", scope.getName());
+                }
+            } else {
+                if (logger.isInfoEnabled()) {
+                    logger.info("Failed to leave scope. trace={}", trace);
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean hasScope(final Trace trace) {
+        final TraceScope scope = trace.getScope(SCOPE_NAME);
+        return scope != null;
+    }
+
+    private boolean isEndScope(final Trace trace) {
+        final TraceScope scope = trace.getScope(SCOPE_NAME);
+        return scope != null && !scope.isActive();
+    }
+
+    private boolean isAsyncTraceDestination(final Trace trace) {
+        if (!trace.isAsync()) {
+            return false;
+        }
+
+        final TraceScope scope = trace.getScope(SCOPE_NAME);
+        return scope != null && !scope.isActive();
+    }
+
+    private void deleteTrace(final Trace trace) {
+        traceContext.removeTraceObject();
+        trace.close();
+        if (isDebug) {
+            logger.debug("Delete trace.");
         }
     }
 }

@@ -1,0 +1,248 @@
+/*
+ * Copyright 2018 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.navercorp.pinpoint.plugin.rocketmq.interceptor;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.common.message.MessageExt;
+
+import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanRecursiveAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.plugin.rocketmq.RocketMQConstants;
+import com.navercorp.pinpoint.plugin.rocketmq.description.EntryPointMethodDescriptor;
+
+/**
+ * @author messi-gao
+ */
+public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInterceptor {
+
+    protected static final String SCOPE_NAME = "##ROCKETMQ_ENTRY_POINT_START_TRACE";
+
+    protected static final EntryPointMethodDescriptor ENTRY_POINT_METHOD_DESCRIPTOR =
+            new EntryPointMethodDescriptor();
+
+    private final AtomicReference<TraceFactoryProvider.TraceFactory> tracyFactoryReference =
+            new AtomicReference<TraceFactoryProvider.TraceFactory>();
+
+    public ConsumerMessageEntryPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+        super(traceContext, methodDescriptor, SCOPE_NAME);
+        traceContext.cacheApi(ENTRY_POINT_METHOD_DESCRIPTOR);
+    }
+
+    @Override
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT_INTERNAL);
+    }
+
+    @Override
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
+                                  Throwable throwable) {
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
+
+    }
+
+    @Override
+    protected Trace createTrace(Object target, Object[] args) {
+        final List<MessageExt> msgs = (List<MessageExt>) args[0];
+        if (msgs.isEmpty()) {
+            return null;
+        }
+        return createTrace(msgs);
+    }
+
+    private Trace createTrace(List<MessageExt> msgs) {
+        TraceFactoryProvider.TraceFactory traceFactory = tracyFactoryReference.get();
+        if (traceFactory == null) {
+            traceFactory = TraceFactoryProvider.get(msgs);
+            tracyFactoryReference.compareAndSet(null, traceFactory);
+        }
+        return traceFactory.createTrace(traceContext, msgs);
+    }
+
+    private static class TraceFactoryProvider {
+
+        private static TraceFactory get(List<MessageExt> msgs) {
+            final String traceId = msgs.get(0).getUserProperty(Header.HTTP_TRACE_ID.toString());
+            if (StringUtils.isEmpty(traceId)) {
+                return new DefaultTraceFactory();
+            } else {
+                return new SupportContinueTraceFactory();
+            }
+        }
+
+        private interface TraceFactory {
+
+            Trace createTrace(TraceContext traceContext, List<MessageExt> msgs);
+
+        }
+
+        private static class DefaultTraceFactory implements TraceFactory {
+
+            final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+            final boolean isDebug = logger.isDebugEnabled();
+
+            @Override
+            public Trace createTrace(TraceContext traceContext, List<MessageExt> msgs) {
+                return createTrace0(traceContext, msgs);
+            }
+
+            Trace createTrace0(TraceContext traceContext, List<MessageExt> msgs) {
+                final Trace trace = traceContext.newTraceObject();
+                if (trace.canSampled()) {
+                    final SpanRecorder recorder = trace.getSpanRecorder();
+                    recordRootSpan(recorder, msgs);
+                    if (isDebug) {
+                        logger.debug("TraceID not exist. start new trace.");
+                    }
+                } else {
+                    if (isDebug) {
+                        logger.debug("TraceID not exist. camSampled is false. skip trace.");
+                    }
+                }
+                return trace;
+            }
+
+            void recordRootSpan(SpanRecorder recorder, List<MessageExt> msgs) {
+                recordRootSpan(recorder, msgs, null, null);
+            }
+
+            void recordRootSpan(SpanRecorder recorder, List<MessageExt> msgs, String parentApplicationName,
+                                String parentApplicationType) {
+                recorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT);
+                recorder.recordApi(ENTRY_POINT_METHOD_DESCRIPTOR);
+
+                final MessageExt messageExt = msgs.get(0);
+
+                String acceptorHost = messageExt.getUserProperty(RocketMQConstants.ACCEPTOR_HOST);
+                if (StringUtils.isEmpty(acceptorHost)) {
+                    acceptorHost = RocketMQConstants.UNKNOWN;
+                }
+                String endPointAddress = NetworkUtils.getHostIp();
+                if (StringUtils.isEmpty(endPointAddress)) {
+                    endPointAddress = acceptorHost;
+                }
+
+                recorder.recordEndPoint(endPointAddress);
+                recorder.recordRemoteAddress(acceptorHost);
+                recorder.recordAcceptorHost(acceptorHost);
+
+                final String topic = messageExt.getTopic();
+                recorder.recordRpcName(createRpcName(topic, msgs.size()));
+                recorder.recordAttribute(RocketMQConstants.ROCKETMQ_TOPIC_ANNOTATION_KEY, topic);
+                recorder.recordAttribute(RocketMQConstants.ROCKETMQ_BATCH_ANNOTATION_KEY, msgs.size());
+
+                if (StringUtils.hasText(parentApplicationName) && StringUtils.hasText(parentApplicationType)) {
+                    recorder.recordParentApplication(parentApplicationName, NumberUtils
+                            .parseShort(parentApplicationType, ServiceType.UNDEFINED.getCode()));
+                }
+            }
+
+            private String createRpcName(String topic, int size) {
+                final StringBuilder rpcName = new StringBuilder("rocketmq://");
+                rpcName.append("topic=").append(topic);
+                rpcName.append("?batch=").append(size);
+
+                return rpcName.toString();
+            }
+
+        }
+
+        private static class SupportContinueTraceFactory extends DefaultTraceFactory {
+
+            @Override
+            public Trace createTrace(TraceContext traceContext, List<MessageExt> msgs) {
+                final MessageExt consumerRecord = msgs.get(0);
+                if (!SamplingFlagUtils.isSamplingFlag(
+                        consumerRecord.getUserProperty(Header.HTTP_FLAGS.name()))) {
+                    final Trace trace = traceContext.disableSampling();
+                    if (isDebug) {
+                        logger.debug("remotecall sampling flag found. skip trace");
+                    }
+                    return trace;
+                }
+
+                final TraceId traceId = populateTraceIdFromHeaders(traceContext, consumerRecord);
+                if (traceId != null) {
+                    return createContinueTrace(traceContext, msgs, traceId);
+                } else {
+                    return createTrace0(traceContext, msgs);
+                }
+            }
+
+            private TraceId populateTraceIdFromHeaders(TraceContext traceContext,
+                                                       MessageExt messageExt) {
+                final String transactionId = messageExt.getUserProperty(Header.HTTP_TRACE_ID.toString());
+                final String spanID = messageExt.getUserProperty(Header.HTTP_SPAN_ID.toString());
+                final String parentSpanID = messageExt.getUserProperty(Header.HTTP_PARENT_SPAN_ID.toString());
+                final String flags = messageExt.getUserProperty(Header.HTTP_FLAGS.toString());
+
+                if (transactionId == null || spanID == null || parentSpanID == null || flags == null) {
+                    return null;
+                }
+
+                return traceContext.createTraceId(transactionId, Long.parseLong(parentSpanID),
+                                                  Long.parseLong(spanID), Short.parseShort(flags));
+            }
+
+            private Trace createContinueTrace(TraceContext traceContext, List<MessageExt> msgs,
+                                              TraceId traceId) {
+                if (isDebug) {
+                    logger.debug("TraceID exist. continue trace. traceId:{}", traceId);
+                }
+                final Message consumerRecord = msgs.get(0);
+                final boolean isAsyncSend = Boolean.parseBoolean(
+                        consumerRecord.getUserProperty(RocketMQConstants.IS_ASYNC_SEND));
+                final String parentApplicationName = consumerRecord.getUserProperty(
+                        Header.HTTP_PARENT_APPLICATION_NAME.toString());
+                final String parentApplicationType = consumerRecord.getUserProperty(
+                        Header.HTTP_PARENT_APPLICATION_TYPE.toString());
+
+                final Trace trace;
+                if (isAsyncSend) {
+                    trace = traceContext.continueAsyncTraceObject(traceId);
+                } else {
+                    trace = traceContext.continueTraceObject(traceId);
+                }
+
+                if (trace.canSampled()) {
+                    final SpanRecorder recorder = trace.getSpanRecorder();
+                    recordRootSpan(recorder, msgs, parentApplicationName, parentApplicationType);
+                }
+                return trace;
+            }
+
+        }
+
+    }
+
+}
