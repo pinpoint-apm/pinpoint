@@ -17,10 +17,11 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.web.vo.stat.SampledCpuLoad;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
-import com.navercorp.pinpoint.web.vo.stat.SampledCpuLoad;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -65,13 +66,6 @@ public class CpuLoadSampler implements AgentStatSampler<CpuLoadBo, SampledCpuLoa
         if (values.isEmpty()) {
             return SampledCpuLoad.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
-
-        return new AgentStatPoint<>(
-                timestamp,
-                DOUBLE_DOWN_SAMPLER.sampleMin(values),
-                DOUBLE_DOWN_SAMPLER.sampleMax(values),
-                DOUBLE_DOWN_SAMPLER.sampleAvg(values),
-                DOUBLE_DOWN_SAMPLER.sampleSum(values));
-
+        return new AgentStatPoint<>(timestamp, values, DOUBLE_DOWN_SAMPLER);
     }
 }

@@ -18,10 +18,11 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
-import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -132,12 +133,7 @@ public class JvmGcSampler implements AgentStatSampler<JvmGcBo, SampledJvmGc> {
         if (values.isEmpty()) {
             return SampledJvmGc.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         } else {
-            return new AgentStatPoint<>(
-                    timestamp,
-                    LONG_DOWN_SAMPLER.sampleMin(values),
-                    LONG_DOWN_SAMPLER.sampleMax(values),
-                    LONG_DOWN_SAMPLER.sampleAvg(values, 0),
-                    LONG_DOWN_SAMPLER.sampleSum(values));
+            return new AgentStatPoint<>(timestamp, values, LONG_DOWN_SAMPLER);
         }
     }
 }

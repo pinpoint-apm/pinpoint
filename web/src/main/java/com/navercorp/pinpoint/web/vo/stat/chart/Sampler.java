@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 Naver Corp.
+ * Copyright 2020 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,11 +19,18 @@ package com.navercorp.pinpoint.web.vo.stat.chart;
 import java.util.Collection;
 
 /**
- * @author harebox
- * @author HyunGil Jeong
+ * @author Taejin Koo
  */
-public interface DownSampler<T extends Number> extends Sampler<T> {
+public interface Sampler<T extends Number> {
 
-    T getDefaultValue();
+    T sampleMin(Collection<T> values);
+
+    double sampleAvg(Collection<T> values);
+
+    double sampleAvg(Collection<T> values, int numDecimals);
+
+    T sampleMax(Collection<T> values);
+
+    T sampleSum(Collection<T> values);
 
 }

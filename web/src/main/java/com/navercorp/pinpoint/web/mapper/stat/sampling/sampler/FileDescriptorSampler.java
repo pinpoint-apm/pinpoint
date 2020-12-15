@@ -64,13 +64,6 @@ public class FileDescriptorSampler implements AgentStatSampler<FileDescriptorBo,
         if (values.isEmpty()) {
             return SampledFileDescriptor.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
-
-        return new AgentStatPoint<>(
-                timestamp,
-                LONG_DOWN_SAMPLER.sampleMin(values),
-                LONG_DOWN_SAMPLER.sampleMax(values),
-                LONG_DOWN_SAMPLER.sampleAvg(values),
-                LONG_DOWN_SAMPLER.sampleSum(values));
-
+        return new AgentStatPoint<>(timestamp, values, LONG_DOWN_SAMPLER);
     }
 }

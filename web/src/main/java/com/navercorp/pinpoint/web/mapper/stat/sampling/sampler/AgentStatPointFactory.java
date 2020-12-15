@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
+import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
@@ -44,28 +45,13 @@ public class AgentStatPointFactory {
     }
 
     public AgentStatPointFactory(int uncollectedIntValue, long uncollectedLongValue, double uncollectedDoubleValue, int defaultValueDecimal) {
-        this.uncollectedIntValuePointCreator = new Point.UncollectedPointCreator<AgentStatPoint<Integer>>() {
-            @Override
-            public AgentStatPoint<Integer> createUnCollectedPoint(long xVal) {
-                return new AgentStatPoint<>(xVal, uncollectedIntValue);
-            }
-        };
+        this.uncollectedIntValuePointCreator = UncollectedPointCreatorFactory.createIntPointCreator(uncollectedIntValue);
         this.intDownSampler = DownSamplers.getIntegerDownSampler(uncollectedIntValue);
 
-        this.uncollectedLongValuePointCreator = new Point.UncollectedPointCreator<AgentStatPoint<Long>>() {
-            @Override
-            public AgentStatPoint<Long> createUnCollectedPoint(long xVal) {
-                return new AgentStatPoint<>(xVal, uncollectedLongValue);
-            }
-        };
+        this.uncollectedLongValuePointCreator = UncollectedPointCreatorFactory.createLongPointCreator(uncollectedLongValue);
         this.longDownSampler = DownSamplers.getLongDownSampler(uncollectedLongValue);
 
-        this.uncollectedDoubleValuePointCreator = new Point.UncollectedPointCreator<AgentStatPoint<Double>>() {
-            @Override
-            public AgentStatPoint<Double> createUnCollectedPoint(long xVal) {
-                return new AgentStatPoint<>(xVal, uncollectedDoubleValue);
-            }
-        };
+        this.uncollectedDoubleValuePointCreator = UncollectedPointCreatorFactory.createDoublePointCreator(uncollectedDoubleValue);
         this.doubleDownSampler = DownSamplers.getDoubleDownSampler(uncollectedDoubleValue);
 
         this.defaultValueDecimal = defaultValueDecimal;
