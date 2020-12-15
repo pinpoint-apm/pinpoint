@@ -91,7 +91,7 @@ public class GrpcSpanReceiverConfiguration {
     @PostConstruct
     public void validate() {
         logger.info("{}", this);
-        AnnotationVisitor visitor = new AnnotationVisitor(Value.class);
+        AnnotationVisitor<Value> visitor = new AnnotationVisitor<>(Value.class);
         visitor.visit(this, new LoggingEvent(logger));
 
         // Server executor

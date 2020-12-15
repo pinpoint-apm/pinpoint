@@ -78,7 +78,7 @@ public class FlinkConfiguration {
     }
 
     public boolean isLocalforFlinkStreamExecutionEnvironment() {
-        return "local".equals(flinkStreamExecutionEnvironment) ? true : false;
+        return "local".equals(flinkStreamExecutionEnvironment);
     }
 
     public List<String> getL4IpList() {
@@ -88,7 +88,7 @@ public class FlinkConfiguration {
     @PostConstruct
     public void log() {
         this.logger.info("{}", logger);
-        AnnotationVisitor annotationVisitor = new AnnotationVisitor(Value.class);
+        AnnotationVisitor<Value> annotationVisitor = new AnnotationVisitor<>(Value.class);
         annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
 
