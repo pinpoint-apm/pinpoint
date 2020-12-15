@@ -52,8 +52,7 @@ public class GrpcAgentStatHandlerV2 implements SimpleHandler {
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    @Autowired
-    private CollectorConfiguration collectorConfiguration;
+    private final CollectorConfiguration collectorConfiguration;
 
     private final GrpcAgentStatMapper agentStatMapper;
 
@@ -69,12 +68,14 @@ public class GrpcAgentStatHandlerV2 implements SimpleHandler {
                                   GrpcAgentStatBatchMapper agentStatBatchMapper,
                                   GrpcAgentUriStatMapper agentUriStatMapper,
                                   Optional<List<AgentStatService>> agentStatServiceList,
-                                  AgentUriStatService agentUriStatService) {
+                                  AgentUriStatService agentUriStatService,
+                                  CollectorConfiguration collectorConfiguration) {
         this.agentStatMapper = Objects.requireNonNull(agentStatMapper, "agentStatMapper");
         this.agentStatBatchMapper = Objects.requireNonNull(agentStatBatchMapper, "agentStatBatchMapper");
         this.agentUriStatMapper = Objects.requireNonNull(agentUriStatMapper, "agentUriStatMapper");
         this.agentStatServiceList = Objects.requireNonNull(agentStatServiceList, "agentStatServiceList2").orElseGet(Collections::emptyList);
         this.agentUriStatService = Assert.requireNonNull(agentUriStatService, "agentUriStatService");
+        this.collectorConfiguration = Objects.requireNonNull(collectorConfiguration, "collectorConfiguration");
     }
 
     @Override

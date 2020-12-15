@@ -42,6 +42,10 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
         this(queueSize, executorName, new ExecutorListener(uriStatDataLimitSize));
     }
 
+    public AsyncQueueingUriStatStorage(int queueSize, int uriStatDataLimitSize, String executorName, int collectInterval) {
+        this(queueSize, executorName, new ExecutorListener(uriStatDataLimitSize, collectInterval));
+    }
+
     private AsyncQueueingUriStatStorage(int queueSize, String executorName, ExecutorListener executorListener) {
         super(queueSize, executorName, executorListener);
         this.executorListener = executorListener;
@@ -76,13 +80,22 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
         private final Object lock = new Object();
 
         private final int uriStatDataLimitSize;
+        private final int collectInterval;
         private final LinkedList<AgentUriStatData> completedUriStatDataList;
 
         private AgentUriStatData currentAgentUriStatData;
 
         public ExecutorListener(int uriStatDataLimitSize) {
+            this(uriStatDataLimitSize, DEFAULT_COLLECT_INTERVAL);
+        }
+
+        public ExecutorListener(int uriStatDataLimitSize, int collectInterval) {
             Assert.isTrue(uriStatDataLimitSize > 0, "uriStatDataLimitSize must be ' > 0'");
             this.uriStatDataLimitSize = uriStatDataLimitSize;
+
+            Assert.isTrue(collectInterval > 0, "collectInterval must be ' > 0'");
+            this.collectInterval = collectInterval;
+
             this.completedUriStatDataList = new LinkedList<>();
         }
 
@@ -119,7 +132,7 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
         private long getBaseTimestamp() {
             long currentTimeMillis = System.currentTimeMillis();
-            long timestamp = currentTimeMillis - (currentTimeMillis % DEFAULT_COLLECT_INTERVAL);
+            long timestamp = currentTimeMillis - (currentTimeMillis % collectInterval);
             return timestamp;
         }
 

@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.context.storage;
 
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
-import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatInfo;
 
 /**
  * @author Taejin Koo
