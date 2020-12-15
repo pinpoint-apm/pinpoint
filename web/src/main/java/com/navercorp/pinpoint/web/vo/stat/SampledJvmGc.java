@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.web.vo.chart.Point;
+import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 
 /**
@@ -26,12 +27,7 @@ import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 public class SampledJvmGc implements SampledAgentStatDataPoint {
 
     public static final Long UNCOLLECTED_VALUE = -1L;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Long>> UNCOLLECTED_POINT_CREATOR = new Point.UncollectedPointCreator<AgentStatPoint<Long>>() {
-        @Override
-        public AgentStatPoint<Long> createUnCollectedPoint(long xVal) {
-            return new AgentStatPoint<>(xVal, UNCOLLECTED_VALUE);
-        }
-    };
+    public static final Point.UncollectedPointCreator<AgentStatPoint<Long>> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createLongPointCreator(UNCOLLECTED_VALUE);
 
     private JvmGcType jvmGcType;
     private AgentStatPoint<Long> heapUsed;

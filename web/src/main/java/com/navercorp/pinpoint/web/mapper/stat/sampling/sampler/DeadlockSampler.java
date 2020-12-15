@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -57,13 +58,7 @@ public class DeadlockSampler implements AgentStatSampler<DeadlockThreadCountBo, 
         if (values.isEmpty()) {
             return SampledDeadlock.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
-
-        return new AgentStatPoint<>(
-                timestamp,
-                INTEGER_DOWN_SAMPLER.sampleMin(values),
-                INTEGER_DOWN_SAMPLER.sampleMax(values),
-                INTEGER_DOWN_SAMPLER.sampleAvg(values),
-                INTEGER_DOWN_SAMPLER.sampleSum(values));
+        return new AgentStatPoint<>(timestamp, values, INTEGER_DOWN_SAMPLER);
     }
 
 }
