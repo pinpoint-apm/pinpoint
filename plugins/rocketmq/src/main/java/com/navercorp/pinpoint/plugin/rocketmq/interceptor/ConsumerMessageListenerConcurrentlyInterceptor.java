@@ -30,29 +30,18 @@ import com.navercorp.pinpoint.plugin.rocketmq.RocketMQConstants;
 /**
  * @author messi-gao
  */
-public final class ConsumerMessageListenerConcurrentlyInterceptor implements AroundInterceptor {
+public final class ConsumerMessageListenerConcurrentlyInterceptor extends ConsumerMessageEntryPointInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
 
-    public ConsumerMessageListenerConcurrentlyInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public ConsumerMessageListenerConcurrentlyInterceptor(
+            TraceContext traceContext, MethodDescriptor descriptor) {
+        super(traceContext, descriptor);
         this.traceContext = traceContext;
         this.descriptor = descriptor;
     }
 
-    @Override
-    public void before(Object target, Object[] args) {
-        if (logger.isDebugEnabled()) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        trace.traceBlockBegin();
-    }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {

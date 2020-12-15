@@ -71,9 +71,7 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
                                                                     new InterfaceInternalNameMatcherOperand(
                                                                             "org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently",
                                                                             true));
-            transformTemplate.transform(
-                    matcher,
-                    MessageListenerConcurrentlyTransform.class);
+            transformTemplate.transform(matcher, MessageListenerConcurrentlyTransform.class);
 
             final Matcher orderlyMatcher = Matchers.newPackageBasedMatcher(basePackageName,
                                                                            new InterfaceInternalNameMatcherOperand(

@@ -65,25 +65,6 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         if (trace.canSampled()) {
             final SpanEventRecorder spanEventRecorder = trace.traceBlockBegin();
             spanEventRecorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT);
-        }
-    }
-
-    @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (logger.isDebugEnabled()) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        if (!trace.canSampled()) {
-            return;
-        }
-
-        try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
 
@@ -116,7 +97,26 @@ public class ProducerSendInterceptor implements AroundInterceptor {
                 properties.append(PROPERTY_SEPARATOR);
             }
             sendMessageRequestHeader.setProperties(properties.toString());
+        }
+    }
 
+    @Override
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (logger.isDebugEnabled()) {
+            logger.afterInterceptor(target, args, result, throwable);
+        }
+
+        final Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
+            return;
+        }
+
+        if (!trace.canSampled()) {
+            return;
+        }
+
+        try {
+            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (throwable != null) {
                 recorder.recordException(throwable);
             }

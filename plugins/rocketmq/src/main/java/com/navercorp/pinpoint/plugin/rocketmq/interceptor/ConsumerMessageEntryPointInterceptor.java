@@ -84,7 +84,7 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
     private Trace createTrace(List<MessageExt> msgs) {
         TraceFactoryProvider.TraceFactory traceFactory = tracyFactoryReference.get();
         if (traceFactory == null) {
-            traceFactory = TraceFactoryProvider.get(msgs);
+            traceFactory = TraceFactoryProvider.get();
             tracyFactoryReference.compareAndSet(null, traceFactory);
         }
         return traceFactory.createTrace(traceContext, msgs);
@@ -92,7 +92,7 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
 
     private static class TraceFactoryProvider {
 
-        private static TraceFactory get(Object object) {
+        private static TraceFactory get() {
             return new SupportContinueTraceFactory();
         }
 
@@ -220,10 +220,10 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
 
             private TraceId populateTraceIdFromHeaders(TraceContext traceContext,
                                                        MessageExt messageExt) {
-                String transactionId = messageExt.getUserProperty(Header.HTTP_TRACE_ID.name());
-                String spanID = messageExt.getUserProperty(Header.HTTP_SPAN_ID.name());
-                String parentSpanID = messageExt.getUserProperty(Header.HTTP_PARENT_SPAN_ID.name());
-                String flags = messageExt.getUserProperty(Header.HTTP_FLAGS.name());
+                String transactionId = messageExt.getUserProperty(Header.HTTP_TRACE_ID.toString());
+                String spanID = messageExt.getUserProperty(Header.HTTP_SPAN_ID.toString());
+                String parentSpanID = messageExt.getUserProperty(Header.HTTP_PARENT_SPAN_ID.toString());
+                String flags = messageExt.getUserProperty(Header.HTTP_FLAGS.toString());
 
                 if (transactionId == null || spanID == null || parentSpanID == null || flags == null) {
                     return null;
@@ -243,9 +243,9 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
 
                 Message consumerRecord = msgs.get(0);
                 String parentApplicationName = consumerRecord.getUserProperty(
-                        Header.HTTP_PARENT_APPLICATION_NAME.name());
+                        Header.HTTP_PARENT_APPLICATION_NAME.toString());
                 String parentApplicationType = consumerRecord.getUserProperty(
-                        Header.HTTP_PARENT_APPLICATION_TYPE.name());
+                        Header.HTTP_PARENT_APPLICATION_TYPE.toString());
 
                 if (trace.canSampled()) {
                     final SpanRecorder recorder = trace.getSpanRecorder();
