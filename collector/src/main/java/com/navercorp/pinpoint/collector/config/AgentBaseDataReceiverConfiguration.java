@@ -55,7 +55,7 @@ public class AgentBaseDataReceiverConfiguration {
     @PostConstruct
     public void log() {
         logger.info("{}", this);
-        AnnotationVisitor visitor = new AnnotationVisitor(Value.class);
+        AnnotationVisitor<Value> visitor = new AnnotationVisitor<>(Value.class);
         visitor.visit(this, new LoggingEvent(logger));
 
         validate();

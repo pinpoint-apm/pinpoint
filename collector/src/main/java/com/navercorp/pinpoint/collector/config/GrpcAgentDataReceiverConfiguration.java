@@ -80,7 +80,7 @@ public class GrpcAgentDataReceiverConfiguration {
     public void log() {
         logger.info("{}", this);
         Class<Value> valueClass = Value.class;
-        AnnotationVisitor visitor = new AnnotationVisitor(valueClass);
+        AnnotationVisitor<Value> visitor = new AnnotationVisitor<>(valueClass);
         visitor.visit(this, new LoggingEvent(logger));
     }
 

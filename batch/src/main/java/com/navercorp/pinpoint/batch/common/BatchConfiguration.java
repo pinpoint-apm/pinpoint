@@ -85,13 +85,13 @@ public class BatchConfiguration {
 
     private void beforeLog() {
         logger.info("before setup field: {}", this);
-        AnnotationVisitor annotationVisitor = new AnnotationVisitor(Value.class);
+        AnnotationVisitor<Value> annotationVisitor = new AnnotationVisitor<>(Value.class);
         annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
 
     private void afterLog() {
         logger.info("after setup field : {}", this);
-        AnnotationVisitor annotationVisitor = new AnnotationVisitor(Value.class);
+        AnnotationVisitor<Value> annotationVisitor = new AnnotationVisitor<>(Value.class);
         annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
 
