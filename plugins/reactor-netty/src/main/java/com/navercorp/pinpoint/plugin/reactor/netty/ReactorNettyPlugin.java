@@ -43,6 +43,7 @@ import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientHandler
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientOperationsOnInboundNextInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientOperationsOnOutboundCompleteInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientOperationsOnOutboundErrorInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientOperationsSendInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpServerHandleHttpServerStateInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpServerHandleStateInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpTcpClientConnectInterceptor;
@@ -189,6 +190,15 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             target.addField(AsyncContextAccessor.class);
+
+            final InstrumentMethod sendMethod = target.getDeclaredMethod("send");
+            if (sendMethod != null) {
+                sendMethod.addInterceptor(HttpClientOperationsSendInterceptor.class);
+            }
+            final InstrumentMethod sendArgMethod = target.getDeclaredMethod("send", "org.reactivestreams.Publisher");
+            if (sendArgMethod != null) {
+                sendArgMethod.addInterceptor(HttpClientOperationsSendInterceptor.class);
+            }
             final InstrumentMethod onOutboundCompleteMethod = target.getDeclaredMethod("onOutboundComplete");
             if (onOutboundCompleteMethod != null) {
                 onOutboundCompleteMethod.addInterceptor(HttpClientOperationsOnOutboundCompleteInterceptor.class);

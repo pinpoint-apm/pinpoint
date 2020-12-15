@@ -22,12 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
-import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
-
-import java.net.InetSocketAddress;
 
 /**
  * @author jaehong.kim
@@ -40,15 +35,6 @@ public class HttpClientHandlerConstructorInterceptor extends SpanEventSimpleArou
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
-        if (args != null && args.length >= 2 && args[1] instanceof InetSocketAddress) {
-            final InetSocketAddress inetSocketAddress = (InetSocketAddress) args[1];
-            if (inetSocketAddress != null) {
-                final String hostName = SocketAddressUtils.getHostNameFirst(inetSocketAddress);
-                if (hostName != null) {
-                    recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, HostAndPort.toHostAndPortString(hostName, inetSocketAddress.getPort()));
-                }
-            }
-        }
     }
 
     @Override

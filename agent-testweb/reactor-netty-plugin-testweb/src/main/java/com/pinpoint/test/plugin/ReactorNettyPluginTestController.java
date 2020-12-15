@@ -47,7 +47,7 @@ public class ReactorNettyPluginTestController {
         return response;
     }
 
-    @RequestMapping(value = "/client/get_local", method = RequestMethod.GET)
+    @RequestMapping(value = "/client/local", method = RequestMethod.GET)
     @ResponseBody
     public String clientError(HttpServletRequest request) {
         HttpClient client = HttpClient.create().port(request.getLocalPort());
@@ -63,7 +63,7 @@ public class ReactorNettyPluginTestController {
         return response.toString();
     }
 
-    @RequestMapping(value = "/client/unknown_host", method = RequestMethod.GET)
+    @RequestMapping(value = "/client/unknown", method = RequestMethod.GET)
     @ResponseBody
     public String clientError() {
         HttpClient client = HttpClient.create().port(80);
