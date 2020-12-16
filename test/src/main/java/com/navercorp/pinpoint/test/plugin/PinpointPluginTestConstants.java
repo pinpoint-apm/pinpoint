@@ -26,4 +26,6 @@ public final class PinpointPluginTestConstants {
     public static final String JUNIT_OUTPUT_DELIMITER = "#####";
     public static final String PINPOINT_TEST_ID = "pinpoint.test.id";
     public static final String CHILD_CLASS_PATH_PREFIX = "-child=";
+
+    public static final String CAUSED_DELIMITER = "$CAUSE$";
 }

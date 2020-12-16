@@ -43,6 +43,8 @@ import java.util.Properties;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
+//@Dependency({"org.postgresql:postgresql:[42.2.15.jre6]",
+//        JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.POSTGRESQL})
 @Dependency({"org.postgresql:postgresql:[9.4.1208,)",
         JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.POSTGRESQL})
 public class PostgreSql_Post_9_4_1208_IT extends PostgreSqlBase {
