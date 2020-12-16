@@ -39,12 +39,12 @@ public class ForkedPinpointPluginTest {
     private static boolean forked = false;
 
     private static PluginTestLogger logger = PluginTestLogger.getLogger(ForkedPinpointPluginTest.class.getName());
-    
+
     public static boolean isForked() {
         return forked;
     }
 
-    
+
 
     public static void main(String[] args) throws Exception {
         forked = true;
@@ -53,9 +53,9 @@ public class ForkedPinpointPluginTest {
         final String agentType = getAgentType(args);
 
         final ClassLoader classLoader = getClassLoader(agentType);
-        
+
         final String testId = System.getProperty(PINPOINT_TEST_ID, "");
-        if (logger.isDebugEnabled()){
+        if (logger.isDebugEnabled()) {
             logger.debug("testId:" + testId);
         }
 
@@ -125,10 +125,10 @@ public class ForkedPinpointPluginTest {
     private static Result runTests(Class<?> testClass, String testId) throws InitializationError {
         JUnitCore junit = new JUnitCore();
         junit.addListener(new PrintListener());
-        
+
         Runner runner = new ForkedPinpointPluginTestRunner(testClass, testId);
         Result result = junit.run(runner);
-        
+
         return result;
     }
 
@@ -143,6 +143,7 @@ public class ForkedPinpointPluginTest {
     }
 
     private static class PrintListener extends RunListener {
+        private final ExceptionWriter writer = new ExceptionWriter();
 
         @Override
         public void testRunStarted(Description description) throws Exception {
@@ -178,45 +179,9 @@ public class ForkedPinpointPluginTest {
         public void testIgnored(Description description) throws Exception {
             System.out.println(JUNIT_OUTPUT_DELIMITER + "testIgnored" + JUNIT_OUTPUT_DELIMITER + description.getDisplayName());
         }
-        
-        private String failureToString(Failure failure) {
-            StringBuilder builder = new StringBuilder();
-            
-            builder.append(failure.getTestHeader());
-            builder.append(JUNIT_OUTPUT_DELIMITER);
-            
-            Throwable t = failure.getException();
-            
-            while (true) {
-                builder.append(t.getClass().getName());
-                builder.append(JUNIT_OUTPUT_DELIMITER);
-                builder.append(t.getMessage());
-                builder.append(JUNIT_OUTPUT_DELIMITER);
 
-                for (StackTraceElement e : failure.getException().getStackTrace()) {
-                    builder.append(e.getClassName());
-                    builder.append(',');
-                    builder.append(e.getMethodName());
-                    builder.append(',');
-                    builder.append(e.getFileName());
-                    builder.append(',');
-                    builder.append(e.getLineNumber());
-                    
-                    builder.append(JUNIT_OUTPUT_DELIMITER);
-                }
-            
-                Throwable cause = t.getCause();
-                
-                if (cause == null || t == cause) {
-                    break;
-                }
-                
-                t = cause;
-                builder.append("$CAUSE$");
-                builder.append(JUNIT_OUTPUT_DELIMITER);
-            }
-            
-            return builder.toString();
+        private String failureToString(Failure failure) {
+            return writer.write(failure.getTestHeader(), failure.getException());
         }
     }
 

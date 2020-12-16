@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.test.plugin.shared;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.test.plugin.ExceptionWriter;
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.ForkedPinpointPluginTestRunner;
 import com.navercorp.pinpoint.test.plugin.PluginTestClassLoader;
@@ -193,6 +194,7 @@ public class SharedPinpointPluginTest {
     }
 
     private class PrintListener extends RunListener {
+        private final ExceptionWriter writer = new ExceptionWriter();
 
         @Override
         public void testRunStarted(Description description) throws Exception {
@@ -230,44 +232,9 @@ public class SharedPinpointPluginTest {
         }
 
         private String failureToString(Failure failure) {
-            StringBuilder builder = new StringBuilder();
-
-            builder.append(failure.getTestHeader());
-            builder.append(JUNIT_OUTPUT_DELIMITER);
-
-            Throwable t = failure.getException();
-
-            while (true) {
-                builder.append(t.getClass().getName());
-                builder.append(JUNIT_OUTPUT_DELIMITER);
-                builder.append(t.getMessage());
-                builder.append(JUNIT_OUTPUT_DELIMITER);
-
-                for (StackTraceElement e : failure.getException().getStackTrace()) {
-                    builder.append(e.getClassName());
-                    builder.append(',');
-                    builder.append(e.getMethodName());
-                    builder.append(',');
-                    builder.append(e.getFileName());
-                    builder.append(',');
-                    builder.append(e.getLineNumber());
-
-                    builder.append(JUNIT_OUTPUT_DELIMITER);
-                }
-
-                Throwable cause = t.getCause();
-
-                if (cause == null || t == cause) {
-                    break;
-                }
-
-                t = cause;
-                builder.append("$CAUSE$");
-                builder.append(JUNIT_OUTPUT_DELIMITER);
-            }
-
-            return builder.toString();
+            return writer.write(failure.getTestHeader(), failure.getException());
         }
+
     }
 
 }

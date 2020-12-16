@@ -33,7 +33,7 @@ import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.JUN
  *
  */
 public class PinpointPluginTestStatement extends Statement {
-    private static final String JUNIT_OUTPUT_DELIMITER_REGEXP = Pattern.quote(JUNIT_OUTPUT_DELIMITER);
+    public static final String JUNIT_OUTPUT_DELIMITER_REGEXP = Pattern.quote(JUNIT_OUTPUT_DELIMITER);
 
     private final PinpointPluginTestRunner runner;
     private final RunNotifier notifier;
@@ -58,7 +58,7 @@ public class PinpointPluginTestStatement extends Statement {
 
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                if(line.endsWith("\\r")) {
+                if (line.endsWith("\\r")) {
                     line = line.substring(0, line.length() - 2);
                 }
 
@@ -79,11 +79,12 @@ public class PinpointPluginTestStatement extends Statement {
                         Description ofTest = findDescription(parentDescription, tokens[2]);
                         notifier.fireTestFinished(ofTest);
                     } else if ("testFailure".equals(event)) {
-                        List<String> stackTrace = tokens.length > 5 ? Arrays.asList(tokens).subList(5, tokens.length - 1) : Collections.<String>emptyList();
+                        List<String> stackTrace = slice(tokens);
+
                         Failure failure = toFailure(parentDescription, tokens[2], tokens[3], tokens[4], stackTrace);
                         notifier.fireTestFailure(failure);
                     } else if ("testAssumptionFailure".equals(event)) {
-                        List<String> stackTrace = tokens.length > 5 ? Arrays.asList(tokens).subList(5, tokens.length - 1) : Collections.<String>emptyList();
+                        List<String> stackTrace = slice(tokens);
                         Failure failure = toFailure(parentDescription, tokens[2], tokens[3], tokens[4], stackTrace);
                         notifier.fireTestAssumptionFailed(failure);
                     } else if ("testIgnored".equals(event)) {
@@ -102,6 +103,14 @@ public class PinpointPluginTestStatement extends Statement {
         } finally {
             testCase.endTest();
         }
+    }
+
+    static List<String> slice(String[] tokens) {
+        if (tokens.length > 5) {
+            String[] copy = Arrays.copyOfRange(tokens, 5, tokens.length - 1);
+            return Arrays.asList(copy);
+        }
+        return Collections.emptyList();
     }
 
     private Description findDescription(Description parentDescription, String displayName) {
@@ -127,32 +136,10 @@ public class PinpointPluginTestStatement extends Statement {
         
         return failure;
     }
-    
-    private PinpointPluginTestException toException(String message, String exceptionClass, List<String> traceInText) {
-        StackTraceElement[] stackTrace = new StackTraceElement[traceInText.size()];
-        
-        for (int i = 0; i < traceInText.size(); i++) {
-            String trace = traceInText.get(i);
 
-            if (trace.equals("$CAUSE$")) {
-                final String parsedMessage = traceInText.get(i + 2);
-                final String parsedexceptionClass = traceInText.get(i + 1);
-                final List<String> sublist = traceInText.subList(i + 3, traceInText.size());
-                PinpointPluginTestException cause = toException(parsedMessage, parsedexceptionClass, sublist);
-                return new PinpointPluginTestException(exceptionClass + ": " + message, Arrays.copyOf(stackTrace, i), cause);
-            }
-            
-            String[] tokens = trace.split(",");
-            
-            if (tokens.length != 4) {
-                System.out.println("Unexpected trace string: " + trace);
-                stackTrace[i] = new StackTraceElement(trace, "", null, -1);
-            } else {
-                stackTrace[i] = new StackTraceElement(tokens[0], tokens[1], tokens[2], Integer.parseInt(tokens[3]));
-            }
-            
-        }
-        
-        return new PinpointPluginTestException(exceptionClass + ": " + message, stackTrace);
+    private final ExceptionReader reader = new ExceptionReader();
+
+    private Exception toException(String message, String exceptionClass, List<String> traceInText) {
+        return reader.read(exceptionClass, message, traceInText);
     }
 }
