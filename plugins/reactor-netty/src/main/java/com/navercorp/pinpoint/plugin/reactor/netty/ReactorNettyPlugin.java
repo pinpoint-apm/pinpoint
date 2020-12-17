@@ -191,13 +191,9 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             target.addField(AsyncContextAccessor.class);
 
-            final InstrumentMethod sendMethod = target.getDeclaredMethod("send");
+            final InstrumentMethod sendMethod = target.getDeclaredMethod("followRedirectPredicate", "java.util.function.BiPredicate");
             if (sendMethod != null) {
                 sendMethod.addInterceptor(HttpClientOperationsSendInterceptor.class);
-            }
-            final InstrumentMethod sendArgMethod = target.getDeclaredMethod("send", "org.reactivestreams.Publisher");
-            if (sendArgMethod != null) {
-                sendArgMethod.addInterceptor(HttpClientOperationsSendInterceptor.class);
             }
             final InstrumentMethod onOutboundCompleteMethod = target.getDeclaredMethod("onOutboundComplete");
             if (onOutboundCompleteMethod != null) {
