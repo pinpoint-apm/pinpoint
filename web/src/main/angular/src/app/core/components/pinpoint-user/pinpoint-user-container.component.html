@@ -24,6 +24,7 @@
                     [isEnabled]="isUserGroupSelected"
                     [isChecked]="isChecked(pinpointUser.userId)"
                     [allowedUserEdit]="allowedUserEdit"
+                    (outCheckUser)="onCheckUser($event)"
                     (outRemove)="onRemovePinpointUser($event)"
                     (outEditUser)="onShowUpdateUser($event)"
                     (outAddUser)="onAddUser($event)">
@@ -40,6 +41,7 @@
             [i18nGuide]="i18nGuide"
             [minLength]="minLength"
             [userInfo]="userInfo"
+            [allowedUserEdit]="allowedUserEdit"
             (outUpdatePinpointUser)="onUpdatePinpointUser($event)"
             (outCreatePinpointUser)="onCreatePinpointUser($event)"
             (outClose)="onCloseCreateUserPopup()">

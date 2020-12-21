@@ -42,10 +42,15 @@
     margin-left: 8px;
 }
 
+.l-checkbox-input {
+    cursor: pointer;
+}
+
 .l-userinfo-label {
     margin-left: 4px;
     flex: 1;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    cursor: pointer;
 }
