@@ -153,6 +153,11 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         this.errorMessage = '';
     }
 
+    onCheckUser(userId: string): void {
+        this.userInfo = this.getUserInfo(userId);
+        this.showCreate = true;
+    }
+
     onSearch(query: string): void {
         this.searchQuery = query;
         this.getPinpointUserList(this.searchQuery);

@@ -16,6 +16,7 @@ export class PinpointUserCreateAndUpdateComponent implements OnInit, OnChanges, 
     @Input() i18nGuide: { [key: string]: IFormFieldErrorType };
     @Input() minLength: any;
     @Input() userInfo: IUserProfile;
+    @Input() allowedUserEdit: boolean;
     @Output() outUpdatePinpointUser = new EventEmitter<IUserProfile>();
     @Output() outCreatePinpointUser = new EventEmitter<IUserProfile>();
     @Output() outClose = new EventEmitter<void>();
