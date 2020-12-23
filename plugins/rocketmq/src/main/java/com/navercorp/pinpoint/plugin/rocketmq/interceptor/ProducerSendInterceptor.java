@@ -22,7 +22,6 @@ import static org.apache.rocketmq.common.message.MessageDecoder.PROPERTY_SEPARAT
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.common.protocol.header.SendMessageRequestHeader;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
@@ -59,10 +58,18 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         if (logger.isDebugEnabled()) {
             logger.beforeInterceptor(target, args);
         }
+        Object sendCallBack = args[6];
+        if (sendCallBack != null) {
+            AsyncContextAccessor asyncContextAccessor = (AsyncContextAccessor) sendCallBack;
+            AsyncContextAccessor contextAccessor = (AsyncContextAccessor) target;
+            contextAccessor._$PINPOINT$_setAsyncContext(asyncContextAccessor._$PINPOINT$_getAsyncContext());
+            AsyncContext asyncContext = ((AsyncContextAccessor) target)._$PINPOINT$_getAsyncContext();
+            asyncContext.continueAsyncTraceObject();
+        }
 
         Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
-            trace = traceContext.newTraceObject();
+            return;
         }
 
         if (trace.canSampled()) {

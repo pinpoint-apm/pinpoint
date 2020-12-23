@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.plugin.rocketmq.RocketMQConstants;
  */
 public final class ProducerSendCallBackInterceptor {
     public static class ConstructInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
-        protected ConstructInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+        public ConstructInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
             super(traceContext, descriptor);
         }
 
@@ -46,7 +46,9 @@ public final class ProducerSendCallBackInterceptor {
         @Override
         protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
                                       Throwable throwable) {
-
+            recorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT_INTERNAL);
+            recorder.recordApi(methodDescriptor);
+            recorder.recordException(throwable);
         }
     }
 

@@ -98,6 +98,7 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
                                                                            classfileBuffer);
             target.addField(EndPointFieldAccessor.class);
+            target.addField(AsyncContextAccessor.class);
 
             final List<InstrumentMethod> sendMessageMethods = target.getDeclaredMethods(
                     MethodFilters.name("sendMessage"));
