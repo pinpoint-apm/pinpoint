@@ -16,14 +16,22 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.common.util.JvmUtils;
-import com.navercorp.pinpoint.common.util.JvmVersion;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
 public final class MavenCentral {
     public static final String MAVEN_CENTRAL_SECURE = "https://repo.maven.apache.org/maven2";
+
+    public static final boolean JDK8_PLUS = isJDK8Plus();
+
+    private static boolean isJDK8Plus() {
+        try {
+            Class.forName("java.util.Optional");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
 
     /*
      * for jdk 6, 7
@@ -38,7 +46,7 @@ public final class MavenCentral {
     }
 
     public static String getAddress() {
-        if (JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_8)) {
+        if (JDK8_PLUS) {
             return MAVEN_CENTRAL_SECURE;
         } else {
             return MAVEN_CENTRAL_INSECURE;

@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * @author Jongho Moon
  */
-public class PinpointPluginTestContext {
+public class PluginTestContext {
 
     private final String agentJar;
     private final String profile;
@@ -39,11 +39,11 @@ public class PinpointPluginTestContext {
 
     private final List<String> importPluginIds;
 
-    public PinpointPluginTestContext(String agentJar, String profile, String configFile,
-                                     List<String> requiredLibraries, List<String> mavenDependencyLibraries,
-                                     Class<?> testClass, String testClassLocation, String[] jvmArguments,
-                                     boolean debug, int jvmVersion,
-                                     String javaExecutable, List<String> importPluginIds) {
+    public PluginTestContext(String agentJar, String profile, String configFile,
+                             List<String> requiredLibraries, List<String> mavenDependencyLibraries,
+                             Class<?> testClass, String testClassLocation, String[] jvmArguments,
+                             boolean debug, int jvmVersion,
+                             String javaExecutable, List<String> importPluginIds) {
         this.agentJar = agentJar;
         this.profile = profile;
         this.configFile = configFile;

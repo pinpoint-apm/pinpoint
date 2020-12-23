@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.rabbitmq;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.JvmArgument;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
@@ -35,6 +36,7 @@ import org.junit.runner.RunWith;
 @PinpointConfig("rabbitmq/client/pinpoint-rabbitmq.config")
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-rabbitmq-plugin", "com.navercorp.pinpoint:pinpoint-jetty-plugin", "com.navercorp.pinpoint:pinpoint-user-plugin"})
 @Dependency({"com.rabbitmq:amqp-client:[4.0.0,4.max)", "org.apache.qpid:qpid-broker:6.1.1"})
+@JvmArgument("-DtestLoggerEnable=false")
 public class RabbitMQClient_4_x_IT extends RabbitMQClientITBase {
 
     @Test

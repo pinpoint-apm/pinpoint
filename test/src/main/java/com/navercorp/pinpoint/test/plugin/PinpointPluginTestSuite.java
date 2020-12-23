@@ -14,7 +14,6 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.test.plugin.shared.SharedProcessManager;
 import com.navercorp.pinpoint.test.plugin.shared.SharedProcessPluginTestCase;
 import org.eclipse.aether.artifact.Artifact;
@@ -44,7 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.CHILD_CLASS_PATH_PREFIX;
+import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.CHILD_CLASS_PATH_PREFIX;
 
 /**
  * We have referred OrderedThreadPoolExecutor ParentRunner of JUnit.
@@ -53,7 +52,7 @@ import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.CHI
  * @author Taejin Koo
  */
 public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
-    private static final String DEFAULT_ENCODING = Charsets.UTF_8_NAME;
+    private static final String DEFAULT_ENCODING = PluginTestConstants.UTF_8_NAME;
 
     private final boolean testOnSystemClassLoader;
     private final boolean testOnChildClassLoader;
@@ -124,7 +123,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
     }
 
     @Override
-    protected List<PinpointPluginTestInstance> createTestCases(PinpointPluginTestContext context) throws Exception {
+    protected List<PinpointPluginTestInstance> createTestCases(PluginTestContext context) throws Exception {
         if (dependencies != null) {
             if (sharedProcess) {
                 return createSharedCasesWithDependencies(context);
@@ -138,7 +137,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         return createCasesWithJdkOnly(context);
     }
 
-    private List<PinpointPluginTestInstance> createSharedCasesWithDependencies(PinpointPluginTestContext context) throws ArtifactResolutionException, DependencyResolutionException {
+    private List<PinpointPluginTestInstance> createSharedCasesWithDependencies(PluginTestContext context) throws ArtifactResolutionException, DependencyResolutionException {
         List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
 
         DependencyResolver resolver = getDependencyResolver(this.repositories);
@@ -177,7 +176,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         return RESOLVER_FACTORY.get(repositories);
     }
 
-    private List<PinpointPluginTestInstance> createCasesWithDependencies(PinpointPluginTestContext context) throws ArtifactResolutionException, DependencyResolutionException {
+    private List<PinpointPluginTestInstance> createCasesWithDependencies(PluginTestContext context) throws ArtifactResolutionException, DependencyResolutionException {
         List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
 
         DependencyResolver resolver = getDependencyResolver(repositories);
@@ -202,7 +201,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         return cases;
     }
 
-    private List<PinpointPluginTestInstance> createCasesWithLibraryPath(PinpointPluginTestContext context) {
+    private List<PinpointPluginTestInstance> createCasesWithLibraryPath(PluginTestContext context) {
         File file = new File(libraryPath);
 
         if (!file.isDirectory()) {
@@ -244,7 +243,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         return cases;
     }
 
-    private List<PinpointPluginTestInstance> createCasesWithJdkOnly(PinpointPluginTestContext context) {
+    private List<PinpointPluginTestInstance> createCasesWithJdkOnly(PluginTestContext context) {
         List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
 
         if (testOnSystemClassLoader) {
@@ -402,13 +401,13 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
     }
 
     private static class NormalPluginTestCase implements DelegateSupportedPinpointPluginTestInstance {
-        private final PinpointPluginTestContext context;
+        private final PluginTestContext context;
         private final String testId;
         private final List<String> libs;
         private final boolean onSystemClassLoader;
         private final ProcessManager processManager;
 
-        public NormalPluginTestCase(PinpointPluginTestContext context, String testId, List<String> libs, boolean onSystemClassLoader) {
+        public NormalPluginTestCase(PluginTestContext context, String testId, List<String> libs, boolean onSystemClassLoader) {
             this.context = context;
             this.testId = testId + ":" + (onSystemClassLoader ? "system" : "child") + ":" + context.getJvmVersion();
             this.libs = libs;

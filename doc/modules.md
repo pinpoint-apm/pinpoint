@@ -39,7 +39,7 @@
 | Apache HttpAsyncClient                                                                     | httpasyncclient            | 4.0     | 4.1.3   |                        | <AG>
 | \*Akka HTTP                                                                                | akka-http_2.12             | 10.1.0  | 10.1.x  |                        | 
 | \*[Kafka](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/kafka)                     | kafka-clients              | 0.11.0.1|         |                        |
-| GRPC                                                                                       | grpc-stub                  | 1.8.0   | 1.33.1  |                        | <AG>
+| GRPC                                                                                       | grpc-stub                  | 1.8.0   | 1.34.0  |                        | <AG>
 | \*[Reactor](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/reactor)                 | reactor-core               | 3.3.0   | 3.3.1   |                        |
 | \*[Reactor Netty](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/reactor-netty)     | reactor-netty              | 0.8.0   | 0.9.2   |                        | 
 |                                                                                            |                            |         |         |                        | 
@@ -56,7 +56,7 @@
 | MariaDB Connector/J                                                                        | mariadb-java-client        | 1.3.0   | 2.7.1   |                        | <AG>
 | MongoDB Java Driver                                                                        | mongodb-driver             | 3.0.0   | 3.12.7  |                        | <AG>
 | [Elasticsearch](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/elasticsearch-bboss) | bboss-elasticsearch-rest-jdbc | 5.6.9   | 5.8.2   |                     | <AG>
-| Elasticsearch                                                                              | elasticsearch-rest-high-level-client | 6.0.0   | 7.10.0  |              | <AG>
+| Elasticsearch                                                                              | elasticsearch-rest-high-level-client | 6.0.0   | 7.10.1  |              | <AG>
 | Datastax Java Driver                                                                       | cassandra-driver-core      | 2.0.10  | 3.10.2  |                        | <AG>
 | Druid                                                                                      | druid                      | 1.0.0   | 1.2.3   |                        | <AG>
 | \*Cubrid                                                                                   | cubrid-jdbc-driver         | 8.4.1   | 10.0.0  |                        | 
@@ -71,7 +71,7 @@
 | \*[Redis](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/redis-redisson)            | redisson                   | 3.10.0  | 3.10.4  |                        |
 |                                                                                            |                            |         |         |                        |
 | Apache CXF                                                                                 | cxf-rt-rs-client           | 3.0.0   | 3.4.1   |                        | <AG> 
-| Netty                                                                                      | netty-all                  | 4.1.0   | 4.1.54  |                        | <AG> 
+| Netty                                                                                      | netty-all                  | 4.1.0   | 4.1.56  |                        | <AG> 
 | ActiveMQ                                                                                   | activemq-all               | 5.1.0   | 5.16.0  |                        | <AG> 
 | [RxJAVA](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/rxjava)                     | rxjava                     | 1.0.0   | 1.3.8   |                        | <AG> 
 | [RabbitMQ](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/rabbitmq)                 | amqp-client                | 2.7.0   | 5.10.0  |                        | <AG> 
@@ -83,5 +83,5 @@
 | FastJson                                                                                   | fastjson                   | 1.2.10  | 1.2.75  |                        | <AG>
 | Dubbo                                                                                      | dubbo                      | 2.5.1   | 2.6.9   |                        | <AG> 
  
-| kafka-clients                                                                     | kafka-clients              | 0.11.0.0| 2.5.1   |                        | <AG> 
+| kafka-clients                                                                     | kafka-clients              | 0.11.0.0| 2.6.0   |                        | <AG> 
 | postgresql                                                                        | postgresql                 | 9.4.1208| 42.2.18 |                        | <AG> 

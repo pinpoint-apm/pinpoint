@@ -16,8 +16,11 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.test.plugin.util.ChildFirstClassLoader;
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.FileUtils;
+import com.navercorp.pinpoint.test.plugin.util.TestLogger;
+import com.navercorp.pinpoint.test.plugin.util.ThreadContextCallable;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -25,20 +28,22 @@ import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 import org.junit.runners.model.InitializationError;
+import org.tinylog.TaggedLogger;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.Callable;
 
-import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.CHILD_CLASS_PATH_PREFIX;
-import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.JUNIT_OUTPUT_DELIMITER;
-import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.PINPOINT_TEST_ID;
+import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.CHILD_CLASS_PATH_PREFIX;
+import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.JUNIT_OUTPUT_DELIMITER;
+import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.PINPOINT_TEST_ID;
 
 public class ForkedPinpointPluginTest {
+    private static final TaggedLogger logger = TestLogger.getLogger();
+
     private static boolean forked = false;
 
-    private static PluginTestLogger logger = PluginTestLogger.getLogger(ForkedPinpointPluginTest.class.getName());
 
     public static boolean isForked() {
         return forked;
@@ -56,7 +61,7 @@ public class ForkedPinpointPluginTest {
 
         final String testId = System.getProperty(PINPOINT_TEST_ID, "");
         if (logger.isDebugEnabled()) {
-            logger.debug("testId:" + testId);
+            logger.debug("testId:{}", testId);
         }
 
         final Callable<Result> testCaseCallable = new Callable<Result>() {
@@ -70,7 +75,7 @@ public class ForkedPinpointPluginTest {
         try {
             result = executeTestCase(testCaseCallable, classLoader);
         } catch (Throwable e) {
-            logger.info("testcase run error:" + e.getMessage());
+            logger.error(e, "testcase run error:{}", e.getMessage());
             System.exit(-1);
         }
 
@@ -97,28 +102,25 @@ public class ForkedPinpointPluginTest {
     }
 
     private static ClassLoader getClassLoader(String agentType) throws IOException {
+
         if (agentType.startsWith(CHILD_CLASS_PATH_PREFIX)) {
             String jars = agentType.substring(CHILD_CLASS_PATH_PREFIX.length());
             final URL[] urls = getJarUrls(jars);
             for (URL url : urls) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("child-runner lib:" + url);
+                    logger.debug("child-runner lib:{}", url);
                 }
             }
-            return new PluginTestClassLoader(urls, ClassLoader.getSystemClassLoader());
+            logger.debug("ChildFirstClassLoader");
+            return new ChildFirstClassLoader(urls, ClassLoader.getSystemClassLoader());
         }
+        logger.debug("SystemClassloader");
         return ClassLoader.getSystemClassLoader();
     }
 
     private static Result executeTestCase(Callable<Result> callable, ClassLoader classLoader) throws Exception {
-        final Thread currentThread = Thread.currentThread();
-        ClassLoader old = currentThread.getContextClassLoader();
-        currentThread.setContextClassLoader(classLoader);
-        try {
-            return callable.call();
-        } finally {
-            currentThread.setContextClassLoader(old);
-        }
+        return new ThreadContextCallable<>(callable, classLoader).call();
+
     }
 
 

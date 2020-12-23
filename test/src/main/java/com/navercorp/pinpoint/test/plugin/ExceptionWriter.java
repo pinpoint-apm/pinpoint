@@ -10,13 +10,13 @@ public class ExceptionWriter {
         StringBuilder builder = new StringBuilder(256);
 
         builder.append(header);
-        builder.append(PinpointPluginTestConstants.JUNIT_OUTPUT_DELIMITER);
+        builder.append(PluginTestConstants.JUNIT_OUTPUT_DELIMITER);
 
         while (true) {
             builder.append(t.getClass().getName());
-            builder.append(PinpointPluginTestConstants.JUNIT_OUTPUT_DELIMITER);
+            builder.append(PluginTestConstants.JUNIT_OUTPUT_DELIMITER);
             builder.append(removeLineSeparator(t.getMessage()));
-            builder.append(PinpointPluginTestConstants.JUNIT_OUTPUT_DELIMITER);
+            builder.append(PluginTestConstants.JUNIT_OUTPUT_DELIMITER);
             final StackTraceElement[] stackTrace = t.getStackTrace();
             for (StackTraceElement e : stackTrace) {
                 builder.append(e.getClassName());
@@ -27,7 +27,7 @@ public class ExceptionWriter {
                 builder.append(',');
                 builder.append(e.getLineNumber());
 
-                builder.append(PinpointPluginTestConstants.JUNIT_OUTPUT_DELIMITER);
+                builder.append(PluginTestConstants.JUNIT_OUTPUT_DELIMITER);
             }
 
             Throwable cause = t.getCause();
@@ -37,8 +37,8 @@ public class ExceptionWriter {
             }
 
             t = cause;
-            builder.append(PinpointPluginTestConstants.CAUSED_DELIMITER);
-            builder.append(PinpointPluginTestConstants.JUNIT_OUTPUT_DELIMITER);
+            builder.append(PluginTestConstants.CAUSED_DELIMITER);
+            builder.append(PluginTestConstants.JUNIT_OUTPUT_DELIMITER);
         }
 
         return builder.toString();

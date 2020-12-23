@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.test.plugin.shared;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -34,6 +35,6 @@ public class TestParameterParserTest {
         Assert.assertEquals(parameters.size(), 1);
         TestParameter one = parameters.get(0);
         Assert.assertEquals(one.getTestId(), "testId" );
-        Assert.assertEquals(one.getMavenDependencies(), "dependency1" );
+        Assert.assertEquals(one.getMavenDependencies(), Arrays.asList("dependency1") );
     }
 }

@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -23,8 +24,13 @@ public class LibraryFinderTest {
         List<URL> list = Arrays.asList(url1, url2, url3, url4, url5);
         Collections.shuffle(list);
 
-        Collection<String> filter = libraryFinder.filter(list.toArray(new URL[0]));
-
-        Assert.assertEquals(2, filter.size());
+        Collection<String> result = new ArrayDeque<>();
+        for (URL url : list) {
+            String filter = libraryFinder.filter(url);
+            if (filter != null) {
+                result.add(filter);
+            }
+        }
+        Assert.assertEquals(2, result.size());
     }
 }

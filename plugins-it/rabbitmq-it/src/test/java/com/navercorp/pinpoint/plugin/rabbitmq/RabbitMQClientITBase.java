@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.rabbitmq;
 
 import com.navercorp.pinpoint.plugin.rabbitmq.util.RabbitMQTestConstants;
 import com.navercorp.pinpoint.plugin.rabbitmq.util.TestBroker;
+import com.navercorp.pinpoint.test.plugin.JvmArgument;
 import com.rabbitmq.client.ConnectionFactory;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -27,7 +28,6 @@ import org.junit.BeforeClass;
  * @author Jiaqi Feng
  * @author HyunGil Jeong
  */
-
 public abstract class RabbitMQClientITBase {
 
     private static final TestBroker BROKER = new TestBroker();
