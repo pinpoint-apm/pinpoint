@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 public class RocketMQConstants {
 
     public static final String SCOPE = "ROCKETMQ_SCOPE";
+    public static final String ENDPOINT = "ROCKETMQ_ENDPOINT";
 
     public static final ServiceType ROCKETMQ_CLIENT = ServiceTypeFactory.of(8400, "ROCKETMQ_CLIENT", "ROCKETMQ_CLIENT", QUEUE, RECORD_STATISTICS);
     public static final ServiceType ROCKETMQ_CLIENT_INTERNAL = ServiceTypeFactory.of(8401, "ROCKETMQ_CLIENT_INTERNAL", "ROCKETMQ_CLIENT");

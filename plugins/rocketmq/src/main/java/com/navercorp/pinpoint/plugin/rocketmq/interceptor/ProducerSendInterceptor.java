@@ -19,11 +19,14 @@ package com.navercorp.pinpoint.plugin.rocketmq.interceptor;
 import static org.apache.rocketmq.common.message.MessageDecoder.NAME_VALUE_SEPARATOR;
 import static org.apache.rocketmq.common.message.MessageDecoder.PROPERTY_SEPARATOR;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.common.protocol.header.SendMessageRequestHeader;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -34,7 +37,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.rocketmq.RocketMQConstants;
-import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.RemoteAddressFieldAccessor;
+import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.EndPointFieldAccessor;
 
 /**
  * @author messi-gao
@@ -57,19 +60,21 @@ public class ProducerSendInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        final Trace trace = traceContext.currentRawTraceObject();
+        Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
-            return;
+            trace = traceContext.newTraceObject();
         }
 
         if (trace.canSampled()) {
             final SpanEventRecorder spanEventRecorder = trace.traceBlockBegin();
+
             spanEventRecorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT);
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
 
-            recorder.recordEndPoint(((RemoteAddressFieldAccessor)target)._$PINPOINT$_getRemoteAddress());
-            recorder.recordDestinationId((String) args[0]);
+            String endPoint = ((EndPointFieldAccessor) target)._$PINPOINT$_getEndPoint();
+            recorder.recordEndPoint(endPoint);
+            recorder.recordDestinationId(endPoint);
 
             final SendMessageRequestHeader sendMessageRequestHeader = (SendMessageRequestHeader) args[3];
             recorder.recordAttribute(RocketMQConstants.ROCKETMQ_TOPIC_ANNOTATION_KEY,
@@ -82,15 +87,17 @@ public class ProducerSendInterceptor implements AroundInterceptor {
 
             // set header
             final StringBuilder properties = new StringBuilder(sendMessageRequestHeader.getProperties());
-            final Map<Header, String> paramMap = new EnumMap<>(Header.class);
-            paramMap.put(Header.HTTP_FLAGS, String.valueOf(nextId.getFlags()));
-            paramMap.put(Header.HTTP_PARENT_APPLICATION_NAME, traceContext.getApplicationName());
-            paramMap.put(Header.HTTP_PARENT_APPLICATION_TYPE, String.valueOf(traceContext.getServerTypeCode()));
-            paramMap.put(Header.HTTP_PARENT_SPAN_ID, String.valueOf(nextId.getParentSpanId()));
-            paramMap.put(Header.HTTP_SPAN_ID, String.valueOf(nextId.getSpanId()));
-            paramMap.put(Header.HTTP_TRACE_ID, nextId.getTransactionId());
+            final Map<String, String> paramMap = new HashMap<>();
+            paramMap.put(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
+            paramMap.put(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
+            paramMap.put(Header.HTTP_PARENT_APPLICATION_TYPE.toString(),
+                         String.valueOf(traceContext.getServerTypeCode()));
+            paramMap.put(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
+            paramMap.put(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
+            paramMap.put(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
+            paramMap.put(RocketMQConstants.ENDPOINT, endPoint);
 
-            for (Map.Entry<Header, String> entry : paramMap.entrySet()) {
+            for (Map.Entry<String, String> entry : paramMap.entrySet()) {
                 properties.append(entry.getKey());
                 properties.append(NAME_VALUE_SEPARATOR);
                 properties.append(entry.getValue());

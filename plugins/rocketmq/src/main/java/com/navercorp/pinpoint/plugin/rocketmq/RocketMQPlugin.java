@@ -36,10 +36,12 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.RemoteAddressFieldAccessor;
+import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.EndPointFieldAccessor;
 import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ConsumerMessageListenerConcurrentlyInterceptor;
 import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ConsumerMessageListenerOrderlyInterceptor;
-import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ProducerSendCallBackInterceptor;
+import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ProducerSendCallBackInterceptor.ConstructInterceptor;
+import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ProducerSendCallBackInterceptor.OnExceptionInterceptor;
+import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ProducerSendCallBackInterceptor.OnSuccessInterceptor;
 import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ProducerSendInterceptor;
 import com.navercorp.pinpoint.plugin.rocketmq.interceptor.UpdateNameServerAddressListInterceptor;
 
@@ -95,8 +97,7 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
                                     byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
                                                                            classfileBuffer);
-
-            target.addField(RemoteAddressFieldAccessor.class);
+            target.addField(EndPointFieldAccessor.class);
 
             final List<InstrumentMethod> sendMessageMethods = target.getDeclaredMethods(
                     MethodFilters.name("sendMessage"));
@@ -107,14 +108,13 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
             }
 
             InstrumentMethod updateNameServerAddressListMethod = target.getDeclaredMethod(
-                    "updateNameServerAddressList");
+                    "updateNameServerAddressList", "java.lang.String");
             if (updateNameServerAddressListMethod != null) {
                 updateNameServerAddressListMethod.addInterceptor(UpdateNameServerAddressListInterceptor.class);
             }
 
             return target.toBytecode();
         }
-
     }
 
     public static class SendCallbackTransform implements TransformCallback {
@@ -126,12 +126,16 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
                                                                            classfileBuffer);
             target.addField(AsyncContextAccessor.class);
+            List<InstrumentMethod> constructors = target.getDeclaredConstructors();
+            for (InstrumentMethod constructor : constructors) {
+                constructor.addInterceptor(ConstructInterceptor.class);
+            }
             final MethodFilter onSuccessFilter = MethodFilters.chain(
                     MethodFilters.name("onSuccess"),
                     MethodFilters.argAt(0, "org.apache.rocketmq.client.producer.SendResult"));
             final List<InstrumentMethod> onSuccessMethods = target.getDeclaredMethods(onSuccessFilter);
             for (InstrumentMethod instrumentMethod : onSuccessMethods) {
-                instrumentMethod.addInterceptor(ProducerSendCallBackInterceptor.OnSuccessInterceptor.class);
+                instrumentMethod.addScopedInterceptor(OnSuccessInterceptor.class, RocketMQConstants.SCOPE);
             }
 
             final MethodFilter onExceptionFilter = MethodFilters.chain(
@@ -139,11 +143,11 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
                     MethodFilters.argAt(0, "java.lang.Throwable"));
             final List<InstrumentMethod> onExceptions = target.getDeclaredMethods(onExceptionFilter);
             for (InstrumentMethod instrumentMethod : onExceptions) {
-                instrumentMethod.addInterceptor(ProducerSendCallBackInterceptor.OnExceptionInterceptor.class);
+                instrumentMethod.addScopedInterceptor(OnExceptionInterceptor.class, RocketMQConstants.SCOPE);
+
             }
             return target.toBytecode();
         }
-
     }
 
     public static class MessageListenerConcurrentlyTransform implements TransformCallback {

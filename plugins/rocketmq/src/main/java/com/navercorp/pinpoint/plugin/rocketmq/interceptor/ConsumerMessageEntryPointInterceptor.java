@@ -33,13 +33,12 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SpanRecursiveAroundIntercept
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.rocketmq.RocketMQConstants;
 import com.navercorp.pinpoint.plugin.rocketmq.description.EntryPointMethodDescriptor;
-import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.EndPointFieldAccessor;
-import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.RemoteAddressFieldAccessor;
 
 /**
  * @author messi-gao
@@ -140,8 +139,8 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
 
                 MessageExt consumerRecord = msgs.get(0);
 
-                String endPointAddress = getEndPointAddress(consumerRecord);
-                String remoteAddress = getRemoteAddress(consumerRecord);
+                String endPointAddress = NetworkUtils.getHostIp();
+                String remoteAddress = consumerRecord.getUserProperty(RocketMQConstants.ENDPOINT);
                 if (StringUtils.isEmpty(endPointAddress)) {
                     endPointAddress = remoteAddress;
                 }
@@ -158,29 +157,6 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
                 if (StringUtils.hasText(parentApplicationName) && StringUtils.hasText(parentApplicationType)) {
                     recorder.recordParentApplication(parentApplicationName, NumberUtils
                             .parseShort(parentApplicationType, ServiceType.UNDEFINED.getCode()));
-                }
-            }
-
-            private String getEndPointAddress(Object endPointFieldAccessor) {
-                String endPointAddress = null;
-                if (endPointFieldAccessor instanceof EndPointFieldAccessor) {
-                    endPointAddress = ((EndPointFieldAccessor) endPointFieldAccessor)._$PINPOINT$_getEndPoint();
-                }
-
-                return endPointAddress;
-            }
-
-            private String getRemoteAddress(Object remoteAddressFieldAccessor) {
-                String remoteAddress = null;
-                if (remoteAddressFieldAccessor instanceof RemoteAddressFieldAccessor) {
-                    remoteAddress = ((RemoteAddressFieldAccessor) remoteAddressFieldAccessor)
-                            ._$PINPOINT$_getRemoteAddress();
-                }
-
-                if (StringUtils.isEmpty(remoteAddress)) {
-                    return RocketMQConstants.UNKNOWN;
-                } else {
-                    return remoteAddress;
                 }
             }
 
