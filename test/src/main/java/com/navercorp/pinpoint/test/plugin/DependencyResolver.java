@@ -14,10 +14,8 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.bootstrap.PinpointBootStrap;
-import com.navercorp.pinpoint.common.util.SimpleProperty;
-import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.test.plugin.shared.ArtifactIdUtils;
+import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositoryCache;
 import org.eclipse.aether.DefaultRepositorySystemSession;
@@ -47,6 +45,7 @@ import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.eclipse.aether.version.Version;
+import org.tinylog.TaggedLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -62,8 +61,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Jongho Moon
@@ -71,9 +68,8 @@ import java.util.logging.Logger;
 public class DependencyResolver {
     private static final String FOLLOW_PRECEEDING = "FOLLOW_PRECEEDING";
     private static final String DEFAULT_LOCAL_REPOSITORY = "target/local-repo";
-    private static final Logger logger = Logger.getLogger(PinpointBootStrap.class.getName());
 
-    private static final SimpleProperty SYSTEM_PROPERTY = SystemProperty.INSTANCE;
+    private static final TaggedLogger logger = TestLogger.getLogger();
 
     private final List<RemoteRepository> repositories;
     private final RepositorySystem system;
@@ -90,7 +86,7 @@ public class DependencyResolver {
         locator.setErrorHandler(new DefaultServiceLocator.ErrorHandler() {
             @Override
             public void serviceCreationFailed(Class<?> type, Class<?> impl, Throwable exception) {
-                exception.printStackTrace();
+                logger.error(exception, "serviceCreationFailed type:{}, impl:{} {}", type, impl);
             }
         });
 
@@ -104,7 +100,9 @@ public class DependencyResolver {
 
         @Override
         public void put(RepositorySystemSession session, Object key, Object data) {
-            logger.info("cache-put:" + session + " " + key + " " + data);
+            if (logger.isInfoEnabled()) {
+                logger.info("cache-put:{} {} {}", session, key, data);
+            }
             delegate.put(session, key, data);
         }
 
@@ -112,9 +110,15 @@ public class DependencyResolver {
         public Object get(RepositorySystemSession session, Object key) {
             final Object result = delegate.get(session, key);
             if (result == null) {
-                logger.info("cache-get-miss-" + miss.incrementAndGet() + ":" + session + " " + key);
+                int count = miss.incrementAndGet();
+                if (logger.isInfoEnabled()) {
+                    logger.info("cache-get-miss-{}:{} {}", count, session, key);
+                }
             } else {
-                logger.info("cache-get-hit-" + hit.incrementAndGet() + ":" + session + " " + key + " result:" + result);
+                int count = hit.incrementAndGet();
+                if (logger.isInfoEnabled()) {
+                    logger.info("cache-get-hit-{}:{} {} result:{}", count, session, key, result);
+                }
             }
             return result;
         }
@@ -124,8 +128,8 @@ public class DependencyResolver {
         DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
         session.setCache(newRepositoryCache());
         String localRepositoryPath = resolveLocalRepository();
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("Local repository: " + localRepositoryPath);
+        if (logger.isInfoEnabled()) {
+            logger.info("Local repository: {}", localRepositoryPath);
         }
         LocalRepository localRepository = new LocalRepository(localRepositoryPath);
 
@@ -144,7 +148,7 @@ public class DependencyResolver {
     }
 
     private static String resolveLocalRepository() {
-        String userHome = SYSTEM_PROPERTY.getProperty("user.home");
+        String userHome = System.getProperty("user.home");
 
         if (userHome == null) {
             logger.info("Cannot find user.home property. Use default local repository");
@@ -154,7 +158,7 @@ public class DependencyResolver {
         File mavenHomeDir = new File(userHome, ".m2");
 
         if (!mavenHomeDir.exists() || !mavenHomeDir.isDirectory()) {
-            logger.fine("Cannot find maven home directory " + mavenHomeDir + ". Use default local repository");
+            logger.debug("Cannot find maven home directory {}. Use default local repository", mavenHomeDir);
             return DEFAULT_LOCAL_REPOSITORY;
         }
 
@@ -171,10 +175,10 @@ public class DependencyResolver {
                     Node node = nodeList.item(0);
                     localRepository = new File(node.getTextContent());
 
-                    logger.info("Use local repository " + localRepository + " configured at " + mavenConfigFile);
+                    logger.info("Use local repository {} configured at {}", localRepository, mavenConfigFile);
                 }
             } catch (Exception e) {
-                logger.log(Level.INFO, "Fail to read maven configuration file: " + mavenConfigFile + ". Use default local repository", e);
+                logger.info(e, "Fail to read maven configuration file: {}. Use default local repository", mavenConfigFile);
             }
         }
 
@@ -182,7 +186,7 @@ public class DependencyResolver {
             return localRepository.getAbsolutePath();
         }
 
-        logger.info("Local repository " + localRepository + " is not exists. Use default local repository");
+        logger.info("Local repository {} is not exists. Use default local repository", localRepository);
 
         return DEFAULT_LOCAL_REPOSITORY;
     }

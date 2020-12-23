@@ -29,6 +29,7 @@ import org.junit.runner.RunWith;
 @PinpointConfig("pinpoint-spring-bean-test.config")
 @JvmVersion(7)
 @Dependency({"org.apache.logging.log4j:log4j-core:[2.0,2.13)"})
+@JvmArgument("-DtestLoggerEnable=false")
 public class Log4j2IT {
 
     @Test

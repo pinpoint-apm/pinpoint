@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.test.plugin.shared;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,8 +47,9 @@ public class TestParameterParser {
             final String testId = testArguments[0];
             final String testMavenDependencies = testArguments[1];
 
+            String[] dependencies = testMavenDependencies.split(ArtifactIdUtils.ARTIFACT_SEPARATOR);
 
-            final TestParameter testParameter = new TestParameter(testId, testMavenDependencies);
+            final TestParameter testParameter = new TestParameter(testId, Arrays.asList(dependencies));
             testParameters.add(testParameter);
         }
         return testParameters;

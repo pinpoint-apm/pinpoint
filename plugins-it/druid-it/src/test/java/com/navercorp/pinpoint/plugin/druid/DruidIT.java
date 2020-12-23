@@ -37,14 +37,12 @@ public class DruidIT {
 
     @BeforeClass
     public static void setUp() throws NoSuchMethodException {
-
         getConnectionMethod = DruidDataSource.class.getDeclaredMethod("getConnection");
         closeConnectionMethod = DruidPooledConnection.class.getDeclaredMethod("close");
     }
 
     @Test
     public void test() throws InterruptedException, SQLException {
-
         DruidDataSource dataSource = new DruidDataSource();
 
         dataSource.setUrl(JDBC_URL);

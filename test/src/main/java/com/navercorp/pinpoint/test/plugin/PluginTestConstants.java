@@ -15,12 +15,14 @@
 package com.navercorp.pinpoint.test.plugin;
 
 
+import java.nio.charset.Charset;
+
 /**
  * @author Jongho Moon
  *
  */
-public final class PinpointPluginTestConstants {
-    private PinpointPluginTestConstants() {
+public final class PluginTestConstants {
+    private PluginTestConstants() {
     }
 
     public static final String JUNIT_OUTPUT_DELIMITER = "#####";
@@ -28,4 +30,14 @@ public final class PinpointPluginTestConstants {
     public static final String CHILD_CLASS_PATH_PREFIX = "-child=";
 
     public static final String CAUSED_DELIMITER = "$CAUSE$";
+
+    public static final String TAG = "PLUGIN-TEST";
+
+    // AgentParameter
+    public static final String AGENT_PARAMETER_IMPORT_PLUGIN = "IMPORT_PLUGIN";
+    // AgentParser
+    public static final String AGENT_PARSER_DELIMITER = ",";
+
+    public static final Charset UTF_8 = Charset.forName("UTF-8");
+    public static final String UTF_8_NAME = UTF_8.name();
 }

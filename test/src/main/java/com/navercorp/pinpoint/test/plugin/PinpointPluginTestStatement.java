@@ -14,11 +14,13 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.Statement;
+import org.tinylog.TaggedLogger;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,7 +28,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
-import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.JUNIT_OUTPUT_DELIMITER;
+import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.JUNIT_OUTPUT_DELIMITER;
 
 /**
  * @author Jongho Moon
@@ -35,13 +37,15 @@ import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.JUN
 public class PinpointPluginTestStatement extends Statement {
     public static final String JUNIT_OUTPUT_DELIMITER_REGEXP = Pattern.quote(JUNIT_OUTPUT_DELIMITER);
 
+    private final TaggedLogger logger = TestLogger.getLogger();
+
     private final PinpointPluginTestRunner runner;
     private final RunNotifier notifier;
     private final PinpointPluginTestInstance testCase;
-    private final PinpointPluginTestContext context;
+    private final PluginTestContext context;
     private final Result result = new Result();
     
-    public PinpointPluginTestStatement(PinpointPluginTestRunner runner, RunNotifier notifier, PinpointPluginTestContext context, PinpointPluginTestInstance testCase) {
+    public PinpointPluginTestStatement(PinpointPluginTestRunner runner, RunNotifier notifier, PluginTestContext context, PinpointPluginTestInstance testCase) {
         this.runner = runner;
         this.context = context;
         this.testCase = testCase;
@@ -96,9 +100,7 @@ public class PinpointPluginTestStatement extends Statement {
                 }
             }
         } catch (Throwable t) {
-            System.err.println("Failed to execute test");
-            t.printStackTrace();
-            
+            logger.error(t, "Failed to execute test");
             throw t;
         } finally {
             testCase.endTest();

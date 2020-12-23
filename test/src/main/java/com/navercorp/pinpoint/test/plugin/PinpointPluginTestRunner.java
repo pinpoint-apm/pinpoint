@@ -41,7 +41,7 @@ import java.util.List;
  *
  */
 public class PinpointPluginTestRunner extends BlockJUnit4ClassRunner {
-    private final PinpointPluginTestContext context;
+    private final PluginTestContext context;
     private final PinpointPluginTestInstance testCase;
 
     private final Object childrenLock = new Object();
@@ -57,7 +57,7 @@ public class PinpointPluginTestRunner extends BlockJUnit4ClassRunner {
         }
     };
 
-    PinpointPluginTestRunner(PinpointPluginTestContext context, PinpointPluginTestInstance testCase) throws InitializationError {
+    PinpointPluginTestRunner(PluginTestContext context, PinpointPluginTestInstance testCase) throws InitializationError {
         super(context.getTestClass());
 
         this.context = context;
