@@ -39,7 +39,9 @@ public interface UserService {
     List<User> selectUser();
 
     User selectUserByUserId(String userId);
-
+    
+    List<User> selectUserByUserGroupId(String userGroupId);
+    
     List<User> selectUserByUserName(String userName);
 
     List<User> selectUserByDepartment(String department);

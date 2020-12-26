@@ -80,7 +80,7 @@ public class SlowCountToCalleCheckerTest {
     public void checkTest() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(FROM_SERVICE_NAME, SERVICE_TYPE, CheckerCategory.SLOW_COUNT_TO_CALLEE.getName(), 7, "testGroup", false, false, TO_SERVICE_NAME + 1);
+        Rule rule = new Rule(FROM_SERVICE_NAME, SERVICE_TYPE, CheckerCategory.SLOW_COUNT_TO_CALLEE.getName(), 7, "testGroup", false, false, false, TO_SERVICE_NAME + 1);
         SlowCountToCalleeChecker checker = new SlowCountToCalleeChecker(dataCollector, rule);
         
         checker.check();
@@ -91,7 +91,7 @@ public class SlowCountToCalleCheckerTest {
     public void checkTest2() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(FROM_SERVICE_NAME, SERVICE_TYPE, CheckerCategory.SLOW_COUNT_TO_CALLEE.getName(), 8, "testGroup", false, false, TO_SERVICE_NAME + 1);
+        Rule rule = new Rule(FROM_SERVICE_NAME, SERVICE_TYPE, CheckerCategory.SLOW_COUNT_TO_CALLEE.getName(), 8, "testGroup", false, false, false, TO_SERVICE_NAME + 1);
         SlowCountToCalleeChecker checker = new SlowCountToCalleeChecker(dataCollector, rule);
         
         checker.check();
@@ -102,7 +102,7 @@ public class SlowCountToCalleCheckerTest {
     public void checkTest3() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(FROM_SERVICE_NAME, SERVICE_TYPE, CheckerCategory.SLOW_COUNT_TO_CALLEE.getName(), 9, "testGroup", false, false, TO_SERVICE_NAME + 2);
+        Rule rule = new Rule(FROM_SERVICE_NAME, SERVICE_TYPE, CheckerCategory.SLOW_COUNT_TO_CALLEE.getName(), 9, "testGroup", false, false, false, TO_SERVICE_NAME + 2);
         SlowCountToCalleeChecker checker = new SlowCountToCalleeChecker(dataCollector, rule);
         
         checker.check();

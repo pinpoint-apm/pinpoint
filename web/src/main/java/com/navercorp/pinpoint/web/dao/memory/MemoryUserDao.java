@@ -21,7 +21,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
+import com.navercorp.pinpoint.web.dao.UserGroupDao;
+import com.navercorp.pinpoint.web.vo.UserGroupMember;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.navercorp.pinpoint.web.dao.UserDao;
@@ -35,6 +39,9 @@ public class MemoryUserDao implements UserDao {
 
     private final Map<String, User> users = new ConcurrentHashMap<>();
     private final AtomicInteger userNumGenerator  = new AtomicInteger(); 
+    
+    @Autowired
+    UserGroupDao userGroupDao;
     
     @Override
     public void insertUser(User user) {
@@ -100,6 +107,24 @@ public class MemoryUserDao implements UserDao {
             }
         }
         
+        return userList;
+    }
+    
+    @Override
+    public List<User> selectUserByUserGroupId(String userGroupId) {
+        List<User> userList = new LinkedList<>();
+        List<String> groupMemberIdList = userGroupDao.selectMember(userGroupId)
+                .stream()
+                .map(UserGroupMember::getMemberId)
+                .collect(Collectors.toList());
+    
+        for (User user : users.values()) {
+            String userId = user.getUserId();
+            if (groupMemberIdList.contains(userId)) {
+                userList.add(user);
+            }
+        }
+    
         return userList;
     }
 

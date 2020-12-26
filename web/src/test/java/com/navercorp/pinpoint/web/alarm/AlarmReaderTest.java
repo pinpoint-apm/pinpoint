@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.navercorp.pinpoint.web.batch.BatchConfiguration;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -121,7 +122,7 @@ public class AlarmReaderTest {
                 ruleMap = new HashMap<String, Rule>();
 
                 for(int i = 0; i <=6; i++) {
-                    ruleMap.put(APP_NAME + i, new Rule(APP_NAME + i, SERVICE_TYPE, CheckerCategory.SLOW_COUNT.getName(), 76, "testGroup", false, false, ""));
+                    ruleMap.put(APP_NAME + i, new Rule(APP_NAME + i, SERVICE_TYPE, CheckerCategory.SLOW_COUNT.getName(), 76, "testGroup", false, false, false, ""));
                 }
             }
 

@@ -131,7 +131,7 @@ public class JvmCpuUsageRateCheckerTest {
     
     @Test
     public void checkTest1() {
-        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.JVM_CPU_USAGE_RATE.getName(), 60, "testGroup", false, false, "");
+        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.JVM_CPU_USAGE_RATE.getName(), 60, "testGroup", false, false, false, "");
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, jvmGcDao, cpuLoadDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
         AgentChecker checker = new JvmCpuUsageRateChecker(collector, rule);
@@ -142,7 +142,7 @@ public class JvmCpuUsageRateCheckerTest {
     
     @Test
     public void checkTest2() {
-        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.JVM_CPU_USAGE_RATE.getName(), 61, "testGroup", false, false, "");
+        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.JVM_CPU_USAGE_RATE.getName(), 61, "testGroup", false, false, false, "");
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, jvmGcDao, cpuLoadDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
         AgentChecker checker = new JvmCpuUsageRateChecker(collector, rule);
