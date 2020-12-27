@@ -32,110 +32,88 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanRecursiveAroundInterceptor;
 import com.navercorp.pinpoint.plugin.rocketmq.RocketMQConstants;
 import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.EndPointFieldAccessor;
 
 /**
  * @author messi-gao
  */
-public class ProducerSendInterceptor implements AroundInterceptor {
-
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
-
+public class ProducerSendInterceptor extends SpanRecursiveAroundInterceptor {
+    private static final String SCOPE_NAME = "ROCKETMQ_ASYNC_TRACE_SCOPE";
+    private final MethodDescriptor methodDescriptor;
     private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
 
-    public ProducerSendInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public ProducerSendInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
+        super(traceContext, methodDescriptor, SCOPE_NAME);
+        this.methodDescriptor = methodDescriptor;
         this.traceContext = traceContext;
-        this.descriptor = descriptor;
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (logger.isDebugEnabled()) {
-            logger.beforeInterceptor(target, args);
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT);
+        recorder.recordApi(methodDescriptor);
+
+        String endPoint = ((EndPointFieldAccessor) target)._$PINPOINT$_getEndPoint();
+        recorder.recordEndPoint(endPoint);
+        recorder.recordDestinationId(endPoint);
+
+        final SendMessageRequestHeader sendMessageRequestHeader = (SendMessageRequestHeader) args[3];
+        recorder.recordAttribute(RocketMQConstants.ROCKETMQ_TOPIC_ANNOTATION_KEY,
+                                 sendMessageRequestHeader.getTopic());
+        recorder.recordAttribute(RocketMQConstants.ROCKETMQ_PARTITION_ANNOTATION_KEY,
+                                 sendMessageRequestHeader.getQueueId());
+        final Trace next;
+        AsyncContextAccessor sendCallback = getSendCallback(args);
+        if (sendCallback != null) {
+            next = ((AsyncContextAccessor) target)._$PINPOINT$_getAsyncContext().continueAsyncTraceObject();
+        } else {
+            next = traceContext.currentRawTraceObject();
         }
-        Object sendCallBack = args[6];
-        if (sendCallBack != null) {
-            AsyncContextAccessor asyncContextAccessor = (AsyncContextAccessor) sendCallBack;
-            AsyncContextAccessor contextAccessor = (AsyncContextAccessor) target;
-            contextAccessor._$PINPOINT$_setAsyncContext(asyncContextAccessor._$PINPOINT$_getAsyncContext());
-            AsyncContext asyncContext = ((AsyncContextAccessor) target)._$PINPOINT$_getAsyncContext();
-            asyncContext.continueAsyncTraceObject();
+        TraceId nextId = next.getTraceId().getNextTraceId();
+        recorder.recordNextSpanId(nextId.getSpanId());
+        // set header
+        final StringBuilder properties = new StringBuilder(sendMessageRequestHeader.getProperties());
+        final Map<String, String> paramMap = new HashMap<>();
+        paramMap.put(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
+        paramMap.put(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
+        paramMap.put(Header.HTTP_PARENT_APPLICATION_TYPE.toString(),
+                     String.valueOf(traceContext.getServerTypeCode()));
+        paramMap.put(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
+        paramMap.put(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
+        paramMap.put(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
+        paramMap.put(RocketMQConstants.ENDPOINT, endPoint);
+
+        for (Map.Entry<String, String> entry : paramMap.entrySet()) {
+            properties.append(entry.getKey());
+            properties.append(NAME_VALUE_SEPARATOR);
+            properties.append(entry.getValue());
+            properties.append(PROPERTY_SEPARATOR);
         }
-
-        Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        if (trace.canSampled()) {
-            final SpanEventRecorder spanEventRecorder = trace.traceBlockBegin();
-
-            spanEventRecorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT);
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(descriptor);
-
-            String endPoint = ((EndPointFieldAccessor) target)._$PINPOINT$_getEndPoint();
-            recorder.recordEndPoint(endPoint);
-            recorder.recordDestinationId(endPoint);
-
-            final SendMessageRequestHeader sendMessageRequestHeader = (SendMessageRequestHeader) args[3];
-            recorder.recordAttribute(RocketMQConstants.ROCKETMQ_TOPIC_ANNOTATION_KEY,
-                                     sendMessageRequestHeader.getTopic());
-            recorder.recordAttribute(RocketMQConstants.ROCKETMQ_PARTITION_ANNOTATION_KEY,
-                                     sendMessageRequestHeader.getQueueId());
-
-            final TraceId nextId = trace.getTraceId().getNextTraceId();
-            recorder.recordNextSpanId(nextId.getSpanId());
-
-            // set header
-            final StringBuilder properties = new StringBuilder(sendMessageRequestHeader.getProperties());
-            final Map<String, String> paramMap = new HashMap<>();
-            paramMap.put(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-            paramMap.put(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-            paramMap.put(Header.HTTP_PARENT_APPLICATION_TYPE.toString(),
-                         String.valueOf(traceContext.getServerTypeCode()));
-            paramMap.put(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
-            paramMap.put(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
-            paramMap.put(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
-            paramMap.put(RocketMQConstants.ENDPOINT, endPoint);
-
-            for (Map.Entry<String, String> entry : paramMap.entrySet()) {
-                properties.append(entry.getKey());
-                properties.append(NAME_VALUE_SEPARATOR);
-                properties.append(entry.getValue());
-                properties.append(PROPERTY_SEPARATOR);
-            }
-            sendMessageRequestHeader.setProperties(properties.toString());
-        }
+        sendMessageRequestHeader.setProperties(properties.toString());
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (logger.isDebugEnabled()) {
-            logger.afterInterceptor(target, args, result, throwable);
+    protected Trace createTrace(Object target, Object[] args) {
+        AsyncContextAccessor sendCallback = getSendCallback(args);
+        if (sendCallback != null) {
+            AsyncContext asyncContext = sendCallback._$PINPOINT$_getAsyncContext();
+            ((AsyncContextAccessor) target)._$PINPOINT$_setAsyncContext(asyncContext);
+            return asyncContext.continueAsyncTraceObject();
         }
+        return traceContext.currentRawTraceObject();
+    }
 
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
+    @Override
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args,
+                                  Object result, Throwable throwable) {
+        if (throwable != null) {
+            recorder.recordException(throwable);
         }
+    }
 
-        if (!trace.canSampled()) {
-            return;
-        }
-
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            if (throwable != null) {
-                recorder.recordException(throwable);
-            }
-        } finally {
-            trace.traceBlockEnd();
-        }
+    private AsyncContextAccessor getSendCallback(Object[] args) {
+        return (AsyncContextAccessor) args[6];
     }
 }

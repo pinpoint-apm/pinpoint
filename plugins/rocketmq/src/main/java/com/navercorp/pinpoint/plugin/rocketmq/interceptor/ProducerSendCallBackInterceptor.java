@@ -96,7 +96,7 @@ public final class ProducerSendCallBackInterceptor {
                                       Object result, Throwable throwable) {
             spanEventRecorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT_INTERNAL);
             spanEventRecorder.recordApi(methodDescriptor);
-            spanEventRecorder.recordException(throwable);
+            spanEventRecorder.recordException((Throwable) args[0]);
         }
     }
 
