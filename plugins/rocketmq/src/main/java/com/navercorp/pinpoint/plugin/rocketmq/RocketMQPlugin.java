@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInte
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -162,7 +163,8 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
             List<InstrumentMethod> consumeMessageMethods = target.getDeclaredMethods(
                     MethodFilters.name("consumeMessage"));
             for (InstrumentMethod consumeMessage : consumeMessageMethods) {
-                consumeMessage.addInterceptor(ConsumerMessageListenerConcurrentlyInterceptor.class);
+                consumeMessage.addScopedInterceptor(ConsumerMessageListenerConcurrentlyInterceptor.class,
+                                                    RocketMQConstants.SCOPE, ExecutionPolicy.BOUNDARY);
             }
             return target.toBytecode();
         }
@@ -179,7 +181,8 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
             List<InstrumentMethod> consumeMessageMethods = target.getDeclaredMethods(
                     MethodFilters.name("consumeMessage"));
             for (InstrumentMethod consumeMessage : consumeMessageMethods) {
-                consumeMessage.addInterceptor(ConsumerMessageListenerOrderlyInterceptor.class);
+                consumeMessage.addScopedInterceptor(ConsumerMessageListenerOrderlyInterceptor.class,
+                                                    RocketMQConstants.SCOPE, ExecutionPolicy.BOUNDARY);
             }
 
             return target.toBytecode();

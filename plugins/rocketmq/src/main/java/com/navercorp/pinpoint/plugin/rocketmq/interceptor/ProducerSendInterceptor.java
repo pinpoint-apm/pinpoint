@@ -60,8 +60,8 @@ public class ProducerSendInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
         try {
-            AsyncContextAccessor sendCallback = getSendCallback(args);
             Trace trace = traceContext.currentTraceObject();
+            AsyncContextAccessor sendCallback = getSendCallback(args);
             if (sendCallback != null) {
                 if (isSkipTrace()) {
                     // Skip recursive invoked or duplicated span(entry point)
@@ -147,6 +147,9 @@ public class ProducerSendInterceptor implements AroundInterceptor {
             }
         } finally {
             trace.traceBlockEnd();
+            if (isAsyncTraceDestination(trace)) {
+                deleteTrace(trace);
+            }
         }
     }
 
@@ -266,6 +269,15 @@ public class ProducerSendInterceptor implements AroundInterceptor {
     }
 
     private boolean isEndScope(final Trace trace) {
+        final TraceScope scope = trace.getScope(SCOPE_NAME);
+        return scope != null && !scope.isActive();
+    }
+
+    private boolean isAsyncTraceDestination(final Trace trace) {
+        if (!trace.isAsync()) {
+            return false;
+        }
+
         final TraceScope scope = trace.getScope(SCOPE_NAME);
         return scope != null && !scope.isActive();
     }
