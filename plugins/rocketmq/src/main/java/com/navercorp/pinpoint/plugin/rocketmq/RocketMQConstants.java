@@ -20,9 +20,6 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.QUEUE;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
 
-import java.nio.charset.Charset;
-
-import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -32,6 +29,7 @@ public class RocketMQConstants {
 
     public static final String SCOPE = "ROCKETMQ_SCOPE";
     public static final String ENDPOINT = "ROCKETMQ_ENDPOINT";
+    public static final String IS_ASYNC_SEND = "IS_ASYNC_SEND";
 
     public static final ServiceType ROCKETMQ_CLIENT = ServiceTypeFactory.of(8400, "ROCKETMQ_CLIENT", "ROCKETMQ_CLIENT", QUEUE, RECORD_STATISTICS);
     public static final ServiceType ROCKETMQ_CLIENT_INTERNAL = ServiceTypeFactory.of(8401, "ROCKETMQ_CLIENT_INTERNAL", "ROCKETMQ_CLIENT");

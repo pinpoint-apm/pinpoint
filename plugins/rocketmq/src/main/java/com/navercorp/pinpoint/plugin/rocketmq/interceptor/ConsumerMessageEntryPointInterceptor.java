@@ -214,16 +214,20 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
                 if (isDebug) {
                     logger.debug("TraceID exist. continue trace. traceId:{}", traceId);
                 }
-                Trace trace = traceContext.continueTraceObject(traceId);
-                if (trace == null) {
-                    traceContext.continueAsyncTraceObject(traceId);
-                }
-
                 Message consumerRecord = msgs.get(0);
+                boolean isAsyncSend = Boolean.valueOf(
+                        consumerRecord.getUserProperty(RocketMQConstants.IS_ASYNC_SEND));
                 String parentApplicationName = consumerRecord.getUserProperty(
                         Header.HTTP_PARENT_APPLICATION_NAME.toString());
                 String parentApplicationType = consumerRecord.getUserProperty(
                         Header.HTTP_PARENT_APPLICATION_TYPE.toString());
+
+                Trace trace;
+                if (isAsyncSend) {
+                    trace = traceContext.continueAsyncTraceObject(traceId);
+                } else {
+                    trace = traceContext.continueTraceObject(traceId);
+                }
 
                 if (trace.canSampled()) {
                     final SpanRecorder recorder = trace.getSpanRecorder();
