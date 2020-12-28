@@ -90,7 +90,7 @@ public class SharedPinpointPluginTest {
             logger.debug("main args:{}", Arrays.toString(args));
         }
 
-        String[] mavenDependencyResolverClassPathArray = mavenDependencyResolverClassPaths.split(ArtifactIdUtils.ARTIFACT_SEPARATOR);
+        String[] mavenDependencyResolverClassPathArray = mavenDependencyResolverClassPaths.split(File.pathSeparator);
         TestParameterParser parser = new TestParameterParser();
         List<TestParameter> testParameters = parser.parse(args);
         SharedPinpointPluginTest pluginTest = new SharedPinpointPluginTest(testClazzName, testLocation, testLogger,
