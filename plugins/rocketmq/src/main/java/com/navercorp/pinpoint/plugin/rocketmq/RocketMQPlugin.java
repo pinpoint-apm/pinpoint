@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.plugin.rocketmq;
 
 import java.security.ProtectionDomain;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
@@ -58,11 +59,19 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
         final RocketMQConfig config = new RocketMQConfig(context.getConfig());
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
+        List<String> basePackageNames = new ArrayList<>();
+        // basePackageName support
         String basePackageName = config.getConsumerBasePackage();
+        if (StringUtils.isEmpty(basePackageName)) {
+            logger.error("please config the [profiler.rocketmq.consumer.basePackage] in pinpoint.config");
+            return;
+        } else {
+            basePackageNames.add(basePackageName);
+        }
         if (config.isProducerEnable()) {
             transformTemplate.transform("org.apache.rocketmq.client.impl.MQClientAPIImpl",
                                         MQClientAPIImplTransform.class);
-            final Matcher matcher = Matchers.newPackageBasedMatcher(basePackageName,
+            final Matcher matcher = Matchers.newPackageBasedMatcher(basePackageNames,
                                                                     new InterfaceInternalNameMatcherOperand(
                                                                             "org.apache.rocketmq.client.producer.SendCallback",
                                                                             true));
@@ -70,13 +79,16 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
         }
 
         if (config.isConsumerEnable()) {
-            final Matcher matcher = Matchers.newPackageBasedMatcher(basePackageName,
+            // rocketmq spring boot support
+            basePackageNames.add("org.apache.rocketmq.spring.support");
+
+            final Matcher matcher = Matchers.newPackageBasedMatcher(basePackageNames,
                                                                     new InterfaceInternalNameMatcherOperand(
                                                                             "org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently",
                                                                             true));
             transformTemplate.transform(matcher, MessageListenerConcurrentlyTransform.class);
 
-            final Matcher orderlyMatcher = Matchers.newPackageBasedMatcher(basePackageName,
+            final Matcher orderlyMatcher = Matchers.newPackageBasedMatcher(basePackageNames,
                                                                            new InterfaceInternalNameMatcherOperand(
                                                                                    "org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly",
                                                                                    true));

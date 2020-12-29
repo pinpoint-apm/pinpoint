@@ -62,13 +62,13 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         }
         try {
             Trace trace = traceContext.currentTraceObject();
-            AsyncContextAccessor sendCallback = getSendCallback(args);
-            if (sendCallback != null) {
+            Object sendCallback = getSendCallback(args);
+            if (sendCallback instanceof AsyncContextAccessor) {
                 if (isSkipTrace()) {
                     // Skip recursive invoked or duplicated span(entry point)
                     return;
                 }
-                AsyncContext asyncContext = sendCallback._$PINPOINT$_getAsyncContext();
+                AsyncContext asyncContext = ((AsyncContextAccessor) sendCallback)._$PINPOINT$_getAsyncContext();
                 ((AsyncContextAccessor) target)._$PINPOINT$_setAsyncContext(asyncContext);
                 trace = asyncContext.continueAsyncTraceObject();
 
@@ -91,6 +91,9 @@ public class ProducerSendInterceptor implements AroundInterceptor {
                 // entry point scope
                 entryScope(trace);
 
+            }
+            if (trace == null) {
+                return;
             }
             if (!trace.canSampled()) {
                 return;
@@ -204,8 +207,8 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         }
     }
 
-    private AsyncContextAccessor getSendCallback(Object[] args) {
-        return (AsyncContextAccessor) args[6];
+    private Object getSendCallback(Object[] args) {
+        return args[6];
     }
 
     private boolean isSkipTrace() {

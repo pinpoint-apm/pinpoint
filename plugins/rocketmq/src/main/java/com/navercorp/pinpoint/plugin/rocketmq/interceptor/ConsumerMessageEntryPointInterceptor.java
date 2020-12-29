@@ -146,6 +146,9 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
 
                 String endPointAddress = NetworkUtils.getHostIp();
                 String remoteAddress = messageExt.getUserProperty(RocketMQConstants.ENDPOINT);
+                if (StringUtils.isEmpty(remoteAddress)) {
+                    remoteAddress = RocketMQConstants.UNKNOWN;
+                }
                 if (StringUtils.isEmpty(endPointAddress)) {
                     endPointAddress = remoteAddress;
                 }
