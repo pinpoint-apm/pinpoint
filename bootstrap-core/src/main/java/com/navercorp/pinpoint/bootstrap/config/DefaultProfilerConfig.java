@@ -97,6 +97,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     private boolean profileEnable = false;
+    private int logDirMaxBackupSize = 5;
 
     private String activeProfile = Profiles.DEFAULT_ACTIVE_PROFILE;
 
@@ -432,10 +433,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return completedUriStatDataLimitSize;
     }
 
+    @Override
+    public int getLogDirMaxBackupSize() {
+        return logDirMaxBackupSize;
+    }
+
     // for test
     void readPropertyValues() {
 
         this.profileEnable = readBoolean("profiler.enable", true);
+        this.logDirMaxBackupSize = readInt("profiler.logdir.maxbackupsize", 5);
         this.activeProfile = readString(Profiles.ACTIVE_PROFILE_KEY, Profiles.DEFAULT_ACTIVE_PROFILE);
         this.profileInstrumentEngine = readString("profiler.instrument.engine", INSTRUMENT_ENGINE_ASM);
         this.instrumentMatcherEnable = readBoolean("profiler.instrument.matcher.enable", true);
