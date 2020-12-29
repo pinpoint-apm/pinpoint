@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.bootstrap;
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
 import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
+import com.navercorp.pinpoint.bootstrap.agentdir.LogDirCleaner;
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
@@ -113,8 +114,10 @@ class PinpointStarter {
 
             // set the path of log file as a system property
             saveAgentIdForLog(agentIds);
-            saveLogFilePath(agentDirectory);
+            saveLogFilePath(agentDirectory.getAgentLogFilePath());
             savePinpointVersion();
+
+            cleanLogDir(agentDirectory.getAgentLogFilePath(), profilerConfig);
 
             // this is the library list that must be loaded
             URL[] urls = resolveLib(agentDirectory);
@@ -141,6 +144,13 @@ class PinpointStarter {
             return false;
         }
         return true;
+    }
+
+    private void cleanLogDir(String agentLogFilePath, ProfilerConfig config) {
+        final int logDirMaxBackupSize = config.getLogDirMaxBackupSize();
+        logger.info("Log directory maxbackupsize=" + logDirMaxBackupSize);
+        LogDirCleaner logDirCleaner = new LogDirCleaner(agentLogFilePath, logDirMaxBackupSize);
+        logDirCleaner.clean();
     }
 
     private AgentIds resolveAgentIds() {
@@ -225,8 +235,7 @@ class PinpointStarter {
         systemProperty.setProperty(AgentIdResolver.AGENT_ID_SYSTEM_PROPERTY, agentIds.getAgentId());
     }
 
-    private void saveLogFilePath(AgentDirectory agentDirectory) {
-        String agentLogFilePath = agentDirectory.getAgentLogFilePath();
+    private void saveLogFilePath(String agentLogFilePath) {
         logger.info("logPath:" + agentLogFilePath);
         systemProperty.setProperty(ProductInfo.NAME + ".log", agentLogFilePath);
     }

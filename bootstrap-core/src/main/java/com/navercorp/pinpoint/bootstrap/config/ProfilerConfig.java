@@ -142,6 +142,8 @@ public interface ProfilerConfig {
 
     Map<String, String> readPattern(String propertyNamePatternRegex);
 
+    int getLogDirMaxBackupSize();
+
     interface ValueResolver {
         String resolve(String value, Properties properties);
     }
