@@ -12,6 +12,9 @@ public class ProfilerClass {
                 "com.navercorp.pinpoint.common",
                 "com.navercorp.pinpoint.bootstrap",
                 "com.navercorp.pinpoint.profiler",
+                // junit
+                "junit",
+                "org.junit"
         };
 
         PINPOINT_PROFILER_CLASS = Collections.unmodifiableList(Arrays.asList(lib));
