@@ -83,7 +83,7 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
     private Trace createTrace(List<MessageExt> msgs) {
         TraceFactoryProvider.TraceFactory traceFactory = tracyFactoryReference.get();
         if (traceFactory == null) {
-            traceFactory = TraceFactoryProvider.get();
+            traceFactory = TraceFactoryProvider.get(msgs);
             tracyFactoryReference.compareAndSet(null, traceFactory);
         }
         return traceFactory.createTrace(traceContext, msgs);
@@ -91,8 +91,13 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
 
     private static class TraceFactoryProvider {
 
-        private static TraceFactory get() {
-            return new SupportContinueTraceFactory();
+        private static TraceFactory get(List<MessageExt> msgs) {
+            String traceId = msgs.get(0).getUserProperty(Header.HTTP_TRACE_ID.toString());
+            if (StringUtils.isEmpty(traceId)) {
+                return new DefaultTraceFactory();
+            } else {
+                return new SupportContinueTraceFactory();
+            }
         }
 
         private interface TraceFactory {
@@ -137,10 +142,10 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
                 recorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT);
                 recorder.recordApi(ENTRY_POINT_METHOD_DESCRIPTOR);
 
-                MessageExt consumerRecord = msgs.get(0);
+                MessageExt messageExt = msgs.get(0);
 
                 String endPointAddress = NetworkUtils.getHostIp();
-                String remoteAddress = consumerRecord.getUserProperty(RocketMQConstants.ENDPOINT);
+                String remoteAddress = messageExt.getUserProperty(RocketMQConstants.ENDPOINT);
                 if (StringUtils.isEmpty(endPointAddress)) {
                     endPointAddress = remoteAddress;
                 }
@@ -148,7 +153,7 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
                 recorder.recordEndPoint(endPointAddress);
                 recorder.recordRemoteAddress(remoteAddress);
 
-                String topic = consumerRecord.getTopic();
+                String topic = messageExt.getTopic();
                 recorder.recordRpcName(createRpcName(topic, msgs.size()));
                 recorder.recordAcceptorHost(remoteAddress);
                 recorder.recordAttribute(RocketMQConstants.ROCKETMQ_TOPIC_ANNOTATION_KEY, topic);
