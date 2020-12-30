@@ -73,7 +73,7 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
 
     @Override
     protected Trace createTrace(Object target, Object[] args) {
-        List<MessageExt> msgs = (List<MessageExt>) args[0];
+        final List<MessageExt> msgs = (List<MessageExt>) args[0];
         if (msgs.isEmpty()) {
             return null;
         }
@@ -92,7 +92,7 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
     private static class TraceFactoryProvider {
 
         private static TraceFactory get(List<MessageExt> msgs) {
-            String traceId = msgs.get(0).getUserProperty(Header.HTTP_TRACE_ID.toString());
+            final String traceId = msgs.get(0).getUserProperty(Header.HTTP_TRACE_ID.toString());
             if (StringUtils.isEmpty(traceId)) {
                 return new DefaultTraceFactory();
             } else {
@@ -124,13 +124,12 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
                     if (isDebug) {
                         logger.debug("TraceID not exist. start new trace.");
                     }
-                    return trace;
                 } else {
                     if (isDebug) {
                         logger.debug("TraceID not exist. camSampled is false. skip trace.");
                     }
-                    return trace;
                 }
+                return trace;
             }
 
             void recordRootSpan(SpanRecorder recorder, List<MessageExt> msgs) {
@@ -142,23 +141,23 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
                 recorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT);
                 recorder.recordApi(ENTRY_POINT_METHOD_DESCRIPTOR);
 
-                MessageExt messageExt = msgs.get(0);
+                final MessageExt messageExt = msgs.get(0);
 
-                String endPointAddress = NetworkUtils.getHostIp();
-                String remoteAddress = messageExt.getUserProperty(RocketMQConstants.ENDPOINT);
-                if (StringUtils.isEmpty(remoteAddress)) {
-                    remoteAddress = RocketMQConstants.UNKNOWN;
+                String acceptorHost = messageExt.getUserProperty(RocketMQConstants.ACCEPTOR_HOST);
+                if (StringUtils.isEmpty(acceptorHost)) {
+                    acceptorHost = RocketMQConstants.UNKNOWN;
                 }
+                String endPointAddress = NetworkUtils.getHostIp();
                 if (StringUtils.isEmpty(endPointAddress)) {
-                    endPointAddress = remoteAddress;
+                    endPointAddress = acceptorHost;
                 }
 
                 recorder.recordEndPoint(endPointAddress);
-                recorder.recordRemoteAddress(remoteAddress);
+                recorder.recordRemoteAddress(acceptorHost);
+                recorder.recordAcceptorHost(acceptorHost);
 
-                String topic = messageExt.getTopic();
+                final String topic = messageExt.getTopic();
                 recorder.recordRpcName(createRpcName(topic, msgs.size()));
-                recorder.recordAcceptorHost(remoteAddress);
                 recorder.recordAttribute(RocketMQConstants.ROCKETMQ_TOPIC_ANNOTATION_KEY, topic);
                 recorder.recordAttribute(RocketMQConstants.ROCKETMQ_BATCH_ANNOTATION_KEY, msgs.size());
 
@@ -169,7 +168,7 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
             }
 
             private String createRpcName(String topic, int size) {
-                StringBuilder rpcName = new StringBuilder("rocketmq://");
+                final StringBuilder rpcName = new StringBuilder("rocketmq://");
                 rpcName.append("topic=").append(topic);
                 rpcName.append("?batch=").append(size);
 
@@ -182,11 +181,9 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
 
             @Override
             public Trace createTrace(TraceContext traceContext, List<MessageExt> msgs) {
-                MessageExt consumerRecord = msgs.get(0);
+                final MessageExt consumerRecord = msgs.get(0);
                 if (!SamplingFlagUtils.isSamplingFlag(
                         consumerRecord.getUserProperty(Header.HTTP_FLAGS.name()))) {
-                    // Even if this transaction is not a sampling target, we have to create Trace object to mark 'not sampling'.
-                    // For example, if this transaction invokes rpc call, we can add parameter to tell remote node 'don't sample this transaction'
                     final Trace trace = traceContext.disableSampling();
                     if (isDebug) {
                         logger.debug("remotecall sampling flag found. skip trace");
@@ -194,7 +191,7 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
                     return trace;
                 }
 
-                TraceId traceId = populateTraceIdFromHeaders(traceContext, consumerRecord);
+                final TraceId traceId = populateTraceIdFromHeaders(traceContext, consumerRecord);
                 if (traceId != null) {
                     return createContinueTrace(traceContext, msgs, traceId);
                 } else {
@@ -204,10 +201,10 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
 
             private TraceId populateTraceIdFromHeaders(TraceContext traceContext,
                                                        MessageExt messageExt) {
-                String transactionId = messageExt.getUserProperty(Header.HTTP_TRACE_ID.toString());
-                String spanID = messageExt.getUserProperty(Header.HTTP_SPAN_ID.toString());
-                String parentSpanID = messageExt.getUserProperty(Header.HTTP_PARENT_SPAN_ID.toString());
-                String flags = messageExt.getUserProperty(Header.HTTP_FLAGS.toString());
+                final String transactionId = messageExt.getUserProperty(Header.HTTP_TRACE_ID.toString());
+                final String spanID = messageExt.getUserProperty(Header.HTTP_SPAN_ID.toString());
+                final String parentSpanID = messageExt.getUserProperty(Header.HTTP_PARENT_SPAN_ID.toString());
+                final String flags = messageExt.getUserProperty(Header.HTTP_FLAGS.toString());
 
                 if (transactionId == null || spanID == null || parentSpanID == null || flags == null) {
                     return null;
@@ -222,15 +219,15 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
                 if (isDebug) {
                     logger.debug("TraceID exist. continue trace. traceId:{}", traceId);
                 }
-                Message consumerRecord = msgs.get(0);
-                boolean isAsyncSend = Boolean.valueOf(
+                final Message consumerRecord = msgs.get(0);
+                final boolean isAsyncSend = Boolean.parseBoolean(
                         consumerRecord.getUserProperty(RocketMQConstants.IS_ASYNC_SEND));
-                String parentApplicationName = consumerRecord.getUserProperty(
+                final String parentApplicationName = consumerRecord.getUserProperty(
                         Header.HTTP_PARENT_APPLICATION_NAME.toString());
-                String parentApplicationType = consumerRecord.getUserProperty(
+                final String parentApplicationType = consumerRecord.getUserProperty(
                         Header.HTTP_PARENT_APPLICATION_TYPE.toString());
 
-                Trace trace;
+                final Trace trace;
                 if (isAsyncSend) {
                     trace = traceContext.continueAsyncTraceObject(traceId);
                 } else {

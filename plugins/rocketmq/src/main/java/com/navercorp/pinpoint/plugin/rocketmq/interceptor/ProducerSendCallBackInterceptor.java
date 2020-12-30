@@ -39,7 +39,7 @@ public final class ProducerSendCallBackInterceptor {
 
         @Override
         protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-            AsyncContext asyncContext = recorder.recordNextAsyncContext();
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
             ((AsyncContextAccessor) target)._$PINPOINT$_setAsyncContext(asyncContext);
         }
 

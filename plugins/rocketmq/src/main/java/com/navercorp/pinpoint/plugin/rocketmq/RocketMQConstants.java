@@ -25,10 +25,13 @@ import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
+/**
+ * @author messi-gao
+ */
 public class RocketMQConstants {
 
     public static final String SCOPE = "ROCKETMQ_SCOPE";
-    public static final String ENDPOINT = "ROCKETMQ_ENDPOINT";
+    public static final String ACCEPTOR_HOST = "ROCKETMQ_ACCEPTOR_HOST";
     public static final String IS_ASYNC_SEND = "IS_ASYNC_SEND";
 
     public static final ServiceType ROCKETMQ_CLIENT = ServiceTypeFactory.of(8400, "ROCKETMQ_CLIENT", "ROCKETMQ_CLIENT", QUEUE, RECORD_STATISTICS);

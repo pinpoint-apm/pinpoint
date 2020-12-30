@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.rocketmq;
 
+import java.util.List;
+
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
@@ -27,12 +29,12 @@ public class RocketMQConfig {
 
     static final String CONSUMER_ENABLE = "profiler.rocketmq.consumer.enable";
     static final String CONSUMER_ENTRY_POINT = "profiler.rocketmq.consumer.entryPoint";
-    static final String CONSUMER_BASE_PACKAGE = "profiler.rocketmq.consumer.basePackage";
+    static final String BASE_PACKAGE = "profiler.rocketmq.basePackage";
 
     private final boolean producerEnable;
     private final boolean consumerEnable;
     private final String rocketmqEntryPoint;
-    private final String consumerBasePackage;
+    private final List<String> basePackages;
 
     public RocketMQConfig(ProfilerConfig config) {
         /*
@@ -41,7 +43,7 @@ public class RocketMQConfig {
         producerEnable = config.readBoolean(PRODUCER_ENABLE, false);
         consumerEnable = config.readBoolean(CONSUMER_ENABLE, false);
         rocketmqEntryPoint = config.readString(CONSUMER_ENTRY_POINT, "");
-        consumerBasePackage = config.readString(CONSUMER_BASE_PACKAGE, "");
+        basePackages = config.readList(BASE_PACKAGE);
     }
 
     public boolean isProducerEnable() {
@@ -56,8 +58,8 @@ public class RocketMQConfig {
         return rocketmqEntryPoint;
     }
 
-    public String getConsumerBasePackage() {
-        return consumerBasePackage;
+    public List<String> getBasePackages() {
+        return basePackages;
     }
 
     @Override
@@ -66,7 +68,7 @@ public class RocketMQConfig {
                "producerEnable=" + producerEnable +
                ", consumerEnable=" + consumerEnable +
                ", rocketmqEntryPoint='" + rocketmqEntryPoint + '\'' +
-               ", consumerBasePackege='" + consumerBasePackage + '\'' +
+               ", basePackages=" + basePackages +
                '}';
     }
 }

@@ -37,7 +37,6 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.EndPointFieldAccessor;
 import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ConsumerMessageListenerConcurrentlyInterceptor;
 import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ConsumerMessageListenerOrderlyInterceptor;
@@ -59,16 +58,13 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
         final RocketMQConfig config = new RocketMQConfig(context.getConfig());
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        List<String> basePackageNames = new ArrayList<>();
-        // basePackageName support
-        String basePackageName = config.getConsumerBasePackage();
-        if (StringUtils.isEmpty(basePackageName)) {
-            logger.error("please config the [profiler.rocketmq.consumer.basePackage] in pinpoint.config");
-            return;
-        } else {
-            basePackageNames.add(basePackageName);
+        final List<String> basePackageNames = new ArrayList<>();
+        final List<String> basePackages = config.getBasePackages();
+        if (!basePackages.isEmpty()) {
+            basePackageNames.addAll(basePackages);
         }
-        if (config.isProducerEnable()) {
+
+        if (!basePackageNames.isEmpty() && config.isProducerEnable()) {
             transformTemplate.transform("org.apache.rocketmq.client.impl.MQClientAPIImpl",
                                         MQClientAPIImplTransform.class);
             final Matcher matcher = Matchers.newPackageBasedMatcher(basePackageNames,
@@ -81,6 +77,8 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
         if (config.isConsumerEnable()) {
             // rocketmq spring boot support
             basePackageNames.add("org.apache.rocketmq.spring.support");
+            // rocketmq spring cloud stream support
+            basePackageNames.add("com.alibaba.cloud.stream.binder.rocketmq");
 
             final Matcher matcher = Matchers.newPackageBasedMatcher(basePackageNames,
                                                                     new InterfaceInternalNameMatcherOperand(
@@ -93,12 +91,6 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
                                                                                    "org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly",
                                                                                    true));
             transformTemplate.transform(orderlyMatcher, MessageListenerOrderlyTransform.class);
-        }
-
-        if (enableConsumerTransform(config)) {
-            if (StringUtils.hasText(config.getRocketmqEntryPoint())) {
-                transformEntryPoint(config.getRocketmqEntryPoint());
-            }
         }
     }
 
@@ -121,7 +113,7 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
                 }
             }
 
-            InstrumentMethod updateNameServerAddressListMethod = target.getDeclaredMethod(
+            final InstrumentMethod updateNameServerAddressListMethod = target.getDeclaredMethod(
                     "updateNameServerAddressList", "java.lang.String");
             if (updateNameServerAddressListMethod != null) {
                 updateNameServerAddressListMethod.addInterceptor(UpdateNameServerAddressListInterceptor.class);
@@ -140,7 +132,7 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
                                                                            classfileBuffer);
             target.addField(AsyncContextAccessor.class);
-            List<InstrumentMethod> constructors = target.getDeclaredConstructors();
+            final List<InstrumentMethod> constructors = target.getDeclaredConstructors();
             for (InstrumentMethod constructor : constructors) {
                 constructor.addInterceptor(ConstructInterceptor.class);
             }
@@ -172,7 +164,7 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
                                     byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
                                                                            classfileBuffer);
-            List<InstrumentMethod> consumeMessageMethods = target.getDeclaredMethods(
+            final List<InstrumentMethod> consumeMessageMethods = target.getDeclaredMethods(
                     MethodFilters.name("consumeMessage"));
             for (InstrumentMethod consumeMessage : consumeMessageMethods) {
                 consumeMessage.addScopedInterceptor(ConsumerMessageListenerConcurrentlyInterceptor.class,
@@ -190,7 +182,7 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
                                     byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
                                                                            classfileBuffer);
-            List<InstrumentMethod> consumeMessageMethods = target.getDeclaredMethods(
+            final List<InstrumentMethod> consumeMessageMethods = target.getDeclaredMethods(
                     MethodFilters.name("consumeMessage"));
             for (InstrumentMethod consumeMessage : consumeMessageMethods) {
                 consumeMessage.addScopedInterceptor(ConsumerMessageListenerOrderlyInterceptor.class,
@@ -199,25 +191,6 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
 
             return target.toBytecode();
         }
-    }
-
-    private static boolean enableConsumerTransform(RocketMQConfig config) {
-        return config.isConsumerEnable() && StringUtils.hasText(config.getRocketmqEntryPoint());
-    }
-
-    public void transformEntryPoint(String entryPoint) {
-        final String clazzName = toClassName(entryPoint);
-//        transformTemplate.transform(clazzName, EntryPointTransform.class);
-    }
-
-    private String toClassName(String fullQualifiedMethodName) {
-        final int classEndPosition = fullQualifiedMethodName.lastIndexOf('.');
-        if (classEndPosition <= 0) {
-            throw new IllegalArgumentException(
-                    "invalid full qualified method name(" + fullQualifiedMethodName + "). not found method");
-        }
-
-        return fullQualifiedMethodName.substring(0, classEndPosition);
     }
 
     @Override

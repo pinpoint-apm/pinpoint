@@ -36,11 +36,12 @@ public final class ConsumerMessageListenerConcurrentlyInterceptor extends Consum
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
                                   Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        ConsumeConcurrentlyStatus status = (ConsumeConcurrentlyStatus) result;
+        final ConsumeConcurrentlyStatus status = (ConsumeConcurrentlyStatus) result;
         if (throwable != null) {
             recorder.recordException(throwable);
         } else if (status == ConsumeConcurrentlyStatus.RECONSUME_LATER) {
-            recorder.recordException(new RuntimeException(status.toString()));
+            recorder.recordException(
+                    new RuntimeException(ConsumeConcurrentlyStatus.RECONSUME_LATER.toString()));
         }
     }
 }

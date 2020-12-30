@@ -62,14 +62,16 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         }
         try {
             Trace trace = traceContext.currentTraceObject();
-            Object sendCallback = getSendCallback(args);
+            final Object sendCallback = getSendCallback(args);
+            // async send process
             if (sendCallback instanceof AsyncContextAccessor) {
                 if (isSkipTrace()) {
-                    // Skip recursive invoked or duplicated span(entry point)
                     return;
                 }
-                AsyncContext asyncContext = ((AsyncContextAccessor) sendCallback)._$PINPOINT$_getAsyncContext();
+                final AsyncContext asyncContext =
+                        ((AsyncContextAccessor) sendCallback)._$PINPOINT$_getAsyncContext();
                 ((AsyncContextAccessor) target)._$PINPOINT$_setAsyncContext(asyncContext);
+                // create async trace
                 trace = asyncContext.continueAsyncTraceObject();
 
                 if (isDebug) {
@@ -98,7 +100,6 @@ public class ProducerSendInterceptor implements AroundInterceptor {
             if (!trace.canSampled()) {
                 return;
             }
-            // ------------------------------------------------------
             final SpanEventRecorder recorder = trace.traceBlockBegin();
             doInBeforeTrace(recorder, target, args);
         } catch (Throwable th) {
@@ -118,6 +119,7 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         if (trace == null) {
             return;
         }
+        // async send process
         if (trace.isAsync()) {
             if (!hasScope(trace)) {
                 // Not in scope
@@ -141,7 +143,6 @@ public class ProducerSendInterceptor implements AroundInterceptor {
             }
         }
 
-        // ------------------------------------------------------
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             doInAfterTrace(recorder, target, args, result, throwable);
@@ -161,7 +162,7 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         recorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT);
         recorder.recordApi(methodDescriptor);
 
-        String endPoint = ((EndPointFieldAccessor) target)._$PINPOINT$_getEndPoint();
+        final String endPoint = ((EndPointFieldAccessor) target)._$PINPOINT$_getEndPoint();
         recorder.recordEndPoint(endPoint);
         recorder.recordDestinationId(endPoint);
 
@@ -170,21 +171,21 @@ public class ProducerSendInterceptor implements AroundInterceptor {
                                  sendMessageRequestHeader.getTopic());
         recorder.recordAttribute(RocketMQConstants.ROCKETMQ_PARTITION_ANNOTATION_KEY,
                                  sendMessageRequestHeader.getQueueId());
-        Trace trace = traceContext.currentRawTraceObject();
-        TraceId nextId = trace.getTraceId().getNextTraceId();
-        recorder.recordNextSpanId(nextId.getSpanId());
+        final Trace trace = traceContext.currentRawTraceObject();
+        final TraceId nextTraceId = trace.getTraceId().getNextTraceId();
+        recorder.recordNextSpanId(nextTraceId.getSpanId());
         // set header
         final Map<String, Object> paramMap = new HashMap<>();
         if (trace.canSampled()) {
             final StringBuilder properties = new StringBuilder(sendMessageRequestHeader.getProperties());
-            paramMap.put(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
+            paramMap.put(Header.HTTP_FLAGS.toString(), String.valueOf(nextTraceId.getFlags()));
             paramMap.put(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
             paramMap.put(Header.HTTP_PARENT_APPLICATION_TYPE.toString(),
                          String.valueOf(traceContext.getServerTypeCode()));
-            paramMap.put(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
-            paramMap.put(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
-            paramMap.put(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
-            paramMap.put(RocketMQConstants.ENDPOINT, endPoint);
+            paramMap.put(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextTraceId.getParentSpanId()));
+            paramMap.put(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextTraceId.getSpanId()));
+            paramMap.put(Header.HTTP_TRACE_ID.toString(), nextTraceId.getTransactionId());
+            paramMap.put(RocketMQConstants.ACCEPTOR_HOST, endPoint);
             paramMap.put(RocketMQConstants.IS_ASYNC_SEND, trace.isAsync());
 
             for (Map.Entry<String, Object> entry : paramMap.entrySet()) {

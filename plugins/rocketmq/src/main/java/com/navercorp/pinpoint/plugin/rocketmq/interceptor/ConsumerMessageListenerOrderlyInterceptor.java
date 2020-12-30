@@ -35,11 +35,12 @@ public final class ConsumerMessageListenerOrderlyInterceptor extends ConsumerMes
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
                                   Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        ConsumeOrderlyStatus status = (ConsumeOrderlyStatus) result;
+        final ConsumeOrderlyStatus status = (ConsumeOrderlyStatus) result;
         if (throwable != null) {
             recorder.recordException(throwable);
         } else if (status == ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT) {
-            recorder.recordException(new RuntimeException(status.toString()));
+            recorder.recordException(
+                    new RuntimeException(ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT.toString()));
         }
     }
 }
