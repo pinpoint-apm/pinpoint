@@ -18,7 +18,9 @@ package com.navercorp.pinpoint.grpc.client;
 
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.ChannelTypeEnum;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
+import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
@@ -99,7 +101,8 @@ public class DefaultChannelFactory implements ChannelFactory {
 
     private ChannelType getChannelType() {
         ChannelTypeFactory factory = new ChannelTypeFactory();
-        return factory.newChannelType(clientOption.getChannelTypeEnum());
+        ChannelTypeEnum channelTypeEnum = clientOption.getChannelTypeEnum();
+        return factory.newChannelType(channelTypeEnum);
     }
 
 

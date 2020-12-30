@@ -44,7 +44,7 @@ public class OverrideModuleFactory implements ModuleFactory {
     public Module newModule(AgentOption agentOption) {
 
         DefaultProfilerConfig profilerConfig = (DefaultProfilerConfig) agentOption.getProfilerConfig();
-        profilerConfig.setTransportModule(TransportModule.THRIFT);
+        profilerConfig.setTransportModule(TransportModule.THRIFT.name());
 
         ModuleFactory moduleFactory = new ApplicationContextModuleFactory() {
             @Override

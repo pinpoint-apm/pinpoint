@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ByteSizeUnit;
 import com.navercorp.pinpoint.profiler.context.module.SpanStatChannelFactory;
+import com.navercorp.pinpoint.profiler.context.thrift.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.jboss.netty.channel.ChannelFactory;

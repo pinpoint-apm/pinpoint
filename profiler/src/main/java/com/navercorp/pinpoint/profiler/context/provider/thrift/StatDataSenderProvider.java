@@ -18,11 +18,10 @@ package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.context.thrift.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.MessageSerializer;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
@@ -55,12 +54,11 @@ public class StatDataSenderProvider implements Provider<DataSender> {
     private final MessageConverter<TBase<?, ?>> messageConverter;
 
     @Inject
-    public StatDataSenderProvider(ProfilerConfig profilerConfig, @StatDataSender Provider<PinpointClientFactory> clientFactoryProvider, @StatDataSender MessageConverter<TBase<?, ?>> messageConverter) {
-        Assert.requireNonNull(profilerConfig, "profilerConfig");
+    public StatDataSenderProvider(ThriftTransportConfig thriftTransportConfig, @StatDataSender Provider<PinpointClientFactory> clientFactoryProvider, @StatDataSender MessageConverter<TBase<?, ?>> messageConverter) {
+        Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
 
         this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider");
 
-        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
         this.ip = thriftTransportConfig.getCollectorStatServerIp();
         this.port = thriftTransportConfig.getCollectorStatServerPort();
         this.writeQueueSize = thriftTransportConfig.getStatDataSenderWriteQueueSize();

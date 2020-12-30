@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.grpc;
+package com.navercorp.pinpoint.profiler.context.grpc.config;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.util.PropertyUtils;
+import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import org.junit.Test;
+
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -30,11 +32,11 @@ public class GrpcTransportConfigTest {
     @Test
     public void read() throws Exception {
         // Mock
-        String path = GrpcTransportConfigTest.class.getResource("/pinpoint.config").getPath();
-        ProfilerConfig profilerConfig = DefaultProfilerConfig.load(path);
+        String path = getClass().getResource("/pinpoint.config").getPath();
+        Properties properties = PropertyUtils.loadProperty(path);
 
         GrpcTransportConfig config = new GrpcTransportConfig();
-        config.read(profilerConfig);
+        config.read(properties);
 
         // Agent
         assertEquals("127.0.0.1", config.getAgentCollectorIp());

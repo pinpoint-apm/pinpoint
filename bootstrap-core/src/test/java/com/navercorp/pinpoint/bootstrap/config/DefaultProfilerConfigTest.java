@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.common.util.PropertyUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,23 +48,6 @@ public class DefaultProfilerConfigTest {
         ProfilerConfig profilerConfig = DefaultProfilerConfig.load(path);
     }
 
-    @Test
-    public void testPlaceHolder() throws IOException {
-        Properties properties = new Properties();
-        properties.setProperty("profiler.collector.span.ip", "${test1}");
-        properties.setProperty("profiler.collector.stat.ip", "${test1}");
-        properties.setProperty("profiler.collector.tcp.ip", "${test2}");
-        // placeHolderValue
-        properties.setProperty("test1", "placeHolder1");
-        properties.setProperty("test2", "placeHolder2");
-
-
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
-        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
-        Assert.assertEquals(thriftTransportConfig.getCollectorSpanServerIp(), "placeHolder1");
-        Assert.assertEquals(thriftTransportConfig.getCollectorStatServerIp(), "placeHolder1");
-        Assert.assertEquals(thriftTransportConfig.getCollectorTcpServerIp(), "placeHolder2");
-    }
 
 
     @Test
@@ -88,25 +72,6 @@ public class DefaultProfilerConfigTest {
         Assert.assertEquals(profilerConfig.getIoBufferingBufferSize(), 10);
     }
 
-    @Test
-    public void tcpCommandAcceptorConfigTest1() throws IOException {
-        String path = DefaultProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
-        logger.debug("path:{}", path);
-
-        ProfilerConfig profilerConfig = DefaultProfilerConfig.load(path);
-        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
-        Assert.assertFalse(thriftTransportConfig.isTcpDataSenderCommandAcceptEnable());
-    }
-
-    @Test
-    public void tcpCommandAcceptorConfigTest2() throws IOException {
-        String path = DefaultProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test2.property").getPath();
-        logger.debug("path:{}", path);
-
-        ProfilerConfig profilerConfig = DefaultProfilerConfig.load(path);
-        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
-        Assert.assertTrue(thriftTransportConfig.isTcpDataSenderCommandAcceptEnable());
-    }
 
     @Test
     public void getCallStackMaxDepth() {
@@ -127,25 +92,6 @@ public class DefaultProfilerConfigTest {
         Assert.assertEquals(profilerConfig.getCallStackMaxDepth(), 2);
     }
 
-    @Test
-    public void waterMarkConfigTest() {
-        Properties properties = new Properties();
-        properties.setProperty("profiler.tcpdatasender.client.write.buffer.highwatermark", "6m");
-        properties.setProperty("profiler.tcpdatasender.client.write.buffer.lowwatermark", "5m");
-        properties.setProperty("profiler.spandatasender.write.buffer.highwatermark", "4m");
-        properties.setProperty("profiler.spandatasender.write.buffer.lowwatermark", "3m");
-        properties.setProperty("profiler.statdatasender.write.buffer.highwatermark", "2m");
-        properties.setProperty("profiler.statdatasender.write.buffer.lowwatermark", "1m");
-
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
-        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
-        Assert.assertEquals("6m", thriftTransportConfig.getTcpDataSenderPinpointClientWriteBufferHighWaterMark());
-        Assert.assertEquals("5m", thriftTransportConfig.getTcpDataSenderPinpointClientWriteBufferLowWaterMark());
-        Assert.assertEquals("4m", thriftTransportConfig.getSpanDataSenderWriteBufferHighWaterMark());
-        Assert.assertEquals("3m", thriftTransportConfig.getSpanDataSenderWriteBufferLowWaterMark());
-        Assert.assertEquals("2m", thriftTransportConfig.getStatDataSenderWriteBufferHighWaterMark());
-        Assert.assertEquals("1m", thriftTransportConfig.getStatDataSenderWriteBufferLowWaterMark());
-    }
 
     @Test
     public void readList() throws IOException {

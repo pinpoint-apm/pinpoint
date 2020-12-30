@@ -21,9 +21,8 @@ import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
-import com.navercorp.pinpoint.grpc.client.ClientOption;
+import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
-import com.navercorp.pinpoint.grpc.client.ForwardClientCall;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.grpc.client.interceptor.DiscardClientInterceptor;
@@ -36,19 +35,14 @@ import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
-import com.navercorp.pinpoint.profiler.sender.grpc.DefaultStreamEventListener;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import com.navercorp.pinpoint.profiler.sender.grpc.Reconnector;
 import com.navercorp.pinpoint.profiler.sender.grpc.ResponseStreamObserver;
 import com.navercorp.pinpoint.profiler.sender.grpc.SpanGrpcDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.StreamEventListener;
 import com.navercorp.pinpoint.profiler.sender.grpc.StreamId;
-import io.grpc.CallOptions;
-import io.grpc.Channel;
-import io.grpc.ClientCall;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
-import io.grpc.MethodDescriptor;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
@@ -171,7 +165,7 @@ public class SpanClientMock {
         channelFactoryBuilder.addClientInterceptor(discardClientInterceptor);
 
         channelFactoryBuilder.setHeaderFactory(headerFactory);
-        channelFactoryBuilder.setClientOption(new ClientOption.Builder().build());
+        channelFactoryBuilder.setClientOption(new ClientOption());
 
         return channelFactoryBuilder.build();
     }

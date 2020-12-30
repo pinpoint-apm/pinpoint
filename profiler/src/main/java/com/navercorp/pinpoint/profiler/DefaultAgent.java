@@ -37,6 +37,9 @@ import com.navercorp.pinpoint.rpc.ClassPreLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+import java.util.Properties;
+
 
 /**
  * @author emeroad
@@ -68,7 +71,7 @@ public class DefaultAgent implements Agent {
         this.loggingSystem.start();
 
         logger = LoggerFactory.getLogger(this.getClass());
-        logger.info("AgentOption:{}", agentOption);
+        dumpAgentOption(agentOption);
 
         dumpSystemProperties();
         dumpConfig(agentOption.getProfilerConfig());
@@ -83,6 +86,14 @@ public class DefaultAgent implements Agent {
 
         this.applicationContext = newApplicationContext(agentOption);
 
+    }
+
+    private void dumpAgentOption(AgentOption agentOption) {
+        logger.info("AgentOption");
+        logger.info("- agentId:{}", agentOption.getAgentId());
+        logger.info("- applicationName:{}", agentOption.getApplicationName());
+        logger.info("- isContainer:{}", agentOption.isContainer());
+        logger.info("- instrumentation:{}", agentOption.getInstrumentation());
     }
 
     private LoggingSystem newLoggingSystem(String profilePath) {
@@ -110,8 +121,11 @@ public class DefaultAgent implements Agent {
 
     private void dumpConfig(ProfilerConfig profilerConfig) {
         if (logger.isInfoEnabled()) {
-            logger.info("{}\n{}", "dumpConfig", profilerConfig);
-
+            logger.info("{}", profilerConfig);
+            Properties properties = profilerConfig.getProperties();
+            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+                logger.info("- {}={}", entry.getKey(), entry.getValue());
+            }
         }
     }
 
