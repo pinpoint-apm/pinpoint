@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.profiler.context.thrift.config;
 
 /**
  * @author Woonduk Kang(emeroad)

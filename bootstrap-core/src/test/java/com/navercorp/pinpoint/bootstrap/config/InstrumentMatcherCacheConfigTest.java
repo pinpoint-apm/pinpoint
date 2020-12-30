@@ -16,7 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
 import org.junit.Test;
+
+import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -34,6 +37,30 @@ public class InstrumentMatcherCacheConfigTest {
         config.setAnnotationCacheEntrySize(4);
         config.setSuperCacheSize(5);
         config.setSuperCacheEntrySize(6);
+
+        assertEquals(1, config.getInterfaceCacheSize());
+        assertEquals(2, config.getInterfaceCacheEntrySize());
+        assertEquals(3, config.getAnnotationCacheSize());
+        assertEquals(4, config.getAnnotationCacheEntrySize());
+        assertEquals(5, config.getSuperCacheSize());
+        assertEquals(6, config.getSuperCacheEntrySize());
+    }
+
+    @Test
+    public void constructor2() {
+        Properties properties = new Properties();
+        properties.put("profiler.instrument.matcher.interface.cache.size", "1");
+        properties.put("profiler.instrument.matcher.interface.cache.entry.size", "2");
+
+        properties.put("profiler.instrument.matcher.annotation.cache.size", "3");
+        properties.put("profiler.instrument.matcher.annotation.cache.entry.size", "4");
+
+        properties.put("profiler.instrument.matcher.super.cache.size", "5");
+        properties.put("profiler.instrument.matcher.super.cache.entry.size", "6");
+
+        InstrumentMatcherCacheConfig config = new InstrumentMatcherCacheConfig();
+        ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
+        reader.process(config, properties);
 
         assertEquals(1, config.getInterfaceCacheSize());
         assertEquals(2, config.getInterfaceCacheEntrySize());

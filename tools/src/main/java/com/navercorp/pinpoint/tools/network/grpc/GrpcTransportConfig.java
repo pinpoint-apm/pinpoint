@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.tools.network.grpcTransportConfig;
+package com.navercorp.pinpoint.tools.network.grpc;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.util.PlaceHolderResolver;
+import com.navercorp.pinpoint.bootstrap.config.Value;
+import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
+import com.navercorp.pinpoint.bootstrap.config.util.ValueResolver;
+
+import java.util.Properties;
 
 /**
  * @author Roy Kim
@@ -29,35 +33,30 @@ public class GrpcTransportConfig {
     private static final int DEFAULT_STAT_COLLECTOR_PORT = 9992;
     private static final int DEFAULT_SPAN_COLLECTOR_PORT = 9993;
 
+    @Value("${profiler.transport.grpc.agent.collector.ip}")
     private String agentCollectorIp = DEFAULT_IP;
+    @Value("${profiler.transport.grpc.agent.collector.port}")
     private int agentCollectorPort = DEFAULT_AGENT_COLLECTOR_PORT;
 
+    @Value("${profiler.transport.grpc.metadata.collector.ip}")
     private String metadataCollectorIp = DEFAULT_IP;
+    @Value("${profiler.transport.grpc.metadata.collector.port}")
     private int metadataCollectorPort = DEFAULT_AGENT_COLLECTOR_PORT;
 
+    @Value("${profiler.transport.grpc.stat.collector.ip}")
     private String statCollectorIp = DEFAULT_IP;
+    @Value("${profiler.transport.grpc.stat.collector.port}")
     private int statCollectorPort = DEFAULT_STAT_COLLECTOR_PORT;
 
+    @Value("${profiler.transport.grpc.span.collector.ip}")
     private String spanCollectorIp = DEFAULT_IP;
+    @Value("${profiler.transport.grpc.span.collector.port}")
     private int spanCollectorPort = DEFAULT_SPAN_COLLECTOR_PORT;
 
-    public void read(ProfilerConfig profilerConfig) {
-        final ProfilerConfig.ValueResolver placeHolderResolver = new DefaultProfilerConfig.PlaceHolderResolver();
-        // Agent
-        this.agentCollectorIp = profilerConfig.readString("profiler.transport.grpc.agent.collector.ip", DEFAULT_IP, placeHolderResolver);
-        this.agentCollectorPort = profilerConfig.readInt("profiler.transport.grpc.agent.collector.port", DEFAULT_AGENT_COLLECTOR_PORT);
-
-        // Metadata
-        this.metadataCollectorIp = profilerConfig.readString("profiler.transport.grpc.metadata.collector.ip", DEFAULT_IP, placeHolderResolver);
-        this.metadataCollectorPort = profilerConfig.readInt("profiler.transport.grpc.metadata.collector.port", DEFAULT_AGENT_COLLECTOR_PORT);
-
-        // Stat
-        this.statCollectorIp = profilerConfig.readString("profiler.transport.grpc.stat.collector.ip", DEFAULT_IP, placeHolderResolver);
-        this.statCollectorPort = profilerConfig.readInt("profiler.transport.grpc.stat.collector.port", DEFAULT_STAT_COLLECTOR_PORT);
-
-        // Span
-        this.spanCollectorIp = profilerConfig.readString("profiler.transport.grpc.span.collector.ip", DEFAULT_IP, placeHolderResolver);
-        this.spanCollectorPort = profilerConfig.readInt("profiler.transport.grpc.span.collector.port", DEFAULT_SPAN_COLLECTOR_PORT);
+    public void read(Properties properties) {
+        final ValueResolver placeHolderResolver = new PlaceHolderResolver(properties);
+        final ValueAnnotationProcessor reader = new ValueAnnotationProcessor(placeHolderResolver);
+        reader.process(this, properties);
     }
 
     public String getAgentCollectorIp() {

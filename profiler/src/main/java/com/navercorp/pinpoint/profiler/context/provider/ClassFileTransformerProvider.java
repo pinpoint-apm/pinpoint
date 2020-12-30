@@ -59,15 +59,19 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ProfilerConfig profilerConfig;
+    private final InstrumentMatcherCacheConfig instrumentMatcherCacheConfig;
     private final PluginContextLoadResult pluginContextLoadResult;
     private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
     private final DynamicTransformerRegistry dynamicTransformerRegistry;
 
     @Inject
-    public ClassFileTransformerProvider(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine, PluginContextLoadResult pluginContextLoadResult,
+    public ClassFileTransformerProvider(ProfilerConfig profilerConfig,
+                                        InstrumentMatcherCacheConfig instrumentMatcherCacheConfig,
+                                        InstrumentEngine instrumentEngine, PluginContextLoadResult pluginContextLoadResult,
                                         DynamicTransformTrigger dynamicTransformTrigger, DynamicTransformerRegistry dynamicTransformerRegistry) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.instrumentMatcherCacheConfig = Assert.requireNonNull(instrumentMatcherCacheConfig, "instrumentMatcherCacheConfig");
         this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine");
         this.pluginContextLoadResult = Assert.requireNonNull(pluginContextLoadResult, "pluginContextLoadResult");
         this.dynamicTransformTrigger = Assert.requireNonNull(dynamicTransformTrigger, "dynamicTransformTrigger");
@@ -121,8 +125,7 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
 
     private TransformerRegistry newDefaultTransformerRegistry(List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
         if (this.profilerConfig.isInstrumentMatcherEnable()) {
-            final InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = profilerConfig.getInstrumentMatcherCacheConfig();
-            return new MatchableTransformerRegistry(instrumentMatcherCacheConfig, matchableClassFileTransformerList);
+            return new MatchableTransformerRegistry(this.instrumentMatcherCacheConfig, matchableClassFileTransformerList);
         }
         return new DefaultTransformerRegistry(matchableClassFileTransformerList);
     }

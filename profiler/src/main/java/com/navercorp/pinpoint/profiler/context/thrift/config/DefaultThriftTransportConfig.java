@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.profiler.context.thrift.config;
+
+import com.navercorp.pinpoint.bootstrap.config.Value;
+import com.navercorp.pinpoint.bootstrap.config.util.PlaceHolderResolver;
+import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
+import com.navercorp.pinpoint.bootstrap.config.util.ValueResolver;
+
+import java.util.Properties;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -23,103 +30,107 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
 
     private static final String DEFAULT_IP = "127.0.0.1";
 
+    @Value("${profiler.collector.span.ip}")
     private String collectorSpanServerIp = DEFAULT_IP;
+    @Value("${profiler.collector.span.port}")
     private int collectorSpanServerPort = 9996;
 
+    @Value("${profiler.collector.stat.ip}")
     private String collectorStatServerIp = DEFAULT_IP;
+    @Value("${profiler.collector.stat.port}")
     private int collectorStatServerPort = 9995;
 
+    @Value("${profiler.collector.tcp.ip}")
     private String collectorTcpServerIp = DEFAULT_IP;
+    @Value("${profiler.collector.tcp.port}")
     private int collectorTcpServerPort = 9994;
 
+    @Value("${profiler.spandatasender.write.queue.size}")
     private int spanDataSenderWriteQueueSize = 1024 * 5;
+    @Value("${profiler.spandatasender.socket.sendbuffersize}")
     private int spanDataSenderSocketSendBufferSize = 1024 * 64 * 16;
+    @Value("${profiler.spandatasender.socket.timeout}")
     private int spanDataSenderSocketTimeout = 1000 * 3;
+    @Value("${profiler.spandatasender.chunk.size}")
     private int spanDataSenderChunkSize = 1024 * 16;
     private static final String DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK = "16m";
+    @Value("${profiler.spandatasender.write.buffer.highwatermark}")
     private String spanDataSenderWriteBufferHighWaterMark = DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK;
     private static final String DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK = "8m";
+    @Value("${profiler.spandatasender.write.buffer.lowwatermark}")
     private String spanDataSenderWriteBufferLowWaterMark = DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK;
+    @Value("${profiler.spandatasender.transport.type}")
     private String spanDataSenderTransportType = "UDP";
+    @Value("${profiler.spandatasender.socket.type}")
     private String spanDataSenderSocketType = "OIO";
 
+    @Value("${profiler.statdatasender.write.queue.size}")
     private int statDataSenderWriteQueueSize = 1024 * 5;
+    @Value("${profiler.statdatasender.socket.sendbuffersize}")
     private int statDataSenderSocketSendBufferSize = 1024 * 64 * 16;
+    @Value("${profiler.statdatasender.socket.timeout}")
     private int statDataSenderSocketTimeout = 1000 * 3;
+    @Value("${profiler.statdatasender.chunk.size}")
     private int statDataSenderChunkSize = 1024 * 16;
+
     private static final String DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK = "16m";
+    @Value("${profiler.statdatasender.write.buffer.highwatermark}")
     private String statDataSenderWriteBufferHighWaterMark = DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK;
+
     private static final String DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK = "8m";
+    @Value("${profiler.statdatasender.write.buffer.lowwatermark}")
     private String statDataSenderWriteBufferLowWaterMark = DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK;
+    @Value("${profiler.statdatasender.transport.type}")
     private String statDataSenderTransportType = "UDP";
+    @Value("${profiler.statdatasender.socket.type}")
     private String statDataSenderSocketType = "OIO";
 
+    @Value("${profiler.tcpdatasender.command.accept.enable}")
     private boolean tcpDataSenderCommandAcceptEnable = false;
+    @Value("${profiler.tcpdatasender.command.activethread.enable}")
     private boolean tcpDataSenderCommandActiveThreadEnable = false;
+    @Value("${profiler.tcpdatasender.command.activethread.count.enable}")
     private boolean tcpDataSenderCommandActiveThreadCountEnable = false;
+    @Value("${profiler.tcpdatasender.command.activethread.threaddump.enable}")
     private boolean tcpDataSenderCommandActiveThreadDumpEnable = false;
+    @Value("${profiler.tcpdatasender.command.activethread.threadlightdump.enable}")
     private boolean tcpDataSenderCommandActiveThreadLightDumpEnable = false;
 
     private static final long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_TIMEOUT = 3 * 1000;
+    @Value("${profiler.tcpdatasender.client.write.timeout}")
     private long tcpDataSenderPinpointClientWriteTimeout = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_TIMEOUT;
+
     private static final long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_REQUEST_TIMEOUT = 3 * 1000;
+    @Value("${profiler.tcpdatasender.client.request.timeout}")
     private long tcpDataSenderPinpointClientRequestTimeout = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_REQUEST_TIMEOUT;
+
     private static final long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_RECONNECT_INTERVAL = 3 * 1000;
+    @Value("${profiler.tcpdatasender.client.reconnect.interval}")
     private long tcpDataSenderPinpointClientReconnectInterval = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_RECONNECT_INTERVAL;
+
     private static final long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_PING_INTERVAL = 60 * 1000 * 5;
+    @Value("${profiler.tcpdatasender.client.ping.interval}")
     private long tcpDataSenderPinpointClientPingInterval = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_PING_INTERVAL;
+
     private static final long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_HANDSHAKE_INTERVAL = 60 * 1000 * 1;
+    @Value("${profiler.tcpdatasender.client.handshake.interval}")
     private long tcpDataSenderPinpointClientHandshakeInterval = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_HANDSHAKE_INTERVAL;
+
     private static final String DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_HIGH_WATER_MAK = "32m";
+    @Value("${profiler.tcpdatasender.client.write.buffer.highwatermark}")
     private String tcpDataSenderPinpointClientWriteBufferHighWaterMark = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_HIGH_WATER_MAK;
+
     private static final String DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_LOW_WATER_MAK = "16m";
+    @Value("${profiler.tcpdatasender.client.write.buffer.lowwatermark}")
     private String tcpDataSenderPinpointClientWriteBufferLowWaterMark = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_LOW_WATER_MAK;
 
     public DefaultThriftTransportConfig() {
     }
 
-    public void read(DefaultProfilerConfig profilerConfig) {
-        final DefaultProfilerConfig.ValueResolver placeHolderResolver = new DefaultProfilerConfig.PlaceHolderResolver();
-        this.collectorSpanServerIp = profilerConfig.readString("profiler.collector.span.ip", DEFAULT_IP, placeHolderResolver);
-        this.collectorSpanServerPort = profilerConfig.readInt("profiler.collector.span.port", 9996);
-
-        this.collectorStatServerIp = profilerConfig.readString("profiler.collector.stat.ip", DEFAULT_IP, placeHolderResolver);
-        this.collectorStatServerPort = profilerConfig.readInt("profiler.collector.stat.port", 9995);
-
-        this.collectorTcpServerIp = profilerConfig.readString("profiler.collector.tcp.ip", DEFAULT_IP, placeHolderResolver);
-        this.collectorTcpServerPort = profilerConfig.readInt("profiler.collector.tcp.port", 9994);
-
-        this.spanDataSenderWriteQueueSize = profilerConfig.readInt("profiler.spandatasender.write.queue.size", 1024 * 5);
-        this.spanDataSenderSocketSendBufferSize = profilerConfig.readInt("profiler.spandatasender.socket.sendbuffersize", 1024 * 64 * 16);
-        this.spanDataSenderSocketTimeout = profilerConfig.readInt("profiler.spandatasender.socket.timeout", 1000 * 3);
-        this.spanDataSenderChunkSize = profilerConfig.readInt("profiler.spandatasender.chunk.size", 1024 * 16);
-        this.spanDataSenderWriteBufferHighWaterMark = profilerConfig.readString("profiler.spandatasender.write.buffer.highwatermark", DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK);
-        this.spanDataSenderWriteBufferLowWaterMark = profilerConfig.readString("profiler.spandatasender.write.buffer.lowwatermark", DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK);
-       this.spanDataSenderSocketType = profilerConfig.readString("profiler.spandatasender.socket.type", "OIO");
-        this.spanDataSenderTransportType = profilerConfig.readString("profiler.spandatasender.transport.type", "UDP");
-
-        this.statDataSenderWriteQueueSize = profilerConfig.readInt("profiler.statdatasender.write.queue.size", 1024 * 5);
-        this.statDataSenderSocketSendBufferSize = profilerConfig.readInt("profiler.statdatasender.socket.sendbuffersize", 1024 * 64 * 16);
-        this.statDataSenderSocketTimeout = profilerConfig.readInt("profiler.statdatasender.socket.timeout", 1000 * 3);
-        this.statDataSenderChunkSize = profilerConfig.readInt("profiler.statdatasender.chunk.size", 1024 * 16);
-        this.statDataSenderWriteBufferHighWaterMark = profilerConfig.readString("profiler.statdatasender.write.buffer.highwatermark", DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK);
-        this.statDataSenderWriteBufferLowWaterMark = profilerConfig.readString("profiler.statdatasender.write.buffer.lowwatermark", DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK);
-        this.statDataSenderSocketType = profilerConfig.readString("profiler.statdatasender.socket.type", "OIO");
-        this.statDataSenderTransportType = profilerConfig.readString("profiler.statdatasender.transport.type", "UDP");
-
-        this.tcpDataSenderCommandAcceptEnable = profilerConfig.readBoolean("profiler.tcpdatasender.command.accept.enable", false);
-        this.tcpDataSenderCommandActiveThreadEnable = profilerConfig.readBoolean("profiler.tcpdatasender.command.activethread.enable", false);
-        this.tcpDataSenderCommandActiveThreadCountEnable = profilerConfig.readBoolean("profiler.tcpdatasender.command.activethread.count.enable", false);
-        this.tcpDataSenderCommandActiveThreadDumpEnable = profilerConfig.readBoolean("profiler.tcpdatasender.command.activethread.threaddump.enable", false);
-        this.tcpDataSenderCommandActiveThreadLightDumpEnable = profilerConfig.readBoolean("profiler.tcpdatasender.command.activethread.threadlightdump.enable", false);
-
-        this.tcpDataSenderPinpointClientWriteTimeout = profilerConfig.readLong("profiler.tcpdatasender.client.write.timeout", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_TIMEOUT);
-        this.tcpDataSenderPinpointClientRequestTimeout = profilerConfig.readLong("profiler.tcpdatasender.client.request.timeout", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_REQUEST_TIMEOUT);
-        this.tcpDataSenderPinpointClientReconnectInterval = profilerConfig.readLong("profiler.tcpdatasender.client.reconnect.interval", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_RECONNECT_INTERVAL);
-        this.tcpDataSenderPinpointClientPingInterval = profilerConfig.readLong("profiler.tcpdatasender.client.ping.interval", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_PING_INTERVAL);
-        this.tcpDataSenderPinpointClientHandshakeInterval = profilerConfig.readLong("profiler.tcpdatasender.client.handshake.interval", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_HANDSHAKE_INTERVAL);
-        this.tcpDataSenderPinpointClientWriteBufferHighWaterMark = profilerConfig.readString("profiler.tcpdatasender.client.write.buffer.highwatermark", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_HIGH_WATER_MAK);
-        this.tcpDataSenderPinpointClientWriteBufferLowWaterMark = profilerConfig.readString("profiler.tcpdatasender.client.write.buffer.lowwatermark", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_LOW_WATER_MAK);
+    public void read(Properties properties) {
+        final ValueResolver placeHolderResolver = new PlaceHolderResolver(properties);
+        final ValueAnnotationProcessor reader = new ValueAnnotationProcessor(placeHolderResolver);
+        reader.process(this, properties);
     }
 
     @Override

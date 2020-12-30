@@ -16,8 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.bootstrap.config.util.BypassResolver;
+import com.navercorp.pinpoint.bootstrap.config.util.PlaceHolderResolver;
+import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
+import com.navercorp.pinpoint.bootstrap.config.util.ValueResolver;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
-import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
@@ -55,26 +58,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public static final int DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS = 5 * 1000;
     public static final int DEFAULT_NUM_AGENT_STAT_BATCH_SEND = 6;
 
-    private static class BypassResolver implements ValueResolver {
-        public static final ValueResolver RESOLVER = new BypassResolver();
-
-        @Override
-        public String resolve(String value, Properties properties) {
-            return value;
-        }
-    }
-
-    public static class PlaceHolderResolver implements ValueResolver {
-        @Override
-        public String resolve(String value, Properties properties) {
-            if (value == null) {
-                return null;
-            }
-            PropertyPlaceholderHelper propertyPlaceholderHelper = new PropertyPlaceholderHelper("${", "}");
-            return propertyPlaceholderHelper.replacePlaceholders(value, properties);
-        }
-    }
-
     public static ProfilerConfig load(String pinpointConfigFileName) throws IOException {
         final Properties properties = loadProperties(pinpointConfigFileName);
         return new DefaultProfilerConfig(properties);
@@ -96,15 +79,21 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         }
     }
 
+    @Value("${profiler.enable:true}")
     private boolean profileEnable = false;
+
+    @Value("${profiler.logdir.maxbackupsize}")
     private int logDirMaxBackupSize = 5;
 
+    @Value("${" + Profiles.ACTIVE_PROFILE_KEY + " }")
     private String activeProfile = Profiles.DEFAULT_ACTIVE_PROFILE;
 
+    @Value("${profiler.instrument.engine}")
     private String profileInstrumentEngine = INSTRUMENT_ENGINE_ASM;
+    @Value("${profiler.instrument.matcher.enable}")
     private boolean instrumentMatcherEnable = true;
-    private final InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = new InstrumentMatcherCacheConfig();
 
+    @Value("${profiler.interceptorregistry.size}")
     private int interceptorRegistrySize = 1024 * 8;
 
     @VisibleForTesting
@@ -112,70 +101,106 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private TransportModule transportModule = DEFAULT_TRANSPORT_MODULE;
 
-    private ThriftTransportConfig thriftTransportConfig;
 
     private List<String> allowJdkClassNames = Collections.emptyList();
 
+    @Value("${profiler.pinpoint.activethread}")
     private boolean traceAgentActiveThread = true;
 
+    @Value("${profiler.pinpoint.datasource}")
     private boolean traceAgentDataSource = false;
+
+    @Value("${profiler.pinpoint.datasource.tracelimitsize}")
     private int dataSourceTraceLimitSize = 20;
 
+    @Value("${profiler.monitor.deadlock.enable}")
     private boolean deadlockMonitorEnable = true;
+    @Value("${profiler.monitor.deadlock.interval}")
     private long deadlockMonitorInterval = 60000L;
 
-    private int callStackMaxDepth = 512;
+    private int callStackMaxDepth = 64;
 
+    @Value("${profiler.jdbc.sqlcachesize}")
     private int jdbcSqlCacheSize = 1024;
+    @Value("${profiler.jdbc.tracesqlbindvalue}")
     private boolean traceSqlBindValue = false;
+    @Value("${profiler.jdbc.maxsqlbindvaluesize}")
     private int maxSqlBindValueSize = 1024;
 
     // Sampling
+    @Value("${profiler.sampling.enable}")
     private boolean samplingEnable = true;
+    @Value("${profiler.sampling.rate}")
     private int samplingRate = 1;
+    @Value("${profiler.sampling.new.throughput}")
+    // Throughput sampling
     private int samplingNewThroughput = 0;
+    @Value("${profiler.sampling.continue.throughput}")
     private int samplingContinueThroughput = 0;
 
     // span buffering
-    private boolean ioBufferingEnable;
-    private int ioBufferingBufferSize;
+    // configuration for sampling and IO buffer
+    @Value("${profiler.io.buffering.enable}")
+    private boolean ioBufferingEnable = true;
+    // it may be a problem to be here.  need to modify(delete or move or .. )  this configuration.
+    @Value("${profiler.io.buffering.buffersize}")
+    private int ioBufferingBufferSize = 20;
 
     private String profileJvmVendorName;
+    // JVM
+    @Value("${profiler.os.name}")
     private String profileOsName;
+    @Value("${profiler.jvm.stat.collect.interval}")
     private int profileJvmStatCollectIntervalMs = DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;
+    @Value("${profiler.jvm.stat.batch.send.count}")
     private int profileJvmStatBatchSendCount = DEFAULT_NUM_AGENT_STAT_BATCH_SEND;
-    private boolean profilerJvmStatCollectDetailedMetrics;
+    @Value("${profiler.jvm.stat.collect.detailed.metrics}")
+    private boolean profilerJvmStatCollectDetailedMetrics = false;
 
     private Filter<String> profilableClassFilter = new SkipFilter<String>();
 
     private final long DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL = 5 * 60 * 1000L;
+    @Value("${profiler.agentInfo.send.retry.interval}")
     private long agentInfoSendRetryInterval = DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL;
 
-    private String applicationServerType;
+    // service type
+    @Value("${profiler.applicationservertype}")
+    private String applicationServerType = null;
+
+
     @Deprecated // As of 1.9.0, set application type in plugins
     private List<String> applicationTypeDetectOrder = Collections.emptyList();
     private List<String> pluginLoadOrder = Collections.emptyList();
     private List<String> disabledPlugins = Collections.emptyList();
 
+    @Value("${" + PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE + "}")
     private boolean propagateInterceptorException = false;
+    @Value("${profiler.lambda.expressions.support}")
     private boolean supportLambdaExpressions = true;
 
+    // proxy http header names
+    @Value("${profiler.proxy.http.header.enable}")
     private boolean proxyHttpHeaderEnable = true;
 
     private HttpStatusCodeErrors httpStatusCodeErrors = new HttpStatusCodeErrors();
 
+    @Value("${profiler.guice.module.factory}")
     private String injectionModuleFactoryClazzName = null;
+    @Value("${profiler.application.namespace}")
     private String applicationNamespace = "";
 
+    @Value("${profiler.custommetric.enable}")
     private boolean customMetricEnable = false;
+    @Value("${profiler.custommetric.limit.size}")
     private int customMetricLimitSize = 10;
 
+    @Value("${profiler.uri.stat.enable}")
     private boolean uriStatEnable = false;
+    @Value("${profiler.uri.stat.completed.data.limit.size}")
     private int completedUriStatDataLimitSize = 3;
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
-        this.thriftTransportConfig = new DefaultThriftTransportConfig();
     }
 
     public DefaultProfilerConfig(Properties properties) {
@@ -186,6 +211,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         readPropertyValues();
     }
 
+    public Properties getProperties() {
+        return properties;
+    }
 
     @Override
     public String getActiveProfile() {
@@ -197,9 +225,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return transportModule;
     }
 
-    public void setTransportModule(TransportModule transportModule) {
-        this.transportModule = transportModule;
+    @Value("${profiler.transport.module}")
+    public void setTransportModule(String transportModule) {
+        this.transportModule = TransportModule.parse(transportModule, DEFAULT_TRANSPORT_MODULE);
     }
+
 
     @Override
     public int getInterceptorRegistrySize() {
@@ -207,16 +237,13 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
-    public ThriftTransportConfig getThriftTransportConfig() {
-//        if (thriftTransportConfig == null){
-//          // TODO ?
-//        }
-        return thriftTransportConfig;
-    }
-
-    @Override
     public List<String> getAllowJdkClassName() {
         return allowJdkClassNames;
+    }
+
+    @Value("${profiler.instrument.jdk.allow.classnames}")
+    void setAllowJdkClassNames(String allowJdkClassNames) {
+        this.allowJdkClassNames = StringUtils.tokenizeToStringList(allowJdkClassNames, ",");
     }
 
     @Override
@@ -335,7 +362,22 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return profilableClassFilter;
     }
 
+    @Value("${profiler.include}")
+    void setProfilableClassFilter(String profilableClass) {
+        // TODO have to remove
+        // profile package included in order to test "call stack view".
+        // this config must not be used in service environment because the size of  profiling information will get heavy.
+        // We may need to change this configuration to regular expression.
+        if (profilableClass != null && profilableClass.isEmpty()) {
+            this.profilableClassFilter = new ProfilableClassFilter(profilableClass);
+        } else {
+            this.profilableClassFilter = new SkipFilter<String>();
+        }
+    }
+
+
     /**
+     * application type detector order
      * @deprecated As of 1.9.0, set application type in plugins
      */
     @Deprecated
@@ -344,14 +386,30 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return applicationTypeDetectOrder;
     }
 
+    @Value("${profiler.type.detect.order}")
+    @Deprecated
+    void setApplicationTypeDetectOrder(String applicationTypeDetectOrder) {
+        this.applicationTypeDetectOrder = StringUtils.tokenizeToStringList(applicationTypeDetectOrder, ",");
+    }
+
     @Override
     public List<String> getPluginLoadOrder() {
         return pluginLoadOrder;
     }
 
+    @Value("${profiler.plugin.load.order}")
+    void setPluginLoadOrder(String pluginLoadOrder) {
+        this.pluginLoadOrder = StringUtils.tokenizeToStringList(pluginLoadOrder, ",");
+    }
+
     @Override
     public List<String> getDisabledPlugins() {
         return disabledPlugins;
+    }
+
+    @Value("${profiler.plugin.disable}")
+    void getDisabledPlugins(String disabledPlugins) {
+        this.disabledPlugins = StringUtils.tokenizeToStringList(disabledPlugins, ",");
     }
 
     @Override
@@ -366,6 +424,15 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public int getCallStackMaxDepth() {
         return callStackMaxDepth;
+    }
+
+    @Value("${profiler.callstack.max.depth}")
+    void setCallStackMaxDepth(int callStackMaxDepth) {
+        // CallStack
+        if (callStackMaxDepth != -1 && callStackMaxDepth < 2) {
+            callStackMaxDepth = 2;
+        }
+        this.callStackMaxDepth = callStackMaxDepth;
     }
 
     @Override
@@ -389,11 +456,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
-    public InstrumentMatcherCacheConfig getInstrumentMatcherCacheConfig() {
-        return instrumentMatcherCacheConfig;
-    }
-
-    @Override
     public boolean isProxyHttpHeaderEnable() {
         return proxyHttpHeaderEnable;
     }
@@ -401,6 +463,12 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public HttpStatusCodeErrors getHttpStatusCodeErrors() {
         return httpStatusCodeErrors;
+    }
+
+    @Value("${profiler.http.status.code.errors}")
+    void getHttpStatusCodeErrors(String httpStatusCodeErrors) {
+        List<String> httpStatusCodeErrorList = StringUtils.tokenizeToStringList(httpStatusCodeErrors, ",");
+        this.httpStatusCodeErrors = new HttpStatusCodeErrors(httpStatusCodeErrorList);
     }
 
     @Override
@@ -440,114 +508,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     // for test
     void readPropertyValues() {
-
-        this.profileEnable = readBoolean("profiler.enable", true);
-        this.logDirMaxBackupSize = readInt("profiler.logdir.maxbackupsize", 5);
-        this.activeProfile = readString(Profiles.ACTIVE_PROFILE_KEY, Profiles.DEFAULT_ACTIVE_PROFILE);
-        this.profileInstrumentEngine = readString("profiler.instrument.engine", INSTRUMENT_ENGINE_ASM);
-        this.instrumentMatcherEnable = readBoolean("profiler.instrument.matcher.enable", true);
-        this.allowJdkClassNames = readList("profiler.instrument.jdk.allow.classnames");
-
-        this.instrumentMatcherCacheConfig.setInterfaceCacheSize(readInt("profiler.instrument.matcher.interface.cache.size", 4));
-        this.instrumentMatcherCacheConfig.setInterfaceCacheEntrySize(readInt("profiler.instrument.matcher.interface.cache.entry.size", 16));
-        this.instrumentMatcherCacheConfig.setAnnotationCacheSize(readInt("profiler.instrument.matcher.annotation.cache.size", 4));
-        this.instrumentMatcherCacheConfig.setAnnotationCacheEntrySize(readInt("profiler.instrument.matcher.annotation.cache.entry.size", 4));
-        this.instrumentMatcherCacheConfig.setSuperCacheSize(readInt("profiler.instrument.matcher.super.cache.size", 4));
-        this.instrumentMatcherCacheConfig.setSuperCacheEntrySize(readInt("profiler.instrument.matcher.super.cache.entry.size", 4));
-
-        this.interceptorRegistrySize = readInt("profiler.interceptorregistry.size", 1024 * 8);
-
-        final String transportModuleString = readString("profiler.transport.module", DEFAULT_TRANSPORT_MODULE.name());
-        this.transportModule = TransportModule.parse(transportModuleString, DEFAULT_TRANSPORT_MODULE);
-
-        this.thriftTransportConfig = readThriftTransportConfig(this);
-
-        this.traceAgentActiveThread = readBoolean("profiler.pinpoint.activethread", true);
-
-        this.traceAgentDataSource = readBoolean("profiler.pinpoint.datasource", false);
-        this.dataSourceTraceLimitSize = readInt("profiler.pinpoint.datasource.tracelimitsize", 20);
-
-        this.deadlockMonitorEnable = readBoolean("profiler.monitor.deadlock.enable", true);
-        this.deadlockMonitorInterval = readLong("profiler.monitor.deadlock.interval", 60000L);
-
-        // CallStack
-        this.callStackMaxDepth = readInt("profiler.callstack.max.depth", 64);
-        if (this.callStackMaxDepth != -1 && this.callStackMaxDepth < 2) {
-            this.callStackMaxDepth = 2;
-        }
-
-        // JDBC
-        this.jdbcSqlCacheSize = readInt("profiler.jdbc.sqlcachesize", 1024);
-        this.traceSqlBindValue = readBoolean("profiler.jdbc.tracesqlbindvalue", false);
-
-
-        this.samplingEnable = readBoolean("profiler.sampling.enable", true);
-        this.samplingRate = readInt("profiler.sampling.rate", 1);
-        // Throughput sampling
-        this.samplingNewThroughput = readInt("profiler.sampling.new.throughput", 0);
-        this.samplingContinueThroughput = readInt("profiler.sampling.continue.throughput", 0);
-
-        // configuration for sampling and IO buffer
-        this.ioBufferingEnable = readBoolean("profiler.io.buffering.enable", true);
-
-        // it may be a problem to be here.  need to modify(delete or move or .. )  this configuration.
-        this.ioBufferingBufferSize = readInt("profiler.io.buffering.buffersize", 20);
-
-        //OS
-        this.profileOsName = readString("profiler.os.name", null);
-
-        // JVM
-        this.profileJvmVendorName = readString("profiler.jvm.vendor.name", null);
-        this.profileJvmStatCollectIntervalMs = readInt("profiler.jvm.stat.collect.interval", DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS);
-        this.profileJvmStatBatchSendCount = readInt("profiler.jvm.stat.batch.send.count", DEFAULT_NUM_AGENT_STAT_BATCH_SEND);
-        this.profilerJvmStatCollectDetailedMetrics = readBoolean("profiler.jvm.stat.collect.detailed.metrics", false);
-
-        this.agentInfoSendRetryInterval = readLong("profiler.agentInfo.send.retry.interval", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
-
-        // service type
-        this.applicationServerType = readString("profiler.applicationservertype", null);
-
-        // application type detector order
-        this.applicationTypeDetectOrder = readList("profiler.type.detect.order");
-
-        this.pluginLoadOrder = readList("profiler.plugin.load.order");
-
-        this.disabledPlugins = readList(PLUGIN_DISABLE);
-
-        // TODO have to remove
-        // profile package included in order to test "call stack view".
-        // this config must not be used in service environment because the size of  profiling information will get heavy.
-        // We may need to change this configuration to regular expression.
-        final String profilableClass = readString("profiler.include", "");
-        if (!profilableClass.isEmpty()) {
-            this.profilableClassFilter = new ProfilableClassFilter(profilableClass);
-        }
-
-        this.propagateInterceptorException = readBoolean(PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE, false);
-        this.supportLambdaExpressions = readBoolean("profiler.lambda.expressions.support", true);
-
-        // proxy http header names
-        this.proxyHttpHeaderEnable = readBoolean("profiler.proxy.http.header.enable", true);
-
-        this.httpStatusCodeErrors = new HttpStatusCodeErrors(readList("profiler.http.status.code.errors"));
-
-        this.injectionModuleFactoryClazzName = readString("profiler.guice.module.factory", null);
-
-        this.applicationNamespace = readString("profiler.application.namespace", "");
-
-        this.customMetricEnable = readBoolean("profiler.custommetric.enable", false);
-        this.customMetricLimitSize = readInt("profiler.custommetric.limit.size", 10);
-
-        this.uriStatEnable = readBoolean("profiler.uri.stat.enable", false);
-        this.completedUriStatDataLimitSize = readInt("profiler.uri.stat.completed.data.limit.size", 3);
+        final ValueResolver placeHolderResolver = new PlaceHolderResolver(properties);
+        ValueAnnotationProcessor processor = new ValueAnnotationProcessor(placeHolderResolver);
+        processor.process(this, properties);
 
         logger.info("configuration loaded successfully.");
-    }
-
-    private ThriftTransportConfig readThriftTransportConfig(DefaultProfilerConfig profilerConfig) {
-        DefaultThriftTransportConfig binaryTransportConfig = new DefaultThriftTransportConfig();
-        binaryTransportConfig.read(profilerConfig);
-        return binaryTransportConfig;
     }
 
 
@@ -561,7 +526,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
             throw new NullPointerException("valueResolver");
         }
         String value = properties.getProperty(propertyName, defaultValue);
-        value = valueResolver.resolve(value, properties);
+        value = valueResolver.resolve(propertyName, value);
         if (logger.isDebugEnabled()) {
             logger.debug(propertyName + "=" + value);
         }
@@ -650,14 +615,12 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("DefaultProfilerConfig{");
-        sb.append("properties=").append(properties);
-        sb.append(", profileEnable='").append(profileEnable).append('\'');
+        sb.append("profileEnable='").append(profileEnable).append('\'');
         sb.append(", activeProfile=").append(activeProfile);
+        sb.append(", logDirMaxBackupSize=").append(logDirMaxBackupSize);
         sb.append(", profileInstrumentEngine='").append(profileInstrumentEngine).append('\'');
         sb.append(", instrumentMatcherEnable=").append(instrumentMatcherEnable);
-        sb.append(", instrumentMatcherCacheConfig=").append(instrumentMatcherCacheConfig);
         sb.append(", interceptorRegistrySize=").append(interceptorRegistrySize);
-        sb.append(", thriftTransportConfig=").append(thriftTransportConfig).append('\'');
         sb.append(", staticResourceCleanup=").append(staticResourceCleanup);
         sb.append(", traceAgentActiveThread=").append(traceAgentActiveThread);
         sb.append(", traceAgentDataSource=").append(traceAgentDataSource);

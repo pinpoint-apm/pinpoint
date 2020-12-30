@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.context.module;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
+import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.util.PropertyRollbackTemplate;
 import io.netty.util.internal.PlatformDependent;
 import org.slf4j.Logger;

@@ -52,9 +52,9 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
         }
         if (TransportModule.THRIFT == transportModule) {
             logger.info("load ThriftModule");
-            return new ThriftModule();
+            return new ThriftModule(profilerConfig);
         }
         logger.info("load ThriftModule");
-        return new ThriftModule();
+        return new ThriftModule(profilerConfig);
     }
 }
