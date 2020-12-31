@@ -59,12 +59,17 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         final List<String> basePackageNames = new ArrayList<>();
+        // rocketmq spring boot support
+        basePackageNames.add("org.apache.rocketmq.spring.support");
+        // rocketmq spring cloud stream support
+        basePackageNames.add("com.alibaba.cloud.stream.binder.rocketmq");
+
         final List<String> basePackages = config.getBasePackages();
         if (!basePackages.isEmpty()) {
             basePackageNames.addAll(basePackages);
         }
 
-        if (!basePackageNames.isEmpty() && config.isProducerEnable()) {
+        if (config.isProducerEnable()) {
             transformTemplate.transform("org.apache.rocketmq.client.impl.MQClientAPIImpl",
                                         MQClientAPIImplTransform.class);
             final Matcher matcher = Matchers.newPackageBasedMatcher(basePackageNames,
@@ -75,11 +80,6 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
         }
 
         if (config.isConsumerEnable()) {
-            // rocketmq spring boot support
-            basePackageNames.add("org.apache.rocketmq.spring.support");
-            // rocketmq spring cloud stream support
-            basePackageNames.add("com.alibaba.cloud.stream.binder.rocketmq");
-
             final Matcher matcher = Matchers.newPackageBasedMatcher(basePackageNames,
                                                                     new InterfaceInternalNameMatcherOperand(
                                                                             "org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently",
