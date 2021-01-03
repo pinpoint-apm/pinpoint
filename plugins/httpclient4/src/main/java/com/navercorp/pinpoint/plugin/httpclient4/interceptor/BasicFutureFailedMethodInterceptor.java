@@ -29,9 +29,9 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author jaehong.kim
  * 
  */
-public class BasicFutureMethodInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class BasicFutureFailedMethodInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
-    public BasicFutureMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public BasicFutureFailedMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
     }
 
@@ -43,10 +43,10 @@ public class BasicFutureMethodInterceptor extends AsyncContextSpanEventSimpleAro
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        if ("failed".equals(methodDescriptor.getMethodName()) && args.length == 1 && args[0] instanceof Exception) {
-            recorder.recordException((Exception) args[0]);
-        } else {
+        if (throwable!= null) {
             recorder.recordException(throwable);
+        } else if (args.length == 1 && args[0] instanceof Exception) {
+            recorder.recordException((Exception) args[0]);
         }
     }
 }
