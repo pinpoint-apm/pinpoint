@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2021 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,10 +43,6 @@ public class BasicFutureMethodInterceptor extends AsyncContextSpanEventSimpleAro
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        if ("failed".equals(methodDescriptor.getMethodName()) && args.length == 1 && args[0] instanceof Exception) {
-            recorder.recordException((Exception) args[0]);
-        } else {
-            recorder.recordException(throwable);
-        }
+        recorder.recordException(throwable);
     }
 }
