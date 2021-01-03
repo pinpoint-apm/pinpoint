@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureFailedMethodInterceptor;
 import com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureMethodInterceptor;
 import com.navercorp.pinpoint.plugin.httpclient4.interceptor.DefaultClientExchangeHandlerImplStartMethodInterceptor;
 import com.navercorp.pinpoint.plugin.httpclient4.interceptor.DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor;
@@ -340,7 +341,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
 
             InstrumentMethod failed = target.getDeclaredMethod("failed", "java.lang.Exception");
             if (failed != null) {
-                failed.addInterceptor(BasicFutureMethodInterceptor.class);
+                failed.addInterceptor(BasicFutureFailedMethodInterceptor.class);
 
             }
 
