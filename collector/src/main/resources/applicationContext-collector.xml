@@ -262,9 +262,9 @@
     </bean>
 
     <bean id="abortPolicy" class="java.util.concurrent.ThreadPoolExecutor.AbortPolicy"/>
-    <bean id="discardPolicy" class="java.util.concurrent.ThreadPoolExecutor.DiscardPolicy"/>
+<!--    <bean id="discardPolicy" class="java.util.concurrent.ThreadPoolExecutor.DiscardPolicy"/>-->
     <bean id="abstractReceiverExecutorFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" abstract="true">
-        <property name="rejectedExecutionHandler" ref="discardPolicy"/>
+        <property name="rejectedExecutionHandler" ref="abortPolicy"/>
         <property name="daemon" value="true"/>
         <property name="waitForTasksToCompleteOnShutdown" value="true"/>
         <property name="awaitTerminationSeconds" value="10"/>

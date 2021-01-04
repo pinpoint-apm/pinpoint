@@ -42,6 +42,7 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -125,7 +126,12 @@ public class UDPReceiver {
                 continue;
             }
             Runnable task = wrapTask(socket, pooledPacket);
-            worker.execute(task);
+
+            try {
+                worker.execute(task);
+            } catch (RejectedExecutionException rejectEx) {
+                pooledPacket.returnObject();
+            }
         }
 
         if (logger.isInfoEnabled()) {
@@ -135,8 +141,7 @@ public class UDPReceiver {
     }
 
     private Runnable wrapTask(final DatagramSocket socket, final PooledObject<DatagramPacket> pooledPacket) {
-        return new
-                Task(socket, packetHandlerFactory, pooledPacket);
+        return new Task(socket, packetHandlerFactory, pooledPacket);
     }
 
 
