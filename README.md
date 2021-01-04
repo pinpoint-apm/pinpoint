@@ -64,7 +64,7 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * Spring, Spring Boot (Embedded Tomcat, Jetty, Undertow), Spring asynchronous communication
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient, Akka-http, Apache CXF
 * Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER, GRPC
-* ActiveMQ, RabbitMQ, Kafka
+* ActiveMQ, RabbitMQ, Kafka, RocketMQ
 * MySQL, Oracle, MSSQL(jtds), CUBRID, POSTGRESQL, MARIA
 * Arcus, Memcached, Redis([Jedis](https://github.com/pinpoint-apm/pinpoint/blob/master/plugins/redis), [Lettuce](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/redis-lettuce)), CASSANDRA, MongoDB, Hbase, Elasticsearch
 * iBATIS, MyBatis
