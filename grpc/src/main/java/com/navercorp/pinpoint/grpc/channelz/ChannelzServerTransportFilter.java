@@ -49,6 +49,10 @@ public class ChannelzServerTransportFilter extends ServerTransportFilter {
 
     @Override
     public void transportTerminated(Attributes transportAttrs) {
+        // transport is not ready
+        if (transportAttrs == null) {
+            return;
+        }
         final TransportMetadata transportMetadata = getTransportMetadata(transportAttrs);
 
         final InetSocketAddress remoteAddress = transportMetadata.getRemoteAddress();
