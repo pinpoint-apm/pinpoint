@@ -118,9 +118,12 @@ public class PinpointGrpcServer {
             } else if (SocketStateCode.isClosed(socketStateCode)) {
                 GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(this, Collections.emptyList());
                 profilerClusterManager.unregister(grpcAgentConnection);
+            } else {
+                logger.info("Unexpected socketStateCode.  agent:{}, socketStateCode{}", agentInfo, socketStateCode);
             }
+        } else {
+            logger.warn("Failed to change state. agent:{}, result:{}", agentInfo, result);
         }
-
 
         if (logger.isDebugEnabled()) {
             logger.debug(result.toString());
@@ -308,6 +311,7 @@ public class PinpointGrpcServer {
 
             } catch (Exception e) {
                 // It could throw exception when requestObserver is already completed.
+                logger.warn("Exception occurred while requestObserver invokes onCompleted. message:{}", e.getMessage(), e);
             }
 
             try {

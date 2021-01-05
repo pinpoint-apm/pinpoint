@@ -232,9 +232,8 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         Objects.requireNonNull(pinpointGrpcServer, "pinpointGrpcServer");
         Objects.requireNonNull(agentInfo, "agentInfo");
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("{} => local. onCompleted", getAgentInfo().getAgentKey());
-        }
+        logger.info("{} => local. onCompleted", getAgentInfo().getAgentKey());
+
         pinpointGrpcServer.disconnected();
     }
 
