@@ -37,7 +37,9 @@ class ProfilePropertyLoader implements PropertyLoader {
     private static final String SEPARATOR = File.separator;
 
     private final BootLogger logger = BootLogger.getLogger(getClass());
-    private final SimpleProperty systemProperty;
+
+    private final SimpleProperty javaSystemProperty;
+    private final SimpleProperty osEnvProperty;
 
     private final String agentRootPath;
     private final String profilesPath;
@@ -46,13 +48,28 @@ class ProfilePropertyLoader implements PropertyLoader {
 
     public static final String[] ALLOWED_PROPERTY_PREFIX = new String[]{"bytecode.", "profiler.", "pinpoint."};
 
-    public ProfilePropertyLoader(SimpleProperty systemProperty, String agentRootPath, String profilesPath, String[] supportedProfiles) {
-        this.systemProperty = Assert.requireNonNull(systemProperty, "systemProperty");
+    public ProfilePropertyLoader(SimpleProperty javaSystemProperty, SimpleProperty osEnvProperty, String agentRootPath, String profilesPath, String[] supportedProfiles) {
+        this.javaSystemProperty = Assert.requireNonNull(javaSystemProperty, "javaSystemProperty");
+        this.osEnvProperty = Assert.requireNonNull(osEnvProperty, "osEnvProperty");
+
         this.agentRootPath = Assert.requireNonNull(agentRootPath, "agentRootPath");
         this.profilesPath = Assert.requireNonNull(profilesPath, "profilesPath");
         this.supportedProfiles = Assert.requireNonNull(supportedProfiles, "supportedProfiles");
     }
 
+    /**
+     * <pre>Configuration order</pre>
+     *
+     * <p> Same order as Spring-Boot
+     * <p> https://docs.spring.io/spring-boot/docs/2.1.9.RELEASE/reference/html/boot-features-external-config.html
+     * <ol>
+     * <li>Java System properties
+     * <li>OS environment variables
+     * <li>agent external configuration
+     * <li>agent profile configuration /profiles/${profile}/pinpoint.config
+     * <li>agent config /pinpoint-env.config
+     * </ol>
+     */
     @Override
     public Properties load() {
         final String defaultConfigPath = this.agentRootPath + SEPARATOR + Profiles.CONFIG_FILE_NAME;
@@ -74,13 +91,17 @@ class ProfilePropertyLoader implements PropertyLoader {
         }
 
         // 3. load external config
-        final String externalConfig = this.systemProperty.getProperty(Profiles.EXTERNAL_CONFIG_KEY);
+        final String externalConfig = this.javaSystemProperty.getProperty(Profiles.EXTERNAL_CONFIG_KEY);
         if (externalConfig != null) {
             logger.info(String.format("load external config:%s", externalConfig));
             loadFileProperties(defaultProperties, externalConfig);
         }
-        // ?? 4. systemproperty -Dkey=value?
-        loadSystemProperties(defaultProperties);
+
+        // 4 OS environment variables
+        loadProperties(defaultProperties, this.osEnvProperty);
+
+        // 5. Java System Properties -Dkey=value
+        loadProperties(defaultProperties, this.javaSystemProperty);
 
         // root path
         saveAgentRootPath(agentRootPath, defaultProperties);
@@ -106,7 +127,7 @@ class ProfilePropertyLoader implements PropertyLoader {
     private String getActiveProfile(Properties defaultProperties) {
 //        env option support??
 //        String envProfile = System.getenv(ACTIVE_PROFILE_KEY);
-        String profile = systemProperty.getProperty(Profiles.ACTIVE_PROFILE_KEY);
+        String profile = javaSystemProperty.getProperty(Profiles.ACTIVE_PROFILE_KEY);
         if (profile == null) {
             profile = defaultProperties.getProperty(Profiles.ACTIVE_PROFILE_KEY, Profiles.DEFAULT_ACTIVE_PROFILE);
         }
@@ -134,11 +155,11 @@ class ProfilePropertyLoader implements PropertyLoader {
         }
     }
 
-    private void loadSystemProperties(Properties dstProperties) {
-        Set<String> stringPropertyNames = this.systemProperty.stringPropertyNames();
+    private void loadProperties(Properties dstProperties, SimpleProperty property) {
+        Set<String> stringPropertyNames = property.stringPropertyNames();
         for (String propertyName : stringPropertyNames) {
             if (isAllowPinpointProperty(propertyName)) {
-                String val = this.systemProperty.getProperty(propertyName);
+                String val = property.getProperty(propertyName);
                 dstProperties.setProperty(propertyName, val);
             }
         }

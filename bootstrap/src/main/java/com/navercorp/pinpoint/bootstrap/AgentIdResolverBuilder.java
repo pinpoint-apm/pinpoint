@@ -36,6 +36,14 @@ public class AgentIdResolverBuilder {
                 AgentIdResolver.AGENT_ID_SYSTEM_PROPERTY, AgentIdResolver.APPLICATION_NAME_SYSTEM_PROPERTY);
         this.agentProperties.add(systemProperties);
     }
+    
+    public void addEnvProperties(Map<String, String> env) {
+        Assert.requireNonNull(env, "env");
+
+        AgentProperties envProperties = new AgentProperties(AgentIdSourceType.SYSTEM_ENV, env,
+                AgentIdResolver.AGENT_ID_ENV_PROPERTY, AgentIdResolver.APPLICATION_NAME_ENV_PROPERTY);
+        this.agentProperties.add(envProperties);
+    }
 
     public void addAgentArgument(Map<String, String> agentArguments) {
         Assert.requireNonNull(agentArguments, "agentArguments");

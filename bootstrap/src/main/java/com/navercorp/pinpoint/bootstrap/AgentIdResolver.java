@@ -34,6 +34,10 @@ public class AgentIdResolver {
     public static final String SYSTEM_PROPERTY_PREFIX = "pinpoint.";
     public static final String APPLICATION_NAME_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "applicationName";
     public static final String AGENT_ID_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "agentId";
+    
+    public static final String ENV_PROPERTY_PREFIX = "PINPOINT_";
+    public static final String APPLICATION_NAME_ENV_PROPERTY = ENV_PROPERTY_PREFIX + "APPLICATION_NAME";
+    public static final String AGENT_ID_ENV_PROPERTY = ENV_PROPERTY_PREFIX + "AGENT_ID";
 
     private final BootLogger logger = BootLogger.getLogger(this.getClass());
 
