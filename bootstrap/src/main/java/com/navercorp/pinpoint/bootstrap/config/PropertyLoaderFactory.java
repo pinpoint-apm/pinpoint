@@ -24,7 +24,9 @@ import com.navercorp.pinpoint.common.util.SimpleProperty;
  */
 public class PropertyLoaderFactory {
 
-    private final SimpleProperty systemProperty;
+    private final SimpleProperty javaSystemProperty;
+    private final SimpleProperty osEnvProperty;
+
     private final String agentRootPath;
 
     // @Optional
@@ -32,8 +34,10 @@ public class PropertyLoaderFactory {
     // @Optional
     private final String[] supportedProfiles;
 
-    public PropertyLoaderFactory(SimpleProperty systemProperty, String agentRootPath, String profilesPath, String[] supportedProfiles) {
-        this.systemProperty = Assert.requireNonNull(systemProperty, "systemProperty");
+    public PropertyLoaderFactory(SimpleProperty javaSystemProperty, SimpleProperty osEnvProperty,
+                                 String agentRootPath, String profilesPath, String[] supportedProfiles) {
+        this.javaSystemProperty = Assert.requireNonNull(javaSystemProperty, "javaSystemProperty");
+        this.osEnvProperty = com.navercorp.pinpoint.common.util.Assert.requireNonNull(osEnvProperty, "osEnvProperty");
         this.agentRootPath = Assert.requireNonNull(agentRootPath, "agentRootPath");
         this.profilesPath = Assert.requireNonNull(profilesPath, "profilesPath");
         this.supportedProfiles = Assert.requireNonNull(supportedProfiles, "supportedProfiles");
@@ -41,15 +45,15 @@ public class PropertyLoaderFactory {
 
     public PropertyLoader newPropertyLoader() {
         if (isSimpleMode()) {
-            return new SimplePropertyLoader(systemProperty, agentRootPath, profilesPath);
+            return new SimplePropertyLoader(javaSystemProperty, agentRootPath, profilesPath);
         }
-        return new ProfilePropertyLoader(systemProperty, agentRootPath, profilesPath, supportedProfiles);
+        return new ProfilePropertyLoader(javaSystemProperty, osEnvProperty, agentRootPath, profilesPath, supportedProfiles);
     }
 
 
 
     private boolean isSimpleMode() {
-        final String mode = systemProperty.getProperty(Profiles.CONFIG_LOAD_MODE_KEY, Profiles.CONFIG_LOAD_MODE.PROFILE.toString());
+        final String mode = javaSystemProperty.getProperty(Profiles.CONFIG_LOAD_MODE_KEY, Profiles.CONFIG_LOAD_MODE.PROFILE.toString());
         return Profiles.CONFIG_LOAD_MODE.SIMPLE.toString().equalsIgnoreCase(mode);
     }
 }

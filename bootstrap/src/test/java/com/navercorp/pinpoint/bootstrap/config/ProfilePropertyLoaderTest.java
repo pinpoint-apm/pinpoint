@@ -38,7 +38,7 @@ public class ProfilePropertyLoaderTest {
 
         properties.setProperty("pinpoint.test", "a");
         File root = folder.getRoot();
-        ProfilePropertyLoader loader = new ProfilePropertyLoader(properties, root.getPath(), "test", new String[]{"test"});
+        ProfilePropertyLoader loader = new ProfilePropertyLoader(properties, properties, root.getPath(), "test", new String[]{"test"});
         Assert.assertTrue(loader.isAllowPinpointProperty("pinpoint.test"));
 
         Assert.assertFalse(loader.isAllowPinpointProperty("unknown.test"));
