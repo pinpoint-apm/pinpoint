@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.BaseUDPHandlerFactory;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.NetworkAvailabilityCheckPacketFilter;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.PacketHandlerFactory;
-import com.navercorp.pinpoint.collector.receiver.thrift.udp.ReusePortSocketOptionHolder;
+import com.navercorp.pinpoint.collector.receiver.thrift.udp.ReusePortSocketOptionApplier;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.TBaseFilter;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.TBaseFilterChain;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.UDPReceiver;
@@ -90,12 +90,9 @@ public class UDPReceiverBean implements InitializingBean, DisposableBean, BeanNa
         ObjectPoolFactory<DatagramPacket> packetFactory = new DatagramPacketFactory();
         ObjectPool<DatagramPacket> pool = new DefaultObjectPool<>(packetFactory, datagramPoolSize);
 
-        if (reusePort) {
-            ReusePortSocketOptionHolder reusePortSocketOption = ReusePortSocketOptionHolder.create(socketCount);
-            return new UDPReceiver(name, packetHandlerFactory, executor, udpBufferSize, bindAddress, reusePortSocketOption, pool);
-        } else {
-            return new UDPReceiver(name, packetHandlerFactory, executor, udpBufferSize, bindAddress, pool);
-        }
+
+        ReusePortSocketOptionApplier reusePortSocketOption = ReusePortSocketOptionApplier.create(reusePort, socketCount);
+        return new UDPReceiver(name, packetHandlerFactory, executor, udpBufferSize, bindAddress, reusePortSocketOption, pool);
     }
 
     private TBaseFilterChain newTBaseFilterChain() {

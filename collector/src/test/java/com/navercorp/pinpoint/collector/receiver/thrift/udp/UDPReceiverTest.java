@@ -74,7 +74,8 @@ public class UDPReceiverTest {
         try {
             ObjectPoolFactory<DatagramPacket> packetFactory = new DatagramPacketFactory();
             ObjectPool<DatagramPacket> pool = new DefaultObjectPool<>(packetFactory, 10);
-            receiver = new UDPReceiver("test", packetHandlerFactory, executor, 8, bindAddress, pool);
+            ReusePortSocketOptionApplier socketOptionApplier = ReusePortSocketOptionApplier.create(false, 1);
+            receiver = new UDPReceiver("test", packetHandlerFactory, executor, 8, bindAddress, socketOptionApplier, pool);
         } catch (Exception e) {
             logger.debug(e.getMessage(), e);
             Assert.fail(e.getMessage());
@@ -136,7 +137,8 @@ public class UDPReceiverTest {
             InetSocketAddress bindAddress = new InetSocketAddress(ADDRESS, PORT);
             ObjectPoolFactory<DatagramPacket> packetFactory = new DatagramPacketFactory();
             ObjectPool<DatagramPacket> pool = new DefaultObjectPool<>(packetFactory, 10);
-            receiver = new UDPReceiver("test", packetHandlerFactory, mockExecutor, 8, bindAddress, pool) {
+            ReusePortSocketOptionApplier socketOptionApplier = ReusePortSocketOptionApplier.create(false, 1);
+            receiver = new UDPReceiver("test", packetHandlerFactory, mockExecutor, 8, bindAddress, socketOptionApplier, pool) {
                 @Override
                 boolean validatePacket(DatagramPacket packet) {
                     interceptValidatePacket(packet);
