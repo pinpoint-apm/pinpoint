@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.service.command;
 
 import com.navercorp.pinpoint.collector.cluster.AgentInfo;
-import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
 import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
@@ -122,11 +121,13 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
             @Override
             public void onError(Throwable t) {
+                unregisterPinpointGrpcServer(transportId);
                 handleOnError(t, pinpointGrpcServer, agentInfo);
             }
 
             @Override
             public void onCompleted() {
+                unregisterPinpointGrpcServer(transportId);
                 handleOnCompleted(pinpointGrpcServer, agentInfo);
             }
 
@@ -176,11 +177,13 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
             @Override
             public void onError(Throwable t) {
+                unregisterPinpointGrpcServer(transportId);
                 handleOnError(t, pinpointGrpcServer, agentInfo);
             }
 
             @Override
             public void onCompleted() {
+                unregisterPinpointGrpcServer(transportId);
                 handleOnCompleted(pinpointGrpcServer, agentInfo);
             }
 
@@ -196,6 +199,10 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         } else {
             return null;
         }
+    }
+
+    private void unregisterPinpointGrpcServer(Long transportId) {
+        grpcServerRepository.unregister(transportId);
     }
 
     private PinpointGrpcServer createPinpointGrpcServer(StreamObserver<PCmdRequest> requestObserver, AgentInfo agentInfo) {
