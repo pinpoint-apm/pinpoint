@@ -118,8 +118,6 @@ public class PinpointGrpcServer {
             } else if (SocketStateCode.isClosed(socketStateCode)) {
                 GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(this, Collections.emptyList());
                 profilerClusterManager.unregister(grpcAgentConnection);
-            } else {
-                logger.info("Unexpected socketStateCode.  agent:{}, socketStateCode{}", agentInfo, socketStateCode);
             }
         } else {
             logger.warn("Failed to change state. agent:{}, result:{}", agentInfo, result);
