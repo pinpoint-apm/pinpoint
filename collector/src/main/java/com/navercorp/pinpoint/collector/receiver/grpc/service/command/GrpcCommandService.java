@@ -103,6 +103,13 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
                     logger.info("{} => local. ready() transportId:{}", agentInfo.getAgentKey(), transportId);
                     pinpointGrpcServer.connected();
                 }
+
+                pinpointGrpcServer.setOnCloseHandler(new Runnable() {
+                    @Override
+                    public void run() {
+                        unregisterPinpointGrpcServer(transportId);
+                    }
+                });
             }
         });
 
@@ -121,16 +128,13 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
             @Override
             public void onError(Throwable t) {
-                unregisterPinpointGrpcServer(transportId);
                 handleOnError(t, pinpointGrpcServer, agentInfo);
             }
 
             @Override
             public void onCompleted() {
-                unregisterPinpointGrpcServer(transportId);
                 handleOnCompleted(pinpointGrpcServer, agentInfo);
             }
-
         };
         return responseObserver;
     }
@@ -141,7 +145,6 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         final AgentInfo agentInfo = getAgentInfo();
 
         final List<Integer> supportCommandCodeList = getSupportCommandCodeList();
-
         logger.info("{} => local. handleCommandV2(). transportId:{}, supportCommandCodeList{}", agentInfo, transportId, supportCommandCodeList);
 
         if (supportCommandCodeList == Header.SUPPORT_COMMAND_CODE_LIST_NOT_EXIST) {
@@ -149,7 +152,6 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
             requestObserver.onError(new StatusException(Status.INVALID_ARGUMENT));
             return DisabledStreamObserver.DISABLED_INSTANCE;
         }
-
         final PinpointGrpcServer pinpointGrpcServer = registerNewPinpointGrpcServer(requestObserver, agentInfo, transportId);
         if (pinpointGrpcServer == null) {
             return handleServerRegistrationFailed(requestObserver, agentInfo, transportId);
@@ -163,6 +165,13 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
                     pinpointGrpcServer.connected();
                     registerAgentCommandList(pinpointGrpcServer, supportCommandCodeList);
                 }
+
+                pinpointGrpcServer.setOnCloseHandler(new Runnable() {
+                    @Override
+                    public void run() {
+                        unregisterPinpointGrpcServer(transportId);
+                    }
+                });
             }
         });
 
@@ -177,13 +186,11 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
             @Override
             public void onError(Throwable t) {
-                unregisterPinpointGrpcServer(transportId);
                 handleOnError(t, pinpointGrpcServer, agentInfo);
             }
 
             @Override
             public void onCompleted() {
-                unregisterPinpointGrpcServer(transportId);
                 handleOnCompleted(pinpointGrpcServer, agentInfo);
             }
 
