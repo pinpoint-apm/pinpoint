@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
-import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import reactor.netty.http.HttpOperations;
+import reactor.netty.channel.ChannelOperations;
+import reactor.netty.http.HttpInfos;
 import reactor.netty.http.client.HttpClientRequest;
 
 import java.net.InetSocketAddress;
@@ -37,18 +37,9 @@ public class HttpClientRequestWrapper implements ClientRequestWrapper {
 
     @Override
     public String getDestinationId() {
-        if (request instanceof HttpOperations) {
-            try {
-                final HttpOperations httpOperations = (HttpOperations) request;
-                final InetSocketAddress inetSocketAddress = httpOperations.address();
-                if (inetSocketAddress != null) {
-                    final String hostName = SocketAddressUtils.getHostNameFirst(inetSocketAddress);
-                    if (hostName != null) {
-                        return HostAndPort.toHostAndPortString(hostName, inetSocketAddress.getPort());
-                    }
-                }
-            } catch (Exception ignored) {
-            }
+        final String remoteHost = toRemoteHost();
+        if (remoteHost != null) {
+            return remoteHost;
         }
 
         return "UNKNOWN";
@@ -56,24 +47,39 @@ public class HttpClientRequestWrapper implements ClientRequestWrapper {
 
     @Override
     public String getUrl() {
-        if (request instanceof HttpOperations) {
-            try {
+        final String remoteHost = toRemoteHost();
+        if (remoteHost != null) {
+            final String uri = toUri();
+            if (uri != null) {
+                return remoteHost + uri;
+            }
+        }
+
+        return remoteHost;
+    }
+
+    private String toRemoteHost() {
+        try {
+            final ChannelOperations channelOperations = (ChannelOperations) request;
+            final InetSocketAddress inetSocketAddress = (InetSocketAddress) channelOperations.channel().remoteAddress();
+            if (inetSocketAddress != null) {
                 final StringBuilder sb = new StringBuilder();
-                final HttpOperations httpOperations = (HttpOperations) request;
-                final InetSocketAddress inetSocketAddress = httpOperations.address();
-                if (inetSocketAddress != null) {
-                    final String hostName = SocketAddressUtils.getHostNameFirst(inetSocketAddress);
-                    if (hostName != null) {
-                        sb.append(hostName).append(":").append(inetSocketAddress.getPort());
-                    }
-                }
-                final String uri = httpOperations.uri();
-                if (uri != null) {
-                    sb.append(uri);
+                final String hostName = SocketAddressUtils.getHostNameFirst(inetSocketAddress);
+                if (hostName != null) {
+                    sb.append(hostName).append(":").append(inetSocketAddress.getPort());
                 }
                 return sb.toString();
-            } catch (Exception ignored) {
             }
+        } catch (Exception ignored) {
+        }
+
+        return null;
+    }
+
+    private String toUri() {
+        if (request instanceof HttpInfos) {
+            final String uri = ((HttpInfos) request).uri();
+            return uri;
         }
 
         return null;
