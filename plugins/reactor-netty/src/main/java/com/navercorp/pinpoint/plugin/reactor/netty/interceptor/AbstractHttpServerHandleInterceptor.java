@@ -102,7 +102,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
         }
 
         try {
-            if (!isReceived(args)) {
+            if (Boolean.FALSE == isReceived(args)) {
                 // invalid args
                 return;
             }
@@ -144,7 +144,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
         }
 
         try {
-            if (!isReceived(args)) {
+            if (Boolean.FALSE == isReceived(args)) {
                 return;
             }
             final HttpServerRequest request = (HttpServerRequest) args[0];
