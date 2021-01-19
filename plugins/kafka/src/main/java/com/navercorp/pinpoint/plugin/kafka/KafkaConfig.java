@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 public class KafkaConfig {
 
+    public static final String HEADER_ENABLE = "profiler.kafka.header.enable";
+
     static final String PRODUCER_ENABLE = "profiler.kafka.producer.enable";
 
     static final String CONSUMER_ENABLE = "profiler.kafka.consumer.enable";
