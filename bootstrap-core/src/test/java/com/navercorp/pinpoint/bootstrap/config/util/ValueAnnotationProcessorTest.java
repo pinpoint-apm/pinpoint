@@ -123,17 +123,22 @@ public class ValueAnnotationProcessorTest {
 
         Properties properties = new Properties();
 
-        properties.setProperty("prefix.a", "A");
+        properties.setProperty("prefix", "p");
+        properties.setProperty("a", "A");
+        properties.setProperty("b", "B");
 
-        ValueAnnotationProcessor reader = new ValueAnnotationProcessor(new PlaceHolderResolver(properties), "prefix.");
+        ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
         reader.process(config, properties);
 
-        Assert.assertEquals("A", config.a);
+        Assert.assertEquals("p-A", config.a);
+        Assert.assertEquals("prefix-B", config.b);
     }
 
     public static class PrefixConfig {
-        @Value("${a}")
+        @Value("${prefix}-${a}")
         private String a;
+        @Value("prefix-${b}")
+        private String b;
 
     }
 
@@ -145,7 +150,7 @@ public class ValueAnnotationProcessorTest {
 
         properties.setProperty("a", "A");
 
-        ValueAnnotationProcessor reader = new ValueAnnotationProcessor(new PlaceHolderResolver(properties));
+        ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
         reader.process(config, properties);
 
         Assert.assertEquals("A", config.a);

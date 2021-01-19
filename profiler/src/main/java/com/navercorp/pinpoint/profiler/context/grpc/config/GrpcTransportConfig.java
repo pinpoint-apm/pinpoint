@@ -17,10 +17,9 @@
 package com.navercorp.pinpoint.profiler.context.grpc.config;
 
 import com.navercorp.pinpoint.bootstrap.config.Value;
-import com.navercorp.pinpoint.bootstrap.config.util.PlaceHolderResolver;
 import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
-import com.navercorp.pinpoint.bootstrap.config.util.ValueResolver;
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
+import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 
 import java.util.Properties;
@@ -132,8 +131,7 @@ public class GrpcTransportConfig {
 
 
     public void read(Properties properties) {
-        ValueResolver placeHolderResolver = new PlaceHolderResolver(properties);
-        ValueAnnotationProcessor reader = new ValueAnnotationProcessor(placeHolderResolver);
+        ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
         reader.process(this, properties);
 
 
@@ -168,9 +166,14 @@ public class GrpcTransportConfig {
     private ClientOption readClientOption(final Properties properties, final String transportName) {
         final ClientOption clientOption = new ClientOption();
 
-        final ValueResolver placeHolderResolver = new PlaceHolderResolver(properties);
-        ValueAnnotationProcessor reader = new ValueAnnotationProcessor(placeHolderResolver, transportName);
-        reader.process(clientOption, properties);
+        ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
+        reader.process(clientOption, new PropertyPlaceholderHelper.PlaceholderResolver() {
+            @Override
+            public String resolvePlaceholder(String placeholderName) {
+                String prefix = transportName + placeholderName;
+                return properties.getProperty(prefix);
+            }
+        });
         return clientOption;
     }
 
