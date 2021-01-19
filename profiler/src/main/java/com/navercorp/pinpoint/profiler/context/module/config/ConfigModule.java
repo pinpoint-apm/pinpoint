@@ -139,8 +139,7 @@ public class ConfigModule extends AbstractModule {
         InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = new InstrumentMatcherCacheConfig();
 
         Properties properties = config.getProperties();
-        final ValueResolver instrumentMatcherResolver = new PlaceHolderResolver(properties);
-        ValueAnnotationProcessor instrumentProcessor = new ValueAnnotationProcessor(instrumentMatcherResolver);
+        ValueAnnotationProcessor instrumentProcessor = new ValueAnnotationProcessor();
         instrumentProcessor.process(instrumentProcessor, properties);
 
         logger.info("{}", instrumentMatcherCacheConfig);

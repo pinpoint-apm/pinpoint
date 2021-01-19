@@ -16,10 +16,8 @@
 
 package com.navercorp.pinpoint.tools.network.grpc;
 
-import com.navercorp.pinpoint.bootstrap.config.util.PlaceHolderResolver;
 import com.navercorp.pinpoint.bootstrap.config.Value;
 import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
-import com.navercorp.pinpoint.bootstrap.config.util.ValueResolver;
 
 import java.util.Properties;
 
@@ -54,8 +52,7 @@ public class GrpcTransportConfig {
     private int spanCollectorPort = DEFAULT_SPAN_COLLECTOR_PORT;
 
     public void read(Properties properties) {
-        final ValueResolver placeHolderResolver = new PlaceHolderResolver(properties);
-        final ValueAnnotationProcessor reader = new ValueAnnotationProcessor(placeHolderResolver);
+        final ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
         reader.process(this, properties);
     }
 

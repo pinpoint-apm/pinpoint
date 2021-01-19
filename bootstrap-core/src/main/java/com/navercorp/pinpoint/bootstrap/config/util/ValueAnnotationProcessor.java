@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.bootstrap.config.util;
 
 import com.navercorp.pinpoint.bootstrap.config.ConfigurationException;
 import com.navercorp.pinpoint.bootstrap.config.Value;
+import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
 import com.navercorp.pinpoint.common.util.ModifierUtils;
 
 import java.lang.reflect.AccessibleObject;
@@ -19,9 +20,8 @@ import java.util.Properties;
 public class ValueAnnotationProcessor {
     private final static Map<Class<?>, ParameterParser> parameterMap = newFieldInjectorMap();
 
-    private final ValueResolver valueResolver;
-    private final String prefix;
-    private final PlaceHolderParser placeHolderParser = new PlaceHolderParser();
+    private final PropertyPlaceholderHelper placeHolderParser =
+        new PropertyPlaceholderHelper(PlaceHolder.START, PlaceHolder.END, PlaceHolder.DELIMITER, false);
 
     private static Map<Class<?>, ParameterParser> newFieldInjectorMap() {
         Map<Class<?>, ParameterParser> map = new IdentityHashMap<>();
@@ -49,22 +49,22 @@ public class ValueAnnotationProcessor {
     }
 
     public ValueAnnotationProcessor() {
-        this(null, null);
     }
 
-    public ValueAnnotationProcessor(ValueResolver valueResolver) {
-        this(valueResolver, null);
-    }
-
-    public ValueAnnotationProcessor(ValueResolver valueResolver, String prefix) {
-        this.valueResolver = valueResolver;
-        this.prefix = prefix;
-    }
-
-
-    public void process(Object instance, Properties properties) throws ConfigurationException {
+    public void process(Object instance, final Properties properties) throws ConfigurationException {
         Objects.requireNonNull(instance, "instance");
         Objects.requireNonNull(properties, "properties");
+        PropertyPlaceholderHelper.PlaceholderResolver placeholderResolver = new PropertyPlaceholderHelper.PlaceholderResolver() {
+            public String resolvePlaceholder(String placeholderName) {
+                return properties.getProperty(placeholderName);
+            }
+        };
+        process(instance, placeholderResolver);
+    }
+
+    public void process(Object instance, final PropertyPlaceholderHelper.PlaceholderResolver placeholderResolver) throws ConfigurationException {
+        Objects.requireNonNull(instance, "instance");
+        Objects.requireNonNull(placeholderResolver, "placeholderResolver");
 
         final Class<?> aClass = instance.getClass();
 
@@ -72,15 +72,14 @@ public class ValueAnnotationProcessor {
         if (!packageName.startsWith("com.navercorp.pinpoint")) {
             throw new IllegalAccessError("Access violation package:" + packageName);
         }
-
-        handleFields(aClass, instance, properties);
-        handleMethods(aClass, instance, properties);
+        handleFields(aClass, instance, placeholderResolver);
+        handleMethods(aClass, instance, placeholderResolver);
 
     }
 
-    private void handleFields(Class<?> aClass, Object instance, Properties properties) {
+    private void handleFields(Class<?> aClass, Object instance, PropertyPlaceholderHelper.PlaceholderResolver placeholderResolver) {
         for (Field field : aClass.getDeclaredFields()) {
-            final String value = getValue(field, properties);
+            final String value = getValue(field, placeholderResolver);
             if (value != null) {
                 injectField(field, instance, value);
             }
@@ -88,9 +87,9 @@ public class ValueAnnotationProcessor {
         }
     }
 
-    private void handleMethods(Class<?> aClass, Object instance, Properties properties) {
+    private void handleMethods(Class<?> aClass, Object instance, PropertyPlaceholderHelper.PlaceholderResolver placeholderResolver) {
         for (Method method : filterMethod(aClass)) {
-            final String value = getValue(method, properties);
+            final String value = getValue(method, placeholderResolver);
             if (value != null) {
                 injectMethod(method, instance, value);
             }
@@ -98,31 +97,17 @@ public class ValueAnnotationProcessor {
         }
     }
 
-    private String getValue(AccessibleObject accessibleObject, Properties properties) {
-        final String rawKey = getValueFromAnnotation(accessibleObject);
+    private String getValue(AccessibleObject accessibleObject, final PropertyPlaceholderHelper.PlaceholderResolver placeholderResolver) {
+        String rawKey = getValueFromAnnotation(accessibleObject);
         if (rawKey == null) {
             return null;
         }
 
-        final PlaceHolder placeHolder = this.placeHolderParser.parse(rawKey);
-        if (placeHolder == null) {
-            // TODO placeholder not exist
-            return rawKey;
+        try {
+            return this.placeHolderParser.replacePlaceholders(rawKey, placeholderResolver);
+        } catch (IllegalArgumentException e) {
+            return null;
         }
-        String key = prefix(placeHolder.getKey());
-        String value = properties.getProperty(key);
-        if (value == null) {
-            if (placeHolder.getDefaultValue() == null) {
-//                    throw new UnsupportedOperationException("value is null. key:" + placeHolder.getKey());
-                return null;
-            } else {
-                value = placeHolder.getDefaultValue();
-            }
-        }
-        if (valueResolver != null) {
-            value = valueResolver.resolve(key, value);
-        }
-        return value;
     }
 
     private List<Method> filterMethod(Class<?> clazz) {
@@ -162,13 +147,6 @@ public class ValueAnnotationProcessor {
             return true;
         }
         return false;
-    }
-
-    private String prefix(String key) {
-        if (prefix == null) {
-            return key;
-        }
-        return prefix + key;
     }
 
 

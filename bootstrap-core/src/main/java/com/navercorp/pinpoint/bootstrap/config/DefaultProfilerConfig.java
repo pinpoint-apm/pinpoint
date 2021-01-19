@@ -508,8 +508,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     // for test
     void readPropertyValues() {
-        final ValueResolver placeHolderResolver = new PlaceHolderResolver(properties);
-        ValueAnnotationProcessor processor = new ValueAnnotationProcessor(placeHolderResolver);
+        ValueAnnotationProcessor processor = new ValueAnnotationProcessor();
         processor.process(this, properties);
 
         logger.info("configuration loaded successfully.");

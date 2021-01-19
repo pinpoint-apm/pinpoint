@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.bootstrap.config.util;
 public class PlaceHolder {
     public static final String START = "${";
     public static final String END = "}";
-    public static final char DELIMITER = ':';
+    public static final String DELIMITER = ":";
 
     private final String key;
     private final String defaultValue;
