@@ -175,7 +175,7 @@ public class SpringSmtpMailSenderTest {
     
         when(agentCheckerMock.getEmailMessage()).thenReturn(EMAIL_MESSAGE);
         when(agentCheckerMock.getUserGroupId()).thenReturn(USER_GROUP_ID);
-        when(agentCheckerMock.getRule()).thenReturn(new Rule("test-app", "tomcat", "HeapUsageRateChecker", 1, USER_GROUP_ID, true, true, "notes"));
+        when(agentCheckerMock.getRule()).thenReturn(new Rule("test-app", "tomcat", "HeapUsageRateChecker", 1, USER_GROUP_ID, true, true, true, "notes"));
         when(agentCheckerMock.getDetectedAgents()).thenReturn(detectedAgents);
         
         return agentCheckerMock;
@@ -186,7 +186,7 @@ public class SpringSmtpMailSenderTest {
         
         when(alarmCheckerMock.getEmailMessage()).thenReturn(EMAIL_MESSAGE);
         when(alarmCheckerMock.getUserGroupId()).thenReturn(USER_GROUP_ID);
-        when(alarmCheckerMock.getRule()).thenReturn(new Rule("test-app", "tomcat", "ErrorCountChecker", 1, USER_GROUP_ID, true, true, "notes"));
+        when(alarmCheckerMock.getRule()).thenReturn(new Rule("test-app", "tomcat", "ErrorCountChecker", 1, USER_GROUP_ID, true, true, true, "notes"));
         
         return alarmCheckerMock;
     }

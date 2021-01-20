@@ -91,7 +91,14 @@ public class UserServiceImpl implements UserService {
         User user = userDao.selectUserByUserId(userId);
         return userInfoDecoder.decodeUserInfo(user);
     }
-
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> selectUserByUserGroupId(String userGroupId) {
+        List<User> userList = userDao.selectUserByUserGroupId(userGroupId);
+        return userInfoDecoder.decodeUserInfoList(userList);
+    }
+    
     @Override
     @Transactional(readOnly = true)
     public List<User> selectUserByUserName(String userName) {

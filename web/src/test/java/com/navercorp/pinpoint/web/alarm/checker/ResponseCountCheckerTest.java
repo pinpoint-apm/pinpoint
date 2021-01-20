@@ -83,7 +83,7 @@ public class ResponseCountCheckerTest {
     public void checkTest1() {
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
-        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.TOTAL_COUNT.getName(), 125, "testGroup", false, false, "");
+        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.TOTAL_COUNT.getName(), 125, "testGroup", false, false, false, "");
         ResponseCountChecker filter = new ResponseCountChecker(collector, rule);
     
         filter.check();
@@ -97,7 +97,7 @@ public class ResponseCountCheckerTest {
     public void checkTest2() {
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.TOTAL_COUNT.getName(), 126, "testGroup", false, false, "");
+        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.TOTAL_COUNT.getName(), 126, "testGroup", false, false, false, "");
         ResponseCountChecker filter = new ResponseCountChecker(collector, rule);
     
         filter.check();
