@@ -40,7 +40,7 @@ public class AlarmWriterTest {
     @Ignore
     @Test
     public void smsSendTest() throws Exception {
-        Rule rule = new Rule("testService", "tomcat", CheckerCategory.SLOW_COUNT.getName(), 100, "testGroup", true, false, "");
+        Rule rule = new Rule("testService", "tomcat", CheckerCategory.SLOW_COUNT.getName(), 100, "testGroup", true, false, false, "");
         SlowCountChecker checker = new SlowCountChecker(null, rule) {
             @Override
             public boolean isDetected() {
@@ -61,7 +61,7 @@ public class AlarmWriterTest {
     @Ignore
     @Test
     public void emailSendTest() throws Exception {
-        Rule rule = new Rule("testService", "tomcat", CheckerCategory.SLOW_COUNT.getName(), 100, "testGroup", false, true, "");
+        Rule rule = new Rule("testService", "tomcat", CheckerCategory.SLOW_COUNT.getName(), 100, "testGroup", false, true, false, "");
         SlowCountChecker checker = new SlowCountChecker(null, rule) {
             @Override
             public boolean isDetected() {

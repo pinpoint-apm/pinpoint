@@ -87,7 +87,7 @@ public class ErrorRateToCalleCheckerTest {
     public void checkTest() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(FROM_SERVICE_NAME, SERVICE_TYPE, CheckerCategory.ERROR_RATE_TO_CALLEE.getName(), 50, "testGroup", false, false, TO_SERVICE_NAME + 1);
+        Rule rule = new Rule(FROM_SERVICE_NAME, SERVICE_TYPE, CheckerCategory.ERROR_RATE_TO_CALLEE.getName(), 50, "testGroup", false, false, false, TO_SERVICE_NAME + 1);
         ErrorRateToCalleeChecker checker = new ErrorRateToCalleeChecker(dataCollector, rule);
         
         checker.check();
@@ -98,7 +98,7 @@ public class ErrorRateToCalleCheckerTest {
     public void checkTest2() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(FROM_SERVICE_NAME, SERVICE_TYPE, CheckerCategory.ERROR_RATE_TO_CALLEE.getName(), 51, "testGroup", false, false, TO_SERVICE_NAME + 1);
+        Rule rule = new Rule(FROM_SERVICE_NAME, SERVICE_TYPE, CheckerCategory.ERROR_RATE_TO_CALLEE.getName(), 51, "testGroup", false, false, false, TO_SERVICE_NAME + 1);
         ErrorRateToCalleeChecker checker = new ErrorRateToCalleeChecker(dataCollector, rule);
         
         checker.check();
@@ -109,7 +109,7 @@ public class ErrorRateToCalleCheckerTest {
     public void checkTest3() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(FROM_SERVICE_NAME, SERVICE_TYPE, CheckerCategory.ERROR_RATE_TO_CALLEE.getName(), 50, "testGroup", false, false, TO_SERVICE_NAME + 2);
+        Rule rule = new Rule(FROM_SERVICE_NAME, SERVICE_TYPE, CheckerCategory.ERROR_RATE_TO_CALLEE.getName(), 50, "testGroup", false, false, false, TO_SERVICE_NAME + 2);
         ErrorRateToCalleeChecker checker = new ErrorRateToCalleeChecker(dataCollector, rule);
         
         checker.check();

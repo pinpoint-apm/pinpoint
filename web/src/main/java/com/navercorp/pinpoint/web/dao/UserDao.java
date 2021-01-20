@@ -42,6 +42,8 @@ public interface UserDao {
 
     List<User> searchUser(String condition);
 
+    List<User> selectUserByUserGroupId(String userGroupId);
+    
     void updateUser(User user);
 
     boolean isExistUserId(String userId);

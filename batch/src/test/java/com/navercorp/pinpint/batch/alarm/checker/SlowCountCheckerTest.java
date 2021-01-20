@@ -81,7 +81,7 @@ public class SlowCountCheckerTest {
     public void checkTest1() {
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.SLOW_COUNT.getName(), 74, "testGroup", false, false, "");
+        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.SLOW_COUNT.getName(), 74, "testGroup", false, false, false, "");
         SlowCountChecker checker = new SlowCountChecker(collector, rule);
     
         checker.check();
@@ -95,7 +95,7 @@ public class SlowCountCheckerTest {
     public void checkTest2() {
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.SLOW_COUNT.getName(), 76, "testGroup", false, false, "");
+        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.SLOW_COUNT.getName(), 76, "testGroup", false, false, false, "");
         SlowCountChecker checker = new SlowCountChecker(collector, rule);
     
         checker.check();

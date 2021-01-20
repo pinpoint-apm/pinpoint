@@ -90,6 +90,9 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
             if (checker.isEmailSend()) {
                 alarmMessageSender.sendEmail(checker, beforeCheckerResult.getSequenceCount() + 1, stepExecution);
             }
+            if (checker.isWebhookSend()) {
+                alarmMessageSender.sendWebhook(checker, beforeCheckerResult.getSequenceCount() + 1, stepExecution);
+            }
         }
 
     }
