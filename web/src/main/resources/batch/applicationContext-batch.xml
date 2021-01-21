@@ -9,6 +9,10 @@
        xsi:schemaLocation="http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <!--
+        batch was run in the background of pinpoint-web server until v2.2.0 From v2.2.1 it will be dealt with in pinpoint-batch server.
+        Since the batch logic(code) in pinpoint-web will be deprecated in the future, we advice you to transfer the execution of batch to pinpoint-batch server.
+    -->
     <bean id="batchJobLauncher" class="com.navercorp.pinpoint.web.batch.BatchJobLauncher"/>
 
     <bean id="jobLauncher"

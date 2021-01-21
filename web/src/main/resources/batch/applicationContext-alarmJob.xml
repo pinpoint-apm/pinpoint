@@ -11,6 +11,10 @@
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
+    <!--
+        batch was run in the background of pinpoint-web server until v2.2.0 From v2.2.1 it will be dealt with in pinpoint-batch server.
+        Since the batch logic(code) in pinpoint-web will be deprecated in the future, we advice you to transfer the execution of batch to pinpoint-batch server.
+    -->
     <context:component-scan base-package="com.navercorp.pinpoint.web.alarm"/>
 
     <batch:job id="alarmJob">

@@ -21,6 +21,7 @@ import org.apache.ibatis.type.Alias;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 @Alias(value = "alarmEmp")
 public class AlarmEmp {
     

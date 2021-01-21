@@ -23,6 +23,7 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public interface AlarmWriterInterceptor {
 
     void before(List<? extends AlarmChecker> checkers);

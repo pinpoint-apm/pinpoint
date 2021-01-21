@@ -24,6 +24,7 @@ import java.util.Map;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class JvmCpuUsageRateChecker extends AgentChecker<Long> {
     
     public JvmCpuUsageRateChecker(AgentStatDataCollector dataCollector, Rule rule) {

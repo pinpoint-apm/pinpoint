@@ -27,6 +27,7 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 public class AgentCountProcessor implements ItemProcessor<ApplicationAgentsList, AgentCountStatistics> {
 
     @Override

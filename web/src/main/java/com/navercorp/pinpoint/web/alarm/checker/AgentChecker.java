@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public abstract class AgentChecker<T> extends AlarmChecker<T> {
     
     protected final Map<String, T> detectedAgents = new HashMap<>();

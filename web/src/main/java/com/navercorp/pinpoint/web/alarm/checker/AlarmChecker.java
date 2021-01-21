@@ -30,6 +30,7 @@ import java.util.Objects;
  * @author koo.taejin
  * @author minwoo.jung
  */
+@Deprecated
 public abstract class AlarmChecker<T> {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());

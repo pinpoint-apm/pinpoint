@@ -32,6 +32,7 @@ import javax.annotation.PostConstruct;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 public class CleanupInactiveAgentsTasklet implements Tasklet {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

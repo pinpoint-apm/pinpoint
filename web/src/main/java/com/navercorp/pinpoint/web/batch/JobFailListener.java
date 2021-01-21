@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author minwoo.jung<minwoo.jung@navercorp.com>
  */
+@Deprecated
 public class JobFailListener implements JobExecutionListener {
 
     @Autowired(required = false)

@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 public class DataSourceDataCollector extends DataCollector {
 
     private final Application application;

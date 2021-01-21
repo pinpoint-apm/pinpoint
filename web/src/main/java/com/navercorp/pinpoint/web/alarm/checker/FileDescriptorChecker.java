@@ -23,6 +23,7 @@ import java.util.Map;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class FileDescriptorChecker extends AgentChecker<Long> {
 
     public FileDescriptorChecker(FileDescriptorDataCollector dataCollector, Rule rule) {

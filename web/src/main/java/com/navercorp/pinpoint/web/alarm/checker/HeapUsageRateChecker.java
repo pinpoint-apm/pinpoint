@@ -24,6 +24,7 @@ import java.util.Map;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class HeapUsageRateChecker extends AgentChecker<Long> {
     
     public HeapUsageRateChecker(AgentStatDataCollector dataCollector, Rule rule) {

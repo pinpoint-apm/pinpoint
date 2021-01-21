@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class MapStatisticsCallerDataCollector extends DataCollector {
 
     private final Application application;

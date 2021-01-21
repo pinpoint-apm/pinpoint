@@ -20,6 +20,7 @@ import org.springframework.batch.core.JobExecution;
 /**
  * @author minwoo.jung<minwoo.jung@navercorp.com>
  */
+@Deprecated
 public interface JobFailMessageSender {
     void sendSMS(JobExecution jobExecution);
 

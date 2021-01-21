@@ -32,6 +32,7 @@ import java.util.Objects;
  * @author minwoo.jung<minwoo.jung@navercorp.com>
  *
  */
+@Deprecated
 public class JobLaunchSupport implements InitializingBean {
 
     @Autowired

@@ -33,6 +33,7 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class SpringSmtpMailSender implements MailSender {
 
     private static final InternetAddress[] EMPTY_RECEIVERS = new InternetAddress[0];

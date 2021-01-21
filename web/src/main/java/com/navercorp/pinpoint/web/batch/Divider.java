@@ -22,6 +22,7 @@ import java.util.Map;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public interface Divider {
     Map<String,ExecutionContext> divide(String partitionNamePrefix, String batchName);
 }

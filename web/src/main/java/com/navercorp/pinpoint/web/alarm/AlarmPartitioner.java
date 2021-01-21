@@ -31,6 +31,7 @@ import java.util.Optional;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class AlarmPartitioner implements Partitioner {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

@@ -23,6 +23,7 @@ import java.util.Map;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class DefaultDivider implements Divider {
     @Override
     public Map<String, ExecutionContext> divide(String partitionNamePrefix, String batchName) {

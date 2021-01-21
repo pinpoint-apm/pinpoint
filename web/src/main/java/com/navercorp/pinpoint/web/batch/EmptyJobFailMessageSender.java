@@ -20,6 +20,7 @@ import org.springframework.batch.core.JobExecution;
 /**
  * @author minwoo.jung<minwoo.jung @ navercorp.com>
  */
+@Deprecated
 public class EmptyJobFailMessageSender implements JobFailMessageSender {
 
     @Override
