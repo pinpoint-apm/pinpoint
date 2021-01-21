@@ -23,6 +23,7 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class DefaultAlarmWriterInterceptor implements AlarmWriterInterceptor {
     @Override
     public void before(List<? extends AlarmChecker> checkers) {

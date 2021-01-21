@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class ResponseCountChecker extends LongValueAlarmChecker {
     
     public ResponseCountChecker(ResponseTimeDataCollector dataCollector, Rule rule) {

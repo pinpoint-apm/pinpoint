@@ -29,6 +29,7 @@ import java.util.Map;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class AgentCountPartitioner implements Partitioner {
     private static final String PARTITION_NAME_PREFIX = "agent_count_partition_number_";
     private static final String BATCH_NAME = "agent_count_batch";

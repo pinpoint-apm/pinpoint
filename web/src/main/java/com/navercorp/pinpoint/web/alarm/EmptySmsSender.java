@@ -23,6 +23,7 @@ import org.springframework.batch.core.StepExecution;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class EmptySmsSender implements SmsSender {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

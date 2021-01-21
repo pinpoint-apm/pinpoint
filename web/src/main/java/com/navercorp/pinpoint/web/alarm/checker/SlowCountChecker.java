@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class SlowCountChecker extends LongValueAlarmChecker {
 
     public SlowCountChecker(ResponseTimeDataCollector dataCollector, Rule rule) {

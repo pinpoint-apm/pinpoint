@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCatego
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public abstract class DataCollector {
     
     protected final DataCollectorCategory dataCollectorCategory;

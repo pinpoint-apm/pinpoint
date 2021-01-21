@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class TotalCountToCalleeChecker extends LongValueAlarmChecker {
 
     public TotalCountToCalleeChecker(MapStatisticsCallerDataCollector dataCollector, Rule rule) {

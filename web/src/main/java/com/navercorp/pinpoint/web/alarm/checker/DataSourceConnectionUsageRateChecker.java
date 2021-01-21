@@ -27,6 +27,7 @@ import java.util.Map;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 public class DataSourceConnectionUsageRateChecker extends AgentChecker<List<DataSourceAlarmVO>> {
 
     public DataSourceConnectionUsageRateChecker(DataSourceDataCollector dataSourceDataCollector, Rule rule) {

@@ -28,6 +28,7 @@ import java.util.Date;
 /**
  * @author minwoo.jung<minwoo.jung@navercorp.com>
  */
+@Deprecated
 public class BatchJobLauncher extends JobLaunchSupport {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

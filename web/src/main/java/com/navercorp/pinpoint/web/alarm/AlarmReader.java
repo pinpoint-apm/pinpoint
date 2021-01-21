@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListener {
     
     private final DataCollectorFactory dataCollectorFactory;

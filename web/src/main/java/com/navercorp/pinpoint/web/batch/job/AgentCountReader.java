@@ -34,6 +34,7 @@ import java.util.Queue;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 public class AgentCountReader implements ItemReader<ApplicationAgentsList>, StepExecutionListener {
 
     @Autowired

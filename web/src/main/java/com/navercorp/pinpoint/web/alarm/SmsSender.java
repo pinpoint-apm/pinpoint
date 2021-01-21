@@ -21,6 +21,7 @@ import org.springframework.batch.core.StepExecution;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public interface SmsSender {
     void sendSms(AlarmChecker checker, int sequenceCount, StepExecution stepExecution);
 }
