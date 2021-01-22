@@ -60,6 +60,12 @@ public class TableDescriptorConfig extends TableDescriptors {
 
     @Bean
     @Override
+    public TableDescriptor<HbaseColumnFamily.AgentUriStatStatistics> getAgentUriStatStatus() {
+        return super.getAgentUriStatStatus();
+    }
+
+    @Bean
+    @Override
     public TableDescriptor<HbaseColumnFamily.ApiMetadata> getApiMetadata() {
         return super.getApiMetadata();
     }

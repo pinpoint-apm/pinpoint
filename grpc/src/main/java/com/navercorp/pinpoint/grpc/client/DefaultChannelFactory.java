@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.ChannelTypeEnum;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
+import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
@@ -100,7 +101,8 @@ public class DefaultChannelFactory implements ChannelFactory {
 
     private ChannelType getChannelType() {
         ChannelTypeFactory factory = new ChannelTypeFactory();
-        return factory.newChannelType(clientOption.getChannelTypeEnum());
+        ChannelTypeEnum channelTypeEnum = clientOption.getChannelTypeEnum();
+        return factory.newChannelType(channelTypeEnum);
     }
 
 
@@ -144,15 +146,20 @@ public class DefaultChannelFactory implements ChannelFactory {
         }
         setupClientOption(channelBuilder);
 
+        channelBuilder.maxTraceEvents(clientOption.getMaxTraceEvent());
+
         final ManagedChannel channel = channelBuilder.build();
 
         return channel;
     }
 
     private void setupInternal(NettyChannelBuilder channelBuilder) {
-        InternalNettyChannelBuilder.setStatsEnabled(channelBuilder, false);
         InternalNettyChannelBuilder.setTracingEnabled(channelBuilder, false);
+
+        InternalNettyChannelBuilder.setStatsEnabled(channelBuilder, false);
         InternalNettyChannelBuilder.setStatsRecordStartedRpcs(channelBuilder, false);
+        InternalNettyChannelBuilder.setStatsRecordFinishedRpcs(channelBuilder, false);
+        InternalNettyChannelBuilder.setStatsRecordRealTimeMetrics(channelBuilder, false);
     }
 
     private void addHeader(NettyChannelBuilder channelBuilder) {

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
-import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.test.plugin.util.StringUtils;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 

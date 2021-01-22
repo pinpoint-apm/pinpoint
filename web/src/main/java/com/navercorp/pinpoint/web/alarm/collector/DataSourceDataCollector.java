@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 public class DataSourceDataCollector extends DataCollector {
 
     private final Application application;
@@ -101,7 +102,7 @@ public class DataSourceDataCollector extends DataCollector {
             for (DataSourceBo dataSourceBo : dataSourceBos) {
                 int id = dataSourceBo.getId();
 
-                if (dataSourceBo.getMaxConnectionSize() <= 0 || dataSourceBo.getActiveConnectionSize() <= 0) {
+                if (dataSourceBo.getMaxConnectionSize() <= 0 || dataSourceBo.getActiveConnectionSize() < 0) {
                     continue;
                 }
 

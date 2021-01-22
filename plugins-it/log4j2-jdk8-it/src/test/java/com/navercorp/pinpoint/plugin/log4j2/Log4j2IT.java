@@ -27,9 +27,10 @@ import org.junit.runner.RunWith;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-spring-bean-test.config")
-@JvmVersion(7)
+@JvmVersion(8)
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-log4j2-plugin"})
 @Dependency({"org.apache.logging.log4j:log4j-core:[2.0,2.13)"})
+//@Dependency({"org.apache.logging.log4j:log4j-core:[2.9.0]"})
 public class Log4j2IT {
 
     @Test

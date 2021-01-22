@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.bootstrap;
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
 import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
+import com.navercorp.pinpoint.bootstrap.agentdir.LogDirCleaner;
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
@@ -24,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.PropertyLoader;
 import com.navercorp.pinpoint.bootstrap.config.PropertyLoaderFactory;
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.util.OsEnvSimpleProperty;
 import com.navercorp.pinpoint.common.util.PropertySnapshot;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -113,8 +115,10 @@ class PinpointStarter {
 
             // set the path of log file as a system property
             saveAgentIdForLog(agentIds);
-            saveLogFilePath(agentDirectory);
+            saveLogFilePath(agentDirectory.getAgentLogFilePath());
             savePinpointVersion();
+
+            cleanLogDir(agentDirectory.getAgentLogFilePath(), profilerConfig);
 
             // this is the library list that must be loaded
             URL[] urls = resolveLib(agentDirectory);
@@ -129,7 +133,8 @@ class PinpointStarter {
             logger.info(String.format("pinpoint agent [%s] starting...", bootClass));
 
             final List<String> pluginJars = agentDirectory.getPlugins();
-            AgentOption option = createAgentOption(agentId, applicationName, isContainer, profilerConfig, instrumentation, pluginJars, agentDirectory);
+            AgentOption option = createAgentOption(agentId, applicationName, isContainer, profilerConfig,
+                    instrumentation, pluginJars, agentDirectory);
             Agent pinpointAgent = agentBootLoader.boot(option);
             pinpointAgent.start();
             pinpointAgent.registerStopHandler();
@@ -143,9 +148,17 @@ class PinpointStarter {
         return true;
     }
 
+    private void cleanLogDir(String agentLogFilePath, ProfilerConfig config) {
+        final int logDirMaxBackupSize = config.getLogDirMaxBackupSize();
+        logger.info("Log directory maxbackupsize=" + logDirMaxBackupSize);
+        LogDirCleaner logDirCleaner = new LogDirCleaner(agentLogFilePath, logDirMaxBackupSize);
+        logDirCleaner.clean();
+    }
+
     private AgentIds resolveAgentIds() {
         AgentIdResolverBuilder builder = new AgentIdResolverBuilder();
         builder.addAgentArgument(agentArgs);
+        builder.addEnvProperties(System.getenv());
         builder.addSystemProperties(System.getProperties());
         AgentIdResolver agentIdResolver = builder.build();
         return agentIdResolver.resolve();
@@ -156,10 +169,15 @@ class PinpointStarter {
         final String agentDirPath = agentDirectory.getAgentDirPath();
         final String profilesPath = agentDirectory.getProfilesPath();
         final String[] profileDirs = agentDirectory.getProfileDirs();
-        final SimpleProperty systemProperty = copySystemProperty();
-        final PropertyLoaderFactory factory = new PropertyLoaderFactory(systemProperty, agentDirPath, profilesPath, profileDirs);
+
+        final SimpleProperty javaSystemProperty = copyJavaSystemProperty();
+        final SimpleProperty osEnvProperty = copyOSEnvVariables();
+
+        final PropertyLoaderFactory factory = new PropertyLoaderFactory(javaSystemProperty, osEnvProperty,
+                agentDirPath, profilesPath, profileDirs);
         final PropertyLoader loader = factory.newPropertyLoader();
         final Properties properties = loader.load();
+
         if (this.agentType == AgentType.PLUGIN_TEST) {
             properties.put(DefaultProfilerConfig.PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE, "true");
         }
@@ -169,8 +187,12 @@ class PinpointStarter {
         return properties;
     }
 
-    private SimpleProperty copySystemProperty() {
+    private SimpleProperty copyJavaSystemProperty() {
         return new PropertySnapshot(System.getProperties());
+    }
+
+    private SimpleProperty copyOSEnvVariables() {
+        return new OsEnvSimpleProperty(System.getenv());
     }
 
 
@@ -178,11 +200,13 @@ class PinpointStarter {
         if (System.getSecurityManager() != null) {
             return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
                 public ClassLoader run() {
-                    return PinpointClassLoaderFactory.createClassLoader(name, urls, parentClassLoader, ProfilerLibs.PINPOINT_PROFILER_CLASS);
+                    return PinpointClassLoaderFactory.createClassLoader(name, urls, parentClassLoader,
+                            ProfilerLibs.PINPOINT_PROFILER_CLASS);
                 }
             });
         } else {
-            return PinpointClassLoaderFactory.createClassLoader(name, urls, parentClassLoader, ProfilerLibs.PINPOINT_PROFILER_CLASS);
+            return PinpointClassLoaderFactory.createClassLoader(name, urls, parentClassLoader,
+                    ProfilerLibs.PINPOINT_PROFILER_CLASS);
         }
     }
 
@@ -225,8 +249,7 @@ class PinpointStarter {
         systemProperty.setProperty(AgentIdResolver.AGENT_ID_SYSTEM_PROPERTY, agentIds.getAgentId());
     }
 
-    private void saveLogFilePath(AgentDirectory agentDirectory) {
-        String agentLogFilePath = agentDirectory.getAgentLogFilePath();
+    private void saveLogFilePath(String agentLogFilePath) {
         logger.info("logPath:" + agentLogFilePath);
         systemProperty.setProperty(ProductInfo.NAME + ".log", agentLogFilePath);
     }
@@ -254,7 +277,8 @@ class PinpointStarter {
 
         return libUrlList.toArray(new URL[0]);
     }
-    private static String PINPIONT_PREFIX = "pinpoint-";
+
+    private static String PINPOINT_PREFIX = "pinpoint-";
 
     private List<URL> resolveLib(List<URL> urlList) {
         if (DEFAULT_AGENT.equalsIgnoreCase(getAgentType())) {
@@ -275,7 +299,7 @@ class PinpointStarter {
             if (fileName == null) {
                 continue;
             }
-            if (fileName.startsWith(PINPIONT_PREFIX)) {
+            if (fileName.startsWith(PINPOINT_PREFIX)) {
                 orderList.add(url);
             }
         }
@@ -284,7 +308,7 @@ class PinpointStarter {
             if (fileName == null) {
                 continue;
             }
-            if (!fileName.startsWith(PINPIONT_PREFIX)) {
+            if (!fileName.startsWith(PINPOINT_PREFIX)) {
                 orderList.add(url);
             }
         }

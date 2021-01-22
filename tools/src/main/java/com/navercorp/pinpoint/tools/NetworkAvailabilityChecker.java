@@ -18,20 +18,23 @@ package com.navercorp.pinpoint.tools;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
+import com.navercorp.pinpoint.common.util.PropertyUtils;
+
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
 import com.navercorp.pinpoint.tools.network.NetworkChecker;
 import com.navercorp.pinpoint.tools.network.TCPChecker;
 import com.navercorp.pinpoint.tools.network.UDPChecker;
-import com.navercorp.pinpoint.tools.network.grpcTransportConfig.GrpcTransportConfig;
+import com.navercorp.pinpoint.tools.network.grpc.GrpcTransportConfig;
+import com.navercorp.pinpoint.tools.network.thrift.ThriftTransportConfig;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Properties;
 
 /**
  * @author netspider
@@ -48,9 +51,11 @@ public class NetworkAvailabilityChecker {
 
         String configPath = args[0];
 
+        Properties properties = null;
         ProfilerConfig profilerConfig = null;
         try {
-            profilerConfig = DefaultProfilerConfig.load(configPath);
+            properties = PropertyUtils.loadProperty(configPath);
+            profilerConfig = new DefaultProfilerConfig(properties);
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -61,7 +66,7 @@ public class NetworkAvailabilityChecker {
             System.out.println("Transport Module set to GRPC");
 
             GrpcTransportConfig grpcTransportConfig = new GrpcTransportConfig();
-            grpcTransportConfig.read(profilerConfig);
+            grpcTransportConfig.read(properties);
 
             try {
                 checkGRPCBase(grpcTransportConfig);
@@ -90,8 +95,8 @@ public class NetworkAvailabilityChecker {
         } else {
 
             System.out.println("Transport Module set to THRIFT");
-
-            ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
+            ThriftTransportConfig thriftTransportConfig = new ThriftTransportConfig();
+            thriftTransportConfig.read(properties);
             try {
                 checkUDPStat(thriftTransportConfig);
             } catch (Exception e) {

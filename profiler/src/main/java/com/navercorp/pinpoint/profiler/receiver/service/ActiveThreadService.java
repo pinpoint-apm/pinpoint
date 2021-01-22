@@ -19,8 +19,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.context.thrift.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandService;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceGroup;
@@ -35,10 +34,9 @@ public class ActiveThreadService implements ProfilerCommandServiceGroup {
 
     private final List<ProfilerCommandService> serviceList;
 
-    public ActiveThreadService(ProfilerConfig profilerConfig, ActiveTraceRepository activeTraceRepository) {
+    public ActiveThreadService(ThriftTransportConfig thriftTransportConfig, ActiveTraceRepository activeTraceRepository) {
         serviceList = new ArrayList<ProfilerCommandService>();
 
-        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
         if (!thriftTransportConfig.isTcpDataSenderCommandActiveThreadEnable()) {
             return;
         }

@@ -27,6 +27,7 @@ import java.util.Set;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class AlarmMailTemplate {
 
     private static final String LINE_FEED = "<br>";

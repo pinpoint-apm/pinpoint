@@ -85,6 +85,9 @@
     <bean id="collectorMetric" class="com.navercorp.pinpoint.collector.monitor.CollectorMetric">
     </bean>
 
+    <bean id="channelzRegistry" class="com.navercorp.pinpoint.collector.receiver.grpc.channelz.DefaultChannelzRegistry">
+    </bean>
+
     <!-- Manager-related Beans -->
     <bean id="jmxCollectorManager" class="com.navercorp.pinpoint.collector.manage.jmx.JMXCollectorManager">
     </bean>
@@ -259,9 +262,9 @@
     </bean>
 
     <bean id="abortPolicy" class="java.util.concurrent.ThreadPoolExecutor.AbortPolicy"/>
-    <bean id="discardPolicy" class="java.util.concurrent.ThreadPoolExecutor.DiscardPolicy"/>
+<!--    <bean id="discardPolicy" class="java.util.concurrent.ThreadPoolExecutor.DiscardPolicy"/>-->
     <bean id="abstractReceiverExecutorFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" abstract="true">
-        <property name="rejectedExecutionHandler" ref="discardPolicy"/>
+        <property name="rejectedExecutionHandler" ref="abortPolicy"/>
         <property name="daemon" value="true"/>
         <property name="waitForTasksToCompleteOnShutdown" value="true"/>
         <property name="awaitTerminationSeconds" value="10"/>

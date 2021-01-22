@@ -83,6 +83,9 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
             if (tableNameProvider != null && tableNameProvider.hasDefaultNameSpace()) {
                 logger.info("warmup for hbase connection started");
                 for (HbaseTable hBaseTable : HbaseTable.values()) {
+                    if (!hBaseTable.isMustIncluded()) {
+                        continue;
+                    }
                     try {
                         TableName tableName = tableNameProvider.getTableName(hBaseTable);
                         RegionLocator regionLocator = connection.getRegionLocator(tableName);

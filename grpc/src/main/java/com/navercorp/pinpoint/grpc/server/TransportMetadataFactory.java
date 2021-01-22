@@ -42,9 +42,20 @@ public class TransportMetadataFactory {
             // Unauthenticated
             throw Status.INTERNAL.withDescription("RemoteSocketAddress is null").asRuntimeException();
         }
+        final InetSocketAddress localSocketAddress = (InetSocketAddress) attributes.get(Grpc.TRANSPORT_ATTR_LOCAL_ADDR);
+        if (localSocketAddress == null) {
+            // Unauthenticated
+            throw Status.INTERNAL.withDescription("LocalSocketAddress is null").asRuntimeException();
+        }
+
         final long transportId = idGenerator.getAndIncrement();
         final long connectedTime = System.currentTimeMillis();
-        return new DefaultTransportMetadata(debugString, remoteSocketAddress, transportId, connectedTime);
+
+        final Long logId = attributes.get(MetadataServerTransportFilter.LOG_ID);
+        if (logId == null) {
+            throw Status.INTERNAL.withDescription("LogId not found").asRuntimeException();
+        }
+        return new DefaultTransportMetadata(debugString, remoteSocketAddress, localSocketAddress, transportId, connectedTime, logId);
     }
 
     @Override

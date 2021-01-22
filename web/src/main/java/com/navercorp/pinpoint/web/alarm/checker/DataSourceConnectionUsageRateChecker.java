@@ -27,6 +27,7 @@ import java.util.Map;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 public class DataSourceConnectionUsageRateChecker extends AgentChecker<List<DataSourceAlarmVO>> {
 
     public DataSourceConnectionUsageRateChecker(DataSourceDataCollector dataSourceDataCollector, Rule rule) {
@@ -57,6 +58,7 @@ public class DataSourceConnectionUsageRateChecker extends AgentChecker<List<Data
         return ((DataSourceDataCollector) dataCollector).getDataSourceConnectionUsageRate();
     }
 
+    @Override
     public List<String> getSmsMessage() {
         List<String> messages = new LinkedList<>();
 

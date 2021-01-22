@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public abstract class AgentChecker<T> extends AlarmChecker<T> {
     
     protected final Map<String, T> detectedAgents = new HashMap<>();
@@ -57,6 +58,7 @@ public abstract class AgentChecker<T> extends AlarmChecker<T> {
         throw new UnsupportedOperationException(this.getClass() + "is not support getDetectedValue function. you should use getAgentValues");
     }
 
+    @Override
     public List<String> getSmsMessage() {
         List<String> messages = new LinkedList<>();
         

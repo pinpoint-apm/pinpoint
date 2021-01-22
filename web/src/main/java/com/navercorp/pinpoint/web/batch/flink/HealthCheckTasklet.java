@@ -33,6 +33,7 @@ import java.util.*;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class HealthCheckTasklet implements Tasklet {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

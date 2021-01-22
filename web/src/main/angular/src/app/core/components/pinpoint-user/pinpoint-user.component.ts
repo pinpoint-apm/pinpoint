@@ -13,6 +13,7 @@ export class PinpointUserComponent implements OnInit {
     @Output() outRemove = new EventEmitter<string>();
     @Output() outAddUser = new EventEmitter<string>();
     @Output() outEditUser = new EventEmitter<string>();
+    @Output() outCheckUser = new EventEmitter<string>();
 
     private removeConformId = '';
 
@@ -28,6 +29,10 @@ export class PinpointUserComponent implements OnInit {
 
     onAddUser(): void {
         this.outAddUser.emit(this.pinpointUser.userId);
+    }
+
+    onCheckUser(): void {
+        this.outCheckUser.emit(this.pinpointUser.userId);
     }
 
     onCancelRemove(): void {

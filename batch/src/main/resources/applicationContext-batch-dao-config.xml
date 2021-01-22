@@ -25,7 +25,7 @@
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
         <!-- mybatis basic config -->
-        <property name="configLocation" value="classpath:/mybatis-config.xml"/>
+        <property name="configLocation" value="classpath:/batch-mybatis-config.xml"/>
         <!-- typeAliases -->
         <property name="typeAliasesPackage" value="com.navercorp.pinpoint.web.alarm.vo" />
         <!-- setting the location of mapper -->

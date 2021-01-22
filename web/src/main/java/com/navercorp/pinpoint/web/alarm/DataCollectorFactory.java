@@ -34,6 +34,7 @@ import org.springframework.stereotype.Component;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 @Component
 public class DataCollectorFactory {
 

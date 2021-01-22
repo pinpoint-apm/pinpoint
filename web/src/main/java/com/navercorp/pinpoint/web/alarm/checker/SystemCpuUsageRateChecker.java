@@ -23,6 +23,7 @@ import java.util.Map;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class SystemCpuUsageRateChecker extends AgentChecker<Long> {
 
     public SystemCpuUsageRateChecker(AgentStatDataCollector dataCollector, Rule rule) {

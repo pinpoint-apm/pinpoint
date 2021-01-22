@@ -1,5 +1,5 @@
 <input type="checkbox" class="l-checkbox-input" id="userInfo" [disabled]="!isEnabledUser()" [checked]="isChecked" (change)="onAddUser()">
-<label class="l-userinfo-label" for="userInfo">
+<label class="l-userinfo-label" (click)="onCheckUser()">
     <ng-container *ngIf="pinpointUser.department">({{pinpointUser.department}})</ng-container>
      {{pinpointUser.name}}
 </label>

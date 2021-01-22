@@ -16,10 +16,12 @@
 
 package com.navercorp.pinpoint.plugin.kafka.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.plugin.kafka.KafkaConfig;
 import com.navercorp.pinpoint.plugin.kafka.field.getter.ApiVersionsGetter;
 
 import org.apache.kafka.clients.ApiVersions;
@@ -40,9 +42,11 @@ import static org.mockito.Mockito.doReturn;
 @RunWith(MockitoJUnitRunner.class)
 public class ProducerAddHeaderInterceptorTest {
 
-
     @Mock
     private TraceContext traceContext;
+
+    @Mock
+    private ProfilerConfig profilerConfig;
 
     @Mock
     private Trace trace;
@@ -64,6 +68,22 @@ public class ProducerAddHeaderInterceptorTest {
 
     @Test
     public void beforeWhenSampled() {
+        doReturn(profilerConfig).when(traceContext).getProfilerConfig();
+        doReturn(true).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
+        Header[] headers = getHeadersWhenSampled();
+        Assert.assertEquals(6, headers.length);
+    }
+
+    @Test
+    public void beforeWhenSampledNoHeader() {
+        doReturn(profilerConfig).when(traceContext).getProfilerConfig();
+        doReturn(false).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
+
+        Header[] headers = getHeadersWhenSampled();
+        Assert.assertEquals(0, headers.length);
+    }
+
+    private Header[] getHeadersWhenSampled() {
         doReturn(trace).when(traceContext).currentRawTraceObject();
         doReturn(true).when(trace).canSampled();
         doReturn(traceId).when(trace).getTraceId();
@@ -74,8 +94,8 @@ public class ProducerAddHeaderInterceptorTest {
         doReturn(RecordBatch.MAGIC_VALUE_V2).when(apiVersions).maxUsableProduceMagic();
 
         doReturn("test").when(nextId).getTransactionId();
-        doReturn(0l).when(nextId).getSpanId();
-        doReturn(0l).when(nextId).getParentSpanId();
+        doReturn(0L).when(nextId).getSpanId();
+        doReturn(0L).when(nextId).getParentSpanId();
 
         short s = 0;
         doReturn(s).when(nextId).getFlags();
@@ -86,12 +106,13 @@ public class ProducerAddHeaderInterceptorTest {
         Object[] args = new Object[]{recordHeader};
         interceptor.before(apiVersionsGetter, args);
 
-        Header[] headers = recordHeader.toArray();
-        Assert.assertEquals(6, headers.length);
+        return recordHeader.toArray();
     }
 
     @Test
     public void beforeWhenUnsampled() {
+        doReturn(profilerConfig).when(traceContext).getProfilerConfig();
+        doReturn(true).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
         doReturn(trace).when(traceContext).currentRawTraceObject();
         doReturn(false).when(trace).canSampled();
         doReturn(recorder).when(trace).currentSpanEventRecorder();
@@ -111,6 +132,8 @@ public class ProducerAddHeaderInterceptorTest {
 
     @Test
     public void beforeWhenV1() {
+        doReturn(profilerConfig).when(traceContext).getProfilerConfig();
+        doReturn(true).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
         doReturn(trace).when(traceContext).currentRawTraceObject();
 
         doReturn(apiVersions).when(apiVersionsGetter)._$PINPOINT$_getApiVersions();

@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.web.service.AlarmService;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class AlarmWriter implements ItemWriter<AlarmChecker> {
 
     private final AlarmMessageSender alarmMessageSender;

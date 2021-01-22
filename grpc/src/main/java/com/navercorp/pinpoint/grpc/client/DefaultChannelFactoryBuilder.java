@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.grpc.client;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
 import org.slf4j.Logger;

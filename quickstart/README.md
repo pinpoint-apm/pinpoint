@@ -28,14 +28,14 @@ $ ./bin/hbase shell hbase-create.hbase
 Download, and Start Collector - [3. Pinpoint Collector](https://pinpoint-apm.github.io/pinpoint/installation.html#3-pinpoint-collector)
 
 ~~~
-$ java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-collector-boot-2.2.0.jar
+$ java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-collector-boot-2.2.1.jar
 ~~~
 
 ### Pinpoint Web
 Download, and Start Web - [4. Pinpoint Web](https://pinpoint-apm.github.io/pinpoint/installation.html#4-pinpoint-web)
 
 ~~~
-$ java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-web-boot-2.2.0.jar
+$ java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-web-boot-2.2.1.jar
 ~~~
 
 ## Java Agent
@@ -50,12 +50,12 @@ Download Pinpoint from [Latest Release](https://github.com/pinpoint-apm/pinpoint
 
 Extract the downloaded file.
 ~~~
-$ tar xvzf pinpoint-agent-2.2.0.tar.gz
+$ tar xvzf pinpoint-agent-2.2.1.tar.gz
 ~~~
 
 Run the JAR file, as follows:
 ~~~
-$ java -jar -javaagent:pinpoint-agent-2.2.0/pinpoint-bootstrap.jar -Dpinpoint.agentId=test-agent -Dpinpoint.applicationName=TESTAPP pinpoint-quickstart-testapp-2.2.0.jar
+$ java -jar -javaagent:pinpoint-agent-2.2.1/pinpoint-bootstrap.jar -Dpinpoint.agentId=test-agent -Dpinpoint.applicationName=TESTAPP pinpoint-quickstart-testapp-2.2.1.jar
 ~~~
 
 ### When Building Manually
@@ -77,7 +77,7 @@ $ ./mvnw clean package
 Change to the pinpoint directory, and run.
 ~~~
 $ cd ../../
-$ java -jar -javaagent:agent/target/pinpoint-agent-2.2.0/pinpoint-bootstrap.jar -Dpinpoint.agentId=test-agent -Dpinpoint.applicationName=TESTAPP quickstart/testapp/target/pinpoint-quickstart-testapp-2.2.0.jar
+$ java -jar -javaagent:agent/target/pinpoint-agent-2.2.1/pinpoint-bootstrap.jar -Dpinpoint.agentId=test-agent -Dpinpoint.applicationName=TESTAPP quickstart/testapp/target/pinpoint-quickstart-testapp-2.2.1.jar
 ~~~
 
 ### Get Started

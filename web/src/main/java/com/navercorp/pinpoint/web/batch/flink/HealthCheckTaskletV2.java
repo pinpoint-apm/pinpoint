@@ -36,6 +36,7 @@ import java.util.Map;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class HealthCheckTaskletV2 implements Tasklet {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

@@ -21,6 +21,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -33,7 +34,8 @@ public class ReflectionDependencyResolverTest {
 
     @Test
     public void get() throws Exception {
-        List<File> files = ReflectionDependencyResolver.get("org.slf4j:slf4j-api:1.7.21");
+        ReflectionDependencyResolver dependencyResolver = new ReflectionDependencyResolver(Thread.currentThread().getContextClassLoader());
+        List<File> files = dependencyResolver.lookup(Arrays.asList("org.slf4j:slf4j-api:1.7.21"));
         Assert.assertEquals(files.size(), 1);
     }
 }

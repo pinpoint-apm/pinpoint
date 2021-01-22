@@ -17,10 +17,11 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
+import com.navercorp.pinpoint.web.vo.stat.SampledJvmGcDetailed;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
-import com.navercorp.pinpoint.web.vo.stat.SampledJvmGcDetailed;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -92,27 +93,13 @@ public class JvmGcDetailedSampler implements AgentStatSampler<JvmGcDetailedBo, S
         if (values.isEmpty()) {
             return SampledJvmGcDetailed.UNCOLLECTED_VALUE_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
-
-        return new AgentStatPoint<>(
-                timestamp,
-                LONG_DOWN_SAMPLER.sampleMin(values),
-                LONG_DOWN_SAMPLER.sampleMax(values),
-                LONG_DOWN_SAMPLER.sampleAvg(values, 0),
-                LONG_DOWN_SAMPLER.sampleSum(values));
-
+        return new AgentStatPoint<>(timestamp, values, LONG_DOWN_SAMPLER);
     }
 
     private AgentStatPoint<Double> createDoublePoint(long timestamp, List<Double> values) {
         if (values.isEmpty()) {
             return SampledJvmGcDetailed.UNCOLLECTED_PERCENTAGE_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
-
-        return new AgentStatPoint<>(
-                timestamp,
-                DOUBLE_DOWN_SAMPLER.sampleMin(values),
-                DOUBLE_DOWN_SAMPLER.sampleMax(values),
-                DOUBLE_DOWN_SAMPLER.sampleAvg(values),
-                DOUBLE_DOWN_SAMPLER.sampleSum(values));
-
+        return new AgentStatPoint<>(timestamp, values, DOUBLE_DOWN_SAMPLER);
     }
 }

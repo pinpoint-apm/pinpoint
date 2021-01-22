@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.bootstrap.config.util.ValueResolver;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 
@@ -32,11 +33,11 @@ public interface ProfilerConfig {
 
 //    String[] getOptionalProfiles();
 
+    Properties getProperties();
+    
     int getInterceptorRegistrySize();
 
     TransportModule getTransportModule();
-
-    ThriftTransportConfig getThriftTransportConfig();
 
     List<String> getAllowJdkClassName();
 
@@ -108,8 +109,6 @@ public interface ProfilerConfig {
 
     boolean isInstrumentMatcherEnable();
 
-    InstrumentMatcherCacheConfig getInstrumentMatcherCacheConfig();
-
     boolean isProxyHttpHeaderEnable();
 
     HttpStatusCodeErrors getHttpStatusCodeErrors();
@@ -124,7 +123,7 @@ public interface ProfilerConfig {
 
     boolean isUriStatEnable();
 
-    int getUriStatCollectInterval();
+    int getCompletedUriStatDataLimitSize();
 
     String readString(String propertyName, String defaultValue);
 
@@ -142,8 +141,6 @@ public interface ProfilerConfig {
 
     Map<String, String> readPattern(String propertyNamePatternRegex);
 
-    interface ValueResolver {
-        String resolve(String value, Properties properties);
-    }
+    int getLogDirMaxBackupSize();
 
 }

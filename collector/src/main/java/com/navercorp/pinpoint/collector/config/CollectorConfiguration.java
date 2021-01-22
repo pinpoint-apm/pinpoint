@@ -69,6 +69,10 @@ public class CollectorConfiguration {
     @Value("${cluster.listen.port:-1}")
     private int clusterListenPort;
 
+
+    @Value("${collector.stat.uri:false}")
+    private boolean uriStatEnable;
+
     public int getAgentEventWorkerThreadSize() {
         return this.agentEventWorkerThreadSize;
     }
@@ -150,10 +154,18 @@ public class CollectorConfiguration {
         this.clusterListenPort = clusterListenPort;
     }
 
+    public boolean isUriStatEnable() {
+        return uriStatEnable;
+    }
+
+    public void setUriStatEnable(boolean uriStatEnable) {
+        this.uriStatEnable = uriStatEnable;
+    }
+
     @PostConstruct
     public void log() {
         logger.info("{}", this);
-        AnnotationVisitor visitor = new AnnotationVisitor(Value.class);
+        AnnotationVisitor<Value> visitor = new AnnotationVisitor<>(Value.class);
         visitor.visit(this, new LoggingEvent(logger));
     }
 
@@ -171,6 +183,7 @@ public class CollectorConfiguration {
         sb.append(", clusterSessionTimeout=").append(clusterSessionTimeout);
         sb.append(", clusterListenIp='").append(clusterListenIp).append('\'');
         sb.append(", clusterListenPort=").append(clusterListenPort);
+        sb.append(", uriStatEnable=").append(uriStatEnable);
         sb.append('}');
         return sb.toString();
     }

@@ -21,6 +21,7 @@ package com.navercorp.pinpoint.bootstrap;
  */
 public enum AgentIdSourceType {
     SYSTEM("SystemProperties(-D)"),
+    SYSTEM_ENV("EnvironmentVariable"),
     AGENT_ARGUMENT("AgentArgument");
 
     private final String desc;

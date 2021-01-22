@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
+import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 
 /**
@@ -26,12 +27,7 @@ public class SampledDataSource implements SampledAgentStatDataPoint {
 
     public static final Integer UNCOLLECTED_VALUE = -1;
     public static final String UNCOLLECTED_STRING = null;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Integer>> UNCOLLECTED_POINT_CREATOR = new Point.UncollectedPointCreator<AgentStatPoint<Integer>>() {
-        @Override
-        public AgentStatPoint<Integer> createUnCollectedPoint(long xVal) {
-            return new AgentStatPoint<>(xVal, UNCOLLECTED_VALUE);
-        }
-    };
+    public static final Point.UncollectedPointCreator<AgentStatPoint<Integer>> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createIntPointCreator(UNCOLLECTED_VALUE);
 
     private int id;
     private short serviceTypeCode;

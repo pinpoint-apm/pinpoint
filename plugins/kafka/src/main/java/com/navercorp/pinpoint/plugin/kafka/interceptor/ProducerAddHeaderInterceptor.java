@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.plugin.kafka.KafkaConfig;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.field.getter.ApiVersionsGetter;
 
@@ -40,14 +41,21 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;
 
+    private final boolean headerEnable;
+
     public ProducerAddHeaderInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
+        this.headerEnable = traceContext.getProfilerConfig().readBoolean(KafkaConfig.HEADER_ENABLE, true);
     }
 
     @Override
     public void before(Object target, Object[] args) {
         if (logger.isDebugEnabled()) {
             logger.beforeInterceptor(target, args);
+        }
+
+        if (!headerEnable) {
+            return;
         }
 
         Trace trace = traceContext.currentRawTraceObject();

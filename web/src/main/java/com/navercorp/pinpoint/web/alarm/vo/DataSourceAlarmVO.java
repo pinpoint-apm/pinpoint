@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.alarm.vo;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 public class DataSourceAlarmVO {
 
     private final int id;

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 public abstract class LongValueAlarmChecker extends AlarmChecker<Long> {
 
     protected LongValueAlarmChecker(Rule rule, String unit, DataCollector dataCollector) {

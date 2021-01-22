@@ -67,13 +67,6 @@ public class DirectBufferSampler implements AgentStatSampler<DirectBufferBo, Sam
         if (values.isEmpty()) {
             return SampledDirectBuffer.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
-
-        return new AgentStatPoint<>(
-                timestamp,
-                LONG_DOWN_SAMPLER.sampleMin(values),
-                LONG_DOWN_SAMPLER.sampleMax(values),
-                LONG_DOWN_SAMPLER.sampleAvg(values),
-                LONG_DOWN_SAMPLER.sampleSum(values));
-
+        return new AgentStatPoint<>(timestamp, values, LONG_DOWN_SAMPLER);
     }
 }

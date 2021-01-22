@@ -75,7 +75,14 @@ public class ModuleSupport {
 //        addPermissionToLog4jModule(agentModule);
         addPermissionToLog4j2Module(agentModule);
         addPermissionToGuiceModule(agentModule);
+        addPermissionToValueAnnotation(agentModule);
+    }
 
+    private void addPermissionToValueAnnotation(JavaModule agentModule) {
+        JavaModule bootstrapModule = getBootstrapModule();
+        agentModule.addOpens("com.navercorp.pinpoint.profiler.context.thrift.config", bootstrapModule);
+        agentModule.addOpens("com.navercorp.pinpoint.profiler.context.grpc.config", bootstrapModule);
+        agentModule.addOpens("com.navercorp.pinpoint.grpc.client.config", bootstrapModule);
     }
 
     private JavaModule newAgentModule(ClassLoader classLoader, URL[] jarFileList) {

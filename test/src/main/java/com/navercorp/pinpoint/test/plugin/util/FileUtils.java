@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.test.plugin.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
@@ -48,35 +49,34 @@ public final class FileUtils {
         return toURLs(filePaths, new FilePathFunction());
     }
 
-    private static <T> URL toURL(final T source, final Function<T, URI> function) throws IOException {
-        URI uri = function.apply(source);
-        return uri.toURL();
+    private static <T> URL toURL(final T source, final Function<T, URL> function) throws IOException {
+        return function.apply(source);
     }
 
-    private static <T> URL[] toURLs(final T[] source, final Function<T, URI> function) throws IOException {
+    public static <T> URL[] toURLs(final T[] source, final Function<T, URL> function) throws IOException {
         final URL[] urls = new URL[source.length];
         for (int i = 0; i < source.length; i++) {
             T t = source[i];
-            urls[i] = toURL(t, function);
+            urls[i] = function.apply(t);
         }
         return urls;
     }
 
     private interface Function<T, R> {
-        R apply(T t);
+        R apply(T t) throws IOException;
     }
 
 
-    private static class FileFunction implements Function<File, URI> {
-        public URI apply(File file) {
-            return file.toURI();
+    private static class FileFunction implements Function<File, URL> {
+        public URL apply(File file) throws MalformedURLException {
+            return file.toURI().toURL();
         }
     }
 
-    private static class FilePathFunction implements Function<String, URI> {
-        public URI apply(String filePath) {
+    private static class FilePathFunction implements Function<String, URL> {
+        public URL apply(String filePath) throws MalformedURLException {
             final File file = new File(filePath);
-            return file.toURI();
+            return file.toURI().toURL();
         }
     }
 

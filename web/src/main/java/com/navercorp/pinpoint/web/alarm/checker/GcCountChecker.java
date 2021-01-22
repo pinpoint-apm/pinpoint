@@ -24,6 +24,7 @@ import java.util.Map;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class GcCountChecker extends AgentChecker<Long> {
     
     public GcCountChecker(AgentStatDataCollector dataCollector, Rule rule) {

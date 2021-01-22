@@ -20,12 +20,20 @@ package com.navercorp.pinpoint.bootstrap.config;
  */
 public class InstrumentMatcherCacheConfig {
 
-    private int interfaceCacheSize = 0;
-    private int interfaceCacheEntrySize = 0;
-    private int annotationCacheSize = 0;
-    private int annotationCacheEntrySize = 0;
-    private int superCacheSize = 0;
-    private int superCacheEntrySize = 0;
+    @Value("${profiler.instrument.matcher.interface.cache.size}")
+    private int interfaceCacheSize = 4;
+    @Value("${profiler.instrument.matcher.interface.cache.entry.size}")
+    private int interfaceCacheEntrySize = 16;
+
+    @Value("${profiler.instrument.matcher.annotation.cache.size}")
+    private int annotationCacheSize = 4;
+    @Value("${profiler.instrument.matcher.annotation.cache.entry.size}")
+    private int annotationCacheEntrySize = 4;
+
+    @Value("${profiler.instrument.matcher.super.cache.size}")
+    private int superCacheSize = 4;
+    @Value("${profiler.instrument.matcher.super.cache.entry.size}")
+    private int superCacheEntrySize = 4;
 
     public int getInterfaceCacheSize() {
         return interfaceCacheSize;
@@ -77,14 +85,13 @@ public class InstrumentMatcherCacheConfig {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("{");
-        sb.append("interfaceCacheSize=").append(interfaceCacheSize);
-        sb.append(", interfaceCacheEntrySize=").append(interfaceCacheEntrySize);
-        sb.append(", annotationCacheSize=").append(annotationCacheSize);
-        sb.append(", annotationCacheEntrySize=").append(annotationCacheEntrySize);
-        sb.append(", superCacheSize=").append(superCacheSize);
-        sb.append(", superCacheEntrySize=").append(superCacheEntrySize);
-        sb.append('}');
-        return sb.toString();
+        return "InstrumentMatcherCacheConfig{" +
+                "interfaceCacheSize=" + interfaceCacheSize +
+                ", interfaceCacheEntrySize=" + interfaceCacheEntrySize +
+                ", annotationCacheSize=" + annotationCacheSize +
+                ", annotationCacheEntrySize=" + annotationCacheEntrySize +
+                ", superCacheSize=" + superCacheSize +
+                ", superCacheEntrySize=" + superCacheEntrySize +
+                '}';
     }
 }

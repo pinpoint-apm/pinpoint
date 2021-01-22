@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.alarm.vo;
 
+@Deprecated
 public class CheckerResult {
     
     private int historyId;
