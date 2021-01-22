@@ -18,6 +18,7 @@ pinpoint-batch server checks every 3 minutes based on the last 5 minutes of data
 > Therefore we decided to gradually increase the transmission frequency for alarms.<br/>
 > ex) If an alarm occurs continuously, transmission frequency is increased by a factor of two. 3 min -> 6min -> 12min -> 24min
 
+> NOTICE!
 > batch was run in the background of pinpoint-web server until v2.2.0 From v2.2.1 it will be dealt with in pinpoint-batch server.
 > Since the batch logic(code) in pinpoint-web will be deprecated in the future, we advice you to transfer the execution of batch to pinpoint-batch server.
 
