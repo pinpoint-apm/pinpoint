@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="keywords" content=" history">
+<title>Separate Logging Per Request | Leading Open-Source APM</title>
+<link rel="stylesheet" href="css/syntax.css">
+
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<!--<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">-->
+<link rel="stylesheet" href="css/modern-business.css">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="css/customstyles.css">
+<link rel="stylesheet" href="css/boxshadowproperties.css">
+<!-- most color styles are extracted out to here -->
+<link rel="stylesheet" href="css/theme-black.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="js/jquery.navgoco.min.js"></script>
+
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<!-- Anchor.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/2.0.0/anchor.min.js"></script>
+<script src="js/toc.js"></script>
+<script src="js/customscripts.js"></script>
+
+<link rel="shortcut icon" href="images/favicon.ico">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="pinpoint" href="http://localhost:4000/feed.xml">
+
+    <script>
+        $(document).ready(function() {
+            // Initialize navgoco with default options
+            $("#mysidebar").navgoco({
+                caretHtml: '',
+                accordion: true,
+                openClass: 'active', // open
+                save: false, // leave false or nav highlighting doesn't work right
+                cookie: {
+                    name: 'navgoco',
+                    expires: false,
+                    path: '/'
+                },
+                slide: {
+                    duration: 400,
+                    easing: 'swing'
+                }
+            });
+
+            $("#collapseAll").click(function(e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', false);
+            });
+
+            $("#expandAll").click(function(e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', true);
+            });
+
+        });
+
+    </script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+    <script>
+        $(document).ready(function() {
+            $("#tg-sb-link").click(function() {
+                $("#tg-sb-sidebar").toggle();
+                $("#tg-sb-content").toggleClass('col-md-9');
+                $("#tg-sb-content").toggleClass('col-md-12');
+                $("#tg-sb-icon").toggleClass('fa-toggle-on');
+                $("#tg-sb-icon").toggleClass('fa-toggle-off');
+            });
+        });
+    </script>
+    
+
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container topnavlinks">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="fa fa-home fa-lg navbar-brand" href="/pinpoint/index.html">&nbsp;<span class="projectTitle"> <img src="./images/logo2.png"> </span></a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <!-- toggle sidebar button -->
+                <li><a id="tg-sb-link" href="#"><i id="tg-sb-icon" class="fa fa-toggle-on"></i> Nav</a></li>
+                <!-- entries without drop-downs appear here -->
+
+
+
+
+                
+                
+                
+                <li><a href="https://github.com/pinpoint-apm/pinpoint" target="_blank">GitHub</a></li>
+                
+                
+                
+                <li><a href="https://twitter.com/Pinpoint_APM" target="_blank">News</a></li>
+                
+                
+                
+                <li><a href="https://pinpoint-apm.github.io/pinpoint/resources" target="_blank">Pinpoint Blogs</a></li>
+                
+                
+                
+                <!-- entries with drop-downs appear here -->
+                <!-- conditional logic to control which topnav appears for the audience defined in the configuration file.-->
+                
+                
+			<li>
+
+
+
+  <a class="email" title="Submit feedback" href="#" onclick="javascript:window.location='mailto:pinpoint.helper@google.com?subject=pinpoint feedback&body=If it\'s an issue please check QnA page on the homepage or Pinpoint GitHub repository https://github.com/pinpoint-apm/pinpoint/issues' "><i class="fa fa-envelope-o"></i> Feedback</a>
+
+</li>
+
+		
+                <!--comment out this block if you want to hide search-->
+                <li>
+                    <!--start search-->
+                    <div id="search-demo-container">
+                        <input type="text" id="search-input" placeholder="search...">
+                        <ul id="results-container"></ul>
+                    </div>
+                    <script src="js/jekyll-search.js" type="text/javascript"></script>
+                    <script type="text/javascript">
+                            SimpleJekyllSearch.init({
+                                searchInput: document.getElementById('search-input'),
+                                resultsContainer: document.getElementById('results-container'),
+                                dataSource: 'search.json',
+                                searchResultTemplate: '<li><a href="{url}" title="Separate Logging Per Request">{title}</a></li>',
+                    noResultsText: 'No results found.',
+                            limit: 10,
+                            fuzzy: true,
+                    })
+                    </script>
+                    <!--end search-->
+                </li>
+            </ul>
+        </div>
+        </div>
+        <!-- /.container -->
+</nav>
+
+<!-- Page Content -->
+
+<div class="container">
+
+  <div id="main">
+    <!-- Content Row -->
+    <div class="row">
+        
+        
+            <!-- Sidebar Column -->
+            <div class="col-md-3" id="tg-sb-sidebar">
+                <script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        GetVersionInfo();
+    });
+
+    function GetVersionInfo() {
+
+        var pathname = window.location.pathname;
+        var path = pathname.slice(10,15);
+        var versioned = true;
+        var tempNum1 = path.slice(0,1);
+        var tempNum2 = path.slice(2,3);
+        var tempNum3 = path.slice(4,5);
+
+        if($.isEmptyObject(path)){
+            versioned = false;
+        }else{
+            if(isNaN(tempNum1) || isNaN(tempNum2) && isNaN(tempNum3)){
+                versioned = false;
+            }
+        }
+
+        $.getJSON("https://raw.githubusercontent.com/naver/pinpoint/gh-pages/version.json").done(function (data){
+
+            $.each(data, function(key, value) {
+
+                if(versioned && path == value.ver){
+                    $('#selbox').append('<option selected="selected" value="http://pinpoint-apm.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                }else{
+                    $('#selbox').append('<option value="http://pinpoint-apm.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                }
+            })
+        });
+    }
+</script>
+
+
+
+
+<ul id="mysidebar" class="nav">
+    <li class="sidebarTitle">
+        <tr>
+            <td>
+                Pinpoint
+            </td>
+            <td>
+                <select id="selbox" name="ver" onchange="document.location.href=this.value">
+                </select>
+            </td>
+        </tr>
+    </li>
+    <tr></tr>
+    <tr> <td><iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=star&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    <iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=fork&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    </td> </tr>
+  
+  
+  
+
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="main.html">What's New</a></li>
+        
+    </li>
+    
+      
+  
+  <li>
+      <a href="#">Pinpoint</a>
+      <ul>
+          
+          
+          
+          <li><a href="overview.html">Overview</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="history.html">History</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="techdetail.html">Technical Details</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="additionalplugins.html">Additional Plugins</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Getting Started</a>
+      <ul>
+          
+          
+          
+          <li><a href="quickstart.html">QuickStart</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="installation.html">Installation</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="docker.html">Install with Docker</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="troubleshooting_network.html">TrobleShooting(Network)</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Documents</a>
+      <ul>
+          
+          
+          
+          <li><a href="plugindevguide.html">Plugin Developer Guide</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="alarm.html">Setting Alarms</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="applicationinspector.html">How to use Application Inspector</a></li>
+          
+          
+          
+          
+          
+          
+          <li class="active"><a href="perrequestfeatureguide.html">Separate Log Per Request</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="httpstatuscodefailure.html">Marking Transaction as Fail</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="proxyhttpheader.html">Monitoring Proxy Server</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="hbaseupgrade.html">Upgrade Database Hbase2</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Contribution</a>
+      <ul>
+          
+          
+          
+          <li><a href="contribution.html">Readme</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="https://github.com/pinpoint-apm/pinpoint/labels/proposal" target="_blank">Open to Contribution</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="videos.html">Videos</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="performance.html">Performance Analysis</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="http://125.209.240.10:10123" target="_blank">Live Demo</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://twitter.com/Pinpoint_APM" target="_blank">Twitter</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/pinpoint-apm/pinpoint/releases" target="_blank">Release Notes</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="faq.html">FAQ</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="poweredby.html">Powered by Pinpoint</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/pinpoint-apm/pinpoint/issues" target="_blank">Questions and answers</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/pinpoint-apm/pinpoint" target="_blank">Fork me at Github</a></li>
+        
+    </li>
+    
+      
+      
+      <!-- if you aren't using the accordion, uncomment this block:
+         <p class="external">
+             <a href="#" id="collapseAll">Collapse All</a> | <a href="#" id="expandAll">Expand All</a>
+         </p>
+         -->
+</ul>
+
+<!-- this highlights the active parent class in the navgoco sidebar. this is critical so that the parent expands when you're viewing a page. This must appear below the sidebar code above. Otherwise, if placed inside customscripts.js, the script runs before the sidebar code runs and the class never gets inserted.-->
+<script>$("li.active").parents('li').toggleClass("active");</script>
+
+            </div>
+            
+        
+
+        <!-- Content Column -->
+        <div class="col-md-9" id="tg-sb-content">
+            <a no_icon href="https://github.com/naver/pinpoint"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+            <script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        GetUrl();
+    });
+
+    function GetUrl() {
+
+        var pathname = window.location.pathname;
+        if(pathname == "/pinpoint/main.html"){
+            document.getElementById("pathname").innerHTML = "Snapshot(Unstable)";
+        }
+    }
+</script>
+
+<div class="post-header">
+   <h1 class="post-title-main" id="pathname">Separate Logging Per Request</h1>
+</div>
+
+
+
+<div class="post-content">
+
+   
+
+    
+    
+<!-- this handles the automatic toc. use ## for subheads to auto-generate the on-page minitoc. if you use html tags, you must supply an ID for the heading element in order for it to appear in the minitoc. -->
+<script>
+$( document ).ready(function() {
+  // Handler for .ready() called.
+
+$('#toc').toc({ minimumHeaders: 0, listType: 'ul', showSpeed: 0, headers: 'h2,h3,h4' });
+
+/* this offset helps account for the space taken up by the floating toolbar. */
+$('#toc').on('click', 'a', function() {
+  var target = $(this.getAttribute('href'))
+    , scroll_target = target.offset().top
+
+  $(window).scrollTop(scroll_target - 10);
+  return false
+})
+  
+});
+</script>
+
+<div id="toc"></div>
+
+    
+
+
+    
+
+
+    
+
+  <h1 id="english-guide">ENGLISH GUIDE</h1>
+
+<h2 id="per-request-logging">Per-request logging</h2>
+
+<h3 id="1-description">1. Description</h3>
+<p>Pinpoint saves additional information(transactionId, spanId) in log messages to classify them by request.</p>
+
+<p>When tomcat processes multiple requests concurrently, we can see log files printed in chronological order.
+But we can not classify them by each request.
+For example when an exception message is logged, we can not easily identify all the logs related to the request that threw the exception.</p>
+
+<p>Pinpoint is able to classify logs by requests by storing additional information(transactionId, spanId) in MDC of each request.
+The transactionId printed in the log message is the same as the transactionId in Pinpoint Web’s Transaction List view.</p>
+
+<p>Let’s take a look at a more specific example.
+The log below is from an exception that occurred without using Pinpoint. 
+As you can see, it is hard to identify the logs related to the request that threw the exception.
+ex) Without Pinpoint</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2015-04-04 14:35:20 [INFO](ContentInfoCollector:76 ) get content name : TECH
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:123 ) get content name : OPINION
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:12) get content name : SPORTS
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:25 ) get content name : TECH
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:56 ) get content name : NATIONAL
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:34 ) get content name : OPINION
+2015-04-04 14:35:20 [INFO](ContentInfoService:55 ) check authorization of user
+2015-04-04 14:35:20 [INFO](ContentInfoService:14 ) get title of content
+2015-04-04 14:35:21 [INFO](ContentDAOImpl:14 ) execute query ...
+2015-04-04 14:35:21 [INFO](ContentDAOImpl:114 ) execute query ...    
+2015-04-04 14:35:20 [INFO](ContentInfoService:74 ) get top linking for content
+2015-04-04 14:35:21 [INFO](ContentDAOImpl:14 ) execute query ...
+2015-04-04 14:35:21 [INFO](ContentDAOImpl:114 ) execute query ...
+2015-04-04 14:35:22 [INFO](ContentDAOImpl:186 ) execute query ...
+2015-04-04 14:35:22 [ERROR]ContentDAOImpl:158 )
+     com.mysql.jdbc.exceptions.jdbc4.CommunicationsException: Communications link failure
+          at example.ContentDAO.executequery(ContentDAOImpl.java:152)
+          ...
+          at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+          at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+          at com.mysql.jdbc.ConnectionImpl.&lt;init&gt;(ConnectionImpl.java:787)
+          ...
+     Caused by: com.mysql.jdbc.exceptions.jdbc4.CommunicationsException:
+     Communications link failure The last packet sent successfully to the server was 0 milliseconds ago.
+     The driver has not received any packets from the server.    
+          at com.mysql.jdbc.ConnectionImpl.createNewIO(ConnectionImpl.java:2181)
+          ... 12 more
+     Caused by: java.net.ConnectException: Connection refused
+          at java.net.PlainSocketImpl.socketConnect(Native Method)
+          at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:333)
+          at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:195)   
+          at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:182)   
+          at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:432)   
+          at java.net.Socket.connect(Socket.java:529)    
+          ...13 more
+2015-04-04 14:35:22 [INFO](ContentDAO:145 ) execute query ...
+2015-04-04 14:35:20 [INFO](ContentInfoService:38 ) update hits for content
+2015-04-04 14:35:20 [INFO](ContentInfoService:89 ) check of user
+2015-04-04 14:35:24 [INFO](ContentDAO:146 ) execute query ...
+2015-04-04 14:35:25 [INFO](ContentDAO:123 ) execute query ...
+</code></pre></div></div>
+
+<p>Pinpoint classifies logs by requests by storing additional information(transactionId, spanId) in MDC of each request.
+ex) With Pinpoint</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2015-04-04 14:35:20 [INFO](ContentInfoCollector:76) [txId : agent^14252^17 spanId : 1224] get content name : TECH
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:123) [txId : agent^142533^18 spanId : 1231] get content name : OPINION
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:12) [txId : agent^142533^19 spanId : 1246] get content name : SPORTS
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:25) [txId : agent^142533^20 spanId : 1263] get content name : TECH
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:56) [txId : agent^142533^21 spanId : 1265] get content name : NATIONAL
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:34) [txId : agent^142533^22 spanId : 1278] get content name : OPINION
+2015-04-04 14:35:20 [INFO](ContentInfoService:55) [txId : agent^14252^18 spanId : 1231] check authorization of user
+2015-04-04 14:35:20 [INFO](ContentInfoService:14) [txId : agent^14252^17 spanId : 1224] get title of content
+2015-04-04 14:35:21 [INFO](ContentDAOImpl:14) [txId : agent^14252^17 spanId : 1224] execute query ...
+2015-04-04 14:35:21 [INFO](ContentDAOImpl:114) [txId : agent^142533^19 spanId : 1246] execute query ...    
+2015-04-04 14:35:20 [INFO](ContentInfoService:74) [txId : agent^14252^17 spanId : 1224] get top linking for content
+2015-04-04 14:35:21 [INFO](ContentDAOImpl:14) [txId : agent^142533^18 spanId : 1231] execute query ...
+2015-04-04 14:35:21 [INFO](ContentDAOImpl:114) [txId : agent^142533^21 spanId : 1265] execute query ...
+2015-04-04 14:35:22 [INFO](ContentDAOImpl:186) [txId : agent^142533^22 spanId : 1278] execute query ...
+2015-04-04 14:35:22 [ERROR](ContentDAOImpl:158) [txId : agent^142533^18 spanId : 1231]
+     com.mysql.jdbc.exceptions.jdbc4.CommunicationsException: Communications link failure
+          at com.pinpoint.example.dao.ContentDAO.executequery(ContentDAOImpl.java:152)
+          ...
+          at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+          at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+          at com.mysql.jdbc.ConnectionImpl.&lt;init&gt;(ConnectionImpl.java:787)   
+          ...
+     Caused by: com.mysql.jdbc.exceptions.jdbc4.CommunicationsException:
+     Communications link failure The last packet sent successfully to the server was 0 milliseconds ago.
+     The driver has not received any packets from the server.
+          ...
+          at com.mysql.jdbc.ConnectionImpl.createNewIO(ConnectionImpl.java:2181)
+          ... 12 more
+     Caused by: java.net.ConnectException: Connection refused
+          at java.net.PlainSocketImpl.socketConnect(Native Method)   
+          at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:333)
+          at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:195)
+          at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:182)
+          at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:432)
+          at java.net.Socket.connect(Socket.java:529)
+          ... 13 more
+2015-04-04 14:35:22 [INFO](ContentDAO:145) [txId : agent^14252^17 spanId : 1224] execute query ...
+2015-04-04 14:35:20 [INFO](ContentInfoService:38) [txId : agent^142533^19 spanId : 1246] update hits for content
+2015-04-04 14:35:20 [INFO](ContentInfoService:89) [txId : agent^142533^21 spanId : 1265] check of user
+2015-04-04 14:35:24 [INFO](ContentDAO:146) [txId : agent^142533^22 spanId : 1278] execute query ...
+2015-04-04 14:35:25 [INFO](ContentDAO:123) [txId : agent^14252^17 spanId : 1224] execute query ...
+</code></pre></div></div>
+
+<p>The transactionId printed in the log message is the same as the transactionId in Pinpoint Web’s Transaction List view.
+<img src="images/per-request_feature_1.jpg" alt="per-request_feature_1.jpg" /></p>
+
+<h3 id="2-how-to-configure">2. How to configure</h3>
+
+<p><strong>2-1 Pinpoint agent configuration</strong></p>
+
+<p>To enable this feature, set the logging property corresponding to the logging library in use to true in <em>pinpoint.config</em>.
+For example,</p>
+
+<p>ex) pinpoint.config when using log4j</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>###########################################################
+# log4j
+###########################################################
+profiler.log4j.logging.transactioninfo=true
+</code></pre></div></div>
+
+<p>ex) pinpoint.config when using log4j2</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>###########################################################
+# log4j2 
+###########################################################
+profiler.log4j2.logging.transactioninfo=true
+
+</code></pre></div></div>
+
+<p>ex) pinpoint.config when using logback</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>###########################################################
+# logback
+###########################################################
+profiler.logback.logging.transactioninfo=true
+</code></pre></div></div>
+
+<p><strong>2-2 log4j, log4j2, logback configuration</strong></p>
+
+<p>Change the log message format to print the transactionId, and spanId saved in MDC.</p>
+
+<p>ex) log4j : log4j.xml</p>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Before
+<span class="nt">&lt;appender</span> <span class="na">name =</span> <span class="s">"console"</span> <span class="na">class=</span> <span class="s">"org.apache.log4j.ConsoleAppender"</span> <span class="nt">&gt;</span>
+     <span class="nt">&lt;layout</span> <span class="na">class =</span> <span class="s">"org.apache.log4j.EnhancedPatternLayout"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;param</span> <span class="na">name =</span> <span class="s">"ConversionPattern"</span> <span class="na">value=</span> <span class="s">"%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-30c{1}) %m%n"</span> <span class="nt">/&gt;</span>
+     <span class="nt">&lt;/layout &gt;</span>
+<span class="nt">&lt;/appender &gt;</span>
+
+After
+<span class="nt">&lt;appender</span> <span class="na">name =</span> <span class="s">"console"</span> <span class="na">class=</span> <span class="s">"org.apache.log4j.ConsoleAppender"</span> <span class="nt">&gt;</span>
+     <span class="nt">&lt;layout</span> <span class="na">class =</span> <span class="s">"org.apache.log4j.EnhancedPatternLayout"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;param</span> <span class="na">name =</span> <span class="s">"ConversionPattern"</span> <span class="na">value=</span> <span class="s">"%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-30c{1}) [TxId : %X{PtxId} , SpanId : %X{PspanId}] %m%n"</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;/layout &gt;</span>
+<span class="nt">&lt;/appender &gt;</span>
+</code></pre></div></div>
+
+<p>ex) log4j2 - log4j2.xml</p>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Before
+<span class="nt">&lt;appender&gt;</span>
+     <span class="nt">&lt;console</span> <span class="na">name=</span><span class="s">"STDOUT"</span> <span class="na">target=</span><span class="s">"SYSTEM_OUT"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;PatternLayout</span> <span class="na">pattern=</span><span class="s">"%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-30c{1}) %m%n"</span><span class="err">"</span><span class="nt">/&gt;</span>
+     <span class="nt">&lt;/console&gt;</span>
+<span class="nt">&lt;appender&gt;</span>
+
+After
+<span class="nt">&lt;appender&gt;</span>
+     <span class="nt">&lt;console</span> <span class="na">name=</span><span class="s">"STDOUT"</span> <span class="na">target=</span><span class="s">"SYSTEM_OUT"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;PatternLayout</span> <span class="na">pattern=</span><span class="s">"%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-30c{1}) [TxId : %X{PtxId} , SpanId : %X{PspanId}] %m%n"</span><span class="err">"</span><span class="nt">/&gt;</span>
+     <span class="nt">&lt;/console&gt;</span>
+<span class="nt">&lt;appender&gt;</span>
+</code></pre></div></div>
+
+<p>ex) logback : logback.xml</p>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Before
+<span class="nt">&lt;appender</span> <span class="na">name =</span> <span class="s">"STDOUT"</span> <span class="na">class=</span> <span class="s">"ch.qos.logback.core.ConsoleAppender"</span> <span class="nt">&gt;</span>
+     <span class="nt">&lt;layout</span> <span class="na">class =</span> <span class="s">"ch.qos.logback.classic.PatternLayout"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;Pattern</span> <span class="nt">&gt;</span>%d{HH:mm} %-5level %logger{36} - %msg%n<span class="nt">&lt;/Pattern &gt;</span>
+     <span class="nt">&lt;/layout &gt;</span>
+<span class="nt">&lt;/appender &gt;</span>
+
+After
+<span class="nt">&lt;appender</span> <span class="na">name =</span> <span class="s">"STDOUT"</span> <span class="na">class=</span> <span class="s">"ch.qos.logback.core.ConsoleAppender"</span> <span class="nt">&gt;</span>
+     <span class="nt">&lt;layout</span> <span class="na">class =</span> <span class="s">"ch.qos.logback.classic.PatternLayout"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;Pattern</span> <span class="nt">&gt;</span>%d{HH:mm} %-5level %logger{36} - [TxId : %X{PtxId} , SpanId : %X{PspanId}] %msg%n<span class="nt">&lt;/Pattern &gt;</span>
+     <span class="nt">&lt;/layout &gt;</span>
+<span class="nt">&lt;/appender &gt;</span>
+</code></pre></div></div>
+
+<p><strong>2-3 Checking log message</strong></p>
+
+<p>If the per-request logging is correctly configured, the transactionId, and spanId are printed in the log file.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2015-04-04 14:35:20 [INFO](ContentInfoCollector:76 ) [txId : agent^14252^17 spanId : 1224] get content name : TECH
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:123 ) [txId : agent^142533^18 spanId : 1231] get content name : OPINION
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:12) [txId : agent^142533^19 spanId : 1246] get content name : SPORTS
+</code></pre></div></div>
+
+<h3 id="3-expose-log-in-pinpoint-web">3. expose log in Pinpoint web</h3>
+
+<p>If you want to add links to the logs in the transaction list view, you should configure and implement the logic as below.
+Pinpoint Web only adds link buttons - you should implement the logic to retrieve the log message.</p>
+
+<p>If you want to expose your agent’s log messages, please follow the steps below.</p>
+
+<p><strong>step 1</strong>
+You should implement a controller that receives transactionId, spanId, transaction_start_time as parameters and retrieve the logs yourself. 
+We do not yet provide a way to retrieve the logs.</p>
+
+<p>example)</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Controller</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Nelo2LogController</span> <span class="o">{</span>
+  
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">"/????"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">NeloLogForTransactionId</span><span class="o">(</span><span class="nd">@RequestParam</span> <span class="o">(</span><span class="n">value</span><span class="o">=</span> <span class="s">"transactionId"</span><span class="o">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">true</span><span class="o">)</span> <span class="n">String</span> <span class="n">transactionId</span><span class="o">,</span>
+                                            <span class="nd">@RequestParam</span><span class="o">(</span><span class="n">value</span><span class="o">=</span> <span class="s">"spanId"</span> <span class="o">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">false</span><span class="o">)</span> <span class="n">String</span> <span class="n">spanId</span><span class="o">,</span>
+                                            <span class="nd">@RequestParam</span><span class="o">(</span><span class="n">value</span><span class="o">=</span><span class="s">"time"</span> <span class="o">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">true</span><span class="o">)</span> <span class="kt">long</span> <span class="n">time</span> <span class="o">)</span> <span class="o">{</span>
+
+          <span class="c1">// you should implement the logic to retrieve your agent’s logs.</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>step 2</strong>
+In <em>pinpoint-web.properties</em> file, set <code class="highlighter-rouge">log.enable</code> to true, and <code class="highlighter-rouge">log.page.url</code> to the url of the controller above.
+The value set in <code class="highlighter-rouge">log.button.name</code> will show up as the button text in the Web UI.</p>
+<div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="py">log.enable</span><span class="p">=</span> <span class="s">true</span>
+<span class="py">log.page.url</span><span class="p">=</span><span class="s">XXXX.pinpoint</span>
+<span class="py">log.button.name</span><span class="p">=</span> <span class="s">log</span>
+</code></pre></div></div>
+
+<p><strong>step 3</strong>
+Pinpoint 1.5.0 or later, we improve button to decided enable/disable depending on whether or not being logged.
+You should implement interceptor for using logging appender to add logic whether or not being logged. you also should create plugin for logging appender internally.
+Please refer to Pinpoint Profiler Plugin Sample(<a href="https://github.com/pinpoint-apm/pinpoint-plugin-sample">Link</a>).
+Location added logic of interceptor is method to log for data of LoggingEvent in appender class. you should review your appender class and find method.
+This is interceptor example.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class AppenderInterceptor implements AroundInterceptor0 {
+
+    private final TraceContext traceContext;
+
+    public AppenderInterceptor(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
+
+    @Override
+    public void before(Object target) {
+        Trace trace = traceContext.currentTraceObject();
+
+        if (trace != null) {
+            SpanRecorder recorder = trace.getSpanRecorder();
+            recorder.recordLogging(LoggingInfo.LOGGED);
+        }
+    }
+
+    @IgnoreMethod
+    @Override
+    public void after(Object target, Object result, Throwable throwable) {
+
+    }
+}
+</code></pre></div></div>
+
+<p>If those are correctly configured, the buttons are added in the transaction list view.
+<img src="images/per-request_feature_2.jpg" alt="per-request_feature_2.jpg" /></p>
+
+<p>For details in how the log buttons are generated, please refer to Pinpoint Web’s BusinessTransactionController and ScatterChartController.</p>
+
+<hr />
+
+<h1 id="한국어-가이드">한국어 가이드</h1>
+
+<h2 id="per-request-logging-1">Per-request logging</h2>
+
+<h3 id="1-기능-설명">1. 기능 설명</h3>
+
+<p>Pinpoint에서는 log message를 request 단위로 구분할 수 있도록 log message 에 추가정보를 저장해준다.</p>
+
+<p>다수의 요청을 처리하는 tomcat을 사용할 경우 로그 파일을 보면 시간순으로 출력된 로그를 확인할 수 있다.
+그러나 동시에 요청된 다수의 request 각각에 대한 로그를 구분 해서 볼 수 없다.
+예를 들어 로그에서 exception message가 출력됐을 때 그 exception이 발생한 request의 모든 log를 확인하기 힘들다.</p>
+
+<p>Pinpoint는 log message 마다 request와 연관된 정보(transactionId, spanId)를 MDC에 넣어줘서 request 단위로 log message를 구분할 수 있도록 해준다.
+로그에 출력된 transactionId는 pinpoint web의 transaction List 화면에 출력된 transactionId와 일치한다.</p>
+
+<p>구체적으로 예를 들어보자.
+Pinpoint를 사용하지 않았을 때 exception이 발생했을 경우 로그 메시지를 살펴 보자.
+요청된 다수의 request 각각을 구분하여 로그를 확인할 수가 없다.</p>
+
+<p>ex) Without Pinpoint</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2015-04-04 14:35:20 [INFO](ContentInfoCollector:76 ) get content name : TECH
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:123 ) get content name : OPINION
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:12) get content name : SPORTS
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:25 ) get content name : TECH
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:56 ) get content name : NATIONAL
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:34 ) get content name : OPINION
+2015-04-04 14:35:20 [INFO](ContentInfoService:55 ) check authorization of user
+2015-04-04 14:35:20 [INFO](ContentInfoService:14 ) get title of content
+2015-04-04 14:35:21 [INFO](ContentDAOImpl:14 ) execute query ...
+2015-04-04 14:35:21 [INFO](ContentDAOImpl:114 ) execute query ...
+2015-04-04 14:35:20 [INFO](ContentInfoService:74 ) get top linking for content
+2015-04-04 14:35:21 [INFO](ContentDAOImpl:14 ) execute query ...
+2015-04-04 14:35:21 [INFO](ContentDAOImpl:114 ) execute query ...
+2015-04-04 14:35:22 [INFO](ContentDAOImpl:186 ) execute query ...
+2015-04-04 14:35:22 [ERROR]ContentDAOImpl:158 )
+     com.mysql.jdbc.exceptions.jdbc4.CommunicationsException: Communications link failure
+          at example.ContentDAO.executequery(ContentDAOImpl.java:152)
+          ...
+          at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+          at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+          at com.mysql.jdbc.ConnectionImpl.&lt;init&gt;(ConnectionImpl.java:787)
+          ...
+     Caused by: com.mysql.jdbc.exceptions.jdbc4.CommunicationsException:
+     Communications link failure The last packet sent successfully to the server was 0 milliseconds ago.
+     The driver has not received any packets from the server.
+          at com.mysql.jdbc.ConnectionImpl.createNewIO(ConnectionImpl.java:2181)
+          ... 12 more
+     Caused by: java.net.ConnectException: Connection refused
+          at java.net.PlainSocketImpl.socketConnect(Native Method)
+          at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:333)
+          at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:195)
+          at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:182)
+          at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:432)
+          at java.net.Socket.connect(Socket.java:529)
+          ...13 more
+2015-04-04 14:35:22 [INFO](ContentDAO:145 ) execute query ...
+2015-04-04 14:35:20 [INFO](ContentInfoService:38 ) update hits for content
+2015-04-04 14:35:20 [INFO](ContentInfoService:89 ) check of user
+2015-04-04 14:35:24 [INFO](ContentDAO:146 ) execute query ...
+2015-04-04 14:35:25 [INFO](ContentDAO:123 ) execute query ...
+</code></pre></div></div>
+
+<p>Pinpoint는 로그 메세지 마다 request와 연관된 정보(transactionId, spanId)를 MDC에 넣어줘서 request 단위로 log message를 구분시켜 준다.</p>
+
+<p>ex) With Pinpoint</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2015-04-04 14:35:20 [INFO](ContentInfoCollector:76) [txId : agent^14252^17 spanId : 1224] get content name : TECH
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:123) [txId : agent^142533^18 spanId : 1231] get content name : OPINION
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:12) [txId : agent^142533^19 spanId : 1246] get content name : SPORTS
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:25) [txId : agent^142533^20 spanId : 1263] get content name : TECH
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:56) [txId : agent^142533^21 spanId : 1265] get content name : NATIONAL
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:34) [txId : agent^142533^22 spanId : 1278] get content name : OPINION
+2015-04-04 14:35:20 [INFO](ContentInfoService:55) [txId : agent^14252^18 spanId : 1231] check authorization of user
+2015-04-04 14:35:20 [INFO](ContentInfoService:14) [txId : agent^14252^17 spanId : 1224] get title of content
+2015-04-04 14:35:21 [INFO](ContentDAOImpl:14) [txId : agent^14252^17 spanId : 1224] execute query ...
+2015-04-04 14:35:21 [INFO](ContentDAOImpl:114) [txId : agent^142533^19 spanId : 1246] execute query ...
+2015-04-04 14:35:20 [INFO](ContentInfoService:74) [txId : agent^14252^17 spanId : 1224] get top linking for content
+2015-04-04 14:35:21 [INFO](ContentDAOImpl:14) [txId : agent^142533^18 spanId : 1231] execute query ...
+2015-04-04 14:35:21 [INFO](ContentDAOImpl:114) [txId : agent^142533^21 spanId : 1265] execute query ...
+2015-04-04 14:35:22 [INFO](ContentDAOImpl:186) [txId : agent^142533^22 spanId : 1278] execute query ...
+2015-04-04 14:35:22 [ERROR](ContentDAOImpl:158) [txId : agent^142533^18 spanId : 1231]
+     com.mysql.jdbc.exceptions.jdbc4.CommunicationsException: Communications link failure
+          at com.pinpoint.example.dao.ContentDAO.executequery(ContentDAOImpl.java:152)
+          ...
+          at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+          at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+          at com.mysql.jdbc.ConnectionImpl.&lt;init&gt;(ConnectionImpl.java:787)
+          ...
+     Caused by: com.mysql.jdbc.exceptions.jdbc4.CommunicationsException:
+     Communications link failure The last packet sent successfully to the server was 0 milliseconds ago.
+     The driver has not received any packets from the server.
+          ...
+          at com.mysql.jdbc.ConnectionImpl.createNewIO(ConnectionImpl.java:2181)
+          ... 12 more
+     Caused by: java.net.ConnectException: Connection refused
+          at java.net.PlainSocketImpl.socketConnect(Native Method)
+          at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:333)
+          at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:195)
+          at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:182)
+          at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:432)
+          at java.net.Socket.connect(Socket.java:529)
+          ... 13 more
+2015-04-04 14:35:22 [INFO](ContentDAO:145) [txId : agent^14252^17 spanId : 1224] execute query ...
+2015-04-04 14:35:20 [INFO](ContentInfoService:38) [txId : agent^142533^19 spanId : 1246] update hits for content
+2015-04-04 14:35:20 [INFO](ContentInfoService:89) [txId : agent^142533^21 spanId : 1265] check of user
+2015-04-04 14:35:24 [INFO](ContentDAO:146) [txId : agent^142533^22 spanId : 1278] execute query ...
+2015-04-04 14:35:25 [INFO](ContentDAO:123) [txId : agent^14252^17 spanId : 1224] execute query ...
+</code></pre></div></div>
+
+<p>로그메시지에 출력된 transactionId는 Pinpoint web의 transactionlist의 transactionId와 일치한다.
+<img src="images/per-request_feature_1.jpg" alt="per-request_feature_1.jpg" /></p>
+
+<h3 id="2-설정-방법">2. 설정 방법</h3>
+
+<p><strong>2-1 Pinpoint agent 설정</strong></p>
+
+<p>Pinpoint를 사용하려면 Pinpoint agent 설정파일(Pinpoint.config)의 logging 설정 값을 true로 변경해야 한다.
+사용하는 logging 라이브러리에 해당하는 설정값만 true로 변경하면 된다.
+아래 설정에 대한 예시가 있다.</p>
+
+<p>ex) Pinpoint.config  - log4j 를 사용할 경우</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>###########################################################
+# log4j
+###########################################################
+profiler.log4j.logging.transactioninfo=true
+</code></pre></div></div>
+
+<p>ex) Pinpoint.config  - log4j2 를 사용할 경우</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>###########################################################
+# log4j2 
+###########################################################
+profiler.log4j2.logging.transactioninfo=true
+
+</code></pre></div></div>
+
+<p>ex) Pinpoint.config  - logback 를 사용할 경우</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>###########################################################
+# logback
+###########################################################
+profiler.logback.logging.transactioninfo=true
+</code></pre></div></div>
+
+<p><strong>2-2 log4j, log4j2, logback 설정 파일 설정</strong></p>
+
+<p>logging 설정 파일의 log message pattern 설정에 Pinpoint에서 MDC에 저장한 transactionId, spanId값이 출력될수 있도록 설정을 추가하자.</p>
+
+<p>ex) log4j - log4j.xml</p>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>변경 전
+<span class="nt">&lt;appender</span> <span class="na">name =</span> <span class="s">"console"</span> <span class="na">class=</span> <span class="s">"org.apache.log4j.ConsoleAppender"</span> <span class="nt">&gt;</span>
+     <span class="nt">&lt;layout</span> <span class="na">class =</span> <span class="s">"org.apache.log4j.EnhancedPatternLayout"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;param</span> <span class="na">name =</span> <span class="s">"ConversionPattern"</span> <span class="na">value=</span> <span class="s">"%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-30c{1}) %m%n"</span> <span class="nt">/&gt;</span>
+     <span class="nt">&lt;/layout &gt;</span>
+<span class="nt">&lt;/appender &gt;</span>
+
+변경 후
+<span class="nt">&lt;appender</span> <span class="na">name =</span> <span class="s">"console"</span> <span class="na">class=</span> <span class="s">"org.apache.log4j.ConsoleAppender"</span> <span class="nt">&gt;</span>
+     <span class="nt">&lt;layout</span> <span class="na">class =</span> <span class="s">"org.apache.log4j.EnhancedPatternLayout"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;param</span> <span class="na">name =</span> <span class="s">"ConversionPattern"</span> <span class="na">value=</span> <span class="s">"%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-30c{1}) [TxId : %X{PtxId} , SpanId : %X{PspanId}] %m%n"</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;/layout &gt;</span>
+<span class="nt">&lt;/appender &gt;</span>
+</code></pre></div></div>
+
+<p>ex) log4j2 - log4j2.xml</p>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>변경 전
+<span class="nt">&lt;appender&gt;</span>
+     <span class="nt">&lt;console</span> <span class="na">name=</span><span class="s">"STDOUT"</span> <span class="na">target=</span><span class="s">"SYSTEM_OUT"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;PatternLayout</span> <span class="na">pattern=</span><span class="s">"%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-30c{1}) %m%n"</span><span class="err">"</span><span class="nt">/&gt;</span>
+     <span class="nt">&lt;/console&gt;</span>
+<span class="nt">&lt;appender&gt;</span>
+
+변경 후
+<span class="nt">&lt;appender&gt;</span>
+     <span class="nt">&lt;console</span> <span class="na">name=</span><span class="s">"STDOUT"</span> <span class="na">target=</span><span class="s">"SYSTEM_OUT"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;PatternLayout</span> <span class="na">pattern=</span><span class="s">"%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-30c{1}) [TxId : %X{PtxId} , SpanId : %X{PspanId}] %m%n"</span><span class="err">"</span><span class="nt">/&gt;</span>
+     <span class="nt">&lt;/console&gt;</span>
+<span class="nt">&lt;appender&gt;</span>
+</code></pre></div></div>
+
+<p>ex) logback - logback.xml</p>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>변경 전
+<span class="nt">&lt;appender</span> <span class="na">name =</span> <span class="s">"STDOUT"</span> <span class="na">class=</span> <span class="s">"ch.qos.logback.core.ConsoleAppender"</span> <span class="nt">&gt;</span>
+     <span class="nt">&lt;layout</span> <span class="na">class =</span> <span class="s">"ch.qos.logback.classic.PatternLayout"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;Pattern</span> <span class="nt">&gt;</span>%d{HH:mm} %-5level %logger{36} - %msg%n<span class="nt">&lt;/Pattern &gt;</span>
+     <span class="nt">&lt;/layout &gt;</span>
+<span class="nt">&lt;/appender &gt;</span>
+
+변경 후
+<span class="nt">&lt;appender</span> <span class="na">name =</span> <span class="s">"STDOUT"</span> <span class="na">class=</span> <span class="s">"ch.qos.logback.core.ConsoleAppender"</span> <span class="nt">&gt;</span>
+     <span class="nt">&lt;layout</span> <span class="na">class =</span> <span class="s">"ch.qos.logback.classic.PatternLayout"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;Pattern</span> <span class="nt">&gt;</span>%d{HH:mm} %-5level %logger{36} - [TxId : %X{PtxId} , SpanId : %X{PspanId}] %msg%n<span class="nt">&lt;/Pattern &gt;</span>
+     <span class="nt">&lt;/layout &gt;</span>
+<span class="nt">&lt;/appender &gt;</span>
+</code></pre></div></div>
+
+<p><strong>2-3 로그 출력 확인</strong></p>
+
+<p>Pinpoint agent가 적용된 서비스를 동작하여 log message에 아래와 같이 transactionId, spanId 정보가 출력되는것을 확인하면 된다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2015-04-04 14:35:20 [INFO](ContentInfoCollector:76 ) [txId : agent^14252^17 spanId : 1224] get content name : TECH
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:123 ) [txId : agent^142533^18 spanId : 1231] get content name : OPINION
+2015-04-04 14:35:20 [INFO](ContentInfoCollector:12) [txId : agent^142533^19 spanId : 1246] get content name : SPORTS
+</code></pre></div></div>
+
+<h3 id="3-pinpoint-web에서-로그-확인">3. Pinpoint web에서 로그 확인</h3>
+<p>Pinpoint web의 transaction list 화면에서 log를 출력하는 링크를 제공하고 싶다면 아래와 같이 설정 및 구현을 추가하면 된다.
+Pinpoint web에서는 버튼 을 추가해주기만 하고 로그를 가져오는 로직은 직접 구현을 해야한다.</p>
+
+<p>로그 메시지를 Pinpoint web에서 보여주기 위해서는 아래와 같이 2가지 step을 따라야 한다.</p>
+
+<p><strong>step 1</strong>
+transactionId와 spanId, transaction 시작 시간을 파라미터로 받아서 로그 메시지를 가져오는 controller을 구현해야한다.</p>
+
+<p>example)</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Controller</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Nelo2LogController</span> <span class="o">{</span>
+
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">"/XXXX"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">NeloLogForTransactionId</span><span class="o">(</span><span class="nd">@RequestParam</span> <span class="o">(</span><span class="n">value</span><span class="o">=</span> <span class="s">"transactionId"</span><span class="o">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">true</span><span class="o">)</span> <span class="n">String</span> <span class="n">transactionId</span><span class="o">,</span>
+                                            <span class="nd">@RequestParam</span><span class="o">(</span><span class="n">value</span><span class="o">=</span> <span class="s">"spanId"</span> <span class="o">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">false</span><span class="o">)</span> <span class="n">String</span> <span class="n">spanId</span><span class="o">,</span>
+                                            <span class="nd">@RequestParam</span><span class="o">(</span><span class="n">value</span><span class="o">=</span><span class="s">"time"</span> <span class="o">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">true</span><span class="o">)</span> <span class="kt">long</span> <span class="n">time</span> <span class="o">)</span> <span class="o">{</span>
+
+          <span class="c1">// you should implement the logic to retrieve your agent’s logs.</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>step 2</strong>
+Pinpoint-web.properties 파일에서 버튼을 추가해주는 기능을 활성화 하기 위해서 log.enable의 값을 true로 설정하고
+위에서 구현한 controller의 url과 button의 이름을 추가해주자.</p>
+
+<div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="py">log.enable</span><span class="p">=</span><span class="s">true</span>
+<span class="py">log.page.url</span><span class="p">=</span><span class="s">XXXX.Pinpoint</span>
+<span class="py">log.button.name</span><span class="p">=</span><span class="s">log</span>
+</code></pre></div></div>
+
+<p><strong>step 3</strong>
+pinpoint 1.5 이후 버전부터 log 기록 여부에 따라 log 버튼의 활성화가 결정되도록 개선 됐기 때문에
+당신이 사용하는 logging appender의 로깅 메소드에 logging 여부를 저장하는 interceptor를 추가하는 플러그인을 개발해야 한다.
+플러그인 개발 방법은 다음 링크를 참고하면 된다(<a href="https://github.com/pinpoint-apm/pinpoint-plugin-sample">Link</a>). interceptor 로직이 추가돼야 하는 위치는 appender class 내에 LoggingEvent 객체의 데이터를 이용하여 로깅을 하는 메소드다.
+아래는 interceptor 예제이다.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class AppenderInterceptor implements AroundInterceptor0 {
+
+    private final TraceContext traceContext;
+
+    public AppenderInterceptor(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
+
+    @Override
+    public void before(Object target) {
+        Trace trace = traceContext.currentTraceObject();
+
+        if (trace != null) {
+            SpanRecorder recorder = trace.getSpanRecorder();
+            recorder.recordLogging(LoggingInfo.LOGGED);
+        }
+    }
+
+    @IgnoreMethod
+    @Override
+    public void after(Object target, Object result, Throwable throwable) {
+
+    }
+}
+</code></pre></div></div>
+
+<p>위와 같이 설정 및 구현을 추가하고 pinpoint web을 동작시키면 아래와 같이 버튼이 추가 된다.
+<img src="images/per-request_feature_2.jpg" alt="per-request_feature_2.jpg" />
+로그 버튼을 생성해주는 과정을 보시려면, Pinpoint Web의 BusinessTransactionController 와 ScatterChartController class를 참고하세요.</p>
+
+
+    <div class="tags">
+        
+    </div>
+
+</div>
+
+
+
+<hr class="shaded"/>
+
+<footer>
+            <div class="row">
+                <div class="col-lg-12 footer">
+               &copy;2021 Naver. All rights reserved. <br />
+<span>Page last updated:</span> Feb 1, 2018<br/>
+
+<p><img src="images/company_logo.png" alt="Company logo"/></p>
+                </div>
+            </div>
+</footer>
+
+
+        </div>
+    <!-- /.row -->
+</div>
+<!-- /.container -->
+</div>
+<!-- /#main -->
+    </div>
+
+</body>
+
+<!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-57786344-4','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+</html>

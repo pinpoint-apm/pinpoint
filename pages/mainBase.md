@@ -1,6 +1,6 @@
 ---
-title: "Pinpoint 1.8.4"
-keywords: pinpoint release, 1.8.4
+title: "Snapshot(Unstable)"
+keywords: pinpoint release, snapshot
 permalink: mainBase.html
 sidebar: mydoc_sidebar
 ---
@@ -8,6 +8,8 @@ sidebar: mydoc_sidebar
 [Check out updates on lastest stable release](https://naver.github.io/pinpoint/2.1.2/main.html)
 
 ## What's Next? 
+
+# What's New in 2.2.1
 
 ## Upgrade consideration
 
