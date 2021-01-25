@@ -16,7 +16,10 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
+import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.web.dao.AgentEventDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -52,9 +55,12 @@ public class AdminServiceImpl implements AdminService {
 
     private final JvmGcDao jvmGcDao;
 
-    public AdminServiceImpl(ApplicationIndexDao applicationIndexDao, @Qualifier("jvmGcDaoFactory") JvmGcDao jvmGcDao) {
+    private final AgentEventDao agentEventDao;
+
+    public AdminServiceImpl(ApplicationIndexDao applicationIndexDao, @Qualifier("jvmGcDaoFactory") JvmGcDao jvmGcDao, AgentEventDao agentEventDao) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
+        this.agentEventDao = Objects.requireNonNull(agentEventDao, "agentEventDao");
     }
 
     @Override
@@ -158,9 +164,17 @@ public class AdminServiceImpl implements AdminService {
             // If at any time a non-java agent is introduced, or an agent that does not collect jvm data,
             // this will fail
             boolean dataExists = this.jvmGcDao.agentStatExists(agentId, queryRange);
-            if (!dataExists) {
-                inactiveAgentIds.add(agentId);
+            if (dataExists) {
+                continue;
             }
+
+            List<AgentEventBo> agentEvents = this.agentEventDao.getAgentEvents(agentId, queryRange, Collections.EMPTY_SET);
+            dataExists = agentEvents.stream().anyMatch(e -> e.getEventType() == AgentEventType.AGENT_PING);
+            if (dataExists) {
+                continue;
+            }
+
+            inactiveAgentIds.add(agentId);
         }
         return inactiveAgentIds;
     }
