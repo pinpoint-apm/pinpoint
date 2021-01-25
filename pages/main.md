@@ -29,4 +29,3 @@ Additionally, the required Java version to run each Pinpoint component is given 
 * Supported versions of the \* indicated library may differ from the actual version.
 
 {% include_relative modules.md %}
-
