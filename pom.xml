@@ -96,15 +96,15 @@
 
 
         <spring4.version>4.3.27.RELEASE</spring4.version>
-        <spring5.version>5.2.7.RELEASE</spring5.version>
+        <spring5.version>5.2.12.RELEASE</spring5.version>
         <spring.version>${spring4.version}</spring.version>
         <spring.batch.version>4.2.4.RELEASE</spring.batch.version>
 
         <spring.security4.version>4.2.8.RELEASE</spring.security4.version>
-        <spring.security5.version>5.3.3.RELEASE</spring.security5.version>
+        <spring.security5.version>5.3.6.RELEASE</spring.security5.version>
         <spring.security.version>${spring.security4.version}</spring.security.version>
 
-        <spring.boot.version>2.2.8.RELEASE</spring.boot.version>
+        <spring.boot.version>2.3.8.RELEASE</spring.boot.version>
 
         <slf4j.version>1.7.30</slf4j.version>
         <log4j2-jdk7.version>2.12.1</log4j2-jdk7.version>
