@@ -2,6 +2,10 @@
     position: relative;
     width: 477px;
 }
+:host.hide {
+    position: relative;
+    width: 10px;
+}
 .l-sidemenu-wrap {
     width: 100%;
     display: flex;

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ElementRef, Renderer2, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, HostBinding, OnInit, OnDestroy, ElementRef, Renderer2, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterEvent, NavigationStart } from '@angular/router';
 import { Subject, Observable, merge } from 'rxjs';
 import { filter, tap, mapTo, map, takeUntil } from 'rxjs/operators';
@@ -14,11 +14,13 @@ import { ServerMapData } from 'app/core/components/server-map/class';
 })
 export class SideBarContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
+    private _isSideBarShow: boolean;
 
     useDisable = true;
     showLoading = true;
     showDivider = false;
     isTargetMerged$: Observable<boolean>;
+    sidebarDirectionIndicator: string;
     sidebarVisibility = 'hidden';
 
     constructor(
@@ -32,11 +34,29 @@ export class SideBarContainerComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.addPageLoadingHandler();
         this.connectStore();
+        this.isSideBarShow = true;
     }
 
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+    }
+
+    onClickViewSideBar(): void {
+        this.isSideBarShow = !this.isSideBarShow;
+    }
+
+    set isSideBarShow(show: boolean) {
+        this._isSideBarShow = show;
+        this.sidebarDirectionIndicator = show ? 'right' : 'left';
+    }
+
+    get isSideBarShow(): boolean {
+        return this._isSideBarShow;
+    }
+
+    @HostBinding('class.hide') get toggle() {
+        return !this._isSideBarShow;
     }
 
     private addPageLoadingHandler(): void {
