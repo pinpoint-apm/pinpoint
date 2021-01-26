@@ -16,19 +16,14 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
-import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.web.dao.AgentEventDao;
-import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -53,14 +48,11 @@ public class AdminServiceImpl implements AdminService {
 
     private final ApplicationIndexDao applicationIndexDao;
 
-    private final JvmGcDao jvmGcDao;
+    private final AgentInfoService agentInfoService;
 
-    private final AgentEventDao agentEventDao;
-
-    public AdminServiceImpl(ApplicationIndexDao applicationIndexDao, @Qualifier("jvmGcDaoFactory") JvmGcDao jvmGcDao, AgentEventDao agentEventDao) {
+    public AdminServiceImpl(ApplicationIndexDao applicationIndexDao, AgentInfoService agentInfoService) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
-        this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
-        this.agentEventDao = Objects.requireNonNull(agentEventDao, "agentEventDao");
+        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
     }
 
     @Override
@@ -163,18 +155,11 @@ public class AdminServiceImpl implements AdminService {
             // FIXME This needs to be done with a more accurate information.
             // If at any time a non-java agent is introduced, or an agent that does not collect jvm data,
             // this will fail
-            boolean dataExists = this.jvmGcDao.agentStatExists(agentId, queryRange);
-            if (dataExists) {
-                continue;
-            }
 
-            List<AgentEventBo> agentEvents = this.agentEventDao.getAgentEvents(agentId, queryRange, Collections.EMPTY_SET);
-            dataExists = agentEvents.stream().anyMatch(e -> e.getEventType() == AgentEventType.AGENT_PING);
-            if (dataExists) {
-                continue;
+            boolean dataExists = agentInfoService.isActiveAgent(agentId, queryRange);
+            if (!dataExists) {
+                inactiveAgentIds.add(agentId);
             }
-
-            inactiveAgentIds.add(agentId);
         }
         return inactiveAgentIds;
     }
