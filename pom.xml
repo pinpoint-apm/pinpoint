@@ -126,9 +126,9 @@
         <netty4.version>4.1.51.Final</netty4.version>
 
 
-        <guava-jdk6.version>20.0</guava-jdk6.version>
-        <guava-jdk8.version>29.0-jre</guava-jdk8.version>
-        <guava.version>${guava-jdk6.version}</guava.version>
+        <guava-jdk7.version>30.1-android</guava-jdk7.version>
+        <guava-jdk8.version>30.1-jre</guava-jdk8.version>
+        <guava.version>${guava-jdk7.version}</guava.version>
 
         <mybatis.spring.version>1.3.3</mybatis.spring.version>
         <mybatis.version>3.4.6</mybatis.version>
@@ -895,7 +895,7 @@
             <dependency>
                 <groupId>com.google.inject</groupId>
                 <artifactId>guice</artifactId>
-                <version>4.1.0</version>
+                <version>4.2.2</version>
             </dependency>
 
 

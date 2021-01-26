@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.pluginit.utils;
 
-import com.google.common.collect.Maps;
 import com.navercorp.pinpoint.common.util.IOUtils;
 import fi.iki.elonen.NanoHTTPD;
 import org.junit.AfterClass;
@@ -26,7 +25,10 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.startsWith;
@@ -96,7 +98,7 @@ public class WebServerTest {
 
             @Override
             public Map<String, String> getHeaders() {
-                return Maps.newHashMap();
+                return new HashMap<>();
             }
 
             @Override

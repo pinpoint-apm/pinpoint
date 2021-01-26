@@ -23,13 +23,11 @@ import java.util.Arrays;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.primitives.Ints;
 
 public class BytesUtilsTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -75,11 +73,19 @@ public class BytesUtilsTest {
         checkInt(23464);
     }
 
+    private byte[] intToByteArray(int intValue) {
+        return ByteBuffer.allocate(4).putInt(intValue).array();
+    }
+
+    private int byteArrayToInt(byte[] byteArray) {
+        return ByteBuffer.wrap(byteArray).getInt();
+    }
+
     private void checkInt(int i) {
-        byte[] bytes = Ints.toByteArray(i);
+        byte[] bytes = intToByteArray(i);
         int i2 = BytesUtils.bytesToInt(bytes, 0);
         Assert.assertEquals(i, i2);
-        int i3 = Ints.fromByteArray(bytes);
+        int i3 = byteArrayToInt(bytes);
         Assert.assertEquals(i, i3);
     }
 

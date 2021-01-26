@@ -36,6 +36,7 @@
         <spring.version>${spring5.version}</spring.version>
 
         <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
+        <guava.version>${guava-jdk8.version}</guava.version>
     </properties>
 
     <dependencies>

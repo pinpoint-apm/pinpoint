@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
-import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
@@ -41,7 +40,7 @@ public class FixedBufferTest {
     private final Random random = new Random();
 
     @Test
-    public void testPutPrefixedBytes() throws Exception {
+    public void testPutPrefixedBytes() {
         String test = "test";
         int endExpected = 3333;
         testPutPrefixedBytes(test, endExpected);
@@ -69,7 +68,7 @@ public class FixedBufferTest {
     }
 
     @Test
-    public void testPadBytes() throws Exception {
+    public void testPadBytes() {
         int TOTAL_LENGTH = 20;
         int TEST_SIZE = 10;
         Buffer buffer = new FixedBuffer(32);
@@ -104,7 +103,7 @@ public class FixedBufferTest {
 
 
     @Test
-    public void testPadBytes_Error() throws Exception {
+    public void testPadBytes_Error() {
 
         Buffer buffer1_1 = new FixedBuffer(32);
         try {
@@ -177,7 +176,7 @@ public class FixedBufferTest {
     }
 
     @Test
-    public void testPadString_Error() throws Exception {
+    public void testPadString_Error() {
 
         Buffer buffer1_1 = new FixedBuffer(32);
         try {
@@ -298,10 +297,18 @@ public class FixedBufferTest {
 
     }
 
+
+    private byte[] intToByteArray(int intValue) {
+        byte[] buffer = new byte[4];
+        BytesUtils.writeInt(intValue, buffer, 0);
+        return buffer;
+    }
+
     @Test
     public void testRead4PrefixedString() throws Exception {
         String value = "test";
-        byte[] length = Ints.toByteArray(value.length());
+
+        byte[] length = intToByteArray(value.length());
         byte[] string = value.getBytes();
         byte[] result = BytesUtils.merge(length, string);
 
@@ -312,9 +319,10 @@ public class FixedBufferTest {
 
     }
 
+
     @Test
     public void testRead4PrefixedString_Null() throws Exception {
-        byte[] length = Ints.toByteArray(-1);
+        byte[] length = intToByteArray(-1);
 
 
         Buffer buffer = new FixedBuffer(length);
