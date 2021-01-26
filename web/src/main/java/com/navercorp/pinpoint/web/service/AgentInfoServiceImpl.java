@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
@@ -42,6 +43,7 @@ import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimeline;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineBuilder;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.PredicateUtils;
 import org.slf4j.Logger;
@@ -186,7 +188,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             // FIXME This needs to be done with a more accurate information.
             // If at any time a non-java agent is introduced, or an agent that does not collect jvm data,
             // this will fail
-            boolean dataExists = this.jvmGcDao.agentStatExists(agentId, queryRange);
+            boolean dataExists = isActiveAgent(agentId, queryRange);
             if (dataExists) {
                 activeAgentIdList.add(agentId);
             }
@@ -271,6 +273,17 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
         return this.agentLifeCycleDao.getAgentStatus(agentId, timestamp);
+    }
+
+    @Override
+    public boolean isActiveAgent(String agentId, Range range) {
+        boolean dataExists = this.jvmGcDao.agentStatExists(agentId, range);
+        if (dataExists) {
+            return true;
+        }
+
+        List<AgentEvent> agentEvents = this.agentEventService.getAgentEvents(agentId, range);
+        return agentEvents.stream().anyMatch(e -> e.getEventTypeCode() == AgentEventType.AGENT_PING.getCode());
     }
 
     @Override

@@ -52,6 +52,8 @@ public interface AgentInfoService {
 
     AgentStatus getAgentStatus(String agentId, long timestamp);
 
+    boolean isActiveAgent(String agentId, Range range);
+
     void populateAgentStatuses(Collection<AgentInfo> agentInfos, long timestamp);
 
     InspectorTimeline getAgentStatusTimeline(String agentId, Range range, int... excludeAgentEventTypeCodes);
