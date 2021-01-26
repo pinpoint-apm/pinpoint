@@ -20,7 +20,6 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.StringValue;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
@@ -35,6 +34,7 @@ import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
+import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncId;
 import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
@@ -46,10 +46,10 @@ import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
-import com.navercorp.pinpoint.io.SpanVersion;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Not thread safe
@@ -71,9 +71,9 @@ public class GrpcSpanMessageConverter implements MessageConverter<GeneratedMessa
 
     public GrpcSpanMessageConverter(String agentId, short applicationServiceType,
                                     SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.applicationServiceType = applicationServiceType;
-        this.spanProcessor = Assert.requireNonNull(spanProcessor, "spanProcessor");
+        this.spanProcessor = Objects.requireNonNull(spanProcessor, "spanProcessor");
 
     }
 

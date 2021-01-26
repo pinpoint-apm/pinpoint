@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.channelz;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -25,8 +25,8 @@ public class DefaultChannelzRegistry implements ChannelzRegistry {
 
     @Override
     public void addSocket(final long logId, InetSocketAddress remoteAddress, InetSocketAddress localAddress) {
-        Assert.requireNonNull(remoteAddress, "remoteAddress");
-        Assert.requireNonNull(localAddress, "localAddress");
+        Objects.requireNonNull(remoteAddress, "remoteAddress");
+        Objects.requireNonNull(localAddress, "localAddress");
 
         final ChannelzRegistry.AddressId targetId = ChannelzRegistry.AddressId.newAddressId(localAddress, remoteAddress);
 
@@ -66,7 +66,7 @@ public class DefaultChannelzRegistry implements ChannelzRegistry {
 
     @Override
     public Long removeSocket(InetSocketAddress remoteAddress) {
-        Assert.requireNonNull(remoteAddress, "remoteAddress");
+        Objects.requireNonNull(remoteAddress, "remoteAddress");
 
         AddressId remoteAddressId = AddressId.newAddressId(remoteAddress.getHostString(), remoteAddress.getPort());
 
@@ -102,7 +102,7 @@ public class DefaultChannelzRegistry implements ChannelzRegistry {
 
     @Override
     public Set<Long> getSocketLogId(ChannelzRegistry.AddressId address) {
-        Assert.requireNonNull(address, "address");
+        Objects.requireNonNull(address, "address");
 
         Set<Long> logIds = this.socketMap.get(address);
         if (logIds == null) {
@@ -113,7 +113,7 @@ public class DefaultChannelzRegistry implements ChannelzRegistry {
 
     @Override
     public void addServer(long logId, String serverName) {
-        Assert.requireNonNull(serverName, "serverName");
+        Objects.requireNonNull(serverName, "serverName");
 
         final Long old = this.serverMap.putIfAbsent(serverName, logId);
         if (old != null) {
@@ -124,7 +124,7 @@ public class DefaultChannelzRegistry implements ChannelzRegistry {
 
     @Override
     public Long getServerLogId(String serverName) {
-        Assert.requireNonNull(serverName, "serverName");
+        Objects.requireNonNull(serverName, "serverName");
 
         return this.serverMap.get(serverName);
     }
@@ -135,7 +135,7 @@ public class DefaultChannelzRegistry implements ChannelzRegistry {
 
         public RemoteId(long logId, ChannelzRegistry.AddressId targetAddress) {
             this.logId = logId;
-            this.targetAddress = Assert.requireNonNull(targetAddress, "targetAddress");
+            this.targetAddress = Objects.requireNonNull(targetAddress, "targetAddress");
         }
     }
 }

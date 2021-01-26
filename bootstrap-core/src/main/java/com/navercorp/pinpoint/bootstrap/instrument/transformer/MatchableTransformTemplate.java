@@ -18,7 +18,8 @@ package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -32,15 +33,15 @@ public class MatchableTransformTemplate extends TransformTemplate {
 
 
     public void transform(final Matcher matcher, TransformCallback transformCallback) {
-        Assert.requireNonNull(matcher, "matcher");
-        Assert.requireNonNull(transformCallback, "transformCallback");
+        Objects.requireNonNull(matcher, "matcher");
+        Objects.requireNonNull(transformCallback, "transformCallback");
         final InstrumentContext instrumentContext = getInstrumentContext();
         instrumentContext.addClassFileTransformer(matcher, transformCallback);
     }
 
     public void transform(final Matcher matcher, Class<? extends TransformCallback> transformCallbackClass) {
-        Assert.requireNonNull(matcher, "matcher");
-        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass");
+        Objects.requireNonNull(matcher, "matcher");
+        Objects.requireNonNull(transformCallbackClass, "transformCallbackClass");
 
         TransformCallbackChecker.validate(transformCallbackClass);
 

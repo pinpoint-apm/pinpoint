@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -36,11 +37,11 @@ public class PropertyLoaderFactory {
 
     public PropertyLoaderFactory(SimpleProperty javaSystemProperty, SimpleProperty osEnvProperty,
                                  String agentRootPath, String profilesPath, String[] supportedProfiles) {
-        this.javaSystemProperty = Assert.requireNonNull(javaSystemProperty, "javaSystemProperty");
-        this.osEnvProperty = com.navercorp.pinpoint.common.util.Assert.requireNonNull(osEnvProperty, "osEnvProperty");
-        this.agentRootPath = Assert.requireNonNull(agentRootPath, "agentRootPath");
-        this.profilesPath = Assert.requireNonNull(profilesPath, "profilesPath");
-        this.supportedProfiles = Assert.requireNonNull(supportedProfiles, "supportedProfiles");
+        this.javaSystemProperty = Objects.requireNonNull(javaSystemProperty, "javaSystemProperty");
+        this.osEnvProperty = Objects.requireNonNull(osEnvProperty, "osEnvProperty");
+        this.agentRootPath = Objects.requireNonNull(agentRootPath, "agentRootPath");
+        this.profilesPath = Objects.requireNonNull(profilesPath, "profilesPath");
+        this.supportedProfiles = Objects.requireNonNull(supportedProfiles, "supportedProfiles");
     }
 
     public PropertyLoader newPropertyLoader() {

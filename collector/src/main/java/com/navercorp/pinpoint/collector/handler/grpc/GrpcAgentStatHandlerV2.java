@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.collector.service.AgentUriStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
@@ -36,7 +35,6 @@ import com.navercorp.pinpoint.io.request.ServerRequest;
 import io.grpc.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -74,7 +72,7 @@ public class GrpcAgentStatHandlerV2 implements SimpleHandler {
         this.agentStatBatchMapper = Objects.requireNonNull(agentStatBatchMapper, "agentStatBatchMapper");
         this.agentUriStatMapper = Objects.requireNonNull(agentUriStatMapper, "agentUriStatMapper");
         this.agentStatServiceList = Objects.requireNonNull(agentStatServiceList, "agentStatServiceList2").orElseGet(Collections::emptyList);
-        this.agentUriStatService = Assert.requireNonNull(agentUriStatService, "agentUriStatService");
+        this.agentUriStatService = Objects.requireNonNull(agentUriStatService, "agentUriStatService");
         this.collectorConfiguration = Objects.requireNonNull(collectorConfiguration, "collectorConfiguration");
     }
 

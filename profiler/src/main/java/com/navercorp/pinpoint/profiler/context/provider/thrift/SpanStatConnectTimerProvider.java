@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.thrift.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timer;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,7 +35,7 @@ public class SpanStatConnectTimerProvider implements Provider<Timer> {
 
     @Inject
     public SpanStatConnectTimerProvider(ThriftTransportConfig thriftTransportConfig) {
-        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
+        this.thriftTransportConfig = Objects.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
     }
 
     @Override

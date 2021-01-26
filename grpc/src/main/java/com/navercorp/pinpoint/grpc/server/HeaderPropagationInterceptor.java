@@ -16,10 +16,8 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderReader;
-
 import io.grpc.Context;
 import io.grpc.Contexts;
 import io.grpc.Metadata;
@@ -29,6 +27,8 @@ import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -44,8 +44,8 @@ public class HeaderPropagationInterceptor implements ServerInterceptor {
     }
 
     public HeaderPropagationInterceptor(HeaderReader<Header> headerReader, Context.Key<Header> contextKey) {
-        this.headerReader = Assert.requireNonNull(headerReader, "headerReader");
-        this.contextKey = Assert.requireNonNull(contextKey, "contextKey");
+        this.headerReader = Objects.requireNonNull(headerReader, "headerReader");
+        this.contextKey = Objects.requireNonNull(contextKey, "contextKey");
     }
 
     @Override

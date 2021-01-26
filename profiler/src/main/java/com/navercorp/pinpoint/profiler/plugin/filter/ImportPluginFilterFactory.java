@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.plugin.filter;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class ImportPluginFilterFactory implements PluginFilterFactory {
     private final List<String> importPluginIds;
 
     public ImportPluginFilterFactory(List<String> importPluginIds) {
-        Assert.requireNonNull(importPluginIds, "importPluginIds");
+        Objects.requireNonNull(importPluginIds, "importPluginIds");
         this.importPluginIds = importPluginIds;
     }
 

@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.plugin.grpc.GrpcConstants;
 import io.grpc.Attributes;
 import io.grpc.Metadata;
@@ -30,6 +29,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -68,9 +68,9 @@ public class GrpcServerStreamRequest {
     }
 
     GrpcServerStreamRequest(ServerStream serverStream, String methodName, Metadata metadata) {
-        this.serverStream = Assert.requireNonNull(serverStream, "serverStream");
-        this.methodName = Assert.requireNonNull(methodName, "methodName");
-        this.metadata = Assert.requireNonNull(metadata, "metadata");
+        this.serverStream = Objects.requireNonNull(serverStream, "serverStream");
+        this.methodName = Objects.requireNonNull(methodName, "methodName");
+        this.metadata = Objects.requireNonNull(metadata, "metadata");
     }
 
     public ServerStream getServerStream() {

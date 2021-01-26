@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 import java.net.InetSocketAddress;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,12 +33,12 @@ public class DefaultTransportMetadata implements TransportMetadata {
 
 
     public DefaultTransportMetadata(String debugString, InetSocketAddress remoteAddress, InetSocketAddress localAddreess, long transportId, long connectTime, Long logId) {
-        this.debugString = Assert.requireNonNull(debugString, "debugString");
-        this.remoteAddress = Assert.requireNonNull(remoteAddress, "remoteAddress");
-        this.localAddress = Assert.requireNonNull(localAddreess, "localAddreess");
+        this.debugString = Objects.requireNonNull(debugString, "debugString");
+        this.remoteAddress = Objects.requireNonNull(remoteAddress, "remoteAddress");
+        this.localAddress = Objects.requireNonNull(localAddreess, "localAddreess");
         this.transportId = transportId;
         this.connectTime = connectTime;
-        this.logId = Assert.requireNonNull(logId, "logId");
+        this.logId = Objects.requireNonNull(logId, "logId");
     }
 
     @Override

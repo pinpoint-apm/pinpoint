@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.AsyncStateSupport;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 /**
@@ -32,7 +32,7 @@ public class StatefulAsyncContext extends DefaultAsyncContext implements AsyncSt
 
     public StatefulAsyncContext(AsyncTraceContext asyncTraceContext, TraceRoot traceRoot, AsyncId asyncId, int asyncMethodApiId, AsyncState asyncState) {
         super(asyncTraceContext, traceRoot, asyncId, asyncMethodApiId);
-        this.asyncState = Assert.requireNonNull(asyncState, "asyncState");
+        this.asyncState = Objects.requireNonNull(asyncState, "asyncState");
     }
 
     @Override

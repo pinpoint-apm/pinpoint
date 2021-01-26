@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.io.File;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -39,7 +39,7 @@ public class ContainerResolver {
     }
 
     public ContainerResolver(Properties properties) {
-        this.properties = Assert.requireNonNull(properties, "properties");
+        this.properties = Objects.requireNonNull(properties, "properties");
     }
 
     /**

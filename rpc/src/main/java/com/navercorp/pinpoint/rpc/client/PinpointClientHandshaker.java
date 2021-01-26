@@ -24,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import java.util.Objects;
+
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
@@ -77,8 +79,8 @@ public class PinpointClientHandshaker {
         Assert.isTrue(maxHandshakeCount > 0, "maxHandshakeCount must greater than zero.");
         
         this.state = new AtomicInteger(STATE_INIT);
-        this.handshakerTimer = Assert.requireNonNull(handshakerTimer, "handshakerTimer");
-        this.handshakeData = Assert.requireNonNull(handshakeData, "handshakeData");
+        this.handshakerTimer = Objects.requireNonNull(handshakerTimer, "handshakerTimer");
+        this.handshakeData = Objects.requireNonNull(handshakeData, "handshakeData");
 
         this.retryInterval = retryInterval;
         this.maxHandshakeCount = maxHandshakeCount;

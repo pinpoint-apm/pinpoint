@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -43,8 +43,8 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
     protected final TraceContext traceContext;
 
     public AsyncContextSpanEventEndPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        this.traceContext = Assert.requireNonNull(traceContext, "traceContext");
-        this.methodDescriptor = Assert.requireNonNull(methodDescriptor, "methodDescriptor");
+        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
+        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
 
     }
 

@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.grpc.server.lifecycle;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,8 +33,8 @@ public class DefaultPingEventHandler implements PingEventHandler {
     private final LifecycleListener lifecycleListener;
 
     public DefaultPingEventHandler(PingSessionRegistry pingSessionRegistry, LifecycleListener lifecycleListener) {
-        this.pingSessionRegistry = Assert.requireNonNull(pingSessionRegistry, "pingSessionRegistry");
-        this.lifecycleListener = Assert.requireNonNull(lifecycleListener, "lifecycleListener");
+        this.pingSessionRegistry = Objects.requireNonNull(pingSessionRegistry, "pingSessionRegistry");
+        this.lifecycleListener = Objects.requireNonNull(lifecycleListener, "lifecycleListener");
     }
 
     @Override

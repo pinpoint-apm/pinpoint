@@ -17,7 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.plugin.request.util;
 
 import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -25,7 +26,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 public class EntityRecorderFactory {
 
     public static <T> EntityRecorder<T> newEntityRecorder(HttpDumpConfig httpDumpConfig, EntityExtractor<T> extractor) {
-        Assert.requireNonNull(httpDumpConfig, "httpDumpConfig");
+        Objects.requireNonNull(httpDumpConfig, "httpDumpConfig");
 
         if (!httpDumpConfig.isDumpEntity()) {
             return new DisableEntityRecorder<T>();

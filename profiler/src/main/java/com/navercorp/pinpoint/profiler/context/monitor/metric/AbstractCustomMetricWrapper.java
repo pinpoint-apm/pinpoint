@@ -17,7 +17,8 @@
 package com.navercorp.pinpoint.profiler.context.monitor.metric;
 
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetric;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -29,7 +30,7 @@ abstract class AbstractCustomMetricWrapper<T extends CustomMetric> implements Cu
 
     public AbstractCustomMetricWrapper(int id, T customMetric) {
         this.id = id;
-        this.customMetric = Assert.requireNonNull(customMetric, "customMetric");
+        this.customMetric = Objects.requireNonNull(customMetric, "customMetric");
     }
 
     @Override

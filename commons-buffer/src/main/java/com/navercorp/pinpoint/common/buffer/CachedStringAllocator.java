@@ -1,16 +1,15 @@
 package com.navercorp.pinpoint.common.buffer;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.Objects;
 
 public class CachedStringAllocator implements StringAllocator {
     private final Map<ByteBuffer, String> cache;
 
     public CachedStringAllocator(Map<ByteBuffer, String> cache) {
-        this.cache = Assert.requireNonNull(cache, "cache");
+        this.cache = Objects.requireNonNull(cache, "cache");
     }
 
     @Override

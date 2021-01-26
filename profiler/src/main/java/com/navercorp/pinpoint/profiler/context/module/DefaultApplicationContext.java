@@ -16,13 +16,18 @@
 
 package com.navercorp.pinpoint.profiler.context.module;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.Module;
+import com.google.inject.Stage;
+import com.google.inject.name.Names;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.module.ClassFileTransformModuleAdaptor;
 import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
@@ -38,19 +43,13 @@ import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryB
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.Module;
-import com.google.inject.Stage;
-import com.google.inject.name.Names;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -81,9 +80,9 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final Injector injector;
 
     public DefaultApplicationContext(AgentOption agentOption, ModuleFactory moduleFactory) {
-        Assert.requireNonNull(agentOption, "agentOption");
-        Assert.requireNonNull(moduleFactory, "moduleFactory");
-        Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
+        Objects.requireNonNull(agentOption, "agentOption");
+        Objects.requireNonNull(moduleFactory, "moduleFactory");
+        Objects.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
 
         final Instrumentation instrumentation = agentOption.getInstrumentation();
         if (logger.isInfoEnabled()) {

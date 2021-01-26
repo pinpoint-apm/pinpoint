@@ -20,8 +20,9 @@ import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,7 +35,7 @@ public class DefaultNameSpaceChecker<T> implements NameSpaceChecker<T> {
 
 
     public DefaultNameSpaceChecker(RequestAdaptor<T> requestAdaptor, String applicationNamespace) {
-        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
+        this.requestAdaptor = Objects.requireNonNull(requestAdaptor, "requestAdaptor");
 
         if (StringUtils.isEmpty(applicationNamespace)) {
             throw new IllegalArgumentException("applicationNamespace must not be empty");

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
@@ -51,12 +51,12 @@ public class PingStreamContext {
     public PingStreamContext(AgentGrpc.AgentStub agentStub,
                              Reconnector reconnector,
                              ScheduledExecutorService retransmissionExecutor) {
-        Assert.requireNonNull(agentStub, "agentStub");
+        Objects.requireNonNull(agentStub, "agentStub");
 
         this.streamId = StreamId.newStreamId("PingStream");
 
-        this.reconnector = Assert.requireNonNull(reconnector, "reconnector");
-        this.retransmissionExecutor = Assert.requireNonNull(retransmissionExecutor, "retransmissionExecutor");
+        this.reconnector = Objects.requireNonNull(reconnector, "reconnector");
+        this.retransmissionExecutor = Objects.requireNonNull(retransmissionExecutor, "retransmissionExecutor");
         // WARNING
         this.responseObserver = new PingClientResponseObserver();
         this.requestObserver = agentStub.pingSession(responseObserver);

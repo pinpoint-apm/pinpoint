@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
 import com.navercorp.pinpoint.common.profiler.concurrent.jsr166.ConcurrentWeakHashMap;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.instrument.classreading.SimpleClassMetadata;
 import com.navercorp.pinpoint.profiler.instrument.classreading.SimpleClassMetadataReader;
@@ -55,7 +55,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
     private final PluginConfig pluginConfig;
 
     public PlainClassLoaderHandler(PluginConfig pluginConfig) {
-        this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig");
+        this.pluginConfig = Objects.requireNonNull(pluginConfig, "pluginConfig");
 
         this.pluginJarReader = new JarReader(pluginConfig.getPluginJarFile());
     }

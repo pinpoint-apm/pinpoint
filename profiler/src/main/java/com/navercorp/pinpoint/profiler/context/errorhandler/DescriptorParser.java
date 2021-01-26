@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class DescriptorParser {
@@ -18,7 +18,7 @@ public class DescriptorParser {
     private final Map<String, String> property;
 
     public DescriptorParser(Map<String, String> property) {
-        this.property = Assert.requireNonNull(property, "property");
+        this.property = Objects.requireNonNull(property, "property");
     }
 
     public List<Descriptor> parse() {

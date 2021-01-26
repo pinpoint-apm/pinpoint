@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.Pinpoint
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
-
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.CreateBuilder;
 import org.apache.curator.utils.ZKPaths;

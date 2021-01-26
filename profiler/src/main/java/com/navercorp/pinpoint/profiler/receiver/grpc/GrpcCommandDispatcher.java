@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.grpc.trace.PCmdMessage;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
@@ -45,9 +45,9 @@ public class GrpcCommandDispatcher {
     private final ProfilerCommandServiceLocator commandServiceLocator;
 
     public GrpcCommandDispatcher(ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub, ProfilerCommandServiceLocator commandServiceLocator) {
-        this.profilerCommandServiceStub = Assert.requireNonNull(profilerCommandServiceStub, "profilerCommandServiceStub");
+        this.profilerCommandServiceStub = Objects.requireNonNull(profilerCommandServiceStub, "profilerCommandServiceStub");
 
-        this.commandServiceLocator = Assert.requireNonNull(commandServiceLocator, "commandServiceLocator");
+        this.commandServiceLocator = Objects.requireNonNull(commandServiceLocator, "commandServiceLocator");
     }
 
     public void handle(PCmdRequest commandRequest, StreamObserver<PCmdMessage> streamObserver) {

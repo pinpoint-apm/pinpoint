@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.context.module;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.exception.PinpointException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -81,7 +81,7 @@ public class DefaultModuleFactoryResolver implements ModuleFactoryResolver {
     }
 
     private ClassLoader getClassLoader(ClassLoader classLoader) {
-        return Assert.requireNonNull(classLoader, "can't find classLoader");
+        return Objects.requireNonNull(classLoader, "can't find classLoader");
     }
 
 }

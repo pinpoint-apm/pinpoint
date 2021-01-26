@@ -30,11 +30,11 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolve
 import com.navercorp.pinpoint.bootstrap.plugin.uri.DisabledUriStatRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -61,10 +61,10 @@ public class ServletRequestListenerBuilder<REQ> {
     public ServletRequestListenerBuilder(final ServiceType serviceType,
                                          final TraceContext traceContext,
                                          final RequestAdaptor<REQ> requestAdaptor) {
-        this.serviceType = Assert.requireNonNull(serviceType, "serviceType");
+        this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
 
-        this.traceContext = Assert.requireNonNull(traceContext, "traceContext");
-        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
+        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
+        this.requestAdaptor = Objects.requireNonNull(requestAdaptor, "requestAdaptor");
     }
 
 
@@ -100,7 +100,7 @@ public class ServletRequestListenerBuilder<REQ> {
     }
 
     public void setReqUriStatRecorder(UriStatRecorder<REQ> reqUriStatRecorder) {
-        Assert.requireNonNull(reqUriStatRecorder, "reqUriStatRecorder");
+        Objects.requireNonNull(reqUriStatRecorder, "reqUriStatRecorder");
         this.uriStatRecorder = reqUriStatRecorder;
     }
 

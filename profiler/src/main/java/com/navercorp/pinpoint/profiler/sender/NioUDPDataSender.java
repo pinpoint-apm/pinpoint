@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import java.util.Objects;
+
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.common.util.IOUtils;
@@ -61,13 +63,13 @@ public class NioUDPDataSender implements DataSender {
 
     public NioUDPDataSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize,
                             MessageConverter<TBase<?, ?>> messageConverter) {
-        Assert.requireNonNull(host, "host");
-        Assert.requireNonNull(threadName, "threadName");
+        Objects.requireNonNull(host, "host");
+        Objects.requireNonNull(threadName, "threadName");
         Assert.isTrue(queueSize > 0, "queueSize");
         Assert.isTrue(timeout > 0, "timeout");
         Assert.isTrue(sendBufferSize > 0, "sendBufferSize");
 
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
+        this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
 
         // TODO If fail to create socket, stop agent start
         logger.info("NioUDPDataSender initialized. host={}, port={}", host, port);

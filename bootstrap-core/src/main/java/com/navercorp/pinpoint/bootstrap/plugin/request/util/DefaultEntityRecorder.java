@@ -23,8 +23,9 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -38,8 +39,8 @@ public class DefaultEntityRecorder<T> implements EntityRecorder<T> {
     private final EntityExtractor<T> entityExtractor;
 
     public DefaultEntityRecorder(HttpDumpConfig httpDumpConfig, EntityExtractor<T> entityExtractor) {
-        this.httpDumpConfig = Assert.requireNonNull(httpDumpConfig, "httpDumpConfig");
-        this.entityExtractor = Assert.requireNonNull(entityExtractor, "entityExtractor");
+        this.httpDumpConfig = Objects.requireNonNull(httpDumpConfig, "httpDumpConfig");
+        this.entityExtractor = Objects.requireNonNull(entityExtractor, "entityExtractor");
     }
 
     @Override

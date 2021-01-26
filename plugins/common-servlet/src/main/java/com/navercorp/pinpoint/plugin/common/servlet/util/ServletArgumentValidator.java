@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.plugin.common.servlet.util;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.common.util.Assert;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -38,15 +40,15 @@ public class ServletArgumentValidator implements ArgumentValidator {
     }
 
     public ServletArgumentValidator(PLogger logger, int requestIndex, Class<?> requestClass, int responseIndex, Class<?> responseClass, int minArgsSize) {
-        this.logger = Assert.requireNonNull(logger, "logger");
+        this.logger = Objects.requireNonNull(logger, "logger");
 
         Assert.isTrue(requestIndex >= 0, "requestIndex must be positive");
         this.requestIndex = requestIndex;
-        this.requestClass = Assert.requireNonNull(requestClass, "requestClass");
+        this.requestClass = Objects.requireNonNull(requestClass, "requestClass");
 
         Assert.isTrue(responseIndex >= 0, "responseIndex must be positive");
         this.responseIndex = responseIndex;
-        this.responseClass = Assert.requireNonNull(responseClass, "responseClass");
+        this.responseClass = Objects.requireNonNull(responseClass, "responseClass");
 
         Assert.isTrue(requestIndex != responseIndex, "requestIndex==responseIndex");
         this.minArgsSize = minArgsSize;

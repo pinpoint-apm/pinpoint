@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
@@ -69,13 +69,13 @@ public abstract class GrpcDataSender implements DataSender<Object> {
                           int executorQueueSize,
                           MessageConverter<GeneratedMessageV3> messageConverter,
                           ChannelFactory channelFactory) {
-        this.channelFactory = Assert.requireNonNull(channelFactory, "channelFactory");
+        this.channelFactory = Objects.requireNonNull(channelFactory, "channelFactory");
 
-        this.name = Assert.requireNonNull(channelFactory.getFactoryName(), "channelFactory.name");
-        this.host = Assert.requireNonNull(host, "host");
+        this.name = Objects.requireNonNull(channelFactory.getFactoryName(), "channelFactory.name");
+        this.host = Objects.requireNonNull(host, "host");
         this.port = port;
 
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
+        this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
 
         this.executor = newExecutorService(name + "-Executor", executorQueueSize);
 
@@ -98,7 +98,7 @@ public abstract class GrpcDataSender implements DataSender<Object> {
         private final ConnectivityState before;
 
         public ConnectivityStateMonitor(ConnectivityState before) {
-            this.before = Assert.requireNonNull(before, "before");
+            this.before = Objects.requireNonNull(before, "before");
         }
 
         @Override

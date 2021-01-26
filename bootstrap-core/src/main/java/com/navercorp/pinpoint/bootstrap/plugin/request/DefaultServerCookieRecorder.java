@@ -2,11 +2,11 @@ package com.navercorp.pinpoint.bootstrap.plugin.request;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringStringValue;
 
 import java.util.List;
+import java.util.Objects;
 
 public class DefaultServerCookieRecorder<REQ> implements ServerCookieRecorder<REQ> {
 
@@ -15,9 +15,9 @@ public class DefaultServerCookieRecorder<REQ> implements ServerCookieRecorder<RE
     private final String[] recordCookies;
 
     public DefaultServerCookieRecorder(CookieSupportAdaptor<REQ> requestAdaptor, List<String> recordCookies) {
-        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
+        this.requestAdaptor = Objects.requireNonNull(requestAdaptor, "requestAdaptor");
 
-        Assert.requireNonNull(recordCookies, "recordCookies");
+        Objects.requireNonNull(recordCookies, "recordCookies");
         this.recordCookies = recordCookies.toArray(new String[0]);
     }
 

@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class JarReader {
     private final JarFile jarFile;
 
     public JarReader(JarFile jarFile) {
-        this.jarFile = Assert.requireNonNull(jarFile, "jarFile");
+        this.jarFile = Objects.requireNonNull(jarFile, "jarFile");
     }
 
     public InputStream getInputStream(String name) throws IOException {

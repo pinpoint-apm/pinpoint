@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
@@ -39,8 +39,8 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
 
     @Inject
     public StorageFactoryProvider(ProfilerConfig profilerConfig, @SpanDataSender DataSender spanDataSender) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.spanDataSender = Assert.requireNonNull(spanDataSender, "spanDataSender");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.spanDataSender = Objects.requireNonNull(spanDataSender, "spanDataSender");
     }
 
     @Override

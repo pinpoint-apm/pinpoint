@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 
@@ -29,8 +29,8 @@ public class ClassInjectorFactory {
     private final BootstrapCore bootstrapCore;
 
     public ClassInjectorFactory(InstrumentEngine instrumentEngine, BootstrapCore bootstrapCore) {
-        this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine");
-        this.bootstrapCore = Assert.requireNonNull(bootstrapCore, "bootstrapCore");
+        this.instrumentEngine = Objects.requireNonNull(instrumentEngine, "instrumentEngine");
+        this.bootstrapCore = Objects.requireNonNull(bootstrapCore, "bootstrapCore");
     }
 
     public ClassInjector newClassInjector(PluginConfig pluginConfig) {

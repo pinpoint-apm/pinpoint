@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 import io.grpc.Metadata;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -63,14 +62,14 @@ public class Header {
     }
 
     public Header(String agentId, String applicationName, int serviceType, long agentStartTime, long socketId, List<Integer> supportCommandCodeList, final Map<String, Object> properties) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serviceType = serviceType;
         this.agentStartTime = agentStartTime;
         this.socketId = socketId;
         // allow null
         this.supportCommandCodeList = supportCommandCodeList;
-        this.properties = Assert.requireNonNull(properties, "properties");
+        this.properties = Objects.requireNonNull(properties, "properties");
     }
 
     public String getAgentId() {

@@ -16,8 +16,9 @@
 package com.navercorp.pinpoint.bootstrap.instrument.matcher.operand;
 
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ClassUtils;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -28,7 +29,7 @@ public class AnnotationInternalNameMatcherOperand extends AbstractMatcherOperand
     private final boolean considerMetaAnnotation;
 
     public AnnotationInternalNameMatcherOperand(final String annotationName, final boolean considerMetaAnnotation) {
-        Assert.requireNonNull(annotationName, "annotationName");
+        Objects.requireNonNull(annotationName, "annotationName");
         this.annotationInternalName = ClassUtils.toInternalName(annotationName);
         this.considerMetaAnnotation = considerMetaAnnotation;
     }

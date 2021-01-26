@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -30,7 +29,7 @@ public class AgentIdResolverBuilder {
     private final List<AgentProperties> agentProperties = new ArrayList<AgentProperties>();
     
     public void addSystemProperties(Properties system) {
-        Assert.requireNonNull(system, "system");
+        Objects.requireNonNull(system, "system");
 
         AgentProperties systemProperties = new AgentProperties(AgentIdSourceType.SYSTEM, system,
                 AgentIdResolver.AGENT_ID_SYSTEM_PROPERTY, AgentIdResolver.APPLICATION_NAME_SYSTEM_PROPERTY);
@@ -38,7 +37,7 @@ public class AgentIdResolverBuilder {
     }
     
     public void addEnvProperties(Map<String, String> env) {
-        Assert.requireNonNull(env, "env");
+        Objects.requireNonNull(env, "env");
 
         AgentProperties envProperties = new AgentProperties(AgentIdSourceType.SYSTEM_ENV, env,
                 AgentIdResolver.AGENT_ID_ENV_PROPERTY, AgentIdResolver.APPLICATION_NAME_ENV_PROPERTY);
@@ -46,7 +45,7 @@ public class AgentIdResolverBuilder {
     }
 
     public void addAgentArgument(Map<String, String> agentArguments) {
-        Assert.requireNonNull(agentArguments, "agentArguments");
+        Objects.requireNonNull(agentArguments, "agentArguments");
 
         AgentProperties agentArgument = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, agentArguments,
                 AgentIdResolver.AGENT_ID, AgentIdResolver.APPLICATION_NAME);

@@ -20,8 +20,9 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -31,7 +32,7 @@ public class HttpParameterRecorder<T> implements ParameterRecorder<T> {
     private final ParameterExtractor<T> parameterExtractor;
 
     public HttpParameterRecorder(ParameterExtractor<T> parameterExtractor) {
-        this.parameterExtractor = Assert.requireNonNull(parameterExtractor, "parameterExtractor");
+        this.parameterExtractor = Objects.requireNonNull(parameterExtractor, "parameterExtractor");
     }
 
     @Override

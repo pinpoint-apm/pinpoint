@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.grpc.client;
 
 import com.navercorp.pinpoint.common.util.Assert;
-
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;

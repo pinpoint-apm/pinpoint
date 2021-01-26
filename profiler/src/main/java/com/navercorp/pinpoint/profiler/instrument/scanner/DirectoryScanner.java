@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.scanner;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,12 +31,12 @@ public class DirectoryScanner implements Scanner {
     private final String directory;
 
     public DirectoryScanner(String directory) {
-        this.directory = Assert.requireNonNull(directory, "directory");
+        this.directory = Objects.requireNonNull(directory, "directory");
     }
 
     @Override
     public boolean exist(String fileName) {
-        Assert.requireNonNull(fileName, "fileName");
+        Objects.requireNonNull(fileName, "fileName");
 
         final String fullPath = getFullPath(fileName);
         final File file = new File(fullPath);
@@ -50,7 +50,7 @@ public class DirectoryScanner implements Scanner {
 
     @Override
     public InputStream openStream(String fileName) {
-        Assert.requireNonNull(fileName, "fileName");
+        Objects.requireNonNull(fileName, "fileName");
 
         final String fullPath = getFullPath(fileName);
         try {

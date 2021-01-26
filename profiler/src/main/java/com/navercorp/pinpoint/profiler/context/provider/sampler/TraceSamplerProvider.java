@@ -22,12 +22,13 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.sampler.BasicTraceSampler;
 import com.navercorp.pinpoint.profiler.sampler.RateLimitTraceSampler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -41,9 +42,9 @@ public class TraceSamplerProvider implements Provider<TraceSampler> {
 
     @Inject
     public TraceSamplerProvider(ProfilerConfig profilerConfig, Sampler sampler, IdGenerator idGenerator) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.sampler = Assert.requireNonNull(sampler, "sampler");
-        this.idGenerator = Assert.requireNonNull(idGenerator, "idGenerator");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.sampler = Objects.requireNonNull(sampler, "sampler");
+        this.idGenerator = Objects.requireNonNull(idGenerator, "idGenerator");
     }
 
     @Override

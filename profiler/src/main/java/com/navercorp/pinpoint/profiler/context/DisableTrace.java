@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 
@@ -41,7 +41,7 @@ public class DisableTrace implements Trace {
     public DisableTrace(long id, long startTime,  ActiveTraceHandle handle) {
         this.id = id;
         this.startTime = startTime;
-        this.handle = Assert.requireNonNull(handle, "handle");
+        this.handle = Objects.requireNonNull(handle, "handle");
     }
 
     @Override

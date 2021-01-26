@@ -20,7 +20,6 @@ import com.mongodb.client.model.PushOptions;
 import com.mongodb.client.model.TextSearchOptions;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.ExtendedBsonListGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.FieldNameGetter;
@@ -53,6 +52,7 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Roy Kim
@@ -72,7 +72,7 @@ class WriteContext {
     static final String UNTRACED = "Unsupported-trace";
 
     public WriteContext(List<String> jsonParameterAppender, boolean decimal128Enabled, boolean traceBsonBindValue) {
-        this.jsonParameter = Assert.requireNonNull(jsonParameterAppender, "jsonParameterAppender");
+        this.jsonParameter = Objects.requireNonNull(jsonParameterAppender, "jsonParameterAppender");
         this.decimal128Enabled = decimal128Enabled;
         this.traceBsonBindValue = traceBsonBindValue;
     }

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
+import java.util.Objects;
+
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.client.WriteFailFutureListener;
 import com.navercorp.pinpoint.rpc.packet.PingPacket;
@@ -52,9 +54,9 @@ public class HealthCheckManager {
     private final WriteFailFutureListener writeFailListener = new WriteFailFutureListener(logger, "ping write fail.", "ping write success.");
 
     public HealthCheckManager(Timer timer, long waitTimeMillis, ChannelGroup channelGroup) {
-        Assert.requireNonNull(timer, "timer");
+        Objects.requireNonNull(timer, "timer");
         Assert.isTrue(waitTimeMillis > 0, "waitTimeMillis is must greater than 0");
-        Assert.requireNonNull(channelGroup, "channelGroup");
+        Objects.requireNonNull(channelGroup, "channelGroup");
 
         this.timer = timer;
         this.waitTimeMillis = waitTimeMillis;

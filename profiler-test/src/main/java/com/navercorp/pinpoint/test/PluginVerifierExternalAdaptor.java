@@ -27,18 +27,17 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTraceField;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.TraceType;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.StopWatch;
 import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
 import com.navercorp.pinpoint.profiler.context.DefaultLocalAsyncId;
@@ -66,14 +65,14 @@ import java.util.NoSuchElementException;
  */
 public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
-    private final List<Short> ignoredServiceTypes = new ArrayList<Short>();
+    private final List<Short> ignoredServiceTypes = new ArrayList<>();
 
     private final DefaultApplicationContext applicationContext;
 
     private final ApplicationContextHandler handler;
 
     public PluginVerifierExternalAdaptor(DefaultApplicationContext applicationContext) {
-        this.applicationContext = Assert.requireNonNull(applicationContext, "applicationContext");
+        this.applicationContext = java.util.Objects.requireNonNull(applicationContext, "applicationContext");
         this.handler = new ApplicationContextHandler(applicationContext);
     }
 
@@ -894,7 +893,6 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         if (expectedTrace == null) {
             return;
         }
-        Assert.requireNonNull(expectedTrace, "expectedTrace");
         if (waitUnitTime <= 0 || maxWaitTime <= 0) {
             throw new IllegalArgumentException("must be greater than 0");
         }

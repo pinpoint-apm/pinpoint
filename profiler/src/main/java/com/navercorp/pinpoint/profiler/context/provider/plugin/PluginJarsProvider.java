@@ -20,7 +20,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.module.PluginJarPaths;
@@ -37,6 +36,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -47,8 +47,8 @@ public class PluginJarsProvider implements Provider<List<PluginJar>> {
 
     @Inject
     public PluginJarsProvider(@PluginJarPaths List<String> pluginJarPaths, ProfilerConfig profilerConfig) {
-        Assert.requireNonNull(pluginJarPaths, "pluginJarPaths");
-        Assert.requireNonNull(profilerConfig, "profilerConfig");
+        Objects.requireNonNull(pluginJarPaths, "pluginJarPaths");
+        Objects.requireNonNull(profilerConfig, "profilerConfig");
         PluginFilter pluginFilter = createPluginJarFilter(profilerConfig);
         logger.info("pluginJarFilter:{}", pluginFilter);
         List<PluginJar> pluginJars = createPluginJars(pluginJarPaths, pluginFilter, profilerConfig.getPluginLoadOrder());

@@ -1,8 +1,7 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 import java.util.List;
+import java.util.Objects;
 
 public class Descriptor {
     private final String handlerId;
@@ -12,9 +11,9 @@ public class Descriptor {
     private final boolean parentSearch;
 
     public Descriptor(String handlerId, List<String> classNames, List<String> containsExceptionMessages, boolean nestedSearch, boolean parentSearch) {
-        this.handlerId = Assert.requireNonNull(handlerId, "handlerId");
-        this.classNames = Assert.requireNonNull(classNames, "classNames");
-        this.containsExceptionMessages = Assert.requireNonNull(containsExceptionMessages, "containsExceptionMessages");
+        this.handlerId = Objects.requireNonNull(handlerId, "handlerId");
+        this.classNames = Objects.requireNonNull(classNames, "classNames");
+        this.containsExceptionMessages = Objects.requireNonNull(containsExceptionMessages, "containsExceptionMessages");
         this.nestedSearch = nestedSearch;
         this.parentSearch = parentSearch;
     }

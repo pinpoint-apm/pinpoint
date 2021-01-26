@@ -21,7 +21,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -37,7 +38,7 @@ public class ClientRequestRecorder<T> {
 
     public ClientRequestRecorder(final boolean param, ClientRequestAdaptor<T> clientRequestAdaptor) {
         this.param = param;
-        this.clientRequestAdaptor = Assert.requireNonNull(clientRequestAdaptor, "clientRequestAdaptor");
+        this.clientRequestAdaptor = Objects.requireNonNull(clientRequestAdaptor, "clientRequestAdaptor");
     }
 
     // Records the client's request information.

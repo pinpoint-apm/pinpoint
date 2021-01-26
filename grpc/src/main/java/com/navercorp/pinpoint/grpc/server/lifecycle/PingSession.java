@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.grpc.server.lifecycle;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.Header;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -30,8 +30,8 @@ public class PingSession {
     private final AtomicLong eventIdAllocator;
 
     public PingSession(Long id, Header header) {
-        this.id = Assert.requireNonNull(id, "transportMetadata");
-        this.header = Assert.requireNonNull(header, "header");
+        this.id = Objects.requireNonNull(id, "transportMetadata");
+        this.header = Objects.requireNonNull(header, "header");
 
         this.eventIdAllocator = new AtomicLong();
     }

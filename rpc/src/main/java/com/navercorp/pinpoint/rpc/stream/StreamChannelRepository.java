@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 
 import java.util.Set;
@@ -31,7 +31,7 @@ public class StreamChannelRepository {
     private final ConcurrentMap<Integer, StreamChannel> streamChannelMap = new ConcurrentHashMap<Integer, StreamChannel>();
 
     public void registerIfAbsent(StreamChannel streamChannel) throws StreamException {
-        Assert.requireNonNull(streamChannel, "streamChannel");
+        Objects.requireNonNull(streamChannel, "streamChannel");
 
         int streamId = streamChannel.getStreamId();
         if (streamChannelMap.putIfAbsent(streamId, streamChannel) != null) {
@@ -40,7 +40,7 @@ public class StreamChannelRepository {
     }
 
     public StreamChannel unregister(StreamChannel streamChannel) {
-        Assert.requireNonNull(streamChannel, "streamChannel");
+        Objects.requireNonNull(streamChannel, "streamChannel");
         return unregister(streamChannel.getStreamId());
     }
 

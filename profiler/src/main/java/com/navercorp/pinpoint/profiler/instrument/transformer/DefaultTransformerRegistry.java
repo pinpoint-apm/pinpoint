@@ -24,7 +24,7 @@ import java.util.Map;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.MultiClassNameMatcher;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
@@ -44,7 +44,7 @@ public class DefaultTransformerRegistry implements TransformerRegistry {
     private final Map<String, ClassFileTransformer> registry;
 
     public DefaultTransformerRegistry(List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
-        Assert.requireNonNull(matchableClassFileTransformerList, "matchableClassFileTransformerList");
+        Objects.requireNonNull(matchableClassFileTransformerList, "matchableClassFileTransformerList");
 
         this.registry = newRegistry(matchableClassFileTransformerList);
     }

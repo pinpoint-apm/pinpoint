@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.trace.PCustomMetric;
 import com.navercorp.pinpoint.grpc.trace.PCustomMetricMessage;
 import com.navercorp.pinpoint.grpc.trace.PDoubleValue;
@@ -39,6 +38,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.custom.LongGaugeMetricVo;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -48,7 +48,7 @@ public class GrpcCustomMetricMessageConverter implements MessageConverter<PCusto
 
     @Override
     public PCustomMetricMessage toMessage(Object message) {
-        Assert.requireNonNull(message, "message");
+        Objects.requireNonNull(message, "message");
 
         if (message instanceof AgentCustomMetricSnapshotBatch) {
             AgentCustomMetricSnapshotBatch agentCustomMetricSnapshotBatch = (AgentCustomMetricSnapshotBatch) message;

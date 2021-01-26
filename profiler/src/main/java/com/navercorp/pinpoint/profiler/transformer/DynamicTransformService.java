@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformRequestListener;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -41,8 +41,8 @@ public class DynamicTransformService implements DynamicTransformTrigger {
     private DynamicTransformRequestListener dynamicTransformRequestListener;
 
     public DynamicTransformService(Instrumentation instrumentation, DynamicTransformRequestListener listener) {
-        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
-        this.dynamicTransformRequestListener = Assert.requireNonNull(listener, "listener");
+        this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
+        this.dynamicTransformRequestListener = Objects.requireNonNull(listener, "listener");
     }
 
     @Override

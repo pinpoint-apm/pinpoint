@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.io.util;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 import com.navercorp.pinpoint.common.util.apache.IntHashMapUtils;
 import com.navercorp.pinpoint.io.header.Header;
@@ -46,7 +46,7 @@ public class TypeLocatorBuilder<T> {
     }
 
     public TypeLocatorBuilder(HeaderFactory headerFactory) {
-        this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory");
+        this.headerFactory = Objects.requireNonNull(headerFactory, "headerFactory");
     }
 
     public void addBodyFactory(short type, BodyFactory<T> bodyFactory) {

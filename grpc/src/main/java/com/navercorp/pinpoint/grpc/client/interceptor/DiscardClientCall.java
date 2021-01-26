@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.grpc.client.interceptor;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.client.ForwardClientCall;
 import io.grpc.ClientCall;
 import io.grpc.ForwardingClientCallListener;
 import io.grpc.Metadata;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -41,7 +41,7 @@ class DiscardClientCall<ReqT, RespT> extends ForwardClientCall<ReqT, RespT> {
 
     public DiscardClientCall(ClientCall<ReqT, RespT> delegate, DiscardEventListener listener, long maxPendingThreshold, long discardCountForReconnect, long notReadyTimeoutMillis) {
         super(delegate);
-        this.listener = Assert.requireNonNull(listener, "listener");
+        this.listener = Objects.requireNonNull(listener, "listener");
         this.maxPendingThreshold = maxPendingThreshold;
         this.discardLimiter = new DiscardLimiter(discardCountForReconnect, notReadyTimeoutMillis);
     }

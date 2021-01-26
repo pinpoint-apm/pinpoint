@@ -2,10 +2,10 @@ package com.navercorp.pinpoint.bootstrap.plugin.request;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringStringValue;
 
 import java.util.List;
+import java.util.Objects;
 
 public class DefaultServerHeaderRecorder<REQ> implements ServerHeaderRecorder<REQ> {
 
@@ -13,8 +13,8 @@ public class DefaultServerHeaderRecorder<REQ> implements ServerHeaderRecorder<RE
     private final String[] recordHeaders;
 
     public DefaultServerHeaderRecorder(RequestAdaptor<REQ> requestAdaptor, List<String> recordHeaders) {
-        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
-        Assert.requireNonNull(recordHeaders, "recordHeaders");
+        this.requestAdaptor = Objects.requireNonNull(requestAdaptor, "requestAdaptor");
+        Objects.requireNonNull(recordHeaders, "recordHeaders");
         this.recordHeaders = recordHeaders.toArray(new String[0]);
     }
 

@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetricRegistry;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.util.TypeUtils;
@@ -60,7 +60,7 @@ public class InterceptorArgumentProvider implements ArgumentProvider {
             throw new NullPointerException("apiMetaDataService");
         }
         this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
-        this.customMetricRegistry = Assert.requireNonNull(customMetricRegistry, "customMetricRegistry");
+        this.customMetricRegistry = Objects.requireNonNull(customMetricRegistry, "customMetricRegistry");
         this.apiMetaDataService = apiMetaDataService;
         this.requestRecorderFactory = requestRecorderFactory;
         this.uriStatRecorderFactory = uriStatRecorderFactory;

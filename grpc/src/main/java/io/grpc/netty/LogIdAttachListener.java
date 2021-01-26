@@ -1,6 +1,5 @@
 package io.grpc.netty;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
 import io.grpc.Attributes;
 import io.grpc.Metadata;
@@ -9,6 +8,8 @@ import io.grpc.internal.ServerTransportListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 public class LogIdAttachListener implements ServerTransportListener {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -16,8 +17,8 @@ public class LogIdAttachListener implements ServerTransportListener {
     private final Long logId;
 
     public LogIdAttachListener(ServerTransportListener delegate, Long logId) {
-        this.delegate = Assert.requireNonNull(delegate, "delegate");
-        this.logId = Assert.requireNonNull(logId, "logId");
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
+        this.logId = Objects.requireNonNull(logId, "logId");
     }
 
     @Override

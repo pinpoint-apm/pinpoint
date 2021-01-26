@@ -19,7 +19,8 @@ package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -29,7 +30,7 @@ public class TransformTemplate implements TransformOperations {
     private final InstrumentContext instrumentContext;
 
     public TransformTemplate(InstrumentContext instrumentContext) {
-        this.instrumentContext = Assert.requireNonNull(instrumentContext, "instrumentContext");
+        this.instrumentContext = Objects.requireNonNull(instrumentContext, "instrumentContext");
     }
 
     protected InstrumentContext getInstrumentContext() {
@@ -42,8 +43,8 @@ public class TransformTemplate implements TransformOperations {
     @Deprecated
     @Override
     public void transform(String className, TransformCallback transformCallback) {
-        Assert.requireNonNull(className, "className");
-        Assert.requireNonNull(transformCallback, "transformCallback");
+        Objects.requireNonNull(className, "className");
+        Objects.requireNonNull(transformCallback, "transformCallback");
 
         final Matcher matcher = Matchers.newClassNameMatcher(className);
         this.instrumentContext.addClassFileTransformer(matcher, transformCallback);
@@ -51,8 +52,8 @@ public class TransformTemplate implements TransformOperations {
 
     @Override
     public void transform(String className, Class<? extends TransformCallback> transformCallbackClass) {
-        Assert.requireNonNull(className, "className");
-        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass");
+        Objects.requireNonNull(className, "className");
+        Objects.requireNonNull(transformCallbackClass, "transformCallbackClass");
 
         final Matcher matcher = Matchers.newClassNameMatcher(className);
 
@@ -65,8 +66,8 @@ public class TransformTemplate implements TransformOperations {
 
 //    @Override
 //    public void transform(String className, Class<? extends TransformCallback> transformCallbackClass, Object[] parameters) {
-//        Assert.requireNonNull(className, "className");
-//        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass");
+//        Objects.requireNonNull(className, "className");
+//        Objects.requireNonNull(transformCallbackClass, "transformCallbackClass");
 //
 ////        if (ParameterUtils.hasNull(parameters)) {
 ////            throw new IllegalArgumentException("null parameter not supported");
@@ -81,8 +82,8 @@ public class TransformTemplate implements TransformOperations {
 
     @Override
     public void transform(String className, Class<? extends TransformCallback> transformCallbackClass, Object[] parameters, Class<?>[] parameterTypes) {
-        Assert.requireNonNull(className, "className");
-        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass");
+        Objects.requireNonNull(className, "className");
+        Objects.requireNonNull(transformCallbackClass, "transformCallbackClass");
 
 
 

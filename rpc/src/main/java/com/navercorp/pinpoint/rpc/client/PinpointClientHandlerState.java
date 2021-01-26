@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.StateChangeEventListener;
 import org.slf4j.Logger;
@@ -42,7 +42,7 @@ public class PinpointClientHandlerState {
     private final SocketState state;
 
     public PinpointClientHandlerState(String objectName, DefaultPinpointClientHandler clientHandler, List<StateChangeEventListener> stateChangeEventListeners) {
-        this.objectName = Assert.requireNonNull(objectName, "objectName");
+        this.objectName = Objects.requireNonNull(objectName, "objectName");
 
         this.clientHandler = clientHandler;
         this.stateChangeEventListeners = stateChangeEventListeners;

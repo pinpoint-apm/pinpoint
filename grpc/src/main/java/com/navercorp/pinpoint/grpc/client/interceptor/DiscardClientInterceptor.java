@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.grpc.client.interceptor;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
@@ -24,6 +23,8 @@ import io.grpc.ClientInterceptor;
 import io.grpc.MethodDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -39,7 +40,7 @@ public class DiscardClientInterceptor implements ClientInterceptor {
     private final long notReadyTimeoutMillis;
 
     public DiscardClientInterceptor(DiscardEventListener listener, long maxPendingThreshold, long discardCountForReconnect, long notReadyTimeoutMillis) {
-        this.listener = Assert.requireNonNull(listener, "listener");
+        this.listener = Objects.requireNonNull(listener, "listener");
         this.maxPendingThreshold = maxPendingThreshold;
         this.discardCountForReconnect = discardCountForReconnect;
         this.notReadyTimeoutMillis = notReadyTimeoutMillis;

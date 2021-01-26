@@ -18,13 +18,13 @@ package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.BootLogger;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
-import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
@@ -49,12 +49,12 @@ class ProfilePropertyLoader implements PropertyLoader {
     public static final String[] ALLOWED_PROPERTY_PREFIX = new String[]{"bytecode.", "profiler.", "pinpoint."};
 
     public ProfilePropertyLoader(SimpleProperty javaSystemProperty, SimpleProperty osEnvProperty, String agentRootPath, String profilesPath, String[] supportedProfiles) {
-        this.javaSystemProperty = Assert.requireNonNull(javaSystemProperty, "javaSystemProperty");
-        this.osEnvProperty = Assert.requireNonNull(osEnvProperty, "osEnvProperty");
+        this.javaSystemProperty = Objects.requireNonNull(javaSystemProperty, "javaSystemProperty");
+        this.osEnvProperty = Objects.requireNonNull(osEnvProperty, "osEnvProperty");
 
-        this.agentRootPath = Assert.requireNonNull(agentRootPath, "agentRootPath");
-        this.profilesPath = Assert.requireNonNull(profilesPath, "profilesPath");
-        this.supportedProfiles = Assert.requireNonNull(supportedProfiles, "supportedProfiles");
+        this.agentRootPath = Objects.requireNonNull(agentRootPath, "agentRootPath");
+        this.profilesPath = Objects.requireNonNull(profilesPath, "profilesPath");
+        this.supportedProfiles = Objects.requireNonNull(supportedProfiles, "supportedProfiles");
     }
 
     /**

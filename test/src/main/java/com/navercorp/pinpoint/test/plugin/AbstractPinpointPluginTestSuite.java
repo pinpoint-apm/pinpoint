@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
-import com.navercorp.pinpoint.test.plugin.util.Assert;
 import com.navercorp.pinpoint.test.plugin.util.CodeSourceUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;
@@ -42,6 +41,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public abstract class AbstractPinpointPluginTestSuite extends Suite {
@@ -216,7 +216,7 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         private final String[] paths;
 
         public LibraryFilter(String[] paths) {
-            this.paths = Assert.requireNonNull(paths, "paths");
+            this.paths = Objects.requireNonNull(paths, "paths");
         }
 
         public String filter(URL url) {

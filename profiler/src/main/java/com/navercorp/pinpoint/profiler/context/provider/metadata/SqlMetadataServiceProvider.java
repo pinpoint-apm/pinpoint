@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.context.provider.metadata;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.metadata.DefaultSqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
@@ -26,6 +25,7 @@ import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
 import javax.inject.Provider;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -40,9 +40,9 @@ public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> 
     public SqlMetadataServiceProvider(ProfilerConfig profilerConfig,
                                          @MetadataDataSender EnhancedDataSender<Object> enhancedDataSender,
                                       SimpleCacheFactory simpleCacheFactory) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.enhancedDataSender = Assert.requireNonNull(enhancedDataSender, "enhancedDataSender");
-        this.simpleCacheFactory = Assert.requireNonNull(simpleCacheFactory, "simpleCacheFactory");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
+        this.simpleCacheFactory = Objects.requireNonNull(simpleCacheFactory, "simpleCacheFactory");
     }
 
     @Override

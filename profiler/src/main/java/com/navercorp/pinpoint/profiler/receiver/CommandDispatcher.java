@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.receiver;
 
 import com.google.inject.Inject;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
@@ -53,7 +53,7 @@ public class CommandDispatcher extends ServerStreamChannelMessageHandler impleme
 
     @Inject
     public CommandDispatcher(ProfilerCommandServiceLocator<TBase<?, ?>, TBase<?, ?>> commandServiceLocator) {
-        this.commandServiceLocator = Assert.requireNonNull(commandServiceLocator, "commandServiceLocator");
+        this.commandServiceLocator = Objects.requireNonNull(commandServiceLocator, "commandServiceLocator");
     }
 
     @Override

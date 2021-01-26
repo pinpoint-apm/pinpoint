@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.BootLogger;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,8 +36,8 @@ public class BootDir {
     private final List<String> jars;
 
     public BootDir(String baseDir, List<JarDescription> jarDescriptions) {
-        Assert.requireNonNull(baseDir, "baseDir");
-        Assert.requireNonNull(jarDescriptions, "jarDescriptions");
+        Objects.requireNonNull(baseDir, "baseDir");
+        Objects.requireNonNull(jarDescriptions, "jarDescriptions");
         final File baseDirFile = new File(baseDir);
         this.jars = verify(baseDirFile, jarDescriptions);
     }

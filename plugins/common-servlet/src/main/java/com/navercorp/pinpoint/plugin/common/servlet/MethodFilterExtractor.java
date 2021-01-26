@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.plugin.common.servlet;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterExtractor;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,8 +32,8 @@ public class MethodFilterExtractor implements ParameterExtractor<HttpServletRequ
     private final ParameterExtractor<HttpServletRequest> delegate;
 
     public MethodFilterExtractor(Filter<String> excludeProfileMethodFilter, ParameterExtractor<HttpServletRequest> delegate) {
-        this.excludeProfileMethodFilter = Assert.requireNonNull(excludeProfileMethodFilter, "excludeProfileMethodFilter");
-        this.delegate = Assert.requireNonNull(delegate, "delegate");
+        this.excludeProfileMethodFilter = Objects.requireNonNull(excludeProfileMethodFilter, "excludeProfileMethodFilter");
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
     @Override

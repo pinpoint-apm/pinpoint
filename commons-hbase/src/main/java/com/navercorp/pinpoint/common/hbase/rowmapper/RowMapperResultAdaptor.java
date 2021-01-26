@@ -1,8 +1,9 @@
 package com.navercorp.pinpoint.common.hbase.rowmapper;
 
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.util.Assert;
 import org.apache.hadoop.hbase.client.Result;
+
+import java.util.Objects;
 
 
 public class RowMapperResultAdaptor<T> implements RowMapper<T> {
@@ -10,8 +11,8 @@ public class RowMapperResultAdaptor<T> implements RowMapper<T> {
     private final RowMapper<T> delegate;
 
     public RowMapperResultAdaptor(RowMapper<T> delegate, ResultHandler resultConsumer) {
-        this.delegate = Assert.requireNonNull(delegate, "delegate");
-        this.resultHandler = Assert.requireNonNull(resultConsumer, "resultConsumer");
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
+        this.resultHandler = Objects.requireNonNull(resultConsumer, "resultConsumer");
     }
 
 

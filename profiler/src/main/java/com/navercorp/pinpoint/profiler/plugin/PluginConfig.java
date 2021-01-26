@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 
 import java.net.URL;
@@ -34,7 +34,7 @@ public class PluginConfig {
     private String pluginJarURLExternalForm;
 
     public PluginConfig(Plugin<?> plugin, ClassNameFilter pluginPackageFilter) {
-        this.plugin = Assert.requireNonNull(plugin, "plugin");
+        this.plugin = Objects.requireNonNull(plugin, "plugin");
         this.pluginPackageFilter = pluginPackageFilter;
         this.pluginJar = getJarFile(plugin);
     }

@@ -18,12 +18,13 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.AsyncTraceContext;
 import com.navercorp.pinpoint.profiler.context.DefaultAsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptorRegistry;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -36,9 +37,9 @@ public class AsyncContextFactoryProvider implements Provider<AsyncContextFactory
 
     @Inject
     public AsyncContextFactoryProvider(Provider<AsyncTraceContext> asyncTraceContextProvider, AsyncIdGenerator asyncIdGenerator, PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
-        this.asyncTraceContextProvider = Assert.requireNonNull(asyncTraceContextProvider, "asyncTraceContextProvider");
-        this.asyncIdGenerator = Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator");
-        this.predefinedMethodDescriptorRegistry = Assert.requireNonNull(predefinedMethodDescriptorRegistry, "predefinedMethodDescriptorRegistry");
+        this.asyncTraceContextProvider = Objects.requireNonNull(asyncTraceContextProvider, "asyncTraceContextProvider");
+        this.asyncIdGenerator = Objects.requireNonNull(asyncIdGenerator, "asyncIdGenerator");
+        this.predefinedMethodDescriptorRegistry = Objects.requireNonNull(predefinedMethodDescriptorRegistry, "predefinedMethodDescriptorRegistry");
     }
 
 

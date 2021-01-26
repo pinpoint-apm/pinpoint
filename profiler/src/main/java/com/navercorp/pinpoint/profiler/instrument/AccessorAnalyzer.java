@@ -16,7 +16,7 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import java.lang.reflect.Method;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author Jongho Moon
@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.util.Assert;
  */
 public class AccessorAnalyzer {
     public AccessorDetails analyze(Class<?> accessorType) {
-        Assert.requireNonNull(accessorType, "accessorType");
+        Objects.requireNonNull(accessorType, "accessorType");
         
         if (!accessorType.isInterface()) {
             throw new IllegalArgumentException("accessorType " + accessorType + "is not an interface");

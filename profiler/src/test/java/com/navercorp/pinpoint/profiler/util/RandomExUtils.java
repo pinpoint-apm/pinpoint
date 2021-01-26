@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.profiler.util;
 
+
 import com.navercorp.pinpoint.common.util.Assert;
 import org.apache.commons.lang.math.RandomUtils;
 

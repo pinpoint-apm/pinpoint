@@ -16,7 +16,6 @@ package com.navercorp.pinpoint.bootstrap;
 
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
-import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.bootstrap.agentdir.LogDirCleaner;
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
@@ -38,6 +37,7 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -73,11 +73,11 @@ class PinpointStarter {
 //        if (bootstrapClassLoader == null) {
 //            throw new NullPointerException("bootstrapClassLoader");
 //        }
-        this.agentArgs = Assert.requireNonNull(agentArgs, "agentArgs");
+        this.agentArgs = Objects.requireNonNull(agentArgs, "agentArgs");
         this.agentType = getAgentType(agentArgs);
         this.parentClassLoader = parentClassLoader;
-        this.agentDirectory = Assert.requireNonNull(agentDirectory, "agentDirectory");
-        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
+        this.agentDirectory = Objects.requireNonNull(agentDirectory, "agentDirectory");
+        this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
         this.moduleBootLoader = moduleBootLoader;
 
     }

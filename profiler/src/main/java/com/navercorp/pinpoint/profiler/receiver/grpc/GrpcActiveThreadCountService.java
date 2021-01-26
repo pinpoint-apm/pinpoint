@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCommandType;
@@ -48,7 +48,7 @@ public class GrpcActiveThreadCountService implements ProfilerGrpcCommandService,
     private final GrpcStreamService grpcStreamService = new GrpcStreamService("ActiveThreadCountService", DEFAULT_FLUSH_DELAY);
 
     public GrpcActiveThreadCountService(ActiveTraceRepository activeTraceRepository) {
-        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository");
+        this.activeTraceRepository = Objects.requireNonNull(activeTraceRepository, "activeTraceRepository");
     }
 
     @Override

@@ -16,9 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.client;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.Header;
-
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
@@ -27,6 +25,7 @@ import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 
 public class SupportCommandCodeClientInterceptor implements ClientInterceptor {
@@ -34,7 +33,7 @@ public class SupportCommandCodeClientInterceptor implements ClientInterceptor {
     private final Set<Short> supportCommandCodes;
 
     public SupportCommandCodeClientInterceptor(Set<Short> supportCommandCodes) {
-        this.supportCommandCodes = Assert.requireNonNull(supportCommandCodes, "supportCommandCodes");
+        this.supportCommandCodes = Objects.requireNonNull(supportCommandCodes, "supportCommandCodes");
     }
 
     @Override

@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -56,7 +57,7 @@ public class AgentDirectory {
         this.agentJarFullPath = agentJarFullPath;
         this.agentDirPath = agentDirPath;
 
-        this.bootDir = Assert.requireNonNull(bootDir, "bootDir");
+        this.bootDir = Objects.requireNonNull(bootDir, "bootDir");
         this.libs = libs;
         this.plugins = plugins;
     }

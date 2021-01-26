@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +35,9 @@ public class DefaultSqlMetaDataService implements SqlMetaDataService {
     private final EnhancedDataSender<Object> enhancedDataSender;
 
     public DefaultSqlMetaDataService(EnhancedDataSender<Object> enhancedDataSender, SimpleCache<String> sqlCache) {
-        this.enhancedDataSender = Assert.requireNonNull(enhancedDataSender, "enhancedDataSender");
+        this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
 
-        Assert.requireNonNull(sqlCache, "sqlCache");
+        Objects.requireNonNull(sqlCache, "sqlCache");
         this.cachingSqlNormalizer = new DefaultCachingSqlNormalizer(sqlCache);
     }
 

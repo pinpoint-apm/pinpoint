@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 
 /**
@@ -53,7 +54,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
 
     public AgentDirBaseClassPathResolver(String classPath) {
-        this.classPath = Assert.requireNonNull(classPath, "classPath");
+        this.classPath = Objects.requireNonNull(classPath, "classPath");
         this.fileExtensions = getFileExtensions();
     }
 

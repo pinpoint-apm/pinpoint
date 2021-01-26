@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import io.grpc.Attributes;
 import io.grpc.ServerTransportFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 public class MetadataServerTransportFilter extends ServerTransportFilter {
 
@@ -31,7 +32,7 @@ public class MetadataServerTransportFilter extends ServerTransportFilter {
     private final TransportMetadataFactory transportMetadataFactory;
 
     public MetadataServerTransportFilter(TransportMetadataFactory transportMetadataFactory) {
-        this.transportMetadataFactory = Assert.requireNonNull(transportMetadataFactory, "transportMetadataFactory");
+        this.transportMetadataFactory = Objects.requireNonNull(transportMetadataFactory, "transportMetadataFactory");
     }
 
     @Override

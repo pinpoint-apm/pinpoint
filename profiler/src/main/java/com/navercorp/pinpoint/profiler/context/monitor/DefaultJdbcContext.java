@@ -20,7 +20,8 @@ import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 
 /**
@@ -32,7 +33,7 @@ public class DefaultJdbcContext implements JdbcContext {
 
     @Inject
     public DefaultJdbcContext(JdbcUrlParsingService jdbcUrlParsingService) {
-        this.jdbcUrlParsingService = Assert.requireNonNull(jdbcUrlParsingService, "jdbcUrlParsingService");
+        this.jdbcUrlParsingService = Objects.requireNonNull(jdbcUrlParsingService, "jdbcUrlParsingService");
     }
 
 

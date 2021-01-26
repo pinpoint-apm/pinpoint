@@ -22,7 +22,6 @@ import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
@@ -60,6 +59,8 @@ import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -69,7 +70,7 @@ public class ThriftModule extends PrivateModule {
     private final ProfilerConfig profilerConfig;
 
     public ThriftModule(ProfilerConfig profilerConfig) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
     }
 
     @Override

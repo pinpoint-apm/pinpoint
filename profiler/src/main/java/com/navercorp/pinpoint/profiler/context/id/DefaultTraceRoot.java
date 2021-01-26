@@ -17,7 +17,8 @@
 package com.navercorp.pinpoint.profiler.context.id;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,8 +35,8 @@ public class DefaultTraceRoot implements TraceRoot {
 
 
     public DefaultTraceRoot(TraceId traceId, String agentId, long traceStartTime, long localTransactionId) {
-        this.traceId = Assert.requireNonNull(traceId, "traceId");
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.traceId = Objects.requireNonNull(traceId, "traceId");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.traceStartTime = traceStartTime;
         this.localTransactionId = localTransactionId;
     }

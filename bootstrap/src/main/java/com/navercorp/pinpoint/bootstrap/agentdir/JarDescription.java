@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.agentdir;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -30,7 +31,7 @@ public class JarDescription {
     private final boolean required;
 
     public JarDescription(String prefix, boolean required) {
-        this.prefix = Assert.requireNonNull(prefix, "prefix");
+        this.prefix = Objects.requireNonNull(prefix, "prefix");
         this.required = required;
     }
 

@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.profiler.sender.grpc.metric;
 
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,7 +24,7 @@ public class DefaultChannelzScheduledReporter implements ChannelzScheduledReport
 
     @Override
     public void registerRootChannel(final long id, final ChannelzReporter reporter) {
-        Assert.requireNonNull(reporter, "reporter");
+        Objects.requireNonNull(reporter, "reporter");
 
         final ChannelzReporter old = reporterMap.putIfAbsent(id, reporter);
         if (old != null) {

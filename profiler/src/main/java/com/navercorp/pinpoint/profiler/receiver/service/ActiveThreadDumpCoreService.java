@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
@@ -38,7 +38,7 @@ public class ActiveThreadDumpCoreService {
     private final Comparator<ThreadDump> reverseOrder =  Collections.reverseOrder(new ThreadDumpComparator());
 
     public ActiveThreadDumpCoreService(ActiveTraceRepository activeTraceRepository) {
-        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository");
+        this.activeTraceRepository = Objects.requireNonNull(activeTraceRepository, "activeTraceRepository");
     }
 
     public Collection<ThreadDump> getActiveThreadDumpList(ThreadDumpRequest request) {

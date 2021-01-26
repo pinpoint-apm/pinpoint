@@ -18,7 +18,8 @@ package com.navercorp.pinpoint.profiler.context.monitor;
 
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -28,7 +29,7 @@ public class DataSourceMonitorRegistryAdaptor implements DataSourceMonitorRegist
     private final DataSourceMonitorRegistryService delegate;
 
     public DataSourceMonitorRegistryAdaptor(DataSourceMonitorRegistryService delegate) {
-        this.delegate = Assert.requireNonNull(delegate, "delegate");
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
 

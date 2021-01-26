@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ public class PropertyRollbackTemplate {
     private final List<ExecuteContext<String>> contexts = new ArrayList<ExecuteContext<String>>();
 
     public PropertyRollbackTemplate(Properties properties) {
-        this.properties = Assert.requireNonNull(properties, "properties");
+        this.properties = Objects.requireNonNull(properties, "properties");
     }
 
     public void addKey(String key, String value) {
@@ -45,7 +45,7 @@ public class PropertyRollbackTemplate {
     }
 
     public <V> void execute(Runnable runnable) {
-        Assert.requireNonNull(runnable, "runnable");
+        Objects.requireNonNull(runnable, "runnable");
 
         // before
         final List<BeforeState<String>> beforeStates = new ArrayList<BeforeState<String>>(contexts.size());
@@ -79,8 +79,8 @@ public class PropertyRollbackTemplate {
 
 
         private ExecuteContext(String key, V value) {
-            this.key = Assert.requireNonNull(key, "key");
-            this.value = Assert.requireNonNull(value, "value");
+            this.key = Objects.requireNonNull(key, "key");
+            this.value = Objects.requireNonNull(value, "value");
         }
 
         private BeforeState<String> prepare(Properties properties) {

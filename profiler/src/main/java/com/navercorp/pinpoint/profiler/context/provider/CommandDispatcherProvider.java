@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.thrift.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
@@ -37,8 +37,8 @@ public class CommandDispatcherProvider implements Provider<CommandDispatcher> {
 
     @Inject
     public CommandDispatcherProvider(ThriftTransportConfig thriftTransportConfig, Provider<ActiveTraceRepository> activeTraceRepositoryProvider) {
-        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
-        Assert.requireNonNull(activeTraceRepositoryProvider, "activeTraceRepositoryProvider");
+        this.thriftTransportConfig = Objects.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
+        Objects.requireNonNull(activeTraceRepositoryProvider, "activeTraceRepositoryProvider");
         this.activeTraceRepository = activeTraceRepositoryProvider.get();
     }
 

@@ -19,19 +19,19 @@ package com.navercorp.pinpoint.profiler.context.provider.plugin;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.ConfiguredApplicationType;
 import com.navercorp.pinpoint.profiler.context.module.PluginJars;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.classloading.BootstrapCore;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjectorFactory;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContextLoader;
+import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
 import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginContextLoader;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -50,13 +50,13 @@ public class ProfilerPluginContextLoaderProvider implements Provider<ProfilerPlu
                                                PluginSetup pluginSetup,
                                                InstrumentEngine instrumentEngine, BootstrapCore bootstrapCore,
                                                @PluginJars List<PluginJar> pluginJars) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.configuredApplicationType = Assert.requireNonNull(configuredApplicationType, "configuredApplicationType");
-        this.pluginSetup = Assert.requireNonNull(pluginSetup, "pluginSetup");
-        Assert.requireNonNull(instrumentEngine, "instrumentEngine");
-        Assert.requireNonNull(bootstrapCore, "bootstrapCore");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.configuredApplicationType = Objects.requireNonNull(configuredApplicationType, "configuredApplicationType");
+        this.pluginSetup = Objects.requireNonNull(pluginSetup, "pluginSetup");
+        Objects.requireNonNull(instrumentEngine, "instrumentEngine");
+        Objects.requireNonNull(bootstrapCore, "bootstrapCore");
         this.classInjectorFactory = new ClassInjectorFactory(instrumentEngine, bootstrapCore);
-        this.pluginJars = Assert.requireNonNull(pluginJars, "pluginJars");
+        this.pluginJars = Objects.requireNonNull(pluginJars, "pluginJars");
     }
 
     @Override

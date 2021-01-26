@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+
 import javax.annotation.PostConstruct;
 import java.util.Objects;
 import java.util.Properties;

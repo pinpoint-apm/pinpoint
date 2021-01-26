@@ -18,19 +18,20 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.totalthread;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.totalthread.DefaultTotalThreadMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetricSnapshot;
 
+import java.util.Objects;
+
 public class TotalThreadMetricCollectorProvider implements Provider<AgentStatMetricCollector<TotalThreadMetricSnapshot>> {
     private final TotalThreadMetric totalThreadMetric;
 
     @Inject
     public TotalThreadMetricCollectorProvider(TotalThreadMetric totalThreadMetric) {
-        this.totalThreadMetric = Assert.requireNonNull(totalThreadMetric, "totalThreadMetric");
+        this.totalThreadMetric = Objects.requireNonNull(totalThreadMetric, "totalThreadMetric");
     }
 
     @Override

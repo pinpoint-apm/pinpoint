@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -56,14 +56,14 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
                                    TraceSampler traceSampler,
                                    SpanFactory spanFactory, RecorderFactory recorderFactory, ActiveTraceRepository activeTraceRepository) {
 
-        this.traceRootFactory = Assert.requireNonNull(traceRootFactory, "traceRootFactory");
-        this.callStackFactory = Assert.requireNonNull(callStackFactory, "callStackFactory");
-        this.storageFactory = Assert.requireNonNull(storageFactory, "storageFactory");
-        this.traceSampler = Assert.requireNonNull(traceSampler, "traceSampler");
+        this.traceRootFactory = Objects.requireNonNull(traceRootFactory, "traceRootFactory");
+        this.callStackFactory = Objects.requireNonNull(callStackFactory, "callStackFactory");
+        this.storageFactory = Objects.requireNonNull(storageFactory, "storageFactory");
+        this.traceSampler = Objects.requireNonNull(traceSampler, "traceSampler");
 
-        this.spanFactory = Assert.requireNonNull(spanFactory, "spanFactory");
-        this.recorderFactory = Assert.requireNonNull(recorderFactory, "recorderFactory");
-        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository");
+        this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
+        this.recorderFactory = Objects.requireNonNull(recorderFactory, "recorderFactory");
+        this.activeTraceRepository = Objects.requireNonNull(activeTraceRepository, "activeTraceRepository");
     }
 
     // continue to trace the request that has been determined to be sampled on previous nodes

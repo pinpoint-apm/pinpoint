@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author koo.taejin
@@ -82,7 +83,7 @@ public final class NetUtils {
         if (StringUtils.isEmpty(address)) {
             return null;
         }
-        Assert.requireNonNull(hostAndPortFactory, "hostAndPortFactory");
+        Objects.requireNonNull(hostAndPortFactory, "hostAndPortFactory");
 
         final int hostIndex = address.indexOf(':');
         if (hostIndex == -1) {

@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.profiler.context.active;
 
 import com.google.common.primitives.Ints;
-import com.navercorp.pinpoint.common.util.Assert;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -33,7 +33,7 @@ public final class ActiveTraceHistogramUtils {
     }
 
     public static List<Integer> asList(ActiveTraceHistogram activeTraceHistogram) {
-        Assert.requireNonNull(activeTraceHistogram, "activeTraceHistogram");
+        Objects.requireNonNull(activeTraceHistogram, "activeTraceHistogram");
 
         if (activeTraceHistogram instanceof EmptyActiveTraceHistogram) {
             return ZERO_LIST;

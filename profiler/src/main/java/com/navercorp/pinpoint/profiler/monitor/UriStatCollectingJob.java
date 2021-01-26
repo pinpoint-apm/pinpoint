@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcUriStatMessageConverter;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
@@ -40,8 +40,8 @@ public class UriStatCollectingJob implements Runnable, Closeable {
     private final UriStatStorage uriStatStorage;
 
     public UriStatCollectingJob(DataSender dataSender, UriStatStorage uriStatStorage) {
-        this.dataSender = Assert.requireNonNull(dataSender, "dataSender");
-        this.uriStatStorage = Assert.requireNonNull(uriStatStorage, "uriStatStorage");
+        this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
+        this.uriStatStorage = Objects.requireNonNull(uriStatStorage, "uriStatStorage");
     }
 
     @Override

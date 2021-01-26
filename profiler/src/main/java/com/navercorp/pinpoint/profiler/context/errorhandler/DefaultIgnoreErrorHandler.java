@@ -1,8 +1,9 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 public class DefaultIgnoreErrorHandler implements IgnoreErrorHandler {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -12,9 +13,9 @@ public class DefaultIgnoreErrorHandler implements IgnoreErrorHandler {
     private final MessageMatcher messageMatcher;
 
     public DefaultIgnoreErrorHandler(String errorHandlerName, ThrowableMatcher throwableMatcher, MessageMatcher messageMatcher) {
-        this.errorHandlerName = Assert.requireNonNull(errorHandlerName, "errorHandlerName");
-        this.throwableMatcher = Assert.requireNonNull(throwableMatcher, "throwableMatcher");
-        this.messageMatcher = Assert.requireNonNull(messageMatcher, "messageMatcher");
+        this.errorHandlerName = Objects.requireNonNull(errorHandlerName, "errorHandlerName");
+        this.throwableMatcher = Objects.requireNonNull(throwableMatcher, "throwableMatcher");
+        this.messageMatcher = Objects.requireNonNull(messageMatcher, "messageMatcher");
     }
 
     @Override
