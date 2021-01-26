@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
@@ -98,7 +98,7 @@ public class StatGrpcDataSender extends GrpcDataSender {
                               ChannelFactory channelFactory) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
 
-        this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor");
+        this.reconnectExecutor = Objects.requireNonNull(reconnectExecutor, "reconnectExecutor");
         final Runnable reconnectJob = new NamedRunnable(this.id) {
             @Override
             public void run() {

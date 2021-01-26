@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.NoNodeException;
+import java.util.Objects;
+
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
@@ -44,7 +46,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 

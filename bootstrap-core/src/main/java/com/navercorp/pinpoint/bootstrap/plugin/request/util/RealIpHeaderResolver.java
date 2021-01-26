@@ -18,8 +18,9 @@ package com.navercorp.pinpoint.bootstrap.plugin.request.util;
 
 import com.navercorp.pinpoint.bootstrap.context.RemoteAddressResolver;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
+
+import java.util.Objects;
 
 
 /**
@@ -31,7 +32,7 @@ public class RealIpHeaderResolver<T> implements RemoteAddressResolver<T> {
     private final String realIpHeaderEmptyValue;
 
     public RealIpHeaderResolver(final String realIpHeaderName, final String realIpHeaderEmptyValue) {
-        this.realIpHeaderName = Assert.requireNonNull(realIpHeaderName, "realIpHeaderName");
+        this.realIpHeaderName = Objects.requireNonNull(realIpHeaderName, "realIpHeaderName");
         this.realIpHeaderEmptyValue = realIpHeaderEmptyValue;
     }
 

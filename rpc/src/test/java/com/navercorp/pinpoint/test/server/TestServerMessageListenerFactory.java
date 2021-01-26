@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -72,8 +73,8 @@ public class TestServerMessageListenerFactory implements ServerMessageListenerFa
     }
 
     public TestServerMessageListenerFactory(HandshakeType handshakeType, ResponseType responseType, boolean singleton) {
-        this.handshakeType = com.navercorp.pinpoint.common.util.Assert.requireNonNull(handshakeType, "handshakeType");
-        this.responseType = com.navercorp.pinpoint.common.util.Assert.requireNonNull(responseType, "responseType");
+        this.handshakeType = Objects.requireNonNull(handshakeType, "handshakeType");
+        this.responseType = Objects.requireNonNull(responseType, "responseType");
         this.singleton = singleton;
     }
 
@@ -103,8 +104,8 @@ public class TestServerMessageListenerFactory implements ServerMessageListenerFa
         private final ResponseType responseType;
 
         public TestServerMessageListener(HandshakeType handshakeType, ResponseType responseType) {
-            this.handshakeType = com.navercorp.pinpoint.common.util.Assert.requireNonNull(handshakeType, "handshakeType");
-            this.responseType = com.navercorp.pinpoint.common.util.Assert.requireNonNull(responseType, "responseType");
+            this.handshakeType = Objects.requireNonNull(handshakeType, "handshakeType");
+            this.responseType = Objects.requireNonNull(responseType, "responseType");
         }
 
         @Override

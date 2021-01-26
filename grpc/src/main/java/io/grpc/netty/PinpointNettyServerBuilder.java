@@ -4,7 +4,6 @@ package io.grpc.netty;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.navercorp.pinpoint.common.util.Assert;
 import io.grpc.ExperimentalApi;
 import io.grpc.Internal;
 import io.grpc.ServerBuilder;
@@ -41,6 +40,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -575,7 +575,7 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
     private ServerListenerDelegator serverListenerDelegator = new EmptyServerListenerDelegator();
 
     public void serverListenerDelegator(ServerListenerDelegator serverListenerDelegator) {
-        this.serverListenerDelegator = Assert.requireNonNull(serverListenerDelegator, "serverListenerDelegator");
+        this.serverListenerDelegator = Objects.requireNonNull(serverListenerDelegator, "serverListenerDelegator");
     }
     //--------------------------------  modify pinpoint
 

@@ -25,10 +25,11 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConfig;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.field.getter.ApiVersionsGetter;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -114,7 +115,7 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
         }
 
         private void cleanPinpointHeader(org.apache.kafka.common.header.Headers kafkaHeaders) {
-            Assert.requireNonNull(kafkaHeaders, "kafkaHeaders");
+            Objects.requireNonNull(kafkaHeaders, "kafkaHeaders");
 
             for (org.apache.kafka.common.header.Header kafkaHeader : kafkaHeaders.toArray()) {
                 String kafkaHeaderKey = kafkaHeader.key();

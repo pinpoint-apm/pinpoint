@@ -22,7 +22,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -35,13 +36,13 @@ public class DefaultTraceHeaderReader<T> implements TraceHeaderReader<T> {
 
 
     public DefaultTraceHeaderReader(RequestAdaptor<T> requestAdaptor) {
-        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
+        this.requestAdaptor = Objects.requireNonNull(requestAdaptor, "requestAdaptor");
     }
 
     // Read the transaction information from the request.
     @Override
     public TraceHeader read(T request) {
-        Assert.requireNonNull(request, "request");
+        Objects.requireNonNull(request, "request");
 
         // Check sampling flag from client. If the flag is false, do not sample this request.
         final boolean sampling = samplingEnable(request);

@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.exception.PinpointException;
 
 import java.lang.reflect.Modifier;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,7 +32,7 @@ public final class TransformCallbackChecker {
         validate(transformCallbackClass, null);
     }
     public static void validate(Class<? extends TransformCallback> transformCallbackClass, Class<?>[] parameterTypes) {
-        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass");
+        Objects.requireNonNull(transformCallbackClass, "transformCallbackClass");
 
         // check inner class
         final Class<?> enclosingClass = transformCallbackClass.getEnclosingClass();

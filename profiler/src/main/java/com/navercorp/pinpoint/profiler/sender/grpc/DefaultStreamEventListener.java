@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.StreamJob;
 import io.grpc.stub.ClientCallStreamObserver;
 import org.slf4j.Logger;
@@ -17,8 +17,8 @@ public class DefaultStreamEventListener<ReqT> implements StreamEventListener<Req
 
 
     public DefaultStreamEventListener(Reconnector reconnector, StreamJob<ReqT> streamJob) {
-        this.reconnector = Assert.requireNonNull(reconnector, "reconnector");
-        this.streamJob = Assert.requireNonNull(streamJob, "streamTask");
+        this.reconnector = Objects.requireNonNull(reconnector, "reconnector");
+        this.streamJob = Objects.requireNonNull(streamJob, "streamTask");
     }
 
     @Override

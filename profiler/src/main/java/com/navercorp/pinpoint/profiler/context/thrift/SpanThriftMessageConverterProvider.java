@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.thrift;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
@@ -47,12 +47,12 @@ public class SpanThriftMessageConverterProvider implements Provider<MessageConve
     public SpanThriftMessageConverterProvider(@ApplicationName String applicationName, @AgentId String agentId, @AgentStartTime long agentStartTime,
                                               @ApplicationServerType ServiceType applicationServiceType,
                                               TransactionIdEncoder transactionIdEncoder, SpanProcessor<TSpan, TSpanChunk> spanPostProcessor) {
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
-        this.applicationServiceType = Assert.requireNonNull(applicationServiceType, "applicationServiceType");
-        this.transactionIdEncoder = Assert.requireNonNull(transactionIdEncoder, "transactionIdEncoder");
-        this.spanPostProcessor = Assert.requireNonNull(spanPostProcessor, "spanPostProcessor");
+        this.applicationServiceType = Objects.requireNonNull(applicationServiceType, "applicationServiceType");
+        this.transactionIdEncoder = Objects.requireNonNull(transactionIdEncoder, "transactionIdEncoder");
+        this.spanPostProcessor = Objects.requireNonNull(spanPostProcessor, "spanPostProcessor");
     }
 
     @Override

@@ -20,7 +20,7 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +42,8 @@ public class DebugTransformer implements ClassFileTransformer {
     private final InstrumentEngine instrumentEngine;
 
     public DebugTransformer(InstrumentEngine instrumentEngine, InstrumentContext instrumentContext) {
-        this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine");
-        this.instrumentContext = Assert.requireNonNull(instrumentContext, "instrumentContext");
+        this.instrumentEngine = Objects.requireNonNull(instrumentEngine, "instrumentEngine");
+        this.instrumentContext = Objects.requireNonNull(instrumentContext, "instrumentContext");
     }
 
     @Override

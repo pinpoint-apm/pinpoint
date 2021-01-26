@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.context.provider.metric;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.DefaultCustomMetricRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.DisabledCustomMetricRegistryService;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -40,7 +40,7 @@ public class CustomMetricRegistryServiceProvider implements Provider<CustomMetri
 
     @Inject
     public CustomMetricRegistryServiceProvider(ProfilerConfig profilerConfig) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
     }
 
     @Override

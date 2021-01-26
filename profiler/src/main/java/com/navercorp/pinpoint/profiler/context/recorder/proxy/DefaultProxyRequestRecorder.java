@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.context.recorder.proxy;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import org.slf4j.Logger;
@@ -39,10 +39,10 @@ public class DefaultProxyRequestRecorder<T> implements ProxyRequestRecorder<T> {
     private final ProxyRequestAnnotationFactory annotationFactory = new ProxyRequestAnnotationFactory();
 
     public DefaultProxyRequestRecorder(final List<ProxyRequestParser> proxyRequestParserList, final RequestAdaptor<T> requestAdaptor) {
-        Assert.requireNonNull(proxyRequestParserList, "proxyRequestParserList");
+        Objects.requireNonNull(proxyRequestParserList, "proxyRequestParserList");
         this.proxyRequestParsers = proxyRequestParserList.toArray(new ProxyRequestParser[0]);
 
-        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
+        this.requestAdaptor = Objects.requireNonNull(requestAdaptor, "requestAdaptor");
     }
 
     public void record(final SpanRecorder recorder, final T request) {

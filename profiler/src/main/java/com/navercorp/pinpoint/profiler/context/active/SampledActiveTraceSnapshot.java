@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.context.active;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -27,7 +28,7 @@ public class SampledActiveTraceSnapshot implements ActiveTraceSnapshot {
     private final TraceRoot traceRoot;
 
     public SampledActiveTraceSnapshot(TraceRoot traceRoot) {
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
+        this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
 
     }
 

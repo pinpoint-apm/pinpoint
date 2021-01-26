@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -26,7 +26,7 @@ public enum TransportModule {
     GRPC;
 
     public static TransportModule parse(String transportModule) {
-        Assert.requireNonNull(transportModule, "transportModule");
+        Objects.requireNonNull(transportModule, "transportModule");
 
         if (isEquals(THRIFT, transportModule)) {
             return THRIFT;
@@ -43,8 +43,8 @@ public enum TransportModule {
     }
 
     public static TransportModule parse(String transportModule, TransportModule defaultModule) {
-        Assert.requireNonNull(transportModule, "transportModule");
-        Assert.requireNonNull(defaultModule, "defaultModule");
+        Objects.requireNonNull(transportModule, "transportModule");
+        Objects.requireNonNull(defaultModule, "defaultModule");
 
         final TransportModule resolvedModule = parse(transportModule);
         if (resolvedModule == null) {

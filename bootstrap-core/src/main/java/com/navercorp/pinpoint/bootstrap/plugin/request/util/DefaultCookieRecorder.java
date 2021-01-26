@@ -23,8 +23,9 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -38,8 +39,8 @@ public class DefaultCookieRecorder<T> implements CookieRecorder<T> {
     private final CookieExtractor<T> cookieExtractor;
 
     public DefaultCookieRecorder(HttpDumpConfig httpDumpConfig, CookieExtractor<T> cookieExtractor) {
-        this.httpDumpConfig = Assert.requireNonNull(httpDumpConfig, "httpDumpConfig");
-        this.cookieExtractor = Assert.requireNonNull(cookieExtractor, "cookieExtractor");
+        this.httpDumpConfig = Objects.requireNonNull(httpDumpConfig, "httpDumpConfig");
+        this.cookieExtractor = Objects.requireNonNull(cookieExtractor, "cookieExtractor");
     }
 
     @Override

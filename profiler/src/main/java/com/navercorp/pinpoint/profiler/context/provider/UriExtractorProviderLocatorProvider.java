@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProvider;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderRegistry;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 
 import com.google.inject.Inject;
@@ -36,7 +36,7 @@ public class UriExtractorProviderLocatorProvider implements Provider<UriExtracto
 
     @Inject
     public UriExtractorProviderLocatorProvider(Provider<PluginContextLoadResult> pluginContextLoadResultProvider) {
-        this.pluginContextLoadResultProvider = Assert.requireNonNull(pluginContextLoadResultProvider, "pluginContextLoadResultProvider");
+        this.pluginContextLoadResultProvider = Objects.requireNonNull(pluginContextLoadResultProvider, "pluginContextLoadResultProvider");
     }
 
     @Override

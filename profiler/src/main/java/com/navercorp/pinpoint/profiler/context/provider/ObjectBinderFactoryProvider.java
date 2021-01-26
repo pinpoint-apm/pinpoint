@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
@@ -55,14 +55,14 @@ public class ObjectBinderFactoryProvider implements Provider<ObjectBinderFactory
                                        ExceptionHandlerFactory exceptionHandlerFactory,
                                        RequestRecorderFactory requestRecorderFactory,
                                        Provider<UriStatRecorderFactory> uriStatRecorderFactoryProvider) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.traceContextProvider = Assert.requireNonNull(traceContextProvider, "traceContextProvider");
-        this.dataSourceMonitorRegistryService = Assert.requireNonNull(dataSourceMonitorRegistryService, "dataSourceMonitorRegistryService");
-        this.customMetricRegistryService = Assert.requireNonNull(customMetricRegistryService, "customMetricRegistryService");
-        this.apiMetaDataServiceProvider = Assert.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
-        this.exceptionHandlerFactory = Assert.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
-        this.requestRecorderFactory = Assert.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
-        this.uriStatRecorderFactoryProvider = Assert.requireNonNull(uriStatRecorderFactoryProvider, "uriStatRecorderFactoryProvider");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.traceContextProvider = Objects.requireNonNull(traceContextProvider, "traceContextProvider");
+        this.dataSourceMonitorRegistryService = Objects.requireNonNull(dataSourceMonitorRegistryService, "dataSourceMonitorRegistryService");
+        this.customMetricRegistryService = Objects.requireNonNull(customMetricRegistryService, "customMetricRegistryService");
+        this.apiMetaDataServiceProvider = Objects.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
+        this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
+        this.requestRecorderFactory = Objects.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
+        this.uriStatRecorderFactoryProvider = Objects.requireNonNull(uriStatRecorderFactoryProvider, "uriStatRecorderFactoryProvider");
     }
 
     @Override

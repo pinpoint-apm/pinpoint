@@ -17,13 +17,12 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
-
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Formatter;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -56,7 +55,7 @@ public final class BootLogger {
 
     // for test
     BootLogger(String loggerName, PrintStream out, PrintStream err) {
-        this.loggerName = Assert.requireNonNull(loggerName, "loggerName");
+        this.loggerName = Objects.requireNonNull(loggerName, "loggerName");
         this.out = out;
         this.err = err;
     }

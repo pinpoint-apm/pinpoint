@@ -20,13 +20,13 @@ import com.navercorp.pinpoint.test.plugin.ForkedPinpointPluginTest;
 import com.navercorp.pinpoint.test.plugin.PluginTestConstants;
 import com.navercorp.pinpoint.test.plugin.PluginTestContext;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestInstance;
-import com.navercorp.pinpoint.test.plugin.util.Assert;
 
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.CHILD_CLASS_PATH_PREFIX;
@@ -49,7 +49,7 @@ public class SharedProcessPluginTestCase implements PinpointPluginTestInstance {
         this.testId = testId + ":" + (onSystemClassLoader ? "system" : "child") + ":" + context.getJvmVersion();
         this.libs = libs;
         this.onSystemClassLoader = onSystemClassLoader;
-        this.processManager = Assert.requireNonNull(processManager, "processManager");
+        this.processManager = Objects.requireNonNull(processManager, "processManager");
     }
 
     @Override

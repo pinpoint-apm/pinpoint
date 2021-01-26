@@ -16,9 +16,10 @@
 
 package com.navercorp.pinpoint.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import io.grpc.Metadata;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,8 +33,8 @@ public class AgentHeaderFactory implements HeaderFactory {
     private final int serviceType;
 
     public AgentHeaderFactory(String agentId, String applicationName, int serviceType, long agentStartTime) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serviceType = serviceType;
         this.agentStartTime = agentStartTime;
     }

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.response;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -26,7 +26,7 @@ public class DefaultResponseTimeMetric implements ResponseTimeMetric {
     private final ResponseTimeCollector responseTimeCollector;
 
     public DefaultResponseTimeMetric(ResponseTimeCollector responseTimeCollector) {
-        this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector");
+        this.responseTimeCollector = Objects.requireNonNull(responseTimeCollector, "responseTimeCollector");
 
     }
 

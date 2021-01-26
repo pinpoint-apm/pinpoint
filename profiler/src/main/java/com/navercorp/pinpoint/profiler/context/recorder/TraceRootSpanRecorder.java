@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 /**
@@ -33,7 +33,7 @@ public class TraceRootSpanRecorder implements SpanRecorder {
     private final boolean sampling;
 
     public TraceRootSpanRecorder(TraceRoot traceRoot, boolean sampling) {
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
+        this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
 
         this.sampling = sampling;
     }

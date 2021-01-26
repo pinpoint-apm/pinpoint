@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -28,7 +28,7 @@ public enum AgentType {
     private final String className;
 
     AgentType(String className) {
-        this.className = Assert.requireNonNull(className, "className");
+        this.className = Objects.requireNonNull(className, "className");
     }
 
     public String getClassName() {

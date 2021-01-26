@@ -18,7 +18,8 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher.operator;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.AbstractMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -29,8 +30,8 @@ public class OrMatcherOperator extends AbstractMatcherOperand implements Matcher
     private final MatcherOperand rightOperand;
 
     public OrMatcherOperator(final MatcherOperand leftOperand, final MatcherOperand rightOperand) {
-        this.leftOperand = Assert.requireNonNull(leftOperand, "leftOperand");
-        this.rightOperand = Assert.requireNonNull(rightOperand, "rightOperand");
+        this.leftOperand = Objects.requireNonNull(leftOperand, "leftOperand");
+        this.rightOperand = Objects.requireNonNull(rightOperand, "rightOperand");
     }
 
     @Override

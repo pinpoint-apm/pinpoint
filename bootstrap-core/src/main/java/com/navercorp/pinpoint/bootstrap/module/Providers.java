@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.module;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -28,8 +27,8 @@ public class Providers {
     private final List<String> providers;
 
     public Providers(String services, List<String> providers) {
-        this.services = Assert.requireNonNull(services, "services");
-        this.providers = Assert.requireNonNull(providers, "providers");
+        this.services = Objects.requireNonNull(services, "services");
+        this.providers = Objects.requireNonNull(providers, "providers");
     }
 
     public String getService() {

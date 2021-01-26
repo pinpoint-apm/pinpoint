@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.logging.jul;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -33,7 +33,7 @@ public class JulAdaptorHandler extends Handler {
     private final LoggerContext loggerContext;
 
     public JulAdaptorHandler(LoggerContext loggerContext) {
-        this.loggerContext = Assert.requireNonNull(loggerContext, "loggerContext");
+        this.loggerContext = Objects.requireNonNull(loggerContext, "loggerContext");
     }
 
     @Override

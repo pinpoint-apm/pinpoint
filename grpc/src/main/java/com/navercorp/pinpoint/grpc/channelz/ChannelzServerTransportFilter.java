@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.grpc.channelz;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.SocketAddressUtils;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
@@ -10,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.Objects;
 
 
 public class ChannelzServerTransportFilter extends ServerTransportFilter {
@@ -18,7 +18,7 @@ public class ChannelzServerTransportFilter extends ServerTransportFilter {
     private final ChannelzRegistry registry;
 
     public ChannelzServerTransportFilter(ChannelzRegistry registry) {
-        this.registry = Assert.requireNonNull(registry, "registry");
+        this.registry = Objects.requireNonNull(registry, "registry");
     }
 
     @Override

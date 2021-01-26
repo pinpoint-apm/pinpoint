@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.DefaultEngineComponent;
 import com.navercorp.pinpoint.profiler.instrument.EngineComponent;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
@@ -56,11 +56,11 @@ public class InstrumentEngineProvider implements Provider<InstrumentEngine> {
                                     InterceptorRegistryBinder interceptorRegistryBinder,
                                     Provider<ApiMetaDataService> apiMetaDataServiceProvider) {
 
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
-        this.objectBinderFactory = Assert.requireNonNull(objectBinderFactory, "objectBinderFactory");
-        this.interceptorRegistryBinder = Assert.requireNonNull(interceptorRegistryBinder, "interceptorRegistryBinder");
-        this.apiMetaDataServiceProvider = Assert.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
+        this.objectBinderFactory = Objects.requireNonNull(objectBinderFactory, "objectBinderFactory");
+        this.interceptorRegistryBinder = Objects.requireNonNull(interceptorRegistryBinder, "interceptorRegistryBinder");
+        this.apiMetaDataServiceProvider = Objects.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
     }
 
     public InstrumentEngine get() {

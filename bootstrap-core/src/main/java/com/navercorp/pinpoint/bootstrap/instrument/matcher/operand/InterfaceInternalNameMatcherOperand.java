@@ -16,8 +16,9 @@
 package com.navercorp.pinpoint.bootstrap.instrument.matcher.operand;
 
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ClassUtils;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -29,7 +30,7 @@ public class InterfaceInternalNameMatcherOperand extends AbstractMatcherOperand 
     private final boolean javaPackage;
 
     public InterfaceInternalNameMatcherOperand(final String interfaceName, final boolean considerHierarchy) {
-        Assert.requireNonNull(interfaceName, "interfaceName");
+        Objects.requireNonNull(interfaceName, "interfaceName");
         this.interfaceInternalName = ClassUtils.toInternalName(interfaceName);
         this.considerHierarchy = considerHierarchy;
         this.javaPackage = this.interfaceInternalName.startsWith("java/");

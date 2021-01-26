@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.loader.plugins.profiler.ProfilerPluginLoader;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 
@@ -36,8 +36,8 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
     private final PluginsSetupResult pluginsSetupResult;
 
     public DefaultPluginContextLoadResult(ProfilerPluginContextLoader profilerPluginContextLoader, ClassLoader pluginClassLoader) {
-        Assert.requireNonNull(profilerPluginContextLoader, "profilerPluginConfigurer");
-        Assert.requireNonNull(pluginClassLoader, "pluginClassLoader");
+        Objects.requireNonNull(profilerPluginContextLoader, "profilerPluginConfigurer");
+        Objects.requireNonNull(pluginClassLoader, "pluginClassLoader");
         ProfilerPluginLoader profilerPluginLoader = new ProfilerPluginLoader();
         List<ProfilerPlugin> profilerPlugins = profilerPluginLoader.load(pluginClassLoader);
         this.pluginsSetupResult = profilerPluginContextLoader.load(profilerPlugins);

@@ -20,9 +20,10 @@ import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,7 +35,7 @@ public class DefaultTraceIdFactory implements TraceIdFactory {
 
     @Inject
     public DefaultTraceIdFactory(@AgentId String agentId, @AgentStartTime long agentStartTime) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
 
     }

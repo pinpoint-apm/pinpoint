@@ -18,7 +18,8 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.ClassInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -33,7 +34,7 @@ public class DefaultClassBasedMatcher implements ClassBasedMatcher {
     }
 
     DefaultClassBasedMatcher(final String baseClassName, final MatcherOperand additional) {
-        this.baseClassName = Assert.requireNonNull(baseClassName, "baseClassName");
+        this.baseClassName = Objects.requireNonNull(baseClassName, "baseClassName");
 
         this.matcherOperand = getMatcherOperand(baseClassName, additional);
     }

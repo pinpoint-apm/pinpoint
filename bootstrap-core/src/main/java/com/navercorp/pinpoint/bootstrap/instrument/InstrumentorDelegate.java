@@ -21,9 +21,9 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackChecker;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
-import com.navercorp.pinpoint.common.util.Assert;
 
 import java.security.ProtectionDomain;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -85,7 +85,7 @@ public class InstrumentorDelegate implements Instrumentor {
 
     @Override
     public void transform(ClassLoader classLoader, String targetClassName, Class<? extends TransformCallback> transformCallbackClass) {
-        Assert.requireNonNull(transformCallbackClass, "transformCallback");
+        Objects.requireNonNull(transformCallbackClass, "transformCallback");
         TransformCallbackChecker.validate(transformCallbackClass);
 
         final String transformCallbackClassName = transformCallbackClass.getName();

@@ -21,7 +21,6 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.ConfiguredApplicationType;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.util.ApplicationServerTypeResolver;
@@ -29,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -45,8 +45,8 @@ public class ApplicationServerTypeProvider implements Provider<ServiceType> {
 
     @Inject
     public ApplicationServerTypeProvider(ProfilerConfig profilerConfig, @ConfiguredApplicationType ServiceType configuredApplicationType, Provider<PluginContextLoadResult> pluginContextLoadResultProvider) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.configuredApplicationType = Assert.requireNonNull(configuredApplicationType, "configuredApplicationType");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.configuredApplicationType = Objects.requireNonNull(configuredApplicationType, "configuredApplicationType");
         this.pluginContextLoadResultProvider = pluginContextLoadResultProvider;
     }
 

@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import java.util.Objects;
+
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -58,15 +60,15 @@ public final class DefaultTrace implements Trace {
     public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
                         SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, ActiveTraceHandle activeTraceHandle) {
 
-        this.span = Assert.requireNonNull(span, "span");
-        this.callStack = Assert.requireNonNull(callStack, "callStack");
-        this.storage = Assert.requireNonNull(storage, "storage");
+        this.span = Objects.requireNonNull(span, "span");
+        this.callStack = Objects.requireNonNull(callStack, "callStack");
+        this.storage = Objects.requireNonNull(storage, "storage");
         Assert.isTrue(sampling, "sampling must be true");
 
-        this.spanRecorder = Assert.requireNonNull(spanRecorder, "spanRecorder");
-        this.wrappedSpanEventRecorder = Assert.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
+        this.spanRecorder = Objects.requireNonNull(spanRecorder, "spanRecorder");
+        this.wrappedSpanEventRecorder = Objects.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
 
-        this.activeTraceHandle = Assert.requireNonNull(activeTraceHandle, "activeTraceHandle");
+        this.activeTraceHandle = Objects.requireNonNull(activeTraceHandle, "activeTraceHandle");
         setCurrentThread();
     }
 

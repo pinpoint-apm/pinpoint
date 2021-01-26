@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterExtractor;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import reactor.netty.http.server.HttpServerRequest;
 
 /**
@@ -29,8 +29,8 @@ public class MethodFilterExtractor implements ParameterExtractor<HttpServerReque
     private final ParameterExtractor<HttpServerRequest> delegate;
 
     public MethodFilterExtractor(Filter<String> excludeProfileMethodFilter, ParameterExtractor<HttpServerRequest> delegate) {
-        this.excludeProfileMethodFilter = Assert.requireNonNull(excludeProfileMethodFilter, "excludeProfileMethodFilter must not be null");
-        this.delegate = Assert.requireNonNull(delegate, "delegate must not be null");
+        this.excludeProfileMethodFilter = Objects.requireNonNull(excludeProfileMethodFilter, "excludeProfileMethodFilter must not be null");
+        this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
     }
 
     @Override

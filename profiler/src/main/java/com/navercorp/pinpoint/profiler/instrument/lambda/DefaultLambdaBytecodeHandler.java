@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.instrument.lambda;
 import com.navercorp.pinpoint.bootstrap.instrument.lambda.LambdaBytecodeHandler;
 import com.navercorp.pinpoint.bootstrap.module.ClassFileTransformModuleAdaptor;
 import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import org.slf4j.LoggerFactory;
 
 import java.security.ProtectionDomain;
@@ -33,8 +33,8 @@ public class DefaultLambdaBytecodeHandler implements LambdaBytecodeHandler {
     private final ClassFileTransformModuleAdaptor classFileTransformer;
 
     public DefaultLambdaBytecodeHandler(ClassFileTransformModuleAdaptor classFileTransformer, JavaModuleFactory javaModuleFactory) {
-        this.classFileTransformer = Assert.requireNonNull(classFileTransformer, "classFileTransformer");
-        this.javaModuleFactory = Assert.requireNonNull(javaModuleFactory, "javaModuleFactory");
+        this.classFileTransformer = Objects.requireNonNull(classFileTransformer, "classFileTransformer");
+        this.javaModuleFactory = Objects.requireNonNull(javaModuleFactory, "javaModuleFactory");
     }
 
     @Override

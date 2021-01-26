@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.GuardInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
@@ -40,10 +40,10 @@ public class MatchableClassFileTransformerDelegate implements MatchableClassFile
 
 
     public MatchableClassFileTransformerDelegate(ProfilerConfig profilerConfig, InstrumentContext instrumentContext, Matcher matcher, TransformCallbackProvider transformCallbackProvider) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.instrumentContext = Assert.requireNonNull(instrumentContext, "instrumentContext");
-        this.matcher = Assert.requireNonNull(matcher, "matcher");
-        this.transformCallbackProvider = Assert.requireNonNull(transformCallbackProvider, "transformCallback");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.instrumentContext = Objects.requireNonNull(instrumentContext, "instrumentContext");
+        this.matcher = Objects.requireNonNull(matcher, "matcher");
+        this.transformCallbackProvider = Objects.requireNonNull(transformCallbackProvider, "transformCallback");
     }
 
 

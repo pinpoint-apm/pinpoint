@@ -30,7 +30,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.method.ServletSyncMethodD
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -67,32 +68,32 @@ public class ServletRequestListener<REQ> {
                                   final ServerRequestRecorder<REQ> serverRequestRecorder,
                                   final HttpStatusCodeRecorder httpStatusCodeRecorder,
                                   final UriStatRecorder<REQ> uriStatRecorder) {
-        this.serviceType = Assert.requireNonNull(serviceType, "serviceType");
-        this.traceContext = Assert.requireNonNull(traceContext, "traceContext");
-        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
-        this.requestTraceReader = Assert.requireNonNull(requestTraceReader, "requestTraceReader");
+        this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
+        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
+        this.requestAdaptor = Objects.requireNonNull(requestAdaptor, "requestAdaptor");
+        this.requestTraceReader = Objects.requireNonNull(requestTraceReader, "requestTraceReader");
 
-        this.proxyRequestRecorder = Assert.requireNonNull(proxyRequestRecorder, "proxyRequestRecorder");
+        this.proxyRequestRecorder = Objects.requireNonNull(proxyRequestRecorder, "proxyRequestRecorder");
 
-        this.excludeUrlFilter = Assert.requireNonNull(excludeUrlFilter, "excludeUrlFilter");
+        this.excludeUrlFilter = Objects.requireNonNull(excludeUrlFilter, "excludeUrlFilter");
         
-        this.parameterRecorder = Assert.requireNonNull(parameterRecorder, "parameterRecorder");
+        this.parameterRecorder = Objects.requireNonNull(parameterRecorder, "parameterRecorder");
 
 
-        this.serverRequestRecorder = Assert.requireNonNull(serverRequestRecorder, "serverRequestRecorder");
+        this.serverRequestRecorder = Objects.requireNonNull(serverRequestRecorder, "serverRequestRecorder");
 
-        this.httpStatusCodeRecorder = Assert.requireNonNull(httpStatusCodeRecorder, "httpStatusCodeRecorder");
+        this.httpStatusCodeRecorder = Objects.requireNonNull(httpStatusCodeRecorder, "httpStatusCodeRecorder");
 
-        this.uriStatRecorder = Assert.requireNonNull(uriStatRecorder, "uriStatRecorder");
+        this.uriStatRecorder = Objects.requireNonNull(uriStatRecorder, "uriStatRecorder");
 
         this.traceContext.cacheApi(SERVLET_SYNC_METHOD_DESCRIPTOR);
     }
 
 
     public void initialized(REQ request, final ServiceType serviceType, final MethodDescriptor methodDescriptor) {
-        Assert.requireNonNull(request, "request");
-        Assert.requireNonNull(serviceType, "serviceType");
-        Assert.requireNonNull(methodDescriptor, "methodDescriptor");
+        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(serviceType, "serviceType");
+        Objects.requireNonNull(methodDescriptor, "methodDescriptor");
 
         if (isDebug) {
             logger.debug("Initialized requestEvent. request={}, serviceType={}, methodDescriptor={}", request, serviceType, methodDescriptor);

@@ -18,12 +18,13 @@ package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.SpanStatChannelFactory;
 import com.navercorp.pinpoint.profiler.context.thrift.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.rpc.client.ClientChannelFactory;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.util.Timer;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -35,8 +36,8 @@ public class SpanStatChannelFactoryProvider implements Provider<ChannelFactory> 
 
     @Inject
     public SpanStatChannelFactoryProvider(ThriftTransportConfig thriftTransportConfig, @SpanStatChannelFactory Provider<Timer> connectTimerProvider) {
-        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
-        this.connectTimerProvider = Assert.requireNonNull(connectTimerProvider, "connectTimerProvider");
+        this.thriftTransportConfig = Objects.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
+        this.connectTimerProvider = Objects.requireNonNull(connectTimerProvider, "connectTimerProvider");
     }
 
     @Override

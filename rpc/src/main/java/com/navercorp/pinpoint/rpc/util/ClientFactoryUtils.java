@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.util;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
@@ -50,9 +50,9 @@ public final class ClientFactoryUtils {
         private final int port;
 
         public DnsPinpointClientProvider(String host, int port, PinpointClientFactory clientFactory) {
-            this.host = Assert.requireNonNull(host, "host");
+            this.host = Objects.requireNonNull(host, "host");
             this.port = port;
-            this.clientFactory = Assert.requireNonNull(clientFactory, "clientFactory");
+            this.clientFactory = Objects.requireNonNull(clientFactory, "clientFactory");
         }
 
         @Override

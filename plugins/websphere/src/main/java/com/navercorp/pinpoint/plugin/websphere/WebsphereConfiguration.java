@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.plugin.websphere;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.util.List;
 
@@ -39,7 +39,7 @@ public class WebsphereConfiguration {
     private final boolean hidePinpointHeader;
 
     public WebsphereConfiguration(ProfilerConfig config) {
-        Assert.requireNonNull(config, "config");
+        Objects.requireNonNull(config, "config");
 
         // plugin
         this.enable = config.readBoolean("profiler.websphere.enable", true);

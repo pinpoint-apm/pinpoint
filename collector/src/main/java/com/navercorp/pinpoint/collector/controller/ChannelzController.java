@@ -3,7 +3,6 @@ package com.navercorp.pinpoint.collector.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiverNames;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzUtils;
 import io.grpc.InternalChannelz;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -28,8 +28,8 @@ public class ChannelzController {
 
     @Autowired
     public ChannelzController(ChannelzRegistry channelzRegistry, ObjectMapper objectMapper) {
-        this.channelzRegistry = Assert.requireNonNull(channelzRegistry, "channelzRegistry");
-        this.mapper = Assert.requireNonNull(objectMapper, "objectMapper");
+        this.channelzRegistry = Objects.requireNonNull(channelzRegistry, "channelzRegistry");
+        this.mapper = Objects.requireNonNull(objectMapper, "objectMapper");
     }
 
     @RequestMapping("/getSocket")

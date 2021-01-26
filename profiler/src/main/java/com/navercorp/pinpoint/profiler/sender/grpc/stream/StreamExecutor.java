@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.profiler.sender.grpc.stream;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +15,7 @@ public class StreamExecutor<ReqT> {
     private final ExecutorService executor;
 
     public StreamExecutor(ExecutorService executor) {
-        this.executor = Assert.requireNonNull(executor, "executor");
+        this.executor = Objects.requireNonNull(executor, "executor");
     }
 
 

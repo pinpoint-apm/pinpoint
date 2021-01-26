@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -33,8 +33,8 @@ public class ChannelOperationsChannelMethodInterceptor implements AroundIntercep
     private final TraceContext traceContext;
 
     public ChannelOperationsChannelMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        this.traceContext = Assert.requireNonNull(traceContext, "traceContext");
-        this.methodDescriptor = Assert.requireNonNull(methodDescriptor, "methodDescriptor");
+        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
+        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
     }
 
     @Override

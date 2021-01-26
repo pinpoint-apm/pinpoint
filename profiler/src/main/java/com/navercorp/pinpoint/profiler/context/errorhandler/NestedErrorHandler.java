@@ -1,8 +1,9 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 public class NestedErrorHandler implements IgnoreErrorHandler {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -12,7 +13,7 @@ public class NestedErrorHandler implements IgnoreErrorHandler {
 //    private final int maxDepth;
 
     public NestedErrorHandler(IgnoreErrorHandler errorHandler) {
-        this.errorHandler = Assert.requireNonNull(errorHandler, "errorHandler");
+        this.errorHandler = Objects.requireNonNull(errorHandler, "errorHandler");
     }
 
     @Override

@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 import java.lang.instrument.Instrumentation;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -39,12 +39,12 @@ public class DefaultAgentOption implements AgentOption {
     private final List<String> bootstrapJarPaths;
 
     public DefaultAgentOption(final Instrumentation instrumentation, String agentId, String applicationName, final boolean isContainer, final ProfilerConfig profilerConfig, final List<String> pluginJars, final List<String> bootstrapJarPaths) {
-        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
+        this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.isContainer = isContainer;
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.pluginJars = Assert.requireNonNull(pluginJars, "pluginJars");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.pluginJars = Objects.requireNonNull(pluginJars, "pluginJars");
         if (bootstrapJarPaths == null) {
             this.bootstrapJarPaths = Collections.emptyList();
         } else {

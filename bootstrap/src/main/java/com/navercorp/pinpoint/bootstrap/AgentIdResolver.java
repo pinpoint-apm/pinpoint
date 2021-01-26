@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.common.util.AgentUuidUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
-
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -46,7 +45,7 @@ public class AgentIdResolver {
     private final IdValidator idValidator = new IdValidator();
 
     public AgentIdResolver(List<AgentProperties> agentPropertyList) {
-        this.agentPropertyList = Assert.requireNonNull(agentPropertyList, "agentPropertyList");
+        this.agentPropertyList = Objects.requireNonNull(agentPropertyList, "agentPropertyList");
     }
 
     public AgentIds resolve() {

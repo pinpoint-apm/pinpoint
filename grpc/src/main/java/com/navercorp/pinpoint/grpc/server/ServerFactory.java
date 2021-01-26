@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.grpc.server;
 
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
@@ -40,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -74,9 +74,9 @@ public class ServerFactory {
     private ChannelzRegistry channelzRegistry;
 
     public ServerFactory(String name, String hostname, int port, Executor serverExecutor, ServerOption serverOption) {
-        this.name = Assert.requireNonNull(name, "name");
-        this.hostname = Assert.requireNonNull(hostname, "hostname");
-        this.serverOption = Assert.requireNonNull(serverOption, "serverOption");
+        this.name = Objects.requireNonNull(name, "name");
+        this.hostname = Objects.requireNonNull(hostname, "hostname");
+        this.serverOption = Objects.requireNonNull(serverOption, "serverOption");
         this.port = port;
 
         final ServerChannelType serverChannelType = getChannelType();
@@ -87,7 +87,7 @@ public class ServerFactory {
         this.workerExecutor = newExecutor(name + "-Channel-Worker");
         this.workerEventLoopGroup = serverChannelType.newEventLoopGroup(CpuUtils.cpuCount(), workerExecutor);
 
-        this.serverExecutor = Assert.requireNonNull(serverExecutor, "executor");
+        this.serverExecutor = Objects.requireNonNull(serverExecutor, "executor");
     }
 
     private ServerChannelType getChannelType() {
@@ -102,26 +102,26 @@ public class ServerFactory {
     }
 
     public void setChannelzRegistry(ChannelzRegistry channelzRegistry) {
-        this.channelzRegistry = Assert.requireNonNull(channelzRegistry, "channelzRegistry");
+        this.channelzRegistry = Objects.requireNonNull(channelzRegistry, "channelzRegistry");
     }
 
     public void addService(BindableService bindableService) {
-        Assert.requireNonNull(bindableService, "bindableService");
+        Objects.requireNonNull(bindableService, "bindableService");
         this.bindableServices.add(bindableService.bindService());
     }
 
     public void addService(ServerServiceDefinition serverServiceDefinition) {
-        Assert.requireNonNull(serverServiceDefinition, "serverServiceDefinition");
+        Objects.requireNonNull(serverServiceDefinition, "serverServiceDefinition");
         this.bindableServices.add(serverServiceDefinition);
     }
 
     public void addTransportFilter(ServerTransportFilter serverTransportFilter) {
-        Assert.requireNonNull(serverTransportFilter, "serverTransportFilter");
+        Objects.requireNonNull(serverTransportFilter, "serverTransportFilter");
         this.serverTransportFilters.add(serverTransportFilter);
     }
 
     public void addInterceptor(ServerInterceptor serverInterceptor) {
-        Assert.requireNonNull(serverInterceptor, "serverInterceptor");
+        Objects.requireNonNull(serverInterceptor, "serverInterceptor");
         this.serverInterceptors.add(serverInterceptor);
     }
 

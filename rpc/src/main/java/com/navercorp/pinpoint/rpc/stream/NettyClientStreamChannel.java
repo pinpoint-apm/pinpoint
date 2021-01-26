@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
@@ -39,8 +39,8 @@ public class NettyClientStreamChannel extends AbstractStreamChannel implements C
 
     public NettyClientStreamChannel(Channel channel, int streamId, StreamChannelRepository streamChannelRepository, ClientStreamChannelEventHandler streamChannelEventHandler) {
         super(streamId, streamChannelRepository);
-        this.channel = Assert.requireNonNull(channel, "channel");
-        this.streamChannelEventHandler = Assert.requireNonNull(streamChannelEventHandler, "streamChannelEventHandler");
+        this.channel = Objects.requireNonNull(channel, "channel");
+        this.streamChannelEventHandler = Objects.requireNonNull(streamChannelEventHandler, "streamChannelEventHandler");
     }
 
     public void connect(byte[] payload, long timeout) throws StreamException {

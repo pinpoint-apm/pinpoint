@@ -19,13 +19,12 @@ package com.navercorp.pinpoint.profiler.context.provider.grpc;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
-import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
+import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -37,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -56,16 +56,16 @@ public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSend
                                           @MetadataDataSender MessageConverter<GeneratedMessageV3> messageConverter,
                                           HeaderFactory headerFactory,
                                           NameResolverProvider nameResolverProvider) {
-        this.grpcTransportConfig = Assert.requireNonNull(grpcTransportConfig, "grpcTransportConfig");
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
-        this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory");
-        this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider");
+        this.grpcTransportConfig = Objects.requireNonNull(grpcTransportConfig, "grpcTransportConfig");
+        this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
+        this.headerFactory = Objects.requireNonNull(headerFactory, "headerFactory");
+        this.nameResolverProvider = Objects.requireNonNull(nameResolverProvider, "nameResolverProvider");
     }
 
     @Inject(optional = true)
     public void setClientInterceptor(@MetadataDataSender List<ClientInterceptor> clientInterceptorList) {
 //    public void setClientInterceptor(@Named(SET_CLIENT_INTERCEPTOR) List<ClientInterceptor> clientInterceptorList) {
-        this.clientInterceptorList = Assert.requireNonNull(clientInterceptorList, "clientInterceptorList");
+        this.clientInterceptorList = Objects.requireNonNull(clientInterceptorList, "clientInterceptorList");
     }
 
     @Override

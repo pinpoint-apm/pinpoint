@@ -4,7 +4,7 @@ package com.navercorp.pinpoint.profiler.logging;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.spi.LoggerRepository;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -21,7 +21,7 @@ public class Log4jLoggingSystem implements LoggingSystem {
     private PLoggerBinder binder;
 
     public Log4jLoggingSystem(String profilePath) {
-        this.profilePath = Assert.requireNonNull(profilePath, "profilePath");
+        this.profilePath = Objects.requireNonNull(profilePath, "profilePath");
     }
 
     @Override

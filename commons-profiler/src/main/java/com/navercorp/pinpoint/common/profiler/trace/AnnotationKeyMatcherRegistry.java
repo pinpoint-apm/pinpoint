@@ -19,11 +19,11 @@ package com.navercorp.pinpoint.common.profiler.trace;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcherLocator;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 import com.navercorp.pinpoint.common.util.apache.IntHashMapUtils;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -34,7 +34,7 @@ public class AnnotationKeyMatcherRegistry implements AnnotationKeyMatcherLocator
     private final IntHashMap<AnnotationKeyMatcher> annotationMatcherMap;
 
     private AnnotationKeyMatcherRegistry(IntHashMap<AnnotationKeyMatcher> annotationMatcherMap) {
-        this.annotationMatcherMap = Assert.requireNonNull(annotationMatcherMap, "annotationMatcherMap");
+        this.annotationMatcherMap = Objects.requireNonNull(annotationMatcherMap, "annotationMatcherMap");
     }
 
     public AnnotationKeyMatcher findAnnotationKeyMatcher(short serviceType) {

@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.bootstrap.plugin.uri;
 
 import com.navercorp.pinpoint.common.trace.UriExtractorType;
-import com.navercorp.pinpoint.common.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -30,7 +30,7 @@ public class UriExtractorProviderRegistry implements UriExtractorProviderLocator
     private final List<UriExtractorProvider> uriExtractorProviderList;
 
     public UriExtractorProviderRegistry(List<UriExtractorProvider> uriExtractorProviderList) {
-        this.uriExtractorProviderList = Assert.requireNonNull(uriExtractorProviderList, "uriExtractorProviderList");
+        this.uriExtractorProviderList = Objects.requireNonNull(uriExtractorProviderList, "uriExtractorProviderList");
     }
 
     @Override

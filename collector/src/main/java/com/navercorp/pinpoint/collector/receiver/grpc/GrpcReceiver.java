@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.grpc.server.ServerFactory;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
-
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerInterceptor;
@@ -233,7 +232,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     }
 
     public void setChannelzRegistry(ChannelzRegistry channelzRegistry) {
-        this.channelzRegistry = Assert.requireNonNull(channelzRegistry, "channelzRegistry");
+        this.channelzRegistry = Objects.requireNonNull(channelzRegistry, "channelzRegistry");
     }
 
 }

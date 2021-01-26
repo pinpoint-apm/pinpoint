@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ class StatMonitorJob implements Runnable {
     private final Runnable[] runnableList;
 
     public StatMonitorJob(List<Runnable> runnableList) {
-        Assert.requireNonNull(runnableList, "runnableList");
+        Objects.requireNonNull(runnableList, "runnableList");
         this.runnableList = runnableList.toArray(new Runnable[0]);
     }
 

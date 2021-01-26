@@ -17,8 +17,9 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -40,13 +41,13 @@ public class IdValidator {
     }
 
     public boolean validateAgentId(AgentIdSourceType type, String agentId) {
-        Assert.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(agentId, "agentId");
 
         return validate0(type + " agentId", agentId);
     }
 
     public boolean validateApplicatonName(AgentIdSourceType type, String applicationName) {
-        Assert.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(applicationName, "applicationName");
         return validate0(type + " applicationName", applicationName);
     }
 

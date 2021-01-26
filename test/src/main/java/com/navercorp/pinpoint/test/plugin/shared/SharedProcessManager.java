@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
+import com.navercorp.pinpoint.test.plugin.PinpointPluginTestInstance;
 import com.navercorp.pinpoint.test.plugin.PluginTestConstants;
 import com.navercorp.pinpoint.test.plugin.PluginTestContext;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestInstance;
 import com.navercorp.pinpoint.test.plugin.ProcessManager;
-import com.navercorp.pinpoint.test.plugin.util.Assert;
 import com.navercorp.pinpoint.test.plugin.util.CollectionUtils;
-import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;
+import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.eclipse.aether.artifact.Artifact;
 import org.tinylog.TaggedLogger;
 
@@ -34,6 +33,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -49,12 +49,12 @@ public class SharedProcessManager implements ProcessManager {
     private final TaggedLogger logger = TestLogger.getLogger();
 
     private final PluginTestContext context;
-    private final Map<String, List<Artifact>> testRepository = new LinkedHashMap<String, List<Artifact>>();
+    private final Map<String, List<Artifact>> testRepository = new LinkedHashMap<>();
 
     private Process process = null;
 
     public SharedProcessManager(PluginTestContext context) {
-        this.context = Assert.requireNonNull(context, "context");
+        this.context = Objects.requireNonNull(context, "context");
     }
 
     @Override

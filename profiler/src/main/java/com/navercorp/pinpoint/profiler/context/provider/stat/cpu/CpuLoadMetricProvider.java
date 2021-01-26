@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.cpu;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.JvmType;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
@@ -27,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -44,7 +44,7 @@ public class CpuLoadMetricProvider implements Provider<CpuLoadMetric> {
 
     @Inject
     public CpuLoadMetricProvider(ProfilerConfig profilerConfig) {
-        Assert.requireNonNull(profilerConfig, "profilerConfig");
+        Objects.requireNonNull(profilerConfig, "profilerConfig");
         vendorName = profilerConfig.getProfilerJvmVendorName();
     }
 

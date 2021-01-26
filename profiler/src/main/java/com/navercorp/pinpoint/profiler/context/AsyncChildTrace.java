@@ -16,9 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import java.util.Objects;
+
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -52,15 +57,15 @@ public class AsyncChildTrace implements Trace {
     public AsyncChildTrace(final TraceRoot traceRoot, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
                              SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, final LocalAsyncId localAsyncId) {
 
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
-        this.callStack = Assert.requireNonNull(callStack, "callStack");
-        this.storage = Assert.requireNonNull(storage, "storage");
+        this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
+        this.callStack = Objects.requireNonNull(callStack, "callStack");
+        this.storage = Objects.requireNonNull(storage, "storage");
         Assert.isTrue(sampling, "sampling must be true");
 
-        this.spanRecorder = Assert.requireNonNull(spanRecorder, "spanRecorder");
-        this.wrappedSpanEventRecorder = Assert.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
+        this.spanRecorder = Objects.requireNonNull(spanRecorder, "spanRecorder");
+        this.wrappedSpanEventRecorder = Objects.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
 
-        this.localAsyncId = Assert.requireNonNull(localAsyncId, "localAsyncId");
+        this.localAsyncId = Objects.requireNonNull(localAsyncId, "localAsyncId");
         traceBlockBegin(ASYNC_BEGIN_STACK_ID);
     }
 

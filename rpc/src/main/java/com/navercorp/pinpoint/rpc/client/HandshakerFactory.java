@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
 import org.jboss.netty.util.Timer;
@@ -44,11 +44,11 @@ public class HandshakerFactory {
     private final ClientOption clientOption;
 
     public HandshakerFactory(SocketIdFactory socketIdFactory, Map<String, Object> properties, ClientOption clientOption, ClusterOption clusterOption) {
-        this.socketIdFactory = Assert.requireNonNull(socketIdFactory, "socketId");
+        this.socketIdFactory = Objects.requireNonNull(socketIdFactory, "socketId");
 
-        this.clusterOption = Assert.requireNonNull(clusterOption, "clusterOption");
-        this.clientOption = Assert.requireNonNull(clientOption, "clientOption");
-        this.properties = Assert.requireNonNull(properties, "properties");
+        this.clusterOption = Objects.requireNonNull(clusterOption, "clusterOption");
+        this.clientOption = Objects.requireNonNull(clientOption, "clientOption");
+        this.properties = Objects.requireNonNull(properties, "properties");
     }
 
     public PinpointClientHandshaker newHandShaker(Timer channelTimer) {

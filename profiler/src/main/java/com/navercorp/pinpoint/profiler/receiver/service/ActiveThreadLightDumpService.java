@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 import com.navercorp.pinpoint.profiler.context.thrift.ThreadStateThriftMessageConverter;
@@ -43,7 +43,7 @@ public class ActiveThreadLightDumpService implements ProfilerRequestCommandServi
     private final ThreadStateThriftMessageConverter threadStateThriftMessageConverter = new ThreadStateThriftMessageConverter();
 
     public ActiveThreadLightDumpService(ActiveThreadDumpCoreService activeThreadDump) {
-        this.activeThreadDump = Assert.requireNonNull(activeThreadDump, "activeThreadDump");
+        this.activeThreadDump = Objects.requireNonNull(activeThreadDump, "activeThreadDump");
     }
 
     @Override

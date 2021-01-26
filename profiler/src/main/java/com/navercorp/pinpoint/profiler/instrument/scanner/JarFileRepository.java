@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.scanner;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class JarFileRepository {
     }
 
     private JarFileScanner[] newJarScanner(List<String> jarFilePathList) {
-        Assert.requireNonNull(jarFilePathList, "jarFilePathList");
+        Objects.requireNonNull(jarFilePathList, "jarFilePathList");
 
         final List<JarFileScanner> jarFileList = new ArrayList<JarFileScanner>(jarFilePathList.size());
         for (String jarFilePath : jarFilePathList) {
@@ -46,7 +46,7 @@ public class JarFileRepository {
 
 
     public InputStream openStream(String resourceName) {
-        Assert.requireNonNull(resourceName, "resourceName");
+        Objects.requireNonNull(resourceName, "resourceName");
 
         for (Scanner scanner : scanners) {
             final InputStream inputStream = scanner.openStream(resourceName);

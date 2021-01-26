@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.agentdir;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.jar.JarFile;
 
 /**
@@ -26,7 +27,7 @@ import java.util.jar.JarFile;
 final class JarFileUtils {
 
     public static JarFile openJarFile(String filePath) {
-        Assert.requireNonNull(filePath, "filePath");
+        Objects.requireNonNull(filePath, "filePath");
 
         final File file = new File(filePath);
         if (!file.exists()) {

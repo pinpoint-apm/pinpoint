@@ -20,7 +20,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
 import com.navercorp.pinpoint.profiler.sender.ResultResponse;
@@ -151,7 +151,7 @@ public class AgentInfoSender {
         }
 
         private AgentInfoSendTask(SuccessListener taskHandler, int retryCount) {
-            this.taskHandler = Assert.requireNonNull(taskHandler, "taskHandler");
+            this.taskHandler = Objects.requireNonNull(taskHandler, "taskHandler");
             this.retryCount = retryCount;
             this.counter = new AtomicInteger(0);
         }
@@ -213,8 +213,8 @@ public class AgentInfoSender {
         private MessageConverter<ResultResponse> messageConverter;
 
         public Builder(EnhancedDataSender dataSender, AgentInfoFactory agentInfoFactory) {
-            this.dataSender = Assert.requireNonNull(dataSender, "dataSender");
-            this.agentInfoFactory = Assert.requireNonNull(agentInfoFactory, "agentInfoFactory");
+            this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
+            this.agentInfoFactory = Objects.requireNonNull(agentInfoFactory, "agentInfoFactory");
         }
 
         public Builder refreshInterval(long refreshIntervalMs) {

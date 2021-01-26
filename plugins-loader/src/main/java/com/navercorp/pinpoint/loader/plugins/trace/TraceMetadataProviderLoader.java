@@ -19,11 +19,9 @@ package com.navercorp.pinpoint.loader.plugins.trace;
 import com.navercorp.pinpoint.common.trace.LoadedTraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.ParsedTraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.Filter;
 import com.navercorp.pinpoint.loader.plugins.PinpointPluginLoader;
 import com.navercorp.pinpoint.loader.plugins.trace.yaml.TraceMetadataProviderYamlParser;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +33,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.Set;
 
@@ -68,8 +67,8 @@ public class TraceMetadataProviderLoader implements PinpointPluginLoader<TraceMe
 
     public TraceMetadataProviderLoader(Collection<URL> customTypeProviderUrls, Filter<URL> pluginTypeProviderUrlFilter) {
         this.typeProviderDefEntry = TYPE_PROVIDER_DEF_ENTRY;
-        this.customTypeProviderUrls = Assert.requireNonNull(customTypeProviderUrls, "customTypeProviderUrls");
-        this.pluginTypeProviderUrlFilter = Assert.requireNonNull(pluginTypeProviderUrlFilter, "pluginTypeProviderUrlFilter");
+        this.customTypeProviderUrls = Objects.requireNonNull(customTypeProviderUrls, "customTypeProviderUrls");
+        this.pluginTypeProviderUrlFilter = Objects.requireNonNull(pluginTypeProviderUrlFilter, "pluginTypeProviderUrlFilter");
     }
 
     @Override

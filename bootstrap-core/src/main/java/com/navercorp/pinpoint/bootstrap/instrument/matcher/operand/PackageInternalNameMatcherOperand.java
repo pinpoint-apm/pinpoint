@@ -17,8 +17,9 @@
 package com.navercorp.pinpoint.bootstrap.instrument.matcher.operand;
 
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ClassUtils;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -28,7 +29,7 @@ public class PackageInternalNameMatcherOperand extends AbstractMatcherOperand {
     private final String packageInternalName;
 
     public PackageInternalNameMatcherOperand(final String packageName) {
-        Assert.requireNonNull(packageName, "packageName");
+        Objects.requireNonNull(packageName, "packageName");
         this.packageInternalName = ClassUtils.toInternalName(packageName);
     }
 

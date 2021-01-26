@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.packet.PacketType;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
@@ -48,9 +48,9 @@ public class StreamChannelManager {
     private final StreamChannelRepository streamChannelRepository = new StreamChannelRepository();
 
     public StreamChannelManager(Channel channel, IDGenerator idGenerator, ServerStreamChannelMessageHandler streamChannelMessageHandler) {
-        this.channel = Assert.requireNonNull(channel, "Channel");
-        this.idGenerator = Assert.requireNonNull(idGenerator, "IDGenerator");
-        this.streamChannelMessageHandler = Assert.requireNonNull(streamChannelMessageHandler, "streamChannelMessageHandler");
+        this.channel = Objects.requireNonNull(channel, "Channel");
+        this.idGenerator = Objects.requireNonNull(idGenerator, "IDGenerator");
+        this.streamChannelMessageHandler = Objects.requireNonNull(streamChannelMessageHandler, "streamChannelMessageHandler");
     }
 
     public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {

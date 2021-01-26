@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
-
 import java.io.File;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -28,8 +27,8 @@ public class ProfileLogConfigResolver implements LogConfigResolver {
     private final String activeProfile;
 
     public ProfileLogConfigResolver(String profilesPath, String activeProfile) {
-        this.profilesPath = Assert.requireNonNull(profilesPath, "profilesPath");
-        this.activeProfile = Assert.requireNonNull(activeProfile, "activeProfile");
+        this.profilesPath = Objects.requireNonNull(profilesPath, "profilesPath");
+        this.activeProfile = Objects.requireNonNull(activeProfile, "activeProfile");
     }
 
     @Override

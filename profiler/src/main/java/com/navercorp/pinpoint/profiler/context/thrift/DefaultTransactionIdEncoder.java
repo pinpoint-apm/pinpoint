@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
@@ -45,7 +45,7 @@ public class DefaultTransactionIdEncoder implements TransactionIdEncoder {
 
     @Inject
     public DefaultTransactionIdEncoder(@AgentId String agentId, @AgentStartTime  long agentStartTime) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
 
         this.agentIdCache = newCache(null);

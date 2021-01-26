@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector.loadedclass;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.loadedclass.LoadedClassMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.loadedclass.LoadedClassMetricSnapshot;
@@ -25,7 +25,7 @@ public class DefaultLoadedClassMetricCollector implements AgentStatMetricCollect
     private final LoadedClassMetric loadedClassMetric;
 
     public DefaultLoadedClassMetricCollector(LoadedClassMetric loadedClassMetric) {
-        this.loadedClassMetric = Assert.requireNonNull(loadedClassMetric, "loadedClassMetric");
+        this.loadedClassMetric = Objects.requireNonNull(loadedClassMetric, "loadedClassMetric");
     }
 
     @Override

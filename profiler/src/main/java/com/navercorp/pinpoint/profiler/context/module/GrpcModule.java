@@ -23,7 +23,6 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
@@ -54,6 +53,7 @@ import io.grpc.NameResolverProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -69,7 +69,7 @@ public class GrpcModule extends PrivateModule {
     private final ChannelzScheduledReporter reporter = new DefaultChannelzScheduledReporter();
 
     public GrpcModule(ProfilerConfig profilerConfig) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
     }
 
     @Override

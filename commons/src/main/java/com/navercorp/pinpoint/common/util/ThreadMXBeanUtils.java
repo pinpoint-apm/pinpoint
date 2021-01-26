@@ -22,6 +22,7 @@ import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -94,7 +95,7 @@ public final class ThreadMXBeanUtils {
     }
 
     public static List<ThreadInfo> findThread(String threadName) {
-        Assert.requireNonNull(threadName, "threadName");
+        Objects.requireNonNull(threadName, "threadName");
 
         ThreadInfo[] threadInfos = dumpAllThread();
         if (threadInfos == null) {

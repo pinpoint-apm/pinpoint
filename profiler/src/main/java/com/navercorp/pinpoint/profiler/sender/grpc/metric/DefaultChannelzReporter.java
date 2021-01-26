@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.profiler.sender.grpc.metric;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzUtils;
 import io.grpc.InternalChannelz;
@@ -25,7 +25,7 @@ public class DefaultChannelzReporter implements ChannelzReporter {
     private final long timeout = 3000;
 
     public DefaultChannelzReporter(Logger logger) {
-        this.logger = Assert.requireNonNull(logger, "logger");
+        this.logger = Objects.requireNonNull(logger, "logger");
     }
 
     @Override

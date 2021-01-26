@@ -22,7 +22,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -40,9 +41,9 @@ public class ServerRequestRecorder<T> {
     }
 
     public ServerRequestRecorder(RequestAdaptor<T> requestAdaptor, ServerHeaderRecorder<T> headerRecorder, ServerCookieRecorder<T> cookieRecorder) {
-        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
-        this.headerRecorder = Assert.requireNonNull(headerRecorder, "headerRecorder");
-        this.cookieRecorder = Assert.requireNonNull(cookieRecorder, "cookieRecorder");
+        this.requestAdaptor = Objects.requireNonNull(requestAdaptor, "requestAdaptor");
+        this.headerRecorder = Objects.requireNonNull(headerRecorder, "headerRecorder");
+        this.cookieRecorder = Objects.requireNonNull(cookieRecorder, "cookieRecorder");
     }
 
 

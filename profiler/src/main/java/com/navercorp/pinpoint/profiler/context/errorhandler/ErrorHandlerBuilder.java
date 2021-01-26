@@ -1,10 +1,10 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ErrorHandlerBuilder {
 
@@ -14,7 +14,7 @@ public class ErrorHandlerBuilder {
     private final AlwaysMessageMatcher ALWAYS = new AlwaysMessageMatcher();
 
     public ErrorHandlerBuilder(List<Descriptor> descriptorList) {
-        this.descriptorList = Assert.requireNonNull(descriptorList, "descriptorList");
+        this.descriptorList = Objects.requireNonNull(descriptorList, "descriptorList");
     }
 
     public IgnoreErrorHandler build() {

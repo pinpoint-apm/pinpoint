@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.plugin.filter;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
@@ -36,7 +36,7 @@ public class JavaVersionFilter implements PluginFilter {
     }
 
     public JavaVersionFilter(JvmVersion jvmVersion) {
-        this.jvmVersion = Assert.requireNonNull(jvmVersion, "jvmVersion");
+        this.jvmVersion = Objects.requireNonNull(jvmVersion, "jvmVersion");
     }
 
     @Override

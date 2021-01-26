@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
@@ -84,7 +84,7 @@ public class SpanGrpcDataSender extends GrpcDataSender {
                               StreamState failState) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
 
-        this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor");
+        this.reconnectExecutor = Objects.requireNonNull(reconnectExecutor, "reconnectExecutor");
         final Runnable reconnectJob = new NamedRunnable(this.id) {
             @Override
             public void run() {
@@ -92,7 +92,7 @@ public class SpanGrpcDataSender extends GrpcDataSender {
             }
         };
         this.reconnector = reconnectExecutor.newReconnector(reconnectJob);
-        this.failState = Assert.requireNonNull(failState, "failState");
+        this.failState = Objects.requireNonNull(failState, "failState");
         this.streamExecutorFactory = new StreamExecutorFactory<PSpanMessage>(executor);
 
         ClientStreamingProvider<PSpanMessage, Empty> clientStreamProvider = new ClientStreamingProvider<PSpanMessage, Empty>() {

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.lang.reflect.Method;
 
@@ -27,7 +27,7 @@ public class IncludeBindVariableFilter implements BindVariableFilter {
     private final String[] includes;
 
     public IncludeBindVariableFilter(String[] includes) {
-        this.includes = Assert.requireNonNull(includes, "includes");
+        this.includes = Objects.requireNonNull(includes, "includes");
     }
 
     @Override

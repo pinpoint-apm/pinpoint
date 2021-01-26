@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetricRegistry;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryAdaptor;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryAdaptor;
@@ -57,20 +57,20 @@ public class ObjectBinderFactory {
                                ExceptionHandlerFactory exceptionHandlerFactory,
                                RequestRecorderFactory requestRecorderFactory,
                                Provider<UriStatRecorderFactory> uriStatRecorderFactoryProvider) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.traceContextProvider = Assert.requireNonNull(traceContextProvider, "traceContextProvider");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.traceContextProvider = Objects.requireNonNull(traceContextProvider, "traceContextProvider");
 
-        Assert.requireNonNull(dataSourceMonitorRegistryService, "dataSourceMonitorRegistryService");
+        Objects.requireNonNull(dataSourceMonitorRegistryService, "dataSourceMonitorRegistryService");
         this.dataSourceMonitorRegistry = new DataSourceMonitorRegistryAdaptor(dataSourceMonitorRegistryService);
 
-        Assert.requireNonNull(customMonitorRegistryService, "customMonitorRegistryService");
+        Objects.requireNonNull(customMonitorRegistryService, "customMonitorRegistryService");
         this.customMetricRegistry = new CustomMetricRegistryAdaptor(customMonitorRegistryService);
 
-        this.apiMetaDataServiceProvider = Assert.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
-        this.exceptionHandlerFactory = Assert.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
-        this.requestRecorderFactory = Assert.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
+        this.apiMetaDataServiceProvider = Objects.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
+        this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
+        this.requestRecorderFactory = Objects.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
 
-        this.uriStatRecorderFactoryProvider = Assert.requireNonNull(uriStatRecorderFactoryProvider, "uriStatRecorderFactoryProvider");
+        this.uriStatRecorderFactoryProvider = Objects.requireNonNull(uriStatRecorderFactoryProvider, "uriStatRecorderFactoryProvider");
     }
 
     public AutoBindingObjectFactory newAutoBindingObjectFactory(InstrumentContext pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {

@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.test.plugin.util;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 public class ThreadContextRunnable implements Runnable {
 
@@ -8,8 +8,8 @@ public class ThreadContextRunnable implements Runnable {
     private final ClassLoader contextClassLoader;
 
     public ThreadContextRunnable(Runnable delegate, ClassLoader contextClassLoader) {
-        this.delegate = Assert.requireNonNull(delegate, "delegate");
-        this.contextClassLoader = Assert.requireNonNull(contextClassLoader, "contextClassLoader");
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
+        this.contextClassLoader = Objects.requireNonNull(contextClassLoader, "contextClassLoader");
     }
 
     public void run() {

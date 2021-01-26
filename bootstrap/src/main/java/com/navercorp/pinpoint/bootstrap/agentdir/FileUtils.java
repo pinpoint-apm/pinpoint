@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -37,15 +38,15 @@ final class FileUtils {
     }
 
     public static File[] listFiles(final File path, final List<String> fileExtensionList) {
-        Assert.requireNonNull(path, "path");
-        Assert.requireNonNull(fileExtensionList, "fileExtensionList");
+        Objects.requireNonNull(path, "path");
+        Objects.requireNonNull(fileExtensionList, "fileExtensionList");
         final String[] fileExtensions = fileExtensionList.toArray(new String[0]);
         return listFiles(path, fileExtensions);
     }
 
     public static File[] listFiles(final File path, final String[] fileExtensions) {
-        Assert.requireNonNull(path, "path");
-        Assert.requireNonNull(fileExtensions, "fileExtensions");
+        Objects.requireNonNull(path, "path");
+        Objects.requireNonNull(fileExtensions, "fileExtensions");
 
         return path.listFiles(new FileFilter() {
             @Override
@@ -66,22 +67,22 @@ final class FileUtils {
     }
 
     public static URL toURL(final File file) throws IOException {
-        Assert.requireNonNull(file, "file");
+        Objects.requireNonNull(file, "file");
         return toURL(file, new FileFunction());
     }
 
     public static URL toURL(final String filePath) throws IOException {
-        Assert.requireNonNull(filePath, "filePath");
+        Objects.requireNonNull(filePath, "filePath");
         return toURL(filePath, new FilePathFunction());
     }
 
     public static URL[] toURLs(final File[] files) throws IOException {
-        Assert.requireNonNull(files, "files");
+        Objects.requireNonNull(files, "files");
         return toURLs(files, new FileFunction());
     }
 
     public static URL[] toURLs(final String[] filePaths) throws IOException {
-        Assert.requireNonNull(filePaths, "filePaths");
+        Objects.requireNonNull(filePaths, "filePaths");
         return toURLs(filePaths, new FilePathFunction());
     }
 

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.grpc.server;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.ChannelTypeEnum;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -91,7 +92,7 @@ public class ServerOption {
         this.handshakeTimeout = handshakeTimeout;
         this.flowControlWindow = flowControlWindow;
         this.receiveBufferSize = receiveBufferSize;
-        this.channelTypeEnum = Assert.requireNonNull(channelTypeEnum, "channelTypeEnum");
+        this.channelTypeEnum = Objects.requireNonNull(channelTypeEnum, "channelTypeEnum");
     }
 
     public long getKeepAliveTime() {
@@ -255,7 +256,7 @@ public class ServerOption {
         }
 
         public void setChannelTypeEnum(String channelTypeEnum) {
-            Assert.requireNonNull(channelTypeEnum, "channelTypeEnum");
+            Objects.requireNonNull(channelTypeEnum, "channelTypeEnum");
             this.channelTypeEnum = ChannelTypeEnum.valueOf(channelTypeEnum);
         }
 

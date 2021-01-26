@@ -18,19 +18,20 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.loadedclass;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.loadedclass.DefaultLoadedClassMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.loadedclass.LoadedClassMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.loadedclass.LoadedClassMetricSnapshot;
 
+import java.util.Objects;
+
 public class LoadedClassMetricCollectorProvider implements Provider<AgentStatMetricCollector<LoadedClassMetricSnapshot>> {
     public final LoadedClassMetric loadedClassMetric;
 
     @Inject
     public LoadedClassMetricCollectorProvider(LoadedClassMetric loadedClassMetric) {
-        this.loadedClassMetric = Assert.requireNonNull(loadedClassMetric, "loadedClassMetric");
+        this.loadedClassMetric = Objects.requireNonNull(loadedClassMetric, "loadedClassMetric");
     }
 
     @Override

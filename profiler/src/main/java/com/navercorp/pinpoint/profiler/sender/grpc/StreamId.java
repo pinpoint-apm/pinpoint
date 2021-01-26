@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -33,7 +33,7 @@ public final class StreamId {
     }
 
     private StreamId(String name, long id) {
-        Assert.requireNonNull(name, "name");
+        Objects.requireNonNull(name, "name");
         this.name = name + "-" + id;
     }
 

@@ -2,13 +2,13 @@ package com.navercorp.pinpoint.grpc.channelz;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.navercorp.pinpoint.common.util.Assert;
 import io.grpc.InternalInstrumented;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -36,7 +36,7 @@ public final class ChannelzUtils {
     }
 
     public static <T> List<T> getResults(String name, List<InternalInstrumented<T>> instrumentedList) {
-        Assert.requireNonNull(instrumentedList, "instrumentedList");
+        Objects.requireNonNull(instrumentedList, "instrumentedList");
 
         final List<ListenableFuture<T>> listenableFutures = new ArrayList<>(instrumentedList.size());
         for (InternalInstrumented<T> each : instrumentedList) {

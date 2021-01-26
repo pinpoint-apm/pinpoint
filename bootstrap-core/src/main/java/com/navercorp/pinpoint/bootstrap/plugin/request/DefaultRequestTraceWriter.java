@@ -22,8 +22,9 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -44,9 +45,9 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
     }
 
     public DefaultRequestTraceWriter(ClientHeaderAdaptor<T> clientHeaderAdaptor, String applicationName, short serverTypeCode, String applicationNamespace) {
-        this.clientHeaderAdaptor = Assert.requireNonNull(clientHeaderAdaptor, "clientHeaderAdaptor");
+        this.clientHeaderAdaptor = Objects.requireNonNull(clientHeaderAdaptor, "clientHeaderAdaptor");
 
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serverTypeCode = serverTypeCode;
         if (StringUtils.isEmpty(applicationNamespace)) {
             this.applicationNamespace = NOT_SET;
@@ -66,7 +67,7 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
     // Set transaction information in the request.
     @Override
     public void write(T header, final TraceId traceId, final String host) {
-        Assert.requireNonNull(traceId, "traceId");
+        Objects.requireNonNull(traceId, "traceId");
 
         if (isDebug) {
             logger.debug("Set request header. traceId={}, applicationName={}, serverTypeCode={}, applicationNamespace={}", traceId, applicationName, serverTypeCode, applicationNamespace);

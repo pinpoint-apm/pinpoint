@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.config.ThriftTransportConfig;
@@ -31,6 +30,8 @@ import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -55,9 +56,9 @@ public class StatDataSenderProvider implements Provider<DataSender> {
 
     @Inject
     public StatDataSenderProvider(ThriftTransportConfig thriftTransportConfig, @StatDataSender Provider<PinpointClientFactory> clientFactoryProvider, @StatDataSender MessageConverter<TBase<?, ?>> messageConverter) {
-        Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
+        Objects.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
 
-        this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider");
+        this.clientFactoryProvider = Objects.requireNonNull(clientFactoryProvider, "clientFactoryProvider");
 
         this.ip = thriftTransportConfig.getCollectorStatServerIp();
         this.port = thriftTransportConfig.getCollectorStatServerPort();

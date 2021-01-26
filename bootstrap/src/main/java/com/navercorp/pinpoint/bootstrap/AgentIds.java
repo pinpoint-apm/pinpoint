@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -26,8 +26,8 @@ public class AgentIds {
     private final String applicationName;
 
     public AgentIds(String agentId, String applicationName) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
     }
 
 

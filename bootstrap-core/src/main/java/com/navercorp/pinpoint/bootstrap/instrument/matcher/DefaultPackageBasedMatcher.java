@@ -18,8 +18,9 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.PackageInternalNameMatcherOperand;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -34,7 +35,7 @@ public class DefaultPackageBasedMatcher implements PackageBasedMatcher {
     }
 
     DefaultPackageBasedMatcher(final String basePackageName, final MatcherOperand additional) {
-        Assert.requireNonNull(basePackageName, "basePackageName");
+        Objects.requireNonNull(basePackageName, "basePackageName");
         if (!StringUtils.hasText(basePackageName)) {
             throw new IllegalArgumentException("basePackageName must not be empty");
         }

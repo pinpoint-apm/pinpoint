@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.plugin.akka.http;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -47,7 +47,7 @@ public class AkkaHttpConfig {
     private final List<String> transformParameters;
 
     public AkkaHttpConfig(ProfilerConfig config) {
-        Assert.requireNonNull(config, "config");
+        Objects.requireNonNull(config, "config");
 
         this.enable = config.readBoolean(KEY_ENABLE, DEFAULT_ENABLE);
         this.transformTargetName = config.readString(KEY_TRANSFORM_TARGET_NAME, DEFAULT_TRANSFORM_TARGET_NAME);

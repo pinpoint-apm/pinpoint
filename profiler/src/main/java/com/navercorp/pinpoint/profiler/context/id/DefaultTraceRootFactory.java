@@ -18,8 +18,9 @@ package com.navercorp.pinpoint.profiler.context.id;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -31,8 +32,8 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
 
     @Inject
     public DefaultTraceRootFactory(@AgentId String agentId, TraceIdFactory traceIdFactory) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
-        this.traceIdFactory = Assert.requireNonNull(traceIdFactory, "traceIdFactory");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.traceIdFactory = Objects.requireNonNull(traceIdFactory, "traceIdFactory");
     }
 
     @Override

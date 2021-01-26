@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.context.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -33,7 +33,7 @@ public class MessageConverterGroup<Message> implements MessageConverter<Message>
     }
 
     private MessageConverterGroup(MessageConverter<Message>[] group) {
-        Assert.requireNonNull(group, "list");
+        Objects.requireNonNull(group, "list");
         this.group = Arrays.copyOf(group, group.length);
     }
 

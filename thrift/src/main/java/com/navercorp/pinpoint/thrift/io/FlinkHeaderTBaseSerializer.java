@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.thrift.io;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.io.header.*;
 import com.navercorp.pinpoint.io.request.FlinkRequest;
 import com.navercorp.pinpoint.io.util.TypeLocator;
@@ -41,10 +41,10 @@ public class FlinkHeaderTBaseSerializer {
      * @param protocolFactory
      */
     public FlinkHeaderTBaseSerializer(ResettableByteArrayOutputStream bos, TProtocolFactory protocolFactory, TypeLocator<TBase<?, ?>> locator) {
-        this.baos = Assert.requireNonNull(bos, "ResettableByteArrayOutputStream");
-        this.locator = Assert.requireNonNull(locator, "locator");
+        this.baos = Objects.requireNonNull(bos, "ResettableByteArrayOutputStream");
+        this.locator = Objects.requireNonNull(locator, "locator");
 
-        Assert.requireNonNull(protocolFactory, "TProtocolFactory");
+        Objects.requireNonNull(protocolFactory, "TProtocolFactory");
         TIOStreamTransport transport = new TIOStreamTransport(bos);
         this.protocol = protocolFactory.getProtocol(transport);
 

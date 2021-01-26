@@ -4,7 +4,7 @@ import com.navercorp.pinpoint.bootstrap.BootLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.logging.jul.JulAdaptorHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
@@ -30,7 +30,7 @@ public class Log4j2LoggingSystem implements LoggingSystem {
 
 
     public Log4j2LoggingSystem(String profilePath) {
-        this.profilePath = Assert.requireNonNull(profilePath, "profilePath");
+        this.profilePath = Objects.requireNonNull(profilePath, "profilePath");
     }
 
     public void start() {

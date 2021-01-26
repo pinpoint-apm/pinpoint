@@ -18,11 +18,11 @@ package io.grpc.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
-import com.navercorp.pinpoint.common.util.Assert;
 import io.grpc.NameResolver;
 import io.grpc.NameResolverProvider;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -36,8 +36,8 @@ public final class PinpointDnsNameResolverProvider extends NameResolverProvider 
     private final String name;
 
     public PinpointDnsNameResolverProvider(String name, Executor dnsExecutor) {
-        this.name = Assert.requireNonNull(name, "name");
-        this.dnsExecutor = Assert.requireNonNull(dnsExecutor, "dnsExecutorService");
+        this.name = Objects.requireNonNull(name, "name");
+        this.dnsExecutor = Objects.requireNonNull(dnsExecutor, "dnsExecutorService");
     }
 
     @Override

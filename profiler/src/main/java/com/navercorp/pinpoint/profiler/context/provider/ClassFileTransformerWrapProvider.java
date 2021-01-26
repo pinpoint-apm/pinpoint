@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.transformer.ClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
@@ -38,8 +38,8 @@ public class ClassFileTransformerWrapProvider implements Provider<ClassFileTrans
 
     @Inject
     public ClassFileTransformerWrapProvider(ProfilerConfig profilerConfig, Provider<ClassFileTransformerDispatcher> classFileTransformerDispatcherProvider) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.classFileTransformerDispatcherProvider = Assert.requireNonNull(classFileTransformerDispatcherProvider, "classFileTransformerDispatcherProvider");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.classFileTransformerDispatcherProvider = Objects.requireNonNull(classFileTransformerDispatcherProvider, "classFileTransformerDispatcherProvider");
     }
 
 

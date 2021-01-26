@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
 /**
@@ -29,8 +29,8 @@ public class DefaultStringMetaDataService implements StringMetaDataService {
     private final EnhancedDataSender<Object> enhancedDataSender;
 
     public DefaultStringMetaDataService(EnhancedDataSender<Object> enhancedDataSender, SimpleCache<String> stringCache) {
-        this.enhancedDataSender = Assert.requireNonNull(enhancedDataSender, "enhancedDataSender");
-        this.stringCache = Assert.requireNonNull(stringCache, "stringCache");
+        this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
+        this.stringCache = Objects.requireNonNull(stringCache, "stringCache");
 
     }
 

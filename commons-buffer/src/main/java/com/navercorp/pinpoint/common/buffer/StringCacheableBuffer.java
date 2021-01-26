@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -27,7 +27,7 @@ public class StringCacheableBuffer extends FixedBuffer {
 
     public StringCacheableBuffer(byte[] buffer, StringAllocator stringAllocator) {
         super(buffer);
-        this.stringAllocator = Assert.requireNonNull(stringAllocator, "stringAllocator");
+        this.stringAllocator = Objects.requireNonNull(stringAllocator, "stringAllocator");
     }
 
     protected String readString(final int size) {

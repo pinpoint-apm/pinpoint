@@ -18,7 +18,8 @@ package com.navercorp.pinpoint.loader.service;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyLocator;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -29,7 +30,7 @@ public class DefaultAnnotationKeyRegistryService implements AnnotationKeyRegistr
     private final AnnotationKeyLocator annotationKeyLocator;
 
     public DefaultAnnotationKeyRegistryService(TraceMetadataLoaderService typeLoaderService) {
-        Assert.requireNonNull(typeLoaderService, "typeLoaderService");
+        Objects.requireNonNull(typeLoaderService, "typeLoaderService");
         this.annotationKeyLocator = typeLoaderService.getAnnotationKeyLocator();
     }
 

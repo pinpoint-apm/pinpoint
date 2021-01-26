@@ -23,7 +23,8 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -34,7 +35,7 @@ public abstract class GrpcAsyncContextSpanEventEndPointInterceptor extends Async
 
     public GrpcAsyncContextSpanEventEndPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
-        this.traceContext = Assert.requireNonNull(traceContext, "traceContext");
+        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
     }
 
     @Override

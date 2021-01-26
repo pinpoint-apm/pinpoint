@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
-
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -35,7 +34,7 @@ class ModuleBootLoader {
     private Object moduleSupport;
 
     ModuleBootLoader(Instrumentation instrumentation, ClassLoader parentClassLoader) {
-        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
+        this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
         this.parentClassLoader = parentClassLoader;
     }
 

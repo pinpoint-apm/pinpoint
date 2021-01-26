@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
@@ -41,8 +41,8 @@ public class ServerStreamChannel extends AbstractStreamChannel {
 
     public ServerStreamChannel(Channel channel, int streamId, StreamChannelRepository streamChannelRepository, ServerStreamChannelMessageHandler streamChannelMessageHandler) {
         super(streamId, streamChannelRepository);
-        this.channel = Assert.requireNonNull(channel, "channel");
-        this.streamChannelMessageHandler = Assert.requireNonNull(streamChannelMessageHandler, "streamChannelMessageHandler");
+        this.channel = Objects.requireNonNull(channel, "channel");
+        this.streamChannelMessageHandler = Objects.requireNonNull(streamChannelMessageHandler, "streamChannelMessageHandler");
     }
 
     @Override
@@ -87,7 +87,7 @@ public class ServerStreamChannel extends AbstractStreamChannel {
     }
 
     public void setStateChangeEventHandler(StreamChannelStateChangeEventHandler stateChangeEventHandler) {
-        this.stateChangeEventHandler = Assert.requireNonNull(stateChangeEventHandler, "stateChangeEventHandler");
+        this.stateChangeEventHandler = Objects.requireNonNull(stateChangeEventHandler, "stateChangeEventHandler");
     }
 
     public void sendData(byte[] payload) {

@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.profiler.context.scope;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -32,7 +32,7 @@ public class ConcurrentPool<K, V> implements Pool<K, V> {
     private final PoolObjectFactory<K, V> objectFactory;
 
     public ConcurrentPool(PoolObjectFactory<K, V> objectFactory) {
-        this.objectFactory = Assert.requireNonNull(objectFactory, "objectFactory");
+        this.objectFactory = Objects.requireNonNull(objectFactory, "objectFactory");
     }
 
     @Override
