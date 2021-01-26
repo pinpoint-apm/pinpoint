@@ -34,6 +34,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author netspider
@@ -145,18 +146,26 @@ public class AdminServiceImpl implements AdminService {
         if (CollectionUtils.isEmpty(agentIds)) {
             return Collections.emptyList();
         }
-        List<String> inactiveAgentIds = new ArrayList<>();
-        final long toTimestamp = System.currentTimeMillis();
+
+        Range fastRange = Range.newRange(TimeUnit.HOURS, 1, System.currentTimeMillis());
+
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, durationDays * -1);
         final long fromTimestamp = cal.getTimeInMillis();
-        Range queryRange = Range.newRange(fromTimestamp, toTimestamp);
+        Range queryRange = Range.newRange(fromTimestamp, fastRange.getFrom() + 1);
+
+        List<String> inactiveAgentIds = new ArrayList<>();
         for (String agentId : agentIds) {
             // FIXME This needs to be done with a more accurate information.
             // If at any time a non-java agent is introduced, or an agent that does not collect jvm data,
             // this will fail
 
-            boolean dataExists = agentInfoService.isActiveAgent(agentId, queryRange);
+            boolean dataExists = agentInfoService.isActiveAgent(agentId, fastRange);
+            if (dataExists) {
+                continue;
+            }
+
+            dataExists = agentInfoService.isActiveAgent(agentId, queryRange);
             if (!dataExists) {
                 inactiveAgentIds.add(agentId);
             }

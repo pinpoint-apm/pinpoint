@@ -60,6 +60,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author netspider
@@ -179,16 +180,25 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
 
         List<String> activeAgentIdList = new ArrayList<>();
-        final long toTimestamp = System.currentTimeMillis();
+
+        Range fastRange = Range.newRange(TimeUnit.HOURS, 1, System.currentTimeMillis());
+
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, durationDays * -1);
         final long fromTimestamp = cal.getTimeInMillis();
-        Range queryRange = Range.newRange(fromTimestamp, toTimestamp);
+        Range queryRange = Range.newRange(fromTimestamp, fastRange.getFrom() + 1);
+
         for (String agentId : agentIds) {
             // FIXME This needs to be done with a more accurate information.
             // If at any time a non-java agent is introduced, or an agent that does not collect jvm data,
             // this will fail
-            boolean dataExists = isActiveAgent(agentId, queryRange);
+            boolean dataExists = isActiveAgent(agentId, fastRange);
+            if (dataExists) {
+                activeAgentIdList.add(agentId);
+                continue;
+            }
+
+            dataExists = isActiveAgent(agentId, queryRange);
             if (dataExists) {
                 activeAgentIdList.add(agentId);
             }
