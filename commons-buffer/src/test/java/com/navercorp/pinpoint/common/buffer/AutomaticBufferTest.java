@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
-import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import org.apache.commons.lang.StringUtils;
@@ -25,6 +24,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -109,9 +109,9 @@ public class AutomaticBufferTest {
 
         Assert.assertEquals("check data", test, trimString);
 
-        String padString = new String(result, TOTAL_LENGTH - TEST_SIZE, PAD_SIZE, Charsets.UTF_8);
+        String padString = new String(result, TOTAL_LENGTH - TEST_SIZE, PAD_SIZE, StandardCharsets.UTF_8);
         byte[] padBytes = new byte[TOTAL_LENGTH - TEST_SIZE];
-        org.junit.Assert.assertEquals("check pad", padString, new String(padBytes, Charsets.UTF_8));
+        org.junit.Assert.assertEquals("check pad", padString, new String(padBytes, StandardCharsets.UTF_8));
 
     }
 

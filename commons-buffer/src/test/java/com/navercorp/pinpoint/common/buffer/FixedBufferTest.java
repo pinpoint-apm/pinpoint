@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
-import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import org.apache.commons.lang.StringUtils;
@@ -27,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -34,7 +34,7 @@ import java.util.Random;
  * @author emeroad
  */
 public class FixedBufferTest {
-    public static final Charset UTF8_CHARSET = Charsets.UTF_8;
+    public static final Charset UTF8_CHARSET = StandardCharsets.UTF_8;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Random random = new Random();

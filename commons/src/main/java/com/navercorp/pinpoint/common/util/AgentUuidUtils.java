@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import com.navercorp.pinpoint.common.Charsets;
-
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -100,7 +99,7 @@ public class AgentUuidUtils {
         byteBuffer.putLong(uuid.getMostSignificantBits());
         byteBuffer.putLong(uuid.getLeastSignificantBits());
         byte[] encoded = encodeUuidBytes(byteBuffer.array());
-        return new String(encoded, Charsets.US_ASCII);
+        return new String(encoded, StandardCharsets.US_ASCII);
     }
 
     private static byte[] encodeUuidBytes(byte[] src) {
@@ -153,7 +152,7 @@ public class AgentUuidUtils {
             throw new NullPointerException("src");
         }
 
-        byte[] decoded = decodeToUuidBytes(src.getBytes(Charsets.US_ASCII));
+        byte[] decoded = decodeToUuidBytes(src.getBytes(StandardCharsets.US_ASCII));
         ByteBuffer byteBuffer = ByteBuffer.wrap(decoded);
         long mostSignificantBits = byteBuffer.getLong();
         long leastSignificanBits = byteBuffer.getLong();
