@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.grpc.client.interceptor;
 
-import com.navercorp.pinpoint.grpc.client.ForwardClientCall;
 import io.grpc.ClientCall;
+import io.grpc.ForwardingClientCall;
 import io.grpc.ForwardingClientCallListener;
 import io.grpc.Metadata;
 
@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Woonduk Kang(emeroad)
  * @author jaehong.kim
  */
-class DiscardClientCall<ReqT, RespT> extends ForwardClientCall<ReqT, RespT> {
+class DiscardClientCall<ReqT, RespT> extends ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT> {
     private static final State OK = new State(false, "OK");
     private static final State NOT_READY = new State(false, "stream not ready");
 
