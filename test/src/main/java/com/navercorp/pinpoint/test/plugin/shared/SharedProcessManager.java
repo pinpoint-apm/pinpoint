@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.test.plugin.PluginTestConstants;
 import com.navercorp.pinpoint.test.plugin.PluginTestContext;
 import com.navercorp.pinpoint.test.plugin.ProcessManager;
 import com.navercorp.pinpoint.test.plugin.util.CollectionUtils;
+import com.navercorp.pinpoint.test.plugin.util.StringJoiner;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.eclipse.aether.artifact.Artifact;
@@ -229,7 +230,15 @@ public class SharedProcessManager implements ProcessManager {
             String enablePluginIds = StringUtils.join(importPluginIds, ArtifactIdUtils.ARTIFACT_SEPARATOR);
             agentArgumentMap.put(PluginTestConstants.AGENT_PARAMETER_IMPORT_PLUGIN, enablePluginIds);
         }
-        return StringUtils.join(agentArgumentMap, "=", PluginTestConstants.AGENT_PARSER_DELIMITER);
+        return join(agentArgumentMap);
+    }
+
+    private String join(Map<String, String> map) {
+        StringJoiner joiner = new StringJoiner(PluginTestConstants.AGENT_PARSER_DELIMITER);
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            joiner.add(entry.getKey() + "=" + entry.getValue());
+        }
+        return joiner.toString();
     }
 
     private String addTest(String testId, List<Artifact> artifactList) {

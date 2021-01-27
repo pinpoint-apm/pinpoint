@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.mongo;
+package com.navercorp.pinpoint.common.util;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,14 +27,14 @@ import static org.junit.Assert.*;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class StringJoinerTest {
+public class StringJoinUtilsTest {
 
     @Test
     public void join1() {
         List<String> stringList = new ArrayList<String>();
         stringList.add("abc");
 
-        String join = StringJoiner.join(stringList, ",");
+        String join = StringJoinUtils.join(stringList, ",");
         Assert.assertEquals(join, "abc");
 
     }
@@ -45,7 +45,7 @@ public class StringJoinerTest {
         stringList.add("abc");
         stringList.add("bcd");
 
-        String join = StringJoiner.join(stringList, ",");
+        String join = StringJoinUtils.join(stringList, ",");
         Assert.assertEquals(join, "abc,bcd");
 
     }
@@ -57,7 +57,7 @@ public class StringJoinerTest {
         stringList.add("bcd");
         stringList.add("f");
 
-        String join = StringJoiner.join(stringList, ",");
+        String join = StringJoinUtils.join(stringList, ",");
         Assert.assertEquals(join, "abc,bcd,f");
 
     }

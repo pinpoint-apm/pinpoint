@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.test;
 import java.util.Arrays;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.StringJoiner;
 
 /**
  * @author Jongho Moon
@@ -48,22 +49,15 @@ public class ExpectedSql extends ExpectedAnnotation {
         if (bindValues.length == 0) {
             return null;
         }
+        return join(bindValues, ", ");
+    }
 
-        StringBuilder builder = new StringBuilder();
-
-        boolean first = true;
-
-        for (Object o : bindValues) {
-            if (first) {
-                first = false;
-            } else {
-                builder.append(", ");
-            }
-
-            builder.append(o);
+    private String join(Object[] objects, String delimiter) {
+        StringJoiner joiner = new StringJoiner(delimiter);
+        for (Object object : objects) {
+            joiner.add(String.valueOf(object));
         }
-
-        return builder.toString();
+        return joiner.toString();
     }
 
     @Override

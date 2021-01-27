@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.client;
 
+import com.navercorp.pinpoint.common.util.StringJoiner;
 import com.navercorp.pinpoint.grpc.Header;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
@@ -55,17 +56,11 @@ public class SupportCommandCodeClientInterceptor implements ClientInterceptor {
     }
 
     private String joinCommandCode(Collection<Short> supportCommandCodes, String separator) {
-        final StringBuilder buffer = new StringBuilder(32);
-        boolean first = true;
+        StringJoiner joiner = new StringJoiner(separator);
         for (Short supportCommandCode : supportCommandCodes) {
-            if (first) {
-                first = false;
-            } else {
-                buffer.append(separator);
-            }
-            buffer.append(supportCommandCode);
+            joiner.add(supportCommandCode.toString());
         }
-        return buffer.toString();
+        return joiner.toString();
     }
 
 }
