@@ -14,7 +14,6 @@
     <packaging>jar</packaging>
 
     <properties>
-        <snakeyaml.version>1.27</snakeyaml.version>
     </properties>
 
     <dependencyManagement>

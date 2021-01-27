@@ -89,7 +89,7 @@
         <metrics.version>3.2.6</metrics.version>
 
         <fastxml.jackson.version>2.11.3</fastxml.jackson.version>
-        <snakeyaml.version>1.26</snakeyaml.version>
+        <snakeyaml.version>1.27</snakeyaml.version>
 
         <httpcomponents.version>4.5.6</httpcomponents.version>
         <httpcomponents-core.version>4.4.10</httpcomponents-core.version>
@@ -473,7 +473,11 @@
                 <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>${fastxml.jackson.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.hbase</groupId>
