@@ -39,7 +39,6 @@
 
         <!-- for development option -->
         <skip.agent.distribution>false</skip.agent.distribution>
-        <snakeyaml.version>1.23-p1</snakeyaml.version>
     </properties>
 
     <dependencies>
