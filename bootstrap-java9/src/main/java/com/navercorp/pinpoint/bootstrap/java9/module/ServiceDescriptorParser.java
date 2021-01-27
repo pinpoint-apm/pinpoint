@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap.java9.module;
 
-import com.navercorp.pinpoint.common.Charsets;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -34,7 +33,7 @@ public class ServiceDescriptorParser {
 
 
     public List<String> parse(InputStream inputStream) throws IOException {
-        InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charsets.UTF_8);
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
         BufferedReader bufferedInputStream = new BufferedReader(inputStreamReader);
         Set<String> lineSet = new HashSet<>();
         String line;

@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.bo.codec.stat.strategy;
 
-import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.StringTypedBufferHandler;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
@@ -25,6 +24,7 @@ import com.navercorp.pinpoint.common.server.bo.codec.strategy.impl.StringRepeatC
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.impl.StringValueEncodingStrategy;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -94,7 +94,7 @@ public enum StringEncodingStrategy implements EncodingStrategy<String> {
 
         public static class Builder implements StrategyAnalyzerBuilder<String> {
 
-            private static final int MAX_BYTES_PER_CHAR_UTF8 = (int) Charsets.UTF_8.newEncoder().maxBytesPerChar();
+            private static final int MAX_BYTES_PER_CHAR_UTF8 = (int) StandardCharsets.UTF_8.newEncoder().maxBytesPerChar();
 
             private final List<String> values = new ArrayList<String>();
 
