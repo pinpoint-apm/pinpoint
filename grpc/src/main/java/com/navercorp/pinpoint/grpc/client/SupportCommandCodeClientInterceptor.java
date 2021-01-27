@@ -21,10 +21,11 @@ import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
 import io.grpc.ClientInterceptor;
+import io.grpc.ForwardingClientCall.SimpleForwardingClientCall;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 
@@ -39,29 +40,32 @@ public class SupportCommandCodeClientInterceptor implements ClientInterceptor {
     @Override
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
         final ClientCall<ReqT, RespT> clientCall = next.newCall(method, callOptions);
-        final ClientCall<ReqT, RespT> forwardClientCall = new ForwardClientCall<ReqT, RespT>(clientCall) {
+        final ClientCall<ReqT, RespT> forwardClientCall = new SimpleForwardingClientCall<ReqT, RespT>(clientCall) {
             @Override
             public void start(Listener<RespT> responseListener, Metadata headers) {
 
-                StringBuilder supportCommandCodeStringBuilder = new StringBuilder();
+                String supportCommandCode = joinCommandCode(supportCommandCodes, Header.SUPPORT_COMMAND_CODE_DELIMITER);
 
-                final Iterator<Short> supportCodeIterator = supportCommandCodes.iterator();
-                while (supportCodeIterator.hasNext()) {
-                    final Short code = supportCodeIterator.next();
-                    supportCommandCodeStringBuilder.append(code);
-
-                    final boolean hasNext = supportCodeIterator.hasNext();
-                    if (hasNext) {
-                        supportCommandCodeStringBuilder.append(Header.SUPPORT_COMMAND_CODE_DELIMITER);
-                    }
-                }
-
-                headers.put(Header.SUPPORT_COMMAND_CODE, supportCommandCodeStringBuilder.toString());
+                headers.put(Header.SUPPORT_COMMAND_CODE, supportCommandCode);
                 super.start(responseListener, headers);
             }
 
         };
         return forwardClientCall;
+    }
+
+    private String joinCommandCode(Collection<Short> supportCommandCodes, String separator) {
+        final StringBuilder buffer = new StringBuilder(32);
+        boolean first = true;
+        for (Short supportCommandCode : supportCommandCodes) {
+            if (first) {
+                first = false;
+            } else {
+                buffer.append(separator);
+            }
+            buffer.append(supportCommandCode);
+        }
+        return buffer.toString();
     }
 
 }
