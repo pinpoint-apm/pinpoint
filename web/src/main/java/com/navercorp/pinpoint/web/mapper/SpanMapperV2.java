@@ -39,7 +39,6 @@ import com.navercorp.pinpoint.io.SpanVersion;
 
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -232,7 +231,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
                 }
             }
         }
-        return Lists.newArrayList(spanMap.values());
+        return new ArrayList<>(spanMap.values());
     }
 
     private boolean isChildSpanChunk(SpanBo spanBo, SpanChunkBo spanChunkBo) {

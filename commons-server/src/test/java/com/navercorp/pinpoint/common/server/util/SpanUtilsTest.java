@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import com.google.common.primitives.Longs;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -81,8 +81,12 @@ public class SpanUtilsTest {
         String agentId = BytesUtils.toString(traceIndexRowKey, 0, PinpointConstants.APPLICATION_NAME_MAX_LEN).trim();
         Assert.assertEquals(applicationName, agentId);
 
-        long time = Longs.fromByteArray(Arrays.copyOfRange(traceIndexRowKey, PinpointConstants.APPLICATION_NAME_MAX_LEN, PinpointConstants.APPLICATION_NAME_MAX_LEN + 8));
+        long time = toByteArray(Arrays.copyOfRange(traceIndexRowKey, PinpointConstants.APPLICATION_NAME_MAX_LEN, PinpointConstants.APPLICATION_NAME_MAX_LEN + 8));
         time = TimeUtils.recoveryTimeMillis(time);
         Assert.assertEquals(time, l1);
+    }
+
+    private long toByteArray(byte[] bytes) {
+        return ByteBuffer.allocate(8).put(bytes).getLong(0);
     }
 }

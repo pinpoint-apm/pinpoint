@@ -44,7 +44,6 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
 
-import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -226,7 +225,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         if (!crashKey.isEmpty()) {
             Set<TransactionId> filteredTransactionId = filterMap.keySet();
             logger.info("transactionId crash found. original:{} filter:{} crashKey:{}", transactionIdList.size(), filteredTransactionId.size(), crashKey);
-            return Lists.newArrayList(filteredTransactionId);
+            return new ArrayList<>(filteredTransactionId);
         }
         return transactionIdList;
     }

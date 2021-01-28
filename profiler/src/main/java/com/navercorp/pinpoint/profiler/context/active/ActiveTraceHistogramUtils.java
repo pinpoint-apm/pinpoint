@@ -16,9 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.active;
 
-import com.google.common.primitives.Ints;
-
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,7 +25,7 @@ import java.util.Objects;
  */
 public final class ActiveTraceHistogramUtils {
 
-    private static final List<Integer> ZERO_LIST = Collections.unmodifiableList(Ints.asList(0, 0, 0, 0));
+    private static final List<Integer> ZERO_LIST = Arrays.asList(0, 0, 0, 0);
 
     private ActiveTraceHistogramUtils() {
     }
@@ -39,7 +37,7 @@ public final class ActiveTraceHistogramUtils {
             return ZERO_LIST;
         }
 
-        return Ints.asList(activeTraceHistogram.getFastCount(), activeTraceHistogram.getNormalCount(), activeTraceHistogram.getSlowCount(), activeTraceHistogram.getVerySlowCount());
+        return Arrays.asList(activeTraceHistogram.getFastCount(), activeTraceHistogram.getNormalCount(), activeTraceHistogram.getSlowCount(), activeTraceHistogram.getVerySlowCount());
 
     }
 }

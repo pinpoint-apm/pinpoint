@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.web.mapper;
 
-import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
@@ -17,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -39,7 +39,7 @@ public class SpanMapperV2Test {
         firstSpanEventBo.setEndElapsed(100);
 
         AnnotationBo annotationBo = newAnnotation(200, "annotation");
-        firstSpanEventBo.setAnnotationBoList(Lists.newArrayList(annotationBo));
+        firstSpanEventBo.setAnnotationBoList(Collections.singletonList(annotationBo));
         firstSpanEventBo.setServiceType((short) 1003);
         firstSpanEventBo.setSequence((short) 0);
 

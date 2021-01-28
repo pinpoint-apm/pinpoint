@@ -22,9 +22,9 @@ import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.StopWatch;
 
-import com.google.common.collect.Lists;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.DistributedScanner;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
@@ -443,7 +443,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
                 }
             });
         }
-        List<List<Callable<T>>> callablePartitions = Lists.partition(callables, this.maxThreadsPerParallelScan);
+        List<List<Callable<T>>> callablePartitions = ListUtils.partition(callables, this.maxThreadsPerParallelScan);
         for (List<Callable<T>> callablePartition : callablePartitions) {
             try {
                 List<Future<T>> futures = this.executor.invokeAll(callablePartition);

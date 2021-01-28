@@ -19,7 +19,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceListBo;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
