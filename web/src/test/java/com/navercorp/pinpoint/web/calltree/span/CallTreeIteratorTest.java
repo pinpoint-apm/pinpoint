@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.web.calltree.span;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Test;
 
 import org.slf4j.Logger;

@@ -44,8 +44,8 @@ import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineBuild
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.PredicateUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.PredicateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;

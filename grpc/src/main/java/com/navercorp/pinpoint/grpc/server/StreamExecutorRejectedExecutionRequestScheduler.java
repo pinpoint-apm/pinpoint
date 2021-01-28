@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import io.grpc.ServerCall;
 
 import java.util.Objects;

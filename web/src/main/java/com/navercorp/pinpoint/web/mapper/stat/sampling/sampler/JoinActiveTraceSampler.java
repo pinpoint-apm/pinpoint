@@ -19,7 +19,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinActiveTraceBo;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

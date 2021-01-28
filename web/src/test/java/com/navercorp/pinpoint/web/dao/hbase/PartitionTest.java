@@ -1,11 +1,12 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,7 +15,7 @@ import java.util.List;
  */
 public class PartitionTest {
 
-    private final List<Integer> original = Lists.newArrayList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+    private final List<Integer> original = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
 
     @Test
@@ -31,7 +32,7 @@ public class PartitionTest {
 
     private void assertPartition(int size) throws NoSuchFieldException, IllegalAccessException {
         List<List<Integer>> daoImpl = splitTransactionIdList(original, size);
-        List<List<Integer>> guava = Lists.partition(original, size);
+        List<List<Integer>> guava = ListUtils.partition(original, size);
         Assert.assertEquals(guava , daoImpl);
     }
 

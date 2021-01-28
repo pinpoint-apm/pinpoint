@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
-import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -147,7 +147,7 @@ public class BulkIncrementerTest {
 
         // When
         final int numIncrementers = 16;
-        List<List<TestData>> testDataPartitions = Lists.partition(testDatas, testDatas.size() / (numIncrementers - 1));
+        List<List<TestData>> testDataPartitions = ListUtils.partition(testDatas, testDatas.size() / (numIncrementers - 1));
         final CountDownLatch completeLatch = new CountDownLatch(testDataPartitions.size());
         final CountDownLatch flusherLatch = new CountDownLatch(1);
 
@@ -202,7 +202,7 @@ public class BulkIncrementerTest {
 
         // When
         final int numIncrementers = 16;
-        List<List<TestData>> testDataPartitions = Lists.partition(testDatas, testDatas.size() / (numIncrementers - 1));
+        List<List<TestData>> testDataPartitions = ListUtils.partition(testDatas, testDatas.size() / (numIncrementers - 1));
         final CountDownLatch incrementorLatch = new CountDownLatch(testDataPartitions.size());
         final CountDownLatch flusherLatch = new CountDownLatch(1);
 

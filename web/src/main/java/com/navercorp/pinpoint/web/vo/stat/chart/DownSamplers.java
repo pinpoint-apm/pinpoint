@@ -21,7 +21,7 @@ import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 /**
  * Down samples consecutive data points, such as a time-series dataset.
