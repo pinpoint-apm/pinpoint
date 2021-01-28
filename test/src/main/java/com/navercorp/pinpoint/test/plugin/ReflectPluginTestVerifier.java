@@ -1,7 +1,5 @@
 package com.navercorp.pinpoint.test.plugin;
 
-import org.tinylog.Logger;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -34,7 +32,6 @@ public class ReflectPluginTestVerifier {
 
     public static ReflectPluginTestVerifier getInstance() {
         try {
-            Logger.info("getInstance");
             final Object holder = getInstance.invoke(PluginTestVerifierClass);
             if (holder == null) {
                 return null;
