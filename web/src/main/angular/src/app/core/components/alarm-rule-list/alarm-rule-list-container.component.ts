@@ -60,14 +60,18 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
         this.loadUserGroupList();
         this.bindToAppSelectionEvent();
         this.initI18NText();
-        this.webAppSettingDataService.isWebhookEnable().subscribe((webhookEnable: boolean) => {
-            this.webhookEnable = webhookEnable;
-        });
+        this.initWebhookConfig();
     }
 
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+    }
+
+    private initWebhookConfig(): void {
+        this.webAppSettingDataService.isWebhookEnable().subscribe((webhookEnable: boolean) => {
+            this.webhookEnable = webhookEnable;
+        });
     }
 
     private loadCheckerList(): void {
