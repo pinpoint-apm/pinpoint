@@ -24,6 +24,9 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 /**
  * @author messi-gao
  */
@@ -32,30 +35,31 @@ public class RocketMQSpringBootProducer {
 
     @Resource
     private RocketMQTemplate rocketMQTemplate;
+    private static final Charset UTF8 = StandardCharsets.UTF_8;
 
     @GetMapping("/template/send")
     public String templateSend() {
         String topic = "TopicTest";
-        rocketMQTemplate.syncSend(topic, MessageBuilder.withPayload("Hello, World!2222".getBytes()).build());
+        rocketMQTemplate.syncSend(topic, MessageBuilder.withPayload("Hello, World!2222".getBytes(UTF8)).build());
         return "success";
     }
 
     @GetMapping("/template/sendAsync")
     public String templatesendAsync() {
         String topic = "TopicTest";
-        rocketMQTemplate.asyncSend(topic, MessageBuilder.withPayload("Hello, World!2222".getBytes()).build(),
-                                   new SendCallback() {
-                                       @Override
-                                       public void onSuccess(SendResult sendResult) {
-                                           System.out.printf("async onSucess SendResult=%s %n", sendResult);
-                                       }
+        rocketMQTemplate.asyncSend(topic, MessageBuilder.withPayload("Hello, World!2222".getBytes(UTF8)).build(),
+                new SendCallback() {
+                    @Override
+                    public void onSuccess(SendResult sendResult) {
+                        System.out.printf("async onSucess SendResult=%s %n", sendResult);
+                    }
 
-                                       @Override
-                                       public void onException(Throwable e) {
-                                           System.out.printf("async onException Throwable=%s %n", e);
+                    @Override
+                    public void onException(Throwable e) {
+                        System.out.printf("async onException Throwable=%s %n", e);
 
-                                       }
-                                   });
+                    }
+                });
         return "success";
     }
 }
