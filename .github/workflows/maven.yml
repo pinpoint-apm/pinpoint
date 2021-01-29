@@ -23,7 +23,7 @@ jobs:
         echo "JAVA_7_HOME=$JAVA_HOME_7_X64" >> $GITHUB_ENV
         echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
         echo "JAVA_9_HOME=$JAVA_HOME_9_0_7_X64" >> $GITHUB_ENV	
-        echo "JAVA_HOME=$JAVA_8_HOME" >> $GITHUB_ENV
+        echo "JAVA_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
     - name: Java environment
       run: env | grep '^JAVA'
     - name: Cache Maven packages
