@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Java CI with Maven
+name: Pinpoint CI
 
 on:
   push:
@@ -36,7 +36,6 @@ jobs:
     - name: Set JAVA_HOME
       run: echo "JAVA_HOME=/opt/hostedtoolcache/jdk/8.0.282/x64" >> $GITHUB_ENV
     - name: Java environment
-      if: runner.os == 'Linux'
       run: env | grep '^JAVA'
     - name: Cache Maven packages
       uses: actions/cache@v2
