@@ -28,6 +28,8 @@ public interface ServiceTypeRegistryService {
 
     ServiceType findServiceTypeByName(String typeName);
 
-    @Deprecated
+    /**
+     * deprecated
+     */
     List<ServiceType> findDesc(String desc);
 }

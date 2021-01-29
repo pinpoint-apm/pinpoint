@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author HyunGil Jeong

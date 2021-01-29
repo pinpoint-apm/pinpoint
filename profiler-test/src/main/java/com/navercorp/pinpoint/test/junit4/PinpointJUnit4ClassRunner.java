@@ -65,6 +65,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         }
     }
 
+    @Override
     protected TestClass createTestClass(Class<?> testClass) {
         logger.debug("createTestClass {}", testClass);
         beforeTestClass(testClass);

@@ -27,6 +27,8 @@ public interface ServiceTypeLocator {
 
     ServiceType findServiceTypeByName(String name);
 
-    @Deprecated
+    /**
+     * deprecated
+     */
     List<ServiceType> findDesc(String name);
 }
