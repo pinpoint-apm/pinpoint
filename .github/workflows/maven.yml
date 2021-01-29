@@ -27,8 +27,16 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 9
-    - name: java environment
+    - name: Java environment
       if: runner.os == 'Linux'
       run: env | grep '^JAVA'
+    - name: Set JAVA_HOME
+      if: runner.os == 'Linux'
+      run: env | grep '^JAVA'
+      env:
+        JAVA_HOME: $JAVA_HOME_8_X64
+        JAVA_7_HOME: $JAVA_HOME_7_X64
+        JAVA_8_HOME: $JAVA_HOME_8_X64
+        JAVA_9_HOME: $JAVA_HOME_9_X64
     - name: Build with Maven
       run: mvn -B package --file pom.xml
