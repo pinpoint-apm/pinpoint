@@ -88,7 +88,7 @@
         <!-- library -->
         <metrics.version>3.2.6</metrics.version>
 
-        <fastxml.jackson.version>2.11.3</fastxml.jackson.version>
+        <fastxml.jackson.version>2.12.1</fastxml.jackson.version>
         <snakeyaml.version>1.27</snakeyaml.version>
 
         <httpcomponents.version>4.5.6</httpcomponents.version>
@@ -123,7 +123,7 @@
         <thrift.version>0.12.0</thrift.version>
         <ehcache.version>2.10.6</ehcache.version>
         <netty3.version>3.10.6.Final</netty3.version>
-        <netty4.version>4.1.51.Final</netty4.version>
+        <netty4.version>4.1.58.Final</netty4.version>
 
 
         <guava-jdk7.version>30.1-android</guava-jdk7.version>
@@ -900,6 +900,12 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>listenablefuture</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.google.inject</groupId>
