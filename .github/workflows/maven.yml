@@ -32,11 +32,9 @@ jobs:
       run: env | grep '^JAVA'
     - name: Set JAVA_HOME
       if: runner.os == 'Linux'
-      run: env | grep '^JAVA'
-      env:
-        JAVA_HOME: /usr/lib/jvm/adoptopenjdk-8-hotspot-amd64
-        JAVA_7_HOME: /usr/lib/jvm/zulu-7-azure-amd64
-        JAVA_8_HOME: /usr/lib/jvm/adoptopenjdk-8-hotspot-amd64
-        JAVA_9_HOME: /opt/hostedtoolcache/jdk/9.0.7/x64
+      run: echo "JAVA_7_HOME=${JAVA_HOME_7_X64}" >> $GITHUB_ENV
+           echo "JAVA_8_HOME=${JAVA_HOME_8_X64}" >> $GITHUB_ENV
+           echo "JAVA_9_HOME=${JAVA_HOME_9_X64}" >> $GITHUB_ENV
+           echo "JAVA_HOME=${JAVA_HOME_8_X64}" >> $GITHUB_ENV
     - name: Build with Maven
       run: mvn -B package --file pom.xml
