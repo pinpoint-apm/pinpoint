@@ -29,19 +29,9 @@ public class JavaLangAccessHelperTest {
 
     @Test
     public void getJavaLangAccessObject() {
-        Object object = JavaLangAccessHelper.getJavaLangAccessObject();
+        Object object = JavaLangAccessHelper.getJavaLangAccess();
         assertNotNull(object);
     }
 
-    @Test
-    public void getRegisterShutdownHookMethodHandle() {
-        MethodHandle methodHandle = JavaLangAccessHelper.getRegisterShutdownHookMethodHandle();
-        assertNotNull(methodHandle);
-    }
 
-    @Test
-    public void getDefineClassMethodHandle() {
-        MethodHandle methodHandle = JavaLangAccessHelper.getDefineClassMethodHandle();
-        assertNotNull(methodHandle);
-    }
 }
