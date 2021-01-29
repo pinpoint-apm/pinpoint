@@ -27,11 +27,14 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 9
+    - name: Set JAVA_HOME7	    
+      run: echo "JAVA_7_HOME=/opt/hostedtoolcache/jdk/7.0.292/x64" >> $GITHUB_ENV
+    - name: Set JAVA_HOME8
+      run: echo "JAVA_8_HOME=/opt/hostedtoolcache/jdk/8.0.282/x64" >> $GITHUB_ENV
+    - name: Set JAVA_HOME9
+      run: echo "JAVA_9_HOME=/opt/hostedtoolcache/jdk/9.0.7/x64" >> $GITHUB_ENV	
     - name: Set JAVA_HOME
-    - run: echo "JAVA_7_HOME=/opt/hostedtoolcache/jdk/7.0.292/x64" >> $GITHUB_ENV
-    - run: echo "JAVA_8_HOME=/opt/hostedtoolcache/jdk/8.0.282/x64" >> $GITHUB_ENV
-    - run: echo "JAVA_9_HOME=/opt/hostedtoolcache/jdk/9.0.7/x64" >> $GITHUB_ENV
-    - run: echo "JAVA_HOME=/opt/hostedtoolcache/jdk/8.0.282/x64" >> $GITHUB_ENV
+      run: echo "JAVA_HOME=/opt/hostedtoolcache/jdk/8.0.282/x64" >> $GITHUB_ENV
     - name: Java environment
       if: runner.os == 'Linux'
       run: env | grep '^JAVA'
