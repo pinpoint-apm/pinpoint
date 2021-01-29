@@ -11,7 +11,7 @@ on:
 
 jobs:
 
-  setup:
+  build:
     runs-on: ubuntu-latest
     steps:
     - name: Set up JDK 1.7
@@ -34,18 +34,18 @@ jobs:
       run: echo "JAVA_9_HOME=/opt/hostedtoolcache/jdk/9.0.7/x64" >> $GITHUB_ENV	
     - name: Set JAVA_HOME
       run: echo "JAVA_HOME=/opt/hostedtoolcache/jdk/8.0.282/x64" >> $GITHUB_ENV
+    - name: Set JAVA_HOME_TEST
+      run: echo "JAVA_HOME44=$JAVA_HOMETEST" >> $GITHUB_ENV
+      env:
+        JAVA_HOME_TEST : ${{ env.JAVA_HOME_7_X64 }} 
     - name: Java environment
       run: env | grep '^JAVA'
-     
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
     - name: Cache Maven packages
       uses: actions/cache@v2
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
+    - uses: actions/checkout@v2
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvnw -B package --file pom.xml
