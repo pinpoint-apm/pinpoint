@@ -2,7 +2,7 @@
 
 ![Pinpoint](web/psd/logo.png)
 
-![Pinpoint CI](https://github.com/pinpoint-apm/pinpoint/workflows/Pinpoint%20CI/badge.svg)
+[![Pinpoint CI](https://github.com/pinpoint-apm/pinpoint/workflows/Pinpoint%20CI/badge.svg)](https://github.com/pinpoint-apm/pinpoint/actions?query=workflow%3A%22Pinpoint+CI%22)
 [![codecov](https://codecov.io/gh/pinpoint-apm/pinpoint/branch/master/graph/badge.svg)](https://codecov.io/gh/pinpoint-apm/pinpoint)
 
 **Visit [our official web site](https://pinpoint-apm.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://pinpoint-apm.github.io/pinpoint/news.html)**.
