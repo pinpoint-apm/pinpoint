@@ -14,28 +14,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Set up JDK 1.7
-      uses: actions/setup-java@v1
-      with:
-        java-version: 1.7
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v1
-      with:
-        java-version: 1.8
-    - name: Set up JDK 1.9
-      uses: actions/setup-java@v1
-      with:
-        java-version: 9
+
     - name: Set JAVA_HOME7	    
-      run: echo "JAVA_7_HOME=/opt/hostedtoolcache/jdk/7.0.292/x64" >> $GITHUB_ENV
+      run: echo "JAVA_7_HOME=$JAVA_HOME_7_X64" >> $GITHUB_ENV
     - name: Set JAVA_HOME8
-      run: echo "JAVA_8_HOME=/opt/hostedtoolcache/jdk/8.0.282/x64" >> $GITHUB_ENV
+      run: echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
     - name: Set JAVA_HOME9
-      run: echo "JAVA_9_HOME=/opt/hostedtoolcache/jdk/9.0.7/x64" >> $GITHUB_ENV	
+      run: echo "JAVA_9_HOME=$JAVA_HOME_9_0_7_X64" >> $GITHUB_ENV	
     - name: Set JAVA_HOME
-      run: echo "JAVA_HOME=/opt/hostedtoolcache/jdk/8.0.282/x64" >> $GITHUB_ENV
-    - name: Set JAVA_HOME_TEST
-      run: echo "JAVA_HOME44=$JAVA_HOME_7_X64" >> $GITHUB_ENV
+      run: echo "JAVA_HOME=$JAVA_8_HOME" >> $GITHUB_ENV
     - name: Java environment
       run: env | grep '^JAVA'
     - name: Cache Maven packages
