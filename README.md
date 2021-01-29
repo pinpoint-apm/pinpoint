@@ -2,7 +2,7 @@
 
 ![Pinpoint](web/psd/logo.png)
 
-[![Build Status](https://travis-ci.com/pinpoint-apm/pinpoint.svg?branch=master)](https://travis-ci.com/github/pinpoint-apm/pinpoint)
+![Pinpoint CI](https://github.com/pinpoint-apm/pinpoint/workflows/Pinpoint%20CI/badge.svg)
 [![codecov](https://codecov.io/gh/pinpoint-apm/pinpoint/branch/master/graph/badge.svg)](https://codecov.io/gh/pinpoint-apm/pinpoint)
 
 **Visit [our official web site](https://pinpoint-apm.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://pinpoint-apm.github.io/pinpoint/news.html)**.
