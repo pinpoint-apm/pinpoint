@@ -30,11 +30,18 @@ jobs:
     - name: Java environment
       if: runner.os == 'Linux'
       run: env | grep '^JAVA'
+    - name: Set JAVA_HOME7
+      if: runner.os == 'Linux'
+      run: echo "JAVA_7_HOME=/opt/hostedtoolcache/jdk/7.0.292/x64" >> $GITHUB_ENV
+    - name: Set JAVA_HOME8
+      if: runner.os == 'Linux'
+      run: echo "JAVA_8_HOME=/opt/hostedtoolcache/jdk/8.0.282/x64" >> $GITHUB_ENV
+    - name: Set JAVA_HOME9
+      if: runner.os == 'Linux'
+      run: echo "JAVA_9_HOME=/opt/hostedtoolcache/jdk/9.0.7/x64" >> $GITHUB_ENV
     - name: Set JAVA_HOME
       if: runner.os == 'Linux'
-      run: echo "JAVA_7_HOME=${JAVA_HOME_7_X64}" >> $GITHUB_ENV
-           echo "JAVA_8_HOME=${JAVA_HOME_8_X64}" >> $GITHUB_ENV
-           echo "JAVA_9_HOME=${JAVA_HOME_9_X64}" >> $GITHUB_ENV
-           echo "JAVA_HOME=${JAVA_HOME_8_X64}" >> $GITHUB_ENV
+      run: echo "JAVA_HOME=/opt/hostedtoolcache/jdk/8.0.282/x64" >> $GITHUB_ENV
+ 
     - name: Build with Maven
       run: mvn -B package --file pom.xml
