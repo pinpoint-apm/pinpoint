@@ -1,0 +1,37 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Pinpoint CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up JDK 9
+      uses: actions/setup-java@v1
+      with:
+        java-version: 9
+    - name: Set JAVA_HOME
+      run: |
+        echo "JAVA_7_HOME=$JAVA_HOME_7_X64" >> $GITHUB_ENV
+        echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
+        echo "JAVA_9_HOME=$JAVA_HOME_9_0_7_X64" >> $GITHUB_ENV	
+        echo "JAVA_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
+    - name: Java Environment
+      run: env | grep '^JAVA'
+    - name: Cache Maven packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+    - uses: actions/checkout@v2
+    - name: Build with Maven
+      run: ./mvnw -B package --file pom.xml
