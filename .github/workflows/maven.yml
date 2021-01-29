@@ -14,7 +14,6 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
     - name: Set up JDK 1.7
       uses: actions/setup-java@v1
       with:
@@ -41,6 +40,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v2
     - name: Cache Maven packages
       uses: actions/cache@v2
       with:
