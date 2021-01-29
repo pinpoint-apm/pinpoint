@@ -6,29 +6,21 @@ cache:
     - web/src/main/angular/node_modules
     - node_install
 
-addons:
-  apt:
-    packages:
-      - openjdk-6-jdk
-
 jdk:
  - oraclejdk8
 
 env:
   global:
    - secure: "a9HD/C1/+/XVnCXiNp819HvUgi9NPIVAhnRm1QMzaTedY/QQXciIecI2puZLnNa0Vj207X6kJqOurlw6/RkUxS2HIOBGwTa1MjNbOrTMh0z1rdV50XgfGeoD1GR6x1BEZo3Hhxv2RjEB0GUEcNfmrQiXzXI9LYmtxby8/a03zyg="
-   - JAVA_6_HOME=/usr/lib/jvm/java-6-openjdk-amd64
-     JAVA_7_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+   - JAVA_7_HOME=/usr/lib/jvm/java-7-openjdk-amd64
      JAVA_8_HOME=/usr/lib/jvm/java-8-oracle
      JAVA_9_HOME=/usr/lib/jvm/java-9-oracle
 
 install:
  - set -o pipefail
- - ls -al $JAVA_6_HOME
  - ls -al $JAVA_7_HOME
  - ls -al $JAVA_8_HOME
  - ls -al $JAVA_9_HOME
- - $JAVA_6_HOME/bin/java -version
  - $JAVA_7_HOME/bin/java -version
  - $JAVA_8_HOME/bin/java -version
  - $JAVA_9_HOME/bin/java -version
