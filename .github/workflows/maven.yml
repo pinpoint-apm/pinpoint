@@ -35,7 +35,7 @@ jobs:
     - name: Set JAVA_HOME
       run: echo "JAVA_HOME=/opt/hostedtoolcache/jdk/8.0.282/x64" >> $GITHUB_ENV
     - name: Set JAVA_HOME_TEST
-      run: echo "JAVA_HOME44=$JAVA_HOMETEST" >> $GITHUB_ENV
+      run: echo "JAVA_HOME44=$JAVA_HOME_TEST" >> $GITHUB_ENV
       env:
         JAVA_HOME_TEST : ${{ env.JAVA_HOME_7_X64 }} 
     - name: Java environment
