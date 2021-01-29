@@ -34,9 +34,9 @@ jobs:
       if: runner.os == 'Linux'
       run: env | grep '^JAVA'
       env:
-        JAVA_HOME: $JAVA_HOME_8_X64
-        JAVA_7_HOME: $JAVA_HOME_7_X64
-        JAVA_8_HOME: $JAVA_HOME_8_X64
-        JAVA_9_HOME: $JAVA_HOME_9_X64
+        JAVA_HOME: ${{ JAVA_HOME_8_X64 }}
+        JAVA_7_HOME: ${{ JAVA_HOME_7_X64 }}
+        JAVA_8_HOME: ${{ JAVA_HOME_8_X64 }}
+        JAVA_9_HOME: ${{ JAVA_HOME_9_X64 }}
     - name: Build with Maven
       run: mvn -B package --file pom.xml
