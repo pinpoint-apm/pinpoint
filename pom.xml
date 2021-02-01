@@ -135,22 +135,20 @@
 
         <!-- maven-plugin -->
         <plugin.compiler.version>3.8.1</plugin.compiler.version>
-        <plugin.resources.version>3.1.0</plugin.resources.version>
+        <plugin.resources.version>3.2.0</plugin.resources.version>
         <plugin.surefire.version>2.22.2</plugin.surefire.version>
         <plugin.failsafe.version>2.22.2</plugin.failsafe.version>
         <plugin.shade.version>3.1.1</plugin.shade.version>
-        <plugin.assembly.version>3.1.1</plugin.assembly.version>
-        <plugin.war.version>3.2.2</plugin.war.version>
+        <plugin.assembly.version>3.3.0</plugin.assembly.version>
         <plugin.jar.version>3.2.0</plugin.jar.version>
-        <plugin.antrun.version>1.8</plugin.antrun.version>
+        <plugin.antrun.version>3.0.0</plugin.antrun.version>
 
-        <!--<plugin.clover.verison>4.3.0</plugin.clover.verison>-->
         <plugin.clover.version>4.2.1</plugin.clover.version>
-        <plugin.spotbugs.version>3.1.12</plugin.spotbugs.version>
-        <plugin.pmd.version>3.12.0</plugin.pmd.version>
+        <plugin.spotbugs.version>4.1.4</plugin.spotbugs.version>
+        <plugin.pmd.version>3.14.0</plugin.pmd.version>
 
-        <plugin.enforcer.version>3.0.0-M2</plugin.enforcer.version>
-        <plugin.animal-sniffer.version>1.18</plugin.animal-sniffer.version>
+        <plugin.enforcer.version>3.0.0-M3</plugin.enforcer.version>
+        <plugin.animal-sniffer.version>1.19</plugin.animal-sniffer.version>
 
         <sniffer.artifactid>java17</sniffer.artifactid>
 
@@ -959,6 +957,26 @@
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>3.1.0</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.9.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>3.1.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.1.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>3.0.0-M1</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -1140,11 +1158,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>3.7.1</version>
-            </plugin>
         </plugins>
     </build>
 
@@ -1210,12 +1223,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.7.1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
-                <version>2.5</version>
+                <version>3.0.0</version>
                 <inherited>false</inherited>
                 <configuration>
                     <aggregate>true</aggregate>
