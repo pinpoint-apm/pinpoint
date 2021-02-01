@@ -15,10 +15,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <maven.compiler.source>1.7</maven.compiler.source>
         <!-- copy parent pom -->
-        <plugin.clover.version>4.2.1</plugin.clover.version>
-        <plugin.spotbugs.version>3.1.12</plugin.spotbugs.version>
-        <plugin.pmd.version>3.12.0</plugin.pmd.version>
-        <plugin.jshint.version>1.6.0</plugin.jshint.version>
+        <plugin.spotbugs.version>4.1.4</plugin.spotbugs.version>
     </properties>
 
     <dependencies>
@@ -28,25 +25,9 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.openclover</groupId>
-                <artifactId>clover-maven-plugin</artifactId>
-                <version>${plugin.clover.version}</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
                 <version>${plugin.spotbugs.version}</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.cj.jshintmojo</groupId>
-                <artifactId>jshint-maven-plugin</artifactId>
-                <version>${plugin.jshint.version}</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>

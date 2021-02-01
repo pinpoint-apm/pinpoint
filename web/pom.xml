@@ -362,6 +362,10 @@
                     <finalName>${pinpoint.web.executable.name}</finalName>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.cj.jshintmojo</groupId>
+                <artifactId>jshint-maven-plugin</artifactId>
+            </plugin>
             <!-- build.frontend -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
