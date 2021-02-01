@@ -177,7 +177,7 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
     }
 
     public int getSqlId(String sql) {
-        return findIdByValue(stringIdMap, sql);
+        return findIdByValue(sqlIdMap, sql);
     }
 
     public List<Object> getDatas() {
