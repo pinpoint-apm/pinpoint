@@ -54,8 +54,8 @@ public class SystemMetricService<T extends SystemMetric> {
     public List<LongCounter> filterLongCounter(List<T> systemMetrics) {
         return systemMetrics.stream().filter(LongCounter.class::isInstance)
                 .map(LongCounter.class::cast).collect(Collectors.toList());
-
     }
+
     public List<DoubleCounter> filterDoubleCounter(List<T> systemMetrics) {
         return systemMetrics.stream().filter(DoubleCounter.class::isInstance)
                 .map(DoubleCounter.class::cast).collect(Collectors.toList());
