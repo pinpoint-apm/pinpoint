@@ -16,6 +16,8 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <!-- copy parent pom -->
         <plugin.spotbugs.version>4.1.4</plugin.spotbugs.version>
+        <plugin.pmd.version>3.12.0</plugin.pmd.version>
+        <plugin.jshint.version>1.6.0</plugin.jshint.version>
     </properties>
 
     <dependencies>
@@ -28,6 +30,14 @@
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
                 <version>${plugin.spotbugs.version}</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.cj.jshintmojo</groupId>
+                <artifactId>jshint-maven-plugin</artifactId>
+                <version>${plugin.jshint.version}</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
