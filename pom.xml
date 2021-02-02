@@ -71,6 +71,7 @@
         <module>flink</module>
         <module>testcase</module>
         <module>batch</module>
+        <module>report</module>
     </modules>
 
     <properties>
@@ -82,6 +83,7 @@
         <!-- hbase -->
         <hbase.shaded.client.version>1.4.13</hbase.shaded.client.version>
 
+        <plugin.jacoco.skip>true</plugin.jacoco.skip>
         <plugin.animal-sniffer.skip>false</plugin.animal-sniffer.skip>
 
         <!-- library -->
@@ -1022,6 +1024,22 @@
                         </excludes>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.6</version>
+                    <executions>
+                        <execution>
+                            <id>prepare-agent</id>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <skip>${plugin.jacoco.skip}</skip>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -1061,7 +1079,8 @@
                         <exclude>**/*Helper</exclude>
                         <exclude>**/*$*</exclude>
                     </excludes>
-                    <argLine>-Dfile.encoding=${encoding}</argLine>
+                    <!-- Add  @{argLine} for jacoco -->
+                    <argLine>@{argLine} -Dfile.encoding=${encoding}</argLine>
                     <jvm>${test.jdk.home}/bin/java</jvm>
                     <forkMode>once</forkMode>
                 </configuration>
@@ -1141,6 +1160,10 @@
                 <groupId>com.cj.jshintmojo</groupId>
                 <artifactId>jshint-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 
@@ -1203,6 +1226,13 @@
             <properties>
                 <env>release</env>
                 <spring.profiles.active>release</spring.profiles.active>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>code.coverage</id>
+            <properties>
+                <plugin.jacoco.skip>false</plugin.jacoco.skip>
             </properties>
         </profile>
 
