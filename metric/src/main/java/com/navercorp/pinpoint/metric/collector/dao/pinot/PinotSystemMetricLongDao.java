@@ -42,7 +42,7 @@ public class PinotSystemMetricLongDao implements SystemMetricDao<LongCounter> {
         this.topic = Objects.requireNonNull(topic, "topic");
     }
     @Override
-    public void insert(String applicationName, List<LongCounter> systemMetrics) throws JsonProcessingException{
+    public void insert(String applicationName, List<LongCounter> systemMetrics) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(systemMetrics, "systemMetrics");
 
@@ -50,6 +50,5 @@ public class PinotSystemMetricLongDao implements SystemMetricDao<LongCounter> {
             SystemMetricView systemMetricView = new SystemMetricView(applicationName, longCounter);
             this.kafkaLongTemplate.send(topic, systemMetricView);
         }
-
     }
 }

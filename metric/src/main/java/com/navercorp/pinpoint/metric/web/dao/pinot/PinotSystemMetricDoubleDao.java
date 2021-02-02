@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.metric.web.dao.pinot;
 
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricDao;
-import com.navercorp.pinpoint.metric.web.model.QueryParameter;
+import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.model.SampledSystemMetric;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.slf4j.Logger;
@@ -50,10 +50,5 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao {
     @Override
     public List<SampledSystemMetric<Double>> getSampledSystemMetric(QueryParameter queryParameter) {
         return sqlPinotSessionTemplate.selectList(NAMESPACE+ "selectSampledSystemMetric", queryParameter);
-    }
-
-    @Override
-    public List<SampledSystemMetric<Double>> getSampledSystemMetricWithInterval(QueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE+ "selectSampledSystemMetricWithInterval", queryParameter);
     }
 }

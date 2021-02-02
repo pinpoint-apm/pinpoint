@@ -32,7 +32,7 @@
         <typeAlias type="com.navercorp.pinpoint.metric.web.model.chart.SystemMetricPoint" alias="SystemMetricPoint" />
         <typeAlias type="com.navercorp.pinpoint.metric.common.model.Tag" alias="Tag" />
         <typeAlias type="com.navercorp.pinpoint.metric.web.util.Range" alias="Range" />
-        <typeAlias type="com.navercorp.pinpoint.metric.web.model.QueryParameter" alias="QueryParameter" />
+        <typeAlias type="com.navercorp.pinpoint.metric.web.util.QueryParameter" alias="QueryParameter" />
         <typeAlias type="java.lang.Number" alias="Number" />
         <typeAlias type="com.navercorp.pinpoint.metric.web.mybatis.typehandler.DoubleTypeHandler" alias="DoubleHandler" />
         <typeAlias type="com.navercorp.pinpoint.metric.web.mybatis.typehandler.LongTypeHandler" alias="LongHandler" />
