@@ -276,7 +276,7 @@
         <property name="corePoolSize" value="#{baseDataReceiverConfig.workerThreadSize}"/>
         <property name="maxPoolSize" value="#{baseDataReceiverConfig.workerThreadSize}"/>
         <property name="queueCapacity" value="#{baseDataReceiverConfig.workerQueueSize}"/>
-        <property name="threadNamePrefix" value="Pinpoint-AgentBaseDataReceiger-Worker"/>
+        <property name="threadNamePrefix" value="Pinpoint-AgentBaseDataReceiver-Worker"/>
         <property name="registry" value="#{baseDataReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
     </bean>
 
