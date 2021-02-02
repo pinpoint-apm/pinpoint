@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.metric.collector.dao.pinot;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDao;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
 import com.navercorp.pinpoint.metric.common.model.DoubleCounter;
@@ -44,7 +43,7 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<DoubleCounter
     }
 
     @Override
-    public void insert(String applicationName, List<DoubleCounter> systemMetrics) throws JsonProcessingException {
+    public void insert(String applicationName, List<DoubleCounter> systemMetrics) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(systemMetrics, "systemMetrics");
 
