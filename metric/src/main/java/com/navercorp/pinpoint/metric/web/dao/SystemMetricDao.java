@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.metric.web.dao;
 
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
-import com.navercorp.pinpoint.metric.web.model.QueryParameter;
+import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.model.SampledSystemMetric;
 
 import java.util.List;
@@ -28,5 +28,4 @@ import java.util.List;
 public interface SystemMetricDao {
     List<SystemMetric> getSystemMetric(QueryParameter queryParameter);
     <T extends Number> List<SampledSystemMetric<T>> getSampledSystemMetric(QueryParameter queryParameter);
-    <T extends Number> List<SampledSystemMetric<T>> getSampledSystemMetricWithInterval(QueryParameter queryParameter);
 }

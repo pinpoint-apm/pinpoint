@@ -37,7 +37,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -58,10 +57,7 @@ public class SystemMetricController {
                                   SystemMetricService<SystemMetric> systemMetricService,
                                   SystemMetricMetadata systemMetricMetadata) {
         Objects.requireNonNull(objectMapper, "objectMapper");
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(SystemMetric.class, new SystemMetricJsonDeserializer());
-        this.objectMapper = objectMapper.registerModule(module);
-
+        this.objectMapper = objectMapper.registerModule(deserializerModule());
         this.systemMetricService = Objects.requireNonNull(systemMetricService, "systemMetricService");
         this.systemMetricMetadata = Objects.requireNonNull(systemMetricMetadata, "systemMetricMetadata");
     }
@@ -71,27 +67,26 @@ public class SystemMetricController {
     public void saveSystemMetric(
             @RequestHeader(value = "Application-Name") String applicationName,
             @RequestBody String body) throws JsonProcessingException {
-//        logger.info("controller time {}", System.currentTimeMillis());
-
-        List<SystemMetric> systemMetrics;
-        try {
-            JsonNode jsonNode = objectMapper.readTree(body).get("metrics");
-            systemMetrics = Arrays.asList(objectMapper.readValue(jsonNode.toString(), SystemMetric[].class));
-            for (SystemMetric systemMetric : systemMetrics) {
-                if (systemMetric instanceof LongCounter) {
-                    systemMetricMetadata.put(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricType.LongCounter);
-                } else if (systemMetric instanceof DoubleCounter) {
-                    systemMetricMetadata.put(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricType.DoubleCounter);
-                } else {
-                    throw new IllegalArgumentException("UnknownType:" + systemMetric.getClass().getName());
-                }
-            }
-            systemMetricMetadata.save();
-        } catch (IOException e) {
-            systemMetrics = null;
-            logger.warn("System Metric Deserialization Failed: {}", e.getMessage());
-        }
-
+        JsonNode jsonNode = objectMapper.readTree(body).get("metrics");
+        List<SystemMetric> systemMetrics = Arrays.asList(objectMapper.readValue(jsonNode.toString(), SystemMetric[].class));
+        updateMetadata(systemMetrics);
         systemMetricService.insert(applicationName, systemMetrics);
+    }
+
+    private SimpleModule deserializerModule() {
+        return new SimpleModule().addDeserializer(SystemMetric.class, new SystemMetricJsonDeserializer());
+    }
+
+    private void updateMetadata(List<SystemMetric> systemMetrics) {
+        for (SystemMetric systemMetric : systemMetrics) {
+            if (systemMetric instanceof LongCounter) {
+                systemMetricMetadata.put(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricType.LongCounter);
+            } else if (systemMetric instanceof DoubleCounter) {
+                systemMetricMetadata.put(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricType.DoubleCounter);
+            } else {
+                throw new IllegalArgumentException("UnknownType:" + systemMetric.getClass().getName());
+            }
+        }
+        systemMetricMetadata.save();
     }
 }
