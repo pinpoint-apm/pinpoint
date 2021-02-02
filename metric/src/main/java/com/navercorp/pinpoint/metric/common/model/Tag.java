@@ -44,7 +44,6 @@ public class Tag {
         final StringBuilder sb = new StringBuilder(name);
         sb.append(":").append(value);
         return sb.toString();
-        // for easier row key decoding
     }
 
     @Override

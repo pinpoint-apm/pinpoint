@@ -16,9 +16,7 @@
 
 package com.navercorp.pinpoint.metric.collector.dao;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
-
 
 import java.util.List;
 
@@ -26,5 +24,5 @@ import java.util.List;
  * @author Hyunjoon Cho
  */
 public interface SystemMetricDao<T extends SystemMetric> {
-    void insert(String applicationName, List<T> systemMetrics) throws JsonProcessingException;
+    void insert(String applicationName, List<T> systemMetrics);
 }

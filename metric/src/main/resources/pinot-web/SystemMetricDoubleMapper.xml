@@ -42,45 +42,15 @@
 
     <resultMap id="systemMetricPointResultMap" type="SystemMetricPoint">
         <constructor>
-            <arg column="timestampInEpoch" javaType="_long"/>
-            <arg column="fieldValue" javaType="Number" typeHandler="DoubleHandler"/>
-        </constructor>
-    </resultMap>
-
-    <select id="selectSampledSystemMetric" resultMap="sampledSystemMetricResultMap" parameterType="QueryParameter">
-        SELECT fieldValue,
-            timestampInEpoch,
-            tags
-        FROM systemMetricDouble
-        WHERE applicationName = #{applicationName}
-            AND hostName = #{hostName}
-            AND metricName = #{metricName}
-            AND fieldName = #{fieldName}
-            <foreach collection="tagList" item="tag" separator=" ">
-                AND tags = #{tag}
-            </foreach>
-            AND timestampInEpoch BETWEEN #{range.from} AND #{range.to}
-        LIMIT ${limit}
-    </select>
-
-    <resultMap id="sampledWithIntervalSystemMetricResultMap" type="SampledSystemMetric">
-        <constructor>
-            <arg resultMap="sampledSystemMetricPointResultMap" javaType="SystemMetricPoint" />
-            <arg column="tags" javaType="list" typeHandler="TagListHandler"/>
-        </constructor>
-    </resultMap>
-
-    <resultMap id="sampledSystemMetricPointResultMap" type="SystemMetricPoint">
-        <constructor>
             <arg column="avgTime" javaType="_long"/>
             <arg column="avgValue" javaType="Number" typeHandler="DoubleHandler"/>
         </constructor>
     </resultMap>
 
-    <select id="selectSampledSystemMetricWithInterval" resultMap="sampledWithIntervalSystemMetricResultMap" parameterType="QueryParameter">
+    <select id="selectSampledSystemMetric" resultMap="sampledSystemMetricResultMap" parameterType="QueryParameter">
         SELECT
             AVG(fieldValue) AS avgValue,
-            DATETIME_CONVERT(timestampInEpoch, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{interval}:MILLISECONDS') AS avgTime,
+            DATETIME_CONVERT(timestampInEpoch, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime,
             tags
         FROM systemMetricDouble
         WHERE applicationName = #{applicationName}
