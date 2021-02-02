@@ -29,26 +29,9 @@ public class TestClassLoaderFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestClassLoaderFactory.class);
 
-    // Classes to check for to determine which Clover runtime has been loaded AFTER source code instrumentation.
-    private static final String CENQUA_CLOVER = "com_cenqua_clover.Clover";
-
-    private static final String ATLASSIAN_CLOVER = "com_atlassian_clover.Clover";
-
     public static TestClassLoader createTestClassLoader(DefaultApplicationContext applicationContext) {
         final TestClassLoader testClassLoader = new TestClassLoader(applicationContext);
-        addCloverPackage(testClassLoader, CENQUA_CLOVER);
-        addCloverPackage(testClassLoader, ATLASSIAN_CLOVER);
         return testClassLoader;
-    }
-
-
-    private static void addCloverPackage(TestClassLoader testClassLoader, String className) {
-        String packageName = getPackageName(className);
-        testClassLoader.addDelegateClass(packageName);
-    }
-
-    private static String getPackageName(String className) {
-        return ClassUtils.getPackageName(className) + ".";
     }
 
 }

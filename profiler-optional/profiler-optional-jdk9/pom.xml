@@ -35,10 +35,6 @@
         <jdk.version>9</jdk.version>
         <jdk.home>${env.JAVA_9_HOME}</jdk.home>
 
-        <!-- http://openclover.org/ -->
-        <!-- https://bitbucket.org/openclover/clover/issues/61/430-support-java-9 -->
-        <!-- 4.3 will support java9 -->
-        <plugin.clover.skip>true</plugin.clover.skip>
         <plugin.animal-sniffer.skip>true</plugin.animal-sniffer.skip>
     </properties>
 
@@ -80,13 +76,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Temporary patch for java9-->
-        <dependency>
-            <groupId>org.openclover</groupId>
-            <artifactId>clover</artifactId>
-            <version>4.2.1</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

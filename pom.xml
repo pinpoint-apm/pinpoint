@@ -82,7 +82,6 @@
         <!-- hbase -->
         <hbase.shaded.client.version>1.4.13</hbase.shaded.client.version>
 
-        <plugin.clover.skip>false</plugin.clover.skip>
         <plugin.animal-sniffer.skip>false</plugin.animal-sniffer.skip>
 
         <!-- library -->
@@ -143,7 +142,6 @@
         <plugin.jar.version>3.2.0</plugin.jar.version>
         <plugin.antrun.version>3.0.0</plugin.antrun.version>
 
-        <plugin.clover.version>4.2.1</plugin.clover.version>
         <plugin.spotbugs.version>4.1.4</plugin.spotbugs.version>
         <plugin.pmd.version>3.14.0</plugin.pmd.version>
 
@@ -1024,37 +1022,6 @@
                         </excludes>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <groupId>org.openclover</groupId>
-                    <artifactId>clover-maven-plugin</artifactId>
-                    <version>${plugin.clover.version}</version>
-                    <configuration>
-                        <encoding>${encoding}</encoding>
-                        <jdk>${jdk.version}</jdk>
-                        <generateXml>true</generateXml>
-                        <generateHtml>true</generateHtml>
-                        <generateHistorical>false</generateHistorical>
-                        <license>
-                            <![CDATA[
-                        RMRqrdbgbKFhbaVnDxHUdDQvrOQXxIBklnvcmahheubVC
-                        mh2KM35CLkwUHS4DH7QVhxy52J5hnWbyEm6Cyd3KkF<mV
-                        RmmnSVOqOMnOnMMrmMqwXomoroNrqPNRrPSsWwtUxXuUU
-                        sRONqpnmqmUUnqonmstsmmmmmUUnqonmstsmmmmmUUGfk
-                        mlfkqUUnmmmm
-                        ]]>
-                        </license>
-                        <singleCloverDatabase>false</singleCloverDatabase>
-                        <includesTestSourceRoots>false</includesTestSourceRoots>
-                        <excludes>
-                            <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
-                            <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
-                            <exclude>com/navercorp/pinpoint/common/profiler/util/jsr166/**/*.java</exclude>
-                            <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
-                            <exclude>com/navercorp/pinpoint/grpc/trace/**/*.java</exclude>
-                        </excludes>
-                        <skip>${plugin.clover.skip}</skip>
-                    </configuration>
-                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -1171,10 +1138,6 @@
                 <artifactId>maven-pmd-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.openclover</groupId>
-                <artifactId>clover-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <groupId>com.cj.jshintmojo</groupId>
                 <artifactId>jshint-maven-plugin</artifactId>
             </plugin>
@@ -1190,10 +1153,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.openclover</groupId>
-                <artifactId>clover-maven-plugin</artifactId>
             </plugin>
 
             <plugin>
