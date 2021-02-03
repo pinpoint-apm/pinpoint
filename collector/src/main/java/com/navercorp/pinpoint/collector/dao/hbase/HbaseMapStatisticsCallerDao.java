@@ -119,7 +119,10 @@ public class HbaseMapStatisticsCallerDao extends MonitoredCachedStatisticsDao im
         final ColumnName calleeColumnName = new CalleeColumnName(callerAgentid, calleeServiceType.getCode(), calleeApplicationName, calleeHost, calleeSlotNumber);
         if (useBulk) {
             TableName mapStatisticsCalleeTableName = descriptor.getTableName();
-            bulkIncrementer.increment(mapStatisticsCalleeTableName, callerRowKey, calleeColumnName);
+            boolean success = bulkIncrementer.increment(mapStatisticsCalleeTableName, callerRowKey, calleeColumnName);
+            if (!success) {
+                reportReject();
+            }
         } else {
             final byte[] rowKey = getDistributedKey(callerRowKey.getRowKey());
             // column name is the name of caller app.
