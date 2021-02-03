@@ -30,48 +30,35 @@ import java.util.Objects;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 public class CollectorConfiguration {
-
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Value("${collector.agentEventWorker.threadSize:32}")
     private int agentEventWorkerThreadSize;
-
     @Value("${collector.agentEventWorker.queueSize:5120}")
     private int agentEventWorkerQueueSize;
-
-//    @Value("#{'${collector.l4.ip:}'.split(',')}")
-//    private List<String> l4IpList = Collections.emptyList();
     @Value("${collector.l4.ip:}")
     private String[] l4IpList = new String[0];
-
     @Value("${collector.metric.jmx:false}")
     private boolean metricJmxEnable;
-
     @Value("${collector.metric.jmx.domain:pinpoint.collector.metrics}")
     private String metricJmxDomainName;
-
     @Value("${cluster.enable}")
     private boolean clusterEnable;
-
     @Value("${cluster.zookeeper.address:}")
     private String clusterAddress;
-
     @Value("${cluster.zookeeper.sessiontimeout:-1}")
     private int clusterSessionTimeout;
-
-
     @Value("${cluster.listen.ip:}")
     private String clusterListenIp;
-
-
     @Value("${cluster.listen.port:-1}")
     private int clusterListenPort;
-
-
     @Value("${collector.stat.uri:false}")
     private boolean uriStatEnable;
+    @Value("${collector.statistics.agent-state.enable:false}")
+    private boolean statisticsAgentStateEnable;
 
     public int getAgentEventWorkerThreadSize() {
         return this.agentEventWorkerThreadSize;
@@ -162,13 +149,20 @@ public class CollectorConfiguration {
         this.uriStatEnable = uriStatEnable;
     }
 
+    public void setStatisticsAgentStateEnable(boolean statisticsAgentStateEnable) {
+        this.statisticsAgentStateEnable = statisticsAgentStateEnable;
+    }
+
+    public boolean isStatisticsAgentStateEnable() {
+        return statisticsAgentStateEnable;
+    }
+
     @PostConstruct
     public void log() {
         logger.info("{}", this);
         AnnotationVisitor<Value> visitor = new AnnotationVisitor<>(Value.class);
         visitor.visit(this, new LoggingEvent(logger));
     }
-
 
     @Override
     public String toString() {
@@ -184,8 +178,8 @@ public class CollectorConfiguration {
         sb.append(", clusterListenIp='").append(clusterListenIp).append('\'');
         sb.append(", clusterListenPort=").append(clusterListenPort);
         sb.append(", uriStatEnable=").append(uriStatEnable);
+        sb.append(", statisticsAgentStateEnable=").append(statisticsAgentStateEnable);
         sb.append('}');
         return sb.toString();
     }
-
 }

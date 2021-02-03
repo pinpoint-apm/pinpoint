@@ -48,7 +48,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author jaehong.kim
  */
 public class AgentService extends AgentGrpc.AgentImplBase {
-
     private static final AtomicLong idAllocator = new AtomicLong();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -69,16 +68,14 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             logger.debug("Request PAgentInfo={}", MessageFormatUtils.debugLog(agentInfo));
         }
 
-        Message<PAgentInfo> message = newMessage(agentInfo, DefaultTBaseLocator.AGENT_INFO);
-        doExecutor(message, responseObserver);
-    }
-
-    void doExecutor(final Message message, final StreamObserver<PResult> responseObserver) {
         try {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
+                    final Message<PAgentInfo> message = newMessage(agentInfo, DefaultTBaseLocator.AGENT_INFO);
                     simpleRequestHandlerAdaptor.request(message, responseObserver);
+                    // Update service type of PingSession
+                    AgentService.this.pingEventHandler.update((short) agentInfo.getServiceType());
                 }
             });
         } catch (RejectedExecutionException ree) {
@@ -95,17 +92,19 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             @Override
             public void onNext(PPing ping) {
                 if (first.compareAndSet(false, true)) {
+                    // Only first
                     if (isDebug) {
                         logger.debug("PingSession:{} start:{}", id, MessageFormatUtils.debugLog(ping));
                     }
                     AgentService.this.pingEventHandler.connect();
+                } else {
+                    AgentService.this.pingEventHandler.ping();
                 }
                 if (isDebug) {
                     logger.debug("PingSession:{} onNext:{}", id, MessageFormatUtils.debugLog(ping));
                 }
                 PPing replay = newPing();
                 responseObserver.onNext(replay);
-                AgentService.this.pingEventHandler.ping();
             }
 
             private PPing newPing() {

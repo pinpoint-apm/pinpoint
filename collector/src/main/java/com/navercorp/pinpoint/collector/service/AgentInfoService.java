@@ -26,6 +26,7 @@ import java.util.Objects;
 /**
  * @author emeroad
  * @author koo.taejin
+ * @author jaehong.kim
  */
 @Service
 public class AgentInfoService {
@@ -42,5 +43,9 @@ public class AgentInfoService {
     public void insert(final AgentInfoBo agentInfoBo) {
         agentInfoDao.insert(agentInfoBo);
         applicationIndexDao.insert(agentInfoBo);
+    }
+
+    public AgentInfoBo getAgentInfo(final String agentId, final long timestamp) {
+        return agentInfoDao.getAgentInfo(agentId, timestamp);
     }
 }
