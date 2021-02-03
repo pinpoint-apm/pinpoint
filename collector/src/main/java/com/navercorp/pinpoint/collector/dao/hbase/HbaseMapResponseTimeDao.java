@@ -52,7 +52,7 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
+public class HbaseMapResponseTimeDao extends MonitoredCachedStatisticsDao implements MapResponseTimeDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -135,6 +135,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         if (!useBulk) {
             throw new IllegalStateException("useBulk is " + useBulk);
         }
+        reportFlushAll();
 
         Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(rowKeyDistributorByHashPrefix);
         for (Map.Entry<TableName, List<Increment>> e : incrementMap.entrySet()) {

@@ -52,7 +52,7 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
+public class HbaseMapStatisticsCallerDao extends MonitoredCachedStatisticsDao implements MapStatisticsCallerDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -141,6 +141,8 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         if (!useBulk) {
             throw new IllegalStateException();
         }
+        reportFlushAll();
+
         // update statistics by rowkey and column for now. need to update it by rowkey later.
         Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(rowKeyDistributorByHashPrefix);
 

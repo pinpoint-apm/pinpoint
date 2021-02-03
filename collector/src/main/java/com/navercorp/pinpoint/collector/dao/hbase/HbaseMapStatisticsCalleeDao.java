@@ -52,7 +52,7 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
+public class HbaseMapStatisticsCalleeDao extends MonitoredCachedStatisticsDao implements MapStatisticsCalleeDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -140,6 +140,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         if (!useBulk) {
             throw new IllegalStateException();
         }
+        reportFlushAll();
 
         Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(rowKeyDistributorByHashPrefix);
 
