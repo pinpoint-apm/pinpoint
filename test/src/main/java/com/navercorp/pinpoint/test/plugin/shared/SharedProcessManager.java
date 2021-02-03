@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.test.plugin.ProcessManager;
 import com.navercorp.pinpoint.test.plugin.util.CollectionUtils;
 import com.navercorp.pinpoint.test.plugin.util.StringJoiner;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;
+import com.navercorp.pinpoint.test.plugin.util.TLSOption;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.eclipse.aether.artifact.Artifact;
 import org.tinylog.TaggedLogger;
@@ -56,6 +57,7 @@ public class SharedProcessManager implements ProcessManager {
 
     public SharedProcessManager(PluginTestContext context) {
         this.context = Objects.requireNonNull(context, "context");
+        TLSOption.applyTLSv12();
     }
 
     @Override

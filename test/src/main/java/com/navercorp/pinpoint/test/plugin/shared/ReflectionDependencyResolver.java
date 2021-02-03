@@ -72,8 +72,7 @@ public class ReflectionDependencyResolver {
 
     private void initialize() throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Class<?> factory = classLoader.loadClass("com.navercorp.pinpoint.test.plugin.DependencyResolverFactory");
-        Constructor<?> factoryConstructor = factory.getConstructor(boolean.class);
-        Object factoryObject = factoryConstructor.newInstance(false);
+        Object factoryObject = factory.newInstance();
         Method resolverGet = factory.getMethod("get", String[].class);
 
         dependencyResolverObject = resolverGet.invoke(factoryObject, (Object) new String[]{});
