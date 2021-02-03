@@ -78,6 +78,9 @@
         <task:scheduled ref="hbaseMapResponseTimeDao" method="flushAll" fixed-rate="1000"/>
     </task:scheduled-tasks>
 
+    <bean id="cachedStatisticsDaoMetrics" class="com.navercorp.pinpoint.collector.monitor.CachedStatisticsDaoMetrics">
+        <constructor-arg ref="cachedStatisticsDaoList"/>
+    </bean>
 
     <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry">
     </bean>

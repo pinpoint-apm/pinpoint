@@ -57,6 +57,7 @@ public class CollectorMetric {
     private final MetricRegistry metricRegistry;
 
     private final HBaseAsyncOperationMetrics hBaseAsyncOperationMetrics;
+    private final CachedStatisticsDaoMetrics cachedStatisticsDaoMetrics;
 
     private List<Reporter> reporterList = new ArrayList<Reporter>(2);
 
@@ -65,9 +66,10 @@ public class CollectorMetric {
     @Autowired
     private CollectorConfiguration collectorConfiguration;
 
-    public CollectorMetric(MetricRegistry metricRegistry, Optional<HBaseAsyncOperationMetrics> hBaseAsyncOperationMetrics) {
+    public CollectorMetric(MetricRegistry metricRegistry, Optional<HBaseAsyncOperationMetrics> hBaseAsyncOperationMetrics, Optional<CachedStatisticsDaoMetrics> cachedStatisticsDaoMetrics) {
         this.metricRegistry = metricRegistry;
         this.hBaseAsyncOperationMetrics = hBaseAsyncOperationMetrics.orElse(null);
+        this.cachedStatisticsDaoMetrics = cachedStatisticsDaoMetrics.orElse(null);
     }
 
     @PostConstruct
@@ -98,6 +100,13 @@ public class CollectorMetric {
 
         if (hBaseAsyncOperationMetrics != null) {
             Map<String, Metric> metrics = hBaseAsyncOperationMetrics.getMetrics();
+            for (Map.Entry<String, Metric> metric : metrics.entrySet()) {
+                metricRegistry.register(metric.getKey(), metric.getValue());
+            }
+        }
+
+        if (cachedStatisticsDaoMetrics != null) {
+            Map<String, Metric> metrics = cachedStatisticsDaoMetrics.getMetrics();
             for (Map.Entry<String, Metric> metric : metrics.entrySet()) {
                 metricRegistry.register(metric.getKey(), metric.getValue());
             }
