@@ -25,14 +25,11 @@ import com.navercorp.pinpoint.web.vo.SearchOption;
 
 /**
  * @author netspider
+ * @author jaehong.kim
  */
 public interface MapService {
     /**
      * Queries for the Server Map
-     *
-     * @param sourceApplication
-     * @param range
-     * @return
      */
-    ApplicationMap selectApplicationMap(Application sourceApplication, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType);
+    ApplicationMap selectApplicationMap(MapServiceOption option);
 }
