@@ -22,19 +22,16 @@ import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
-import com.navercorp.pinpoint.test.util.ObjectUtils;
+import com.navercorp.pinpoint.test.util.BiHashMap;
 import com.navercorp.pinpoint.test.util.Pair;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 /**
  * @author Jongho Moon
@@ -44,11 +41,11 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
 
     private final List<Object> datas = Collections.synchronizedList(new ArrayList<>());
 
-    private final Map<Integer, String> apiIdMap = newSynchronizedMap();
+    private final BiHashMap<Integer, String> apiIdMap = newBiHashMap();
 
-    private final Map<Integer, String> sqlIdMap = newSynchronizedMap();
+    private final BiHashMap<Integer, String> sqlIdMap = newBiHashMap();
 
-    private final Map<Integer, String> stringIdMap = newSynchronizedMap();
+    private final BiHashMap<Integer, String> stringIdMap = newBiHashMap();
 
     private static final Comparator<Pair<Integer, String>> COMPARATOR = new Comparator<Pair<Integer, String>>() {
         @Override
@@ -59,8 +56,8 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
         }
     };
 
-    private <K, V> Map<K, V> newSynchronizedMap() {
-        return Collections.synchronizedMap(new HashMap<K, V>());
+    private <K, V> BiHashMap<K, V> newBiHashMap() {
+        return new BiHashMap<>();
     }
 
     @Override
@@ -73,25 +70,39 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
         if (data instanceof ApiMetaData) {
             ApiMetaData md = (ApiMetaData)data;
 
-            final String javaMethodDescriptor = toJavaMethodDescriptor(md);
-            apiIdMap.put(md.getApiId(), javaMethodDescriptor);
+            int apiId = md.getApiId();
+            String javaMethodDescriptor = toJavaMethodDescriptor(md);
+
+            syncPut(this.apiIdMap, apiId, javaMethodDescriptor);
         } else if (data instanceof SqlMetaData) {
             SqlMetaData md = (SqlMetaData)data;
 
             int id = md.getSqlId();
             String sql = md.getSql();
 
-            sqlIdMap.put(id, sql);
+            syncPut(sqlIdMap, id, sql);
         } else if (data instanceof StringMetaData) {
             StringMetaData md = (StringMetaData)data;
 
             int id = md.getStringId();
             String string = md.getStringValue();
 
-            stringIdMap.put(id, string);
+            syncPut(stringIdMap, id, string);
         }
 
         datas.add(data);
+    }
+
+    private <K, V> V syncPut(BiHashMap<K, V> map, K key, V value) {
+        synchronized (map) {
+            return map.put(key, value);
+        }
+    }
+
+    private <K, V> V syncGet(BiHashMap<K, V> map, K key) {
+        synchronized (map) {
+            return map.get(key);
+        }
     }
 
     private String toJavaMethodDescriptor(ApiMetaData apiMetaData) {
@@ -145,27 +156,15 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
     }
 
     public String getApiDescription(int id) {
-        return apiIdMap.get(id);
+        return syncGet(apiIdMap, id);
     }
 
     public int getApiId(String description) {
         return findIdByValue(apiIdMap, description);
     }
 
-    private Integer findIdByValue(Map<Integer, String> map, String value) {
-        final Set<Entry<Integer, String>> entries = map.entrySet();
-        synchronized (map) {
-            for (Entry<Integer, String> entry : entries) {
-                if (ObjectUtils.equals(entry.getValue(), value)) {
-                    return entry.getKey();
-                }
-            }
-        }
-        throw new NoSuchElementException(value);
-    }
-
     public String getString(int id) {
-        return stringIdMap.get(id);
+        return syncGet(stringIdMap, id);
     }
 
     public int getStringId(String string) {
@@ -173,11 +172,21 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
     }
 
     public String getSql(int id) {
-        return sqlIdMap.get(id);
+        return syncGet(sqlIdMap, id);
     }
 
     public int getSqlId(String sql) {
         return findIdByValue(sqlIdMap, sql);
+    }
+
+    private Integer findIdByValue(BiHashMap<Integer, String> map, String value) {
+        synchronized (map) {
+            Integer id = map.reverseGet(value);
+            if (id == null) {
+                throw new NoSuchElementException(value);
+            }
+            return id;
+        }
     }
 
     public List<Object> getDatas() {
@@ -212,12 +221,10 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
         printEntries(out, sqls);
     }
 
-    private <K, V> List<Pair<K, V>> syncCopy(Map<K, V> map) {
-        List<Pair<K, V>> list = new ArrayList<>(map.size());
-
-        Set<Entry<K, V>> entries = map.entrySet();
+    private <K, V> List<Pair<K, V>> syncCopy(BiHashMap<K, V> map) {
         synchronized (map) {
-            for (Entry<K, V> entry : entries) {
+            List<Pair<K, V>> list = new ArrayList<>(map.size());
+            for (Entry<K, V> entry : map.entrySet()) {
                 list.add(new Pair<>(entry.getKey(), entry.getValue()));
             }
             return list;
