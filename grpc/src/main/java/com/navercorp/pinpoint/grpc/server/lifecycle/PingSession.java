@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.server.lifecycle;
 
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
 
 import java.util.Objects;
@@ -23,16 +24,19 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim
  */
 public class PingSession {
     private final Long id;
     private final Header header;
     private final AtomicLong eventIdAllocator;
+    private short serviceType = ServiceType.UNDEFINED.getCode();
+    private boolean updated = false;
+    private long lastPingTimeMillis;
 
     public PingSession(Long id, Header header) {
         this.id = Objects.requireNonNull(id, "transportMetadata");
         this.header = Objects.requireNonNull(header, "header");
-
         this.eventIdAllocator = new AtomicLong();
     }
 
@@ -48,12 +52,40 @@ public class PingSession {
         return eventIdAllocator.incrementAndGet();
     }
 
+    public short getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(short serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    // Flag to avoid duplication.
+    public boolean isUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(boolean updated) {
+        this.updated = updated;
+    }
+
+    public long getLastPingTimeMillis() {
+        return lastPingTimeMillis;
+    }
+
+    public void setLastPingTimeMillis(long lastPingTimeMillis) {
+        this.lastPingTimeMillis = lastPingTimeMillis;
+    }
+
     @Override
     public String toString() {
         return "PingSession{" +
                 "id=" + id +
                 ", header=" + header +
                 ", eventIdAllocator=" + eventIdAllocator +
+                ", serviceType=" + serviceType +
+                ", updated=" + updated +
+                ", lastPingTimeMillis=" + lastPingTimeMillis +
                 '}';
     }
 }

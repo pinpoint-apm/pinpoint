@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.grpc.server.lifecycle;
 
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim
  */
 public interface PingEventHandler {
     void connect();
@@ -25,4 +26,6 @@ public interface PingEventHandler {
     void ping();
 
     void close();
+
+    void update(short serviceType);
 }

@@ -45,31 +45,23 @@ import java.util.Objects;
 
 /**
  * Save response time data of WAS
- * 
+ *
  * @author netspider
  * @author emeroad
  * @author jaehong.kim
  * @author HyunGil Jeong
  */
 @Repository
+
 public class HbaseMapResponseTimeDao extends MonitoredCachedStatisticsDao implements MapResponseTimeDao {
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private final HbaseOperations2 hbaseTemplate;
-
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-
     private final AcceptedTimeService acceptedTimeService;
-
     private final TimeSlot timeSlot;
-
     private final BulkIncrementer bulkIncrementer;
-
     private final boolean useBulk;
-
     private final TableDescriptor<HbaseColumnFamily.SelfStatMap> descriptor;
-
 
     @Autowired
     public HbaseMapResponseTimeDao(HbaseOperations2 hbaseTemplate,
@@ -95,7 +87,7 @@ public class HbaseMapResponseTimeDao extends MonitoredCachedStatisticsDao implem
     }
 
     @Override
-    public void received(String applicationName, ServiceType applicationServiceType, String agentId, int elapsed, boolean isError) {
+    public void received(String applicationName, ServiceType applicationServiceType, String agentId, int elapsed, boolean isError, boolean isPing) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(agentId, "agentId");
 
@@ -108,7 +100,7 @@ public class HbaseMapResponseTimeDao extends MonitoredCachedStatisticsDao implem
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
         final RowKey selfRowKey = new CallRowKey(applicationName, applicationServiceType.getCode(), rowTimeSlot);
 
-        final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError);
+        final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError, isPing);
         final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);
         if (useBulk) {
             TableName mapStatisticsSelfTableName = descriptor.getTableName();
@@ -132,7 +124,6 @@ public class HbaseMapResponseTimeDao extends MonitoredCachedStatisticsDao implem
         hbaseTemplate.incrementColumnValue(mapStatisticsSelfTableName, rowKey, descriptor.getColumnFamilyName(), columnName, increment);
     }
 
-
     @Override
     public void flushAll() {
         if (!useBulk) {
@@ -154,5 +145,4 @@ public class HbaseMapResponseTimeDao extends MonitoredCachedStatisticsDao implem
     private byte[] getDistributedKey(byte[] rowKey) {
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
-
 }

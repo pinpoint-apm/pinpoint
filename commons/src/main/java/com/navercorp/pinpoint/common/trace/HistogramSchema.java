@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.trace;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 public interface HistogramSchema {
 
@@ -48,4 +49,6 @@ public interface HistogramSchema {
     HistogramSlot getSlowErrorSlot();
 
     HistogramSlot getVerySlowErrorSlot();
+
+    HistogramSlot getPingSlot();
 }
