@@ -398,14 +398,18 @@
     <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
     </bean>
 
+
+    <bean id="bulkIncrementerFactory" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementerFactory"/>
+
     <bean id="callerMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
         <constructor-arg index="0">
             <util:constant static-field="com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.MAP_STATISTICS_CALLER_VER2_COUNTER"/>
         </constructor-arg>
     </bean>
 
-    <bean id="callerBulkIncrementer" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementer">
+    <bean id="callerBulkIncrementer" factory-bean="bulkIncrementerFactory" factory-method="create">
         <constructor-arg ref="callerMerge"/>
+        <constructor-arg value="${collector.cachedStatDao.caller.limit:-1}"/>
     </bean>
 
     <bean id="calleeMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
@@ -414,8 +418,9 @@
         </constructor-arg>
     </bean>
 
-    <bean id="calleeBulkIncrementer" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementer">
+    <bean id="calleeBulkIncrementer" factory-bean="bulkIncrementerFactory" factory-method="create">
         <constructor-arg ref="calleeMerge"/>
+        <constructor-arg value="${collector.cachedStatDao.callee.limit:-1}"/>
     </bean>
 
     <bean id="selfMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
@@ -424,8 +429,9 @@
         </constructor-arg>
     </bean>
 
-    <bean id="selfBulkIncrementer" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementer">
+    <bean id="selfBulkIncrementer" factory-bean="bulkIncrementerFactory" factory-method="create">
         <constructor-arg ref="selfMerge"/>
+        <constructor-arg value="${collector.cachedStatDao.self.limit:-1}"/>
     </bean>
 
     <bean id="timeSlot" class="com.navercorp.pinpoint.common.server.util.DefaultTimeSlot">

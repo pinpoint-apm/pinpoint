@@ -112,7 +112,10 @@ public class HbaseMapResponseTimeDao extends MonitoredCachedStatisticsDao implem
         final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);
         if (useBulk) {
             TableName mapStatisticsSelfTableName = descriptor.getTableName();
-            bulkIncrementer.increment(mapStatisticsSelfTableName, selfRowKey, selfColumnName);
+            boolean success = bulkIncrementer.increment(mapStatisticsSelfTableName, selfRowKey, selfColumnName);
+            if (!success) {
+                reportReject();
+            }
         } else {
             final byte[] rowKey = getDistributedKey(selfRowKey.getRowKey());
             // column name is the name of caller app.

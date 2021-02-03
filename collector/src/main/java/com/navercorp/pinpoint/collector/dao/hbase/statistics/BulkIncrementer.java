@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
-import com.google.common.util.concurrent.AtomicLongMap;
 import com.navercorp.pinpoint.collector.util.AtomicLongMapUtils;
+import com.navercorp.pinpoint.common.util.Assert;
+
+import com.google.common.util.concurrent.AtomicLongMap;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
@@ -25,27 +27,90 @@ import org.apache.hadoop.hbase.client.Increment;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author HyunGil Jeong
  */
-public class BulkIncrementer {
+public interface BulkIncrementer {
 
-    private final RowKeyMerge rowKeyMerge;
+    boolean increment(TableName tableName, RowKey rowKey, ColumnName columnName);
 
-    private final AtomicLongMap<RowInfo> counter = AtomicLongMap.create();
+    Map<TableName, List<Increment>> getIncrements(RowKeyDistributorByHashPrefix rowKeyDistributor);
 
-    public BulkIncrementer(RowKeyMerge rowKeyMerge) {
-        this.rowKeyMerge = Objects.requireNonNull(rowKeyMerge, "rowKeyMerge");
+
+    class DefaultBulkIncrementer implements BulkIncrementer {
+
+        private final RowKeyMerge rowKeyMerge;
+
+        final AtomicLongMap<RowInfo> counter = AtomicLongMap.create();
+
+        DefaultBulkIncrementer(RowKeyMerge rowKeyMerge) {
+            this.rowKeyMerge = Objects.requireNonNull(rowKeyMerge, "rowKeyMerge");
+        }
+
+        @Override
+        public boolean increment(TableName tableName, RowKey rowKey, ColumnName columnName) {
+            RowInfo rowInfo = new DefaultRowInfo(tableName, rowKey, columnName);
+            counter.incrementAndGet(rowInfo);
+            return true;
+        }
+
+        @Override
+        public Map<TableName, List<Increment>> getIncrements(RowKeyDistributorByHashPrefix rowKeyDistributor) {
+            final Map<RowInfo, Long> snapshot = AtomicLongMapUtils.remove(counter);
+            return rowKeyMerge.createBulkIncrement(snapshot, rowKeyDistributor);
+        }
     }
 
-    public void increment(TableName tableName, RowKey rowKey, ColumnName columnName) {
-        RowInfo rowInfo = new DefaultRowInfo(tableName, rowKey, columnName);
-        counter.incrementAndGet(rowInfo);
+    class SizeLimitedBulkIncrementer extends DefaultBulkIncrementer {
+        private final AtomicLong count = new AtomicLong();
+
+        private final int limitSize;
+        private final int checkIntervalCount;
+        private volatile boolean overflowState = false;
+
+        SizeLimitedBulkIncrementer(RowKeyMerge rowKeyMerge, int limitSize) {
+            super(rowKeyMerge);
+            Assert.isTrue(limitSize > 0, "limit size must be ' > 0'");
+            this.limitSize = limitSize;
+            // executing to find out size at each call  is not good for performance
+            this.checkIntervalCount = Math.max(limitSize / 100, 1);
+        }
+
+        @Override
+        public boolean increment(TableName tableName, RowKey rowKey, ColumnName columnName) {
+            if (count.incrementAndGet() % checkIntervalCount == 0) {
+                checkState();
+            }
+
+            RowInfo rowInfo = new DefaultRowInfo(tableName, rowKey, columnName);
+            if (overflowState) {
+                if (!counter.containsKey(rowInfo)) {
+                    return false;
+                }
+            }
+            counter.incrementAndGet(rowInfo);
+            return true;
+        }
+
+        private void checkState() {
+            if (counter.size() > limitSize) {
+                overflowState = true;
+            } else {
+                overflowState = false;
+            }
+        }
+
+        @Override
+        public Map<TableName, List<Increment>> getIncrements(RowKeyDistributorByHashPrefix rowKeyDistributor) {
+            try {
+                return super.getIncrements(rowKeyDistributor);
+            } finally {
+                overflowState = false;
+                count.set(0L);
+            }
+        }
     }
 
-    public Map<TableName, List<Increment>> getIncrements(RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        final Map<RowInfo, Long> snapshot = AtomicLongMapUtils.remove(counter);
-        return rowKeyMerge.createBulkIncrement(snapshot, rowKeyDistributor);
-    }
 }

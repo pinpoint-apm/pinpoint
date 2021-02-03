@@ -36,6 +36,7 @@ public class CachedStatisticsDaoMetrics implements MetricSet {
 
     private static final String FLUSH_COUNT = ".flush.count";
     private static final String FLUSH_LAST_TIME_MILLIS = ".flush.lasttimemillis";
+    private static final String INCREMENT_REJECT_COUNT= ".increment.reject.count";
 
     private final List<MonitoredCachedStatisticsDao> monitoredCachedStatisticsDaos;
 
@@ -68,6 +69,14 @@ public class CachedStatisticsDaoMetrics implements MetricSet {
                     return monitoredCachedStatisticsDao.getLastFlushTimeMillis();
                 }
             });
+
+            metrics.put(clazzName + INCREMENT_REJECT_COUNT, new Gauge<Long>() {
+                @Override
+                public Long getValue() {
+                    return monitoredCachedStatisticsDao.getRejectedCount();
+                }
+            });
+
         }
 
         return Collections.unmodifiableMap(metrics);

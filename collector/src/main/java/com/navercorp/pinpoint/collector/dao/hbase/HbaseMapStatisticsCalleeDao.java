@@ -117,7 +117,10 @@ public class HbaseMapStatisticsCalleeDao extends MonitoredCachedStatisticsDao im
 
         if (useBulk) {
             TableName mapStatisticsCallerTableName = descriptor.getTableName();
-            bulkIncrementer.increment(mapStatisticsCallerTableName, calleeRowKey, callerColumnName);
+            boolean success = bulkIncrementer.increment(mapStatisticsCallerTableName, calleeRowKey, callerColumnName);
+            if (!success) {
+                reportReject();
+            }
         } else {
             final byte[] rowKey = getDistributedKey(calleeRowKey.getRowKey());
 
