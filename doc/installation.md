@@ -24,7 +24,7 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 2. Build Pinpoint (Optional)([details](#2-building-pinpoint-optional)) - No need if you use the binaries.([here](https://github.com/pinpoint-apm/pinpoint/releases)).
 	1. Clone Pinpoint - `git clone $PINPOINT_GIT_REPOSITORY`
 	2. Set JAVA_HOME environment variable to JDK 8 home directory.
-	3. Set JAVA_7_HOME environment variable to JDK 7 home directory (1.7.0_80 recommended).
+	3. Set JAVA_7_HOME environment variable to JDK 7 home directory ([Zulu jdk7](https://www.azul.com/downloads/zulu-community/?version=java-7-lts) recommended).
 	4. Set JAVA_8_HOME environment variable to JDK 8 home directory.
 	5. Set JAVA_9_HOME environment variable to JDK 9 home directory.
 	6. Run `./mvnw clean install -DskipTests=true` (or `./mvnw.cmd` for Windows)
