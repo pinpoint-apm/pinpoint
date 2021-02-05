@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
+import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
 import com.navercorp.pinpoint.collector.util.AtomicLongMapUtils;
 import com.navercorp.pinpoint.common.util.Assert;
 
@@ -27,22 +28,19 @@ import org.apache.hadoop.hbase.client.Increment;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author HyunGil Jeong
  */
 public interface BulkIncrementer {
 
-    boolean increment(TableName tableName, RowKey rowKey, ColumnName columnName);
+    void increment(TableName tableName, RowKey rowKey, ColumnName columnName);
 
-    boolean increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition);
+    void increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition);
 
     Map<TableName, List<Increment>> getIncrements(RowKeyDistributorByHashPrefix rowKeyDistributor);
 
-    void updateMax(TableName tableName, RowKey rowKey, ColumnName columnName, long value);
-
-    Map<RowInfo, Long> getMaxUpdate();
+    int getSize();
 
     class DefaultBulkIncrementer implements BulkIncrementer {
 
@@ -54,14 +52,13 @@ public interface BulkIncrementer {
             this.rowKeyMerge = Objects.requireNonNull(rowKeyMerge, "rowKeyMerge");
         }
 
-        public boolean increment(TableName tableName, RowKey rowKey, ColumnName columnName) {
-            return increment(tableName, rowKey, columnName, 1L);
+        public void increment(TableName tableName, RowKey rowKey, ColumnName columnName) {
+            increment(tableName, rowKey, columnName, 1L);
         }
 
-        public boolean increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition) {
+        public void increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition) {
             RowInfo rowInfo = new DefaultRowInfo(tableName, rowKey, columnName);
             counter.addAndGet(rowInfo, addition);
-            return true;
         }
 
         @Override
@@ -70,66 +67,68 @@ public interface BulkIncrementer {
             return rowKeyMerge.createBulkIncrement(snapshot, rowKeyDistributor);
         }
 
-        private final AtomicLongMap<RowInfo> max = AtomicLongMap.create();
-
-        public void updateMax(TableName tableName, RowKey rowKey, ColumnName columnName, long value) {
-            RowInfo rowInfo = new DefaultRowInfo(tableName, rowKey, columnName);
-            max.accumulateAndGet(rowInfo, value, Long::max);
-        }
-
-        public Map<RowInfo, Long> getMaxUpdate() {
-            return AtomicLongMapUtils.remove(max);
+        @Override
+        public int getSize() {
+            return counter.size();
         }
     }
 
 
-    class SizeLimitedBulkIncrementer extends DefaultBulkIncrementer {
-        private final AtomicLong count = new AtomicLong();
+    class SizeLimitedBulkIncrementer implements BulkIncrementer {
 
-        private final int limitSize;
-        private final int checkIntervalCount;
         private volatile boolean overflowState = false;
 
-        SizeLimitedBulkIncrementer(RowKeyMerge rowKeyMerge, int limitSize) {
-            super(rowKeyMerge);
+        private final BulkIncrementer delegate;
+        private final int limitSize;
+        private final BulkOperationReporter reporter;
+
+        SizeLimitedBulkIncrementer(BulkIncrementer delegate, int limitSize, BulkOperationReporter reporter) {
+            this.delegate = Objects.requireNonNull(delegate, "delegate");
+
             Assert.isTrue(limitSize > 0, "limit size must be ' > 0'");
             this.limitSize = limitSize;
-            // executing to find out size at each call  is not good for performance
-            this.checkIntervalCount = Math.max(limitSize / 100, 1);
+
+            this.reporter = Objects.requireNonNull(reporter, "reporter");
         }
 
         @Override
-        public boolean increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition) {
-            if (count.incrementAndGet() % checkIntervalCount == 0) {
-                checkState();
-            }
-
-            RowInfo rowInfo = new DefaultRowInfo(tableName, rowKey, columnName);
-            if (overflowState) {
-                if (!counter.containsKey(rowInfo)) {
-                    return false;
-                }
-            }
-            counter.addAndGet(rowInfo, addition);
-            return true;
+        public void increment(TableName tableName, RowKey rowKey, ColumnName columnName) {
+            this.increment(tableName, rowKey, columnName, 1L);
         }
 
-        private void checkState() {
-            if (counter.size() > limitSize) {
+        @Override
+        public void increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition) {
+            if (overflowState) {
+                reporter.reportReject();
+                return;
+            }
+            delegate.increment(tableName, rowKey, columnName, addition);
+        }
+
+        // Called by monitoring thread
+        public boolean checkState() {
+            if (delegate.getSize() > limitSize) {
                 overflowState = true;
+                return false;
             } else {
                 overflowState = false;
+                return true;
             }
         }
 
         @Override
         public Map<TableName, List<Increment>> getIncrements(RowKeyDistributorByHashPrefix rowKeyDistributor) {
             try {
-                return super.getIncrements(rowKeyDistributor);
+                return delegate.getIncrements(rowKeyDistributor);
             } finally {
+                reporter.reportFlushAll();
                 overflowState = false;
-                count.set(0L);
             }
+        }
+
+        @Override
+        public int getSize() {
+            return this.delegate.getSize();
         }
     }
 
