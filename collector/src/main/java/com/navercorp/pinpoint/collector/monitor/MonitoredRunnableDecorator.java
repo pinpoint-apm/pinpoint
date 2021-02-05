@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.monitor;
 
-import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
@@ -32,17 +31,12 @@ public class MonitoredRunnableDecorator implements RunnableDecorator {
 
     @SuppressWarnings("unused") // for debug
     private final String executorName;
-    private final Meter submitted;
 
     private final Timer dispatchDurationTimer;
     private final Timer durationTimer;
-    private final MetricRegistry registry;
 
     public MonitoredRunnableDecorator(String executorName, MetricRegistry registry) {
-        this.registry = registry;
         this.executorName = Objects.requireNonNull(executorName, "name");
-
-        this.submitted = registry.meter(MetricRegistry.name(executorName, "submitted"));
 
         this.dispatchDurationTimer = registry.timer(MetricRegistry.name(executorName, "dispatchDuration"));
         this.durationTimer = registry.timer(MetricRegistry.name(executorName, "duration"));
@@ -51,8 +45,6 @@ public class MonitoredRunnableDecorator implements RunnableDecorator {
     @Override
     public Runnable decorate(Runnable runnable) {
         Objects.requireNonNull(runnable, "runnable");
-
-        submitted.mark();
         return instrument(runnable);
     }
 
@@ -64,8 +56,6 @@ public class MonitoredRunnableDecorator implements RunnableDecorator {
     @Override
     public <T> Callable<T> decorate(Callable<T> task) {
         Objects.requireNonNull(task, "task");
-
-        submitted.mark();
         return instrument(task);
     }
 
@@ -77,8 +67,6 @@ public class MonitoredRunnableDecorator implements RunnableDecorator {
     @Override
     public <T> Collection<? extends Callable<T>> decorate(Collection<? extends Callable<T>> tasks) {
         Objects.requireNonNull(tasks, "tasks");
-
-        submitted.mark(tasks.size());
         return instrument(tasks);
     }
 

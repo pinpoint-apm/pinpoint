@@ -49,6 +49,8 @@ public class GrpcStatReceiverConfiguration {
     private int grpcServerExecutorQueueSize;
     @Value("${collector.receiver.grpc.stat.server.executor.monitor.enable:false}")
     private boolean grpcServerExecutorMonitorEnable;
+    @Value("${collector.receiver.grpc.stat.server.executor.monitor.duration.enable:false}")
+    private boolean grpcServerExecutorMonitorDurationEnable;
 
     @Value("${collector.receiver.grpc.stat.worker.executor.thread.size:128}")
     private int grpcWorkerExecutorThreadSize;
@@ -56,6 +58,8 @@ public class GrpcStatReceiverConfiguration {
     private int grpcWorkerExecutorQueueSize;
     @Value("${collector.receiver.grpc.stat.worker.executor.monitor.enable:false}")
     private boolean grpcWorkerExecutorMonitorEnable;
+    @Value("${collector.receiver.grpc.stat.worker.executor.monitor.duration.enable:false}")
+    private boolean grpcWorkerExecutorMonitorDurationEnable;
 
     @Value("${collector.receiver.grpc.stat.stream.scheduler.thread.size:1}")
     private int grpcStreamSchedulerThreadSize;
@@ -126,6 +130,10 @@ public class GrpcStatReceiverConfiguration {
         return grpcServerExecutorMonitorEnable;
     }
 
+    public boolean isGrpcServerExecutorMonitorDurationEnable() {
+        return grpcServerExecutorMonitorDurationEnable;
+    }
+
     public int getGrpcWorkerExecutorThreadSize() {
         return grpcWorkerExecutorThreadSize;
     }
@@ -136,6 +144,10 @@ public class GrpcStatReceiverConfiguration {
 
     public boolean isGrpcWorkerExecutorMonitorEnable() {
         return grpcWorkerExecutorMonitorEnable;
+    }
+
+    public boolean isGrpcWorkerExecutorMonitorDurationEnable() {
+        return grpcWorkerExecutorMonitorDurationEnable;
     }
 
     public int getGrpcStreamSchedulerThreadSize() {
@@ -167,9 +179,11 @@ public class GrpcStatReceiverConfiguration {
         sb.append(", grpcServerExecutorThreadSize=").append(grpcServerExecutorThreadSize);
         sb.append(", grpcServerExecutorQueueSize=").append(grpcServerExecutorQueueSize);
         sb.append(", grpcServerExecutorMonitorEnable=").append(grpcServerExecutorMonitorEnable);
+        sb.append(", grpcServerExecutorMonitorDurationEnable=").append(grpcServerExecutorMonitorDurationEnable);
         sb.append(", grpcWorkerExecutorThreadSize=").append(grpcWorkerExecutorThreadSize);
         sb.append(", grpcWorkerExecutorQueueSize=").append(grpcWorkerExecutorQueueSize);
         sb.append(", grpcWorkerExecutorMonitorEnable=").append(grpcWorkerExecutorMonitorEnable);
+        sb.append(", grpcWorkerExecutorMonitorDurationEnable=").append(grpcWorkerExecutorMonitorDurationEnable);
         sb.append(", grpcStreamSchedulerThreadSize=").append(grpcStreamSchedulerThreadSize);
         sb.append(", grpcStreamCallInitRequestCount=").append(grpcStreamCallInitRequestCount);
         sb.append(", grpcStreamSchedulerPeriodMillis=").append(grpcStreamSchedulerPeriodMillis);
