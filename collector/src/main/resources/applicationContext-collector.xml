@@ -78,8 +78,7 @@
         <task:scheduled ref="hbaseMapResponseTimeDao" method="flushAll" fixed-rate="1000"/>
     </task:scheduled-tasks>
 
-    <bean id="cachedStatisticsDaoMetrics" class="com.navercorp.pinpoint.collector.monitor.CachedStatisticsDaoMetrics">
-        <constructor-arg ref="cachedStatisticsDaoList"/>
+    <bean id="cachedStatisticsDaoMetrics" class="com.navercorp.pinpoint.collector.monitor.BulkOperationMetrics">
     </bean>
 
     <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry">
@@ -398,41 +397,6 @@
     <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
     </bean>
 
-
-    <bean id="bulkIncrementerFactory" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementerFactory"/>
-
-    <bean id="callerMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
-        <constructor-arg index="0">
-            <util:constant static-field="com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.MAP_STATISTICS_CALLER_VER2_COUNTER"/>
-        </constructor-arg>
-    </bean>
-
-    <bean id="callerBulkIncrementer" factory-bean="bulkIncrementerFactory" factory-method="create">
-        <constructor-arg ref="callerMerge"/>
-        <constructor-arg value="${collector.cachedStatDao.caller.limit:-1}"/>
-    </bean>
-
-    <bean id="calleeMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
-        <constructor-arg index="0">
-            <util:constant static-field="com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.MAP_STATISTICS_CALLEE_VER2_COUNTER"/>
-        </constructor-arg>
-    </bean>
-
-    <bean id="calleeBulkIncrementer" factory-bean="bulkIncrementerFactory" factory-method="create">
-        <constructor-arg ref="calleeMerge"/>
-        <constructor-arg value="${collector.cachedStatDao.callee.limit:-1}"/>
-    </bean>
-
-    <bean id="selfMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
-        <constructor-arg index="0">
-            <util:constant static-field="com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.MAP_STATISTICS_SELF_VER2_COUNTER"/>
-        </constructor-arg>
-    </bean>
-
-    <bean id="selfBulkIncrementer" factory-bean="bulkIncrementerFactory" factory-method="create">
-        <constructor-arg ref="selfMerge"/>
-        <constructor-arg value="${collector.cachedStatDao.self.limit:-1}"/>
-    </bean>
 
     <bean id="timeSlot" class="com.navercorp.pinpoint.common.server.util.DefaultTimeSlot">
     </bean>

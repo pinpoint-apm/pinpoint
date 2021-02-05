@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.monitor;
 
-import com.navercorp.pinpoint.collector.dao.hbase.MonitoredCachedStatisticsDao;
+import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import com.codahale.metrics.Gauge;
@@ -32,24 +32,24 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-public class CachedStatisticsDaoMetrics implements MetricSet {
+public class BulkOperationMetrics implements MetricSet {
 
     private static final String FLUSH_COUNT = ".flush.count";
     private static final String FLUSH_LAST_TIME_MILLIS = ".flush.lasttimemillis";
     private static final String INCREMENT_REJECT_COUNT= ".increment.reject.count";
 
-    private final List<MonitoredCachedStatisticsDao> monitoredCachedStatisticsDaos;
+    private final List<BulkOperationReporter> bulkOperationReporters;
 
-    public CachedStatisticsDaoMetrics(List<MonitoredCachedStatisticsDao> monitoredCachedStatisticsDaos) {
-        this.monitoredCachedStatisticsDaos = Objects.requireNonNull(monitoredCachedStatisticsDaos, "monitoredCachedStatisticsDaos");
+    public BulkOperationMetrics(List<BulkOperationReporter> bulkOperationReporters) {
+        this.bulkOperationReporters = Objects.requireNonNull(bulkOperationReporters, "monitoredCachedStatisticsDaos");
     }
 
     @Override
     public Map<String, Metric> getMetrics() {
-        final Map<String, Metric> metrics = new HashMap<>(monitoredCachedStatisticsDaos.size());
+        final Map<String, Metric> metrics = new HashMap<>(bulkOperationReporters.size());
 
-        for (MonitoredCachedStatisticsDao monitoredCachedStatisticsDao : monitoredCachedStatisticsDaos) {
-            String clazzName = monitoredCachedStatisticsDao.getClass().getSimpleName();
+        for (BulkOperationReporter bulkOperationReporter : bulkOperationReporters) {
+            String clazzName = bulkOperationReporter.getClass().getSimpleName();
 
             String[] splittedName = clazzName.split("\\$");
             if (splittedName.length > 1 && StringUtils.hasText(splittedName[0])) {
@@ -59,21 +59,21 @@ public class CachedStatisticsDaoMetrics implements MetricSet {
             metrics.put(clazzName + FLUSH_COUNT, new Gauge<Long>() {
                 @Override
                 public Long getValue() {
-                    return monitoredCachedStatisticsDao.getFlushAllCount();
+                    return bulkOperationReporter.getFlushAllCount();
                 }
             });
 
             metrics.put(clazzName + FLUSH_LAST_TIME_MILLIS, new Gauge<Long>() {
                 @Override
                 public Long getValue() {
-                    return monitoredCachedStatisticsDao.getLastFlushTimeMillis();
+                    return bulkOperationReporter.getLastFlushTimeMillis();
                 }
             });
 
             metrics.put(clazzName + INCREMENT_REJECT_COUNT, new Gauge<Long>() {
                 @Override
                 public Long getValue() {
-                    return monitoredCachedStatisticsDao.getRejectedCount();
+                    return bulkOperationReporter.getRejectedCount();
                 }
             });
 

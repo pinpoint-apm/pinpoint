@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.MapResponseTimeDao;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementer;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkUpdater;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.CallRowKey;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.ResponseColumnName;
@@ -54,7 +55,7 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseMapResponseTimeDao extends MonitoredCachedStatisticsDao implements MapResponseTimeDao {
+public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -68,6 +69,8 @@ public class HbaseMapResponseTimeDao extends MonitoredCachedStatisticsDao implem
 
     private final BulkIncrementer bulkIncrementer;
 
+    private final BulkUpdater bulkUpdater;
+
     private final boolean useBulk;
 
     private final TableDescriptor<HbaseColumnFamily.SelfStatMap> descriptor;
@@ -78,21 +81,26 @@ public class HbaseMapResponseTimeDao extends MonitoredCachedStatisticsDao implem
                                    TableDescriptor<HbaseColumnFamily.SelfStatMap> descriptor,
                                    @Qualifier("statisticsSelfRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                                    AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
-                                   @Qualifier("selfBulkIncrementer") BulkIncrementer bulkIncrementer) {
-        this(hbaseTemplate, descriptor, rowKeyDistributorByHashPrefix, acceptedTimeService, timeSlot, bulkIncrementer, true);
+                                   @Qualifier("selfBulkIncrementer") BulkIncrementer bulkIncrementer,
+                                   @Qualifier("selfBulkUpdater") BulkUpdater bulkUpdater) {
+        this(hbaseTemplate, descriptor, rowKeyDistributorByHashPrefix,
+                acceptedTimeService, timeSlot,
+                bulkIncrementer, bulkUpdater, true);
     }
 
     public HbaseMapResponseTimeDao(HbaseOperations2 hbaseTemplate,
                                    TableDescriptor<HbaseColumnFamily.SelfStatMap> descriptor,
                                    RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                                    AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
-                                   BulkIncrementer bulkIncrementer, boolean useBulk) {
+                                   BulkIncrementer bulkIncrementer, BulkUpdater bulkUpdater,
+                                   boolean useBulk) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
         this.bulkIncrementer = Objects.requireNonNull(bulkIncrementer, "bulkIncrementer");
+        this.bulkUpdater = Objects.requireNonNull(bulkUpdater, "bulkUpdater");
         this.useBulk = useBulk;
     }
 
@@ -119,12 +127,10 @@ public class HbaseMapResponseTimeDao extends MonitoredCachedStatisticsDao implem
 
         if (useBulk) {
             TableName mapStatisticsSelfTableName = descriptor.getTableName();
-            boolean success = bulkIncrementer.increment(mapStatisticsSelfTableName, selfRowKey, selfColumnName);
-            if (!success) {
-                reportReject();
-            }
+            bulkIncrementer.increment(mapStatisticsSelfTableName, selfRowKey, selfColumnName);
+
             bulkIncrementer.increment(mapStatisticsSelfTableName, selfRowKey, sumColumnName, elapsed);
-            bulkIncrementer.updateMax(mapStatisticsSelfTableName, selfRowKey, maxColumnName, elapsed);
+            bulkUpdater.updateMax(mapStatisticsSelfTableName, selfRowKey, maxColumnName, elapsed);
         } else {
             final byte[] rowKey = getDistributedKey(selfRowKey.getRowKey());
             // column name is the name of caller app.
@@ -156,7 +162,6 @@ public class HbaseMapResponseTimeDao extends MonitoredCachedStatisticsDao implem
         if (!useBulk) {
             throw new IllegalStateException("useBulk is " + useBulk);
         }
-        reportFlushAll();
 
         Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(rowKeyDistributorByHashPrefix);
         for (Map.Entry<TableName, List<Increment>> e : incrementMap.entrySet()) {
@@ -168,7 +173,7 @@ public class HbaseMapResponseTimeDao extends MonitoredCachedStatisticsDao implem
             hbaseTemplate.increment(tableName, increments);
         }
 
-        Map<RowInfo, Long> maxUpdateMap = bulkIncrementer.getMaxUpdate();
+        Map<RowInfo, Long> maxUpdateMap = bulkUpdater.getMaxUpdate();
         for (RowInfo rowInfo : maxUpdateMap.keySet()) {
             Long val = maxUpdateMap.get(rowInfo);
             final byte[] rowKey = getDistributedKey(rowInfo.getRowKey().getRowKey());

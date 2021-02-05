@@ -16,34 +16,35 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
-import com.navercorp.pinpoint.collector.dao.CachedStatisticsDao;
-
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * @author Taejin Koo
  */
-public abstract class MonitoredCachedStatisticsDao implements CachedStatisticsDao {
+public class BulkOperationReporter {
 
-    private final AtomicLong rejectedCount = new AtomicLong();
-    private long flushCount;
-    private long lastFlushTimeMillis;
+    private final LongAdder rejectedCount = new LongAdder();
 
-    protected void reportFlushAll() {
-        flushCount++;
+    private final AtomicLong flushCount = new AtomicLong();
+
+    private volatile long lastFlushTimeMillis;
+
+    public void reportFlushAll() {
+        flushCount.incrementAndGet();
         lastFlushTimeMillis = System.currentTimeMillis();
     }
 
-    protected void reportReject() {
-        rejectedCount.incrementAndGet();
+    public void reportReject() {
+        rejectedCount.increment();
     }
 
     public long getFlushAllCount() {
-        return flushCount;
+        return flushCount.get();
     }
 
     public long getRejectedCount() {
-        return rejectedCount.get();
+        return rejectedCount.sum();
     }
 
     public long getLastFlushTimeMillis() {

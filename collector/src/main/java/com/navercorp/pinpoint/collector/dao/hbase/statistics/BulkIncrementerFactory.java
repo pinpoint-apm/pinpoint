@@ -16,23 +16,41 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
+import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PreDestroy;
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Taejin Koo
  */
+@Component
 public final class BulkIncrementerFactory {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public BulkIncrementer create(RowKeyMerge rowKeyMerge) {
-        return create(rowKeyMerge, Integer.MAX_VALUE);
-    }
+    private final ScheduledExecutorService memoryObserver
+            = Executors.newSingleThreadScheduledExecutor(PinpointThreadFactory.createThreadFactory("MemoryObserver-bulkOperation"));
 
-    public BulkIncrementer create(RowKeyMerge rowKeyMerge, int limitSize) {
-        if (hasLimit(limitSize)) {
-            return new BulkIncrementer.SizeLimitedBulkIncrementer(rowKeyMerge, limitSize);
-        } else {
-            return new BulkIncrementer.DefaultBulkIncrementer(rowKeyMerge);
+    public BulkIncrementer wrap(BulkIncrementer bulkIncrementer, int limitSize, BulkOperationReporter reporter) {
+        Objects.requireNonNull(bulkIncrementer, "bulkIncrementer");
+
+        if (!hasLimit(limitSize)) {
+            return bulkIncrementer;
         }
+
+        BulkIncrementer.SizeLimitedBulkIncrementer wrap
+                = new BulkIncrementer.SizeLimitedBulkIncrementer(bulkIncrementer, limitSize, reporter);
+
+        attachObserver(wrap);
+
+        return wrap;
     }
 
     private boolean hasLimit(int limitSize) {
@@ -42,6 +60,25 @@ public final class BulkIncrementerFactory {
             }
         }
         return false;
+    }
+
+    private void attachObserver(BulkIncrementer.SizeLimitedBulkIncrementer incrementer) {
+        memoryObserver.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                final boolean success = incrementer.checkState();
+                if (!success) {
+                    // TODO need incrementer name??
+                    logger.warn("Incrementer.checkState() failed");
+                }
+            }
+        }, 1000, 1000, TimeUnit.MILLISECONDS);
+    }
+
+
+    @PreDestroy
+    public void close() {
+        memoryObserver.shutdown();
     }
 
 }

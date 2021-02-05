@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
+import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementerTestClazz.Flusher;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementerTestClazz.Incrementer;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementerTestClazz.TestData;
@@ -27,6 +28,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +54,16 @@ public class DefaultBulkIncrementerTest {
 
     private static final byte[] CF = Bytes.toBytes("CF");
 
-    private final BulkIncrementer bulkIncrementer = new BulkIncrementerFactory().create(new RowKeyMerge(CF));
+    private static final BulkIncrementerFactory bulkIncrementerFactory = new BulkIncrementerFactory();
+
+    private final BulkOperationReporter reporter = new BulkOperationReporter();
+    private final BulkIncrementer bulkIncrementer = bulkIncrementerFactory.wrap(
+            new BulkIncrementer.DefaultBulkIncrementer(new RowKeyMerge(CF)), Integer.MAX_VALUE, reporter);
+
+    @AfterClass
+    public static void afterClass() throws Exception {
+        bulkIncrementerFactory.close();
+    }
 
     @Mock
     private RowKeyDistributorByHashPrefix rowKeyDistributor;
