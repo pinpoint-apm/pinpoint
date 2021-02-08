@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.SlotType;
 import com.navercorp.pinpoint.web.view.HistogramSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -31,6 +33,8 @@ import java.util.Objects;
  */
 @JsonSerialize(using = HistogramSerializer.class)
 public class Histogram {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Histogram.class);
 
     private final HistogramSchema schema;
 
@@ -109,7 +113,9 @@ public class Histogram {
             return;
         }
 
-        throw new IllegalArgumentException("slot not found slotTime=" + slotTime + ", count=" + count + ", schema=" + schema);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("slot not found slotTime=" + slotTime + ", count=" + count + ", schema=" + schema);
+        }
     }
 
     public HistogramSchema getHistogramSchema() {
