@@ -17,11 +17,11 @@
 package com.navercorp.pinpoint.collector.receiver.thrift;
 
 import com.navercorp.pinpoint.collector.monitor.CountingRejectedExecutionHandler;
+import com.navercorp.pinpoint.collector.monitor.BypassRunnableDecorator;
 import com.navercorp.pinpoint.collector.monitor.LoggingRejectedExecutionHandler;
 import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutor;
 import com.navercorp.pinpoint.collector.monitor.RejectedExecutionHandlerChain;
 import com.navercorp.pinpoint.collector.monitor.RunnableDecorator;
-import com.navercorp.pinpoint.collector.monitor.RunnableDecoratorFactory;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
@@ -43,8 +43,6 @@ public class ExecutorFactoryBean extends org.springframework.scheduling.concurre
     private String beanName;
 
     private MetricRegistry registry;
-
-    private boolean durationMonitorEnable = true;
 
     private boolean preStartAllCoreThreads;
 
@@ -85,7 +83,7 @@ public class ExecutorFactoryBean extends org.springframework.scheduling.concurre
 
         rejectedExecutionHandler = wrapHandlerChain(rejectedExecutionHandler);
 
-        RunnableDecorator runnableDecorator = RunnableDecoratorFactory.createMonitorDecorator(beanName, registry, durationMonitorEnable);
+        RunnableDecorator runnableDecorator = new BypassRunnableDecorator(beanName);
 
         MonitoredThreadPoolExecutor monitoredThreadPoolExecutor = new MonitoredThreadPoolExecutor(corePoolSize, maxPoolSize, keepAliveSeconds, TimeUnit.MILLISECONDS,
                 queue, threadFactory, rejectedExecutionHandler, runnableDecorator);
@@ -131,10 +129,6 @@ public class ExecutorFactoryBean extends org.springframework.scheduling.concurre
 
     public void setRegistry(MetricRegistry registry) {
         this.registry = registry;
-    }
-
-    public void setDurationMonitorEnable(boolean durationMonitorEnable) {
-        this.durationMonitorEnable = durationMonitorEnable;
     }
 
     public void setLogRate(int logRate) {

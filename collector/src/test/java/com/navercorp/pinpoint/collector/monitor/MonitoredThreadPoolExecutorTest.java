@@ -41,7 +41,7 @@ public class MonitoredThreadPoolExecutorTest {
     @Before
     public void setUp() throws Exception {
         MetricRegistry metricRegistry = new MetricRegistry();
-        this.runnableDecorator = spy(new MonitoredRunnableDecorator("test", metricRegistry));
+        this.runnableDecorator = spy(new BypassRunnableDecorator("test"));
         this.threadPoolExecutor = new MonitoredThreadPoolExecutor(1, 1, 1000, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), runnableDecorator);
     }
 

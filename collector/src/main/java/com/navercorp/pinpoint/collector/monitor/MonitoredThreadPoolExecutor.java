@@ -41,7 +41,7 @@ public class MonitoredThreadPoolExecutor extends ThreadPoolExecutor {
     public MonitoredThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue,
                                        RunnableDecorator runnableDecorator) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
-        this.runnableDecorator = Objects.requireNonNull(runnableDecorator, "executeListener");
+        this.runnableDecorator = Objects.requireNonNull(runnableDecorator, "runnableDecorator");
     }
 
 
