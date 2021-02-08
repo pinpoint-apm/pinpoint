@@ -68,6 +68,9 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1140</td><td>REACTOR_NETTY</td></tr>
  * <tr><td>1141</td><td>REACTOR_NETTY_INTERNAL</td></tr>
  *
+ * <tr><td>1300</td><td>C_CPP</td></tr>
+ * <tr><td>1301</td><td>C_CPP_METHOD</td></tr>
+ *
  * <tr><td>1400</td><td>NODE</td></tr>
  * <tr><td>1401</td><td>NODE_METHOD</td></tr>
  * <tr><td>1500</td><td>PHP</td></tr>
@@ -76,6 +79,12 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1620</td><td>OPENWHISK_INTERNAL</td></tr>
  * <tr><td>1621</td><td>OPENWHISK_CONTROLLER</td></tr>
  * <tr><td>1622</td><td>OPENWHISK_INVOKER</td></tr>
+ * <tr><td>1700</td><td>PYTHON</td></tr>
+ * <tr><td>1701</td><td>PYTHON_METHOD</td></tr>
+ * <tr><td>1702</td><td>CELERY</td></tr>
+ * <tr><td>1703</td><td>CELERY-WORKER</td></tr>
+ * <tr><td>1800</td><td>GO</td></tr>
+ * <tr><td>1801</td><td>GO_FUNCTION</td></tr>
  *
  * </table>
  * 
@@ -223,8 +232,11 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9202</td><td>ElasticsearchBBossExecutor</td></tr>
  * <tr><td>9301</td><td>ENVOY_INGRESS</td></tr>
  * <tr><td>9302</td><td>ENVOY_EGRESS</td></tr>
+ * <tr><td>9401</td><td>GO_HTTP_CLIENT</td></tr>
  * <tr><td>9622</td><td>OPENWHISK_CLIENT</td></tr>
- *
+ * <tr><td>9700</td><td>PHP_REMOTE_METHOD</td></tr>
+ * <tr><td>9800</td><td>C_CPP_REMOTE_METHOD</td></tr>
+ * <tr><td>9900</td><td>PYTHON_REMOTE_METHOD</td></tr>
  * </table>
  * 
  * <h3>RPC Sandbox (9900 ~ 9999)</h3>
