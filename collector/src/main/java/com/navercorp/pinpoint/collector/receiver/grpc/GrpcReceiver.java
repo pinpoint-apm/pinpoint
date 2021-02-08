@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.NestedExceptionUtils;
 
 import java.io.Closeable;
@@ -227,6 +228,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         this.transportFilterList = transportFilterList;
     }
 
+    @Autowired
     public void setServerInterceptorList(List<ServerInterceptor> serverInterceptorList) {
         this.serverInterceptorList = serverInterceptorList;
     }
