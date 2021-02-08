@@ -368,7 +368,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         // profile package included in order to test "call stack view".
         // this config must not be used in service environment because the size of  profiling information will get heavy.
         // We may need to change this configuration to regular expression.
-        if (profilableClass != null && profilableClass.isEmpty()) {
+        if (profilableClass != null && !profilableClass.isEmpty()) {
             this.profilableClassFilter = new ProfilableClassFilter(profilableClass);
         } else {
             this.profilableClassFilter = new SkipFilter<String>();
