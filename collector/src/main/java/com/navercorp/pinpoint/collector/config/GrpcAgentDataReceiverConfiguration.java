@@ -49,8 +49,6 @@ public class GrpcAgentDataReceiverConfiguration {
     private int grpcServerExecutorQueueSize;
     @Value("${collector.receiver.grpc.agent.server.executor.monitor.enable:false}")
     private boolean grpcServerExecutorMonitorEnable;
-    @Value("${collector.receiver.grpc.agent.server.executor.monitor.duration.enable:false}")
-    private boolean grpcServerExecutorMonitorDurationEnable;
 
     @Value("${collector.receiver.grpc.agent.worker.executor.thread.size:128}")
     private int grpcWorkerExecutorThreadSize;
@@ -58,8 +56,6 @@ public class GrpcAgentDataReceiverConfiguration {
     private int grpcWorkerExecutorQueueSize;
     @Value("${collector.receiver.grpc.agent.worker.executor.monitor.enable:false}")
     private boolean grpcWorkerExecutorMonitorEnable;
-    @Value("${collector.receiver.grpc.agent.worker.executor.monitor.duration.enable:false}")
-    private boolean grpcWorkerExecutorMonitorDurationEnable;
 
     private ServerOption grpcServerOption;
 
@@ -112,10 +108,6 @@ public class GrpcAgentDataReceiverConfiguration {
         return grpcServerExecutorMonitorEnable;
     }
 
-    public boolean isGrpcServerExecutorMonitorDurationEnable() {
-        return grpcServerExecutorMonitorDurationEnable;
-    }
-
     public int getGrpcWorkerExecutorThreadSize() {
         return grpcWorkerExecutorThreadSize;
     }
@@ -126,10 +118,6 @@ public class GrpcAgentDataReceiverConfiguration {
 
     public boolean isGrpcWorkerExecutorMonitorEnable() {
         return grpcWorkerExecutorMonitorEnable;
-    }
-
-    public boolean isGrpcWorkerExecutorMonitorDurationEnable() {
-        return grpcWorkerExecutorMonitorDurationEnable;
     }
 
     public ServerOption getGrpcServerOption() {
@@ -145,11 +133,9 @@ public class GrpcAgentDataReceiverConfiguration {
         sb.append(", grpcServerExecutorThreadSize=").append(grpcServerExecutorThreadSize);
         sb.append(", grpcServerExecutorQueueSize=").append(grpcServerExecutorQueueSize);
         sb.append(", grpcServerExecutorMonitorEnable=").append(grpcServerExecutorMonitorEnable);
-        sb.append(", grpcServerExecutorMonitorDurationEnable=").append(grpcServerExecutorMonitorDurationEnable);
         sb.append(", grpcWorkerExecutorThreadSize=").append(grpcWorkerExecutorThreadSize);
         sb.append(", grpcWorkerExecutorQueueSize=").append(grpcWorkerExecutorQueueSize);
         sb.append(", grpcWorkerExecutorMonitorEnable=").append(grpcWorkerExecutorMonitorEnable);
-        sb.append(", grpcWorkerExecutorMonitorDurationEnable=").append(grpcWorkerExecutorMonitorDurationEnable);
         sb.append(", grpcServerOption=").append(grpcServerOption);
         sb.append('}');
         return sb.toString();

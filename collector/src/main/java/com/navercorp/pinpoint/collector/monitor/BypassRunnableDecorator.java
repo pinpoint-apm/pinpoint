@@ -23,11 +23,11 @@ import java.util.concurrent.Callable;
 /**
  * @author Taejin Koo
  */
-public class DisabledMonitoredRunnableDecorator implements RunnableDecorator {
+public class BypassRunnableDecorator implements RunnableDecorator {
 
     @SuppressWarnings("unused") // for debug
     private final String executorName;
-    public DisabledMonitoredRunnableDecorator(String executorName) {
+    public BypassRunnableDecorator(String executorName) {
         this.executorName = Objects.requireNonNull(executorName, "name");
     }
 

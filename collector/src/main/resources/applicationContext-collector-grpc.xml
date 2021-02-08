@@ -72,7 +72,6 @@
         <property name="queueCapacity" value="#{grpcAgentReceiverConfig.grpcWorkerExecutorQueueSize}"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcAgent-Worker-"/>
         <property name="registry" value="#{grpcAgentReceiverConfig.grpcWorkerExecutorMonitorEnable ? metricRegistry : null}"/>
-        <property name="durationMonitorEnable" value="#{grpcAgentReceiverConfig.grpcWorkerExecutorMonitorDurationEnable}"/>
     </bean>
 
     <bean id="grpcLifecycleScheduler" class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
@@ -148,7 +147,6 @@
         <property name="queueCapacity" value="#{grpcAgentReceiverConfig.grpcServerExecutorQueueSize}"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcAgent-Server-"/>
         <property name="registry" value="#{grpcAgentReceiverConfig.grpcServerExecutorMonitorEnable ? metricRegistry : null}"/>
-        <property name="durationMonitorEnable" value="#{grpcAgentReceiverConfig.grpcServerExecutorMonitorDurationEnable}"/>
     </bean>
 
     <bean id="#{T(com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiverNames).AGENT}" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
@@ -177,7 +175,6 @@
         <property name="queueCapacity" value="#{grpcSpanReceiverConfig.grpcWorkerExecutorQueueSize}"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcSpan-Worker-"/>
         <property name="registry" value="#{grpcSpanReceiverConfig.grpcWorkerExecutorMonitorEnable ? metricRegistry : null}"/>
-        <property name="durationMonitorEnable" value="#{grpcSpanReceiverConfig.grpcWorkerExecutorMonitorDurationEnable}"/>
     </bean>
 
     <bean id="spanStreamExecutorInterceptor" class="com.navercorp.pinpoint.collector.receiver.grpc.service.StreamExecutorServerInterceptorFactory">
@@ -202,7 +199,6 @@
         <property name="queueCapacity" value="#{grpcSpanReceiverConfig.grpcServerExecutorQueueSize}"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcSpan-Server-"/>
         <property name="registry" value="#{grpcSpanReceiverConfig.grpcServerExecutorMonitorEnable ? metricRegistry : null}"/>
-        <property name="durationMonitorEnable" value="#{grpcSpanReceiverConfig.grpcServerExecutorMonitorDurationEnable}"/>
     </bean>
 
     <bean id="#{T(com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiverNames).SPAN}" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
@@ -233,7 +229,6 @@
         <property name="queueCapacity" value="#{grpcStatReceiverConfig.grpcWorkerExecutorQueueSize}"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcStat-Worker-"/>
         <property name="registry" value="#{grpcStatReceiverConfig.grpcWorkerExecutorMonitorEnable ? metricRegistry : null}"/>
-        <property name="durationMonitorEnable" value="#{grpcStatReceiverConfig.grpcWorkerExecutorMonitorDurationEnable}"/>
     </bean>
 
     <bean id="statStreamExecutorInterceptor" class="com.navercorp.pinpoint.collector.receiver.grpc.service.StreamExecutorServerInterceptorFactory">
@@ -259,7 +254,6 @@
         <property name="queueCapacity" value="#{grpcStatReceiverConfig.grpcServerExecutorQueueSize}"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcStat-Server-"/>
         <property name="registry" value="#{grpcStatReceiverConfig.grpcServerExecutorMonitorEnable ? metricRegistry : null}"/>
-        <property name="durationMonitorEnable" value="#{grpcStatReceiverConfig.grpcServerExecutorMonitorDurationEnable}"/>
     </bean>
 
     <bean id="#{T(com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiverNames).STAT}" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
