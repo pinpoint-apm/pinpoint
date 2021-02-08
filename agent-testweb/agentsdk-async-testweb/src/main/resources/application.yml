@@ -1,0 +1,12 @@
+# Defined in commandlineArgument of agent-test pom.xml
+
+#server:
+#  port: 18080
+
+#logging:
+#  level:
+#    root: info
+
+#springdoc:
+#  swagger-ui:
+#    path: /

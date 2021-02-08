@@ -81,6 +81,8 @@
     <modules>
         <module>annotations</module>
         <module>agent</module>
+        <module>agent-sdk</module>
+
         <module>agent-testweb</module>
         <module>agent-plugins</module>
         <module>bootstraps</module>

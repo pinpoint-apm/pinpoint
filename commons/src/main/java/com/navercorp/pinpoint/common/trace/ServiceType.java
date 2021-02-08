@@ -32,6 +32,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>5</td><td>TEST</td></tr>
  * <tr><td>7</td><td>COLLECTOR</td></tr>
  * <tr><td>100</td><td>ASYNC</td></tr>
+ * <tr><td>500</td><td>SDK</td></tr>
+ * <tr><td>510</td><td>SDK_ASYNC</td></tr>
  * </table>
  *
  * 
