@@ -71,6 +71,7 @@
         <module>flink</module>
         <module>testcase</module>
         <module>batch</module>
+        <module>pinpoint-java-sdk</module>
     </modules>
 
     <properties>
