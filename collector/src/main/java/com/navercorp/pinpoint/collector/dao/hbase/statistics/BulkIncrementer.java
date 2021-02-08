@@ -17,10 +17,8 @@
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
 import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
-import com.navercorp.pinpoint.collector.util.AtomicLongMapUtils;
 import com.navercorp.pinpoint.common.util.Assert;
 
-import com.google.common.util.concurrent.AtomicLongMap;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
@@ -41,95 +39,5 @@ public interface BulkIncrementer {
     Map<TableName, List<Increment>> getIncrements(RowKeyDistributorByHashPrefix rowKeyDistributor);
 
     int getSize();
-
-    class DefaultBulkIncrementer implements BulkIncrementer {
-
-        private final RowKeyMerge rowKeyMerge;
-
-        protected final AtomicLongMap<RowInfo> counter = AtomicLongMap.create();
-
-        DefaultBulkIncrementer(RowKeyMerge rowKeyMerge) {
-            this.rowKeyMerge = Objects.requireNonNull(rowKeyMerge, "rowKeyMerge");
-        }
-
-        public void increment(TableName tableName, RowKey rowKey, ColumnName columnName) {
-            increment(tableName, rowKey, columnName, 1L);
-        }
-
-        public void increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition) {
-            RowInfo rowInfo = new DefaultRowInfo(tableName, rowKey, columnName);
-            counter.addAndGet(rowInfo, addition);
-        }
-
-        @Override
-        public Map<TableName, List<Increment>> getIncrements(RowKeyDistributorByHashPrefix rowKeyDistributor) {
-            final Map<RowInfo, Long> snapshot = AtomicLongMapUtils.remove(counter);
-            return rowKeyMerge.createBulkIncrement(snapshot, rowKeyDistributor);
-        }
-
-        @Override
-        public int getSize() {
-            return counter.size();
-        }
-    }
-
-
-    class SizeLimitedBulkIncrementer implements BulkIncrementer {
-
-        private volatile boolean overflowState = false;
-
-        private final BulkIncrementer delegate;
-        private final int limitSize;
-        private final BulkOperationReporter reporter;
-
-        SizeLimitedBulkIncrementer(BulkIncrementer delegate, int limitSize, BulkOperationReporter reporter) {
-            this.delegate = Objects.requireNonNull(delegate, "delegate");
-
-            Assert.isTrue(limitSize > 0, "limit size must be ' > 0'");
-            this.limitSize = limitSize;
-
-            this.reporter = Objects.requireNonNull(reporter, "reporter");
-        }
-
-        @Override
-        public void increment(TableName tableName, RowKey rowKey, ColumnName columnName) {
-            this.increment(tableName, rowKey, columnName, 1L);
-        }
-
-        @Override
-        public void increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition) {
-            if (overflowState) {
-                reporter.reportReject();
-                return;
-            }
-            delegate.increment(tableName, rowKey, columnName, addition);
-        }
-
-        // Called by monitoring thread
-        public boolean checkState() {
-            if (delegate.getSize() > limitSize) {
-                overflowState = true;
-                return false;
-            } else {
-                overflowState = false;
-                return true;
-            }
-        }
-
-        @Override
-        public Map<TableName, List<Increment>> getIncrements(RowKeyDistributorByHashPrefix rowKeyDistributor) {
-            try {
-                return delegate.getIncrements(rowKeyDistributor);
-            } finally {
-                reporter.reportFlushAll();
-                overflowState = false;
-            }
-        }
-
-        @Override
-        public int getSize() {
-            return this.delegate.getSize();
-        }
-    }
 
 }

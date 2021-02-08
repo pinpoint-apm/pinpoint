@@ -26,6 +26,7 @@ import javax.annotation.PreDestroy;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,8 +36,20 @@ import java.util.concurrent.TimeUnit;
 public final class BulkIncrementerFactory {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ScheduledExecutorService memoryObserver
-            = Executors.newSingleThreadScheduledExecutor(PinpointThreadFactory.createThreadFactory("MemoryObserver-bulkOperation"));
+    private final ScheduledExecutorService memoryObserver;
+
+    private static ScheduledExecutorService defaultScheduler() {
+        ThreadFactory threadFactory = PinpointThreadFactory.createThreadFactory("MemoryObserver-bulkOperation");
+        return Executors.newSingleThreadScheduledExecutor(threadFactory);
+    }
+
+    public BulkIncrementerFactory() {
+        this(defaultScheduler());
+    }
+
+    public BulkIncrementerFactory(ScheduledExecutorService memoryObserver) {
+        this.memoryObserver = Objects.requireNonNull(memoryObserver, "memoryObserver");
+    }
 
     public BulkIncrementer wrap(BulkIncrementer bulkIncrementer, int limitSize, BulkOperationReporter reporter) {
         Objects.requireNonNull(bulkIncrementer, "bulkIncrementer");
@@ -45,8 +58,21 @@ public final class BulkIncrementerFactory {
             return bulkIncrementer;
         }
 
-        BulkIncrementer.SizeLimitedBulkIncrementer wrap
-                = new BulkIncrementer.SizeLimitedBulkIncrementer(bulkIncrementer, limitSize, reporter);
+        SizeLimitedBulkIncrementer wrap = new SizeLimitedBulkIncrementer(bulkIncrementer, limitSize, reporter);
+
+        attachObserver(wrap);
+
+        return wrap;
+    }
+
+    public BulkUpdater wrap(BulkUpdater bulkUpdater, int limitSize, BulkOperationReporter reporter) {
+        Objects.requireNonNull(bulkUpdater, "bulkUpdater");
+
+        if (!hasLimit(limitSize)) {
+            return bulkUpdater;
+        }
+
+        SizeLimitedBulkUpdater wrap = new SizeLimitedBulkUpdater(bulkUpdater, limitSize, reporter);
 
         attachObserver(wrap);
 
@@ -62,11 +88,13 @@ public final class BulkIncrementerFactory {
         return false;
     }
 
-    private void attachObserver(BulkIncrementer.SizeLimitedBulkIncrementer incrementer) {
+    private void attachObserver(BulkState bulkState) {
+        Objects.requireNonNull(bulkState, "bulkState");
+
         memoryObserver.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                final boolean success = incrementer.checkState();
+                final boolean success = bulkState.checkState();
                 if (!success) {
                     // TODO need incrementer name??
                     logger.warn("Incrementer.checkState() failed");

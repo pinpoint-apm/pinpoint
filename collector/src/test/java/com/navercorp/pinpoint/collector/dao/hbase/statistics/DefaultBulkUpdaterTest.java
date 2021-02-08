@@ -50,7 +50,7 @@ import static org.mockito.Mockito.when;
  * @author HyunGil Jeong
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DefaultBulkIncrementerTest {
+public class DefaultBulkUpdaterTest {
 
     private static final byte[] CF = Bytes.toBytes("CF");
 
@@ -58,7 +58,7 @@ public class DefaultBulkIncrementerTest {
 
     private final BulkOperationReporter reporter = new BulkOperationReporter();
     private final BulkIncrementer bulkIncrementer = bulkIncrementerFactory.wrap(
-            new BulkIncrementer.DefaultBulkIncrementer(new RowKeyMerge(CF)), Integer.MAX_VALUE, reporter);
+            new DefaultBulkIncrementer(new RowKeyMerge(CF)), Integer.MAX_VALUE, reporter);
 
     @AfterClass
     public static void afterClass() throws Exception {

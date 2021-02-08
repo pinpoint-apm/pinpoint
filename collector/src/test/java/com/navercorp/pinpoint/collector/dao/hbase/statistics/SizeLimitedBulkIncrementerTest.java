@@ -64,7 +64,7 @@ public class SizeLimitedBulkIncrementerTest {
 
     private final BulkOperationReporter reporter = new BulkOperationReporter();
     private final BulkIncrementer bulkIncrementer = bulkIncrementerFactory.wrap(
-            new BulkIncrementer.DefaultBulkIncrementer(new RowKeyMerge(CF)), 1000, reporter);
+            new DefaultBulkIncrementer(new RowKeyMerge(CF)), 1000, reporter);
 
     @AfterClass
     public static void afterClass() throws Exception {
