@@ -83,7 +83,7 @@ public class ApplicationMapStatisticsUtils {
             throw new NullPointerException("serviceType");
         }
         final HistogramSchema histogramSchema = serviceType.getHistogramSchema();
-        if(isPing) {
+        if (isPing) {
             return histogramSchema.getPingSlot().getSlotTime();
         }
         final HistogramSlot histogramSlot = histogramSchema.findHistogramSlot(elapsed, isError);

@@ -18,10 +18,12 @@ public class BaseHistogramSchema implements HistogramSchema {
     }
 
     private static final short VERY_SLOW_SLOT_TIME = 0;
+    // All negative numbers are included in error count
     private static final short ERROR_SLOT_TIME = -1;
-    private static final short STAT_SLOT_TIME_TOTAL = Short.MIN_VALUE + 1;
-    private static final short STAT_SLOT_TIME_MAX = Short.MIN_VALUE + 2;
-    private static final short PING_SLOT_TIME = -2;
+    // Do not use negative numbers.
+    private static final short PING_SLOT_TIME = Short.MAX_VALUE - 1;
+    private static final short STAT_SLOT_TIME_TOTAL = Short.MAX_VALUE - 2;
+    private static final short STAT_SLOT_TIME_MAX = Short.MAX_VALUE - 3;
 
     private static final String PING_SLOT_NAME = "Ping";
 

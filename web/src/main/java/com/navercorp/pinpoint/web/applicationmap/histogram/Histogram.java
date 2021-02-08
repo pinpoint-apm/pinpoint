@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.SlotType;
 import com.navercorp.pinpoint.web.view.HistogramSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -32,6 +34,8 @@ import java.util.Objects;
  */
 @JsonSerialize(using = HistogramSerializer.class)
 public class Histogram implements StatisticsHistogram {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Histogram.class);
 
     private final HistogramSchema schema;
 
@@ -78,6 +82,10 @@ public class Histogram implements StatisticsHistogram {
             updateMaxElapsed(count);
             return;
         }
+        if (slotTime == schema.getPingSlot().getSlotTime()) { // ping
+            this.pingCount += count;
+            return;
+        }
 
         if (slotTime <= schema.getVerySlowErrorSlot().getSlotTime()) {
             this.verySlowErrorCount += count;
@@ -97,11 +105,6 @@ public class Histogram implements StatisticsHistogram {
 
         if (slotTime <= schema.getFastErrorSlot().getSlotTime()) {
             this.fastErrorCount += count;
-            return;
-        }
-
-        if (slotTime <= schema.getPingSlot().getSlotTime()) { // -2 is ping
-            this.pingCount += count;
             return;
         }
 
@@ -130,7 +133,9 @@ public class Histogram implements StatisticsHistogram {
             return;
         }
 
-        throw new IllegalArgumentException("slot not found slotTime=" + slotTime + ", count=" + count + ", schema=" + schema);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("slot not found slotTime=" + slotTime + ", count=" + count + ", schema=" + schema);
+        }
     }
 
     private void updateMaxElapsed(long elapsedTime) {

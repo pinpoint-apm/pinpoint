@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.rawdata;
+package com.navercorp.pinpoint.web.applicationmap.histogram;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,6 +38,47 @@ public class HistogramTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    @Test
+    public void pingSlot() {
+        Histogram histogram = new Histogram(ServiceType.STAND_ALONE);
+        histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getPingSlot().getSlotTime(), 1);
+        Assert.assertEquals(1, histogram.getPingCount());
+
+        Assert.assertEquals(0, histogram.getErrorCount());
+    }
+
+    @Test
+    public void maxSlot() {
+        Histogram histogram = new Histogram(ServiceType.STAND_ALONE);
+        histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getMaxStatSlot().getSlotTime(), 1000);
+        Assert.assertEquals(1000, histogram.getMaxElapsed());
+
+        Assert.assertEquals(0, histogram.getErrorCount());
+    }
+
+    @Test
+    public void errorSlot() {
+        Histogram histogram = new Histogram(ServiceType.STAND_ALONE);
+        histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getErrorSlot().getSlotTime(), 1);
+        Assert.assertEquals(1, histogram.getErrorCount());
+        Assert.assertEquals(0, histogram.getSuccessCount());
+    }
+
+    @Test
+    public void slowSlot() {
+        Histogram histogram = new Histogram(ServiceType.STAND_ALONE);
+        histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getSlowSlot().getSlotTime(), 1);
+        Assert.assertEquals(1, histogram.getSlowCount());
+        Assert.assertEquals(1, histogram.getSuccessCount());
+    }
+
+    @Test
+    public void verySlowSlot() {
+        Histogram histogram = new Histogram(ServiceType.STAND_ALONE);
+        histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getVerySlowSlot().getSlotTime(), 1);
+        Assert.assertEquals(1, histogram.getVerySlowCount());
+        Assert.assertEquals(1, histogram.getSuccessCount());
+    }
 
     @Test
     public void testDeepCopy() throws Exception {
@@ -63,7 +104,7 @@ public class HistogramTest {
         original.addCallCount(schema.getFastSlot().getSlotTime(), 100);
 
         String json = objectMapper.writeValueAsString(original);
-        HashMap hashMap = objectMapper.readValue(json, HashMap.class);
+        HashMap<?, ?> hashMap = objectMapper.readValue(json, HashMap.class);
 
         Assert.assertEquals(hashMap.get(schema.getFastSlot().getSlotName()), 100);
         Assert.assertEquals(hashMap.get(schema.getErrorSlot().getSlotName()), 0);
