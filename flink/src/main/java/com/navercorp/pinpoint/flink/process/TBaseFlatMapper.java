@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -98,12 +99,19 @@ public class TBaseFlatMapper extends RichFlatMapFunction<RawData, Tuple3<String,
             if (logger.isDebugEnabled()) {
                 logger.debug("raw data : {}", tBase);
             }
+
+            final long time = new Date().getTime() + 3600000;
             final TFAgentStatBatch tFAgentStatBatch = (TFAgentStatBatch) tBase;
             final JoinAgentStatBo joinAgentStatBo;
             try {
                 joinAgentStatBo = joinAgentStatBoMapper.map(tFAgentStatBatch);
 
                 if (joinAgentStatBo == JoinAgentStatBo.EMPTY_JOIN_AGENT_STAT_BO) {
+                    return EMPTY_LIST;
+                }
+
+                if (joinAgentStatBo.getTimestamp() >= time) {
+                    logger.error("timestamp is too big !! {}" , joinAgentStatBo.toString());
                     return EMPTY_LIST;
                 }
             } catch (Exception e) {
@@ -124,6 +132,10 @@ public class TBaseFlatMapper extends RichFlatMapFunction<RawData, Tuple3<String,
             List<JoinApplicationStatBo> joinApplicationStatBoList = JoinApplicationStatBo.createJoinApplicationStatBo(applicationId, joinAgentStatBo, ApplicationStatBoWindow.WINDOW_SIZE);
 
             for (JoinApplicationStatBo joinApplicationStatBo : joinApplicationStatBoList) {
+                if (joinApplicationStatBo.getTimestamp() >= time) {
+                    logger.error("timestamp is too big !! {}" , joinApplicationStatBo.toString());
+                    return EMPTY_LIST;
+                }
                 outData.add(new Tuple3<>(applicationId, joinApplicationStatBo, joinApplicationStatBo.getTimestamp()));
             }
         }
