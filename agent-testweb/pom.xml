@@ -51,6 +51,7 @@
     </properties>
 
     <modules>
+        <module>agentsdk-async-testweb</module>
         <module>thread-plugin-testweb</module>
         <module>paho-mqtt-plugin-testweb</module>
         <module>reactor-netty-plugin-testweb</module>

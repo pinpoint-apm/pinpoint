@@ -106,6 +106,7 @@
         <module>process</module>
         <module>paho-mqtt</module>
         <module>rocketmq</module>
+        <module>agentsdk-async</module>
     </modules>
 
 

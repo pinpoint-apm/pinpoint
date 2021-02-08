@@ -17,13 +17,26 @@
 package com.navercorp.pinpoint.profiler.transformer;
 
 import java.security.ProtectionDomain;
+import java.util.Objects;
 
 /**
  * @author emeroad
  */
 public class PinpointClassFilter implements ClassFileFilter {
 
+    private static final String DEFAULT_PACKAGE = "com/navercorp/pinpoint/";
+    private static final String[] DEFAULT_EXCLUDES = {"web/", "sdk/"};
+
+    private final String basePackage;
+    private final String[] excludes;
+
     public PinpointClassFilter() {
+        this(DEFAULT_PACKAGE, DEFAULT_EXCLUDES);
+    }
+
+    public PinpointClassFilter(String basePackage, String[] excludes) {
+        this.basePackage = Objects.requireNonNull(basePackage, "basePackage");
+        this.excludes = Objects.requireNonNull(excludes, "excludes");
     }
 
     @Override
@@ -33,9 +46,11 @@ public class PinpointClassFilter implements ClassFileFilter {
         }
 
         // Skip pinpoint packages too.
-        if (className.startsWith("com/navercorp/pinpoint/")) {
-            if (className.startsWith("com/navercorp/pinpoint/web/")) {
-                return CONTINUE;
+        if (className.startsWith(basePackage)) {
+            for (String exclude : excludes) {
+                if (className.startsWith(exclude, basePackage.length())) {
+                    return CONTINUE;
+                }
             }
             return SKIP;
         }

@@ -77,6 +77,9 @@ public class ASMClass implements InstrumentClass {
         this.classNode = Objects.requireNonNull(classNode, "classNode");
     }
 
+    public void test() {
+
+    }
     public ClassLoader getClassLoader() {
         return this.classNode.getClassLoader();
     }
