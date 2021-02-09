@@ -32,6 +32,10 @@ public class DataSourceAlarmVOSerializer extends JsonSerializer<DataSourceAlarmV
         jgen.writeStartObject();
         
         jgen.writeStringField("databaseName", dataSourceAlarmVO.getDatabaseName());
+
+        jgen.writeNumberField("activeConnectionAvg", dataSourceAlarmVO.getActiveConnectionAvg());
+        jgen.writeNumberField("maxConnectionAvg", dataSourceAlarmVO.getMaxConnectionAvg());
+
         jgen.writeNumberField("connectionValue", dataSourceAlarmVO.getConnectionUsedRate());
         
         jgen.writeEndObject();

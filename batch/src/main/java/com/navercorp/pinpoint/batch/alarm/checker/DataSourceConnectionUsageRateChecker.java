@@ -30,6 +30,9 @@ import java.util.Map;
  */
 public class DataSourceConnectionUsageRateChecker extends DataSourceAlarmListValueAgentChecker {
 
+    private static String SMS_MESSAGE_FORMAT = "[PINPOINT Alarm - %s] DataSource %s connection pool usage %s%s (Threshold : %s%s, Raw : %s/%s)";
+    private static String EMAIL_MESSAGE_FORMAT = " Value of agent(%s) has %s%s(DataSource %s connection pool usage) during the past 5 mins.(Threshold : %s%s, Raw : %s/%s)";
+
     public DataSourceConnectionUsageRateChecker(DataSourceDataCollector dataSourceDataCollector, Rule rule) {
         super(rule, "%", dataSourceDataCollector);
     }
@@ -61,10 +64,12 @@ public class DataSourceConnectionUsageRateChecker extends DataSourceAlarmListVal
     public List<String> getSmsMessage() {
         List<String> messages = new LinkedList<>();
 
+
         for (Map.Entry<String, List<DataSourceAlarmVO>> detected : detectedAgents.entrySet()) {
-            for (DataSourceAlarmVO dataSourceAlarmVO : detected.getValue()) {
-                if (decideResult0(dataSourceAlarmVO)) {
-                    messages.add(String.format("[PINPOINT Alarm - %s] DataSource %s connection pool usage %s%s (Threshold : %s%s)", detected.getKey(), dataSourceAlarmVO.getDatabaseName(), dataSourceAlarmVO.getConnectionUsedRate(), unit, rule.getThreshold(), unit));
+            for (DataSourceAlarmVO eachVo : detected.getValue()) {
+                if (decideResult0(eachVo)) {
+                    String message = String.format(SMS_MESSAGE_FORMAT, detected.getKey(), eachVo.getDatabaseName(), eachVo.getConnectionUsedRate(), unit, rule.getThreshold(), unit, eachVo.getActiveConnectionAvg(), eachVo.getMaxConnectionAvg());
+                    messages.add(message);
                 }
             }
         }
@@ -74,16 +79,17 @@ public class DataSourceConnectionUsageRateChecker extends DataSourceAlarmListVal
 
     @Override
     public String getEmailMessage() {
-        StringBuilder message = new StringBuilder();
+        StringBuilder contents = new StringBuilder();
         for (Map.Entry<String, List<DataSourceAlarmVO>> detected : detectedAgents.entrySet()) {
-            for (DataSourceAlarmVO dataSourceAlarmVO : detected.getValue()) {
-                if (decideResult0(dataSourceAlarmVO)) {
-                    message.append(String.format(" Value of agent(%s) has %s%s(DataSource %s connection pool usage) during the past 5 mins.(Threshold : %s%s)", detected.getKey(), dataSourceAlarmVO.getConnectionUsedRate(), unit, dataSourceAlarmVO.getDatabaseName(), rule.getThreshold(), unit));
+            for (DataSourceAlarmVO eachVo : detected.getValue()) {
+                if (decideResult0(eachVo)) {
+                    String message = String.format(EMAIL_MESSAGE_FORMAT, detected.getKey(), eachVo.getConnectionUsedRate(), unit, eachVo.getDatabaseName(), rule.getThreshold(), unit, eachVo.getActiveConnectionAvg(), eachVo.getMaxConnectionAvg());
+                    contents.append(message);
                 }
             }
 
         }
-        return message.toString();
+        return contents.toString();
     }
 
 }
