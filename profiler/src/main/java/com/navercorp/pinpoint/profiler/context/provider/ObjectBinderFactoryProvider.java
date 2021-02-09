@@ -19,9 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
-import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
@@ -30,6 +28,8 @@ import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
