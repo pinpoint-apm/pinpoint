@@ -23,9 +23,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetricRegistry;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
-import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryAdaptor;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryAdaptor;
@@ -35,6 +33,8 @@ import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFacto
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 
 import com.google.inject.Provider;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)

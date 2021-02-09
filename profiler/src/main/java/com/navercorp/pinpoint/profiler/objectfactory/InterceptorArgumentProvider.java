@@ -23,14 +23,13 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetricRegistry;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
-import java.util.Objects;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.util.TypeUtils;
 
 import java.lang.annotation.Annotation;
+import java.util.Objects;
 
 /**
  * @author Jongho Moon

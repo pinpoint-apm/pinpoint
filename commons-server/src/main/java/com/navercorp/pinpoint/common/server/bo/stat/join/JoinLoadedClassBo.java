@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;

@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
-import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
-import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo

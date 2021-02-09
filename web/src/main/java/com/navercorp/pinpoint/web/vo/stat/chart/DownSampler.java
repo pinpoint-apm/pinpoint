@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart;
 
-import java.util.Collection;
-
 /**
  * @author harebox
  * @author HyunGil Jeong

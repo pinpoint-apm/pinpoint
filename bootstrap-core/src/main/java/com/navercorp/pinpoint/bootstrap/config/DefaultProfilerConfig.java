@@ -17,14 +17,13 @@
 package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.config.util.BypassResolver;
-import com.navercorp.pinpoint.bootstrap.config.util.PlaceHolderResolver;
 import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
 import com.navercorp.pinpoint.bootstrap.config.util.ValueResolver;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.util.PropertyUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
-import com.navercorp.pinpoint.common.util.PropertyUtils;
 import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 import java.io.FileNotFoundException;

@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
-import com.navercorp.pinpoint.flink.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFResponseTime;
 

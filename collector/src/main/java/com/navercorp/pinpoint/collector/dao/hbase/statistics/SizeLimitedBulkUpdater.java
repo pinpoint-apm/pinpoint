@@ -17,11 +17,9 @@ package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
 import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Increment;
 
-import java.util.List;
+import org.apache.hadoop.hbase.TableName;
+
 import java.util.Map;
 import java.util.Objects;
 

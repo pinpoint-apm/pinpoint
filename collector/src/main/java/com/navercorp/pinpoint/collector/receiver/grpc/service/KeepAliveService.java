@@ -26,12 +26,12 @@ import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingSession;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingSessionRegistry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Objects;
 
 /**

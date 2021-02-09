@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.mapper.stat;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;

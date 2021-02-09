@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.test.plugin.util;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 
 /**

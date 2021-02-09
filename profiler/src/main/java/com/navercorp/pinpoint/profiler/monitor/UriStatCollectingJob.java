@@ -16,17 +16,15 @@
 
 package com.navercorp.pinpoint.profiler.monitor;
 
-import java.util.Objects;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcUriStatMessageConverter;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 
-import com.google.protobuf.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo

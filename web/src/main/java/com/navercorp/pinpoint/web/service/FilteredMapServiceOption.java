@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.vo.Range;
 

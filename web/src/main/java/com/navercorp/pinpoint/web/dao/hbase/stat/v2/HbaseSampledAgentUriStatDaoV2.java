@@ -29,8 +29,6 @@ import com.navercorp.pinpoint.web.vo.stat.SampledAgentUriStat;
 
 import org.springframework.stereotype.Repository;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
