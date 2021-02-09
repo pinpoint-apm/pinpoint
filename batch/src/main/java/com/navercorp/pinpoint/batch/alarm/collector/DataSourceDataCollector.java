@@ -16,22 +16,24 @@
 
 package com.navercorp.pinpoint.batch.alarm.collector;
 
+import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
+import com.navercorp.pinpoint.batch.alarm.vo.DataSourceAlarmVO;
+import com.navercorp.pinpoint.batch.util.ListUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.batch.util.ListUtils;
-import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
-import com.navercorp.pinpoint.batch.alarm.vo.DataSourceAlarmVO;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
+
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * @author Taejin Koo
@@ -75,11 +77,14 @@ public class DataSourceDataCollector extends DataCollector {
 
             for (Map.Entry<Integer, List<DataSourceBo>> entry : partitions.entrySet()) {
                 List<DataSourceBo> dataSourceBoList = entry.getValue();
+
                 if (CollectionUtils.hasLength(dataSourceBoList)) {
-                    long usedPercent = getPercent(dataSourceBoList);
+                    double activeConnectionAvg = dataSourceBoList.stream().mapToInt(b -> b.getActiveConnectionSize()).average().getAsDouble();
+                    double maxConnectionAvg = dataSourceBoList.stream().mapToInt(b -> b.getMaxConnectionSize()).average().getAsDouble();
 
                     DataSourceBo dataSourceBo = ListUtils.getFirst(dataSourceBoList);
-                    DataSourceAlarmVO dataSourceAlarmVO = new DataSourceAlarmVO(dataSourceBo.getId(), dataSourceBo.getDatabaseName(), usedPercent);
+                    DataSourceAlarmVO dataSourceAlarmVO = new DataSourceAlarmVO(dataSourceBo.getId(), dataSourceBo.getDatabaseName(),
+                            new Double(Math.floor(activeConnectionAvg)).intValue(), new Double(Math.floor(maxConnectionAvg)).intValue());
 
                     agentDataSourceConnectionUsageRateMap.add(agentId, dataSourceAlarmVO);
                 }
@@ -110,21 +115,6 @@ public class DataSourceDataCollector extends DataCollector {
         }
 
         return result;
-    }
-
-    private long getPercent(List<DataSourceBo> dataSourceBos) {
-        long totalMaxConnectionSize = 0;
-        long totalActiveConnectionSize = 0;
-
-        for (DataSourceBo dataSourceBo : dataSourceBos) {
-            int maxConnectionSize = dataSourceBo.getMaxConnectionSize();
-            totalMaxConnectionSize += maxConnectionSize;
-
-            int activeConnectionSize = dataSourceBo.getActiveConnectionSize();
-            totalActiveConnectionSize += activeConnectionSize;
-        }
-
-        return calculatePercent(totalActiveConnectionSize, totalMaxConnectionSize);
     }
 
     @Override

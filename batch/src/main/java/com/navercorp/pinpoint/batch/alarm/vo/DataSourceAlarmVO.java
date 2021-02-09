@@ -27,12 +27,15 @@ public class DataSourceAlarmVO {
 
     private final int id;
     private final String databaseName;
-    private final long connectionUsedRate;
+    private final int activeConnectionAvg;
+    private final int maxConnectionAvg;
 
-    public DataSourceAlarmVO(int id, String databaseName, long connectionUsedRate) {
+    public DataSourceAlarmVO(int id, String databaseName, int activeConnectionAvg, int maxConnectionAvg) {
         this.id = id;
         this.databaseName = databaseName;
-        this.connectionUsedRate = connectionUsedRate;
+
+        this.activeConnectionAvg = activeConnectionAvg;
+        this.maxConnectionAvg = maxConnectionAvg;
     }
 
     public int getId() {
@@ -43,8 +46,20 @@ public class DataSourceAlarmVO {
         return databaseName;
     }
 
+    public int getActiveConnectionAvg() {
+        return activeConnectionAvg;
+    }
+
+    public int getMaxConnectionAvg() {
+        return maxConnectionAvg;
+    }
+
     public long getConnectionUsedRate() {
-        return connectionUsedRate;
+        if (activeConnectionAvg == 0 || maxConnectionAvg == 0) {
+            return 0;
+        } else {
+            return (activeConnectionAvg * 100L) / maxConnectionAvg;
+        }
     }
 
     @Override
@@ -55,16 +70,17 @@ public class DataSourceAlarmVO {
         DataSourceAlarmVO that = (DataSourceAlarmVO) o;
 
         if (id != that.id) return false;
-        if (connectionUsedRate != that.connectionUsedRate) return false;
+        if (activeConnectionAvg != that.activeConnectionAvg) return false;
+        if (maxConnectionAvg != that.maxConnectionAvg) return false;
         return databaseName != null ? databaseName.equals(that.databaseName) : that.databaseName == null;
-
     }
 
     @Override
     public int hashCode() {
         int result = id;
         result = 31 * result + (databaseName != null ? databaseName.hashCode() : 0);
-        result = 31 * result + (int) (connectionUsedRate ^ (connectionUsedRate >>> 32));
+        result = 31 * result + activeConnectionAvg;
+        result = 31 * result + maxConnectionAvg;
         return result;
     }
 
@@ -73,9 +89,9 @@ public class DataSourceAlarmVO {
         final StringBuilder sb = new StringBuilder("DataSourceAlarmVO{");
         sb.append("id=").append(id);
         sb.append(", databaseName='").append(databaseName).append('\'');
-        sb.append(", connectionUsedRate=").append(connectionUsedRate);
+        sb.append(", activeConnectionAvg=").append(activeConnectionAvg);
+        sb.append(", maxConnectionAvg=").append(maxConnectionAvg);
         sb.append('}');
         return sb.toString();
     }
-
 }
