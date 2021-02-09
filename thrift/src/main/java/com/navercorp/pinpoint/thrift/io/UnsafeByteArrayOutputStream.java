@@ -28,8 +28,8 @@ import java.util.Arrays;
  */
 public class UnsafeByteArrayOutputStream extends ResettableByteArrayOutputStream {
 
-    private static final String UTF8 = "UTF8";
     private static final Charset UTF8_CHARSET = StandardCharsets.UTF_8;
+    private static final String UTF8 = UTF8_CHARSET.name();
 
 	private final boolean autoExpand;
 
