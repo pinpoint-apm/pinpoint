@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.collector.dao.hbase;
+package com.navercorp.pinpoint.common.server.hbase;
 
 import com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
