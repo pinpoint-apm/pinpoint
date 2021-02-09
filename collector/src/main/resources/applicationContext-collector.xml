@@ -87,8 +87,7 @@
     <bean id="collectorMetric" class="com.navercorp.pinpoint.collector.monitor.CollectorMetric">
     </bean>
 
-    <bean id="channelzRegistry" class="com.navercorp.pinpoint.collector.receiver.grpc.channelz.DefaultChannelzRegistry">
-    </bean>
+
 
     <!-- Manager-related Beans -->
     <bean id="jmxCollectorManager" class="com.navercorp.pinpoint.collector.manage.jmx.JMXCollectorManager">

@@ -24,11 +24,10 @@ public class WebStarter {
         builder.sources(sources);
         builder.web(WebApplicationType.SERVLET);
         builder.bannerMode(Banner.Mode.OFF);
+        builder.listeners(new ProfileApplicationListener());
 
 
         SpringApplication springApplication = builder.build();
-        springApplication.addListeners(new ProfileApplicationListener());
-
         springApplication.run(args);
 
     }

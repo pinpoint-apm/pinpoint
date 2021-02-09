@@ -33,6 +33,9 @@
         <constructor-arg ref="collectorGrpcProperties"/>
     </bean>
 
+    <bean id="channelzRegistry" class="com.navercorp.pinpoint.collector.receiver.grpc.channelz.DefaultChannelzRegistry">
+    </bean>
+
     <bean id="collectorGrpcSpanFactory" class="com.navercorp.pinpoint.common.server.bo.grpc.CollectorGrpcSpanFactory"/>
     <bean id="grpcSpanBinder" class="com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanBinder"/>
 

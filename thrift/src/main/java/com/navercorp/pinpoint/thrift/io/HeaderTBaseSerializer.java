@@ -30,6 +30,7 @@ import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.TIOStreamTransport;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Generic utility for easily serializing objects into a byte array or Java
@@ -38,7 +39,7 @@ import java.io.UnsupportedEncodingException;
  */
 public class HeaderTBaseSerializer implements TBaseSerializer {
 
-    private static final String UTF8 = "UTF8";
+    private static final String UTF8 = StandardCharsets.UTF_8.name();
 
     private final ResettableByteArrayOutputStream baos;
     private final TProtocol protocol;
