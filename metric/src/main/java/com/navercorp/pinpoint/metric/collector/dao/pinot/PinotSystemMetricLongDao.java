@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.metric.collector.dao.pinot;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDao;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
 import com.navercorp.pinpoint.metric.common.model.LongCounter;
@@ -34,6 +33,7 @@ import java.util.Objects;
 public class PinotSystemMetricLongDao implements SystemMetricDao<LongCounter> {
 
     private final KafkaTemplate<String, SystemMetricView> kafkaLongTemplate;
+
     private final String topic;
 
     public PinotSystemMetricLongDao(KafkaTemplate<String, SystemMetricView> kafkaLongTemplate,
@@ -41,6 +41,7 @@ public class PinotSystemMetricLongDao implements SystemMetricDao<LongCounter> {
         this.kafkaLongTemplate = Objects.requireNonNull(kafkaLongTemplate, "kafkaLongTemplate");
         this.topic = Objects.requireNonNull(topic, "topic");
     }
+
     @Override
     public void insert(String applicationName, List<LongCounter> systemMetrics) {
         Objects.requireNonNull(applicationName, "applicationName");
