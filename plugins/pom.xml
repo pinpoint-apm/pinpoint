@@ -105,6 +105,9 @@
         <module>thread</module>
         <module>process</module>
         <module>paho-mqtt</module>
+        <module>thread-x</module>
+
+
     </modules>
 
 

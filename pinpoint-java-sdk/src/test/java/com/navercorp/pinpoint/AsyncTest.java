@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint;
 
-import com.navercorp.pinpoint.sdk.concurrent.AsyncExecutors;
-import com.navercorp.pinpoint.sdk.concurrent.AsyncRun;
+import com.binpo.pinpoint.sdk.concurrent.AsyncExecutors;
+import com.binpo.pinpoint.sdk.concurrent.AsyncRun;
 
 import java.io.IOException;
 import java.util.concurrent.*;
