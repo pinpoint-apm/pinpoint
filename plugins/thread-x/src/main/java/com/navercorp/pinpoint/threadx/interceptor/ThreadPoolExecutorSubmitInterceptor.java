@@ -33,14 +33,11 @@ public class ThreadPoolExecutorSubmitInterceptor implements AroundInterceptor {
 
         final SpanEventRecorder recorder = trace.traceBlockBegin();
 
-        logger.info("zhangyinhao,loaddingThreadPoolPlugin...SpanEventRecorder={}",recorder);
 
         boolean r = validate(args);
-        logger.info("zhangyinhao,loaddingThreadPoolPlugin...validate={}",r);
         if (r) {
             // make asynchronous trace-id
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-            logger.info("zhangyinhao,loaddingThreadPoolPlugin...AsyncContext={}",asyncContext);
             ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
                 logger.debug("Set asyncContext {}", asyncContext);
