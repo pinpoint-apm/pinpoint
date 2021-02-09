@@ -38,7 +38,7 @@ public class DistributorConfiguration {
 
     @Bean("metadataRowKeyDistributor")
     public RowKeyDistributorByHashPrefix getMetadataRowKeyDistributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 33, 8);
+        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 32, 8);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
