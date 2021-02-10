@@ -28,11 +28,9 @@
         <property name="locations">
             <list>
                 <value>classpath:pinpoint-collector-root.properties</value>
-                <value>classpath:pinpoint-collector-grpc-root.properties</value>
                 <value>classpath:jdbc-root.properties</value>
                 <!-- override configuration -->
                 <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector.properties</value>
-                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector-grpc.properties</value>
                 <value>classpath:profiles/${pinpoint.profiles.active}/jdbc.properties</value>
                 <!-- external property for override -->
                 <value>
