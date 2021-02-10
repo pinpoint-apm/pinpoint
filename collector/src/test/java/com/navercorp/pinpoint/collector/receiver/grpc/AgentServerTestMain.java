@@ -77,7 +77,7 @@ public class AgentServerTestMain {
         }
     }
 
-    private static class MockDispatchHandler implements DispatchHandler<GeneratedMessageV3> {
+    private static class MockDispatchHandler implements DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> {
         private static final AtomicInteger counter = new AtomicInteger(0);
 
         @Override
@@ -90,9 +90,11 @@ public class AgentServerTestMain {
             System.out.println("Dispatch request message " + serverRequest + ", " + serverResponse);
             if (serverRequest.getData() instanceof PApiMetaData) {
                 PApiMetaData apiMetaData = (PApiMetaData) serverRequest.getData();
-                serverResponse.write(PResult.newBuilder().setMessage(String.valueOf(apiMetaData.getApiId())).build());
+                PResult result = PResult.newBuilder().setMessage(String.valueOf(apiMetaData.getApiId())).build();
+                serverResponse.write(result);
             } else {
-                serverResponse.write(PResult.newBuilder().setMessage("Success " + counter.getAndIncrement()).build());
+                PResult result = PResult.newBuilder().setMessage("Success " + counter.getAndIncrement()).build();
+                serverResponse.write(result);
             }
         }
     }

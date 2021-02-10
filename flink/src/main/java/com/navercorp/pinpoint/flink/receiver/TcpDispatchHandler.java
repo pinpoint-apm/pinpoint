@@ -27,33 +27,33 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-public class TcpDispatchHandler<T> implements DispatchHandler<T> {
+public class TcpDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> {
 
-    private SimpleHandler simpleHandler;
+    private SimpleHandler<REQ> simpleHandler;
 
-    private SimpleHandler getSimpleHandler(Header header) {
+    private SimpleHandler<REQ> getSimpleHandler(Header header) {
         if (header.getType() == FlinkTBaseLocator.AGENT_STAT_BATCH) {
             return simpleHandler;
         }
         throw new UnsupportedOperationException("unsupported header:" + header);
     }
 
-    private SimpleHandler getSimpleHandler(ServerRequest<T> serverRequest) {
+    private SimpleHandler<REQ> getSimpleHandler(ServerRequest<REQ> serverRequest) {
         final Header header = serverRequest.getHeader();
         return getSimpleHandler(header);
     }
 
-    public void setSimpletHandler(SimpleHandler simpleHandler) {
+    public void setSimpletHandler(SimpleHandler<REQ> simpleHandler) {
         this.simpleHandler = Objects.requireNonNull(simpleHandler, "agentStatHandler");
     }
 
     @Override
-    public void dispatchSendMessage(ServerRequest<T> serverRequest) {
-        SimpleHandler simpleHandler = getSimpleHandler(serverRequest);
+    public void dispatchSendMessage(ServerRequest<REQ> serverRequest) {
+        SimpleHandler<REQ> simpleHandler = getSimpleHandler(serverRequest);
         simpleHandler.handleSimple(serverRequest);
     }
 
     @Override
-    public void dispatchRequestMessage(ServerRequest<T> serverRequest, ServerResponse<T> serverResponse) {
+    public void dispatchRequestMessage(ServerRequest<REQ> serverRequest, ServerResponse<RES> serverResponse) {
     }
 }

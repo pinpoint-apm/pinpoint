@@ -29,37 +29,37 @@ import java.util.Objects;
  * @author emeroad
  * @author hyungil.jeong
  */
-public class StatDispatchHandler<T> implements DispatchHandler<T> {
+public class StatDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> {
 
-    private final SimpleHandler<T> agentStatHandler;
+    private final SimpleHandler<REQ> agentStatHandler;
 
-    private final SimpleHandler<T> agentEventHandler;
+    private final SimpleHandler<REQ> agentEventHandler;
 
 
-    public StatDispatchHandler(SimpleHandler<T> agentStatHandler, SimpleHandler<T> agentEventHandler) {
+    public StatDispatchHandler(SimpleHandler<REQ> agentStatHandler, SimpleHandler<REQ> agentEventHandler) {
         this.agentStatHandler = Objects.requireNonNull(agentStatHandler, "agentStatHandler");
         this.agentEventHandler = Objects.requireNonNull(agentEventHandler, "agentEventHandler");
     }
 
-    private SimpleHandler<T> getSimpleHandler(Header header) {
+    private SimpleHandler<REQ> getSimpleHandler(Header header) {
         // To change below code to switch table make it a little bit faster.
         // FIXME (2014.08) Legacy - TAgentStats should not be sent over the wire.
         final short type = header.getType();
         if (type == DefaultTBaseLocator.AGENT_STAT || type == DefaultTBaseLocator.AGENT_STAT_BATCH || type == DefaultTBaseLocator.AGENT_URI_STAT) {
-            return new SimpleDualHandler<T>(agentStatHandler, agentEventHandler);
+            return new SimpleDualHandler<REQ>(agentStatHandler, agentEventHandler);
         }
 
         throw new UnsupportedOperationException("unsupported header:" + header);
     }
 
     @Override
-    public void dispatchSendMessage(ServerRequest<T> serverRequest) {
-        SimpleHandler<T> simpleHandler = getSimpleHandler(serverRequest.getHeader());
+    public void dispatchSendMessage(ServerRequest<REQ> serverRequest) {
+        SimpleHandler<REQ> simpleHandler = getSimpleHandler(serverRequest.getHeader());
         simpleHandler.handleSimple(serverRequest);
     }
 
     @Override
-    public void dispatchRequestMessage(ServerRequest<T> serverRequest, ServerResponse<T> serverResponse) {
+    public void dispatchRequestMessage(ServerRequest<REQ> serverRequest, ServerResponse<RES> serverResponse) {
 
     }
 

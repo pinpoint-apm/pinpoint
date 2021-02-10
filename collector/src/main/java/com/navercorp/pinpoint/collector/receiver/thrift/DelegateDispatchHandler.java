@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
-import com.navercorp.pinpoint.thrift.dto.TResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,15 +29,15 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class DelegateDispatchHandler<T> implements DispatchHandler<T> {
+public class DelegateDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final AcceptedTimeService acceptedTimeService;
-    private final DispatchHandler<T> delegate;
+    private final DispatchHandler<REQ, RES> delegate;
 
     private final HandlerManager handlerManager;
 
-    public DelegateDispatchHandler(AcceptedTimeService acceptedTimeService, DispatchHandler<T> delegate, HandlerManager handlerManager) {
+    public DelegateDispatchHandler(AcceptedTimeService acceptedTimeService, DispatchHandler<REQ, RES> delegate, HandlerManager handlerManager) {
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.delegate = Objects.requireNonNull(delegate, "delegate");
         this.handlerManager = Objects.requireNonNull(handlerManager, "handlerManager");
@@ -46,7 +45,7 @@ public class DelegateDispatchHandler<T> implements DispatchHandler<T> {
 
 
     @Override
-    public void dispatchSendMessage(ServerRequest<T> serverRequest) {
+    public void dispatchSendMessage(ServerRequest<REQ> serverRequest) {
         acceptedTimeService.accept();
 
         if (!checkAvailable()) {
@@ -59,14 +58,12 @@ public class DelegateDispatchHandler<T> implements DispatchHandler<T> {
 
 
     @Override
-    public void dispatchRequestMessage(ServerRequest<T> serverRequest, ServerResponse<T> serverResponse) {
+    public void dispatchRequestMessage(ServerRequest<REQ> serverRequest, ServerResponse<RES> serverResponse) {
         acceptedTimeService.accept();
 
         if (!checkAvailable()) {
             logger.debug("Handler is disabled. Skipping request message {}.", serverRequest);
-            TResult result = new TResult(false);
-            result.setMessage("Handler is disabled. Skipping request message.");
-            serverResponse.write((T) result);
+            serverResponse.finish();
             return;
         }
 

@@ -61,7 +61,7 @@ public class DataReceiverGroupTest {
     public void receiverGroupTest1() throws Exception {
         DataReceiverGroupConfiguration mockConfig = createMockConfig(true, true);
 
-        TestDispatchHandler<TBase<?, ?>> dispatchHandler = new TestDispatchHandler<>(2, 1);
+        TestDispatchHandler dispatchHandler = new TestDispatchHandler(2, 1);
 
         UDPReceiverBean udpReceiverBean = createUdpReceiverBean(mockConfig, dispatchHandler);
         TCPReceiverBean tcpReceiverBean = createTcpReceiverBean(mockConfig, dispatchHandler);
@@ -110,7 +110,7 @@ public class DataReceiverGroupTest {
         return new PinpointServerAcceptorProvider();
     }
 
-    private <T> TCPReceiverBean createTcpReceiverBean(DataReceiverGroupConfiguration mockConfig, DispatchHandler<T> dispatchHandler) {
+    private <REQ, RES> TCPReceiverBean createTcpReceiverBean(DataReceiverGroupConfiguration mockConfig, DispatchHandler<REQ, RES> dispatchHandler) {
         TCPReceiverBean tcpReceiverBean = new TCPReceiverBean();
         tcpReceiverBean.setBeanName("tcpReceiver");
         tcpReceiverBean.setBindIp(mockConfig.getTcpBindIp());
@@ -122,7 +122,7 @@ public class DataReceiverGroupTest {
         return tcpReceiverBean;
     }
 
-    private <T> UDPReceiverBean createUdpReceiverBean(DataReceiverGroupConfiguration mockConfig, DispatchHandler<T> dispatchHandler) {
+    private <REQ, RES> UDPReceiverBean createUdpReceiverBean(DataReceiverGroupConfiguration mockConfig, DispatchHandler<REQ, RES> dispatchHandler) {
         UDPReceiverBean udpReceiverBean = new UDPReceiverBean();
         udpReceiverBean.setBeanName("udpReceiver");
         udpReceiverBean.setBindIp(mockConfig.getUdpBindIp());
@@ -139,7 +139,7 @@ public class DataReceiverGroupTest {
     public void receiverGroupTest2() throws Exception {
         DataReceiverGroupConfiguration mockConfig = createMockConfig(true, false);
 
-        TestDispatchHandler<TBase<?, ?>> testDispatchHandler = new TestDispatchHandler<>(1, 1);
+        TestDispatchHandler testDispatchHandler = new TestDispatchHandler(1, 1);
 
         TCPReceiverBean receiver = createTcpReceiverBean(mockConfig, testDispatchHandler);
         DataSender<TBase<?, ?>> udpDataSender = null;
@@ -263,7 +263,7 @@ public class DataReceiverGroupTest {
     }
 
 
-    private static class TestDispatchHandler<T> implements DispatchHandler<T> {
+    private static class TestDispatchHandler implements DispatchHandler<TBase<?, ?>, TBase<?, ?>> {
 
         private final CountDownLatch sendLatch;
         private final CountDownLatch requestLatch;
@@ -281,20 +281,18 @@ public class DataReceiverGroupTest {
             return requestLatch;
         }
 
-
         @Override
-        public void dispatchSendMessage(ServerRequest<T> serverRequest) {
+        public void dispatchSendMessage(ServerRequest<TBase<?, ?>> serverRequest) {
             LOGGER.debug("===================================== send {}", serverRequest);
             sendLatch.countDown();
         }
 
         @Override
-        public void dispatchRequestMessage(ServerRequest<T> serverRequest, ServerResponse<T> serverResponse) {
+        public void dispatchRequestMessage(ServerRequest<TBase<?, ?>> serverRequest, ServerResponse<TBase<?, ?>> serverResponse) {
             LOGGER.debug("===================================== request {}", serverRequest);
             requestLatch.countDown();
-            Object tResult = new TResult();
-
-            serverResponse.write((T)tResult);
+            TBase<?, ?> tResult = new TResult();
+            serverResponse.write(tResult);
         }
 
     }

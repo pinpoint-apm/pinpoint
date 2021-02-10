@@ -38,4 +38,9 @@ public class GrpcServerResponse<T> implements ServerResponse<T> {
         responseObserver.onNext(message);
         responseObserver.onCompleted();
     }
+
+    @Override
+    public void finish() {
+        responseObserver.onCompleted();
+    }
 }

@@ -53,10 +53,10 @@ public class StatService extends StatGrpc.StatImplBase {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final DispatchHandler dispatchHandler;
+    private final DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler;
     private final ServerRequestFactory serverRequestFactory;
 
-    public StatService(DispatchHandler dispatchHandler, ServerRequestFactory serverRequestFactory) {
+    public StatService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler, ServerRequestFactory serverRequestFactory) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
     }
@@ -117,7 +117,7 @@ public class StatService extends StatGrpc.StatImplBase {
 
     private void send(final Message<? extends GeneratedMessageV3> message, StreamObserver<Empty> responseObserver) {
         try {
-            ServerRequest<?> request = serverRequestFactory.newServerRequest(message);
+            ServerRequest<GeneratedMessageV3> request = (ServerRequest<GeneratedMessageV3>) serverRequestFactory.newServerRequest(message);
             this.dispatchHandler.dispatchSendMessage(request);
         } catch (Exception e) {
             logger.warn("Failed to request. message={}", message, e);

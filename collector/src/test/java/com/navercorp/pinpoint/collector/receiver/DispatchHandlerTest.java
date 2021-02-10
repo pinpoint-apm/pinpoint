@@ -79,7 +79,7 @@ public class DispatchHandlerTest {
         Assert.assertTrue(TEST_REQUEST_HANDLER.getExecutedCount() > 0);
     }
 
-    private static class TestDispatchHandler implements DispatchHandler<TBase<?, ?>> {
+    private static class TestDispatchHandler implements DispatchHandler<TBase<?, ?>, TBase<?, ?>> {
 
         @Override
         public void dispatchSendMessage(ServerRequest<TBase<?, ?>> serverRequest) {
@@ -87,19 +87,25 @@ public class DispatchHandlerTest {
             simpleHandler.handleSimple(serverRequest);
         }
 
+
         @Override
-        public void dispatchRequestMessage(ServerRequest<TBase<?, ?>> serverRequest, ServerResponse<TBase<?, ?>> serverResponse) {
-            RequestResponseHandler<TBase<?, ?>> requestResponseHandler = getRequestResponseHandler(serverRequest);
+        public void dispatchRequestMessage(ServerRequest<TBase<?, ?>> serverRequest,
+                                           ServerResponse<TBase<?, ?>> serverResponse) {
+            RequestResponseHandler<TBase<?, ?>, TBase<?, ?>> requestResponseHandler = getRequestResponseHandler(serverRequest);
             requestResponseHandler.handleRequest(serverRequest, serverResponse);
         }
 
-        private RequestResponseHandler<TBase<?, ?>> getRequestResponseHandler(ServerRequest<TBase<?, ?>> serverRequest) {
+        private RequestResponseHandler<TBase<?, ?>, TBase<?, ?>> getRequestResponseHandler(ServerRequest<? extends TBase<?, ?>> serverRequest) {
             return TEST_REQUEST_HANDLER;
         }
 
-        private SimpleHandler<TBase<?, ?>> getSimpleHandler(ServerRequest<TBase<?, ?>> serverRequest) {
+        private SimpleHandler<TBase<?, ?>> getSimpleHandler(ServerRequest<? extends TBase<?, ?>> serverRequest) {
             final TBase<?, ?> data = serverRequest.getData();
-            return getSimpleHandler(data);
+            if (data instanceof TBase<?, ?>) {
+                return getSimpleHandler(data);
+            }
+
+            throw new UnsupportedOperationException("data is not support type : " + data);
         }
 
         private SimpleHandler<TBase<?, ?>> getSimpleHandler(TBase<?, ?> tBase) {
@@ -129,21 +135,22 @@ public class DispatchHandlerTest {
 
     }
 
-    private static class TestRequestHandler implements RequestResponseHandler<TBase<?, ?>> {
+    private static class TestRequestHandler implements RequestResponseHandler<TBase<?, ?>, TBase<?, ?>> {
 
         private int executedCount = 0;
 
         @Override
         public void handleRequest(ServerRequest<TBase<?, ?>> serverRequest, ServerResponse<TBase<?, ?>> serverResponse) {
             executedCount++;
-            TResult tResult = new TResult();
-            serverResponse.write(tResult);
+
+            serverResponse.write(new TResult());
         }
 
 
         public int getExecutedCount() {
             return executedCount;
         }
+
 
     }
 
