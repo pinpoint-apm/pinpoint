@@ -108,17 +108,31 @@
         <beans:ref bean="hbaseMapStatisticsCalleeDao"/>
         <beans:ref bean="hbaseMapResponseTimeDao"/>
     </util:list>
-    <bean id="statisticsScheduler" class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
+
+    <bean id="statisticsLinkScheduler" class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
         <property name="poolSize" value="#{cachedStatisticsDaoList.size()}"/>
-        <property name="threadNamePrefix" value="Pinpoint-AutoFlusher-"/>
+        <property name="threadNamePrefix" value="Pinpoint-AutoFlusher-LINK-"/>
         <property name="daemon" value="true"/>
         <property name="waitForTasksToCompleteOnShutdown" value="true"/>
         <property name="awaitTerminationSeconds" value="10"/>
     </bean>
-    <task:scheduled-tasks scheduler="statisticsScheduler">
-        <task:scheduled ref="hbaseMapStatisticsCallerDao" method="flushAll" fixed-rate="1000"/>
-        <task:scheduled ref="hbaseMapStatisticsCalleeDao" method="flushAll" fixed-rate="1000"/>
-        <task:scheduled ref="hbaseMapResponseTimeDao" method="flushAll" fixed-rate="1000"/>
+    <task:scheduled-tasks scheduler="statisticsLinkScheduler">
+        <task:scheduled ref="hbaseMapStatisticsCallerDao" method="flushLink" fixed-rate="1000"/>
+        <task:scheduled ref="hbaseMapStatisticsCalleeDao" method="flushLink" fixed-rate="1000"/>
+        <task:scheduled ref="hbaseMapResponseTimeDao" method="flushLink" fixed-rate="1000"/>
+    </task:scheduled-tasks>
+
+    <bean id="statisticsAvgMaxScheduler" class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
+        <property name="poolSize" value="#{cachedStatisticsDaoList.size()}"/>
+        <property name="threadNamePrefix" value="Pinpoint-AutoFlusher-AVG/MAX-"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
+    </bean>
+    <task:scheduled-tasks scheduler="statisticsAvgMaxScheduler">
+        <task:scheduled ref="hbaseMapStatisticsCallerDao" method="flushAvgMax" fixed-rate="1000"/>
+        <task:scheduled ref="hbaseMapStatisticsCalleeDao" method="flushAvgMax" fixed-rate="1000"/>
+        <task:scheduled ref="hbaseMapResponseTimeDao" method="flushAvgMax" fixed-rate="1000"/>
     </task:scheduled-tasks>
 
 </beans>

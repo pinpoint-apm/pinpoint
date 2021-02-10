@@ -16,100 +16,58 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
-import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 
-@Configuration
+@Component
 public class BulkConfiguration {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final BulkIncrementerFactory bulkIncrementerFactory;
 
     private final int callerLimitSize;
 
     private final int calleeLimitSize;
 
     private final int selfLimitSize;
-    private final BulkOperationReporterFactory bulkOperationReporterFactory;
 
-    public BulkConfiguration(BulkIncrementerFactory bulkIncrementerFactory,
-                             @Value("${collector.cachedStatDao.caller.limit:-1}") int callerLimitSize,
+    private final boolean enableBulk;
+    private final boolean enableAvgMax;
+
+    public BulkConfiguration(@Value("${collector.cachedStatDao.caller.limit:-1}") int callerLimitSize,
                              @Value("${collector.cachedStatDao.callee.limit:-1}") int calleeLimitSize,
                              @Value("${collector.cachedStatDao.self.limit:-1}") int selfLimitSize,
-                             BulkOperationReporterFactory bulkOperationReporterFactory) {
-
-        this.bulkIncrementerFactory = bulkIncrementerFactory;
+                             @Value("${collector.cachedStatDao.bulk.enable:true}") boolean enableBulk,
+                             @Value("${collector.cachedStatDao.avg-max.enable:true}") boolean enableAvgMax) {
         this.callerLimitSize = callerLimitSize;
         this.calleeLimitSize = calleeLimitSize;
         this.selfLimitSize = selfLimitSize;
-        this.bulkOperationReporterFactory = bulkOperationReporterFactory;
+        this.enableBulk = enableBulk;
+        this.enableAvgMax = enableAvgMax;
     }
 
-    @Bean("callerBulkIncrementer")
-    public BulkIncrementer getCallerBulkIncrementer() {
-        String reporterName = "callerBulkIncrementerReporter";
-        HbaseColumnFamily hbaseColumnFamily = HbaseColumnFamily.MAP_STATISTICS_CALLER_VER2_COUNTER;
-        int limitSize = callerLimitSize;
-
-        return newBulkIncrementer(reporterName, hbaseColumnFamily, limitSize);
+    public int getCallerLimitSize() {
+        return callerLimitSize;
     }
 
-    @Bean("calleeBulkIncrementer")
-    public BulkIncrementer getCalleeBulkIncrementer() {
-        String reporterName = "calleeBulkIncrementerReporter";
-        HbaseColumnFamily hbaseColumnFamily = HbaseColumnFamily.MAP_STATISTICS_CALLEE_VER2_COUNTER;
-        int limitSize = calleeLimitSize;
-
-        return newBulkIncrementer(reporterName, hbaseColumnFamily, limitSize);
+    public int getCalleeLimitSize() {
+        return calleeLimitSize;
     }
 
-    @Bean("selfBulkIncrementer")
-    public BulkIncrementer getSelfBulkIncrementer() {
-        String reporterName = "selfBulkIncrementerReporter";
-        HbaseColumnFamily hbaseColumnFamily = HbaseColumnFamily.MAP_STATISTICS_SELF_VER2_COUNTER;
-        int limitSize = selfLimitSize;
-
-        return newBulkIncrementer(reporterName, hbaseColumnFamily, limitSize);
+    public int getSelfLimitSize() {
+        return selfLimitSize;
     }
 
-    private BulkIncrementer newBulkIncrementer(String reporterName, HbaseColumnFamily hbaseColumnFamily, int limitSize) {
-        BulkOperationReporter reporter = bulkOperationReporterFactory.getBulkOperationReporter(reporterName);
-        RowKeyMerge merge = new RowKeyMerge(hbaseColumnFamily);
-        BulkIncrementer bulkIncrementer = new DefaultBulkIncrementer(merge);
-
-        return bulkIncrementerFactory.wrap(bulkIncrementer, limitSize, reporter);
+    public boolean enableBulk() {
+        return enableBulk;
     }
 
-    @Bean("callerBulkUpdater")
-    public BulkUpdater getCallerBulkUpdater() {
-        String reporterName = "callerBulkUpdaterReporter";
-        return getBulkUpdater(reporterName);
-    }
-
-    private BulkUpdater getBulkUpdater(String reporterName) {
-        BulkOperationReporter reporter = bulkOperationReporterFactory.getBulkOperationReporter(reporterName);
-        BulkUpdater bulkUpdater = new DefaultBulkUpdater();
-        return bulkIncrementerFactory.wrap(bulkUpdater, calleeLimitSize, reporter);
-    }
-
-    @Bean("calleeBulkUpdater")
-    public BulkUpdater getCalleeBulkUpdater() {
-        String reporterName = "calleeBulkUpdaterReporter";
-        return getBulkUpdater(reporterName);
-    }
-
-    @Bean("selfBulkUpdater")
-    public BulkUpdater getSelfBulkUpdater() {
-        String reporterName = "selfBulkUpdaterReporter";
-        return getBulkUpdater(reporterName);
+    public boolean enableAvgMax() {
+        return enableAvgMax;
     }
 
     @PostConstruct
@@ -123,7 +81,8 @@ public class BulkConfiguration {
                 "callerLimitSize=" + callerLimitSize +
                 ", calleeLimitSize=" + calleeLimitSize +
                 ", selfLimitSize=" + selfLimitSize +
+                ", enableBulk=" + enableBulk +
+                ", enableAvgMax=" + enableAvgMax +
                 '}';
     }
-
 }
