@@ -1,8 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:beans="http://www.springframework.org/schema/beans"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <context:component-scan base-package="com.navercorp.pinpoint.collector.dao.hbase"/>
+
+    <bean id="collectorHbasePropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:hbase-root.properties</value>
+                <!-- override configuration -->
+                <value>classpath:profiles/${pinpoint.profiles.active}/hbase.properties</value>
+            </list>
+        </property>
+
+        <property name="fileEncoding" value="UTF-8"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="ignoreResourceNotFound" value="true"/>
+    </bean>
+
 
     <bean id="hbaseConfiguration" class="com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean">
         <property name="properties">
@@ -86,5 +110,29 @@
     </bean>
 
     <bean id="distributorConfiguration" class="com.navercorp.pinpoint.common.server.hbase.DistributorConfiguration"/>
+
+    <bean id="cachedStatisticsDaoMetrics" class="com.navercorp.pinpoint.collector.monitor.BulkOperationMetrics">
+    </bean>
+
+    <bean id="hBaseManager" class="com.navercorp.pinpoint.collector.manage.HBaseManager">
+    </bean>
+
+    <util:list id="cachedStatisticsDaoList" value-type="com.navercorp.pinpoint.collector.dao.CachedStatisticsDao">
+        <beans:ref bean="hbaseMapStatisticsCallerDao"/>
+        <beans:ref bean="hbaseMapStatisticsCalleeDao"/>
+        <beans:ref bean="hbaseMapResponseTimeDao"/>
+    </util:list>
+    <bean id="statisticsScheduler" class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
+        <property name="poolSize" value="#{cachedStatisticsDaoList.size()}"/>
+        <property name="threadNamePrefix" value="Pinpoint-AutoFlusher-"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
+    </bean>
+    <task:scheduled-tasks scheduler="statisticsScheduler">
+        <task:scheduled ref="hbaseMapStatisticsCallerDao" method="flushAll" fixed-rate="1000"/>
+        <task:scheduled ref="hbaseMapStatisticsCalleeDao" method="flushAll" fixed-rate="1000"/>
+        <task:scheduled ref="hbaseMapResponseTimeDao" method="flushAll" fixed-rate="1000"/>
+    </task:scheduled-tasks>
 
 </beans>
