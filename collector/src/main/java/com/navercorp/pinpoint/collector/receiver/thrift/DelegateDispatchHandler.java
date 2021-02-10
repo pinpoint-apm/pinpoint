@@ -30,15 +30,15 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class DelegateDispatchHandler implements DispatchHandler {
+public class DelegateDispatchHandler<T> implements DispatchHandler<T> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final AcceptedTimeService acceptedTimeService;
-    private final DispatchHandler delegate;
+    private final DispatchHandler<T> delegate;
 
     private final HandlerManager handlerManager;
 
-    public DelegateDispatchHandler(AcceptedTimeService acceptedTimeService, DispatchHandler delegate, HandlerManager handlerManager) {
+    public DelegateDispatchHandler(AcceptedTimeService acceptedTimeService, DispatchHandler<T> delegate, HandlerManager handlerManager) {
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.delegate = Objects.requireNonNull(delegate, "delegate");
         this.handlerManager = Objects.requireNonNull(handlerManager, "handlerManager");
@@ -46,7 +46,7 @@ public class DelegateDispatchHandler implements DispatchHandler {
 
 
     @Override
-    public void dispatchSendMessage(ServerRequest serverRequest) {
+    public void dispatchSendMessage(ServerRequest<T> serverRequest) {
         acceptedTimeService.accept();
 
         if (!checkAvailable()) {
@@ -59,14 +59,14 @@ public class DelegateDispatchHandler implements DispatchHandler {
 
 
     @Override
-    public void dispatchRequestMessage(ServerRequest serverRequest, ServerResponse serverResponse) {
+    public void dispatchRequestMessage(ServerRequest<T> serverRequest, ServerResponse<T> serverResponse) {
         acceptedTimeService.accept();
 
         if (!checkAvailable()) {
             logger.debug("Handler is disabled. Skipping request message {}.", serverRequest);
             TResult result = new TResult(false);
             result.setMessage("Handler is disabled. Skipping request message.");
-            serverResponse.write(result);
+            serverResponse.write((T) result);
             return;
         }
 

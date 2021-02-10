@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver.thrift;
+package com.navercorp.pinpoint.collector.receiver;
 
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.thrift.DelegateDispatchHandler;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 
 import com.navercorp.pinpoint.collector.manage.HandlerManager;

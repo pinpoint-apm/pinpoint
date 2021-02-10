@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.handler.grpc;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.SimpleAndRequestResponseHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.GrpcAgentInfoBoMapper;
 import com.navercorp.pinpoint.collector.service.AgentInfoService;
@@ -39,7 +40,7 @@ import java.util.Objects;
  * @author koo.taejin
  */
 @Service
-public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler {
+public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler<GeneratedMessageV3> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -53,8 +54,8 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler {
     }
 
     @Override
-    public void handleSimple(ServerRequest serverRequest) {
-        final Object data = serverRequest.getData();
+    public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
+        final GeneratedMessageV3 data = serverRequest.getData();
         if (data instanceof PAgentInfo) {
             handleAgentInfo((PAgentInfo) data);
         } else {
@@ -64,7 +65,7 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler {
     }
 
     @Override
-    public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {
+    public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
         final Object data = serverRequest.getData();
         if (data instanceof PAgentInfo) {
             final PResult result = handleAgentInfo((PAgentInfo) data);

@@ -31,17 +31,13 @@ import java.util.Map;
 /**
  * @author minwoo.jung
  */
-public class AgentStatHandler extends SourceContextManager implements SimpleHandler {
+public class AgentStatHandler extends SourceContextManager implements SimpleHandler<TBase<?, ?>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void handleSimple(ServerRequest serverRequest) {
-        if (!(serverRequest.getData() instanceof TBase<?, ?>)) {
-            throw new UnsupportedOperationException("data is not support type : " + serverRequest.getData());
-        }
-
-        final TBase<?, ?> tBase = (TBase<?, ?>) serverRequest.getData();
+    public void handleSimple(ServerRequest<TBase<?, ?>> serverRequest) {
+        final TBase<?, ?> tBase = serverRequest.getData();
         final Map<String, String> metaInfo = new HashMap<>(serverRequest.getHeaderEntity().getEntityAll());
         final RawData rawData = new RawData(tBase, metaInfo);
         final SourceContext sourceContext = roundRobinSourceContext();

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StatService;
@@ -72,16 +73,16 @@ public class StatServerTestMain {
         main.run();
     }
 
-    private static class MockDispatchHandler implements DispatchHandler {
+    private static class MockDispatchHandler implements DispatchHandler<GeneratedMessageV3> {
         private static final AtomicInteger counter = new AtomicInteger(0);
 
         @Override
-        public void dispatchSendMessage(ServerRequest serverRequest) {
+        public void dispatchSendMessage(ServerRequest<GeneratedMessageV3> serverRequest) {
             System.out.println("Dispatch send message " + serverRequest);
         }
 
         @Override
-        public void dispatchRequestMessage(ServerRequest serverRequest, ServerResponse serverResponse) {
+        public void dispatchRequestMessage(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
             System.out.println("Dispatch request message " + serverRequest + ", " + serverResponse);
             serverResponse.write(PResult.newBuilder().setMessage("Success" + counter.getAndIncrement()).build());
         }

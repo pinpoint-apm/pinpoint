@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
  * @author koo.taejin
  */
 @Service
-public interface RequestResponseHandler {
+public interface RequestResponseHandler<T> {
 
-    void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse);
+    void handleRequest(ServerRequest<T> serverRequest, ServerResponse<T> serverResponse);
 }

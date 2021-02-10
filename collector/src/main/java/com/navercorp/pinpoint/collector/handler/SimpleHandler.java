@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.io.request.ServerRequest;
  * @author emeroad
  * @author koo.taejin
  */
-public interface SimpleHandler {
+public interface SimpleHandler<T> {
 
-    void handleSimple(ServerRequest serverRequest);
+    void handleSimple(ServerRequest<T> serverRequest);
     
 }
