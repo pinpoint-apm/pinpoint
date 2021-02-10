@@ -37,4 +37,9 @@ public class GrpcServerStreamResponse<T>  implements ServerResponse<T> {
 
         responseObserver.onNext(message);
     }
+
+    @Override
+    public void finish() {
+        //
+    }
 }

@@ -27,19 +27,19 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public class SpanDispatchHandler<T> implements DispatchHandler<T> {
+public class SpanDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> {
 
-    private final SimpleHandler<T> spanDataHandler;
+    private final SimpleHandler<REQ> spanDataHandler;
 
-    private final SimpleHandler<T> spanChunkHandler;
+    private final SimpleHandler<REQ> spanChunkHandler;
     
 
-    public SpanDispatchHandler(SimpleHandler<T> spanDataHandler, SimpleHandler<T> spanChunkHandler) {
+    public SpanDispatchHandler(SimpleHandler<REQ> spanDataHandler, SimpleHandler<REQ> spanChunkHandler) {
         this.spanDataHandler = Objects.requireNonNull(spanDataHandler, "spanDataHandler");
         this.spanChunkHandler = Objects.requireNonNull(spanChunkHandler, "spanChunkHandler");
     }
 
-    private SimpleHandler<T> getSimpleHandler(Header header) {
+    private SimpleHandler<REQ> getSimpleHandler(Header header) {
         final short type = header.getType();
         switch (type) {
             case DefaultTBaseLocator.SPAN:
@@ -51,14 +51,14 @@ public class SpanDispatchHandler<T> implements DispatchHandler<T> {
     }
 
     @Override
-    public void dispatchSendMessage(ServerRequest<T> serverRequest) {
-        SimpleHandler<T> simpleHandler = getSimpleHandler(serverRequest.getHeader());
+    public void dispatchSendMessage(ServerRequest<REQ> serverRequest) {
+        SimpleHandler<REQ> simpleHandler = getSimpleHandler(serverRequest.getHeader());
         simpleHandler.handleSimple(serverRequest);
     }
 
 
     @Override
-    public void dispatchRequestMessage(ServerRequest<T> serverRequest, ServerResponse<T> serverResponse) {
+    public void dispatchRequestMessage(ServerRequest<REQ> serverRequest, ServerResponse<RES> serverResponse) {
 
     }
 }

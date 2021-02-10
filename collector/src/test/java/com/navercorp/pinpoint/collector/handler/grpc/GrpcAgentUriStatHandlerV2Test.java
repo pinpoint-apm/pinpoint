@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.handler.grpc;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatBatchMapper;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatMapper;
@@ -70,7 +71,7 @@ public class GrpcAgentUriStatHandlerV2Test {
     public void throwExceptionTest() {
         AgentUriStatService mockAgentUriStatService = Mockito.mock(AgentUriStatService.class);
 
-        ServerRequest mockServerRequest = Mockito.mock(ServerRequest.class);
+        ServerRequest<GeneratedMessageV3> mockServerRequest = Mockito.mock(ServerRequest.class);
 
         GrpcAgentStatHandlerV2 handler = createMockHandler(mockAgentUriStatService, false);
 
@@ -81,7 +82,7 @@ public class GrpcAgentUriStatHandlerV2Test {
     public void skipTest() {
         AgentUriStatService mockAgentUriStatService = Mockito.mock(AgentUriStatService.class);
 
-        ServerRequest mockServerRequest = Mockito.mock(ServerRequest.class);
+        ServerRequest<GeneratedMessageV3> mockServerRequest = Mockito.mock(ServerRequest.class);
         Mockito.when(mockServerRequest.getData()).thenReturn(PAgentUriStat.getDefaultInstance());
 
         GrpcAgentStatHandlerV2 handler = createMockHandler(mockAgentUriStatService, false);
@@ -98,7 +99,7 @@ public class GrpcAgentUriStatHandlerV2Test {
 
         PAgentUriStat pAgentUriStat = createPAgentUriStat();
 
-        ServerRequest mockServerRequest = Mockito.mock(ServerRequest.class);
+        ServerRequest<GeneratedMessageV3> mockServerRequest = Mockito.mock(ServerRequest.class);
         Mockito.when(mockServerRequest.getData()).thenReturn(pAgentUriStat);
 
         GrpcAgentStatHandlerV2 handler = createMockHandler(mockAgentUriStatService, true);

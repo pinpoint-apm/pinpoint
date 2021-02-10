@@ -115,7 +115,7 @@ public class SpanServerTestMain {
         main.run();
     }
 
-    private static class MockDispatchHandler implements DispatchHandler<GeneratedMessageV3> {
+    private static class MockDispatchHandler implements DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> {
         private static final AtomicInteger counter = new AtomicInteger(0);
 
         @Override
@@ -123,7 +123,7 @@ public class SpanServerTestMain {
 //            System.out.println("## Incoming " + IncomingCounter.addAndGet(1));
             try {
                 TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignore) {
             }
 
             final GeneratedMessageV3 data = serverRequest.getData();

@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.io.request;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderEntity;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -29,14 +31,8 @@ public class DefaultServerRequest<T> extends DefaultAttributeMap implements Serv
     private final int remotePort;
 
     public DefaultServerRequest(Message<T> message, String remoteAddress, int remotePort) {
-        if (message == null) {
-            throw new NullPointerException("message");
-        }
-        if (remoteAddress == null) {
-            throw new NullPointerException("remoteAddress");
-        }
-        this.message = message;
-        this.remoteAddress = remoteAddress;
+        this.message = Objects.requireNonNull(message, "message");
+        this.remoteAddress = Objects.requireNonNull(remoteAddress, "remoteAddress");
         this.remotePort = remotePort;
     }
 

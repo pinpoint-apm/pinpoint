@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.StatusError;
@@ -51,12 +52,13 @@ public class AgentService extends AgentGrpc.AgentImplBase {
     private static final AtomicLong idAllocator = new AtomicLong();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final SimpleRequestHandlerAdaptor<PResult> simpleRequestHandlerAdaptor;
+    private final SimpleRequestHandlerAdaptor<GeneratedMessageV3, GeneratedMessageV3> simpleRequestHandlerAdaptor;
     private final PingEventHandler pingEventHandler;
     private final Executor executor;
 
-    public AgentService(DispatchHandler dispatchHandler, PingEventHandler pingEventHandler, Executor executor, ServerRequestFactory serverRequestFactory) {
-        this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<PResult>(this.getClass().getName(), dispatchHandler, serverRequestFactory);
+    public AgentService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
+                        PingEventHandler pingEventHandler, Executor executor, ServerRequestFactory serverRequestFactory) {
+        this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<>(this.getClass().getName(), dispatchHandler, serverRequestFactory);
         this.pingEventHandler = Objects.requireNonNull(pingEventHandler, "pingEventHandler");
         Objects.requireNonNull(executor, "executor");
         this.executor = Context.currentContextExecutor(executor);
@@ -83,6 +85,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             logger.warn("Failed to request. Rejected execution, executor={}", executor);
         }
     }
+
 
     @Override
     public StreamObserver<PPing> pingSession(final StreamObserver<PPing> responseObserver) {

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.handler.grpc;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.ApiMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
@@ -38,7 +39,7 @@ import java.util.Objects;
  * @author emeroad
  */
 @Service
-public class GrpcApiMetaDataHandler implements RequestResponseHandler {
+public class GrpcApiMetaDataHandler implements RequestResponseHandler<GeneratedMessageV3, GeneratedMessageV3> {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -50,10 +51,10 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler {
     }
 
     @Override
-    public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {
-        final Object data = serverRequest.getData();
+    public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
+        final GeneratedMessageV3 data = serverRequest.getData();
         if (data instanceof PApiMetaData) {
-            Object result = handleApiMetaData((PApiMetaData) data);
+            GeneratedMessageV3 result = handleApiMetaData((PApiMetaData) data);
             serverResponse.write(result);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);
@@ -61,7 +62,7 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler {
         }
     }
 
-    private Object handleApiMetaData(final PApiMetaData apiMetaData) {
+    private GeneratedMessageV3 handleApiMetaData(final PApiMetaData apiMetaData) {
         if (isDebug) {
             logger.debug("Handle PApiMetaData={}", MessageFormatUtils.debugLog(apiMetaData));
         }

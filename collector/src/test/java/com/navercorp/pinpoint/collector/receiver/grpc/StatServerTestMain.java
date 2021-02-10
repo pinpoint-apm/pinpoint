@@ -73,7 +73,7 @@ public class StatServerTestMain {
         main.run();
     }
 
-    private static class MockDispatchHandler implements DispatchHandler<GeneratedMessageV3> {
+    private static class MockDispatchHandler implements DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> {
         private static final AtomicInteger counter = new AtomicInteger(0);
 
         @Override
@@ -84,7 +84,8 @@ public class StatServerTestMain {
         @Override
         public void dispatchRequestMessage(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
             System.out.println("Dispatch request message " + serverRequest + ", " + serverResponse);
-            serverResponse.write(PResult.newBuilder().setMessage("Success" + counter.getAndIncrement()).build());
+            PResult pResult = PResult.newBuilder().setMessage("Success" + counter.getAndIncrement()).build();
+            serverResponse.write(pResult);
         }
     }
 

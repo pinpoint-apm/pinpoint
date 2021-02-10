@@ -29,10 +29,10 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-public class DispatchHandlerFactoryBean implements FactoryBean<DispatchHandler> {
+public class DispatchHandlerFactoryBean<REQ, RES> implements FactoryBean<DispatchHandler<REQ, RES>> {
 
     private AcceptedTimeService acceptedTimeService;
-    private DispatchHandler dispatchHandler;
+    private DispatchHandler<REQ, RES> dispatchHandler;
 
     private HandlerManager handlerManager;
 
@@ -45,7 +45,7 @@ public class DispatchHandlerFactoryBean implements FactoryBean<DispatchHandler> 
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
     }
 
-    public void setDispatchHandler(DispatchHandler dispatchHandler) {
+    public void setDispatchHandler(DispatchHandler<REQ, RES> dispatchHandler) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
     }
 
@@ -54,8 +54,8 @@ public class DispatchHandlerFactoryBean implements FactoryBean<DispatchHandler> 
     }
 
     @Override
-    public DispatchHandler getObject() throws Exception {
-        return new DelegateDispatchHandler(acceptedTimeService, dispatchHandler, handlerManager);
+    public DispatchHandler<REQ, RES> getObject() throws Exception {
+        return new DelegateDispatchHandler<>(acceptedTimeService, dispatchHandler, handlerManager);
     }
 
     @Override

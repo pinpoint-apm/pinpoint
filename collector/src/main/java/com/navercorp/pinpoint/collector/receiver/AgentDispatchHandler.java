@@ -30,27 +30,27 @@ import java.util.Objects;
  * @author emeroad
  * @author koo.taejin
  */
-public class AgentDispatchHandler<T> implements DispatchHandler<T> {
+public class AgentDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> {
 
-    private final SimpleAndRequestResponseHandler<T> agentInfoHandler;
+    private final SimpleAndRequestResponseHandler<REQ, RES> agentInfoHandler;
 
-    private final RequestResponseHandler<T> sqlMetaDataHandler;
+    private final RequestResponseHandler<REQ, RES> sqlMetaDataHandler;
 
-    private final RequestResponseHandler<T> apiMetaDataHandler;
+    private final RequestResponseHandler<REQ, RES> apiMetaDataHandler;
 
-    private final RequestResponseHandler<T> stringMetaDataHandler;
+    private final RequestResponseHandler<REQ, RES> stringMetaDataHandler;
 
-    public AgentDispatchHandler(final SimpleAndRequestResponseHandler<T> agentInfoHandler,
-                                final RequestResponseHandler<T> sqlMetaDataHandler,
-                                final RequestResponseHandler<T> apiMetaDataHandler,
-                                final RequestResponseHandler<T> stringMetaDataHandler) {
+    public AgentDispatchHandler(final SimpleAndRequestResponseHandler<REQ, RES> agentInfoHandler,
+                                final RequestResponseHandler<REQ, RES> sqlMetaDataHandler,
+                                final RequestResponseHandler<REQ, RES> apiMetaDataHandler,
+                                final RequestResponseHandler<REQ, RES> stringMetaDataHandler) {
         this.agentInfoHandler = Objects.requireNonNull(agentInfoHandler, "agentInfoHandler");
         this.sqlMetaDataHandler = Objects.requireNonNull(sqlMetaDataHandler, "sqlMetaDataHandler");
         this.apiMetaDataHandler = Objects.requireNonNull(apiMetaDataHandler, "apiMetaDataHandler");
         this.stringMetaDataHandler = Objects.requireNonNull(stringMetaDataHandler, "stringMetaDataHandler");
     }
 
-    protected RequestResponseHandler<T> getRequestResponseHandler(ServerRequest<T> serverRequest) {
+    protected RequestResponseHandler<REQ, RES> getRequestResponseHandler(ServerRequest<? extends REQ> serverRequest) {
         final Header header = serverRequest.getHeader();
         final short type = header.getType();
         switch (type) {
@@ -66,7 +66,7 @@ public class AgentDispatchHandler<T> implements DispatchHandler<T> {
         throw new UnsupportedOperationException("unsupported header:" + header);
     }
 
-    private SimpleHandler<T> getSimpleHandler(Header header) {
+    private SimpleHandler<REQ> getSimpleHandler(Header header) {
         final short type = header.getType();
         if (type == DefaultTBaseLocator.AGENT_INFO) {
             return agentInfoHandler;
@@ -76,15 +76,15 @@ public class AgentDispatchHandler<T> implements DispatchHandler<T> {
     }
 
     @Override
-    public void dispatchSendMessage(ServerRequest<T> serverRequest) {
+    public void dispatchSendMessage(ServerRequest<REQ> serverRequest) {
         final Header header = serverRequest.getHeader();
-        SimpleHandler<T> simpleHandler = getSimpleHandler(header);
+        SimpleHandler<REQ> simpleHandler = getSimpleHandler(header);
         simpleHandler.handleSimple(serverRequest);
     }
 
     @Override
-    public void dispatchRequestMessage(ServerRequest<T> serverRequest, ServerResponse<T> serverResponse) {
-        RequestResponseHandler<T> requestResponseHandler = getRequestResponseHandler(serverRequest);
+    public void dispatchRequestMessage(ServerRequest<REQ> serverRequest, ServerResponse<RES> serverResponse) {
+        RequestResponseHandler<REQ, RES> requestResponseHandler = getRequestResponseHandler(serverRequest);
         requestResponseHandler.handleRequest(serverRequest, serverResponse);
     }
 }

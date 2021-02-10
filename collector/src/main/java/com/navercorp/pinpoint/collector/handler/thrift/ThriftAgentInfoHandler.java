@@ -36,7 +36,7 @@ import java.util.Objects;
  * @author koo.taejin
  */
 @Service
-public class ThriftAgentInfoHandler implements SimpleAndRequestResponseHandler<TBase<?, ?>> {
+public class ThriftAgentInfoHandler implements SimpleAndRequestResponseHandler<TBase<?, ?>, TBase<?, ?>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -51,7 +51,7 @@ public class ThriftAgentInfoHandler implements SimpleAndRequestResponseHandler<T
 
     @Override
     public void handleSimple(ServerRequest<TBase<?, ?>> serverRequest) {
-        final Object data = serverRequest.getData();
+        TBase<?, ?> data = serverRequest.getData();
         if (logger.isDebugEnabled()) {
             logger.debug("Handle simple data={}", data);
         }
@@ -65,7 +65,7 @@ public class ThriftAgentInfoHandler implements SimpleAndRequestResponseHandler<T
 
     @Override
     public void handleRequest(ServerRequest<TBase<?, ?>> serverRequest, ServerResponse<TBase<?, ?>> serverResponse) {
-        final Object data = serverRequest.getData();
+        final TBase<?, ?> data = serverRequest.getData();
         if (logger.isDebugEnabled()) {
             logger.debug("Handle request data={}", data);
         }
@@ -78,7 +78,7 @@ public class ThriftAgentInfoHandler implements SimpleAndRequestResponseHandler<T
         }
     }
 
-    private TBase<?, ?> handleAgentInfo(TAgentInfo agentInfo) {
+    private TResult handleAgentInfo(TAgentInfo agentInfo) {
         try {
             // agent info
             final AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo);
