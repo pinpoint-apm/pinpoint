@@ -55,7 +55,7 @@ public class BulkConfiguration {
 
     @Bean("callerBulkIncrementer")
     public BulkIncrementer getCallerBulkIncrementer() {
-        String reporterName = "callerBulkReporter";
+        String reporterName = "callerBulkIncrementerReporter";
         HbaseColumnFamily hbaseColumnFamily = HbaseColumnFamily.MAP_STATISTICS_CALLER_VER2_COUNTER;
         int limitSize = callerLimitSize;
 
@@ -64,7 +64,7 @@ public class BulkConfiguration {
 
     @Bean("calleeBulkIncrementer")
     public BulkIncrementer getCalleeBulkIncrementer() {
-        String reporterName = "calleeBulkReporter";
+        String reporterName = "calleeBulkIncrementerReporter";
         HbaseColumnFamily hbaseColumnFamily = HbaseColumnFamily.MAP_STATISTICS_CALLEE_VER2_COUNTER;
         int limitSize = calleeLimitSize;
 
@@ -73,7 +73,7 @@ public class BulkConfiguration {
 
     @Bean("selfBulkIncrementer")
     public BulkIncrementer getSelfBulkIncrementer() {
-        String reporterName = "selfBulkReporter";
+        String reporterName = "selfBulkIncrementerReporter";
         HbaseColumnFamily hbaseColumnFamily = HbaseColumnFamily.MAP_STATISTICS_SELF_VER2_COUNTER;
         int limitSize = selfLimitSize;
 
@@ -90,7 +90,7 @@ public class BulkConfiguration {
 
     @Bean("callerBulkUpdater")
     public BulkUpdater getCallerBulkUpdater() {
-        String reporterName = "callerBulkUpdater";
+        String reporterName = "callerBulkUpdaterReporter";
         return getBulkUpdater(reporterName);
     }
 
@@ -102,13 +102,13 @@ public class BulkConfiguration {
 
     @Bean("calleeBulkUpdater")
     public BulkUpdater getCalleeBulkUpdater() {
-        String reporterName = "calleeBulkUpdater";
+        String reporterName = "calleeBulkUpdaterReporter";
         return getBulkUpdater(reporterName);
     }
 
     @Bean("selfBulkUpdater")
     public BulkUpdater getSelfBulkUpdater() {
-        String reporterName = "selfBulkUpdater";
+        String reporterName = "selfBulkUpdaterReporter";
         return getBulkUpdater(reporterName);
     }
 
