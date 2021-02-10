@@ -27,7 +27,7 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-public class TcpDispatchHandler implements DispatchHandler {
+public class TcpDispatchHandler<T> implements DispatchHandler<T> {
 
     private SimpleHandler simpleHandler;
 
@@ -38,7 +38,7 @@ public class TcpDispatchHandler implements DispatchHandler {
         throw new UnsupportedOperationException("unsupported header:" + header);
     }
 
-    private SimpleHandler getSimpleHandler(ServerRequest serverRequest) {
+    private SimpleHandler getSimpleHandler(ServerRequest<T> serverRequest) {
         final Header header = serverRequest.getHeader();
         return getSimpleHandler(header);
     }
@@ -48,12 +48,12 @@ public class TcpDispatchHandler implements DispatchHandler {
     }
 
     @Override
-    public void dispatchSendMessage(ServerRequest serverRequest) {
+    public void dispatchSendMessage(ServerRequest<T> serverRequest) {
         SimpleHandler simpleHandler = getSimpleHandler(serverRequest);
         simpleHandler.handleSimple(serverRequest);
     }
 
     @Override
-    public void dispatchRequestMessage(ServerRequest serverRequest, ServerResponse serverResponse) {
+    public void dispatchRequestMessage(ServerRequest<T> serverRequest, ServerResponse<T> serverResponse) {
     }
 }

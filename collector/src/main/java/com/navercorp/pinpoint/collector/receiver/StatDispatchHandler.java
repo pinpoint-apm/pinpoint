@@ -23,41 +23,43 @@ import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  * @author hyungil.jeong
  */
-public class StatDispatchHandler implements DispatchHandler {
+public class StatDispatchHandler<T> implements DispatchHandler<T> {
 
-    private final SimpleHandler agentStatHandler;
+    private final SimpleHandler<T> agentStatHandler;
 
-    private final SimpleHandler agentEventHandler;
+    private final SimpleHandler<T> agentEventHandler;
 
 
-    public StatDispatchHandler(SimpleHandler agentStatHandler, SimpleHandler agentEventHandler) {
-        this.agentStatHandler = agentStatHandler;
-        this.agentEventHandler = agentEventHandler;
+    public StatDispatchHandler(SimpleHandler<T> agentStatHandler, SimpleHandler<T> agentEventHandler) {
+        this.agentStatHandler = Objects.requireNonNull(agentStatHandler, "agentStatHandler");
+        this.agentEventHandler = Objects.requireNonNull(agentEventHandler, "agentEventHandler");
     }
 
-    private SimpleHandler getSimpleHandler(Header header) {
+    private SimpleHandler<T> getSimpleHandler(Header header) {
         // To change below code to switch table make it a little bit faster.
         // FIXME (2014.08) Legacy - TAgentStats should not be sent over the wire.
         final short type = header.getType();
         if (type == DefaultTBaseLocator.AGENT_STAT || type == DefaultTBaseLocator.AGENT_STAT_BATCH || type == DefaultTBaseLocator.AGENT_URI_STAT) {
-            return new SimpleDualHandler(agentStatHandler, agentEventHandler);
+            return new SimpleDualHandler<T>(agentStatHandler, agentEventHandler);
         }
 
         throw new UnsupportedOperationException("unsupported header:" + header);
     }
 
     @Override
-    public void dispatchSendMessage(ServerRequest serverRequest) {
-        SimpleHandler simpleHandler = getSimpleHandler(serverRequest.getHeader());
+    public void dispatchSendMessage(ServerRequest<T> serverRequest) {
+        SimpleHandler<T> simpleHandler = getSimpleHandler(serverRequest.getHeader());
         simpleHandler.handleSimple(serverRequest);
     }
 
     @Override
-    public void dispatchRequestMessage(ServerRequest serverRequest, ServerResponse serverResponse) {
+    public void dispatchRequestMessage(ServerRequest<T> serverRequest, ServerResponse<T> serverResponse) {
 
     }
 

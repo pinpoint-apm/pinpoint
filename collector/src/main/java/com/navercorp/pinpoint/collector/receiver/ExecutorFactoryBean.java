@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver.thrift;
+package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.monitor.CountingRejectedExecutionHandler;
 import com.navercorp.pinpoint.collector.monitor.BypassRunnableDecorator;

@@ -23,11 +23,11 @@ import com.navercorp.pinpoint.io.request.ServerResponse;
  * @author emeroad
  * @author koo.taejin
  */
-public interface DispatchHandler {
+public interface DispatchHandler<T> {
 
     // Separating Send and Request. That dose not be satisfied but try to change that later.
-    void dispatchSendMessage(ServerRequest serverRequest);
+    void dispatchSendMessage(ServerRequest<T> serverRequest);
 
-    void dispatchRequestMessage(ServerRequest serverRequest, ServerResponse serverResponse);
+    void dispatchRequestMessage(ServerRequest<T> serverRequest, ServerResponse<T> serverResponse);
 
 }

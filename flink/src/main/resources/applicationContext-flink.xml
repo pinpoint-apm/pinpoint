@@ -149,7 +149,7 @@
 
     <!-- DispatchHandler-related Beans -->
     <bean id="tcpDispatchHandler" class="com.navercorp.pinpoint.flink.receiver.TcpDispatchHandler"/>
-    <bean id="tcpDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
+    <bean id="tcpDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean">
         <property name="dispatchHandler" ref="tcpDispatchHandler"/>
         <property name="handlerManager" ref="handlerManager"/>
     </bean>
@@ -184,7 +184,7 @@
 
     <bean id="discardPolicy" class="java.util.concurrent.ThreadPoolExecutor.DiscardPolicy"/>
 
-    <bean id="flinkWorker" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean">
+    <bean id="flinkWorker" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean">
         <property name="corePoolSize" value="#{tcpReceiverConfig.workerThreadSize}"/>
         <property name="maxPoolSize" value="#{tcpReceiverConfig.workerThreadSize}"/>
         <property name="queueCapacity" value="#{tcpReceiverConfig.workerQueueSize}"/>

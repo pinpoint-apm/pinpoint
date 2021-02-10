@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
+import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,7 @@ import java.util.Objects;
  * @author jaehong.kim - Add AgentEventMessageSerializerV1
  */
 @Service
-public class ThriftAgentEventHandler implements SimpleHandler {
+public class ThriftAgentEventHandler implements SimpleHandler<TBase<?, ?>> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ThriftAgentEventMapper agentEventMapper;
@@ -61,8 +62,8 @@ public class ThriftAgentEventHandler implements SimpleHandler {
     }
 
     @Override
-    public void handleSimple(ServerRequest serverRequest) {
-        final Object data = serverRequest.getData();
+    public void handleSimple(ServerRequest<TBase<?, ?>> serverRequest) {
+        final TBase<?, ?> data = serverRequest.getData();
         if (logger.isDebugEnabled()) {
             logger.debug("Handle simple data={}", data);
         }
