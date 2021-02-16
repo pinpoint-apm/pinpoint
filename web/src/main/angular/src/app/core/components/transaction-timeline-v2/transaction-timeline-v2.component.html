@@ -1,16 +1,5 @@
-<div class="l-wrapper">
-    <cdk-virtual-scroll-viewport itemSize="20" style="width: 100%; height: 100%;">
-        <div class="l-timeline-bar" *cdkVirtualFor="let row of syncRowData; let i = index;" [ngStyle]="getLineStyle(i)">
-            <div class="clickable-bar" *ngFor="let call of row; let j = index;" [ngStyle]="getSyncStyles(call)" (click)="onSelectCall(call)">
-                <span class="l-tooltip-text">{{getTooltipText(call)}}</span>
-                <span class="l-timeline-bar-frame">
-                    <span class="nameType" *ngIf="showName(call)">{{getText(call, i)}}</span>
-                </span>
-            </div>
-            <div class="clickable-bar" *ngFor="let asyncCall of asyncRowData[i]; let j = index;" [ngStyle]="getAsyncStyles(asyncCall)" (click)="onSelectCall(asyncCall)">
-                <span class="l-tooltip-text">{{getTooltipText(asyncCall)}} / Asynchronous</span>
-            </div>
-        </div>
-        <div [ngStyle]="{width: ((endTime-startTime)*barRatio*1.2)+'px'}"></div>
-    </cdk-virtual-scroll-viewport>
+<div id="timeline_main">
+    <div id="timeline_data_source">{{getTraceViewerDataURL()}}</div>
+    <script type="text/javascript">
+    </script>
 </div>

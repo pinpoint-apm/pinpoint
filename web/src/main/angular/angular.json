@@ -28,6 +28,11 @@
                                 "glob": "utils.js",
                                 "input": "node_modules/intl-tel-input/build/js",
                                 "output": "/assets/scripts"
+                            },
+                            {
+                                "glob": "**/*",
+                                "input": "./node_modules/@pinpoint-apm/perfetto-ui",
+                                "output": "/assets/perfetto-ui/"
                             }
                         ],
                         "styles": [

@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.web.service.TransactionInfoService;
 import com.navercorp.pinpoint.web.util.DefaultMongoJsonParser;
 import com.navercorp.pinpoint.web.util.MongoJsonParser;
 import com.navercorp.pinpoint.web.util.OutputParameterMongoJsonParser;
+import com.navercorp.pinpoint.web.view.TraceViewerDataViewModel;
 import com.navercorp.pinpoint.web.view.TransactionInfoViewModel;
 import com.navercorp.pinpoint.web.view.TransactionTimelineInfoViewModel;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
@@ -49,7 +50,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -138,7 +143,8 @@ public class BusinessTransactionController {
      * @return
      */
     @GetMapping(value = "/transactionTimelineInfo")
-    public TransactionTimelineInfoViewModel transactionTimelineInfo(@RequestParam("traceId") String traceId,
+    public TransactionTimelineInfoViewModel transactionTimelineInfo(HttpServletRequest request,
+                                                                    @RequestParam("traceId") String traceId,
                                                                     @RequestParam(value = "focusTimestamp", required = false, defaultValue = DEFAULT_FOCUS_TIMESTAMP) long focusTimestamp,
                                                                     @RequestParam(value = "agentId", required = false) String agentId,
                                                                     @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPANID) long spanId) {
@@ -152,8 +158,43 @@ public class BusinessTransactionController {
         SpanResult spanResult = this.spanService.selectSpan(transactionId, spanMatchFilter, columnGetCount);
         final CallTreeIterator callTreeIterator = spanResult.getCallTree();
 
+        String traceViewerDataURL = null;
+        try {
+            traceViewerDataURL = ServletUriComponentsBuilder.fromRequestUri(request)
+                    .replacePath("traceViewerData.pinpoint")
+                    .queryParam("traceId", URLEncoder.encode(traceId,"UTF-8"))
+                    .queryParam("focusTimestamp", focusTimestamp)
+                    .queryParam("agentId", URLEncoder.encode(agentId,"UTF-8"))
+                    .queryParam("spanId", spanId)
+                    .build()
+                    .toUriString();
+        } catch (UnsupportedEncodingException e) {
+            logger.error(e.getMessage(), e);
+        }
+
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
-        TransactionTimelineInfoViewModel result = new TransactionTimelineInfoViewModel(transactionId, spanId, recordSet, logConfiguration);
+        TransactionTimelineInfoViewModel result = new TransactionTimelineInfoViewModel(transactionId, spanId, recordSet, traceViewerDataURL, logConfiguration);
+        return result;
+    }
+
+    @GetMapping(value = "/traceViewerData")
+    public TraceViewerDataViewModel traceViewerData(@RequestParam("traceId") String traceIdParam,
+                                                    @RequestParam(value = "focusTimestamp", required = false, defaultValue = "0") long focusTimestamp,
+                                                    @RequestParam(value = "agentId", required = false) String agentId,
+                                                    @RequestParam(value = "spanId", required = false, defaultValue = "-1") long spanId) {
+        logger.debug("GET /traceViewerData params {traceId={}, focusTimestamp={}, agentId={}, spanId={}, v={}}", traceIdParam, focusTimestamp, agentId, spanId);
+
+        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceIdParam);
+
+        final ColumnGetCount columnGetCount = ColumnGetCountFactory.create(callstackSelectSpansLimit);
+
+        // select spans
+        Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);
+        SpanResult spanResult = this.spanService.selectSpan(transactionId, spanMatchFilter, columnGetCount);
+        final CallTreeIterator callTreeIterator = spanResult.getCallTree();
+
+        RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
+        TraceViewerDataViewModel result = new TraceViewerDataViewModel(recordSet);
         return result;
     }
 
