@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
-import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 
 import io.netty.handler.codec.http.HttpHeaders;
@@ -55,9 +54,9 @@ public class HttpRequestAdaptor implements RequestAdaptor<HttpServerRequest> {
 
     @Override
     public String getEndPoint(HttpServerRequest request) {
-        try {
-            return request.uri();
-        } catch (Exception ignored) {
+        final String host = getHost(request);
+        if (host != null) {
+            return host;
         }
 
         return "Unknown";
@@ -66,9 +65,11 @@ public class HttpRequestAdaptor implements RequestAdaptor<HttpServerRequest> {
     @Override
     public String getRemoteAddress(HttpServerRequest request) {
         final InetSocketAddress inetSocketAddress = request.remoteAddress();
-        final InetAddress remoteAddress = inetSocketAddress.getAddress();
-        if (remoteAddress != null) {
-            return HostAndPort.toHostAndPortString(remoteAddress.getHostAddress(), inetSocketAddress.getPort());
+        if (inetSocketAddress != null) {
+            final InetAddress remoteAddress = inetSocketAddress.getAddress();
+            if (remoteAddress != null) {
+                return HostAndPort.toHostAndPortString(remoteAddress.getHostAddress(), inetSocketAddress.getPort());
+            }
         }
 
         return null;
@@ -76,11 +77,20 @@ public class HttpRequestAdaptor implements RequestAdaptor<HttpServerRequest> {
 
     @Override
     public String getAcceptorHost(HttpServerRequest request) {
+        return getHost(request);
+    }
+
+    private String getHost(HttpServerRequest request) {
         try {
-            return NetworkUtils.getHostFromURL(request.uri());
+            final InetSocketAddress inetSocketAddress = request.hostAddress();
+            if (inetSocketAddress != null) {
+                final InetAddress remoteAddress = inetSocketAddress.getAddress();
+                if (remoteAddress != null) {
+                    return HostAndPort.toHostAndPortString(remoteAddress.getHostAddress(), inetSocketAddress.getPort());
+                }
+            }
         } catch (Exception ignored) {
         }
-
         return null;
     }
 }
