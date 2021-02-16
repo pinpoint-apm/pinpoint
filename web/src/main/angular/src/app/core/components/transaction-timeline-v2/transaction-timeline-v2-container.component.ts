@@ -25,13 +25,7 @@ export class TransactionTimelineV2ContainerComponent implements OnInit, OnDestro
     private unsubscribe = new Subject<void>();
 
     applicationName: string;
-    startTime: number;
-    endTime: number;
-    rowData: any;
-    asyncRowData: any;
-    focusedRows: boolean[];
-    databaseCalls: any;
-    barRatio: number;
+    traceViewerDataURL: string;
 
     constructor(
         private storeHelperService: StoreHelperService,
@@ -56,14 +50,8 @@ export class TransactionTimelineV2ContainerComponent implements OnInit, OnDestro
                 return transactionTimelineInfo && transactionTimelineInfo.transactionId ? true : false;
             })
         ).subscribe((transactionTimelineInfo: ITransactionTimelineData) => {
-            this.startTime = transactionTimelineInfo.callStackStart;
-            this.endTime = transactionTimelineInfo.callStackEnd;
-            this.barRatio = transactionTimelineInfo.barRatio;
-            this.rowData = transactionTimelineInfo.callStack;
-            this.asyncRowData = transactionTimelineInfo.asyncCallStack;
-            this.databaseCalls = transactionTimelineInfo.databaseCalls;
-            this.focusedRows = transactionTimelineInfo.focusedRows;
             this.applicationName = transactionTimelineInfo.applicationId;
+            this.traceViewerDataURL = transactionTimelineInfo.traceViewerDataURL;
             this.cd.detectChanges();
         });
     }
