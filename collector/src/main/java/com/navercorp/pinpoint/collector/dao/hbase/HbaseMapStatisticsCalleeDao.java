@@ -46,7 +46,7 @@ import java.util.Objects;
 
 /**
  * Update statistics of callee node
- * 
+ *
  * @author netspider
  * @author emeroad
  * @author HyunGil Jeong
@@ -70,21 +70,27 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
     private final boolean useBulk;
 
+    private final IgnoreStatFilter ignoreStatFilter;
+
 
     @Autowired
-    public HbaseMapStatisticsCalleeDao(HbaseOperations2 hbaseTemplate,
+    public HbaseMapStatisticsCalleeDao(IgnoreStatFilter ignoreStatFilter,
+                                       HbaseOperations2 hbaseTemplate,
                                        TableDescriptor<HbaseColumnFamily.CallerStatMap> descriptor,
                                        @Qualifier("statisticsCalleeRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                                        AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
                                        @Qualifier("calleeBulkIncrementer") BulkIncrementer bulkIncrementer) {
-        this(hbaseTemplate, descriptor, rowKeyDistributorByHashPrefix, acceptedTimeService, timeSlot, bulkIncrementer, true);
+        this(ignoreStatFilter, hbaseTemplate, descriptor, rowKeyDistributorByHashPrefix,
+                acceptedTimeService, timeSlot,
+                bulkIncrementer, true);
     }
 
-    public HbaseMapStatisticsCalleeDao(HbaseOperations2 hbaseTemplate,
+    public HbaseMapStatisticsCalleeDao(IgnoreStatFilter ignoreStatFilter, HbaseOperations2 hbaseTemplate,
                                        TableDescriptor<HbaseColumnFamily.CallerStatMap> descriptor,
                                        RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                                        AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
                                        BulkIncrementer bulkIncrementer, boolean useBulk) {
+        this.ignoreStatFilter = Objects.requireNonNull(ignoreStatFilter, "ignoreStatFilter");
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
@@ -106,6 +112,13 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
         // there may be no endpoint in case of httpclient
         callerHost = StringUtils.defaultString(callerHost);
+
+        // TODO callee, caller parameter normalization
+        if (ignoreStatFilter.filter(calleeServiceType, callerHost)) {
+            logger.debug("[Ignore-Callee] {} ({}) <- {} ({})[{}]",
+                    calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost);
+            return;
+        }
 
         // make row key. rowkey is me
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
