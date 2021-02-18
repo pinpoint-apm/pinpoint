@@ -31,6 +31,9 @@ public class ReactorNettyBugWorkaroundFilter implements IgnoreStatFilter {
         if (!enable) {
             return false;
         }
+        if (callerHost == null) {
+            return false;
+        }
         if (!filterServiceCode(calleeServiceType)) {
             return false;
         }

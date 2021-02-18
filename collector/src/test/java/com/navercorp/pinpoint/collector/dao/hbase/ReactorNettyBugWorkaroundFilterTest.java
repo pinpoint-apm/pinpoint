@@ -35,5 +35,18 @@ public class ReactorNettyBugWorkaroundFilterTest {
         return builder.build();
     }
 
+    @Test
+    public void filter_null() {
+        ServiceType serviceType = newReactorNettyClient();
+
+        Assert.assertFalse(filter.filter(serviceType, null));
+    }
+
+    @Test
+    public void filter_empty() {
+        ServiceType serviceType = newReactorNettyClient();
+
+        Assert.assertFalse(filter.filter(serviceType, ""));
+    }
 
 }
