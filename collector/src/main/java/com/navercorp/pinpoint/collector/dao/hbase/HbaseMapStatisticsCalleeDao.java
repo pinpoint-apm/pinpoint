@@ -116,14 +116,15 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
                     calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost);
         }
 
+        // there may be no endpoint in case of httpclient
+        callerHost = StringUtils.defaultString(callerHost);
+
         // TODO callee, caller parameter normalization
         if (ignoreStatFilter.filter(calleeServiceType, callerHost)) {
             logger.debug("[Ignore-Callee] {} ({}) <- {} ({})[{}]",
                     calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost);
             return;
         }
-
-        // there may be no endpoint in case of httpclient
 
         // make row key. rowkey is me
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
