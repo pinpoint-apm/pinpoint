@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 
@@ -31,7 +32,7 @@ public class ReactorNettyBugWorkaroundFilter implements IgnoreStatFilter {
         if (!enable) {
             return false;
         }
-        if (callerHost == null) {
+        if (StringUtils.isEmpty(callerHost)) {
             return false;
         }
         if (!filterServiceCode(calleeServiceType)) {
