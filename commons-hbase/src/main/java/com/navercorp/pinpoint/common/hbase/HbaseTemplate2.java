@@ -349,9 +349,11 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
         Put put = new Put(rowName);
         put.addColumn(familyName, qualifier, valBytes);
         //check for existence and put for the first time
-        checkAndPut(tableName, rowName, familyName, qualifier, CompareFilter.CompareOp.EQUAL, null, put);
-        //check for max and put for update
-        checkAndPut(tableName, rowName, familyName, qualifier, CompareFilter.CompareOp.GREATER_OR_EQUAL, valBytes, put);
+        boolean success = checkAndPut(tableName, rowName, familyName, qualifier, CompareFilter.CompareOp.EQUAL, null, put);
+        if (!success) {
+            //check for max and put for update
+            checkAndPut(tableName, rowName, familyName, qualifier, CompareFilter.CompareOp.GREATER, valBytes, put);
+        }
     }
 
     @Override
