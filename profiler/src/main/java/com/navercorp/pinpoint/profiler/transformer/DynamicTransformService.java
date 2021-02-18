@@ -21,13 +21,18 @@ import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 
 import com.navercorp.pinpoint.bootstrap.instrument.RequestHandle;
+import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.ProfilerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformRequestListener;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
+
 import com.navercorp.pinpoint.common.util.Assert;
+
+import static com.navercorp.pinpoint.common.util.JvmVersion.JAVA_8;
 
 /**
  * @author emeroad
@@ -63,19 +68,28 @@ public class DynamicTransformService implements DynamicTransformTrigger {
             }
         }
     }
-    
+
     @Override
     public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
         if (this.logger.isDebugEnabled()) {
             logger.debug("Add dynamic transform. classLoader={}, class={}", classLoader, targetClassName);
         }
-        
+
         this.dynamicTransformRequestListener.onTransformRequest(classLoader, targetClassName, transformer);
     }
 
     private void assertClass(Class<?> target) {
         if (!instrumentation.isModifiableClass(target)) {
             throw new ProfilerException("Target class " + target + " is not modifiable");
+        }
+        final JvmVersion version = JvmUtils.getVersion();
+        if (JAVA_8.compareTo(version) == 0) {
+            // If the version is java 8
+            // Java 8 bug - NoClassDefFound error in transforming lambdas(https://bugs.openjdk.java.net/browse/JDK-8145964)
+            final String className = target.getName();
+            if (className != null && className.contains("$$Lambda$")) {
+                throw new ProfilerException("Target class " + target + " is lambda class, Causes NoClassDefFound error in java 8.");
+            }
         }
     }
 
