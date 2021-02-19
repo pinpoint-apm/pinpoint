@@ -309,7 +309,6 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         @Override
         public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
             final Channel channel = e.getChannel();
-            logger.info("channelConnected started. channel:{}", channel);
 
             if (released) {
                 logger.warn("already released. channel:{}", channel);
@@ -327,6 +326,8 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
                 logger.debug("channelConnected() channel discard. {}", channel);
                 return;
             }
+
+            logger.info("channelConnected started. channel:{}", channel);
 
             DefaultPinpointServer pinpointServer = createPinpointServer(channel);
             
