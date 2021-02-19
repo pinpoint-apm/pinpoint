@@ -1,4 +1,4 @@
-import { PrimitiveArray, Data } from 'billboard.js';
+import { PrimitiveArray, Data, spline } from 'billboard.js';
 import { Observable } from 'rxjs';
 
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
@@ -36,7 +36,7 @@ export class ApplicationOpenFileDescriptorChartContainer implements IInspectorCh
 
     makeDataOption(): Data {
         return {
-            type: 'spline',
+            type: spline(),
             names: {
                 min: 'Min',
                 avg: 'Avg',

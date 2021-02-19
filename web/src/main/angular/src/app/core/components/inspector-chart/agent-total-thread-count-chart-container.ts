@@ -1,4 +1,4 @@
-import { PrimitiveArray, Data } from 'billboard.js';
+import { PrimitiveArray, Data, spline } from 'billboard.js';
 import { Observable } from 'rxjs';
 
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
@@ -28,7 +28,7 @@ export class AgentTotalThreadCountChartContainer implements IInspectorChartConta
 
     makeDataOption(): Data {
         return {
-            type: 'spline',
+            type: spline(),
             names: {
                 totalThreadCount: 'Total Thread Count'
             },

@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Input, ComponentFactoryResolver, Injector
 import { Subject, forkJoin, merge, of } from 'rxjs';
 import { filter, map, tap, switchMap, catchError, pluck, withLatestFrom, takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
-import { PrimitiveArray, Data } from 'billboard.js';
+import { PrimitiveArray, Data, areaStep } from 'billboard.js';
 import * as moment from 'moment-timezone';
 
 import { WebAppSettingDataService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService, MESSAGE_TO, StoreHelperService, MessageQueueService, AgentHistogramDataService, NewUrlStateNotificationService } from 'app/shared/services';
@@ -266,7 +266,7 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
 
     private cleanStatisticsChartData(data: IHistogram[]): IHistogram[] {
         const excludes = ['Sum', 'Tot', 'Avg', 'Max'];
-        
+
         return data ? data.filter(({key}: IHistogram) => excludes.indexOf(key) === -1) : null;
     }
 
@@ -290,7 +290,7 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
                     text: this.dataEmptyText
                 }
             },
-            type: 'area-step',
+            type: areaStep(),
             colors: keyList.reduce((acc: {[key: string]: string}, curr: string, i: number) => {
                 return { ...acc, [curr]: this.chartColors[i] };
             }, {}),
@@ -339,6 +339,9 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
                 y: {
                     show: true
                 }
+            },
+            point: {
+                show: false
             },
             tooltip: {
                 order: '',

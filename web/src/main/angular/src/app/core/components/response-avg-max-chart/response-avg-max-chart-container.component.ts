@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Input, ComponentFactoryResolver, Injector
 import { Subject, forkJoin, of, merge } from 'rxjs';
 import { filter, tap, switchMap, pluck, map, catchError, withLatestFrom } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
-import { PrimitiveArray, Data, DataItem } from 'billboard.js';
+import { PrimitiveArray, Data, DataItem, bar } from 'billboard.js';
 
 import {
     WebAppSettingDataService,
@@ -262,7 +262,7 @@ export class ResponseAvgMaxChartContainerComponent implements OnInit, OnDestroy 
                     text: this.dataEmptyText
                 }
             },
-            type: 'bar',
+            type: bar(),
             color: (_, {index}: DataItem): string => this.chartColors[index],
             labels: {
                 colors: '#333',

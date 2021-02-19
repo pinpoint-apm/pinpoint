@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
-import { PrimitiveArray, Data } from 'billboard.js';
+import { PrimitiveArray, Data, spline, zoom } from 'billboard.js';
 import { Subject, forkJoin, combineLatest, of } from 'rxjs';
 import { takeUntil, tap, switchMap, catchError } from 'rxjs/operators';
 
@@ -179,7 +179,7 @@ export class ApplicationDataSourceChartContainerComponent implements OnInit, OnD
         return {
             x: 'x',
             columns,
-            type: 'spline',
+            type: spline(),
             names: {
                 min: 'Min',
                 avg: 'Avg',
@@ -246,6 +246,7 @@ export class ApplicationDataSourceChartContainerComponent implements OnInit, OnD
             point: {
                 r: 0,
                 focus: {
+                    only: true,
                     expand: {
                         r: 3
                     }
@@ -261,9 +262,8 @@ export class ApplicationDataSourceChartContainerComponent implements OnInit, OnD
                 duration: 0
             },
             zoom: {
-                enabled: {
-                    type: 'drag'
-                }
+                enabled: zoom(),
+                type: 'drag'
             }
         };
     }
