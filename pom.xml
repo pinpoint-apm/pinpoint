@@ -44,10 +44,7 @@
         <module>agent</module>
         <module>agent-testweb</module>
         <module>agent-plugins</module>
-        <module>bootstrap</module>
-        <module>bootstrap-core</module>
-        <module>bootstrap-java8</module>
-        <module>bootstrap-java9</module>
+        <module>bootstraps</module>
         <module>collector</module>
         <module>commons</module>
         <module>commons-buffer</module>
@@ -244,6 +241,12 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-grpc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-bootstraps</artifactId>
+                <type>pom</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
