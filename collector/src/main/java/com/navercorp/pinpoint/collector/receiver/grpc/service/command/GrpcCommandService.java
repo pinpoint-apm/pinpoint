@@ -81,7 +81,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         final Long transportId = getTransportId();
         final AgentInfo agentInfo = getAgentInfo();
 
-        logger.info("{} => local. handleCommand(). transportId:{}, supportCommandCodeList{}", agentInfo, transportId);
+        logger.info("{} => local. handleCommand(). transportId:{}.", agentInfo, transportId);
 
         final List<Integer> supportCommandCodeList = getSupportCommandCodeList();
         if (supportCommandCodeList != Header.SUPPORT_COMMAND_CODE_LIST_NOT_EXIST) {
