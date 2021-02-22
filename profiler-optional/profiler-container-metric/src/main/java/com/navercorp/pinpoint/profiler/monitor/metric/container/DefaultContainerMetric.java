@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultContainerMetric implements ContainerMetric{
 
-    private final Metrics metrics;  //replace with MXBean?
+    private final Metrics metrics;
     private final Logger logger;
     private long prevUserCpuUsage;
     private long prevSystemCpuUsage;
