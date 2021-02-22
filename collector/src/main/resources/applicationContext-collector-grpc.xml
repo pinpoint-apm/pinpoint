@@ -23,7 +23,6 @@
 
         <property name="fileEncoding" value="UTF-8"/>
         <property name="ignoreUnresolvablePlaceholders" value="true"/>
-        <property name="ignoreResourceNotFound" value="true"/>
     </bean>
 
 
