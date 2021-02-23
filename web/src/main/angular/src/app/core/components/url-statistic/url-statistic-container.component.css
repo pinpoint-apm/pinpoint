@@ -1,0 +1,11 @@
+:host {
+    display: block;
+    height: 100%;
+    padding: 25px;
+}
+
+.l-chart-section {
+    position: relative;
+    height: 450px;
+    margin-bottom: 30px;
+}

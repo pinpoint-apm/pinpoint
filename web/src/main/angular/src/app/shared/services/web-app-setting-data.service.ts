@@ -134,6 +134,9 @@ export class WebAppSettingDataService {
     getColorByResponseStatistics(): string[] {
         return this.componentDefaultSettingDataService.getColorByResponseStatistics();
     }
+    getColorByRequestInDetail(): string[] {
+        return this.componentDefaultSettingDataService.getColorByRequestInDetail();
+    }
     private loadFavoriteList(): any[] {
         return JSON.parse(this.localStorageService.get(WebAppSettingDataService.KEYS.FAVORLIITE_APPLICATION_LIST)) || [];
     }

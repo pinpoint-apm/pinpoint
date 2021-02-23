@@ -1,0 +1,51 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.l-content-group {
+    /* background-color: #fff; */
+    height: 36px;
+}
+
+.l-content-group.active {
+    background-color: #E7F5F9;
+}
+
+.l-content-group.active:hover {
+    background-color: #E7F5F9;
+}
+
+.l-content-group:hover {
+    background-color: #eee;
+}
+
+.l-content-item {
+    text-align: center;
+    border-top: 1px solid #e5e8f0;
+    padding: 0;
+}
+
+.l-url {
+    cursor: pointer;
+}
+
+.l-ratio-bar {
+    display: inline-block;
+    width: 100px;
+    height: 20px;
+    margin-left: 7px;
+}
+
+.l-sub {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.l-count {
+    width: 50px;
+    text-align: right;
+}

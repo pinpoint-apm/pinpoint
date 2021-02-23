@@ -1,0 +1,27 @@
+<ng-container *ngIf="data">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>URL</th>
+                <th>Total Count</th>
+                <th>Avg</th>
+                <th>Max</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let urlInfo of data" class="l-content-group" [class.active]="isSelectedUrl(urlInfo.uri)">
+                <td class="l-content-item l-url" (click)="onSelectUrl(urlInfo.uri)">{{urlInfo.uri}}</td>
+                <td class="l-content-item">
+                    <div class="l-sub">
+                        <div class="l-count">{{urlInfo.totalCount}}</div>
+                        <div class="l-ratio-bar" [style.background]="getRatioBackgroundColor(urlInfo.totalCount)">
+                            <!-- <div class="l-count">{{urlInfo.totalCount}}</div> -->
+                        </div>
+                    </div>
+                </td>
+                <td class="l-content-item">{{urlInfo.avgTime}}</td>
+                <td class="l-content-item">{{urlInfo.maxTime}}</td>
+            </tr>
+        </tbody>
+    </table>
+</ng-container>

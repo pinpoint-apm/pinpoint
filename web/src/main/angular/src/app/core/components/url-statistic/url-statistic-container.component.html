@@ -1,0 +1,14 @@
+<section class="l-chart-section">
+    <!-- TODO: Show URL Title? -->
+    <pp-loading [showLoading]="showLoading" [zIndex]="10"></pp-loading>
+    <pp-url-statistic-chart
+        [chartConfig]="chartConfig"
+        (outRendered)="onRendered()">
+    </pp-url-statistic-chart>
+</section>
+<section class="l-info-section">
+    <pp-url-statistic-info
+        [data]="urlStatisticData"
+        (outSelectUrl)="onSelectUrl($event)">
+    </pp-url-statistic-info>
+</section>
