@@ -48,7 +48,14 @@ public class PreparedStatementBindingMethodFilter implements MethodFilter {
             String[] paramTypeNames = new String[len];
             
             for (int i = 0; i < len; i++) {
-                paramTypeNames[i] = paramTypes[i].getName();
+                Class<?> paramType = paramTypes[i];
+                String paramTypeName;
+                if(paramType.isArray()) {
+                    paramTypeName = paramType.getComponentType().getName() + "[]";
+                }else {
+                    paramTypeName = paramType.getName();
+                }
+                paramTypeNames[i] = paramTypeName;
             }
             
             list.add(paramTypeNames);
