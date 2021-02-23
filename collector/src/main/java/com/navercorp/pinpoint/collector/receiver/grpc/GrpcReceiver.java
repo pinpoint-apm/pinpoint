@@ -76,6 +76,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     @Override
     public void afterPropertiesSet() throws Exception {
         if (Boolean.FALSE == this.enable) {
+            logger.warn("{} is {}", this.beanName, enable);
             return;
         }
 

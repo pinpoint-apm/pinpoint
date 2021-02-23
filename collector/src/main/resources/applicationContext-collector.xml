@@ -22,30 +22,20 @@
                         com.navercorp.pinpoint.common.server.util,
                         com.navercorp.pinpoint.common.server.bo"/>
 
-    <bean id="collectorPropertyConfigurer"
-          class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+    <bean id="collectorPropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
         <property name="locations">
             <list>
+                <value>classpath:hbase-root.properties</value>
                 <value>classpath:pinpoint-collector-root.properties</value>
+                <value>classpath:pinpoint-collector-grpc-root.properties</value>
                 <value>classpath:jdbc-root.properties</value>
                 <!-- override configuration -->
+                <value>classpath:profiles/${pinpoint.profiles.active}/hbase.properties</value>
                 <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector-grpc.properties</value>
                 <value>classpath:profiles/${pinpoint.profiles.active}/jdbc.properties</value>
-            </list>
-        </property>
-
-        <property name="fileEncoding" value="UTF-8"/>
-        <property name="ignoreUnresolvablePlaceholders" value="true"/>
-    </bean>
-
-    <bean id="collectorExternalPropertyConfigurer"
-          class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
-        <property name="locations">
-            <list>
                 <!-- external property for override -->
-                <value>
-                    file:#{ systemProperties['pinpoint.collector.config.location'] ?: '-Dpinpoint.collector.config.location does not set' }
-                </value>
+                <value>file:#{ systemProperties['pinpoint.collector.config.location'] ?: '-Dpinpoint.collector.config.location does not set' }</value>
             </list>
         </property>
 
