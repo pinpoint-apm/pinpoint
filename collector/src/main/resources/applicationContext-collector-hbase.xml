@@ -13,20 +13,6 @@
 
     <context:component-scan base-package="com.navercorp.pinpoint.collector.dao.hbase"/>
 
-    <bean id="collectorHbasePropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
-        <property name="locations">
-            <list>
-                <value>classpath:hbase-root.properties</value>
-                <!-- override configuration -->
-                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector.properties</value>
-                <value>classpath:profiles/${pinpoint.profiles.active}/hbase.properties</value>
-            </list>
-        </property>
-
-        <property name="fileEncoding" value="UTF-8"/>
-        <property name="ignoreUnresolvablePlaceholders" value="true"/>
-    </bean>
-
 
     <bean id="hbaseConfiguration" class="com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean">
         <property name="properties">
