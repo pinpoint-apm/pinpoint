@@ -23,8 +23,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.UUID;
 
 public class BindValueConverterTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -50,5 +52,18 @@ public class BindValueConverterTest {
         // Should not throw even if given arguments are not supported value
         String setBoolean = BindValueConverter.convert("setXxxx", new Object[]{null, "XXX"});
         Assert.assertEquals(setBoolean, "");
+    }
+
+    @Test
+    public void testBindValueBytes() throws Exception {
+        UUID uuid = UUID.randomUUID();
+        ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
+        bb.putLong(uuid.getMostSignificantBits());
+        bb.putLong(uuid.getLeastSignificantBits());
+        byte[] bytes = bb.array();
+
+        String uuidHex = uuid.toString().toUpperCase().replaceAll("-", "");
+        String setBytes = BindValueConverter.convert("setBytes", new Object[]{null, bytes});
+        Assert.assertEquals(setBytes, uuidHex);
     }
 }
