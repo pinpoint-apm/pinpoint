@@ -22,6 +22,10 @@ const appRoutes: Routes = [
                 },
                 children: [
                     {
+                        path: UrlPath.URL_STATISTIC,
+                        loadChildren: () => import('./routes/url-statistic-page/index').then(m => m.UrlStatisticPageModule)
+                    },
+                    {
                         path: UrlPath.CONFIG,
                         loadChildren: () => import('./routes/config-page/index').then(m => m.ConfigPageModule)
                     },
