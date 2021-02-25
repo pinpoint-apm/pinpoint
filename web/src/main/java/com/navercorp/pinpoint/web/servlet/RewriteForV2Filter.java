@@ -42,6 +42,9 @@ public class RewriteForV2Filter implements Filter {
     private static final char PATH_DELIMITER = '/';
 
     private final String[] rewriteTargetArray = {
+            "/auth",
+            "/browserNotSupported",
+            "/config",
             "/error",
             "/filteredMap",
             "/inspector",
@@ -52,9 +55,7 @@ public class RewriteForV2Filter implements Filter {
             "/transactionDetail",
             "/transactionList",
             "/transactionView",
-            "/browserNotSupported",
-            "/config",
-            "/auth"
+            "/urlStatistic"
     };
 
     private final String PINPOINT_REST_API_SUFFIX = ".pinpoint";
