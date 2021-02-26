@@ -34,7 +34,6 @@ public class CollectorEnvironmentPostProcessor implements EnvironmentPostProcess
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         logger.info("postProcessEnvironment");
-        application.setLogStartupInfo(true);
 
         ProfileEnvironment profileEnvironment = new ProfileEnvironment();
         profileEnvironment.processEnvironment(environment);

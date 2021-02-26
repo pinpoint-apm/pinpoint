@@ -16,15 +16,12 @@
 
 package com.navercorp.pinpoint.collector.config;
 
-import com.navercorp.pinpoint.common.util.PropertyUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -34,12 +31,10 @@ import static org.junit.Assert.assertEquals;
 public class GrpcStatReceiverConfigurationTest {
 
     @Autowired
-    GrpcStatReceiverConfiguration configuration;
+    private GrpcStatReceiverConfiguration configuration;
 
     @Test
     public void properties() throws Exception {
-        Properties properties = PropertyUtils.loadPropertyFromClassPath("test-pinpoint-collector.properties");
-        configuration.loadServerOption(properties);
 
         assertEquals(Boolean.FALSE, configuration.isGrpcEnable());
         assertEquals("2.2.2.2", configuration.getGrpcBindIp());
