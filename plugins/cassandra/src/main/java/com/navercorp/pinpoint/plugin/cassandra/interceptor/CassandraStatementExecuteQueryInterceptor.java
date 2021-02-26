@@ -36,7 +36,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue.BindValueUtils;
 import com.navercorp.pinpoint.common.util.MapUtils;
 import com.navercorp.pinpoint.plugin.cassandra.field.WrappedStatementGetter;
 
@@ -150,7 +149,7 @@ public class CassandraStatementExecuteQueryInterceptor implements AroundIntercep
     }
 
     private String toBindVariable(Map<Integer, String> bindValue) {
-        return BindValueUtils.bindValueToString(bindValue, maxSqlBindValueLength);
+        return traceContext.getJdbcContext().getBindVariableService().bindVariableToString(bindValue, maxSqlBindValueLength);
     }
 
     @Override

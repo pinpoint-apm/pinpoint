@@ -205,4 +205,11 @@ public class JavaAssistUtilsTest {
         Assert.assertEquals("java/lang/String.class", JavaAssistUtils.javaClassNameToJvmResourceName("java.lang.String"));
     }
 
+    @Test
+    public void testToPinpointParameterType() {
+        int[][] stringArray = new int[0][0];
+        String parameterType = JavaAssistUtils.toPinpointParameterType(stringArray.getClass());
+        Assert.assertEquals("int[][]", parameterType);
+    }
+
 }

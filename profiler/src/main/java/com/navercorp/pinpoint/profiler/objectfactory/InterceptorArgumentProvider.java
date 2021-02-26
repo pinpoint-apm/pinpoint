@@ -44,28 +44,32 @@ public class InterceptorArgumentProvider implements ArgumentProvider {
     private final RequestRecorderFactory requestRecorderFactory;
     private final UriStatRecorderFactory uriStatRecorderFactory;
 
-    public InterceptorArgumentProvider(DataSourceMonitorRegistry dataSourceMonitorRegistry, CustomMetricRegistry customMetricRegistry, ApiMetaDataService apiMetaDataService, RequestRecorderFactory requestRecorderFactory,
-                                       UriStatRecorderFactory uriStatRecorderFactory, InstrumentClass targetClass) {
+    public InterceptorArgumentProvider(DataSourceMonitorRegistry dataSourceMonitorRegistry,
+                                       CustomMetricRegistry customMetricRegistry,
+                                       ApiMetaDataService apiMetaDataService,
+                                       RequestRecorderFactory requestRecorderFactory,
+                                       UriStatRecorderFactory uriStatRecorderFactory,
+                                       InstrumentClass targetClass) {
         this(dataSourceMonitorRegistry, customMetricRegistry, apiMetaDataService, requestRecorderFactory, uriStatRecorderFactory, null, targetClass, null);
     }
 
-    public InterceptorArgumentProvider(DataSourceMonitorRegistry dataSourceMonitorRegistry, CustomMetricRegistry customMetricRegistry, ApiMetaDataService apiMetaDataService, RequestRecorderFactory requestRecorderFactory,
-                                       UriStatRecorderFactory uriStatRecorderFactory, InterceptorScope interceptorScope, InstrumentClass targetClass, InstrumentMethod targetMethod) {
-        if (dataSourceMonitorRegistry == null) {
-            throw new NullPointerException("dataSourceMonitorRegistry");
-        }
-
-        if (apiMetaDataService == null) {
-            throw new NullPointerException("apiMetaDataService");
-        }
-        this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
+    public InterceptorArgumentProvider(DataSourceMonitorRegistry dataSourceMonitorRegistry,
+                                       CustomMetricRegistry customMetricRegistry,
+                                       ApiMetaDataService apiMetaDataService,
+                                       RequestRecorderFactory requestRecorderFactory,
+                                       UriStatRecorderFactory uriStatRecorderFactory,
+                                       InterceptorScope interceptorScope, InstrumentClass targetClass,
+                                       InstrumentMethod targetMethod) {
+        this.dataSourceMonitorRegistry = Objects.requireNonNull(dataSourceMonitorRegistry, "dataSourceMonitorRegistry");
         this.customMetricRegistry = Objects.requireNonNull(customMetricRegistry, "customMetricRegistry");
-        this.apiMetaDataService = apiMetaDataService;
+        this.apiMetaDataService = Objects.requireNonNull(apiMetaDataService, "apiMetaDataService");
+
         this.requestRecorderFactory = requestRecorderFactory;
         this.uriStatRecorderFactory = uriStatRecorderFactory;
         this.interceptorScope = interceptorScope;
         this.targetClass = targetClass;
         this.targetMethod = targetMethod;
+
     }
 
     @Override

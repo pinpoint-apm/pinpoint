@@ -14,15 +14,32 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
+package com.navercorp.pinpoint.profiler.jdbc;
+
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
  * @author emeroad
  */
-public class NullTypeConverter implements Converter {
-
+public class ClassNameConverter implements Converter {
     @Override
     public String convert(Object[] args) {
-        return "null";
+        if (args == null) {
+            return "null";
+        }
+        if (args.length == 2) {
+            return StringUtils.abbreviate(getClassName(args[1]));
+        } else if(args.length == 3) {
+           // need to handle 3rd arg?
+            return StringUtils.abbreviate(getClassName(args[1]));
+        }
+        return "error";
+    }
+
+    private String getClassName(Object args) {
+        if (args == null) {
+            return "null";
+        }
+        return args.getClass().getName();
     }
 }

@@ -82,6 +82,7 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
     private final CustomMetricRegistry customMetricRegistry;
     private final ApiMetaDataService apiMetaDataService;
+
     private final InstrumentContext pluginContext;
     private final ExceptionHandlerFactory exceptionHandlerFactory;
     private final RequestRecorderFactory requestRecorderFactory;
@@ -101,6 +102,7 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
         this.dataSourceMonitorRegistry = Objects.requireNonNull(dataSourceMonitorRegistry, "dataSourceMonitorRegistry");
         this.customMetricRegistry = Objects.requireNonNull(customMetricRegistry, "customMetricRegistry");
         this.apiMetaDataService = Objects.requireNonNull(apiMetaDataService, "apiMetaDataService");
+
         this.pluginContext = Objects.requireNonNull(pluginContext, "pluginContext");
         this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
         this.requestRecorderFactory = Objects.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
@@ -113,7 +115,9 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
         Objects.requireNonNull(scopeInfo, "scopeInfo");
 
         final InterceptorScope interceptorScope = scopeInfo.getInterceptorScope();
-        InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(dataSourceMonitorRegistry, customMetricRegistry, apiMetaDataService, requestRecorderFactory, uriStatRecorderFactory, interceptorScope, target, targetMethod);
+        InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(dataSourceMonitorRegistry,
+                customMetricRegistry, apiMetaDataService, requestRecorderFactory, uriStatRecorderFactory,
+                interceptorScope, target, targetMethod);
 
         AutoBindingObjectFactory factory = new AutoBindingObjectFactory(profilerConfig, traceContext, pluginContext, interceptorClass.getClassLoader());
         Interceptor interceptor = (Interceptor) factory.createInstance(interceptorClass, providedArguments, interceptorArgumentProvider);

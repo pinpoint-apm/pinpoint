@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue.BindValueUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,8 +45,7 @@ public class PreparedStatementExecuteQueryInterceptor extends SpanEventSimpleAro
     private static final int DEFAULT_BIND_VALUE_LENGTH = 1024;
 
     private final int maxSqlBindValueLength;
-    
-    
+
     public PreparedStatementExecuteQueryInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this(traceContext, descriptor, DEFAULT_BIND_VALUE_LENGTH);
     }
@@ -100,7 +98,7 @@ public class PreparedStatementExecuteQueryInterceptor extends SpanEventSimpleAro
     }
 
     private String toBindVariable(Map<Integer, String> bindValue) {
-        return BindValueUtils.bindValueToString(bindValue, maxSqlBindValueLength);
+        return traceContext.getJdbcContext().getBindVariableService().bindVariableToString(bindValue, maxSqlBindValueLength);
     }
 
     @Override

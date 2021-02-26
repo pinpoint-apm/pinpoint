@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
+package com.navercorp.pinpoint.profiler.jdbc;
 
-import java.util.Arrays;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 /**
  * @author emeroad
@@ -32,35 +32,13 @@ public class BytesConverter implements Converter {
             if (bytes == null) {
                 return "null";
             } else {
-                return toHexString(bytes, MAX_BYTES_SIZE);
+                return convert(bytes);
             }
         }
         return "error";
     }
 
-    // for uuid
-    private static final int MAX_BYTES_SIZE = 16;
-
-    private static final char[] HEX_CHARS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E',
-        'F' };
-
-    private static String toHexString(byte[] bytes) {
-        char[] result = new char[bytes.length * 2];
-        int idx = 0;
-        for (byte b : bytes) {
-            int temp = (int) b & 0xFF;
-            result[idx++] = HEX_CHARS[temp / 16];
-            result[idx++] = HEX_CHARS[temp % 16];
-        }
-        return new String(result);
+    protected String convert(byte[] bytes) {
+        return ArrayUtils.abbreviate(bytes);
     }
-
-    private static String toHexString(byte[] bytes, int maxSize) {
-        if(bytes.length > maxSize) {
-            return toHexString(Arrays.copyOf(bytes, maxSize)) + "...";
-        }else {
-            return toHexString(bytes);
-        }
-    }
-
 }

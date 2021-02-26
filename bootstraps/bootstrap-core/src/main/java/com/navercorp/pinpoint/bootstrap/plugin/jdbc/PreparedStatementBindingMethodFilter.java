@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
@@ -29,42 +30,41 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
  *
  */
 public class PreparedStatementBindingMethodFilter implements MethodFilter {
-    private static final Map<String, List<String[]>> BIND_METHODS;
+    private static final Map<String, List<String[]>> BIND_METHODS = getBindVariableDesc();
 
-    static {
+
+    private static Map<String, List<String[]>> getBindVariableDesc() {
         List<Method> methods = PreparedStatementUtils.findBindVariableSetMethod();
-        BIND_METHODS = new HashMap<String, List<String[]>>();
-        
+        Map<String, List<String[]>> bindMethod = new HashMap<>();
+
         for (Method method : methods) {
-            List<String[]> list = BIND_METHODS.get(method.getName());
-            
-            if (list == null) {
-                list = new ArrayList<String[]>();
-                BIND_METHODS.put(method.getName(), list);
+            List<String[]> parameterTypeList = bindMethod.get(method.getName());
+
+            if (parameterTypeList == null) {
+                parameterTypeList = new ArrayList<>();
+                bindMethod.put(method.getName(), parameterTypeList);
             }
-            
-            Class<?>[] paramTypes = method.getParameterTypes();
-            int len = paramTypes.length;
-            String[] paramTypeNames = new String[len];
-            
-            for (int i = 0; i < len; i++) {
-                Class<?> paramType = paramTypes[i];
-                String paramTypeName;
-                if(paramType.isArray()) {
-                    paramTypeName = paramType.getComponentType().getName() + "[]";
-                }else {
-                    paramTypeName = paramType.getName();
-                }
-                paramTypeNames[i] = paramTypeName;
-            }
-            
-            list.add(paramTypeNames);
+
+            String[] paramTypeNames = getParameterTypeNames(method.getParameterTypes());
+
+            parameterTypeList.add(paramTypeNames);
         }
+        return bindMethod;
     }
-    
-    
+
+    private static String[] getParameterTypeNames(Class<?>[] paramTypes) {
+        int len = paramTypes.length;
+        String[] paramTypeNames = new String[len];
+        for (int i = 0; i < len; i++) {
+            Class<?> paramType = paramTypes[i];
+            paramTypeNames[i] = ReflectionUtils.getParameterTypeName(paramType);
+        }
+        return paramTypeNames;
+    }
+
+
     public static PreparedStatementBindingMethodFilter includes(String... names) {
-        Map<String, List<String[]>> targets = new HashMap<String, List<String[]>>(names.length);
+        Map<String, List<String[]>> targets = new HashMap<>(names.length);
         
         for (String name : names) {
             List<String[]> paramTypes = BIND_METHODS.get(name);
@@ -78,7 +78,7 @@ public class PreparedStatementBindingMethodFilter implements MethodFilter {
     }
 
     public static PreparedStatementBindingMethodFilter excludes(String... names) {
-        Map<String, List<String[]>> targets = new HashMap<String, List<String[]>>(BIND_METHODS);
+        Map<String, List<String[]>> targets = new HashMap<>(BIND_METHODS);
         
         for (String name : names) {
             targets.remove(name);
@@ -91,11 +91,11 @@ public class PreparedStatementBindingMethodFilter implements MethodFilter {
     private final Map<String, List<String[]>> methods;
     
     public PreparedStatementBindingMethodFilter() {
-        this.methods = BIND_METHODS;
+        this(BIND_METHODS);
     }
     
-    public PreparedStatementBindingMethodFilter(Map<String, List<String[]>> targets) {
-        this.methods = targets;
+    public PreparedStatementBindingMethodFilter(Map<String, List<String[]>> methods) {
+        this.methods = Objects.requireNonNull(methods, "methods");
     }
 
     @Override
