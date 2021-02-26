@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
+package com.navercorp.pinpoint.profiler.jdbc;
 
 import org.junit.Assert;
 import org.junit.Test;

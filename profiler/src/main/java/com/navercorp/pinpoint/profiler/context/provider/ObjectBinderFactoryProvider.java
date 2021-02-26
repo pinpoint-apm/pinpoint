@@ -41,6 +41,7 @@ public class ObjectBinderFactoryProvider implements Provider<ObjectBinderFactory
     private final DataSourceMonitorRegistryService dataSourceMonitorRegistryService;
     private final CustomMetricRegistryService customMetricRegistryService;
     private final Provider<ApiMetaDataService> apiMetaDataServiceProvider;
+
     private final ExceptionHandlerFactory exceptionHandlerFactory;
     private final RequestRecorderFactory requestRecorderFactory;
     private final Provider<UriStatRecorderFactory> uriStatRecorderFactoryProvider;
@@ -60,6 +61,7 @@ public class ObjectBinderFactoryProvider implements Provider<ObjectBinderFactory
         this.dataSourceMonitorRegistryService = Objects.requireNonNull(dataSourceMonitorRegistryService, "dataSourceMonitorRegistryService");
         this.customMetricRegistryService = Objects.requireNonNull(customMetricRegistryService, "customMetricRegistryService");
         this.apiMetaDataServiceProvider = Objects.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
+
         this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
         this.requestRecorderFactory = Objects.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
         this.uriStatRecorderFactoryProvider = Objects.requireNonNull(uriStatRecorderFactoryProvider, "uriStatRecorderFactoryProvider");
@@ -67,7 +69,9 @@ public class ObjectBinderFactoryProvider implements Provider<ObjectBinderFactory
 
     @Override
     public ObjectBinderFactory get() {
-        return new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService, customMetricRegistryService, apiMetaDataServiceProvider, exceptionHandlerFactory, requestRecorderFactory, uriStatRecorderFactoryProvider);
+        return new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService,
+                customMetricRegistryService, apiMetaDataServiceProvider,
+                exceptionHandlerFactory, requestRecorderFactory, uriStatRecorderFactoryProvider);
     }
 
 }

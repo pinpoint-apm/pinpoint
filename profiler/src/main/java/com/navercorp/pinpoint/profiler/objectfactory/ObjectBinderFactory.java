@@ -45,9 +45,11 @@ public class ObjectBinderFactory {
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
     private final CustomMetricRegistry customMetricRegistry;
     private final Provider<ApiMetaDataService> apiMetaDataServiceProvider;
+
     private final ExceptionHandlerFactory exceptionHandlerFactory;
     private final RequestRecorderFactory requestRecorderFactory;
     private final Provider<UriStatRecorderFactory> uriStatRecorderFactoryProvider;
+
 
     public ObjectBinderFactory(ProfilerConfig profilerConfig,
                                Provider<TraceContext> traceContextProvider,
@@ -67,6 +69,7 @@ public class ObjectBinderFactory {
         this.customMetricRegistry = new CustomMetricRegistryAdaptor(customMonitorRegistryService);
 
         this.apiMetaDataServiceProvider = Objects.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
+
         this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
         this.requestRecorderFactory = Objects.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
 
@@ -91,6 +94,7 @@ public class ObjectBinderFactory {
         ApiMetaDataService apiMetaDataService = this.apiMetaDataServiceProvider.get();
 
         UriStatRecorderFactory uriStatRecorderFactory = uriStatRecorderFactoryProvider.get();
-        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, customMetricRegistry, apiMetaDataService, pluginContext, exceptionHandlerFactory, requestRecorderFactory, uriStatRecorderFactory);
+        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, customMetricRegistry, apiMetaDataService,
+                pluginContext, exceptionHandlerFactory, requestRecorderFactory, uriStatRecorderFactory);
     }
 }

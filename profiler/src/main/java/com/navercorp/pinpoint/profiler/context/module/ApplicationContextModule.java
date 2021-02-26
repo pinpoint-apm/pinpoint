@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindVariableService;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
@@ -29,6 +30,7 @@ import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.provider.BindVariableServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.UriExtractorProviderLocatorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.UriStatRecorderFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.UriStatStorageProvider;
@@ -194,6 +196,8 @@ public class ApplicationContextModule extends AbstractModule {
 
         bind(JdbcContext.class).to(DefaultJdbcContext.class).in(Scopes.SINGLETON);
         bind(JdbcUrlParsingService.class).toProvider(JdbcUrlParsingServiceProvider.class).in(Scopes.SINGLETON);
+
+        bind(BindVariableService.class).toProvider(BindVariableServiceProvider.class).in(Scopes.SINGLETON);
 
         bind(UriExtractorProviderLocator.class).toProvider(UriExtractorProviderLocatorProvider.class).in(Scopes.SINGLETON);
         bind(UriStatRecorderFactory.class).toProvider(UriStatRecorderFactoryProvider.class).in(Scopes.SINGLETON);

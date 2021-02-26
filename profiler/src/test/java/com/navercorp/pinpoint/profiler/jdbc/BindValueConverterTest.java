@@ -15,7 +15,7 @@
  *
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
+package com.navercorp.pinpoint.profiler.jdbc;
 
 import org.junit.Assert;
 
@@ -31,6 +31,8 @@ import java.util.UUID;
 public class BindValueConverterTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private BindValueConverter bindValueConverter = BindValueConverter.defaultBindValueConverter();
+
     @Test
     public void testBindValueToString() throws Exception {
         Date d = new Date();
@@ -43,14 +45,14 @@ public class BindValueConverterTest {
 
     @Test
     public void testBindValueBoolean() throws Exception {
-        String setBoolean = BindValueConverter.convert("setBoolean", new Object[]{null, Boolean.TRUE});
+        String setBoolean = bindValueConverter.convert("setBoolean", new Object[]{null, Boolean.TRUE});
         Assert.assertEquals(setBoolean, Boolean.TRUE.toString());
     }
 
     @Test
     public void testBindValueNotSupport() throws Exception {
         // Should not throw even if given arguments are not supported value
-        String setBoolean = BindValueConverter.convert("setXxxx", new Object[]{null, "XXX"});
+        String setBoolean = bindValueConverter.convert("setXxxx", new Object[]{null, "XXX"});
         Assert.assertEquals(setBoolean, "");
     }
 
@@ -63,7 +65,9 @@ public class BindValueConverterTest {
         byte[] bytes = bb.array();
 
         String uuidHex = uuid.toString().toUpperCase().replaceAll("-", "");
-        String setBytes = BindValueConverter.convert("setBytes", new Object[]{null, bytes});
+        BindValueConverter bindValueConverter = BindValueConverter.defaultBindValueConverter();
+        bindValueConverter.setHexBytesConverter();
+        String setBytes = bindValueConverter.convert("setBytes", new Object[]{null, bytes});
         Assert.assertEquals(setBytes, uuidHex);
     }
 }

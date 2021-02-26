@@ -26,4 +26,6 @@ public interface JdbcContext {
 
     DatabaseInfo parseJdbcUrl(ServiceType serviceType, String jdbcUrl);
 
+    BindVariableService getBindVariableService();
+
 }

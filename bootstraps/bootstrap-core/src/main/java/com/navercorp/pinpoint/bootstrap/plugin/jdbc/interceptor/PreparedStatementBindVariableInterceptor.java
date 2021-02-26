@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -25,7 +26,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue.BindValueConverter;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 
 /**
@@ -43,7 +43,7 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
     private final TraceContext traceContext;
 
     public PreparedStatementBindVariableInterceptor(TraceContext traceContext) {
-        this.traceContext = traceContext;
+        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
     }
 
     @Override
@@ -74,11 +74,11 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
 
         Map<Integer, String> bindList = ((BindValueAccessor) target)._$PINPOINT$_getBindValue();
         if (bindList == null) {
-            bindList = new HashMap<Integer, String>();
+            bindList = new HashMap<>();
             ((BindValueAccessor) target)._$PINPOINT$_setBindValue(bindList);
         }
 
-        final String value = BindValueConverter.convert(methodName, args);
+        final String value = traceContext.getJdbcContext().getBindVariableService().formatBindVariable(methodName, args);
         bindList.put(index, value);
     }
 }

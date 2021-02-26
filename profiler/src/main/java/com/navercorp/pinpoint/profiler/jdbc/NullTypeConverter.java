@@ -14,25 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
-
-import com.navercorp.pinpoint.common.util.StringUtils;
+package com.navercorp.pinpoint.profiler.jdbc;
 
 /**
  * @author emeroad
  */
-public class SimpleTypeConverter implements Converter {
+public class NullTypeConverter implements Converter {
+
     @Override
     public String convert(Object[] args) {
-        if (args == null) {
-            return "null";
-        }
-        if (args.length == 2) {
-            return StringUtils.abbreviate(StringUtils.toString(args[1]));
-        } else if (args.length == 3) {
-            // need to handle 3rd arg?
-            return StringUtils.abbreviate(StringUtils.toString(args[1]));
-        }
-        return "error";
+        return "null";
     }
 }

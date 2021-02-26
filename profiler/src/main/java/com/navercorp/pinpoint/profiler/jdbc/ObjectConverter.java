@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
+package com.navercorp.pinpoint.profiler.jdbc;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -45,17 +45,20 @@ public class ObjectConverter implements Converter {
         SQL_BLOB = SqlModule.getSqlBlob();
     }
 
+    public ObjectConverter() {
+    }
 
     @Override
     public String convert(Object[] args) {
         if (args == null) {
             return "null";
         }
-        if (args.length == 2) {
+        final int length = args.length;
+        if (length == 2) {
             final Object param = args[1];
             return getParameter(param);
         }
-        if (args.length == 3) {
+        if (length == 3) {
             final Object param = args[1];
             return getParameter(param);
         }
