@@ -17,35 +17,23 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.MapStatisticsCallerDao;
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkConfiguration;
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementer;
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkUpdater;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.CallRowKey;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.CalleeColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowInfo;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.profiler.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
+import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.profiler.util.ApplicationMapStatisticsUtils;
-import com.navercorp.pinpoint.common.server.util.TimeSlot;
-
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Increment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -60,38 +48,20 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final HbaseOperations2 hbaseTemplate;
-
-    private final TableDescriptor<HbaseColumnFamily.CalleeStatMap> descriptor;
-
     private final AcceptedTimeService acceptedTimeService;
 
     private final TimeSlot timeSlot;
-
-    private final BulkIncrementer bulkIncrementer;
-    private final BulkUpdater bulkUpdater;
-
-    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-
-    private final BulkConfiguration bulkConfiguration;
+    private final BulkWriter bulkWriter;
 
 
     @Autowired
-    public HbaseMapStatisticsCallerDao(BulkConfiguration bulkConfiguration, HbaseOperations2 hbaseTemplate,
-                                       TableDescriptor<HbaseColumnFamily.CalleeStatMap> descriptor,
-                                       @Qualifier("statisticsCallerRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-                                       AcceptedTimeService acceptedTimeService,
+    public HbaseMapStatisticsCallerDao(AcceptedTimeService acceptedTimeService,
                                        TimeSlot timeSlot,
-                                       @Qualifier("callerBulkIncrementer") BulkIncrementer bulkIncrementer,
-                                       @Qualifier("callerBulkUpdater") BulkUpdater bulkUpdater) {
-        this.bulkConfiguration = Objects.requireNonNull(bulkConfiguration, "bulkConfiguration");
-        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
-        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
+                                       @Qualifier("callerBulkWriter") BulkWriter bulkWriter) {
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
-        this.bulkIncrementer = Objects.requireNonNull(bulkIncrementer, "bulkIncrementer");
-        this.bulkUpdater = Objects.requireNonNull(bulkUpdater, "bulkUpdater");
+
+        this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWrtier");
     }
 
 
@@ -120,81 +90,21 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         HistogramSchema histogramSchema = callerServiceType.getHistogramSchema();
         final ColumnName sumColumnName = new CalleeColumnName(callerAgentid, calleeServiceType.getCode(), calleeApplicationName, calleeHost, histogramSchema.getSumStatSlot().getSlotTime());
         final ColumnName maxColumnName = new CalleeColumnName(callerAgentid, calleeServiceType.getCode(), calleeApplicationName, calleeHost, histogramSchema.getMaxStatSlot().getSlotTime());
-        if (bulkConfiguration.enableBulk()) {
-            TableName mapStatisticsCalleeTableName = descriptor.getTableName();
-            bulkIncrementer.increment(mapStatisticsCalleeTableName, callerRowKey, calleeColumnName);
-            bulkIncrementer.increment(mapStatisticsCalleeTableName, callerRowKey, sumColumnName, elapsed);
-            bulkUpdater.updateMax(mapStatisticsCalleeTableName, callerRowKey, maxColumnName, elapsed);
-        } else {
-            final byte[] rowKey = getDistributedKey(callerRowKey.getRowKey());
-            // column name is the name of caller app.
-            byte[] columnName = calleeColumnName.getColumnName();
-            increment(rowKey, columnName, 1L);
-            increment(rowKey, sumColumnName.getColumnName(), elapsed);
-            checkAndMax(rowKey, maxColumnName.getColumnName(), elapsed);
-        }
-    }
 
-    private void increment(byte[] rowKey, byte[] columnName, long increment) {
-        Objects.requireNonNull(rowKey, "rowKey");
-        Objects.requireNonNull(columnName, "columnName");
+        this.bulkWriter.increment(callerRowKey, calleeColumnName);
+        this.bulkWriter.increment(callerRowKey, sumColumnName, elapsed);
+        this.bulkWriter.updateMax(callerRowKey, maxColumnName, elapsed);
 
-        TableName mapStatisticsCalleeTableName = descriptor.getTableName();
-        hbaseTemplate.incrementColumnValue(mapStatisticsCalleeTableName, rowKey, descriptor.getColumnFamilyName(), columnName, increment);
-    }
-
-    private void checkAndMax(byte[] rowKey, byte[] columnName, long value) {
-        Objects.requireNonNull(rowKey, "rowKey");
-        Objects.requireNonNull(columnName, "columnName");
-
-        hbaseTemplate.maxColumnValue(descriptor.getTableName(), rowKey, descriptor.getColumnFamilyName(), columnName, value);
     }
 
     @Override
     public void flushLink() {
-        assertUseBulk();
-
-        // update statistics by rowkey and column for now. need to update it by rowkey later.
-        Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(rowKeyDistributorByHashPrefix);
-
-        for (Map.Entry<TableName, List<Increment>> e : incrementMap.entrySet()) {
-            TableName tableName = e.getKey();
-            List<Increment> increments = e.getValue();
-            if (logger.isDebugEnabled()) {
-                logger.debug("flush {} to [{}] Increment:{}", this.getClass().getSimpleName(), tableName.getNameAsString(), increments.size());
-            }
-            hbaseTemplate.increment(tableName, increments);
-        }
-
+        this.bulkWriter.flushLink();
     }
 
     @Override
     public void flushAvgMax() {
-        assertUseBulk();
-
-        Map<RowInfo, Long> maxUpdateMap = bulkUpdater.getMaxUpdate();
-        if (logger.isDebugEnabled()) {
-            final int size = maxUpdateMap.size();
-            if (size > 0) {
-                logger.debug("flush {} to [{}] checkAndMax:{}", this.getClass().getSimpleName(), descriptor.getTableName(), size);
-            }
-        }
-        for (RowInfo rowInfo : maxUpdateMap.keySet()) {
-            Long val = maxUpdateMap.get(rowInfo);
-            final byte[] rowKey = getDistributedKey(rowInfo.getRowKey().getRowKey());
-            checkAndMax(rowKey, rowInfo.getColumnName().getColumnName(), val);
-        }
+        this.bulkWriter.flushAvgMax();
     }
-
-    private void assertUseBulk() {
-        if (!bulkConfiguration.enableBulk()) {
-            throw new IllegalStateException("useBulk is " + bulkConfiguration.enableBulk());
-        }
-    }
-
-    private byte[] getDistributedKey(byte[] rowKey) {
-        return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
-    }
-
 
 }
