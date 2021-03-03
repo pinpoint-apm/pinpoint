@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.CallRowKey;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.CalleeColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.MapLinkConfiguration;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
 import com.navercorp.pinpoint.common.profiler.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
@@ -52,12 +53,15 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
     private final TimeSlot timeSlot;
     private final BulkWriter bulkWriter;
+    private final MapLinkConfiguration mapLinkConfiguration;
 
 
     @Autowired
-    public HbaseMapStatisticsCallerDao(AcceptedTimeService acceptedTimeService,
+    public HbaseMapStatisticsCallerDao(MapLinkConfiguration mapLinkConfiguration,
+                                       AcceptedTimeService acceptedTimeService,
                                        TimeSlot timeSlot,
                                        @Qualifier("callerBulkWriter") BulkWriter bulkWriter) {
+        this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
 
@@ -85,15 +89,20 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         final RowKey callerRowKey = new CallRowKey(callerApplicationName, callerServiceType.getCode(), rowTimeSlot);
 
         final short calleeSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(calleeServiceType, elapsed, isError);
-        final ColumnName calleeColumnName = new CalleeColumnName(callerAgentid, calleeServiceType.getCode(), calleeApplicationName, calleeHost, calleeSlotNumber);
 
         HistogramSchema histogramSchema = callerServiceType.getHistogramSchema();
-        final ColumnName sumColumnName = new CalleeColumnName(callerAgentid, calleeServiceType.getCode(), calleeApplicationName, calleeHost, histogramSchema.getSumStatSlot().getSlotTime());
-        final ColumnName maxColumnName = new CalleeColumnName(callerAgentid, calleeServiceType.getCode(), calleeApplicationName, calleeHost, histogramSchema.getMaxStatSlot().getSlotTime());
 
+        final ColumnName calleeColumnName = new CalleeColumnName(callerAgentid, calleeServiceType.getCode(), calleeApplicationName, calleeHost, calleeSlotNumber);
         this.bulkWriter.increment(callerRowKey, calleeColumnName);
-        this.bulkWriter.increment(callerRowKey, sumColumnName, elapsed);
-        this.bulkWriter.updateMax(callerRowKey, maxColumnName, elapsed);
+
+        if (mapLinkConfiguration.isEnableAvg()) {
+            final ColumnName sumColumnName = new CalleeColumnName(callerAgentid, calleeServiceType.getCode(), calleeApplicationName, calleeHost, histogramSchema.getSumStatSlot().getSlotTime());
+            this.bulkWriter.increment(callerRowKey, sumColumnName, elapsed);
+        }
+        if (mapLinkConfiguration.isEnableMax()) {
+            final ColumnName maxColumnName = new CalleeColumnName(callerAgentid, calleeServiceType.getCode(), calleeApplicationName, calleeHost, histogramSchema.getMaxStatSlot().getSlotTime());
+            this.bulkWriter.updateMax(callerRowKey, maxColumnName, elapsed);
+        }
 
     }
 
