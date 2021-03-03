@@ -36,18 +36,16 @@ public class BulkConfiguration {
     private final int selfLimitSize;
 
     private final boolean enableBulk;
-    private final boolean enableAvgMax;
+
 
     public BulkConfiguration(@Value("${collector.cachedStatDao.caller.limit:-1}") int callerLimitSize,
                              @Value("${collector.cachedStatDao.callee.limit:-1}") int calleeLimitSize,
                              @Value("${collector.cachedStatDao.self.limit:-1}") int selfLimitSize,
-                             @Value("${collector.cachedStatDao.bulk.enable:true}") boolean enableBulk,
-                             @Value("${collector.cachedStatDao.avg-max.enable:true}") boolean enableAvgMax) {
+                             @Value("${collector.cachedStatDao.bulk.enable:true}") boolean enableBulk) {
         this.callerLimitSize = callerLimitSize;
         this.calleeLimitSize = calleeLimitSize;
         this.selfLimitSize = selfLimitSize;
         this.enableBulk = enableBulk;
-        this.enableAvgMax = enableAvgMax;
     }
 
     public int getCallerLimitSize() {
@@ -66,10 +64,6 @@ public class BulkConfiguration {
         return enableBulk;
     }
 
-    public boolean enableAvgMax() {
-        return enableAvgMax;
-    }
-
     @PostConstruct
     public void log() {
         logger.info("{}", this);
@@ -82,7 +76,6 @@ public class BulkConfiguration {
                 ", calleeLimitSize=" + calleeLimitSize +
                 ", selfLimitSize=" + selfLimitSize +
                 ", enableBulk=" + enableBulk +
-                ", enableAvgMax=" + enableAvgMax +
                 '}';
     }
 }

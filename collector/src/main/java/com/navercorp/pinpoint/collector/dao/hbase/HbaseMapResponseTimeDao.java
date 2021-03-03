@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.collector.dao.MapResponseTimeDao;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.CallRowKey;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.MapLinkConfiguration;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.ResponseColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
 import com.navercorp.pinpoint.common.profiler.util.ApplicationMapStatisticsUtils;
@@ -52,10 +53,13 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
     private final TimeSlot timeSlot;
     private final BulkWriter bulkWriter;
+    private final MapLinkConfiguration mapLinkConfiguration;
 
     @Autowired
-    public HbaseMapResponseTimeDao(AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
+    public HbaseMapResponseTimeDao(MapLinkConfiguration mapLinkConfiguration,
+                                   AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
                                    @Qualifier("selfBulkWriter") BulkWriter bulkWriter) {
+        this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
         this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWrtier");
@@ -80,12 +84,17 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);
 
         HistogramSchema histogramSchema = applicationServiceType.getHistogramSchema();
-        final ColumnName sumColumnName = new ResponseColumnName(agentId, histogramSchema.getSumStatSlot().getSlotTime());
-        final ColumnName maxColumnName = new ResponseColumnName(agentId, histogramSchema.getMaxStatSlot().getSlotTime());
 
+        final ColumnName maxColumnName = new ResponseColumnName(agentId, histogramSchema.getMaxStatSlot().getSlotTime());
         this.bulkWriter.increment(selfRowKey, selfColumnName);
-        this.bulkWriter.increment(selfRowKey, sumColumnName, elapsed);
-        this.bulkWriter.updateMax(selfRowKey, maxColumnName, elapsed);
+
+        if (mapLinkConfiguration.isEnableAvg()) {
+            final ColumnName sumColumnName = new ResponseColumnName(agentId, histogramSchema.getSumStatSlot().getSlotTime());
+            this.bulkWriter.increment(selfRowKey, sumColumnName, elapsed);
+        }
+        if (mapLinkConfiguration.isEnableMax()) {
+            this.bulkWriter.updateMax(selfRowKey, maxColumnName, elapsed);
+        }
     }
 
 
