@@ -22,6 +22,12 @@ import com.navercorp.pinpoint.common.util.ArrayUtils;
  * @author emeroad
  */
 public class BytesConverter implements Converter {
+    protected final int maxWidth;
+
+    public BytesConverter(int maxWidth) {
+        this.maxWidth = maxWidth;
+    }
+
     @Override
     public String convert(Object[] args) {
         if (args == null) {
@@ -39,6 +45,6 @@ public class BytesConverter implements Converter {
     }
 
     protected String convert(byte[] bytes) {
-        return ArrayUtils.abbreviate(bytes);
+        return ArrayUtils.abbreviate(bytes, maxWidth);
     }
 }

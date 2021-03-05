@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.profiler.jdbc;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import org.junit.Assert;
 
 import org.junit.Test;
@@ -69,5 +70,14 @@ public class BindValueConverterTest {
         bindValueConverter.setHexBytesConverter();
         String setBytes = bindValueConverter.convert("setBytes", new Object[]{null, bytes});
         Assert.assertEquals(setBytes, uuidHex);
+    }
+
+    @Test
+    public void testMaxWidth() throws Exception {
+        int maxWidth = 2;
+        BindValueConverter converter = BindValueConverter.defaultBindValueConverter(maxWidth);
+
+        String stringValue = converter.convert("setString", new Object[]{null, "abc"});
+        Assert.assertEquals(StringUtils.abbreviate("abc", maxWidth), stringValue);
     }
 }

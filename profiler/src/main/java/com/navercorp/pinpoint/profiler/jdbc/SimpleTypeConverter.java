@@ -22,17 +22,31 @@ import com.navercorp.pinpoint.common.util.StringUtils;
  * @author emeroad
  */
 public class SimpleTypeConverter implements Converter {
+    private final int maxWidth;
+
+    public SimpleTypeConverter() {
+        this(BindValueConverter.DEFAULT_ABBREVIATE_MAX_WIDTH);
+    }
+
+    public SimpleTypeConverter(int maxWidth) {
+        this.maxWidth = maxWidth;
+    }
+
     @Override
     public String convert(Object[] args) {
         if (args == null) {
             return "null";
         }
         if (args.length == 2) {
-            return StringUtils.abbreviate(StringUtils.toString(args[1]));
+            return abbreviate(args[1]);
         } else if (args.length == 3) {
             // need to handle 3rd arg?
-            return StringUtils.abbreviate(StringUtils.toString(args[1]));
+            return abbreviate(args[1]);
         }
         return "error";
+    }
+
+    private String abbreviate(Object arg) {
+        return StringUtils.abbreviate(StringUtils.toString(arg), this.maxWidth);
     }
 }
