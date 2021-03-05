@@ -16,29 +16,43 @@
 
 package com.navercorp.pinpoint.profiler.jdbc;
 
+import com.navercorp.pinpoint.common.util.Assert;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class BindValueConverter {
 
+    static final int DEFAULT_ABBREVIATE_MAX_WIDTH = 32;
+
+    private final int maxWidth;
     private final Map<String, Converter> converterMap = new HashMap<>();
 
     public static BindValueConverter defaultBindValueConverter() {
-        final BindValueConverter converter = new BindValueConverter();
+        return defaultBindValueConverter(DEFAULT_ABBREVIATE_MAX_WIDTH);
+    }
+
+    public static BindValueConverter defaultBindValueConverter(int maxWidth) {
+        final BindValueConverter converter = new BindValueConverter(maxWidth);
         converter.simpleType();
         converter.classNameType();
 
-        // There also is method with 3 parameters.
-        converter.register("setNull", new NullTypeConverter());
+        converter.setNullConverter();
 
-        BytesConverter hexByteConverter = new HexBytesConverter();
-        converter.register("setBytes", hexByteConverter);
+        converter.setHexBytesConverter();
 
-        converter.register("setObject", new ObjectConverter());
+        converter.setObjectConverter();
         return converter;
     }
 
+
     public BindValueConverter() {
+        this(DEFAULT_ABBREVIATE_MAX_WIDTH);
+    }
+
+    public BindValueConverter(int maxWidth) {
+        this.maxWidth = maxWidth;
+        Assert.isTrue(maxWidth > 0, "negative abbreviateMaxWidth");
     }
 
     private void register(String methodName, Converter converter) {
@@ -69,16 +83,25 @@ public class BindValueConverter {
     }
 
     public void setRawBytesConverter() {
-        this.register("setBytes", new BytesConverter());
+        this.register("setBytes", new BytesConverter(this.maxWidth));
     }
 
     public void setHexBytesConverter() {
-        this.register("setBytes", new HexBytesConverter());
+        this.register("setBytes", new HexBytesConverter(this.maxWidth));
+    }
+
+    private void setObjectConverter() {
+        this.register("setObject", new ObjectConverter(maxWidth));
+    }
+
+    private void setNullConverter() {
+        // There also is method with 3 parameters.
+        this.register("setNull", new NullTypeConverter());
     }
 
     private void simpleType() {
 
-        SimpleTypeConverter simpleTypeConverter = new SimpleTypeConverter();
+        SimpleTypeConverter simpleTypeConverter = new SimpleTypeConverter(maxWidth);
 
         this.register("setByte", simpleTypeConverter);
         this.register("setBoolean", simpleTypeConverter);

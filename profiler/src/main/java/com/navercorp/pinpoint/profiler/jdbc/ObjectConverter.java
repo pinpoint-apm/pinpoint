@@ -44,8 +44,14 @@ public class ObjectConverter implements Converter {
         SQL_CLOB = SqlModule.getSqlClob();
         SQL_BLOB = SqlModule.getSqlBlob();
     }
+    private final int maxWidth;
 
     public ObjectConverter() {
+        this(BindValueConverter.DEFAULT_ABBREVIATE_MAX_WIDTH);
+    }
+
+    public ObjectConverter(int maxWidth) {
+        this.maxWidth = maxWidth;
     }
 
     @Override
@@ -98,7 +104,7 @@ public class ObjectConverter implements Converter {
         }
 
         if (param instanceof byte[]) {
-            return ArrayUtils.abbreviate((byte[]) param);
+            return ArrayUtils.abbreviate((byte[]) param, this.maxWidth);
         }
         if (param instanceof InputStream) {
             return getClassName(param);
@@ -134,7 +140,7 @@ public class ObjectConverter implements Converter {
     }
 
     private String abbreviate(Object param) {
-        return StringUtils.abbreviate(param.toString());
+        return StringUtils.abbreviate(param.toString(), this.maxWidth);
     }
 
     private String toString(Object param) {
