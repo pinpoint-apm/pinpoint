@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 
@@ -35,13 +37,14 @@ public final class JavaAssistUtils {
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final String ARRAY = "[]";
 
+    private static final String CLASS_POST_FIX = ".class";
 
     private static final Pattern PARAMETER_SIGNATURE_PATTERN = Pattern.compile("\\[*L[^;]+;|\\[*[ZBCSIFDJ]|[ZBCSIFDJ]");
 
     private static final Map<String, String> PRIMITIVE_JAVA_TO_JVM = createPrimitiveJavaToJvmMap();
 
     private static Map<String, String> createPrimitiveJavaToJvmMap() {
-        final Map<String, String> primitiveJavaToJvm = new HashMap<String, String>();
+        final Map<String, String> primitiveJavaToJvm = new HashMap<>();
         primitiveJavaToJvm.put("byte", "B");
         primitiveJavaToJvm.put("char", "C");
         primitiveJavaToJvm.put("double", "D");
@@ -70,7 +73,7 @@ public final class JavaAssistUtils {
     }
 
     public static String javaTypeToJvmSignature(String[] javaTypeArray) {
-        if (com.navercorp.pinpoint.common.util.ArrayUtils.isEmpty(javaTypeArray)) {
+        if (ArrayUtils.isEmpty(javaTypeArray)) {
             return "()";
         }
         final StringBuilder buffer = new StringBuilder();
@@ -89,14 +92,14 @@ public final class JavaAssistUtils {
             throw new NullPointerException("javaType");
         }
         if (javaType.isEmpty()) {
-            throw new IllegalArgumentException("invalid javaType. \"\"");
+            throw new IllegalArgumentException("javaType is empty");
         }
 
         final int javaObjectArraySize = getJavaObjectArraySize(javaType);
-        final int javaArrayLength = javaObjectArraySize * 2;
         String pureJavaType;
         if (javaObjectArraySize != 0) {
             // pure java
+            final int javaArrayLength = javaObjectArraySize * 2;
             pureJavaType = javaType.substring(0, javaType.length() - javaArrayLength);
         } else {
             pureJavaType = javaType;
@@ -117,7 +120,7 @@ public final class JavaAssistUtils {
             buffer.append('[');
         }
         buffer.append('L');
-        buffer.append(javaNameToJvmName(pureJavaType));
+        StringMatchUtils.appendAndReplace(pureJavaType, 0, '.', '/', buffer);
         buffer.append(';');
         return buffer.toString();
     }
@@ -159,7 +162,18 @@ public final class JavaAssistUtils {
         if (javaName == null) {
             throw new NullPointerException("javaName");
         }
-        return javaName.replace('.', '/').concat(".class");
+        final int index = javaName.indexOf('.');
+        if (index == -1) {
+            return javaName + CLASS_POST_FIX;
+        }
+
+        StringBuilder builder = new StringBuilder(javaName.length() + CLASS_POST_FIX.length());
+        builder.append(javaName, 0, index);
+
+        StringMatchUtils.appendAndReplace(javaName, index, '.', '/', builder);
+
+        builder.append(CLASS_POST_FIX);
+        return builder.toString();
     }
 
     /**
@@ -169,11 +183,11 @@ public final class JavaAssistUtils {
      * @return
      */
     public static List<String> jvmNameToJavaName(List<String> jvmNameArray) {
-        if (jvmNameArray == null) {
+        if (CollectionUtils.isEmpty(jvmNameArray)) {
             return Collections.emptyList();
         }
 
-        List<String> list = new ArrayList<String>(jvmNameArray.size());
+        List<String> list = new ArrayList<>(jvmNameArray.size());
         for (String jvmName : jvmNameArray) {
             list.add(jvmNameToJavaName(jvmName));
         }
@@ -199,22 +213,7 @@ public final class JavaAssistUtils {
         if (javaType.isEmpty()) {
             return 0;
         }
-        final int endIndex = javaType.length() - 1;
-        final char checkEndArrayExist = javaType.charAt(endIndex);
-        if (checkEndArrayExist != ']') {
-            return 0;
-        }
-        int arraySize = 0;
-        for (int i = endIndex; i > 0; i = i - 2) {
-            final char arrayEnd = javaType.charAt(i);
-            final char arrayStart = javaType.charAt(i - 1);
-            if (arrayStart == '[' && arrayEnd == ']') {
-                arraySize++;
-            } else {
-                return arraySize;
-            }
-        }
-        return arraySize;
+        return StringMatchUtils.endsWithCountMatches(javaType, ARRAY);
     }
 
     public static String[] parseParameterSignature(String signature) {
@@ -235,22 +234,37 @@ public final class JavaAssistUtils {
 
     public static String javaClassNameToObjectName(String javaClassName) {
         final char scheme = javaClassName.charAt(0);
-        switch (scheme) {
-            case '[':
-                return toArrayType(javaClassName);
-            default:
-                return javaClassName;
+        if (scheme == '[') {
+            return toArrayType(javaClassName);
         }
+        return javaClassName;
     }
 
     // to variable name.
     // '.' '$' '[' ']' => '_'
+    private static final char[] CLASS_REPLACE_CHAR =  ".$[]".toCharArray();
+
     public static String javaClassNameToVariableName(String javaClassName) {
         if (javaClassName == null) {
-            throw new NullPointerException("java class name");
+            throw new NullPointerException("javaClassName");
         }
 
-        return javaClassName.replace('.', '_').replace('$', '_').replace('[', '_').replace(']', '_');
+        final int index = StringMatchUtils.indexOf(javaClassName, CLASS_REPLACE_CHAR);
+        if (index == -1) {
+            return javaClassName;
+        }
+
+        StringBuilder builder = new StringBuilder(javaClassName.length());
+        builder.append(javaClassName, 0, index);
+        for (int i = index; i < javaClassName.length(); i++) {
+            final char c = javaClassName.charAt(i);
+            if (StringMatchUtils.contains(c, CLASS_REPLACE_CHAR)) {
+                builder.append('_');
+            } else {
+                builder.append(c);
+            }
+        }
+        return builder.toString();
     }
 
     private static String byteCodeSignatureToObjectType(String signature, int startIndex) {
@@ -303,16 +317,7 @@ public final class JavaAssistUtils {
         if (StringUtils.isEmpty(description)) {
             return 0;
         }
-        int arraySize = 0;
-        for (int i = 0; i < description.length(); i++) {
-            final char c = description.charAt(i);
-            if (c == '[') {
-                arraySize++;
-            } else {
-                break;
-            }
-        }
-        return arraySize;
+        return StringMatchUtils.startsWithCountMatches(description, '[');
     }
 
     private static String toObjectType(String signature, int startIndex) {
@@ -332,7 +337,7 @@ public final class JavaAssistUtils {
             return Collections.emptyList();
         }
         final Matcher matcher = PARAMETER_SIGNATURE_PATTERN.matcher(parameterSignature);
-        final List<String> parameterTypeList = new ArrayList<String>();
+        final List<String> parameterTypeList = new ArrayList<>();
         while (matcher.find()) {
             parameterTypeList.add(matcher.group());
         }
@@ -356,7 +361,7 @@ public final class JavaAssistUtils {
         return signature.substring(start, end);
     }
 
-    public static String[] getParameterType(Class[] paramsClass) {
+    public static String[] getParameterType(Class<?>[] paramsClass) {
         if (paramsClass == null) {
             return null;
         }
@@ -374,23 +379,18 @@ public final class JavaAssistUtils {
 
         String[] paramsString = new String[paramClasses.length];
         for (int i = 0; i < paramClasses.length; i++) {
-            paramsString[i] = toPinpointParameterType(paramClasses[i]);
+            paramsString[i] = ReflectionUtils.getParameterTypeName(paramClasses[i]);
         }
 
         return paramsString;
     }
 
     public static String toPinpointParameterType(Class<?> type) {
-        if (type.isArray()) {
-            return toPinpointParameterType(type.getComponentType()) + "[]";
-        } else {
-            return type.getName();
-        }
+        return ReflectionUtils.getParameterTypeName(type);
     }
 
-
     @Deprecated
-    public static String getParameterDescription(Class[] params) {
+    public static String getParameterDescription(Class<?>[] params) {
         if (params == null) {
             return EMPTY_ARRAY;
         }
