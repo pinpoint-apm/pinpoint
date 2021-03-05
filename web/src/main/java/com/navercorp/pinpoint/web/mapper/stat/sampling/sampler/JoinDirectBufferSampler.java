@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDirectBufferBo;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

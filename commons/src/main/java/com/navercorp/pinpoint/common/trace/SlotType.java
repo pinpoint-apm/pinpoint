@@ -16,7 +16,13 @@
 
 package com.navercorp.pinpoint.common.trace;
 
-
+/**
+ * @author jaehong.kim
+ */
 public enum SlotType {
-    FAST, NORMAL, SLOW, VERY_SLOW, ERROR, FAST_ERROR, NORMAL_ERROR, SLOW_ERROR, VERY_SLOW_ERROR
+    FAST, NORMAL, SLOW, VERY_SLOW,
+    ERROR,
+    FAST_ERROR, NORMAL_ERROR, SLOW_ERROR, VERY_SLOW_ERROR,
+    SUM_STAT, MAX_STAT,
+    PING
 }

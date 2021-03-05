@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.ClientStreamingProvider;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.StreamJob;
 import io.grpc.stub.ClientCallStreamObserver;
@@ -11,8 +11,8 @@ public class ClientStreamingService<ReqT, ResT> {
 
     public ClientStreamingService(ClientStreamingProvider<ReqT, ResT> clientStreamingProvider,
                                   Reconnector reconnector) {
-        this.clientStreamingProvider = Assert.requireNonNull(clientStreamingProvider, "clientStreamingProvider");
-        this.reconnector = Assert.requireNonNull(reconnector, "reconnector");
+        this.clientStreamingProvider = Objects.requireNonNull(clientStreamingProvider, "clientStreamingProvider");
+        this.reconnector = Objects.requireNonNull(reconnector, "reconnector");
     }
 
     public ClientCallStreamObserver<ReqT> newStream(StreamJob<ReqT> streamJob) {

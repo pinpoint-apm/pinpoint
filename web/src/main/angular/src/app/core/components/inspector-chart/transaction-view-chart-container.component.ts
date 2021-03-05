@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, OnDestroy, ViewChild } from '@angular/core';
 import { Subject, forkJoin, combineLatest, of } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-import { PrimitiveArray, Data } from 'billboard.js';
+import { PrimitiveArray, Data, zoom } from 'billboard.js';
 import * as moment from 'moment-timezone';
 
 import { ChartType, InspectorChartContainerFactory, IInspectorChartContainer } from './inspector-chart-container-factory';
@@ -195,6 +195,7 @@ export class TransactionViewChartContainerComponent implements OnInit, OnDestroy
             point: {
                 r: 0,
                 focus: {
+                    only: true,
                     expand: {
                         r: 3
                     }
@@ -215,9 +216,8 @@ export class TransactionViewChartContainerComponent implements OnInit, OnDestroy
                 duration: 0
             },
             zoom: {
-                enabled: {
-                    type: 'drag'
-                }
+                enabled: zoom(),
+                type: 'drag'
             },
             ...this.chartContainer.makeElseOption()
         };

@@ -18,12 +18,13 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.transaction;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.transaction.DefaultTransactionMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
+
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -34,7 +35,7 @@ public class TransactionMetricCollectorProvider implements Provider<AgentStatMet
 
     @Inject
     public TransactionMetricCollectorProvider(TransactionMetric transactionMetric) {
-        this.transactionMetric = Assert.requireNonNull(transactionMetric, "transactionMetric");
+        this.transactionMetric = Objects.requireNonNull(transactionMetric, "transactionMetric");
     }
 
     @Override

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import org.slf4j.Logger;
@@ -51,7 +51,7 @@ public class URLClassLoaderHandler implements ClassInjector {
     private final PluginConfig pluginConfig;
 
     public URLClassLoaderHandler(PluginConfig pluginConfig) {
-        this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig");
+        this.pluginConfig = Objects.requireNonNull(pluginConfig, "pluginConfig");
     }
 
     @Override

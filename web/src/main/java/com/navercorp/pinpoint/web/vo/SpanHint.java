@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.util.Assert;
 
+
 /**
  * @author Taejin Koo
  */

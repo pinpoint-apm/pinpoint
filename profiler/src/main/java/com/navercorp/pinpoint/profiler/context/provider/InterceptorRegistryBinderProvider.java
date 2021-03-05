@@ -20,7 +20,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 
@@ -37,7 +37,7 @@ public class InterceptorRegistryBinderProvider implements Provider<InterceptorRe
     }
 
     private static int getInterceptorRegistrySize(ProfilerConfig profilerConfig) {
-        Assert.requireNonNull(profilerConfig, "profilerConfig");
+        Objects.requireNonNull(profilerConfig, "profilerConfig");
         return profilerConfig.getInterceptorRegistrySize();
     }
 

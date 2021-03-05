@@ -37,7 +37,7 @@
     "ag-grid-community": "^22.0.0",
     "angular-2-local-storage": "^3.0.2",
     "angular-split": "^3.0.3",
-    "billboard.js": "^1.10.2",
+    "billboard.js": "^2.2.4",
     "core-js": "^3.2.1",
     "cytoscape": "^3.12.1",
     "cytoscape-dagre": "^2.2.2",

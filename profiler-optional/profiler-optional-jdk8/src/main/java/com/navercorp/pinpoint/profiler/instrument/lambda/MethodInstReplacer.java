@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.lambda;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.ASMVersion;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -42,13 +42,13 @@ public class MethodInstReplacer extends ClassVisitor {
                               String targetClassName, String targetMethodName,
                               String delegateClassName, String delegateMethodName) {
         super(ASMVersion.VERSION, classVisitor);
-        this.methodName = Assert.requireNonNull(methodName, "methodName");
+        this.methodName = Objects.requireNonNull(methodName, "methodName");
 
-        this.targetClassName = Assert.requireNonNull(targetClassName, "targetClassName");
-        this.targetMethodName = Assert.requireNonNull(targetMethodName, "targetMethodName");
+        this.targetClassName = Objects.requireNonNull(targetClassName, "targetClassName");
+        this.targetMethodName = Objects.requireNonNull(targetMethodName, "targetMethodName");
 
-        this.delegateClassName = Assert.requireNonNull(delegateClassName, "delegateClassName");
-        this.delegateMethodName = Assert.requireNonNull(delegateMethodName, "delegateMethodName");
+        this.delegateClassName = Objects.requireNonNull(delegateClassName, "delegateClassName");
+        this.delegateMethodName = Objects.requireNonNull(delegateMethodName, "delegateMethodName");
     }
 
     @Override

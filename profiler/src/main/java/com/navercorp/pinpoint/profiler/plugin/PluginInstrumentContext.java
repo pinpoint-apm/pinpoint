@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
@@ -55,11 +55,11 @@ public class PluginInstrumentContext implements InstrumentContext {
     private final ClassFileTransformerLoader transformerRegistry;
 
     public PluginInstrumentContext(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine, DynamicTransformTrigger dynamicTransformTrigger, ClassInjector classInjector, ClassFileTransformerLoader transformerRegistry) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine");
-        this.dynamicTransformTrigger = Assert.requireNonNull(dynamicTransformTrigger, "dynamicTransformTrigger");
-        this.classInjector = Assert.requireNonNull(classInjector, "classInjector");
-        this.transformerRegistry = Assert.requireNonNull(transformerRegistry, "transformerRegistry");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.instrumentEngine = Objects.requireNonNull(instrumentEngine, "instrumentEngine");
+        this.dynamicTransformTrigger = Objects.requireNonNull(dynamicTransformTrigger, "dynamicTransformTrigger");
+        this.classInjector = Objects.requireNonNull(classInjector, "classInjector");
+        this.transformerRegistry = Objects.requireNonNull(transformerRegistry, "transformerRegistry");
     }
 
 
@@ -103,40 +103,40 @@ public class PluginInstrumentContext implements InstrumentContext {
 
     @Override
     public void addClassFileTransformer(final Matcher matcher, final TransformCallback transformCallback) {
-        Assert.requireNonNull(matcher, "matcher");
-        Assert.requireNonNull(transformCallback, "transformCallback");
+        Objects.requireNonNull(matcher, "matcher");
+        Objects.requireNonNull(transformCallback, "transformCallback");
         final TransformCallbackProvider transformCallbackProvider = new InstanceTransformCallbackProvider(transformCallback);
         transformerRegistry.addClassFileTransformer(this, matcher, transformCallbackProvider);
     }
 
     @Override
     public void addClassFileTransformer(final Matcher matcher, final String transformCallbackClassName) {
-        Assert.requireNonNull(matcher, "matcher");
-        Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName");
+        Objects.requireNonNull(matcher, "matcher");
+        Objects.requireNonNull(transformCallbackClassName, "transformCallbackClassName");
         final TransformCallbackProvider transformCallbackProvider = new DynamicTransformCallbackProvider(transformCallbackClassName);
         transformerRegistry.addClassFileTransformer(this, matcher, transformCallbackProvider);
     }
 
     @Override
     public void addClassFileTransformer(final Matcher matcher, final String transformCallbackClassName, Object[] parameters, Class<?>[] parameterTypes) {
-        Assert.requireNonNull(matcher, "matcher");
-        Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName");
+        Objects.requireNonNull(matcher, "matcher");
+        Objects.requireNonNull(transformCallbackClassName, "transformCallbackClassName");
         final TransformCallbackProvider transformCallbackProvider = new DynamicTransformCallbackProvider(transformCallbackClassName, parameters, parameterTypes);
         transformerRegistry.addClassFileTransformer(this, matcher, transformCallbackProvider);
     }
 
     @Override
     public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, final TransformCallback transformCallback) {
-        Assert.requireNonNull(targetClassName, "targetClassName");
-        Assert.requireNonNull(transformCallback, "transformCallback");
+        Objects.requireNonNull(targetClassName, "targetClassName");
+        Objects.requireNonNull(transformCallback, "transformCallback");
         final TransformCallbackProvider transformCallbackProvider = new InstanceTransformCallbackProvider(transformCallback);
         this.transformerRegistry.addClassFileTransformer(this, classLoader, targetClassName, transformCallbackProvider);
     }
 
     @Override
     public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, final String transformCallbackClassName) {
-        Assert.requireNonNull(targetClassName, "targetClassName");
-        Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName");
+        Objects.requireNonNull(targetClassName, "targetClassName");
+        Objects.requireNonNull(transformCallbackClassName, "transformCallbackClassName");
         final TransformCallbackProvider transformCallbackProvider = new DynamicTransformCallbackProvider(transformCallbackClassName);
         this.transformerRegistry.addClassFileTransformer(this, classLoader, targetClassName, transformCallbackProvider);
     }
@@ -144,8 +144,8 @@ public class PluginInstrumentContext implements InstrumentContext {
 
     @Override
     public void retransform(Class<?> target, final TransformCallback transformCallback) {
-        Assert.requireNonNull(target, "target");
-        Assert.requireNonNull(transformCallback, "transformCallback");
+        Objects.requireNonNull(target, "target");
+        Objects.requireNonNull(transformCallback, "transformCallback");
 
         final InstanceTransformCallbackProvider transformCallbackProvider = new InstanceTransformCallbackProvider(transformCallback);
         final ClassFileTransformerDelegate classFileTransformerGuardDelegate = new ClassFileTransformerDelegate(profilerConfig, this, transformCallbackProvider);

@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.io.request;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.io.header.HeaderEntity;
 import org.apache.thrift.TBase;
 
@@ -28,8 +28,8 @@ public class FlinkRequest {
     private final TBase<?, ?> data;
 
     public FlinkRequest(HeaderEntity headerEntity, TBase<?, ?> data) {
-        this.headerEntity = Assert.requireNonNull(headerEntity, "headerEntity");
-        this.data = Assert.requireNonNull(data, "data");
+        this.headerEntity = Objects.requireNonNull(headerEntity, "headerEntity");
+        this.data = Objects.requireNonNull(data, "data");
     }
 
     public HeaderEntity getHeaderEntity() {

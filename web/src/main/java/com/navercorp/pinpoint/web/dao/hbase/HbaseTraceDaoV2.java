@@ -40,8 +40,8 @@ import com.navercorp.pinpoint.web.mapper.TargetSpanDecoder;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.SpanHint;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
@@ -188,7 +188,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
     }
 
     private List<List<GetTraceInfo>> partition(List<GetTraceInfo> getTraceInfoList, int maxTransactionIdListSize) {
-        return Lists.partition(getTraceInfoList, maxTransactionIdListSize);
+        return ListUtils.partition(getTraceInfoList, maxTransactionIdListSize);
     }
 
     private List<List<SpanBo>> partitionSelect(List<List<GetTraceInfo>> partitionGetTraceInfoList, byte[] columnFamily, Filter filter) {

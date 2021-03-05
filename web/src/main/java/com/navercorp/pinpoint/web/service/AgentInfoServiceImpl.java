@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
@@ -42,8 +43,9 @@ import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimeline;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineBuilder;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.PredicateUtils;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.PredicateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -58,6 +60,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author netspider
@@ -177,16 +180,25 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
 
         List<String> activeAgentIdList = new ArrayList<>();
-        final long toTimestamp = System.currentTimeMillis();
+
+        Range fastRange = Range.newRange(TimeUnit.HOURS, 1, System.currentTimeMillis());
+
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, durationDays * -1);
         final long fromTimestamp = cal.getTimeInMillis();
-        Range queryRange = Range.newRange(fromTimestamp, toTimestamp);
+        Range queryRange = Range.newRange(fromTimestamp, fastRange.getFrom() + 1);
+
         for (String agentId : agentIds) {
             // FIXME This needs to be done with a more accurate information.
             // If at any time a non-java agent is introduced, or an agent that does not collect jvm data,
             // this will fail
-            boolean dataExists = this.jvmGcDao.agentStatExists(agentId, queryRange);
+            boolean dataExists = isActiveAgent(agentId, fastRange);
+            if (dataExists) {
+                activeAgentIdList.add(agentId);
+                continue;
+            }
+
+            dataExists = isActiveAgent(agentId, queryRange);
             if (dataExists) {
                 activeAgentIdList.add(agentId);
             }
@@ -271,6 +283,17 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
         return this.agentLifeCycleDao.getAgentStatus(agentId, timestamp);
+    }
+
+    @Override
+    public boolean isActiveAgent(String agentId, Range range) {
+        boolean dataExists = this.jvmGcDao.agentStatExists(agentId, range);
+        if (dataExists) {
+            return true;
+        }
+
+        List<AgentEvent> agentEvents = this.agentEventService.getAgentEvents(agentId, range);
+        return agentEvents.stream().anyMatch(e -> e.getEventTypeCode() == AgentEventType.AGENT_PING.getCode());
     }
 
     @Override

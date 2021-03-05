@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.net.URL;
 import java.util.List;
@@ -33,9 +33,9 @@ public class JarPlugin<T> implements Plugin<T> {
     private final List<String> packageList;
 
     public JarPlugin(PluginJar pluginJar, List<T> instanceList, List<String> packageList) {
-        this.pluginJar = Assert.requireNonNull(pluginJar, "pluginJar");
-        this.instanceList = Assert.requireNonNull(instanceList, "instanceList");
-        this.packageList = Assert.requireNonNull(packageList, "packageList");
+        this.pluginJar = Objects.requireNonNull(pluginJar, "pluginJar");
+        this.instanceList = Objects.requireNonNull(instanceList, "instanceList");
+        this.packageList = Objects.requireNonNull(packageList, "packageList");
     }
 
     @Override

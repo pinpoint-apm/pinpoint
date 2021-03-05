@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdStreamResponse;
 import io.grpc.stub.ClientResponseObserver;
@@ -39,7 +39,7 @@ public class ActiveThreadCountStreamSocket implements GrpcProfilerStreamSocket<P
 
     public ActiveThreadCountStreamSocket(int streamObserverId, GrpcStreamService grpcStreamService) {
         this.streamObserverId = streamObserverId;
-        this.grpcStreamService = Assert.requireNonNull(grpcStreamService, "grpcStreamService");
+        this.grpcStreamService = Objects.requireNonNull(grpcStreamService, "grpcStreamService");
         this.clientResponseObserver = new PinpointClientResponseObserver<PCmdActiveThreadCountRes>(this);
     }
 

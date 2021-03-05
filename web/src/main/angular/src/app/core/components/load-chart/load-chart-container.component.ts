@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Input, ComponentFactoryResolver, Injector
 import { Subject, forkJoin, merge, of } from 'rxjs';
 import { filter, map, tap, switchMap, catchError, pluck, withLatestFrom, takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
-import { PrimitiveArray, Data } from 'billboard.js';
+import { PrimitiveArray, Data, areaStep } from 'billboard.js';
 import * as moment from 'moment-timezone';
 
 import { WebAppSettingDataService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService, MESSAGE_TO, StoreHelperService, MessageQueueService, AgentHistogramDataService, NewUrlStateNotificationService } from 'app/shared/services';
@@ -102,6 +102,7 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
         this.agentHistogramDataService.getData(key, applicationName, serviceTypeCode, this.serverMapData, this.previousRange).pipe(
             map((data: any) => this.isAllAgent() ? data['timeSeriesHistogram'] : data['agentTimeSeriesHistogram'][this.selectedAgent])
         ).pipe(
+            map((data: IHistogram[]) => this.cleanStatisticsChartData(data)),
             map((data: IHistogram[]) => this.makeChartData(data)),
             withLatestFrom(this.storeHelperService.getLoadChartYMax(this.unsubscribe))
         ).subscribe(([chartData, yMax]: [PrimitiveArray[], number]) => {
@@ -223,6 +224,7 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
                 }),
             )
         ).pipe(
+            map((data: IHistogram[]) => this.cleanStatisticsChartData(data)),
             map((data) => this.makeChartData(data)),
             switchMap((data: PrimitiveArray[]) => {
                 if (this.shouldUpdateYMax()) {
@@ -262,6 +264,12 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
             : this.serverMapData.getLinkData(this.selectedTarget.link[0]);
     }
 
+    private cleanStatisticsChartData(data: IHistogram[]): IHistogram[] {
+        const excludes = ['Sum', 'Tot', 'Avg', 'Max'];
+
+        return data ? data.filter(({key}: IHistogram) => excludes.indexOf(key) === -1) : null;
+    }
+
     private makeChartData(data: IHistogram[]): PrimitiveArray[] {
         return data
             ? [
@@ -282,7 +290,7 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
                     text: this.dataEmptyText
                 }
             },
-            type: 'area-step',
+            type: areaStep(),
             colors: keyList.reduce((acc: {[key: string]: string}, curr: string, i: number) => {
                 return { ...acc, [curr]: this.chartColors[i] };
             }, {}),
@@ -331,6 +339,9 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
                 y: {
                     show: true
                 }
+            },
+            point: {
+                show: false
             },
             tooltip: {
                 order: '',

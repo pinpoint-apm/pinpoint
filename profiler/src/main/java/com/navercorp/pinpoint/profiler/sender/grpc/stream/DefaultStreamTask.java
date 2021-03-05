@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.profiler.sender.grpc.stream;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.sender.grpc.ClientStreamingService;
 import com.navercorp.pinpoint.profiler.sender.grpc.MessageDispatcher;
 import com.navercorp.pinpoint.profiler.sender.grpc.StreamId;
@@ -37,11 +37,11 @@ public class DefaultStreamTask<ReqT, ResT> implements StreamTask<ReqT> {
                              StreamExecutorFactory<ReqT> streamExecutorFactory,
                              BlockingQueue<Object> queue, MessageDispatcher<ReqT> dispatcher, StreamState failState) {
         this.streamId = StreamId.newStreamId(id);
-        this.clientStreamingService = Assert.requireNonNull(clientStreamingService, "clientStreamingService");
-        this.streamExecutorFactory = Assert.requireNonNull(streamExecutorFactory, "streamExecutorFactory");
-        this.queue = Assert.requireNonNull(queue, "queue");
-        this.dispatcher = Assert.requireNonNull(dispatcher, "dispatcher");
-        this.failState = Assert.requireNonNull(failState, "failState");
+        this.clientStreamingService = Objects.requireNonNull(clientStreamingService, "clientStreamingService");
+        this.streamExecutorFactory = Objects.requireNonNull(streamExecutorFactory, "streamExecutorFactory");
+        this.queue = Objects.requireNonNull(queue, "queue");
+        this.dispatcher = Objects.requireNonNull(dispatcher, "dispatcher");
+        this.failState = Objects.requireNonNull(failState, "failState");
     }
 
 

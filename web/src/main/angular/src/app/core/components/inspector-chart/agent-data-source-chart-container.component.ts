@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { PrimitiveArray, Data, DataItem } from 'billboard.js';
+import { PrimitiveArray, Data, DataItem, spline, zoom } from 'billboard.js';
 import { Subject, forkJoin, combineLatest, of } from 'rxjs';
 import { tap, takeUntil, switchMap, catchError } from 'rxjs/operators';
 import * as moment from 'moment-timezone';
@@ -234,13 +234,13 @@ export class AgentDataSourceChartContainerComponent implements OnInit, OnDestroy
         return {
             x: 'x',
             columns,
-            type: 'spline',
+            type: spline(),
             colors: columns.slice(1).reduce((acc: {[key: string]: string}, [key]: PrimitiveArray, i: number) => {
                 return { ...acc, [key as string]: colorList[i]};
             }, {}),
             onover: function(d: DataItem) {
                 self.onoverDataHolder.push(d);
-                const max = this.axis.max().y;
+                const max = (this.axis.max() as any).y;
 
                 if (self.onoverDataHolder.length === dataLength && self.yRatio) {
                     const relativeYValueInChart = max - self.yRatio * max; // 차트안에서 mouse y위치의 상대적 value.
@@ -304,6 +304,7 @@ export class AgentDataSourceChartContainerComponent implements OnInit, OnDestroy
             point: {
                 r: 0,
                 focus: {
+                    only: true,
                     expand: {
                         r: 3
                     }
@@ -324,9 +325,8 @@ export class AgentDataSourceChartContainerComponent implements OnInit, OnDestroy
                 show: false
             },
             zoom: {
-                enabled: {
-                    type: 'drag'
-                }
+                enabled: zoom(),
+                type: 'drag'
             }
         };
     }

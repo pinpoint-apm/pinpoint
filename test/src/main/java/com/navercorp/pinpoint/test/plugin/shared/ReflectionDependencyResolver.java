@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
-import com.navercorp.pinpoint.test.plugin.util.Assert;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;
 import com.navercorp.pinpoint.test.plugin.util.ThreadContextCallable;
 
@@ -25,6 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 
 /**
@@ -37,7 +37,7 @@ public class ReflectionDependencyResolver {
     private Method resolveArtifactsAndDependenciesMethod;
 
     public ReflectionDependencyResolver(ClassLoader classLoader) {
-        this.classLoader = Assert.requireNonNull(classLoader, "classLoader");
+        this.classLoader = Objects.requireNonNull(classLoader, "classLoader");
     }
 
     public List<File> lookup(final List<String> classpathList) throws Exception {
@@ -72,8 +72,7 @@ public class ReflectionDependencyResolver {
 
     private void initialize() throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Class<?> factory = classLoader.loadClass("com.navercorp.pinpoint.test.plugin.DependencyResolverFactory");
-        Constructor<?> factoryConstructor = factory.getConstructor(boolean.class);
-        Object factoryObject = factoryConstructor.newInstance(false);
+        Object factoryObject = factory.newInstance();
         Method resolverGet = factory.getMethod("get", String[].class);
 
         dependencyResolverObject = resolverGet.invoke(factoryObject, (Object) new String[]{});

@@ -17,9 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.module.config;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
 import com.google.inject.Scopes;
-import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
@@ -27,11 +25,8 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.InstrumentMatcherCacheConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.TransportModule;
-import com.navercorp.pinpoint.bootstrap.config.util.PlaceHolderResolver;
 import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
-import com.navercorp.pinpoint.bootstrap.config.util.ValueResolver;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
@@ -45,15 +40,16 @@ import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ConfiguredApplicationTypeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.InterceptorRegistryBinderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceDataFormatVersionProvider;
-import com.navercorp.pinpoint.profiler.instrument.classloading.BootstrapCore;
-import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginJarsProvider;
+import com.navercorp.pinpoint.profiler.instrument.classloading.BootstrapCore;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.Instrumentation;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -65,8 +61,8 @@ public class ConfigModule extends AbstractModule {
     private final AgentOption agentOption;
 
     public ConfigModule(AgentOption agentOption) {
-        this.agentOption = Assert.requireNonNull(agentOption, "profilerConfig");
-        Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
+        this.agentOption = Objects.requireNonNull(agentOption, "profilerConfig");
+        Objects.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
     }
 
     @Override

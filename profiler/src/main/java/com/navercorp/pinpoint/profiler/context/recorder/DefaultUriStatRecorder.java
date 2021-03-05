@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
-import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -36,8 +36,8 @@ public class DefaultUriStatRecorder<T> implements UriStatRecorder<T> {
     private final UriStatStorage uriStatStorage;
 
     public DefaultUriStatRecorder(UriExtractor<T> uriExtractor, UriStatStorage uriStatStorage) {
-        this.uriExtractor = Assert.requireNonNull(uriExtractor, "uriExtractor");
-        this.uriStatStorage = Assert.requireNonNull(uriStatStorage, "uriStatStorage");
+        this.uriExtractor = Objects.requireNonNull(uriExtractor, "uriExtractor");
+        this.uriStatStorage = Objects.requireNonNull(uriStatStorage, "uriStatStorage");
     }
 
     @Override

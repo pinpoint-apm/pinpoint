@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.module.AgentDataSender;
@@ -28,6 +27,8 @@ import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -48,11 +49,11 @@ public class AgentInfoSenderProvider implements Provider<AgentInfoSender> {
             Provider<AgentInfoFactory> agentInfoFactoryProvider,
             ServerMetaDataRegistryService serverMetaDataRegistryService,
             @ResultConverter MessageConverter<ResultResponse> messageConverter) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.enhancedDataSenderProvider = Assert.requireNonNull(enhancedDataSenderProvider, "enhancedDataSenderProvider");
-        this.agentInfoFactoryProvider = Assert.requireNonNull(agentInfoFactoryProvider, "agentInfoFactoryProvider");
-        this.serverMetaDataRegistryService = Assert.requireNonNull(serverMetaDataRegistryService, "serverMetaDataRegistryService");
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.enhancedDataSenderProvider = Objects.requireNonNull(enhancedDataSenderProvider, "enhancedDataSenderProvider");
+        this.agentInfoFactoryProvider = Objects.requireNonNull(agentInfoFactoryProvider, "agentInfoFactoryProvider");
+        this.serverMetaDataRegistryService = Objects.requireNonNull(serverMetaDataRegistryService, "serverMetaDataRegistryService");
+        this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
     }
 
     @Override

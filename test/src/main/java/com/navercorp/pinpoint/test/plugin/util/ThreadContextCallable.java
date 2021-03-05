@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.test.plugin.util;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.util.concurrent.Callable;
 
@@ -10,8 +10,8 @@ public class ThreadContextCallable<V> implements Callable<V> {
     private final ClassLoader contextClassLoader;
 
     public ThreadContextCallable(Callable<V> delegate, ClassLoader contextClassLoader) {
-        this.delegate = Assert.requireNonNull(delegate, "delegate");
-        this.contextClassLoader = Assert.requireNonNull(contextClassLoader, "contextClassLoader");
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
+        this.contextClassLoader = Objects.requireNonNull(contextClassLoader, "contextClassLoader");
     }
 
     public V call() throws Exception {

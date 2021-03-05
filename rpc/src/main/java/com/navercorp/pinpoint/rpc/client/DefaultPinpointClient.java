@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
@@ -46,13 +46,13 @@ public class DefaultPinpointClient implements PinpointClient {
     private final List<PinpointClientReconnectEventListener> reconnectEventListeners = new CopyOnWriteArrayList<PinpointClientReconnectEventListener>();
 
      public DefaultPinpointClient(PinpointClientHandler pinpointClientHandler) {
-        this.pinpointClientHandler = Assert.requireNonNull(pinpointClientHandler, "pinpointClientHandler");
+        this.pinpointClientHandler = Objects.requireNonNull(pinpointClientHandler, "pinpointClientHandler");
         pinpointClientHandler.setPinpointClient(this);
     }
 
     @Override
     public void reconnectSocketHandler(PinpointClientHandler pinpointClientHandler) {
-        Assert.requireNonNull(pinpointClientHandler, "pinpointClientHandler");
+        Objects.requireNonNull(pinpointClientHandler, "pinpointClientHandler");
 
         if (closed) {
             logger.warn("reconnectClientHandler(). pinpointClientHandler force close.");

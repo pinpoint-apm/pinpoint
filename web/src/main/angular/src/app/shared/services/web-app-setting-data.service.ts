@@ -83,6 +83,9 @@ export class WebAppSettingDataService {
     isApplicationInspectorActivated(): Observable<boolean> {
         return this.newUrlStateNotificationService.getConfiguration('showApplicationStat');
     }
+    isWebhookEnable(): Observable<boolean> {
+        return this.newUrlStateNotificationService.getConfiguration('webhookEnable');
+    }
     getImagePath(): string {
         return this.IMAGE_PATH;
     }
@@ -127,6 +130,12 @@ export class WebAppSettingDataService {
     }
     getColorByRequest(): string[] {
         return this.componentDefaultSettingDataService.getColorByRequest();
+    }
+    getColorByResponseStatistics(): string[] {
+        return this.componentDefaultSettingDataService.getColorByResponseStatistics();
+    }
+    getColorByRequestInDetail(): string[] {
+        return this.componentDefaultSettingDataService.getColorByRequestInDetail();
     }
     private loadFavoriteList(): any[] {
         return JSON.parse(this.localStorageService.get(WebAppSettingDataService.KEYS.FAVORLIITE_APPLICATION_LIST)) || [];

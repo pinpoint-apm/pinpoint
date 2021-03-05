@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.grpc.client.config;
 
 import com.navercorp.pinpoint.bootstrap.config.Value;
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ByteSizeUnit;
 import com.navercorp.pinpoint.grpc.ChannelTypeEnum;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -91,7 +91,7 @@ public class ClientOption {
         this.writeBufferHighWaterMark = writeBufferHighWaterMark;
         this.writeBufferLowWaterMark = writeBufferLowWaterMark;
 
-        this.channelTypeEnum = Assert.requireNonNull(channelTypeEnum, "channelTypeEnum");
+        this.channelTypeEnum = Objects.requireNonNull(channelTypeEnum, "channelTypeEnum");
         this.maxTraceEvent = maxTraceEvent;
 
         this.limitCount = limitCount;

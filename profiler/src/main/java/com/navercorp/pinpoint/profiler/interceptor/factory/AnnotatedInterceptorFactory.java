@@ -64,13 +64,13 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedStaticAroundInte
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetricRegistry;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.instrument.ScopeInfo;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.AutoBindingObjectFactory;
 import com.navercorp.pinpoint.profiler.objectfactory.InterceptorArgumentProvider;
+
+import java.util.Objects;
 
 /**
  * @author Jongho Moon
@@ -82,6 +82,7 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
     private final CustomMetricRegistry customMetricRegistry;
     private final ApiMetaDataService apiMetaDataService;
+
     private final InstrumentContext pluginContext;
     private final ExceptionHandlerFactory exceptionHandlerFactory;
     private final RequestRecorderFactory requestRecorderFactory;
@@ -96,24 +97,27 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
                                        ExceptionHandlerFactory exceptionHandlerFactory,
                                        RequestRecorderFactory requestRecorderFactory,
                                        UriStatRecorderFactory uriStatRecorderFactory) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.traceContext = Assert.requireNonNull(traceContext, "traceContext");
-        this.dataSourceMonitorRegistry = Assert.requireNonNull(dataSourceMonitorRegistry, "dataSourceMonitorRegistry");
-        this.customMetricRegistry = Assert.requireNonNull(customMetricRegistry, "customMetricRegistry");
-        this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService");
-        this.pluginContext = Assert.requireNonNull(pluginContext, "pluginContext");
-        this.exceptionHandlerFactory = Assert.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
-        this.requestRecorderFactory = Assert.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
-        this.uriStatRecorderFactory = Assert.requireNonNull(uriStatRecorderFactory, "uriStatRecorderFactory");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
+        this.dataSourceMonitorRegistry = Objects.requireNonNull(dataSourceMonitorRegistry, "dataSourceMonitorRegistry");
+        this.customMetricRegistry = Objects.requireNonNull(customMetricRegistry, "customMetricRegistry");
+        this.apiMetaDataService = Objects.requireNonNull(apiMetaDataService, "apiMetaDataService");
+
+        this.pluginContext = Objects.requireNonNull(pluginContext, "pluginContext");
+        this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
+        this.requestRecorderFactory = Objects.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
+        this.uriStatRecorderFactory = Objects.requireNonNull(uriStatRecorderFactory, "uriStatRecorderFactory");
     }
 
     @Override
     public Interceptor newInterceptor(Class<?> interceptorClass, Object[] providedArguments, ScopeInfo scopeInfo, InstrumentClass target, InstrumentMethod targetMethod) {
-        Assert.requireNonNull(interceptorClass, "interceptorClass");
-        Assert.requireNonNull(scopeInfo, "scopeInfo");
+        Objects.requireNonNull(interceptorClass, "interceptorClass");
+        Objects.requireNonNull(scopeInfo, "scopeInfo");
 
         final InterceptorScope interceptorScope = scopeInfo.getInterceptorScope();
-        InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(dataSourceMonitorRegistry, customMetricRegistry, apiMetaDataService, requestRecorderFactory, uriStatRecorderFactory, interceptorScope, target, targetMethod);
+        InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(dataSourceMonitorRegistry,
+                customMetricRegistry, apiMetaDataService, requestRecorderFactory, uriStatRecorderFactory,
+                interceptorScope, target, targetMethod);
 
         AutoBindingObjectFactory factory = new AutoBindingObjectFactory(profilerConfig, traceContext, pluginContext, interceptorClass.getClassLoader());
         Interceptor interceptor = (Interceptor) factory.createInstance(interceptorClass, providedArguments, interceptorArgumentProvider);

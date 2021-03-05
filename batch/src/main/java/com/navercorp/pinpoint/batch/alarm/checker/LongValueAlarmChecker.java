@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 /**
  * @author Taejin Koo
+ * @author Jongjin.Bae
  */
 public abstract class LongValueAlarmChecker extends AlarmChecker<Long> {
 
@@ -32,5 +33,10 @@ public abstract class LongValueAlarmChecker extends AlarmChecker<Long> {
     protected boolean decideResult(Long value) {
         return value >= rule.getThreshold();
     }
-
+    
+    @Override
+    public String getCheckerType() {
+        return LongValueAlarmChecker.class.getSimpleName();
+    }
+    
 }

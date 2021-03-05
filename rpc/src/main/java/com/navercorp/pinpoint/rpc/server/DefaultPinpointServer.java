@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.rpc.ChannelWriteFailListenableFuture;
 import com.navercorp.pinpoint.rpc.Future;
@@ -187,7 +187,7 @@ public class DefaultPinpointServer implements PinpointServer {
 
     @Override
     public void send(byte[] payload) {
-        Assert.requireNonNull(payload, "payload");
+        Objects.requireNonNull(payload, "payload");
         if (!isEnableDuplexCommunication()) {
             throw new IllegalStateException("Send fail. Error: Illegal State. pinpointServer:" + toString());
         }
@@ -198,7 +198,7 @@ public class DefaultPinpointServer implements PinpointServer {
 
     @Override
     public Future<ResponseMessage> request(byte[] payload) {
-        Assert.requireNonNull(payload, "payload");
+        Objects.requireNonNull(payload, "payload");
         if (!isEnableDuplexCommunication()) {
             throw new IllegalStateException("Request fail. Error: Illegal State. pinpointServer:" + toString());
         }
@@ -212,7 +212,7 @@ public class DefaultPinpointServer implements PinpointServer {
 
     @Override
     public void response(int requestId, byte[] payload) {
-        Assert.requireNonNull(payload, "payload");
+        Objects.requireNonNull(payload, "payload");
         if (!isEnableCommunication()) {
             throw new IllegalStateException("Response fail. Error: Illegal State. pinpointServer:" + toString());
         }
@@ -377,7 +377,7 @@ public class DefaultPinpointServer implements PinpointServer {
             boolean isFirst = setChannelProperties(handshakeData);
             if (isFirst) {
                 if (HandshakeResponseCode.DUPLEX_COMMUNICATION == responseCode) {
-                    this.remoteClusterOption = getClusterOption(handshakeData);
+                    this.remoteClusterOption = ClusterOption.getClusterOption(handshakeData);
                     state.toRunDuplex();
                 } else if (HandshakeResponseCode.SIMPLEX_COMMUNICATION == responseCode || HandshakeResponseCode.SUCCESS == responseCode) {
                     state.toRunSimplex();
@@ -393,40 +393,6 @@ public class DefaultPinpointServer implements PinpointServer {
         }
     }
 
-    private ClusterOption getClusterOption(Map handshakeResponse) {
-        if (handshakeResponse == Collections.emptyMap()) {
-            return ClusterOption.DISABLE_CLUSTER_OPTION;
-        }
-
-        Map cluster = (Map) handshakeResponse.get(ControlHandshakeResponsePacket.CLUSTER);
-        if (cluster == null) {
-            return ClusterOption.DISABLE_CLUSTER_OPTION;
-        }
-
-        String id = MapUtils.getString(cluster, "id", "");
-        List<Role> roles = getRoles(cluster.get("roles"));
-
-        if (StringUtils.isEmpty(id)) {
-            return ClusterOption.DISABLE_CLUSTER_OPTION;
-        } else {
-            return new ClusterOption(true, id, roles);
-        }
-    }
-
-    private List<Role> getRoles(Object roleNames) {
-        final List<Role> roles = new ArrayList<Role>();
-        if (roleNames == null || !(roleNames instanceof List)) {
-            return roles;
-        }
-
-        final List list = (List) roleNames;
-        for (Object roleName : list) {
-            if (roleName instanceof String && StringUtils.hasLength((String) roleName)) {
-                roles.add(Role.getValue((String) roleName));
-            }
-        }
-        return roles;
-    }
 
     private void handleClosePacket(Channel channel) {
         logger.info("{} handleClosePacket() started.", objectUniqName);

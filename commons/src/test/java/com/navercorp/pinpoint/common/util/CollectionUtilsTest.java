@@ -17,7 +17,6 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,15 +30,15 @@ public class CollectionUtilsTest {
 
     @Test
     public void nullSafeSize() {
-        Assert.assertEquals(CollectionUtils.nullSafeSize(Lists.newArrayList(123)), 1);
+        Assert.assertEquals(1, CollectionUtils.nullSafeSize(Collections.singletonList(123)));
 
-        Assert.assertEquals(CollectionUtils.nullSafeSize(Collections.emptyList()), 0);
-        Assert.assertEquals(CollectionUtils.nullSafeSize(null), 0);
+        Assert.assertEquals(0, CollectionUtils.nullSafeSize(Collections.emptyList()));
+        Assert.assertEquals(0, CollectionUtils.nullSafeSize(null));
     }
 
     @Test
     public void nullSafeSize_nullValue() {
-        Assert.assertEquals(CollectionUtils.nullSafeSize(null, -1), -1);
+        Assert.assertEquals(-1, CollectionUtils.nullSafeSize(null, -1));
     }
 
     @Test

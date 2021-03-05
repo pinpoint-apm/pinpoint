@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
-import com.navercorp.pinpoint.common.Charsets;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author emeroad
@@ -31,9 +30,9 @@ public interface Buffer {
 
     byte[] EMPTY = new byte[0];
 
-    String UTF8 = Charsets.UTF_8_NAME;
+    String UTF8 = StandardCharsets.UTF_8.name();
 
-    Charset UTF8_CHARSET = Charsets.UTF_8;
+    Charset UTF8_CHARSET = StandardCharsets.UTF_8;
 
     void putPadBytes(byte[] bytes, int totalLength);
 

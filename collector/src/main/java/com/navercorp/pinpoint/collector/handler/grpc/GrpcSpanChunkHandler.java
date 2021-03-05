@@ -1,6 +1,7 @@
 
 package com.navercorp.pinpoint.collector.handler.grpc;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -25,7 +26,7 @@ import java.util.Objects;
  * @author emeroad
  */
 @Service
-public class GrpcSpanChunkHandler implements SimpleHandler {
+public class GrpcSpanChunkHandler implements SimpleHandler<GeneratedMessageV3> {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -41,8 +42,8 @@ public class GrpcSpanChunkHandler implements SimpleHandler {
     }
 
     @Override
-    public void handleSimple(ServerRequest serverRequest) {
-        final Object data = serverRequest.getData();
+    public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
+        final GeneratedMessageV3 data = serverRequest.getData();
         if (data instanceof PSpanChunk) {
             handleSpanChunk((PSpanChunk) data);
         } else {

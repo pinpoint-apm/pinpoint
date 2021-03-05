@@ -30,11 +30,15 @@ public class DefaultAlarmMessageSender implements AlarmMessageSender {
     private final MailSender mailSender;
 
     private final SmsSender smsSender;
-
+    
+    private final WebhookSender webhookSender;
+    
     @Autowired
     public DefaultAlarmMessageSender(MailSender mailSender,
+                                     WebhookSender webhookSender,
                                      Optional<SmsSender> smsSender) {
         this.mailSender = Objects.requireNonNull(mailSender, "mailSender");
+        this.webhookSender = Objects.requireNonNull(webhookSender, "webhookSender");
         this.smsSender = smsSender.orElseGet(EmptySmsSender::new);
     }
 
@@ -46,5 +50,10 @@ public class DefaultAlarmMessageSender implements AlarmMessageSender {
     @Override
     public void sendEmail(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
         this.mailSender.sendEmail(checker, sequenceCount, stepExecution);
+    }
+    
+    @Override
+    public void sendWebhook(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
+        webhookSender.sendWebhook(checker, sequenceCount, stepExecution);
     }
 }

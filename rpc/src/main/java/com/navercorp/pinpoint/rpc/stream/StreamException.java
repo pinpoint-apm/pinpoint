@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 
 /**
@@ -32,7 +32,7 @@ public class StreamException extends Exception {
 
     public StreamException(StreamCode streamCode, String message) {
         super(message);
-        this.streamCode = Assert.requireNonNull(streamCode, "streamCode");
+        this.streamCode = Objects.requireNonNull(streamCode, "streamCode");
     }
 
     public StreamCode getStreamCode() {

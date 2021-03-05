@@ -16,30 +16,28 @@
 
 package com.navercorp.pinpoint.profiler.context.active;
 
-import com.google.common.primitives.Ints;
-import com.navercorp.pinpoint.common.util.Assert;
-
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public final class ActiveTraceHistogramUtils {
 
-    private static final List<Integer> ZERO_LIST = Collections.unmodifiableList(Ints.asList(0, 0, 0, 0));
+    private static final List<Integer> ZERO_LIST = Arrays.asList(0, 0, 0, 0);
 
     private ActiveTraceHistogramUtils() {
     }
 
     public static List<Integer> asList(ActiveTraceHistogram activeTraceHistogram) {
-        Assert.requireNonNull(activeTraceHistogram, "activeTraceHistogram");
+        Objects.requireNonNull(activeTraceHistogram, "activeTraceHistogram");
 
         if (activeTraceHistogram instanceof EmptyActiveTraceHistogram) {
             return ZERO_LIST;
         }
 
-        return Ints.asList(activeTraceHistogram.getFastCount(), activeTraceHistogram.getNormalCount(), activeTraceHistogram.getSlowCount(), activeTraceHistogram.getVerySlowCount());
+        return Arrays.asList(activeTraceHistogram.getFastCount(), activeTraceHistogram.getNormalCount(), activeTraceHistogram.getSlowCount(), activeTraceHistogram.getVerySlowCount());
 
     }
 }

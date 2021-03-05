@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.Header;
@@ -30,6 +31,7 @@ import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim
  */
 public class AgentHeaderReader implements HeaderReader<Header> {
 
@@ -41,10 +43,10 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         final String agentId = getId(headers, Header.AGENT_ID_KEY);
         final String applicationName = getId(headers, Header.APPLICATION_NAME_KEY);
         final long startTime = getTime(headers, Header.AGENT_START_TIME_KEY);
+        final int serviceType = getServiceType(headers);
         final long socketId = getSocketId(headers);
         final List<Integer> supportCommandCodeList = getSupportCommandCodeList(headers);
-
-        return new Header(agentId, applicationName, startTime, socketId, supportCommandCodeList);
+        return new Header(agentId, applicationName, serviceType, startTime, socketId, supportCommandCodeList);
     }
 
     protected long getTime(Metadata headers, Metadata.Key<String> timeKey) {
@@ -112,4 +114,15 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         return id;
     }
 
+    protected int getServiceType(Metadata headers) {
+        final String serviceTypeStr = headers.get(Header.SERVICE_TYPE_KEY);
+        if (serviceTypeStr == null) {
+            return ServiceType.UNDEFINED.getCode();
+        }
+        try {
+            return Integer.parseInt(serviceTypeStr);
+        } catch (NumberFormatException ignored) {
+            return ServiceType.UNDEFINED.getCode();
+        }
+    }
 }

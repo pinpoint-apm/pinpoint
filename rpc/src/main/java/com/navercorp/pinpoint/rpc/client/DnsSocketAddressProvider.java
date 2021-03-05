@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ public class DnsSocketAddressProvider implements SocketAddressProvider{
     private InetSocketAddress oldAddress;
 
     public DnsSocketAddressProvider(String host, int port) {
-        this.host = Assert.requireNonNull(host, "host");
+        this.host = Objects.requireNonNull(host, "host");
         this.port = checkPort(port);
     }
 

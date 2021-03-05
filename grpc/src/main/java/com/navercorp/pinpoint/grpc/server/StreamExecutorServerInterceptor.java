@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.grpc.server;
 
 import com.navercorp.pinpoint.common.util.Assert;
-
 import io.grpc.Context;
 import io.grpc.ForwardingServerCallListener;
 import io.grpc.Metadata;
@@ -27,6 +26,7 @@ import io.grpc.ServerInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -43,14 +43,14 @@ public class StreamExecutorServerInterceptor implements ServerInterceptor {
 
     public StreamExecutorServerInterceptor(String name, final Executor executor, final int initNumMessages, final ScheduledExecutorService scheduledExecutorService,
                                            final int periodMillis, int recoveryMessagesCount) {
-        this.name = Assert.requireNonNull(name, "name");
+        this.name = Objects.requireNonNull(name, "name");
 
-        Assert.requireNonNull(executor, "executor");
+        Objects.requireNonNull(executor, "executor");
         // Context wrapper
         this.executor = Context.currentContextExecutor(executor);
         Assert.isTrue(initNumMessages > 0, "initNumMessages must be positive");
         this.initNumMessages = initNumMessages;
-        Assert.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
+        Objects.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
         Assert.isTrue(periodMillis > 0, "periodMillis must be positive");
         this.scheduler = new StreamExecutorRejectedExecutionRequestScheduler(scheduledExecutorService, periodMillis, recoveryMessagesCount);
     }

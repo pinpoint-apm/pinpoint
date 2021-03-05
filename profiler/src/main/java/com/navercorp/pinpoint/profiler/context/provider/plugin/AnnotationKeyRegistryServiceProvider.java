@@ -21,7 +21,8 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,7 +33,7 @@ public class AnnotationKeyRegistryServiceProvider implements Provider<Annotation
 
     @Inject
     public AnnotationKeyRegistryServiceProvider(TraceMetadataLoaderService traceMetadataLoaderService) {
-        this.traceMetadataLoaderService = Assert.requireNonNull(traceMetadataLoaderService, "traceMetadataLoaderService");
+        this.traceMetadataLoaderService = Objects.requireNonNull(traceMetadataLoaderService, "traceMetadataLoaderService");
     }
 
     @Override

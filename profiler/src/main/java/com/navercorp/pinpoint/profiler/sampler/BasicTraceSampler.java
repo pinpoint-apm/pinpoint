@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.sampler;
 
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 
 /**
@@ -36,8 +36,8 @@ public class BasicTraceSampler implements TraceSampler {
 
 
     public BasicTraceSampler(final IdGenerator idGenerator, Sampler sampler) {
-        Assert.requireNonNull(idGenerator, "idGenerator");
-        this.sampler = Assert.requireNonNull(sampler, "sampler");
+        Objects.requireNonNull(idGenerator, "idGenerator");
+        this.sampler = Objects.requireNonNull(sampler, "sampler");
 
         this.newSuccessState = new State() {
             @Override

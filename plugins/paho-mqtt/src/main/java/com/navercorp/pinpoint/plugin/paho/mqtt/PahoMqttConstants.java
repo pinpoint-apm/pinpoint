@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.plugin.paho.mqtt;
 
-import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Younsung Hwang
@@ -37,7 +37,7 @@ public class PahoMqttConstants {
     public static final AnnotationKey MQTT_MESSAGE_PAYLOAD_ANNOTATION_KEY = AnnotationKeyProvider.getByCode(193);
     public static final AnnotationKey MQTT_QOS_ANNOTATION_KEY = AnnotationKeyProvider.getByCode(194);
 
-    public static final Charset DEFAULT_CHARSET = Charsets.UTF_8;
+    public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     public static final String UNKNOWN = "Unknown";
 }

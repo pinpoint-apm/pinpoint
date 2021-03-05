@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.handler.grpc;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.event.GrpcAgentEventBatchMapper;
 import com.navercorp.pinpoint.collector.mapper.grpc.event.GrpcAgentEventMapper;
@@ -44,7 +45,7 @@ import java.util.Objects;
  * @author jaehong.kim - Add AgentEventMessageSerializerV1
  */
 @Service
-public class GrpcAgentEventHandler implements SimpleHandler {
+public class GrpcAgentEventHandler implements SimpleHandler<GeneratedMessageV3> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final GrpcAgentEventMapper agentEventMapper;
@@ -66,8 +67,8 @@ public class GrpcAgentEventHandler implements SimpleHandler {
     }
 
     @Override
-    public void handleSimple(ServerRequest serverRequest) {
-        final Object data = serverRequest.getData();
+    public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
+        final GeneratedMessageV3 data = serverRequest.getData();
         if (data instanceof PAgentStat) {
             handleAgentStat((PAgentStat) data);
         } else if (data instanceof PAgentStatBatch) {

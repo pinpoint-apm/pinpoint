@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.collector.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.util.AtomicLongUpdateMap;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;

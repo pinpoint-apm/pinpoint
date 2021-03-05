@@ -3,7 +3,7 @@ import { Subject, forkJoin, combineLatest, of } from 'rxjs';
 import { takeUntil, tap, switchMap, catchError } from 'rxjs/operators';
 import * as moment from 'moment-timezone';
 import { TranslateService } from '@ngx-translate/core';
-import { PrimitiveArray, Data } from 'billboard.js';
+import { PrimitiveArray, Data, zoom } from 'billboard.js';
 
 import {
     StoreHelperService,
@@ -224,6 +224,7 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
             point: {
                 r: 0,
                 focus: {
+                    only: true,
                     expand: {
                         r: 3
                     }
@@ -245,9 +246,8 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
                 duration: 0
             },
             zoom: {
-                enabled: {
-                    type: 'drag'
-                }
+                enabled: zoom(),
+                type: 'drag'
             },
             ...this.chartContainer.makeElseOption()
         };

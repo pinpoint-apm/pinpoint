@@ -16,17 +16,15 @@
 
 package com.navercorp.pinpoint.profiler.monitor;
 
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcUriStatMessageConverter;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 
-import com.google.protobuf.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -40,8 +38,8 @@ public class UriStatCollectingJob implements Runnable, Closeable {
     private final UriStatStorage uriStatStorage;
 
     public UriStatCollectingJob(DataSender dataSender, UriStatStorage uriStatStorage) {
-        this.dataSender = Assert.requireNonNull(dataSender, "dataSender");
-        this.uriStatStorage = Assert.requireNonNull(uriStatStorage, "uriStatStorage");
+        this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
+        this.uriStatStorage = Objects.requireNonNull(uriStatStorage, "uriStatStorage");
     }
 
     @Override

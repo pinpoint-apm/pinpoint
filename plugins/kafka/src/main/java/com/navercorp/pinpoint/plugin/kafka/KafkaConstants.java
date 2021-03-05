@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.plugin.kafka;
 
-import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_RECORD_SET;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.QUEUE;
@@ -48,6 +48,6 @@ public class KafkaConstants {
 
     public static final String UNKNOWN = "Unknown";
 
-    public static final Charset DEFAULT_PINPOINT_HEADER_CHARSET = Charsets.UTF_8;
+    public static final Charset DEFAULT_PINPOINT_HEADER_CHARSET = StandardCharsets.UTF_8;
 
 }

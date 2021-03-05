@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 import java.util.List;
@@ -34,8 +34,8 @@ public class DefaultSpanChunk implements SpanChunk {
 
 
     public DefaultSpanChunk(TraceRoot traceRoot, List<SpanEvent> spanEventList) {
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
-        this.spanEventList = Assert.requireNonNull(spanEventList, "spanEventList");
+        this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
+        this.spanEventList = Objects.requireNonNull(spanEventList, "spanEventList");
     }
 
     @Override

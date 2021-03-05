@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
 import com.google.protobuf.Empty;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
 
@@ -31,7 +31,7 @@ public class PinpointClientResponseObserver<ReqT> implements ClientResponseObser
     private volatile ClientCallStreamObserver<ReqT> requestStream;
 
     public PinpointClientResponseObserver(GrpcProfilerStreamSocket pinpointGrpcProfilerStreamSocket) {
-        this.pinpointGrpcProfilerStreamSocket = Assert.requireNonNull(pinpointGrpcProfilerStreamSocket, "pinpointGrpcProfilerStreamSocket");
+        this.pinpointGrpcProfilerStreamSocket = Objects.requireNonNull(pinpointGrpcProfilerStreamSocket, "pinpointGrpcProfilerStreamSocket");
     }
 
     @Override

@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import io.grpc.ServerCall;
 
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -125,8 +125,8 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
         private final ScheduledFuture requestScheduledFuture;
 
         public Listener(RejectedExecutionListener rejectedExecutionListener, ScheduledFuture requestScheduledFuture) {
-            this.rejectedExecutionListener = Assert.requireNonNull(rejectedExecutionListener, "rejectedExecutionListener");
-            this.requestScheduledFuture = Assert.requireNonNull(requestScheduledFuture, "requestScheduledFuture");
+            this.rejectedExecutionListener = Objects.requireNonNull(rejectedExecutionListener, "rejectedExecutionListener");
+            this.requestScheduledFuture = Objects.requireNonNull(requestScheduledFuture, "requestScheduledFuture");
         }
 
         public void onRejectedExecution() {
@@ -164,7 +164,7 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
         private final ServerCall serverCall;
 
         public DefaultServerCallWrapper(ServerCall serverCall) {
-            this.serverCall = Assert.requireNonNull(serverCall, "serverCall");
+            this.serverCall = Objects.requireNonNull(serverCall, "serverCall");
         }
 
         @Override

@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.sampler;
 import com.google.common.util.concurrent.RateLimiter;
 
 import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 
 
@@ -40,8 +40,8 @@ public class RateLimitTraceSampler implements TraceSampler {
 
 
     public RateLimitTraceSampler(final int newMaxNewThroughput, final int newMaxContinueThroughput, final IdGenerator idGenerator, TraceSampler traceSampler) {
-        Assert.requireNonNull(idGenerator, "idGenerator");
-        this.traceSampler = Assert.requireNonNull(traceSampler, "traceSampler");
+        Objects.requireNonNull(idGenerator, "idGenerator");
+        this.traceSampler = Objects.requireNonNull(traceSampler, "traceSampler");
 
 
         this.newRateLimiter = newRateLimiter(newMaxNewThroughput);

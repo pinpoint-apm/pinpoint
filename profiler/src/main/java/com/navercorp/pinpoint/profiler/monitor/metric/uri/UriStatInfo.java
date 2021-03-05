@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.uri;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -28,7 +28,7 @@ public class UriStatInfo {
     private final long elapsed;
 
     public UriStatInfo(String uri, boolean status, long elapsed) {
-        this.uri = Assert.requireNonNull(uri, "uri");
+        this.uri = Objects.requireNonNull(uri, "uri");
         this.status = status;
         this.elapsed = elapsed;
     }

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.lang.reflect.Method;
 
@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 public class SetterAnalyzer {
 
     public SetterDetails analyze(Class<?> setterType) {
-        Assert.requireNonNull(setterType, "setterType");
+        Objects.requireNonNull(setterType, "setterType");
 
         if (!setterType.isInterface()) {
             throw new IllegalArgumentException("setterType " + setterType + "is not an interface");

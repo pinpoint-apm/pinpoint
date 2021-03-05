@@ -2,9 +2,9 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,8 +19,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AdminServiceImplTest {
@@ -39,17 +46,17 @@ public class AdminServiceImplTest {
 
     @Mock ApplicationIndexDao applicationIndexDao;
 
-    @Mock JvmGcDao jvmGcDao;
+    @Mock AgentInfoService agentInfoService;
 
     @Before
     public void setUp() {
-        adminService = new AdminServiceImpl(applicationIndexDao, jvmGcDao);
+        adminService = new AdminServiceImpl(applicationIndexDao, agentInfoService);
     }
 
     @Test
     public void constructorRequireNonNullTest() {
         try {
-            new AdminServiceImpl(null, jvmGcDao);
+            new AdminServiceImpl(null, agentInfoService);
             fail("applicationIndexDao can not be null");
         } catch(NullPointerException e) {
             assertThat(e.getMessage(), is("applicationIndexDao"));
@@ -57,9 +64,9 @@ public class AdminServiceImplTest {
 
         try {
             new AdminServiceImpl(applicationIndexDao, null);
-            fail("jvmGcDao can not be null");
+            fail("agentInfoService can not be null");
         } catch(NullPointerException e ) {
-            assertThat(e.getMessage(), is("jvmGcDao"));
+            assertThat(e.getMessage(), is("agentInfoService"));
         }
 
         try {
@@ -119,7 +126,7 @@ public class AdminServiceImplTest {
         //// mocking
         when(applicationIndexDao.selectAgentIds(APPLICATION_NAME1)).thenReturn(Arrays.asList(AGENT_ID1));
         when(applicationIndexDao.selectAllApplicationNames()).thenReturn(Arrays.asList(new Application(APPLICATION_NAME1, ServiceType.TEST)));
-        when(jvmGcDao.agentStatExists(eq(AGENT_ID1), any(Range.class))).thenReturn(true);
+        when(agentInfoService.isActiveAgent(eq(AGENT_ID1), any(Range.class))).thenReturn(true);
 
         // when
         adminService.removeInactiveAgents(durationDays);
@@ -141,7 +148,7 @@ public class AdminServiceImplTest {
         when(applicationIndexDao.selectAgentIds(APPLICATION_NAME1)).thenReturn(Arrays.asList(AGENT_ID1, AGENT_ID2, AGENT_ID3));
         when(applicationIndexDao.selectAllApplicationNames()).thenReturn(Arrays.asList(new Application(APPLICATION_NAME1, ServiceType.TEST)));
 
-        when(jvmGcDao.agentStatExists(eq(AGENT_ID1), any(Range.class))).thenReturn(false);
+        when(agentInfoService.isActiveAgent(eq(AGENT_ID1), any(Range.class))).thenReturn(false);
 
         // when
         adminService.removeInactiveAgents(durationDays);

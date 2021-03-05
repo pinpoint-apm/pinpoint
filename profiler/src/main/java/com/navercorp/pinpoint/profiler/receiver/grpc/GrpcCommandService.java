@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
 import com.navercorp.pinpoint.grpc.client.SupportCommandCodeClientInterceptor;
@@ -51,10 +51,10 @@ public class GrpcCommandService {
     private volatile CommandServiceMainStreamObserver commandServiceMainStreamObserver;
 
     public GrpcCommandService(CommandServiceStubFactory commandServiceStubFactory, ReconnectExecutor reconnectScheduler, ProfilerCommandServiceLocator profilerCommandServiceLocator) {
-        this.commandServiceStubFactory = Assert.requireNonNull(commandServiceStubFactory, "commandServiceStubFactory");
-        Assert.requireNonNull(reconnectScheduler, "reconnectScheduler");
+        this.commandServiceStubFactory = Objects.requireNonNull(commandServiceStubFactory, "commandServiceStubFactory");
+        Objects.requireNonNull(reconnectScheduler, "reconnectScheduler");
 
-        this.profilerCommandServiceLocator = Assert.requireNonNull(profilerCommandServiceLocator, "profilerCommandServiceLocator");
+        this.profilerCommandServiceLocator = Objects.requireNonNull(profilerCommandServiceLocator, "profilerCommandServiceLocator");
 
         this.reconnector = reconnectScheduler.newReconnector(new Runnable() {
             @Override
@@ -110,7 +110,7 @@ public class GrpcCommandService {
         private ClientCallStreamObserver<PCmdMessage> requestStream;
 
         public CommandServiceMainStreamObserver(GrpcCommandDispatcher commandDispatcher) {
-            this.commandDispatcher = Assert.requireNonNull(commandDispatcher, "commandDispatcher");
+            this.commandDispatcher = Objects.requireNonNull(commandDispatcher, "commandDispatcher");
         }
 
         @Override

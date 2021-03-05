@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderReader;
 import io.grpc.Metadata;
@@ -32,6 +33,7 @@ public class AgentHeaderReaderTest {
     private static final String APPLICATION_NAME = "applicationName";
     private static final long AGENT_START_TIME = System.currentTimeMillis();
     private static final long SOCKET_ID = 1001;
+    private static final int SERVICE_TYPE = ServiceType.STAND_ALONE.getCode();
 
     private HeaderReader<Header> reader = new AgentHeaderReader();
 
@@ -44,6 +46,7 @@ public class AgentHeaderReaderTest {
         Assert.assertEquals(header.getApplicationName(), APPLICATION_NAME);
         Assert.assertEquals(header.getAgentStartTime(), AGENT_START_TIME);
         Assert.assertEquals(header.getSocketId(), SOCKET_ID);
+        Assert.assertEquals(header.getServiceType(), SERVICE_TYPE);
     }
 
     @Test(expected = StatusRuntimeException.class)
@@ -66,6 +69,7 @@ public class AgentHeaderReaderTest {
         metadata.put(Header.APPLICATION_NAME_KEY, APPLICATION_NAME);
         metadata.put(Header.AGENT_START_TIME_KEY, Long.toString(AGENT_START_TIME));
         metadata.put(Header.SOCKET_ID, Long.toString(SOCKET_ID));
+        metadata.put(Header.SERVICE_TYPE_KEY, Integer.toString(SERVICE_TYPE));
         return metadata;
     }
 }

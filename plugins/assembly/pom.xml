@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <relativePath>../..</relativePath>
+        <relativePath>../../pom.xml</relativePath>
         <version>2.3.0-SNAPSHOT</version>
     </parent>
 
@@ -376,6 +376,12 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-paho-mqtt-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-rocketmq-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

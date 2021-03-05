@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.handler.grpc;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatBatchMapper;
@@ -25,7 +26,6 @@ import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.collector.service.AgentUriStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
@@ -36,7 +36,6 @@ import com.navercorp.pinpoint.io.request.ServerRequest;
 import io.grpc.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -48,7 +47,7 @@ import java.util.Optional;
  * @author jaehong.kim
  */
 @Service
-public class GrpcAgentStatHandlerV2 implements SimpleHandler {
+public class GrpcAgentStatHandlerV2 implements SimpleHandler<GeneratedMessageV3> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -74,13 +73,13 @@ public class GrpcAgentStatHandlerV2 implements SimpleHandler {
         this.agentStatBatchMapper = Objects.requireNonNull(agentStatBatchMapper, "agentStatBatchMapper");
         this.agentUriStatMapper = Objects.requireNonNull(agentUriStatMapper, "agentUriStatMapper");
         this.agentStatServiceList = Objects.requireNonNull(agentStatServiceList, "agentStatServiceList2").orElseGet(Collections::emptyList);
-        this.agentUriStatService = Assert.requireNonNull(agentUriStatService, "agentUriStatService");
+        this.agentUriStatService = Objects.requireNonNull(agentUriStatService, "agentUriStatService");
         this.collectorConfiguration = Objects.requireNonNull(collectorConfiguration, "collectorConfiguration");
     }
 
     @Override
-    public void handleSimple(ServerRequest serverRequest) {
-        final Object data = serverRequest.getData();
+    public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
+        final GeneratedMessageV3 data = serverRequest.getData();
         if (data instanceof PAgentStat) {
             handleAgentStat((PAgentStat) data);
         } else if (data instanceof PAgentStatBatch) {

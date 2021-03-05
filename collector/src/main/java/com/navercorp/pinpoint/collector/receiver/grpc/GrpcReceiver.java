@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.grpc.server.ServerFactory;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
-
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerInterceptor;
@@ -36,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.NestedExceptionUtils;
 
 import java.io.Closeable;
@@ -76,6 +76,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     @Override
     public void afterPropertiesSet() throws Exception {
         if (Boolean.FALSE == this.enable) {
+            logger.warn("{} is {}", this.beanName, enable);
             return;
         }
 
@@ -228,12 +229,13 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         this.transportFilterList = transportFilterList;
     }
 
+    @Autowired
     public void setServerInterceptorList(List<ServerInterceptor> serverInterceptorList) {
         this.serverInterceptorList = serverInterceptorList;
     }
 
     public void setChannelzRegistry(ChannelzRegistry channelzRegistry) {
-        this.channelzRegistry = Assert.requireNonNull(channelzRegistry, "channelzRegistry");
+        this.channelzRegistry = Objects.requireNonNull(channelzRegistry, "channelzRegistry");
     }
 
 }

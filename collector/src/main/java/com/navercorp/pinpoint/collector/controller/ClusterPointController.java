@@ -21,9 +21,11 @@ import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
@@ -101,7 +103,10 @@ public class ClusterPointController {
     public String checkConnectionStatus(
             @RequestParam("applicationName") String applicationName,
             @RequestParam("agentId") String agentId,
-            @RequestParam("startTimestamp") long startTimestamp) throws JsonProcessingException {
+            @RequestParam("startTimestamp") long startTimestamp,
+            @RequestParam(value = "checkCount", defaultValue = "3") int checkCount) throws JsonProcessingException {
+        Assert.isTrue(checkCount > 0, "checkCount must be ' > 0'");
+
         List<GrpcAgentConnection> grpcAgentConnectionList = getGrpcAgentConnectionList(applicationName, agentId, startTimestamp);
 
         List<GrpcAgentConnectionStats> result = new ArrayList<>(grpcAgentConnectionList.size());
@@ -111,7 +116,7 @@ public class ClusterPointController {
                 continue;
             }
 
-            CheckConnectionStatusResult connectionStatusResult = request(grpcAgentConnection);
+            CheckConnectionStatusResult connectionStatusResult = request(grpcAgentConnection, checkCount);
             result.add(new GrpcAgentConnectionStats(grpcAgentConnection, connectionStatusResult));
         }
 
@@ -158,26 +163,33 @@ public class ClusterPointController {
         return result;
     }
 
-    private CheckConnectionStatusResult request(GrpcAgentConnection grpcAgentConnection) {
-        logger.info("ping  message will be sent. collector => {}.", grpcAgentConnection.getDestAgentInfo().getAgentKey());
+    private CheckConnectionStatusResult request(GrpcAgentConnection grpcAgentConnection, int checkCount) {
+        logger.info("Ping  message will be sent. collector => {}.", grpcAgentConnection.getDestAgentInfo().getAgentKey());
 
         Future<ResponseMessage> response = null;
         try {
-            response = grpcAgentConnection.request(CONNECTION_CHECK_COMMAND);
+            response = request0(grpcAgentConnection, checkCount);
         } catch (StatusRuntimeException e) {
             logger.warn("Exception occurred while request message. message:{}", e.getMessage(), e);
             if (e.getStatus().getCode() == Status.CANCELLED.getCode()) {
-                PinpointGrpcServer pinpointGrpcServer = grpcAgentConnection.getPinpointGrpcServer();
-                pinpointGrpcServer.close(SocketStateCode.ERROR_UNKNOWN);
+                clearConnection(grpcAgentConnection);
                 return CheckConnectionStatusResult.FAIL_AND_CLEAR_CONNECTION;
             }
+            return CheckConnectionStatusResult.FAIL;
+        } catch (PinpointSocketException e) {
+            logger.warn("Exception occurred while request message. message:{}", e.getMessage(), e);
+            clearConnection(grpcAgentConnection);
+            return CheckConnectionStatusResult.FAIL_AND_CLEAR_CONNECTION;
+        }
+
+        if (!response.isSuccess()) {
+            Throwable cause = response.getCause();
+            logger.warn("Failed while request message. message:{}", cause.getMessage(), cause);
             return CheckConnectionStatusResult.FAIL;
         }
 
         try {
-            response.await();
             ResponseMessage result = response.getResult();
-
             Message<TBase<?, ?>> deserialize = tBaseDeserializer.deserialize(result.getMessage());
 
             TBase<?, ?> data = deserialize.getData();
@@ -186,10 +198,30 @@ public class ClusterPointController {
                     return CheckConnectionStatusResult.SUCCESS;
                 }
             }
+            logger.warn("Receive unexpected response data.  data:{}", data);
         } catch (Exception e) {
             logger.warn("Exception occurred while handles response message. message:{}", e.getMessage(), e);
         }
         return CheckConnectionStatusResult.FAIL;
+    }
+
+    private void clearConnection(GrpcAgentConnection grpcAgentConnection) {
+        PinpointGrpcServer pinpointGrpcServer = grpcAgentConnection.getPinpointGrpcServer();
+        pinpointGrpcServer.close(SocketStateCode.ERROR_UNKNOWN);
+    }
+
+    // If the occur excption in connection, do not retry
+    // Multiple attempts only at timeout
+    private Future<ResponseMessage> request0(GrpcAgentConnection grpcAgentConnection, int maxCount) {
+        for (int i = 0; i < maxCount; i++) {
+            Future<ResponseMessage> responseFuture = grpcAgentConnection.request(CONNECTION_CHECK_COMMAND);
+            boolean await = responseFuture.await();
+            if (await) {
+                return responseFuture;
+            }
+        }
+
+        throw new PinpointSocketException("Request limit exceeded. limit:" +  maxCount);
     }
 
     private <T> String buildHtml(List<T> stats) {

@@ -23,8 +23,9 @@ import java.util.Map;
 
 /**
  * @author minwoo.jung
+ * @author Jongjin.Bae
  */
-public class GcCountChecker extends AgentChecker<Long> {
+public class GcCountChecker extends LongValueAgentChecker {
     
     public GcCountChecker(AgentStatDataCollector dataCollector, Rule rule) {
         super(rule, "", dataCollector);
@@ -34,10 +35,4 @@ public class GcCountChecker extends AgentChecker<Long> {
     protected Map<String, Long> getAgentValues() {
         return ((AgentStatDataCollector)dataCollector).getGCCount();
     }
-
-    @Override
-    protected boolean decideResult(Long value) {
-        return value >= rule.getThreshold();
-    }
-
 }

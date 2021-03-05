@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.trace;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -26,7 +26,7 @@ public class LoadedTraceMetadataProvider implements TraceMetadataProvider {
     private final TraceMetadataProvider traceMetadataProvider;
 
     public LoadedTraceMetadataProvider(TraceMetadataProvider traceMetadataProvider) {
-        this.traceMetadataProvider = Assert.requireNonNull(traceMetadataProvider, "traceMetadataProvider");
+        this.traceMetadataProvider = Objects.requireNonNull(traceMetadataProvider, "traceMetadataProvider");
     }
 
 

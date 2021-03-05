@@ -25,8 +25,9 @@ import java.util.Map;
 
 /**
  * @author Taejin Koo
+ * @author Jongjin.Bae
  */
-public class DeadlockChecker extends AgentChecker<Boolean> {
+public class DeadlockChecker extends BooleanValueAgentChecker {
 
     public DeadlockChecker(AgentEventDataCollector agentEventDataCollector, Rule rule) {
         super(rule, "BOOLEAN", agentEventDataCollector);

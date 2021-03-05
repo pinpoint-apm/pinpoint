@@ -1,5 +1,8 @@
 package com.navercorp.pinpoint.test.plugin;
 
+import java.util.Arrays;
+import java.util.List;
+
 public final class PluginClassLoading {
 
     public static final String[] REQUIRED_CLASS_PATHS = new String[]{
@@ -18,6 +21,9 @@ public final class PluginClassLoading {
             "maven-resolver",
             "commons-lang3",
             "apache/maven",
+            "commons-logging",
+            "httpclient",
+            "httpcore",
             "guava",
             "plexus",
             "pinpoint-test",
@@ -35,15 +41,15 @@ public final class PluginClassLoading {
             "org.apache.logging.log4j:log4j-slf4j-impl:%s"
     };
 
-    public static final String[] LOGGER_DEPENDENCY = format(LOGGER_DEPENDENCY_ID, LOG4J2_VERSION);
+    public static final List<String> LOGGER_DEPENDENCY = format(LOGGER_DEPENDENCY_ID, LOG4J2_VERSION);
 
-    public static String[] format(String[] libs, String version) {
+    public static List<String> format(String[] libs, String version) {
         String[] loggers = new String[libs.length];
         for (int i = 0; i < libs.length; i++) {
             String lib = libs[i];
             loggers[i] = String.format(lib, version);
         }
-        return loggers;
+        return Arrays.asList(loggers);
     }
 
 

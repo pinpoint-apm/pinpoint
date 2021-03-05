@@ -33,6 +33,7 @@ import org.junit.runner.RunWith;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
@@ -47,7 +48,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @Dependency({"com.fasterxml.jackson.core:jackson-databind:[2.8.0,)"})
 public class ObjectMapperJDK7IT {
 
-    private static final Charset UTF_8 = Charset.forName("UTF-8");
+    private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
     /**
      * 

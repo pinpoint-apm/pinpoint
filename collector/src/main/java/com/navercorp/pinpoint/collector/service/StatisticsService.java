@@ -26,17 +26,13 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 
 /**
- * 
  * @author netspider
- * 
+ * @author jaehong.kim
  */
 @Service
 public class StatisticsService {
-
     private final MapStatisticsCalleeDao mapStatisticsCalleeDao;
-
     private final MapStatisticsCallerDao mapStatisticsCallerDao;
-
     private final MapResponseTimeDao mapResponseTimeDao;
 
     public StatisticsService(MapStatisticsCalleeDao mapStatisticsCalleeDao, MapStatisticsCallerDao mapStatisticsCallerDao, MapResponseTimeDao mapResponseTimeDao) {
@@ -82,6 +78,10 @@ public class StatisticsService {
     }
 
     public void updateResponseTime(String applicationName, ServiceType serviceType, String agentId, int elapsed, boolean isError) {
-        mapResponseTimeDao.received(applicationName, serviceType, agentId, elapsed, isError);
+        mapResponseTimeDao.received(applicationName, serviceType, agentId, elapsed, isError, false);
+    }
+
+    public void updateAgentState(final String callerApplicationName, final ServiceType callerServiceType, final String callerAgentId) {
+        mapResponseTimeDao.received(callerApplicationName, callerServiceType, callerAgentId, 0, false, true);
     }
 }

@@ -11,6 +11,7 @@ export interface IAlarmRule {
     ruleId: string;
     serviceType: string;
     smsSend: boolean;
+    webhookSend: boolean;
     threshold: number;
     userGroupId: string;
 }

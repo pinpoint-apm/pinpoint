@@ -12,6 +12,7 @@ export class UrlPath {
     static ERROR = 'error';
     static CONFIG = 'config';
     static AUTH = 'auth';
+    static URL_STATISTIC = 'urlStatistic';
 
     constructor() {}
 }

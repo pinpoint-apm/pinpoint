@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.test.plugin;
 
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Jongho Moon
@@ -38,6 +39,6 @@ public final class PluginTestConstants {
     // AgentParser
     public static final String AGENT_PARSER_DELIMITER = ",";
 
-    public static final Charset UTF_8 = Charset.forName("UTF-8");
+    public static final Charset UTF_8 = StandardCharsets.UTF_8;
     public static final String UTF_8_NAME = UTF_8.name();
 }

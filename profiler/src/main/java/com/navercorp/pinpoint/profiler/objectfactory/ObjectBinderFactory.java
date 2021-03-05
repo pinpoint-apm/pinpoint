@@ -23,9 +23,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetricRegistry;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryAdaptor;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryAdaptor;
@@ -36,6 +34,8 @@ import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 
 import com.google.inject.Provider;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -45,9 +45,11 @@ public class ObjectBinderFactory {
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
     private final CustomMetricRegistry customMetricRegistry;
     private final Provider<ApiMetaDataService> apiMetaDataServiceProvider;
+
     private final ExceptionHandlerFactory exceptionHandlerFactory;
     private final RequestRecorderFactory requestRecorderFactory;
     private final Provider<UriStatRecorderFactory> uriStatRecorderFactoryProvider;
+
 
     public ObjectBinderFactory(ProfilerConfig profilerConfig,
                                Provider<TraceContext> traceContextProvider,
@@ -57,20 +59,21 @@ public class ObjectBinderFactory {
                                ExceptionHandlerFactory exceptionHandlerFactory,
                                RequestRecorderFactory requestRecorderFactory,
                                Provider<UriStatRecorderFactory> uriStatRecorderFactoryProvider) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.traceContextProvider = Assert.requireNonNull(traceContextProvider, "traceContextProvider");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.traceContextProvider = Objects.requireNonNull(traceContextProvider, "traceContextProvider");
 
-        Assert.requireNonNull(dataSourceMonitorRegistryService, "dataSourceMonitorRegistryService");
+        Objects.requireNonNull(dataSourceMonitorRegistryService, "dataSourceMonitorRegistryService");
         this.dataSourceMonitorRegistry = new DataSourceMonitorRegistryAdaptor(dataSourceMonitorRegistryService);
 
-        Assert.requireNonNull(customMonitorRegistryService, "customMonitorRegistryService");
+        Objects.requireNonNull(customMonitorRegistryService, "customMonitorRegistryService");
         this.customMetricRegistry = new CustomMetricRegistryAdaptor(customMonitorRegistryService);
 
-        this.apiMetaDataServiceProvider = Assert.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
-        this.exceptionHandlerFactory = Assert.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
-        this.requestRecorderFactory = Assert.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
+        this.apiMetaDataServiceProvider = Objects.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
 
-        this.uriStatRecorderFactoryProvider = Assert.requireNonNull(uriStatRecorderFactoryProvider, "uriStatRecorderFactoryProvider");
+        this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
+        this.requestRecorderFactory = Objects.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
+
+        this.uriStatRecorderFactoryProvider = Objects.requireNonNull(uriStatRecorderFactoryProvider, "uriStatRecorderFactoryProvider");
     }
 
     public AutoBindingObjectFactory newAutoBindingObjectFactory(InstrumentContext pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {
@@ -91,6 +94,7 @@ public class ObjectBinderFactory {
         ApiMetaDataService apiMetaDataService = this.apiMetaDataServiceProvider.get();
 
         UriStatRecorderFactory uriStatRecorderFactory = uriStatRecorderFactoryProvider.get();
-        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, customMetricRegistry, apiMetaDataService, pluginContext, exceptionHandlerFactory, requestRecorderFactory, uriStatRecorderFactory);
+        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, customMetricRegistry, apiMetaDataService,
+                pluginContext, exceptionHandlerFactory, requestRecorderFactory, uriStatRecorderFactory);
     }
 }

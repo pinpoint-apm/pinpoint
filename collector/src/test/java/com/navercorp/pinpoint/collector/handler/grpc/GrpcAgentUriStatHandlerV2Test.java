@@ -16,12 +16,14 @@
 
 package com.navercorp.pinpoint.collector.handler.grpc;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatBatchMapper;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatMapper;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentUriStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.collector.service.AgentUriStatService;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
@@ -69,7 +71,7 @@ public class GrpcAgentUriStatHandlerV2Test {
     public void throwExceptionTest() {
         AgentUriStatService mockAgentUriStatService = Mockito.mock(AgentUriStatService.class);
 
-        ServerRequest mockServerRequest = Mockito.mock(ServerRequest.class);
+        ServerRequest<GeneratedMessageV3> mockServerRequest = Mockito.mock(ServerRequest.class);
 
         GrpcAgentStatHandlerV2 handler = createMockHandler(mockAgentUriStatService, false);
 
@@ -80,7 +82,7 @@ public class GrpcAgentUriStatHandlerV2Test {
     public void skipTest() {
         AgentUriStatService mockAgentUriStatService = Mockito.mock(AgentUriStatService.class);
 
-        ServerRequest mockServerRequest = Mockito.mock(ServerRequest.class);
+        ServerRequest<GeneratedMessageV3> mockServerRequest = Mockito.mock(ServerRequest.class);
         Mockito.when(mockServerRequest.getData()).thenReturn(PAgentUriStat.getDefaultInstance());
 
         GrpcAgentStatHandlerV2 handler = createMockHandler(mockAgentUriStatService, false);
@@ -93,11 +95,11 @@ public class GrpcAgentUriStatHandlerV2Test {
     public void handleTest() {
         AgentUriStatService mockAgentUriStatService = Mockito.mock(AgentUriStatService.class);
 
-        attachContext(new Header("agent", "applicationName", System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, new ArrayList<>()));
+        attachContext(new Header("agent", "applicationName", ServiceType.UNKNOWN.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, new ArrayList<>()));
 
         PAgentUriStat pAgentUriStat = createPAgentUriStat();
 
-        ServerRequest mockServerRequest = Mockito.mock(ServerRequest.class);
+        ServerRequest<GeneratedMessageV3> mockServerRequest = Mockito.mock(ServerRequest.class);
         Mockito.when(mockServerRequest.getData()).thenReturn(pAgentUriStat);
 
         GrpcAgentStatHandlerV2 handler = createMockHandler(mockAgentUriStatService, true);

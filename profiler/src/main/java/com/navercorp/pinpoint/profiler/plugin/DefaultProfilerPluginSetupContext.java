@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +41,7 @@ public class DefaultProfilerPluginSetupContext implements ProfilerPluginSetupCon
     private final List<UriExtractorProvider> uriExtractorProviderList = new ArrayList<UriExtractorProvider>();
 
     public DefaultProfilerPluginSetupContext(ProfilerPluginGlobalContext globalContext) {
-        this.globalContext = Assert.requireNonNull(globalContext, "globalContext");
+        this.globalContext = Objects.requireNonNull(globalContext, "globalContext");
     }
 
     @Override

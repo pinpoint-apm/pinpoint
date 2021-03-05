@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.google.common.base.Objects;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -27,18 +26,17 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTraceField;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.TraceType;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.StopWatch;
 import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
 import com.navercorp.pinpoint.profiler.context.DefaultLocalAsyncId;
@@ -49,6 +47,7 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
+import com.navercorp.pinpoint.test.util.ObjectUtils;
 
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
@@ -60,20 +59,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
-    private final List<Short> ignoredServiceTypes = new ArrayList<Short>();
+    private final List<Short> ignoredServiceTypes = new ArrayList<>();
 
     private final DefaultApplicationContext applicationContext;
 
     private final ApplicationContextHandler handler;
 
     public PluginVerifierExternalAdaptor(DefaultApplicationContext applicationContext) {
-        this.applicationContext = Assert.requireNonNull(applicationContext, "applicationContext");
+        this.applicationContext = Objects.requireNonNull(applicationContext, "applicationContext");
         this.handler = new ApplicationContextHandler(applicationContext);
     }
 
@@ -711,7 +711,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
                     expectedValue = this.handler.getTcpDataSender().getStringId(expectedValue.toString());
                 }
 
-                if (!Objects.equal(expectedValue, actualAnnotation.getValue())) {
+                if (!ObjectUtils.equals(expectedValue, actualAnnotation.getValue())) {
 
                     throw new AssertionError("Value Different, Expected " + i + "th annotation [" + expectedAnnotationKey.getCode() + "=" + expect.getValue() + "] but was [" + toString(actualAnnotation) + "], expected: " + expected + ", was: " + actual);
                 }
@@ -721,11 +721,11 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
     private void verifyStringStringValue(StringStringValue value, Annotation actualAnnotation) {
         StringStringValue annotationValue = (StringStringValue) actualAnnotation.getValue();
-        if (!Objects.equal(value.getStringValue1(), annotationValue.getStringValue1())) {
+        if (!ObjectUtils.equals(value.getStringValue1(), annotationValue.getStringValue1())) {
             throw new AssertionError("Expected [" + value.getStringValue1() + "] but was [" + annotationValue.getStringValue1() + "]");
         }
 
-        if (!Objects.equal(value.getStringValue2(), annotationValue.getStringValue2())) {
+        if (!ObjectUtils.equals(value.getStringValue2(), annotationValue.getStringValue2())) {
             throw new AssertionError("Expected [" + value.getStringValue2() + "] but was [" + annotationValue.getStringValue2() + "]");
         }
 
@@ -741,10 +741,10 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
     private void verifyException(Exception expectedException, String actualExceptionClassName, String actualExceptionMessage) {
         String expectedExceptionClassName = expectedException.getClass().getName();
         String expectedExceptionMessage = StringUtils.abbreviate(expectedException.getMessage(), 256);
-        if (!Objects.equal(actualExceptionClassName, expectedExceptionClassName)) {
+        if (!ObjectUtils.equals(actualExceptionClassName, expectedExceptionClassName)) {
             throw new AssertionError("Expected [" + expectedExceptionClassName + "] but was [" + actualExceptionClassName + "]");
         }
-        if (!Objects.equal(actualExceptionMessage, expectedExceptionMessage)) {
+        if (!ObjectUtils.equals(actualExceptionMessage, expectedExceptionMessage)) {
             throw new AssertionError("Expected exception with message [" + expectedExceptionMessage + "] but was [" + actualExceptionMessage + "]");
         }
     }
@@ -758,11 +758,11 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
             throw new AssertionError("Expected sql [" + id + ": " + expected.getQuery() + "] but was [" + value.getIntValue() + ": " + actualQuery + "], expected: " + expected + ", was: " + actual);
         }
 
-        if (!Objects.equal(value.getStringValue1(), expected.getOutput())) {
+        if (!ObjectUtils.equals(value.getStringValue1(), expected.getOutput())) {
             throw new AssertionError("Expected sql with output [" + expected.getOutput() + "] but was [" + value.getStringValue1() + "], expected: " + expected + ", was: " + actual);
         }
 
-        if (!Objects.equal(value.getStringValue2(), expected.getBindValuesAsString())) {
+        if (!ObjectUtils.equals(value.getStringValue2(), expected.getBindValuesAsString())) {
             throw new AssertionError("Expected sql with bindValues [" + expected.getBindValuesAsString() + "] but was [" + value.getStringValue2() + "], expected: " + expected + ", was: " + actual);
         }
     }
@@ -894,7 +894,6 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         if (expectedTrace == null) {
             return;
         }
-        Assert.requireNonNull(expectedTrace, "expectedTrace");
         if (waitUnitTime <= 0 || maxWaitTime <= 0) {
             throw new IllegalArgumentException("must be greater than 0");
         }

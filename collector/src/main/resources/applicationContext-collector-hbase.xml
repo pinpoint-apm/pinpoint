@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:beans="http://www.springframework.org/schema/beans"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <context:component-scan base-package="com.navercorp.pinpoint.collector.dao.hbase"/>
+
 
     <bean id="hbaseConfiguration" class="com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean">
         <property name="properties">
@@ -85,102 +95,44 @@
         <constructor-arg ref="hbaseAdminFactory"/>
     </bean>
 
-    <bean id="applicationTraceIndexDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg ref="applicationTraceIndex"/>
+    <bean id="distributorConfiguration" class="com.navercorp.pinpoint.common.server.hbase.DistributorConfiguration"/>
+
+    <bean id="cachedStatisticsDaoMetrics" class="com.navercorp.pinpoint.collector.monitor.BulkOperationMetrics">
     </bean>
 
-    <bean id="applicationTraceIndex" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix$OneByteSimpleHash">
-        <constructor-arg type="int" value="32"/>
+    <bean id="hBaseManager" class="com.navercorp.pinpoint.collector.manage.HBaseManager">
     </bean>
 
-    <bean id="traceV2Distributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg ref="traceV2Hasher"/>
-    </bean>
+    <util:list id="cachedStatisticsDaoList" value-type="com.navercorp.pinpoint.collector.dao.CachedStatisticsDao">
+        <beans:ref bean="hbaseMapStatisticsCallerDao"/>
+        <beans:ref bean="hbaseMapStatisticsCalleeDao"/>
+        <beans:ref bean="hbaseMapResponseTimeDao"/>
+    </util:list>
 
-    <bean id="traceV2Hasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
-        <constructor-arg type="int" value="32"/>
-        <constructor-arg type="int" value="40"/>
-        <constructor-arg type="int" value="256"/>
+    <bean id="statisticsLinkScheduler" class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
+        <property name="poolSize" value="#{cachedStatisticsDaoList.size()}"/>
+        <property name="threadNamePrefix" value="Pinpoint-AutoFlusher-LINK-"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
     </bean>
+    <task:scheduled-tasks scheduler="statisticsLinkScheduler">
+        <task:scheduled ref="hbaseMapStatisticsCallerDao" method="flushLink" fixed-rate="1000"/>
+        <task:scheduled ref="hbaseMapStatisticsCalleeDao" method="flushLink" fixed-rate="1000"/>
+        <task:scheduled ref="hbaseMapResponseTimeDao" method="flushLink" fixed-rate="1000"/>
+    </task:scheduled-tasks>
 
-    <bean id="applicationStatRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg ref="applicationStatRangeHasher"/>
+    <bean id="statisticsAvgMaxScheduler" class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
+        <property name="poolSize" value="#{cachedStatisticsDaoList.size()}"/>
+        <property name="threadNamePrefix" value="Pinpoint-AutoFlusher-AVG/MAX-"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
     </bean>
+    <task:scheduled-tasks scheduler="statisticsAvgMaxScheduler">
+        <task:scheduled ref="hbaseMapStatisticsCallerDao" method="flushAvgMax" fixed-rate="1000"/>
+        <task:scheduled ref="hbaseMapStatisticsCalleeDao" method="flushAvgMax" fixed-rate="1000"/>
+        <task:scheduled ref="hbaseMapResponseTimeDao" method="flushAvgMax" fixed-rate="1000"/>
+    </task:scheduled-tasks>
 
-    <bean id="applicationStatRangeHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
-        <constructor-arg type="int" value="0"/>
-        <constructor-arg type="int" value="33"/>
-        <constructor-arg type="int" value="64"/>
-    </bean>
-
-    <bean id="agentStatV2RowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg ref="agentStatV2RangeHasher"/>
-    </bean>
-
-    <bean id="agentStatV2RangeHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
-        <constructor-arg type="int" value="0"/>
-        <constructor-arg type="int" value="33"/>
-        <constructor-arg type="int" value="64"/>
-    </bean>
-
-    <bean id="metadataRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg ref="metadataRangeHasher"/>
-    </bean>
-
-    <bean id="metadataRangeHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
-        <constructor-arg type="int" value="0"/>
-        <constructor-arg type="int" value="32"/>
-        <constructor-arg type="int" value="8"/>
-    </bean>
-
-    <bean id="metadataRowKeyDistributor2" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg ref="metadataRangeHasher2"/>
-    </bean>
-
-    <bean id="metadataRangeHasher2" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
-        <constructor-arg type="int" value="0"/>
-        <constructor-arg type="int" value="36"/>
-        <constructor-arg type="int" value="32"/>
-    </bean>
-
-    <bean id="acceptApplicationRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg ref="acceptApplicationHasher"/>
-    </bean>
-
-    <bean id="acceptApplicationHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
-        <!-- Hashing parentApplicationName -->
-        <constructor-arg type="int" value="0"/>
-        <constructor-arg type="int" value="24"/>
-        <constructor-arg type="int" value="4"/>
-    </bean>
-
-    <bean id="statisticsCalleeRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg ref="statisticsCalleeHasher"/>
-    </bean>
-
-    <bean id="statisticsCalleeHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
-        <constructor-arg type="int" value="0"/>
-        <constructor-arg type="int" value="36"/>
-        <constructor-arg type="int" value="32"/>
-    </bean>
-
-    <bean id="statisticsCallerRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg ref="statisticsCallerHasher"/>
-    </bean>
-
-    <bean id="statisticsCallerHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
-        <constructor-arg type="int" value="0"/>
-        <constructor-arg type="int" value="36"/>
-        <constructor-arg type="int" value="32"/>
-    </bean>
-
-    <bean id="statisticsSelfRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg ref="statisticsSelfHasher"/>
-    </bean>
-
-    <bean id="statisticsSelfHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
-        <constructor-arg type="int" value="0"/>
-        <constructor-arg type="int" value="32"/>
-        <constructor-arg type="int" value="8"/>
-    </bean>
 </beans>

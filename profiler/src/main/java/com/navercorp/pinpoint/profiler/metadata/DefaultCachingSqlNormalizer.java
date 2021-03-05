@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
 import com.navercorp.pinpoint.common.profiler.sql.NormalizedSql;
 import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
@@ -37,7 +37,7 @@ public class DefaultCachingSqlNormalizer implements CachingSqlNormalizer {
     private final SqlParser sqlParser;
 
     public DefaultCachingSqlNormalizer(SimpleCache<String> sqlCache) {
-        this.sqlCache = Assert.requireNonNull(sqlCache, "sqlCache");
+        this.sqlCache = Objects.requireNonNull(sqlCache, "sqlCache");
         this.sqlParser = new DefaultSqlParser();
     }
 

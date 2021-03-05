@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 
 import com.navercorp.pinpoint.common.server.bo.thrift.SpanFactory;
 import com.navercorp.pinpoint.io.request.ServerRequest;
+import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ import java.util.Objects;
  * @author netspider
  */
 @Service
-public class ThriftSpanHandler implements SimpleHandler {
+public class ThriftSpanHandler implements SimpleHandler<TBase<?, ?>> {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -50,8 +51,8 @@ public class ThriftSpanHandler implements SimpleHandler {
     }
 
     @Override
-    public void handleSimple(ServerRequest serverRequest) {
-        final Object data = serverRequest.getData();
+    public void handleSimple(ServerRequest<TBase<?, ?>> serverRequest) {
+        final TBase<?, ?> data = serverRequest.getData();
         if (logger.isDebugEnabled()) {
             logger.debug("Handle simple data={}", data);
         }

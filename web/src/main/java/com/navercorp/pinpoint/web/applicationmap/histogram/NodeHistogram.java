@@ -23,7 +23,11 @@ import com.navercorp.pinpoint.web.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * this class is a collection of
@@ -96,6 +100,17 @@ public class NodeHistogram {
 
     public Map<String, Histogram> getAgentHistogramMap() {
         return agentHistogramMap;
+    }
+
+    public Map<String, ResponseTimeStatics> getAgentResponseStatisticsMap() {
+        if (agentHistogramMap == null) {
+            return null;
+        }
+        Map<String, ResponseTimeStatics> map = new HashMap<>(agentHistogramMap.size());
+        agentHistogramMap.forEach((agentId, histogram) -> {
+            map.put(agentId, ResponseTimeStatics.fromHistogram(histogram));
+        });
+        return map;
     }
 
     public List<ResponseTimeViewModel> getApplicationTimeHistogram() {

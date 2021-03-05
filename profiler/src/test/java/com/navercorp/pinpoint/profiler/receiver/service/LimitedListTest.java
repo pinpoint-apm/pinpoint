@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 import com.navercorp.pinpoint.profiler.context.active.UnsampledActiveTraceSnapshot;
 import org.junit.Assert;
@@ -64,7 +63,7 @@ public class LimitedListTest {
             logger.debug("priorityQueue:{}", activeTraceSnapshot);
         }
 
-        List<ThreadDump> sortedList = Lists.newArrayList(limitedList);
+        List<ThreadDump> sortedList = new ArrayList<>(limitedList);
         Collections.sort(sortedList, threadDump);
         for (ThreadDump activeTraceSnapshot : sortedList) {
             logger.debug("poll:{}", activeTraceSnapshot );

@@ -17,18 +17,21 @@
 package com.navercorp.pinpoint.common;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Woonduk Kang(emeroad)
+ * @deprecated Since 2.3.0 Use {@link java.nio.charset.StandardCharsets}
  */
+@Deprecated
 public final class Charsets {
     private Charsets() {
     }
 
-    public static final Charset US_ASCII = Charset.forName("US-ASCII");
+    public static final Charset US_ASCII = StandardCharsets.US_ASCII;
     public static final String US_ASCII_NAME = US_ASCII.name();
 
-    public static final Charset UTF_8 = Charset.forName("UTF-8");
+    public static final Charset UTF_8 = StandardCharsets.UTF_8;
     public static final String UTF_8_NAME = UTF_8.name();
 
 

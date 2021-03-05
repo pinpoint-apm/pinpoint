@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
+import java.util.Objects;
+
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
@@ -53,7 +55,7 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
     @Override
     public void store(String uri, boolean status, long elapsedTime) {
-        Assert.requireNonNull(uri, "uri");
+        Objects.requireNonNull(uri, "uri");
         UriStatInfo uriStatInfo = new UriStatInfo(uri, status, elapsedTime);
         execute(uriStatInfo);
     }

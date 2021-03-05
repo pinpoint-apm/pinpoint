@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.grpc.client.interceptor;
 
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.client.ForwardClientCall;
 import io.grpc.ClientCall;
+import io.grpc.ForwardingClientCall;
 import io.grpc.ForwardingClientCallListener;
 import io.grpc.Metadata;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Woonduk Kang(emeroad)
  * @author jaehong.kim
  */
-class DiscardClientCall<ReqT, RespT> extends ForwardClientCall<ReqT, RespT> {
+class DiscardClientCall<ReqT, RespT> extends ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT> {
     private static final State OK = new State(false, "OK");
     private static final State NOT_READY = new State(false, "stream not ready");
 
@@ -41,7 +41,7 @@ class DiscardClientCall<ReqT, RespT> extends ForwardClientCall<ReqT, RespT> {
 
     public DiscardClientCall(ClientCall<ReqT, RespT> delegate, DiscardEventListener listener, long maxPendingThreshold, long discardCountForReconnect, long notReadyTimeoutMillis) {
         super(delegate);
-        this.listener = Assert.requireNonNull(listener, "listener");
+        this.listener = Objects.requireNonNull(listener, "listener");
         this.maxPendingThreshold = maxPendingThreshold;
         this.discardLimiter = new DiscardLimiter(discardCountForReconnect, notReadyTimeoutMillis);
     }

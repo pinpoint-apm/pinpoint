@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.rpc.server;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
@@ -117,7 +117,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         setOptions(bootstrap);
         this.bootstrap = bootstrap;
 
-        this.serverOption = Assert.requireNonNull(serverOption, "serverOption");
+        this.serverOption = Objects.requireNonNull(serverOption, "serverOption");
         logger.info("serverOption : {}", serverOption);
 
         this.healthCheckTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-HealthCheckTimer", 50, TimeUnit.MILLISECONDS, 512);
@@ -125,9 +125,9 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
         this.requestManagerTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-RequestManager", 50, TimeUnit.MILLISECONDS, 512);
 
-        this.channelConnectedFilter = Assert.requireNonNull(channelConnectedFilter, "channelConnectedFilter");
+        this.channelConnectedFilter = Objects.requireNonNull(channelConnectedFilter, "channelConnectedFilter");
 
-        this.pipelineFactory = Assert.requireNonNull(pipelineFactory, "pipelineFactory");
+        this.pipelineFactory = Objects.requireNonNull(pipelineFactory, "pipelineFactory");
         addPipeline(bootstrap, pipelineFactory);
     }
 
@@ -180,7 +180,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     @VisibleForTesting
     public void setMessageHandler(final ChannelHandler messageHandler) {
-        Assert.requireNonNull(messageHandler, "messageHandler");
+        Objects.requireNonNull(messageHandler, "messageHandler");
         bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
             @Override
             public ChannelPipeline getPipeline() throws Exception {
@@ -223,7 +223,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public void setMessageListenerFactory(ServerMessageListenerFactory messageListenerFactory) {
-        this.messageListenerFactory = Assert.requireNonNull(messageListenerFactory, "messageListenerFactory");
+        this.messageListenerFactory = Objects.requireNonNull(messageListenerFactory, "messageListenerFactory");
     }
 
     @Override
@@ -232,7 +232,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public void addStateChangeEventHandler(ServerStateChangeEventHandler stateChangeEventHandler) {
-        Assert.requireNonNull(stateChangeEventHandler, "stateChangeEventHandler");
+        Objects.requireNonNull(stateChangeEventHandler, "stateChangeEventHandler");
 
         this.stateChangeEventHandler.add(stateChangeEventHandler);
     }
@@ -243,7 +243,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public void setServerStreamChannelMessageHandler(ServerStreamChannelMessageHandler serverStreamChannelMessageHandler) {
-        this.serverStreamChannelMessageHandler = Assert.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler");
+        this.serverStreamChannelMessageHandler = Objects.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler");
     }
 
     @Override
@@ -309,7 +309,6 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         @Override
         public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
             final Channel channel = e.getChannel();
-            logger.info("channelConnected started. channel:{}", channel);
 
             if (released) {
                 logger.warn("already released. channel:{}", channel);
@@ -327,6 +326,8 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
                 logger.debug("channelConnected() channel discard. {}", channel);
                 return;
             }
+
+            logger.info("channelConnected started. channel:{}", channel);
 
             DefaultPinpointServer pinpointServer = createPinpointServer(channel);
             

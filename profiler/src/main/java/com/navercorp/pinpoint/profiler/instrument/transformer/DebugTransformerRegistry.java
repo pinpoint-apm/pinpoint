@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 
 import java.lang.instrument.ClassFileTransformer;
@@ -31,8 +31,8 @@ public class DebugTransformerRegistry implements TransformerRegistry {
     private final DebugTransformer debugTransformer;
 
     public DebugTransformerRegistry(Filter<String> debugTargetFilter, DebugTransformer debugTransformer) {
-        this.debugTargetFilter = Assert.requireNonNull(debugTargetFilter, "debugTargetFilter");
-        this.debugTransformer = Assert.requireNonNull(debugTransformer, "debugTransformer");
+        this.debugTargetFilter = Objects.requireNonNull(debugTargetFilter, "debugTargetFilter");
+        this.debugTransformer = Objects.requireNonNull(debugTransformer, "debugTransformer");
     }
 
     @Override

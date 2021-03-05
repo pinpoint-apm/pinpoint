@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.SqlModule;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import org.slf4j.Marker;
 
 import java.math.BigDecimal;
@@ -39,7 +39,7 @@ public class Slf4jPLoggerAdapter extends AbstractLoggerAdapter implements PLogge
     private final org.slf4j.Logger logger;
 
     public Slf4jPLoggerAdapter(org.slf4j.Logger logger) {
-        this.logger = Assert.requireNonNull(logger, "logger");
+        this.logger = Objects.requireNonNull(logger, "logger");
     }
 
     public String getName() {

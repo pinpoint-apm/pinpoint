@@ -108,7 +108,7 @@ public class AlarmWriterIsolationTest {
     }
     
     private Rule getRuleStub(String appliationId, String ruleId) {
-        Rule rule = new Rule(appliationId, "tomcat", CHECKER_NAME, 100, "testGroup", true, true, "");
+        Rule rule = new Rule(appliationId, "tomcat", CHECKER_NAME, 100, "testGroup", true, true, true, "");
         rule.setRuleId(ruleId);
         return rule;
     }

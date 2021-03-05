@@ -385,13 +385,15 @@ caption {
 }
 
 .l-response-summary-chart .bb-grid line,
-.l-load-chart .bb-grid line {
+.l-load-chart .bb-grid line,
+.l-url-statistic-chart .bb-grid line {
     stroke: rgba(0, 0, 0, 0.1);
     stroke-width: 1.5;
 }
 
 .l-response-summary-chart .bb-ygrid,
-.l-load-chart .bb-ygrid {
+.l-load-chart .bb-ygrid,
+.l-url-statistic-chart .bb-ygrid {
     stroke-dasharray: 0;
 }
 
@@ -402,3 +404,8 @@ caption {
 .l-load-chart .bb-line {
     stroke-width: 0;
 }
+
+/* path.bb-shape {
+    stroke: red;
+    stroke-width: 1px;
+} */

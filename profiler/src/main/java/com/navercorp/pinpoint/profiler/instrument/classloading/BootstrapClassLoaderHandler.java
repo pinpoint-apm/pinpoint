@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
@@ -40,8 +40,8 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
     private volatile boolean injectedToRoot = false;
 
     public BootstrapClassLoaderHandler(PluginConfig pluginConfig, InstrumentEngine instrumentEngine) {
-        this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig");
-        this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine");
+        this.pluginConfig = Objects.requireNonNull(pluginConfig, "pluginConfig");
+        this.instrumentEngine = Objects.requireNonNull(instrumentEngine, "instrumentEngine");
     }
 
     @Override

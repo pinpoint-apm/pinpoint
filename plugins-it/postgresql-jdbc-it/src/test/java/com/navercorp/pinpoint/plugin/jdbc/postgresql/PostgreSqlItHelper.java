@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCApi;
 import org.slf4j.Logger;
@@ -33,6 +32,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.args;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.cachedArgs;
@@ -57,7 +57,7 @@ public class PostgreSqlItHelper {
     private final String databaseName;
 
     PostgreSqlItHelper(DriverProperties driverProperties) {
-        Assert.requireNonNull(driverProperties, "driverProperties");
+        Objects.requireNonNull(driverProperties, "driverProperties");
 
         jdbcUrl = driverProperties.getUrl();
         JdbcUrlParserV2 jdbcUrlParser = new PostgreSqlJdbcUrlParser();

@@ -157,7 +157,7 @@ public class SharedPinpointPluginTest {
         if (!testLogger) {
             return Collections.emptyList();
         }
-        List<String> dependencyLib = Arrays.asList(PluginClassLoading.LOGGER_DEPENDENCY);
+        List<String> dependencyLib = PluginClassLoading.LOGGER_DEPENDENCY;
         List<File> libFiles = lookup(dependencyResolver, dependencyLib, mavenDependencyResolverClassLoader);
         if (logger.isDebugEnabled()) {
             logger.debug("LoggerDependency {}", dependencyLib);

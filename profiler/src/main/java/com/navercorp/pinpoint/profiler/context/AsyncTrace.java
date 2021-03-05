@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +33,9 @@ public class AsyncTrace implements Trace {
     private final AsyncState asyncState;
 
     public AsyncTrace(final TraceRoot traceRoot, final DefaultTrace trace, final AsyncState asyncState) {
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
-        this.trace = Assert.requireNonNull(trace, "trace");
-        this.asyncState = Assert.requireNonNull(asyncState, "asyncState");
+        this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
+        this.trace = Objects.requireNonNull(trace, "trace");
+        this.asyncState = Objects.requireNonNull(asyncState, "asyncState");
     }
 
 

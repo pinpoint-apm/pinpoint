@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcherLocator;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyLocator;
 import com.navercorp.pinpoint.common.trace.ServiceTypeLocator;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -33,9 +33,9 @@ public class DefaultTraceMetadataLoaderService implements TraceMetadataLoaderSer
     private final AnnotationKeyMatcherLocator annotationKeyMatcherLocator;
 
     public DefaultTraceMetadataLoaderService(ServiceTypeLocator serviceTypeLocator, AnnotationKeyLocator annotationKeyLocator, AnnotationKeyMatcherLocator annotationKeyMatcherLocator) {
-        this.serviceTypeLocator = Assert.requireNonNull(serviceTypeLocator, "serviceTypeLocator");
-        this.annotationKeyLocator = Assert.requireNonNull(annotationKeyLocator, "annotationKeyLocator");
-        this.annotationKeyMatcherLocator = Assert.requireNonNull(annotationKeyMatcherLocator, "annotationKeyMatcherLocator");
+        this.serviceTypeLocator = Objects.requireNonNull(serviceTypeLocator, "serviceTypeLocator");
+        this.annotationKeyLocator = Objects.requireNonNull(annotationKeyLocator, "annotationKeyLocator");
+        this.annotationKeyMatcherLocator = Objects.requireNonNull(annotationKeyMatcherLocator, "annotationKeyMatcherLocator");
     }
 
     @Override

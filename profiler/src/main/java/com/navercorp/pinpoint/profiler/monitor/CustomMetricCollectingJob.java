@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.monitor;
 
+import java.util.Objects;
+
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentCustomMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentCustomMetricSnapshot;
@@ -45,8 +47,8 @@ public class CustomMetricCollectingJob implements Runnable {
     private List<AgentCustomMetricSnapshot> agentCustomMetricSnapshotList;
 
     public CustomMetricCollectingJob(DataSender dataSender, AgentCustomMetricCollector agentCustomMetricCollector, int numCollectionsPerBatch) {
-        this.dataSender = Assert.requireNonNull(dataSender, "dataSender");
-        this.agentCustomMetricCollector = Assert.requireNonNull(agentCustomMetricCollector, "agentCustomMetricCollector");
+        this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
+        this.agentCustomMetricCollector = Objects.requireNonNull(agentCustomMetricCollector, "agentCustomMetricCollector");
         Assert.isTrue(numCollectionsPerBatch > 0, "numCollectionsPerBatch must be `numCollectionsPerBatch > 0`");
         this.numCollectionsPerBatch = numCollectionsPerBatch;
         this.agentCustomMetricSnapshotList = new ArrayList<AgentCustomMetricSnapshot>(numCollectionsPerBatch);

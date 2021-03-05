@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.MonitorInfoMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricSnapshot;
@@ -32,7 +32,7 @@ import java.util.Collections;
 public class ThreadDumpUtils {
 
     public static ThreadDumpMetricSnapshot createThreadDump(Thread thread) {
-        Assert.requireNonNull(thread, "thread");
+        Objects.requireNonNull(thread, "thread");
         final ThreadInfo threadInfo = ThreadMXBeanUtils.getThreadInfo(thread.getId());
         if (threadInfo == null) {
             return null;
@@ -42,7 +42,7 @@ public class ThreadDumpUtils {
     }
 
     public static ThreadDumpMetricSnapshot createThreadDump(Thread thread, int stackTraceMaxDepth) {
-        Assert.requireNonNull(thread, "thread");
+        Objects.requireNonNull(thread, "thread");
         final ThreadInfo threadInfo = ThreadMXBeanUtils.getThreadInfo(thread.getId(), stackTraceMaxDepth);
         if (threadInfo == null) {
             return null;

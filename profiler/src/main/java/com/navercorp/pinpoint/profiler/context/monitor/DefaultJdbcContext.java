@@ -18,9 +18,11 @@ package com.navercorp.pinpoint.profiler.context.monitor;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindVariableService;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 
 /**
@@ -29,10 +31,12 @@ import com.navercorp.pinpoint.common.util.Assert;
 public class DefaultJdbcContext implements JdbcContext {
 
     private final JdbcUrlParsingService jdbcUrlParsingService;
+    private final BindVariableService bindVariableService;
 
     @Inject
-    public DefaultJdbcContext(JdbcUrlParsingService jdbcUrlParsingService) {
-        this.jdbcUrlParsingService = Assert.requireNonNull(jdbcUrlParsingService, "jdbcUrlParsingService");
+    public DefaultJdbcContext(JdbcUrlParsingService jdbcUrlParsingService, BindVariableService bindVariableService) {
+        this.jdbcUrlParsingService = Objects.requireNonNull(jdbcUrlParsingService, "jdbcUrlParsingService");
+        this.bindVariableService = Objects.requireNonNull(bindVariableService, "bindVariable");
     }
 
 
@@ -41,5 +45,8 @@ public class DefaultJdbcContext implements JdbcContext {
         return this.jdbcUrlParsingService.parseJdbcUrl(serviceType, jdbcUrl);
     }
 
-
+    @Override
+    public BindVariableService getBindVariableService() {
+        return bindVariableService;
+    }
 }

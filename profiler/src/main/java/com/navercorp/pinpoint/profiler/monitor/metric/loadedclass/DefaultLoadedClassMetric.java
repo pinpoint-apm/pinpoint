@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.loadedclass;
 
-import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetricSnapshot;
-
 import java.lang.management.ClassLoadingMXBean;
 import java.lang.management.ManagementFactory;
 

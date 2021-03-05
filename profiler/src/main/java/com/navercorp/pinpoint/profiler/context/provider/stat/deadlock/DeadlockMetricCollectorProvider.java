@@ -18,12 +18,13 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.deadlock;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.deadlock.DefaultDeadlockMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -34,7 +35,7 @@ public class DeadlockMetricCollectorProvider implements Provider<AgentStatMetric
 
     @Inject
     public DeadlockMetricCollectorProvider(DeadlockMetric deadlockMetric) {
-        this.deadlockMetric = Assert.requireNonNull(deadlockMetric, "deadlockMetric");
+        this.deadlockMetric = Objects.requireNonNull(deadlockMetric, "deadlockMetric");
     }
 
     @Override

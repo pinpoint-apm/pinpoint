@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
-import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 
 import io.netty.handler.codec.http.HttpHeaders;
@@ -49,38 +48,38 @@ public class HttpRequestAdaptor implements RequestAdaptor<HttpServerRequest> {
             return request.uri();
         } catch (Exception ignored) {
         }
-
         return null;
     }
 
     @Override
     public String getEndPoint(HttpServerRequest request) {
-        try {
-            return request.uri();
-        } catch (Exception ignored) {
+        final String host = getHost(request.hostAddress());
+        if (host != null) {
+            return host;
         }
-
         return "Unknown";
     }
 
     @Override
     public String getRemoteAddress(HttpServerRequest request) {
-        final InetSocketAddress inetSocketAddress = request.remoteAddress();
-        final InetAddress remoteAddress = inetSocketAddress.getAddress();
-        if (remoteAddress != null) {
-            return HostAndPort.toHostAndPortString(remoteAddress.getHostAddress(), inetSocketAddress.getPort());
-        }
-
-        return null;
+        return getHost(request.remoteAddress());
     }
 
     @Override
     public String getAcceptorHost(HttpServerRequest request) {
-        try {
-            return NetworkUtils.getHostFromURL(request.uri());
-        } catch (Exception ignored) {
-        }
+        return getHost(request.hostAddress());
+    }
 
+    private String getHost(InetSocketAddress inetSocketAddress) {
+        if (inetSocketAddress != null) {
+            try {
+                final InetAddress address = inetSocketAddress.getAddress();
+                if (address != null) {
+                    return HostAndPort.toHostAndPortString(address.getHostAddress(), inetSocketAddress.getPort());
+                }
+            } catch (Exception ignored) {
+            }
+        }
         return null;
     }
 }

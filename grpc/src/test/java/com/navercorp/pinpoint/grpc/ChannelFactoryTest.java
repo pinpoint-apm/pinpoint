@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.grpc;
 
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
@@ -103,7 +104,7 @@ public class ChannelFactoryTest {
     @Test
     public void build() throws InterruptedException {
 
-        HeaderFactory headerFactory = new AgentHeaderFactory("agentId", "appName", System.currentTimeMillis());
+        HeaderFactory headerFactory = new AgentHeaderFactory("agentId", "appName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
 
         CountRecordClientInterceptor countRecordClientInterceptor = new CountRecordClientInterceptor();
 

@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.collector;
 
-import com.navercorp.pinpoint.common.server.profile.ProfileApplicationListener;
+import com.navercorp.pinpoint.collector.env.CollectorEnvironmentApplicationListener;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
@@ -21,14 +21,13 @@ public class CollectorStarter {
     public void start(String[] args) {
 
         SpringApplicationBuilder builder = new SpringApplicationBuilder();
+
         builder.sources(sources);
         builder.web(WebApplicationType.SERVLET);
         builder.bannerMode(Banner.Mode.OFF);
-
+        builder.listeners(new CollectorEnvironmentApplicationListener());
 
         SpringApplication springApplication = builder.build();
-        springApplication.addListeners(new ProfileApplicationListener());
-
         springApplication.run(args);
     }
 

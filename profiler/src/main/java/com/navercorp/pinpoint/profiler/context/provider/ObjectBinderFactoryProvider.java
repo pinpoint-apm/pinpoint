@@ -19,9 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
@@ -30,6 +28,8 @@ import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -41,6 +41,7 @@ public class ObjectBinderFactoryProvider implements Provider<ObjectBinderFactory
     private final DataSourceMonitorRegistryService dataSourceMonitorRegistryService;
     private final CustomMetricRegistryService customMetricRegistryService;
     private final Provider<ApiMetaDataService> apiMetaDataServiceProvider;
+
     private final ExceptionHandlerFactory exceptionHandlerFactory;
     private final RequestRecorderFactory requestRecorderFactory;
     private final Provider<UriStatRecorderFactory> uriStatRecorderFactoryProvider;
@@ -55,19 +56,22 @@ public class ObjectBinderFactoryProvider implements Provider<ObjectBinderFactory
                                        ExceptionHandlerFactory exceptionHandlerFactory,
                                        RequestRecorderFactory requestRecorderFactory,
                                        Provider<UriStatRecorderFactory> uriStatRecorderFactoryProvider) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.traceContextProvider = Assert.requireNonNull(traceContextProvider, "traceContextProvider");
-        this.dataSourceMonitorRegistryService = Assert.requireNonNull(dataSourceMonitorRegistryService, "dataSourceMonitorRegistryService");
-        this.customMetricRegistryService = Assert.requireNonNull(customMetricRegistryService, "customMetricRegistryService");
-        this.apiMetaDataServiceProvider = Assert.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
-        this.exceptionHandlerFactory = Assert.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
-        this.requestRecorderFactory = Assert.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
-        this.uriStatRecorderFactoryProvider = Assert.requireNonNull(uriStatRecorderFactoryProvider, "uriStatRecorderFactoryProvider");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.traceContextProvider = Objects.requireNonNull(traceContextProvider, "traceContextProvider");
+        this.dataSourceMonitorRegistryService = Objects.requireNonNull(dataSourceMonitorRegistryService, "dataSourceMonitorRegistryService");
+        this.customMetricRegistryService = Objects.requireNonNull(customMetricRegistryService, "customMetricRegistryService");
+        this.apiMetaDataServiceProvider = Objects.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
+
+        this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
+        this.requestRecorderFactory = Objects.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
+        this.uriStatRecorderFactoryProvider = Objects.requireNonNull(uriStatRecorderFactoryProvider, "uriStatRecorderFactoryProvider");
     }
 
     @Override
     public ObjectBinderFactory get() {
-        return new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService, customMetricRegistryService, apiMetaDataServiceProvider, exceptionHandlerFactory, requestRecorderFactory, uriStatRecorderFactoryProvider);
+        return new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService,
+                customMetricRegistryService, apiMetaDataServiceProvider,
+                exceptionHandlerFactory, requestRecorderFactory, uriStatRecorderFactoryProvider);
     }
 
 }

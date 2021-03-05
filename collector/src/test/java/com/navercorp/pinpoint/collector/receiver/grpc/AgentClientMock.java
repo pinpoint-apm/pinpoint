@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
@@ -41,11 +42,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static io.grpc.ConnectivityState.CONNECTING;
 import static io.grpc.ConnectivityState.SHUTDOWN;
 import static io.grpc.ConnectivityState.TRANSIENT_FAILURE;
@@ -65,7 +66,7 @@ public class AgentClientMock {
         NettyChannelBuilder builder = NettyChannelBuilder.forAddress(host, port);
 
         if (agentHeader) {
-            HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", System.currentTimeMillis());
+            HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
             final Metadata extraHeaders = headerFactory.newHeader();
             final ClientInterceptor headersInterceptor = MetadataUtils.newAttachHeadersInterceptor(extraHeaders);
             builder.intercept(headersInterceptor);
@@ -243,7 +244,7 @@ public class AgentClientMock {
         private final LoadBalancer.PickResult result;
 
         Picker(LoadBalancer.PickResult result) {
-            this.result = checkNotNull(result, "result");
+            this.result = Objects.requireNonNull(result, "result");
         }
 
         @Override

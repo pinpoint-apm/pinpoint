@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultModuleFactoryResolver;
@@ -60,9 +60,9 @@ public class DefaultAgent implements Agent {
 
 
     public DefaultAgent(AgentOption agentOption) {
-        Assert.requireNonNull(agentOption, "agentOption");
-        Assert.requireNonNull(agentOption.getInstrumentation(), "instrumentation");
-        Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
+        Objects.requireNonNull(agentOption, "agentOption");
+        Objects.requireNonNull(agentOption.getInstrumentation(), "instrumentation");
+        Objects.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
 
         this.profilerConfig = agentOption.getProfilerConfig();
 
@@ -102,8 +102,8 @@ public class DefaultAgent implements Agent {
     }
 
     protected ApplicationContext newApplicationContext(AgentOption agentOption) {
-        Assert.requireNonNull(agentOption, "agentOption");
-        ProfilerConfig profilerConfig = Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
+        Objects.requireNonNull(agentOption, "agentOption");
+        ProfilerConfig profilerConfig = Objects.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
 
         ModuleFactoryResolver moduleFactoryResolver = new DefaultModuleFactoryResolver(profilerConfig.getInjectionModuleFactoryClazzName());
         ModuleFactory moduleFactory = moduleFactoryResolver.resolve();

@@ -1,0 +1,17 @@
+spring:
+  cloud:
+    stream:
+      rocketmq:
+        binder:
+          name-server: localhost:9876
+      bindings:
+        input1:
+          destination: test-topic
+          content-type: text/plain
+          group: test-group1
+        output1:
+          destination: test-topic
+          content-type: text/plain
+          producer:
+            group: binder-group
+            sync: true

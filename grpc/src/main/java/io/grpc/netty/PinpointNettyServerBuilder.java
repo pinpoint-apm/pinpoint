@@ -1,13 +1,36 @@
+/*
+ * Copyright 2014 The gRPC Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.grpc.netty;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static io.grpc.internal.GrpcUtil.DEFAULT_MAX_MESSAGE_SIZE;
+import static io.grpc.internal.GrpcUtil.DEFAULT_SERVER_KEEPALIVE_TIMEOUT_NANOS;
+import static io.grpc.internal.GrpcUtil.DEFAULT_SERVER_KEEPALIVE_TIME_NANOS;
+import static io.grpc.internal.GrpcUtil.SERVER_KEEPALIVE_TIME_NANOS_DISABLED;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.navercorp.pinpoint.common.util.Assert;
+import io.grpc.Attributes;
 import io.grpc.ExperimentalApi;
 import io.grpc.Internal;
 import io.grpc.ServerBuilder;
+import io.grpc.ServerCredentials;
 import io.grpc.ServerStreamTracer;
 import io.grpc.internal.AbstractServerImplBuilder;
 import io.grpc.internal.FixedObjectPool;
@@ -27,10 +50,6 @@ import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.ServerChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.ssl.SslContext;
-
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nullable;
-import javax.net.ssl.SSLException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,14 +60,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static io.grpc.internal.GrpcUtil.DEFAULT_MAX_MESSAGE_SIZE;
-import static io.grpc.internal.GrpcUtil.DEFAULT_SERVER_KEEPALIVE_TIMEOUT_NANOS;
-import static io.grpc.internal.GrpcUtil.DEFAULT_SERVER_KEEPALIVE_TIME_NANOS;
-import static io.grpc.internal.GrpcUtil.SERVER_KEEPALIVE_TIME_NANOS_DISABLED;
+import javax.annotation.CheckReturnValue;
+import javax.net.ssl.SSLException;
 
 /**
  * copy & modify : NettyServerBuilder
@@ -88,8 +103,8 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
     private ObjectPool<? extends EventLoopGroup> workerEventLoopGroupPool =
             DEFAULT_WORKER_EVENT_LOOP_GROUP_POOL;
     private boolean forceHeapBuffer;
-    private SslContext sslContext;
-    private ProtocolNegotiator protocolNegotiator;
+    private ProtocolNegotiator.ServerFactory protocolNegotiatorFactory;
+    private final boolean freezeProtocolNegotiatorFactory;
     private int maxConcurrentCallsPerConnection = Integer.MAX_VALUE;
     private boolean autoFlowControl = true;
     private int flowControlWindow = DEFAULT_FLOW_CONTROL_WINDOW;
@@ -102,6 +117,7 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
     private long maxConnectionAgeGraceInNanos = MAX_CONNECTION_AGE_GRACE_NANOS_INFINITE;
     private boolean permitKeepAliveWithoutCalls;
     private long permitKeepAliveTimeInNanos = TimeUnit.MINUTES.toNanos(5);
+    private Attributes eagAttributes = Attributes.EMPTY;
 
     /**
      * Creates a server builder that will bind to the given port.
@@ -111,7 +127,18 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
      */
     @CheckReturnValue
     public static PinpointNettyServerBuilder forPort(int port) {
-        return new PinpointNettyServerBuilder(port);
+        return forAddress(new InetSocketAddress(port));
+    }
+
+    /**
+     * Creates a server builder that will bind to the given port.
+     *
+     * @param port the port on which the server is to be bound.
+     * @return the server builder.
+     */
+    @CheckReturnValue
+    public static PinpointNettyServerBuilder forPort(int port, ServerCredentials creds) {
+        return forAddress(new InetSocketAddress(port), creds);
     }
 
     /**
@@ -125,6 +152,21 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
         return new PinpointNettyServerBuilder(address);
     }
 
+    /**
+     * Creates a server builder configured with the given {@link SocketAddress}.
+     *
+     * @param address the socket address on which the server is to be bound.
+     * @return the server builder
+     */
+    @CheckReturnValue
+    public static PinpointNettyServerBuilder forAddress(SocketAddress address, ServerCredentials creds) {
+        ProtocolNegotiators.FromServerCredentialsResult result = ProtocolNegotiators.from(creds);
+        if (result.error != null) {
+            throw new IllegalArgumentException(result.error);
+        }
+        return new PinpointNettyServerBuilder(address, result.negotiator);
+    }
+
     private final class NettyClientTransportServersBuilder implements ClientTransportServersBuilder {
         @Override
         public List<? extends InternalServer> buildClientTransportServers(
@@ -134,15 +176,20 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
     }
 
     @CheckReturnValue
-    private PinpointNettyServerBuilder(int port) {
-        serverImplBuilder = new ServerImplBuilder(new NettyClientTransportServersBuilder());
-        this.listenAddresses.add(new InetSocketAddress(port));
-    }
-
-    @CheckReturnValue
     private PinpointNettyServerBuilder(SocketAddress address) {
         serverImplBuilder = new ServerImplBuilder(new NettyClientTransportServersBuilder());
         this.listenAddresses.add(address);
+        this.protocolNegotiatorFactory = ProtocolNegotiators.serverPlaintextFactory();
+        this.freezeProtocolNegotiatorFactory = false;
+    }
+
+    @CheckReturnValue
+    PinpointNettyServerBuilder(
+            SocketAddress address, ProtocolNegotiator.ServerFactory negotiatorFactory) {
+        serverImplBuilder = new ServerImplBuilder(new NettyClientTransportServersBuilder());
+        this.listenAddresses.add(address);
+        this.protocolNegotiatorFactory = checkNotNull(negotiatorFactory, "negotiatorFactory");
+        this.freezeProtocolNegotiatorFactory = true;
     }
 
     @Internal
@@ -157,7 +204,7 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
      * other.
      */
     public PinpointNettyServerBuilder addListenAddress(SocketAddress listenAddress) {
-        this.listenAddresses.add(Preconditions.checkNotNull(listenAddress, "listenAddress"));
+        this.listenAddresses.add(checkNotNull(listenAddress, "listenAddress"));
         return this;
     }
 
@@ -177,7 +224,7 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
      * io.netty.channel.nio.NioEventLoopGroup}, otherwise your server won't start.
      */
     public PinpointNettyServerBuilder channelType(Class<? extends ServerChannel> channelType) {
-        Preconditions.checkNotNull(channelType, "channelType");
+        checkNotNull(channelType, "channelType");
         return channelFactory(new ReflectiveChannelFactory<>(channelType));
     }
 
@@ -196,7 +243,7 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
      * io.netty.channel.nio.NioEventLoopGroup}, otherwise your server won't start.
      */
     public PinpointNettyServerBuilder channelFactory(ChannelFactory<? extends ServerChannel> channelFactory) {
-        this.channelFactory = Preconditions.checkNotNull(channelFactory, "channelFactory");
+        this.channelFactory = checkNotNull(channelFactory, "channelFactory");
         return this;
     }
 
@@ -254,7 +301,7 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
 
     PinpointNettyServerBuilder bossEventLoopGroupPool(
             ObjectPool<? extends EventLoopGroup> bossEventLoopGroupPool) {
-        this.bossEventLoopGroupPool = Preconditions.checkNotNull(bossEventLoopGroupPool, "bossEventLoopGroupPool");
+        this.bossEventLoopGroupPool = checkNotNull(bossEventLoopGroupPool, "bossEventLoopGroupPool");
         return this;
     }
 
@@ -291,7 +338,7 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
     PinpointNettyServerBuilder workerEventLoopGroupPool(
             ObjectPool<? extends EventLoopGroup> workerEventLoopGroupPool) {
         this.workerEventLoopGroupPool =
-                Preconditions.checkNotNull(workerEventLoopGroupPool, "workerEventLoopGroupPool");
+                checkNotNull(workerEventLoopGroupPool, "workerEventLoopGroupPool");
         return this;
     }
 
@@ -307,25 +354,28 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
      * have been configured with {@link GrpcSslContexts}, but options could have been overridden.
      */
     public PinpointNettyServerBuilder sslContext(SslContext sslContext) {
+        checkState(!freezeProtocolNegotiatorFactory,
+                "Cannot change security when using ServerCredentials");
         if (sslContext != null) {
             checkArgument(sslContext.isServer(),
                     "Client SSL context can not be used for server");
             GrpcSslContexts.ensureAlpnAndH2Enabled(sslContext.applicationProtocolNegotiator());
+            protocolNegotiatorFactory = ProtocolNegotiators.serverTlsFactory(sslContext);
+        } else {
+            protocolNegotiatorFactory = ProtocolNegotiators.serverPlaintextFactory();
         }
-        this.sslContext = sslContext;
         return this;
     }
 
     /**
-     * Sets the {@link ProtocolNegotiator} to be used. If non-{@code null}, overrides the value
-     * specified in {@link #sslContext(SslContext)}.
-     *
-     * <p>Default: {@code null}.
+     * Sets the {@link ProtocolNegotiator} to be used. Overrides the value specified in {@link
+     * #sslContext(SslContext)}.
      */
     @Internal
-    public final PinpointNettyServerBuilder protocolNegotiator(
-            @Nullable ProtocolNegotiator protocolNegotiator) {
-        this.protocolNegotiator = protocolNegotiator;
+    public final PinpointNettyServerBuilder protocolNegotiator(ProtocolNegotiator protocolNegotiator) {
+        checkState(!freezeProtocolNegotiatorFactory,
+                "Cannot change security when using ServerCredentials");
+        this.protocolNegotiatorFactory = ProtocolNegotiators.fixedServerFactory(protocolNegotiator);
         return this;
     }
 
@@ -571,11 +621,16 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
         return this;
     }
 
+    /** Sets the EAG attributes available to protocol negotiators. Not for general use. */
+    void eagAttributes(Attributes eagAttributes) {
+        this.eagAttributes = checkNotNull(eagAttributes, "eagAttributes");
+    }
+
     //-------------------------------- modify pinpoint
     private ServerListenerDelegator serverListenerDelegator = new EmptyServerListenerDelegator();
 
     public void serverListenerDelegator(ServerListenerDelegator serverListenerDelegator) {
-        this.serverListenerDelegator = Assert.requireNonNull(serverListenerDelegator, "serverListenerDelegator");
+        this.serverListenerDelegator = Objects.requireNonNull(serverListenerDelegator, "serverListenerDelegator");
     }
     //--------------------------------  modify pinpoint
 
@@ -584,16 +639,12 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
             List<? extends ServerStreamTracer.Factory> streamTracerFactories) {
         assertEventLoopsAndChannelType();
 
-        ProtocolNegotiator negotiator = protocolNegotiator;
-        if (negotiator == null) {
-            negotiator = sslContext != null
-                    ? ProtocolNegotiators.serverTls(sslContext, this.serverImplBuilder.getExecutorPool())
-                    : ProtocolNegotiators.serverPlaintext();
-        }
+        ProtocolNegotiator negotiator = protocolNegotiatorFactory.newNegotiator(
+                this.serverImplBuilder.getExecutorPool());
 
         List<NettyServer> transportServers = new ArrayList<>(listenAddresses.size());
         for (SocketAddress listenAddress : listenAddresses) {
-            final NettyServer transportServer = new NettyServer(
+            NettyServer transportServer = new NettyServer(
                     listenAddress, channelFactory, channelOptions, childChannelOptions,
                     bossEventLoopGroupPool, workerEventLoopGroupPool, forceHeapBuffer, negotiator,
                     streamTracerFactories, transportTracerFactory, maxConcurrentCallsPerConnection,
@@ -601,7 +652,7 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
                     keepAliveTimeInNanos, keepAliveTimeoutInNanos,
                     maxConnectionIdleInNanos, maxConnectionAgeInNanos,
                     maxConnectionAgeGraceInNanos, permitKeepAliveWithoutCalls, permitKeepAliveTimeInNanos,
-                    this.serverImplBuilder.getChannelz()) {
+                    eagAttributes, this.serverImplBuilder.getChannelz()) {
                 //--------------------------------  modify pinpoint
                 @Override
                 public void start(final ServerListener serverListener) throws IOException {
@@ -637,24 +688,33 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
 
     @Override
     public PinpointNettyServerBuilder useTransportSecurity(File certChain, File privateKey) {
+        checkState(!freezeProtocolNegotiatorFactory,
+                "Cannot change security when using ServerCredentials");
+        SslContext sslContext;
         try {
             sslContext = GrpcSslContexts.forServer(certChain, privateKey).build();
         } catch (SSLException e) {
             // This should likely be some other, easier to catch exception.
             throw new RuntimeException(e);
         }
+        protocolNegotiatorFactory = ProtocolNegotiators.serverTlsFactory(sslContext);
         return this;
     }
 
     @Override
     public PinpointNettyServerBuilder useTransportSecurity(InputStream certChain, InputStream privateKey) {
+        checkState(!freezeProtocolNegotiatorFactory,
+                "Cannot change security when using ServerCredentials");
+        SslContext sslContext;
         try {
             sslContext = GrpcSslContexts.forServer(certChain, privateKey).build();
         } catch (SSLException e) {
             // This should likely be some other, easier to catch exception.
             throw new RuntimeException(e);
         }
+        protocolNegotiatorFactory = ProtocolNegotiators.serverTlsFactory(sslContext);
         return this;
     }
 }
+
 

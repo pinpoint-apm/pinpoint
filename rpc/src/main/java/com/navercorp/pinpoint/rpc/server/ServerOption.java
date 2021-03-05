@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
+import java.util.Objects;
+
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 
@@ -130,7 +132,7 @@ public class ServerOption {
         }
 
         public void setClusterOption(ClusterOption clusterOption) {
-            this.clusterOption = Assert.requireNonNull(clusterOption, "clusterOption");
+            this.clusterOption = Objects.requireNonNull(clusterOption, "clusterOption");
         }
 
         public ServerOption build() {

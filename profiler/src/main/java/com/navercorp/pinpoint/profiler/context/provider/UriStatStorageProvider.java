@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.storage.AsyncQueueingUriStatStorage;
 import com.navercorp.pinpoint.profiler.context.storage.DisabledUriStatStorage;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
@@ -36,7 +36,7 @@ public class UriStatStorageProvider implements Provider<UriStatStorage> {
 
     @Inject
     public UriStatStorageProvider(ProfilerConfig profilerConfig) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
     }
 
     @Override

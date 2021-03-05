@@ -126,7 +126,8 @@ public class ASMClassTest {
     private final RequestRecorderFactory requestRecorderFactory = mock(RequestRecorderFactory.class);
     private final Provider<UriStatRecorderFactory> uriStatRecorderFactoryProvider = Providers.of(mock(UriStatRecorderFactory.class));
 
-    private final ObjectBinderFactory objectBinderFactory = new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService, customMetricRegistryService, apiMetaDataService, exceptionHandlerFactory,
+    private final ObjectBinderFactory objectBinderFactory = new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService,
+            customMetricRegistryService, apiMetaDataService, exceptionHandlerFactory,
             requestRecorderFactory, uriStatRecorderFactoryProvider);
     private final ScopeFactory scopeFactory = new ScopeFactory();
     private final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();

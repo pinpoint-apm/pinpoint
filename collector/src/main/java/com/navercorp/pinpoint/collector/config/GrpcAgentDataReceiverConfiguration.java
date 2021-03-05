@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 
 import javax.annotation.PostConstruct;
 import java.util.Objects;
-import java.util.Properties;
 
 /**
  * @author Taejin Koo
@@ -59,21 +59,17 @@ public class GrpcAgentDataReceiverConfiguration {
 
     private ServerOption grpcServerOption;
 
-    public GrpcAgentDataReceiverConfiguration() {
-    }
 
-    public GrpcAgentDataReceiverConfiguration(Properties properties) {
-        // WARNING ServerOption does not support PropertyPlaceholder
-        loadServerOption(properties);
+    public GrpcAgentDataReceiverConfiguration(Environment environment) {
+        this.grpcServerOption = loadServerOption(environment);
     }
 
     // workaround
-    public void loadServerOption(Properties properties) {
-        Objects.requireNonNull(properties, "properties");
+    public static ServerOption loadServerOption(Environment environment) {
+        Objects.requireNonNull(environment, "environment");
         // Server option
-        final ServerOption.Builder serverOptionBuilder = GrpcPropertiesServerOptionBuilder.newBuilder(properties, GRPC_PREFIX);
-        this.grpcServerOption = serverOptionBuilder.build();
-
+        final ServerOption.Builder builder = GrpcPropertiesServerOptionBuilder.newBuilder(environment, GRPC_PREFIX);
+        return builder.build();
     }
 
     @PostConstruct

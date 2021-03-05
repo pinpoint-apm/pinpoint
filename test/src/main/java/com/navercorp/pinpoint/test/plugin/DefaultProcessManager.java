@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.test.plugin.util.Assert;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.tinylog.TaggedLogger;
 
@@ -25,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -42,7 +42,7 @@ public class DefaultProcessManager implements ProcessManager {
     private Process process = null;
 
     public DefaultProcessManager(PluginTestContext context) {
-        this.context = Assert.requireNonNull(context, "context");
+        this.context = Objects.requireNonNull(context, "context");
     }
 
     @Override

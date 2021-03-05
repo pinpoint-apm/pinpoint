@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProvider;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.loader.plugins.profiler.ProfilerPluginLoader;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProvider;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.plugins.profiler.ProfilerPluginLoader;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.plugin.PluginSetupResult;
 import com.navercorp.pinpoint.profiler.plugin.PluginsSetupResult;
@@ -32,6 +31,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -43,8 +43,8 @@ public class MockPluginContextLoadResult implements PluginContextLoadResult {
     private PluginsSetupResult lazy;
 
     public MockPluginContextLoadResult(ProfilerPluginContextLoader profilerPluginContextLoader, ClassLoader pluginClassLoader) {
-        this.profilerPluginContextLoader = Assert.requireNonNull(profilerPluginContextLoader, "profilerPluginConfigurer");
-        this.pluginClassLoader = Assert.requireNonNull(pluginClassLoader, "pluginClassLoader");
+        this.profilerPluginContextLoader = Objects.requireNonNull(profilerPluginContextLoader, "profilerPluginConfigurer");
+        this.pluginClassLoader = Objects.requireNonNull(pluginClassLoader, "pluginClassLoader");
     }
 
     private PluginsSetupResult getPluginsSetupResult() {

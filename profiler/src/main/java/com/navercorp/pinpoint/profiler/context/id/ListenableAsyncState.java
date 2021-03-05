@@ -17,8 +17,9 @@ package com.navercorp.pinpoint.profiler.context.id;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -34,8 +35,8 @@ public class ListenableAsyncState implements AsyncState {
     private boolean finish = false;
 
     public ListenableAsyncState(AsyncStateListener asyncStateListener, ActiveTraceHandle activeTraceHandle) {
-        this.asyncStateListener = Assert.requireNonNull(asyncStateListener, "asyncStateListener");
-        this.activeTraceHandle = Assert.requireNonNull(activeTraceHandle, "activeTraceHandle");
+        this.asyncStateListener = Objects.requireNonNull(asyncStateListener, "asyncStateListener");
+        this.activeTraceHandle = Objects.requireNonNull(activeTraceHandle, "activeTraceHandle");
     }
 
     @Override

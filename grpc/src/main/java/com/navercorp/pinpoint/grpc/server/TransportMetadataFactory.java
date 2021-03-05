@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import io.grpc.Attributes;
 import io.grpc.Grpc;
 import io.grpc.Status;
 
 import java.net.InetSocketAddress;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -33,7 +33,7 @@ public class TransportMetadataFactory {
     private final String debugString;
 
     public TransportMetadataFactory(String debugString) {
-        this.debugString = Assert.requireNonNull(debugString, "debugString");
+        this.debugString = Objects.requireNonNull(debugString, "debugString");
     }
 
     public TransportMetadata build(Attributes attributes) {

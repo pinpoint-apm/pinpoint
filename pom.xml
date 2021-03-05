@@ -44,10 +44,7 @@
         <module>agent</module>
         <module>agent-testweb</module>
         <module>agent-plugins</module>
-        <module>bootstrap</module>
-        <module>bootstrap-core</module>
-        <module>bootstrap-java8</module>
-        <module>bootstrap-java9</module>
+        <module>bootstraps</module>
         <module>collector</module>
         <module>commons</module>
         <module>commons-buffer</module>
@@ -71,6 +68,7 @@
         <module>flink</module>
         <module>testcase</module>
         <module>batch</module>
+        <module>report</module>
     </modules>
 
     <properties>
@@ -82,29 +80,29 @@
         <!-- hbase -->
         <hbase.shaded.client.version>1.4.13</hbase.shaded.client.version>
 
-        <plugin.clover.skip>false</plugin.clover.skip>
+        <plugin.jacoco.skip>true</plugin.jacoco.skip>
         <plugin.animal-sniffer.skip>false</plugin.animal-sniffer.skip>
 
         <!-- library -->
         <metrics.version>3.2.6</metrics.version>
 
-        <fastxml.jackson.version>2.11.3</fastxml.jackson.version>
-        <snakeyaml.version>1.26</snakeyaml.version>
+        <fastxml.jackson.version>2.12.1</fastxml.jackson.version>
+        <snakeyaml.version>1.27</snakeyaml.version>
 
         <httpcomponents.version>4.5.6</httpcomponents.version>
         <httpcomponents-core.version>4.4.10</httpcomponents-core.version>
 
 
         <spring4.version>4.3.27.RELEASE</spring4.version>
-        <spring5.version>5.2.7.RELEASE</spring5.version>
+        <spring5.version>5.2.12.RELEASE</spring5.version>
         <spring.version>${spring4.version}</spring.version>
         <spring.batch.version>4.2.4.RELEASE</spring.batch.version>
 
         <spring.security4.version>4.2.8.RELEASE</spring.security4.version>
-        <spring.security5.version>5.3.3.RELEASE</spring.security5.version>
+        <spring.security5.version>5.3.6.RELEASE</spring.security5.version>
         <spring.security.version>${spring.security4.version}</spring.security.version>
 
-        <spring.boot.version>2.2.8.RELEASE</spring.boot.version>
+        <spring.boot.version>2.3.8.RELEASE</spring.boot.version>
 
         <slf4j.version>1.7.30</slf4j.version>
         <log4j2-jdk7.version>2.12.1</log4j2-jdk7.version>
@@ -123,34 +121,31 @@
         <thrift.version>0.12.0</thrift.version>
         <ehcache.version>2.10.6</ehcache.version>
         <netty3.version>3.10.6.Final</netty3.version>
-        <netty4.version>4.1.51.Final</netty4.version>
+        <netty4.version>4.1.58.Final</netty4.version>
 
 
-        <guava-jdk6.version>20.0</guava-jdk6.version>
-        <guava-jdk8.version>29.0-jre</guava-jdk8.version>
-        <guava.version>${guava-jdk6.version}</guava.version>
+        <guava-jdk7.version>30.1-android</guava-jdk7.version>
+        <guava-jdk8.version>30.1-jre</guava-jdk8.version>
+        <guava.version>${guava-jdk7.version}</guava.version>
 
         <mybatis.spring.version>1.3.3</mybatis.spring.version>
         <mybatis.version>3.4.6</mybatis.version>
 
         <!-- maven-plugin -->
         <plugin.compiler.version>3.8.1</plugin.compiler.version>
-        <plugin.resources.version>3.1.0</plugin.resources.version>
+        <plugin.resources.version>3.2.0</plugin.resources.version>
         <plugin.surefire.version>2.22.2</plugin.surefire.version>
         <plugin.failsafe.version>2.22.2</plugin.failsafe.version>
         <plugin.shade.version>3.1.1</plugin.shade.version>
-        <plugin.assembly.version>3.1.1</plugin.assembly.version>
-        <plugin.war.version>3.2.2</plugin.war.version>
+        <plugin.assembly.version>3.3.0</plugin.assembly.version>
         <plugin.jar.version>3.2.0</plugin.jar.version>
-        <plugin.antrun.version>1.8</plugin.antrun.version>
+        <plugin.antrun.version>3.0.0</plugin.antrun.version>
 
-        <!--<plugin.clover.verison>4.3.0</plugin.clover.verison>-->
-        <plugin.clover.version>4.2.1</plugin.clover.version>
-        <plugin.spotbugs.version>3.1.12</plugin.spotbugs.version>
-        <plugin.pmd.version>3.12.0</plugin.pmd.version>
+        <plugin.spotbugs.version>4.1.4</plugin.spotbugs.version>
+        <plugin.pmd.version>3.14.0</plugin.pmd.version>
 
-        <plugin.enforcer.version>3.0.0-M2</plugin.enforcer.version>
-        <plugin.animal-sniffer.version>1.18</plugin.animal-sniffer.version>
+        <plugin.enforcer.version>3.0.0-M3</plugin.enforcer.version>
+        <plugin.animal-sniffer.version>1.19</plugin.animal-sniffer.version>
 
         <sniffer.artifactid>java17</sniffer.artifactid>
 
@@ -246,6 +241,12 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-grpc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-bootstraps</artifactId>
+                <type>pom</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -473,7 +474,11 @@
                 <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>${fastxml.jackson.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.hbase</groupId>
@@ -699,7 +704,7 @@
                 <artifactId>commons-io</artifactId>
                 <!-- 2.7 (requires Java 8 -->
                 <!-- 2.6 (requires Java 7 -->
-                <version>2.5</version>
+                <version>2.6</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -718,6 +723,11 @@
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
                 <version>3.2.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>4.4</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -891,11 +901,17 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>listenablefuture</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.google.inject</groupId>
                 <artifactId>guice</artifactId>
-                <version>4.1.0</version>
+                <version>4.2.2</version>
             </dependency>
 
 
@@ -908,7 +924,7 @@
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>2.3.3.RELEASE</version>
+                    <version>${spring.boot.version}</version>
                     <executions>
                         <execution>
                             <goals>
@@ -943,6 +959,89 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>3.1.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.9.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>3.1.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.1.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>3.0.0-M1</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.cj.jshintmojo</groupId>
+                    <artifactId>jshint-maven-plugin</artifactId>
+                    <version>1.6.0</version>
+                    <configuration>
+                        <options>sub, boss, newcap, loopfunc</options>
+                        <globals></globals>
+                        <directories>
+                            <directory>src/main/webapp</directory>
+                        </directories>
+                        <excludes>
+                            <exclude>src/main/webapp/components</exclude>
+                        </excludes>
+                        <reporter>checkstyle</reporter>
+                        <reportFile>${project.build.directory}/jshint.xml</reportFile>
+                        <failOnError>false</failOnError>
+                    </configuration>
+                </plugin>
+
+                <!-- reporting -->
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>${plugin.spotbugs.version}</version>
+                    <configuration>
+                        <excludeFilterFile>${maven.multiModuleProjectDirectory}/spotbugs-exclude.xml</excludeFilterFile>
+                        <xmlOutput>true</xmlOutput>
+                        <xmlOutputDirectory>${project.build.directory}/spotbugs</xmlOutputDirectory>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-pmd-plugin</artifactId>
+                    <version>${plugin.pmd.version}</version>
+                    <configuration>
+                        <linkXRef>true</linkXRef>
+                        <sourceEncoding>${encoding}</sourceEncoding>
+                        <targetJdk>${jdk.version}</targetJdk>
+                        <excludes>
+                            <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
+                            <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                            <exclude>com/navercorp/pinpoint/common/profiler/util/jsr166/**/*.java</exclude>
+                            <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+                            <exclude>com/navercorp/pinpoint/grpc/trace/**/*.java</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.6</version>
+                    <executions>
+                        <execution>
+                            <id>prepare-agent</id>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <skip>${plugin.jacoco.skip}</skip>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -983,47 +1082,10 @@
                         <exclude>**/*Helper</exclude>
                         <exclude>**/*$*</exclude>
                     </excludes>
-                    <argLine>-Dfile.encoding=${encoding}</argLine>
+                    <!-- Add  @{argLine} for jacoco -->
+                    <argLine>@{argLine} -Dfile.encoding=${encoding}</argLine>
                     <jvm>${test.jdk.home}/bin/java</jvm>
                     <forkMode>once</forkMode>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.openclover</groupId>
-                <artifactId>clover-maven-plugin</artifactId>
-                <version>${plugin.clover.version}</version>
-                <configuration>
-                    <encoding>${encoding}</encoding>
-                    <jdk>${jdk.version}</jdk>
-                    <generateXml>true</generateXml>
-                    <generateHtml>true</generateHtml>
-                    <generateHistorical>false</generateHistorical>
-                    <license>
-                        <![CDATA[
-                        RMRqrdbgbKFhbaVnDxHUdDQvrOQXxIBklnvcmahheubVC
-                        mh2KM35CLkwUHS4DH7QVhxy52J5hnWbyEm6Cyd3KkF<mV
-                        RmmnSVOqOMnOnMMrmMqwXomoroNrqPNRrPSsWwtUxXuUU
-                        sRONqpnmqmUUnqonmstsmmmmmUUnqonmstsmmmmmUUGfk
-                        mlfkqUUnmmmm
-                        ]]>
-                    </license>
-                    <singleCloverDatabase>false</singleCloverDatabase>
-                    <includesTestSourceRoots>false</includesTestSourceRoots>
-                    <excludes>
-                        <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/common/profiler/util/jsr166/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
-                    </excludes>
-                    <skip>${plugin.clover.skip}</skip>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>${plugin.spotbugs.version}</version>
-                <configuration>
-                    <excludeFilterFile>${maven.multiModuleProjectDirectory}/spotbugs-exclude.xml</excludeFilterFile>
                 </configuration>
             </plugin>
             <plugin>
@@ -1064,43 +1126,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>${plugin.pmd.version}</version>
-                <configuration>
-                    <linkXRef>true</linkXRef>
-                    <sourceEncoding>${encoding}</sourceEncoding>
-                    <targetJdk>${jdk.version}</targetJdk>
-                    <excludes>
-                        <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/common/profiler/util/jsr166/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/grpc/trace/**/*.java</exclude>
-
-                        <exclude>com/navercorp/pinpoint/bootstrap/util/jdk/ThreadLocalRandom.java</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.cj.jshintmojo</groupId>
-                <artifactId>jshint-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <configuration>
-                    <options>sub, boss, newcap, loopfunc</options>
-                    <globals></globals>
-                    <directories>
-                        <directory>src/main/webapp</directory>
-                    </directories>
-                    <excludes>
-                        <exclude>src/main/webapp/components</exclude>
-                    </excludes>
-                    <reporter>checkstyle</reporter>
-                    <reportFile>${project.build.directory}/jshint.xml</reportFile>
-                    <failOnError>false</failOnError>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
                 <version>${plugin.animal-sniffer.version}</version>
@@ -1125,10 +1150,22 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>3.7.1</version>
+                <artifactId>maven-pmd-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.cj.jshintmojo</groupId>
+                <artifactId>jshint-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
@@ -1138,69 +1175,20 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>${plugin.spotbugs.version}</version>
-                <configuration>
-                    <excludeFilterFile>${maven.multiModuleProjectDirectory}/spotbugs-exclude.xml</excludeFilterFile>
-                    <xmlOutput>true</xmlOutput>
-                    <xmlOutputDirectory>${project.build.directory}/spotbugs</xmlOutputDirectory>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>${plugin.pmd.version}</version>
-                <configuration>
-                    <linkXRef>true</linkXRef>
-                    <sourceEncoding>${encoding}</sourceEncoding>
-                    <targetJdk>${jdk.version}</targetJdk>
-                    <!-- <rulesets> <ruleset>/rulesets/unusedcode.xml</ruleset>
-                        <ruleset>/rulesets/basic.xml</ruleset> <ruleset>/rulesets/imports.xml</ruleset>
-                        <ruleset>/rulesets/design.xml</ruleset> </rulesets> -->
-                    <excludes>
-                        <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/common/profiler/util/jsr166/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.openclover</groupId>
-                <artifactId>clover-maven-plugin</artifactId>
-                <version>${plugin.clover.version}</version>
-                <configuration>
-                    <includesTestSourceRoots>true</includesTestSourceRoots>
-                    <license>
-                        <![CDATA[
-                        RMRqrdbgbKFhbaVnDxHUdDQvrOQXxIBklnvcmahheubVC
-                        mh2KM35CLkwUHS4DH7QVhxy52J5hnWbyEm6Cyd3KkF<mV
-                        RmmnSVOqOMnOnMMrmMqwXomoroNrqPNRrPSsWwtUxXuUU
-                        sRONqpnmqmUUnqonmstsmmmmmUUnqonmstsmmmmmUUGfk
-                        mlfkqUUnmmmm
-                        ]]>
-                    </license>
-                    <encoding>${encoding}</encoding>
-                    <jdk>${jdk.version}</jdk>
-                    <excludes>
-                        <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/common/profiler/util/jsr166/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
-                    </excludes>
-                    <skip>${plugin.clover.skip}</skip>
-                </configuration>
-            </plugin>
-
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.7.1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
-                <version>2.5</version>
+                <version>3.0.0</version>
                 <inherited>false</inherited>
                 <configuration>
                     <aggregate>true</aggregate>
@@ -1241,6 +1229,13 @@
             <properties>
                 <env>release</env>
                 <spring.profiles.active>release</spring.profiles.active>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>code.coverage</id>
+            <properties>
+                <plugin.jacoco.skip>false</plugin.jacoco.skip>
             </properties>
         </profile>
 

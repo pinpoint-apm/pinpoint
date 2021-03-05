@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.grpc.logging;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import org.slf4j.Logger;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -30,12 +30,12 @@ public class ThrottledLogger {
     private final AtomicLong counter = new AtomicLong();
 
     public static ThrottledLogger getLogger(Logger logger, long ratio) {
-        Assert.requireNonNull(logger, "logger");
+        Objects.requireNonNull(logger, "logger");
         return new ThrottledLogger(logger, ratio);
     }
 
     private ThrottledLogger(Logger logger, long ratio) {
-        this.logger = Assert.requireNonNull(logger, "logger");
+        this.logger = Objects.requireNonNull(logger, "logger");
         this.ratio = ratio;
     }
 
