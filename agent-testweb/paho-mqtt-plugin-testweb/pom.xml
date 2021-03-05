@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-agent-testweb</artifactId>
-        <version>2.2.2-SNAPSHOT</version>
+        <version>2.2.2</version>
     </parent>
 
     <artifactId>pinpoint-paho-mqtt-plugin-testweb</artifactId>
