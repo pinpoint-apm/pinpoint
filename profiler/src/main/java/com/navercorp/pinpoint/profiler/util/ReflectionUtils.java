@@ -1,15 +1,15 @@
-package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
+package com.navercorp.pinpoint.profiler.util;
 
-import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-
-final class ReflectionUtils {
+/**
+ * duplicate : com.navercorp.pinpoint.bootstrap.plugin.jdbc.ReflectionUtils
+ */
+public final class ReflectionUtils {
     public static final String ARRAY_POSTFIX = "[]";
 
     private ReflectionUtils() {
     }
 
-    @VisibleForTesting
-    static String getParameterTypeName(Class<?> parameterType) {
+    public static String getParameterTypeName(Class<?> parameterType) {
         if (parameterType == null) {
             throw new NullPointerException("parameterType");
         }
@@ -18,7 +18,6 @@ final class ReflectionUtils {
             return parameterType.getName();
         }
 
-        // get arrayDepth & arrayType
         int arrayDepth = 0;
         while (parameterType.isArray()) {
             parameterType = parameterType.getComponentType();
@@ -38,5 +37,4 @@ final class ReflectionUtils {
     private static int getBufferSize(String paramTypeName, int arrayDepth) {
         return paramTypeName.length() + (ARRAY_POSTFIX.length() * arrayDepth);
     }
-
 }
