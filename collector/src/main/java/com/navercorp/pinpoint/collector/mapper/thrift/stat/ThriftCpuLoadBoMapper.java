@@ -38,7 +38,9 @@ public class ThriftCpuLoadBoMapper implements ThriftStatMapper<CpuLoadBo, TCpuLo
 
     @Override
     public void map(AgentStatBo.Builder.StatBuilder agentStatBuilder, TAgentStat tAgentStat) {
-        CpuLoadBo cpuLoadBo = this.map(tAgentStat.getCpuLoad());
-        agentStatBuilder.addCpuLoad(cpuLoadBo);
+        if (tAgentStat.isSetCpuLoad()) {
+            CpuLoadBo cpuLoadBo = this.map(tAgentStat.getCpuLoad());
+            agentStatBuilder.addCpuLoad(cpuLoadBo);
+        }
     }
 }
