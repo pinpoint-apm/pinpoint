@@ -7,12 +7,12 @@
 
 **Visit [our official web site](https://pinpoint-apm.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://pinpoint-apm.github.io/pinpoint/news.html)**.
 
-## Latest Release (2020/01/21)
+## Latest Release (2021/03/05)
 
-We're happy to announce the release of Pinpoint v2.2.1.
-Please check the release note at (https://github.com/pinpoint-apm/pinpoint/releases/tag/v2.2.1).
+We're happy to announce the release of Pinpoint v2.2.2.
+Please check the release note at (https://github.com/pinpoint-apm/pinpoint/releases/tag/v2.2.2).
 
-The current stable version is [v2.2.1](https://github.com/pinpoint-apm/pinpoint/releases/tag/v2.2.1).
+The current stable version is [v2.2.2](https://github.com/pinpoint-apm/pinpoint/releases/tag/v2.2.2).
 
 ## Live Demo
 
