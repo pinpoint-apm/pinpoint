@@ -95,7 +95,7 @@ public class GrpcAgentUriStatHandlerV2Test {
     public void handleTest() {
         AgentUriStatService mockAgentUriStatService = Mockito.mock(AgentUriStatService.class);
 
-        attachContext(new Header("agent", "applicationName", ServiceType.UNKNOWN.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, new ArrayList<>()));
+        attachContext(new Header("name", "agent", "applicationName", ServiceType.UNKNOWN.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, new ArrayList<>()));
 
         PAgentUriStat pAgentUriStat = createPAgentUriStat();
 

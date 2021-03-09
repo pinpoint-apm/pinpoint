@@ -35,7 +35,7 @@ public class AgentHeaderReaderTest {
     private static final long SOCKET_ID = 1001;
     private static final int SERVICE_TYPE = ServiceType.STAND_ALONE.getCode();
 
-    private HeaderReader<Header> reader = new AgentHeaderReader();
+    private HeaderReader<Header> reader = new AgentHeaderReader("test");
 
     @Test
     public void extract() {
