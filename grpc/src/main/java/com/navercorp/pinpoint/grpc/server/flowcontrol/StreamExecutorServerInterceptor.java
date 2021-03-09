@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.grpc.server;
+package com.navercorp.pinpoint.grpc.server.flowcontrol;
 
 import com.navercorp.pinpoint.common.util.Assert;
 import io.grpc.Context;

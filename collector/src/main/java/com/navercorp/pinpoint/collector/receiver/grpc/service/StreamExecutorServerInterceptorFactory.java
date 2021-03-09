@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
-import com.navercorp.pinpoint.grpc.server.StreamExecutorServerInterceptor;
+import com.navercorp.pinpoint.grpc.server.flowcontrol.StreamExecutorServerInterceptor;
 import io.grpc.ServerInterceptor;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.FactoryBean;
