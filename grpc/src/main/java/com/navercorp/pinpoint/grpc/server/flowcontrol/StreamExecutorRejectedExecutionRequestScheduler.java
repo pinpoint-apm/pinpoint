@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.grpc.server;
+package com.navercorp.pinpoint.grpc.server.flowcontrol;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import io.grpc.ServerCall;
@@ -23,7 +23,6 @@ import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author jaehong.kim
@@ -35,19 +34,28 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
     private final long recoveryMessagesCount;
 
     public StreamExecutorRejectedExecutionRequestScheduler(final ScheduledExecutorService scheduledExecutorService, final int periodMillis, int recoveryMessagesCount) {
-        this.scheduledExecutorService = scheduledExecutorService;
+        this.scheduledExecutorService = Objects.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
         this.periodMillis = periodMillis;
         // cast long
         this.recoveryMessagesCount = recoveryMessagesCount;
     }
 
     public <ReqT, RespT> Listener schedule(final ServerCall<ReqT, RespT> call) {
-        final ServerCallWrapper serverCall = new DefaultServerCallWrapper(call);
-        final RejectedExecutionListener rejectedExecutionListener = new RejectedExecutionListener(serverCall, recoveryMessagesCount);
+        final ServerCallWrapper serverCall = new DefaultServerCallWrapper<>(call);
+
+        final RejectedExecutionListener rejectedExecutionListener = newRejectedExecutionListener(serverCall);
         final RequestScheduleJob command = new RequestScheduleJob(rejectedExecutionListener);
-        final ScheduledFuture requestScheduledFuture = scheduledExecutorService.scheduleAtFixedRate(command, periodMillis, periodMillis, TimeUnit.MILLISECONDS);
+        final ScheduledFuture<?> requestScheduledFuture = scheduledExecutorService.scheduleAtFixedRate(command, periodMillis, periodMillis, TimeUnit.MILLISECONDS);
         final Listener listener = new Listener(rejectedExecutionListener, requestScheduledFuture);
         return listener;
+    }
+
+    private RejectedExecutionListener newRejectedExecutionListener(ServerCallWrapper serverCall) {
+        if (recoveryMessagesCount == REQUEST_IMMEDIATELY) {
+            return new SimpleRejectedExecutionListener(serverCall);
+        } else {
+            return new ControlFlowRejectExecutionListener(serverCall, recoveryMessagesCount);
+        }
     }
 
     @Override
@@ -60,58 +68,11 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
     }
 
     @VisibleForTesting
-    static class RejectedExecutionListener {
-        private final AtomicLong rejectedExecutionCounter = new AtomicLong(0);
-        private final ServerCallWrapper serverCall;
-        private final long recoveryMessagesCount;
-
-        public RejectedExecutionListener(ServerCallWrapper serverCall, long recoveryMessagesCount) {
-            this.serverCall = serverCall;
-            this.recoveryMessagesCount = recoveryMessagesCount;
-        }
-
-        public void onRejectedExecution() {
-            if (REQUEST_IMMEDIATELY == this.recoveryMessagesCount) {
-                // Request immediately
-                this.serverCall.request(1);
-            } else {
-                this.rejectedExecutionCounter.incrementAndGet();
-            }
-        }
-
-        public void onSchedule() {
-            if (REQUEST_IMMEDIATELY == this.recoveryMessagesCount) {
-                return;
-            }
-
-            final long currentRejectCount = this.rejectedExecutionCounter.get();
-            if (currentRejectCount > 0) {
-                final long recovery = Math.min(currentRejectCount, recoveryMessagesCount);
-                this.rejectedExecutionCounter.addAndGet(-recovery);
-                serverCall.request((int) recovery);
-            }
-        }
-
-        public long getRejectedExecutionCount() {
-            return rejectedExecutionCounter.get();
-        }
-
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("RejectedExecutionListener{");
-            sb.append("rejectedExecutionCounter=").append(rejectedExecutionCounter);
-            sb.append(", serverCall=").append(serverCall);
-            sb.append('}');
-            return sb.toString();
-        }
-    }
-
-    @VisibleForTesting
     static class RequestScheduleJob implements Runnable {
         private final RejectedExecutionListener listener;
 
         public RequestScheduleJob(final RejectedExecutionListener listener) {
-            this.listener = listener;
+            this.listener = Objects.requireNonNull(listener, "listener");
         }
 
         @Override
@@ -122,9 +83,9 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
 
     public static class Listener {
         private final RejectedExecutionListener rejectedExecutionListener;
-        private final ScheduledFuture requestScheduledFuture;
+        private final ScheduledFuture<?> requestScheduledFuture;
 
-        public Listener(RejectedExecutionListener rejectedExecutionListener, ScheduledFuture requestScheduledFuture) {
+        public Listener(RejectedExecutionListener rejectedExecutionListener, ScheduledFuture<?> requestScheduledFuture) {
             this.rejectedExecutionListener = Objects.requireNonNull(rejectedExecutionListener, "rejectedExecutionListener");
             this.requestScheduledFuture = Objects.requireNonNull(requestScheduledFuture, "requestScheduledFuture");
         }
@@ -141,9 +102,12 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
             return this.rejectedExecutionListener.getRejectedExecutionCount();
         }
 
-        @VisibleForTesting
-        ScheduledFuture getRequestScheduledFuture() {
-            return requestScheduledFuture;
+        public boolean isCancelled() {
+            return this.requestScheduledFuture.isCancelled();
+        }
+
+        public void onExecute() {
+            this.rejectedExecutionListener.onExecute();
         }
 
         @Override
@@ -156,14 +120,14 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
         }
     }
 
-    private interface ServerCallWrapper<ReqT, ResT> {
+    public interface ServerCallWrapper {
         void request(int numMessages);
     }
 
-    private class DefaultServerCallWrapper implements ServerCallWrapper {
-        private final ServerCall serverCall;
+    private static class DefaultServerCallWrapper<ReqT, RespT> implements ServerCallWrapper {
+        private final ServerCall<ReqT, RespT> serverCall;
 
-        public DefaultServerCallWrapper(ServerCall serverCall) {
+        public DefaultServerCallWrapper(ServerCall<ReqT, RespT> serverCall) {
             this.serverCall = Objects.requireNonNull(serverCall, "serverCall");
         }
 

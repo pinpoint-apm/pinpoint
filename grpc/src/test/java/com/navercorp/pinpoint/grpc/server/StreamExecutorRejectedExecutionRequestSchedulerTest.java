@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
+import com.navercorp.pinpoint.grpc.server.flowcontrol.StreamExecutorRejectedExecutionRequestScheduler;
 import io.grpc.internal.NoopServerCall;
 import org.junit.After;
 import org.junit.Before;
@@ -54,9 +55,8 @@ public class StreamExecutorRejectedExecutionRequestSchedulerTest {
         listener.onRejectedExecution();
         assertEquals(1, listener.getRejectedExecutionCount());
 
-        ScheduledFuture scheduledFuture = listener.getRequestScheduledFuture();
-        assertFalse(scheduledFuture.isCancelled());
+        assertFalse(listener.isCancelled());
         listener.onCancel();
-        assertTrue(scheduledFuture.isCancelled());
+        assertTrue(listener.isCancelled());
     }
 }
