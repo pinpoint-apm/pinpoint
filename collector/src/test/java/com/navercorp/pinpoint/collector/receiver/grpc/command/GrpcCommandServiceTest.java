@@ -63,15 +63,13 @@ public class GrpcCommandServiceTest {
         ZookeeperClusterService mockClusterService = Mockito.mock(ZookeeperClusterService.class);
         Mockito.when(mockClusterService.getProfilerClusterManager()).thenReturn(manager);
 
-        GrpcCommandService commandService = new GrpcCommandService(mockClusterService);
-
-        try {
+        try (GrpcCommandService commandService = new GrpcCommandService(mockClusterService)) {
             TransportMetadata transportMetaData = createTransportMetaData(new InetSocketAddress("127.0.0.1", 61613), 10);
             attachContext(transportMetaData);
 
-            attachContext(new Header("agent", "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, null));
+            attachContext(new Header("test", "agent", "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, null));
 
-            StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommand(new TempServerCallStreamObserver<PCmdRequest>());
+            StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommand(new TempServerCallStreamObserver<>());
 
             handleMessageObserver.onNext(createHandshakeMessage());
 
@@ -83,8 +81,6 @@ public class GrpcCommandServiceTest {
             });
 
             assertHandleMessage(commandService, transportMetaData);
-        } finally {
-            commandService.close();
         }
     }
 
@@ -95,12 +91,10 @@ public class GrpcCommandServiceTest {
         ZookeeperClusterService mockClusterService = Mockito.mock(ZookeeperClusterService.class);
         Mockito.when(mockClusterService.getProfilerClusterManager()).thenReturn(manager);
 
-        GrpcCommandService commandService = new GrpcCommandService(mockClusterService);
-
-        try {
+        try (GrpcCommandService commandService = new GrpcCommandService(mockClusterService)) {
             TransportMetadata transportMetaData = createTransportMetaData(new InetSocketAddress("127.0.0.1", 61613), 10);
             attachContext(transportMetaData);
-            attachContext(new Header("agent", "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, getCodeList()));
+            attachContext(new Header("test", "agent", "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, getCodeList()));
 
             final TempServerCallStreamObserver<PCmdRequest> requestObserver = new TempServerCallStreamObserver<>();
             StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommand(requestObserver);
@@ -114,8 +108,6 @@ public class GrpcCommandServiceTest {
 
             Assert.assertFalse(await);
             Assert.assertNotNull(requestObserver.getLatestException());
-        } finally {
-            commandService.close();
         }
     }
 
@@ -126,14 +118,12 @@ public class GrpcCommandServiceTest {
         ZookeeperClusterService mockClusterService = Mockito.mock(ZookeeperClusterService.class);
         Mockito.when(mockClusterService.getProfilerClusterManager()).thenReturn(manager);
 
-        GrpcCommandService commandService = new GrpcCommandService(mockClusterService);
-
-        try {
+        try (GrpcCommandService commandService = new GrpcCommandService(mockClusterService)) {
             TransportMetadata transportMetaData = createTransportMetaData(new InetSocketAddress("127.0.0.1", 61613), 10);
             attachContext(transportMetaData);
-            attachContext(new Header("agent", "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, getCodeList()));
+            attachContext(new Header("test", "agent", "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, getCodeList()));
 
-            StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommandV2(new TempServerCallStreamObserver<PCmdRequest>());
+            StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommandV2(new TempServerCallStreamObserver<>());
 
             awaitUtils.await(new TestAwaitTaskUtils() {
                 @Override
@@ -143,8 +133,6 @@ public class GrpcCommandServiceTest {
             });
 
             assertHandleMessage(commandService, transportMetaData);
-        } finally {
-            commandService.close();
         }
     }
 
@@ -167,7 +155,7 @@ public class GrpcCommandServiceTest {
         commandService.commandEcho(defaultInstance, recordedStreamObserver);
         Assert.assertNotNull(recordedStreamObserver.getLatestThrowable());
 
-        StreamObserver<PCmdActiveThreadCountRes> pCmdActiveThreadCountResStreamObserver = commandService.commandStreamActiveThreadCount(new TempServerCallStreamObserver<Empty>());
+        StreamObserver<PCmdActiveThreadCountRes> pCmdActiveThreadCountResStreamObserver = commandService.commandStreamActiveThreadCount(new TempServerCallStreamObserver<>());
         Assert.assertNotNull(pCmdActiveThreadCountResStreamObserver);
 
         attachContext(transportMetaData);

@@ -49,6 +49,7 @@ public class Header {
     public static final List<Integer> SUPPORT_COMMAND_CODE_LIST_NOT_EXIST = null;
     public static final List<Integer> SUPPORT_COMMAND_CODE_LIST_PARSE_ERROR = Collections.emptyList();
 
+    private final String name;
     private final String agentId;
     private final String applicationName;
     private final long agentStartTime;
@@ -57,11 +58,12 @@ public class Header {
     private final List<Integer> supportCommandCodeList;
     private final Map<String, Object> properties;
 
-    public Header(String agentId, String applicationName, int serviceType, long agentStartTime, long socketId, List<Integer> supportCommandCodeList) {
-        this(agentId, applicationName, serviceType, agentStartTime, socketId, supportCommandCodeList, Collections.<String, Object>emptyMap());
+    public Header(String name, String agentId, String applicationName, int serviceType, long agentStartTime, long socketId, List<Integer> supportCommandCodeList) {
+        this(name, agentId, applicationName, serviceType, agentStartTime, socketId, supportCommandCodeList, Collections.<String, Object>emptyMap());
     }
 
-    public Header(String agentId, String applicationName, int serviceType, long agentStartTime, long socketId, List<Integer> supportCommandCodeList, final Map<String, Object> properties) {
+    public Header(String name, String agentId, String applicationName, int serviceType, long agentStartTime, long socketId, List<Integer> supportCommandCodeList, final Map<String, Object> properties) {
+        this.name = Objects.requireNonNull(name, "name");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serviceType = serviceType;
@@ -106,16 +108,16 @@ public class Header {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Header{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", applicationName='").append(applicationName).append('\'');
-        sb.append(", agentStartTime=").append(agentStartTime);
-        sb.append(", socketId=").append(socketId);
-        sb.append(", serviceType=").append(serviceType);
-        sb.append(", supportCommandCodeList=").append(supportCommandCodeList);
-        sb.append(", properties=").append(properties);
-        sb.append('}');
-        return sb.toString();
+        return "Header{" +
+                "name='" + name + '\'' +
+                ", agentId='" + agentId + '\'' +
+                ", applicationName='" + applicationName + '\'' +
+                ", agentStartTime=" + agentStartTime +
+                ", socketId=" + socketId +
+                ", serviceType=" + serviceType +
+                ", supportCommandCodeList=" + supportCommandCodeList +
+                ", properties=" + properties +
+                '}';
     }
 
     @Override
@@ -127,8 +129,9 @@ public class Header {
 
         if (agentStartTime != header.agentStartTime) return false;
         if (socketId != header.socketId) return false;
-        if (agentId != null ? !agentId.equals(header.agentId) : header.agentId != null) return false;
         if (serviceType != header.serviceType) return false;
+        if (name != null ? !name.equals(header.name) : header.name != null) return false;
+        if (agentId != null ? !agentId.equals(header.agentId) : header.agentId != null) return false;
         if (applicationName != null ? !applicationName.equals(header.applicationName) : header.applicationName != null)
             return false;
         if (supportCommandCodeList != null ? !supportCommandCodeList.equals(header.supportCommandCodeList) : header.supportCommandCodeList != null)
@@ -138,13 +141,15 @@ public class Header {
 
     @Override
     public int hashCode() {
-        int result = agentId != null ? agentId.hashCode() : 0;
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (agentId != null ? agentId.hashCode() : 0);
         result = 31 * result + (applicationName != null ? applicationName.hashCode() : 0);
         result = 31 * result + (int) (agentStartTime ^ (agentStartTime >>> 32));
         result = 31 * result + (int) (socketId ^ (socketId >>> 32));
-        result = 31 * result + (int) (serviceType ^ (serviceType >>> 32));
+        result = 31 * result + serviceType;
         result = 31 * result + (supportCommandCodeList != null ? supportCommandCodeList.hashCode() : 0);
         result = 31 * result + (properties != null ? properties.hashCode() : 0);
         return result;
     }
+
 }

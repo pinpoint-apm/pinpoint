@@ -28,6 +28,7 @@ import io.grpc.Status;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -35,7 +36,11 @@ import java.util.List;
  */
 public class AgentHeaderReader implements HeaderReader<Header> {
 
-    public AgentHeaderReader() {
+    // for debug
+    protected final String name;
+
+    public AgentHeaderReader(String name) {
+        this.name = Objects.requireNonNull(name, "name");
     }
 
     @Override
@@ -46,7 +51,7 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         final int serviceType = getServiceType(headers);
         final long socketId = getSocketId(headers);
         final List<Integer> supportCommandCodeList = getSupportCommandCodeList(headers);
-        return new Header(agentId, applicationName, serviceType, startTime, socketId, supportCommandCodeList);
+        return new Header(name, agentId, applicationName, serviceType, startTime, socketId, supportCommandCodeList);
     }
 
     protected long getTime(Metadata headers, Metadata.Key<String> timeKey) {

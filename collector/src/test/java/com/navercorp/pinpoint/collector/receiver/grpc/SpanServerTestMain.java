@@ -78,7 +78,7 @@ public class SpanServerTestMain {
         grpcReceiver.setEnable(true);
         grpcReceiver.setServerOption(new ServerOption.Builder().build());
 
-        AgentHeaderReader agentHeaderReader = new AgentHeaderReader();
+        AgentHeaderReader agentHeaderReader = new AgentHeaderReader("test");
         HeaderPropagationInterceptor interceptor = new HeaderPropagationInterceptor(agentHeaderReader);
         grpcReceiver.setServerInterceptorList(Arrays.asList(interceptor));
 
