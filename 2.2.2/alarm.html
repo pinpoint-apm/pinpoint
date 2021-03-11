@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="keywords" content=" alarm">
+<title>Setting Alarm | Leading Open-Source APM</title>
+<link rel="stylesheet" href="css/syntax.css">
+
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<!--<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">-->
+<link rel="stylesheet" href="css/modern-business.css">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="css/customstyles.css">
+<link rel="stylesheet" href="css/boxshadowproperties.css">
+<!-- most color styles are extracted out to here -->
+<link rel="stylesheet" href="css/theme-black.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="js/jquery.navgoco.min.js"></script>
+
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<!-- Anchor.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/2.0.0/anchor.min.js"></script>
+<script src="js/toc.js"></script>
+<script src="js/customscripts.js"></script>
+
+<link rel="shortcut icon" href="images/favicon.ico">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="pinpoint" href="http://localhost:4000/feed.xml">
+
+    <script>
+        $(document).ready(function() {
+            // Initialize navgoco with default options
+            $("#mysidebar").navgoco({
+                caretHtml: '',
+                accordion: true,
+                openClass: 'active', // open
+                save: false, // leave false or nav highlighting doesn't work right
+                cookie: {
+                    name: 'navgoco',
+                    expires: false,
+                    path: '/'
+                },
+                slide: {
+                    duration: 400,
+                    easing: 'swing'
+                }
+            });
+
+            $("#collapseAll").click(function(e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', false);
+            });
+
+            $("#expandAll").click(function(e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', true);
+            });
+
+        });
+
+    </script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+    <script>
+        $(document).ready(function() {
+            $("#tg-sb-link").click(function() {
+                $("#tg-sb-sidebar").toggle();
+                $("#tg-sb-content").toggleClass('col-md-9');
+                $("#tg-sb-content").toggleClass('col-md-12');
+                $("#tg-sb-icon").toggleClass('fa-toggle-on');
+                $("#tg-sb-icon").toggleClass('fa-toggle-off');
+            });
+        });
+    </script>
+    
+
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container topnavlinks">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="fa fa-home fa-lg navbar-brand" href="/pinpoint/index.html">&nbsp;<span class="projectTitle"> <img src="./images/logo2.png"> </span></a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <!-- toggle sidebar button -->
+                <li><a id="tg-sb-link" href="#"><i id="tg-sb-icon" class="fa fa-toggle-on"></i> Nav</a></li>
+                <!-- entries without drop-downs appear here -->
+
+
+
+
+                
+                
+                
+                <li><a href="https://github.com/pinpoint-apm/pinpoint" target="_blank">GitHub</a></li>
+                
+                
+                
+                <li><a href="https://twitter.com/Pinpoint_APM" target="_blank">News</a></li>
+                
+                
+                
+                <li><a href="https://pinpoint-apm.github.io/pinpoint/resources" target="_blank">Pinpoint Blogs</a></li>
+                
+                
+                
+                <!-- entries with drop-downs appear here -->
+                <!-- conditional logic to control which topnav appears for the audience defined in the configuration file.-->
+                
+                
+			<li>
+
+
+
+  <a class="email" title="Submit feedback" href="#" onclick="javascript:window.location='mailto:pinpoint.helper@google.com?subject=pinpoint feedback&body=If it\'s an issue please check QnA page on the homepage or Pinpoint GitHub repository https://github.com/pinpoint-apm/pinpoint/issues' "><i class="fa fa-envelope-o"></i> Feedback</a>
+
+</li>
+
+		
+                <!--comment out this block if you want to hide search-->
+                <li>
+                    <!--start search-->
+                    <div id="search-demo-container">
+                        <input type="text" id="search-input" placeholder="search...">
+                        <ul id="results-container"></ul>
+                    </div>
+                    <script src="js/jekyll-search.js" type="text/javascript"></script>
+                    <script type="text/javascript">
+                            SimpleJekyllSearch.init({
+                                searchInput: document.getElementById('search-input'),
+                                resultsContainer: document.getElementById('results-container'),
+                                dataSource: 'search.json',
+                                searchResultTemplate: '<li><a href="{url}" title="Setting Alarm">{title}</a></li>',
+                    noResultsText: 'No results found.',
+                            limit: 10,
+                            fuzzy: true,
+                    })
+                    </script>
+                    <!--end search-->
+                </li>
+            </ul>
+        </div>
+        </div>
+        <!-- /.container -->
+</nav>
+
+<!-- Page Content -->
+
+<div class="container">
+
+  <div id="main">
+    <!-- Content Row -->
+    <div class="row">
+        
+        
+            <!-- Sidebar Column -->
+            <div class="col-md-3" id="tg-sb-sidebar">
+                <script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        GetVersionInfo();
+    });
+
+    function GetVersionInfo() {
+
+        var pathname = window.location.pathname;
+        var path = pathname.slice(10,15);
+        var versioned = true;
+        var tempNum1 = path.slice(0,1);
+        var tempNum2 = path.slice(2,3);
+        var tempNum3 = path.slice(4,5);
+
+        if($.isEmptyObject(path)){
+            versioned = false;
+        }else{
+            if(isNaN(tempNum1) || isNaN(tempNum2) && isNaN(tempNum3)){
+                versioned = false;
+            }
+        }
+
+        $.getJSON("https://raw.githubusercontent.com/naver/pinpoint/gh-pages/version.json").done(function (data){
+
+            $.each(data, function(key, value) {
+
+                if(versioned && path == value.ver){
+                    $('#selbox').append('<option selected="selected" value="http://pinpoint-apm.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                }else{
+                    $('#selbox').append('<option value="http://pinpoint-apm.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                }
+            })
+        });
+    }
+</script>
+
+
+
+
+<ul id="mysidebar" class="nav">
+    <li class="sidebarTitle">
+        <tr>
+            <td>
+                Pinpoint
+            </td>
+            <td>
+                <select id="selbox" name="ver" onchange="document.location.href=this.value">
+                </select>
+            </td>
+        </tr>
+    </li>
+    <tr></tr>
+    <tr> <td><iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=star&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    <iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=fork&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    </td> </tr>
+  
+  
+  
+
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="main.html">What's New</a></li>
+        
+    </li>
+    
+      
+  
+  <li>
+      <a href="#">Pinpoint</a>
+      <ul>
+          
+          
+          
+          <li><a href="overview.html">Overview</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="history.html">History</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="techdetail.html">Technical Details</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="additionalplugins.html">Additional Plugins</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Getting Started</a>
+      <ul>
+          
+          
+          
+          <li><a href="quickstart.html">QuickStart</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="installation.html">Installation</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="docker.html">Install with Docker</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="troubleshooting_network.html">TrobleShooting(Network)</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Documents</a>
+      <ul>
+          
+          
+          
+          <li><a href="plugindevguide.html">Plugin Developer Guide</a></li>
+          
+          
+          
+          
+          
+          
+          <li class="active"><a href="alarm.html">Setting Alarms</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="applicationinspector.html">How to use Application Inspector</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="perrequestfeatureguide.html">Separate Log Per Request</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="httpstatuscodefailure.html">Marking Transaction as Fail</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="proxyhttpheader.html">Monitoring Proxy Server</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="hbaseupgrade.html">Upgrade Database Hbase2</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Contribution</a>
+      <ul>
+          
+          
+          
+          <li><a href="contribution.html">Readme</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="https://github.com/pinpoint-apm/pinpoint/labels/proposal" target="_blank">Open to Contribution</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="videos.html">Videos</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="performance.html">Performance Analysis</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="http://125.209.240.10:10123" target="_blank">Live Demo</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://twitter.com/Pinpoint_APM" target="_blank">Twitter</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/pinpoint-apm/pinpoint/releases" target="_blank">Release Notes</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="faq.html">FAQ</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="poweredby.html">Powered by Pinpoint</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/pinpoint-apm/pinpoint/issues" target="_blank">Questions and answers</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/pinpoint-apm/pinpoint" target="_blank">Fork me at Github</a></li>
+        
+    </li>
+    
+      
+      
+      <!-- if you aren't using the accordion, uncomment this block:
+         <p class="external">
+             <a href="#" id="collapseAll">Collapse All</a> | <a href="#" id="expandAll">Expand All</a>
+         </p>
+         -->
+</ul>
+
+<!-- this highlights the active parent class in the navgoco sidebar. this is critical so that the parent expands when you're viewing a page. This must appear below the sidebar code above. Otherwise, if placed inside customscripts.js, the script runs before the sidebar code runs and the class never gets inserted.-->
+<script>$("li.active").parents('li').toggleClass("active");</script>
+
+            </div>
+            
+        
+
+        <!-- Content Column -->
+        <div class="col-md-9" id="tg-sb-content">
+            <a no_icon href="https://github.com/naver/pinpoint"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+            <script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        GetUrl();
+    });
+
+    function GetUrl() {
+
+        var pathname = window.location.pathname;
+        if(pathname == "/pinpoint/main.html"){
+            document.getElementById("pathname").innerHTML = "Snapshot(Unstable)";
+        }
+    }
+</script>
+
+<div class="post-header">
+   <h1 class="post-title-main" id="pathname">Setting Alarm</h1>
+</div>
+
+
+
+<div class="post-content">
+
+   
+
+    
+    
+<!-- this handles the automatic toc. use ## for subheads to auto-generate the on-page minitoc. if you use html tags, you must supply an ID for the heading element in order for it to appear in the minitoc. -->
+<script>
+$( document ).ready(function() {
+  // Handler for .ready() called.
+
+$('#toc').toc({ minimumHeaders: 0, listType: 'ul', showSpeed: 0, headers: 'h2,h3,h4' });
+
+/* this offset helps account for the space taken up by the floating toolbar. */
+$('#toc').on('click', 'a', function() {
+  var target = $(this.getAttribute('href'))
+    , scroll_target = target.offset().top
+
+  $(window).scrollTop(scroll_target - 10);
+  return false
+})
+  
+});
+</script>
+
+<div id="toc"></div>
+
+    
+
+
+    
+
+
+    
+
+  <p><a href="#alarm">English</a> | <a href="#alarm-1">한글</a></p>
+<h1 id="alarm">Alarm</h1>
+
+<p>Application’s status is periodically checked and alarm is triggered if certain pre-configured conditions (rules) are satisfied.</p>
+
+<p>pinpoint-batch server checks every 3 minutes based on the last 5 minutes of data. And if the conditions are satisfied, it sends sms/email to the users listed in the user group.</p>
+
+<blockquote>
+  <p>If an email/sms is sent everytime when a threshold is exceeded, we felt that alarm message would be spammable.<br />
+Therefore we decided to gradually increase the transmission frequency for alarms.<br />
+ex) If an alarm occurs continuously, transmission frequency is increased by a factor of two. 3 min -&gt; 6min -&gt; 12min -&gt; 24min</p>
+</blockquote>
+
+<blockquote>
+  <p>NOTICE!<br />
+<br />
+batch was run in the background of pinpoint-web server until v2.2.0 From v2.2.1 it will be dealt with in pinpoint-batch server.
+Since the batch logic(code) in pinpoint-web will be deprecated in the future, we advice you to transfer the execution of batch to pinpoint-batch server.</p>
+</blockquote>
+
+<h2 id="1-user-guide">1. User Guide</h2>
+
+<p>1) Configuration menu
+<img src="images/alarm/alarm_figure01.gif" alt="alarm_figure01.gif" /></p>
+
+<p>2) Registering users
+<img src="images/alarm/alarm_figure02.gif" alt="alarm_figure02.gif" /></p>
+
+<p>3) Creating user groups
+<img src="images/alarm/alarm_figure03.gif" alt="alarm_figure03.gif" /></p>
+
+<p>4) Adding users to user group
+<img src="images/alarm/alarm_figure04.gif" alt="alarm_figure04.gif" /></p>
+
+<p>5) Setting alarm rules
+<img src="images/alarm/alarm_figure05.gif" alt="alarm_figure05.gif" /></p>
+
+<p><strong>Alarm Rules</strong></p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SLOW COUNT
+   Triggered when the number of slow requests sent to the application exceeds the configured threshold.
+
+SLOW RATE
+   Triggered when the percentage(%) of slow requests sent to the application exceeds the configured threshold.
+
+ERROR COUNT
+   Triggered when the number of failed requests sent to the application exceeds the configured threshold.
+
+ERROR RATE
+   Triggered when the percentage(%) of failed requests sent to the application exceeds the configured threshold.
+
+TOTAL COUNT
+   Triggered when the number of all requests sent to the application exceeds the configured threshold.
+
+SLOW COUNT TO CALLEE
+   Triggered when the number of slow requests sent by the application exceeds the configured threshold.
+   You must specify the domain or the address(ip, port) in the configuration UI's "Note..." box 
+   ex) www.naver.com, 127.0.0.1:8080
+
+SLOW RATE TO CALLEE
+   Triggered when the percentage(%) of slow requests sent by the application exceeds the configured threshold.
+   You must specify the domain or the address(ip, port) in the configuration UI's "Note..." box 
+   ex) www.naver.com, 127.0.0.1:8080
+
+ERROR COUNT TO CALLEE
+   Triggered when the number of failed requests sent by the application exceeds the configured threshold.
+   You must specify the domain or the address(ip, port) in the configuration UI's "Note..." box 
+   ex) www.naver.com, 127.0.0.1:8080
+
+ERROR RATE TO CALLEE
+   Triggered when the percentage(%) of failed requests sent by the application exceeds the configured threshold.
+   You must specify the domain or the address(ip, port) in the configuration UI's "Note..." box 
+   ex) www.naver.com, 127.0.0.1:8080
+
+TOTAL COUNT TO CALLEE
+   Triggered when the number of all requests sent by the application exceeds the configured threshold.
+   You must specify the domain or the address(ip, port) in the configuration UI's "Note..." box 
+   ex) www.naver.com, 127.0.0.1:8080
+
+HEAP USAGE RATE
+   Triggered when the application's heap usage(%) exceeds the configured threshold.
+
+JVM CPU USAGE RATE
+   Triggered when the application's CPU usage(%) exceeds the configured threshold.
+
+SYSTEM CPU USAGE RATE
+   Sends an alarm when the application's CPU usage(%) exceeds the configured threshold.
+
+DATASOURCE CONNECTION USAGE RATE
+   Triggered when the application's DataSource connection usage(%) exceeds the configured threshold.
+   
+FILE DESCRIPTOR COUNT
+   Sends an alarm when the number of open file descriptors exceeds the configured threshold.
+</code></pre></div></div>
+
+<h2 id="2-configuration--implementation">2. Configuration &amp; Implementation</h2>
+
+<p>To use the alarm function, setting and additional implementations are required in pinpoint-batch and pinpoint-web.</p>
+
+<h2 id="configuration--implementation-in-pinpoint-batch">Configuration &amp; Implementation in pinpoint-batch</h2>
+
+<p>Alarms generated by Pinpoint can be configured to be sent over email and sms.
+Sending alarms over email is simple - you will simply need to configure the property file.
+Sending alarms over sms requires some implementation. Read on to find out how to do this.</p>
+
+<h3 id="211-email-configuration-and-sms-implementation">2.1.1) Email configuration and sms implementation</h3>
+
+<p><strong>A. Email alarm service</strong></p>
+
+<p>The class that sends emails is already registered as Spring bean in <a href="https://github.com/pinpoint-apm/pinpoint/blob/master/batch/src/main/resources/applicationContext-batch-sender.xml">applicationContext-batch-sender.xml</a>.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    &lt;bean id="mailSender" class="com.navercorp.pinpoint.batch.alarm.SpringSmtpMailSender"&gt;
+        &lt;constructor-arg ref="batchConfiguration"/&gt;
+        &lt;constructor-arg ref="userGroupService"/&gt;
+        &lt;constructor-arg ref="javaMailSenderImpl"/&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id="javaMailSenderImpl" class="org.springframework.mail.javamail.JavaMailSenderImpl"&gt;
+        &lt;property name="host" value="${alarm.mail.server.url:}" /&gt;
+        &lt;property name="port" value="${alarm.mail.server.port:587}" /&gt;
+        &lt;property name="username" value="${alarm.mail.server.username:}" /&gt;
+        &lt;property name="password" value="${alarm.mail.server.password:}" /&gt;
+        &lt;property name="javaMailProperties"&gt;
+            &lt;props&gt;
+                &lt;prop key="mail.transport.protocol"&gt;${alarm.mail.transport.protocol:}&lt;/prop&gt;
+                &lt;prop key="mail.smtp.port"&gt;${alarm.mail.smtp.port:}&lt;/prop&gt;
+                &lt;prop key="mail.smtp.from"&gt;${alarm.mail.sender.address:}&lt;/prop&gt;
+                &lt;prop key="mail.smtp.auth"&gt;${alarm.mail.smtp.auth:false}&lt;/prop&gt;
+                &lt;prop key="mail.smtp.starttls.enable"&gt;${alarm.mail.smtp.starttls.enable:false}&lt;/prop&gt;
+                &lt;prop key="mail.smtp.starttls.required"&gt;${alarm.mail.smtp.starttls.required:false}&lt;/prop&gt;
+                &lt;prop key="mail.debug"&gt;${alarm.mail.debug:false}&lt;/prop&gt;
+            &lt;/props&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+</code></pre></div></div>
+
+<p>You need to provide smtp server information and the address of the sender in batch.properties file.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pinpoint.url= #pinpoint-web server url
+alarm.mail.server.url= #smtp server address
+alarm.mail.server.port= #smtp server port
+alarm.mail.server.username= #username for smtp server authentication
+alarm.mail.server.password= #password for smtp server authentication
+alarm.mail.sender.address= #sender's email address
+
+ex)
+pinpoint.url=http://pinpoint.com
+alarm.mail.server.url=stmp.server.com
+alarm.mail.server.port=587
+alarm.mail.server.username=pinpoint
+alarm.mail.server.password=pinpoint
+alarm.mail.sender.address=pinpoint_operator@pinpoint.com
+</code></pre></div></div>
+
+<p>If you would like to implement your own mail sender, simply replace the <code class="highlighter-rouge">SpringSmtpMailSender</code>, <code class="highlighter-rouge">JavaMailSenderImpl</code> beans above with your own implementation that implements <code class="highlighter-rouge">com.navercorp.pinpoint.web.alarm.MailSender</code> interface.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public interface MailSender {
+   void sendEmail(AlarmChecker checker, int sequenceCount);
+}
+</code></pre></div></div>
+
+<p><strong>B. Sms alarm service</strong></p>
+
+<p>To send alarms over sms, you will need to implement your own sms sender by implementing <code class="highlighter-rouge">com.navercorp.pinpoint.batch.alarm.SmsSender</code> interface.
+If there is no <code class="highlighter-rouge">SmsSender</code> implementation, then alarms will not be sent over sms.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public interface SmsSender {
+    public void sendSms(AlarmChecker checker, int sequenceCount);
+}
+</code></pre></div></div>
+
+<h3 id="212-configuring-mysql">2.1.2) Configuring MYSQL</h3>
+
+<p>Set up a MYSQL server and configure connection information in <em>jdbc.properties</em> file.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>jdbc.driverClassName=com.mysql.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:13306/pinpoint?characterEncoding=UTF-8
+jdbc.username=admin
+jdbc.password=admin
+</code></pre></div></div>
+<p>Create tables by running - <em><a href="https://github.com/pinpoint-apm/pinpoint/blob/master/web/src/main/resources/sql/CreateTableStatement-mysql.sql">CreateTableStatement-mysql.sql</a></em>, <em><a href="https://github.com/pinpoint-apm/pinpoint/blob/master/web/src/main/resources/sql/SpringBatchJobRepositorySchema-mysql.sql">SpringBatchJobReositorySchema-mysql.sql</a></em></p>
+
+<h3 id="213-how-to-execute-pinpoint-batch">2.1.3) How to execute pinpoint-batch</h3>
+
+<p>The pinpoint-batch project is based on spring boot and can be executed with the following command.
+After build, the executable file is placed under the target/deploy folder of the pinpoint-batch module.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java -Dspring.profiles.active=XXXX -jar pinpoint-batch-VERSION.jar 
+
+ex) java -Dspring.profiles.active=local -jar pinpoint-batch-2.1.1.jar 
+</code></pre></div></div>
+
+<h2 id="22-how-to-configure-pinpoint-web">2.2 How to configure pinpoint-web</h2>
+
+<p>In order to store alarm settings, setting mysql connection information in jdbc.properties file under pinpoint-web is required.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>jdbc.driverClassName=com.mysql.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:13306/pinpoint?characterEncoding=UTF-8
+jdbc.username=admin
+jdbc.password=admin
+</code></pre></div></div>
+
+<h2 id="3-others">3. Others</h2>
+<p><strong>1) You may start the alarm batch in a separate process</strong> - Simply start the spring batch job using the <em><a href="https://github.com/pinpoint-apm/pinpoint/blob/master/batch/src/main/resources/job/applicationContext-alarmJob.xml">applicationContext-alarmJob.xml</a></em> file inside the Pinpoint-web module.</p>
+
+<p><strong>2) You may change the batch execution period by modifying the cron expression in <em><a href="https://github.com/pinpoint-apm/pinpoint/blob/master/batch/src/main/resources/applicationContext-batch-schedule.xml">applicationContext-batch-schedule.xml</a></em> file</strong></p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;task:scheduled-tasks scheduler="scheduler"&gt;
+    &lt;task:scheduled ref="batchJobLauncher" method="alarmJob" cron="0 0/3 * * * *" /&gt;
+&lt;/task:scheduled-tasks&gt;
+</code></pre></div></div>
+
+<p><strong>3) Ways to improve alarm batch performance</strong> - The alarm batch was designed to run concurrently. If you have a lot of applications with alarms registered, you may increase the size of the executor’s thread pool by modifying <code class="highlighter-rouge">pool-size</code> in <em><a href="https://github.com/pinpoint-apm/pinpoint/blob/master/batch/src/main/resources/job/applicationContext-alarmJob.xml">applicationContext-alarmJob.xml</a></em> file.</p>
+
+<p>Note that increasing this value will result in higher resource usage.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;task:executor id="poolTaskExecutorForPartition" pool-size="1" /&gt;
+</code></pre></div></div>
+
+<p>If there are a lot of alarms registered to applications, you may set the <code class="highlighter-rouge">alarmStep</code> registered in <em><a href="https://github.com/pinpoint-apm/pinpoint/blob/master/batch/src/main/resources/job/applicationContext-alarmJob.xml">applicationContext-alarmJob.xml</a></em> file to run concurrently.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;step id="alarmStep" xmlns="http://www.springframework.org/schema/batch"&gt;
+    &lt;tasklet task-executor="poolTaskExecutorForStep" throttle-limit="3"&gt;
+        &lt;chunk reader="reader" processor="processor" writer="writer" commit-interval="1"/&gt;
+    &lt;/tasklet&gt;
+&lt;/step&gt;
+&lt;task:executor id="poolTaskExecutorForStep" pool-size="10" /&gt;
+</code></pre></div></div>
+
+<p><strong>4) use quickstart’s web</strong> - 
+Pinpoint Web uses Mysql to persist users, user groups, and alarm configurations.<br />
+However Quickstart uses MockDAO to reduce memory usage.<br />
+Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web’s <a href="https://github.com/pinpoint-apm/pinpoint/blob/master/web/src/main/resources/applicationContext-dao-config.xml">applicationContext-dao-config.xml
+</a>, <a href="https://github.com/pinpoint-apm/pinpoint/blob/master/web/src/main/resources/jdbc.properties">jdbc.properties</a>.</p>
+
+<hr />
+
+<h1 id="alarm-1">Alarm</h1>
+
+<p>pinpoint-batch에서 application 상태를 주기적으로 체크하여 application 상태의 수치가 임계치를 초과할 경우 사용자에게 알람을 전송하는 기능을 제공한다.</p>
+
+<p>application 상태 값이 사용자가 설정한 임계치를 초과하는 지 판단하는 batch는 pinpoint-batch에서 동작 한다.
+alarm batch는 기본적으로 3분에 한번씩 동작이 된다. 최근 5분동안의 데이터를 수집해서 alarm 조건을 만족하면 user group에 속한 user 들에게 sms /email을 전송한다.</p>
+
+<blockquote>
+  <p>연속적으로 알람 조건이 임게치를 초과한 경우에 매번 sms/email를 전송하지 않습니다.<br />
+알람 조건이 만족할때마다 매번 sms/email이 전송되는것은 오히려 방해가 된다고 생각하기 때문입니다. 그래서 연속해서 알람이 발생할 경우 sms/email 전송 주기가 점증적으로 증가됩니다.<br />
+예) 알람이 연속해서 발생할 경우, 전송 주기는 3분 -&gt; 6분 -&gt; 12분 -&gt; 24분 으로 증가합니다.</p>
+</blockquote>
+
+<blockquote>
+  <p><strong>알림</strong><br />
+<br />
+batch는 pinpoint 2.2.0 버전까지는 pinpoint-web에서 동작되었으나, 2.2.1 버전 부터는 batch 로직을 pinpoint-batch에서 동작되도록 분리했다.<br />
+앞으로 pinpoint-web의 batch로직은 제거를 할 예정이므로, pinpoint-web에서 batch를 동작시키는 경우 pinpoint-batch에서 batch를 실행하도록 개선하는것을 추천한다.</p>
+</blockquote>
+
+<h2 id="1-alarm-기능-사용-방법">1. Alarm 기능 사용 방법</h2>
+
+<p>1) 설정 화면으로 이동
+<img src="images/alarm/alarm_figure01.gif" alt="alarm_figure01.gif" />
+2) user를 등록 
+<img src="images/alarm/alarm_figure02.gif" alt="alarm_figure02.gif" />
+3) userGroup을 생성
+<img src="images/alarm/alarm_figure03.gif" alt="alarm_figure03.gif" />
+4) userGroup에 member를 등록
+<img src="images/alarm/alarm_figure04.gif" alt="alarm_figure04.gif" />
+5) alarm rule을 등록 
+<img src="images/alarm/alarm_figure05.gif" alt="alarm_figure05.gif" /></p>
+
+<p>alarm rule에 대한 설명은 아래를 참고하시오.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+SLOW COUNT
+   외부에서 application을 호출한 요청 중에 외부서버로 응답을 늦게 준 요청의 개수가 임계치를 초과한 경우 알람이 전송된다.
+
+SLOW RATE
+   외부에서 application을 호출한 요청 중에 외부서버로 응답을 늦게 준 요청의 비율(%)이 임계치를 초과한 경우 알람이 전송된다.
+
+ERROR COUNT
+   외부에서 application을 호출한 요청 중에 에러가 발생한 요청의 개수가 임계치를 초과한 경우 알람이 전송된다.
+
+ERROR RATE
+   외부에서 application을 호출한 요청 중에 에러가 발생한 요청의 비율(%)이 임계치를 초과한 경우 알람이 전송된다.
+
+TOTAL COUNT
+   외부에서 application을 호출한 요청 개수가 임계치를 초과한 경우 알람이 전송된다.
+
+SLOW COUNT TO CALLEE
+   application 내에서 외부서버를 호출한 요청 중 slow 호출의 개수가 임계치를 초과한 경우 알람이 전송된다.
+   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다. ex) naver.com, 127.0.0.1:8080
+    
+SLOW RATE TO CALLEE
+   application 내에서 외부서버를 호출한 요청 중 slow 호출의 비율(%)이 임계치를 초과한 경우 알람이 전송된다.
+   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다. ex) naver.com, 127.0.0.1:8080
+
+ERROR COUNT TO CALLEE
+   application 내에서 외부서버를 호출한 요청 중 error 가 발생한 호출의 개수가 임계치를 초과한 경우 알람이 전송된다.
+   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다. ex) naver.com, 127.0.0.1:8080
+
+ERROR RATE TO CALLEE
+   application 내에서 외부서버를 호출한 요청 중 error 가 발생한 호출의 비율이 임계치를 초과한 경우 알람이 전송된다.
+   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다. ex) naver.com, 127.0.0.1:8080
+
+TOTAL COUNT TO CALLEE
+   application 내에서 외부서버를 호출한 요청의 개수가 임계치를 초과한 경우 알람이 전송된다.
+   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다. ex) naver.com, 127.0.0.1:8080
+
+HEAP USAGE RATE
+   heap의 사용률이 임계치를 초과한 경우 알람이 전송된다.
+   
+JVM CPU USAGE RATE
+   applicaiton의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다.
+   
+SYSTEM CPU USAGE RATE
+   서버의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다.
+
+DATASOURCE CONNECTION USAGE RATE
+   applicaiton의 DataSource내의 Connection 사용률이 임계치를 초과한 경우 알람이 전송된다.
+   
+FILE DESCRIPTOR COUNT
+   열려있는 File Descriptor 개수가 임계치를 초가한 경우 알람이 전송된다.
+</code></pre></div></div>
+
+<h2 id="2-설정-및-구현-방법">2. 설정 및 구현 방법</h2>
+
+<p>alarm 기능을 사용하려면 pinpoint-batch와 pinpoint-web에 설정 또는 추가 구현이 필요하다.</p>
+
+<h2 id="21-pinpoint-batch-설정-및-구현-방법">2.1 pinpoint-batch 설정 및 구현 방법</h2>
+
+<p>email과 sms로 알람을 전송을 할 수 있다.
+email로 알람을 설정만 추가하면 기능을 사용할수 있고, sms 전송을 하기 위해서는 직접 전송 로직을 구현해야한다.</p>
+
+<h3 id="211-emailsms-전송-class-설정-및-구현">2.1.1) email/sms 전송 class 설정 및 구현</h3>
+
+<p><strong>A. email 전송</strong></p>
+
+<p><a href="https://github.com/pinpoint-apm/pinpoint/blob/master/batch/src/main/resources/applicationContext-batch-sender.xml">applicationContext-batch-sender.xml</a>파일에 email을 전송하는 class가  기본으로 bean으로 등록 되어있다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    &lt;bean id="mailSender" class="com.navercorp.pinpoint.batch.alarm.SpringSmtpMailSender"&gt;
+        &lt;constructor-arg ref="batchConfiguration"/&gt;
+        &lt;constructor-arg ref="userGroupService"/&gt;
+        &lt;constructor-arg ref="javaMailSenderImpl"/&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id="javaMailSenderImpl" class="org.springframework.mail.javamail.JavaMailSenderImpl"&gt;
+        &lt;property name="host" value="${alarm.mail.server.url:}" /&gt;
+        &lt;property name="port" value="${alarm.mail.server.port:587}" /&gt;
+        &lt;property name="username" value="${alarm.mail.server.username:}" /&gt;
+        &lt;property name="password" value="${alarm.mail.server.password:}" /&gt;
+        &lt;property name="javaMailProperties"&gt;
+            &lt;props&gt;
+                &lt;prop key="mail.transport.protocol"&gt;${alarm.mail.transport.protocol:}&lt;/prop&gt;
+                &lt;prop key="mail.smtp.port"&gt;${alarm.mail.smtp.port:}&lt;/prop&gt;
+                &lt;prop key="mail.smtp.from"&gt;${alarm.mail.sender.address:}&lt;/prop&gt;
+                &lt;prop key="mail.smtp.auth"&gt;${alarm.mail.smtp.auth:false}&lt;/prop&gt;
+                &lt;prop key="mail.smtp.starttls.enable"&gt;${alarm.mail.smtp.starttls.enable:false}&lt;/prop&gt;
+                &lt;prop key="mail.smtp.starttls.required"&gt;${alarm.mail.smtp.starttls.required:false}&lt;/prop&gt;
+                &lt;prop key="mail.debug"&gt;${alarm.mail.debug:false}&lt;/prop&gt;
+            &lt;/props&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+</code></pre></div></div>
+
+<p>email 전송 기능을 사용하기 위해서 batch.properties파일에 smtp 서버 정보와 email에 포함될 여러 정보를 설정한다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pinpoint.url= #pinpoint-web 서버의 url 
+alarm.mail.server.url= #smtp 서버 주소  
+alarm.mail.server.port= #smtp 서버 port 
+alarm.mail.server.username= #smtp 인증을 위한 userName
+alarm.mail.server.password= #smtp 인증을 위한 password
+alarm.mail.sender.address= # 송신자 email
+
+ex)
+pinpoint.url=http://pinpoint.com
+alarm.mail.server.url=stmp.server.com
+alarm.mail.server.port=587
+alarm.mail.server.username=pinpoint
+alarm.mail.server.password=pinpoint
+alarm.mail.sender.address=pinpoint_operator@pinpoint.com
+</code></pre></div></div>
+
+<p>만약 email 전송 로직을 직접 구현하고 싶다면 위의 SpringSmtpMailSender, JavaMailSenderImpl bean 선언을 제거하고 com.navercorp.pinpoint.web.alarm.MailSender interface를 구현해서 bean을 등록하면 된다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public interface MailSender {
+   void sendEmail(AlarmChecker checker, int sequenceCount);
+}
+</code></pre></div></div>
+
+<p><strong>B. sms 전송</strong></p>
+
+<p>sms를 하려면 com.navercorp.pinpoint.batch.alarm.SmsSender interface를 구현하고 bean으로 등록하면 된다.
+반드시 sms 전송 로직을 구현할 필요는 없고, SmsSender 구현 class가 없는 경우 sms는 전송되지 않는다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public interface SmsSender {
+    public void sendSms(AlarmChecker checker, int sequenceCount);
+}
+</code></pre></div></div>
+
+<h3 id="212-mysql-서버-ip-주소-설정--table-생성">2.1.2) MYSQL 서버 IP 주소 설정 &amp; table 생성</h3>
+
+<p>Mysql 서버를 준비하고 jdbc.properties 파일에 접속 정보를 설정한다.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>jdbc.driverClassName=com.mysql.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:13306/pinpoint?characterEncoding=UTF-8
+jdbc.username=admin
+jdbc.password=admin
+</code></pre></div></div>
+<p>필요한 table 생성 - <em><a href="https://github.com/pinpoint-apm/pinpoint/blob/master/web/src/main/resources/sql/CreateTableStatement-mysql.sql">CreateTableStatement-mysql.sql</a></em>, <em><a href="https://github.com/pinpoint-apm/pinpoint/blob/master/web/src/main/resources/sql/SpringBatchJobRepositorySchema-mysql.sql">SpringBatchJobReositorySchema-mysql.sql</a></em></p>
+
+<h3 id="213-pinpoint-batch-실행-방법">2.1.3) pinpoint-batch 실행 방법</h3>
+
+<p>pinpoint-batch 프로젝트는 spring boot기반으로 되어있고 아래와 같은 명령어로 실행하면 된다.
+빌드후 실행파일은 pinpoint-batch 모듈의 target/deploy 폴더 하위에서 확인할 수 있다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java -Dspring.profiles.active=XXXX -jar pinpoint-batch-VERSION.jar 
+
+ex) java -Dspring.profiles.active=local -jar pinpoint-batch-2.1.1.jar 
+</code></pre></div></div>
+
+<h2 id="22-pinpoint-web-설정-방법">2.2 pinpoint-web 설정 방법</h2>
+
+<p>알람 설정을 입력받기 위해서 pinpoint-web의 jdbc.properties 파일에 mysql 접속 정보를 설정한다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>jdbc.driverClassName=com.mysql.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:13306/pinpoint?characterEncoding=UTF-8
+jdbc.username=admin
+jdbc.password=admin
+</code></pre></div></div>
+
+<h2 id="3-기타">3. 기타</h2>
+<p><strong>1) alarm batch를 별도 프로세스로 실행하는 것도 가능하다.</strong>
+pinpoint-web 프로젝트의 <em><a href="https://github.com/pinpoint-apm/pinpoint/blob/master/batch/src/main/resources/job/applicationContext-alarmJob.xml">applicationContext-alarmJob.xml</a></em> 파일을 이용해서 spring batch job을 실행하면 된다.
+실행 방법은 대한 구체적인 방법은 spirng batch 메뉴얼을 참고하자.</p>
+
+<p><strong>2) batch의 동작 주기를 조정하고 싶다면 <em><a href="https://github.com/pinpoint-apm/pinpoint/blob/master/batch/src/main/resources/applicationContext-batch-schedule.xml">applicationContext-batch-schedule.xml</a></em> 파일의 cron expression을 수정하면 된다.</strong></p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;task:scheduled-tasks scheduler="scheduler"&gt;
+    &lt;task:scheduled ref="batchJobLauncher" method="alarmJob" cron="0 0/3 * * * *" /&gt;
+&lt;/task:scheduled-tasks&gt;
+</code></pre></div></div>
+
+<p><strong>3) alarm batch 성능을 높이는 방법은 다음과 같다.</strong>
+alarm batch 성능 튜닝을 위해서 병렬로 동작이 가능하도록 구현을 해놨다.
+그래서 아래에서 언급된 조건에 해당하는 경우 설정값을 조정한다면 성능을 향상 시킬수 있다. 단 병렬성을 높이면 리소스의 사용률이 높아지는것은 감안해야한다.</p>
+
+<p>alarm이 등록된 application의 개수가 많다면 <em><a href="https://github.com/pinpoint-apm/pinpoint/blob/master/batch/src/main/resources/job/applicationContext-alarmJob.xml">applicationContext-alarmJob.xml</a></em> 파일의 poolTaskExecutorForPartition의 pool size를 늘려주면 된다.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;task:executor id="poolTaskExecutorForPartition" pool-size="1" /&gt;
+</code></pre></div></div>
+
+<p>application 각각마다 등록된 alarm의 개수가 많다면 <em><a href="https://github.com/pinpoint-apm/pinpoint/blob/master/batch/src/main/resources/job/applicationContext-alarmJob.xml">applicationContext-alarmJob.xml</a></em> 파일에 선언된 alarmStep이 병렬로 동작되도록 설정하면 된다.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;step id="alarmStep" xmlns="http://www.springframework.org/schema/batch"&gt;
+    &lt;tasklet task-executor="poolTaskExecutorForStep" throttle-limit="3"&gt;
+        &lt;chunk reader="reader" processor="processor" writer="writer" commit-interval="1"/&gt;
+    &lt;/tasklet&gt;
+&lt;/step&gt;
+&lt;task:executor id="poolTaskExecutorForStep" pool-size="10" /&gt;
+</code></pre></div></div>
+
+<p><strong>4) quickstart web을 사용한다면.</strong>
+pinpoint web은 mockDAO를 사용하기 때문에 pinpont web의 설정들을 참고해서 기능을 사용해야한다.
+<a href="https://github.com/pinpoint-apm/pinpoint/blob/master/web/src/main/resources/applicationContext-dao-config.xml">applicationContext-dao-config.xml
+</a>, <a href="https://github.com/pinpoint-apm/pinpoint/blob/master/web/src/main/resources/jdbc.properties">jdbc.properties</a>.</p>
+
+
+    <div class="tags">
+        
+    </div>
+
+</div>
+
+
+
+<hr class="shaded"/>
+
+<footer>
+            <div class="row">
+                <div class="col-lg-12 footer">
+               &copy;2021 Naver. All rights reserved. <br />
+<span>Page last updated:</span> Feb 1, 2018<br/>
+
+<p><img src="images/company_logo.png" alt="Company logo"/></p>
+                </div>
+            </div>
+</footer>
+
+
+        </div>
+    <!-- /.row -->
+</div>
+<!-- /.container -->
+</div>
+<!-- /#main -->
+    </div>
+
+</body>
+
+<!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-57786344-4','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+</html>
