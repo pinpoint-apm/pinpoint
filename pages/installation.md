@@ -24,21 +24,20 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 2. Build Pinpoint (Optional)([details](#2-building-pinpoint-optional)) - No need if you use the binaries.([here](https://github.com/pinpoint-apm/pinpoint/releases)).
 	1. Clone Pinpoint - `git clone $PINPOINT_GIT_REPOSITORY`
 	2. Set JAVA_HOME environment variable to JDK 8 home directory.
-	3. Set JAVA_6_HOME environment variable to JDK 6 home directory (1.6.0_45 recommended).
-	4. Set JAVA_7_HOME environment variable to JDK 7 home directory (1.7.0_80 recommended).
-	5. Set JAVA_8_HOME environment variable to JDK 8 home directory.
-	6. Set JAVA_9_HOME environment variable to JDK 9 home directory.
-	7. Run `./mvnw clean install -DskipTests=true` (or `./mvnw.cmd` for Windows)
+	3. Set JAVA_7_HOME environment variable to JDK 7 home directory ([Zulu jdk7](https://www.azul.com/downloads/zulu-community/?version=java-7-lts) recommended).
+	4. Set JAVA_8_HOME environment variable to JDK 8 home directory.
+	5. Set JAVA_9_HOME environment variable to JDK 9 home directory.
+	6. Run `./mvnw clean install -DskipTests=true` (or `./mvnw.cmd` for Windows)
 3. Pinpoint Collector ([details](#3-pinpoint-collector))
 	1. Start *pinpoint-collector-boot-$VERSION.jar* with java -jar command.
 	
-	    e.g.) `java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-collector-boot-2.1.1.jar`
+	    e.g.) `java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-collector-boot-2.2.1.jar`
 	    
 	2. It will start with default settings. To learn more about default values or how to override them, please see the details below.
 4. Pinpoint Web ([details](#4-pinpoint-web))
 	1. Start *pinpoint-web-boot-$VERSION.jar* with java -jar command.
 	
-	    e.g.) `java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-web-boot-2.1.1.jar`
+	    e.g.) `java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-web-boot-2.2.1.jar`
 	    
     2. It will start with default settings. To learn more about default values or how to override them, please see the details below.
 5. Pinpoint Agent ([details](#5-pinpoint-agent))
@@ -76,12 +75,10 @@ There are two options:
 	
 	In order to do so, the following **requirements** must be met:
 
-    * JDK 6 installed ([jdk1.6.0_45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase6-419409.html#jdk-6u45-oth-JPR) recommended)
     * JDK 7 installed ([jdk1.7.0_80](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html#jdk-7u80-oth-JPR) recommended)
     * JDK 8 installed
     * JDK 9 installed
 	* JAVA_HOME environment variable set to JDK 8 home directory.
-	* JAVA_6_HOME environment variable set to JDK 6 home directory.
 	* JAVA_7_HOME environment variable set to JDK 7 home directory.
 	* JAVA_8_HOME environment variable set to JDK 8 home directory.
 	* JAVA_9_HOME environment variable set to JDK 9 home directory.
@@ -114,7 +111,7 @@ The path to this file should look like *$PINPOINT_PATH/collector/target/deploy/p
 ### Installation
 Since Pinpoint Collector is packaged as an executable jar file, you can start Collector by running it directly.
 
-e.g.) `java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-collector-boot-2.1.1.jar`
+e.g.) `java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-collector-boot-2.2.1.jar`
 
 ### Configuration
 There are 3 configuration files used for Pinpoint Collector: *pinpoint-collector-root.properties*, *pinpoint-collector-grpc.properties*, and *hbase.properties*.
@@ -141,7 +138,7 @@ You can modify default configuration values or add new profiles under `collector
 
 #### When Using Released Binary **(Recommended)**
 - You can override any configuration values with `-D` option. For example,
-    - `java -jar -Dspring.profiles.active=release -Dpinpoint.zookeeper.address=localhost -Dhbase.client.port=1234 pinpoint-collector-boot-2.1.1.jar`
+    - `java -jar -Dspring.profiles.active=release -Dpinpoint.zookeeper.address=localhost -Dhbase.client.port=1234 pinpoint-collector-boot-2.2.1.jar`
 
 - To import a list of your customized configuration values from a file, you can use `--spring.config.additional-location` option. For example,
     - Create a file `./config/collector.properties`, and list the configuration values you want to override.
@@ -155,7 +152,7 @@ You can modify default configuration values or add new profiles under `collector
         > collector.receiver.stat.udp.receiveBufferSize=1234567
         >
 
-    - Execute with `java -jar pinpoint-collector-boot-2.1.1.jar --spring.config.additional-location=./config/collector.properties`
+    - Execute with `java -jar pinpoint-collector-boot-2.2.1.jar --spring.config.additional-location=./config/collector.properties`
 
 - To further explore how to use externalized configurations, refer to [Spring Boot Reference Document](https://docs.spring.io/spring-boot/docs/2.2.x/reference/html/spring-boot-features.html#boot-features-external-config-application-property-files).
 
@@ -189,7 +186,7 @@ Pinpoint Web Supported Browsers:
 ### Installation
 Since Pinpoint Web is packaged as an executable jar file, you can start Web by running it directly.
 
-e.g.) `java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-web-boot-2.1.1.jar`
+e.g.) `java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-web-boot-2.2.1.jar`
 
 ### Configuration
 There are 2 configuration files used for Pinpoint Web: *pinpoint-web-root.properties*, and *hbase.properties*. 
@@ -208,7 +205,7 @@ You can modify default configuration values or add new profiles under `web/src/m
 
 #### When Using Released Binary **(Recommended)**
 - You can override any configuration values with `-D` option. For example,
-    - `java -jar -Dspring.profiles.active=release -Dpinpoint.zookeeper.address=localhost -Dhbase.client.port=1234 pinpoint-web-boot-2.1.1.jar`
+    - `java -jar -Dspring.profiles.active=release -Dpinpoint.zookeeper.address=localhost -Dhbase.client.port=1234 pinpoint-web-boot-2.2.1.jar`
 
 - To import a list of your customized configuration values from a file, you can use `--spring.config.additional-location` option. For example,
     - Create a file `./config/web.properties`, and list the configuration values you want to override.
@@ -220,7 +217,7 @@ You can modify default configuration values or add new profiles under `web/src/m
         > cluster.zookeeper.sessiontimeout=10000
         >
 
-    - Execute with `java -jar pinpoint-web-boot-2.1.1.jar --spring.config.additional-location=./config/web.properties`
+    - Execute with `java -jar pinpoint-web-boot-2.2.1.jar --spring.config.additional-location=./config/web.properties`
 
 - To further explore how to use externalized configurations, refer to [Spring Boot Reference Document](https://docs.spring.io/spring-boot/docs/2.2.x/reference/html/spring-boot-features.html#boot-features-external-config-application-property-files).
 
