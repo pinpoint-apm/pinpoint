@@ -5,9 +5,13 @@ permalink: main.html
 sidebar: mydoc_sidebar
 ---
 
-[Check out updates on lastest stable release](https://naver.github.io/pinpoint/2.2.2/main.html)
+# What's New in 2.2.2
 
-## What's Next? 
+v2.2.2 is a bug fix release of 2.2.1
+
+There is a bug in the Reactor-netty plugin (v2.0.0 ~ 2.2.1) which inserts incorrect endPoint value.
+It only occurs in certain circumstances relating the high overload in Pinpoint-Collector
+To prevent this, it is recommended to upgrade to version 2.2.2 or higher when using the Reactor-netty plugin.
   
 ## Upgrade consideration
 
