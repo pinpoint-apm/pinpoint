@@ -107,26 +107,29 @@ public class AnnotationTranscoder {
         if (o == null) {
             return CODE_NULL;
         }
+        if (o instanceof Number) {
+            if (o instanceof Long) {
+                return CODE_LONG;
+            } else if (o instanceof Integer) {
+                return CODE_INT;
+            } else if (o instanceof Short) {
+                return CODE_SHORT;
+            } else if (o instanceof Float) {
+                // not supported by thrift
+                return CODE_FLOAT;
+            } else if (o instanceof Double) {
+                return CODE_DOUBLE;
+            } else if (o instanceof Byte) {
+                return CODE_BYTE;
+            }
+        }
         if (o instanceof String) {
             return CODE_STRING;
-        } else if (o instanceof Long) {
-            return CODE_LONG;
-        } else if (o instanceof Integer) {
-            return CODE_INT;
         } else if (o instanceof Boolean) {
             if (Boolean.TRUE.equals(o)) {
                 return CODE_BOOLEAN_TRUE;
             }
             return CODE_BOOLEAN_FALSE;
-        } else if (o instanceof Byte) {
-            return CODE_BYTE;
-        } else if (o instanceof Short) {
-            return CODE_SHORT;
-        } else if (o instanceof Float) {
-            // not supported by thrift
-            return CODE_FLOAT;
-        } else if (o instanceof Double) {
-            return CODE_DOUBLE;
         } else if (o instanceof byte[]) {
             return CODE_BYTEARRAY;
         } else if (o instanceof IntStringValue) {

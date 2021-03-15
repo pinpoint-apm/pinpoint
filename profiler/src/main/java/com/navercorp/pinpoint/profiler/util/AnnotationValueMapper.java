@@ -37,24 +37,27 @@ public final class AnnotationValueMapper {
         if (value == null) {
             return null;
         }
+        if (value instanceof Number) {
+            if (value instanceof Integer) {
+                return value;
+            } else if (value instanceof Long) {
+                return value;
+            } else if (value instanceof Float) {
+                // thrift does not contain "float" typet
+                return value;
+            } else if (value instanceof Double) {
+                return value;
+            } else if (value instanceof Short) {
+                return value;
+            } else if (value instanceof Byte) {
+                return value;
+            }
+        }
         if (value instanceof String) {
-            return value;
-        } else if (value instanceof Integer) {
-            return value;
-        } else if (value instanceof Long) {
             return value;
         } else if (value instanceof Boolean) {
             return value;
-        } else if (value instanceof Byte) {
-            return value;
-        } else if (value instanceof Float) {
-            // thrift does not contain "float" typet
-            return value;
-        } else if (value instanceof Double) {
-            return value;
         } else if (value instanceof byte[]) {
-            return value;
-        } else if (value instanceof Short) {
             return value;
         } else if (value instanceof IntStringValue) {
             return value;
@@ -70,8 +73,7 @@ public final class AnnotationValueMapper {
             throw new IllegalArgumentException("TBase not supported. Class:" + value.getClass());
         }
 
-        String str = StringUtils.abbreviate(value.toString());
-        return str;
+        return StringUtils.abbreviate(value.toString());
     }
 
 
