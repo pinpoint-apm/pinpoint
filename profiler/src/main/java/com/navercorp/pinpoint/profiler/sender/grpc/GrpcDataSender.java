@@ -103,8 +103,11 @@ public abstract class GrpcDataSender implements DataSender<Object> {
 
         @Override
         public void run() {
-            ConnectivityState change = managedChannel.getState(false);
+            final ConnectivityState change = managedChannel.getState(false);
             logger.info("ConnectivityState changed before:{}, change:{}", before, change);
+            if (change == ConnectivityState.TRANSIENT_FAILURE) {
+                logger.info("Failed to connect to collector server {} {}/{}", name, host, port);
+            }
             managedChannel.notifyWhenStateChanged(change, new ConnectivityStateMonitor(change));
         }
     }
