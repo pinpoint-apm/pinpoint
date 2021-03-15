@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.StringValue;
+import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
@@ -89,45 +90,44 @@ public class GrpcAnnotationValueMapper {
             return builder.build();
         }
 
-        if (value instanceof IntStringValue) {
-            final IntStringValue v = (IntStringValue) value;
-            PIntStringValue pIntStringValue = newIntStringValue(v);
+        if (value instanceof DataType) {
+            if (value instanceof IntStringValue) {
+                final IntStringValue v = (IntStringValue) value;
+                PIntStringValue pIntStringValue = newIntStringValue(v);
 
-            PAnnotationValue.Builder builder = getAnnotationBuilder();
-            builder.setIntStringValue(pIntStringValue);
+                PAnnotationValue.Builder builder = getAnnotationBuilder();
+                builder.setIntStringValue(pIntStringValue);
 
-            return builder.build();
-        }
-        if (value instanceof StringStringValue) {
-            final StringStringValue v = (StringStringValue) value;
-            PStringStringValue pStringStringValue = newStringStringValue(v);
+                return builder.build();
+            } else if (value instanceof StringStringValue) {
+                final StringStringValue v = (StringStringValue) value;
+                PStringStringValue pStringStringValue = newStringStringValue(v);
 
-            PAnnotationValue.Builder builder = getAnnotationBuilder();
-            builder.setStringStringValue(pStringStringValue);
-            return builder.build();
-        }
-        if (value instanceof IntStringStringValue) {
-            final IntStringStringValue v = (IntStringStringValue) value;
-            final PIntStringStringValue pIntStringStringValue = newIntStringStringValue(v);
-            PAnnotationValue.Builder builder = getAnnotationBuilder();
-            builder.setIntStringStringValue(pIntStringStringValue);
-            return builder.build();
-        }
-        if (value instanceof LongIntIntByteByteStringValue) {
-            final LongIntIntByteByteStringValue v = (LongIntIntByteByteStringValue) value;
-            final PLongIntIntByteByteStringValue pValue = newLongIntIntByteByteStringValue(v);
+                PAnnotationValue.Builder builder = getAnnotationBuilder();
+                builder.setStringStringValue(pStringStringValue);
+                return builder.build();
+            } else if (value instanceof IntStringStringValue) {
+                final IntStringStringValue v = (IntStringStringValue) value;
+                final PIntStringStringValue pIntStringStringValue = newIntStringStringValue(v);
+                PAnnotationValue.Builder builder = getAnnotationBuilder();
+                builder.setIntStringStringValue(pIntStringStringValue);
+                return builder.build();
+            } else if (value instanceof LongIntIntByteByteStringValue) {
+                final LongIntIntByteByteStringValue v = (LongIntIntByteByteStringValue) value;
+                final PLongIntIntByteByteStringValue pValue = newLongIntIntByteByteStringValue(v);
 
-            PAnnotationValue.Builder builder = getAnnotationBuilder();
-            builder.setLongIntIntByteByteStringValue(pValue);
-            return builder.build();
+                PAnnotationValue.Builder builder = getAnnotationBuilder();
+                builder.setLongIntIntByteByteStringValue(pValue);
+                return builder.build();
+            } else if (value instanceof IntBooleanIntBooleanValue) {
+                final IntBooleanIntBooleanValue v = (IntBooleanIntBooleanValue) value;
+                final PIntBooleanIntBooleanValue pValue = newIntBooleanIntBooleanValue(v);
+                PAnnotationValue.Builder builder = getAnnotationBuilder();
+                builder.setIntBooleanIntBooleanValue(pValue);
+                return builder.build();
+            }
         }
-        if (value instanceof IntBooleanIntBooleanValue) {
-            final IntBooleanIntBooleanValue v = (IntBooleanIntBooleanValue) value;
-            final PIntBooleanIntBooleanValue pValue = newIntBooleanIntBooleanValue(v);
-            PAnnotationValue.Builder builder = getAnnotationBuilder();
-            builder.setIntBooleanIntBooleanValue(pValue);
-            return builder.build();
-        }
+
         if (value instanceof TBase) {
             throw new IllegalArgumentException("TBase not supported. Class:" + value.getClass());
         }

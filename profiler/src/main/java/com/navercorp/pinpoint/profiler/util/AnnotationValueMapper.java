@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.util;
 
 
+import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
@@ -59,17 +60,21 @@ public final class AnnotationValueMapper {
             return value;
         } else if (value instanceof byte[]) {
             return value;
-        } else if (value instanceof IntStringValue) {
-            return value;
-        } else if (value instanceof IntStringStringValue) {
-            return value;
-        } else if (value instanceof LongIntIntByteByteStringValue) {
-            return value;
-        } else if (value instanceof IntBooleanIntBooleanValue) {
-            return value;
-        } else if (value instanceof StringStringValue) {
-            return value;
-        } else if (value instanceof TBase) {
+        }
+        if (value instanceof DataType) {
+            if (value instanceof IntStringValue) {
+                return value;
+            } else if (value instanceof IntStringStringValue) {
+                return value;
+            } else if (value instanceof LongIntIntByteByteStringValue) {
+                return value;
+            } else if (value instanceof IntBooleanIntBooleanValue) {
+                return value;
+            } else if (value instanceof StringStringValue) {
+                return value;
+            }
+        }
+        if (value instanceof TBase) {
             throw new IllegalArgumentException("TBase not supported. Class:" + value.getClass());
         }
 
