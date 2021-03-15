@@ -38,34 +38,32 @@ public class AnnotationValueThriftMapper {
         if (value == null) {
             return null;
         }
+        if (value instanceof Number) {
+            if (value instanceof Integer) {
+                return TAnnotationValue.intValue((Integer) value);
+            } else if (value instanceof Long) {
+                return TAnnotationValue.longValue((Long) value);
+            } else if (value instanceof Float) {
+                // thrift does not contain "float" type
+                return TAnnotationValue.doubleValue((Float) value);
+            } else if (value instanceof Double) {
+                return TAnnotationValue.doubleValue((Double) value);
+            } else if (value instanceof Short) {
+                return TAnnotationValue.shortValue((Short) value);
+            } else if (value instanceof Byte) {
+                return TAnnotationValue.byteValue((Byte) value);
+            }
+        }
         if (value instanceof String) {
             return TAnnotationValue.stringValue((String) value);
-        }
-        if (value instanceof Integer) {
-            return TAnnotationValue.intValue((Integer) value);
-        }
-        if (value instanceof Long) {
-            return TAnnotationValue.longValue((Long) value);
         }
         if (value instanceof Boolean) {
             return TAnnotationValue.boolValue((Boolean) value);
         }
-        if (value instanceof Byte) {
-            return TAnnotationValue.byteValue((Byte) value);
-        }
-        if (value instanceof Float) {
-            // thrift does not contain "float" type
-            return TAnnotationValue.doubleValue((Float) value);
-        }
-        if (value instanceof Double) {
-            return TAnnotationValue.doubleValue((Double) value);
-        }
         if (value instanceof byte[]) {
             return TAnnotationValue.binaryValue((byte[]) value);
         }
-        if (value instanceof Short) {
-            return TAnnotationValue.shortValue((Short) value);
-        }
+
         if (value instanceof IntStringValue) {
             final IntStringValue v = (IntStringValue) value;
             final TIntStringValue tIntStringValue = new TIntStringValue(v.getIntValue());

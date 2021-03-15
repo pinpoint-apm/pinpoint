@@ -45,19 +45,37 @@ public class GrpcAnnotationValueMapper {
         if (value == null) {
             return null;
         }
+        if (value instanceof Number) {
+            if (value instanceof Integer) {
+                PAnnotationValue.Builder builder = getAnnotationBuilder();
+                builder.setIntValue((Integer) value);
+                return builder.build();
+            } else if (value instanceof Long) {
+                PAnnotationValue.Builder builder = getAnnotationBuilder();
+                builder.setLongValue((Long) value);
+                return builder.build();
+            } else if (value instanceof Float) {
+                PAnnotationValue.Builder builder = getAnnotationBuilder();
+                // thrift does not contain "float" type
+                builder.setDoubleValue((Float) value);
+                return builder.build();
+            } else if (value instanceof Double) {
+                PAnnotationValue.Builder builder = getAnnotationBuilder();
+                builder.setDoubleValue((Double) value);
+                return builder.build();
+            } else if (value instanceof Short) {
+                PAnnotationValue.Builder builder = getAnnotationBuilder();
+                builder.setShortValue((Short) value);
+                return builder.build();
+            } else if (value instanceof Byte) {
+                PAnnotationValue.Builder builder = getAnnotationBuilder();
+                builder.setByteValue((Byte) value);
+                return builder.build();
+            }
+        }
         if (value instanceof String) {
             PAnnotationValue.Builder builder = getAnnotationBuilder();
             builder.setStringValue((String) value);
-            return builder.build();
-        }
-        if (value instanceof Integer) {
-            PAnnotationValue.Builder builder = getAnnotationBuilder();
-            builder.setIntValue((Integer) value);
-            return builder.build();
-        }
-        if (value instanceof Long) {
-            PAnnotationValue.Builder builder = getAnnotationBuilder();
-            builder.setLongValue((Long) value);
             return builder.build();
         }
         if (value instanceof Boolean) {
@@ -65,32 +83,12 @@ public class GrpcAnnotationValueMapper {
             builder.setBoolValue((Boolean) value);
             return builder.build();
         }
-        if (value instanceof Byte) {
-            PAnnotationValue.Builder builder = getAnnotationBuilder();
-            builder.setByteValue((Byte) value);
-            return builder.build();
-        }
-        if (value instanceof Float) {
-            PAnnotationValue.Builder builder = getAnnotationBuilder();
-            // thrift does not contain "float" type
-            builder.setDoubleValue((Float) value);
-            return builder.build();
-        }
-        if (value instanceof Double) {
-            PAnnotationValue.Builder builder = getAnnotationBuilder();
-            builder.setDoubleValue((Double) value);
-            return builder.build();
-        }
         if (value instanceof byte[]) {
             PAnnotationValue.Builder builder = getAnnotationBuilder();
             builder.setBinaryValue(ByteString.copyFrom((byte[]) value));
             return builder.build();
         }
-        if (value instanceof Short) {
-            PAnnotationValue.Builder builder = getAnnotationBuilder();
-            builder.setShortValue((Short) value);
-            return builder.build();
-        }
+
         if (value instanceof IntStringValue) {
             final IntStringValue v = (IntStringValue) value;
             PIntStringValue pIntStringValue = newIntStringValue(v);
@@ -167,7 +165,6 @@ public class GrpcAnnotationValueMapper {
         }
         return builder.build();
     }
-
 
 
     private PIntStringStringValue newIntStringStringValue(IntStringStringValue v) {
