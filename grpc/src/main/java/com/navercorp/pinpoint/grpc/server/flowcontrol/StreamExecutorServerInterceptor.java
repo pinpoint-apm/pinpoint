@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.grpc.server.flowcontrol;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.Header;
 import io.grpc.Context;
 import io.grpc.ForwardingServerCallListener;
 import io.grpc.Metadata;
@@ -42,7 +43,7 @@ public class StreamExecutorServerInterceptor implements ServerInterceptor {
     private final StreamExecutorRejectedExecutionRequestScheduler scheduler;
 
     public StreamExecutorServerInterceptor(String name, final Executor executor, final int initNumMessages, final ScheduledExecutorService scheduledExecutorService,
-                                           final int periodMillis, int recoveryMessagesCount) {
+                                           final int periodMillis, int recoveryMessagesCount, long idleTimeout) {
         this.name = Objects.requireNonNull(name, "name");
 
         Objects.requireNonNull(executor, "executor");
@@ -52,12 +53,17 @@ public class StreamExecutorServerInterceptor implements ServerInterceptor {
         this.initNumMessages = initNumMessages;
         Objects.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
         Assert.isTrue(periodMillis > 0, "periodMillis must be positive");
-        this.scheduler = new StreamExecutorRejectedExecutionRequestScheduler(scheduledExecutorService, periodMillis, recoveryMessagesCount);
+
+        RejectedExecutionListenerFactory listenerFactory = new RejectedExecutionListenerFactory(recoveryMessagesCount, idleTimeout);
+
+        this.scheduler = new StreamExecutorRejectedExecutionRequestScheduler(scheduledExecutorService, periodMillis, listenerFactory);
     }
 
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(final ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
-        final StreamExecutorRejectedExecutionRequestScheduler.Listener scheduleListener = this.scheduler.schedule(call);
+        final ServerCallWrapper serverCall = newServerCallWrapper(call, headers);
+
+        final StreamExecutorRejectedExecutionRequestScheduler.Listener scheduleListener = this.scheduler.schedule(serverCall);
         if (logger.isInfoEnabled()) {
             logger.info("Initialize schedule listener. {} {}, headers={}, initNumMessages={}, scheduler={}, listener={}",
                     this.name, call.getMethodDescriptor().getFullMethodName(), headers, initNumMessages, scheduler, scheduleListener);
@@ -74,9 +80,11 @@ public class StreamExecutorServerInterceptor implements ServerInterceptor {
                     executor.execute(new Runnable() {
                         @Override
                         public void run() {
+                            scheduleListener.onMessage();
                             delegate().onMessage(message);
                         }
                     });
+//                    scheduleListener.onMessage();
                 } catch (RejectedExecutionException ree) {
                     // Defense code, need log ?
                     scheduleListener.onRejectedExecution();
@@ -96,5 +104,11 @@ public class StreamExecutorServerInterceptor implements ServerInterceptor {
                 delegate().onComplete();
             }
         };
+    }
+
+    private <ReqT, RespT> ServerCallWrapper newServerCallWrapper(ServerCall<ReqT, RespT> call, Metadata headers) {
+        final String agentId = headers.get(Header.AGENT_ID_KEY);
+        final String applicationName = headers.get(Header.APPLICATION_NAME_KEY);
+        return new DefaultServerCallWrapper<>(call, applicationName, agentId);
     }
 }

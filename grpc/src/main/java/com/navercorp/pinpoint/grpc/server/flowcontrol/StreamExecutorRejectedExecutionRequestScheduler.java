@@ -17,7 +17,8 @@
 package com.navercorp.pinpoint.grpc.server.flowcontrol;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import io.grpc.ServerCall;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,34 +29,31 @@ import java.util.concurrent.TimeUnit;
  * @author jaehong.kim
  */
 public class StreamExecutorRejectedExecutionRequestScheduler {
-    private static final int REQUEST_IMMEDIATELY = -1;
-    private final int periodMillis;
-    private final ScheduledExecutorService scheduledExecutorService;
-    private final long recoveryMessagesCount;
+//    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public StreamExecutorRejectedExecutionRequestScheduler(final ScheduledExecutorService scheduledExecutorService, final int periodMillis, int recoveryMessagesCount) {
+    private final ScheduledExecutorService scheduledExecutorService;
+    private final RejectedExecutionListenerFactory rejectedExecutionListenerFactory;
+
+    private final int periodMillis;
+
+
+    public StreamExecutorRejectedExecutionRequestScheduler(final ScheduledExecutorService scheduledExecutorService, final int periodMillis,
+                                                           final RejectedExecutionListenerFactory rejectedExecutionListenerFactory) {
+
         this.scheduledExecutorService = Objects.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
         this.periodMillis = periodMillis;
-        // cast long
-        this.recoveryMessagesCount = recoveryMessagesCount;
+
+        this.rejectedExecutionListenerFactory = Objects.requireNonNull(rejectedExecutionListenerFactory, "rejectedExecutionListenerFactory");
+
     }
 
-    public <ReqT, RespT> Listener schedule(final ServerCall<ReqT, RespT> call) {
-        final ServerCallWrapper serverCall = new DefaultServerCallWrapper<>(call);
-
-        final RejectedExecutionListener rejectedExecutionListener = newRejectedExecutionListener(serverCall);
+    public Listener schedule(final ServerCallWrapper serverCall) {
+        final RejectedExecutionListener rejectedExecutionListener = rejectedExecutionListenerFactory.newListener(serverCall);
         final RequestScheduleJob command = new RequestScheduleJob(rejectedExecutionListener);
-        final ScheduledFuture<?> requestScheduledFuture = scheduledExecutorService.scheduleAtFixedRate(command, periodMillis, periodMillis, TimeUnit.MILLISECONDS);
-        final Listener listener = new Listener(rejectedExecutionListener, requestScheduledFuture);
+        final ScheduledFuture<?> future = scheduledExecutorService.scheduleAtFixedRate(command, periodMillis, periodMillis, TimeUnit.MILLISECONDS);
+        command.setFuture(future);
+        final Listener listener = new Listener(rejectedExecutionListener, future);
         return listener;
-    }
-
-    private RejectedExecutionListener newRejectedExecutionListener(ServerCallWrapper serverCall) {
-        if (recoveryMessagesCount == REQUEST_IMMEDIATELY) {
-            return new SimpleRejectedExecutionListener(serverCall);
-        } else {
-            return new ControlFlowRejectExecutionListener(serverCall, recoveryMessagesCount);
-        }
     }
 
     @Override
@@ -70,6 +68,7 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
     @VisibleForTesting
     static class RequestScheduleJob implements Runnable {
         private final RejectedExecutionListener listener;
+        private volatile ScheduledFuture<?> future;
 
         public RequestScheduleJob(final RejectedExecutionListener listener) {
             this.listener = Objects.requireNonNull(listener, "listener");
@@ -77,7 +76,30 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
 
         @Override
         public void run() {
-            listener.onSchedule();
+            if (!expireIdleTimeout()) {
+                listener.onSchedule();
+            }
+        }
+
+        private boolean expireIdleTimeout() {
+            if (listener.idleTimeExpired()) {
+                if (cancel(this.future)) {
+                    listener.idleTimeout();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private boolean cancel(ScheduledFuture<?> future) {
+            if (future == null) {
+                return false;
+            }
+            return future.cancel(false);
+        }
+
+        public void setFuture(ScheduledFuture<?> future) {
+            this.future = Objects.requireNonNull(future, "future");
         }
     }
 
@@ -106,8 +128,8 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
             return this.requestScheduledFuture.isCancelled();
         }
 
-        public void onExecute() {
-            this.rejectedExecutionListener.onExecute();
+        public void onMessage() {
+            this.rejectedExecutionListener.onMessage();
         }
 
         @Override
@@ -120,28 +142,4 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
         }
     }
 
-    public interface ServerCallWrapper {
-        void request(int numMessages);
-    }
-
-    private static class DefaultServerCallWrapper<ReqT, RespT> implements ServerCallWrapper {
-        private final ServerCall<ReqT, RespT> serverCall;
-
-        public DefaultServerCallWrapper(ServerCall<ReqT, RespT> serverCall) {
-            this.serverCall = Objects.requireNonNull(serverCall, "serverCall");
-        }
-
-        @Override
-        public void request(int numMessages) {
-            serverCall.request(numMessages);
-        }
-
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("DefaultServerCallWrapper{");
-            sb.append("serverCall=").append(serverCall);
-            sb.append('}');
-            return sb.toString();
-        }
-    }
 }

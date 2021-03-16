@@ -66,6 +66,9 @@ public class GrpcStatReceiverConfiguration {
     @Value("${collector.receiver.grpc.stat.stream.scheduler.recovery.message.count:10}")
     private int grpcStreamSchedulerRecoveryMessageCount;
 
+    @Value("${collector.receiver.grpc.stat.stream.idletimeout:-1}")
+    private long grpcStreamIdleTimeout;
+
     private ServerOption grpcServerOption;
 
 
@@ -147,8 +150,12 @@ public class GrpcStatReceiverConfiguration {
         return grpcStreamSchedulerPeriodMillis;
     }
 
-    public int getGrpcStreamSchedulerRecoveryMessageCount() {
+    public long getGrpcStreamSchedulerRecoveryMessageCount() {
         return grpcStreamSchedulerRecoveryMessageCount;
+    }
+
+    public long getGrpcStreamIdleTimeout() {
+        return grpcStreamIdleTimeout;
     }
 
     public ServerOption getGrpcServerOption() {

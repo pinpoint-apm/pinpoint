@@ -163,6 +163,7 @@
         <constructor-arg index="2" ref="grpcSpanStreamScheduler"/>
         <constructor-arg index="3" value="#{grpcSpanReceiverConfig.grpcStreamSchedulerPeriodMillis}"/>
         <constructor-arg index="4" value="#{grpcSpanReceiverConfig.grpcStreamSchedulerRecoveryMessageCount}"/>
+        <constructor-arg index="5" value="#{grpcSpanReceiverConfig.grpcStreamIdleTimeout}"/>
     </bean>
     <bean id="spanServiceFactory" class="com.navercorp.pinpoint.collector.receiver.grpc.service.SpanServiceFactory">
         <property name="dispatchHandler" ref="grpcSpanDispatchHandlerFactoryBean"/>
@@ -217,6 +218,7 @@
         <constructor-arg index="2" ref="grpcStatStreamScheduler"/>
         <constructor-arg index="3" value="#{grpcStatReceiverConfig.grpcStreamSchedulerPeriodMillis}"/>
         <constructor-arg index="4" value="#{grpcStatReceiverConfig.grpcStreamSchedulerRecoveryMessageCount}"/>
+        <constructor-arg index="5" value="#{grpcStatReceiverConfig.grpcStreamIdleTimeout}"/>
     </bean>
     <bean id="statServiceFactory" class="com.navercorp.pinpoint.collector.receiver.grpc.service.StatServiceFactory">
         <property name="dispatchHandler" ref="grpcStatDispatchHandlerFactoryBean"/>

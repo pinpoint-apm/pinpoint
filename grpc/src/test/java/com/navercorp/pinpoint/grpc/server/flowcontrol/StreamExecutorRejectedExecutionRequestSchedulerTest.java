@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.grpc.server;
+package com.navercorp.pinpoint.grpc.server.flowcontrol;
 
-import com.navercorp.pinpoint.grpc.server.flowcontrol.StreamExecutorRejectedExecutionRequestScheduler;
 import io.grpc.internal.NoopServerCall;
 import org.junit.After;
 import org.junit.Before;
@@ -24,7 +23,6 @@ import org.junit.Test;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -48,9 +46,10 @@ public class StreamExecutorRejectedExecutionRequestSchedulerTest {
 
     @Test
     public void schedule() {
-
-        StreamExecutorRejectedExecutionRequestScheduler scheduler = new StreamExecutorRejectedExecutionRequestScheduler(scheduledExecutorService, 1000, 10);
-        StreamExecutorRejectedExecutionRequestScheduler.Listener listener = scheduler.schedule(new NoopServerCall());
+        RejectedExecutionListenerFactory listenerFactory = new RejectedExecutionListenerFactory(10, 5000);
+        StreamExecutorRejectedExecutionRequestScheduler scheduler = new StreamExecutorRejectedExecutionRequestScheduler(scheduledExecutorService, 1000, listenerFactory);
+        ServerCallWrapper serverCallWrapper = new DefaultServerCallWrapper<>(new NoopServerCall<>(), "app", "agent");
+        StreamExecutorRejectedExecutionRequestScheduler.Listener listener = scheduler.schedule(serverCallWrapper);
         assertEquals(0, listener.getRejectedExecutionCount());
         listener.onRejectedExecution();
         assertEquals(1, listener.getRejectedExecutionCount());
