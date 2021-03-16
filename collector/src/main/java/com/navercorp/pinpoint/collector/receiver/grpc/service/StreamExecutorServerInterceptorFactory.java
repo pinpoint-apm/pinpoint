@@ -35,18 +35,26 @@ public class StreamExecutorServerInterceptorFactory implements FactoryBean<Serve
     private final ScheduledExecutorService scheduledExecutorService;
     private final int periodMillis;
     private final int recoveryMessagesCount;
+    private final long idleTimeout;
 
-    public StreamExecutorServerInterceptorFactory(Executor executor, int initRequestCount, ScheduledExecutorService scheduledExecutorService, int periodMillis, int recoveryMessagesCount) {
+    public StreamExecutorServerInterceptorFactory(Executor executor,
+                                                  int initRequestCount,
+                                                  ScheduledExecutorService scheduledExecutorService,
+                                                  int periodMillis,
+                                                  int recoveryMessagesCount,
+                                                  long idleTimeout) {
         this.executor = Objects.requireNonNull(executor, "executor");
         this.initRequestCount = initRequestCount;
         this.scheduledExecutorService = Objects.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
         this.periodMillis = periodMillis;
         this.recoveryMessagesCount = recoveryMessagesCount;
+        this.idleTimeout = idleTimeout;
     }
 
     @Override
     public ServerInterceptor getObject() throws Exception {
-        return new StreamExecutorServerInterceptor(this.beanName, this.executor, initRequestCount, this.scheduledExecutorService, this.periodMillis, recoveryMessagesCount);
+        return new StreamExecutorServerInterceptor(this.beanName, this.executor, initRequestCount,
+                this.scheduledExecutorService, this.periodMillis, recoveryMessagesCount, this.idleTimeout);
     }
 
     @Override

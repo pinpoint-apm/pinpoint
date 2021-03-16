@@ -1,16 +1,28 @@
 package com.navercorp.pinpoint.grpc.server.flowcontrol;
 
+import io.grpc.Metadata;
+import io.grpc.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class ControlFlowRejectExecutionListener implements RejectedExecutionListener {
+public class FlowControlRejectExecutionListener implements RejectedExecutionListener {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private static final Status STREAM_IDLE_TIMEOUT = Status.DEADLINE_EXCEEDED.withDescription("Stream idle timeout");
+
     private final AtomicLong rejectedExecutionCounter = new AtomicLong(0);
-    private final StreamExecutorRejectedExecutionRequestScheduler.ServerCallWrapper serverCall;
+    private final ServerCallWrapper serverCall;
     private final long recoveryMessagesCount;
 
-    public ControlFlowRejectExecutionListener(StreamExecutorRejectedExecutionRequestScheduler.ServerCallWrapper serverCall, long recoveryMessagesCount) {
+    private final IdleTimeout idleTimeout;
+
+    public FlowControlRejectExecutionListener(ServerCallWrapper serverCall, long recoveryMessagesCount, IdleTimeout idleTimeout) {
         this.serverCall = Objects.requireNonNull(serverCall, "serverCall");
         this.recoveryMessagesCount = recoveryMessagesCount;
+        this.idleTimeout = Objects.requireNonNull(idleTimeout, "idleTimeout");
     }
 
     @Override
@@ -34,8 +46,19 @@ public class ControlFlowRejectExecutionListener implements RejectedExecutionList
     }
 
     @Override
-    public void onExecute() {
+    public void onMessage() {
+        this.idleTimeout.update();
+    }
 
+    @Override
+    public boolean idleTimeExpired() {
+        return this.idleTimeout.isExpired();
+    }
+
+    @Override
+    public void idleTimeout() {
+        logger.info("stream idle timeout applicationName:{} agentId:{}", serverCall.getApplicationName(), serverCall.getAgentId());
+        serverCall.cancel(STREAM_IDLE_TIMEOUT, new Metadata());
     }
 
     @Override

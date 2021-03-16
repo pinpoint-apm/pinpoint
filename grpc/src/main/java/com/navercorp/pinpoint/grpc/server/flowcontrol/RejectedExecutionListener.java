@@ -7,5 +7,9 @@ public interface RejectedExecutionListener {
 
     long getRejectedExecutionCount();
 
-    void onExecute();
+    void onMessage();
+
+    void idleTimeout();
+
+    boolean idleTimeExpired();
 }

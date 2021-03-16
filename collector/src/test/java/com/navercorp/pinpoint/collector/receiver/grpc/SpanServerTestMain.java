@@ -96,7 +96,8 @@ public class SpanServerTestMain {
     }
 
     private ServerServiceDefinition newSpanBindableService(Executor executor) throws Exception {
-        FactoryBean<ServerInterceptor> interceptorFactory = new StreamExecutorServerInterceptorFactory(executor, 100, Executors.newSingleThreadScheduledExecutor(), 1000, 100);
+        FactoryBean<ServerInterceptor> interceptorFactory = new StreamExecutorServerInterceptorFactory(executor, 100,
+                Executors.newSingleThreadScheduledExecutor(), 1000, 100, -1);
         ((StreamExecutorServerInterceptorFactory) interceptorFactory).setBeanName("SpanService");
 
         ServerInterceptor interceptor = interceptorFactory.getObject();
