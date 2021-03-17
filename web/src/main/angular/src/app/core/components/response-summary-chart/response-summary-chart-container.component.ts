@@ -105,7 +105,9 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
 
     onRetry(): void {
         this.activeLayer = Layer.LOADING;
-        this.agentHistogramDataService.getData(this.serverMapData, this.previousRange, this.getTargetInfo()).pipe(
+        const target = this.getTargetInfo();
+
+        this.agentHistogramDataService.getData(this.serverMapData, this.previousRange, target).pipe(
             // map((data: any) => this.isAllAgent() ? data['histogram'] : data['agentHistogram'][this.selectedAgent])
             pluck('agentHistogram', this.selectedAgent)
         ).pipe(
