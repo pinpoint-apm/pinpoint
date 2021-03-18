@@ -16,14 +16,8 @@
 
 package com.navercorp.pinpoint.grpc.server.flowcontrol;
 
-import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Objects;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Future;
 
 /**
  * @author jaehong.kim
@@ -31,17 +25,12 @@ import java.util.concurrent.TimeUnit;
 public class StreamExecutorRejectedExecutionRequestScheduler {
 //    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ScheduledExecutorService scheduledExecutorService;
+    private final ScheduledExecutor scheduledExecutor;
     private final RejectedExecutionListenerFactory rejectedExecutionListenerFactory;
 
-    private final int periodMillis;
-
-
-    public StreamExecutorRejectedExecutionRequestScheduler(final ScheduledExecutorService scheduledExecutorService, final int periodMillis,
+    public StreamExecutorRejectedExecutionRequestScheduler(final ScheduledExecutor scheduledExecutor,
                                                            final RejectedExecutionListenerFactory rejectedExecutionListenerFactory) {
-
-        this.scheduledExecutorService = Objects.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
-        this.periodMillis = periodMillis;
+        this.scheduledExecutor = Objects.requireNonNull(scheduledExecutor, "scheduledExecutor");
 
         this.rejectedExecutionListenerFactory = Objects.requireNonNull(rejectedExecutionListenerFactory, "rejectedExecutionListenerFactory");
 
@@ -49,67 +38,46 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
 
     public Listener schedule(final ServerCallWrapper serverCall) {
         final RejectedExecutionListener rejectedExecutionListener = rejectedExecutionListenerFactory.newListener(serverCall);
-        final RequestScheduleJob command = new RequestScheduleJob(rejectedExecutionListener);
-        final ScheduledFuture<?> future = scheduledExecutorService.scheduleAtFixedRate(command, periodMillis, periodMillis, TimeUnit.MILLISECONDS);
-        command.setFuture(future);
-        final Listener listener = new Listener(rejectedExecutionListener, future);
-        return listener;
+        final Runnable command = new RequestScheduleJob(rejectedExecutionListener);
+        final Future<?> future = scheduledExecutor.schedule(command);
+
+        rejectedExecutionListener.setFuture(future);
+
+        return new Listener(rejectedExecutionListener);
     }
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("StreamExecutorRejectedExecutionRequestScheduler{");
-        sb.append("scheduledExecutorService=").append(scheduledExecutorService);
-        sb.append(", periodMillis=").append(periodMillis);
-        sb.append('}');
-        return sb.toString();
-    }
+    public static class RequestScheduleJob implements Runnable {
+        private final RejectedExecutionListener rejectedExecutionListener;
 
-    @VisibleForTesting
-    static class RequestScheduleJob implements Runnable {
-        private final RejectedExecutionListener listener;
-        private volatile ScheduledFuture<?> future;
-
-        public RequestScheduleJob(final RejectedExecutionListener listener) {
-            this.listener = Objects.requireNonNull(listener, "listener");
+        public RequestScheduleJob(final RejectedExecutionListener rejectedExecutionListener) {
+            this.rejectedExecutionListener = Objects.requireNonNull(rejectedExecutionListener, "rejectedExecutionListener");
         }
 
         @Override
         public void run() {
-            if (!expireIdleTimeout()) {
-                listener.onSchedule();
-            }
+            rejectedExecutionListener.onSchedule();
         }
 
-        private boolean expireIdleTimeout() {
-            if (listener.idleTimeExpired()) {
-                if (cancel(this.future)) {
-                    listener.idleTimeout();
-                    return true;
-                }
-            }
-            return false;
+        public RejectedExecutionListener getRejectedExecutionListener() {
+            return rejectedExecutionListener;
         }
+    }
 
-        private boolean cancel(ScheduledFuture<?> future) {
-            if (future == null) {
-                return false;
-            }
-            return future.cancel(false);
-        }
 
-        public void setFuture(ScheduledFuture<?> future) {
-            this.future = Objects.requireNonNull(future, "future");
-        }
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("StreamExecutorRejectedExecutionRequestScheduler{");
+        sb.append("scheduledExecutorService=").append(scheduledExecutor);
+        sb.append(", rejectedExecutionListenerFactory=").append(rejectedExecutionListenerFactory);
+        sb.append('}');
+        return sb.toString();
     }
 
     public static class Listener {
         private final RejectedExecutionListener rejectedExecutionListener;
-        private final ScheduledFuture<?> requestScheduledFuture;
 
-        public Listener(RejectedExecutionListener rejectedExecutionListener, ScheduledFuture<?> requestScheduledFuture) {
+        public Listener(RejectedExecutionListener rejectedExecutionListener) {
             this.rejectedExecutionListener = Objects.requireNonNull(rejectedExecutionListener, "rejectedExecutionListener");
-            this.requestScheduledFuture = Objects.requireNonNull(requestScheduledFuture, "requestScheduledFuture");
         }
 
         public void onRejectedExecution() {
@@ -117,7 +85,7 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
         }
 
         public void onCancel() {
-            this.requestScheduledFuture.cancel(false);
+            this.rejectedExecutionListener.cancel();
         }
 
         public long getRejectedExecutionCount() {
@@ -125,7 +93,7 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
         }
 
         public boolean isCancelled() {
-            return this.requestScheduledFuture.isCancelled();
+            return rejectedExecutionListener.isCancelled();
         }
 
         public void onMessage() {
@@ -136,7 +104,6 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
         public String toString() {
             final StringBuilder sb = new StringBuilder("Listener{");
             sb.append("rejectedExecutionListener=").append(rejectedExecutionListener);
-            sb.append(", requestScheduledFuture=").append(requestScheduledFuture);
             sb.append('}');
             return sb.toString();
         }

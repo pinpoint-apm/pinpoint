@@ -1,31 +1,28 @@
 package com.navercorp.pinpoint.grpc.server.flowcontrol;
 
+import java.util.Objects;
+
 public class RejectedExecutionListenerFactory {
     private static final int REQUEST_IMMEDIATELY = -1;
 
+    private final String name;
     private final long recoveryMessagesCount;
-    private final long idleTimeout;
+    private final IdleTimeoutFactory idleTimeoutFactory;
 
-    public RejectedExecutionListenerFactory(long recoveryMessagesCount, long idleTimeout) {
+    public RejectedExecutionListenerFactory(String name, long recoveryMessagesCount, IdleTimeoutFactory idleTimeoutFactory) {
+        this.name = Objects.requireNonNull(name, "name");
         this.recoveryMessagesCount = recoveryMessagesCount;
-        this.idleTimeout = idleTimeout;
+        this.idleTimeoutFactory = Objects.requireNonNull(idleTimeoutFactory, "idleTimeoutFactory");
     }
 
     public RejectedExecutionListener newListener(ServerCallWrapper serverCall) {
-        IdleTimeout idleTimeout = newIdleTimeout();
+        IdleTimeout idleTimeout = idleTimeoutFactory.newIdleTimeout();
 
         if (recoveryMessagesCount == REQUEST_IMMEDIATELY) {
-            return new SimpleRejectedExecutionListener(serverCall, idleTimeout);
+            return new SimpleRejectedExecutionListener(this.name, serverCall, idleTimeout);
         } else {
-            return new FlowControlRejectExecutionListener(serverCall, recoveryMessagesCount, idleTimeout);
+            return new FlowControlRejectExecutionListener(this.name, serverCall, recoveryMessagesCount, idleTimeout);
         }
     }
 
-    private IdleTimeout newIdleTimeout() {
-        if (this.idleTimeout == DisableIdleTimeout.DISABLE_TIME) {
-            return new DisableIdleTimeout();
-        } else {
-            return new DefaultIdleTimeout(this.idleTimeout);
-        }
-    }
 }
