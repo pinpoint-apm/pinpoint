@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.server.flowcontrol.IdleTimeoutFactory;
+import com.navercorp.pinpoint.grpc.server.flowcontrol.ScheduledExecutor;
 import com.navercorp.pinpoint.grpc.server.flowcontrol.StreamExecutorServerInterceptor;
 import io.grpc.ServerInterceptor;
 import org.springframework.beans.factory.BeanNameAware;
@@ -23,7 +26,9 @@ import org.springframework.beans.factory.FactoryBean;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -46,15 +51,25 @@ public class StreamExecutorServerInterceptorFactory implements FactoryBean<Serve
         this.executor = Objects.requireNonNull(executor, "executor");
         this.initRequestCount = initRequestCount;
         this.scheduledExecutorService = Objects.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
+
+        Assert.isTrue(periodMillis > 0, "periodMillis must be positive");
         this.periodMillis = periodMillis;
+
         this.recoveryMessagesCount = recoveryMessagesCount;
         this.idleTimeout = idleTimeout;
     }
 
     @Override
     public ServerInterceptor getObject() throws Exception {
+        ScheduledExecutor scheduledExecutor = new ScheduledExecutor() {
+            @Override
+            public Future<?> schedule(Runnable command) {
+                return scheduledExecutorService.scheduleAtFixedRate(command, periodMillis, periodMillis, TimeUnit.MILLISECONDS);
+            }
+        };
+        IdleTimeoutFactory idleTimeoutFactory = new IdleTimeoutFactory(this.idleTimeout);
         return new StreamExecutorServerInterceptor(this.beanName, this.executor, initRequestCount,
-                this.scheduledExecutorService, this.periodMillis, recoveryMessagesCount, this.idleTimeout);
+                scheduledExecutor, recoveryMessagesCount, idleTimeoutFactory);
     }
 
     @Override

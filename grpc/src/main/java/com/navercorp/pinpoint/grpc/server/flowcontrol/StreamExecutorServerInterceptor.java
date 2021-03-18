@@ -42,8 +42,8 @@ public class StreamExecutorServerInterceptor implements ServerInterceptor {
     private final int initNumMessages;
     private final StreamExecutorRejectedExecutionRequestScheduler scheduler;
 
-    public StreamExecutorServerInterceptor(String name, final Executor executor, final int initNumMessages, final ScheduledExecutorService scheduledExecutorService,
-                                           final int periodMillis, int recoveryMessagesCount, long idleTimeout) {
+    public StreamExecutorServerInterceptor(String name, final Executor executor, final int initNumMessages, final ScheduledExecutor scheduledExecutor,
+                                           int recoveryMessagesCount, IdleTimeoutFactory idleTimeoutFactory) {
         this.name = Objects.requireNonNull(name, "name");
 
         Objects.requireNonNull(executor, "executor");
@@ -51,12 +51,11 @@ public class StreamExecutorServerInterceptor implements ServerInterceptor {
         this.executor = Context.currentContextExecutor(executor);
         Assert.isTrue(initNumMessages > 0, "initNumMessages must be positive");
         this.initNumMessages = initNumMessages;
-        Objects.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
-        Assert.isTrue(periodMillis > 0, "periodMillis must be positive");
+        Objects.requireNonNull(scheduledExecutor, "scheduledExecutor");
 
-        RejectedExecutionListenerFactory listenerFactory = new RejectedExecutionListenerFactory(recoveryMessagesCount, idleTimeout);
+        RejectedExecutionListenerFactory listenerFactory = new RejectedExecutionListenerFactory(this.name, recoveryMessagesCount, idleTimeoutFactory);
 
-        this.scheduler = new StreamExecutorRejectedExecutionRequestScheduler(scheduledExecutorService, periodMillis, listenerFactory);
+        this.scheduler = new StreamExecutorRejectedExecutionRequestScheduler(scheduledExecutor, listenerFactory);
     }
 
     @Override

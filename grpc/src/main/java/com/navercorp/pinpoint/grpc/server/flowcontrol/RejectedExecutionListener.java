@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.grpc.server.flowcontrol;
 
+import java.util.concurrent.Future;
+
 public interface RejectedExecutionListener {
     void onRejectedExecution();
 
@@ -9,7 +11,9 @@ public interface RejectedExecutionListener {
 
     void onMessage();
 
-    void idleTimeout();
+    void setFuture(Future<?> future);
 
-    boolean idleTimeExpired();
+    boolean cancel();
+
+    boolean isCancelled();
 }
