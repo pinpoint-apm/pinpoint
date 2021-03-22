@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.bootstrap;
 
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Objects;
 
@@ -29,6 +30,8 @@ public class IdValidator {
     private final BootLogger logger = BootLogger.getLogger(this.getClass());
 
     private static final int MAX_ID_LENGTH = 24;
+
+    private static final int MAX_NAME_LENGTH = 255;
 
     private final int maxSize;
 
@@ -46,12 +49,23 @@ public class IdValidator {
         return validate0(type + " agentId", agentId);
     }
 
-    public boolean validateApplicatonName(AgentIdSourceType type, String applicationName) {
+    public boolean validateApplicationName(AgentIdSourceType type, String applicationName) {
         Objects.requireNonNull(applicationName, "applicationName");
         return validate0(type + " applicationName", applicationName);
     }
 
+    public boolean validateAgentName(AgentIdSourceType type, String agentName) {
+        if (StringUtils.isEmpty(agentName)) {
+            return false;
+        }
+        return validate0(type + " agentName", agentName, MAX_NAME_LENGTH);
+    }
+
     private boolean validate0(String keyName, String keyValue) {
+        return validate0(keyName, keyValue, maxSize);
+    }
+
+    private boolean validate0(String keyName, String keyValue, int maxSize) {
         logger.info("check " + keyName + ":" + keyValue);
         if (!IdValidateUtils.validateId(keyValue, maxSize)) {
             logger.info("invalid Id. " + keyName + " can only contain [a-zA-Z0-9], '.', '-', '_'. maxLength:" + maxSize + " value:" + keyValue);

@@ -29,14 +29,17 @@ import java.util.UUID;
 public class AgentIdResolver {
     public static final String APPLICATION_NAME = "applicationName";
     public static final String AGENT_ID = "agentId";
+    public static final String AGENT_NAME = "agentName";
 
     public static final String SYSTEM_PROPERTY_PREFIX = "pinpoint.";
     public static final String APPLICATION_NAME_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "applicationName";
     public static final String AGENT_ID_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "agentId";
-    
+    public static final String AGENT_NAME_SYSTEM_PROPERTY = SYSTEM_PROPERTY_PREFIX + "agentName";
+
     public static final String ENV_PROPERTY_PREFIX = "PINPOINT_";
     public static final String APPLICATION_NAME_ENV_PROPERTY = ENV_PROPERTY_PREFIX + "APPLICATION_NAME";
     public static final String AGENT_ID_ENV_PROPERTY = ENV_PROPERTY_PREFIX + "AGENT_ID";
+    public static final String AGENT_NAME_ENV_PROPERTY = ENV_PROPERTY_PREFIX + "AGENT_NAME";
 
     private final BootLogger logger = BootLogger.getLogger(this.getClass());
 
@@ -61,7 +64,13 @@ public class AgentIdResolver {
             logger.warn("Failed to resolve ApplicationName(-Dpinpoint.applicationName)");
             return null;
         }
-        return new AgentIds(agentId, applicationName);
+
+        final String agentName = getAgentName();
+        if (StringUtils.isEmpty(agentName)) {
+            logger.info("No AgentName(-Dpinpoint.agentName) provided, it's optional!");
+        }
+
+        return new AgentIds(agentId, agentName, applicationName);
     }
 
     private String newRandomAgentId() {
@@ -77,8 +86,20 @@ public class AgentIdResolver {
                 continue;
             }
             if (idValidator.validateAgentId(agentProperty.getType(), agentId)) {
-                logger.info(agentProperty.getType() + " " + agentProperty.getAgentKey() + "=" + agentId);
+                logger.info(agentProperty.getType() + " " + agentProperty.getAgentIdKey() + "=" + agentId);
                 source = agentId;
+            }
+        }
+        return source;
+    }
+
+    private String getAgentName() {
+        String source = null;
+        for (AgentProperties agentProperty : agentPropertyList) {
+            final String agentName = agentProperty.getAgentName();
+            if (idValidator.validateAgentName(agentProperty.getType(), agentName)) {
+                logger.info(agentProperty.getType() + " " + agentProperty.getAgentNameKey() + "=" + agentName);
+                source = agentName;
             }
         }
         return source;
@@ -91,7 +112,7 @@ public class AgentIdResolver {
             if (StringUtils.isEmpty(applicationName)) {
                 continue;
             }
-            if (idValidator.validateApplicatonName(agentProperty.getType(), applicationName)) {
+            if (idValidator.validateApplicationName(agentProperty.getType(), applicationName)) {
                 logger.info(agentProperty.getType() + " " + agentProperty.getApplicationName() + "=" + applicationName);
                 source = applicationName;
             }
