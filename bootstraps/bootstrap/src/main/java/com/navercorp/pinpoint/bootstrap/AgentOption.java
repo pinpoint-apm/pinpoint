@@ -30,6 +30,8 @@ public interface AgentOption {
 
     String getAgentId();
 
+    String getAgentName();
+
     String getApplicationName();
 
     boolean isContainer();

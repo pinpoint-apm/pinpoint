@@ -37,9 +37,10 @@ public class MockApplicationContextFactory {
 
     public DefaultApplicationContext build(ProfilerConfig config, ModuleFactory moduleFactory) {
         Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
-        String mockAgent = "mockAgent";
+        String mockAgentId = "mockAgentId";
+        String mockAgentName = "mockAgentName";
         String mockApplicationName = "mockApplicationName";
-        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgent, mockApplicationName, false, config, Collections.<String>emptyList(), null);
+        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgentId, mockAgentName, mockApplicationName, false, config, Collections.<String>emptyList(), null);
         return new DefaultApplicationContext(agentOption, moduleFactory);
     }
 
