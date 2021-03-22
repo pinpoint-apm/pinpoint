@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.profiler.DefaultAgentInformation;
 public class TestAgentInformation extends DefaultAgentInformation {
     
     private static final String AGENT_ID = "test-agent";
+    private static final String AGENT_NAME = "test-agent-name";
     private static final String APPLICATION_NAME = "TEST_APPLICATION";
     private static final boolean IS_CONTAINER = false;
     private static final int PID = 10;
@@ -40,6 +41,6 @@ public class TestAgentInformation extends DefaultAgentInformation {
     private static final String AGENT_VERSION = Version.VERSION;
 
     public TestAgentInformation() {
-        super(AGENT_ID, APPLICATION_NAME, IS_CONTAINER, System.currentTimeMillis(), PID, MACHINE_NAME, HOST_IP, SERVICE_TYPE, JVM_VERSION, AGENT_VERSION);
+        super(AGENT_ID, AGENT_NAME, APPLICATION_NAME, IS_CONTAINER, System.currentTimeMillis(), PID, MACHINE_NAME, HOST_IP, SERVICE_TYPE, JVM_VERSION, AGENT_VERSION);
     }
 }
