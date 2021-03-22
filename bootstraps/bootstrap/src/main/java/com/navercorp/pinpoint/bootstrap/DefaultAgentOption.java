@@ -42,7 +42,7 @@ public class DefaultAgentOption implements AgentOption {
     public DefaultAgentOption(final Instrumentation instrumentation, String agentId, String agentName, String applicationName, final boolean isContainer, final ProfilerConfig profilerConfig, final List<String> pluginJars, final List<String> bootstrapJarPaths) {
         this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
-        this.agentName = agentName;
+        this.agentName = Objects.requireNonNull(agentName, "agentName");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.isContainer = isContainer;
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
