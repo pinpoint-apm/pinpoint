@@ -39,6 +39,7 @@ import java.util.List;
 public class SpanPostProcessorTest {
 
     private final String agentId = "agentId";
+    private final String agentName = "agentName";
     private final long agentStartTime = System.currentTimeMillis();
 
     @Test
@@ -89,6 +90,6 @@ public class SpanPostProcessorTest {
 
     private TraceRoot newInternalTraceId() {
         TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 100);
-        return new DefaultTraceRoot(traceId, agentId, agentStartTime, 0);
+        return new DefaultTraceRoot(traceId, agentId, agentName, agentStartTime, 0);
     }
 }

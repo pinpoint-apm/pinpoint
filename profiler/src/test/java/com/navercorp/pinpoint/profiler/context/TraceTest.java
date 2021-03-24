@@ -47,7 +47,8 @@ import static org.mockito.Mockito.*;
 public class TraceTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final String agentId = "agent";
+    private final String agentId = "agentId";
+    private final String agentName = "agentName";
     private final long agentStartTime = System.currentTimeMillis();
     private final long traceStartTime = agentStartTime + 100;
 
@@ -65,7 +66,7 @@ public class TraceTest {
     public void trace() {
 
         final TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 1);
-        final TraceRoot traceRoot = new DefaultTraceRoot(traceId, agentId, traceStartTime, 0);
+        final TraceRoot traceRoot = new DefaultTraceRoot(traceId, agentId, agentName, traceStartTime, 0);
 
         final CallStack<SpanEvent> callStack = newCallStack();
         final Span span = newSpan(traceRoot);
@@ -97,7 +98,7 @@ public class TraceTest {
     public void popEventTest() {
 
         final TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 1);
-        final TraceRoot traceRoot = new DefaultTraceRoot(traceId, agentId, traceStartTime, 0);
+        final TraceRoot traceRoot = new DefaultTraceRoot(traceId, agentId, agentName, traceStartTime, 0);
 
         final CallStack<SpanEvent> callStack = newCallStack();
 

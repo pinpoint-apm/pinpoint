@@ -33,6 +33,7 @@ import org.junit.Test;
 public class BufferedStorageTest {
 
     private final String agentId = "agentId";
+    private final String agentName = "agentName";
     private final long agentStartTime = System.currentTimeMillis();
 
     private final CountingDataSender countingDataSender = new CountingDataSender();
@@ -46,7 +47,7 @@ public class BufferedStorageTest {
 
     private TraceRoot newInternalTraceId() {
         TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 100);
-        return new DefaultTraceRoot(traceId, agentId, agentStartTime, 100);
+        return new DefaultTraceRoot(traceId, agentId, agentName, agentStartTime, 100);
     }
 
     @Test

@@ -50,6 +50,7 @@ public class SpanThriftMessageConverterTest {
 
     private static final String APPLICATION_NAME = "app";
     private static final String AGENT_ID = "agent";
+    private static final String AGENT_NAME = "agentName";
     private static final long AGENT_START_TIME = System.currentTimeMillis();
 
     private final TransactionIdEncoder transactionIdEncoder = new DefaultTransactionIdEncoder(AGENT_ID, AGENT_START_TIME);
@@ -68,7 +69,7 @@ public class SpanThriftMessageConverterTest {
 
     private Span newSpan() {
         final TraceId traceId = new DefaultTraceId(AGENT_ID, AGENT_START_TIME, 1L);
-        final TraceRoot traceRoot = new DefaultTraceRoot(traceId, AGENT_ID, AGENT_START_TIME, 100L);
+        final TraceRoot traceRoot = new DefaultTraceRoot(traceId, AGENT_ID, AGENT_NAME, AGENT_START_TIME, 100L);
         return new Span(traceRoot);
     }
 
@@ -127,7 +128,7 @@ public class SpanThriftMessageConverterTest {
 
     private SpanChunk newSpanChunk() {
         final TraceId traceId = new DefaultTraceId(AGENT_ID, AGENT_START_TIME, 1L);
-        final TraceRoot traceRoot = new DefaultTraceRoot(traceId, AGENT_ID, AGENT_START_TIME, 100L);
+        final TraceRoot traceRoot = new DefaultTraceRoot(traceId, AGENT_ID, AGENT_NAME, AGENT_START_TIME, 100L);
         return new DefaultSpanChunk(traceRoot, Arrays.asList(new SpanEvent()));
     }
 

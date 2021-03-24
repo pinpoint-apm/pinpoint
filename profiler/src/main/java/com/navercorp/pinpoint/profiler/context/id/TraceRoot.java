@@ -25,6 +25,8 @@ public interface TraceRoot {
 
     TraceId getTraceId();
 
+    String getAgentName();
+
     long getLocalTransactionId();
 
     long getTraceStartTime();

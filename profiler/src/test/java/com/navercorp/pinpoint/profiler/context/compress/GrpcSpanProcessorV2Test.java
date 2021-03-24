@@ -65,7 +65,7 @@ public class GrpcSpanProcessorV2Test {
 
     private Span newSpan() {
         TraceId traceId = new DefaultTraceId("agent", 1, 0);
-        TraceRoot traceRoot = new DefaultTraceRoot(traceId, "agent", 0, 3);
+        TraceRoot traceRoot = new DefaultTraceRoot(traceId, "agent", "agentName", 0, 3);
         return new Span(traceRoot);
     }
 
