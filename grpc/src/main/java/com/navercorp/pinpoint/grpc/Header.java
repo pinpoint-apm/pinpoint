@@ -52,6 +52,7 @@ public class Header {
 
     private final String name;
     private final String agentId;
+    private final String agentName;
     private final String applicationName;
     private final long agentStartTime;
     private final long socketId;
@@ -59,11 +60,11 @@ public class Header {
     private final List<Integer> supportCommandCodeList;
     private final Map<String, Object> properties;
 
-    public Header(String name, String agentId, String applicationName, int serviceType, long agentStartTime, long socketId, List<Integer> supportCommandCodeList) {
-        this(name, agentId, applicationName, serviceType, agentStartTime, socketId, supportCommandCodeList, Collections.<String, Object>emptyMap());
+    public Header(String name, String agentId, String agentName, String applicationName, int serviceType, long agentStartTime, long socketId, List<Integer> supportCommandCodeList) {
+        this(name, agentId, agentName, applicationName, serviceType, agentStartTime, socketId, supportCommandCodeList, Collections.<String, Object>emptyMap());
     }
 
-    public Header(String name, String agentId, String applicationName, int serviceType, long agentStartTime, long socketId, List<Integer> supportCommandCodeList, final Map<String, Object> properties) {
+    public Header(String name, String agentId, String agentName, String applicationName, int serviceType, long agentStartTime, long socketId, List<Integer> supportCommandCodeList, final Map<String, Object> properties) {
         this.name = Objects.requireNonNull(name, "name");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
@@ -71,12 +72,17 @@ public class Header {
         this.agentStartTime = agentStartTime;
         this.socketId = socketId;
         // allow null
+        this.agentName = agentName;
         this.supportCommandCodeList = supportCommandCodeList;
         this.properties = Objects.requireNonNull(properties, "properties");
     }
 
     public String getAgentId() {
         return agentId;
+    }
+
+    public String getAgentName() {
+        return agentName;
     }
 
     public String getApplicationName() {
@@ -112,6 +118,7 @@ public class Header {
         return "Header{" +
                 "name='" + name + '\'' +
                 ", agentId='" + agentId + '\'' +
+                ", agentName='" + agentName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentStartTime=" + agentStartTime +
                 ", socketId=" + socketId +

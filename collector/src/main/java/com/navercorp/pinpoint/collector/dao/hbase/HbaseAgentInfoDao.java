@@ -69,6 +69,8 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         CollectorUtils.checkAgentId(agentInfo.getAgentId());
         // Assert applicationName
         CollectorUtils.checkApplicationName(agentInfo.getApplicationName());
+        //check agentName if set
+        CollectorUtils.checkAgentName(agentInfo.getAgentName());
 
         final byte[] agentId = Bytes.toBytes(agentInfo.getAgentId());
         final long reverseKey = TimeUtils.reverseTimeMillis(agentInfo.getStartTime());

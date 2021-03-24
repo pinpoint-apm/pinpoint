@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.collector.util;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
@@ -45,6 +47,15 @@ public final class CollectorUtils {
     public static void checkApplicationName(final String applicationName) {
         if (!IdValidateUtils.validateId(applicationName)) {
             throw new IllegalArgumentException("invalid applicationName. applicationName=" + applicationName);
+        }
+    }
+
+    public static void checkAgentName(final String agentName) {
+        if (StringUtils.isEmpty(agentName)) {
+            return;
+        }
+        if (!IdValidateUtils.validateId(agentName, PinpointConstants.AGENT_NAME_MAX_LEN)) {
+            throw new IllegalArgumentException("invalid agentName. agentName=" + agentName);
         }
     }
 }
