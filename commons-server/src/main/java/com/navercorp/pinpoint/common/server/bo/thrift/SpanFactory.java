@@ -106,6 +106,9 @@ public class SpanFactory {
     SpanBo newSpanBo(TSpan tSpan) {
         final SpanBo spanBo = new SpanBo();
         spanBo.setAgentId(tSpan.getAgentId());
+        if (tSpan.isSetAgentName()) {
+            spanBo.setAgentName(tSpan.getAgentName());
+        }
         spanBo.setApplicationId(tSpan.getApplicationName());
         spanBo.setAgentStartTime(tSpan.getAgentStartTime());
 
@@ -311,6 +314,9 @@ public class SpanFactory {
     SpanChunkBo newSpanChunkBo(TSpanChunk tSpanChunk) {
         final SpanChunkBo spanChunkBo = new SpanChunkBo();
         spanChunkBo.setAgentId(tSpanChunk.getAgentId());
+        if (tSpanChunk.isSetAgentName()) {
+            spanChunkBo.setAgentName(tSpanChunk.getAgentName());
+        }
         spanChunkBo.setApplicationId(tSpanChunk.getApplicationName());
         spanChunkBo.setAgentStartTime(tSpanChunk.getAgentStartTime());
         spanChunkBo.setServiceType(tSpanChunk.getServiceType());

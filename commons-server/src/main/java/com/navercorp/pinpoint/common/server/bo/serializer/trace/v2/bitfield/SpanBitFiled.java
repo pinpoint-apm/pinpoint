@@ -36,11 +36,12 @@ public class SpanBitFiled {
     public static final int SET_FLAG = 4;
     public static final int SET_LOGGING_TRANSACTION_INFO = 5;
     public static final int SET_ANNOTATION = 6;
+    public static final int SET_AGENT_NAME = 7;
 
 
     private static final long ROOT_PARENT_SPAN_ID = -1;
-    // used : 7bit
-    // reserved : 1 bit
+    // used : 8bit
+    // reserved : 0 bit
     private byte bitField = 0;
 
     public static SpanBitFiled build(SpanBo spanBo) {
@@ -75,6 +76,10 @@ public class SpanBitFiled {
         }
         if (CollectionUtils.isNotEmpty(spanBo.getAnnotationBoList())) {
             spanBitFiled.setAnnotation(true);
+        }
+
+        if (spanBo.getAgentName() != null) {
+            spanBitFiled.setAgentName(true);
         }
 
         return spanBitFiled;
@@ -192,4 +197,13 @@ public class SpanBitFiled {
     public void setAnnotation(boolean annotation) {
         setBit(SET_ANNOTATION, annotation);
     }
+
+    public boolean isSetAgentName() {
+        return testBit(SET_AGENT_NAME);
+    }
+
+    public void setAgentName(boolean agentName) {
+        setBit(SET_AGENT_NAME, agentName);
+    }
+
 }
