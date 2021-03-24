@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
+import com.navercorp.pinpoint.rpc.stream.StreamChannel;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 
 /**
@@ -23,7 +24,9 @@ import com.navercorp.pinpoint.web.vo.AgentInfo;
  */
 public interface PinpointWebSocketHandlerWorker {
 
-    void start(AgentInfo agentInfo);
+    StreamChannel connect(AgentInfo agentInfo);
+
+    void active(StreamChannel streamChannel, long waitTimeout);
 
     boolean reactive(AgentInfo agentInfo);
 

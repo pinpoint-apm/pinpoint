@@ -50,6 +50,10 @@ public class PinpointClientHandlerContext {
         return streamChannelManager.openStream(payload, streamChannelEventHandler);
     }
 
+    public ClientStreamChannel openStreamAndAwait(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws StreamException {
+        return streamChannelManager.openStreamAndAwait(payload, streamChannelEventHandler, timeout);
+    }
+
     public void handleStreamEvent(StreamPacket message) {
         streamChannelManager.messageReceived(message);
     }

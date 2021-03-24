@@ -56,17 +56,34 @@ public class StreamChannelManager {
     public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
         logger.info("Open streamChannel initialization started. Channel:{} ", channel);
 
-        final int streamChannelId = idGenerator.generate();
-
-        NettyClientStreamChannel newStreamChannel = new NettyClientStreamChannel(channel, streamChannelId, streamChannelRepository, streamChannelEventHandler);
+        NettyClientStreamChannel newStreamChannel = createNewStreamChannel(streamChannelEventHandler);
         try {
             newStreamChannel.init();
-            newStreamChannel.connect(payload, 3000);
+            newStreamChannel.connect(payload);
             return newStreamChannel;
         } catch (StreamException e) {
             newStreamChannel.close(e.getStreamCode());
             throw e;
         }
+    }
+
+    public ClientStreamChannel openStreamAndAwait(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws StreamException {
+        logger.info("Open streamChannel initialization started. Channel:{} ", channel);
+
+        NettyClientStreamChannel newStreamChannel = createNewStreamChannel(streamChannelEventHandler);
+        try {
+            newStreamChannel.init();
+            newStreamChannel.connectAndAwait(payload, timeout);
+            return newStreamChannel;
+        } catch (StreamException e) {
+            newStreamChannel.close(e.getStreamCode());
+            throw e;
+        }
+    }
+
+    private NettyClientStreamChannel createNewStreamChannel(ClientStreamChannelEventHandler streamChannelEventHandler) {
+        final int streamChannelId = idGenerator.generate();
+        return new NettyClientStreamChannel(channel, streamChannelId, streamChannelRepository, streamChannelEventHandler);
     }
 
     public void messageReceived(StreamPacket packet) {

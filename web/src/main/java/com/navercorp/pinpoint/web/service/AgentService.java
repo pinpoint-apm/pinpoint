@@ -57,6 +57,9 @@ public interface AgentService {
     ClientStreamChannel openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelEventHandler streamChannelEventHandler) throws TException, StreamException;
     ClientStreamChannel openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws TException, StreamException;
 
+    ClientStreamChannel openStreamAndAwait(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws TException, StreamException;
+    ClientStreamChannel openStreamAndAwait(AgentInfo agentInfo, byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws TException, StreamException;
+
     AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList) throws TException;
     AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList, byte[] payload) throws TException;
 
