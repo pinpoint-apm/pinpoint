@@ -81,6 +81,7 @@ public class MetadataMessageConverter implements MessageConverter<TBase<?, ?>> {
         tAgentInfo.setHostname(agentInformation.getMachineName());
         tAgentInfo.setPorts("");
         tAgentInfo.setAgentId(agentInformation.getAgentId());
+        tAgentInfo.setAgentName(agentInformation.getAgentName());
         tAgentInfo.setApplicationName(agentInformation.getApplicationName());
         tAgentInfo.setContainer(agentInformation.isContainer());
         tAgentInfo.setPid(agentInformation.getPid());
