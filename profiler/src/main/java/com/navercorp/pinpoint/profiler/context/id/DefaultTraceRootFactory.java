@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.context.id;
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
-import com.navercorp.pinpoint.profiler.context.module.AgentName;
 
 import java.util.Objects;
 
@@ -29,13 +28,11 @@ import java.util.Objects;
 public class DefaultTraceRootFactory implements TraceRootFactory {
 
     private final String agentId;
-    private final String agentName;
     private final TraceIdFactory traceIdFactory;
 
     @Inject
-    public DefaultTraceRootFactory(@AgentId String agentId, @AgentName String agentName, TraceIdFactory traceIdFactory) {
+    public DefaultTraceRootFactory(@AgentId String agentId, TraceIdFactory traceIdFactory) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
-        this.agentName = agentName;
         this.traceIdFactory = Objects.requireNonNull(traceIdFactory, "traceIdFactory");
     }
 
@@ -43,7 +40,7 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
     public TraceRoot newTraceRoot(long transactionId) {
         final TraceId traceId = traceIdFactory.newTraceId(transactionId);
         final long startTime = traceStartTime();
-        return new DefaultTraceRoot(traceId, this.agentId, this.agentName, startTime, transactionId);
+        return new DefaultTraceRoot(traceId, this.agentId, startTime, transactionId);
     }
 
     private long traceStartTime() {
@@ -57,6 +54,6 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
             throw new NullPointerException("traceId");
         }
         final long startTime = traceStartTime();
-        return new DefaultTraceRoot(traceId, this.agentId, this.agentName, startTime, transactionId);
+        return new DefaultTraceRoot(traceId, this.agentId, startTime, transactionId);
     }
 }

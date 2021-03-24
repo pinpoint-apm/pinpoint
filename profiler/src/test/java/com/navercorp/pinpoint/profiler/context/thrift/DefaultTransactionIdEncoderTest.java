@@ -37,7 +37,6 @@ public class DefaultTransactionIdEncoderTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final String agentId = "agentId";
-    private final String agentName = "agentName";
     private final long agentStartTime = 11;
     private final long transactionId = 1;
 
@@ -95,17 +94,17 @@ public class DefaultTransactionIdEncoderTest {
 
     private TraceRoot getRootTraceId() {
         TraceId traceId = new DefaultTraceId(agentId, agentStartTime, transactionId2);
-        return new DefaultTraceRoot(traceId, agentId, agentName, agentStartTime, transactionId);
+        return new DefaultTraceRoot(traceId, agentId, agentStartTime, transactionId);
     }
 
     private TraceRoot getExternalTraceId() {
         TraceId traceId = new DefaultTraceId(agentId2, agentStartTime2, transactionId2);
-        return new DefaultTraceRoot(traceId, agentId, agentName, agentStartTime, transactionId);
+        return new DefaultTraceRoot(traceId, agentId, agentStartTime, transactionId);
     }
 
     private TraceRoot getDuplicateAgentId() {
         TraceId traceId = new DefaultTraceId(agentId, agentStartTime2, transactionId2);
-        return new DefaultTraceRoot(traceId, agentId, agentName, agentStartTime, transactionId);
+        return new DefaultTraceRoot(traceId, agentId, agentStartTime, transactionId);
     }
 
 

@@ -27,7 +27,6 @@ public class DefaultTraceRoot implements TraceRoot {
 
     private final TraceId traceId;
     private final String agentId;
-    private final String agentName;
     private final long localTransactionId;
 
     private final long traceStartTime;
@@ -35,10 +34,9 @@ public class DefaultTraceRoot implements TraceRoot {
     private final Shared shared = new DefaultShared();
 
 
-    public DefaultTraceRoot(TraceId traceId, String agentId, String agentName, long traceStartTime, long localTransactionId) {
+    public DefaultTraceRoot(TraceId traceId, String agentId, long traceStartTime, long localTransactionId) {
         this.traceId = Objects.requireNonNull(traceId, "traceId");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
-        this.agentName = agentName;
         this.traceStartTime = traceStartTime;
         this.localTransactionId = localTransactionId;
     }
@@ -59,10 +57,8 @@ public class DefaultTraceRoot implements TraceRoot {
         return traceStartTime;
     }
 
-    @Override
-    public String getAgentName() {
-        return agentName;
-    }
+
+
 
     @Override
     public Shared getShared() {
@@ -77,7 +73,6 @@ public class DefaultTraceRoot implements TraceRoot {
         return "DefaultTraceRoot{" +
                 "traceId=" + traceId +
                 ", agentId='" + agentId + '\'' +
-                ", agentName='" + agentName + '\'' +
                 ", traceStartTime=" + traceStartTime +
                 '}';
     }
