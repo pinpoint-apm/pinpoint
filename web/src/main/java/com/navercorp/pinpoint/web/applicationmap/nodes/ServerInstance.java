@@ -38,6 +38,7 @@ public class ServerInstance {
     private final String ip;
 
     private final String name;
+    private final String agentName;
     private final short serviceTypeCode;
 
     private final ServerType serverType;
@@ -51,6 +52,7 @@ public class ServerInstance {
         this.hostName = agentInfo.getHostName();
         this.ip = agentInfo.getIp();
         this.name = agentInfo.getAgentId();
+        this.agentName = agentInfo.getAgentName();
         this.serviceTypeCode = agentInfo.getServiceTypeCode();
         AgentStatus agentStatus = agentInfo.getStatus();
         if (agentStatus != null) {
@@ -64,6 +66,7 @@ public class ServerInstance {
     public ServerInstance(String hostName, String physicalName, short serviceTypeCode) {
         this.hostName = Objects.requireNonNull(hostName, "hostName");
         this.ip = null;
+        this.agentName = null;
         this.name = Objects.requireNonNull(physicalName, "physicalName");
         this.serviceTypeCode = serviceTypeCode;
         this.status = AgentLifeCycleState.UNKNOWN;
@@ -78,6 +81,9 @@ public class ServerInstance {
         return name;
     }
 
+    public String getAgentName() {
+        return agentName;
+    }
 
     public short getServiceTypeCode() {
         return serviceTypeCode;

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
@@ -35,8 +36,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author netspider
@@ -51,9 +54,15 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
     private final TraceDao traceDao;
 
-    public ScatterChartServiceImpl(ApplicationTraceIndexDao applicationTraceIndexDao, @Qualifier("hbaseTraceDaoFactory") TraceDao traceDao) {
+    private final SpanService spanService;
+
+    public ScatterChartServiceImpl(ApplicationTraceIndexDao applicationTraceIndexDao,
+                                   @Qualifier("hbaseTraceDaoFactory") TraceDao traceDao,
+                                   SpanService spanService
+    ) {
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
+        this.spanService = Objects.requireNonNull(spanService, "spanService");
     }
 
     @Override
@@ -91,6 +100,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
         Objects.requireNonNull(getTraceInfoList, "getTraceInfoList");
 
         final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(getTraceInfoList);
+        populateAgentNameListOfList(selectedSpans);
 
         return ListListUtils.toList(selectedSpans, getTraceInfoList.size());
     }
@@ -98,6 +108,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     @Override
     public List<SpanBo> selectTransactionMetadata(TransactionId transactionId) {
         final List<SpanBo> selectedSpans = traceDao.selectSpan(transactionId);
+        populateAgentName(selectedSpans);
         return selectedSpans;
     }
 
@@ -119,6 +130,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
         Objects.requireNonNull(filter, "filter");
 
         final List<List<SpanBo>> traceList = traceDao.selectAllSpans(transactionIdList);
+        populateAgentNameListOfList(traceList);
 
         ScatterDataBuilder scatterData = new ScatterDataBuilder(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
         for (List<SpanBo> trace : traceList) {
@@ -136,6 +148,21 @@ public class ScatterChartServiceImpl implements ScatterChartService {
         }
 
         return scatterData.build();
+    }
+
+    private void populateAgentNameListOfList(Collection<List<SpanBo>> listOfList) {
+        if (CollectionUtils.isEmpty(listOfList)) {
+            return;
+        }
+        final List<SpanBo> list = listOfList.stream().flatMap(List::stream).collect(Collectors.toList());
+        populateAgentName(list);
+    }
+
+    private void populateAgentName(List<SpanBo> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
+        spanService.populateAgentName(list);
     }
 
 }

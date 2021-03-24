@@ -29,6 +29,7 @@ public class SpanChunkBo implements BasicSpan {
     private byte version = 0;
 
     private String agentId;
+    private String agentName;
     private String applicationId;
     private long agentStartTime;
 
@@ -70,6 +71,15 @@ public class SpanChunkBo implements BasicSpan {
 
     public void setAgentId(String agentId) {
         this.agentId = agentId;
+    }
+
+    @Override
+    public String getAgentName() {
+        return agentName;
+    }
+
+    public void setAgentName(String agentName) {
+        this.agentName = agentName;
     }
 
     @Override

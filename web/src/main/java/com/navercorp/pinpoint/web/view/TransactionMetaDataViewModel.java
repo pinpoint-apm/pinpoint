@@ -85,6 +85,11 @@ public class TransactionMetaDataViewModel {
             return span.getAgentId();
         }
 
+        @JsonProperty("agentName")
+        public String getAgentName() {
+            return span.getAgentName();
+        }
+
         @JsonProperty("endpoint")
         public String getEndpoint() {
             return span.getEndPoint();

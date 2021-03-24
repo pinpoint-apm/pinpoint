@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
 
 /**
@@ -172,6 +173,17 @@ public class SpanAlign implements Align {
         }
 
         return spanBo.getAgentId();
+    }
+
+    @Override
+    public String getAgentName() {
+        final String def = " ";
+        if (isMeta()) {
+            return def;
+        }
+
+        final String agentName = spanBo.getAgentName();
+        return StringUtils.isEmpty(agentName) ? def : agentName;
     }
 
     @Override

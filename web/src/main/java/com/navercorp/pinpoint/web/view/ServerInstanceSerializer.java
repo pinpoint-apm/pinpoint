@@ -56,6 +56,7 @@ public class ServerInstanceSerializer extends JsonSerializer<ServerInstance> {
 
         jgen.writeBooleanField("hasInspector", hasInspector(serviceType));
         jgen.writeStringField("name", serverInstance.getName());
+        jgen.writeStringField("agentName", serverInstance.getAgentName());
         jgen.writeStringField("serviceType", serviceType.getName());
 
         jgen.writeFieldName("status");

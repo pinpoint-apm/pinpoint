@@ -50,6 +50,8 @@ public interface AgentInfoService {
 
     AgentInfo getAgentInfo(String agentId, long timestamp);
 
+    AgentInfo getAgentInfoNoStatus(String agentId, long agentStartTime, int deltaTimeInMilliseconds);
+
     AgentStatus getAgentStatus(String agentId, long timestamp);
 
     boolean isActiveAgent(String agentId, Range range);

@@ -49,6 +49,8 @@ public interface Record {
 
     String getAgent();
 
+    String getAgentName();
+
     String getApplicationName();
 
     String getApiType();

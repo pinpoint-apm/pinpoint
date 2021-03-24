@@ -276,6 +276,11 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
+    public AgentInfo getAgentInfoNoStatus(String agentId, long agentStartTime, int deltaTimeInMilliSeconds) {
+        return this.agentInfoDao.getAgentInfo(agentId, agentStartTime, deltaTimeInMilliSeconds);
+    }
+
+    @Override
     public AgentStatus getAgentStatus(String agentId, long timestamp) {
         Objects.requireNonNull(agentId, "agentId");
 
