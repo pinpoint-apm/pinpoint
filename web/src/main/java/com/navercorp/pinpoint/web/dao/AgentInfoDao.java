@@ -32,5 +32,7 @@ public interface AgentInfoDao {
 
     AgentInfo getAgentInfo(String agentId, long timestamp);
 
+    AgentInfo getAgentInfo(String agentId, long agentStartTime, int deltaTimeInMilliSeconds);
+
     List<AgentInfo> getAgentInfos(List<String> agentIds, long timestamp);
 }

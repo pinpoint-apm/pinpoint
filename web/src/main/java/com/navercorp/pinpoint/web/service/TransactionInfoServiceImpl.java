@@ -70,7 +70,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     private final ProxyRequestTypeRegistryService proxyRequestTypeRegistryService;
 
+
     public TransactionInfoServiceImpl(@Qualifier("hbaseTraceDaoFactory") TraceDao traceDao,
+                                      AgentInfoService agentInfoService,
                                       AnnotationKeyMatcherService annotationKeyMatcherService,
                                       ServiceTypeRegistryService registry,
                                       AnnotationKeyRegistryService annotationKeyRegistryService,
@@ -145,6 +147,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         // FIXME patched temporarily for cases where focusTimeSpanBo is not found. Need a more complete solution.
         if (viewPointAlign != null) {
             recordSet.setAgentId(viewPointAlign.getAgentId());
+            recordSet.setAgentName(viewPointAlign.getAgentName());
             recordSet.setApplicationId(viewPointAlign.getApplicationId());
 
             final String applicationName = getRpcArgument(viewPointAlign);

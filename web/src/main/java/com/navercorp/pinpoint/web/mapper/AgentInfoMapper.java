@@ -86,6 +86,10 @@ public class AgentInfoMapper implements RowMapper<AgentInfo> {
         if (buffer.hasRemaining()) {
             builder.isContainer(buffer.readBoolean());
         }
+        // 2021.03.24 added agent name
+        if (buffer.hasRemaining()) {
+            builder.setAgentName(buffer.readPrefixedString());
+        }
         return builder;
     }
 }

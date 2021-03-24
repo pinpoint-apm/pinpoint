@@ -33,6 +33,7 @@ public abstract class BaseRecord implements Record{
     protected long elapsed;
     protected long gap;
     protected String agent;
+    protected String agentName;
     protected String applicationName;
     protected ServiceType serviceType;
     protected String destinationId;
@@ -97,6 +98,11 @@ public abstract class BaseRecord implements Record{
 
     public String getAgent() {
         return agent;
+    }
+
+    @Override
+    public String getAgentName() {
+        return agentName;
     }
 
     public String getApplicationName() {
@@ -204,6 +210,8 @@ public abstract class BaseRecord implements Record{
         builder.append(executionMilliseconds);
         builder.append(", agent=");
         builder.append(agent);
+        builder.append(", agentName=");
+        builder.append(agentName);
         builder.append(", applicationName=");
         builder.append(applicationName);
         builder.append(", serviceType=");
