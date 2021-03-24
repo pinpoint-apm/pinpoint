@@ -91,7 +91,7 @@ public class TestPinpointClient {
 
     public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
         Objects.requireNonNull(pinpointClient, "pinpointClient");
-        return pinpointClient.openStream(payload, streamChannelEventHandler);
+        return pinpointClient.openStreamAndAwait(payload, streamChannelEventHandler, 3000);
     }
 
     public void disconnect() {

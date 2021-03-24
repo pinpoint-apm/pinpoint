@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
+import com.navercorp.pinpoint.rpc.stream.StreamException;
 
 import java.net.SocketAddress;
 
@@ -97,6 +98,11 @@ public class ReconnectStateClientHandler implements PinpointClientHandler {
 
     @Override
     public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ClientStreamChannel openStreamAndAwait(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws StreamException {
         throw new UnsupportedOperationException();
     }
 

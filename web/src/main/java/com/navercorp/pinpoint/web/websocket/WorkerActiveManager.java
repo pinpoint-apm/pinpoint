@@ -91,6 +91,12 @@ public class WorkerActiveManager {
         }
     }
 
+    public void addReactiveWorker(String applicationName, String agentId) {
+        if (applicationName.equals(applicationName)) {
+            addReactiveWorker(agentId);
+        }
+    }
+
     public void addReactiveWorker(String agentId) {
         logger.info("addReactiveWorker. applicationName:{}, agent:{}", applicationName, agentId);
 

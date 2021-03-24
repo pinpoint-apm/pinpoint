@@ -243,6 +243,16 @@ public class DefaultPinpointServer implements PinpointServer {
         return streamChannel;
     }
 
+    @Override
+    public ClientStreamChannel openStreamAndAwait(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws StreamException {
+        logger.info("{} createStreamAndAwait() started.", objectUniqName);
+
+        ClientStreamChannel streamChannel = streamChannelManager.openStreamAndAwait(payload, streamChannelEventHandler, timeout);
+
+        logger.info("{} createStreamAndAwait() completed.", objectUniqName);
+        return streamChannel;
+    }
+
     public void closeAllStreamChannel() {
         logger.info("{} closeAllStreamChannel() started.", objectUniqName);
 

@@ -269,6 +269,23 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
+    public ClientStreamChannel openStreamAndAwait(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws TException, StreamException {
+        byte[] payload = serializeRequest(tBase);
+        return openStreamAndAwait(agentInfo, payload, streamChannelEventHandler, timeout);
+    }
+
+    @Override
+    public ClientStreamChannel openStreamAndAwait(AgentInfo agentInfo, byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws TException, StreamException {
+        TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
+        PinpointSocket socket = clusterManager.getSocket(agentInfo);
+        if (socket == null) {
+            throw new StreamException(StreamCode.CONNECTION_NOT_FOUND);
+        }
+
+        return socket.openStreamAndAwait(serializeRequest(transferObject), streamChannelEventHandler, timeout);
+    }
+
+    @Override
     public AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList) throws TException {
         byte[] activeThread = serializeRequest(new TCmdActiveThreadCount());
         return getActiveThreadCount(agentInfoList, activeThread);

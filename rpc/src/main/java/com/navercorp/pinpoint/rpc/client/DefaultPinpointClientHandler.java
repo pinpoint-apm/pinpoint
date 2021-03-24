@@ -364,9 +364,15 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     @Override
     public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
         ensureOpen();
-
         PinpointClientHandlerContext context = getChannelContext(channel);
         return context.openStream(payload, streamChannelEventHandler);
+    }
+
+    @Override
+    public ClientStreamChannel openStreamAndAwait(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws StreamException {
+        ensureOpen();
+        PinpointClientHandlerContext context = getChannelContext(channel);
+        return context.openStreamAndAwait(payload, streamChannelEventHandler, timeout);
     }
 
     @Override

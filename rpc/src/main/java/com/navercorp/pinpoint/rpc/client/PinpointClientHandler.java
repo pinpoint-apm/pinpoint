@@ -51,6 +51,7 @@ public interface PinpointClientHandler {
     void response(int requestId, byte[] payload);
 
     ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException;
+    ClientStreamChannel openStreamAndAwait(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws StreamException;
 
     void sendPing();
 
