@@ -67,7 +67,7 @@ public class GrpcCommandServiceTest {
             TransportMetadata transportMetaData = createTransportMetaData(new InetSocketAddress("127.0.0.1", 61613), 10);
             attachContext(transportMetaData);
 
-            attachContext(new Header("test", "agent", "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, null));
+            attachContext(new Header("test", "agentId", "agentName", "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, null));
 
             StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommand(new TempServerCallStreamObserver<>());
 
@@ -94,7 +94,7 @@ public class GrpcCommandServiceTest {
         try (GrpcCommandService commandService = new GrpcCommandService(mockClusterService)) {
             TransportMetadata transportMetaData = createTransportMetaData(new InetSocketAddress("127.0.0.1", 61613), 10);
             attachContext(transportMetaData);
-            attachContext(new Header("test", "agent", "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, getCodeList()));
+            attachContext(new Header("test", "agentId", "agentName", "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, getCodeList()));
 
             final TempServerCallStreamObserver<PCmdRequest> requestObserver = new TempServerCallStreamObserver<>();
             StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommand(requestObserver);
@@ -121,7 +121,7 @@ public class GrpcCommandServiceTest {
         try (GrpcCommandService commandService = new GrpcCommandService(mockClusterService)) {
             TransportMetadata transportMetaData = createTransportMetaData(new InetSocketAddress("127.0.0.1", 61613), 10);
             attachContext(transportMetaData);
-            attachContext(new Header("test", "agent", "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, getCodeList()));
+            attachContext(new Header("test", "agentId", null, "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, getCodeList()));
 
             StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommandV2(new TempServerCallStreamObserver<>());
 
