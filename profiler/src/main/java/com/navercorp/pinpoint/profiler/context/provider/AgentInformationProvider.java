@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.DefaultAgentInformation;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
-import com.navercorp.pinpoint.profiler.context.module.AgentName;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
@@ -42,14 +41,13 @@ import java.util.Objects;
 public class AgentInformationProvider implements Provider<AgentInformation> {
 
     private final String agentId;
-    private final String agentName;
     private final String applicationName;
     private final boolean isContainer;
     private final long agentStartTime;
     private final ServiceType serverType;
 
     @Inject
-    public AgentInformationProvider(@AgentId String agentId, @AgentName String agentName, @ApplicationName String applicationName, @Container boolean isContainer, @AgentStartTime long agentStartTime, @ApplicationServerType ServiceType serverType) {
+    public AgentInformationProvider(@AgentId String agentId, @ApplicationName String applicationName, @Container boolean isContainer, @AgentStartTime long agentStartTime, @ApplicationServerType ServiceType serverType) {
         if (agentId == null) {
             throw new NullPointerException("agentId");
         }
@@ -58,7 +56,6 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
         }
         this.agentId = checkId("agentId", agentId);
         this.applicationName = checkId("applicationName", applicationName);
-        this.agentName = agentName;
         this.isContainer = isContainer;
         this.agentStartTime = agentStartTime;
         this.serverType = Objects.requireNonNull(serverType, "serverType");
@@ -76,7 +73,7 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
 
         final int pid = RuntimeMXBeanUtils.getPid();
         final String jvmVersion = JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION);
-        return new DefaultAgentInformation(agentId, agentName, applicationName, isContainer, agentStartTime, pid, machineName, hostIp, serverType, jvmVersion, Version.VERSION);
+        return new DefaultAgentInformation(agentId, applicationName, isContainer, agentStartTime, pid, machineName, hostIp, serverType, jvmVersion, Version.VERSION);
     }
 
     private String checkId(String keyName,String id) {

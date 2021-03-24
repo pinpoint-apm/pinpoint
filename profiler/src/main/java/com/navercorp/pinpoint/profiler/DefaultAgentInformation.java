@@ -26,7 +26,6 @@ import java.util.Objects;
  */
 public class DefaultAgentInformation implements AgentInformation {
     private final String agentId;
-    private final String agentName;
     private final String applicationName;
     private final boolean isContainer;
     private final long startTime;
@@ -39,7 +38,6 @@ public class DefaultAgentInformation implements AgentInformation {
 
     public DefaultAgentInformation(
             String agentId,
-            String agentName,
             String applicationName,
             boolean isContainer,
             long startTime,
@@ -50,7 +48,6 @@ public class DefaultAgentInformation implements AgentInformation {
             String jvmVersion,
             String agentVersion) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
-        this.agentName = agentName;
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.isContainer = isContainer;
         this.startTime = startTime;
@@ -65,11 +62,6 @@ public class DefaultAgentInformation implements AgentInformation {
     @Override
     public String getAgentId() {
         return agentId;
-    }
-
-    @Override
-    public String getAgentName() {
-        return agentName;
     }
 
     @Override
@@ -121,7 +113,6 @@ public class DefaultAgentInformation implements AgentInformation {
     public String toString() {
         final StringBuilder sb = new StringBuilder("DefaultAgentInformation{");
         sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", agentName='").append(agentName).append('\'');
         sb.append(", applicationName='").append(applicationName).append('\'');
         sb.append(", isContainer=").append(isContainer);
         sb.append(", startTime=").append(startTime);

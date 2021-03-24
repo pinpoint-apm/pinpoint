@@ -22,10 +22,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author Woonduk Kang(emeroad)
  */
 public interface AgentInformation {
-
     String getAgentId();
-
-    String getAgentName();
 
     String getApplicationName();
 
