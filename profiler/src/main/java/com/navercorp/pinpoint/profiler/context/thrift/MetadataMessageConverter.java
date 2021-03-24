@@ -46,12 +46,14 @@ public class MetadataMessageConverter implements MessageConverter<TBase<?, ?>> {
 
     private final String applicationName;
     private final String agentId;
+    private final String agentName;
     private final long agentStartTime;
     private final JvmGcTypeThriftMessageConverter jvmGcTypeMessageConverter = new JvmGcTypeThriftMessageConverter();
 
-    public MetadataMessageConverter(String applicationName, String agentId, long agentStartTime) {
+    public MetadataMessageConverter(String applicationName, String agentId, String agentName, long agentStartTime) {
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.agentName = agentName;
         this.agentStartTime = agentStartTime;
     }
 
@@ -81,7 +83,9 @@ public class MetadataMessageConverter implements MessageConverter<TBase<?, ?>> {
         tAgentInfo.setHostname(agentInformation.getMachineName());
         tAgentInfo.setPorts("");
         tAgentInfo.setAgentId(agentInformation.getAgentId());
-        tAgentInfo.setAgentName(agentInformation.getAgentName());
+        if (agentName != null) {
+            tAgentInfo.setAgentName(agentName);
+        }
         tAgentInfo.setApplicationName(agentInformation.getApplicationName());
         tAgentInfo.setContainer(agentInformation.isContainer());
         tAgentInfo.setPid(agentInformation.getPid());
