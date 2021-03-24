@@ -90,7 +90,7 @@ public class NioUdpDataSenderTest {
     private NioUDPDataSender newNioUdpDataSender() {
         TransactionIdEncoder encoder = new DefaultTransactionIdEncoder("agentId", 0);
         SpanProcessor<TSpan, TSpanChunk> spanPostProcessor = new SpanProcessorV1();
-        MessageConverter<TBase<?, ?>> messageConverter = new SpanThriftMessageConverter("appName", "agentId",
+        MessageConverter<TBase<?, ?>> messageConverter = new SpanThriftMessageConverter("appName", "agentId", "agentName",
                 0, ServiceType.STAND_ALONE.getCode(), encoder, spanPostProcessor);
         return new NioUDPDataSender("localhost", PORT, "test", 128, 1000, 1024 * 64 * 100, messageConverter);
     }

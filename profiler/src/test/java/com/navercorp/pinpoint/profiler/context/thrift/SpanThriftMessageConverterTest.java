@@ -49,7 +49,8 @@ import java.util.List;
 public class SpanThriftMessageConverterTest {
 
     private static final String APPLICATION_NAME = "app";
-    private static final String AGENT_ID = "agent";
+    private static final String AGENT_ID = "agentId";
+    private static final String AGENT_NAME = "agentName";
     private static final long AGENT_START_TIME = System.currentTimeMillis();
 
     private final TransactionIdEncoder transactionIdEncoder = new DefaultTransactionIdEncoder(AGENT_ID, AGENT_START_TIME);
@@ -59,6 +60,7 @@ public class SpanThriftMessageConverterTest {
     private final SpanThriftMessageConverter messageConverter = new SpanThriftMessageConverter(
             APPLICATION_NAME,
             AGENT_ID,
+            AGENT_NAME,
             AGENT_START_TIME,
             ServiceType.STAND_ALONE.getCode(),
             transactionIdEncoder,

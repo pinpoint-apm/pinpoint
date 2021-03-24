@@ -51,16 +51,18 @@ import java.util.List;
 public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>> {
 
     private final String agentId;
+    private final String agentName;
     private final String applicationName;
     private final long agentStartTime;
     private final short applicationServiceType;
     private final TransactionIdEncoder transactionIdEncoder;
     private final SpanProcessor<TSpan, TSpanChunk> spanPostProcessor;
 
-    public SpanThriftMessageConverter(String applicationName, String agentId, long agentStartTime, short applicationServiceType,
+    public SpanThriftMessageConverter(String applicationName, String agentId, String agentName, long agentStartTime, short applicationServiceType,
                                       TransactionIdEncoder transactionIdEncoder, SpanProcessor<TSpan, TSpanChunk> spanPostProcessor) {
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.agentName = agentName;
         this.agentStartTime = agentStartTime;
         this.applicationServiceType = applicationServiceType;
         this.transactionIdEncoder = Objects.requireNonNull(transactionIdEncoder, "transactionIdEncoder");
@@ -91,6 +93,9 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
 
         tSpan.setApplicationName(applicationName);
         tSpan.setAgentId(agentId);
+        if (agentName != null) {
+            tSpan.setAgentName(agentName);
+        }
         tSpan.setAgentStartTime(agentStartTime);
         tSpan.setApplicationServiceType(applicationServiceType);
 
@@ -159,6 +164,9 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
 
         tSpanChunk.setApplicationName(applicationName);
         tSpanChunk.setAgentId(agentId);
+        if (agentName != null) {
+            tSpanChunk.setAgentName(agentName);
+        }
         tSpanChunk.setAgentStartTime(agentStartTime);
         tSpanChunk.setApplicationServiceType(applicationServiceType);
 
@@ -268,6 +276,7 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
                 "agentId='" + agentId + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentStartTime=" + agentStartTime +
+                ", agentName=" + agentName +
                 ", applicationServiceType=" + applicationServiceType +
                 '}';
     }
