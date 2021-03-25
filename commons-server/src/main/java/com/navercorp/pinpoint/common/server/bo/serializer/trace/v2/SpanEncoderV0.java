@@ -104,11 +104,6 @@ public class SpanEncoderV0 implements SpanEncoder {
         final List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         writeSpanEventList(buffer, spanEventBoList, encodingContext);
 
-        final String agentName = spanChunkBo.getAgentName();
-        if (agentName != null) {
-            buffer.putPrefixedString(agentName);
-        }
-
         return buffer.wrapByteBuffer();
     }
 

@@ -112,10 +112,6 @@ public class SpanDecoderV0 implements SpanDecoder {
 
         List<SpanEventBo> spanEventBoList = readSpanEvent(buffer, decodingContext, SEQUENCE_SPAN_EVENT_FILTER);
         spanChunk.addSpanEventBoList(spanEventBoList);
-        if (buffer.hasRemaining()) {
-            final String agentName = buffer.readPrefixedString();
-            spanChunk.setAgentName(agentName);
-        }
     }
 
     public void readSpanValue(Buffer buffer, SpanBo span, SpanDecodingContext decodingContext) {
