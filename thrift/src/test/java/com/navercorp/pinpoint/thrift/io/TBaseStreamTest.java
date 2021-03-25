@@ -37,7 +37,6 @@ public class TBaseStreamTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final String AGENT_ID = "agentId";
-    private static final String AGENT_NAME = "agentName";
     private static final String APPLICATION_NAME = "applicationName";
     private static final byte[] TRANSACTION_ID = "transactionId".getBytes();
     private static final long START_TIME = System.currentTimeMillis();
@@ -145,9 +144,6 @@ public class TBaseStreamTest {
         spanChunk.setAgentId(AGENT_ID);
         spanChunk.setAgentIdIsSet(true);
 
-        spanChunk.setAgentName(AGENT_NAME);
-        spanChunk.setAgentNameIsSet(true);
-
         spanChunk.setApplicationName(APPLICATION_NAME);
         spanChunk.setApplicationNameIsSet(true);
 
@@ -177,9 +173,6 @@ public class TBaseStreamTest {
         final TSpan span = new TSpan();
         span.setAgentId(AGENT_ID);
         span.setAgentIdIsSet(true);
-
-        span.setAgentName(AGENT_NAME);
-        span.setAgentNameIsSet(true);
 
         span.setApplicationName(APPLICATION_NAME);
         span.setApplicationNameIsSet(true);

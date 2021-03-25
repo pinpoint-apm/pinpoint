@@ -41,7 +41,6 @@ public class RandomTSpan {
     public TSpan randomTSpan() {
         final TSpan tSpan = new TSpan();
         tSpan.setAgentId("agentId");
-        tSpan.setAgentName("agentName");
         tSpan.setApplicationName("appName");
         tSpan.setAgentStartTime(System.currentTimeMillis());
 
