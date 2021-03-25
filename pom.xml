@@ -116,7 +116,7 @@
         <javax.servlet.version>3.0.1</javax.servlet.version>
 
 
-        <asm.version>8.0.1</asm.version>
+        <asm.version>9.1</asm.version>
         <!-- 0.13.0 required Java 1.8 https://github.com/apache/thrift/pull/1657 -->
         <thrift.version>0.12.0</thrift.version>
         <ehcache.version>2.10.6</ehcache.version>
