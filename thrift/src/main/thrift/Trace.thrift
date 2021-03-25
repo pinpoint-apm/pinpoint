@@ -137,7 +137,6 @@ struct TSpan {
     31: optional i8 loggingTransactionInfo;
 
     32: optional i8 version = TRACE_V2;
-    40: optional string agentName;
 }
 
 struct TSpanChunk {
@@ -168,7 +167,6 @@ struct TSpanChunk {
     13: optional i8 version = TRACE_V2;
 
     14: optional TLocalAsyncId localAsyncId;
-    25: optional string agentName;
 }
 
 
