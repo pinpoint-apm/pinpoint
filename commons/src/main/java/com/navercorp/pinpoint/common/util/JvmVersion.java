@@ -41,6 +41,7 @@ public enum JvmVersion {
     JAVA_14(14.0f, 58),
     JAVA_15(15.0f, 59),
     JAVA_16(16.0f, 60),
+    JAVA_17(17.0f, 61),
     JAVA_RECENT(99.0f, 99),
     UNSUPPORTED(-1, -1);
 
