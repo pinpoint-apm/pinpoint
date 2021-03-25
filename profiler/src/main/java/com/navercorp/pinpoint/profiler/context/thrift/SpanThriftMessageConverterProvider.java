@@ -21,7 +21,6 @@ import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
-import com.navercorp.pinpoint.profiler.context.module.AgentName;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
@@ -39,20 +38,18 @@ public class SpanThriftMessageConverterProvider implements Provider<MessageConve
 
     private final String applicationName;
     private final String agentId;
-    private final String agentName;
     private final long agentStartTime;
     private final ServiceType applicationServiceType;
     private final TransactionIdEncoder transactionIdEncoder;
     private final SpanProcessor<TSpan, TSpanChunk> spanPostProcessor;
 
     @Inject
-    public SpanThriftMessageConverterProvider(@ApplicationName String applicationName, @AgentId String agentId, @AgentName String agentName, @AgentStartTime long agentStartTime,
+    public SpanThriftMessageConverterProvider(@ApplicationName String applicationName, @AgentId String agentId, @AgentStartTime long agentStartTime,
                                               @ApplicationServerType ServiceType applicationServiceType,
                                               TransactionIdEncoder transactionIdEncoder, SpanProcessor<TSpan, TSpanChunk> spanPostProcessor) {
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
-        this.agentName = agentName;
         this.applicationServiceType = Objects.requireNonNull(applicationServiceType, "applicationServiceType");
         this.transactionIdEncoder = Objects.requireNonNull(transactionIdEncoder, "transactionIdEncoder");
         this.spanPostProcessor = Objects.requireNonNull(spanPostProcessor, "spanPostProcessor");
@@ -60,6 +57,6 @@ public class SpanThriftMessageConverterProvider implements Provider<MessageConve
 
     @Override
     public MessageConverter<TBase<?, ?>> get() {
-        return new SpanThriftMessageConverter(applicationName, agentId, agentName, agentStartTime, applicationServiceType.getCode(), transactionIdEncoder, spanPostProcessor);
+        return new SpanThriftMessageConverter(applicationName, agentId, agentStartTime, applicationServiceType.getCode(), transactionIdEncoder, spanPostProcessor);
     }
 }
