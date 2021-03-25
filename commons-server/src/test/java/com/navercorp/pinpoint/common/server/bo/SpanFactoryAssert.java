@@ -37,7 +37,6 @@ public class SpanFactoryAssert {
 
     public void assertSpan(TSpan tSpan, SpanBo spanBo) {
         Assert.assertEquals(tSpan.getAgentId(), spanBo.getAgentId());
-        Assert.assertEquals(tSpan.getAgentName(), spanBo.getAgentName());
         Assert.assertEquals(tSpan.getApplicationName(), spanBo.getApplicationId());
         Assert.assertEquals(tSpan.getAgentStartTime(), spanBo.getAgentStartTime());
 
@@ -136,7 +135,6 @@ public class SpanFactoryAssert {
 
     public void assertSpanChunk(TSpanChunk tSpanChunk, SpanChunkBo spanChunkBo) {
         Assert.assertEquals(tSpanChunk.getAgentId(), spanChunkBo.getAgentId());
-        Assert.assertEquals(tSpanChunk.getAgentName(), spanChunkBo.getAgentName());
         Assert.assertEquals(tSpanChunk.getApplicationName(), spanChunkBo.getApplicationId());
         Assert.assertEquals(tSpanChunk.getAgentStartTime(), spanChunkBo.getAgentStartTime());
 

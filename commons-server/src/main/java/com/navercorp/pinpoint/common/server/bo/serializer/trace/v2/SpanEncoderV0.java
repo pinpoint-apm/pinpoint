@@ -203,10 +203,6 @@ public class SpanEncoderV0 implements SpanEncoder {
         final List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
         writeSpanEventList(buffer, spanEventBoList, encodingContext);
 
-        if (bitField.isSetAgentName()) {
-            buffer.putPrefixedString(span.getAgentName());
-        }
-
         return buffer.wrapByteBuffer();
     }
 

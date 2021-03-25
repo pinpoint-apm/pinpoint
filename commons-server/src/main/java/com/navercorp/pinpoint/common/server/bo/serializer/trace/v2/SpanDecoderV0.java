@@ -180,9 +180,6 @@ public class SpanDecoderV0 implements SpanDecoder {
 
         List<SpanEventBo> spanEventBoList = readSpanEvent(buffer, decodingContext, SEQUENCE_SPAN_EVENT_FILTER);
         span.addSpanEventBoList(spanEventBoList);
-        if (bitFiled.isSetAgentName()) {
-            span.setAgentName(buffer.readPrefixedString());
-        }
     }
 
     private List<SpanEventBo> readSpanEvent(Buffer buffer, SpanDecodingContext decodingContext, SpanEventFilter spanEventFilter) {
