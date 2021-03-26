@@ -116,6 +116,34 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
     }
 
+
+    /**
+     *
+     * @param agentId agent id
+     * @param agentStartTime agent start time in milliseconds
+     * @param deltaTimeInMilliSeconds limit the scan range in case of scanning for a non-exist agent
+     * @return
+     */
+    @Override
+    public AgentInfo getAgentInfo(String agentId, long agentStartTime, int deltaTimeInMilliSeconds) {
+        Objects.requireNonNull(agentId, "agentId");
+
+        if (agentStartTime <= 0) {
+            throw new IllegalArgumentException("agentStartTime must be greater than 0");
+        }
+        if (deltaTimeInMilliSeconds < 0) {
+            throw new IllegalArgumentException("deltaTimeInMilliSeconds must be greater than or equal to 0");
+        }
+
+        final long startTime = agentStartTime - deltaTimeInMilliSeconds;
+        final long endTime = agentStartTime + deltaTimeInMilliSeconds;
+
+        Scan scan = createScan(agentId, startTime, endTime);
+
+        TableName agentInfoTableName = descriptor.getTableName();
+        return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
+    }
+
     @Override
     public List<AgentInfo> getAgentInfos(List<String> agentIds, long timestamp) {
         if (CollectionUtils.isEmpty(agentIds)) {
@@ -132,12 +160,24 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     }
 
     private Scan createScan(String agentId, long currentTime) {
+        return createScan(agentId, currentTime, Long.MAX_VALUE);
+    }
+
+    private Scan createScan(String agentId, long startTime, long endTime) {
         Scan scan = new Scan();
 
         byte[] agentIdBytes = Bytes.toBytes(agentId);
-        long startTime = TimeUtils.reverseTimeMillis(currentTime);
-        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_NAME_MAX_LEN, startTime);
-        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_NAME_MAX_LEN, Long.MAX_VALUE);
+        long startTimeReverse;
+        long endTimeReverse;
+        if (endTime == Long.MAX_VALUE) {
+            startTimeReverse = TimeUtils.reverseTimeMillis(startTime);
+            endTimeReverse = Long.MAX_VALUE;
+        } else {
+            startTimeReverse = TimeUtils.reverseTimeMillis(endTime);
+            endTimeReverse = TimeUtils.reverseTimeMillis(startTime);
+        }
+        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_NAME_MAX_LEN, startTimeReverse);
+        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_NAME_MAX_LEN, endTimeReverse);
 
         scan.withStartRow(startKeyBytes);
         scan.withStopRow(endKeyBytes);
