@@ -113,6 +113,7 @@ public class SpanServiceImpl implements SpanService {
         Objects.requireNonNull(transactionId, "transactionId");
 
         final List<SpanBo> spans = traceDao.selectSpan(transactionId, columnGetCount);
+        populateAgentName(spans);
         if (CollectionUtils.isEmpty(spans)) {
             return new SpanResult(TraceState.State.ERROR, new CallTreeIterator(null));
         }
@@ -126,7 +127,6 @@ public class SpanServiceImpl implements SpanService {
         transitionMongoJson(values);
         transitionCachedString(values);
         transitionException(values);
-        transitionAgentName(values);
 
         // TODO need to at least show the row data when root span is not found.
         return result;
@@ -450,13 +450,12 @@ public class SpanServiceImpl implements SpanService {
         return new SpanResult(spanAligner.getMatchType(), callTree.iterator());
     }
 
-    private void transitionAgentName(final List<Align> alignList) {
-        if (CollectionUtils.isEmpty(alignList)) {
+    public void populateAgentName(List<SpanBo> spanBoList) {
+        if (CollectionUtils.isEmpty(spanBoList)) {
             return;
         }
-        Map<AgentIdStartTimeKey, Optional<String>> nameMap = new HashMap<>(alignList.size());
-        for (Align align : alignList) {
-            final SpanBo span = align.getSpanBo();
+        Map<AgentIdStartTimeKey, Optional<String>> nameMap = new HashMap<>(spanBoList.size());
+        for (SpanBo span : spanBoList) {
             final String agentId = span.getAgentId();
             final long agentStartTime = span.getAgentStartTime();
             final AgentIdStartTimeKey idStartTimeKey = new AgentIdStartTimeKey(agentId, agentStartTime);
