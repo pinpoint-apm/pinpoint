@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
-import com.navercorp.pinpoint.common.profiler.util.IntegerUtils;
 import org.junit.Test;
 
 import java.util.Comparator;
@@ -45,7 +44,7 @@ public class DefaultHierarchyCachesTest {
         TreeMap<String, String> packageNameBasedIndex = new TreeMap<String, String>(new Comparator<String>() {
             @Override
             public int compare(String key1, String key2) {
-                return IntegerUtils.compare(key1.length(), key2.length());
+                return Integer.compare(key1.length(), key2.length());
             }
         });
 
