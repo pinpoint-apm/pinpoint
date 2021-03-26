@@ -55,6 +55,7 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
     serverMapData: ServerMapData;
     agentHistogramData: any;
     selectedAgent: string;
+    selectedAgentName: string;
     listAnimationTrigger = 'start';
     chartAnimationTrigger = 'start';
 
@@ -88,6 +89,7 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe((target: ISelectedTarget) => {
             this.selectedTarget = target;
             this.selectedAgent = '';
+            this.selectedAgentName = null;
             this.cd.detectChanges();
         });
 
@@ -105,6 +107,7 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
                     tap((histogramData = {}) => {
                         this.agentHistogramData = { isWas: node.isWas, ...histogramData };
                         this.selectedAgent = this.selectedAgent ? this.selectedAgent : this.getFirstAgent();
+                        this.selectedAgentName = this.getAgentName(this.selectedAgent);
                         this.storeHelperService.dispatch(new Actions.ChangeAgentForServerList({
                             agent: this.selectedAgent,
                             responseSummary: this.agentHistogramData['agentHistogram'][this.selectedAgent],
@@ -152,6 +155,17 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
         return Object.keys(this.agentHistogramData['serverList'][firstKey]['instanceList']).sort()[0];
     }
 
+    private getAgentName(agentId: string): string {
+        const serverList = Object.keys(this.agentHistogramData['serverList']);
+        for (let server of serverList) {
+            const agentIds = Object.keys(this.agentHistogramData['serverList'][server]['instanceList']);
+            if (agentIds && agentIds.includes(agentId)) {
+                return this.agentHistogramData['serverList'][server]['instanceList'][agentId]['agentName'];
+            }
+        }
+        return null;
+    }
+
     onSelectAgent(agent: string): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_AGENT_ON_SERVER_LIST_VIEW);
         this.storeHelperService.dispatch(new Actions.ChangeAgentForServerList({
@@ -161,6 +175,7 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
             responseStatistics: this.agentHistogramData['agentResponseStatistics'][agent]
         }));
         this.selectedAgent = agent;
+        this.selectedAgentName = this.getAgentName(agent);
     }
 
     onOpenInspector(agent: string): void {
