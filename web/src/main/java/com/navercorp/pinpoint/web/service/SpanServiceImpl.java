@@ -46,6 +46,7 @@ import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.security.MetaDataFilter;
 import com.navercorp.pinpoint.web.security.MetaDataFilter.MetaData;
 
+import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -53,7 +54,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -79,6 +82,8 @@ public class SpanServiceImpl implements SpanService {
 
     private final ServiceTypeRegistryService serviceTypeRegistryService;
 
+    private final AgentInfoService agentInfoService;
+
     private final SqlParser sqlParser = new DefaultSqlParser();
     private final OutputParameterParser outputParameterParser = new OutputParameterParser();
 
@@ -87,13 +92,15 @@ public class SpanServiceImpl implements SpanService {
                            Optional<MetaDataFilter> metaDataFilter,
                            ApiMetaDataDao apiMetaDataDao,
                            StringMetaDataDao stringMetaDataDao,
-                           ServiceTypeRegistryService serviceTypeRegistryService) {
+                           ServiceTypeRegistryService serviceTypeRegistryService,
+                           AgentInfoService agentInfoService) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.sqlMetaDataDao = Objects.requireNonNull(sqlMetaDataDao, "sqlMetaDataDao");
         this.metaDataFilter = Objects.requireNonNull(metaDataFilter, "metaDataFilter").orElse(null);
         this.apiMetaDataDao = Objects.requireNonNull(apiMetaDataDao, "apiMetaDataDao");
         this.stringMetaDataDao = Objects.requireNonNull(stringMetaDataDao, "stringMetaDataDao");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
+        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
     }
 
     @Override
@@ -119,6 +126,7 @@ public class SpanServiceImpl implements SpanService {
         transitionMongoJson(values);
         transitionCachedString(values);
         transitionException(values);
+        transitionAgentName(values);
 
         // TODO need to at least show the row data when root span is not found.
         return result;
@@ -441,5 +449,52 @@ public class SpanServiceImpl implements SpanService {
 
         return new SpanResult(spanAligner.getMatchType(), callTree.iterator());
     }
+
+    private void transitionAgentName(final List<Align> alignList) {
+        if (CollectionUtils.isEmpty(alignList)) {
+            return;
+        }
+        Map<AgentIdStartTimeKey, Optional<String>> nameMap = new HashMap<>(alignList.size());
+        for (Align align : alignList) {
+            final SpanBo span = align.getSpanBo();
+            final String agentId = span.getAgentId();
+            final long agentStartTime = span.getAgentStartTime();
+            final AgentIdStartTimeKey idStartTimeKey = new AgentIdStartTimeKey(agentId, agentStartTime);
+            if (!nameMap.containsKey(idStartTimeKey)) {
+                nameMap.put(idStartTimeKey, getAgentName(agentId, agentStartTime));
+            }
+            final Optional<String> optionalName = nameMap.get(idStartTimeKey);
+            span.setAgentName(optionalName.orElse(StringUtils.EMPTY));
+        }
+    }
+
+    private Optional<String> getAgentName(String agentId, long agentStartTime) {
+        final AgentInfo agentInfo = this.agentInfoService.getAgentInfoNoStatus(agentId, agentStartTime);
+        return agentInfo == null ? Optional.empty() : Optional.ofNullable(agentInfo.getAgentName());
+    }
+
+    private static class AgentIdStartTimeKey {
+        private final String agentId;
+        private final long agentStartTime;
+
+        public AgentIdStartTimeKey(String agentId, long agentStartTime) {
+            this.agentId = agentId;
+            this.agentStartTime = agentStartTime;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            AgentIdStartTimeKey that = (AgentIdStartTimeKey) o;
+            return agentStartTime == that.agentStartTime && Objects.equals(agentId, that.agentId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(agentId, agentStartTime);
+        }
+    }
+
 }
 

@@ -276,6 +276,14 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
+    public AgentInfo getAgentInfoNoStatus(String agentId, long agentStartTime) {
+        if (agentStartTime <= 0) {
+            throw new IllegalArgumentException("agentStartTime must be greater than 0!");
+        }
+        return this.agentInfoDao.getAgentInfo(agentId, agentStartTime);
+    }
+
+    @Override
     public AgentStatus getAgentStatus(String agentId, long timestamp) {
         Objects.requireNonNull(agentId, "agentId");
 

@@ -68,6 +68,8 @@ public interface Align {
 
     String getAgentId();
 
+    String getAgentName();
+
     String getApplicationId();
 
     long getAgentStartTime();
