@@ -10,6 +10,7 @@ export interface IGridData {
     responseTime: number;
     exception: number;
     agentId: string;
+    agentName?: string;
     clientIp: string;
     traceId: string;
     spanId: string;
@@ -184,7 +185,7 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
                 suppressSizeToFit: true
             },
             {
-                headerName: 'Agent',
+                headerName: 'Agent Id',
                 field: 'agentId',
                 width: 200,
                 tooltipField: 'agentId'
@@ -200,6 +201,12 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
                 width: 270,
                 // suppressSizeToFit: true,
                 tooltipField: 'traceId'
+            },
+            {
+                headerName: 'Agent Name',
+                field: 'agentName',
+                width: 100,
+                tooltipField: 'agentName'
             }
         ];
     }

@@ -250,6 +250,7 @@ interface ICoordinate {
 // @store
 interface ITransactionMetaData {
     agentId: string;
+    agentName?: string;
     application: string;
     collectorAcceptTime: number;
     elapsed: number;
