@@ -132,6 +132,24 @@ public class SpanServiceImpl implements SpanService {
         return result;
     }
 
+    public void populateAgentName(List<SpanBo> spanBoList) {
+        if (CollectionUtils.isEmpty(spanBoList)) {
+            return;
+        }
+        Map<AgentIdStartTimeKey, Optional<String>> nameMap = new HashMap<>(spanBoList.size());
+        for (SpanBo span : spanBoList) {
+            final String agentId = span.getAgentId();
+            final long agentStartTime = span.getAgentStartTime();
+            final AgentIdStartTimeKey idStartTimeKey = new AgentIdStartTimeKey(agentId, agentStartTime);
+            if (!nameMap.containsKey(idStartTimeKey)) {
+                nameMap.put(idStartTimeKey, getAgentName(agentId, agentStartTime));
+            }
+            final Optional<String> optionalName = nameMap.get(idStartTimeKey);
+            span.setAgentName(optionalName.orElse(StringUtils.EMPTY));
+        }
+    }
+
+
     private void transitionAnnotation(List<Align> spans, AnnotationReplacementCallback annotationReplacementCallback) {
         for (Align align : spans) {
             List<AnnotationBo> annotationBoList = align.getAnnotationBoList();
@@ -448,23 +466,6 @@ public class SpanServiceImpl implements SpanService {
         final CallTree callTree = spanAligner.align();
 
         return new SpanResult(spanAligner.getMatchType(), callTree.iterator());
-    }
-
-    public void populateAgentName(List<SpanBo> spanBoList) {
-        if (CollectionUtils.isEmpty(spanBoList)) {
-            return;
-        }
-        Map<AgentIdStartTimeKey, Optional<String>> nameMap = new HashMap<>(spanBoList.size());
-        for (SpanBo span : spanBoList) {
-            final String agentId = span.getAgentId();
-            final long agentStartTime = span.getAgentStartTime();
-            final AgentIdStartTimeKey idStartTimeKey = new AgentIdStartTimeKey(agentId, agentStartTime);
-            if (!nameMap.containsKey(idStartTimeKey)) {
-                nameMap.put(idStartTimeKey, getAgentName(agentId, agentStartTime));
-            }
-            final Optional<String> optionalName = nameMap.get(idStartTimeKey);
-            span.setAgentName(optionalName.orElse(StringUtils.EMPTY));
-        }
     }
 
     private Optional<String> getAgentName(String agentId, long agentStartTime) {
