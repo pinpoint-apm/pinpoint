@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.MatcherType;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.ClassInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.PackageInternalNameMatcherOperand;
-import com.navercorp.pinpoint.common.profiler.util.IntegerUtils;
 import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadataReader;
@@ -70,7 +69,7 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         this.packageNameBasedIndex = new TreeMap<String, Set<IndexValue>>(new Comparator<String>() {
             @Override
             public int compare(String key1, String key2) {
-                return IntegerUtils.compare(key1.length(), key2.length());
+                return Integer.compare(key1.length(), key2.length());
             }
         });
 
