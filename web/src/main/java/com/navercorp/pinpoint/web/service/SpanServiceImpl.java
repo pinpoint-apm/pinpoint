@@ -54,6 +54,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,7 +133,8 @@ public class SpanServiceImpl implements SpanService {
         return result;
     }
 
-    public void populateAgentName(List<SpanBo> spanBoList) {
+    @Override
+    public void populateAgentName(Collection<SpanBo> spanBoList) {
         if (CollectionUtils.isEmpty(spanBoList)) {
             return;
         }
