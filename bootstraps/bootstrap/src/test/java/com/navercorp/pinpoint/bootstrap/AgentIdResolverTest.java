@@ -36,7 +36,7 @@ public class AgentIdResolverTest {
 
         Assert.assertEquals("agentId", resolve.getAgentId());
         Assert.assertEquals("appName", resolve.getApplicationName());
-        Assert.assertNull(resolve.getAgentName());
+        Assert.assertEquals("", resolve.getAgentName());
     }
 
     @Test

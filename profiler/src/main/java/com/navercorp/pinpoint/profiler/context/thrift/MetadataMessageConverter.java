@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.common.Version;
 import java.util.Objects;
+
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
@@ -82,7 +84,7 @@ public class MetadataMessageConverter implements MessageConverter<TBase<?, ?>> {
         tAgentInfo.setPorts("");
         tAgentInfo.setAgentId(agentInformation.getAgentId());
         final String agentName = agentInformation.getAgentName();
-        if (agentName != null) {
+        if (!StringUtils.isEmpty(agentName)) {
             tAgentInfo.setAgentName(agentName);
         }
         tAgentInfo.setApplicationName(agentInformation.getApplicationName());

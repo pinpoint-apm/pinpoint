@@ -94,7 +94,7 @@ public class AgentIdResolver {
     }
 
     private String getAgentName() {
-        String source = null;
+        String source = "";
         for (AgentProperties agentProperty : agentPropertyList) {
             final String agentName = agentProperty.getAgentName();
             if (idValidator.validateAgentName(agentProperty.getType(), agentName)) {
