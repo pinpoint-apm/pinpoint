@@ -25,4 +25,6 @@ public final class PinpointConstants {
 
     public static final int AGENT_ID_MAX_LEN = 24;
 
+    public static final int AGENT_NAME_MAX_LEN = 255;
+
 }
