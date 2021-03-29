@@ -30,6 +30,7 @@ import java.util.Objects;
 public class Header {
 
     public static final Metadata.Key<String> AGENT_ID_KEY = newStringKey("agentid");
+    public static final Metadata.Key<String> AGENT_NAME_KEY = newStringKey("agentname");
     public static final Metadata.Key<String> APPLICATION_NAME_KEY = newStringKey("applicationname");
     public static final Metadata.Key<String> AGENT_START_TIME_KEY = newStringKey("starttime");
 

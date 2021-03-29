@@ -55,7 +55,7 @@ public class AgentGrpcDataSenderTestMain {
 
     public void request() throws Exception {
         MessageConverter<GeneratedMessageV3> messageConverter = new GrpcMetadataMessageConverter();
-        HeaderFactory headerFactory = new AgentHeaderFactory(AGENT_ID, APPLICATION_NAME, SERVICE_TYPE, START_TIME);
+        HeaderFactory headerFactory = new AgentHeaderFactory(AGENT_ID, AGENT_NAME, APPLICATION_NAME, SERVICE_TYPE, START_TIME);
 
         DnsExecutorServiceProvider dnsExecutorServiceProvider = new DnsExecutorServiceProvider();
         GrpcNameResolverProvider grpcNameResolverProvider = new GrpcNameResolverProvider(dnsExecutorServiceProvider);
