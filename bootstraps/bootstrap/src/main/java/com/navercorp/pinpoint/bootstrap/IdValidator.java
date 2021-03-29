@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
@@ -29,9 +30,9 @@ public class IdValidator {
 
     private final BootLogger logger = BootLogger.getLogger(this.getClass());
 
-    private static final int MAX_ID_LENGTH = 24;
+    private static final int MAX_ID_LENGTH = PinpointConstants.AGENT_ID_MAX_LEN;
 
-    private static final int MAX_NAME_LENGTH = 255;
+    private static final int MAX_NAME_LENGTH = PinpointConstants.AGENT_NAME_MAX_LEN;
 
     private final int maxSize;
 
