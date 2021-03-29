@@ -78,18 +78,18 @@ public class StringMetaDataBo {
     }
 
     public void readRowKey(byte[] rowKey) {
-        this.agentId = BytesUtils.safeTrim(BytesUtils.toString(rowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN));
+        this.agentId = BytesUtils.safeTrim(BytesUtils.toString(rowKey, 0, PinpointConstants.AGENT_ID_MAX_LEN));
         this.startTime = TimeUtils.recoveryTimeMillis(readTime(rowKey));
         this.stringId = readKeyCode(rowKey);
     }
 
 
     private static long readTime(byte[] rowKey) {
-        return BytesUtils.bytesToLong(rowKey, PinpointConstants.AGENT_NAME_MAX_LEN);
+        return BytesUtils.bytesToLong(rowKey, PinpointConstants.AGENT_ID_MAX_LEN);
     }
 
     private static int readKeyCode(byte[] rowKey) {
-        return BytesUtils.bytesToInt(rowKey, PinpointConstants.AGENT_NAME_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH);
+        return BytesUtils.bytesToInt(rowKey, PinpointConstants.AGENT_ID_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH);
     }
 
     public byte[] toRowKey() {

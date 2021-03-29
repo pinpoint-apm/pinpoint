@@ -33,7 +33,7 @@ import java.util.Objects;
 @Component
 public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
 
-    public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_NAME_MAX_LEN;
+    public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_ID_MAX_LEN;
     public static final int DISTRIBUTE_HASH_SIZE = 1;
 
     private final AbstractRowKeyDistributor rowKeyDistributor;
