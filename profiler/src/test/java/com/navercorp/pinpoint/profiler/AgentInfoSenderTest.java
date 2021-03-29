@@ -78,7 +78,6 @@ import static org.junit.Assert.assertTrue;
 public class AgentInfoSenderTest {
 
     public static final String HOST = "127.0.0.1";
-    public static final String AGENT_NAME = "testAgentName";
 
     private final int awaitSpinDelay = 50;
 
@@ -101,7 +100,7 @@ public class AgentInfoSenderTest {
     }
 
     private TcpDataSender newTcpDataSender(PinpointClientFactory clientFactory, int port) {
-        MessageConverter<TBase<?, ?>> messageConverter = new MetadataMessageConverter(agentInformation.getApplicationName(), agentInformation.getAgentId(), AGENT_NAME, agentInformation.getStartTime());
+        MessageConverter<TBase<?, ?>> messageConverter = new MetadataMessageConverter(agentInformation.getApplicationName(), agentInformation.getAgentId(), agentInformation.getStartTime());
         MessageSerializer<byte[]> messageSerializer = new ThriftMessageSerializer(messageConverter);
 
         return new TcpDataSender(this.getClass().getName(), HOST, port, clientFactory, messageSerializer);
