@@ -36,7 +36,7 @@ public class AgentHeaderReaderTest {
     private static final long SOCKET_ID = 1001;
     private static final int SERVICE_TYPE = ServiceType.STAND_ALONE.getCode();
 
-    private HeaderReader<Header> reader = new AgentHeaderReader("test");
+    private final HeaderReader<Header> reader = new AgentHeaderReader("test");
 
     @Test
     public void extract() {
@@ -44,6 +44,7 @@ public class AgentHeaderReaderTest {
         Header header = reader.extract(metadata);
 
         Assert.assertEquals(header.getAgentId(), AGENT_ID);
+        Assert.assertEquals(header.getAgentName(), AGENT_NAME);
         Assert.assertEquals(header.getApplicationName(), APPLICATION_NAME);
         Assert.assertEquals(header.getAgentStartTime(), AGENT_START_TIME);
         Assert.assertEquals(header.getSocketId(), SOCKET_ID);
@@ -55,6 +56,21 @@ public class AgentHeaderReaderTest {
         Metadata metadata = newMetadata();
         metadata.put(Header.AGENT_ID_KEY, "!!agentId");
         reader.extract(metadata);
+    }
+
+    @Test(expected = StatusRuntimeException.class)
+    public void extract_fail_agentName() {
+        Metadata metadata = newMetadata();
+        metadata.put(Header.AGENT_NAME_KEY, "!!agentName");
+        reader.extract(metadata);
+    }
+
+    @Test
+    public void extract_no_agentName() {
+        Metadata metadata = newMetadata();
+        metadata.remove(Header.AGENT_NAME_KEY, AGENT_NAME);
+        final Header header = reader.extract(metadata);
+        Assert.assertNull(header.getAgentName());
     }
 
     @Test(expected = StatusRuntimeException.class)

@@ -46,12 +46,13 @@ public class AgentHeaderReader implements HeaderReader<Header> {
     @Override
     public Header extract(Metadata headers) {
         final String agentId = getId(headers, Header.AGENT_ID_KEY);
+        final String agentName = getAgentName(headers, Header.AGENT_NAME_KEY);
         final String applicationName = getId(headers, Header.APPLICATION_NAME_KEY);
         final long startTime = getTime(headers, Header.AGENT_START_TIME_KEY);
         final int serviceType = getServiceType(headers);
         final long socketId = getSocketId(headers);
         final List<Integer> supportCommandCodeList = getSupportCommandCodeList(headers);
-        return new Header(name, agentId, applicationName, serviceType, startTime, socketId, supportCommandCodeList);
+        return new Header(name, agentId, agentName, applicationName, serviceType, startTime, socketId, supportCommandCodeList);
     }
 
     protected long getTime(Metadata headers, Metadata.Key<String> timeKey) {
@@ -73,6 +74,16 @@ public class AgentHeaderReader implements HeaderReader<Header> {
             throw Status.INVALID_ARGUMENT.withDescription(idKey.name() + " header is missing").asRuntimeException();
         }
         return validateId(id, idKey);
+    }
+
+    protected String getAgentName(Metadata headers, Metadata.Key<String> idKey) {
+        final String name = headers.get(idKey);
+        if (name != null) {
+            if (!IdValidateUtils.checkPattern(name)) {
+                throw Status.INVALID_ARGUMENT.withDescription("invalid " + idKey.name()).asRuntimeException();
+            }
+        }
+        return name;
     }
 
     protected long getSocketId(Metadata headers) {
