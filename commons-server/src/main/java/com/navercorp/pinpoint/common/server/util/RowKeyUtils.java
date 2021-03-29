@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import java.util.Objects;
 
-import static com.navercorp.pinpoint.common.PinpointConstants.AGENT_NAME_MAX_LEN;
+import static com.navercorp.pinpoint.common.PinpointConstants.AGENT_ID_MAX_LEN;
 import static com.navercorp.pinpoint.common.util.BytesUtils.INT_BYTE_LENGTH;
 import static com.navercorp.pinpoint.common.util.BytesUtils.LONG_BYTE_LENGTH;
 
@@ -50,17 +50,17 @@ public final class RowKeyUtils {
         Objects.requireNonNull(agentId, "agentId");
 
         final byte[] agentBytes = BytesUtils.toBytes(agentId);
-        if (agentBytes.length > AGENT_NAME_MAX_LEN) {
+        if (agentBytes.length > AGENT_ID_MAX_LEN) {
             throw new IndexOutOfBoundsException("agent.length too big. agent:" + agentId + " length:" + agentId.length());
         }
 
-        final byte[] buffer = new byte[AGENT_NAME_MAX_LEN + LONG_BYTE_LENGTH + INT_BYTE_LENGTH];
+        final byte[] buffer = new byte[AGENT_ID_MAX_LEN + LONG_BYTE_LENGTH + INT_BYTE_LENGTH];
         BytesUtils.writeBytes(buffer, 0, agentBytes);
 
         long reverseCurrentTimeMillis = TimeUtils.reverseTimeMillis(agentStartTime);
-        BytesUtils.writeLong(reverseCurrentTimeMillis, buffer, AGENT_NAME_MAX_LEN);
+        BytesUtils.writeLong(reverseCurrentTimeMillis, buffer, AGENT_ID_MAX_LEN);
 
-        BytesUtils.writeInt(keyCode, buffer, AGENT_NAME_MAX_LEN + LONG_BYTE_LENGTH);
+        BytesUtils.writeInt(keyCode, buffer, AGENT_ID_MAX_LEN + LONG_BYTE_LENGTH);
         return buffer;
     }
 
