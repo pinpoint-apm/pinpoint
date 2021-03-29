@@ -264,6 +264,7 @@ interface ITransactionMetaData {
 // @store
 interface ITransactionDetailData {
     agentId: string;
+    agentName?: string;
     applicationId: string;
     applicationMapData: any;
     applicationName: string;
