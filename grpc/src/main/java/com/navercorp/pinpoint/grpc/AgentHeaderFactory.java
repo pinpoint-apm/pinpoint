@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.grpc;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import io.grpc.Metadata;
 
@@ -44,10 +45,12 @@ public class AgentHeaderFactory implements HeaderFactory {
     public Metadata newHeader() {
         Metadata headers = new Metadata();
         headers.put(Header.AGENT_ID_KEY, agentId);
-        headers.put(Header.AGENT_NAME_KEY, agentName);
         headers.put(Header.APPLICATION_NAME_KEY, applicationName);
         headers.put(Header.SERVICE_TYPE_KEY, Integer.toString(serviceType));
         headers.put(Header.AGENT_START_TIME_KEY, Long.toString(agentStartTime));
+        if (!StringUtils.isEmpty(agentName)) {
+            headers.put(Header.AGENT_NAME_KEY, agentName);
+        }
         return headers;
     }
 }
