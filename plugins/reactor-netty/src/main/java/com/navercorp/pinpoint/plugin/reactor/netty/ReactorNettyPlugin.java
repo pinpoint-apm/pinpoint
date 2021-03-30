@@ -36,6 +36,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsChannelMethodInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsOnInboundCompleteMethodInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.CorePublisherInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.CoreSubscriberInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientHandlerRequestWithBodyInterceptor;
@@ -136,6 +137,11 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
             // HTTP server end-point
             for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("terminate", "onInboundError", "onInboundCancel", "onTerminate", "dispose", "onComplete", "onError"))) {
                 method.addInterceptor(ChannelOperationsInterceptor.class);
+            }
+
+            final InstrumentMethod onInboudCompleteMethod = target.getDeclaredMethod("onInboundComplete");
+            if(onInboudCompleteMethod != null) {
+                onInboudCompleteMethod.addInterceptor(ChannelOperationsOnInboundCompleteMethodInterceptor.class);
             }
 
             // HTTP server end-point(defense code for try ~ catch)
