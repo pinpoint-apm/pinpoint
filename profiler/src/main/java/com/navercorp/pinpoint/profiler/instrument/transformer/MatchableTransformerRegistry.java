@@ -69,7 +69,7 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         this.packageNameBasedIndex = new TreeMap<String, Set<IndexValue>>(new Comparator<String>() {
             @Override
             public int compare(String key1, String key2) {
-                return Integer.compare(key1.length(), key2.length());
+                return key1.compareTo(key2);
             }
         });
 
