@@ -50,7 +50,7 @@ public class DefaultAgentInformation implements AgentInformation {
             String jvmVersion,
             String agentVersion) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
-        this.agentName = agentName;
+        this.agentName = Objects.requireNonNull(agentName, "agentName");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.isContainer = isContainer;
         this.startTime = startTime;

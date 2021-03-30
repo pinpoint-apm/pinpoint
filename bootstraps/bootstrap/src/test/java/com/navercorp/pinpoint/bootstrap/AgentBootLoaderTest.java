@@ -44,7 +44,7 @@ public class AgentBootLoaderTest {
 
     @Test
     public void bootNoAgentName() {
-        boot(null);
+        boot("");
     }
 
     private void boot(String agentName) {
