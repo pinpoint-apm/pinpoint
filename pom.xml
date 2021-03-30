@@ -28,6 +28,46 @@
     <name>pinpoint</name>
     <packaging>pom</packaging>
 
+    <url>https://github.com/pinpoint-apm/pinpoint</url>
+    <description>
+        Pinpoint APM, Application Performance Management tool for large-scale distributed systems
+    </description>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <inceptionYear>2012</inceptionYear>
+
+    <scm>
+        <url>https://github.com/pinpoint-apm/pinpoint</url>
+        <connection>scm:git:git://github.com/pinpoint-apm/pinpoint.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/pinpoint-apm/pinpoint.git</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <id>emeroad</id>
+            <name>WoonDuk Kang</name>
+            <email>emeroad@gamil.com</email>
+            <organization>NAVER Corp.</organization>
+            <organizationUrl>http://www.naver.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
     <repositories>
         <!--
         <repository>
@@ -37,7 +77,6 @@
         </repository>
         -->
     </repositories>
-
 
     <modules>
         <module>annotations</module>
@@ -1230,6 +1269,72 @@
                 <env>release</env>
                 <spring.profiles.active>release</spring.profiles.active>
             </properties>
+        </profile>
+        <!-- for maven.central.release -->
+        <profile>
+            <id>maven.central.release</id>
+            <properties>
+                <env>release</env>
+                <spring.profiles.active>release</spring.profiles.active>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <configuration>
+                            <additionalJOption>-Xdoclint:none</additionalJOption>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.8</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
         <profile>
