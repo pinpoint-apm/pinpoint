@@ -91,7 +91,7 @@ public class AgentIdResolver {
             if (StringUtils.isEmpty(applicationName)) {
                 continue;
             }
-            if (idValidator.validateApplicatonName(agentProperty.getType(), applicationName)) {
+            if (idValidator.validateApplicationName(agentProperty.getType(), applicationName)) {
                 logger.info(agentProperty.getType() + " " + agentProperty.getApplicationNameKey() + "=" + applicationName);
                 source = applicationName;
             }
