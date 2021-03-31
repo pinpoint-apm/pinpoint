@@ -7,12 +7,12 @@
 
 **Visit [our official web site](https://pinpoint-apm.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://pinpoint-apm.github.io/pinpoint/news.html)**.
 
-## Latest Release (2020/01/21)
+## Latest Release (2020/03/05)
 
-We're happy to announce the release of Pinpoint v2.2.1.
-Please check the release note at (https://github.com/pinpoint-apm/pinpoint/releases/tag/v2.2.1).
+We're happy to announce the release of Pinpoint v2.2.2.
+Please check the release note at (https://github.com/pinpoint-apm/pinpoint/releases/tag/v2.2.2).
 
-The current stable version is [v2.2.1](https://github.com/pinpoint-apm/pinpoint/releases/tag/v2.2.1).
+The current stable version is [v2.2.2](https://github.com/pinpoint-apm/pinpoint/releases/tag/v2.2.2).
 
 ## Live Demo
 
@@ -78,38 +78,35 @@ Java version required to run Pinpoint:
 
 Pinpoint Version | Agent | Collector | Web
 ---------------- | ----- | --------- | ---
-1.5.x  | 6-8  | 7-8 | 7-8
-1.6.x  | 6-8  | 7-8 | 7-8
 1.7.x  | 6-8  | 8   | 8
 1.8.0  | 6-10 | 8   | 8 
 1.8.1+ | 6-11 | 8   | 8 
 2.0.x  | 6-13 | 8   | 8
 2.1.x  | 6-14 | 8   | 8
 2.2.x  | 7-14 | 8   | 8
+2.3.x  | 7-17 | 8   | 8
 
 HBase compatibility table:
 
 Pinpoint Version | HBase 1.0.x | HBase 1.2.x | HBase 1.4.x | HBase 2.0.x
 ---------------- | ----------- | ----------- | ----------- | -----------
-1.5.x | yes | not tested | not tested | no
-1.6.x | not tested | yes | yes | no
 1.7.x | not tested | yes | yes | no
 1.8.x | not tested | yes | yes | no
 2.0.x | not tested | yes | yes | [optional](https://pinpoint-apm.github.io/pinpoint/hbaseupgrade.html#do-you-like-to-use-hbase-2x-for-pinpoint)
 2.1.x | not tested | yes | yes | [optional](https://pinpoint-apm.github.io/pinpoint/hbaseupgrade.html#do-you-like-to-use-hbase-2x-for-pinpoint)
 2.2.x | not tested | yes | yes | [optional](https://pinpoint-apm.github.io/pinpoint/hbaseupgrade.html#do-you-like-to-use-hbase-2x-for-pinpoint)
+2.3.x | not tested | yes | yes | [optional](https://pinpoint-apm.github.io/pinpoint/hbaseupgrade.html#do-you-like-to-use-hbase-2x-for-pinpoint)
 
 Agent - Collector compatibility table:
 
-Agent Version | Collector 1.5.x | Collector 1.6.x | Collector 1.7.x | Collector 1.8.x | Collector 2.0.x | Collector 2.1.x | Collector 2.2.x
-------------- | --------------- | --------------- | --------------- | --------------- | --------------- | --------------- | --------------- 
-1.5.x | yes        | yes | yes | yes | yes | yes | yes  
-1.6.x | no         | yes | yes | yes | yes | yes | yes 
-1.7.x | no         | no  | yes | yes | yes | yes | yes 
-1.8.x | no         | no  | no  | yes | yes | yes | yes 
-2.0.x | no         | no  | no  | no  | yes | yes | yes 
-2.1.x | no         | no  | no  | no  | no  | yes | yes 
-2.2.x | no         | no  | no  | no  | no  | no  | yes 
+Agent Version | Collector 1.7.x | Collector 1.8.x | Collector 2.0.x | Collector 2.1.x | Collector 2.2.x | Collector 2.3.x |
+------------- | --------------- | --------------- | --------------- | --------------- | --------------- | --------------- |
+1.7.x | yes | yes | yes | yes | yes | yes 
+1.8.x | no  | yes | yes | yes | yes | yes 
+2.0.x | no  | no  | yes | yes | yes | yes 
+2.1.x | no  | no  | no  | yes | yes | yes 
+2.2.x | no  | no  | no  | no  | yes | yes
+2.3.x | no  | no  | no  | no  | no  | yes
 
 Flink compatibility table:
 
@@ -120,6 +117,7 @@ Pinpoint Version | flink 1.3.X | flink 1.4.X | flink 1.5.X | flink 1.6.X | flink
 2.0.x | yes | yes | yes | yes | yes |
 2.1.x | yes | yes | yes | yes | yes |
 2.2.x | yes | yes | yes | yes | yes |
+2.3.x | yes | yes | yes | yes | yes |
 
 
 ## Community
