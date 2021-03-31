@@ -92,7 +92,7 @@ public class AgentIdResolver {
                 continue;
             }
             if (idValidator.validateApplicatonName(agentProperty.getType(), applicationName)) {
-                logger.info(agentProperty.getType() + " " + agentProperty.getApplicationName() + "=" + applicationName);
+                logger.info(agentProperty.getType() + " " + agentProperty.getApplicationNameKey() + "=" + applicationName);
                 source = applicationName;
             }
         }
