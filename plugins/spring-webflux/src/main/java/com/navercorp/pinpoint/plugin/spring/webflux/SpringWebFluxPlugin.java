@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.DefaultWebClient
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.DispatchHandlerHandleMethodInterceptor;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.DispatchHandlerInvokeHandlerMethodInterceptor;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.ExchangeFunctionMethodInterceptor;
+import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.InvocableHandlerMethodInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -57,6 +58,7 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
         // Server
         transformTemplate.transform("org.springframework.web.reactive.DispatcherHandler", DispatchHandlerTransform.class);
         transformTemplate.transform("org.springframework.web.server.adapter.DefaultServerWebExchange", ServerWebExchangeTransform.class);
+        transformTemplate.transform("org.springframework.web.reactive.result.method.InvocableHandlerMethod", InvocableHandlerMethodTransform.class);
 
         // Client
         if (Boolean.TRUE == config.isClientEnable()) {
@@ -102,6 +104,19 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             // Async Object
             target.addField(AsyncContextAccessor.class);
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class InvocableHandlerMethodTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            final InstrumentMethod invokerMethod = target.getDeclaredMethod("invoke", "org.springframework.web.server.ServerWebExchange", "org.springframework.web.reactive.BindingContext", "java.lang.Object[]");
+            if (invokerMethod != null) {
+                invokerMethod.addInterceptor(InvocableHandlerMethodInterceptor.class);
+            }
 
             return target.toBytecode();
         }
