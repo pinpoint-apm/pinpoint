@@ -80,7 +80,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
         final RowKey selfRowKey = new CallRowKey(applicationName, applicationServiceType.getCode(), rowTimeSlot);
 
-        final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError);
+        final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError, isPing);
         final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);
 
         HistogramSchema histogramSchema = applicationServiceType.getHistogramSchema();
