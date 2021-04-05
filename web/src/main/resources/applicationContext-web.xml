@@ -201,4 +201,10 @@
     <bean class="com.navercorp.pinpoint.web.interceptor.PerformanceLoggingInterceptor">
         <constructor-arg value="1000"/>
     </bean>
+
+    <beans profile="basicLogin">
+        <bean id="basicLoginConfig" class="com.navercorp.pinpoint.web.config.BasicLoginConfig"/>
+        <bean id="basicLoginService" class="com.navercorp.pinpoint.web.security.login.BasicLoginService"/>
+    </beans>
+
 </beans>
