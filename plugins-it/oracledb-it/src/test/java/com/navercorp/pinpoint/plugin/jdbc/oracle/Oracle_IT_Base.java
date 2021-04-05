@@ -23,21 +23,40 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.OracleContainer;
+import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy;
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
+import org.testcontainers.containers.wait.strategy.WaitStrategy;
 
 import java.sql.Driver;
 import java.sql.DriverManager;
+import java.time.Duration;
 import java.util.Properties;
 
 public abstract class Oracle_IT_Base {
     private static final JDBCDriverClass driverClass = new OracleJDBCDriverClass();
     protected static final OracleJDBCApi JDBC_API = new OracleJDBCApi(driverClass);
     protected static OracleItHelper helper;
-    public static OracleContainer oracle;
+    public static OracleContainerWithWait oracle;
 
-    public static void startOracleDB(String dockerImageVersion, Logger logger) {
+    public static void startOracleDB(String dockerImageVersion) {
+        oracle = new OracleContainerWithWait(dockerImageVersion);
+        startOracleDBContainer();
+    }
+
+    public static void startOracleDB(String dockerImageVersion, WaitStrategy waitStrategy) {
+        oracle = new OracleContainerWithWait(dockerImageVersion);
+
+        if (waitStrategy != null) {
+            oracle.setWaitStrategy(waitStrategy);
+            oracle.withStartupTimeout(Duration.ofSeconds(180));
+            oracle.withReuse(true);
+        }
+
+        startOracleDBContainer();
+    }
+
+    private static void startOracleDBContainer() {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
-
-        oracle = new OracleContainer(dockerImageVersion);
         oracle.start();
 
         DriverProperties driverProperties = new DriverProperties(oracle.getJdbcUrl(), oracle.getUsername(), oracle.getPassword(), new Properties());
