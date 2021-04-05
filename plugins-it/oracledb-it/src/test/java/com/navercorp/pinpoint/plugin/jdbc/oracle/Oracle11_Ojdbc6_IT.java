@@ -40,7 +40,7 @@ public class Oracle11_Ojdbc6_IT extends Oracle_IT_Base {
     @BeforeClass
     public static void setup() throws Exception {
         logger.info("Setting up oracle db...");
-        startOracleDB(OracleITConstants.ORACLE_11_X_IMAGE, logger);
+        startOracleDB(OracleITConstants.ORACLE_11_X_IMAGE);
         helper.create(JDBC_API);
     }
 

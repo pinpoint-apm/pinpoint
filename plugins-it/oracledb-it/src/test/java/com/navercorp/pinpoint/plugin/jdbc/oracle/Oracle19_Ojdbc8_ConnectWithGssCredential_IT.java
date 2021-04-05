@@ -18,10 +18,12 @@ package com.navercorp.pinpoint.plugin.jdbc.oracle;
 import com.navercorp.pinpoint.pluginit.jdbc.*;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.*;
-import org.junit.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.wait.strategy.Wait;
 
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
@@ -34,7 +36,7 @@ public class Oracle19_Ojdbc8_ConnectWithGssCredential_IT extends Oracle_IT_Base 
     @BeforeClass
     public static void setup() throws Exception {
         logger.info("Setting up oracle db...");
-        startOracleDB(OracleITConstants.ORACLE_18_X_IMAGE, logger);
+        startOracleDB(OracleITConstants.ORACLE_18_X_IMAGE, Wait.forLogMessage(".*Completed.*", 1));
         helper.create(JDBC_API);
     }
 
