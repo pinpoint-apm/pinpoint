@@ -61,7 +61,7 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
         if (statusError.isSimpleError()) {
             logger.info("Failed to stream, name={}, cause={}", listener, statusError.getMessage());
         } else {
-            logger.warn("Failed to stream, name={}, cause={}", listener, statusError.getMessage(), statusError.getThrowable());
+            logger.info("Failed to stream, name={}, cause={}", listener, statusError.getMessage(), statusError.getThrowable());
         }
         listener.onError(t);
     }
