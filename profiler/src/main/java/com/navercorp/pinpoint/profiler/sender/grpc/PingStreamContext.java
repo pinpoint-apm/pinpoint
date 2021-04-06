@@ -84,7 +84,7 @@ public class PingStreamContext {
             if (statusError.isSimpleError()) {
                 logger.info("Failed to ping stream, streamId={}, cause={}", streamId, statusError.getMessage());
             } else {
-                logger.warn("Failed to ping stream, streamId={}, cause={}", streamId, statusError.getMessage(), statusError.getThrowable());
+                logger.info("Failed to ping stream, streamId={}, cause={}", streamId, statusError.getMessage(), statusError.getThrowable());
             }
             cancelPingScheduler();
             PingStreamContext.this.reconnector.reconnect();
