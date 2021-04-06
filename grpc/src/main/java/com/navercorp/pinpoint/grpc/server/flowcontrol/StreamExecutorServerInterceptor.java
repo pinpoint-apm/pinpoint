@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author jaehong.kim
@@ -43,7 +42,7 @@ public class StreamExecutorServerInterceptor implements ServerInterceptor {
     private final StreamExecutorRejectedExecutionRequestScheduler scheduler;
 
     public StreamExecutorServerInterceptor(String name, final Executor executor, final int initNumMessages, final ScheduledExecutor scheduledExecutor,
-                                           int recoveryMessagesCount, IdleTimeoutFactory idleTimeoutFactory) {
+                                           RejectedExecutionListenerFactory listenerFactory) {
         this.name = Objects.requireNonNull(name, "name");
 
         Objects.requireNonNull(executor, "executor");
@@ -51,9 +50,9 @@ public class StreamExecutorServerInterceptor implements ServerInterceptor {
         this.executor = Context.currentContextExecutor(executor);
         Assert.isTrue(initNumMessages > 0, "initNumMessages must be positive");
         this.initNumMessages = initNumMessages;
-        Objects.requireNonNull(scheduledExecutor, "scheduledExecutor");
 
-        RejectedExecutionListenerFactory listenerFactory = new RejectedExecutionListenerFactory(this.name, recoveryMessagesCount, idleTimeoutFactory);
+        Objects.requireNonNull(scheduledExecutor, "scheduledExecutor");
+        Objects.requireNonNull(listenerFactory, "listenerFactory");
 
         this.scheduler = new StreamExecutorRejectedExecutionRequestScheduler(scheduledExecutor, listenerFactory);
     }

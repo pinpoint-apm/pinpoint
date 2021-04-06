@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.server.flowcontrol.IdleTimeoutFactory;
+import com.navercorp.pinpoint.grpc.server.flowcontrol.RejectedExecutionListenerFactory;
 import com.navercorp.pinpoint.grpc.server.flowcontrol.ScheduledExecutor;
 import com.navercorp.pinpoint.grpc.server.flowcontrol.StreamExecutorServerInterceptor;
 import io.grpc.ServerInterceptor;
@@ -68,8 +69,10 @@ public class StreamExecutorServerInterceptorFactory implements FactoryBean<Serve
             }
         };
         IdleTimeoutFactory idleTimeoutFactory = new IdleTimeoutFactory(this.idleTimeout);
+        RejectedExecutionListenerFactory listenerFactory = new RejectedExecutionListenerFactory(this.beanName, recoveryMessagesCount, idleTimeoutFactory);
+
         return new StreamExecutorServerInterceptor(this.beanName, this.executor, initRequestCount,
-                scheduledExecutor, recoveryMessagesCount, idleTimeoutFactory);
+                scheduledExecutor, listenerFactory);
     }
 
     @Override
