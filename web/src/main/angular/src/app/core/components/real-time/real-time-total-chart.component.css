@@ -52,5 +52,5 @@
     background:#51afdf
 }
 .l-legend li:nth-child(5) .l-circle {
-    background:#33b692
+    background:var(--secondary-color);
 }

@@ -57,7 +57,7 @@ tbody > tr {
 }
 
 .fa-sign-in-alt, .fa-sign-out-alt {
-    color: #33b692;
+    color: var(--secondary-color);
 }
 
 .l-row {

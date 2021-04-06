@@ -39,8 +39,8 @@
     content: '';
     width: 0;
     height: 0;
-    border-right: 0 solid #33b692;
-    border-bottom: 8px solid #33b692;
+    border-right: 0 solid var(--secondary-color);
+    border-bottom: 8px solid var(--secondary-color);
     border-left: 8px solid transparent;
     position: absolute;
     right: 0;
