@@ -99,7 +99,7 @@ public class KeepAliveService {
             this.agentLifeCycleAsyncTask.handleLifeCycleEvent(agentProperty , pingTimestamp, agentLifeCycleState, eventIdentifier);
             this.agentEventAsyncTask.handleEvent(agentProperty, pingTimestamp, agentEventType);
         } catch (Exception e) {
-            logger.warn("Failed to update state. closeState:{} lifeCycle={} {}/{}", closeState, pingSession, agentLifeCycleState, agentEventType);
+            logger.warn("Failed to update state. closeState:{} lifeCycle={} {}/{}", closeState, pingSession, agentLifeCycleState, agentEventType, e);
         }
     }
 
@@ -115,7 +115,7 @@ public class KeepAliveService {
             final AgentProperty agentProperty = newChannelProperties(header, pingSession.getServiceType());
             this.agentLifeCycleAsyncTask.handlePingEvent(agentProperty);
         } catch (Exception e) {
-            logger.warn("Failed to update state. ping session={}", pingSession);
+            logger.warn("Failed to update state. ping session={}", pingSession, e);
         }
     }
 
