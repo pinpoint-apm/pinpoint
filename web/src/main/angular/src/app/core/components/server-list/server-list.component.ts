@@ -24,6 +24,11 @@ export class ServerListComponent implements OnInit {
         return Object.keys(this.serverList[serverName]['instanceList']).sort();
     }
 
+    getAgentName(serverName: string, agentId: string): string {
+        const agentInfo = this.serverList[serverName]['instanceList'][agentId];
+        return agentInfo && agentInfo['agentName'] ? agentInfo['agentName'] : null;
+    }
+
     hasError(agent: string): boolean {
         return this.agentData[agent] && this.agentData[agent]['Error'] > 0;
     }
