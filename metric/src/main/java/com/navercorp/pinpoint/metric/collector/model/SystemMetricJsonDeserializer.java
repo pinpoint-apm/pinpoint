@@ -25,18 +25,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.common.model.DoubleCounter;
 import com.navercorp.pinpoint.metric.common.model.LongCounter;
-import com.navercorp.pinpoint.metric.common.model.MetricType;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
-import com.navercorp.pinpoint.metric.common.model.SystemMetricMetadata;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Hyunjoon Cho
@@ -45,6 +39,8 @@ import java.util.Objects;
 public class SystemMetricJsonDeserializer extends JsonDeserializer<SystemMetric> {
     //    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final static long SEC_TO_MILLIS = 1000;
+
+    private final static TagComparator TAG_COMPARATOR = new TagComparator();
 
     public SystemMetricJsonDeserializer() {
     }
@@ -105,6 +101,7 @@ public class SystemMetricJsonDeserializer extends JsonDeserializer<SystemMetric>
             }
         }
 
+        tags.sort(TAG_COMPARATOR);
         return tags;
     }
 
@@ -120,4 +117,12 @@ public class SystemMetricJsonDeserializer extends JsonDeserializer<SystemMetric>
         }
         return value;
     }
+
+    private static class TagComparator implements Comparator<Tag> {
+        @Override
+        public int compare(Tag tag1, Tag tag2) {
+            return tag1.getName().compareTo(tag2.getName());
+        }
+    }
+
 }
