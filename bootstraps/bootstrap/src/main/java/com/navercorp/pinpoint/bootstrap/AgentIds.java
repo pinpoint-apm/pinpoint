@@ -23,16 +23,22 @@ import java.util.Objects;
  */
 public class AgentIds {
     private final String agentId;
+    private final String agentName;
     private final String applicationName;
 
-    public AgentIds(String agentId, String applicationName) {
+    public AgentIds(String agentId, String agentName, String applicationName) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.agentName = agentName;
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
     }
 
 
     public String getAgentId() {
         return agentId;
+    }
+
+    public String getAgentName() {
+        return agentName;
     }
 
     public String getApplicationName() {
