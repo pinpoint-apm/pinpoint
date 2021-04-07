@@ -78,10 +78,6 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-metric</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-plugins-assembly</artifactId>
             <type>pom</type>
         </dependency>
