@@ -92,7 +92,7 @@ public class MetadataClientMock {
     }
 
     private ChannelFactory newChannelFactory() {
-        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
+        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockAgentName", "mockApplicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
         ChannelFactoryBuilder channelFactoryBuilder = new DefaultChannelFactoryBuilder("MetadataClientMock");
         channelFactoryBuilder.setHeaderFactory(headerFactory);
         channelFactoryBuilder.setClientOption(new ClientOption());

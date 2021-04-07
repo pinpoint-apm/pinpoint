@@ -30,6 +30,7 @@ import org.junit.Test;
 public class AgentHeaderReaderTest {
 
     private static final String AGENT_ID = "agentId";
+    private static final String AGENT_NAME = "agentName";
     private static final String APPLICATION_NAME = "applicationName";
     private static final long AGENT_START_TIME = System.currentTimeMillis();
     private static final long SOCKET_ID = 1001;
@@ -66,6 +67,7 @@ public class AgentHeaderReaderTest {
     private Metadata newMetadata() {
         Metadata metadata = new Metadata();
         metadata.put(Header.AGENT_ID_KEY, AGENT_ID);
+        metadata.put(Header.AGENT_NAME_KEY, AGENT_NAME);
         metadata.put(Header.APPLICATION_NAME_KEY, APPLICATION_NAME);
         metadata.put(Header.AGENT_START_TIME_KEY, Long.toString(AGENT_START_TIME));
         metadata.put(Header.SOCKET_ID, Long.toString(SOCKET_ID));
