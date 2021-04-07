@@ -75,6 +75,16 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         return validateId(id, idKey);
     }
 
+    protected String getAgentName(Metadata headers, Metadata.Key<String> idKey) {
+        final String name = headers.get(idKey);
+        if (!StringUtils.isEmpty(name)) {
+            if (!IdValidateUtils.checkPattern(name)) {
+                throw Status.INVALID_ARGUMENT.withDescription("invalid " + idKey.name()).asRuntimeException();
+            }
+        }
+        return name;
+    }
+
     protected long getSocketId(Metadata headers) {
         final String socketIdStr = headers.get(Header.SOCKET_ID);
         if (socketIdStr == null) {
