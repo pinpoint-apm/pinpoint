@@ -149,7 +149,7 @@
         <property name="registry" value="#{grpcAgentReceiverConfig.grpcServerExecutorMonitorEnable ? metricRegistry : null}"/>
     </bean>
 
-    <bean id="#{T(com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiverNames).AGENT}" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
+    <bean id="grpcAgentReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
         <property name="bindIp" value="#{grpcAgentReceiverConfig.grpcBindIp}"/>
         <property name="bindPort" value="#{grpcAgentReceiverConfig.grpcBindPort}"/>
         <property name="executor" ref="grpcAgentServerExecutor"/>
@@ -201,7 +201,7 @@
         <property name="registry" value="#{grpcSpanReceiverConfig.grpcServerExecutorMonitorEnable ? metricRegistry : null}"/>
     </bean>
 
-    <bean id="#{T(com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiverNames).SPAN}" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
+    <bean id="grpcSpanReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
         <property name="bindIp" value="#{grpcSpanReceiverConfig.grpcBindIp}"/>
         <property name="bindPort" value="#{grpcSpanReceiverConfig.grpcBindPort}"/>
         <property name="addressFilter" ref="addressFilter"/>
@@ -256,7 +256,7 @@
         <property name="registry" value="#{grpcStatReceiverConfig.grpcServerExecutorMonitorEnable ? metricRegistry : null}"/>
     </bean>
 
-    <bean id="#{T(com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiverNames).STAT}" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
+    <bean id="grpcStatReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
         <property name="bindIp" value="#{grpcStatReceiverConfig.grpcBindIp}"/>
         <property name="bindPort" value="#{grpcStatReceiverConfig.grpcBindPort}"/>
         <property name="addressFilter" ref="addressFilter"/>
