@@ -15,7 +15,7 @@
         </tr>
         <tr>
             <th>Agent Id</th>
-            <td>{{agentData.agentId}}</td>
+            <td>{{agentData.agentId}} {{ agentData.agentName ? " (name: " + agentData.agentName + ")" : "" }}</td>
             <th>PID</th>
             <td>{{agentData.pid}}</td>
         </tr>
