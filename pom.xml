@@ -123,7 +123,7 @@
         <thrift.version>0.12.0</thrift.version>
         <ehcache.version>2.10.6</ehcache.version>
         <netty3.version>3.10.6.Final</netty3.version>
-        <netty4.version>4.1.51.Final</netty4.version>
+        <netty4.version>4.1.58.Final</netty4.version>
 
 
         <guava-jdk6.version>20.0</guava-jdk6.version>
