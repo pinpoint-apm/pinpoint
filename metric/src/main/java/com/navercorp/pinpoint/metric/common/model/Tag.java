@@ -62,4 +62,8 @@ public class Tag {
         result = 31 * result + (value != null ? value.hashCode() : 0);
         return result;
     }
+
+    public Tag copy() {
+        return new Tag(this.name, this.value);
+    }
 }

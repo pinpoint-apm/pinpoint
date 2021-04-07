@@ -2,9 +2,9 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
 
     <context:annotation-config/>
@@ -16,7 +16,16 @@
                                          com.navercorp.pinpoint.common.server.util" />
 
     <import resource="classpath:pinot-collector/applicationContext-collector-pinot-kafka.xml"/>
+    <import resource="classpath:pinot-collector/applicationContext-collector-metric-datasource.xml"/>
+    <import resource="classpath:pinot-collector/applicationContext-collector-metric-dao-config.xml"/>
 
     <bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
+
+    <bean id="systemMetricDataTypeBatch" class="com.navercorp.pinpoint.metric.collector.batch.SystemMetricDataTypeBatch"/>
+    <task:scheduled-tasks>
+        <task:scheduled ref="systemMetricDataTypeBatch" method="update"
+                        fixed-rate="${metric.metadata.update.interval:60000}"/>
+        <!--TODO : (miwnoo) 주기 수정 필요함-->
+    </task:scheduled-tasks>
 
 </beans>
