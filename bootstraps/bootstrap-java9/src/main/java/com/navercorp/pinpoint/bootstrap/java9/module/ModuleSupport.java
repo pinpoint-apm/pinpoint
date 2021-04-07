@@ -139,7 +139,12 @@ public class ModuleSupport {
 
         // Error:class com.navercorp.pinpoint.bootstrap.AgentBootLoader$1 cannot access class com.navercorp.pinpoint.test.PluginTestAgent (in module pinpoint.agent)
         // because module pinpoint.agent does not export com.navercorp.pinpoint.test to unnamed module @4b9e13df
-        agentModule.addExports("com.navercorp.pinpoint.test", bootstrapModule);
+        final String pinpointTestModule = "com.navercorp.pinpoint.test";
+        if (agentModule.getPackages().contains(pinpointTestModule)) {
+            agentModule.addExports(pinpointTestModule, agentModule);
+        } else {
+            logger.info(pinpointTestModule + " package not found");
+        }
 
         agentModule.addReads(bootstrapModule);
 
