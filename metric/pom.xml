@@ -167,6 +167,11 @@
         </dependency>
 
         <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.pinot</groupId>
             <artifactId>pinot-java-client</artifactId>
             <version>0.6.0</version>
