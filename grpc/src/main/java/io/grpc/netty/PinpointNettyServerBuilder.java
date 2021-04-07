@@ -1,10 +1,12 @@
 package io.grpc.netty;
 
 
+import com.navercorp.pinpoint.common.util.Assert;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.navercorp.pinpoint.common.util.Assert;
+import io.grpc.Attributes;
 import io.grpc.ExperimentalApi;
 import io.grpc.Internal;
 import io.grpc.ServerBuilder;
@@ -37,7 +39,6 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +103,7 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
     private long maxConnectionAgeGraceInNanos = MAX_CONNECTION_AGE_GRACE_NANOS_INFINITE;
     private boolean permitKeepAliveWithoutCalls;
     private long permitKeepAliveTimeInNanos = TimeUnit.MINUTES.toNanos(5);
+    private Attributes eagAttributes = Attributes.EMPTY;
 
     /**
      * Creates a server builder that will bind to the given port.
@@ -127,7 +129,7 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
 
     private final class NettyClientTransportServersBuilder implements ClientTransportServersBuilder {
         @Override
-        public List<? extends InternalServer> buildClientTransportServers(
+        public InternalServer buildClientTransportServers(
                 List<? extends ServerStreamTracer.Factory> streamTracerFactories) {
             return buildTransportServers(streamTracerFactories);
         }
@@ -580,7 +582,7 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
     //--------------------------------  modify pinpoint
 
     @CheckReturnValue
-    List<NettyServer> buildTransportServers(
+    NettyServer buildTransportServers(
             List<? extends ServerStreamTracer.Factory> streamTracerFactories) {
         assertEventLoopsAndChannelType();
 
@@ -591,28 +593,24 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
                     : ProtocolNegotiators.serverPlaintext();
         }
 
-        List<NettyServer> transportServers = new ArrayList<>(listenAddresses.size());
-        for (SocketAddress listenAddress : listenAddresses) {
-            final NettyServer transportServer = new NettyServer(
-                    listenAddress, channelFactory, channelOptions, childChannelOptions,
-                    bossEventLoopGroupPool, workerEventLoopGroupPool, forceHeapBuffer, negotiator,
-                    streamTracerFactories, transportTracerFactory, maxConcurrentCallsPerConnection,
-                    autoFlowControl, flowControlWindow, maxMessageSize, maxHeaderListSize,
-                    keepAliveTimeInNanos, keepAliveTimeoutInNanos,
-                    maxConnectionIdleInNanos, maxConnectionAgeInNanos,
-                    maxConnectionAgeGraceInNanos, permitKeepAliveWithoutCalls, permitKeepAliveTimeInNanos,
-                    this.serverImplBuilder.getChannelz()) {
-                //--------------------------------  modify pinpoint
-                @Override
-                public void start(final ServerListener serverListener) throws IOException {
-                    ServerListener delegate = serverListenerDelegator.wrapServerListener(serverListener);
-                    super.start(delegate);
-                }
-                //--------------------------------  modify pinpoint
-            };
-            transportServers.add(transportServer);
-        }
-        return Collections.unmodifiableList(transportServers);
+        final NettyServer transportServer = new NettyServer(listenAddresses, channelFactory, channelOptions, childChannelOptions,
+                bossEventLoopGroupPool, workerEventLoopGroupPool, forceHeapBuffer, negotiator,
+                streamTracerFactories, transportTracerFactory, maxConcurrentCallsPerConnection,
+                autoFlowControl, flowControlWindow, maxMessageSize, maxHeaderListSize,
+                keepAliveTimeInNanos, keepAliveTimeoutInNanos,
+                maxConnectionIdleInNanos, maxConnectionAgeInNanos,
+                maxConnectionAgeGraceInNanos, permitKeepAliveWithoutCalls, permitKeepAliveTimeInNanos,
+                eagAttributes, this.serverImplBuilder.getChannelz()) {
+            //--------------------------------  modify pinpoint
+            @Override
+            public void start(final ServerListener serverListener) throws IOException {
+                ServerListener delegate = serverListenerDelegator.wrapServerListener(serverListener);
+                super.start(delegate);
+            }
+            //--------------------------------  modify pinpoint
+        };
+
+        return transportServer;
     }
 
     @VisibleForTesting
