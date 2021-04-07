@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.metric.web.dao.SystemMetricHostInfoDao">
+
+    <resultMap id="MetricTagResultMap" type="MetricTag">
+        <constructor>
+            <arg column="host_group_name" javaType="string"/>
+            <arg column="host_name" javaType="string"/>
+            <arg column="metric_name" javaType="string"/>
+            <arg column="field_name" javaType="string"/>
+            <arg column="tags" javaType="list" typeHandler="TagListTypeHandler" />
+        </constructor>
+    </resultMap>
+
+    <select id="selectHostGroupNameList" resultType="String">
+        SELECT DISTINCT host_group_name
+        FROM system_metric_tag;
+    </select>
+
+    <select id="selectHostList" parameterType="String" resultType="String">
+        SELECT DISTINCT host_name
+        FROM system_metric_tag
+        WHERE host_group_name = #{hostGroupName};
+    </select>
+
+    <select id="selectCollectedMetricInfo" parameterType="metricInfoSearchKey" resultType="String">
+        SELECT DISTINCT metric_name
+        FROM system_metric_tag
+        WHERE host_group_name = #{hostGroupName} AND host_name = #{hostName};
+    </select>
+
+    <select id="selectMetricTagList" resultMap="MetricTagResultMap" parameterType="MetricTagKey">
+        SELECT *
+        FROM system_metric_tag
+        WHERE host_group_name = #{hostGroupName} AND host_name = #{hostName} AND metric_name = #{metricName} AND field_name = #{fieldName};
+    </select>
+
+</mapper>

@@ -115,6 +115,7 @@
         <module>batch</module>
 
         <module>hbase2-module</module>
+        <module>metric-module</module>
 
         <!-- <module>agent-testweb</module> -->
         <!-- <module>plugins-it</module> -->

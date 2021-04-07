@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.metric.collector.dao.MetricTagDao">
+
+    <resultMap id="MetricTagResultMap" type="MetricTag">
+        <constructor>
+            <arg column="host_group_name" javaType="string"/>
+            <arg column="host_name" javaType="string"/>
+            <arg column="metric_name" javaType="string"/>
+            <arg column="field_name" javaType="string"/>
+            <arg column="tags" javaType="list" typeHandler="TagListTypeHandler" />
+        </constructor>
+    </resultMap>
+
+    <insert id="insertMetricTag" parameterType="MetricTag">
+        INSERT INTO system_metric_tag (host_group_name, host_name, metric_name, field_name, tags)
+        SELECT #{hostGroupName}, #{hostName}, #{metricName}, #{fieldName}, #{tags, typeHandler=TagListTypeHandler}
+        FROM DUAL
+        WHERE NOT EXISTS (
+                            SELECT *
+                            FROM system_metric_tag
+                            WHERE host_group_name = #{hostGroupName} AND host_name = #{hostName} AND metric_name = #{metricName} AND field_name = #{fieldName} AND tags = #{tags, typeHandler=TagListTypeHandler}
+                        );
+    </insert>
+
+    <select id="selectMetricTagList" resultMap="MetricTagResultMap" parameterType="MetricTagKey">
+        SELECT *
+        FROM system_metric_tag
+        WHERE host_group_name = #{hostGroupName} AND host_name = #{hostName} AND metric_name = #{metricName} AND field_name = #{fieldName};
+    </select>
+</mapper>

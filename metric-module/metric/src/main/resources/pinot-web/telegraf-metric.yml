@@ -1,0 +1,96 @@
+mappings:
+  - definitionId: "cpu"
+    name: "cpu"
+    title: "cpu"
+    grouping: "TAG"
+    unit: "percent"
+    fields:
+      - name: "usage_user"
+        tags:
+          - { name: "cpu", value: "cpu-total" }
+        matchingRule: EXACT
+      - name: "usage_system"
+        tags:
+          - { name: "cpu", value: "cpu-total" }
+        matchingRule: EXACT
+      - name: "usage_idle"
+        tags:
+          - { name: "cpu", value: "cpu-total" }
+        matchingRule: EXACT
+
+  - definitionId: "memoryPercent"
+    name: "mem"
+    title: "memory usage percent"
+    grouping: "TAG"
+    unit: "percent"
+    fields:
+      - name: "used_percent"
+        matchingRule: EXACT
+
+  - definitionId: "memoryUsage"
+    name: "mem"
+    title: "memory usage"
+    grouping: "TAG"
+    unit: "byte"
+    fields:
+      - name: "total"
+        matchingRule: EXACT
+      - name: "used"
+        matchingRule: EXACT
+
+  - definitionId: "diskUsage"
+    name: "disk"
+    title: "disk usage"
+    grouping: "TAG"
+    unit: "byte"
+    fields:
+      - name: "total"
+        matchingRule: ALL
+      - name: "used"
+        matchingRule: ALL
+
+  - definitionId: "diskPercent"
+    name: "disk"
+    title: "disk usage percent"
+    grouping: "TAG"
+    unit: "percent"
+    fields:
+      - name: "used_percent"
+        matchingRule: ALL
+
+  - definitionId: "inodeUsage"
+    name: "disk"
+    title: "inode usage"
+    grouping: "TAG"
+    unit: "count"
+    fields:
+      - name: "inodes_total"
+        matchingRule: ALL
+      - name: "inodes_used"
+        matchingRule: ALL
+      - name: "inodes_free"
+        matchingRule: ALL
+
+  - definitionId: "systemLoad"
+    name: "system"
+    title: "system load"
+    grouping: "TAG"
+    unit: "percent"
+    fields:
+      - name: "load1"
+        matchingRule: EXACT
+      - name: "load5"
+        matchingRule: EXACT
+      - name: "load15"
+        matchingRule: EXACT
+
+  - definitionId: "swap"
+    name: "swap"
+    title: "swap"
+    grouping: "TAG"
+    unit: "count"
+    fields:
+      - name: "total"
+        matchingRule: EXACT
+      - name: "used"
+        matchingRule: EXACT

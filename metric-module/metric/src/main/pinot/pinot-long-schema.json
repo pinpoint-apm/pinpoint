@@ -1,0 +1,47 @@
+{
+  "schemaName": "systemMetricLong",
+  "dimensionFieldSpecs": [
+    {
+      "name": "serviceName",
+      "dataType": "STRING",
+      "defaultNullValue": ""
+    },
+    {
+      "name": "hostGroupName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "hostName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "metricName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "fieldName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "tags",
+      "dataType": "STRING",
+      "singleValueField": false,
+      "defaultNullValue": "null"
+    }
+  ],
+  "metricFieldSpecs": [
+    {
+      "name": "fieldValue",
+      "dataType": "LONG",
+      "defaultNullValue": -1
+    }
+  ],
+  "dateTimeFieldSpecs": [
+    {
+      "name": "eventTime",
+      "dataType": "LONG",
+      "format" : "1:MILLISECONDS:EPOCH",
+      "granularity": "1:MILLISECONDS"
+    }
+  ]
+}

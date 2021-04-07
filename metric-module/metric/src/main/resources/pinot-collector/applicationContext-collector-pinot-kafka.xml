@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
+
+    <util:map id="kafkaProducerFactoryProperties" key-type="java.lang.String" value-type="java.lang.String">
+        <entry key="bootstrap.servers" value="${pinpoint.metric.kafka.bootstrap.servers}"/>
+        <entry key="key.serializer" value="${pinpoint.metric.kafka.key.serializer}"/>
+        <entry key="value.serializer" value="${pinpoint.metric.kafka.value.serializer}"/>
+        <entry key="partitioner.class" value="org.apache.kafka.clients.producer.internals.DefaultPartitioner"/>
+        <entry key="acks" value="${pinpoint.metric.kafka.acks}"/>
+    </util:map>
+
+    <bean id="kafkaProducerFactory" class="org.springframework.kafka.core.DefaultKafkaProducerFactory">
+        <constructor-arg index="0" ref="kafkaProducerFactoryProperties" />
+    </bean>
+
+    <bean id="kafkaLongTemplate" class="org.springframework.kafka.core.KafkaTemplate">
+        <constructor-arg index="0" ref="kafkaProducerFactory"/>
+    </bean>
+
+    <bean id="kafkaDoubleTemplate" class="org.springframework.kafka.core.KafkaTemplate">
+        <constructor-arg index="0" ref="kafkaProducerFactory"/>
+    </bean>
+
+</beans>

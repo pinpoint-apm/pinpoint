@@ -1,0 +1,30 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+           http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd">
+
+    <bean id="metricMysqlTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="metricMysqlDataSource"/>
+    </bean>
+
+    <tx:annotation-driven/>
+
+    <!-- SqlsessionFactory setup for MyBatis Database Layer -->
+    <bean id="metricMysqlSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="metricMysqlDataSource"/>
+        <!-- mybatis basic config -->
+        <property name="configLocation" value="classpath:/pinot-web/mybatis-mysql-config.xml"/>
+        <!-- setting the location of mapper -->
+        <property name="mapperLocations" value="classpath*:pinot-web/mapper/mysql/*Mapper.xml"/>
+        <!-- set "true" in order to catch the errors of declaration of statement more quickly -->
+        <property name="failFast" value="true"/>
+    </bean>
+
+    <bean id="metricMysqlSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="metricMysqlSqlSessionFactory"/>
+    </bean>
+
+</beans>
