@@ -29,6 +29,7 @@ public class CollectorEnvironmentPostProcessor implements EnvironmentPostProcess
             "classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector.properties",
             "classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector-grpc.properties",
             "classpath:profiles/${pinpoint.profiles.active}/jdbc.properties",
+            "classpath:pinot-collector/profiles/${pinpoint.profiles.active}/jdbc.properties",
     };
     private static final String EXTERNAL_CONFIGURATION_KEY = "pinpoint.collector.config.location";
 

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.metric.common.model;
+package com.navercorp.pinpoint.metric.collector.dao;
 
-@Deprecated
-public interface SystemMetricMetadata {
-    void put(String metricName, String fieldName, MetricDataType type);
+import com.navercorp.pinpoint.metric.common.model.MetricData;
+import com.navercorp.pinpoint.metric.common.model.MetricDataName;
+import com.navercorp.pinpoint.metric.common.model.MetricDataType;
 
-    MetricDataType get(String metricName, String fieldName);
+import java.util.List;
+import java.util.Map;
 
-    void save();
+/**
+ * @author minwoo.jung
+ */
+public interface SystemMetricDataTypeDao {
+    List<MetricData> selectMetricDataType();
+
+    void updateMetricDataType(List<MetricData> metricData);
 }

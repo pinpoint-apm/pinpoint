@@ -21,10 +21,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.navercorp.pinpoint.metric.collector.model.SystemMetricJsonDeserializer;
+import com.navercorp.pinpoint.metric.collector.service.SystemMetricDataTypeService;
 import com.navercorp.pinpoint.metric.collector.service.SystemMetricService;
+import com.navercorp.pinpoint.metric.collector.service.SystemMetricTagService;
 import com.navercorp.pinpoint.metric.common.model.DoubleCounter;
 import com.navercorp.pinpoint.metric.common.model.LongCounter;
-import com.navercorp.pinpoint.metric.common.model.MetricType;
+import com.navercorp.pinpoint.metric.common.model.MetricDataType;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import com.navercorp.pinpoint.metric.common.model.SystemMetricMetadata;
 import org.slf4j.Logger;
@@ -51,15 +53,18 @@ public class SystemMetricController {
 
     private final SystemMetricService<SystemMetric> systemMetricService;
     private final ObjectMapper objectMapper;
-    private final SystemMetricMetadata systemMetricMetadata;
+    private final SystemMetricDataTypeService systemMetricMetadataService;
+    private final SystemMetricTagService systemMetricTagService;
 
     public SystemMetricController(ObjectMapper objectMapper,
                                   SystemMetricService<SystemMetric> systemMetricService,
-                                  SystemMetricMetadata systemMetricMetadata) {
+                                  SystemMetricDataTypeService systemMetricMetadataService,
+                                  SystemMetricTagService systemMetricTagService) {
         Objects.requireNonNull(objectMapper, "objectMapper");
         this.objectMapper = objectMapper.registerModule(deserializerModule());
         this.systemMetricService = Objects.requireNonNull(systemMetricService, "systemMetricService");
-        this.systemMetricMetadata = Objects.requireNonNull(systemMetricMetadata, "systemMetricMetadata");
+        this.systemMetricMetadataService = Objects.requireNonNull(systemMetricMetadataService, "systemMetricMetadataService");
+        this.systemMetricTagService = Objects.requireNonNull(systemMetricTagService, "systemMetricTagService");
     }
 
     @RequestMapping(value = "/telegraf", method = RequestMethod.POST)
@@ -67,9 +72,12 @@ public class SystemMetricController {
     public void saveSystemMetric(
             @RequestHeader(value = "Application-Name") String applicationName,
             @RequestBody String body) throws JsonProcessingException {
+        // TODO : (minwoo) 아래 로그 제거 필요
+        logger.info("Application-Name : " + applicationName);
+        logger.info("body : " + body);
         JsonNode jsonNode = objectMapper.readTree(body).get("metrics");
         List<SystemMetric> systemMetrics = Arrays.asList(objectMapper.readValue(jsonNode.toString(), SystemMetric[].class));
-        updateMetadata(systemMetrics);
+        updateMetadata(applicationName, systemMetrics);
         systemMetricService.insert(applicationName, systemMetrics);
     }
 
@@ -77,16 +85,25 @@ public class SystemMetricController {
         return new SimpleModule().addDeserializer(SystemMetric.class, new SystemMetricJsonDeserializer());
     }
 
-    private void updateMetadata(List<SystemMetric> systemMetrics) {
+    private void updateMetadata(String applicationName, List<SystemMetric> systemMetrics) {
         for (SystemMetric systemMetric : systemMetrics) {
-            if (systemMetric instanceof LongCounter) {
-                systemMetricMetadata.put(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricType.LongCounter);
-            } else if (systemMetric instanceof DoubleCounter) {
-                systemMetricMetadata.put(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricType.DoubleCounter);
-            } else {
-                throw new IllegalArgumentException("UnknownType:" + systemMetric.getClass().getName());
-            }
+            systemMetricMetadataService.saveMetricDataType(systemMetric);
+            systemMetricTagService.saveMetricTag(applicationName, systemMetric);
         }
-        systemMetricMetadata.save();
     }
+
+    // TODO : (minwoo) 아래 주석 제거 필요
+//    private void updateMetadata(List<SystemMetric> systemMetrics) {
+//        for (SystemMetric systemMetric : systemMetrics) {
+//            if (systemMetric instanceof LongCounter) {
+//                systemMetricMetadata.put(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.LONG);
+//            } else if (systemMetric instanceof DoubleCounter) {
+//                systemMetricMetadata.put(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.DOUBLE);
+//            } else {
+//                throw new IllegalArgumentException("UnknownType:" + systemMetric.getClass().getName());
+//            }
+//        }
+//        systemMetricMetadata.save();
+//    }
+
 }

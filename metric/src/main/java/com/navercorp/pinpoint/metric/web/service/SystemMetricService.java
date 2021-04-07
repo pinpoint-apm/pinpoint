@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.metric.web.service;
 
 
-import com.navercorp.pinpoint.metric.common.model.MetricType;
+import com.navercorp.pinpoint.metric.common.model.MetricDataType;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import com.navercorp.pinpoint.metric.common.model.SystemMetricMetadata;
 import com.navercorp.pinpoint.metric.web.dao.pinot.PinotSystemMetricDoubleDao;
@@ -53,12 +53,12 @@ public class SystemMetricService {
     }
 
     public List<SystemMetric> getSystemMetricBoList(QueryParameter queryParameter) {
-        MetricType metricType = systemMetricMetadata.get(queryParameter.getMetricName(), queryParameter.getFieldName());
+        MetricDataType metricDataType = systemMetricMetadata.get(queryParameter.getMetricName(), queryParameter.getFieldName());
 
-        switch (metricType) {
-            case LongCounter:
+        switch (metricDataType) {
+            case LONG:
                 return pinotSystemMetricLongDao.getSystemMetric(queryParameter);
-            case DoubleCounter:
+            case DOUBLE:
                 return pinotSystemMetricDoubleDao.getSystemMetric(queryParameter);
             default:
                 throw new RuntimeException("No Such Metric");
@@ -69,14 +69,14 @@ public class SystemMetricService {
         String metricName = queryParameter.getMetricName();
         String fieldName = queryParameter.getFieldName();
 
-        MetricType metricType = systemMetricMetadata.get(metricName, fieldName);
+        MetricDataType metricDataType = systemMetricMetadata.get(metricName, fieldName);
         String chartName = getChartName(metricName, fieldName);
 
-        switch (metricType) {
-            case LongCounter:
+        switch (metricDataType) {
+            case LONG:
                 List<SampledSystemMetric<Long>> sampledLongSystemMetrics = pinotSystemMetricLongDao.getSampledSystemMetric(queryParameter);
                 return new SystemMetricChart(timeWindow, chartName, sampledLongSystemMetrics);
-            case DoubleCounter:
+            case DOUBLE:
                 List<SampledSystemMetric<Double>> sampledDoubleSystemMetrics = pinotSystemMetricDoubleDao.getSampledSystemMetric(queryParameter);
                 return new SystemMetricChart(timeWindow, chartName, sampledDoubleSystemMetrics);
             default:
