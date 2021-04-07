@@ -15,7 +15,7 @@
     left: 20px;
     top: 50%;
     transform: translateY(-50%);
-    color: #333;
+    color: var(--text-primary-color);
     font-size: 14px;
     font-style: italic;
 }

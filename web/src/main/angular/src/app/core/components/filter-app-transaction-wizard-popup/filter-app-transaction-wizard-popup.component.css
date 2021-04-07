@@ -21,7 +21,7 @@
     position: relative;
     font-size: 13px;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary-color);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -157,7 +157,7 @@
 .l-widget-group input {
     border: 1px solid #ccc;
     font-size: 13px;
-    color: #333;
+    color: var(--text-primary-color);
     padding: 6px 11px;
     width: 100%;
 }

@@ -28,7 +28,7 @@
     top: 50%;
     right: 8px;
     transform: translateY(-50%);
-    color:#a8acb5;
+    color:var(--text-tertiary-color);
     font-size:18px;
 }
 
@@ -57,7 +57,7 @@
 
 .l-list-contents {
     width: 100%;
-    color:#8a939e;
+    color: var(--text-tertiary-color);
     padding: 7px 7px 7px 10px;
     font-size:12px;
     white-space: nowrap;
@@ -74,7 +74,7 @@
 
 .l-empty-contents {
     width: 100%;
-    color:#8a939e;
+    color:var(--text-tertiary-color);
     padding: 7px 7px 7px 10px;
     font-size:12px;
 }

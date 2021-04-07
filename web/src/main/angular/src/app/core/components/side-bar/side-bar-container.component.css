@@ -19,7 +19,7 @@
 .l-title-group {
     display: flex;
     flex-flow: row wrap;
-    color: #666;
+    color: var(--text-secondary-color);
     justify-content: space-between;
     align-items: center;
     padding: 0 12px;

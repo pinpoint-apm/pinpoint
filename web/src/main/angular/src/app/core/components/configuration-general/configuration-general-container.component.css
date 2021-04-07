@@ -7,7 +7,7 @@
 }
 
 .l-desc-text {
-    color: #999;
+    color: var(--text-tertiary-color);
     font-size: 14px;
 }
 
@@ -31,13 +31,13 @@ tbody > tr {
 
 .l-section-table th {
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary-color);
     padding: 12px 0;
 }
 
 .l-section-table td {
     font-weight: 400;
-    color: #999;
+    color: var(--text-tertiary-color);
     padding: 12px 20px;
 }
 
@@ -50,7 +50,7 @@ tbody > tr {
 }
 
 .l-servermap-span {
-    color: #666;
+    color: var(--text-secondary-color);
 }
 .l-servermap-span .fas {
     color:#d0d0d0;

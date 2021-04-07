@@ -10,7 +10,7 @@
 }
 
 .l-alarm-rules-table th {
-    color: #333;
+    color: var(--text-primary-color);
     font-size: 13px;
     padding: 0 !important;
 }

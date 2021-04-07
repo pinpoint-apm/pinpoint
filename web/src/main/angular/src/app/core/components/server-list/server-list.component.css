@@ -12,7 +12,7 @@
 }
 .l-servers-list li {
     font-size: 13px;
-    color:#333;
+    color:var(--text-primary-color);
     font-weight: 600;
 }
 .l-servers-list li {
@@ -26,7 +26,7 @@
     content: '\f0ae';
     font-size: 14px;
     margin: 0 8px 0 0;
-    color: #999;
+    color: var(--text-tertiary-color);
     font-weight: normal;
 }
 .l-servers-list li .l-category {
@@ -44,11 +44,11 @@
 }
 .l-servers-list li ul li {
     font-size: 12px;
-    color: #666;
+    color: var(--text-secondary-color);
     font-weight: 400;
     height: 20px;
     margin: 5px 0px;
-    color: #999;
+    color: var(--text-tertiary-color);
 }
 .l-servers-list li ul li input {
     margin: 0 5px;

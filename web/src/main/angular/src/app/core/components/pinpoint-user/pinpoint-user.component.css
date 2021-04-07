@@ -3,7 +3,7 @@
     align-items: center;
     width: 100%;
     margin: 0;
-    color: #333;
+    color: var(--text-primary-color);
     padding: 12px 15px;
     font-size: 13px;    
 }
@@ -26,7 +26,7 @@
 }
 
 .fa-edit {
-    color: #666;
+    color: var(--text-secondary-color);
     font-size: 14px;
 }
 

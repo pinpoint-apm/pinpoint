@@ -39,7 +39,7 @@
 
 .l-guide-text {
     font-family: 'Open Sans';
-    color: #333;
+    color: var(--text-primary-color);
     font-size: 14px;
     font-style: italic;
 }

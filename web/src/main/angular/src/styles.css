@@ -16,7 +16,7 @@ html {
 }
 
 body {
-    color: #333;
+    color: var(--text-primary-color);
     font-family: 'Nanum Gothic', '나눔고딕';
 }
 
@@ -81,7 +81,7 @@ caption {
 
 .btn {
     font-size: 13px;
-    color: #666;
+    color: var(--text-secondary-color);
     height: 30px;
     padding: 0 9px;
     border-radius: 2px;
@@ -182,11 +182,11 @@ caption {
 }
 
 .table th {
-    color: #666;
+    color: var(--text-secondary-color);
 }
 
 .table td{
-    color: #999;
+    color: var(--text-tertiary-color);
 }
 
 .table td, .table tbody th {
@@ -232,7 +232,7 @@ caption {
     text-anchor: middle !important;
     font-family: 'Open Sans';
     font-size: 0.75vw;
-    fill: #333;
+    fill: var(--text-primary-color);
     font-weight: bold;
 }
 

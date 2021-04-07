@@ -6,7 +6,7 @@
     margin-bottom: 20px;
 }
 .l-desc-text {
-    color: #999;
+    color: var(--text-tertiary-color);
     font-size: 14px;
 }
 .l-title {

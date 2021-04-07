@@ -42,7 +42,7 @@
     width: 100%;
     display: inline-block;
     outline: 0;
-    color: #333;
+    color: var(--text-primary-color);
     margin-top: 4px;
     background-color: #fff;
 }

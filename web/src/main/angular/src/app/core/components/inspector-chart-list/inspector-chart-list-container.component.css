@@ -2,7 +2,7 @@
     position: relative;
 }
 .l-chart-wrapper {
-    color: #333;
+    color: var(--text-primary-color);
     border: 1px solid #e5e8f0;
     height: 100%;
     display: grid;

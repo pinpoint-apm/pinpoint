@@ -26,7 +26,7 @@
     position: relative;
     font-size: 13px;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary-color);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -62,14 +62,14 @@
 .l-sql-list dt {
     font-size: 13px;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary-color);
     margin: 0 0 12px;
 }
 .l-sql-list dd {
     border: 1px solid #cfd7e1;
     background: #fff;
     font-size: 13px;
-    color: #999;
+    color: var(--text-tertiary-color);
     line-height: 2em;
     position: relative;
 }

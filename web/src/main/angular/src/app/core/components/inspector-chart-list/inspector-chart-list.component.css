@@ -6,7 +6,7 @@
 .l-chart-list-item {
     font-size: 13px;
     padding: 12px 12px 12px 12px;
-    color: #666 !important;
+    color: var(--text-secondary-color) !important;
     font-weight: 400 !important;
 }
 
@@ -35,7 +35,7 @@
 }
 
 .l-empty-text {
-    color: #333;
+    color: var(--text-primary-color);
     font-size: 16px;
     margin-top: 50px;
     text-align: center;

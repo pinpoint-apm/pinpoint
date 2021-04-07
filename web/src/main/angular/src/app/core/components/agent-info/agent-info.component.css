@@ -36,7 +36,7 @@
 .l-server-info-list li {
     height: 30px;
     font-size: 12px;
-    color:#999;
+    color:var(--text-tertiary-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -55,7 +55,7 @@
     position: absolute;
     right: -250px;
     top: 0;
-    color:#999;
+    color:var(--text-tertiary-color);
 }
 .l-server-info-list li ul li {
     height: auto;

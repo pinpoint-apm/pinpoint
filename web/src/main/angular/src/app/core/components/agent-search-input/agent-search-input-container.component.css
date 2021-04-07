@@ -16,7 +16,7 @@
     padding: 4px 4px 4px 11px;
 }
 .l-container-wrapper button {
-    color: #a8acb5;
+    color: var(--text-tertiary-color);
     font-size: 18px;
 }
 .l-wrapper {

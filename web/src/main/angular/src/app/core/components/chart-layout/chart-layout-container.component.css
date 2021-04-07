@@ -2,7 +2,7 @@
     position: relative;
 }
 .l-chart-wrapper {
-    color: #333;
+    color: var(--text-primary-color);
     height: 100%;
     display: grid;
     position: relative;

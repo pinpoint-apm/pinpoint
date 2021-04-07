@@ -33,7 +33,7 @@
     cursor: pointer;
     display:inline-block;
     font-size: 13px;
-    color: #666;
+    color: var(--text-secondary-color);
     padding: 14px 15px;
     border: 1px solid transparent;
     border-top-left-radius: 3px;

@@ -33,7 +33,7 @@
     top: 50%;
     right: 8px;
     transform: translateY(-50%);
-    color:#a8acb5;
+    color:var(--text-tertiary-color);
     font-size:18px;
 }
 

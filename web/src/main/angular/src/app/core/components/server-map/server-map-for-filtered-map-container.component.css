@@ -47,7 +47,7 @@
 .l-sql-list dt {
     font-size: 13px;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary-color);
     margin: 0 0 12px;
 }
 .l-sql-list dd {
@@ -55,7 +55,7 @@
     background: #fff;
     padding: 28px 28px;
     font-size: 13px;
-    color: #999;
+    color: var(--text-tertiary-color);
     line-height: 2em;
     position: relative;
 }

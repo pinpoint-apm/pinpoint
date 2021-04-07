@@ -20,7 +20,7 @@
     position: relative;
     font-size: 13px;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary-color);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -54,7 +54,7 @@
     margin: 0;
 }
 .l-list dt {
-    color: #333;
+    color: var(--text-primary-color);
     margin: 0 0 12px;
     font-size: 13px;
     font-weight: 600;

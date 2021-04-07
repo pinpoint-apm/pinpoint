@@ -16,7 +16,7 @@
 }
 .l-target-container .l-search-header {
     /* autoprefixer: off */
-    color: #B3B3B4;
+    color: var(--text-tertiary-color);
     grid-column: 1 / 2;
     grid-row: 1 / 2;
     border-bottom: 1px solid #e5e8f0;
@@ -44,7 +44,7 @@
     position: absolute;
     right: 10px;
     top: 8px;
-    color: #B3B3B4;
+    color: var(--text-tertiary-color);
 }
 .l-target-container .l-target-list {
     /* autoprefixer: off */

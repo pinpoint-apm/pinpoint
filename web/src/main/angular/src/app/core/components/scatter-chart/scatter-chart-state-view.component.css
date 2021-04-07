@@ -2,7 +2,7 @@
     display: block;
 }
 .l-checkbox-group {
-    color:#b3b3b4;
+    color: var(--text-tertiary-color);
     margin: 24px 0 0 0;
     display: flex;
     flex-flow: row wrap;
@@ -10,7 +10,7 @@
     justify-content: space-around;
 }
 .l-checkbox-group span {
-    color:#333;
+    color: var(--text-primary-color);
     font-size:22px;
 }
 .l-checkbox-group .success:before {

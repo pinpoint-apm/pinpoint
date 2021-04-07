@@ -25,7 +25,7 @@
 }
 .l-status-count li {
     font-size: 12px;
-    color: #B3B3B4;
+    color: var(--text-tertiary-color);
     float: left;
 }
 .l-status-count li:first-child {

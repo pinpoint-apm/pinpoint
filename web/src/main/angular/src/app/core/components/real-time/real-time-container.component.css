@@ -28,7 +28,7 @@
 }
 .l-title-group .fas {
     font-size: 18px;
-    color: #a8acb5;
+    color: var(--text-tertiary-color);
     cursor: pointer;
 }
 .l-title-group .l-title .fas {

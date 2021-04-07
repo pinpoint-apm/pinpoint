@@ -11,7 +11,7 @@
     font-size: 13px;
     font-weight: 600;
     padding: 0 20px;
-    color: #333;
+    color: var(--text-primary-color);
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;

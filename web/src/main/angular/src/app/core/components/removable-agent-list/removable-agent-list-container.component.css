@@ -3,7 +3,7 @@
     width: 100%;
     height: 100%;
     position: relative;
-    color: #333;
+    color: var(--text-primary-color);
     font-size: 13px;
     font-family: 'Open Sans', sans-serif;
     font-weight: 600;
@@ -50,7 +50,7 @@
     box-shadow: 0 0 1px 0 #ccc;
     padding: 10px 14px;
     font-size: 13px;
-    color: #333;
+    color: var(--text-primary-color);
     background-color: #fff;
     outline: 0;
 }
@@ -114,7 +114,7 @@
 
 .l-remove-app-message {
     font-size: 22px;
-    color: #333;
+    color: var(--text-primary-color);
     font-weight: 600;
 }
 

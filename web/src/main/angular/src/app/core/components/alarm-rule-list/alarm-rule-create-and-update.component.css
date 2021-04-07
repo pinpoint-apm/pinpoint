@@ -56,7 +56,7 @@ form {
     padding: 10px 14px;
     border: 1px solid #ccc;
     font-size: 13px;
-    color: #333;
+    color: var(--text-primary-color);
     box-shadow: 0 0 1px 0 #ccc;
     outline: 0;
 }
@@ -85,7 +85,7 @@ form {
     padding: 10px 14px;
     border: 1px solid #ccc;
     font-size: 13px;
-    color: #333;
+    color: var(--text-primary-color);
     box-shadow: 0 0 1px 0 #ccc;
     outline: 0;
 }
@@ -105,7 +105,7 @@ form {
 }
 
 .l-form-label {
-    color: #333;
+    color: var(--text-primary-color);
     font-size: 13px;
     font-family: 'Open Sans', sans-serif;
     font-weight: 600;
@@ -133,6 +133,6 @@ form {
 
 .fa-question-circle {
     font-size: 14px;
-    color: #a8acb5;
+    color: var(--text-tertiary-color);
     margin-left: 5px;
 }

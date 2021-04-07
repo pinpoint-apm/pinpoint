@@ -6,7 +6,7 @@
 .l-application-list-item {
     font-size: 13px;
     padding: 12px 15px;
-    color: #666 !important;
+    color: var(--text-secondary-color) !important;
     font-weight: 400 !important;
     display: flex;
     align-items: center;

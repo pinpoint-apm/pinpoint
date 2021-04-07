@@ -13,7 +13,7 @@
 }
 .l-legend li {
     margin: 8px 0 0;
-    color: #666;
+    color: var(--text-secondary-color);
 }
 .l-legend li:first-child {
     margin: 0;
@@ -40,7 +40,7 @@
     text-overflow: ellipsis;
 }
 .l-legend li:nth-child(1) .l-circle {
-    background:#a8acb5
+    background:var(--text-tertiary-color);
 }
 .l-legend li:nth-child(2) .l-circle {
     background:#e76f4b

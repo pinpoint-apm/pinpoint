@@ -15,7 +15,7 @@
 .l-title-group2 {
     display: flex;
     flex-flow: row wrap;
-    color: #666;
+    color: var(--text-secondary-color);
     justify-content: space-between;
     align-items: center;
     padding: 0 25px;
@@ -24,7 +24,7 @@
     height: 50px;    
 }
 .l-selected-agent {
-    color: #666;
+    color: var(--text-secondary-color);
     font-size: 13px;
 }
 .l-selected-agent button {
@@ -99,7 +99,7 @@
 .l-title-group3 .l-title {
     font-size: 24px;
     font-weight: 600;
-    color: #666;
+    color: var(--text-secondary-color);
 }
 .l-sidemenu3 .l-contents-group {
     height: calc(100vh - 150px);

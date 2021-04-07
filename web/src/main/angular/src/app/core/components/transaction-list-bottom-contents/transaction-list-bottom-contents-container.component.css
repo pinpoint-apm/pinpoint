@@ -31,6 +31,6 @@
 }
 
 .l-middle-tool-box, .l-middle-tool-box-tip {
-    color:#a8acb5;
+    color:var(--text-tertiary-color);
     font-size: 18px
 }

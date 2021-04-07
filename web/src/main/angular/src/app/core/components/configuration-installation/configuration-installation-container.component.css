@@ -10,7 +10,7 @@
 }
 
 .l-desc-text {
-    color: #999;
+    color: var(--text-tertiary-color);
     font-size: 14px;
 }
 
@@ -50,7 +50,7 @@ tbody > tr {
 
 .l-section-table th {
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary-color);
     padding: 12px 0;
 }
 

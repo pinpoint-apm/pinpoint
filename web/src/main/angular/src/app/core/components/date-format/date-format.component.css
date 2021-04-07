@@ -19,7 +19,7 @@
     border: 1px solid #d7dde4 !important;
     border-radius: 0px;
     font-size: 13px;
-    color: #666;
+    color: var(--text-secondary-color);
     appearance: none;
     -webkit-appearance: none;
     outline: 0;

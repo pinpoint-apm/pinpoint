@@ -1,5 +1,5 @@
 .l-time-select {
-    color:#8a939e;
+    color: var(--text-tertiary-color);
     /* background-color:rgba(255, 255, 255, 0.6); */
     padding:7px;
     margin-right: 4px;

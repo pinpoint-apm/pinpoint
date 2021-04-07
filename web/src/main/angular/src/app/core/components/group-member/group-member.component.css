@@ -1,5 +1,5 @@
 li {
-    color: #333;
+    color: var(--text-primary-color);
     /* height: 28px; */
     margin: 0;
     cursor: pointer;

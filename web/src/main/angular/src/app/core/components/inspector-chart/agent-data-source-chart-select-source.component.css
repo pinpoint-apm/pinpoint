@@ -2,7 +2,7 @@
     display: block;
 }
 .l-source-select-button {
-    color: #a8acb5;
+    color: var(--text-tertiary-color);
     font-size: 15px;
 }
 .l-source-select-modal {

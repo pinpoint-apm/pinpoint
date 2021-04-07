@@ -31,7 +31,7 @@ button {
     display: inline-block;
     font-size: 14px;
     margin-left: 15px;
-    color: #333;
+    color: var(--text-primary-color);
 }
 
 .l-dropdown-menu-wrapper {
@@ -59,7 +59,7 @@ button {
 
 .l-bound-list-item {
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary-color);
     font-size: 13px;
     padding: 5px 10px;
     cursor: pointer;
@@ -67,7 +67,7 @@ button {
 
 .l-bound-title {
     padding: 5px 10px;
-    color: #333;
+    color: var(--text-primary-color);
     background-color: #edf2f8;
     font-weight: 600 !important;
     font-size: 13px;

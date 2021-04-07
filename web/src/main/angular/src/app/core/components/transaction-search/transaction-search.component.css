@@ -10,7 +10,7 @@
     position:relative;
 }
 .l-search-group-wrap .fas {
-    color:#a8acb5;
+    color:var(--text-tertiary-color);
     font-size:18px;
 }
 .l-search-group-wrap .l-search-group2 {
