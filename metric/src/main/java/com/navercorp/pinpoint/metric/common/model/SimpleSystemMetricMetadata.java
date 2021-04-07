@@ -34,21 +34,22 @@ import java.util.concurrent.ConcurrentMap;
  * @author Hyunjoon Cho
  */
 @Component
+@Deprecated
 public class SimpleSystemMetricMetadata implements SystemMetricMetadata {
-    private final String METADATA_PATH = "./metric/SystemMetricMetadata.txt";
+    private final String METADATA_PATH = "/Users/user/workspace/pinpoint_olap/pinpoint/metric/SystemMetricMetadata.txt";
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ConcurrentMap<String, MetricType> fieldTypeMap;
+    private final ConcurrentMap<String, MetricDataType> fieldTypeMap;
 
     private SimpleSystemMetricMetadata() {
         fieldTypeMap = loadOrCreate();
     }
 
-    private ConcurrentMap<String, MetricType> loadOrCreate() {
+    private ConcurrentMap<String, MetricDataType> loadOrCreate() {
         try {
             ObjectInputStream ois = new ObjectInputStream(
                     new FileInputStream(new File(METADATA_PATH)));
-            Map<String, MetricType> map = (Map<String, MetricType>) ois.readObject();
+            Map<String, MetricDataType> map = (Map<String, MetricDataType>) ois.readObject();
             logger.info("Loaded Metadata");
             return new ConcurrentHashMap<>(map);
         } catch (Exception e) {
@@ -58,17 +59,17 @@ public class SimpleSystemMetricMetadata implements SystemMetricMetadata {
     }
 
     @Override
-    public void put(String metricName, String fieldName, MetricType type) {
+    public void put(String metricName, String fieldName, MetricDataType type) {
         fieldTypeMap.put(metricName.concat(fieldName), type);
     }
 
     @Override
-    public MetricType get(String metricName, String fieldName) {
-        MetricType metricType = fieldTypeMap.get(metricName.concat(fieldName));
-        if (metricType == null) {
-            metricType = MetricType.Unknown;
+    public MetricDataType get(String metricName, String fieldName) {
+        MetricDataType metricDataType = fieldTypeMap.get(metricName.concat(fieldName));
+        if (metricDataType == null) {
+            metricDataType = MetricDataType.UNKNOWN;
         }
-        return metricType;
+        return metricDataType;
     }
 
     @Override
@@ -79,7 +80,7 @@ public class SimpleSystemMetricMetadata implements SystemMetricMetadata {
             oos.writeObject(fieldTypeMap);
             oos.close();
         } catch (IOException e) {
-            logger.warn("Failed to Save Metadata");
+            logger.warn("Failed to Save Metadata", e);
         }
     }
 }
