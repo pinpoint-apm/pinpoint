@@ -87,6 +87,9 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
         final ColumnName maxColumnName = new ResponseColumnName(agentId, histogramSchema.getMaxStatSlot().getSlotTime());
         this.bulkWriter.increment(selfRowKey, selfColumnName);
+        if (isPing) {
+            return;
+        }
 
         if (mapLinkConfiguration.isEnableAvg()) {
             final ColumnName sumColumnName = new ResponseColumnName(agentId, histogramSchema.getSumStatSlot().getSlotTime());
