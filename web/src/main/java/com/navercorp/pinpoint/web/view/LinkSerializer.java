@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -53,6 +54,10 @@ public class LinkSerializer extends JsonSerializer<Link> {
         // for FilterWizard. from, to agent mapping data
         writeAgentId("fromAgent", link.getFrom(), jgen);
         writeAgentId("toAgent", link.getTo(), jgen);
+
+        //for FilterWizard. show agent name as tooltip on instance
+        writeAgentIdNameMap("fromAgentIdNameMap", link.getFrom(), jgen);
+        writeAgentIdNameMap("toAgentIdNameMap", link.getTo(), jgen);
 
         writeSimpleNode("sourceInfo", link.getFrom(), jgen);
         writeSimpleNode("targetInfo", link.getTo(), jgen);
@@ -104,6 +109,20 @@ public class LinkSerializer extends JsonSerializer<Link> {
                 }
             }
             jgen.writeEndArray();
+        }
+    }
+
+    private void writeAgentIdNameMap(String fieldName, Node node, JsonGenerator jgen) throws IOException {
+        if (node.getServiceType().isWas()) {
+            jgen.writeFieldName(fieldName);
+            jgen.writeStartObject();
+            ServerInstanceList serverInstanceList = node.getServerInstanceList();
+            if (serverInstanceList!= null) {
+                for (Map.Entry<String, String> entry : serverInstanceList.getAgentIdNameMap().entrySet()) {
+                    jgen.writeStringField(entry.getKey(), entry.getValue());
+                }
+            }
+            jgen.writeEndObject();
         }
     }
 

@@ -96,10 +96,12 @@ public class NodeSerializer extends JsonSerializer<Node>  {
             serverInstanceList = null;
         }
 
+        final String agentIdNameMapKey = "agentIdNameMap";
         if (serverInstanceList == null) {
             jgen.writeNumberField("instanceCount", 0);
             jgen.writeNumberField("instanceErrorCount", 0);
             writeEmptyArray(jgen, "agentIds");
+            writeEmptyObject(jgen, agentIdNameMapKey);
             if (NodeType.DETAILED == node.getNodeType()) {
                 writeEmptyObject(jgen, "serverList");
             }
@@ -121,6 +123,13 @@ public class NodeSerializer extends JsonSerializer<Node>  {
                 jgen.writeString(agentId);
             }
             jgen.writeEndArray();
+
+            jgen.writeObjectFieldStart(agentIdNameMapKey);
+            for (Map.Entry<String, String> entry : serverInstanceList.getAgentIdNameMap().entrySet()) {
+                jgen.writeStringField(entry.getKey(), entry.getValue());
+            }
+            jgen.writeEndObject();
+
             if (NodeType.DETAILED == node.getNodeType()) {
                 jgen.writeObjectField("serverList", serverInstanceList);
             }
