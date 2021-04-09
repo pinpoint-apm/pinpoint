@@ -107,6 +107,12 @@ export class FilterTransactionWizardPopupComponent implements OnInit {
     getIconFullPath(applicationName: string): string {
         return this.funcImagePath(applicationName);
     }
+    getFromAgentName(agentId: string): string {
+        return this.link.fromAgentIdNameMap && this.link.fromAgentIdNameMap[agentId] ? this.link.fromAgentIdNameMap[agentId] : "N/A";
+    }
+    getToAgentName(agentId: string): string {
+        return this.link.toAgentIdNameMap && this.link.toAgentIdNameMap[agentId] ? this.link.toAgentIdNameMap[agentId] : "N/A";
+    }
     isSelectedResultType(type: number): boolean {
         return this.selectedResultType === type;
     }
