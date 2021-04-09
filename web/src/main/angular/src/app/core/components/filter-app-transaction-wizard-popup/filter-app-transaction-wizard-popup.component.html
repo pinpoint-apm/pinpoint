@@ -12,8 +12,8 @@
         <div class="col1 row-col-2-1">Agent</div>
         <div class="row-col-2-2">
             <ul class="l-application-list">
-                <li [class.active]="isSelectedAgent('All')" (click)="onSelectAgent('All')">ALL</li>
-                <li *ngFor="let agent of app?.agentIds" class="ellipsis" [class.active]="isSelectedAgent(agent)" (click)="onSelectAgent(agent)">{{agent}}</li>
+                <li [class.active]="isSelectedAgent('All')" (click)="onSelectAgent('All')" title="all">ALL</li>
+                <li *ngFor="let agent of app?.agentIds" class="ellipsis" [class.active]="isSelectedAgent(agent)" (click)="onSelectAgent(agent)" [title]="getAgentName(agent)">{{agent}}</li>
             </ul>
         </div>
         <div class="row-col-3"></div>

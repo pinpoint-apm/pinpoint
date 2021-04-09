@@ -118,6 +118,7 @@ interface ILinkInfo {
     filterTargetRpcList?: any[];
     from: string;
     fromAgent?: string[];
+    fromAgentIdNameMap?: { [key: string]: string }
     hasAlert: boolean;
     histogram?: IResponseTime | IResponseMilliSecondTime;
     responseStatistics?: IResponseStatistics;
@@ -133,6 +134,7 @@ interface ILinkInfo {
     timeSeriesHistogram?: IHistogram[];
     to: string;
     toAgent?: string[];
+    toAgentIdNameMap?: { [key: string]: string }
     totalCount: number;
     isMerged?: boolean;
     isFiltered?: boolean;
@@ -141,6 +143,7 @@ interface INodeInfo {
     agentHistogram?: { [key: string]: IResponseTime | IResponseMilliSecondTime }[];
     agentTimeSeriesHistogram?: { [key: string]: IHistogram[] };
     agentIds?: string[];
+    agentIdNameMap?: { [key: string]: string }
     applicationName: string;
     category: string;
     errorCount?: number;
