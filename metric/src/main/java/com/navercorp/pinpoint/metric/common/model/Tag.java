@@ -22,8 +22,11 @@ import java.util.Objects;
  * @author Hyunjoon Cho
  */
 public class Tag {
-    private final String name;
-    private final String value;
+    private String name;
+    private String value;
+
+    public Tag() {
+    }
 
     public Tag(String name, String value) {
         this.name = Objects.requireNonNull(name);
