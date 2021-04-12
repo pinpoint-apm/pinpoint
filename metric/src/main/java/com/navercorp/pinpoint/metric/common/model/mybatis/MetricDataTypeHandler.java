@@ -30,7 +30,6 @@ import java.sql.SQLException;
 /**
  * @author minwoo.jung
  */
-@MappedTypes(MetricDataType.class)
 @MappedJdbcTypes({JdbcType.TINYINT})
 public class MetricDataTypeHandler implements TypeHandler<MetricDataType> {
 

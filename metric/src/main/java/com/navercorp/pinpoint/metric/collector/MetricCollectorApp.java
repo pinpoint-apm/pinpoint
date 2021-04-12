@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Profile;
 
 @SpringBootConfiguration
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class})
-@ImportResource({ "classpath:pinot-collector/applicationContext-collector-pinot.xml", "classpath:pinot-collector/servlet-context-collector-pinot.xml"})
+@ImportResource({ "classpath:pinot-collector/applicationContext-collector-pinot.xml", "classpath:pinot-collector/servlet-context-collector-pinot.xml", "classpath:pinot-collector/applicationContext-collector-metric-cache.xml"})
 @Profile("metric")
 public class MetricCollectorApp {
 }
