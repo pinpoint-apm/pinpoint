@@ -51,7 +51,7 @@
     position: absolute;
     left: -36px;
     background:#fff;
-    border: 1px solid var(--dark-primary-color);
+    border: 1px solid var(--primary-color-contrast);
     width: calc(100% + 37px);
     z-index: 701;
 }

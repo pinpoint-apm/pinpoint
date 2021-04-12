@@ -9,7 +9,7 @@ const BLACK_100 = '#2A2D32';
 export const light = {
     'background-color': WHITE_100,
     'primary-color': BLUE_100,
-    'dark-primary-color': BLUE_110,
+    'primary-color-contrast': BLUE_110,
     'secondary-color': MINT_100,
     'text-primary-color': BLACK_100,
     'text-secondary-color': BLACK_90,

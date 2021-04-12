@@ -47,7 +47,7 @@ caption {
 
 .l-header {
     background: var(--header-background-color);
-    border-bottom: 1px solid var(--dark-primary-color);
+    border-bottom: 1px solid var(--primary-color-contrast);
     height: 50px;
     justify-content: space-between;
     position: relative;
