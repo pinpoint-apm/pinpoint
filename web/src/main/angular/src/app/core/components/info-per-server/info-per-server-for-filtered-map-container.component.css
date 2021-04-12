@@ -28,7 +28,7 @@
     font-size: 13px;
 }
 .l-selected-agent button {
-    color: #fff;
+    color: var(--text-knockout-color);
     font-size: 11px;
     font-weight: 600;
     display: inline-block;
@@ -90,7 +90,7 @@
     height: 30px;
     border-radius: 50%;
     background: var(--primary-color);
-    color: #fff;
+    color: var(--text-knockout-color);
     align-items: center;
     display: flex;
     justify-content: center;

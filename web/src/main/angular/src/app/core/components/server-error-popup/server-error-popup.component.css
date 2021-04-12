@@ -13,7 +13,7 @@
     background-color: #fff;
 }
 .l-title-group {
-    color: #FFF;
+    color: var(--text-knockout-color);
     height: auto;
     display: flex;
     padding: 20px 20px;
@@ -54,7 +54,7 @@
     background-color: #FFF;
 }
 .l-toggle-btn {
-    color: #FFF;
+    color: var(--text-knockout-color);
     display: block;
     padding: 6px 10px;
     background-color: #D65B65;

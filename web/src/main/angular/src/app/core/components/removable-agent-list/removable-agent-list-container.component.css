@@ -135,13 +135,13 @@
 }
 
 .l-cancel-btn {
-    color: #fff;
+    color: var(--text-knockout-color);
     background-color: #ddd;
 }
 
 .l-remove-app-btn,
 .l-remove-btn {
-    color: #fff;
+    color: var(--text-knockout-color);
     background-color: #c70606;
 }
 

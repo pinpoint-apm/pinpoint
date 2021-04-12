@@ -152,7 +152,7 @@
     font-size: 13px;
 }
 .l-application-list li.active {
-    color: #fff;
+    color: var(--text-knockout-color);
     font-weight: 600;
     background-color: var(--primary-color);
 }
@@ -229,7 +229,7 @@
     font-weight: 600;
 }
 .l-transaction-result button.active {
-    color: #fff;
+    color: var(--text-knockout-color);
     background: var(--primary-color);
     border-color: transparent;
 }

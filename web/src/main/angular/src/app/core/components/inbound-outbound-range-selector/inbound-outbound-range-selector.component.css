@@ -95,7 +95,7 @@ button {
     font-size: 12px !important;
     background-color: var(--primary-color);
     margin-left: 2px;
-    color: #fff;
+    color: var(--text-knockout-color);
 }
 
 .l-cancel-button {

@@ -86,7 +86,7 @@
 }
 .l-message.l-no-data h4 span {
     background-color: #000;
-    color: #FFF;
+    color: var(--text-knockout-color);
 }
 .fa-chart-area {
     margin-right: 2px;

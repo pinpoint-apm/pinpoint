@@ -7,7 +7,7 @@
     align-items: center;
 }
 .l-widget-group span {
-    color: #FFF;
+    color: var(--text-knockout-color);
 }
 .l-main-container {
     display: flex;

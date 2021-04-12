@@ -114,7 +114,7 @@
         background-color: #3dcfa8;
     }
     .slider-for-progress .sfp-value {
-        color: #FFF;
+        color: var(--text-knockout-color);
         width: 100%;
         position: relative;
         font-size: 10px;

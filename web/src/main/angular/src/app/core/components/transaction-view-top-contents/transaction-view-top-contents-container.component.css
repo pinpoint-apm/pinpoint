@@ -44,7 +44,7 @@
     border-color: #e6e8ec #e6e8ec #fff;
 }
 .active a {
-    color: #fff;
+    color: var(--text-knockout-color);
     background: var(--primary-color);
 }
 .active a:hover {

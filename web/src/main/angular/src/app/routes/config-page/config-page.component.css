@@ -71,7 +71,7 @@
 }
 
 .l-exit-button {
-    color: #fff;
+    color: var(--text-knockout-color);
     font-size: 20px;
     height: 100%;
     outline: none;

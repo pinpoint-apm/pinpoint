@@ -43,7 +43,7 @@
     background-color: #3e506b;
     border-bottom: 1px solid #D0D7DF;
     padding: 5px 0px 5px 10px;
-    color: #FFF; 
+    color: var(--text-knockout-color);
 }
 
 .l-close-button {

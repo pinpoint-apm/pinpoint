@@ -95,7 +95,7 @@ caption {
 
 .btn.active {
     background-color: var(--primary-color);
-    color: #fff;
+    color: var(--text-knockout-color);
 }
 
 .btn:disabled {
@@ -109,24 +109,24 @@ caption {
 }
 
 .btn-blue {
-    color: #fff;
+    color: var(--text-knockout-color);
     background-color: var(--primary-color);
 }
 
 .btn-black {
-    color: #fff;
+    color: var(--text-knockout-color);
     background-color: #3f506c;
     border: 1px solid #384c65;
 }
 
 .btn-gray {
-    color: #fff;
+    color: var(--text-knockout-color);
     background-color: #ccc;
 }
 
 .pinpoint-btn {
     background-color: var(--primary-color);
-    color: #fff;
+    color: var(--text-knockout-color);
     font-family: 'Open Sans', sans-serif;
     font-weight: 600;
     padding: 10px 15px;

@@ -7,7 +7,7 @@
 
 .l-tooltip {
     background-color: rgba(0, 0, 0, 0.8);
-    color: #fff;
+    color: var(--text-knockout-color);
     border: 0px solid rgba(0, 0, 0, 0);
     border-radius: 5px;
     padding: 5px 7px;

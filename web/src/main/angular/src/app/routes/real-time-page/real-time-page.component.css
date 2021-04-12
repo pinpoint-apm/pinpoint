@@ -1,5 +1,5 @@
 .realtime-application {
-    color: #FFF;
+    color: var(--text-knockout-color);
 }
 .realtime-application span {
     margin-left: 10px;

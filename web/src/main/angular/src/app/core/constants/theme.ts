@@ -14,4 +14,5 @@ export const light = {
     'text-primary-color': BLACK_100,
     'text-secondary-color': BLACK_90,
     'text-tertiary-color': BLACK_60,
+    'text-knockout-color': WHITE_100,
 };

@@ -63,7 +63,7 @@
 }
 .l-target-container .l-summary > div {
     display: flex;
-    color: #FFF;
+    color: var(--text-knockout-color);
     cursor: pointer;
     flex-wrap: nowrap;
     align-items: center;

@@ -6,7 +6,7 @@
     display: flex;
 }
 .l-current-time label {
-    color: #FFF;
+    color: var(--text-knockout-color);
     cursor: pointer;
     height: 100%;
     display: inline-block;

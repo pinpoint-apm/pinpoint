@@ -49,7 +49,7 @@
 }
 
 .l-button {
-    color: #fff;
+    color: var(--text-knockout-color);
     background-color: var(--primary-color);
     border-radius: 3px;
     outline: none;

@@ -9,7 +9,7 @@
     height: 100%;
     justify-content: space-between;
     background: #3e506b;
-    color: #fff;
+    color: var(--text-knockout-color);
     width: 427px;
 }
 .l-input-group input {
@@ -110,7 +110,7 @@
 .l-btn-group .l-time-set li.active button, .l-btn-group .l-time-set li button:hover, .l-btn-group .l-time-set li button:focus {
     border: none;
     background: var(--primary-color);
-    color:#fff;
+    color: var(--text-knockout-color);
 }
 .l-btn-group .l-time-set button {
     background:none;
@@ -142,5 +142,5 @@
 } 
 .ngui-datetime-picker > .days .day.selected { 
     background: var(--primary-color) !important;
-    color: #FFF !important;
+    color: var(--text-reverse-color) !important;
 }

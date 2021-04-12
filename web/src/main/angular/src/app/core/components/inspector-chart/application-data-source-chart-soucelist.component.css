@@ -21,7 +21,7 @@
 }
 .l-source-data-list-item:hover {
     background-color: #ddd;
-    color: #fff;
+    color: var(--text-knockout-color);
 }
 .l-selected-item {
     color: #000;

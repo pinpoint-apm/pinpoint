@@ -2,7 +2,7 @@
     display: flex;
     width: 100%;
     background-color: #74879a;
-    color: #FFF;
+    color: var(--text-knockout-color);
     font-size: 14px;
     margin: 0px 0px 5px 0px;
     padding: 5px 5px 5px 13px;

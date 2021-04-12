@@ -49,7 +49,7 @@
 }
 .l-server-info-list li.active {
     background-color: var(--primary-color);
-    color: #fff;
+    color: var(--text-knockout-color);
 }
 .l-server-info-list li ul {
     position: absolute;
@@ -65,7 +65,7 @@
     display: inline-block;
     padding: 2px 5px;
     font-size: 10px;
-    color: #fff;
+    color: var(--text-knockout-color);
     font-weight: 600;
     cursor: pointer;
 }

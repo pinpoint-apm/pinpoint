@@ -7,6 +7,6 @@ button {
 }
 
 .fa-cog {
-    color:#fff;
+    color: var(--text-knockout-color);
     font-size: 18px;
 }

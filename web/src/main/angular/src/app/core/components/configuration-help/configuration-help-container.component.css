@@ -44,7 +44,7 @@
 .l-card-text {
     font-size: 18px;
     font-weight: 400;
-    color: #fff;
+    color: var(--text-knockout-color);
 }
 
 .l-card-link .fas, .l-card-link .fab {

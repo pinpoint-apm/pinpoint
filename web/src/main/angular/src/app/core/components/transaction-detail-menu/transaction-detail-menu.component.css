@@ -14,12 +14,12 @@
     outline: none;
 }
 .l-btn-group button.active, .l-btn-group button:hover {
-    color:#fff;
+    color: var(--text-knockout-color);
     font-weight:600;
     background:var(--primary-color);
 }
 .l-transaction-state {
-    color: #FFF;
+    color: var(--text-knockout-color);
     height: 32px;
     padding: 8px;
     font-size: 12px;

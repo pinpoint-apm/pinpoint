@@ -36,7 +36,7 @@
     display: inline-block;
     padding: 2px 5px;
     font-size: 10px;
-    color: #fff;
+    color: var(--text-knockout-color);
     font-weight: 600;
 }
 .l-servers-list li ul {
@@ -68,7 +68,7 @@
 .l-text-box {
     padding: 3px 5px;
     font-size: 10px;
-    color: #FFF;
+    color: var(--text-knockout-color);
     margin-left: 13px;
     background-color: var(--primary-color);
 }

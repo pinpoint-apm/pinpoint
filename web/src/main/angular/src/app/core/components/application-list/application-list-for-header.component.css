@@ -22,7 +22,7 @@
 }
 
 .l-item.active { 
-    color: #FFF !important;
+    color: var(--text-reverse-color) !important;
     background-color: var(--primary-color); 
 }
 

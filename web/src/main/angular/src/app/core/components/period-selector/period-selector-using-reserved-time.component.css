@@ -10,7 +10,7 @@
     height: 100%;
     font-size:12px;
     font-weight:600;
-    color:#fff;
+    color: var(--text-knockout-color);
     padding:0 8px;
     background: #3e506b;
     border-left:1px solid #4c5c75;
@@ -21,7 +21,7 @@
 }
 .l-time-set button:focus {
     background-color:var(--primary-color);
-    color:#fff;
+    color: var(--text-knockout-color);
 }
 .l-time-set button:hover, .l-time-set button:focus {
     background:var(--secondary-color);

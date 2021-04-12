@@ -7,7 +7,7 @@
     justify-content: space-around;
 }
 .l-route > div {
-    color:#fff;
+    color: var(--text-knockout-color);
     display: block;
     position:relative;
     font-size: 12px;

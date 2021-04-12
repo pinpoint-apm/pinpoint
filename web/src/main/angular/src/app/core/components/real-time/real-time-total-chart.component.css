@@ -33,7 +33,7 @@
     width: 21px;
     height: 11px;
     line-height: 11px;
-    color: #fff;
+    color: var(--text-knockout-color);
     border-radius: 10px;
     text-align: center;
     overflow: hidden;

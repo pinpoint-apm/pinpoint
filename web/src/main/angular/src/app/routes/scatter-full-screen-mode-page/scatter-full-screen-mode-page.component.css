@@ -3,7 +3,7 @@
     padding: 0 15px;
     height: 100%;
     align-items: center;
-    color: #FFF;
+    color: var(--text-knockout-color);
     display: flex;
     flex-flow: row wrap;
 }

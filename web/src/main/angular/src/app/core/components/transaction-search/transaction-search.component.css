@@ -42,7 +42,7 @@ select {
     -webkit-appearance: none;
     outline: 0;
     border-radius: 0px;
-    color: #FFF;
+    color: var(--text-knockout-color);
     float: left;
     height: 100%;
     display: inline-block;
@@ -54,7 +54,7 @@ select {
 }
 .l-search-group-wrap .l-search-group2 .fa-angle-down {
     position: absolute;
-    color: #FFF;
+    color: var(--text-knockout-color);
     top: 8px;
     left: 94px;
     font-size: 15px;

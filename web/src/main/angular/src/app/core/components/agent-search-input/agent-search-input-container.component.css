@@ -22,7 +22,7 @@
 .l-wrapper {
     width: 205px;
     height: 100%;
-    color: #b3b3b4;
+    color: var(--text-tertiary-color);
     position: relative;
     margin-right: 7px;
 }
