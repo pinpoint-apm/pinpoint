@@ -17,16 +17,21 @@ const appRoutes: Routes = [
             {
                 path: '',
                 resolve: {
-                    configuration: SystemConfigurationResolverService,
-                    applicationList: ApplicationListResolverService
+                    configuration: SystemConfigurationResolverService
                 },
                 children: [
                     {
                         path: UrlPath.URL_STATISTIC,
+                        resolve: {
+                            applicationList: ApplicationListResolverService
+                        },
                         loadChildren: () => import('./routes/url-statistic-page/index').then(m => m.UrlStatisticPageModule)
                     },
                     {
                         path: UrlPath.CONFIG,
+                        resolve: {
+                            applicationList: ApplicationListResolverService
+                        },
                         loadChildren: () => import('./routes/config-page/index').then(m => m.ConfigPageModule)
                     },
                     {
@@ -39,10 +44,16 @@ const appRoutes: Routes = [
                     },
                     {
                         path: UrlPath.THREAD_DUMP,
+                        resolve: {
+                            applicationList: ApplicationListResolverService
+                        },
                         loadChildren: () => import('./routes/thread-dump-page/index').then(m => m.ThreadDumpPageModule)
                     },
                     {
                         path: UrlPath.REAL_TIME,
+                        resolve: {
+                            applicationList: ApplicationListResolverService
+                        },
                         loadChildren: () => import('./routes/real-time-page/index').then(m => m.RealTimePageModule)
                     },
                     {
@@ -59,6 +70,9 @@ const appRoutes: Routes = [
                     },
                     {
                         path: UrlPath.INSPECTOR,
+                        resolve: {
+                            applicationList: ApplicationListResolverService
+                        },
                         loadChildren: () => import('./routes/inspector-page/index').then(m => m.InspectorPageModule)
                     },
                     {
@@ -67,6 +81,9 @@ const appRoutes: Routes = [
                     },
                     {
                         path: UrlPath.MAIN,
+                        resolve: {
+                            applicationList: ApplicationListResolverService
+                        },
                         loadChildren: () => import('./routes/main-page/index').then(m => m.MainPageModule)
                     },
                 ]
