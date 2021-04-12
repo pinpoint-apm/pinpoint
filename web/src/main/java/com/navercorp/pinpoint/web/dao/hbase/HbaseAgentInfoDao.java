@@ -91,7 +91,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     private Scan createScanForInitialAgentInfo(String agentId) {
         Scan scan = new Scan();
         byte[] agentIdBytes = Bytes.toBytes(agentId);
-        byte[] reverseStartKey = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_NAME_MAX_LEN, Long.MAX_VALUE);
+        byte[] reverseStartKey = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_ID_MAX_LEN, Long.MAX_VALUE);
         scan.withStartRow(reverseStartKey);
         scan.setReversed(true);
         scan.setMaxVersions(1);
@@ -176,8 +176,8 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
             startTimeReverse = TimeUtils.reverseTimeMillis(endTime);
             endTimeReverse = TimeUtils.reverseTimeMillis(startTime);
         }
-        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_NAME_MAX_LEN, startTimeReverse);
-        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_NAME_MAX_LEN, endTimeReverse);
+        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_ID_MAX_LEN, startTimeReverse);
+        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_ID_MAX_LEN, endTimeReverse);
 
         scan.withStartRow(startKeyBytes);
         scan.withStopRow(endKeyBytes);
