@@ -16,43 +16,42 @@
 
 package com.navercorp.pinpoint.metric.collector.dao.mysql;
 
+import com.navercorp.pinpoint.metric.collector.dao.MetricTagDao;
 import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDataTypeDao;
-import com.navercorp.pinpoint.metric.common.model.MetricData;
-import com.navercorp.pinpoint.metric.common.model.MetricDataName;
-import com.navercorp.pinpoint.metric.common.model.MetricDataType;
+import com.navercorp.pinpoint.metric.collector.model.MetricTagCollection;
+import com.navercorp.pinpoint.metric.common.model.MetricTag;
+import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
 @Repository
-public class MysqlSystemMetricDataTypeDao implements SystemMetricDataTypeDao {
+public class MysqlMetricTagDao implements MetricTagDao {
 
-    private static final String NAMESPACE = SystemMetricDataTypeDao.class.getPackage().getName() + "." + SystemMetricDataTypeDao.class.getSimpleName() + ".";
+    private static final String NAMESPACE = MetricTagDao.class.getPackage().getName() + "." + MetricTagDao.class.getSimpleName() + ".";
 
     private final SqlSessionTemplate sqlSessionTemplate;
 
     @Autowired
-    public MysqlSystemMetricDataTypeDao(@Qualifier("metricSqlSessionTemplate") SqlSessionTemplate sqlSessionTemplate) {
+    public MysqlMetricTagDao(@Qualifier("metricSqlSessionTemplate") SqlSessionTemplate sqlSessionTemplate) {
         this.sqlSessionTemplate = Objects.requireNonNull(sqlSessionTemplate, "metricSqlSessionTemplate");
     }
 
     @Override
-    public List<MetricData> selectMetricDataType() {
-        return sqlSessionTemplate.selectList(NAMESPACE + "selectMetricDataTypes");
+    public void insertMetricTag(MetricTag metricTag) {
+        sqlSessionTemplate.insert(NAMESPACE + "insertMetricTag", metricTag);
     }
 
     @Override
-    public void updateMetricDataType(List<MetricData> metricDataList) {
-        for (MetricData metricData : metricDataList) {
-            sqlSessionTemplate.insert(NAMESPACE + "insertMetricDataType", metricData);
-        }
+    public MetricTagCollection selectMetricTag(MetricTagKey metricTagKey) {
+        List<MetricTag> metricTagList = sqlSessionTemplate.selectList(NAMESPACE + "selectMetricTagList", metricTagKey);
+        return new MetricTagCollection(metricTagKey.getApplicationId(), metricTagKey.getHostName(), metricTagKey.getMetricName(), metricTagKey.getFieldName(), metricTagList);
     }
 }
