@@ -171,7 +171,7 @@ public class PinpointGrpcServer {
                 public void run() {
                     requestObserver.onNext(request);
                 }
-            }, 3000);
+            }, 1000);
         } catch (StreamException e) {
             grpcClientStreamChannel.close(e.getStreamCode());
             throw e;
