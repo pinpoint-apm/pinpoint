@@ -14,28 +14,23 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.metric.collector.model;
+package com.navercorp.pinpoint.metric.common.model;
 
-import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
-public class MetricTagCollection {
+public class MetricTagKey {
 
-    //TODO : (minwoo) applicationId 이름을 다른 이름으로 써야할듯함.
-    private final String applicationId;
-    private final String hostName;
-    private final String metricName;
-    private final String fieldName;
+    private String applicationId;
+    private String hostName;
+    private String metricName;
+    private String fieldName;
 
-    private final List<MetricTag> metricTagList;
-
-    public MetricTagCollection(String applicationId, String hostName, String metricName, String fieldName, List<MetricTag> metricTagList) {
+    public MetricTagKey(String applicationId, String hostName, String metricName, String fieldName) {
         if (StringUtils.isEmpty(applicationId)) {
             throw new IllegalArgumentException("applicationId must not be empty");
         }
@@ -48,16 +43,10 @@ public class MetricTagCollection {
         if (StringUtils.isEmpty(fieldName)) {
             throw new IllegalArgumentException("fieldName must not be empty");
         }
-
         this.applicationId = applicationId;
         this.hostName = hostName;
         this.metricName = metricName;
         this.fieldName = fieldName;
-        this.metricTagList = Objects.requireNonNull(metricTagList, "metricTagList");
-    }
-
-    public List<MetricTag> getMetricTagList() {
-        return metricTagList;
     }
 
     public String getApplicationId() {
@@ -77,13 +66,28 @@ public class MetricTagCollection {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MetricTagKey that = (MetricTagKey) o;
+        return Objects.equals(applicationId, that.applicationId) &&
+                Objects.equals(hostName, that.hostName) &&
+                Objects.equals(metricName, that.metricName) &&
+                Objects.equals(fieldName, that.fieldName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(applicationId, hostName, metricName, fieldName);
+    }
+
+    @Override
     public String toString() {
-        return "MetricTagCollection{" +
+        return "MetricTagKey{" +
                 "applicationId='" + applicationId + '\'' +
                 ", hostName='" + hostName + '\'' +
                 ", metricName='" + metricName + '\'' +
                 ", fieldName='" + fieldName + '\'' +
-                ", metricTagList=" + metricTagList +
                 '}';
     }
 }

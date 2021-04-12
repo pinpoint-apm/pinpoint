@@ -16,9 +16,17 @@
 
 package com.navercorp.pinpoint.metric.collector.service;
 
+import com.navercorp.pinpoint.metric.collector.dao.MetricTagDao;
 import com.navercorp.pinpoint.metric.collector.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
+import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 
 /**
@@ -27,14 +35,29 @@ import org.springframework.stereotype.Component;
 @Component
 public class MetricTagCache {
 
-    public MetricTagCollection getMetricTag(String applicationName, String metricName, String fieldName) {
-        return null;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private MetricTagDao metricTagDao;
+
+    public MetricTagCache(MetricTagDao metricTagDao) {
+        this.metricTagDao = Objects.requireNonNull(metricTagDao, "metricTagDao");
+    }
+
+    @Cacheable(value="metricTagCollection", key= "#metricTagKey")
+    public MetricTagCollection getMetricTag(MetricTagKey metricTagKey) {
+        MetricTagCollection metricTagCollection = metricTagDao.selectMetricTag(metricTagKey);
+        logger.info("metricTagCollection metricTagKey: {}, metricTagCollection : {}", metricTagKey, metricTagCollection);
+        return metricTagCollection;
     }
 
     public void saveMetricTag(MetricTag metricTag) {
+
+        metricTagDao.insertMetricTag(metricTag);
     }
 
-    public void updateCacheforMetricTag(MetricTagCollection newMetricTagCollection) {
-
+    @CachePut(value="metricTagCollection", key= "#metricTagKey")
+    public MetricTagCollection updateCacheforMetricTag(MetricTagKey metricTagKey, MetricTagCollection metricTagCollection) {
+        logger.info("updateCacheforMetricTag metricTagKey: {}, metricTagCollection : {}", metricTagKey, metricTagCollection);
+        return metricTagCollection;
     }
 }

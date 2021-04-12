@@ -23,10 +23,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.metric.common.model.DoubleCounter;
-import com.navercorp.pinpoint.metric.common.model.LongCounter;
-import com.navercorp.pinpoint.metric.common.model.SystemMetric;
-import com.navercorp.pinpoint.metric.common.model.Tag;
+import com.navercorp.pinpoint.metric.common.model.*;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -116,13 +113,6 @@ public class SystemMetricJsonDeserializer extends JsonDeserializer<SystemMetric>
             return null;
         }
         return value;
-    }
-
-    private static class TagComparator implements Comparator<Tag> {
-        @Override
-        public int compare(Tag tag1, Tag tag2) {
-            return tag1.getName().compareTo(tag2.getName());
-        }
     }
 
 }
