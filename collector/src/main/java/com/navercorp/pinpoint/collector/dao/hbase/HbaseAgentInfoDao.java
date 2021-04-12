@@ -74,7 +74,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
         final byte[] agentId = Bytes.toBytes(agentInfo.getAgentId());
         final long reverseKey = TimeUtils.reverseTimeMillis(agentInfo.getStartTime());
-        final byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(agentId, HbaseTableConstants.AGENT_NAME_MAX_LEN, reverseKey);
+        final byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(agentId, HbaseTableConstants.AGENT_ID_MAX_LEN, reverseKey);
         final Put put = new Put(rowKey);
 
         // should add additional agent informations. for now added only starttime for sqlMetaData
@@ -107,8 +107,8 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         final Scan scan = new Scan();
         final byte[] agentIdBytes = Bytes.toBytes(agentId);
         final long startTime = TimeUtils.reverseTimeMillis(currentTime);
-        final byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_NAME_MAX_LEN, startTime);
-        final byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_NAME_MAX_LEN, Long.MAX_VALUE);
+        final byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_ID_MAX_LEN, startTime);
+        final byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_ID_MAX_LEN, Long.MAX_VALUE);
 
         scan.withStartRow(startKeyBytes);
         scan.withStopRow(endKeyBytes);

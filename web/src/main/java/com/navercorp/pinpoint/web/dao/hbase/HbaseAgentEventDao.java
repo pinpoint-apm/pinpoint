@@ -125,7 +125,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
     private byte[] createRowKey(String agentId, long timestamp) {
         byte[] agentIdKey = BytesUtils.toBytes(agentId);
         long reverseTimestamp = TimeUtils.reverseTimeMillis(timestamp);
-        return RowKeyUtils.concatFixedByteAndLong(agentIdKey, HbaseTableConstants.AGENT_NAME_MAX_LEN, reverseTimestamp);
+        return RowKeyUtils.concatFixedByteAndLong(agentIdKey, HbaseTableConstants.AGENT_ID_MAX_LEN, reverseTimestamp);
     }
 
 

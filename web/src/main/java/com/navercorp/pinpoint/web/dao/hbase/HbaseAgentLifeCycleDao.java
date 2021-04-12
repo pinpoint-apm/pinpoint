@@ -128,8 +128,8 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         byte[] agentIdBytes = Bytes.toBytes(agentId);
         long reverseFromTimestamp = TimeUtils.reverseTimeMillis(fromTimestamp);
         long reverseToTimestamp = TimeUtils.reverseTimeMillis(toTimestamp);
-        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_NAME_MAX_LEN, reverseToTimestamp);
-        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_NAME_MAX_LEN, reverseFromTimestamp);
+        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_ID_MAX_LEN, reverseToTimestamp);
+        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_ID_MAX_LEN, reverseFromTimestamp);
 
         Scan scan = new Scan(startKeyBytes, endKeyBytes);
         scan.addColumn(descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_STATES);

@@ -58,7 +58,7 @@ public class ApplicationCache {
     public String findApplicationId(ApplicationKey application) {
         final String agentId = application.getAgentId();
         final long agentStartTimestamp = application.getAgentStartTime();
-        final byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(Bytes.toBytes(agentId), HbaseTableConstants.AGENT_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(agentStartTimestamp));
+        final byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(Bytes.toBytes(agentId), HbaseTableConstants.AGENT_ID_MAX_LEN, TimeUtils.reverseTimeMillis(agentStartTimestamp));
 
         Get get = new Get(rowKey);
 

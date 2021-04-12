@@ -45,7 +45,7 @@ public class AgentInfoMapper implements RowMapper<AgentInfo> {
 
         byte[] rowKey = result.getRow();
         String agentId = BytesUtils.safeTrim(BytesUtils.toString(rowKey, 0, PinpointConstants.AGENT_ID_MAX_LEN));
-        long reverseStartTime = BytesUtils.bytesToLong(rowKey, HbaseTableConstants.AGENT_NAME_MAX_LEN);
+        long reverseStartTime = BytesUtils.bytesToLong(rowKey, HbaseTableConstants.AGENT_ID_MAX_LEN);
         long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
 
         byte[] serializedAgentInfo = result.getValue(AGENTINFO_INFO.getName(), AGENTINFO_INFO.QUALIFIER_IDENTIFIER);
