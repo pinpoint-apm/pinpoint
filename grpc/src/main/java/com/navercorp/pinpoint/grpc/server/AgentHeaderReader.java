@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -28,6 +29,7 @@ import io.grpc.Status;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -52,7 +54,12 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         final int serviceType = getServiceType(headers);
         final long socketId = getSocketId(headers);
         final List<Integer> supportCommandCodeList = getSupportCommandCodeList(headers);
-        return new Header(name, agentId, agentName, applicationName, serviceType, startTime, socketId, supportCommandCodeList);
+        final Map<String, Object> properties = newProperties(headers);
+        return new Header(name, agentId, agentName, applicationName, serviceType, startTime, socketId, supportCommandCodeList, properties);
+    }
+
+    protected Map<String, Object> newProperties(Metadata headers) {
+        return Collections.emptyMap();
     }
 
     protected long getTime(Metadata headers, Metadata.Key<String> timeKey) {
@@ -81,6 +88,9 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         if (!StringUtils.isEmpty(name)) {
             if (!IdValidateUtils.checkPattern(name)) {
                 throw Status.INVALID_ARGUMENT.withDescription("invalid " + idKey.name()).asRuntimeException();
+            }
+            if (!IdValidateUtils.checkLength(name,  PinpointConstants.AGENT_NAME_MAX_LEN)) {
+                throw Status.INVALID_ARGUMENT.withDescription("invalid " + idKey.name() + ".length").asRuntimeException();
             }
         }
         return name;
@@ -123,7 +133,7 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         }
     }
 
-    private String validateId(String id, Metadata.Key key) {
+    String validateId(String id, Metadata.Key key) {
         if (!IdValidateUtils.validateId(id)) {
             throw Status.INVALID_ARGUMENT.withDescription("invalid " + key.name()).asRuntimeException();
         }
