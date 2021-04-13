@@ -60,11 +60,20 @@ public class Header {
     private final List<Integer> supportCommandCodeList;
     private final Map<String, Object> properties;
 
-    public Header(String name, String agentId, String agentName, String applicationName, int serviceType, long agentStartTime, long socketId, List<Integer> supportCommandCodeList) {
-        this(name, agentId, agentName, applicationName, serviceType, agentStartTime, socketId, supportCommandCodeList, Collections.<String, Object>emptyMap());
+    public Header(String name, String agentId, String agentName, String applicationName,
+                  int serviceType, long agentStartTime,
+                  long socketId, List<Integer> supportCommandCodeList) {
+        this(name, agentId, agentName, applicationName,
+                serviceType, agentStartTime,
+                socketId, supportCommandCodeList, Collections.<String, Object>emptyMap());
     }
 
-    public Header(String name, String agentId, String agentName, String applicationName, int serviceType, long agentStartTime, long socketId, List<Integer> supportCommandCodeList, final Map<String, Object> properties) {
+    public Header(String name,
+                  String agentId, String agentName, String applicationName,
+                  int serviceType,
+                  long agentStartTime, long socketId,
+                  List<Integer> supportCommandCodeList,
+                  final Map<String, Object> properties) {
         this.name = Objects.requireNonNull(name, "name");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
