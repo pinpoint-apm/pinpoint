@@ -31,6 +31,8 @@ export class MergeServerMapData {
         mergeLinkAgentIdNameMap(old, neo, 'fromAgentIdNameMap');
         mergeLinkAgentIdNameMap(old, neo, 'toAgentIdNameMap');
         mergeHistogram(old, neo);
+        mergeLinkAgentIds(old, neo, 'fromAgent');
+        mergeLinkAgentIds(old, neo, 'toAgent');
         mergeResponseStatistics(old, neo);
         mergeTimeSeriesHistogram(old, neo);
         mergeAgentTimeSeriesHistogramByType(old, neo, 'sourceTimeSeriesHistogram');
@@ -67,6 +69,17 @@ function mergeNodeAgentIdNameMap(old: INodeInfo, neo: INodeInfo): void {
         newIds.forEach((agentId: string) => {
             if (oldIds.indexOf(agentId) === -1) {
                 old.agentIdNameMap[agentId] = neo.agentIdNameMap[agentId];
+            }
+        });
+    }
+}
+function mergeLinkAgentIds(old: ILinkInfo, neo: ILinkInfo, type: string): void {
+    const oldIds = old[type];
+    const newIds = neo[type];
+    if (newIds) {
+        newIds.forEach((agentId: string) => {
+            if (oldIds.indexOf(agentId) === -1) {
+                old[type].push(agentId);
             }
         });
     }
