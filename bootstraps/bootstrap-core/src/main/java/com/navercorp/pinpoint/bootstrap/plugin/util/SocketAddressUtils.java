@@ -16,12 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.util;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.JvmUtils;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
@@ -29,58 +23,6 @@ import java.net.InetSocketAddress;
  * @author HyunGil Jeong
  */
 public final class SocketAddressUtils {
-
-    private static final PLogger LOGGER = PLoggerFactory.getLogger(SocketAddressUtils.class);
-
-    // TODO JDK 7 InetSocketAddress.getHostString() - reflection not needed once we drop JDK 6 support.
-    private static final HostStringAccessor HOST_STRING_ACCESSOR = createHostStringAccessor();
-
-    private static HostStringAccessor createHostStringAccessor() {
-        try {
-            final Method m = InetSocketAddress.class.getDeclaredMethod("getHostString");
-            m.setAccessible(true);
-            return new ReflectiveHostStringAccessor(m);
-        } catch (NoSuchMethodException e) {
-            LOGGER.error("[{}] {} - getHostString() not present in class InetSocketAddress.",
-                    JvmUtils.getType(), JvmUtils.getVersion());
-            throw new IllegalStateException("Unexpected InetSocketAddress class", e);
-        }
-    }
-
-    private interface HostStringAccessor {
-        String getHostString(InetSocketAddress inetSocketAddress);
-    }
-
-    private static class ReflectiveHostStringAccessor implements HostStringAccessor {
-
-        private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-
-        private final Method method;
-
-        private ReflectiveHostStringAccessor(Method method) {
-            if (method == null) {
-                throw new NullPointerException("method");
-            }
-            this.method = method;
-        }
-
-        @Override
-        public String getHostString(InetSocketAddress inetSocketAddress) {
-            try {
-                return (String) method.invoke(inetSocketAddress);
-            } catch (IllegalAccessException e) {
-                logger.error("[{}] {} - Cannot access method : {}",
-                        JvmUtils.getType(), JvmUtils.getVersion(), method.getName(), e);
-            } catch (InvocationTargetException e) {
-                logger.error("[{}] {} - Error invoking method : {}",
-                        JvmUtils.getType(), JvmUtils.getVersion(), method.getName(), e);
-            } catch (Exception e) {
-                logger.error("[{}] {} - Unexpected error retrieving hostString",
-                        JvmUtils.getType(), JvmUtils.getVersion(), e);
-            }
-            return null;
-        }
-    }
 
     private SocketAddressUtils() {}
 
@@ -101,7 +43,7 @@ public final class SocketAddressUtils {
         if (inetSocketAddress == null) {
             return null;
         }
-        return HOST_STRING_ACCESSOR.getHostString(inetSocketAddress);
+        return inetSocketAddress.getHostString();
     }
 
     /**
