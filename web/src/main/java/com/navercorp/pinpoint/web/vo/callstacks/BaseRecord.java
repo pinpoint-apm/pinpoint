@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 /**
  * @author jaehong.kim
  */
-public abstract class BaseRecord implements Record{
+public abstract class BaseRecord implements Record {
     protected int tab;
     protected int id;
     protected int parentId;
@@ -32,7 +32,7 @@ public abstract class BaseRecord implements Record{
     protected long begin;
     protected long elapsed;
     protected long gap;
-    protected String agent;
+    protected String agentId;
     protected String agentName;
     protected String applicationName;
     protected ServiceType serviceType;
@@ -96,8 +96,8 @@ public abstract class BaseRecord implements Record{
         return gap;
     }
 
-    public String getAgent() {
-        return agent;
+    public String getAgentId() {
+        return agentId;
     }
 
     @Override
@@ -208,8 +208,8 @@ public abstract class BaseRecord implements Record{
         builder.append(gap);
         builder.append(", executionMilliseconds=");
         builder.append(executionMilliseconds);
-        builder.append(", agent=");
-        builder.append(agent);
+        builder.append(", agentId=");
+        builder.append(agentId);
         builder.append(", agentName=");
         builder.append(agentName);
         builder.append(", applicationName=");

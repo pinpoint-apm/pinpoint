@@ -70,9 +70,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     private final ProxyRequestTypeRegistryService proxyRequestTypeRegistryService;
 
-
     public TransactionInfoServiceImpl(@Qualifier("hbaseTraceDaoFactory") TraceDao traceDao,
-                                      AgentInfoService agentInfoService,
                                       AnnotationKeyMatcherService annotationKeyMatcherService,
                                       ServiceTypeRegistryService registry,
                                       AnnotationKeyRegistryService annotationKeyRegistryService,
@@ -96,7 +94,8 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     // private String logPageUrl;
 
     @Override
-    public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName, Range range, Filter filter) {
+    public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName,
+                                                           Range range, Filter<List<SpanBo>> filter) {
         Objects.requireNonNull(transactionIdList, "transactionIdList");
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(filter, "filter");
@@ -105,7 +104,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
         List<List<SpanBo>> traceList;
 
-        if (filter == Filter.acceptAllFilter()) {
+        if (filter == Filter.<List<SpanBo>>acceptAllFilter()) {
             List<GetTraceInfo> getTraceInfoList = new ArrayList<>(transactionIdList.size());
             for (TransactionId transactionId : transactionIdList) {
                 getTraceInfoList.add(new GetTraceInfo(transactionId));
@@ -209,12 +208,12 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         for (Record record : recordList) {
             if (viewPointTimeAlign.getSpanId() == record.getSpanId() && record.getBegin() == viewPointTimeAlign.getStartTime()) {
                 if (agentId == null) {
-                    if (record.getAgent() == null) {
+                    if (record.getAgentId() == null) {
                         record.setFocused(true);
                         break;
                     }
                 } else {
-                    if (record.getAgent() != null && agentId.equals(record.getAgent())) {
+                    if (record.getAgentId() != null && agentId.equals(record.getAgentId())) {
                         record.setFocused(true);
                         break;
                     }
