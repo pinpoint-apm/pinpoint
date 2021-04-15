@@ -266,7 +266,7 @@ public class TransactionInfoViewModel {
             simpleClassName = record.getSimpleClassName();
             methodType = String.valueOf(record.getMethodTypeEnum().getCode());
             apiType = record.getApiType();
-            agent = record.getAgent();
+            agent = record.getAgentId();
             agentName = record.getAgentName();
             isFocused = record.isFocused();
             hasException = record.getHasException();

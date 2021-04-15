@@ -25,6 +25,7 @@ public interface Filter<T> {
     boolean ACCEPT = true;
     boolean REJECT = false;
 
+    @SuppressWarnings("rawtypes")
     Filter NONE = new Filter() {
         @Override
         public boolean include(Object t) {
@@ -32,10 +33,9 @@ public interface Filter<T> {
         }
     };
 
+    @SuppressWarnings("unchecked")
     static <T> Filter<T> acceptAllFilter() {
-        @SuppressWarnings("unchecked")
-        final Filter<T> none = NONE;
-        return none;
+        return NONE;
     }
 
     boolean include(T transaction);
