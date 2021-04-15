@@ -62,7 +62,7 @@ export class AgentStatisticListContainerComponent implements OnInit, OnDestroy {
     private makeRow(agent: IAgent, index: number, hasChild: boolean, isChild: boolean): any {
         const oRow: IGridData = {
             index: index,
-            application: isChild ? '' : agent.applicationName,
+            application: agent.applicationName,
             serviceType: agent.serviceType,
             agent: agent.agentId,
             agentVersion: agent.agentVersion,
