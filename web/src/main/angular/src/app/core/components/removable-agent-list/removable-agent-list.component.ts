@@ -62,6 +62,12 @@ export class RemovableAgentListComponent implements OnInit {
                         cellStyle: this.alignCenterCellStyle
                     },
                     {
+                        headerName: 'Agent Name',
+                        field: 'agentNameText',
+                        width: 250,
+                        cellStyle: this.alignCenterCellStyle
+                    },
+                    {
                         headerName: 'Agent Version',
                         field: 'agentVersion',
                         width: 160,

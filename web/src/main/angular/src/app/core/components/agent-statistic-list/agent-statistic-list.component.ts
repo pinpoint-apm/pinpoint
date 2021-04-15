@@ -6,6 +6,7 @@ export interface IGridData {
     application: string;
     serviceType: string;
     agent: string;
+    agentName?: string;
     agentVersion: string;
     jvmVersion: string;
     folder?: boolean;
@@ -84,11 +85,18 @@ export class AgentStatisticListComponent implements OnInit  {
                 tooltipField: 'application'
             },
             {
-                headerName: `Agent`,
+                headerName: `Agent Id`,
                 field: 'agent',
                 width: 300,
                 filter: 'agTextColumnFilter',
                 tooltipField: 'agent'
+            },
+            {
+                headerName: `Agent Name`,
+                field: 'agentName',
+                width: 300,
+                filter: 'agTextColumnFilter',
+                tooltipField: 'agentName'
             },
             {
                 headerName: 'Agent Version',
