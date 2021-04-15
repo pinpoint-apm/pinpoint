@@ -117,6 +117,7 @@ export enum TRACKED_EVENT_LIST {
     FETCH_AGENT_STATISTIC_DATA = 'Fetch Agent Statistic Data',
     RELOAD_AGENT_STATISTIC_DATA = 'Reload Agent Statistic Data',
     CLICK_APPLICATION_IN_STATISTIC_LIST = 'Click Application in Statistic List',
+    CLICK_AGENT_IN_STATISTIC_LIST = 'Click Agent in Statistic List',
     SHOW_ONE_AGENT_REMOVE_CONFIRM_VIEW = 'Show One Agent Remove Confirm View',
     SHOW_ALL_INACTIVE_AGENTS_REMOVE_CONFIRM_VIEW = 'Show All Inactive Agents Remove Confirm View',
     REMOVE_ONE_AGENT = 'Remove One Agent',
