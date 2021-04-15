@@ -66,6 +66,7 @@ export class AgentStatisticListContainerComponent implements OnInit, OnDestroy {
             application: agent.applicationName,
             serviceType: agent.serviceType,
             agent: agent.agentId,
+            agentName: agent.agentName ? agent.agentName : 'N/A',
             agentVersion: agent.agentVersion,
             startTimestamp: agent.startTimestamp,
             jvmVersion: agent.jvmInfo ? agent.jvmInfo.jvmVersion : ''

@@ -60,6 +60,7 @@ interface IAgentList {
 // @store
 interface IAgent {
     agentId: string;
+    agentName?: string;
     agentVersion: string;
     applicationName: string;
     hostName: string;
