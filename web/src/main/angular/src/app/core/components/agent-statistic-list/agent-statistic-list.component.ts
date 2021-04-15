@@ -7,6 +7,7 @@ export interface IGridData {
     serviceType: string;
     agent: string;
     agentVersion: string;
+    startTimestamp: number;
     jvmVersion: string;
     folder?: boolean;
     open?: boolean;
@@ -78,7 +79,8 @@ export class AgentStatisticListComponent implements OnInit  {
                 },
                 cellStyle: {
                     color: 'rgb(54, 162, 235)',
-                    'font-weight': 600
+                    'font-weight': 600,
+                    'cursor': 'pointer'
                 },
                 filter: 'agTextColumnFilter',
                 tooltipField: 'application'
@@ -88,7 +90,10 @@ export class AgentStatisticListComponent implements OnInit  {
                 field: 'agent',
                 width: 300,
                 filter: 'agTextColumnFilter',
-                tooltipField: 'agent'
+                tooltipField: 'agent',
+                cellStyle: {
+                    'cursor': 'pointer'
+                }
             },
             {
                 headerName: 'Agent Version',
@@ -108,14 +113,7 @@ export class AgentStatisticListComponent implements OnInit  {
     }
 
     onCellClick(params: any): void {
-        if (params.colDef.field !== 'application') {
-            return;
-        }
-
-        this.outCellClick.next({
-            application: params.data.application,
-            serviceType: params.data.serviceType
-        });
+        this.outCellClick.next(params);
     }
 
     onRendered(): void {
