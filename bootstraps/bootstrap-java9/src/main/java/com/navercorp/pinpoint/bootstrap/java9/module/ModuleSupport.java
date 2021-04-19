@@ -141,7 +141,7 @@ public class ModuleSupport {
         // because module pinpoint.agent does not export com.navercorp.pinpoint.test to unnamed module @4b9e13df
         final String pinpointTestModule = "com.navercorp.pinpoint.test";
         if (agentModule.getPackages().contains(pinpointTestModule)) {
-            agentModule.addExports(pinpointTestModule, agentModule);
+            agentModule.addExports(pinpointTestModule, bootstrapModule);
         } else {
             logger.info(pinpointTestModule + " package not found");
         }
