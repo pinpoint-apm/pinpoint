@@ -48,7 +48,8 @@ public abstract class Oracle_IT_Base {
 
         if (waitStrategy != null) {
             oracle.setWaitStrategy(waitStrategy);
-            oracle.withStartupTimeout(Duration.ofSeconds(180));
+            oracle.withStartupTimeout(Duration.ofSeconds(300));
+            oracle.addEnv("DBCA_ADDITIONAL_PARAMS", "-initParams sga_target=0M pga_aggreegate_target=0M");
             oracle.withReuse(true);
         }
 
