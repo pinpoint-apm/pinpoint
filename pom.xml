@@ -108,6 +108,8 @@
         <module>testcase</module>
         <module>batch</module>
         <module>report</module>
+
+        <module>hbase2-module</module>
     </modules>
 
     <properties>
@@ -118,6 +120,7 @@
 
         <!-- hbase -->
         <hbase.shaded.client.version>1.4.13</hbase.shaded.client.version>
+        <hbase2.client.version>2.4.2</hbase2.client.version>
 
         <plugin.jacoco.skip>true</plugin.jacoco.skip>
         <plugin.animal-sniffer.skip>false</plugin.animal-sniffer.skip>
