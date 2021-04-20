@@ -20,11 +20,7 @@ import com.navercorp.pinpoint.pluginit.jdbc.*;
 import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.Before;
-import org.slf4j.Logger;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.OracleContainer;
-import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy;
-import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.containers.wait.strategy.WaitStrategy;
 
 import java.sql.Driver;
@@ -38,12 +34,8 @@ public abstract class Oracle_IT_Base {
     protected static OracleItHelper helper;
     public static OracleContainerWithWait oracle;
 
-    public static void startOracleDB(String dockerImageVersion) {
-        oracle = new OracleContainerWithWait(dockerImageVersion);
-        startOracleDBContainer();
-    }
-
     public static void startOracleDB(String dockerImageVersion, WaitStrategy waitStrategy) {
+        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
         oracle = new OracleContainerWithWait(dockerImageVersion);
 
         if (waitStrategy != null) {
@@ -53,11 +45,6 @@ public abstract class Oracle_IT_Base {
             oracle.withReuse(true);
         }
 
-        startOracleDBContainer();
-    }
-
-    private static void startOracleDBContainer() {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
         oracle.start();
 
         DriverProperties driverProperties = new DriverProperties(oracle.getJdbcUrl(), oracle.getUsername(), oracle.getPassword(), new Properties());

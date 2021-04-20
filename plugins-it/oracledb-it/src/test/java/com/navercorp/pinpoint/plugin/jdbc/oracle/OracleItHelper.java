@@ -181,7 +181,13 @@ public class OracleItHelper {
         verifier.verifyTrace(event(ORACLE, commit, null, OracleItHelper.DB_ADDRESS, OracleItHelper.DB_NAME));
     }
 
-
+    /*
+        CREATE OR REPLACE PROCEDURE concatCharacters(a IN VARCHAR2, b IN VARCHAR2, c OUT VARCHAR2)
+        AS
+        BEGIN
+            c := a || b;
+        END concatCharacters;
+     */
     public void testStoredProcedure_with_IN_OUT_parameters(JDBCApi jdbcApi, String param1, String param2, String storedProcedureQuery) throws Exception {
         Class<Driver> driverClass = jdbcApi.getJDBCDriverClass().getDriver();
         final Connection conn = connect(driverClass);
@@ -254,6 +260,16 @@ public class OracleItHelper {
 
     }
 
+    /*
+        CREATE OR REPLACE PROCEDURE swapAndGetSum(a IN OUT NUMBER, b IN OUT NUMBER, c OUT NUMBER)
+        AS
+        BEGIN
+            c := a;
+            a := b;
+            b := c;
+            SELECT c + a INTO c FROM DUAL;
+        END swapAndGetSum;
+    */
     public void testStoredProcedure_with_INOUT_parameters(JDBCApi jdbcApi, int param1, int param2, String storedProcedureQuery) throws Exception {
         Class<Driver> driverClass = jdbcApi.getJDBCDriverClass().getDriver();
         final Connection conn = connect(driverClass);
