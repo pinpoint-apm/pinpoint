@@ -50,13 +50,6 @@ public class Oracle19_Ojdbc8_IT extends Oracle_IT_Base {
         helper.verifyTestStatement(JDBC_API, insertQuery, selectQuery, deleteQuery);
     }
 
-    /*
-        CREATE OR REPLACE PROCEDURE concatCharacters(a IN VARCHAR2, b IN VARCHAR2, c OUT VARCHAR2)
-        AS
-        BEGIN
-            c := a || b;
-        END concatCharacters;
-     */
     @Test
     public void testStoredProcedure_with_IN_OUT_parameters() throws Exception {
         final String param1 = "a";
@@ -67,16 +60,6 @@ public class Oracle19_Ojdbc8_IT extends Oracle_IT_Base {
         helper.verifyTestStoredProcedure_with_IN_OUT_parameters(JDBC_API, param1, param2, storedProcedureQuery);
    }
 
-    /*
-        CREATE OR REPLACE PROCEDURE swapAndGetSum(a IN OUT NUMBER, b IN OUT NUMBER, c OUT NUMBER)
-        AS
-        BEGIN
-            c := a;
-            a := b;
-            b := c;
-            SELECT c + a INTO c FROM DUAL;
-        END swapAndGetSum;
-     */
     @Test
     public void testStoredProcedure_with_INOUT_parameters() throws Exception {
         final int param1 = 1;
