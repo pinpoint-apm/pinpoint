@@ -77,7 +77,8 @@ export class RemovableAgentListContainerComponent implements OnInit, OnDestroy {
                     return Object.entries(data).reduce((acc: {[key: string]: any}[], [key, value]: [string, IAgent[]]) => {
                         return [...acc, ...value.map((agent: IAgent) => {
                             const {applicationName, hostName, agentId, agentName, agentVersion, startTimestamp, ip} = agent;
-                            const agentNameText = agentName ? agentName : "N/A";
+                            const agentNameText = agentName ? agentName : 'N/A';
+                            
                             return {applicationName, hostName, agentId, agentNameText, agentVersion, startTimestamp, ip};
                         })];
                     }, []);
