@@ -199,8 +199,8 @@ public class JavaAssistUtilsTest {
 
     @Test
     public void testGetParameterDescription2() throws Exception {
+        @SuppressWarnings("deprecation")
         String clsDescription = JavaAssistUtils.getParameterDescription(new Class[]{String.class, Integer.class});
-        logger.debug(clsDescription);
         Assert.assertEquals("(java.lang.String, java.lang.Integer)", clsDescription);
     }
 
