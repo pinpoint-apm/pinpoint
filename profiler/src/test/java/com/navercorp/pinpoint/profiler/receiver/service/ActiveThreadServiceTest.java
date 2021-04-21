@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 
 import org.apache.thrift.TBase;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -67,10 +68,10 @@ public class ActiveThreadServiceTest {
         TBase<?, ?> tBase = service.requestCommandService(new TCmdActiveThreadCount());
         if (tBase instanceof TCmdActiveThreadCountRes) {
             List<Integer> activeThreadCount = ((TCmdActiveThreadCountRes) tBase).getActiveThreadCount();
-            Assert.assertThat(activeThreadCount.get(0), is(FAST_COUNT));
-            Assert.assertThat(activeThreadCount.get(1), is(NORMAL_COUNT));
-            Assert.assertThat(activeThreadCount.get(2), is(SLOW_COUNT));
-            Assert.assertThat(activeThreadCount.get(3), is(VERY_SLOW_COUNT));
+            MatcherAssert.assertThat(activeThreadCount.get(0), is(FAST_COUNT));
+            MatcherAssert.assertThat(activeThreadCount.get(1), is(NORMAL_COUNT));
+            MatcherAssert.assertThat(activeThreadCount.get(2), is(SLOW_COUNT));
+            MatcherAssert.assertThat(activeThreadCount.get(3), is(VERY_SLOW_COUNT));
         } else {
             Assert.fail();
         }
