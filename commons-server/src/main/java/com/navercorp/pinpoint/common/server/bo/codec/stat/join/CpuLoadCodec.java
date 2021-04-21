@@ -122,8 +122,8 @@ public class CpuLoadCodec implements ApplicationStatCodec {
             JoinCpuLoadBo joinCpuLoadBo = new JoinCpuLoadBo();
             joinCpuLoadBo.setId(id);
             joinCpuLoadBo.setTimestamp(timestamps.get(i));
-            joinCpuLoadBo.setJvmCpuLoadJoinValue(jvmCpuLoadList.get(i).toLongFieldBo());
-            joinCpuLoadBo.setSystemCpuLoadJoinValue(systemCpuLoadList.get(i).toLongFieldBo());
+            joinCpuLoadBo.setJvmCpuLoadJoinValue(jvmCpuLoadList.get(i).toDoubleFieldBo());
+            joinCpuLoadBo.setSystemCpuLoadJoinValue(systemCpuLoadList.get(i).toDoubleFieldBo());
             joinCpuLoadBoList.add(joinCpuLoadBo);
         }
         return joinCpuLoadBoList;

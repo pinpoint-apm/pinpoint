@@ -36,6 +36,7 @@ public enum AgentStatType {
     DIRECT_BUFFER((byte) 10, "DirectBuffer"),
     TOTAL_THREAD((byte) 11, "Total Thread Count"),
     LOADED_CLASS((byte) 12, "Loaded Class"),
+    CONTAINER((byte) 13, "Container"),
 
     URI((byte) 100, "Agent URI Stat");
 

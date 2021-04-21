@@ -43,6 +43,7 @@ public class AgentStatBo {
     private final List<DirectBufferBo> directBufferBos;
     private final List<TotalThreadCountBo> totalThreadCountBos;
     private final List<LoadedClassBo> loadedClassBos;
+    private final List<ContainerBo> containerBos;
 
 
     public AgentStatBo(Builder builder) {
@@ -60,8 +61,8 @@ public class AgentStatBo {
         this.directBufferBos = FilterUtils.filter(builder.statList, DirectBufferBo.class);
         this.totalThreadCountBos = FilterUtils.filter(builder.statList, TotalThreadCountBo.class);
         this.loadedClassBos = FilterUtils.filter(builder.statList, LoadedClassBo.class);
+        this.containerBos = FilterUtils.filter(builder.statList, ContainerBo.class);
     }
-
 
     public long getStartTimestamp() {
         return startTimestamp;
@@ -118,6 +119,10 @@ public class AgentStatBo {
 
     public List<LoadedClassBo> getLoadedClassBos() {
         return loadedClassBos;
+    }
+
+    public List<ContainerBo> getContainerBos() {
+        return containerBos;
     }
 
     public static Builder newBuilder(String agentId, long startTimestamp) {
@@ -236,6 +241,11 @@ public class AgentStatBo {
                 statList.add(loadedClass);
             }
 
+            public void addContainer(ContainerBo container) {
+                Objects.requireNonNull(container, "container");
+                setBaseData(container);
+                statList.add(container);
+            }
         }
 
         public AgentStatBo build() {
@@ -259,6 +269,7 @@ public class AgentStatBo {
         sb.append(", directBufferBos=").append(directBufferBos);
         sb.append(", totalThreadCountBos=").append(totalThreadCountBos);
         sb.append(", loadedClassBos=").append(loadedClassBos);
+        sb.append(", containerBos=").append(containerBos);
         sb.append('}');
         return sb.toString();
     }

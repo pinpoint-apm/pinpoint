@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ContainerBo;
 import com.navercorp.pinpoint.web.service.stat.ActiveTraceChartService;
 import com.navercorp.pinpoint.web.service.stat.ActiveTraceService;
 import com.navercorp.pinpoint.web.service.stat.AgentStatChartService;
@@ -60,6 +61,8 @@ import com.navercorp.pinpoint.web.service.stat.TotalThreadCountChartService;
 import com.navercorp.pinpoint.web.service.stat.TotalThreadCountService;
 import com.navercorp.pinpoint.web.service.stat.LoadedClassCountChartService;
 import com.navercorp.pinpoint.web.service.stat.LoadedClassCountService;
+import com.navercorp.pinpoint.web.service.stat.ContainerChartService;
+import com.navercorp.pinpoint.web.service.stat.ContainerService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
@@ -273,6 +276,16 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
         public LoadedClassCountController(LoadedClassCountService loadedClassCountService,
                                           LoadedClassCountChartService loadedClassCountChartService) {
             super(loadedClassCountService, loadedClassCountChartService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getAgentStat/container")
+    public static class ContainerController extends AgentStatController<ContainerBo> {
+        @Autowired
+        public ContainerController(ContainerService containerService,
+                                   ContainerChartService containerChartService) {
+            super(containerService, containerChartService);
         }
     }
 

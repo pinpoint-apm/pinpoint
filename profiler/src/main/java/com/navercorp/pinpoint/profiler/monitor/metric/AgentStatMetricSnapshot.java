@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.monitor.metric;
 
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.container.ContainerMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
@@ -46,6 +47,7 @@ public class AgentStatMetricSnapshot {
     private BufferMetricSnapshot directBuffer;
     private TotalThreadMetricSnapshot totalThreadCount;
     private LoadedClassMetricSnapshot loadedClassCount;
+    private ContainerMetricSnapshot container;
     private String metadata;
 
     public String getAgentId() {
@@ -160,6 +162,14 @@ public class AgentStatMetricSnapshot {
 
     public void setLoadedClassCount(LoadedClassMetricSnapshot loadedClassCount) { this.loadedClassCount = loadedClassCount; }
 
+    public ContainerMetricSnapshot getContainer() {
+        return container;
+    }
+
+    public void setContainer(ContainerMetricSnapshot container) {
+        this.container = container;
+    }
+
     public String getMetadata() {
         return metadata;
     }
@@ -184,6 +194,7 @@ public class AgentStatMetricSnapshot {
         sb.append(", deadlock=").append(deadlock);
         sb.append(", fileDescriptor=").append(fileDescriptor);
         sb.append(", directBuffer=").append(directBuffer);
+        sb.append(", container=").append(container);
         sb.append(", metadata='").append(metadata).append('\'');
         sb.append('}');
         return sb.toString();

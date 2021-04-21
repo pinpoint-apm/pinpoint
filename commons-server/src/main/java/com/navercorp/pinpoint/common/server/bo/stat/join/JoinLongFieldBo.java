@@ -38,7 +38,7 @@ public class JoinLongFieldBo extends AbstractJoinFieldBo<Long> {
         return UNCOLLECTED_FIELD_BO;
     }
 
-    public JoinDoubleFieldBo toLongFieldBo() {
+    public JoinDoubleFieldBo toDoubleFieldBo() {
         double avg = AgentStatUtils.convertLongToDouble(getAvg());
         double min = AgentStatUtils.convertLongToDouble(getMin());
         double max = AgentStatUtils.convertLongToDouble(getMax());

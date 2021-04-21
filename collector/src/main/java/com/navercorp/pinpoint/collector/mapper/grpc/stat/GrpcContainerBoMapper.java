@@ -1,0 +1,49 @@
+/*
+ * Copyright 2020 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.navercorp.pinpoint.collector.mapper.grpc.stat;
+
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ContainerBo;
+import com.navercorp.pinpoint.grpc.trace.PAgentStat;
+import com.navercorp.pinpoint.grpc.trace.PContainer;
+import org.springframework.stereotype.Component;
+
+/**
+ * @author Hyunjoon Cho
+ */
+@Component
+public class GrpcContainerBoMapper implements GrpcStatMapper {
+
+    public ContainerBo map(final PContainer container){
+        final ContainerBo containerBo = new ContainerBo();
+        containerBo.setUserCpuUsage(container.getUserCpuUsage());
+        containerBo.setSystemCpuUsage(container.getSystemCpuUsage());
+        containerBo.setMemoryMax(container.getMemoryMax());
+        containerBo.setMemoryUsage(container.getMemoryUsage());
+        return containerBo;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder builder, PAgentStat agentStat) {
+        //container
+        if (agentStat.hasContainer()) {
+            final PContainer container = agentStat.getContainer();
+            final ContainerBo containerBo = this.map(container);
+            builder.addContainer(containerBo);
+        }
+    }
+}
