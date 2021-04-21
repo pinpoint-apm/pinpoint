@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.profiler.util;
 
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,7 +48,7 @@ public class JarReaderTest {
         logger.debug("file:{}", fileBinaries);
 
         for (FileBinary fileBinary : fileBinaries) {
-            Assert.assertThat(fileBinary.getFileName(), Matchers.endsWith(".class"));
+            MatcherAssert.assertThat(fileBinary.getFileName(), Matchers.endsWith(".class"));
         }
     }
 
