@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
+@SuppressWarnings("deprecation")
 public class ErrorCountCheckerTest {
     
     private static final String SERVICE_NAME = "local_service";

@@ -140,9 +140,9 @@ public class DefaultChannelFactory implements ChannelFactory {
         addClientInterceptor(channelBuilder);
 
         channelBuilder.executor(executorService);
-        if (this.nameResolverProvider != null) {
+        if (nameResolverProvider != null) {
             logger.info("Set nameResolverProvider {}. channelName={}, host={}, port={}", this.nameResolverProvider, channelName, host, port);
-            channelBuilder.nameResolverFactory(this.nameResolverProvider);
+            setNameResolverFactory(channelBuilder, this.nameResolverProvider);
         }
         setupClientOption(channelBuilder);
 
@@ -151,6 +151,11 @@ public class DefaultChannelFactory implements ChannelFactory {
         final ManagedChannel channel = channelBuilder.build();
 
         return channel;
+    }
+
+    @SuppressWarnings("deprecation")
+    private void setNameResolverFactory(NettyChannelBuilder channelBuilder, NameResolverProvider nameResolverProvider) {
+        channelBuilder.nameResolverFactory(nameResolverProvider);
     }
 
     private void setupInternal(NettyChannelBuilder channelBuilder) {

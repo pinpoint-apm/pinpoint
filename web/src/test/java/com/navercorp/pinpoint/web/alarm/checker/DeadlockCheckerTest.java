@@ -45,6 +45,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Taejin Koo
  */
+@SuppressWarnings("deprecation")
 @RunWith(MockitoJUnitRunner.class)
 public class DeadlockCheckerTest {
 

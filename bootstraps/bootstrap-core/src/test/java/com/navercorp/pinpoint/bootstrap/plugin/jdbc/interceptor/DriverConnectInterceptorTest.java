@@ -28,11 +28,16 @@ import java.sql.Driver;
 import java.sql.SQLException;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
+@SuppressWarnings("deprecation")
 public class DriverConnectInterceptorTest {
 
     @Test
@@ -76,7 +81,6 @@ public class DriverConnectInterceptorTest {
         driverConnectInterceptor.doInAfterTrace(spanEventRecorder, driver, va(invalidJdbcUrl), null, null);
 
     }
-
 
 
 }

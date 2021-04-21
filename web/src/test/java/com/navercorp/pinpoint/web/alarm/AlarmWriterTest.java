@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.web.alarm.checker.SlowCountChecker;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
+@SuppressWarnings("deprecation")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class AlarmWriterTest {

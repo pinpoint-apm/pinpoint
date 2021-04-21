@@ -19,6 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("deprecation")
 public class SpringSmtpMailSenderTest {
     
     private static final String MAIL_SENDER_ADDRESS = "pinpoint_operator@pinpoint.com";
