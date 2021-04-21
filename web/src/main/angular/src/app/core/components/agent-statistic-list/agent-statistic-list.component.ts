@@ -92,6 +92,8 @@ export class AgentStatisticListComponent implements OnInit  {
                 filter: 'agTextColumnFilter',
                 tooltipField: 'agent',
                 cellStyle: {
+                    color: 'rgb(54, 162, 235)',
+                    'font-weight': 600,
                     'cursor': 'pointer'
                 }
             },
