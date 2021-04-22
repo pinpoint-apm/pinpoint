@@ -58,11 +58,6 @@
             <artifactId>hbase-client</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>3.12.0</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -71,7 +66,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.navercorp.pinpoint.collector.CollectorHbase2App</mainClass>
+                    <mainClass>com.navercorp.pinpoint.collector.Hbase2CollectorApp</mainClass>
                     <outputDirectory>${project.build.directory}/deploy</outputDirectory>
                     <executable>true</executable>
                     <attach>false</attach>
