@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.plugin.tomcat;
 
 import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -31,6 +32,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.jboss.JbossConfig;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
 import com.navercorp.pinpoint.plugin.jboss.JbossDetector;
+import com.navercorp.pinpoint.plugin.tomcat.interceptor.ApplicationHttpRequestConstructor;
 import com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor;
 import com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestStartAsyncInterceptor;
 import com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor;
@@ -90,21 +92,17 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     public void addTransformers(TomcatConfig config) {
         // Add server metadata
-        addStandardService();
-        addTomcatConnector();
-        addWebappLoader();
-
-        // Add async listener. Servlet 3.0
-        addRequest();
-        // Hide pinpoint headers & Trace HTTP response status code
-        addRequestFacade(config);
-        // Entry Point
-        addStandardHostValve();
-    }
-
-
-    private void addStandardService() {
         transformTemplate.transform("org.apache.catalina.core.StandardService", StandardServiceTransform.class);
+        transformTemplate.transform("org.apache.catalina.connector.Connector", ConnectorTransform.class);
+        transformTemplate.transform("org.apache.catalina.loader.WebappLoader", WebappLoaderTransform.class);
+        // Add async listener. Servlet 3.0
+        transformTemplate.transform("org.apache.catalina.connector.Request", RequestTransform.class);
+        // Hide pinpoint headers & Trace HTTP response status code
+        transformTemplate.transform("org.apache.catalina.connector.RequestFacade", RequestFacadeTransform.class);
+        // Entry Point
+        transformTemplate.transform("org.apache.catalina.core.StandardHostValve", StandardHostValveTransform.class);
+        // Async
+        transformTemplate.transform("org.apache.catalina.core.ApplicationHttpRequest", ApplicationHttpRequestTransform.class);
     }
 
     public static class StandardServiceTransform implements TransformCallback {
@@ -128,9 +126,6 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addTomcatConnector() {
-        transformTemplate.transform("org.apache.catalina.connector.Connector", ConnectorTransform.class);
-    }
     public static class ConnectorTransform implements TransformCallback {
 
         @Override
@@ -150,11 +145,6 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             }
             return target.toBytecode();
         }
-    }
-
-
-    private void addWebappLoader() {
-        transformTemplate.transform("org.apache.catalina.loader.WebappLoader", WebappLoaderTransform.class);
     }
 
     public static class WebappLoaderTransform implements TransformCallback {
@@ -179,15 +169,12 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addRequest() {
-        transformTemplate.transform("org.apache.catalina.connector.Request", RequestTransform.class);
-    }
-
     public static class RequestTransform implements TransformCallback {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
             // Add async listener. Servlet 3.0
             final InstrumentMethod startAsyncMethodEditor = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
             if (startAsyncMethodEditor != null) {
@@ -197,15 +184,13 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addRequestFacade(final TomcatConfig config) {
-        transformTemplate.transform("org.apache.catalina.connector.RequestFacade", RequestFacadeTransform.class);
-    }
-
     public static class RequestFacadeTransform implements TransformCallback {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
+
             final TomcatConfig config = new TomcatConfig(instrumentor.getProfilerConfig());
             if (config.isHidePinpointHeader()) {
                 // Hide pinpoint headers
@@ -213,10 +198,6 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             }
             return target.toBytecode();
         }
-    }
-
-    private void addStandardHostValve() {
-        transformTemplate.transform("org.apache.catalina.core.StandardHostValve", StandardHostValveTransform.class);
     }
 
     public static class StandardHostValveTransform implements TransformCallback {
@@ -228,6 +209,21 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             final InstrumentMethod method = target.getDeclaredMethod("invoke", "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response");
             if (method != null) {
                 method.addInterceptor(StandardHostValveInvokeInterceptor.class);
+            }
+            return target.toBytecode();
+        }
+    }
+
+    public static class ApplicationHttpRequestTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
+
+            final InstrumentMethod method = target.getConstructor("javax.servlet.http.HttpServletRequest", "org.apache.catalina.Context", "boolean");
+            if (method != null) {
+                method.addInterceptor(ApplicationHttpRequestConstructor.class);
             }
             return target.toBytecode();
         }
