@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -52,19 +51,6 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
             transformerList.addAll(classTransformerList);
         }
         return transformerList;
-    }
-
-    @Override
-    public List<ApplicationTypeDetector> getApplicationTypeDetectorList() {
-
-        final List<ApplicationTypeDetector> registeredDetectors = new ArrayList<ApplicationTypeDetector>();
-
-        for (PluginSetupResult context : pluginsSetupResult.getPluginSetupResults()) {
-            List<ApplicationTypeDetector> applicationTypeDetectors = context.getApplicationTypeDetectors();
-            registeredDetectors.addAll(applicationTypeDetectors);
-        }
-
-        return registeredDetectors;
     }
 
     @Override

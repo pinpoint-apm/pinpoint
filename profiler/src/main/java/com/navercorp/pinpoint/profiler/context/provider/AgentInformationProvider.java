@@ -49,13 +49,11 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
     private final ServiceType serverType;
 
     @Inject
-    public AgentInformationProvider(@AgentId String agentId, @AgentName String agentName, @ApplicationName String applicationName, @Container boolean isContainer, @AgentStartTime long agentStartTime, @ApplicationServerType ServiceType serverType) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
+    public AgentInformationProvider(@AgentId String agentId, @AgentName String agentName, @ApplicationName String applicationName,
+                                    @Container boolean isContainer, @AgentStartTime long agentStartTime, @ApplicationServerType ServiceType serverType) {
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(applicationName, "applicationName");
+
         this.agentId = checkId("agentId", agentId);
         this.applicationName = checkId("applicationName", applicationName);
         this.agentName = agentName;

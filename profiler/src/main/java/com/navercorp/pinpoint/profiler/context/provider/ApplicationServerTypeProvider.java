@@ -19,15 +19,12 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.module.ConfiguredApplicationType;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
-import com.navercorp.pinpoint.profiler.util.ApplicationServerTypeResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -44,7 +41,9 @@ public class ApplicationServerTypeProvider implements Provider<ServiceType> {
     private final Provider<PluginContextLoadResult> pluginContextLoadResultProvider;
 
     @Inject
-    public ApplicationServerTypeProvider(ProfilerConfig profilerConfig, @ConfiguredApplicationType ServiceType configuredApplicationType, Provider<PluginContextLoadResult> pluginContextLoadResultProvider) {
+    public ApplicationServerTypeProvider(ProfilerConfig profilerConfig,
+                                         @ConfiguredApplicationType ServiceType configuredApplicationType,
+                                         Provider<PluginContextLoadResult> pluginContextLoadResultProvider) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
         this.configuredApplicationType = Objects.requireNonNull(configuredApplicationType, "configuredApplicationType");
         this.pluginContextLoadResultProvider = pluginContextLoadResultProvider;
@@ -60,13 +59,6 @@ public class ApplicationServerTypeProvider implements Provider<ServiceType> {
         PluginContextLoadResult pluginContextLoadResult = this.pluginContextLoadResultProvider.get();
         ServiceType resolvedApplicationType = pluginContextLoadResult.getApplicationType();
         if (resolvedApplicationType == null) {
-
-            // FIXME remove block when ApplicationTypeDetector is removed.
-            List<ApplicationTypeDetector> detectors = pluginContextLoadResult.getApplicationTypeDetectorList();
-            if (!detectors.isEmpty()) {
-                return resolveUsingRegisteredDetectors(detectors, configuredApplicationType, profilerConfig.getApplicationTypeDetectOrder());
-            }
-
             logger.info("Application type not resolved. Defaulting to {}", DEFAULT_APPLICATION_TYPE);
             return DEFAULT_APPLICATION_TYPE;
         }
@@ -74,12 +66,4 @@ public class ApplicationServerTypeProvider implements Provider<ServiceType> {
         return resolvedApplicationType;
     }
 
-    private ServiceType resolveUsingRegisteredDetectors(List<ApplicationTypeDetector> applicationTypeDetectorList,
-                                                        ServiceType applicationServiceType,
-                                                        List<String> applicationTypeDetectOrder) {
-        ApplicationServerTypeResolver applicationServerTypeResolver = new ApplicationServerTypeResolver(
-                applicationTypeDetectorList, applicationServiceType, applicationTypeDetectOrder);
-        ServiceType resolve = applicationServerTypeResolver.resolve();
-        return resolve;
-    }
 }

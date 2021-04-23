@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProvider;
 
@@ -34,11 +33,6 @@ public class PluginSetupResult {
     public PluginSetupResult(DefaultProfilerPluginSetupContext setupContext, ClassFileTransformerLoader transformerRegistry) {
         this.setupContext = setupContext;
         this.transformerRegistry = transformerRegistry;
-    }
-
-
-    public List<ApplicationTypeDetector> getApplicationTypeDetectors() {
-        return this.setupContext.getApplicationTypeDetectors();
     }
 
     public List<JdbcUrlParserV2> getJdbcUrlParserList() {

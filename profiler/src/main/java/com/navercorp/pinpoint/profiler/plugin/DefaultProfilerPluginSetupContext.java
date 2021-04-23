@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginGlobalContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
@@ -36,9 +35,8 @@ public class DefaultProfilerPluginSetupContext implements ProfilerPluginSetupCon
 
     private final ProfilerPluginGlobalContext globalContext;
 
-    private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
-    private final List<JdbcUrlParserV2> jdbcUrlParserList = new ArrayList<JdbcUrlParserV2>();
-    private final List<UriExtractorProvider> uriExtractorProviderList = new ArrayList<UriExtractorProvider>();
+    private final List<JdbcUrlParserV2> jdbcUrlParserList = new ArrayList<>();
+    private final List<UriExtractorProvider> uriExtractorProviderList = new ArrayList<>();
 
     public DefaultProfilerPluginSetupContext(ProfilerPluginGlobalContext globalContext) {
         this.globalContext = Objects.requireNonNull(globalContext, "globalContext");
@@ -47,20 +45,6 @@ public class DefaultProfilerPluginSetupContext implements ProfilerPluginSetupCon
     @Override
     public ProfilerConfig getConfig() {
         return globalContext.getConfig();
-    }
-
-    @Override
-    public void addApplicationTypeDetector(ApplicationTypeDetector... detectors) {
-        if (detectors == null) {
-            return;
-        }
-        for (ApplicationTypeDetector detector : detectors) {
-            serverTypeDetectors.add(detector);
-        }
-    }
-
-    public List<ApplicationTypeDetector> getApplicationTypeDetectors() {
-        return serverTypeDetectors;
     }
 
     @Override

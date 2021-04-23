@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProvider;
@@ -29,7 +28,6 @@ import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginContextLoader;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -71,11 +69,6 @@ public class MockPluginContextLoadResult implements PluginContextLoadResult {
         }
 
         return classFileTransformerList;
-    }
-
-    @Override
-    public List<ApplicationTypeDetector> getApplicationTypeDetectorList() {
-        return Collections.emptyList();
     }
 
     @Override
