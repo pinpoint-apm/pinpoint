@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProvider;
@@ -42,12 +41,6 @@ public class GuardProfilerPluginSetupContext implements ProfilerPluginSetupConte
     public ProfilerConfig getConfig() {
 //        checkOpen();
         return this.delegate.getConfig();
-    }
-
-    @Override
-    public void addApplicationTypeDetector(ApplicationTypeDetector... detectors) {
-        checkOpen();
-        this.delegate.addApplicationTypeDetector(detectors);
     }
 
     @Override

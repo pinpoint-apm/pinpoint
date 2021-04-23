@@ -35,6 +35,8 @@ import com.navercorp.pinpoint.profiler.plugin.GuardProfilerPluginSetupContext;
 import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
 import com.navercorp.pinpoint.profiler.plugin.PluginSetupResult;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -46,14 +48,8 @@ public class MockPluginSetup implements PluginSetup {
 
     @Inject
     public MockPluginSetup(InstrumentEngine instrumentEngine, DynamicTransformTrigger dynamicTransformTrigger) {
-        if (instrumentEngine == null) {
-            throw new NullPointerException("instrumentEngine");
-        }
-        if (dynamicTransformTrigger == null) {
-            throw new NullPointerException("dynamicTransformTrigger");
-        }
-        this.instrumentEngine = instrumentEngine;
-        this.dynamicTransformTrigger = dynamicTransformTrigger;
+        this.instrumentEngine = Objects.requireNonNull(instrumentEngine, "instrumentEngine");
+        this.dynamicTransformTrigger = Objects.requireNonNull(dynamicTransformTrigger, "dynamicTransformTrigger");
     }
 
     @Override
