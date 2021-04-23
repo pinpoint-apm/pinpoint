@@ -99,9 +99,16 @@ public class SpringAsyncPlugin implements ProfilerPlugin, MatchableTransformTemp
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-            final InstrumentMethod submitMethod = target.getDeclaredMethod("submit", "java.util.concurrent.Callable");
+            final String callable = "java.util.concurrent.Callable";
+
+            final InstrumentMethod submitMethod = target.getDeclaredMethod("submit", callable);
             if (submitMethod != null) {
                 submitMethod.addScopedInterceptor(AsyncTaskExecutorSubmitInterceptor.class, SpringAsyncConstants.ASYNC_TASK_EXECUTOR_SCOPE);
+            }
+
+            final InstrumentMethod submitListenableMethod = target.getDeclaredMethod("submitListenable", callable);
+            if (submitListenableMethod != null) {
+                submitListenableMethod.addScopedInterceptor(AsyncTaskExecutorSubmitInterceptor.class, SpringAsyncConstants.ASYNC_TASK_EXECUTOR_SCOPE);
             }
 
             return target.toBytecode();
