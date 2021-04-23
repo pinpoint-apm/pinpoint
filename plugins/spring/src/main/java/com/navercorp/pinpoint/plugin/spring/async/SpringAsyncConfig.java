@@ -20,7 +20,9 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author jaehong.kim
@@ -37,23 +39,33 @@ public class SpringAsyncConfig {
             "org.springframework.scheduling.commonj.WorkManagerTaskExecutor"
     };
 
-    private final List<String> asyncTaskExecutorClassNameList = new ArrayList<String>(Arrays.asList(DEFAULT_ASYNC_TASK_EXECUTOR));
+    private static final String[] DEFAULT_ASYNC_TASK = {
+            "org.springframework.aop.interceptor.AsyncExecutionInterceptor$1",
+            "org.springframework.aop.interceptor.AsyncExecutionInterceptor$$Lambda$" // for spring framework 5.0 or later.
+    };
+
+    private final Set<String> asyncTaskExecutorClassNameList = new HashSet<>(Arrays.asList(DEFAULT_ASYNC_TASK_EXECUTOR));
+
+    private final Set<String> asyncTaskClassNameList = new HashSet<>(Arrays.asList(DEFAULT_ASYNC_TASK));
+
     private final boolean enable;
 
     public SpringAsyncConfig(ProfilerConfig config) {
         this.enable = config.readBoolean("profiler.spring.async.enable", true);
-        final List<String> list = config.readList("profiler.spring.async.executor.class.names");
-        if (!list.isEmpty()) {
-            for (String className : list) {
-                if (!this.asyncTaskExecutorClassNameList.contains(className)) {
-                    this.asyncTaskExecutorClassNameList.add(className);
-                }
-            }
-        }
+
+        final List<String> listExecutor = config.readList("profiler.spring.async.executor.class.names");
+        this.asyncTaskExecutorClassNameList.addAll(listExecutor);
+
+        final List<String> listTask = config.readList("profiler.spring.async.task.class.names");
+        this.asyncTaskClassNameList.addAll(listTask);
     }
 
-    public List<String> getAsyncTaskExecutorClassNameList() {
+    public Set<String> getAsyncTaskExecutorClassNameList() {
         return asyncTaskExecutorClassNameList;
+    }
+
+    public Set<String> getAsyncTaskClassNameList() {
+        return asyncTaskClassNameList;
     }
 
     public boolean isEnable() {
@@ -63,8 +75,9 @@ public class SpringAsyncConfig {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SpringAsyncConfig{");
-        sb.append("asyncTaskExecutorClassNameList=").append(asyncTaskExecutorClassNameList);
-        sb.append(", enable=").append(enable);
+        sb.append("enable=").append(enable);
+        sb.append(",asyncTaskClassNameList=").append(asyncTaskClassNameList);
+        sb.append(",asyncTaskExecutorClassNameList=").append(asyncTaskExecutorClassNameList);
         sb.append('}');
         return sb.toString();
     }
