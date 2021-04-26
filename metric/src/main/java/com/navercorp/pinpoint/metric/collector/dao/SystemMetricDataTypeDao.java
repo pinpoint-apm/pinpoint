@@ -27,7 +27,9 @@ import java.util.Map;
  * @author minwoo.jung
  */
 public interface SystemMetricDataTypeDao {
-    List<MetricData> selectMetricDataType();
+    List<MetricData> selectMetricDataTypeList();
 
-    void updateMetricDataType(List<MetricData> metricData);
+    MetricData selectMetricDataType(MetricDataName metricDataName);
+
+    void updateMetricDataType(MetricData metricData);
 }

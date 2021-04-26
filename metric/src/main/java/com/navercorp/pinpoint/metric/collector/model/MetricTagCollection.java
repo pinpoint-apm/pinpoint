@@ -86,4 +86,16 @@ public class MetricTagCollection {
                 ", metricTagList=" + metricTagList +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MetricTagCollection that = (MetricTagCollection) o;
+        return Objects.equals(applicationId, that.applicationId) &&
+                Objects.equals(hostName, that.hostName) &&
+                Objects.equals(metricName, that.metricName) &&
+                Objects.equals(fieldName, that.fieldName) &&
+                Objects.equals(metricTagList, that.metricTagList);
+    }
 }

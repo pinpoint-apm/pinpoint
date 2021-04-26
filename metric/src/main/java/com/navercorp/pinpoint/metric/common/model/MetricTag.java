@@ -116,4 +116,16 @@ public class MetricTag {
                 ", tags=" + tags +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MetricTag metricTag = (MetricTag) o;
+        return Objects.equals(applicationId, metricTag.applicationId) &&
+                Objects.equals(hostName, metricTag.hostName) &&
+                Objects.equals(metricName, metricTag.metricName) &&
+                Objects.equals(fieldName, metricTag.fieldName) &&
+                Objects.equals(tags, metricTag.tags);
+    }
 }
