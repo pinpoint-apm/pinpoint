@@ -68,4 +68,23 @@ public class MetricData {
     public void setMetricDataType(MetricDataType metricDataType) {
         this.metricDataType = metricDataType;
     }
+
+    @Override
+    public String toString() {
+        return "MetricData{" +
+                "metricName='" + metricName + '\'' +
+                ", fieldName='" + fieldName + '\'' +
+                ", metricDataType=" + metricDataType +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MetricData that = (MetricData) o;
+        return Objects.equals(metricName, that.metricName) &&
+                Objects.equals(fieldName, that.fieldName) &&
+                metricDataType == that.metricDataType;
+    }
 }

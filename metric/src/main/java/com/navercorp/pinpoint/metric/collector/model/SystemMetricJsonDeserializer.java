@@ -34,7 +34,7 @@ import java.util.*;
  */
 @Component
 public class SystemMetricJsonDeserializer extends JsonDeserializer<SystemMetric> {
-    //    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     private final static long SEC_TO_MILLIS = 1000;
 
     private final static TagComparator TAG_COMPARATOR = new TagComparator();

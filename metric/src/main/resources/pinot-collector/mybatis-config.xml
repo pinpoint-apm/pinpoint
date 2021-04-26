@@ -24,10 +24,17 @@
 
     <typeAliases>
         <typeAlias type="com.navercorp.pinpoint.metric.common.model.MetricData" alias="MetricData"/>
+        <typeAlias type="com.navercorp.pinpoint.metric.common.model.MetricDataName" alias="MetricDataName"/>
+        <typeAlias type="com.navercorp.pinpoint.metric.common.model.MetricTag" alias="MetricTag"/>
+        <typeAlias type="com.navercorp.pinpoint.metric.common.model.MetricTagKey" alias="MetricTagKey"/>
+        <typeAlias type="com.navercorp.pinpoint.metric.common.model.MetricDataType" alias="MetricDataType"/>
+        <typeAlias type="com.navercorp.pinpoint.metric.common.model.mybatis.TagListTypeHandler" alias="TagListTypeHandler"/>
+        <typeAlias type="com.navercorp.pinpoint.metric.common.model.mybatis.MetricDataTypeHandler" alias="MetricDataTypeHandler"/>
     </typeAliases>
 
     <typeHandlers>
-        <package name="com.navercorp.pinpoint.metric.common.model.mybatis"/>
+        <typeHandler handler="TagListTypeHandler" javaType="List"/>
+        <typeHandler handler="MetricDataTypeHandler" javaType="MetricDataType"/>
     </typeHandlers>
 
 </configuration>

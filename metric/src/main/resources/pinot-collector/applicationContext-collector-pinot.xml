@@ -20,12 +20,4 @@
     <import resource="classpath:pinot-collector/applicationContext-collector-metric-dao-config.xml"/>
 
     <bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
-
-    <bean id="systemMetricDataTypeBatch" class="com.navercorp.pinpoint.metric.collector.batch.SystemMetricDataTypeBatch"/>
-    <task:scheduled-tasks>
-        <task:scheduled ref="systemMetricDataTypeBatch" method="update"
-                        fixed-rate="${metric.metadata.update.interval:60000}"/>
-        <!--TODO : (miwnoo) 주기 수정 필요함-->
-    </task:scheduled-tasks>
-
 </beans>
