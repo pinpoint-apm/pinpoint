@@ -45,14 +45,17 @@ public class MysqlSystemMetricDataTypeDao implements SystemMetricDataTypeDao {
     }
 
     @Override
-    public List<MetricData> selectMetricDataType() {
-        return sqlSessionTemplate.selectList(NAMESPACE + "selectMetricDataTypes");
+    public List<MetricData> selectMetricDataTypeList() {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectMetricDataTypeList");
     }
 
     @Override
-    public void updateMetricDataType(List<MetricData> metricDataList) {
-        for (MetricData metricData : metricDataList) {
-            sqlSessionTemplate.insert(NAMESPACE + "insertMetricDataType", metricData);
-        }
+    public MetricData selectMetricDataType(MetricDataName metricDataName) {
+        return sqlSessionTemplate.selectOne(NAMESPACE + "selectMetricDataType", metricDataName);
+    }
+
+    @Override
+    public void updateMetricDataType(MetricData metricData) {
+        sqlSessionTemplate.insert(NAMESPACE + "insertMetricDataType", metricData);
     }
 }
