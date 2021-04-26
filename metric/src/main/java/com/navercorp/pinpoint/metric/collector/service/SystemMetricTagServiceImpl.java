@@ -62,7 +62,6 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
                     return;
                 }
             }
-            logger.info("not equals : {}", systemMetric);
             List<Tag> copiedTagList = tagListCopy(tagList);
             metricTagCache.updateCacheforMetricTag(metricTagKey, createMetricTagCollection(metricTagCollection, copiedTagList));
             metricTagCache.saveMetricTag(new MetricTag(applicationName, hostName, metricName, fieldName, copiedTagList));
@@ -71,7 +70,7 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
         //TODO : (minwoo) exception발생시 상위 controller연산 로직에 영향을 안줘야하지 않을까?
     }
 
-    private MetricTagCollection createMetricTagCollection(String applicationName, String hostName, String metricName, String fieldName, List<Tag> tagList) {
+    MetricTagCollection createMetricTagCollection(String applicationName, String hostName, String metricName, String fieldName, List<Tag> tagList) {
         MetricTag metricTag = new MetricTag(applicationName, hostName, metricName, fieldName, tagList);
         List<MetricTag> metricTagList = new ArrayList<>(1);
         metricTagList.add(metricTag);
@@ -79,7 +78,7 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
         return new MetricTagCollection(applicationName, hostName, metricName, fieldName, metricTagList);
     }
 
-    private MetricTagCollection createMetricTagCollection(MetricTagCollection metricTagCollection, List<Tag> tagList) {
+    MetricTagCollection createMetricTagCollection(MetricTagCollection metricTagCollection, List<Tag> tagList) {
         List<MetricTag> metricTagList = new ArrayList<>(metricTagCollection.getMetricTagList().size());
 
         for (MetricTag metricTag : metricTagCollection.getMetricTagList()) {
@@ -91,7 +90,7 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
         return new MetricTagCollection(metricTagCollection.getApplicationId(), metricTagCollection.getHostName(), metricTagCollection.getMetricName(), metricTagCollection.getFieldName(), metricTagList);
     }
 
-    private List<Tag> tagListCopy(List<Tag> tags) {
+    List<Tag> tagListCopy(List<Tag> tags) {
         List<Tag> tagList = new ArrayList<Tag>(tags.size());
 
         for (Tag tag : tags) {
@@ -101,7 +100,7 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
         return tagList;
     }
 
-    protected boolean isEquals(List<Tag> tagList1, List<Tag> tagList2) {
+    boolean isEquals(List<Tag> tagList1, List<Tag> tagList2) {
         if(tagList1.containsAll(tagList2) == false) {
             return false;
         }

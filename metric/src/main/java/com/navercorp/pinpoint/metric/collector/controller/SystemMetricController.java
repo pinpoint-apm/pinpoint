@@ -81,6 +81,7 @@ public class SystemMetricController {
         systemMetricService.insert(applicationName, systemMetrics);
     }
 
+    // TODO : (minwoo) 이 함수 불필요해보임
     private SimpleModule deserializerModule() {
         return new SimpleModule().addDeserializer(SystemMetric.class, new SystemMetricJsonDeserializer());
     }
@@ -91,19 +92,4 @@ public class SystemMetricController {
             systemMetricTagService.saveMetricTag(applicationName, systemMetric);
         }
     }
-
-    // TODO : (minwoo) 아래 주석 제거 필요
-//    private void updateMetadata(List<SystemMetric> systemMetrics) {
-//        for (SystemMetric systemMetric : systemMetrics) {
-//            if (systemMetric instanceof LongCounter) {
-//                systemMetricMetadata.put(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.LONG);
-//            } else if (systemMetric instanceof DoubleCounter) {
-//                systemMetricMetadata.put(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.DOUBLE);
-//            } else {
-//                throw new IllegalArgumentException("UnknownType:" + systemMetric.getClass().getName());
-//            }
-//        }
-//        systemMetricMetadata.save();
-//    }
-
 }

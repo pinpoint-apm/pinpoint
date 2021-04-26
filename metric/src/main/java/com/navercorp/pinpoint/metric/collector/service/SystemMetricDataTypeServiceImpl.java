@@ -35,59 +35,25 @@ public class SystemMetricDataTypeServiceImpl implements SystemMetricDataTypeServ
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final SystemMetricDataTypeDao systemMetricDataTypeDao;
-    private volatile Map<MetricDataName, MetricDataType> metricDataTypeMap;
+    private final MetricDataTypeCache metricDataTypeCache;
 
-
-    public SystemMetricDataTypeServiceImpl(SystemMetricDataTypeDao systemMetricDataTypeDao) {
-        this.systemMetricDataTypeDao = Objects.requireNonNull(systemMetricDataTypeDao, "systemMetricDataTypeDao");
-        //TODO : (minwoo) ConcurrentHashMap이 가장 적합한 객체인가
-        //TODO : (minwoo) metricDataTypeMap을 별도 객체로 빼는것도 답인듯, metricDataTypeCollector 라는 이름으로. service에서 객체를 직접 들고있으니까 이상하네.
-        metricDataTypeMap = new ConcurrentHashMap<>();
+    public SystemMetricDataTypeServiceImpl(MetricDataTypeCache metricDataTypeCache) {
+        this.metricDataTypeCache = Objects.requireNonNull(metricDataTypeCache, "metricDataTypeCache");
     }
 
     @Override
     public void saveMetricDataType(SystemMetric systemMetric) {
-        if (systemMetric instanceof LongCounter) {
-            metricDataTypeMap.putIfAbsent(new MetricDataName(systemMetric.getMetricName(), systemMetric.getFieldName()), MetricDataType.LONG);
-        } else if (systemMetric instanceof DoubleCounter) {
-            metricDataTypeMap.putIfAbsent(new MetricDataName(systemMetric.getMetricName(), systemMetric.getFieldName()), MetricDataType.DOUBLE);
-        } else {
-            logger.error("can not find metric data type.  systemMetric : {}", systemMetric);
-        }
+        MetricDataName metricDataName = new MetricDataName(systemMetric.getMetricName(), systemMetric.getFieldName());
+        MetricData metricData = metricDataTypeCache.getMetricDataType(metricDataName);
+
+        if (Objects.isNull(metricData)) {
+            if (systemMetric instanceof LongCounter) {
+                metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.LONG));
+            } else if (systemMetric instanceof DoubleCounter) {
+                metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.DOUBLE));
+            } else {
+                logger.error("can not find metric data type.  systemMetric : {}", systemMetric);
+            }
+        };
     }
-
-    @Override
-    public void replaceMetricDataTypeMap(Map<MetricDataName, MetricDataType> metricDataTypeMap) {
-        this.metricDataTypeMap = new ConcurrentHashMap<>(metricDataTypeMap);
-    }
-
-    @Override
-    public Map<MetricDataName, MetricDataType> copyMetricDataTypeMap() {
-        return new HashMap<MetricDataName, MetricDataType>(metricDataTypeMap);
-    }
-
-    @Override
-    public Map<MetricDataName, MetricDataType> getMetricDataTypeFromDataBase() {
-        List<MetricData> metricDataList = systemMetricDataTypeDao.selectMetricDataType();
-
-        Map<MetricDataName, MetricDataType> metricDataTypeMap = new HashMap<MetricDataName, MetricDataType>();
-        for (MetricData metricData : metricDataList) {
-            metricDataTypeMap.put(new MetricDataName(metricData.getMetricName(), metricData.getFieldName()), metricData.getMetricDataType());
-        }
-
-        return metricDataTypeMap;
-    }
-
-    @Override
-    public void saveMetricDataTypeToDB(Map<MetricDataName, MetricDataType> metricDataTypeMap) {
-        List<MetricData> metricDataList = new ArrayList<>();
-        for (Map.Entry<MetricDataName, MetricDataType> metricDataType : metricDataTypeMap.entrySet()) {
-            MetricDataName metricDataName = metricDataType.getKey();
-            metricDataList.add(new MetricData(metricDataName.getMetricName(), metricDataName.getFieldName(), metricDataType.getValue()));
-        }
-
-        systemMetricDataTypeDao.updateMetricDataType(metricDataList);
-    }
-
 }

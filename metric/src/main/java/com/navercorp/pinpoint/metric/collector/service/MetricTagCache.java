@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
@@ -33,6 +34,8 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @Component
+// TODO : (minwoo) cache만 호출될때도 transaction걸리면 제거 필요함
+@Transactional(transactionManager="metricTransactionManager")
 public class MetricTagCache {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -43,21 +46,28 @@ public class MetricTagCache {
         this.metricTagDao = Objects.requireNonNull(metricTagDao, "metricTagDao");
     }
 
-    @Cacheable(value="metricTagCollection", key= "#metricTagKey")
+    @Cacheable(value="metricTagCollection", key="#metricTagKey")
     public MetricTagCollection getMetricTag(MetricTagKey metricTagKey) {
         MetricTagCollection metricTagCollection = metricTagDao.selectMetricTag(metricTagKey);
-        logger.info("metricTagCollection metricTagKey: {}, metricTagCollection : {}", metricTagKey, metricTagCollection);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("metricTagCollection metricTagKey: {}, metricTagCollection : {}", metricTagKey, metricTagCollection);
+        }
+
         return metricTagCollection;
     }
 
+    @Transactional(transactionManager="metricTransactionManager")
     public void saveMetricTag(MetricTag metricTag) {
-
         metricTagDao.insertMetricTag(metricTag);
     }
 
-    @CachePut(value="metricTagCollection", key= "#metricTagKey")
+    @CachePut(value="metricTagCollection", key="#metricTagKey")
     public MetricTagCollection updateCacheforMetricTag(MetricTagKey metricTagKey, MetricTagCollection metricTagCollection) {
-        logger.info("updateCacheforMetricTag metricTagKey: {}, metricTagCollection : {}", metricTagKey, metricTagCollection);
+        if (logger.isDebugEnabled()) {
+            logger.debug("updateCacheforMetricTag metricTagKey: {}, metricTagCollection : {}", metricTagKey, metricTagCollection);
+        }
+
         return metricTagCollection;
     }
 }
