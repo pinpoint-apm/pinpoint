@@ -7,7 +7,7 @@ public final class PluginClassLoading {
 
     public static final String[] REQUIRED_CLASS_PATHS = new String[]{
             "junit", // JUnit
-            "hamcrest-core", // for JUnit
+            "hamcrest", // for JUnit
             "pinpoint-test", // pinpoint-test-{VERSION}.jar
             "/test/target/classes", // pinpoint-test build output directory
             "/testcase/target/classes",
