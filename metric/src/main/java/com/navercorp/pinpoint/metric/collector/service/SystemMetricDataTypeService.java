@@ -27,13 +27,5 @@ import java.util.Map;
  */
 public interface SystemMetricDataTypeService {
 
-    void replaceMetricDataTypeMap(Map<MetricDataName, MetricDataType> metricDataTypeMap);
-
-    public Map<MetricDataName, MetricDataType> copyMetricDataTypeMap();
-
-    Map<MetricDataName, MetricDataType> getMetricDataTypeFromDataBase();
-
-    void saveMetricDataTypeToDB(Map<MetricDataName, MetricDataType> metricDataTypeMap);
-
     void saveMetricDataType(SystemMetric systemMetric);
 }
