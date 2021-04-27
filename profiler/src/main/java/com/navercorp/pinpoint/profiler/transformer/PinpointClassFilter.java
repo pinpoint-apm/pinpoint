@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.profiler.transformer;
 
 import java.security.ProtectionDomain;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -24,8 +26,8 @@ import java.util.Objects;
  */
 public class PinpointClassFilter implements ClassFileFilter {
 
-    private static final String DEFAULT_PACKAGE = "com/navercorp/pinpoint/";
-    private static final String[] DEFAULT_EXCLUDES = {"web/", "sdk/"};
+    public static final String DEFAULT_PACKAGE = "com/navercorp/pinpoint/";
+    public static final List<String> DEFAULT_EXCLUDES = Arrays.asList("web/", "sdk/");
 
     private final String basePackage;
     private final String[] excludes;
@@ -34,9 +36,10 @@ public class PinpointClassFilter implements ClassFileFilter {
         this(DEFAULT_PACKAGE, DEFAULT_EXCLUDES);
     }
 
-    public PinpointClassFilter(String basePackage, String[] excludes) {
+    public PinpointClassFilter(String basePackage, List<String> excludes) {
         this.basePackage = Objects.requireNonNull(basePackage, "basePackage");
-        this.excludes = Objects.requireNonNull(excludes, "excludes");
+        Objects.requireNonNull(excludes, "excludes");
+        this.excludes = excludes.toArray(new String[0]);
     }
 
     @Override
@@ -56,5 +59,13 @@ public class PinpointClassFilter implements ClassFileFilter {
         }
 
         return CONTINUE;
+    }
+
+    @Override
+    public String toString() {
+        return "PinpointClassFilter{" +
+                "basePackage='" + basePackage + '\'' +
+                ", excludes=" + Arrays.toString(excludes) +
+                '}';
     }
 }
