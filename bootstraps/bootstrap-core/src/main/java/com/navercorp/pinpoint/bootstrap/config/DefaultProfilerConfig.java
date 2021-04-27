@@ -103,6 +103,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private List<String> allowJdkClassNames = Collections.emptyList();
 
+    @Value("${profiler.pinpoint.base-package}")
+    private String pinpointBasePackage;
+    @Value("${profiler.pinpoint.exclude-package}")
+    private String pinpointExcludePackage;
+
     @Value("${profiler.pinpoint.activethread}")
     private boolean traceAgentActiveThread = true;
 
@@ -145,6 +150,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Value("${profiler.io.buffering.buffersize}")
     private int ioBufferingBufferSize = 20;
 
+    @Value("profiler.jvm.vendor.name")
     private String profileJvmVendorName;
     // JVM
     @Value("${profiler.os.name}")
@@ -243,6 +249,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Value("${profiler.instrument.jdk.allow.classnames}")
     void setAllowJdkClassNames(String allowJdkClassNames) {
         this.allowJdkClassNames = StringUtils.tokenizeToStringList(allowJdkClassNames, ",");
+    }
+
+    @Override
+    public String getPinpointBasePackage() {
+        return pinpointBasePackage;
+    }
+
+    @Override
+    public String getPinpointExcludeSubPackage() {
+        return pinpointExcludePackage;
     }
 
     @Override
