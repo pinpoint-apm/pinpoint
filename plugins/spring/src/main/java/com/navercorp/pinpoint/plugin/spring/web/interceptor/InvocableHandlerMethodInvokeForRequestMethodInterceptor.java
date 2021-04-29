@@ -58,8 +58,7 @@ public class InvocableHandlerMethodInvokeForRequestMethodInterceptor extends Asy
         if (args != null && args.length > 1 && args[0] instanceof NativeWebRequest) {
             NativeWebRequest request = (NativeWebRequest) args[0];
             if (request.getNativeRequest() instanceof AsyncContextAccessor) {
-                AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(request.getNativeRequest());
-                return asyncContext;
+                return AsyncContextAccessorUtils.getAsyncContext(request.getNativeRequest());
             }
         }
 
