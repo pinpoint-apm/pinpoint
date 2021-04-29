@@ -59,7 +59,7 @@ For custom jar applications, you need to set this manually as the Agent does not
 You can set this by configuring `profiler.entrypoint` in *pinpoint.config* file.
 
 ### Building is failing after new release. Help!
-Please remember to run the command `mvn clean verify -DskipTests=true` if you've used a previous version before.
+Please remember to run the command `./mvnw clean verify -DskipTests=true` if you've used a previous version before, and replace './mvnw' with './mvnw.cmd' if you are using Windows.
 
 ### How to set java runtime option when using atlassian OSGi
 `-Datlassian.org.osgi.framework.bootdelegation=sun.,com.sun.,com.navercorp.*,org.apache.xerces.*`
@@ -76,8 +76,5 @@ If you'd like to use Hbase 2.x for Pinpoint database, check out [Hbase upgrade g
 
 
 ### What can I do if I don't wan't to use gojs
-In our next version of Pinpoint-Web, you can choose between visjs or gojs.
-The [source code](https://github.com/pinpoint-apm/pinpoint/blob/master/web/src/main/webapp/v2/src/app/app.module.ts) of this option and
-[the guide](https://pinpoint-apm.github.io/pinpoint/ui_v2.html)
-
+Since version [v2.0.0-RC3](https://github.com/pinpoint-apm/pinpoint/releases/tag/v2.0.0-RC3), We have removed all commercial dependencies(amchart, go.js). upgrade your web server part to the version after v2.0.0-RC3, and the lastest stable version is recommended.
 
