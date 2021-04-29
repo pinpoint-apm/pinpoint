@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
+import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
@@ -30,6 +31,7 @@ import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
+import com.navercorp.pinpoint.web.vo.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
@@ -41,17 +43,17 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -132,17 +134,20 @@ public class ApplicationMapBuilderTest {
                 return agentStatus;
             }
         });
-        doAnswer(new Answer<Void>() {
+        doAnswer(new Answer<List<Optional<AgentStatus>>>() {
             @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                Collection<AgentInfo> agentInfos = invocation.getArgument(0);
-                for (AgentInfo agentInfo : agentInfos) {
+            public List<Optional<AgentStatus>> answer(InvocationOnMock invocation) throws Throwable {
+
+                List<Optional<AgentStatus>> result = new ArrayList<>();
+
+                AgentStatusQuery query = invocation.getArgument(0);
+                for (SimpleAgentKey agentInfo : query.getAgentKeys()) {
                     AgentStatus agentStatus = new AgentStatus(agentInfo.getAgentId(), AgentLifeCycleState.RUNNING, System.currentTimeMillis());
-                    agentInfo.setStatus(agentStatus);
+                    result.add(Optional.of(agentStatus));
                 }
-                return null;
+                return result;
             }
-        }).when(agentInfoService).populateAgentStatuses(anyCollection(), anyLong());
+        }).when(agentInfoService).getAgentStatus(any());
     }
 
     @After

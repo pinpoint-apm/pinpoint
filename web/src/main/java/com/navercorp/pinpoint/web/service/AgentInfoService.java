@@ -20,12 +20,14 @@ import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
+import com.navercorp.pinpoint.web.vo.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 
-import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -54,9 +56,9 @@ public interface AgentInfoService {
 
     AgentStatus getAgentStatus(String agentId, long timestamp);
 
-    boolean isActiveAgent(String agentId, Range range);
+    List<Optional<AgentStatus>> getAgentStatus(AgentStatusQuery query);
 
-    void populateAgentStatuses(Collection<AgentInfo> agentInfos, long timestamp);
+    boolean isActiveAgent(String agentId, Range range);
 
     InspectorTimeline getAgentStatusTimeline(String agentId, Range range, int... excludeAgentEventTypeCodes);
 
