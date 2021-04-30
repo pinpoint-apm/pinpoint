@@ -3,6 +3,8 @@ package com.navercorp.pinpoint.common.server.util;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Formatter;
 
 public final class ServerBootLogger {
@@ -10,9 +12,10 @@ public final class ServerBootLogger {
     private final String loggerName;
     private final PrintStream out = System.out;
     private final PrintStream err = System.err;
-    
-    private static final String FORMAT = "%tm-%<td %<tT.%<tL %-5s %-35.35s : %s";
+
+    private static final String LOGGER_FORMAT = "%-35.35s";
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss.SSS");
 
     private ServerBootLogger(String loggerName) {
         this.loggerName = loggerName;
@@ -33,20 +36,36 @@ public final class ServerBootLogger {
 
 
     protected String format(String logLevel, String msg, Throwable throwable) {
-        final long now = System.currentTimeMillis();
+        StringBuilder buffer = new StringBuilder(128);
+        LocalDateTime now = LocalDateTime.now();
+        DATE_TIME_FORMATTER.formatTo(now, buffer);
 
-        StringBuilder buffer = new StringBuilder(64);
+        buffer.append(' ');
+
+        buffer.append(logLevel);
+        append(buffer, ' ', 5 - logLevel.length());
+        buffer.append(' ');
+
         Formatter formatter = new Formatter(buffer);
-        formatter.format(FORMAT, now, logLevel, loggerName, msg);
+        formatter.format(LOGGER_FORMAT, loggerName);
+
+        buffer.append(" : ");
+        buffer.append(msg);
+
         if (throwable != null) {
             String exceptionMessage = toString(throwable);
             buffer.append(exceptionMessage);
-        }  else {
+        } else {
             buffer.append(LINE_SEPARATOR);
         }
 
-
         return formatter.toString();
+    }
+
+    private void append(StringBuilder buffer, char ch, int repeat) {
+        for (int i = 0; i < repeat; i++) {
+            buffer.append(ch);
+        }
     }
 
     public void error(String msg) {
