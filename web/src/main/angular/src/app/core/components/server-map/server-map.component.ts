@@ -45,9 +45,9 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
         if (mapDataChange && mapDataChange.currentValue) {
             this.hasDataUpdated = true;
             if (this.serverMapDiagram) {
-                if (this.shouldRefresh) {
+                // if (this.shouldRefresh) {
                     this.serverMapDiagram.setMapData(this.mapData, this.baseApplicationKey, this.shouldRefresh);
-                }
+                // }
                 this.hasRenderData = false;
             } else {
                 this.hasRenderData = true;

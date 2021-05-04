@@ -1,6 +1,6 @@
 import cytoscape from 'cytoscape';
 import dagre from 'cytoscape-dagre';
-import { from as fromArray, fromEvent, iif, zip, merge, Observable, forkJoin } from 'rxjs';
+import { from as fromOperator, fromEvent, iif, zip, merge, Observable, forkJoin } from 'rxjs';
 import { mergeMap, map, pluck, switchMap, take, reduce, tap } from 'rxjs/operators';
 
 import ServerMapTheme from './server-map-theme';
@@ -55,7 +55,9 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                         'text-halign': 'center',
                         'text-margin-y': 4,
                         'background-clip': 'node',
-                        'background-image': (ele: any) => ele.data('imgStr'),
+                        'background-image': (ele: any) => ele.data('imgArr'),
+                        'background-fit': 'contain',
+                        'background-offset-y': '-5px',
                         label: 'data(label)',
                         'overlay-opacity': 0,
                         'font-family': 'Helvetica, Arial, avn85, NanumGothic, ng, dotum, AppleGothic, sans-serif',
@@ -229,8 +231,8 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                 addedNodes$,
                 updateNodes$.pipe(
                     tap((nodes: {[key: string]: any}[]) => {
-                        nodes.forEach(({data: {id, imgStr}}: {[key: string]: any}) => {
-                            this.cy.getElementById(id).data({imgStr, alive: true});
+                        nodes.forEach(({data: {id, imgArr}}: {[key: string]: any}) => {
+                            this.cy.getElementById(id).data({imgArr, alive: true});
                         });
 
                         updatedEdgeList.forEach(({key, totalCount, hasAlert}: {[key: string]: any}) => {
@@ -317,6 +319,7 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                     }
                 };
             });
+
             const nodeList = serverMapData.getNodeList();
             const nodes$ = this.getNodesObs(nodeList);
 
@@ -338,7 +341,7 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
     }
 
     private getNodesObs(nodeList: INodeInfo[]): Observable<{[key: string]: any}[]> {
-        return fromArray(nodeList).pipe(
+        return fromOperator(nodeList).pipe(
             mergeMap((node: {[key: string]: any}) => {
                 const {key, applicationName, serviceType, isAuthorized, hasAlert, isMerged, topCountNodes} = node;
                 const serviceTypeImg = new Image();
@@ -346,7 +349,14 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                 serviceTypeImg.src = ServerMapTheme.general.common.funcServerMapImagePath(serviceType);
 
                 const serviceTypeImgLoadEvent$ = merge(
-                    fromEvent(serviceTypeImg, 'load'),
+                    fromEvent(serviceTypeImg, 'load').pipe(
+                        tap(({target}: {target: EventTarget}) => {
+                            // const img = target as HTMLImageElement;
+
+                            // img.width = img.width <= 100 ? img.width : 100;
+                            // img.height = img.height <= 65 ? img.height : 65;
+                        }),
+                    ),
                     fromEvent(serviceTypeImg, 'error').pipe(
                         switchMap(() => {
                             // If there is no image file for a serviceType, use NO_IMAGE_FOUND image file instead.
@@ -371,18 +381,24 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                 );
 
                 return innerObs$.pipe(
-                    map((img: HTMLImageElement[]) => {
-                        const svg = ServerMapTemplate.getSVGString(img, node);
+                    map(([serviceTypeImgElem, _]: HTMLImageElement[]) => {
+                        // [serviceTypeImgElem, alertImg]
+                        // TODO: alertImg should be considered later
+                        const svg = ServerMapTemplate.getSVGString(node);
 
-                        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+                        return [
+                            serviceTypeImgElem.src,
+                            'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)
+                        ];
                     }),
-                    map((imgStr: string) => {
+                    map((imgArr: string[]) => {
                         return {
                             data: {
                                 id: key,
                                 isMerged,
+                                // label: isMerged ? this.getMergedNodeLabel(topCountNodes) : `${applicationName}` + ` ${instanceCount !== 0 ? '(' + instanceCount + ')' : ''}`,
                                 label: isMerged ? this.getMergedNodeLabel(topCountNodes) : applicationName,
-                                imgStr,
+                                imgArr,
                                 alive: true
                             },
                         };

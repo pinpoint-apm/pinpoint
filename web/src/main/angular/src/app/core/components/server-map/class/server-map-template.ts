@@ -71,7 +71,7 @@ export abstract class ServerMapTemplate {
     }
 
     private static getServiceTypeSVGImgString(img: HTMLImageElement): string {
-        const dataURL = ServerMapTemplate.getDataURLFromImg(img);
+        const dataURL = this.getDataURLFromImg(img);
         const w = img.width <= 100 ? img.width : 100;
         const h = img.height <= 65 ? img.height : 65;
 
@@ -82,13 +82,11 @@ export abstract class ServerMapTemplate {
         return `<text x="50%" y="0" text-anchor="middle" alignment-baseline="central" fill="black" transform="translate(0, 80)" font-size="15px">${instanceCount >= 2 ? instanceCount : ''}</text>`;
     }
 
-    public static getSVGString(img: HTMLImageElement[], nodeData: {[key: string]: any}): string {
+    public static getSVGString(nodeData: {[key: string]: any}): string {
         const {key, isAuthorized, isMerged, isWas, histogram, instanceCount} = nodeData;
 
         return `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" xmlns:xlink="http://www.w3.org/1999/xlink">` +
             ServerMapTemplate.getCompleteSVGCircleString(isMerged || !(isAuthorized && isWas), histogram) +
-            (img[1] ? ServerMapTemplate.getAlertSVGImgString(img[1]) : ``) +
-            ServerMapTemplate.getServiceTypeSVGImgString(img[0]) +
             ServerMapTemplate.getInstanceCountTextString(instanceCount) +
             `</svg>`;
     }
