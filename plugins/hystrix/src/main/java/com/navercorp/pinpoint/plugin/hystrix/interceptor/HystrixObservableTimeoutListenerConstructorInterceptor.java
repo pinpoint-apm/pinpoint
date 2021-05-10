@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.hystrix.field.EnclosingInstanceAccessor;
 
 /**
@@ -47,10 +48,9 @@ public class HystrixObservableTimeoutListenerConstructorInterceptor implements A
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (args != null && args.length > 0) {
-            if (args[0] instanceof AsyncContextAccessor && target instanceof EnclosingInstanceAccessor) {
-                ((EnclosingInstanceAccessor) target)._$PINPOINT$_setEnclosingInstance(args[0]);
-            }
+        final Object asyncContextAccessor = ArrayUtils.get(args, 0);
+        if (asyncContextAccessor instanceof AsyncContextAccessor && target instanceof EnclosingInstanceAccessor) {
+            ((EnclosingInstanceAccessor) target)._$PINPOINT$_setEnclosingInstance(args[0]);
         }
     }
 }

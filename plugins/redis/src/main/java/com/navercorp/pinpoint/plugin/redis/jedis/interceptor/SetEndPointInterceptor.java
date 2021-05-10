@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.redis.jedis.interceptor;
 import java.net.URI;
 
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.redis.jedis.EndPointUtils;
 import redis.clients.jedis.JedisShardInfo;
 
@@ -79,7 +80,7 @@ public class SetEndPointInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(final Object target, final Object[] args) {
-        if (args == null || args.length == 0 || args[0] == null) {
+        if (ArrayUtils.isEmpty(args) || args[0] == null) {
             if (isDebug) {
                 logger.debug("Invalid arguments. Null or not found args({}).", args);
             }

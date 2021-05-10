@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxConstants;
 
 /**
@@ -53,7 +54,7 @@ public class InvocableHandlerMethodInterceptor extends AsyncContextSpanEventSimp
     }
 
     private AsyncContext getAsyncContextFromArgs(Object[] args) {
-        if (args == null || args.length < 1) {
+        if (ArrayUtils.isEmpty(args)) {
             return null;
         }
         return AsyncContextAccessorUtils.getAsyncContext(args[0]);

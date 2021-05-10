@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityExtractor;
 import com.navercorp.pinpoint.bootstrap.util.FixedByteArrayOutputStream;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -117,7 +118,7 @@ public class HttpClient4EntityExtractor implements EntityExtractor<HttpRequest> 
         String charset = null;
         if (entity.getContentType() != null) {
             HeaderElement values[] = entity.getContentType().getElements();
-            if (values.length > 0) {
+            if (ArrayUtils.hasLength(values)) {
                 NameValuePair param = values[0].getParameterByName("charset");
                 if (param != null) {
                     charset = param.getValue();

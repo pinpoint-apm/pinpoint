@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactor
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorderFactory;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3EntityExtractor;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3RequestWrapper;
@@ -164,7 +165,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     }
 
     private HttpConnection getHttpConnection(final Object[] args) {
-        if (args != null && args.length > 1 && args[1] instanceof HttpConnection) {
+        if (ArrayUtils.getLength(args) > 1 && args[1] instanceof HttpConnection) {
             return (HttpConnection) args[1];
         }
         return null;

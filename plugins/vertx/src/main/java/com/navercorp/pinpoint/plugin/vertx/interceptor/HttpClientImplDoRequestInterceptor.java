@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.vertx.HttpClientRequestClientHeaderAdaptor;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import io.vertx.core.http.HttpClientRequest;
@@ -136,13 +137,14 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
     }
 
     private String toHostAndPort(final Object[] args) {
-        if (args != null && (args.length == 5 || args.length == 6)) {
+        final int length = ArrayUtils.getLength(args);
+        if (length == 5 || length == 6) {
             if (args[1] instanceof String && args[2] instanceof Integer) {
                 final String host = (String) args[1];
                 final int port = (Integer) args[2];
                 return HostAndPort.toHostAndPortString(host, port);
             }
-        } else if (args != null && args.length == 7) {
+        } else if (length == 7) {
             // 3.4.2 - HttpMethod method, String host, int port, Boolean ssl, String relativeURI, MultiMap headers
             if (args[2] instanceof String && args[3] instanceof Integer) {
                 final String host = (String) args[2];

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.kafka.interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.EndPointFieldAccessor;
 
@@ -47,7 +48,7 @@ public class ConsumerRecordsInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (args == null || args.length != 1) {
+        if (ArrayUtils.getLength(args) != 1) {
             return;
         }
         if (!(args[0] instanceof Map)) {

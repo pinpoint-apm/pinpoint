@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.hystrix.interceptor.metrics;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.hystrix.field.HystrixKeyNameAccessor;
 
 /**
@@ -32,7 +33,7 @@ public class HystrixKeyConstructInterceptor implements AroundInterceptor {
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (target instanceof HystrixKeyNameAccessor) {
-            if (args != null && args.length > 0) {
+            if (ArrayUtils.hasLength(args)) {
                 Object name = args[0];
                 if (name instanceof String) {
                     ((HystrixKeyNameAccessor) target)._$PINPOINT$_setHystrixKeyName((String) name);

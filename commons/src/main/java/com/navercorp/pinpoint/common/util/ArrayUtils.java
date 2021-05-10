@@ -552,4 +552,49 @@ public final class ArrayUtils {
         return array.length;
     }
 
+    /**
+     * Gets the nTh element of an array or null if the index is out of bounds or the array is null.
+     *
+     * @param <T> The type of array elements.
+     * @param array The array to index.
+     * @param index The index
+     * @return the nTh element of an array or null if the index is out of bounds or the array is null.
+     * @since 3.11
+     */
+    public static <T> T get(final T[] array, final int index) {
+        return get(array, index, null);
+    }
+
+    /**
+     * Gets the nTh element of an array or a default value if the index is out of bounds.
+     *
+     * @param <T> The type of array elements.
+     * @param array The array to index.
+     * @param index The index
+     * @param defaultValue The return value of the given index is out of bounds.
+     * @return the nTh element of an array or a default value if the index is out of bounds.
+     * @since 3.11
+     */
+    public static <T> T get(final T[] array, final int index, final T defaultValue) {
+        return isArrayIndexValid(array, index) ? array[index] : defaultValue;
+    }
+
+    /**
+     * Returns whether a given array can safely be accessed at the given index.
+     *
+     * <pre>
+     * ArrayUtils.isArrayIndexValid(null, 0)       = false
+     * ArrayUtils.isArrayIndexValid([], 0)         = false
+     * ArrayUtils.isArrayIndexValid(["a"], 0)      = true
+     * </pre>
+     *
+     * @param <T> the component type of the array
+     * @param array the array to inspect, may be null
+     * @param index the index of the array to be inspected
+     * @return Whether the given index is safely-accessible in the given array
+     * @since 3.8
+     */
+    public static <T> boolean isArrayIndexValid(final T[] array, final int index) {
+        return index >= 0 && getLength(array) > index;
+    }
 }

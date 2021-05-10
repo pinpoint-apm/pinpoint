@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.redis.jedis.interceptor;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import redis.clients.jedis.Client;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -55,7 +56,7 @@ public class AttachEndPointInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(final Object target, final Object[] args) {
-        if (args == null || args.length == 0 || args[0] == null) {
+        if (ArrayUtils.isEmpty(args) || args[0] == null) {
             if (isDebug) {
                 logger.debug("Invalid arguments. Null or not found args({}).", args);
             }

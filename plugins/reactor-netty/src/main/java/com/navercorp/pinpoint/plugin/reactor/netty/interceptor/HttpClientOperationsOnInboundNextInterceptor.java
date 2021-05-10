@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -81,7 +82,7 @@ public class HttpClientOperationsOnInboundNextInterceptor extends AsyncContextSp
     }
 
     private boolean validate(final Object[] args) {
-        if (args == null || args.length < 2) {
+        if (ArrayUtils.getLength(args) != 1) {
             if (isDebug) {
                 logger.debug("Invalid args object. args={}.", args);
             }

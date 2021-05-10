@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.httpclient4.EndPointUtils;
 import org.apache.http.conn.routing.HttpRoute;
 
@@ -37,8 +38,9 @@ public class ManagedClientConnectionOpenMethodInterceptor extends SpanEventSimpl
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        if (args != null && args.length >= 1 && args[0] instanceof HttpRoute) {
-            final HttpRoute route = (HttpRoute) args[0];
+        Object httpRoute = ArrayUtils.get(args, 0);
+        if (httpRoute instanceof HttpRoute) {
+            final HttpRoute route = (HttpRoute) httpRoute;
             final String hostAndPort = EndPointUtils.getHostAndPort(route);
             recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, hostAndPort);
         }
