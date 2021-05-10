@@ -26,11 +26,11 @@ input:focus {
 }
 
 input.l-success-input {
-    border: 1px solid #3c763d;
+    border: 1px solid var(--status-success);
 }
 
 input.l-success-input:focus {
-    box-shadow: 0 0 2px #3c763d;
+    box-shadow: 0 0 2px var(--status-success);
 }
 
 input.l-fail-input {
@@ -49,7 +49,7 @@ input.l-fail-input:focus {
 }
 
 .fa-check {
-    color: #3c763d;
+    color: var(--status-success);
 }
 
 .fa-times {

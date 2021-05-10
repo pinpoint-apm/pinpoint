@@ -11,7 +11,7 @@
 }
 
 .l-chart-list-item:hover {
-    background-color:  #e4f3eb;
+    background-color: var(--row-background-focus);
 }
 .l-chart-name {
     display: block;

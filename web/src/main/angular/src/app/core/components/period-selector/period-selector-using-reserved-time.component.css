@@ -17,12 +17,12 @@
     border-radius: 0px;
 }
 .l-time-set button.active {
-    background:#33b692;
+    background: var(--secondary);
 }
 .l-time-set button:focus {
     background-color:var(--primary-color);
     color:#fff;
 }
 .l-time-set button:hover, .l-time-set button:focus {
-    background:#33b692
+    background: var(--secondary)
 }

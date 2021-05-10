@@ -113,12 +113,12 @@ form {
 }
 
 .ng-valid[required]  {
-    border-left: 5px solid #42A948 !important; 
+    border-left: 5px solid var(--status-success) !important; 
 }
 
 .ng-valid[required]:focus {
-    border-color: #42a948;
-    box-shadow: 0 0 1px 0px #42a948;
+    border-color: var(--status-success);
+    box-shadow: 0 0 1px 0px var(--status-success);
 }
 
 .ng-invalid:not(form).ng-touched  {

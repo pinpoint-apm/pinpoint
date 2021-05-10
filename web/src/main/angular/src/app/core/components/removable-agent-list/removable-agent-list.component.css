@@ -74,7 +74,7 @@
     background-color: #fff1f1;
 }
 #removableAgentList .ag-row-focused {
-    background-color: #e4f5e3;
+    background-color: var(--row-background-focus);
 }
 #removableAgentList .ag-body {
     background-color: #ffffff;
@@ -90,7 +90,7 @@
     font-size: 14px;
 }
 #removableAgentList .ag-row-focused {
-    background-color: #e4f5e3;
+    background-color: var(--row-background-focus);
 }
 #removableAgentList .ag-row-selected {
     color: var(--primary-color);

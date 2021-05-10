@@ -19,7 +19,7 @@
     margin: 0 6px 0 0;
     content: '';
     display: inline-block;
-    background: #34b994;
+    background: var(--chart-normal);
     border-radius: 50%;
 }
 .l-checkbox-group .failed:before {

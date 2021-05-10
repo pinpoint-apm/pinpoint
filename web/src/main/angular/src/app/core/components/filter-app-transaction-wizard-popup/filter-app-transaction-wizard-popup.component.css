@@ -148,7 +148,7 @@
 }
 .l-application-list li:hover {
     color: #000;
-    background-color: #e4f3eb;
+    background-color: var(--row-background-focus);
 }
 .l-widget-group {
     padding: 0;
@@ -191,9 +191,11 @@
     padding: 30px 30px 10px 30px !important;
     font-size: 11px !important;
 }
-.l-response-time div.noUi-connect {
-    background-color: #3dcfa8 !important;
+
+:host ::ng-deep .l-response-time div.noUi-connect {
+    background-color: var(--secondary);
 }
+
 .l-range-info {
     text-align: center !important;
 }

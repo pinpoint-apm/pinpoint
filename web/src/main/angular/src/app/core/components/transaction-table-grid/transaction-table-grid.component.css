@@ -74,7 +74,7 @@
     background-color: #fff1f1;
 }
 #transaction-table .ag-row-selected {
-    background-color: #e4f5e3;
+    background-color: var(--row-background-focus);
 }
 
 #transaction-table .id-header .ag-header-cell-label {

@@ -9,7 +9,7 @@
 }
 
 :host:hover {
-    background:#e4f3eb;
+    background:var(--row-background-focus);
 }
 
 :host.selected {

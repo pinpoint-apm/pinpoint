@@ -335,7 +335,7 @@ caption {
 }
 
 .l-calltree .ag-row-focused {
-    background-color: #e4f5e3;
+    background-color: var(--row-background-focus);
 }
 
 .l-calltree .ag-body {
@@ -356,7 +356,7 @@ caption {
 }
 
 .l-calltree .ag-row-focused {
-    background-color: #e4f5e3;
+    background-color: var(--row-background-focus);
 }
 
 .l-calltree .ag-row-selected {

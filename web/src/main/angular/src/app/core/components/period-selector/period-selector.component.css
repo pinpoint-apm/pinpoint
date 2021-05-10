@@ -25,7 +25,7 @@
     background: #3E506B;
     padding: 0 5px;
     width: 35px;
-    color:#38c2a2;
+    color: var(--secondary);
 }
 .l-type-select li.inactive {
     border: 1px solid #364660;
@@ -39,8 +39,8 @@
     content: '';
     width: 0;
     height: 0;
-    border-right: 0 solid #33b692;
-    border-bottom: 8px solid #33b692;
+    border-right: 0 solid var(--secondary);
+    border-bottom: 8px solid var(--secondary);
     border-left: 8px solid transparent;
     position: absolute;
     right: 0;
