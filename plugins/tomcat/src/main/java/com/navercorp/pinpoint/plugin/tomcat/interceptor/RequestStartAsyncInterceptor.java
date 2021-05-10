@@ -15,7 +15,6 @@
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -74,9 +73,8 @@ public class RequestStartAsyncInterceptor implements AroundInterceptor {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (validate(target, result, throwable)) {
                 com.navercorp.pinpoint.bootstrap.context.AsyncContext nextAsyncContext = recorder.recordNextAsyncContext(true);
-                Object asyncContextAccessor = ArrayUtils.get(args, 0);
-                if (asyncContextAccessor instanceof AsyncContextAccessor) {
-                    ((AsyncContextAccessor) asyncContextAccessor)._$PINPOINT$_setAsyncContext(nextAsyncContext);
+                if (ArrayUtils.getLength(args) > 1 && args[0] instanceof AsyncContextAccessor) {
+                    ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(nextAsyncContext);
                 }
 
                 final HttpServletRequest request = (HttpServletRequest) target;
