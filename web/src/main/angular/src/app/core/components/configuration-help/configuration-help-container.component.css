@@ -38,7 +38,7 @@
 }
 
 .l-user-community-link {
-    background-color: #50cba4;
+    background-color: var(--secondary);
 }
 
 .l-card-text {
@@ -61,7 +61,7 @@
 }
 
 .fa-users {
-    color: #b5e6d5;
+    color: var(--secondary-lighter);
 }
 
 .l-guide-section {

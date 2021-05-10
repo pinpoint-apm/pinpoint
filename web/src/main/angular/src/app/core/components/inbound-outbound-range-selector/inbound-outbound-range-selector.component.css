@@ -4,7 +4,7 @@
     width: 115px;
 }
 .fa-sign-in-alt, .fa-sign-out-alt {
-    color: #33b692;
+    color: var(--secondary);
 }
 button {
     outline: none;
@@ -24,7 +24,7 @@ button {
     font-size: 15px;
     display: inline-block;
     margin-left: 9px;
-    color: #33b692;
+    color: var(--secondary);
 }
 
 .l-bound-text {

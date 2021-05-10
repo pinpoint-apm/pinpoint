@@ -111,8 +111,9 @@
         right: 0px;
         width: 0px; /* @script position reset */
         height: 7px;
-        background-color: #3dcfa8;
+        background-color: var(--secondary);
     }
+
     .slider-for-progress .sfp-value {
         color: #FFF;
         width: 100%;

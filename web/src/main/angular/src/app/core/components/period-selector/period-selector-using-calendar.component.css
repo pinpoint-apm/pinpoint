@@ -129,7 +129,7 @@
 .l-calendar-group .l-text {
     padding: 15px 13px;
     font-size: 13px;
-    color: #38c2a2;
+    color: var(--secondary);
 }
 
 .ngui-datetime-picker {

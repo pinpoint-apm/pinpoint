@@ -26,7 +26,7 @@
     margin-left: 10px;
 }
 .l-transaction-complete {
-    background-color: #5CB85C;
+    background-color: var(--status-success);
 }
 .l-transaction-progress,
 .l-transaction-overflow {

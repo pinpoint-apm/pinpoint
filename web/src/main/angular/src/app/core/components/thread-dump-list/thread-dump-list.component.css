@@ -73,7 +73,7 @@
     background-color: #fff1f1;
 }
 #thread-dump-table .ag-row-selected {
-    background-color: #e4f5e3;
+    background-color: var(--row-background-focus);
 }
 #thread-dump-table .order-header .ag-header-cell-label,
 #thread-dump-table .id-header .ag-header-cell-label {

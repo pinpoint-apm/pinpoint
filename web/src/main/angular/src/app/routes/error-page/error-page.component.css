@@ -39,7 +39,7 @@
     border-radius: 50px;
 }
 .l-success {
-    color: #03a203;
+    color: var(--status-success);
 }
 .l-fail {
     color: #c10404;
