@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.netty.NettyConstants;
 import com.navercorp.pinpoint.plugin.netty.NettyUtils;
 
@@ -44,7 +45,8 @@ public class BootstrapConnectInterceptor extends SpanEventSimpleAroundIntercepto
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
 
-        if (args == null || args.length == 0 || !(args[0] instanceof SocketAddress)) {
+        final Object socketAddress = ArrayUtils.get(args, 0);
+        if (!(socketAddress instanceof SocketAddress)) {
             return;
         }
 

@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
 import com.navercorp.pinpoint.plugin.hystrix.descriptor.HystrixCollapserMetricsMethodDescriptor;
 import com.navercorp.pinpoint.plugin.hystrix.field.HystrixKeyNameAccessor;
@@ -46,12 +47,12 @@ public class HystrixCollapserMetricsConstructInterceptor extends SpanEventSimple
         recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
         recorder.recordApi(HYSTRIX_COLLAPSER_METRICS_METHOD_DESCRIPTOR);
         recorder.recordException(throwable);
-        if (args != null && args.length > 0) {
-            if (args[0] instanceof HystrixKeyNameAccessor) {
-                String collapserKey = ((HystrixKeyNameAccessor) args[0])._$PINPOINT$_getHystrixKeyName();
-                if (collapserKey != null) {
-                    recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_COLLAPSER_KEY_ANNOTATION_KEY, collapserKey);
-                }
+        
+        final Object hystrixKeyNameAccessor = ArrayUtils.get(args, 0);
+        if (hystrixKeyNameAccessor instanceof HystrixKeyNameAccessor) {
+            String collapserKey = ((HystrixKeyNameAccessor) hystrixKeyNameAccessor)._$PINPOINT$_getHystrixKeyName();
+            if (collapserKey != null) {
+                recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_COLLAPSER_KEY_ANNOTATION_KEY, collapserKey);
             }
         }
     }

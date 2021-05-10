@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig;
 import com.navercorp.pinpoint.plugin.okhttp.v3.OkHttpClientCookieExtractor;
@@ -148,7 +149,7 @@ public class BridgeInterceptorInterceptMethodInterceptor implements AroundInterc
     }
 
     private boolean validate(final Object[] args) {
-        if (args == null || args.length != 1) {
+        if (ArrayUtils.getLength(args) != 1) {
             if (isDebug) {
                 logger.debug("Invalid args object. args={}", args);
             }

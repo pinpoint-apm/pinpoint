@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactor
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorderFactory;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.EndPointUtils;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientConstants;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientPluginConfig;
@@ -155,7 +156,8 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(final Object[] args) {
-        if (args == null || args.length == 0 || !(args[0] instanceof Request)) {
+        final Object request = ArrayUtils.get(args, 0);
+        if (!(request instanceof Request)) {
             if (isDebug) {
                 logger.debug("Invalid args[0] object. args={}.", args);
             }

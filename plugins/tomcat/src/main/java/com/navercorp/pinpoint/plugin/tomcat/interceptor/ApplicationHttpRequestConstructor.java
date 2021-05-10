@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 /**
  * @author jaehong.kim
@@ -31,7 +32,7 @@ public class ApplicationHttpRequestConstructor implements AroundInterceptor {
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (args != null && args.length > 1) {
+        if (ArrayUtils.getLength(args) > 1) {
             final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
             if (asyncContext != null && target instanceof AsyncContextAccessor) {
                 ((AsyncContextAccessor) target)._$PINPOINT$_setAsyncContext(asyncContext);

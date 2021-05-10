@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.descriptor.EntryPointMethodDescriptor;
@@ -88,7 +89,8 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
     }
 
     protected Object getTargetParameter(Object[] args) {
-        if (args == null || args.length <= parameterIndex) {
+        int length = ArrayUtils.getLength(args);
+        if (length <= parameterIndex) {
             return null;
         }
 

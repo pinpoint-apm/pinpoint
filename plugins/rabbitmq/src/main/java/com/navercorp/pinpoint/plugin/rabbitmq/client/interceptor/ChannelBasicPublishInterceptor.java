@@ -11,6 +11,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientConstants;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientPluginConfig;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.field.accessor.RemoteAddressAccessor;
@@ -133,7 +134,7 @@ public class ChannelBasicPublishInterceptor implements AroundInterceptor {
         if (!(target instanceof Channel)) {
             return false;
         }
-        if (args == null || args.length < 6) {
+        if (ArrayUtils.getLength(args) < 6) {
             return false;
         }
         if (args[0] != null && !(args[0] instanceof String)) {

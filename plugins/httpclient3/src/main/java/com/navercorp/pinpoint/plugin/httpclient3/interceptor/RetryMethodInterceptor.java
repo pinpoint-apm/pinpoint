@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 
 /**
@@ -56,10 +57,11 @@ public class RetryMethodInterceptor extends SpanEventSimpleAroundInterceptorForP
             return "";
         }
         final StringBuilder sb = new StringBuilder();
-        if (args.length >= 2 && args[1] instanceof Exception) {
+        final int argsLength = ArrayUtils.getLength(args);
+        if (argsLength >= 2 && args[1] instanceof Exception) {
             sb.append(args[1].getClass().getName()).append(", ");
         }
-        if (args.length >= 3 && args[2] instanceof Integer) {
+        if (argsLength >= 3 && args[2] instanceof Integer) {
             sb.append(args[2]);
         }
         return sb.toString();
