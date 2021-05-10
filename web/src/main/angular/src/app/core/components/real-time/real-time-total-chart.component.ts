@@ -15,6 +15,13 @@ export class RealTimeTotalChartComponent implements OnChanges, OnInit {
     @Input() sum: number[];
     @Input() activeRequestCounts: {[key: string]: IParsedARC};
 
+    computedStyle = window.getComputedStyle(document.body);
+    chartColor = {
+        one: this.computedStyle.getPropertyValue('--chart-1s'),
+        five: this.computedStyle.getPropertyValue('--chart-5s'),
+        slow: this.computedStyle.getPropertyValue('--chart-slow'),
+    };
+
     maxChartNumberPerPage = 1;
     chartOption = {
         canvasLeftPadding: 0,
@@ -28,7 +35,7 @@ export class RealTimeTotalChartComponent implements OnChanges, OnInit {
         chartHeight: 114,
         titleHeight: 34,
         gapBtnChart: 0,
-        chartColors: ['#33b692', '#51afdf', '#fea63e', '#e76f4b'],
+        chartColors: [this.chartColor.one, '#51afdf', this.chartColor.five, this.chartColor.slow],
         chartLabels: ['1s', '3s', '5s', 'Slow'],
         ellipsis: '...',
         drawHGridLine: false,

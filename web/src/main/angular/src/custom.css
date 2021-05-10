@@ -59,9 +59,15 @@ body {
     --secondary: var(--emerald-green-300);
     --secondary-lighter: var(--emerald-green-100);
     --status-success: var(--grean-default);
+    --status-warn: var(--orange-600);
     
-    
-    --chart-normal: var(--emerald-green-300);
+    --chart-success: var(--emerald-green-300); 
+    /* --chart-error: */
+    --chart-1s: var(--emerald-green-300);
+    /* --chart-3s: var(--blue-300); */
+    --chart-5s: var(--orange-500);
+    /* --chart-slow:  */
+    --chart-slow: var(--orange-800);
     
     --header-background: var(--blue-500);
     --header-background-lighter: var(--blue-300);

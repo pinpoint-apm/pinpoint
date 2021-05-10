@@ -126,7 +126,7 @@
 }
 
 .l-key {
-    color: #f7a626;
+    color: var(--status-warn);
     font-weight: 600;
 }
 

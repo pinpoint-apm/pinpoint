@@ -43,14 +43,14 @@
     background:#a8acb5
 }
 .l-legend li:nth-child(2) .l-circle {
-    background:#e76f4b
+    background: var(--chart-slow);
 }
 .l-legend li:nth-child(3) .l-circle {
-    background:#fea63e
+    background: var(--chart-5s);
 }
 .l-legend li:nth-child(4) .l-circle {
     background:#51afdf
 }
 .l-legend li:nth-child(5) .l-circle {
-    background: var(--chart-normal);
+    background: var(--chart-1s);
 }
