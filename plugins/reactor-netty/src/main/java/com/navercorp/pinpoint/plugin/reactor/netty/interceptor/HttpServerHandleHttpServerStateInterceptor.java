@@ -35,7 +35,7 @@ public class HttpServerHandleHttpServerStateInterceptor extends AbstractHttpServ
     }
 
     public boolean validate(Object[] args) {
-        if (ArrayUtils.getLength(args) != 1) {
+        if (ArrayUtils.getLength(args) < 2) {
             return false;
         }
 
