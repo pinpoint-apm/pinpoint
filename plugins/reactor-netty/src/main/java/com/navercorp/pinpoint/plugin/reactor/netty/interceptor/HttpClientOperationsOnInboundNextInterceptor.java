@@ -82,7 +82,7 @@ public class HttpClientOperationsOnInboundNextInterceptor extends AsyncContextSp
     }
 
     private boolean validate(final Object[] args) {
-        if (ArrayUtils.getLength(args) != 1) {
+        if (ArrayUtils.getLength(args) < 2) {
             if (isDebug) {
                 logger.debug("Invalid args object. args={}.", args);
             }
