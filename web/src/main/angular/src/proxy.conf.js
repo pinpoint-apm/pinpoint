@@ -53,7 +53,7 @@ const PROXY_CONFIG = [
             "/admin/removeAgentId.pinpoint",
             "/admin/removeInactiveAgents.pinpoint",
             "/bind.pinpoint",
-            "/getAgentStat/uriStat/chartList.pinpoint"
+            "/getAgentStat/uriStat/chartList.pinpoint",
             "/heatmap/drag.pinpoint"
         ],
         target: 'http://localhost:8080',
