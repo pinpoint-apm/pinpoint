@@ -56,10 +56,10 @@ export class ScatterChartDataService {
 
     private connectDataRequest(): void {
         this.innerDataRequest.pipe(
-            filter(() => this.loadStart),
             switchMap((params: IScatterRequest) => {
                 return this.requestHttp(params).pipe(
                     retry(3),
+                    filter(() => this.loadStart),
                     switchMap((res: IScatterData | IServerErrorFormat) => isThatType(res, 'exception') ? throwError(res) : of(res))
                 );
             })
@@ -69,10 +69,10 @@ export class ScatterChartDataService {
             this.outScatterErrorData.next(error);
         });
         this.innerRealTimeDataRequest.pipe(
-            filter(() => this.loadStart),
             switchMap((params: IScatterRequest) => {
                 return this.requestHttp(params).pipe(
                     retry(3),
+                    filter(() => this.loadStart),
                     catchError((error: IServerErrorFormat) => of(error)),
                     filter((res: IScatterData | IServerErrorFormat) => {
                         if (isThatType(res, 'exception')) {
