@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.transformer;
 
 import java.security.ProtectionDomain;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,7 +28,7 @@ import java.util.Objects;
 public class PinpointClassFilter implements ClassFileFilter {
 
     public static final String DEFAULT_PACKAGE = "com/navercorp/pinpoint/";
-    public static final List<String> DEFAULT_EXCLUDES = Arrays.asList("web/", "sdk/");
+    public static final List<String> DEFAULT_EXCLUDES = Collections.unmodifiableList(Arrays.asList("web/", "sdk/"));
 
     private final String basePackage;
     private final String[] excludes;

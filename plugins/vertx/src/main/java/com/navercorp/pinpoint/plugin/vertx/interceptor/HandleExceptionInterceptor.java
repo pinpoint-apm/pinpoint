@@ -42,23 +42,17 @@ public class HandleExceptionInterceptor extends AsyncContextSpanEventEndPointInt
         if (th instanceof Throwable) {
             final Throwable handleException = (Throwable) th;
             if (throwable != null) {
-                if (handleException != null) {
-                    // handle to two throwable(handle and catch).
-                    final StringBuilder sb = new StringBuilder(256);
-                    sb.append("handle=");
-                    sb.append(StringUtils.abbreviate(handleException.getMessage(), 120));
-                    sb.append(", catch=");
-                    sb.append(StringUtils.abbreviate(throwable.getMessage(), 120));
-                    recorder.recordException(new VertxHandleException(sb.toString()));
-                } else {
-                    // record catch exception.
-                    recorder.recordException(throwable);
-                }
+
+                // handle to two throwable(handle and catch).
+                final StringBuilder sb = new StringBuilder(256);
+                sb.append("handle=");
+                sb.append(StringUtils.abbreviate(handleException.getMessage(), 120));
+                sb.append(", catch=");
+                sb.append(StringUtils.abbreviate(throwable.getMessage(), 120));
+                recorder.recordException(new VertxHandleException(sb.toString()));
             } else {
-                if (handleException != null) {
-                    // record handle exception.
-                    recorder.recordException(handleException);
-                }
+                // record handle exception.
+                recorder.recordException(handleException);
             }
         }
     }
