@@ -43,7 +43,7 @@ import java.lang.reflect.Method;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
-@Dependency({"org.springframework:spring-webmvc:[5.0.0.RELEASE,)", "org.springframework:spring-test", "javax.servlet:javax.servlet-api:3.0.1"})
+@Dependency({"org.springframework:spring-webmvc:[5.0.0.RELEASE,)", "org.springframework:spring-test", "javax.servlet:javax.servlet-api:4.0.1"})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-spring-plugin"})
 public class SpringWebMvc_5_x_IT {
     private static final String SPRING_MVC = "SPRING_MVC";
