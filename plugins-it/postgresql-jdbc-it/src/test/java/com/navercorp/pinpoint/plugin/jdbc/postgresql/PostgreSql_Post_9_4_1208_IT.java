@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -63,7 +64,7 @@ public class PostgreSql_Post_9_4_1208_IT extends PostgreSqlBase {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
         container.start();
-        
+
         DriverProperties driverProperties = new DriverProperties(container.getJdbcUrl(), container.getUsername(), container.getPassword(), new Properties());
         driverClass = new PostgreSql_Post_9_4_1208_JDBCDriverClass();
         jdbcApi = new PostgreSqlJDBCApi(driverClass);
@@ -73,6 +74,10 @@ public class PostgreSql_Post_9_4_1208_IT extends PostgreSqlBase {
         HELPER = new PostgreSqlItHelper(driverProperties);
     }
 
+    @AfterClass
+    public static void afterClass() throws Exception {
+        container.stop();
+    }
 
     @Override
     protected JDBCDriverClass getJDBCDriverClass() {
