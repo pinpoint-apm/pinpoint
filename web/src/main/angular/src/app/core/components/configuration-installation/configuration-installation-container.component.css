@@ -67,5 +67,5 @@ tbody > tr {
 .l-download-link {
     font-size: 16px;
     font-weight: 600;
-    color: #428bca;
+    color: var(--form-link);
 }

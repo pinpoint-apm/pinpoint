@@ -49,7 +49,7 @@
     background: var(--chart-5s);
 }
 .l-legend li:nth-child(4) .l-circle {
-    background:#51afdf
+    background: var(--chart-3s);
 }
 .l-legend li:nth-child(5) .l-circle {
     background: var(--chart-1s);

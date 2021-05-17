@@ -23,7 +23,7 @@ li.l-selectable-command {
     cursor: pointer;
 }
 li.l-selectable-command:hover {
-    background-color: var(--row-background-focus);
+    background-color: var(--row-background-secondary);
 }
 .l-two-depth-list {
     padding-top: 10px;

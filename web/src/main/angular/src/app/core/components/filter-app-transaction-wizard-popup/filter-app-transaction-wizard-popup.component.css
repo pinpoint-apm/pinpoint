@@ -148,7 +148,7 @@
 }
 .l-application-list li:hover {
     color: #000;
-    background-color: var(--row-background-focus);
+    background-color: var(--row-background-secondary);
 }
 .l-widget-group {
     padding: 0;

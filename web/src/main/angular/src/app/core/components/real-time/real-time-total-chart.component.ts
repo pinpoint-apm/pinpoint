@@ -18,6 +18,7 @@ export class RealTimeTotalChartComponent implements OnChanges, OnInit {
     computedStyle = window.getComputedStyle(document.body);
     chartColor = {
         one: this.computedStyle.getPropertyValue('--chart-1s'),
+        three: this.computedStyle.getPropertyValue('--chart-3s'),
         five: this.computedStyle.getPropertyValue('--chart-5s'),
         slow: this.computedStyle.getPropertyValue('--chart-slow'),
     };
@@ -35,7 +36,7 @@ export class RealTimeTotalChartComponent implements OnChanges, OnInit {
         chartHeight: 114,
         titleHeight: 34,
         gapBtnChart: 0,
-        chartColors: [this.chartColor.one, '#51afdf', this.chartColor.five, this.chartColor.slow],
+        chartColors: [this.chartColor.one, this.chartColor.three, this.chartColor.five, this.chartColor.slow],
         chartLabels: ['1s', '3s', '5s', 'Slow'],
         ellipsis: '...',
         drawHGridLine: false,

@@ -73,7 +73,7 @@
     background-color: var(--row-background-danger);
 }
 #thread-dump-table .ag-row-selected {
-    background-color: var(--row-background-focus);
+    background-color: var(--row-background-secondary);
 }
 #thread-dump-table .order-header .ag-header-cell-label,
 #thread-dump-table .id-header .ag-header-cell-label {
