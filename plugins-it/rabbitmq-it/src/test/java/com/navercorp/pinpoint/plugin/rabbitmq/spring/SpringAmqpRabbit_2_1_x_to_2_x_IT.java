@@ -317,7 +317,7 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT {
                 "Asynchronous Invocation");
         // RabbitTemplate internal consumer implementation - may change in future versions which will cause tests to
         // fail, in which case the integration test needs to be updated to match code changes
-        Class<?> rabbitTemplateInternalConsumerClass = Class.forName("org.springframework.amqp.rabbit.core.RabbitTemplate$2");
+        Class<?> rabbitTemplateInternalConsumerClass = getRabbitTemplateClazz();
         Method rabbitTemplateInternalConsumerHandleDelivery = rabbitTemplateInternalConsumerClass.getDeclaredMethod("handleDelivery", String.class, Envelope.class, AMQP.BasicProperties.class, byte[].class);
         ExpectedTrace rabbitTemplateInternalConsumerHandleDeliveryTrace = Expectations.event(
                 RabbitMQTestConstants.RABBITMQ_CLIENT_INTERNAL, // serviceType
@@ -365,4 +365,22 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT {
 
         verifier.verifyTraceCount(0);
     }
+
+    private Class getRabbitTemplateClazz() {
+        int[] indexes = {3, 2};
+
+        for (int index : indexes) {
+            try {
+                Class<?> rabbitTemplateInternalConsumerClass = Class.forName("org.springframework.amqp.rabbit.core.RabbitTemplate$" + index);
+                if (rabbitTemplateInternalConsumerClass != null) {
+                    return rabbitTemplateInternalConsumerClass;
+                }
+            } catch (ClassNotFoundException e) {
+            }
+        }
+
+        throw new IllegalArgumentException("Failed to find RabbitTemplate$ clazz");
+    }
+
+
 }
