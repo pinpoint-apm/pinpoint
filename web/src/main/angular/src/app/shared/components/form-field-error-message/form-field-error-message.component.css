@@ -7,5 +7,5 @@
 .l-error-message {
     display: block;
     margin-top: 7px;
-    color: #a94442;
+    color: var(--form-require);
 }

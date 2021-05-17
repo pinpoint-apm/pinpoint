@@ -47,7 +47,7 @@ button:first-of-type {
     margin-right: 1px;
 }
 button:last-of-type {
-    color: #e95459;
+    color: var(--primary-color);
     border: #CCC 1px solid;
     margin-right: 4px;
 }

@@ -5,7 +5,7 @@
 }
 
 .l-error-message {
-    color: #F00;
+    color: var(--status-fail);
     font-size: 18px;
 }
 

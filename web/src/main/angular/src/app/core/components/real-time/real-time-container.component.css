@@ -45,7 +45,7 @@
     margin-left: 10px;
 }
 .l-pin-up {
-    color: #F00 !important;
+    color: var(--primary) !important;
 }
 .l-chart-group-wrap {
     display: flex;

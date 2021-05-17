@@ -26,7 +26,7 @@ li.selected {
     font-size: 15px;
 }
 .item-wrapper .fa-check {
-    color: #F00;
+    color: var(--status-danger-lighter);
     margin-left: 10px;
     font-size: 14px;
 }

@@ -11,6 +11,12 @@ export class ScatterChartTransactionTypeManager {
     private dataByIndex: { [key: number]: ITransactionTypeInfo } = {};
     private dataByName: { [key: string]: ITransactionTypeInfo } = {};
 
+    computedStyle = window.getComputedStyle(document.body);
+    chartColor = {
+        success: this.computedStyle.getPropertyValue('--chart-success'),
+        fail: this.computedStyle.getPropertyValue('--chart-fail'),
+    };
+
     static getTypeCheckValue(onlyFailed: boolean, onlySuccess: boolean): any {
         if (onlyFailed) {
             return {
@@ -25,11 +31,16 @@ export class ScatterChartTransactionTypeManager {
         }
     }
     static getDefaultTransactionTypeInfo(): {[key: string]: ITransactionTypeInfo} {
+        const computedStyle = window.getComputedStyle(document.body);
+        const chartColor = {
+            success: computedStyle.getPropertyValue('--chart-success'),
+            fail: computedStyle.getPropertyValue('--chart-fail'),
+        };
         return {
             success: {
                 name: 'success',
                 order: 10,
-                color: '#34B994',
+                color: chartColor.success,
                 checked: true,
                 dataIndex: 1,
                 value: 0
@@ -37,7 +48,7 @@ export class ScatterChartTransactionTypeManager {
             failed: {
                 name: 'failed',
                 order: 20,
-                color: '#E95459',
+                color: chartColor.fail,
                 checked: true,
                 dataIndex: 0,
                 value: 0

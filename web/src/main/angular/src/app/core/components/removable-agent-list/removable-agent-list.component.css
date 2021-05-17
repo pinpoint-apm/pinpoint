@@ -71,7 +71,7 @@
     line-height: 2;
 }
 #removableAgentList .ag-row-exception {
-    background-color: #fff1f1;
+    background-color: var(--row-background-danger);
 }
 #removableAgentList .ag-row-focused {
     background-color: var(--row-background-focus);

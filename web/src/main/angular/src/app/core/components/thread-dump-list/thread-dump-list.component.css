@@ -70,7 +70,7 @@
     font-size: 14px;
 }
 #thread-dump-table .ag-row-exception {
-    background-color: #fff1f1;
+    background-color: var(--row-background-danger);
 }
 #thread-dump-table .ag-row-selected {
     background-color: var(--row-background-focus);

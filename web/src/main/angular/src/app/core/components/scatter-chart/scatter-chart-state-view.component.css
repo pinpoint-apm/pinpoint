@@ -28,7 +28,7 @@
     margin: 0 6px 0 0;
     content: '';
     display: inline-block;
-    background: #e95459;
+    background: var(--status-fail);
     border-radius: 50%;
 }
 input {

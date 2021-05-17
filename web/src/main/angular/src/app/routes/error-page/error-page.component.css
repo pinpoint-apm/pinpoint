@@ -42,7 +42,7 @@
     color: var(--status-success);
 }
 .l-fail {
-    color: #c10404;
+    color: var(--status-fail);
 }
 .l-error {
     padding: 20px;

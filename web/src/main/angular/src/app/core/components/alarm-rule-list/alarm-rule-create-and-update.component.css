@@ -45,7 +45,7 @@ form {
 }
 
 .l-required-icon {
-    color: #d00;
+    color: var(--form-require);
     margin-left: 2px;
 }
 
@@ -122,13 +122,13 @@ form {
 }
 
 .ng-invalid:not(form).ng-touched  {
-    border-left: 5px solid #a94442 !important;
-    border-color: #d00;
+    border-left: 5px solid var(--form-require) !important;
+    border-color: var(--form-require);
 }
 
 .ng-invalid:not(form).ng-touched:focus {
-    border-color: #d00;
-    box-shadow: 0 0 1px 0px #d00;
+    border-color: var(--form-require);
+    box-shadow: 0 0 1px 0px var(--form-require);
 }
 
 .fa-question-circle {

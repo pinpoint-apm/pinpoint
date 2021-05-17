@@ -20,6 +20,6 @@
     background: #f6f8fb;
 }
 .l-reload-btn { 
-    color: #f06c6b;
+    color: var(--status-fail);
     float: right;
 }
