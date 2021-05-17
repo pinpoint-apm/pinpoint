@@ -14,7 +14,7 @@
 }
 
 .l-application-list-item:hover {
-    background-color: var(--row-background-focus);
+    background-color: var(--row-background-secondary);
 }
 
 .l-application-name-wrapper {

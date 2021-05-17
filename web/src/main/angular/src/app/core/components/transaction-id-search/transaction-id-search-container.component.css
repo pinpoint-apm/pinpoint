@@ -23,7 +23,6 @@
 
 .l-search-input:focus {
     border-color: var(--primary-color);
-    /* box-shadow: 0 0 10px -3px #4b99e3; */
     box-shadow: 0 0px 1px 1px var(--primary-color);
     outline: none;
 }

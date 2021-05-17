@@ -23,7 +23,7 @@
     margin-bottom: 6px;
 }
 .l-target-item:hover, .l-target-sub-item:hover {
-    background-color: #c1ecff;
+    background-color: var(--row-background-primary);
 }
 .l-target-item.selected, .l-target-sub-item.selected {
     color: var(--primary-color);

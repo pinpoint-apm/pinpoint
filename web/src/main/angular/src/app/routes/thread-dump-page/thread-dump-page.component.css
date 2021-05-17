@@ -17,7 +17,7 @@
     height: calc(100vh - 50px);
 }
 .l-main-container h3 {
-    color: #00ccff;
+    color: var(--primary);
     padding-left: 20px;
     font-weight: 200;
     border-bottom: 1px solid #D0D7E1;

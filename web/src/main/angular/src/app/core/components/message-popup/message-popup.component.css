@@ -71,5 +71,5 @@
     line-height: 2em;
 }
 .l-list a {
-    color: #4a8fd2;
+    color: var(--form-link);
 }

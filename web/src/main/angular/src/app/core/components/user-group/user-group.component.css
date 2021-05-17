@@ -8,11 +8,11 @@ li {
 }
 
 li:hover {
-    background: var(--row-background-focus);
+    background: var(--row-background-secondary);
 }
 
 li.selected {
-    background: var(--row-background-focus);
+    background: var(--row-background-secondary);
 }
 
 .l-item-wrapper {

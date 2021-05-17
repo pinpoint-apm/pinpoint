@@ -30,11 +30,11 @@
 }
 
 .l-faq-link {
-    background-color: #4a8fd2;
+    background-color: var(--form-link);
 }
 
 .l-issue-link {
-    background-color: #4ab0d2;
+    background-color: var(--primary);
 }
 
 .l-user-community-link {
@@ -108,7 +108,7 @@
 }
 
 .l-guide-contents-list a:link {
-    color: #428bca;
+    color: var(--form-link);
 }
 
 .l-guide-contents-list a:visited {

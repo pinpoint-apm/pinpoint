@@ -7,10 +7,10 @@ li {
     font-size: 13px;    
 }
 li:hover {
-    background: var(--row-background-focus);
+    background: var(--row-background-secondary);
 }
 li.selected {
-    background: var(--row-background-focus);
+    background: var(--row-background-secondary);
 }
 .item-wrapper {
     display: block;
