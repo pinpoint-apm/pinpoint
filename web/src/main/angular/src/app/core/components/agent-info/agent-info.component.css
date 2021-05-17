@@ -87,7 +87,7 @@
     background:#fff;
 }
 .l-not-same {
-    color: #f27d70 !important;
+    color: var(--status-danger-lighter) !important;
 }
 .l-not-same-button {
     float: right;

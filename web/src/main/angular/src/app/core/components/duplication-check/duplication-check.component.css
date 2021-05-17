@@ -34,11 +34,11 @@ input.l-success-input:focus {
 }
 
 input.l-fail-input {
-    border: 1px solid #a94442;
+    border: 1px solid var(--form-require);
 }
 
 input.l-fail-input:focus {
-    box-shadow: 0 0 2px #a94442;
+    box-shadow: 0 0 2px var(--form-require);
 }
 
 .l-check-status-icon {
@@ -53,7 +53,7 @@ input.l-fail-input:focus {
 }
 
 .fa-times {
-    color: #a94442;
+    color: var(--status-danger);
 }
 
 .l-check-button {
@@ -78,5 +78,5 @@ input.l-fail-input:focus {
     font-size: 14px;
     margin-top: 10px;
     width: 100%;
-    color: #a94442;
+    color: var(--form-require);
 }

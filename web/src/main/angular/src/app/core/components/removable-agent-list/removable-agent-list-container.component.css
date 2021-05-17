@@ -108,7 +108,7 @@
 
 .l-warning-icon {
     font-size: 50px;
-    color: #a94442;
+    color: var(--status-danger);
     margin-bottom: 15px;
 }
 
@@ -142,7 +142,7 @@
 .l-remove-app-btn,
 .l-remove-btn {
     color: #fff;
-    background-color: #c70606;
+    background-color: var(--status-danger);
 }
 
 .l-close {

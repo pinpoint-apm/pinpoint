@@ -31,7 +31,7 @@
 }
 
 .l-item.focus { 
-    background-color:  #e4f3eb;
+    background-color:  var(--row-background-focus);
 }
 
 .l-icon-img {

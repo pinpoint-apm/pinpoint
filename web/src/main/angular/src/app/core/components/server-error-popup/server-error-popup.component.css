@@ -23,7 +23,7 @@
     align-items: center;
     border-bottom: 1px solid #e5e8f0;
     justify-content: space-between;
-    background-color: #d65b65;
+    background-color: var(--status-fail);
 }
 .l-title-group dt {
     font-size: 20px;
@@ -57,10 +57,10 @@
     color: #FFF;
     display: block;
     padding: 6px 10px;
-    background-color: #D65B65;
+    background-color: var(--status-fail);
 }
 .l-red {
-    color: #d65b65;
+    color: var(--status-fail);
 }
 .l-row-header {
     width: 15%;
@@ -82,7 +82,7 @@
     margin-top: 10px;
     align-items: center;
     flex-direction: column;
-    background-color: #d65b65;
+    background-color: var(--status-fail);
 }
 .l-data-table > div {
     width: 100%;

@@ -34,7 +34,7 @@
 }
 .l-search-group-wrap .l-error-message {
     width: 300px;
-    color:#e95459;
+    color: var(--status-fail);
     margin-left: 10px;
 }
 select {

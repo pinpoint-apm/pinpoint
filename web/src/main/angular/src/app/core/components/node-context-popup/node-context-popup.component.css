@@ -14,11 +14,8 @@
 .l-one-depth-list > li:last-of-type {
     border-bottom: none;
 }
-li.l-selectable-command:first-of-type .fa-filter {
-    color:var(--primary-color);
-}
-li.l-selectable-command:last-of-type .fa-filter {
-    color: #e95459;
+li.l-selectable-command .fa-magic {
+    color: var(--primary-color);
 }
 li.l-selectable-command {
     cursor: pointer;

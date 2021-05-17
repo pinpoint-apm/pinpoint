@@ -2,8 +2,8 @@
     display: none;
     position: relative;
     padding: 8px 10px;
-    background-color: #f3e0df;
-    color: #c04e3f;
+    background-color: var(--background-danger);
+    color: var(--status-danger-lighter);
 }
 
 .l-notice-message {

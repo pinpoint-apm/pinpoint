@@ -203,7 +203,7 @@ caption {
 }
 
 .table tr.tr-bg-red {
-    background-color: #fff1f1;
+    background-color: var(--row-background-danger);
 }
 
 .popup {
@@ -331,7 +331,7 @@ caption {
 }
 
 .l-calltree .ag-row-exception {
-    background-color: #fff1f1;
+    background-color: var(--row-background-danger)
 }
 
 .l-calltree .ag-row-focused {

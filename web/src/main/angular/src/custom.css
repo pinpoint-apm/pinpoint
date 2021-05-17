@@ -60,17 +60,26 @@ body {
     --secondary-lighter: var(--emerald-green-100);
     --status-success: var(--grean-default);
     --status-warn: var(--orange-600);
+    --status-fail: var(--red-400);
+    --status-fail-lighter: var(--red-300);
+    --status-danger: var(--red-900);
+    --status-danger: var(--red-900);
+    --status-danger-lighter: var(--red-500);
+
+    --background-danger: var(--red-50);
     
     --chart-success: var(--emerald-green-300); 
-    /* --chart-error: */
+    --chart-fail: var(--red-400);
     --chart-1s: var(--emerald-green-300);
     /* --chart-3s: var(--blue-300); */
     --chart-5s: var(--orange-500);
-    /* --chart-slow:  */
     --chart-slow: var(--orange-800);
+
+    --form-require: var(--red-900);
     
     --header-background: var(--blue-500);
     --header-background-lighter: var(--blue-300);
 
     --row-background-focus: var(--emerald-green-50);
+    --row-background-danger: var(--red-50);
 }

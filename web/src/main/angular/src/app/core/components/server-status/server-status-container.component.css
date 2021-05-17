@@ -36,7 +36,7 @@
 .l-status-count span {
     font-size: 18px;
     font-weight: 600;
-    color: #EB4747;
+    color: var(--status-fail);
 }
 .l-status-count span.l-total {
     color: #000;

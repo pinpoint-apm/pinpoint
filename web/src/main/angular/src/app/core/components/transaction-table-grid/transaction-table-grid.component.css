@@ -71,7 +71,7 @@
     font-size: 14px;
 }
 #transaction-table .ag-row-exception {
-    background-color: #fff1f1;
+    background-color: var(--row-background-danger);
 }
 #transaction-table .ag-row-selected {
     background-color: var(--row-background-focus);

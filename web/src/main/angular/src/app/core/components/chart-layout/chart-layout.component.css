@@ -68,7 +68,7 @@
     color: var(--primary-color);
 }
 .l-chart-action-remove {
-    color: #F78178;
+    color: var(--status-danger-lighter);
 }
 .l-chart-content {
     width: 100%;

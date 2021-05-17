@@ -35,13 +35,13 @@
     stroke-width: 2;
 }
 .guide line {
-    stroke: #F00;
+    stroke: var(--status-danger-lighter);
     stroke-width: .5;
     stroke-linecap: square;
     stroke-dasharray: 2, 2;
 }
 .guide circle {
-    stroke: #F00;
+    stroke: var(--status-danger-lighter);
     stroke-width: 2;
 }
 .selection-point line {

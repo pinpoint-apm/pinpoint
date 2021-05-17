@@ -38,7 +38,7 @@
 
 .fa-check {
     font-size: 14px;
-    color: #F00;
+    color: var(--status-danger-lighter);
     margin-left: 8px;
 }
 
