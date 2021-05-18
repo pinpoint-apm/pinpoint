@@ -56,7 +56,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -193,7 +193,7 @@ public class DependencyResolver {
 
 
     static List<RemoteRepository> newRepositories(String... urls) {
-        List<RemoteRepository> repositories = new ArrayList<RemoteRepository>(urls.length + 1);
+        List<RemoteRepository> repositories = new ArrayList<>(urls.length + 1);
 
         RemoteRepository mavenCentralRepository = newMavenCentralRepository();
         repositories.add(mavenCentralRepository);
@@ -225,7 +225,7 @@ public class DependencyResolver {
 
         VersionRangeResult rangeResult = system.resolveVersionRange(session, rangeRequest);
 
-        List<Version> versions = new ArrayList<Version>(rangeResult.getVersions());
+        List<Version> versions = new ArrayList<>(rangeResult.getVersions());
         Collections.sort(versions);
 
         return versions;
@@ -246,7 +246,7 @@ public class DependencyResolver {
     }
 
     public List<File> resolveArtifactsAndDependencies(List<Artifact> artifacts) throws DependencyResolutionException {
-        List<Dependency> dependencies = new ArrayList<Dependency>();
+        List<Dependency> dependencies = new ArrayList<>();
 
         for (Artifact artifact : artifacts) {
             dependencies.add(new Dependency(artifact, JavaScopes.RUNTIME));
@@ -257,7 +257,7 @@ public class DependencyResolver {
         DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, classpathFilter);
         DependencyResult result = system.resolveDependencies(session, dependencyRequest);
 
-        List<File> files = new ArrayList<File>();
+        List<File> files = new ArrayList<>();
 
         for (ArtifactResult artifactResult : result.getArtifactResults()) {
             files.add(artifactResult.getArtifact().getFile());
@@ -280,37 +280,37 @@ public class DependencyResolver {
         return newestVersion.toString();
     }
 
-    public Map<String, List<Artifact>> resolveDependencySets(String... artifacts) {
-        List<List<Artifact>> companions = new ArrayList<List<Artifact>>();
+    public Map<String, List<Artifact>> resolveDependencySets(String... dependencies) {
+        List<List<Artifact>> companions = new ArrayList<>();
         List<Artifact> lastCompanion = null;
 
-        for (String a : artifacts) {
-            int first = a.indexOf(':');
+        for (String dependency : dependencies) {
+            int first = dependency.indexOf(':');
             if (first == -1) {
-                throw new IllegalArgumentException("Bad artifact coordinates: " + a + ", artifacts: " + Arrays.deepToString(artifacts));
+                throw new IllegalArgumentException("Bad artifact coordinates: " + dependency + ", artifacts: " + Arrays.deepToString(dependencies));
             }
 
-            int second = a.indexOf(':', first + 1);
+            int second = dependency.indexOf(':', first + 1);
             if (second == -1) {
-                a += ":" + FOLLOW_PRECEEDING;
+                dependency += ":" + FOLLOW_PRECEEDING;
             }
 
-            DefaultArtifact artifact = new DefaultArtifact(a);
+            DefaultArtifact artifact = new DefaultArtifact(dependency);
 
             if (FOLLOW_PRECEEDING.equals(artifact.getVersion())) {
                 if (lastCompanion != null) {
                     lastCompanion.add(artifact);
                 } else {
-                    throw new IllegalArgumentException("Version is not specified: " + a + ", artifacts: " + Arrays.deepToString(artifacts));
+                    throw new IllegalArgumentException("Version is not specified: " + dependency + ", artifacts: " + Arrays.deepToString(dependencies));
                 }
             } else {
-                lastCompanion = new ArrayList<Artifact>();
+                lastCompanion = new ArrayList<>();
                 lastCompanion.add(artifact);
                 companions.add(lastCompanion);
             }
         }
 
-        List<List<List<Artifact>>> xxx = new ArrayList<List<List<Artifact>>>();
+        List<List<List<Artifact>>> xxx = new ArrayList<>();
 
         for (List<Artifact> companion : companions) {
 
@@ -327,10 +327,10 @@ public class DependencyResolver {
                 throw new IllegalArgumentException("No version in the given range: " + representative);
             }
 
-            List<List<Artifact>> companionVersions = new ArrayList<List<Artifact>>(versions.size());
+            List<List<Artifact>> companionVersions = new ArrayList<>(versions.size());
 
             for (Version version : versions) {
-                List<Artifact> companionVersion = new ArrayList<Artifact>(companion.size());
+                List<Artifact> companionVersion = new ArrayList<>(companion.size());
 
                 for (Artifact artifact : companion) {
                     companionVersion.add(new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getClassifier(), artifact.getExtension(), version.toString()));
@@ -349,7 +349,7 @@ public class DependencyResolver {
 
     private Map<String, List<Artifact>> combination(List<List<List<Artifact>>> groups) {
         if (groups.size() == 1) {
-            Map<String, List<Artifact>> result = new HashMap<String, List<Artifact>>();
+            Map<String, List<Artifact>> result = new LinkedHashMap<>();
             List<List<Artifact>> group = groups.get(0);
 
             if (group.size() == 1) {
@@ -367,14 +367,14 @@ public class DependencyResolver {
         List<List<Artifact>> thisGroup = groups.get(0);
         Map<String, List<Artifact>> sub = combination(groups.subList(1, groups.size()));
 
-        Map<String, List<Artifact>> result = new HashMap<String, List<Artifact>>();
+        Map<String, List<Artifact>> result = new LinkedHashMap<>();
 
         if (thisGroup.size() == 1) {
             List<Artifact> thisArtifacts = thisGroup.get(0);
 
             for (Entry<String, List<Artifact>> subEntry : sub.entrySet()) {
                 List<Artifact> subArtifacts = subEntry.getValue();
-                List<Artifact> t = new ArrayList<Artifact>(thisArtifacts.size() + subArtifacts.size());
+                List<Artifact> t = new ArrayList<>(thisArtifacts.size() + subArtifacts.size());
                 t.addAll(thisArtifacts);
                 t.addAll(subArtifacts);
 
@@ -387,7 +387,7 @@ public class DependencyResolver {
 
                 for (Entry<String, List<Artifact>> subEntry : sub.entrySet()) {
                     List<Artifact> subArtifacts = subEntry.getValue();
-                    List<Artifact> t = new ArrayList<Artifact>(thisArtifacts.size() + subArtifacts.size());
+                    List<Artifact> t = new ArrayList<>(thisArtifacts.size() + subArtifacts.size());
                     t.addAll(thisArtifacts);
                     t.addAll(subArtifacts);
 
