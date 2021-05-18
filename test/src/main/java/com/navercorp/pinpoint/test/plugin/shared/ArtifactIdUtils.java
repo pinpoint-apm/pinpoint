@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
+import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
@@ -38,7 +39,7 @@ public class ArtifactIdUtils {
             return Collections.emptyList();
         }
 
-        List<Artifact> result = new ArrayList<Artifact>(artifactNameArray.length);
+        List<Artifact> result = new ArrayList<>(artifactNameArray.length);
         for (String artifactName : artifactNameArray) {
             Artifact artifact = toArtifact(artifactName);
             if (artifact != null) {
@@ -55,7 +56,7 @@ public class ArtifactIdUtils {
         }
 
         String[] splitValue = artifactName.split(ARTIFACT_DELIMITER);
-        if (splitValue == null) {
+        if (ArrayUtils.isEmpty(splitValue)) {
             return null;
         }
 

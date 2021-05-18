@@ -69,7 +69,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
     private final Object childrenLock = new Object();
     private volatile Collection<Runner> filteredChildren = null;
 
-    private volatile RunnerScheduler scheduler = new RunnerScheduler() {
+    private final RunnerScheduler scheduler = new RunnerScheduler() {
         public void schedule(Runnable childStatement) {
             childStatement.run();
         }
@@ -138,7 +138,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
     }
 
     private List<PinpointPluginTestInstance> createSharedCasesWithDependencies(PluginTestContext context) throws ArtifactResolutionException, DependencyResolutionException {
-        List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
+        List<PinpointPluginTestInstance> cases = new ArrayList<>();
 
         DependencyResolver resolver = getDependencyResolver(this.repositories);
 
@@ -149,7 +149,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
             final String testKey = artifactEntry.getKey();
             final List<Artifact> artifacts = artifactEntry.getValue();
 
-            List<String> libs = new ArrayList<String>();
+            List<String> libs = new ArrayList<>();
             for (File lib : resolver.resolveArtifactsAndDependencies(artifacts)) {
                 libs.add(lib.getAbsolutePath());
             }
@@ -177,13 +177,13 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
     }
 
     private List<PinpointPluginTestInstance> createCasesWithDependencies(PluginTestContext context) throws ArtifactResolutionException, DependencyResolutionException {
-        List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
+        List<PinpointPluginTestInstance> cases = new ArrayList<>();
 
         DependencyResolver resolver = getDependencyResolver(repositories);
         Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(dependencies);
 
         for (Map.Entry<String, List<Artifact>> dependencyCase : dependencyCases.entrySet()) {
-            List<String> libs = new ArrayList<String>();
+            List<String> libs = new ArrayList<>();
 
             for (File lib : resolver.resolveArtifactsAndDependencies(dependencyCase.getValue())) {
                 libs.add(lib.getAbsolutePath());
@@ -212,13 +212,13 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
             return Collections.emptyList();
         }
 
-        List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
+        List<PinpointPluginTestInstance> cases = new ArrayList<>();
         for (File child : children) {
             if (!child.isDirectory()) {
                 continue;
             }
 
-            List<String> libraries = new ArrayList<String>();
+            List<String> libraries = new ArrayList<>();
 
             if (librarySubDirs.length == 0) {
                 addJars(child, libraries);
@@ -244,7 +244,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
     }
 
     private List<PinpointPluginTestInstance> createCasesWithJdkOnly(PluginTestContext context) {
-        List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
+        List<PinpointPluginTestInstance> cases = new ArrayList<>();
 
         if (testOnSystemClassLoader) {
             cases.add(new NormalPluginTestCase(context, "", Collections.<String>emptyList(), true));
@@ -315,7 +315,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
             for (Runner each : getFilteredChildren()) {
                 sorter.apply(each);
             }
-            List<Runner> sortedChildren = new ArrayList<Runner>(getFilteredChildren());
+            List<Runner> sortedChildren = new ArrayList<>(getFilteredChildren());
             Collections.sort(sortedChildren, comparator(sorter));
             filteredChildren = Collections.unmodifiableCollection(sortedChildren);
         }
@@ -357,7 +357,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
     @Override
     public void filter(Filter filter) throws NoTestsRemainException {
         synchronized (childrenLock) {
-            List<Runner> children = new ArrayList<Runner>(getFilteredChildren());
+            List<Runner> children = new ArrayList<>(getFilteredChildren());
             for (Iterator<Runner> iter = children.iterator(); iter.hasNext(); ) {
                 Runner each = iter.next();
 
@@ -423,7 +423,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         @Override
         public List<String> getClassPath() {
             if (onSystemClassLoader) {
-                List<String> libs = new ArrayList<String>(context.getRequiredLibraries());
+                List<String> libs = new ArrayList<>(context.getRequiredLibraries());
                 libs.addAll(this.libs);
                 libs.add(context.getTestClassLocation());
 
@@ -445,7 +445,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
 
         @Override
         public List<String> getAppArgs() {
-            List<String> args = new ArrayList<String>();
+            List<String> args = new ArrayList<>();
 
             args.add(context.getTestClass().getName());
 

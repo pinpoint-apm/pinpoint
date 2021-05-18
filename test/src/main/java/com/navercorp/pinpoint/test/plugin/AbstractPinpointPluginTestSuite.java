@@ -334,7 +334,7 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
 
     @Override
     protected List<Runner> getChildren() {
-        List<Runner> runners = new ArrayList<Runner>();
+        List<Runner> runners = new ArrayList<>();
 
         try {
             for (int ver : jvmVersions) {

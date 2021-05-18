@@ -60,7 +60,7 @@ public class SharedProcessPluginTestCase implements PinpointPluginTestInstance {
     @Override
     public List<String> getClassPath() {
         if (onSystemClassLoader) {
-            List<String> libs = new ArrayList<String>(context.getRequiredLibraries());
+            List<String> libs = new ArrayList<>(context.getRequiredLibraries());
             libs.addAll(this.libs);
             libs.add(context.getTestClassLocation());
 
@@ -83,7 +83,7 @@ public class SharedProcessPluginTestCase implements PinpointPluginTestInstance {
 
     @Override
     public List<String> getAppArgs() {
-        List<String> args = new ArrayList<String>();
+        List<String> args = new ArrayList<>();
 
         args.add(context.getTestClass().getName());
 
