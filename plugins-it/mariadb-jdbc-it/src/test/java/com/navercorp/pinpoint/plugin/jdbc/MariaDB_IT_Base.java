@@ -21,11 +21,13 @@ import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 
@@ -77,6 +79,7 @@ public abstract class MariaDB_IT_Base {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
+        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
         mariaDB.withLogConsumer(new Slf4jLogConsumer(LOGGER));
         mariaDB.withDatabaseName(DATABASE_NAME);
