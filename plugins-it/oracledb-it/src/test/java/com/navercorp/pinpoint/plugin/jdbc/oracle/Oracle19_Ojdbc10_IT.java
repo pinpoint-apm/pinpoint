@@ -32,7 +32,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 @JvmVersion(11)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-oracle-jdbc-driver-plugin")
 public class Oracle19_Ojdbc10_IT extends Oracle_IT_Base {
-    private static final Logger logger = LoggerFactory.getLogger(Oracle11_Ojdbc6_IT.class);
+    private static final Logger logger = LoggerFactory.getLogger(Oracle19_Ojdbc10_IT.class);
 
     @BeforeClass
     public static void setup() throws Exception {

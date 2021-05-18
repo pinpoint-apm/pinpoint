@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 public final class OracleITConstants {
     public static final String ORACLE_TESTCONTAINER = "org.testcontainers:oracle-xe:" + TestcontainersOption.VERSION;
 
-    public static final String ORACLE_11_X_IMAGE = "wnameless/oracle-xe-11g-r2";
+    public static final String ORACLE_11_X_IMAGE = "oracleinanutshell/oracle-xe-11g";
     public static final String ORACLE_12_X_IMAGE = "galam/oracle-xe-12c";
     public static final String ORACLE_18_X_IMAGE = "pvargacl/oracle-xe-18.4.0";
 }
