@@ -145,7 +145,7 @@ public class SharedProcessManager implements ProcessManager {
     }
 
     private String[] buildCommand() {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
 
         list.add(context.getJavaExecutable());
 
@@ -224,7 +224,7 @@ public class SharedProcessManager implements ProcessManager {
     }
 
     private String buildAgentArguments() {
-        final Map<String, String> agentArgumentMap = new LinkedHashMap<String, String>();
+        final Map<String, String> agentArgumentMap = new LinkedHashMap<>();
         agentArgumentMap.put("AGENT_TYPE", "PLUGIN_TEST");
 
         final List<String> importPluginIds = context.getImportPluginIds();

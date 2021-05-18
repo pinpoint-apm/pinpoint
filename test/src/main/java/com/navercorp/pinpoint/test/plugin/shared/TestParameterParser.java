@@ -33,7 +33,7 @@ public class TestParameterParser {
             return Collections.emptyList();
         }
 
-        final List<TestParameter> testParameters = new ArrayList<TestParameter>();
+        final List<TestParameter> testParameters = new ArrayList<>();
         for (String arg : args) {
             if (arg == null) {
                 continue;

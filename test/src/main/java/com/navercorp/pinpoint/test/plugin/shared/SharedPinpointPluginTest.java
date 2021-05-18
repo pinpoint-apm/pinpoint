@@ -122,7 +122,7 @@ public class SharedPinpointPluginTest {
         List<File> loggerDependencies = getLoggerDependencies(dependencyResolver, dependencyClassLoader);
         logger.debug("loggerDependency:{}", loggerDependencies);
 
-        List<TestInfo> testInfos = new ArrayList<TestInfo>();
+        List<TestInfo> testInfos = new ArrayList<>();
         for (TestParameter testParameter : testParameters) {
             final List<File> testDependency = new ArrayList<>();
             testDependency.add(testClazzLocation);
