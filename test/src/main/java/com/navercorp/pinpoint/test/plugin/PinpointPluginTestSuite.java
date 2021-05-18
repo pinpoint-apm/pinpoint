@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.test.plugin.shared.SharedProcessManager;
 import com.navercorp.pinpoint.test.plugin.shared.SharedProcessPluginTestCase;
+import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
@@ -30,6 +31,7 @@ import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerScheduler;
 import org.junit.runners.model.Statement;
+import org.tinylog.TaggedLogger;
 
 import java.io.File;
 import java.io.InputStream;
@@ -53,6 +55,8 @@ import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.CHILD_CLASS
  */
 public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
     private static final String DEFAULT_ENCODING = PluginTestConstants.UTF_8_NAME;
+
+    private final TaggedLogger logger = TestLogger.getLogger();
 
     private final boolean testOnSystemClassLoader;
     private final boolean testOnChildClassLoader;
@@ -143,33 +147,44 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         DependencyResolver resolver = getDependencyResolver(this.repositories);
 
         Map<String, List<Artifact>> dependencyMap = resolver.resolveDependencySets(dependencies);
-
-        SharedProcessManager sharedProcessManager = new SharedProcessManager(context);
-        for (Map.Entry<String, List<Artifact>> artifactEntry : dependencyMap.entrySet()) {
-            final String testKey = artifactEntry.getKey();
-            final List<Artifact> artifacts = artifactEntry.getValue();
-
-            List<String> libs = new ArrayList<>();
-            for (File lib : resolver.resolveArtifactsAndDependencies(artifacts)) {
-                libs.add(lib.getAbsolutePath());
-            }
-
-            PinpointPluginTestInstance testInstance = null;
-            if (testOnSystemClassLoader) {
-                testInstance = new SharedProcessPluginTestCase(context, testKey, libs, true, sharedProcessManager);
-            }
-
-            if (testOnChildClassLoader) {
-                testInstance = new SharedProcessPluginTestCase(context, testKey, libs, false, sharedProcessManager);
-            }
-
-            if (testInstance != null) {
-                cases.add(testInstance);
-                sharedProcessManager.registerTest(testInstance.getTestId(), artifacts);
+        if (logger.isDebugEnabled()) {
+            for (Map.Entry<String, List<Artifact>> entry : dependencyMap.entrySet()) {
+                logger.debug("{} {}", entry.getKey(), entry.getValue());
             }
         }
 
+        SharedProcessManager sharedProcessManager = new SharedProcessManager(context);
+        for (Map.Entry<String, List<Artifact>> artifactEntry : dependencyMap.entrySet()) {
+            final String testId = artifactEntry.getKey();
+            final List<Artifact> artifacts = artifactEntry.getValue();
+
+            List<String> libs = getAbsolutePath(resolver, artifacts);
+
+            PinpointPluginTestInstance testInstance = newSharedProcessPluginTestCase(context, testId, libs, sharedProcessManager);
+
+            cases.add(testInstance);
+            sharedProcessManager.registerTest(testInstance.getTestId(), artifacts);
+        }
+
         return cases;
+    }
+
+    private List<String> getAbsolutePath(DependencyResolver resolver, List<Artifact> artifacts) throws DependencyResolutionException {
+        List<String> libs = new ArrayList<>();
+        for (File lib : resolver.resolveArtifactsAndDependencies(artifacts)) {
+            libs.add(lib.getAbsolutePath());
+        }
+        return libs;
+    }
+
+    private PinpointPluginTestInstance newSharedProcessPluginTestCase(PluginTestContext context, String testId, List<String> libs, SharedProcessManager sharedProcessManager) {
+        if (testOnSystemClassLoader) {
+            return new SharedProcessPluginTestCase(context, testId, libs, true, sharedProcessManager);
+        }
+        if (testOnChildClassLoader) {
+            return new SharedProcessPluginTestCase(context, testId, libs, false, sharedProcessManager);
+        }
+        throw new IllegalStateException("Illegal classLoader");
     }
 
     private DependencyResolver getDependencyResolver(String[] repositories) {
@@ -183,22 +198,24 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(dependencies);
 
         for (Map.Entry<String, List<Artifact>> dependencyCase : dependencyCases.entrySet()) {
-            List<String> libs = new ArrayList<>();
+            List<String> libs = getAbsolutePath(resolver, dependencyCase.getValue());
 
-            for (File lib : resolver.resolveArtifactsAndDependencies(dependencyCase.getValue())) {
-                libs.add(lib.getAbsolutePath());
-            }
-
-            if (testOnSystemClassLoader) {
-                cases.add(new NormalPluginTestCase(context, dependencyCase.getKey(), libs, true));
-            }
-
-            if (testOnChildClassLoader) {
-                cases.add(new NormalPluginTestCase(context, dependencyCase.getKey(), libs, false));
-            }
+            String testId = dependencyCase.getKey();
+            PinpointPluginTestInstance testCase = newNormalPluginTestCase(context, testId, libs);
+            cases.add(testCase);
         }
 
         return cases;
+    }
+
+    private PinpointPluginTestInstance newNormalPluginTestCase(PluginTestContext context, String testId, List<String> libs) {
+        if (testOnSystemClassLoader) {
+            return new NormalPluginTestCase(context, testId, libs, true);
+        }
+        if (testOnChildClassLoader) {
+            return new NormalPluginTestCase(context, testId, libs, false);
+        }
+        throw new IllegalStateException("Illegal classLoader");
     }
 
     private List<PinpointPluginTestInstance> createCasesWithLibraryPath(PluginTestContext context) {
@@ -231,29 +248,18 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
                 }
             }
 
-            if (testOnSystemClassLoader) {
-                cases.add(new NormalPluginTestCase(context, child.getName(), libraries, true));
-            }
-
-            if (testOnChildClassLoader) {
-                cases.add(new NormalPluginTestCase(context, child.getName(), libraries, false));
-            }
+            PinpointPluginTestInstance testCase = newNormalPluginTestCase(context, child.getName(), libraries);
+            cases.add(testCase);
         }
 
         return cases;
     }
 
     private List<PinpointPluginTestInstance> createCasesWithJdkOnly(PluginTestContext context) {
+        PinpointPluginTestInstance testCase = newNormalPluginTestCase(context, "", Collections.<String>emptyList());
+
         List<PinpointPluginTestInstance> cases = new ArrayList<>();
-
-        if (testOnSystemClassLoader) {
-            cases.add(new NormalPluginTestCase(context, "", Collections.<String>emptyList(), true));
-        }
-
-        if (testOnChildClassLoader) {
-            cases.add(new NormalPluginTestCase(context, "", Collections.<String>emptyList(), false));
-        }
-
+        cases.add(testCase);
         return cases;
     }
 

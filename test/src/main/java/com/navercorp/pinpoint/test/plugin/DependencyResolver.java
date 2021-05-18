@@ -281,34 +281,7 @@ public class DependencyResolver {
     }
 
     public Map<String, List<Artifact>> resolveDependencySets(String... dependencies) {
-        List<List<Artifact>> companions = new ArrayList<>();
-        List<Artifact> lastCompanion = null;
-
-        for (String dependency : dependencies) {
-            int first = dependency.indexOf(':');
-            if (first == -1) {
-                throw new IllegalArgumentException("Bad artifact coordinates: " + dependency + ", artifacts: " + Arrays.deepToString(dependencies));
-            }
-
-            int second = dependency.indexOf(':', first + 1);
-            if (second == -1) {
-                dependency += ":" + FOLLOW_PRECEEDING;
-            }
-
-            DefaultArtifact artifact = new DefaultArtifact(dependency);
-
-            if (FOLLOW_PRECEEDING.equals(artifact.getVersion())) {
-                if (lastCompanion != null) {
-                    lastCompanion.add(artifact);
-                } else {
-                    throw new IllegalArgumentException("Version is not specified: " + dependency + ", artifacts: " + Arrays.deepToString(dependencies));
-                }
-            } else {
-                lastCompanion = new ArrayList<>();
-                lastCompanion.add(artifact);
-                companions.add(lastCompanion);
-            }
-        }
+        List<List<Artifact>> companions = resolve(dependencies);
 
         List<List<List<Artifact>>> xxx = new ArrayList<>();
 
@@ -333,7 +306,8 @@ public class DependencyResolver {
                 List<Artifact> companionVersion = new ArrayList<>(companion.size());
 
                 for (Artifact artifact : companion) {
-                    companionVersion.add(new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getClassifier(), artifact.getExtension(), version.toString()));
+                    Artifact verArtifact = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getClassifier(), artifact.getExtension(), version.toString());
+                    companionVersion.add(verArtifact);
                 }
 
                 companionVersions.add(companionVersion);
@@ -345,6 +319,38 @@ public class DependencyResolver {
         Map<String, List<Artifact>> result = combination(xxx);
 
         return result;
+    }
+
+    private List<List<Artifact>> resolve(String[] dependencies) {
+        List<List<Artifact>> companions = new ArrayList<>();
+        List<Artifact> lastCompanion = null;
+
+        for (String dependency : dependencies) {
+            int first = dependency.indexOf(':');
+            if (first == -1) {
+                throw new IllegalArgumentException("Bad artifact coordinates: " + dependency + ", artifacts: " + Arrays.deepToString(dependencies));
+            }
+
+            int second = dependency.indexOf(':', first + 1);
+            if (second == -1) {
+                dependency += ":" + FOLLOW_PRECEEDING;
+            }
+
+            Artifact artifact = new DefaultArtifact(dependency);
+
+            if (FOLLOW_PRECEEDING.equals(artifact.getVersion())) {
+                if (lastCompanion != null) {
+                    lastCompanion.add(artifact);
+                } else {
+                    throw new IllegalArgumentException("Version is not specified: " + dependency + ", artifacts: " + Arrays.deepToString(dependencies));
+                }
+            } else {
+                lastCompanion = new ArrayList<>();
+                lastCompanion.add(artifact);
+                companions.add(lastCompanion);
+            }
+        }
+        return companions;
     }
 
     private Map<String, List<Artifact>> combination(List<List<List<Artifact>>> groups) {
