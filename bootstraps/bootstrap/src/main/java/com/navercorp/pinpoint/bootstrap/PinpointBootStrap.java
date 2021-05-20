@@ -39,6 +39,14 @@ public class PinpointBootStrap {
     private static final LoadState STATE = new LoadState();
 
     public static void premain(String agentArgs, Instrumentation instrumentation) {
+
+        if (disabled()) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("PinPoint is disabled via Env/Property.");
+            }
+            return;
+        }
+
         final boolean success = STATE.start();
         if (!success) {
             logger.warn("pinpoint-bootstrap already started. skipping agent loading.");
@@ -82,6 +90,12 @@ public class PinpointBootStrap {
             logPinpointAgentLoadFail();
         }
 
+    }
+
+    private static boolean disabled() {
+        final String env = System.getenv("PINPOINT_DISABLE");
+        final String prop = System.getProperty("pinpoint.disable");
+        return env != null || prop != null;
     }
 
     private static ModuleBootLoader loadModuleBootLoader(Instrumentation instrumentation, ClassLoader parentClassLoader) {
