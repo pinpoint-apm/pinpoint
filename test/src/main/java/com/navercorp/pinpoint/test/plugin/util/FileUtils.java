@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -79,4 +81,15 @@ public final class FileUtils {
             return file.toURI().toURL();
         }
     }
+
+    public static List<String> toAbsolutePath(List<File> files) {
+        Objects.requireNonNull(files, "files");
+
+        List<String> libs = new ArrayList<>(files.size());
+        for (File lib : files) {
+            libs.add(lib.getAbsolutePath());
+        }
+        return libs;
+    }
+
 }
