@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.test.plugin.shared.SharedProcessManager;
 import com.navercorp.pinpoint.test.plugin.shared.SharedProcessPluginTestCase;
+import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
@@ -142,8 +143,6 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
     }
 
     private List<PinpointPluginTestInstance> createSharedCasesWithDependencies(PluginTestContext context) throws ArtifactResolutionException, DependencyResolutionException {
-        List<PinpointPluginTestInstance> cases = new ArrayList<>();
-
         DependencyResolver resolver = getDependencyResolver(this.repositories);
 
         Map<String, List<Artifact>> dependencyMap = resolver.resolveDependencySets(dependencies);
@@ -153,12 +152,20 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
             }
         }
 
+        List<PinpointPluginTestInstance> cases = new ArrayList<>();
         SharedProcessManager sharedProcessManager = new SharedProcessManager(context);
         for (Map.Entry<String, List<Artifact>> artifactEntry : dependencyMap.entrySet()) {
             final String testId = artifactEntry.getKey();
             final List<Artifact> artifacts = artifactEntry.getValue();
 
-            List<String> libs = getAbsolutePath(resolver, artifacts);
+            List<String> libs = null;
+            try {
+                libs = resolveArtifactsAndDependencies(resolver, artifacts);
+            } catch (DependencyResolutionException e) {
+                // TODO Skip when running the test
+                logger.warn(e, "resolveArtifactsAndDependencies failed testId={}", testId);
+                continue;
+            }
 
             PinpointPluginTestInstance testInstance = newSharedProcessPluginTestCase(context, testId, libs, sharedProcessManager);
 
@@ -169,12 +176,10 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         return cases;
     }
 
-    private List<String> getAbsolutePath(DependencyResolver resolver, List<Artifact> artifacts) throws DependencyResolutionException {
-        List<String> libs = new ArrayList<>();
-        for (File lib : resolver.resolveArtifactsAndDependencies(artifacts)) {
-            libs.add(lib.getAbsolutePath());
-        }
-        return libs;
+    private List<String> resolveArtifactsAndDependencies(DependencyResolver resolver, List<Artifact> artifacts) throws DependencyResolutionException {
+        List<File> files = resolver.resolveArtifactsAndDependencies(artifacts);
+
+        return FileUtils.toAbsolutePath(files);
     }
 
     private PinpointPluginTestInstance newSharedProcessPluginTestCase(PluginTestContext context, String testId, List<String> libs, SharedProcessManager sharedProcessManager) {
@@ -198,9 +203,11 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(dependencies);
 
         for (Map.Entry<String, List<Artifact>> dependencyCase : dependencyCases.entrySet()) {
-            List<String> libs = getAbsolutePath(resolver, dependencyCase.getValue());
-
             String testId = dependencyCase.getKey();
+            List<Artifact> artifactList = dependencyCase.getValue();
+
+            List<String> libs = resolveArtifactsAndDependencies(resolver, artifactList);
+
             PinpointPluginTestInstance testCase = newNormalPluginTestCase(context, testId, libs);
             cases.add(testCase);
         }
