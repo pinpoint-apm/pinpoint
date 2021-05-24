@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.collector;
+package com.navercorp.pinpoint.collector.starter;
 
 import com.navercorp.pinpoint.collector.env.CollectorEnvironmentApplicationListener;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
@@ -9,12 +9,12 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 
 import java.util.Objects;
 
-public class CollectorStarter {
+public class ApplicationStarter {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(CollectorApp.class);
 
     private final Class<?>[] sources;
 
-    public CollectorStarter(Class<?>... sources) {
+    public ApplicationStarter(Class<?>... sources) {
         this.sources = Objects.requireNonNull(sources, "sources");
     }
 

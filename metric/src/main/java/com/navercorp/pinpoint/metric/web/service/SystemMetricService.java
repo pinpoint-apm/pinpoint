@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.metric.web.service;
 
 
+import com.navercorp.pinpoint.metric.common.model.MetricDataName;
 import com.navercorp.pinpoint.metric.common.model.MetricDataType;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import com.navercorp.pinpoint.metric.common.model.SystemMetricMetadata;
@@ -42,18 +43,18 @@ public class SystemMetricService {
 
     private final PinotSystemMetricLongDao pinotSystemMetricLongDao;
     private final PinotSystemMetricDoubleDao pinotSystemMetricDoubleDao;
-    private final SystemMetricMetadata systemMetricMetadata;
+    private final SystemMetricDataTypeService systemMetricDataTypeService;
 
     public SystemMetricService(PinotSystemMetricLongDao pinotSystemMetricLongDao,
                                PinotSystemMetricDoubleDao pinotSystemMetricDoubleDao,
-                               SystemMetricMetadata systemMetricMetadata) {
+                               SystemMetricDataTypeService systemMetricDataTypeService) {
         this.pinotSystemMetricLongDao = Objects.requireNonNull(pinotSystemMetricLongDao, "pinotSystemMetricLongDao");
         this.pinotSystemMetricDoubleDao = Objects.requireNonNull(pinotSystemMetricDoubleDao, "pinotSystemMetricDoubleDao");
-        this.systemMetricMetadata = Objects.requireNonNull(systemMetricMetadata, "systemMetricMetadata");
+        this.systemMetricDataTypeService = Objects.requireNonNull(systemMetricDataTypeService, "systemMetricDataTypeService");
     }
 
     public List<SystemMetric> getSystemMetricBoList(QueryParameter queryParameter) {
-        MetricDataType metricDataType = systemMetricMetadata.get(queryParameter.getMetricName(), queryParameter.getFieldName());
+        MetricDataType metricDataType = systemMetricDataTypeService.getMetricDataType(new MetricDataName(queryParameter.getMetricName(), queryParameter.getFieldName()));
 
         switch (metricDataType) {
             case LONG:
@@ -69,7 +70,7 @@ public class SystemMetricService {
         String metricName = queryParameter.getMetricName();
         String fieldName = queryParameter.getFieldName();
 
-        MetricDataType metricDataType = systemMetricMetadata.get(metricName, fieldName);
+        MetricDataType metricDataType = systemMetricDataTypeService.getMetricDataType(new MetricDataName(metricName, fieldName));
         String chartName = getChartName(metricName, fieldName);
 
         switch (metricDataType) {
