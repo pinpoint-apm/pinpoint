@@ -28,5 +28,7 @@
 
     <import resource="classpath:/pinot-web/applicationContext-web-pinot-datasource.xml"/>
     <import resource="classpath:/pinot-web/applicationContext-web-pinot-dao-config.xml"/>
+    <import resource="classpath:/pinot-web/applicationContext-web-metric-mysql-dao-config.xml"/>
+    <import resource="classpath:/pinot-web/applicationContext-web-metric-mysql-datasource.xml"/>
 
 </beans>

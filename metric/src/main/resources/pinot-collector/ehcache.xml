@@ -8,7 +8,7 @@
                   overflowToDisk="false" diskPersistent="false" timeToIdleSeconds="0"
                   timeToLiveSeconds="600" memoryStoreEvictionPolicy="LRU" />
 
-    <cache name="metricTagCollection" maxElementsInMemory="100000" eternal="false"
+    <cache name="metricTagCollection" maxElementsInMemory="10000" eternal="false"
            timeToIdleSeconds="0" timeToLiveSeconds="604800" overflowToDisk="false"
            diskPersistent="false" diskExpiryThreadIntervalSeconds="120"
            memoryStoreEvictionPolicy="LRU">
