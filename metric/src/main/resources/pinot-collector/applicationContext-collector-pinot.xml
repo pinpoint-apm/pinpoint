@@ -18,6 +18,7 @@
     <import resource="classpath:pinot-collector/applicationContext-collector-pinot-kafka.xml"/>
     <import resource="classpath:pinot-collector/applicationContext-collector-metric-datasource.xml"/>
     <import resource="classpath:pinot-collector/applicationContext-collector-metric-dao-config.xml"/>
+    <import resource="classpath:pinot-collector/applicationContext-collector-metric-cache.xml"/>
 
-    <bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
+    <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
 </beans>
