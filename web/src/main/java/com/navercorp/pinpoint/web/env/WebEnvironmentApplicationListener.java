@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.web.env;
 
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.context.config.ConfigFileApplicationListener;
+import org.springframework.boot.context.config.ConfigDataEnvironmentPostProcessor;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
@@ -25,11 +25,11 @@ public class WebEnvironmentApplicationListener implements ApplicationListener<Ap
 
     /**
      * @see org.springframework.boot.context.logging.LoggingApplicationListener#DEFAULT_ORDER
-     * @see ConfigFileApplicationListener#DEFAULT_ORDER
+     * @see ConfigDataEnvironmentPostProcessor#ORDER
      */
     @Override
     public int getOrder() {
-        return ConfigFileApplicationListener.DEFAULT_ORDER + 1;
+        return ConfigDataEnvironmentPostProcessor.ORDER + 1;
     }
 
 }

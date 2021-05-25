@@ -9,6 +9,7 @@ import org.springframework.core.env.PropertiesPropertySource;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 public class ProfileEnvironment {
@@ -16,6 +17,16 @@ public class ProfileEnvironment {
     public static final String PROFILE_PLACE_HOLDER = "${" + PINPOINT_ACTIVE_PROFILE + "}";
 
     private final ServerBootLogger logger = ServerBootLogger.getLogger(getClass());
+
+    private final String defaultProfile;
+
+    public ProfileEnvironment() {
+        this.defaultProfile = null;
+    }
+
+    public ProfileEnvironment(String defaultProfile) {
+        this.defaultProfile = Objects.requireNonNull(defaultProfile, "defaultProfile");
+    }
 
     public void processEnvironment(ConfigurableEnvironment environment) {
         String[] activeProfiles = environment.getActiveProfiles();
@@ -53,7 +64,9 @@ public class ProfileEnvironment {
 
 
     private String getDefaultProfile(String[] activeProfiles) {
-        // TODO
+        if (defaultProfile != null) {
+            return defaultProfile;
+        }
         return activeProfiles[0];
     }
 
