@@ -11,6 +11,7 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class WebEnvironmentPostProcessor implements EnvironmentPostProcessor {
     private final ServerBootLogger logger = ServerBootLogger.getLogger(getClass());
@@ -31,11 +32,21 @@ public class WebEnvironmentPostProcessor implements EnvironmentPostProcessor {
     };
     private static final String EXTERNAL_CONFIGURATION_KEY = "pinpoint.web.config.location";
 
+    private final String defaultProfile;
+
+    public WebEnvironmentPostProcessor() {
+        this.defaultProfile = null;
+    }
+
+    public WebEnvironmentPostProcessor(String defaultProfile) {
+        this.defaultProfile = Objects.requireNonNull(defaultProfile, "defaultProfile");
+    }
+
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         logger.info("postProcessEnvironment");
 
-        ProfileEnvironment profileEnvironment = new ProfileEnvironment();
+        ProfileEnvironment profileEnvironment = newProfileEnvironment();
         profileEnvironment.processEnvironment(environment);
 
         ExternalEnvironment externalEnvironment
@@ -51,6 +62,13 @@ public class WebEnvironmentPostProcessor implements EnvironmentPostProcessor {
             logger.info("Environment order " + propertySource.getName());
         }
 
+    }
+
+    private ProfileEnvironment newProfileEnvironment() {
+        if (defaultProfile == null) {
+            return new ProfileEnvironment();
+        }
+        return new ProfileEnvironment(defaultProfile);
     }
 
 }
