@@ -113,10 +113,14 @@ public class JedisPlugin implements ProfilerPlugin, TransformTemplateAware {
             JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int", "int", "boolean", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
             // host, port, connectionTimeout, soTimeout
             JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int", "int", "int");
+            // host, port, connectionTimeout, soTimeout, infiniteSoTimeout
+            JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int", "int", "int", "int");
             // host, port, connectionTimeout, soTimeout, ssl
             JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int", "int", "int", "boolean");
             // host, port, connectionTimeout, soTimeout, ssl, sslSocketFactory, sslParameters, hostnameVerifier
             JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int", "int", "int", "boolean", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
+            // host, port, connectionTimeout, soTimeout, infiniteSoTimeout, ssl, sslSocketFactory, sslParameters, hostnameVerifier
+            JedisUtils.addSetEndPointInterceptor(target, "java.lang.String", "int", "int", "int", "int", "boolean", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
             // shardInfo
             JedisUtils.addSetEndPointInterceptor(target, "redis.clients.jedis.JedisShardInfo");
             // uri
@@ -131,6 +135,10 @@ public class JedisPlugin implements ProfilerPlugin, TransformTemplateAware {
             JedisUtils.addSetEndPointInterceptor(target, "java.net.URI", "int", "int");
             // uri, connectionTimeout, soTimeout, sslSocketFactory, sslParameters, hostnameVerifier
             JedisUtils.addSetEndPointInterceptor(target, "java.net.URI", "int", "int", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
+            // uri, connectionTimeout, soTimeout, infiniteSoTimeout, sslSocketFactory, sslParameters, hostnameVerifier
+            JedisUtils.addSetEndPointInterceptor(target, "java.net.URI", "int", "int", "int", "javax.net.ssl.SSLSocketFactory", "javax.net.ssl.SSLParameters", "javax.net.ssl.HostnameVerifier");
+            // redis.clients.jedis.JedisSocketFactory
+            JedisUtils.addSetEndPointInterceptor(target, "redis.clients.jedis.JedisSocketFactory");
 
             // methods(commands)
             final JedisPluginConfig config = new JedisPluginConfig(instrumentor.getProfilerConfig());
