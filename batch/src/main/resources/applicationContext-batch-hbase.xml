@@ -245,4 +245,18 @@
         <property name="threadNamePrefix" value="Pinpoint-Server-Info-Appender-"/>
     </bean>
 
+    <bean id="spanService" class="com.navercorp.pinpoint.web.service.SpanServiceImpl">
+    </bean>
+
+    <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataDao">
+    </bean>
+
+    <bean id="sqlMetaDataMapper" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
+        <constructor-arg ref="metadataRowKeyDistributor"/>
+    </bean>
+
+    <bean id="sqlMetaDataMapper2" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
+        <constructor-arg ref="metadataRowKeyDistributor2"/>
+    </bean>
+
 </beans>
