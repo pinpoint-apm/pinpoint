@@ -6,8 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 
-import static org.junit.Assert.*;
-
 public class Log4j2LoggingSystemTest {
 
     @Test

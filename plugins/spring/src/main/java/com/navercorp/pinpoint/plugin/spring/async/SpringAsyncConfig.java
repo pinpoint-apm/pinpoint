@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.plugin.spring.async;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;

@@ -33,7 +33,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import java.util.Objects;
 
 import static com.navercorp.pinpoint.common.util.JvmVersion.JAVA_8;
-import static com.navercorp.pinpoint.common.util.JvmVersion.JAVA_9;
 
 /**
  * @author emeroad

@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.logging.jul;
 
-import java.util.Objects;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 
 import java.text.MessageFormat;
+import java.util.Objects;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 

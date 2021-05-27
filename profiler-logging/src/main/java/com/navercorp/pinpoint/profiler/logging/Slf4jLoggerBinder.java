@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.logging;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
-
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentHashMap;

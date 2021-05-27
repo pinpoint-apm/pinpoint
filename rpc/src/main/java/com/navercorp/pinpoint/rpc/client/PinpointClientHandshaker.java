@@ -16,20 +16,12 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
-import java.util.Objects;
-
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
-import com.navercorp.pinpoint.rpc.cluster.Role;
+import com.navercorp.pinpoint.rpc.control.ProtocolException;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
@@ -42,10 +34,12 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.control.ProtocolException;
-import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
-import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class PinpointClientHandshaker {
 
