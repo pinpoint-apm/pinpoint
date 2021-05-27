@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.web.config.ScatterChartConfig;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.mapper.TraceIndexScatterMapper;
 import com.navercorp.pinpoint.web.mapper.TransactionIdMapper;
@@ -66,6 +67,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final ScatterChartConfig scatterChartConfig;
+
     private final HbaseOperations2 hbaseOperations2;
 
     private final FuzzyRowKeyBuilder fuzzyRowKeyBuilder = new FuzzyRowKeyBuilder();
@@ -78,11 +81,13 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private int scanCacheSize = 256;
 
-    public HbaseApplicationTraceIndexDao(HbaseOperations2 hbaseOperations2,
+    public HbaseApplicationTraceIndexDao(ScatterChartConfig scatterChartConfig,
+                                         HbaseOperations2 hbaseOperations2,
                                          TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor,
                                          @Qualifier("transactionIdMapper") RowMapper<List<TransactionId>> traceIndexMapper,
                                          @Qualifier("traceIndexScatterMapper") RowMapper<List<Dot>> traceIndexScatterMapper,
                                          @Qualifier("applicationTraceIndexDistributor") AbstractRowKeyDistributor traceIdRowKeyDistributor) {
+        this.scatterChartConfig = Objects.requireNonNull(scatterChartConfig, "scatterChartConfig");
         this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
         this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
         this.traceIndexMapper = Objects.requireNonNull(traceIndexMapper, "traceIndexMapper");
@@ -321,8 +326,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private Scan newFuzzyScanner(String applicationName, DragArea dragArea, Range range) {
         final Scan scan = createScan(applicationName, range, true);
-        Filter filter = newFuzzyFilter(dragArea);
-        scan.setFilter(filter);
+        if (scatterChartConfig.isEnableFuzzyRowFilter()) {
+            Filter filter = newFuzzyFilter(dragArea);
+            scan.setFilter(filter);
+        }
         return scan;
     }
 
