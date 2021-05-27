@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.*;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.web.config.ScatterChartConfig;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
@@ -35,7 +36,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Predicate;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -83,7 +86,8 @@ public class HbaseApplicationTraceIndexDaoTest {
         MockitoAnnotations.initMocks(this);
         TableDescriptorConfig tableDescriptorConfig = new TableDescriptorConfig(tableNameProvider);
         TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor = tableDescriptorConfig.getApplicationTraceIndexTrace();
-        this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(hbaseOperations2, descriptor, traceIndexMapper, traceIndexScatterMapper, traceIdRowKeyDistributor);
+        ScatterChartConfig scatterChartConfig = new ScatterChartConfig();
+        this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(scatterChartConfig, hbaseOperations2, descriptor, traceIndexMapper, traceIndexScatterMapper, traceIdRowKeyDistributor);
     }
 
     @Test(expected = IllegalArgumentException.class)
