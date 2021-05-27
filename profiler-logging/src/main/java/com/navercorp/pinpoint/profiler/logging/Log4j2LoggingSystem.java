@@ -4,7 +4,6 @@ import com.navercorp.pinpoint.bootstrap.BootLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import java.util.Objects;
 import com.navercorp.pinpoint.profiler.logging.jul.JulAdaptorHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
@@ -12,7 +11,7 @@ import org.apache.logging.log4j.core.LoggerContext;
 
 import java.io.File;
 import java.net.URI;
-import java.security.CodeSource;
+import java.util.Objects;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 

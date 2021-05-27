@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.bootstrap.plugin.uri;
 import com.navercorp.pinpoint.common.trace.UriExtractorType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 
-import java.net.URI;
 import java.util.List;
 
 /**

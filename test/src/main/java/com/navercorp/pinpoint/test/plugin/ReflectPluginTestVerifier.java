@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.test.plugin;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ReflectPluginTestVerifier {
