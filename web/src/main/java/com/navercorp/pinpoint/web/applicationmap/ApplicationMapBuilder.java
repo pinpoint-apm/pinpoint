@@ -159,7 +159,7 @@ public class ApplicationMapBuilder {
         return new DefaultApplicationMap(range, nodeList, linkList);
     }
 
-    private class TimeoutWatcher {
+    private static class TimeoutWatcher {
         private static final int INFINITY_TIME = -1;
         private final long timeoutMillis;
         private final long startTimeMillis;

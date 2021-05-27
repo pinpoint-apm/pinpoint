@@ -48,7 +48,7 @@ public class GrpcAgentUriStatMapper {
         agentUriStatBo.setAgentId(agentId);
         agentUriStatBo.setStartTimestamp(startTimestamp);
         agentUriStatBo.setTimestamp(timestamp);
-        agentUriStatBo.setBucketVersion(new Integer(bucketVersion).byteValue());
+        agentUriStatBo.setBucketVersion((byte) bucketVersion);
 
         List<PEachUriStat> eachUriStatList = agentUriStat.getEachUriStatList();
         for (PEachUriStat pEachUriStat : eachUriStatList) {

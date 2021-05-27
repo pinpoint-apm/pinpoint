@@ -96,8 +96,10 @@ public class DefaultBulkWriter implements BulkWriter {
                 logger.debug("flush {} checkAndMax:{}", this.getClass().getSimpleName(), size);
             }
         }
-        for (RowInfo rowInfo : maxUpdateMap.keySet()) {
-            Long val = maxUpdateMap.get(rowInfo);
+
+        for (Map.Entry<RowInfo, Long> entry : maxUpdateMap.entrySet()) {
+            final RowInfo rowInfo = entry.getKey();
+            final Long val = entry.getValue();
             final byte[] rowKey = getDistributedKey(rowInfo.getRowKey().getRowKey());
             checkAndMax(rowInfo.getTableName(), rowKey, rowInfo.getColumnName().getColumnName(), val);
         }
