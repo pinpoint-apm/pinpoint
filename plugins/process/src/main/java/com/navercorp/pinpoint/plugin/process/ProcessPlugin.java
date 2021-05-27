@@ -44,10 +44,10 @@ public class ProcessPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        transformTemplate.transform("java.lang.ProcessBuilder", processBuilderTransformCallback.class);
+        transformTemplate.transform("java.lang.ProcessBuilder", ProcessBuilderTransformCallback.class);
     }
 
-    public static class processBuilderTransformCallback implements TransformCallback {
+    public static class ProcessBuilderTransformCallback implements TransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);

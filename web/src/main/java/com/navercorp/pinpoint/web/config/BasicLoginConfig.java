@@ -43,7 +43,7 @@ public class BasicLoginConfig {
 
     private static final String DEFAULT_JWT_SECRET_KEY = "PINPOINT_JWT_SECRET";
 
-    private final int DEFAULT_EXPIRATION_TIME_SECONDS = new Long(TimeUnit.HOURS.toSeconds(12)).intValue();
+    private final long DEFAULT_EXPIRATION_TIME_SECONDS = TimeUnit.HOURS.toSeconds(12);
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -72,17 +72,15 @@ public class BasicLoginConfig {
         return jwtSecretKey;
     }
 
-    public int getExpirationTimeSeconds() {
+    public long getExpirationTimeSeconds() {
         return DEFAULT_EXPIRATION_TIME_SECONDS;
     }
 
     @PostConstruct
     public void setup() {
-        List<UserDetails> userList = createUser(userIdAndPasswordPairList);
-        this.userList = userList;
+        this.userList = createUser(userIdAndPasswordPairList);
 
-        List<UserDetails> adminList = createAdmin(adminIdAndPasswordPairList);
-        this.adminList = adminList;
+        this.adminList = createAdmin(adminIdAndPasswordPairList);
 
         if (StringUtils.isEmpty(jwtSecretKey)) {
             throw new IllegalArgumentException("'jwtSecretKey' may not be empty");

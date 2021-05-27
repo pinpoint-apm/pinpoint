@@ -42,8 +42,8 @@ import java.util.stream.Collectors;
  */
 public class JwtService {
 
-    private final String KEY_CLAIMS_USER_ID = "userId";
-    private final String KEY_CLAIMS_USER_ROLE = "userRole";
+    private static final String KEY_CLAIMS_USER_ID = "userId";
+    private static final String KEY_CLAIMS_USER_ROLE = "userRole";
 
     private final JwtParser jwtParser;
 

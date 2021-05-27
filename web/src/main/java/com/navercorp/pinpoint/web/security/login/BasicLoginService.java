@@ -95,7 +95,7 @@ public class BasicLoginService {
         cookie.setPath("/");
 
         long maxAge = TimeUnit.MILLISECONDS.toSeconds(jwtService.getExpirationTimeMillis());
-        cookie.setMaxAge(new Long(maxAge).intValue());
+        cookie.setMaxAge((int) maxAge);
         return cookie;
     }
 
