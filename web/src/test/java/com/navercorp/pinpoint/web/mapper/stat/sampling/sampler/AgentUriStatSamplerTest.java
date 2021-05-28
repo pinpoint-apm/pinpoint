@@ -75,7 +75,7 @@ public class AgentUriStatSamplerTest {
     private UriStatHistogram createUriStatHistogram(int count) {
         long totalElapsed = 0;
         long max = 0;
-        int[] bucketValues = UriStatHistogramBucket.createNewArrayValue();
+        int[] bucketValues = new int[UriStatHistogramBucket.getBucketSize()];
         for (int i = 0; i < count; i++) {
             int elapsed = ThreadLocalRandom.current().nextInt(10000);
             totalElapsed += elapsed;
@@ -105,7 +105,7 @@ public class AgentUriStatSamplerTest {
     }
 
     private void assertHistogramValue(int[] uriStatHistogramValue, List<EachUriStatBo> actual) {
-        int[] newArrayValue = UriStatHistogramBucket.createNewArrayValue();
+        int[] newArrayValue = new int[UriStatHistogramBucket.getBucketSize()];
         for (EachUriStatBo eachUriStatBo : actual) {
             int[] timestampHistogram = eachUriStatBo.getTotalHistogram().getTimestampHistogram();
             for (int i = 0; i < timestampHistogram.length; i++) {

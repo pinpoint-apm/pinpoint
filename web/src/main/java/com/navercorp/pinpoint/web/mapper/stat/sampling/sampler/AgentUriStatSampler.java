@@ -29,6 +29,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,8 @@ public class AgentUriStatSampler implements AgentStatSampler<EachUriStatBo, Samp
     private static final AgentStatPointFactory AGENT_STAT_POINT_FACTORY = new AgentStatPointFactory(0, 0L, 0D);
 
     private static Map<UriStatHistogramBucket, Integer> EMPTY_URI_STAT_HISTOGRAM_MAP;
+
+    private static final EnumSet<UriStatHistogramBucket> BUCKETS = EnumSet.allOf(UriStatHistogramBucket.class);
 
     static {
         Map<UriStatHistogramBucket, Integer> map = new HashMap<>();
@@ -102,7 +105,7 @@ public class AgentUriStatSampler implements AgentStatSampler<EachUriStatBo, Samp
     }
 
     private Map<UriStatHistogramBucket, Integer> createHistogramBucketCountMap(List<UriStatHistogram> uriStatHistogramList) {
-        int[] mergedHistogramValue = UriStatHistogramBucket.createNewArrayValue();
+        int[] mergedHistogramValue = new int[UriStatHistogramBucket.getBucketSize()];
         for (UriStatHistogram uriStatHistogram : uriStatHistogramList) {
             int[] timestampHistogram = uriStatHistogram.getTimestampHistogram();
             for (int i = 0; i < mergedHistogramValue.length; i++) {
@@ -110,8 +113,8 @@ public class AgentUriStatSampler implements AgentStatSampler<EachUriStatBo, Samp
             }
         }
 
-        Map<UriStatHistogramBucket, Integer> uriStatHistogramBucketCountMap = new EnumMap<UriStatHistogramBucket, Integer>(UriStatHistogramBucket.class);
-        for (UriStatHistogramBucket value : UriStatHistogramBucket.values()) {
+        Map<UriStatHistogramBucket, Integer> uriStatHistogramBucketCountMap = new EnumMap<>(UriStatHistogramBucket.class);
+        for (UriStatHistogramBucket value : BUCKETS) {
             int eachBucketTotalCount = mergedHistogramValue[value.getIndex()];
             uriStatHistogramBucketCountMap.put(value, eachBucketTotalCount);
         }

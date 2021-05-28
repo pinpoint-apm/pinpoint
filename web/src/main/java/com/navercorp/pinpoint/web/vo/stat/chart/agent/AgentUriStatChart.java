@@ -199,7 +199,7 @@ public class AgentUriStatChart implements StatChart {
 
     }
 
-    public static final int[] UNCOLLECTED = UriStatHistogramBucket.createNewArrayValue();
+    public static final int[] UNCOLLECTED = new int[UriStatHistogramBucket.getBucketSize()];
     public static final Point.UncollectedPointCreator<UriStatHistogramPoint> UNCOLLECTED_POINT_CREATOR = new Point.UncollectedPointCreator<UriStatHistogramPoint>() {
         @Override
         public UriStatHistogramPoint createUnCollectedPoint(long xVal) {

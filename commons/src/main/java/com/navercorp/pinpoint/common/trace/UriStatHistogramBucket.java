@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.trace;
 
+import java.util.EnumSet;
+
 /**
  * @author Taejin Koo
  */
@@ -34,6 +36,9 @@ public enum UriStatHistogramBucket {
     private final long to;
     private final int index;
     private final String description;
+
+    private static final EnumSet<UriStatHistogramBucket> BUCKETS = EnumSet.allOf(UriStatHistogramBucket.class);
+    private static final int SIZE = BUCKETS.size();
 
     UriStatHistogramBucket(long from, long to, int index) {
         this.from = from;
@@ -64,7 +69,7 @@ public enum UriStatHistogramBucket {
     }
 
     public static UriStatHistogramBucket getValue(long elapsed) {
-        for (UriStatHistogramBucket histogram : values()) {
+        for (UriStatHistogramBucket histogram : BUCKETS) {
             if (elapsed < histogram.getTo()) {
                 return histogram;
             }
@@ -74,7 +79,7 @@ public enum UriStatHistogramBucket {
     }
 
     public static UriStatHistogramBucket getValueByIndex(int index) {
-        for (UriStatHistogramBucket histogram : values()) {
+        for (UriStatHistogramBucket histogram : BUCKETS) {
             if (histogram.getIndex() == index) {
                 return histogram;
             }
@@ -83,8 +88,8 @@ public enum UriStatHistogramBucket {
         throw new IllegalArgumentException("Can not find index. index:" + index);
     }
 
-    public static int[] createNewArrayValue() {
-        return new int[values().length];
+    public static int getBucketSize() {
+        return SIZE;
     }
 
     public static byte getBucketVersion() {

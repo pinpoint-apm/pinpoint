@@ -43,7 +43,7 @@ public class BasicLoginConfig {
 
     private static final String DEFAULT_JWT_SECRET_KEY = "PINPOINT_JWT_SECRET";
 
-    private final long DEFAULT_EXPIRATION_TIME_SECONDS = TimeUnit.HOURS.toSeconds(12);
+    private static final long DEFAULT_EXPIRATION_TIME_SECONDS = TimeUnit.HOURS.toSeconds(12);
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 

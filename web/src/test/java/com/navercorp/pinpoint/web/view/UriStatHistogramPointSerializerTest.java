@@ -35,7 +35,7 @@ public class UriStatHistogramPointSerializerTest {
 
     @Test
     public void jsonTest() throws JsonProcessingException {
-        int[] newArrayValue = UriStatHistogramBucket.createNewArrayValue();
+        int[] newArrayValue = new int[UriStatHistogramBucket.getBucketSize()];
         for (int i = 0; i < newArrayValue.length; i++) {
             newArrayValue[i] = ThreadLocalRandom.current().nextInt(0, 100);
         }
