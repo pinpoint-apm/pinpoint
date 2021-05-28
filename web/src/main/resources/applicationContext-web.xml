@@ -40,6 +40,7 @@
     <bean id="configProperties" class="com.navercorp.pinpoint.web.config.ConfigProperties"/>
     <bean id="logConfiguration" class="com.navercorp.pinpoint.web.config.LogConfiguration"/>
     <bean id="webSocketConfig" class="com.navercorp.pinpoint.web.config.WebSocketConfig"/>
+    <bean id="scatterChartConfig" class="com.navercorp.pinpoint.web.config.ScatterChartConfig"/>
 
     <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory" factory-method="getDefaultInstance">
     </bean>
