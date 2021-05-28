@@ -86,13 +86,13 @@ public class WorkerActiveManager {
     }
 
     public void addReactiveWorker(AgentInfo agentInfo) {
-        if (applicationName.equals(agentInfo.getApplicationName())) {
+        if (this.applicationName.equals(agentInfo.getApplicationName())) {
             addReactiveWorker(agentInfo.getAgentId());
         }
     }
 
     public void addReactiveWorker(String applicationName, String agentId) {
-        if (applicationName.equals(applicationName)) {
+        if (this.applicationName.equals(applicationName)) {
             addReactiveWorker(agentId);
         }
     }
