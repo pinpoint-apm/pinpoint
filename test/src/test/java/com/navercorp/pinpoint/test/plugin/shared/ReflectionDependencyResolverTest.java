@@ -34,7 +34,7 @@ public class ReflectionDependencyResolverTest {
 
     @Test
     public void get() throws Exception {
-        ReflectionDependencyResolver dependencyResolver = new ReflectionDependencyResolver(Thread.currentThread().getContextClassLoader());
+        ReflectionDependencyResolver dependencyResolver = new ReflectionDependencyResolver(Thread.currentThread().getContextClassLoader(), new String[]{});
         List<File> files = dependencyResolver.lookup(Arrays.asList("org.slf4j:slf4j-api:1.7.21"));
         Assert.assertEquals(files.size(), 1);
     }

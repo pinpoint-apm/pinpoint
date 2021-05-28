@@ -198,8 +198,9 @@ public class DependencyResolver {
         RemoteRepository mavenCentralRepository = newMavenCentralRepository();
         repositories.add(mavenCentralRepository);
 
+        int localRepositoriesCount = 0;
         for (String url : urls) {
-            RemoteRepository remoteRepository = new RemoteRepository.Builder(null, "default", url).build();
+            RemoteRepository remoteRepository = new RemoteRepository.Builder("local" + localRepositoriesCount, "default", url).build();
             repositories.add(remoteRepository);
         }
 

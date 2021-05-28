@@ -50,9 +50,11 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
     private final TaggedLogger logger = TestLogger.getLogger();
 
     private static final int NO_JVM_VERSION = -1;
+    private static final List<String> EMPTY_REPOSITORY_URLS = new ArrayList<String>();
 
     private final List<String> requiredLibraries;
     private final List<String> mavenDependencyLibraries;
+    private final List<String> repositoryUrls;
     private final String testClassLocation;
 
     private final String agentJar;
@@ -85,6 +87,9 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
 
         ImportPlugin importPlugin = testClass.getAnnotation(ImportPlugin.class);
         this.importPluginIds = getImportPlugin(importPlugin);
+
+        Repository repository = testClass.getAnnotation(Repository.class);
+        this.repositoryUrls = getRepository(repository);
 
         List<ClassLoaderLib> classLoaderLibs = collectLib(getClass().getClassLoader());
         if (logger.isDebugEnabled()) {
@@ -121,6 +126,13 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
             return null;
         }
         return Arrays.asList(ids);
+    }
+
+    private List<String> getRepository(Repository repository) {
+        if (repository == null) {
+            return EMPTY_REPOSITORY_URLS;
+        }
+        return Arrays.asList(repository.value());
     }
 
     private String[] getJvmArguments(JvmArgument jvmArgument) {
@@ -348,7 +360,7 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
                 }
 
                 PluginTestContext context = new PluginTestContext(agentJar, profile,
-                        configFile, requiredLibraries, mavenDependencyLibraries,
+                        configFile, requiredLibraries, mavenDependencyLibraries, repositoryUrls,
                         getTestClass().getJavaClass(), testClassLocation,
                         jvmArguments, debug, ver, javaExe, importPluginIds);
 
