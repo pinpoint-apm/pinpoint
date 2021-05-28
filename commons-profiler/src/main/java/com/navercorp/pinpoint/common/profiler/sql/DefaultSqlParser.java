@@ -112,7 +112,7 @@ public class DefaultSqlParser implements SqlParser {
                     if (lookAhead1(sql, i) == '\'') {
                         normalized.append("''");
                         // no need to add parameter to output as $ is not converted
-                        i += 2;
+                        i += 1;
                         break;
                     } else {
                         change = true;
