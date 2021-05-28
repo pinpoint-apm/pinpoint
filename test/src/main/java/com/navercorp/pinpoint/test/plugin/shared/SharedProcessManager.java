@@ -163,6 +163,8 @@ public class SharedProcessManager implements ProcessManager {
 
         final String mavenDependencyResolverClassPaths = join(context.getMavenDependencyLibraries());
         list.add(format(SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS, mavenDependencyResolverClassPaths));
+        final String repositoryUrlString = join(context.getRepositoryUrls());
+        list.add(format(SharedPluginTestConstants.TEST_REPOSITORY_URLS, repositoryUrlString));
         list.add(format(SharedPluginTestConstants.TEST_LOCATION,  context.getTestClassLocation()));
         list.add(format(SharedPluginTestConstants.TEST_CLAZZ_NAME, context.getTestClass().getName()));
 

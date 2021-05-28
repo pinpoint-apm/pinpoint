@@ -32,11 +32,13 @@ import java.util.concurrent.Callable;
 public class ReflectionDependencyResolver {
 
     private final ClassLoader classLoader;
+    private final String[] repositoryUrls;
     private Object dependencyResolverObject;
     private Method resolveArtifactsAndDependenciesMethod;
 
-    public ReflectionDependencyResolver(ClassLoader classLoader) {
+    public ReflectionDependencyResolver(ClassLoader classLoader, String[] repositoryUrls) {
         this.classLoader = Objects.requireNonNull(classLoader, "classLoader");
+        this.repositoryUrls = Objects.requireNonNull(repositoryUrls, "repositoryUrls");
     }
 
     public List<File> lookup(final List<String> classpathList) throws Exception {
@@ -74,7 +76,7 @@ public class ReflectionDependencyResolver {
         Object factoryObject = factory.newInstance();
         Method resolverGet = factory.getMethod("get", String[].class);
 
-        dependencyResolverObject = resolverGet.invoke(factoryObject, (Object) new String[]{});
+        dependencyResolverObject = resolverGet.invoke(factoryObject, (Object)repositoryUrls);
 
         Class<?> dependencyResolverClazz = dependencyResolverObject.getClass();
         resolveArtifactsAndDependenciesMethod = dependencyResolverClazz.getMethod("resolveArtifactsAndDependencies", String.class);
