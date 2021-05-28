@@ -112,7 +112,7 @@ public class GrpcAgentUriStatHandlerV2Test {
         PUriHistogram.Builder histogramBuilder = PUriHistogram.newBuilder();
 
         int totalCount = 0;
-        for (int i = 0; i < UriStatHistogramBucket.values().length; i++) {
+        for (int i = 0; i < UriStatHistogramBucket.getBucketSize(); i++) {
             int count = ThreadLocalRandom.current().nextInt(0, 10);
             totalCount += count;
 

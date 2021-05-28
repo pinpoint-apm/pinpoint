@@ -57,7 +57,7 @@ public class SampledUriStatHistogramBo {
     }
 
     public int[] getUriStatHistogramValue() {
-        int[] newArrayValue = UriStatHistogramBucket.createNewArrayValue();
+        int[] newArrayValue = new int[UriStatHistogramBucket.getBucketSize()];
 
         for (Map.Entry<UriStatHistogramBucket, Integer> entry : uriStatHistogramCountMap.entrySet()) {
             int index = entry.getKey().getIndex();
