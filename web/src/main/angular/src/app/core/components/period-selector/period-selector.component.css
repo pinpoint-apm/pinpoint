@@ -2,7 +2,7 @@
     display: flex;
     flex-flow: row wrap;
     margin-right: 10px;
-    border: 1px solid #364660;
+    border: 1px solid var(--period-select-box-border);
     border-radius: 0px;
     line-height: 1em;
     align-items:stretch;
@@ -22,13 +22,12 @@
 }
 .l-type-select button {
     height: 100%;
-    background: #3E506B;
+    background: var(--period-select-background);
     padding: 0 5px;
     width: 35px;
     color: var(--secondary);
 }
 .l-type-select li.inactive {
-    border: 1px solid #364660;
     border-radius: 0 0 2px 2px;
     overflow: hidden;
     bottom: -36px;
@@ -48,11 +47,6 @@
 }
 .l-type-select li.inactive:after {
     display:none;
-}
-.l-type-select li.inactive button {
-    color:#7185a2;
-    height: 34px;
-    width: 34px;
 }
 .l-type-select li:first-child button {
     border-left: none;

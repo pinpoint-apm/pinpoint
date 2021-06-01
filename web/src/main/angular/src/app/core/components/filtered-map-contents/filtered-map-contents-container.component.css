@@ -17,7 +17,7 @@
     position:absolute;
 }
 .fas {
-    color:#a8acb5;
+    color:var(--icon-default);
     font-size:18px;
 }
 

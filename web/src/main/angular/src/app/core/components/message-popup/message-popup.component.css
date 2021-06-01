@@ -4,8 +4,8 @@
     width: 100%;
     min-width: 500px;
     max-width: 1000px;
-    background-color: #fff;
-    border: 1px solid #e5e8f0;
+    background-color: var(--background-default);
+    border: 1px solid var(--border-primary);
     box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.75);
     text-align: left;
     top: 50%;
@@ -15,12 +15,12 @@
 .l-title-group {
     padding: 17px 18px;
     height: auto;
-    background-color: #fff;
-    border-bottom: 1px solid #e5e8f0;
+    background-color: var(--background-default);
+    border-bottom: 1px solid var(--border-primary);
     position: relative;
     font-size: 13px;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -42,7 +42,7 @@
     background:url(../../../../assets/img/icon-close.png) no-repeat 0 0;
 }
 .l-contents-group {
-    background: #f6f8fb;
+    background: var(--background-primary);
     padding: 17px 18px;
     overflow: auto;
 }
@@ -54,18 +54,18 @@
     margin: 0;
 }
 .l-list dt {
-    color: #333;
+    color: var(--text-primary);
     margin: 0 0 12px;
     font-size: 13px;
     font-weight: 600;
 }
 .l-list dd {
     height: 100%;
-    border: 1px solid #cfd7e1;
+    border: 1px solid var(--border-primary);
     display: block;
     padding: 28px 28px;
     font-size: 13px;
-    background: #fff;
+    background: var(--background-default);
     word-break: break-all;
     overflow-y: auto;
     line-height: 2em;

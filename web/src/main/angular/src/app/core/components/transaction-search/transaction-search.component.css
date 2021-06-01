@@ -10,7 +10,7 @@
     position:relative;
 }
 .l-search-group-wrap .fas {
-    color:#a8acb5;
+    color:var(--icon-default);
     font-size:18px;
 }
 .l-search-group-wrap .l-search-group2 {
@@ -22,7 +22,7 @@
     height: 100%;
     border: 1px solid var(--primary);
     padding:0 10px;
-    background:#fff;
+    background:var(--background-default);
 }
 .l-search-group-wrap .l-search-group2 input:focus {
     border: 1px solid var(--primary-color);
@@ -42,7 +42,7 @@ select {
     -webkit-appearance: none;
     outline: 0;
     border-radius: 0px;
-    color: #FFF;
+    color: var(--text-knockout);
     float: left;
     height: 100%;
     display: inline-block;
@@ -54,7 +54,7 @@ select {
 }
 .l-search-group-wrap .l-search-group2 .fa-angle-down {
     position: absolute;
-    color: #FFF;
+    color: var(--text-knockout);
     top: 8px;
     left: 94px;
     font-size: 15px;

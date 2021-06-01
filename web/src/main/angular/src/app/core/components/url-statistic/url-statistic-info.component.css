@@ -5,25 +5,24 @@
 }
 
 .l-content-group {
-    /* background-color: #fff; */
     height: 36px;
 }
 
 .l-content-group.active {
-    background-color: #E7F5F9;
+    background-color: var(--background-hover-secondary);
 }
 
 .l-content-group.active:hover {
-    background-color: #E7F5F9;
+    background-color: var(--background-hover-secondary);
 }
 
 .l-content-group:hover {
-    background-color: #eee;
+    background-color: var(--background-hover-default);
 }
 
 .l-content-item {
     text-align: center;
-    border-top: 1px solid #e5e8f0;
+    border-top: 1px solid var(--border-primary);
     padding: 0;
 }
 

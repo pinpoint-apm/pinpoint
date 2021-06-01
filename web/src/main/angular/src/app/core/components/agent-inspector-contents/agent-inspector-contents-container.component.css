@@ -6,7 +6,7 @@
 }
 
 .l-date-range {
-    background-color: #FFF;
+    background-color: var(--background-default);
     height: 150px;
     position: relative;
 }
@@ -14,7 +14,7 @@
 .l-cover {
     width: 100%;
     height: 100%;
-    background-color: #ccc;
+    background-color: var(--background-disable);
     z-index: 5;
     position: absolute;
     left: 0;
@@ -39,7 +39,7 @@
 
 .l-guide-text {
     font-family: 'Open Sans';
-    color: #333;
+    color: var(--text-primary);
     font-size: 14px;
     font-style: italic;
 }

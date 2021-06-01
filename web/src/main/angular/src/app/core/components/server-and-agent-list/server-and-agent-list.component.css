@@ -31,7 +31,7 @@
 }
 .l-name-wrapper:hover {
     cursor: pointer;
-    background-color: #eee;
+    background-color: var(--background-hover-default);
     color: var(--primary-color) !important;
 }
 .l-name-wrapper.active {

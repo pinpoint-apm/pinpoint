@@ -1,7 +1,6 @@
 :host {
     display: block;
     height: 100%;
-    background-color: #edf2f8;
 }
 
 .l-main-container {
@@ -12,10 +11,9 @@
 .l-sidemenu-section {
     width: 240px;
     height: 100%;
-    border-right: 1px solid #E5E8F0;
-    background: #FFF;
+    border-right: 1px solid var(--border-primary);
+    background: var(--background-default);
     font-size: 15px;
-    /* padding-top: 12px; */
 }
 
 .l-list-item {
@@ -39,7 +37,7 @@
 
 .l-link:hover {
     cursor: pointer;
-    background-color: #eee;
+    background-color: var(--background-hover-default);
     color: var(--primary-color) !important;
 }
 
@@ -64,14 +62,14 @@
 }
 
 .l-main-section {
-    background: #edf2f8;
+    background: var(--background-primary);
     width: calc(100% - 240px);
     height: 100%;
     padding: 20px 15px;
 }
 
 .l-exit-button {
-    color: #fff;
+    color: var(--text-knockout);
     font-size: 20px;
     height: 100%;
     outline: none;

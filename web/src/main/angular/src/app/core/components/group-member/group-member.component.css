@@ -1,16 +1,15 @@
 li {
-    color: #333;
-    /* height: 28px; */
+    color: var(--text-primary);
     margin: 0;
     cursor: pointer;
     padding: 12px 15px;
     font-size: 13px;    
 }
 li:hover {
-    background: var(--row-background-secondary);
+    background: var(--background-hover-secondary);
 }
 li.selected {
-    background: var(--row-background-secondary);
+    background: var(--background-hover-secondary);
 }
 .item-wrapper {
     display: block;
@@ -22,7 +21,7 @@ li.selected {
     float: right;
 }
 .item-wrapper .fa-trash-alt {
-    color: #b3b6bf;
+    color: var(--icon-default);
     font-size: 15px;
 }
 .item-wrapper .fa-check {

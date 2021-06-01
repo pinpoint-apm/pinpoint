@@ -1,15 +1,7 @@
 .l-wrapper {
     height: 100%;
     overflow-y: auto;
-    background-color: #FFF;
-}
-.l-title-group {
-    border-bottom: 1px solid #506078;
-    padding-right: 30px;
-    text-align: right;
-    font-size: 15px;
-    font-family: Verdana;
-    color: #cccccc;
+    background-color: var(--background-default);
 }
 .l-title-group > .title-text {
     z-index: 9999;
@@ -21,12 +13,12 @@
     font-size: 11px;
     font-family: Verdana;
     border-style: dashed !important;
-    border-bottom: 1px solid #D3D3D3;
-    text-shadow: 1px 1px 0 #eee, 1px -1px 0 #eee, -1px 1px 0 #eee, -1px -1px 0 #eee, 1px 0px 0 #eee, 0px 1px 0 #eee, -1px 0px 0 #eee, 0px -1px 0 #eee;
+    border-bottom: 1px solid var(--border-primary-darker);
+    text-shadow: 1px 1px 0 var(--text-shadow), 1px -1px 0 var(--text-shadow), -1px 1px 0 var(--text-shadow), -1px -1px 0 var(--text-shadow), 1px 0px 0 var(--text-shadow), 0px 1px 0 var(--text-shadow), -1px 0px 0 var(--text-shadow), 0px -1px 0 var(--text-shadow);
     text-align: left;
 }
 .l-timeline-bar > div {
-    color: #000;
+    color: var(--text-default);
     cursor: pointer;
     margin-top: 1px;
     padding-top: 2px;
@@ -51,7 +43,7 @@
     background-color: orange !important;
 }
 .clickable-bar .l-tooltip-text {
-    background-color: white;
+    background-color: var(--background-default);
     visibility: hidden;
     padding: 0 3px;
     position: absolute;

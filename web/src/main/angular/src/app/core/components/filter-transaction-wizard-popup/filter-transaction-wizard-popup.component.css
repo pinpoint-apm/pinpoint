@@ -9,19 +9,19 @@
     width: 752px;
     max-width: 1000px;
     height: 730px;
-    background-color: #fff;
-    border: 1px solid #e5e8f0;
+    background-color: var(--background-default);
+    border: 1px solid var(--border-primary);
     box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.75);
 }
 .l-title-group {
     padding: 17px 18px;
     height: auto;
-    background-color: #FFF;
-    border-bottom: 1px solid #E5E8F0;
+    background-color: var(--background-default);
+    border-bottom: 1px solid var(--border-primary);
     position: relative;
     font-size: 13px;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -48,11 +48,11 @@
 .l-table > div {
     display: flex;
     padding: 10px 15px;
-    border-bottom: 1px solid #E5E8F0;
-    border-right: 1px solid #E5E8F0;
+    border-bottom: 1px solid var(--border-primary);
+    border-right: 1px solid var(--border-primary);
 }
 .l-table .first-row {
-    border-top: 1px solid #E5E8F0;
+    border-top: 1px solid var(--border-primary);
 }
 .l-table .first-row img {
     margin-right: 8px;
@@ -66,7 +66,7 @@
 }
 .l-table .col1 {
     padding: 0;
-    border-left: 1px solid #E5E8F0;
+    border-left: 1px solid var(--border-primary);
 }
 .row-col-1-1 {
     grid-column: 1 / 2;
@@ -132,7 +132,7 @@
     justify-content: center;
     align-items: center;
     font-size: 13px;
-    background-color: #f6f8fb;
+    background-color: var(--table-header-background);
 }
 .ellipsis {
     display : block;
@@ -152,22 +152,22 @@
     font-size: 13px;
 }
 .l-application-list li.active {
-    color: #fff;
+    color: var(--text-knockout);
     font-weight: 600;
     background-color: var(--primary-color);
 }
 .l-application-list li:hover {
-    color: #000;
-    background-color: var(--row-background-secondary);
+    color: var(--text-default);
+    background-color: var(--background-hover-secondary);
 }
 .l-widget-group {
     padding: 0;
     width: 100%;
 }
 .l-widget-group input {
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-primary-darker);
     font-size: 13px;
-    color: #333;
+    color: var(--text-primary);
     padding: 6px 11px;
     width: 100%;
 }
@@ -178,8 +178,7 @@
 }
 .l-pattern-guide {
     margin-top: 6px;
-    border: 1px solid #e6e8ec;
-    background-color: #F6F8FB;
+    border: 1px solid var(--border-primary-lighter);
 }
 .l-pattern-guide tr td:first-child {
     padding:4px;
@@ -194,7 +193,7 @@
     border: none;
 }
 .l-pattern-guide tr:last-child {
-    border-top: 1px solid #e6e8ec;
+    border-top: 1px solid var(--border-primary-lighter);
 }
 .l-response-time {
     display: block !important;
@@ -225,13 +224,13 @@
 .l-transaction-result button {
     float: left;
     width: 33.3%;
-    border: 1px solid #E6E8EC;
+    border: 1px solid var(--border-primary-lighter);
     padding: 12px;
     font-size: 13px;
     font-weight: 600;
 }
 .l-transaction-result button.active {
-    color: #fff;
+    color: var(--text-knockout);
     background: var(--primary-color);
     border-color: transparent;
 }

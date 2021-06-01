@@ -19,9 +19,7 @@
 .l-main-section {
     display: flex;
     flex: 1;
-    /* background: #edf2f8; */
-    --background-color: #edf2f8;
-    background: var(--background-color);
+    background: var(--background-primary);
     position: relative;
     height: 100%;
     overflow: hidden;
@@ -32,7 +30,7 @@
     overflow: hidden;
 }
 .fa-question-circle {
-    color: white;
+    color: var(--text-knockout);
     font-size: 18px;
     margin-right: 15px;
 }
@@ -44,7 +42,7 @@ button {
 .l-concised-search-button {
     position: absolute;
     right: 0;
-    color: white;
+    color: var(--text-knockout);
     font-size: 18px;
     margin-right: 15px;
 

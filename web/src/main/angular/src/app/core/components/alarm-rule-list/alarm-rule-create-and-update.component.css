@@ -28,7 +28,6 @@ form {
 }
 
 .l-form-grid {
-    border: 1px solid #e5e8f0;
     display: grid;
     position: relative;
     grid-template-columns: 50% 50%;
@@ -52,12 +51,12 @@ form {
 .l-input, .l-select {
     width: 100%;
     border-radius: 4px;
-    background-color: #FFF;
+    background-color: var(--background-default);
     padding: 10px 14px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-primary-darker);
     font-size: 13px;
-    color: #333;
-    box-shadow: 0 0 1px 0 #ccc;
+    color: var(--text-primary);
+    box-shadow: 0 0 1px 0 var(--border-primary-darker);
     outline: 0;
 }
 
@@ -81,12 +80,12 @@ form {
     width: 100%;
     height: 120px;
     border-radius: 4px;
-    background-color: #FFF;
+    background-color: var(--background-default);
     padding: 10px 14px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-primary-darker);
     font-size: 13px;
-    color: #333;
-    box-shadow: 0 0 1px 0 #ccc;
+    color: var(--text-primary);
+    box-shadow: 0 0 1px 0 var(--border-primary-darker);
     outline: 0;
 }
 
@@ -105,7 +104,7 @@ form {
 }
 
 .l-form-label {
-    color: #333;
+    color: var(--text-primary);
     font-size: 13px;
     font-family: 'Open Sans', sans-serif;
     font-weight: 600;
@@ -133,6 +132,6 @@ form {
 
 .fa-question-circle {
     font-size: 14px;
-    color: #a8acb5;
+    color: var(--icon-default);
     margin-left: 5px;
 }

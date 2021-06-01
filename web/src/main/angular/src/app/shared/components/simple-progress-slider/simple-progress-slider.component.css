@@ -18,7 +18,7 @@
         width: 14px;
         height: 14px;
         border-radius: 50%;
-        background-color: #FFF;
+        background-color: var(--background-default);
         box-shadow: 1px 1px 3px 1px rgba(0,0,0,0.4);
     }
     .slider-for-progress .sfp-handle span {
@@ -43,10 +43,9 @@
         font-size: 10px;
     }
     .slider-for-progress .sfp-label span {
-        border: 1px solid #3e83c6;
         padding: 2px 4px 1px 4px;
         position: relative;
-        background-color: #FFF;
+        background-color: var(--background-default);
         box-shadow: 1px 1px 3px 1px rgba(0,0,0,0.4);
     }
     .slider-for-progress .sfp-label span:before, .slider-for-progress .sfp-label span:after {
@@ -75,7 +74,7 @@
     	border-left-color: var(--primary-color);
     }
     .slider-for-progress .sfp-label-right-arrow span:after {
-    	border-left-color: #ffffff;
+    	border-left-color: var(--border-knockout);
     }
     .slider-for-progress .sfp-label-left-arrow span:before, .slider-for-progress .sfp-label-left-arrow span:after {
         right: 100%;
@@ -84,7 +83,7 @@
     	border-right-color: var(--primary-color);
     }
     .slider-for-progress .sfp-label-left-arrow span:after {
-    	border-right-color: #ffffff;
+    	border-right-color: var(--border-knockout);
     }
 
     .slider-for-progress .sfp-label-right-arrow {
@@ -104,7 +103,7 @@
         left: 0px;
         width: 100%;
         height: 7px;
-        background-color: #c9def3;
+        background-color: var(--simple-progress-slider-bar-background);
     }
     .slider-for-progress .sfp-foreground {
         top: 0px;
@@ -115,7 +114,7 @@
     }
 
     .slider-for-progress .sfp-value {
-        color: #FFF;
+        color: var(--text-knockout);
         width: 100%;
         position: relative;
         font-size: 10px;

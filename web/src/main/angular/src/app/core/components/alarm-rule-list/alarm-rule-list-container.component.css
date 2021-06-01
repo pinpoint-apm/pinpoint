@@ -10,7 +10,7 @@
 }
 
 .l-alarm-rules-table th {
-    color: #333;
+    color: var(--text-primary);
     font-size: 13px;
     padding: 0 !important;
 }
@@ -28,6 +28,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 15px;
+    font-size: 14px;
 }
 
 .l-title-text {
@@ -45,16 +46,15 @@
     display: flex;
     height: 30px;
     position: relative;
-    font-weight: 600;
-    border-top: 1px solid #e6e8ec;
-    border-bottom: 1px solid #e6e8ec;
-    background: #f6f8fb;
+    font-weight: bold;
+    border-top: 1px solid var(--border-primary);
+    border-bottom: 1px solid var(--border-primary);
 }
 
 .l-alarm-rules-th div {
     height: 100%;
     line-height: 30px;
-    border-right: 1px solid #e6e8ec;
+    border-right: 1px solid var(--border-primary);
 }
 
 .l-alarm-rules-th div:nth-child(1) {

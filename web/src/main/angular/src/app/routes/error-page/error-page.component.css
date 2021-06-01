@@ -1,7 +1,7 @@
 .l-title {
     display: flex;
     flex: 1;
-    color: #FFF;
+    color: var(--text-knockout);
     font-size: 20px;
     align-items: center;
     padding-left: 20px;

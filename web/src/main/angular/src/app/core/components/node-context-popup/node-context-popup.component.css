@@ -8,7 +8,7 @@
     list-style-type: none;
 }
 .l-one-depth-list > li {
-    border-bottom: 1px solid #E5E5E5;
+    border-bottom: 1px solid var(--border-primary);
     padding: 10px;
 }
 .l-one-depth-list > li:last-of-type {
@@ -21,7 +21,7 @@ li.l-selectable-command {
     cursor: pointer;
 }
 li.l-selectable-command:hover {
-    background-color: var(--row-background-secondary);
+    background-color: var(--background-hover-secondary);
 }
 .l-two-depth-list {
     padding-top: 10px;

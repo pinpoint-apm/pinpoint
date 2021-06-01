@@ -4,7 +4,6 @@
     height: 100%;
 }
 #thread-dump-table .ag-root {
-    /* border: none; */
     font-size: 12px;    
     font-family: 'Open Sans', sans-serif;
 }
@@ -20,16 +19,15 @@
     filter: alpha(opacity=0);
 }
 #thread-dump-table .ag-header-cell-moving {
-    background-color: #bebebe;
+    background-color: var(--table-header-moving-background);
 }
 #thread-dump-table .ag-header-cell-moving-clone {
-    border-right: 1px solid #808080;
-    border-left: 1px solid #808080;
+    border-right: 1px solid var(--border-primary-darkest);
+    border-left: 1px solid var(--border-primary-darkest);
     background-color: rgba(220,220,220,0.8);
 }
 #thread-dump-table .ag-header {
-    background: #f6f8fb;
-    /* border-top: 1px solid #e6e8ec; */
+    background: var(--table-header-background);
     line-height: 2;
 }
 #thread-dump-table .ag-header-cell {
@@ -50,30 +48,29 @@
 }
 #thread-dump-table .ag-row:hover {
     cursor: pointer;
-    background-color: #F5F5F5;
+    background-color: var(--background-hover-default);
 }
 #thread-dump-table .ag-row {
     line-height: 2;
-    /* border-bottom: 1px solid #e6e8ec; */
 }
 #thread-dump-table .ag-body {
-    background-color: #ffffff;
+    background-color: var(--background-default);
 }
 #thread-dump-table .ag-body-viewport {
-    background-color: #ffffff;
+    background-color: var(--background-default);
 }
 #thread-dump-table .ag-menu {
-    background-color: #ffffff;
+    background-color: var(--background-default);
     border: 1px solid grey;
 }
 #thread-dump-table .fa {
     font-size: 14px;
 }
 #thread-dump-table .ag-row-exception {
-    background-color: var(--row-background-danger);
+    background-color: var(--background-row-danger);
 }
 #thread-dump-table .ag-row-selected {
-    background-color: var(--row-background-secondary);
+    background-color: var(--background-hover-secondary);
 }
 #thread-dump-table .order-header .ag-header-cell-label,
 #thread-dump-table .id-header .ag-header-cell-label {

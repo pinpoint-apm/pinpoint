@@ -6,7 +6,7 @@
     display: flex;
 }
 .l-current-time label {
-    color: #FFF;
+    color: var(--text-knockout);
     cursor: pointer;
     height: 100%;
     display: inline-block;
@@ -22,7 +22,7 @@
     display: inline-block;
     font-size: 13px;
     text-align: center;
-    background-color: #FFF;
+    background-color: var(--background-default);
     outline: 0;
 }
 .l-command-group {
