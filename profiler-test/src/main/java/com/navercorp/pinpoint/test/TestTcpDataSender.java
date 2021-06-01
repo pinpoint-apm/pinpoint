@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
 import com.navercorp.pinpoint.test.util.BiHashMap;
-import com.navercorp.pinpoint.test.util.MethodDesc;
 import com.navercorp.pinpoint.test.util.Pair;
 
 import java.io.PrintStream;
@@ -42,7 +41,7 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
 
     private final List<Object> datas = Collections.synchronizedList(new ArrayList<>());
 
-    private final BiHashMap<Integer, MethodDesc> apiIdMap = newBiHashMap();
+    private final BiHashMap<Integer, String> apiIdMap = newBiHashMap();
 
     private final BiHashMap<Integer, String> sqlIdMap = newBiHashMap();
 
@@ -72,7 +71,7 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
             ApiMetaData md = (ApiMetaData)data;
 
             int apiId = md.getApiId();
-            MethodDesc javaMethodDescriptor = toJavaMethodDescriptor(md);
+            String javaMethodDescriptor = toJavaMethodDescriptor(md);
 
             syncPut(this.apiIdMap, apiId, javaMethodDescriptor);
         } else if (data instanceof SqlMetaData) {
@@ -112,7 +111,7 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
         }
     }
 
-    private MethodDesc toJavaMethodDescriptor(ApiMetaData apiMetaData) {
+    private String toJavaMethodDescriptor(ApiMetaData apiMetaData) {
 //        1st method type check
 //        int type = apiMetaData.getType();
 //        if (type != MethodType.DEFAULT) {
@@ -124,9 +123,9 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
         if (apiInfo.indexOf('(') == -1) {
             // exceptional case
             // eg : async or internal tag api
-            return new MethodDesc(apiInfo, apiMetaData.getLine());
+            return apiInfo;
         }
-        return new MethodDesc(MethodDescriptionUtils.toJavaMethodDescriptor(apiInfo), apiMetaData.getLine());
+        return MethodDescriptionUtils.toJavaMethodDescriptor(apiInfo);
     }
 
     @Override
@@ -162,21 +161,12 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
         return false;
     }
 
-    public MethodDesc getApiDescription(int id) {
+    public String getApiDescription(int id) {
         return syncGet(apiIdMap, id);
     }
 
     public int getApiId(String description) {
-        final BiHashMap<Integer, MethodDesc> map = this.apiIdMap;
-        synchronized (map) {
-            for (Entry<Integer, MethodDesc> entry : map.entrySet()) {
-                MethodDesc methodDesc = entry.getValue();
-                if (methodDesc.getMethodDesc().equals(description)) {
-                    return entry.getKey();
-                }
-            }
-        }
-        throw new NoSuchElementException(description);
+        return findIdByValue(apiIdMap, description);
     }
 
     public String getString(int id) {
@@ -223,7 +213,7 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
     }
     
     public void printApis(PrintStream out) {
-        List<Pair<Integer, MethodDesc>> apis = syncCopy(apiIdMap);
+        List<Pair<Integer, String>> apis = syncCopy(apiIdMap);
         Collections.sort(apis, COMPARATOR);
         List<String> apiList = toStringList(apis);
         printEntries(out, apiList);
