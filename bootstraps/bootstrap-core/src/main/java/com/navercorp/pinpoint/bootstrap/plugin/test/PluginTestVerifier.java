@@ -34,8 +34,12 @@ public interface PluginTestVerifier {
     void verifyTrace(ExpectedTrace... expectations);
     void verifyDiscreteTrace(ExpectedTrace... expectations);
     void ignoreServiceType(String... serviceTypes);
+
     void printCache(PrintStream out);
     void printCache();
+
+    void printMethod();
+
     void initialize(boolean initializeTraceObject);
     void cleanUp(boolean detachTraceObject);
     void verifyIsLoggingTransactionInfo(LoggingInfo loggingInfo);
