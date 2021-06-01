@@ -827,6 +827,11 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
     }
 
     @Override
+    public void printMethod() {
+        this.handler.printMethod(System.out);
+    }
+
+    @Override
     public void printCache(PrintStream out) {
         this.handler.getOrderedSpanRecorder().print(out);
         this.handler.getTcpDataSender().printDatas(out);

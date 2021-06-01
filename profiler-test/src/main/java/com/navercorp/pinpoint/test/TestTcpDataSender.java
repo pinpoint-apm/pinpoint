@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
 import com.navercorp.pinpoint.test.util.BiHashMap;
+import com.navercorp.pinpoint.test.util.MethodDesc;
 import com.navercorp.pinpoint.test.util.Pair;
 
 import java.io.PrintStream;
@@ -41,15 +42,15 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
 
     private final List<Object> datas = Collections.synchronizedList(new ArrayList<>());
 
-    private final BiHashMap<Integer, String> apiIdMap = newBiHashMap();
+    private final BiHashMap<Integer, MethodDesc> apiIdMap = newBiHashMap();
 
     private final BiHashMap<Integer, String> sqlIdMap = newBiHashMap();
 
     private final BiHashMap<Integer, String> stringIdMap = newBiHashMap();
 
-    private static final Comparator<Pair<Integer, String>> COMPARATOR = new Comparator<Pair<Integer, String>>() {
+    private static final Comparator<Pair<Integer, ?>> COMPARATOR = new Comparator<Pair<Integer, ?>>() {
         @Override
-        public int compare(Pair<Integer, String> o1, Pair<Integer, String> o2) {
+        public int compare(Pair<Integer, ?> o1, Pair<Integer, ?> o2) {
             final int key1 = o1.getKey();
             final int key2 = o2.getKey();
             return Integer.compare(key1, key2);
@@ -71,7 +72,7 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
             ApiMetaData md = (ApiMetaData)data;
 
             int apiId = md.getApiId();
-            String javaMethodDescriptor = toJavaMethodDescriptor(md);
+            MethodDesc javaMethodDescriptor = toJavaMethodDescriptor(md);
 
             syncPut(this.apiIdMap, apiId, javaMethodDescriptor);
         } else if (data instanceof SqlMetaData) {
@@ -105,7 +106,13 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
         }
     }
 
-    private String toJavaMethodDescriptor(ApiMetaData apiMetaData) {
+    private <K, V> int syncSize(BiHashMap<K, V> map) {
+        synchronized (map) {
+            return map.size();
+        }
+    }
+
+    private MethodDesc toJavaMethodDescriptor(ApiMetaData apiMetaData) {
 //        1st method type check
 //        int type = apiMetaData.getType();
 //        if (type != MethodType.DEFAULT) {
@@ -117,9 +124,9 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
         if (apiInfo.indexOf('(') == -1) {
             // exceptional case
             // eg : async or internal tag api
-            return apiInfo;
+            return new MethodDesc(apiInfo, apiMetaData.getLine());
         }
-        return MethodDescriptionUtils.toJavaMethodDescriptor(apiInfo);
+        return new MethodDesc(MethodDescriptionUtils.toJavaMethodDescriptor(apiInfo), apiMetaData.getLine());
     }
 
     @Override
@@ -155,12 +162,21 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
         return false;
     }
 
-    public String getApiDescription(int id) {
+    public MethodDesc getApiDescription(int id) {
         return syncGet(apiIdMap, id);
     }
 
     public int getApiId(String description) {
-        return findIdByValue(apiIdMap, description);
+        final BiHashMap<Integer, MethodDesc> map = this.apiIdMap;
+        synchronized (map) {
+            for (Entry<Integer, MethodDesc> entry : map.entrySet()) {
+                MethodDesc methodDesc = entry.getValue();
+                if (methodDesc.getMethodDesc().equals(description)) {
+                    return entry.getKey();
+                }
+            }
+        }
+        throw new NoSuchElementException(description);
     }
 
     public String getString(int id) {
@@ -198,27 +214,45 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
     }
 
     public void printDatas(PrintStream out) {
-        out.println("API(" + apiIdMap.size() + "):");
+        out.println("API(" + syncSize(apiIdMap) + "):");
         printApis(out);
-        out.println("SQL(" + sqlIdMap.size() + "):");
+        out.println("SQL(" + syncSize(sqlIdMap) + "):");
         printSqls(out);
-        out.println("STRING(" + stringIdMap.size() + "):");
+        out.println("STRING(" + syncSize(stringIdMap) + "):");
         printStrings(out);
     }
     
     public void printApis(PrintStream out) {
-        List<Pair<Integer, String>> apis = syncCopy(apiIdMap);
-        printEntries(out, apis);
+        List<Pair<Integer, MethodDesc>> apis = syncCopy(apiIdMap);
+        Collections.sort(apis, COMPARATOR);
+        List<String> apiList = toStringList(apis);
+        printEntries(out, apiList);
     }
     
     public void printStrings(PrintStream out) {
         List<Pair<Integer, String>> strings = syncCopy(stringIdMap);
-        printEntries(out, strings);
+        Collections.sort(strings, COMPARATOR);
+        List<String> strList = toStringList(strings);
+        printEntries(out, strList);
     }
 
     public void printSqls(PrintStream out) {
         List<Pair<Integer, String>> sqls = syncCopy(sqlIdMap);
-        printEntries(out, sqls);
+        Collections.sort(sqls, COMPARATOR);
+        List<String> sqlList = toStringList(sqls);
+        printEntries(out, sqlList);
+    }
+
+    private <K, V> List<String> toStringList(List<Pair<K, V>> list) {
+        List<String> result = new ArrayList<>(list.size());
+        for (Pair<K, V> pair : list) {
+            result.add(toStringPair(pair));
+        }
+        return result;
+    }
+
+    public <K, V> String toStringPair(Pair<K, V> input) {
+        return input.getKey() + ":" + input.getValue();
     }
 
     private <K, V> List<Pair<K, V>> syncCopy(BiHashMap<K, V> map) {
@@ -231,10 +265,10 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
         }
     }
 
-    private void printEntries(PrintStream out, List<Pair<Integer, String>> entries) {
-        Collections.sort(entries, COMPARATOR);
-        for (Pair<Integer, String> e : entries) {
-            out.println(e.getKey() + ": " + e.getValue());
+
+    private void printEntries(PrintStream out, List<String> list) {
+        for (String str : list) {
+            out.println(str);
         }
     }
     
