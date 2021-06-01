@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.test.util.MethodDesc;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -94,14 +93,15 @@ public class ApplicationContextHandler {
 
 
     public void printMethod(PrintStream out) {
-        List<MethodDesc> methodDescriptor = getMethodDescriptor();
-        for (MethodDesc method : methodDescriptor) {
-            out.println(method.getMethodDesc() + ":" + method.getLineNumber());
+        List<String> methodDescriptor = getMethodDescriptor();
+        out.println("Method(" + methodDescriptor.size() + ")");
+        for (String method : methodDescriptor) {
+            out.println(method);
         }
     }
 
-    public List<MethodDesc> getMethodDescriptor() {
-        List<MethodDesc> list = new ArrayList<>();
+    public List<String> getMethodDescriptor() {
+        List<String> list = new ArrayList<>();
         for (Object item : orderedSpanRecorder) {
             if (item instanceof Span) {
                 Span span = (Span) item;
@@ -116,10 +116,10 @@ public class ApplicationContextHandler {
         return list;
     }
 
-    private void addApiDescription(List<MethodDesc> list, List<SpanEvent> spanEventList) {
+    private void addApiDescription(List<String> list, List<SpanEvent> spanEventList) {
         for (SpanEvent spanEvent : spanEventList) {
             int apiId = spanEvent.getApiId();
-            MethodDesc apiDescription = this.tcpDataSender.getApiDescription(apiId);
+            String apiDescription = this.tcpDataSender.getApiDescription(apiId);
             list.add(apiDescription);
         }
     }
