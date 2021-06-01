@@ -104,19 +104,19 @@ public class HeatMapController {
 
     public static class PagingStatus {
         private final boolean complete;
-        private final long resultTo;
+        private final long resultFrom;
 
-        public PagingStatus(boolean complete, long resultTo) {
+        public PagingStatus(boolean complete, long resultFrom) {
             this.complete = complete;
-            this.resultTo = resultTo;
+            this.resultFrom = resultFrom;
         }
 
         public boolean getComplete() {
             return complete;
         }
 
-        public long getResultTo() {
-            return resultTo;
+        public long getResultFrom() {
+            return resultFrom;
         }
     }
 
