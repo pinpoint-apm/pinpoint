@@ -58,7 +58,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8) // 1.6.2+ works with Java 6, but since the IT includes 1.6.0 and 1.6.1 just run on Java 7
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-mariadb-jdbc-driver-plugin")
-@Dependency({ "org.mariadb.jdbc:mariadb-java-client:[1.6.0,1.8.0)", "ch.vorburger.mariaDB4j:mariaDB4j:2.2.2",
+@Dependency({ "org.mariadb.jdbc:mariadb-java-client:[1.6.0,1.8.0)",
         JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MARIADB})
 public class MariaDB_1_6_x_to_1_8_0_IT extends MariaDB_IT_Base {
 

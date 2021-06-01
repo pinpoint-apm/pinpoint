@@ -44,7 +44,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-mariadb-jdbc-driver-plugin")
-@Dependency({"org.mariadb.jdbc:mariadb-java-client:[1.3.0,1.3.max]", "ch.vorburger.mariaDB4j:mariaDB4j:2.2.2",
+@Dependency({"org.mariadb.jdbc:mariadb-java-client:[1.3.0,1.3.max]",
         JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MARIADB})
 public class MariaDB_1_3_x_IT extends MariaDB_IT_Base {
 
