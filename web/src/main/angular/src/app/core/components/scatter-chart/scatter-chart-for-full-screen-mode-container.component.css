@@ -13,7 +13,7 @@
     opacity: 0.8;
     z-index: 490;
     position: absolute;
-    background: #FFF;
+    background: var(--background-default);
 }
 .l-popup-block-message {
     top: 0px;

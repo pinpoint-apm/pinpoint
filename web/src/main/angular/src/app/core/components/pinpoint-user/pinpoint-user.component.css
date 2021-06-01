@@ -3,13 +3,13 @@
     align-items: center;
     width: 100%;
     margin: 0;
-    color: #333;
+    color: var(--text-primary);
     padding: 12px 15px;
     font-size: 13px;    
 }
 
 :host:hover {
-    background:var(--row-background-secondary);
+    background: var(--background-hover-secondary);
 }
 
 :host.selected {
@@ -26,12 +26,12 @@
 }
 
 .fa-edit {
-    color: #666;
+    color: var(--text-primary-lightest);
     font-size: 14px;
 }
 
 .fa-trash-alt {
-    color: #b3b6bf;
+    color: var(--icon-default);
     font-size: 15px;
     margin-left: 4px;
 }

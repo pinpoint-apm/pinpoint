@@ -4,8 +4,8 @@
     width: 100%;
     min-width: 500px;
     max-width: 1000px;
-    background-color: #fff;
-    border: 1px solid #e5e8f0;
+    background-color: var(--background-default);
+    border: 1px solid var(--border-primary);
     box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.75);
     text-align: left;
     max-height: calc(100% - 40px);
@@ -21,12 +21,12 @@
 .l-title-group {
     padding: 17px 18px;
     height: 62px;
-    background-color: #fff;
-    border-bottom: 1px solid #e5e8f0;
+    background-color: var(--background-default);
+    border-bottom: 1px solid var(--border-primary);
     position: relative;
     font-size: 13px;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -48,7 +48,7 @@
     background:url(../../../../assets/img/icon-close.png) no-repeat 0 0;
 }
 .l-contents-group {
-    background: #f6f8fb;
+    background: var(--background-primary);
     padding: 17px 18px;
     overflow: auto;
     height: calc(100% - 62px);
@@ -62,14 +62,14 @@
 .l-sql-list dt {
     font-size: 13px;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
     margin: 0 0 12px;
 }
 .l-sql-list dd {
-    border: 1px solid #cfd7e1;
-    background: #fff;
+    border: 1px solid var(--border-primary);
+    background: var(--background-default);
     font-size: 13px;
-    color: #999;
+    color: var(--text-secondary);
     line-height: 2em;
     position: relative;
 }
@@ -93,11 +93,11 @@ pre {
 
 .fa-clone {
     font-size: 20px;
-    color: #ccc;
+    color: var(--icon-default);
 }
 
 .fa-clone:hover {
-    color: #979797;
+    color: var(--icon-hover);
 }
 
 .copied-noti-text-wrapper {
@@ -114,6 +114,4 @@ pre {
 
 .copied-noti-text {
     font-size: 15px;
-    /* font-weight: 600; */
-    /* color: #fff; */
 }

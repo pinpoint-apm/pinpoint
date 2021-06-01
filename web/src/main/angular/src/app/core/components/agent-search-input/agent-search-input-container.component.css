@@ -1,11 +1,10 @@
 :host {
     display: block;
-    height: 38px;
+    height: 48px;
 }
 .l-container-wrapper {
     display: flex;
     flex-flow: row wrap;
-    background: #F5F5F5;
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
@@ -13,24 +12,24 @@
     -ms-flex-pack: center;
     width: 100%;
     height: 100%;
-    padding: 4px 4px 4px 11px;
+    padding: 10px 4px 8px 11px;
 }
 .l-container-wrapper button {
-    color: #a8acb5;
+    color: var(--icon-default);
     font-size: 18px;
 }
 .l-wrapper {
     width: 205px;
     height: 100%;
-    color: #b3b3b4;
+    color: var(--text-primary-lightest);
     position: relative;
     margin-right: 7px;
 }
 .l-wrapper input {
     width: 100%;
     height: 100%;
-    border: 1px solid #d7dde4;
-    background-color: #fff;
+    border: 1px solid var(--from-input-border);
+    background-color: var(--background-default);
     padding: 0 28px 0 10px;
     text-overflow: ellipsis;
     white-space: nowrap;

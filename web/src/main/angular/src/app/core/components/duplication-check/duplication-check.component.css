@@ -11,7 +11,7 @@
 }
 
 input {
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-primary-darker);
     border-radius: 4px;
     padding: 9px 14px;
     font-size: 13px;
@@ -57,7 +57,7 @@ input.l-fail-input:focus {
 }
 
 .l-check-button {
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-primary-darker);
     border-radius: 4px;
     padding: 9px;
     font-size: 13px;
@@ -66,7 +66,7 @@ input.l-fail-input:focus {
 }
 
 .l-check-button:hover {
-    background-color: #e5e8f0;
+    background-color: var(--background-hover-default);
 }
 
 .l-check-button:focus {

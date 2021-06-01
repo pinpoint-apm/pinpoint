@@ -18,7 +18,7 @@ button {
     font-size: 13px;
     text-align: left;
     align-items: center;
-    background-color: #fff;
+    background-color: var(--background-default);
 }
 .l-dropdown-button .fa-angle-down {
     font-size: 15px;
@@ -31,10 +31,10 @@ button {
     display: inline-block;
     font-size: 14px;
     margin-left: 11px;
-    color: #333;
+    color: var(--text-primary);
 }
 .l-bound-double-text {
-    color: #DDD;
+    color: var(--text-secondary-lightest);
     font-size: 8px;
     text-align: center;
     font-weight: 600;
@@ -51,12 +51,12 @@ button {
     display: flex;
     flex-wrap: wrap;
     border: 1px solid var(--dark-primary-color);
-    background-color: #fff;
+    background-color: var(--background-default);
     width: 180px;
 }
 
 .l-inbound-list {
-    border-right: 1px solid #e5e8f0;
+    border-right: 1px solid var(--border-primary);
 }
 
 .l-inbound-list, .l-outbound-list {
@@ -65,33 +65,32 @@ button {
 }
 
 .l-bound-list-item {
-    font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
     font-size: 13px;
     padding: 5px 10px;
     cursor: pointer;
 }
 
 .l-bound-title {
-    padding: 5px 10px;
-    color: #333;
-    background-color: #edf2f8;
+    padding: 5px 5px;
+    color: var(--text-primary);
     font-weight: 600 !important;
     font-size: 12px;
-    border-bottom: 1px solid #e5e8f0;
+    border-bottom: 1px solid var(--border-primary);
 }
-.l-bidirectional-title {
-    letter-spacing: -0.5px;
+.l-last-title {
+    border-top: 1px solid var(--border-primary);
 }
 
 .l-bound-list-item:hover {
     color: var(--primary-color);
-    background-color: #edf2f8;
+    background-color: var(--background-hover-primary);
 }
 
 .l-bound-list-item.active {
+    font-weight: 600;
     color: var(--primary-color);
-    background-color: #edf2f8;
+    background-color: var(--background-focus-primary);
 }
 .l-bidirectional-selector {
     text-align: center;
@@ -101,7 +100,7 @@ button {
 }
 .l-was-only-selector {
     text-align: center;
-    color: #DDD;
+    color: var(--text-secondary-lightest);
     margin: 12px 10px 10px 10px;
     font-size: 20px;
     cursor:pointer;
@@ -112,7 +111,7 @@ button {
 
 .l-button-group-wrapper {
     width: 100%;
-    border-top: 1px solid #e5e8f0;
+    border-top: 1px solid var(--border-primary);
     padding: 2px;
     text-align: right;
 }
@@ -120,7 +119,7 @@ button {
     font-size: 12px !important;
     background-color: var(--primary-color);
     margin-left: 2px;
-    color: #fff;
+    color: var(--text-knockout);
 }
 
 .l-cancel-button {

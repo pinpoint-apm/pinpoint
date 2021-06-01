@@ -1,7 +1,7 @@
 .l-wrapper {
     height: 100%;
     overflow-y: auto;
-    background-color: #FFF;
+    background-color: var(--background-default);
 }
 .l-timeline-bar {
     width: 100%;
@@ -9,11 +9,11 @@
     font-size: 11px;
     font-family: Verdana;
     border-style: dashed !important;
-    border-bottom: 1px solid #D3D3D3;
-    text-shadow: 1px 1px 0 #eee, 1px -1px 0 #eee, -1px 1px 0 #eee, -1px -1px 0 #eee, 1px 0px 0 #eee, 0px 1px 0 #eee, -1px 0px 0 #eee, 0px -1px 0 #eee;
+    border-bottom: 1px solid var(--border-primary-darker);
+    text-shadow: 1px 1px 0 var(--text-shadow), 1px -1px 0 var(--text-shadow), -1px 1px 0 var(--text-shadow), -1px -1px 0 var(--text-shadow), 1px 0px 0 var(--text-shadow), 0px 1px 0 var(--text-shadow), -1px 0px 0 var(--text-shadow), 0px -1px 0 var(--text-shadow);
 }
 .l-timeline-bar > div {
-    color: #000;
+    color: var(--text-default);
     cursor: pointer;
     margin-top: 1px;
     padding-top: 2px;

@@ -5,7 +5,7 @@
     width: 100%;
 }
 .l-thread-chart-wrap {
-    background: #d3dbe6;
+    background: var(--background-secondary);
     position: absolute;
     bottom: 0;
     left: 0;
@@ -14,21 +14,21 @@
 .l-title-group {
     display: flex;
     flex-flow: row wrap;
-    color: #566370;
+    color: var(--text-primary-lightest);
     font-size: 14px;
     font-weight: 600;
     height: 34px;
     padding: 0 10px 0 25px;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid #bdc7d5;
-    border-bottom: 1px solid #bdc7d5;
+    border-top: 1px solid var(--border-primary-darker);
+    border-bottom: 1px solid var(--border-primary-darker);
     cursor: ns-resize;
-    background: #f6f8fb;
+    background: var(--background-default);
 }
 .l-title-group .fas {
     font-size: 18px;
-    color: #a8acb5;
+    color: var(--icon-default);
     cursor: pointer;
 }
 .l-title-group .l-title .fas {
@@ -39,7 +39,7 @@
     flex: 1;
 }
 .l-title-group .l-tool-box {
-    color: #8F9CAF;
+    color: var(--icon-default);
 }
 .l-tool-box button {
     margin-left: 10px;
@@ -79,14 +79,14 @@
 }
 .l-message h4 span {
     padding: 8px 40px 6px 40px;
-    background-color: #FFF;
+    background-color: var(--background-default);
 }
 .l-retry button span {
     margin-right: 6px;
 }
 .l-message.l-no-data h4 span {
-    background-color: #000;
-    color: #FFF;
+    background-color: var(--background-knockout);
+    color: var(--text-knockout);
 }
 .fa-chart-area {
     margin-right: 2px;

@@ -19,6 +19,6 @@
     position:relative;
 }
 .l-middle-tool-box, .l-middle-tool-box-tip {
-    color:#a8acb5;
+    color:var(--icon-default);
     font-size: 18px
 }

@@ -3,7 +3,7 @@
 }
 
 .l-layout-option-button {
-    color: #495057;
+    color: var(--icon-default-darker);
     padding: 8px;
     outline: none;
 }

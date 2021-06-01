@@ -11,18 +11,7 @@ import { TransactionMetaDataService } from 'app/core/components/transaction-tabl
             <span>{{message$ | async}}</span>
         </div>
     `,
-    styles: [`
-        div {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            font-size: 20px;
-            font-weight: 600;
-            align-items: center;
-            justify-content: center;
-            background-color: rgba(30, 87, 153, 0.3);
-        }
-    `]
+    styleUrls: ['./transaction-list-empty.component.css'],
 })
 export class TransactionListEmptyComponent implements OnInit {
     message$: Observable<string>;

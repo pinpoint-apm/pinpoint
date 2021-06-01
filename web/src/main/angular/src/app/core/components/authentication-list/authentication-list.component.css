@@ -6,7 +6,7 @@
     position:relative;
 }
 .authentication-rules-btn-group {
-    color: #b3b6bf;
+    color: var(--icon-default);
     font-size: 13px;
     align-items: center;
     justify-content: flex-end;

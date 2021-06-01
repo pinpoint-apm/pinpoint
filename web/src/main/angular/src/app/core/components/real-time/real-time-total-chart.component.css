@@ -13,11 +13,11 @@
 }
 .l-legend li {
     margin: 8px 0 0;
-    color: #666;
+    color: var(--text-primary-lightest);
 }
 .l-legend li:first-child {
     margin: 0;
-    color: #010101;
+    color: var(--text-primary);
     font-weight: 600;
 }
 .l-legend li span {
@@ -33,14 +33,14 @@
     width: 21px;
     height: 11px;
     line-height: 11px;
-    color: #fff;
+    color: var(--text-knockout);
     border-radius: 10px;
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 .l-legend li:nth-child(1) .l-circle {
-    background:#a8acb5
+    background:var(--icon-default);
 }
 .l-legend li:nth-child(2) .l-circle {
     background: var(--chart-slow);

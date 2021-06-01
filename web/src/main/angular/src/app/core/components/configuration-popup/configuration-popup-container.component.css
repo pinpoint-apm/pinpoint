@@ -9,7 +9,7 @@
     height: 0;
     position: absolute;
     bottom: 100%;
-    border-bottom: 7px solid #fff;
+    border-bottom: 7px solid var(--border-knockout);
     border-left: 7px solid transparent;
     border-right: 7px solid transparent;
 }

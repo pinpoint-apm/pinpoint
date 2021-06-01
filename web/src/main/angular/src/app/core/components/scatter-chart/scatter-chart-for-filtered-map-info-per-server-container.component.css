@@ -14,7 +14,7 @@
     content: '';
     width: 100%;
     height: 100%;
-    background: #FFF;
+    background: var(--background-default);
     opacity: 0.8;
 }
 .l-popup-block-message {

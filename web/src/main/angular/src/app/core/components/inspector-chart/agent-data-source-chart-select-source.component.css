@@ -2,7 +2,7 @@
     display: block;
 }
 .l-source-select-button {
-    color: #a8acb5;
+    color: var(--icon-default);
     font-size: 15px;
 }
 .l-source-select-modal {
@@ -15,7 +15,7 @@
     width: 100%;
     z-index: 1000;
     padding: 15px;
-    background-color: #fff;
+    background-color: var(--background-default);
     font-weight: 400;
 }
 .l-source-select-modal::after {
@@ -23,7 +23,7 @@
     width: 0;
     height: 0;
     position: absolute;
-    border-bottom: 7px solid #fff;
+    border-bottom: 7px solid var(--border-knockout);
     border-right: 7px solid transparent;
     border-left: 7px solid transparent;
     bottom: 100%;
@@ -31,13 +31,13 @@
 }
 .l-select-all-button {
     width: 80px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-primary-darker);
     border-radius: 3px;
     padding: 5px;
 }
 .l-source-data-list {
     margin-top: 10px;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid var(--border-primary);
     padding: 10px 0;
 }
 .l-source-data-list-item {

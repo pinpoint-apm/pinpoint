@@ -8,9 +8,9 @@
 .l-search-input {
     width: 100%;
     height: 100%;
-    border: 1px solid #d7dde4;
+    border: 1px solid var(--from-input-border);
     padding: 0 28px 0 10px;
-    background-color: #fff;
+    background-color: var(--background-default);
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -27,11 +27,14 @@
     top: 50%;
     right: 8px;
     transform: translateY(-50%);
-    color:#a8acb5;
+    color:var(--icon-default);
     font-size:18px;
 }
 
 .l-search-list {
+    padding: 5px 0;
+    background: var(--background-default);
+    box-shadow: 0 6px 12px rgb(0 0 0 / 18%);
     position: absolute;
     top: 35px;
     right: 0px;
@@ -39,24 +42,23 @@
 }
 
 .l-list-title {
-    background-color: #3e506b;
-    border-bottom: 1px solid #D0D7DF;
+    font-weight: 600;
     padding: 5px 0px 5px 10px;
-    color: #FFF; 
+    color: var(--text-primary-lightest);
 }
 
 .l-close-button {
     position: absolute;
     top: 14px;
     right: 10px;
-    color: white;
+    color: var(--text-secondary);
     font-size: 16px;
     transform: translateY(-50%);
 }
 
 .l-list-contents {
     width: 100%;
-    color:#8a939e;
+    color: var(--text-secondary);
     padding: 7px 7px 7px 10px;
     font-size:12px;
     white-space: nowrap;
@@ -66,21 +68,20 @@
 
 .l-list-contents-wrapper {
     width: 100%;
-    background: #f8fafc;
     max-height: 470px;
     overflow-y: auto;
 }
 
 .l-empty-contents {
     width: 100%;
-    color:#8a939e;
+    color: var(--text-secondary);
     padding: 7px 7px 7px 10px;
     font-size:12px;
 }
 
 .l-list-contents:hover {
     cursor: pointer;
-    background-color: #eee;
+    background-color: var(--background-hover-default);
     color: var(--primary-color) !important;
 }
 

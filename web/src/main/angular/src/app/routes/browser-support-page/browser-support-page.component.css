@@ -1,7 +1,7 @@
 :host {
     display: block;
     height: 100%;
-    background-color: #edf2f8;
+    background-color: var(--background-primary);
 }
 
 .l-support-page-logo {
@@ -14,7 +14,7 @@
     text-align: center;
     margin-bottom: 40px;
     font-size: 17px;
-    color: #757575;
+    color: var(--text-primary-lightest);
 }
 
 .l-support-page-contents {
@@ -28,14 +28,14 @@
 }
 
 .l-browser-list-item {
-    background-color: #fff;
+    background-color: var(--background-default);
     border-radius: 5px;
-    border: 1px solid #e5e8f0;
+    border: 1px solid var(--border-primary);
     margin-bottom: 3px;
 }
 
 .l-browser-list-item:hover {
-    background-color: #e5e8f0;
+    background-color: var(--background-primary);
 }
 
 .l-browser-link {
@@ -56,5 +56,5 @@
     vertical-align: middle;
     margin-left: 13px;
     font-size: 17p;
-    color: #757575;
+    color: var(--text-primary-lightest);
 }

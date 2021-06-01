@@ -1,5 +1,4 @@
 :root {
-    --header-background-color: var(--primary-color);
 }
 
 body {
@@ -25,6 +24,12 @@ body {
     --emerald-green-700: #007850;
     --emerald-green-800: #006843;
     --emerald-green-900: #004c29;
+    /* green */
+    --grean-default: #41c464;
+    /* yellow */
+    --yellow-default: #ffff00;
+    /* purple */
+    --purple-default: #660099;
     /* red */
     --red-50: #ffeaed;
     --red-100: #fecacf;
@@ -47,29 +52,75 @@ body {
     --orange-700: #f97c01;
     --orange-800: #f36c01;
     --orange-900: #ea5001;
-    /* green */
-    --grean-default: #41c464;
+    /* grey */
+    --grey-50: #f7f7f7;
+    --grey-100: #eeeeee;
+    --grey-200: #e3e3e3;
+    --grey-300: #d1d1d1;
+    --grey-400: #acacac;
+    --grey-500: #8b8b8b;
+    --grey-600: #515151;
+    --grey-700: #515151;
+    --grey-800: #333333;
+    --grey-900: #131313;
+    /* blue-grey */
+    --blue-grey-50: #f8fcff;
+    --blue-grey-100: #f3f7ff;
+    --blue-grey-200: #eef2fc;
+    --blue-grey-300: #e7ebf5;
+    --blue-grey-400: #c6cad3;
+    --blue-grey-500: #a8acb5;
+    --blue-grey-600: #7e828a;
+    --blue-grey-700: #696d75;
+    --blue-grey-800: #4a4d55;
+    --blue-grey-900: #282b32;
+    /* navy */
+    --navy-50: #e7edff;
+    --navy-100: #c7d5ed;
+    --navy-200: #aab8d4;
+    --navy-300: #8b9cbc;
+    --navy-400: #7587a9;
+    --navy-500: #5e7297;
+    --navy-600: #506486;
+    --navy-700: #3f516f;
+    --navy-800: #303f59;
+    --navy-900: #1d2b41;
     /* black & white */
     --black-default: #000000;
     --white-default: #FFFFFF;
     /********************************/
-    /***** variables *******/
+    /********** variables ***********/
     /********************************/
     --primary: var(--blue-500);
     --secondary: var(--emerald-green-300);
     --secondary-lighter: var(--emerald-green-100);
+
     --status-success: var(--grean-default);
     --status-warn: var(--orange-600);
     --status-fail: var(--red-400);
-    --status-fail-lighter: var(--red-300);
-    --status-danger: var(--red-900);
     --status-danger: var(--red-900);
     --status-danger-lighter: var(--red-500);
 
-    --background-primary: var(--white-default);
-    /* --background-secondary:  */
+    --background-default: var(--white-default);
+    --background-primary: var(--grey-50);
+    --background-primary-darker: var(--grey-100);
     --background-danger: var(--red-50);
+    --background-row-danger: var(--red-50);
+    --background-secondary: var(--blue-grey-300);
+    --background-hover-primary: var(--blue-50);
+    --background-focus-primary: var(--blue-50);
+    --background-hover-secondary: var(--emerald-green-50);
+    --background-hover-default: var(--grey-100);
+    --background-knockout: var(--black-default);
+    --background-disable: var(--grey-300);
     
+    --border-knockout: var(--white-default);
+    --border-default: var(--black-default);
+    --border-primary: var(--grey-200);
+    --border-primary-lighter: var(--grey-100);
+    --border-primary-darker: var(--grey-300);
+    --border-primary-darkest: var(--grey500);
+
     --chart-success: var(--emerald-green-300); 
     --chart-fail: var(--red-400);
     --chart-1s: var(--emerald-green-300);
@@ -77,13 +128,38 @@ body {
     --chart-5s: var(--orange-500);
     --chart-slow: var(--orange-800);
 
+    --icon-hover: var(--blue-grey-600);
+    --icon-default: var(--blue-grey-500);
+    --icon-default-darker: var(--blue-grey-600);
+    --icon-default-lighter: var(--blue-grey-400);
+    --icon-disable: var(--blue-grey-300);
+
+    --table-header-background: var(--blue-grey-50);
+    --table-header-moving-background: var(--blue-grey-400);
+
+    --text-default: var(--black-default);
+    --text-primary: var(--grey-800);
+    --text-primary-lighter: var(--grey-700);
+    --text-primary-lightest: var(--grey-600);
+    --text-secondary: var(--grey-500);
+    --text-secondary-lighter: var(--grey-400);
+    --text-secondary-lightest: var(--grey-300);
+    --text-knockout: var(--white-default);
+    --text-shadow: var(--grey-100);
+
     --form-require: var(--red-900);
     --form-link: var(--blue-700);
+    --form-link-visited: var(--purple-default);
+    --from-input-border: var(--grey-200);
     
     --header-background: var(--blue-500);
     --header-background-lighter: var(--blue-300);
 
-    --row-background-primary: var(--blue-50);
-    --row-background-secondary: var(--emerald-green-50);
-    --row-background-danger: var(--red-50);
+    --period-select-background: var(--navy-800);
+    --period-select-box-shadow: var(--navy-900);
+    --period-select-box-border: var(--navy-900);
+    --period-select-box-border-lighter: var(--navy-700);
+
+    --transaction-short-info-background: var(--navy-700);
+    --simple-progress-slider-bar-background: var(--blue-100);
 }

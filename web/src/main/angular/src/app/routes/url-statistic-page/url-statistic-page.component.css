@@ -1,7 +1,7 @@
 :host {
     display: block;
     height: 100%;
-    background-color: #edf2f8;
+    background-color: var(--background-primary);
 }
 
 .l-main-container {

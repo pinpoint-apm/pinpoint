@@ -6,12 +6,12 @@
 .l-chart-list-item {
     font-size: 13px;
     padding: 12px 12px 12px 12px;
-    color: #666 !important;
+    color: var(--text-primary-lightest) !important;
     font-weight: 400 !important;
 }
 
 .l-chart-list-item:hover {
-    background-color: var(--row-background-secondary);
+    background-color: var(--background-hover-secondary);
 }
 .l-chart-name {
     display: block;
@@ -30,12 +30,12 @@
     font-size: 18px;
 }
 .l-button-disable {
-    color: #BBB !important;
+    color: var(--icon-disable) !important;
     cursor: default;
 }
 
 .l-empty-text {
-    color: #333;
+    color: var(--text-primary);
     font-size: 16px;
     margin-top: 50px;
     text-align: center;
