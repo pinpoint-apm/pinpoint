@@ -15,6 +15,7 @@
 package com.navercorp.pinpoint.bootstrap.plugin.test;
 
 import java.lang.reflect.Member;
+import java.util.Objects;
 
 /**
  * @author Jongho Moon
@@ -119,14 +120,8 @@ public class ExpectedTrace {
         private ExpectedTrace[] asyncTraces;
 
         public Builder(TraceType type, String serviceType) {
-            if (type == null) {
-                throw new NullPointerException("type");
-            }
-            if (serviceType == null) {
-                throw new NullPointerException("serviceType");
-            }
-            this.type = type;
-            this.serviceType = serviceType;
+            this.type = Objects.requireNonNull(type, "type");
+            this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
         }
 
         public void setMethod(Member method) {
@@ -146,9 +141,8 @@ public class ExpectedTrace {
         }
 
         public void setRpc(ExpectedTraceField rpc) {
-            if (rpc == null) {
-                throw new NullPointerException("rpc");
-            }
+            Objects.requireNonNull(rpc, "rpc");
+
             this.rpc = rpc;
         }
 
@@ -157,9 +151,8 @@ public class ExpectedTrace {
         }
 
         public void setEndPoint(ExpectedTraceField endPoint) {
-            if (endPoint == null) {
-                throw new NullPointerException("endPoint");
-            }
+            Objects.requireNonNull(endPoint, "endPoint");
+
             this.endPoint = endPoint;
         }
 
@@ -168,9 +161,8 @@ public class ExpectedTrace {
         }
 
         public void setRemoteAddr(ExpectedTraceField remoteAddr) {
-            if (remoteAddr == null) {
-                throw new NullPointerException("remoteAddr");
-            }
+            Objects.requireNonNull(remoteAddr, "remoteAddr");
+
             this.remoteAddr = remoteAddr;
         }
 
@@ -179,9 +171,8 @@ public class ExpectedTrace {
         }
 
         public void setDestinationId(ExpectedTraceField destinationId) {
-            if (destinationId == null) {
-                throw new NullPointerException("destinationId");
-            }
+            Objects.requireNonNull(destinationId, "destinationId");
+
             this.destinationId = destinationId;
         }
 

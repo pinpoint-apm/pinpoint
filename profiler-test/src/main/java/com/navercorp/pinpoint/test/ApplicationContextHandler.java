@@ -92,15 +92,7 @@ public class ApplicationContextHandler {
     }
 
 
-    public void printMethod(PrintStream out) {
-        List<String> methodDescriptor = getMethodDescriptor();
-        out.println("Method(" + methodDescriptor.size() + ")");
-        for (String method : methodDescriptor) {
-            out.println(method);
-        }
-    }
-
-    public List<String> getMethodDescriptor() {
+    public List<String> getExecutedMethod() {
         List<String> list = new ArrayList<>();
         for (Object item : orderedSpanRecorder) {
             if (item instanceof Span) {
