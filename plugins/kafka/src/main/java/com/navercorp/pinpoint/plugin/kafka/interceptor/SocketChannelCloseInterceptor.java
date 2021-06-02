@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2021 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,16 @@ package com.navercorp.pinpoint.plugin.kafka.interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.SocketChannelListFieldAccessor;
 
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
  * @author Taejin Koo
  */
-public class SocketChannelRegisterInterceptor implements AroundInterceptor {
+public class SocketChannelCloseInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -47,40 +46,17 @@ public class SocketChannelRegisterInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (ArrayUtils.getLength(args) != 3) {
+        if (!(target instanceof SocketChannelListFieldAccessor)) {
             return;
         }
-
-        if (throwable != null) {
-            return;
-        }
-
-        final SocketChannel socketChannel = getSocketChannel(args);
-        if (socketChannel != null) {
-            if (target instanceof SocketChannelListFieldAccessor) {
-                List<SocketChannel> socketChannels = ((SocketChannelListFieldAccessor) target)._$PINPOINT$_getSocketChannelList();
-
-                if (socketChannels == null) {
-                    socketChannels = new ArrayList<SocketChannel>();
-                    ((SocketChannelListFieldAccessor) target)._$PINPOINT$_setSocketAddress(socketChannels);
-                }
-
-                socketChannels.add(socketChannel);
+        List<SocketChannel> socketChannelList = ((SocketChannelListFieldAccessor) target)._$PINPOINT$_getSocketChannelList();
+        Iterator<SocketChannel> socketChannelIterator = socketChannelList.iterator();
+        while (socketChannelIterator.hasNext()) {
+            SocketChannel socketChannel = socketChannelIterator.next();
+            if (!socketChannel.isOpen()) {
+                socketChannelIterator.remove();
             }
         }
-    }
-
-    private SocketChannel getSocketChannel(Object[] args) {
-
-        if (args[1] instanceof SocketChannel) {
-            return (SocketChannel) args[1];
-        }
-
-        if (args[0] instanceof SocketChannel) {
-            return (SocketChannel) args[0];
-        }
-
-        return null;
     }
 
 }
