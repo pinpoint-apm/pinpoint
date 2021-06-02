@@ -58,7 +58,7 @@ public class SpringAsyncPlugin implements ProfilerPlugin, MatchableTransformTemp
         final Set<String> list = config.getAsyncTaskClassNameList();
         for (String className : list) {
             if (StringUtils.hasLength(className)) {
-                addAsyncExecutionInterceptorTask(Matchers.newClassNameMatcher(className));
+                addAsyncExecutionInterceptorTask(Matchers.newPackageBasedMatcher(className));
             }
         }
     }
