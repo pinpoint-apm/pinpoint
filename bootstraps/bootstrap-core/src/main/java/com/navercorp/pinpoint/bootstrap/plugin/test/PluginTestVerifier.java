@@ -31,6 +31,8 @@ public interface PluginTestVerifier {
     void verifyConnector(String protocol, int port);
     void verifyService(String context, List<String> libs);
     void verifyTraceCount(int expected);
+    int getTraceCount();
+
     void verifyTrace(ExpectedTrace... expectations);
     void verifyDiscreteTrace(ExpectedTrace... expectations);
     void ignoreServiceType(String... serviceTypes);
@@ -39,6 +41,7 @@ public interface PluginTestVerifier {
     void printCache();
 
     void printMethod();
+    List<String> getExecutedMethod();
 
     void initialize(boolean initializeTraceObject);
     void cleanUp(boolean detachTraceObject);
