@@ -30,14 +30,17 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
     @Input() currentTraceId: string;
     @Input() timezone: string;
     @Input() dateFormat: string;
+    @Input() dataEmptyText: string;
     @Output() outSelectTransaction = new EventEmitter<{[key: string]: any}>();
     @Output() outSelectTransactionView = new EventEmitter<{[key: string]: any}>();
 
     gridOptions: GridOptions;
+    overlayNoRowsTemplate: string;
 
     constructor() {}
     ngOnInit() {
         this.initGridOptions();
+        this.overlayNoRowsTemplate = `<span class="l-overlay-template l-no-rows">${this.dataEmptyText}</span>`;
     }
 
     ngOnChanges(changes: SimpleChanges) {
