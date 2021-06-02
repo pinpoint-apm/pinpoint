@@ -19,6 +19,7 @@ export class TransactionMetaDataService {
     private requestURLV1 = 'transactionmetadata.pinpoint';
     private requestURLV2 = 'heatmap/drag.pinpoint';
     private retrieveErrorMessage: string;
+    private lastFetchedFrom: number;
     private lastFetchedIndex = 0;
     private maxLoadLength = 100;
     private requestSourceData: any[];
@@ -58,9 +59,8 @@ export class TransactionMetaDataService {
     }
     loadData(): void {
         if (this.enableServerSideScan) {
-            // TODO: Check when the user clicking the more button
-            this.http.get<{metadata: ITransactionMetaData[], resultTo: number, complete: boolean}>(this.requestURLV2, this.makeV2RequestOptionsArgs())
-                .subscribe((responseData: {metadata: ITransactionMetaData[], resultTo: number, complete: boolean}) => {
+            this.http.get<{metadata: ITransactionMetaData[], resultFrom: number, complete: boolean}>(this.requestURLV2, this.makeV2RequestOptionsArgs())
+                .subscribe((responseData: {metadata: ITransactionMetaData[], resultFrom: number, complete: boolean}) => {
                     const responseLength = responseData.metadata.length;
 
                     if (responseLength === 0) {
@@ -68,9 +68,11 @@ export class TransactionMetaDataService {
                         this.outTransactionDataFetchState.next(true);
                     } else {
                         if (responseData.complete) {
+                            this.lastFetchedFrom = null;
                             this.outFullRange();
                             this.outTransactionDataFetchState.next(true);
                         } else {
+                            this.lastFetchedFrom = responseData.resultFrom;
                             this.outTransactionDataRange.next([
                                 responseData.metadata[responseLength - 1].collectorAcceptTime,
                                 this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getDate().valueOf()
@@ -78,8 +80,9 @@ export class TransactionMetaDataService {
                             this.outTransactionDataFetchState.next(false);
                         }
 
-                        this.outTransactionDataLoad.next(responseData.metadata);
                     }
+
+                    this.outTransactionDataLoad.next(responseData.metadata);
                 }, (error: IServerErrorFormat) => {
                     this.dynamicPopupService.openPopup({
                         data: {
@@ -144,8 +147,10 @@ export class TransactionMetaDataService {
                                 this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getDate().valueOf()
                             ]);
                         }
-                        this.outTransactionDataLoad.next(responseData.metadata);
+                        // this.outTransactionDataLoad.next(responseData.metadata);
                     }
+
+                    this.outTransactionDataLoad.next(responseData.metadata);
                     this.outTransactionDataCount.next(this.countStatus);
                 }, (error: IServerErrorFormat) => {
                     this.dynamicPopupService.openPopup({
@@ -176,20 +181,40 @@ export class TransactionMetaDataService {
     }
     private makeV2RequestOptionsArgs(): {[key: string]: any} {
         if (this.windowRefService.nativeWindow.opener) {
-            const [_, x1, x2, y1, y2, agent, types] = this.windowRefService.nativeWindow.name.split('|');
+            const [_, x1, x2, y1, y2, agentId, typeStr] = this.windowRefService.nativeWindow.name.split('|');
             const application = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
+            const typeList = typeStr.split(',');
 
-            return {
-                params: new HttpParams()
-                    .set('application', application)
-                    .set('x1', x1)
-                    .set('x2', x2)
-                    .set('y1', y1)
-                    .set('y2', y2)
-                    // .set('xGroupUnit', groupUnitX + '')
-                    // .set('yGroupUnit', groupUnitY + '')
-                    // .set('backwardDirection', backwardDirection + '')
-            };
+            let params = new HttpParams()
+                .set('application', application)
+                .set('x1', x1)
+                .set('x2', this.lastFetchedFrom ? this.lastFetchedFrom : x2)
+                .set('y1', y1)
+                .set('y2', y2);
+
+            if (agentId) {
+                params = params.set('agentId', agentId);
+            }
+
+            // TODO: dotStatus 파라미터 전달 방식 및 조건처리 고민
+            if (typeList.length === 1) {
+                params = params.set('dotStatus', (typeList[0] === 'success').toString());
+            }
+
+            return {params};
+
+            // return {
+            //     params: new HttpParams()
+            //         .set('application', application)
+            //         .set('x1', x1)
+            //         .set('x2', this.lastFetchedFrom ? this.lastFetchedFrom : x2)
+            //         .set('y1', y1)
+            //         .set('y2', y2)
+            //         .set('agentId', agentId)
+            //         // .set('xGroupUnit', groupUnitX + '')
+            //         // .set('yGroupUnit', groupUnitY + '')
+            //         // .set('backwardDirection', backwardDirection + '')
+            // };
         }
 
         return this.checkUrlInfo();

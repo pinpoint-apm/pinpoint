@@ -80,3 +80,8 @@
 #transaction-table .id-header .ag-header-cell-label {
     justify-content: center !important;
 }
+
+.l-overlay-template {
+    font-size:16px;
+    font-weight: 600;
+}

@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 
 import {
     UrlRouteManagerService,
@@ -31,6 +32,7 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
     transactionIndex = 1;
     timezone: string;
     dateFormat: string;
+    dataEmptyText: string;
 
     constructor(
         private storeHelperService: StoreHelperService,
@@ -38,12 +40,12 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private transactionMetaDataService: TransactionMetaDataService,
         private gutterEventService: GutterEventService,
+        private translateService: TranslateService,
         private analyticsService: AnalyticsService,
         private cd: ChangeDetectorRef
     ) {}
 
     ngOnInit() {
-        this.connectStore();
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((urlService: NewUrlStateNotificationService) => {
@@ -55,12 +57,16 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
                 this.transactionMetaDataService.loadData();
             }
         });
-        this.connectMetaDataService();
+
         this.gutterEventService.onGutterResized$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((params: any) => {
             this.areaResized = params;
         });
+
+        this.connectStore();
+        this.connectMetaDataService();
+        this.initI18nText();
     }
 
     ngOnDestroy() {
@@ -80,7 +86,14 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
     private connectMetaDataService(): void {
         this.transactionMetaDataService.onTransactionDataLoad$.pipe(
             takeUntil(this.unsubscribe),
-            filter((responseData: any) => responseData.length > 0)
+            filter((responseData: ITransactionMetaData[]) => {
+                if (responseData.length === 0) {
+                    this.transactionDataForAgGrid = [];
+                    return false;
+                } else {
+                    return true;
+                }
+            }),
         ).subscribe((responseData: ITransactionMetaData[]) => {
             this.transactionData = this.transactionData.concat(responseData || []);
             if (this.transactionDataForAgGrid) {
@@ -90,6 +103,12 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
                 this.dispatchTransaction();
             }
             this.cd.detectChanges();
+        });
+    }
+
+    private initI18nText(): void {
+        this.translateService.get('COMMON.NO_DATA').subscribe((dataEmptyText: string) => {
+           this.dataEmptyText = dataEmptyText;
         });
     }
 
