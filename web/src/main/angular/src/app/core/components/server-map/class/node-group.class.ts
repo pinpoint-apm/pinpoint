@@ -28,7 +28,10 @@ export class NodeGroup {
     }
     init() {
         // this.applicationName = SPECIAL_STR.NAME_PREFIX + SPECIAL_STR.SEPERATOR + this.randomValue(); // MERGE_123
-        this.groupType = this.type + SPECIAL_STR.SEPERATOR + SPECIAL_STR.GROUP_POSTFIX; // UNKNOWN_GROUP
+        // this.groupType = this.type + SPECIAL_STR.SEPERATOR + SPECIAL_STR.GROUP_POSTFIX; // UNKNOWN_GROUP
+
+        // * Set groupType as same as the original serviceType
+        this.groupType = this.type; // UNKNOWN
         // this.groupKey = this.groupType + SPECIAL_STR.KEY_SEPERATOR + this.applicationName; // UNKNOWN_GROUP^MERGE_!@#
         this.initTemplateSet();
     }

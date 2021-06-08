@@ -265,13 +265,14 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                 }),
                 map(([nodes, _]: {[key: string]: any}[][]) => {
                     const edges = addedEdgeList.map((edge: {[key: string]: any}) => {
-                        const {from, to, key, totalCount, hasAlert} = edge;
+                        const {from, to, key, totalCount, hasAlert, isMerged} = edge;
 
                         return {
                             data: {
                                 id: key,
                                 source: from,
                                 target: to,
+                                isMerged,
                                 label: totalCount.toLocaleString(),
                                 hasAlert,
                                 alive: true
