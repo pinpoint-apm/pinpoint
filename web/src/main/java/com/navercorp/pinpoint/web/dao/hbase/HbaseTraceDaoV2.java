@@ -46,6 +46,7 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
+import org.apache.hadoop.hbase.filter.ByteArrayComparable;
 import org.apache.hadoop.hbase.filter.ColumnCountGetFilter;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.Filter;
@@ -244,7 +245,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
             final SpanHint hint = getTraceInfo.getHint();
             final TimestampsFilter timeStampFilter = getTimeStampFilter(hint);
 
-            Filter filter = getFilter(defaultFilter, timeStampFilter);
+            Filter filter = newFilter(defaultFilter, timeStampFilter);
             final Get get = createGet(getTraceInfo.getTransactionId(), columnFamily, filter);
             getList.add(get);
         }
@@ -260,20 +261,17 @@ public class HbaseTraceDaoV2 implements TraceDao {
         }
     }
 
-    private Filter getFilter(Filter filter1, Filter filter2) {
-        if (filter1 != null && filter2 != null) {
-            FilterList filterList = new FilterList();
-            filterList.addFilter(filter1);
-            filterList.addFilter(filter2);
-            return filterList;
+    private Filter newFilter(Filter... filters) {
+        FilterList filterList = new FilterList();
+        for (Filter filter : filters) {
+            if (filter != null) {
+                filterList.addFilter(filter);
+            }
         }
-        if (filter1 != null) {
-            return filter1;
+        if (filterList.size() == 0) {
+            return null;
         }
-        if (filter2 != null) {
-            return filter2;
-        }
-        return null;
+        return filterList;
     }
 
     private List<List<SpanBo>> bulkSelect0(List<Get> multiGet, RowMapper<List<SpanBo>> rowMapperList) {
@@ -296,10 +294,10 @@ public class HbaseTraceDaoV2 implements TraceDao {
         return get;
     }
 
-    public QualifierFilter createSpanQualifierFilter() {
+    public Filter createSpanQualifierFilter() {
         byte indexPrefix = SpanEncoder.TYPE_SPAN;
-        BinaryPrefixComparator prefixComparator = new BinaryPrefixComparator(new byte[]{indexPrefix});
-        QualifierFilter qualifierPrefixFilter = new QualifierFilter(CompareFilter.CompareOp.EQUAL, prefixComparator);
+        ByteArrayComparable prefixComparator = new BinaryPrefixComparator(new byte[]{indexPrefix});
+        Filter qualifierPrefixFilter = new QualifierFilter(CompareFilter.CompareOp.EQUAL, prefixComparator);
         return qualifierPrefixFilter;
     }
 

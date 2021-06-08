@@ -219,7 +219,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         Scan scan = createScan(applicationName, range, scanBackward);
 
         TableName applicationTraceIndexTableName = descriptor.getTableName();
-        List<List<Dot>> listList = hbaseOperations2.findParallel(applicationTraceIndexTableName, scan, traceIdRowKeyDistributor, limit, this.traceIndexScatterMapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
+        List<List<Dot>> listList = hbaseOperations2.findParallel(applicationTraceIndexTableName, scan,
+                traceIdRowKeyDistributor, limit, this.traceIndexScatterMapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
         List<Dot> dots = ListListUtils.toList(listList);
 
         final long lastTime = getLastTime(range, limit, lastRowAccessor, dots);
@@ -274,7 +275,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         RowMapper<List<Dot>> mapper = new TraceIndexScatterMapper(filter);
 
         TableName applicationTraceIndexTableName = descriptor.getTableName();
-        List<List<Dot>> dotListList = hbaseOperations2.findParallel(applicationTraceIndexTableName, scan, traceIdRowKeyDistributor, limit, mapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
+        List<List<Dot>> dotListList = hbaseOperations2.findParallel(applicationTraceIndexTableName, scan,
+                traceIdRowKeyDistributor, limit, mapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
         List<Dot> dots = ListListUtils.toList(dotListList);
 
         final long lastTime = getLastTime(range, limit, lastRowAccessor, dots);
@@ -308,19 +310,11 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
                 }
             }
             if (this.dotStatus != null) {
-                Dot.Status status = toDotStatus(this.dotStatus);
-                if (!(status == dot.getStatus())) {
+                if (!(this.dotStatus == dot.getStatus())) {
                     return false;
                 }
             }
             return true;
-        }
-
-        private Dot.Status toDotStatus(Dot.Status dotStatus) {
-            if (Dot.Status.SUCCESS == dotStatus) {
-                return Dot.Status.SUCCESS;
-            }
-            return Dot.Status.FAILED;
         }
     }
 

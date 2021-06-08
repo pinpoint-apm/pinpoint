@@ -18,7 +18,7 @@ public final class ListListUtils {
     }
 
     public static <T> List<T> toList(List<List<T>> listList) {
-        return toList(listList, 128);
+        return toList(listList, getSize(listList));
     }
 
     private static <T> int getSize(List<List<T>> listList) {
