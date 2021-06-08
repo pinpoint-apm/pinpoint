@@ -18,10 +18,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class HeatMapServiceImpl implements HeatMapService {
@@ -81,13 +81,13 @@ public class HeatMapServiceImpl implements HeatMapService {
         if (CollectionUtils.isEmpty(dots)) {
             return Collections.emptyList();
         }
-        List<GetTraceInfo> result = new ArrayList<>();
-        for (Dot dot : dots) {
-            TransactionId transactionId = dot.getTransactionId();
+        return dots.stream()
+                .map(this::dotToGetTraceInfo)
+                .collect(Collectors.toList());
+    }
 
-            final GetTraceInfo getTraceInfo = new GetTraceInfo(transactionId);
-            result.add(getTraceInfo);
-        }
-        return result;
+    private GetTraceInfo dotToGetTraceInfo(Dot dot) {
+        TransactionId transactionId = dot.getTransactionId();
+        return new GetTraceInfo(transactionId);
     }
 }
