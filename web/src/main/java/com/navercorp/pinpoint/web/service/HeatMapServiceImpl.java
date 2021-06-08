@@ -12,6 +12,7 @@ import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.SpanHint;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,7 @@ public class HeatMapServiceImpl implements HeatMapService {
 
         logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, scanResult);
 //        boolean requestComplete = scatterData.getDotSize() < limit;
-        List<GetTraceInfo> query = buildQuery(scanResult.getScanData());
+        List<GetTraceInfo> query = buildQuery(applicationName, scanResult.getScanData());
 
         final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(query);
 
@@ -77,17 +78,22 @@ public class HeatMapServiceImpl implements HeatMapService {
         return new LimitedScanResult<>(scanResult.getLimitedTime(), heatMap);
     }
 
-    private List<GetTraceInfo> buildQuery(List<Dot> dots) {
+    private List<GetTraceInfo> buildQuery(String applicationName, List<Dot> dots) {
         if (CollectionUtils.isEmpty(dots)) {
             return Collections.emptyList();
         }
         return dots.stream()
-                .map(this::dotToGetTraceInfo)
+                .map(dot -> dotToGetTraceInfo(applicationName, dot))
                 .collect(Collectors.toList());
     }
 
-    private GetTraceInfo dotToGetTraceInfo(Dot dot) {
+    private GetTraceInfo dotToGetTraceInfo(String applicationName, Dot dot) {
         TransactionId transactionId = dot.getTransactionId();
-        return new GetTraceInfo(transactionId);
+
+        SpanHint spanHint = new SpanHint(dot.getAcceptedTime(),
+                dot.getElapsedTime(), applicationName);
+
+        return new GetTraceInfo(transactionId, spanHint);
     }
+
 }

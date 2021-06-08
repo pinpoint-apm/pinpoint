@@ -71,6 +71,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final HbaseOperations2 hbaseOperations2;
 
+    private final TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor;
+
     private final FuzzyRowKeyBuilder fuzzyRowKeyBuilder = new FuzzyRowKeyBuilder();
 
     private final RowMapper<List<TransactionId>> traceIndexMapper;
@@ -98,8 +100,6 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     public void setScanCacheSize(int scanCacheSize) {
         this.scanCacheSize = scanCacheSize;
     }
-
-    private final TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor;
 
     @Override
     public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, Range range, int limit, boolean scanBackward) {
