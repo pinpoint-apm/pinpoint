@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -31,6 +31,6 @@ public interface SpanService {
 
     SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint, ColumnGetCount columnGetCount);
 
-    void populateAgentName(Collection<SpanBo> spanBoList);
+    void populateAgentName(List<SpanBo> spanBoList);
 
 }

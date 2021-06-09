@@ -54,12 +54,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author emeroad
@@ -134,21 +135,44 @@ public class SpanServiceImpl implements SpanService {
     }
 
     @Override
-    public void populateAgentName(Collection<SpanBo> spanBoList) {
+    public void populateAgentName(List<SpanBo> spanBoList) {
         if (CollectionUtils.isEmpty(spanBoList)) {
             return;
         }
-        Map<AgentIdStartTimeKey, Optional<String>> nameMap = new HashMap<>(spanBoList.size());
-        for (SpanBo span : spanBoList) {
-            final String agentId = span.getAgentId();
-            final long agentStartTime = span.getAgentStartTime();
-            final AgentIdStartTimeKey idStartTimeKey = new AgentIdStartTimeKey(agentId, agentStartTime);
-            if (!nameMap.containsKey(idStartTimeKey)) {
-                nameMap.put(idStartTimeKey, getAgentName(agentId, agentStartTime));
-            }
-            final Optional<String> optionalName = nameMap.get(idStartTimeKey);
-            span.setAgentName(optionalName.orElse(StringUtils.EMPTY));
+        List<AgentIdStartTimeKey> query = spanBoList.stream()
+                .map(this::newAgentStartTimeKey)
+                .collect(Collectors.toList());
+
+        Map<AgentIdStartTimeKey, Optional<String>> agentNameMap = this.getAgentName(query);
+
+        bindAgentName(spanBoList, agentNameMap);
+    }
+
+    public AgentIdStartTimeKey newAgentStartTimeKey(SpanBo spanBo) {
+        return new AgentIdStartTimeKey(spanBo.getAgentId(), spanBo.getAgentStartTime());
+    }
+
+    private void bindAgentName(List<SpanBo> list, Map<AgentIdStartTimeKey, Optional<String>> agentNameMap) {
+        for (SpanBo spanBo : list) {
+            AgentIdStartTimeKey key = new AgentIdStartTimeKey(spanBo.getAgentId(), spanBo.getAgentStartTime());
+            Optional<String> agentName = agentNameMap.get(key);
+            spanBo.setAgentName(agentName.orElse(StringUtils.EMPTY));
         }
+    }
+
+    private Map<AgentIdStartTimeKey, Optional<String>> getAgentName(List<AgentIdStartTimeKey> spanBoList) {
+        if (CollectionUtils.isEmpty(spanBoList)) {
+            return Collections.emptyMap();
+        }
+
+        Map<AgentIdStartTimeKey, Optional<String>> nameMap = new HashMap<>(spanBoList.size());
+        for (AgentIdStartTimeKey key : spanBoList) {
+            if (!nameMap.containsKey(key)) {
+                Optional<String> agentName = getAgentName(key.getAgentId(), key.getAgentStartTime());
+                nameMap.put(key, agentName);
+            }
+        }
+        return nameMap;
     }
 
 
@@ -475,29 +499,5 @@ public class SpanServiceImpl implements SpanService {
         final AgentInfo agentInfo = this.agentInfoService.getAgentInfoNoStatus(agentId, agentStartTime, deltaTimeInMilli);
         return agentInfo == null ? Optional.empty() : Optional.ofNullable(agentInfo.getAgentName());
     }
-
-    private static class AgentIdStartTimeKey {
-        private final String agentId;
-        private final long agentStartTime;
-
-        public AgentIdStartTimeKey(String agentId, long agentStartTime) {
-            this.agentId = agentId;
-            this.agentStartTime = agentStartTime;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            AgentIdStartTimeKey that = (AgentIdStartTimeKey) o;
-            return agentStartTime == that.agentStartTime && Objects.equals(agentId, that.agentId);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(agentId, agentStartTime);
-        }
-    }
-
 }
 
