@@ -14,7 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -22,7 +21,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatAsyncListener;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
 
@@ -73,14 +71,13 @@ public class RequestStartAsyncInterceptor implements AroundInterceptor {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (validate(target, result, throwable)) {
                 com.navercorp.pinpoint.bootstrap.context.AsyncContext nextAsyncContext = recorder.recordNextAsyncContext(true);
-                if (ArrayUtils.getLength(args) > 1 && args[0] instanceof AsyncContextAccessor) {
-                    ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(nextAsyncContext);
-                }
-
-                final HttpServletRequest request = (HttpServletRequest) target;
+                // Add async listener
                 final AsyncContext asyncContext = (AsyncContext) result;
                 final AsyncListener asyncListener = new TomcatAsyncListener(this.traceContext, nextAsyncContext);
                 asyncContext.addListener(asyncListener);
+                // Set AsyncContext, AsyncListener
+                final HttpServletRequest request = (HttpServletRequest) target;
+                request.setAttribute(com.navercorp.pinpoint.bootstrap.context.AsyncContext.class.getName(), nextAsyncContext);
                 request.setAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE, asyncListener);
                 if (isDebug) {
                     logger.debug("Add async listener {}", asyncListener);

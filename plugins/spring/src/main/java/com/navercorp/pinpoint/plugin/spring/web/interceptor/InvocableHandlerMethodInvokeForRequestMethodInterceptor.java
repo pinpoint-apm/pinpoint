@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.spring.web.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -59,8 +57,9 @@ public class InvocableHandlerMethodInvokeForRequestMethodInterceptor extends Asy
         Object nativeWebRequest = ArrayUtils.get(args, 0);
         if (nativeWebRequest instanceof NativeWebRequest) {
             NativeWebRequest request = (NativeWebRequest) nativeWebRequest;
-            if (request.getNativeRequest() instanceof AsyncContextAccessor) {
-                return AsyncContextAccessorUtils.getAsyncContext(request.getNativeRequest());
+            final Object asyncContext = request.getAttribute(AsyncContext.class.getName(), 0);
+            if (asyncContext instanceof AsyncContext) {
+                return (AsyncContext) asyncContext;
             }
         }
 
