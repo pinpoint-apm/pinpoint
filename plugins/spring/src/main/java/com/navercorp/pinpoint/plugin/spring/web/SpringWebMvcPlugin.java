@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.plugin.spring.web;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -28,7 +27,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriMappingExtractorProvider;
 import com.navercorp.pinpoint.plugin.spring.web.interceptor.InvocableHandlerMethodInvokeForRequestMethodInterceptor;
-import com.navercorp.pinpoint.plugin.spring.web.interceptor.StrictHttpFirewallGetFirewalledRequestInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -56,9 +54,6 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
         }
         // Async
         transformTemplate.transform("org.springframework.web.method.support.InvocableHandlerMethod", InvocableHandlerMethodTransform.class);
-        // Spring Security
-        transformTemplate.transform("org.springframework.security.web.firewall.StrictHttpFirewall", StrictHttpFirewallTransform.class);
-        transformTemplate.transform("org.springframework.security.web.firewall.StrictHttpFirewall$StrictFirewalledRequest", StrictFirewalledRequestTransform.class);
     }
 
     public static class FrameworkServletTransform implements TransformCallback {
@@ -84,31 +79,6 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
                 invokeForRequestMethod.addInterceptor(InvocableHandlerMethodInvokeForRequestMethodInterceptor.class);
             }
 
-            return target.toBytecode();
-        }
-    }
-
-
-    public static class StrictHttpFirewallTransform implements TransformCallback {
-
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-            InstrumentMethod getFirewalledRequestMethod = target.getDeclaredMethod("getFirewalledRequest", "javax.servlet.http.HttpServletRequest");
-            if (getFirewalledRequestMethod != null) {
-                getFirewalledRequestMethod.addInterceptor(StrictHttpFirewallGetFirewalledRequestInterceptor.class);
-            }
-
-            return target.toBytecode();
-        }
-    }
-
-    public static class StrictFirewalledRequestTransform implements TransformCallback {
-
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-            target.addField(AsyncContextAccessor.class);
             return target.toBytecode();
         }
     }

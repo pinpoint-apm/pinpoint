@@ -16,7 +16,6 @@ package com.navercorp.pinpoint.plugin.tomcat;
 
 import java.security.ProtectionDomain;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -32,7 +31,6 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.jboss.JbossConfig;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
 import com.navercorp.pinpoint.plugin.jboss.JbossDetector;
-import com.navercorp.pinpoint.plugin.tomcat.interceptor.ApplicationHttpRequestConstructor;
 import com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor;
 import com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestStartAsyncInterceptor;
 import com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor;
@@ -101,8 +99,6 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("org.apache.catalina.connector.RequestFacade", RequestFacadeTransform.class);
         // Entry Point
         transformTemplate.transform("org.apache.catalina.core.StandardHostValve", StandardHostValveTransform.class);
-        // Async
-        transformTemplate.transform("org.apache.catalina.core.ApplicationHttpRequest", ApplicationHttpRequestTransform.class);
     }
 
     public static class StandardServiceTransform implements TransformCallback {
@@ -189,8 +185,6 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-            target.addField(AsyncContextAccessor.class);
-
             final TomcatConfig config = new TomcatConfig(instrumentor.getProfilerConfig());
             if (config.isHidePinpointHeader()) {
                 // Hide pinpoint headers
@@ -213,22 +207,6 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             return target.toBytecode();
         }
     }
-
-    public static class ApplicationHttpRequestTransform implements TransformCallback {
-
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-            target.addField(AsyncContextAccessor.class);
-
-            final InstrumentMethod method = target.getConstructor("javax.servlet.http.HttpServletRequest", "org.apache.catalina.Context", "boolean");
-            if (method != null) {
-                method.addInterceptor(ApplicationHttpRequestConstructor.class);
-            }
-            return target.toBytecode();
-        }
-    }
-
 
     @Override
     public void setTransformTemplate(TransformTemplate transformTemplate) {
