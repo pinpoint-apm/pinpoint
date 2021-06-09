@@ -32,9 +32,13 @@ public class HeatMapServiceImpl implements HeatMapService {
     private final ApplicationTraceIndexDao applicationTraceIndexDao;
 
     private final TraceDao traceDao;
+    private final SpanService spanService;
 
-    public HeatMapServiceImpl(ApplicationTraceIndexDao applicationTraceIndexDao, @Qualifier("hbaseTraceDaoFactory") TraceDao traceDao) {
+    public HeatMapServiceImpl(ApplicationTraceIndexDao applicationTraceIndexDao,
+                              SpanService spanService,
+                              @Qualifier("hbaseTraceDaoFactory") TraceDao traceDao) {
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
+        this.spanService = Objects.requireNonNull(spanService, "spanService");
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
     }
 
@@ -53,6 +57,7 @@ public class HeatMapServiceImpl implements HeatMapService {
         final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(query);
 
         List<SpanBo> spanList = ListListUtils.toList(selectedSpans, selectedSpans.size());
+        spanService.populateAgentName(spanList);
 
         logger.debug("dragScatterArea span:{}", spanList.size());
         return new LimitedScanResult<>(scanResult.getLimitedTime(), spanList);
