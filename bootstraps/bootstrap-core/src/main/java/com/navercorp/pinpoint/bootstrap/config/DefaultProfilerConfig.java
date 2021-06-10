@@ -423,7 +423,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Value("${profiler.plugin.disable}")
-    void getDisabledPlugins(String disabledPlugins) {
+    void setDisabledPlugins(String disabledPlugins) {
         this.disabledPlugins = StringUtils.tokenizeToStringList(disabledPlugins, ",");
     }
 
@@ -481,7 +481,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Value("${profiler.http.status.code.errors}")
-    void getHttpStatusCodeErrors(String httpStatusCodeErrors) {
+    void setHttpStatusCodeErrors(String httpStatusCodeErrors) {
         List<String> httpStatusCodeErrorList = StringUtils.tokenizeToStringList(httpStatusCodeErrors, ",");
         this.httpStatusCodeErrors = new HttpStatusCodeErrors(httpStatusCodeErrorList);
     }
