@@ -75,7 +75,6 @@ export class UrlPathId {
     // static HINT = 'hint';
     static REAL_TIME = 'realtime';
     static AGENT_ID = 'agentId';
-    static TRANSACTION_INFO = 'transactionInfo';
     static TRACE_ID = 'traceId';
     static FOCUS_TIMESTAMP = 'focusTimestamp';
     static SPAN_ID = 'spanId';
@@ -105,7 +104,6 @@ export class UrlPathId {
             UrlPathId.REAL_TIME,
             UrlPathId.SPAN_ID,
             UrlPathId.TRACE_ID,
-            UrlPathId.TRANSACTION_INFO,
             UrlPathId.AGENT_STATISTIC,
             UrlPathId.AGENT_MANAGEMENT
         ];
@@ -129,7 +127,6 @@ export class UrlPathIdFactory {
             // case UrlPathId.HINT:
             case UrlPathId.REAL_TIME:
             case UrlPathId.AGENT_ID:
-            case UrlPathId.TRANSACTION_INFO:
             case UrlPathId.TRACE_ID:
             case UrlPathId.FOCUS_TIMESTAMP:
             case UrlPathId.SPAN_ID:

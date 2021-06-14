@@ -14,7 +14,7 @@ import {
     MessageQueueService,
     MESSAGE_TO
 } from 'app/shared/services';
-import { UrlPath, UrlPathId } from 'app/shared/models';
+import { UrlPath, UrlPathId, UrlQuery } from 'app/shared/models';
 import { ScatterChart } from './class/scatter-chart.class';
 import { ScatterChartInteractionService } from './scatter-chart-interaction.service';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
@@ -252,7 +252,16 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
             ],
-            metaInfo: `${this.selectedApplication}|${params.x.from}|${params.x.to}|${params.y.from}|${params.y.to}|${this.selectedAgent}|${params.type.join(',')}`
+            queryParams: {
+                [UrlQuery.DRAG_INFO]: {
+                    x1: params.x.from,
+                    x2: params.x.to,
+                    y1: params.y.from,
+                    y2: params.y.to,
+                    agentId: this.selectedAgent,
+                    dotStatus: params.type
+                }
+            },
         });
 
         if (returnOpenWindow === null || returnOpenWindow === undefined) {
