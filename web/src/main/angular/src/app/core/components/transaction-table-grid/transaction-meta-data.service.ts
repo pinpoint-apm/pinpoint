@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Subject, Observable } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
-import { UrlPath, UrlPathId } from 'app/shared/models';
+import { UrlPath, UrlPathId, UrlQuery } from 'app/shared/models';
 import {
     UrlRouteManagerService,
     NewUrlStateNotificationService,
@@ -180,44 +180,26 @@ export class TransactionMetaDataService {
         ]);
     }
     private makeV2RequestOptionsArgs(): {[key: string]: any} {
-        if (this.windowRefService.nativeWindow.opener) {
-            const [_, x1, x2, y1, y2, agentId, typeStr] = this.windowRefService.nativeWindow.name.split('|');
-            const application = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
-            const typeList = typeStr.split(',');
+        const {x1, x2, y1, y2, agentId, dotStatus} = JSON.parse(this.newUrlStateNotificationService.getQueryValue(UrlQuery.DRAG_INFO));
+        const application = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
 
-            let params = new HttpParams()
-                .set('application', application)
-                .set('x1', x1)
-                .set('x2', this.lastFetchedFrom ? this.lastFetchedFrom : x2)
-                .set('y1', y1)
-                .set('y2', y2);
+        let params = new HttpParams()
+            .set('application', application)
+            .set('x1', x1)
+            .set('x2', this.lastFetchedFrom ? this.lastFetchedFrom - 1 : x2)
+            .set('y1', y1)
+            .set('y2', y2);
 
-            if (agentId) {
-                params = params.set('agentId', agentId);
-            }
-
-            // TODO: dotStatus 파라미터 전달 방식 및 조건처리 고민
-            if (typeList.length === 1) {
-                params = params.set('dotStatus', (typeList[0] === 'success').toString());
-            }
-
-            return {params};
-
-            // return {
-            //     params: new HttpParams()
-            //         .set('application', application)
-            //         .set('x1', x1)
-            //         .set('x2', this.lastFetchedFrom ? this.lastFetchedFrom : x2)
-            //         .set('y1', y1)
-            //         .set('y2', y2)
-            //         .set('agentId', agentId)
-            //         // .set('xGroupUnit', groupUnitX + '')
-            //         // .set('yGroupUnit', groupUnitY + '')
-            //         // .set('backwardDirection', backwardDirection + '')
-            // };
+        if (agentId) {
+            params = params.set('agentId', agentId);
         }
 
-        return this.checkUrlInfo();
+        // TODO: dotStatus 파라미터 전달 방식 및 조건처리 고민
+        if (dotStatus.length === 1) {
+            params = params.set('dotStatus', (dotStatus[0] === 'success').toString());
+        }
+
+        return {params};
     }
     private makeV1RequestOptionsArgs(): string {
         const requestStr = [];
@@ -260,32 +242,25 @@ export class TransactionMetaDataService {
     }
     private getInfoFromOpener(): any[] {
         if (this.windowRefService.nativeWindow.opener) {
-            const paramsInfo = this.windowRefService.nativeWindow.name.split('|');
-            if (paramsInfo.length === 7) {
-                const params = {
-                    application: paramsInfo[0],
-                    fromX: paramsInfo[1],
-                    toX: paramsInfo[2],
-                    fromY: paramsInfo[3],
-                    toY: paramsInfo[4],
-                    agent: paramsInfo[5],
-                    types: paramsInfo[6].split(',')
-                };
-                try {
-                    const scatterChartInstance = this.windowRefService.nativeWindow.opener.scatterChartInstance[params.application];
-                    if (scatterChartInstance) {
-                        return scatterChartInstance.getDataByRange(params.fromX, params.toX, params.fromY, params.toY, params.agent, params.types);
-                    }
-                } catch (error) {
-                    return [];
+            const {x1, x2, y1, y2, agentId, dotStatus} = JSON.parse(this.newUrlStateNotificationService.getQueryValue(UrlQuery.DRAG_INFO));
+            const application = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getKeyStr();
+
+            try {
+                const scatterChartInstance = this.windowRefService.nativeWindow.opener.scatterChartInstance[application];
+
+                if (scatterChartInstance) {
+                    return scatterChartInstance.getDataByRange(x1, x2, y1, y2, agentId, dotStatus);
                 }
+            } catch (error) {
+                return [];
             }
         }
+
         return this.checkUrlInfo();
     }
     private checkUrlInfo(): any[] {
-        if (this.newUrlStateNotificationService.hasValue(UrlPathId.TRANSACTION_INFO)) {
-            const transactionInfo = this.newUrlStateNotificationService.getPathValue(UrlPathId.TRANSACTION_INFO).split('-');
+        if (this.newUrlStateNotificationService.hasValue(UrlQuery.TRACE_ID)) {
+            const transactionInfo = this.newUrlStateNotificationService.getQueryValue(UrlQuery.TRACE_ID).split('-');
             const length = transactionInfo.length;
             return [[
                 transactionInfo.slice(0, length - 2).join('-'),

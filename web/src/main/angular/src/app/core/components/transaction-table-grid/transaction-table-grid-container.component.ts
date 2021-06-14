@@ -11,7 +11,7 @@ import {
     AnalyticsService, TRACKED_EVENT_LIST
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store';
-import { UrlPath, UrlPathId } from 'app/shared/models';
+import { UrlPath, UrlPathId, UrlQuery } from 'app/shared/models';
 import { IGridData } from './transaction-table-grid.component';
 import { TransactionMetaDataService } from './transaction-meta-data.service';
 
@@ -47,12 +47,16 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
 
     ngOnInit() {
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            takeUntil(this.unsubscribe)
+            takeUntil(this.unsubscribe),
+            filter((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlQuery.DRAG_INFO))
         ).subscribe((urlService: NewUrlStateNotificationService) => {
-            if (urlService.hasValue(UrlPathId.TRANSACTION_INFO)) {
-                this.selectedTraceId = urlService.getPathValue(UrlPathId.TRANSACTION_INFO).replace(/(.*)-\d*-\d*$/, '$1');
+            if (urlService.hasValue(UrlQuery.TRACE_ID)) {
+                // this.selectedTraceId = urlService.getQueryValue(UrlQuery.TRACE_ID);
+                // TODO: When When the v1 version gets removed, just use traceId itself without the regax
+                this.selectedTraceId = urlService.getQueryValue(UrlQuery.TRACE_ID).replace(/(.*)-\d*-\d*$/, '$1');
                 this.dispatchTransaction();
             }
+
             if (this.transactionData.length === 0) {
                 this.transactionMetaDataService.loadData();
             }
@@ -163,8 +167,12 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
-                `${transactionShortInfo.traceId}-${transactionShortInfo.collectorAcceptTime}-${transactionShortInfo.elapsed}`
-            ]
+            ],
+            queryParams: {
+                // [UrlQuery.TRACE_ID]: transactionShortInfo.traceId
+                // TODO: When the v1 version gets removed, use only traceId
+                [UrlQuery.TRACE_ID]: `${transactionShortInfo.traceId}-${transactionShortInfo.collectorAcceptTime}-${transactionShortInfo.elapsed}`
+            }
         });
     }
 

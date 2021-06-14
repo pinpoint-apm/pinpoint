@@ -103,24 +103,28 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
                     collectorAcceptTime: params.data.collectorAcceptTime,
                     elapsed: params.data.responseTime
                 });
-            }
+            },
+            getRowNodeId: (data) => data.traceId
         };
     }
 
-    onGridReady(params: GridOptions): void {
-        this.gridOptions.api.forEachNode((node) => {
-            if (this.currentTraceId === node.data.traceId) {
-                node.setSelected(true);
-            }
-        });
-    }
-
+    onGridReady(params: GridOptions): void {}
     onGridSizeChanged(params: GridOptions): void {
         this.gridOptions.api.sizeColumnsToFit();
     }
 
+    // TODO: Set selected row whenever data gets updated?
     onRendered(): void {
         this.gridOptions.api.sizeColumnsToFit();
+
+        if (!this.currentTraceId) {
+            return;
+        }
+
+        const selectedRow = this.gridOptions.api.getRowNode(this.currentTraceId);
+
+        selectedRow.setSelected(true, true);
+        this.gridOptions.api.ensureIndexVisible(selectedRow.rowIndex, 'middle');
     }
 
     private makeColumnDefs(): any {
