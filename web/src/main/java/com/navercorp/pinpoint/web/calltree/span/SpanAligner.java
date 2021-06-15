@@ -19,14 +19,11 @@ package com.navercorp.pinpoint.web.calltree.span;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * @author netspider
@@ -39,19 +36,23 @@ public class SpanAligner {
 
     private final TraceState traceState = new TraceState();
 
-    private final long collectorAcceptTime;
-    private final List<Node> nodeList;
+    private final Predicate<Node> focusFilter;
+
+    private final NodeList nodeList;
+
+    private final LinkList linkList;
     private final LinkMap linkMap;
-    private final List<Link> linkList = new ArrayList<>();
     private final MetaSpanCallTreeFactory metaSpanCallTreeFactory = new MetaSpanCallTreeFactory();
-    private final ServiceTypeRegistryService serviceTypeRegistryService;
 
     public SpanAligner(final List<SpanBo> spans, final long collectorAcceptTime, ServiceTypeRegistryService serviceTypeRegistryService) {
-        this.nodeList = Node.newNodeList(spans);
-        this.linkMap = LinkMap.buildLinkMap(nodeList, traceState, collectorAcceptTime, serviceTypeRegistryService);
+        this.nodeList = NodeList.newNodeList(spans);
+        this.linkList = new LinkList();
+
+        Predicate<SpanBo> spanFocusFilter = LinkMap.focusFilter(collectorAcceptTime);
+        this.linkMap = LinkMap.buildLinkMap(nodeList, traceState, spanFocusFilter, serviceTypeRegistryService);
         removeDuplicateNode();
-        this.collectorAcceptTime = collectorAcceptTime;
-        this.serviceTypeRegistryService = serviceTypeRegistryService;
+
+        this.focusFilter = NodeList.focusFilter(collectorAcceptTime);
     }
 
     private void removeDuplicateNode() {
@@ -149,56 +150,62 @@ public class SpanAligner {
     }
 
     private void link() {
-        final List<Link> linkedList = new ArrayList<>();
-        for (Link link : this.linkList) {
-            final List<Node> nodeList = this.linkMap.findNode(link);
+        LinkList filter = this.linkList.filter(this::usedLink);
 
-            if (CollectionUtils.nullSafeSize(nodeList) > 1) {
-                for (Node node : nodeList) {
-                    if (putNodeToLink(link, node, true)) {
-                        linkedList.add(link);
-                    }
-                }
-            } else if (CollectionUtils.nullSafeSize(nodeList) == 1) {
-                Node node = nodeList.get(0);
-                if (putNodeToLink(link, node, false)) {
-                    linkedList.add(link);
-                }
-            }
-        }
         // remove linked
-        this.linkList.removeAll(linkedList);
+        this.linkList.removeAll(filter);
     }
 
-    private boolean putNodeToLink(Link link, Node node, boolean hasMultipleChild) {
-        if (node != null) {
-            if (isDebug) {
-                logger.debug("Linked link {} to node {}", link, node);
+    private boolean usedLink(Link link) {
+        final List<Node> nodeList = this.linkMap.findNode(link);
+        if (CollectionUtils.isEmpty(nodeList)) {
+            return false;
+        }
+        int size = nodeList.size();
+        if (size > 1) {
+            for (Node node : nodeList) {
+                if (putNodeToLink(link, node, true)) {
+                    return true;
+                }
             }
-            // linked
-            node.setLinked(true);
-            link.setLinked(true);
-            if (hasMultipleChild) {
-                link.getLinkedCallTree().updateForMultipleChild(node.getSpanCallTree());
-            } else {
-                link.getLinkedCallTree().update(node.getSpanCallTree());
+        } else if (size == 1) {
+            Node node = nodeList.get(0);
+            if (putNodeToLink(link, node, false)) {
+                return true;
             }
-            return true;
         }
         return false;
     }
 
+    private boolean putNodeToLink(Link link, Node node, boolean hasMultipleChild) {
+        if (node == null) {
+            return false;
+        }
+        if (isDebug) {
+            logger.debug("Linked link {} to node {}", link, node);
+        }
+        // linked
+        node.setLinked(true);
+        link.setLinked(true);
+        if (hasMultipleChild) {
+            link.getLinkedCallTree().updateForMultipleChild(node.getSpanCallTree());
+        } else {
+            link.getLinkedCallTree().update(node.getSpanCallTree());
+        }
+        return true;
+    }
+
     private void fill() {
-        final List<Node> unlinkedNodeList = NodeList.filterUnlinked(this.nodeList);
+        final NodeList unlinkedNodeList = this.nodeList.filter(NodeList.unlinkFilter());
         for (Node node : unlinkedNodeList) {
             final SpanBo spanBo = node.getSpanBo();
             if (node.isLinked() || spanBo.isRoot()) {
                 continue;
             }
             // find missing grand parent.
-            final List<Link> targetLinkList = LinkList.filterSpan(this.linkList, spanBo);
-            if (CollectionUtils.hasLength(targetLinkList)) {
-                final Link matchedLink = LinkList.matchSpan(targetLinkList, spanBo);
+            final LinkList targetLinkList = this.linkList.filter(LinkList.spanFilter(spanBo));
+            if (!targetLinkList.isEmpty()) {
+                final Link matchedLink = targetLinkList.matchSpan(spanBo);
                 if (matchedLink != null) {
                     if (isDebug) {
                         logger.debug("Fill link {} to node {}", matchedLink, node);
@@ -232,7 +239,7 @@ public class SpanAligner {
             return this.metaSpanCallTreeFactory.unknown(0);
         }
 
-        final List<Node> unlinkedNodeList = NodeList.filterUnlinked(this.nodeList);
+        final NodeList unlinkedNodeList = this.nodeList.filter(NodeList.unlinkFilter());
         if (unlinkedNodeList.isEmpty()) {
             // WARNING recursive link ?
             logger.warn("Not found top node, node list={}", this.nodeList);
@@ -246,7 +253,7 @@ public class SpanAligner {
     }
 
     // best
-    private CallTree selectFirstSpan(List<Node> topNodeList) {
+    private CallTree selectFirstSpan(NodeList topNodeList) {
         final Node node = topNodeList.get(0);
         if (node.getSpanCallTree().isRootSpan()) {
             traceState.complete();
@@ -262,23 +269,21 @@ public class SpanAligner {
     }
 
     // just do it
-    private CallTree selectJustSpan(List<Node> topNodeList) {
+    private CallTree selectJustSpan(NodeList topNodeList) {
         // multiple spans
         if (isDebug) {
             logger.debug("Multiple top node list. size={}", topNodeList.size());
-            for (Node node : topNodeList) {
-                logger.debug("  node={}", node);
-            }
+            topNodeList.forEach((Node node) -> logger.debug("  node={}", node));
         }
 
         // find root
-        final List<Node> rootNodeList = NodeList.filterRoot(topNodeList);
+        final NodeList rootNodeList = topNodeList.filter(NodeList.rootFilter());
         if (rootNodeList.size() >= 1) {
             return selectInRootNodeList(rootNodeList);
         }
 
         // find focus
-        final List<Node> focusNodeList = NodeList.filterFocus(topNodeList, this.collectorAcceptTime);
+        final NodeList focusNodeList = topNodeList.filter(this.focusFilter);
         if (focusNodeList.size() >= 1) {
             return selectInFocusNodeList(focusNodeList, topNodeList);
         }
@@ -290,7 +295,7 @@ public class SpanAligner {
         return selectInNodeList(node, topNodeList);
     }
 
-    private CallTree selectInRootNodeList(final List<Node> rootNodeList) {
+    private CallTree selectInRootNodeList(final NodeList rootNodeList) {
         // in root list
         if (rootNodeList.size() == 1) {
             logger.info("Select root span in top node list");
@@ -300,7 +305,7 @@ public class SpanAligner {
             return node.getSpanCallTree();
         }
         // find focus
-        final List<Node> focusNodeList = NodeList.filterFocus(rootNodeList, this.collectorAcceptTime);
+        final NodeList focusNodeList = rootNodeList.filter(this.focusFilter);
         if (focusNodeList.size() == 1) {
             logger.info("Select root & focus span in top node list");
             final Node node = focusNodeList.get(0);
@@ -319,7 +324,7 @@ public class SpanAligner {
         return node.getSpanCallTree();
     }
 
-    private CallTree selectInFocusNodeList(final List<Node> focusNodeList, final List<Node> topNodeList) {
+    private CallTree selectInFocusNodeList(final NodeList focusNodeList, final NodeList topNodeList) {
         if (focusNodeList.size() == 1) {
             logger.info("Select focus span in top node list, not found root span");
             final Node node = focusNodeList.get(0);
@@ -334,108 +339,17 @@ public class SpanAligner {
         return selectInNodeList(node, topNodeList);
     }
 
-    private CallTree selectInNodeList(final Node node, final List<Node> topNodeList) {
+    private CallTree selectInNodeList(final Node node, final NodeList topNodeList) {
         final SpanBo spanBo = node.getSpanBo();
         final CallTree unknownCallTree = this.metaSpanCallTreeFactory.unknown(spanBo.getStartTime());
         unknownCallTree.add(node.getSpanCallTree());
         // find same parent
-        final List<Node> sameParentNodeList = NodeList.filterParent(topNodeList, spanBo.getParentSpanId());
+        final NodeList sameParentNodeList = topNodeList.filter(NodeList.parentFilter(spanBo.getParentSpanId()));
         sameParentNodeList.remove(node);
         for (Node siblingNode : sameParentNodeList) {
             unknownCallTree.add(siblingNode.getSpanCallTree());
         }
         return unknownCallTree;
-    }
-
-        private static class NodeList {
-        private static List<Node> filterUnlinked(List<Node> nodeList) {
-            return filter(nodeList, new NodeFilter() {
-                @Override
-                public boolean filter(Node node) {
-                    return !node.isLinked();
-                }
-            });
-        }
-
-        private static List<Node> filterRoot(List<Node> nodeList) {
-            return filter(nodeList, new NodeFilter() {
-                @Override
-                public boolean filter(Node node) {
-                    return node.getSpanBo().isRoot();
-                }
-            });
-        }
-
-        private static List<Node> filterFocus(List<Node> nodeList, final long collectorAcceptTime) {
-            return filter(nodeList, new NodeFilter() {
-                @Override
-                public boolean filter(Node node) {
-                    return node.getSpanCallTree().hasFocusSpan(collectorAcceptTime);
-                }
-            });
-        }
-
-        private static List<Node> filterParent(List<Node> nodeList, final long parentSpanId) {
-            return filter(nodeList, new NodeFilter() {
-                @Override
-                public boolean filter(Node node) {
-                    return parentSpanId == node.getSpanBo().getParentSpanId();
-                }
-            });
-        }
-
-        private static List<Node> filter(List<Node> nodeList, NodeFilter filter) {
-            if (CollectionUtils.isEmpty(nodeList)) {
-                return Collections.emptyList();
-            }
-
-            final List<Node> result = new ArrayList<>();
-            for (Node node : nodeList) {
-                if (filter.filter(node)) {
-                    result.add(node);
-                }
-            }
-            return result;
-        }
-    }
-
-    private interface NodeFilter {
-        boolean filter(final Node node);
-    }
-
-    private static class LinkList {
-        private static List<Link> filterSpan(final List<Link> linkList, final SpanBo span) {
-            if (CollectionUtils.isEmpty(linkList)) {
-                return Collections.emptyList();
-            }
-
-            final List<Link> result = new ArrayList<>();
-            for (Link link : linkList) {
-                if (span.getParentSpanId() == link.getParentSpanId() && span.getSpanId() == link.getSpanId()) {
-                    // skip self's link
-                    continue;
-                }
-                if (link.getNextSpanId() == span.getParentSpanId()) {
-                    result.add(link);
-                }
-            }
-            return result;
-        }
-
-        private static Link matchSpan(final List<Link> linkList, final SpanBo span) {
-            if (CollectionUtils.isEmpty(linkList)) {
-                return null;
-            }
-
-            linkList.sort(Comparator.comparingLong(Link::getStartTimeMillis));
-
-            for (Link link : linkList) {
-                if (link.getStartTimeMillis() <= span.getStartTime()) {
-                    return link;
-                }
-            }
-            return null;
-        }
     }
 
 }

@@ -100,7 +100,10 @@ public class BusinessTransactionController {
         final CallTreeIterator callTreeIterator = spanResult.getCallTree();
 
         // application map
-        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(transactionId, viewVersion, columnGetCount).setUseStatisticsServerInstanceList(true).build();
+        FilteredMapServiceOption.Builder optionBuilder = new FilteredMapServiceOption.Builder(transactionId, viewVersion, columnGetCount);
+        final FilteredMapServiceOption option = optionBuilder
+                .setUseStatisticsServerInstanceList(true)
+                .build();
         ApplicationMap map = filteredMapService.selectApplicationMap(option);
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp, agentId, spanId);
 

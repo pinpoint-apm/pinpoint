@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -96,18 +97,9 @@ public class Node {
         return new SpanChunkEventAlign(span, spanChunkBo, spanEventBo);
     }
 
-    public static List<Node> newNodeList(List<SpanBo> spans) {
-        final List<Node> nodeList = new ArrayList<>(spans.size());
-        // init sorted node list
-        for (SpanBo span : spans) {
-            SpanCallTree spanCallTree = new SpanCallTree(new SpanAlign(span));
-            final Node node = Node.build(span, spanCallTree);
-            nodeList.add(node);
-        }
-
-        // sort
-        nodeList.sort(Comparator.comparingLong(node -> node.getSpanBo().getStartTime()));
-        return nodeList;
+    public static Node toNode(SpanBo span) {
+        SpanCallTree spanCallTree = new SpanCallTree(new SpanAlign(span));
+        return Node.build(span, spanCallTree);
     }
 
     public static Node build(SpanBo spanBo, SpanCallTree spanCallTree) {
@@ -135,7 +127,6 @@ public class Node {
     }
 
     private static List<Align> mergeAndSort(List<Align> alignList1, List<Align> alignList2) {
-
         List<Align> mergedList = new ArrayList<>(alignList1.size() + alignList2.size());
         mergedList.addAll(alignList1);
         mergedList.addAll(alignList2);

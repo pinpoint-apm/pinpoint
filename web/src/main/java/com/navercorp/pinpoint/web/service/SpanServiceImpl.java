@@ -115,6 +115,8 @@ public class SpanServiceImpl implements SpanService {
         Objects.requireNonNull(transactionId, "transactionId");
 
         final List<SpanBo> spans = traceDao.selectSpan(transactionId, columnGetCount);
+        logger.debug("selectSpan spans:{}", spans.size());
+
         populateAgentName(spans);
         if (CollectionUtils.isEmpty(spans)) {
             return new SpanResult(TraceState.State.ERROR, new CallTreeIterator(null));
