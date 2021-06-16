@@ -356,7 +356,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private volatile AgentDownloadInfo cachedAgentDownloadInfo;
 
-    private static final Comparator<AgentDownloadInfo> REVERSE = Collections.reverseOrder(Comparator.comparing(AgentDownloadInfo::getVersion));
+    private static final Comparator<AgentDownloadInfo> REVERSE = Comparator.comparing(AgentDownloadInfo::getVersion).reversed();
 
     @Override
     public AgentDownloadInfo getLatestStableAgentDownloadInfo() {

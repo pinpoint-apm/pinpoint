@@ -61,6 +61,13 @@ public class ASMMethodVariables {
 
     private static final Type OBJECT_TYPE = Type.getObjectType("java/lang/Object");
 
+    private static final Comparator<LocalVariableNode> INDEX_COMPARATOR = new Comparator<LocalVariableNode>() {
+        @Override
+        public int compare(LocalVariableNode o1, LocalVariableNode o2) {
+            return Integer.compare(o1.index, o2.index);
+        }
+    };
+
     private final LabelNode interceptorVariableStartLabelNode = new LabelNode();
     private final LabelNode interceptorVariableEndLabelNode = new LabelNode();
 
@@ -147,12 +154,7 @@ public class ASMMethodVariables {
         }
 
         // sort by index.
-        Collections.sort(localVariableNodes, new Comparator<LocalVariableNode>() {
-            @Override
-            public int compare(LocalVariableNode o1, LocalVariableNode o2) {
-                return Integer.compare(o1.index, o2.index);
-            }
-        });
+        Collections.sort(localVariableNodes, INDEX_COMPARATOR);
         String[] names = new String[this.argumentTypes.length];
 
         for (int i = 0; i < this.argumentTypes.length; i++) {

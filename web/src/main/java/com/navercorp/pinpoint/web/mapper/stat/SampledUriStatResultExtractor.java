@@ -105,7 +105,7 @@ public class SampledUriStatResultExtractor implements ResultsExtractor<List<Samp
     }
 
     private SampledAgentUriStat getSampleData(List<EachUriStatBo> eachUriStatBos) {
-        eachUriStatBos.sort(Collections.reverseOrder(Comparator.comparingLong(EachUriStatBo::getTimestamp)));
+        eachUriStatBos.sort(Comparator.comparingLong(EachUriStatBo::getTimestamp).reversed());
 
         AgentStatSamplingHandler<EachUriStatBo, SampledEachUriStatBo> samplingHandler = new EagerSamplingHandler<>(timeWindow, sampler);
         for (EachUriStatBo eachUriStatBo : eachUriStatBos) {

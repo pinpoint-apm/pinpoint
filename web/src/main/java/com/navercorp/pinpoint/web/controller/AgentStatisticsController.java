@@ -92,7 +92,7 @@ public class AgentStatisticsController {
         Range range = Range.newRange(DateTimeUtils.timestampToStartOfDay(from), DateTimeUtils.timestampToStartOfDay(to));
         List<AgentCountStatistics> agentCountStatisticsList = agentStatisticsService.selectAgentCount(range);
 
-        agentCountStatisticsList.sort(Collections.reverseOrder(Comparator.comparingLong(AgentCountStatistics::getTimestamp)));
+        agentCountStatisticsList.sort(Comparator.comparingLong(AgentCountStatistics::getTimestamp).reversed());
 
         return agentCountStatisticsList;
     }

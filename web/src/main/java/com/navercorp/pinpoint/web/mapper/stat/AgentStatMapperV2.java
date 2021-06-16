@@ -42,7 +42,7 @@ import java.util.Objects;
 public class AgentStatMapperV2<T extends AgentStatDataPoint> implements AgentStatMapper<T> {
 
     public final static Comparator<AgentStatDataPoint> REVERSE_TIMESTAMP_COMPARATOR
-            = Collections.reverseOrder(Comparator.comparingLong(AgentStatDataPoint::getTimestamp));
+            = Comparator.comparingLong(AgentStatDataPoint::getTimestamp).reversed();
 
     private final AgentStatHbaseOperationFactory hbaseOperationFactory;
     private final AgentStatDecoder<T> decoder;
