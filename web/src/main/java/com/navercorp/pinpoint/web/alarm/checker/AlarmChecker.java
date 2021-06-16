@@ -78,15 +78,15 @@ public abstract class AlarmChecker<T> {
         detected = decideResult(getDetectedValue());
         logger.info("{} result is {} for application ({}). value is {}. (threshold : {}).", this.getClass().getSimpleName(), detected, rule.getApplicationId(), getDetectedValue(), rule.getThreshold());
     }
-    
+
     public List<String> getSmsMessage() {
         List<String> messages = new LinkedList<>();
-        messages.add(String.format("[PINPOINT Alarm - %s] %s is %s%s (Threshold : %s%s)", rule.getApplicationId(), rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit));
+        messages.add(String.format("[PINPOINT Alarm - %s] %s is %s%s Note is %s (Threshold : %s%s)", rule.getApplicationId(), rule.getCheckerName(), getDetectedValue(), unit, rule.getNotes(), rule.getThreshold(), unit));
         return messages;
     }
-    
+
     public String getEmailMessage() {
-        return String.format("%s value is %s%s during the past 5 mins.(Threshold : %s%s)<br>", rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit);
+        return String.format("[PINPOINT Alarm - %s] %s value is %s%s Note is %s during the past 5 mins.(Threshold : %s%s)<br>", rule.getApplicationId(), rule.getCheckerName(), getDetectedValue(), unit, rule.getNotes(), rule.getThreshold(), unit);
     }
     
     protected abstract T getDetectedValue();
