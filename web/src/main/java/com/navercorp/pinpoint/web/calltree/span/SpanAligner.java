@@ -240,9 +240,10 @@ public class SpanAligner {
         }
 
         final NodeList unlinkedNodeList = this.nodeList.filter(NodeList.unlinkFilter());
+        logger.debug("unlinkNode {}/{}", unlinkedNodeList.size(), this.nodeList.size());
         if (unlinkedNodeList.isEmpty()) {
             // WARNING recursive link ?
-            logger.warn("Not found top node, node list={}", this.nodeList);
+            logger.warn("Not found top node, unlink={} node list={}", unlinkedNodeList.size(), this.nodeList);
             traceState.progress();
             return this.metaSpanCallTreeFactory.unknown(0);
         } else if (unlinkedNodeList.size() == 1) {
@@ -271,8 +272,8 @@ public class SpanAligner {
     // just do it
     private CallTree selectJustSpan(NodeList topNodeList) {
         // multiple spans
+        logger.info("Multiple top node list. size={} focusFilter:{}", topNodeList.size(), this.focusFilter);
         if (isDebug) {
-            logger.debug("Multiple top node list. size={}", topNodeList.size());
             topNodeList.forEach((Node node) -> logger.debug("  node={}", node));
         }
 

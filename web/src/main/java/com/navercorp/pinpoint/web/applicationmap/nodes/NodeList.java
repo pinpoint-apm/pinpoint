@@ -52,9 +52,7 @@ public class NodeList {
     public void addNodeList(NodeList nodeList) {
         Objects.requireNonNull(nodeList, "nodeList");
 
-        for (Node node : nodeList.getNodeList()) {
-            addNode(node);
-        }
+        nodeList.getNodeList().forEach(this::addNode);
     }
 
     public boolean containsNode(Application application) {

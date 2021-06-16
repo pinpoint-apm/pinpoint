@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,7 @@ public class LinkList implements Iterable<Link> {
     private final List<Link> linkList;
 
     public LinkList() {
-        this(new ArrayList<>());
+        this.linkList = new ArrayList<>();
     }
 
     public LinkList(List<Link> linkList) {
@@ -31,6 +32,13 @@ public class LinkList implements Iterable<Link> {
     @Override
     public Iterator<Link> iterator() {
         return linkList.iterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super Link> action) {
+        Objects.requireNonNull(action, "action");
+
+        this.linkList.forEach(action);
     }
 
     public boolean remove(Link link) {
@@ -97,10 +105,7 @@ public class LinkList implements Iterable<Link> {
         return new Predicate<Link>() {
             @Override
             public boolean test(Link link) {
-                if (link.getStartTimeMillis() <= span.getStartTime()) {
-                    return true;
-                }
-                return false;
+                return link.getStartTimeMillis() <= span.getStartTime();
             }
         };
 
