@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -34,7 +35,7 @@ public class NodeList implements Iterable<Node> {
     }
 
     public NodeList() {
-        this(new ArrayList<>());
+        this.nodeList = new ArrayList<>();
     }
 
     public NodeList(List<Node> nodeList) {
@@ -44,6 +45,13 @@ public class NodeList implements Iterable<Node> {
     @Override
     public Iterator<Node> iterator() {
         return this.nodeList.iterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super Node> action) {
+        Objects.requireNonNull(action, "action");
+
+        this.nodeList.forEach(action);
     }
 
     public boolean remove(Node node) {
@@ -103,6 +111,11 @@ public class NodeList implements Iterable<Node> {
             @Override
             public boolean test(Node node) {
                 return node.getSpanCallTree().hasFocusSpan(collectorAcceptTime);
+            }
+
+            @Override
+            public String toString() {
+                return "acceptTimeFilter:" + collectorAcceptTime;
             }
         };
     }
