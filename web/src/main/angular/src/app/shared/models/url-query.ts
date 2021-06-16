@@ -29,7 +29,7 @@ export class UrlQuery {
     static WAS_ONLY = 'wasOnly';
     static ACTIVE_ONLY = 'activeOnly';
     static DRAG_INFO = 'dragInfo';
-    static TRACE_ID = 'traceId';
+    static TRANSACTION_INFO = 'transactionInfo';
 
     constructor() {}
     static getQueryList(): string[] {
@@ -42,7 +42,7 @@ export class UrlQuery {
             UrlQuery.WAS_ONLY,
             UrlQuery.ACTIVE_ONLY,
             UrlQuery.DRAG_INFO,
-            UrlQuery.TRACE_ID
+            UrlQuery.TRANSACTION_INFO
         ];
     }
 }
@@ -61,7 +61,7 @@ export class UrlQueryFactory {
             case UrlQuery.FILTER:
             case UrlQuery.HINT:
             case UrlQuery.DRAG_INFO:
-            case UrlQuery.TRACE_ID:
+            case UrlQuery.TRANSACTION_INFO:
                 return new UrlQueryClass<string>(queryValue) as IUrlQuery<string>;
             default:
                 return new UrlQueryClass<string>(queryValue) as IUrlQuery<string>;
