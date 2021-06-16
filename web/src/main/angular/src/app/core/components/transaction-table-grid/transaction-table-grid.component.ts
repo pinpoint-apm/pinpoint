@@ -27,7 +27,7 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
     @Input() rowData: IGridData[];
     @Input() addData: IGridData[];
     @Input() resized: any;
-    @Input() currentTraceId: string;
+    @Input() selectedTransactionId: string;
     @Input() timezone: string;
     @Input() dateFormat: string;
     @Input() dataEmptyText: string;
@@ -82,7 +82,7 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
                 return params.data.exception === 1 ? 'ag-row-exception' : '';
             },
             onCellClicked: (params: any) => {
-                if ( params.colDef.field === 'path' ) {
+                if (params.colDef.field === 'path') {
                     const tag = params.event.target.tagName.toUpperCase();
                     if (tag === 'I' || tag === 'BUTTON' ) {
                         this.outSelectTransactionView.next({
@@ -94,22 +94,25 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
                         return;
                     }
                 }
-                if ( this.currentTraceId === params.data.traceId ) {
+
+                const selectedTransactionId = `${params.data.traceId}-${params.data.collectorAcceptTime}`;
+
+                if (this.selectedTransactionId === selectedTransactionId) {
                     return;
                 }
-                this.currentTraceId = params.data.traceId;
+
                 this.outSelectTransaction.next({
                     traceId: params.data.traceId,
                     collectorAcceptTime: params.data.collectorAcceptTime,
                     elapsed: params.data.responseTime
                 });
             },
-            getRowNodeId: (data) => data.traceId
+            getRowNodeId: (data) => `${data.traceId}-${data.collectorAcceptTime}`
         };
     }
 
-    onGridReady(params: GridOptions): void {}
-    onGridSizeChanged(params: GridOptions): void {
+    onGridReady(_: GridOptions): void {}
+    onGridSizeChanged(_: GridOptions): void {
         this.gridOptions.api.sizeColumnsToFit();
     }
 
@@ -117,11 +120,11 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
     onRendered(): void {
         this.gridOptions.api.sizeColumnsToFit();
 
-        if (!this.currentTraceId) {
+        if (!this.selectedTransactionId) {
             return;
         }
 
-        const selectedRow = this.gridOptions.api.getRowNode(this.currentTraceId);
+        const selectedRow = this.gridOptions.api.getRowNode(this.selectedTransactionId);
 
         selectedRow.setSelected(true, true);
         this.gridOptions.api.ensureIndexVisible(selectedRow.rowIndex, 'middle');

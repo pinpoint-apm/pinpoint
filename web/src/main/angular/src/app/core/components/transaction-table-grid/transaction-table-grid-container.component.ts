@@ -25,7 +25,7 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
     private unsubscribe = new Subject<void>();
 
     areaResized: any;
-    selectedTraceId: string;
+    selectedTransactionId: string;
     transactionData: ITransactionMetaData[] = [];
     transactionDataForAgGrid: IGridData[];
     transactionAddedDataForAgGrid: IGridData[];
@@ -50,10 +50,8 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
             takeUntil(this.unsubscribe),
             filter((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlQuery.DRAG_INFO))
         ).subscribe((urlService: NewUrlStateNotificationService) => {
-            if (urlService.hasValue(UrlQuery.TRACE_ID)) {
-                // this.selectedTraceId = urlService.getQueryValue(UrlQuery.TRACE_ID);
-                // TODO: When When the v1 version gets removed, just use traceId itself without the regax
-                this.selectedTraceId = urlService.getQueryValue(UrlQuery.TRACE_ID).replace(/(.*)-\d*-\d*$/, '$1');
+            if (urlService.hasValue(UrlQuery.TRANSACTION_INFO)) {
+                this.selectedTransactionId = urlService.getQueryValue(UrlQuery.TRANSACTION_INFO).replace(/(.*)-(\d*)-\d*$/, '$1-$2');
                 this.dispatchTransaction();
             }
 
@@ -139,19 +137,15 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
         } as IGridData;
     }
 
-    private findTransaction(traceId: string): ITransactionMetaData {
-        for (let i = 0; i < this.transactionData.length; i++) {
-            if (this.transactionData[i].traceId === traceId) {
-                return this.transactionData[i];
-            }
-        }
-
-        return null;
+    private findTransaction(transactionId: string): ITransactionMetaData {
+        return this.transactionData.find(({traceId, collectorAcceptTime}: ITransactionMetaData) => {
+            return `${traceId}-${collectorAcceptTime}` === transactionId;
+        });
     }
 
     private dispatchTransaction(): void {
-        if (this.selectedTraceId) {
-            const transaction = this.findTransaction(this.selectedTraceId);
+        if (this.selectedTransactionId) {
+            const transaction = this.findTransaction(this.selectedTransactionId);
 
             if (transaction) {
                 this.storeHelperService.dispatch(new Actions.UpdateTransactionData(transaction));
@@ -159,7 +153,7 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
         }
     }
 
-    onSelectTransaction(transactionShortInfo: { traceId: string, collectorAcceptTime: number, elapsed: number }): void {
+    onSelectTransaction({traceId, collectorAcceptTime, elapsed}: {traceId: string, collectorAcceptTime: number, elapsed: number}): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_TRANSACTION);
         this.urlRouteManagerService.moveOnPage({
             url: [
@@ -169,9 +163,7 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
             ],
             queryParams: {
-                // [UrlQuery.TRACE_ID]: transactionShortInfo.traceId
-                // TODO: When the v1 version gets removed, use only traceId
-                [UrlQuery.TRACE_ID]: `${transactionShortInfo.traceId}-${transactionShortInfo.collectorAcceptTime}-${transactionShortInfo.elapsed}`
+                [UrlQuery.TRANSACTION_INFO]: `${traceId}-${collectorAcceptTime}-${elapsed}`
             }
         });
     }
