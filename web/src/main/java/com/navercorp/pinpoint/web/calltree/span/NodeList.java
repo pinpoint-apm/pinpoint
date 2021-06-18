@@ -108,7 +108,7 @@ public class NodeList implements Iterable<Node> {
         return new Predicate<Node>() {
             @Override
             public boolean test(Node node) {
-                return node.getSpanCallTree().hasFocusSpan(filter);
+                return node.getSpanCallTree().filterSpan(filter);
             }
 
             @Override
