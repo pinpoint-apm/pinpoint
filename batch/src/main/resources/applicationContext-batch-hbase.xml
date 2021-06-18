@@ -259,4 +259,6 @@
         <constructor-arg ref="metadataRowKeyDistributor2"/>
     </bean>
 
+    <bean id="scatterChartConfig" class="com.navercorp.pinpoint.web.config.ScatterChartConfig"/>
+
 </beans>
