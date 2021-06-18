@@ -241,6 +241,13 @@ public class SpanAligner {
             return this.metaSpanCallTreeFactory.unknown(0);
         }
 
+        // find root
+        final NodeList rootNodeList = nodeList.filter(NodeList.rootFilter());
+        if (rootNodeList.size() >= 1) {
+            return selectInRootNodeList(rootNodeList);
+        }
+
+        // Corner case : root node not found
         final NodeList unlinkedNodeList = this.nodeList.filter(NodeList.unlinkFilter());
         logger.debug("unlinkNode {}/{}", unlinkedNodeList.size(), this.nodeList.size());
         if (unlinkedNodeList.isEmpty()) {
@@ -277,12 +284,6 @@ public class SpanAligner {
         logger.info("Multiple top node list. size={} focusFilter:{}", topNodeList.size(), this.focusFilter);
         if (isDebug) {
             topNodeList.forEach((Node node) -> logger.debug("  node={}", node));
-        }
-
-        // find root
-        final NodeList rootNodeList = topNodeList.filter(NodeList.rootFilter());
-        if (rootNodeList.size() >= 1) {
-            return selectInRootNodeList(rootNodeList);
         }
 
         // find focus

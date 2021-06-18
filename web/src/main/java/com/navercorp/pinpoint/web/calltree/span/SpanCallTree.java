@@ -51,44 +51,73 @@ public class SpanCallTree implements CallTree {
         return this.getSpanBo().isRoot();
     }
 
-    public boolean hasFocusSpan(Predicate<SpanBo> focusSpanFilter) {
-        Objects.requireNonNull(focusSpanFilter, "focusSpanFilter");
+    public boolean filterSpan(Predicate<SpanBo> spanFilter) {
+        Objects.requireNonNull(spanFilter, "spanFilter");
 
-        travel(root, focusSpanFilter);
-        return focusSpanFilter.test(this.getSpanBo());
+        DfsTraversal context = new DfsTraversal(spanFilter);
+        return context.travel(root);
     }
 
+    private static class DfsTraversal {
+        private final static int MAX_OVERFLOW_COUNT = 1024;
+        private final Predicate<SpanBo> filter;
 
-    boolean travel(CallTreeNode node, final Predicate<SpanBo> filter) {
-        if (filterNode(node, filter)) {
-            return true;
+        // Defence cycle ref
+        // Weak validate
+        private int overflowCounter;
+        // Aggressive validate
+        // equals, hashcode not implemented
+        // private List<CallTreeNode> visited = new ArrayList<>();
+
+        public DfsTraversal(Predicate<SpanBo> filter) {
+            this.filter = Objects.requireNonNull(filter, "filter");
         }
 
-        if (node.hasChild()) {
-            travel(node.getChild());
-        }
-
-        // change logic from recursive to loop, because of avoid call-stack-overflow.
-        CallTreeNode sibling = node.getSibling();
-        while (sibling != null) {
-            if (filterNode(sibling, filter)) {
+        private boolean travel(CallTreeNode node) {
+            if (checkOverFlow()) {
+                return false;
+            }
+            if (filterNode(node)) {
                 return true;
             }
-            if (sibling.hasChild()) {
-                travel(sibling.getChild());
-            }
-            sibling = sibling.getSibling();
-        }
-        return false;
-    }
 
-    boolean filterNode(CallTreeNode node, Predicate<SpanBo> filter) {
-        if (!node.getAlign().isSpan()) {
-            // fast filter
+            if (node.hasChild()) {
+                if (travel(node.getChild())) {
+                    return true;
+                }
+            }
+
+            // change logic from recursive to loop, because of avoid call-stack-overflow.
+            CallTreeNode sibling = node.getSibling();
+            while (sibling != null) {
+                if (filterNode(sibling)) {
+                    return true;
+                }
+                if (sibling.hasChild()) {
+                    if (travel(sibling.getChild())) {
+                        return true;
+                    }
+                }
+                sibling = sibling.getSibling();
+            }
             return false;
         }
-        SpanBo spanBo = node.getAlign().getSpanBo();
-        return filter.test(spanBo);
+
+        private boolean checkOverFlow() {
+            if (overflowCounter++ > MAX_OVERFLOW_COUNT) {
+                return true;
+            }
+            return false;
+        }
+
+        boolean filterNode(CallTreeNode node) {
+            if (!node.getAlign().isSpan()) {
+                // fast filter
+                return false;
+            }
+            SpanBo spanBo = node.getAlign().getSpanBo();
+            return filter.test(spanBo);
+        }
     }
 
     public CallTreeNode getRoot() {
