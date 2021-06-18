@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.web.mapper;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.web.dao.hbase.SpanQuery;
+import com.navercorp.pinpoint.web.dao.hbase.SpanQueryBuilder;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.SpanHint;
 
@@ -33,27 +35,28 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Taejin Koo
  */
-public class TargetSpanDecoderTest {
+public class FilteringSpanDecoderTest {
 
     @Test(expected = NullPointerException.class)
     public void constructorFailureTest1() {
-        new TargetSpanDecoder(null, null);
+        new FilteringSpanDecoder(null, null);
     }
 
     @Test(expected = NullPointerException.class)
     public void constructorFailureTest2() {
         SpanDecoder mockSpanDecoder = Mockito.mock(SpanDecoder.class);
-        new TargetSpanDecoder(mockSpanDecoder, null);
+        new FilteringSpanDecoder(mockSpanDecoder, null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void constructorFailureTest3() {
         SpanDecoder mockSpanDecoder = Mockito.mock(SpanDecoder.class);
 
         TransactionId transactionId = Random.createTransactionId();
         GetTraceInfo getTraceInfo = new GetTraceInfo(transactionId);
-
-        new TargetSpanDecoder(mockSpanDecoder, getTraceInfo);
+        SpanQueryBuilder builder = new SpanQueryBuilder();
+        SpanQuery query = builder.build(getTraceInfo);
+        new FilteringSpanDecoder(mockSpanDecoder, query.getSpanFilter());
     }
 
     @Test
@@ -61,10 +64,12 @@ public class TargetSpanDecoderTest {
         SpanDecoder mockSpanDecoder = createMockSpanDecoder();
 
         GetTraceInfo getTraceInfo = createGetTraceInfo();
+        SpanQueryBuilder builder = new SpanQueryBuilder();
+        SpanQuery query = builder.build(getTraceInfo);
 
-        TargetSpanDecoder targetSpanDecoder = new TargetSpanDecoder(mockSpanDecoder, getTraceInfo);
+        FilteringSpanDecoder filteringSpanDecoder = new FilteringSpanDecoder(mockSpanDecoder, query.getSpanFilter());
 
-        Object result = targetSpanDecoder.decode(null, null, null);
+        Object result = filteringSpanDecoder.decode(null, null, null);
         Assert.assertNull(result);
     }
 
@@ -74,10 +79,12 @@ public class TargetSpanDecoderTest {
         SpanDecoder mockSpanDecoder = createMockSpanDecoder(spanBo);
 
         GetTraceInfo getTraceInfo = createGetTraceInfo(spanBo);
+        SpanQueryBuilder builder = new SpanQueryBuilder();
+        SpanQuery query = builder.build(getTraceInfo);
 
-        TargetSpanDecoder targetSpanDecoder = new TargetSpanDecoder(mockSpanDecoder, getTraceInfo);
+        FilteringSpanDecoder filteringSpanDecoder = new FilteringSpanDecoder(mockSpanDecoder, query.getSpanFilter());
 
-        Object result = targetSpanDecoder.decode(null, null, null);
+        Object result = filteringSpanDecoder.decode(null, null, null);
         Assert.assertNotNull(result);
     }
 
@@ -88,10 +95,12 @@ public class TargetSpanDecoderTest {
         SpanDecoder mockSpanDecoder = createMockSpanDecoder(spanBo);
 
         GetTraceInfo getTraceInfo = new GetTraceInfo(spanBo.getTransactionId(), new SpanHint(spanBo.getCollectorAcceptTime(), spanBo.getElapsed(), applicationId + "1"));
+        SpanQueryBuilder builder = new SpanQueryBuilder();
+        SpanQuery query = builder.build(getTraceInfo);
 
-        TargetSpanDecoder targetSpanDecoder = new TargetSpanDecoder(mockSpanDecoder, getTraceInfo);
+        FilteringSpanDecoder filteringSpanDecoder = new FilteringSpanDecoder(mockSpanDecoder, query.getSpanFilter());
 
-        Object result = targetSpanDecoder.decode(null, null, null);
+        Object result = filteringSpanDecoder.decode(null, null, null);
         Assert.assertNull(result);
     }
 
@@ -102,10 +111,12 @@ public class TargetSpanDecoderTest {
         SpanDecoder mockSpanDecoder = createMockSpanDecoder(spanBo);
 
         GetTraceInfo getTraceInfo = new GetTraceInfo(spanBo.getTransactionId(), new SpanHint(spanBo.getCollectorAcceptTime(), spanBo.getElapsed(), null));
+        SpanQueryBuilder builder = new SpanQueryBuilder();
+        SpanQuery query = builder.build(getTraceInfo);
 
-        TargetSpanDecoder targetSpanDecoder = new TargetSpanDecoder(mockSpanDecoder, getTraceInfo);
+        FilteringSpanDecoder filteringSpanDecoder = new FilteringSpanDecoder(mockSpanDecoder, query.getSpanFilter());
 
-        Object result = targetSpanDecoder.decode(null, null, null);
+        Object result = filteringSpanDecoder.decode(null, null, null);
         Assert.assertNotNull(result);
     }
 

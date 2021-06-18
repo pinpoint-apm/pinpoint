@@ -36,9 +36,8 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.mapper.CellTraceMapper;
 import com.navercorp.pinpoint.web.mapper.SpanMapperV2;
-import com.navercorp.pinpoint.web.mapper.TargetSpanDecoder;
+import com.navercorp.pinpoint.web.mapper.FilteringSpanDecoder;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
-import com.navercorp.pinpoint.web.vo.SpanHint;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -50,9 +49,7 @@ import org.apache.hadoop.hbase.filter.ByteArrayComparable;
 import org.apache.hadoop.hbase.filter.ColumnCountGetFilter;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.Filter;
-import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
-import org.apache.hadoop.hbase.filter.TimestampsFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -61,10 +58,11 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -154,9 +152,16 @@ public class HbaseTraceDaoV2 implements TraceDao {
         if (CollectionUtils.isEmpty(getTraceInfoList)) {
             return Collections.emptyList();
         }
-
-        List<List<GetTraceInfo>> partitionGetTraceInfoList = partition(getTraceInfoList, eachPartitionSize);
+        List<SpanQuery> spanQuery = getTraceInfoList.stream()
+                .map(this::toSpanQuery)
+                .collect(Collectors.toList());
+        List<List<SpanQuery>> partitionGetTraceInfoList = partition(spanQuery, eachPartitionSize);
         return partitionSelect(partitionGetTraceInfoList, descriptor.getColumnFamilyName(), spanFilter);
+    }
+
+    private SpanQuery toSpanQuery(GetTraceInfo getTraceInfo) {
+        SpanQueryBuilder builder = new SpanQueryBuilder();
+        return builder.build(getTraceInfo);
     }
 
     @Override
@@ -179,34 +184,33 @@ public class HbaseTraceDaoV2 implements TraceDao {
             return Collections.emptyList();
         }
 
-        List<GetTraceInfo> getTraceInfoList = new ArrayList<>(transactionIdList.size());
-        for (TransactionId transactionId : transactionIdList) {
-            getTraceInfoList.add(new GetTraceInfo(transactionId));
-        }
+        List<SpanQuery> getTraceInfoList = transactionIdList.stream()
+                .map(SpanQuery::new)
+                .collect(Collectors.toList());
 
-        List<List<GetTraceInfo>> partitionGetTraceInfoList = partition(getTraceInfoList, eachPartitionSize);
+        List<List<SpanQuery>> partitionGetTraceInfoList = partition(getTraceInfoList, eachPartitionSize);
         return partitionSelect(partitionGetTraceInfoList, descriptor.getColumnFamilyName(), filter);
     }
 
-    private List<List<GetTraceInfo>> partition(List<GetTraceInfo> getTraceInfoList, int maxTransactionIdListSize) {
+    private List<List<SpanQuery>> partition(List<SpanQuery> getTraceInfoList, int maxTransactionIdListSize) {
         return ListUtils.partition(getTraceInfoList, maxTransactionIdListSize);
     }
 
-    private List<List<SpanBo>> partitionSelect(List<List<GetTraceInfo>> partitionGetTraceInfoList, byte[] columnFamily, Filter filter) {
+    private List<List<SpanBo>> partitionSelect(List<List<SpanQuery>> partitionGetTraceInfoList, byte[] columnFamily, Filter filter) {
         if (CollectionUtils.isEmpty(partitionGetTraceInfoList)) {
             return Collections.emptyList();
         }
         Objects.requireNonNull(columnFamily, "columnFamily");
 
         List<List<SpanBo>> spanBoList = new ArrayList<>();
-        for (List<GetTraceInfo> getTraceInfoList : partitionGetTraceInfoList) {
+        for (List<SpanQuery> getTraceInfoList : partitionGetTraceInfoList) {
             List<List<SpanBo>> result = bulkSelect(getTraceInfoList, columnFamily, filter);
             spanBoList.addAll(result);
         }
         return spanBoList;
     }
 
-    private List<List<SpanBo>> bulkSelect(List<GetTraceInfo> getTraceInfoList, byte[] columnFamily, Filter filter) {
+    private List<List<SpanBo>> bulkSelect(List<SpanQuery> getTraceInfoList, byte[] columnFamily, Filter filter) {
         if (CollectionUtils.isEmpty(getTraceInfoList)) {
             return Collections.emptyList();
         }
@@ -218,61 +222,36 @@ public class HbaseTraceDaoV2 implements TraceDao {
         return bulkSelect0(getList, spanMapperAdaptor);
     }
 
-    private RowMapper<List<SpanBo>> newRowMapper(List<GetTraceInfo> getTraceInfoList) {
-        RequestAwareRowMapper<List<SpanBo>, GetTraceInfo> getTraceInfoRowMapper = new RequestAwareDynamicRowMapper<>(this::getSpanMapper);
-        return new RequestAwareRowMapperAdaptor<List<SpanBo>, GetTraceInfo>(getTraceInfoList, getTraceInfoRowMapper);
+    private RowMapper<List<SpanBo>> newRowMapper(List<SpanQuery> spanQueryList) {
+        RequestAwareRowMapper<List<SpanBo>, SpanQuery> getTraceInfoRowMapper = new RequestAwareDynamicRowMapper<>(this::getSpanMapper);
+        return new RequestAwareRowMapperAdaptor<>(spanQueryList, getTraceInfoRowMapper);
     }
 
 
-    private RowMapper<List<SpanBo>> getSpanMapper(GetTraceInfo getTraceInfo) {
-        final SpanHint hint = getTraceInfo.getHint();
-        if (hint.isSet()) {
-            final SpanDecoder targetSpanDecoder = new TargetSpanDecoder(new SpanDecoderV0(), getTraceInfo);
-            final RowMapper<List<SpanBo>> spanMapper = new SpanMapperV2(rowKeyDecoder, targetSpanDecoder, stringCacheSize);
-            return spanMapper;
-        } else {
+    private RowMapper<List<SpanBo>> getSpanMapper(SpanQuery spanQuery) {
+        final Predicate<SpanBo> spanFilter = spanQuery.getSpanFilter();
+        if (spanFilter == null) {
             return spanMapperV2;
         }
+        final SpanDecoder targetSpanDecoder = new FilteringSpanDecoder(new SpanDecoderV0(), spanFilter);
+        return new SpanMapperV2(rowKeyDecoder, targetSpanDecoder, stringCacheSize);
     }
 
-
-    private List<Get> createGetList(List<GetTraceInfo> getTraceInfoList, byte[] columnFamily, Filter defaultFilter) {
-        if (CollectionUtils.isEmpty(getTraceInfoList)) {
+    private List<Get> createGetList(List<SpanQuery> spanQueryList, byte[] columnFamily, Filter defaultFilter) {
+        if (CollectionUtils.isEmpty(spanQueryList)) {
             return Collections.emptyList();
         }
-        final List<Get> getList = new ArrayList<>(getTraceInfoList.size());
-        for (GetTraceInfo getTraceInfo : getTraceInfoList) {
-            final SpanHint hint = getTraceInfo.getHint();
-            final TimestampsFilter timeStampFilter = getTimeStampFilter(hint);
+        final List<Get> getList = new ArrayList<>(spanQueryList.size());
+        for (SpanQuery spanQuery : spanQueryList) {
+            Filter spanQueryFilter = spanQuery.getHbaseFilter();
+            Filter filter = HBaseUtils.newFilterList(defaultFilter, spanQueryFilter);
 
-            Filter filter = newFilter(defaultFilter, timeStampFilter);
-            final Get get = createGet(getTraceInfo.getTransactionId(), columnFamily, filter);
+            final Get get = createGet(spanQuery.getTransactionId(), columnFamily, filter);
             getList.add(get);
         }
         return getList;
     }
 
-    private TimestampsFilter getTimeStampFilter(SpanHint hint) {
-        final long collectorAcceptorTime = hint.getCollectorAcceptorTime();
-        if (collectorAcceptorTime >= 0) {
-            return new TimestampsFilter(Arrays.asList(collectorAcceptorTime));
-        } else {
-            return null;
-        }
-    }
-
-    private Filter newFilter(Filter... filters) {
-        FilterList filterList = new FilterList();
-        for (Filter filter : filters) {
-            if (filter != null) {
-                filterList.addFilter(filter);
-            }
-        }
-        if (filterList.size() == 0) {
-            return null;
-        }
-        return filterList;
-    }
 
     private List<List<SpanBo>> bulkSelect0(List<Get> multiGet, RowMapper<List<SpanBo>> rowMapperList) {
         if (CollectionUtils.isEmpty(multiGet)) {

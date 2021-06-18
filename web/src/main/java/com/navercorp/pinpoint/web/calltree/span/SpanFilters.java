@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.calltree.span;
 
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.controller.BusinessTransactionController;
@@ -41,7 +42,7 @@ public class SpanFilters {
         return new FilterBuilder();
     }
 
-    private static class FilterBuilder {
+    public static class FilterBuilder {
         private final List<Predicate<SpanBo>> predicates = new ArrayList<>();
 
         public void addFilter(Predicate<SpanBo> filter) {
@@ -147,5 +148,56 @@ public class SpanFilters {
             return "agentIdFilter:" + agentId;
         }
     }
+
+    // -----------------------
+    // SpanQueryBuilder
+    public static Predicate<SpanBo> transactionIdFilter(TransactionId transactionId) {
+        Objects.requireNonNull(transactionId, "transactionId");
+        return new Predicate<SpanBo>() {
+            @Override
+            public boolean test(SpanBo spanBo) {
+                return transactionId.equals(spanBo.getTransactionId());
+            }
+
+            @Override
+            public String toString() {
+                return "transactionId=" + transactionId;
+            }
+        };
+    }
+
+    public static Predicate<SpanBo> applicationIdFilter(String applicationId) {
+        Objects.requireNonNull(applicationId, "applicationId");
+        return new Predicate<SpanBo>() {
+            @Override
+            public boolean test(SpanBo spanBo) {
+                return applicationId.equals(spanBo.getApplicationId());
+            }
+
+            @Override
+            public String toString() {
+                return "applicationId=" + applicationId;
+            }
+        };
+    }
+
+
+    public static Predicate<SpanBo> responseTimeFilter(int responseTime) {
+        return new Predicate<SpanBo>() {
+            @Override
+            public boolean test(SpanBo spanBo) {
+                return responseTime == spanBo.getElapsed();
+            }
+
+            @Override
+            public String toString() {
+                return "responseTime=" + responseTime;
+            }
+        };
+    }
+
+
+
+
 
 }
