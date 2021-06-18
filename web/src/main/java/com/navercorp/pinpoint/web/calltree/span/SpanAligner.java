@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
@@ -44,15 +45,16 @@ public class SpanAligner {
     private final LinkMap linkMap;
     private final MetaSpanCallTreeFactory metaSpanCallTreeFactory = new MetaSpanCallTreeFactory();
 
-    public SpanAligner(final List<SpanBo> spans, final long collectorAcceptTime, ServiceTypeRegistryService serviceTypeRegistryService) {
+    public SpanAligner(final List<SpanBo> spans, Predicate<SpanBo> filter, ServiceTypeRegistryService serviceTypeRegistryService) {
         this.nodeList = NodeList.newNodeList(spans);
         this.linkList = new LinkList();
 
-        Predicate<SpanBo> spanFocusFilter = LinkMap.focusFilter(collectorAcceptTime);
-        this.linkMap = LinkMap.buildLinkMap(nodeList, traceState, spanFocusFilter, serviceTypeRegistryService);
+        Objects.requireNonNull(filter, "filter");
+
+        this.linkMap = LinkMap.buildLinkMap(nodeList, traceState, filter, serviceTypeRegistryService);
         removeDuplicateNode();
 
-        this.focusFilter = NodeList.focusFilter(collectorAcceptTime);
+        this.focusFilter = NodeList.callTreeFilter(filter);
     }
 
     private void removeDuplicateNode() {
@@ -334,7 +336,7 @@ public class SpanAligner {
         }
 
         logger.info("Select first focus span in top node list, not found root span");
-
+        // TODO
         final Node node = focusNodeList.get(0);
         traceState.progress();
         return selectInNodeList(node, topNodeList);

@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class NodeList implements Iterable<Node> {
 
     private final static Comparator<Node> STARTTIME_COMPARATOR
-            = Comparator.comparingLong(NodeList::getStartTime);
+            = Comparator.comparingLong((Node node) -> node.getSpanBo().getStartTime());
 
     private final List<Node> nodeList;
 
@@ -28,10 +28,6 @@ public class NodeList implements Iterable<Node> {
                 .sorted(STARTTIME_COMPARATOR)
                 .collect(Collectors.toList());
         return new NodeList(list);
-    }
-
-    private static long getStartTime(Node node) {
-        return node.getSpanBo().getStartTime();
     }
 
     public NodeList() {
@@ -106,16 +102,18 @@ public class NodeList implements Iterable<Node> {
         };
     }
 
-    public static Predicate<Node> focusFilter(final long collectorAcceptTime) {
+    public static Predicate<Node> callTreeFilter(Predicate<SpanBo> filter) {
+        Objects.requireNonNull(filter, "filter");
+
         return new Predicate<Node>() {
             @Override
             public boolean test(Node node) {
-                return node.getSpanCallTree().hasFocusSpan(collectorAcceptTime);
+                return node.getSpanCallTree().hasFocusSpan(filter);
             }
 
             @Override
             public String toString() {
-                return "acceptTimeFilter:" + collectorAcceptTime;
+                return "callTreeFilter:" + filter;
             }
         };
     }
@@ -125,6 +123,11 @@ public class NodeList implements Iterable<Node> {
             @Override
             public boolean test(Node node) {
                 return parentSpanId == node.getSpanBo().getParentSpanId();
+            }
+
+            @Override
+            public String toString() {
+                return "parentSpanId:" + parentSpanId;
             }
         };
     }

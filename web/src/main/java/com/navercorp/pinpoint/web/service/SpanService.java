@@ -21,15 +21,16 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * @author emeroad
  */
 public interface SpanService {
 
-    SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint);
+    SpanResult selectSpan(TransactionId transactionId, Predicate<SpanBo> filter);
 
-    SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint, ColumnGetCount columnGetCount);
+    SpanResult selectSpan(TransactionId transactionId, Predicate<SpanBo> filter, ColumnGetCount columnGetCount);
 
     void populateAgentName(List<SpanBo> spanBoList);
 

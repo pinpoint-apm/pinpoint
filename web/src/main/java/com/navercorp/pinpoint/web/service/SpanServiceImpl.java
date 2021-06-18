@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -106,13 +107,14 @@ public class SpanServiceImpl implements SpanService {
     }
 
     @Override
-    public SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint) {
-        return selectSpan(transactionId, selectedSpanHint, null);
+    public SpanResult selectSpan(TransactionId transactionId, Predicate<SpanBo> filter) {
+        return selectSpan(transactionId, filter, null);
     }
 
     @Override
-    public SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint, ColumnGetCount columnGetCount) {
+    public SpanResult selectSpan(TransactionId transactionId, Predicate<SpanBo> filter, ColumnGetCount columnGetCount) {
         Objects.requireNonNull(transactionId, "transactionId");
+        Objects.requireNonNull(filter, "filter");
 
         final List<SpanBo> spans = traceDao.selectSpan(transactionId, columnGetCount);
         logger.debug("selectSpan spans:{}", spans.size());
@@ -122,7 +124,7 @@ public class SpanServiceImpl implements SpanService {
             return new SpanResult(TraceState.State.ERROR, new CallTreeIterator(null));
         }
 
-        final SpanResult result = order(spans, selectedSpanHint);
+        final SpanResult result = order(spans, filter);
         final CallTreeIterator callTreeIterator = result.getCallTree();
         final List<Align> values = callTreeIterator.values();
 
@@ -489,8 +491,8 @@ public class SpanServiceImpl implements SpanService {
         void replacement(Align align, List<AnnotationBo> annotationBoList);
     }
 
-    private SpanResult order(List<SpanBo> spans, long selectedSpanHint) {
-        SpanAligner spanAligner = new SpanAligner(spans, selectedSpanHint, serviceTypeRegistryService);
+    private SpanResult order(List<SpanBo> spans, Predicate<SpanBo> filter) {
+        SpanAligner spanAligner = new SpanAligner(spans, filter, serviceTypeRegistryService);
         final CallTree callTree = spanAligner.align();
 
         return new SpanResult(spanAligner.getMatchType(), callTree.iterator());

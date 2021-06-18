@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +44,8 @@ public class Node {
     private SpanAsyncEventMap asyncSpanEventMap;
 
     public Node(final SpanBo span, final SpanCallTree spanCallTree) {
-        this.span = span;
-        this.spanCallTree = spanCallTree;
+        this.span = Objects.requireNonNull(span, "span");
+        this.spanCallTree = Objects.requireNonNull(spanCallTree, "spanCallTree");
     }
 
 
@@ -128,9 +129,7 @@ public class Node {
     }
 
     private static List<Align> mergeAndSort(List<Align> alignList1, List<Align> alignList2) {
-        List<Align> mergedList = new ArrayList<>(alignList1.size() + alignList2.size());
-        mergedList.addAll(alignList1);
-        mergedList.addAll(alignList2);
+        List<Align> mergedList = ListUtils.union(alignList1, alignList2);
 
         mergedList.sort(AlignComparator.INSTANCE);
         return mergedList;
@@ -172,8 +171,8 @@ public class Node {
             }
             List<SpanEventBo> spanEventList = chunkBo.getSpanEventBoList();
             for (SpanEventBo spanEventBo : spanEventList) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Populate spanEvent{seq={}, depth={}, event={}}", spanEventBo.getSequence(), spanEventBo.getDepth(), spanEventBo);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("Populate spanEvent{seq={}, depth={}, event={}}", spanEventBo.getSequence(), spanEventBo.getDepth(), spanEventBo);
                 }
                 final Align spanEventAlign = this.newSpanEventAlign(chunkBo, spanEventBo);
                 alignList.add(spanEventAlign);
