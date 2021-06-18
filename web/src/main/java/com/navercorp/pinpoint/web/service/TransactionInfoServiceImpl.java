@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * @author jaehong.kim
@@ -132,8 +133,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     }
 
     @Override
-    public RecordSet createRecordSet(CallTreeIterator callTreeIterator, long focusTimestamp, String agentId, long spanId) {
+    public RecordSet createRecordSet(CallTreeIterator callTreeIterator, Predicate<SpanBo> viewPointFilter) {
         Objects.requireNonNull(callTreeIterator, "callTreeIterator");
+        Objects.requireNonNull(viewPointFilter, "viewPointFilter");
 
         RecordSet recordSet = new RecordSet();
         final List<Align> alignList = callTreeIterator.values();
@@ -142,7 +144,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         // focusTimestamp is needed to determine which span to use as reference when there are more than 2 spans making up a transaction.
         // for cases where focus cannot be found due to an error, a separate marker is needed.
         // TODO potential error - because server time is used, there may be more than 2 focusTime due to differences in server times.
-        Align viewPointAlign = findViewPoint(alignList, focusTimestamp, agentId, spanId);
+        Align viewPointAlign = findViewPoint(alignList, viewPointFilter);
         // FIXME patched temporarily for cases where focusTimeSpanBo is not found. Need a more complete solution.
         if (viewPointAlign != null) {
             recordSet.setAgentId(viewPointAlign.getAgentId());
@@ -277,11 +279,12 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         return max;
     }
 
-    private Align findViewPoint(List<Align> alignList, long focusTimestamp, String agentId, long spanId) {
+    private Align findViewPoint(List<Align> alignList, Predicate<SpanBo> viewPointFilter) {
         Align firstSpan = null;
         for (Align align : alignList) {
             if (align.isSpan()) {
-                if (isViewPoint(align, focusTimestamp, agentId, spanId)) {
+                final SpanBo spanBo = align.getSpanBo();
+                if (isViewPoint(spanBo, viewPointFilter)) {
                     return align;
                 }
                 if (firstSpan == null) {
@@ -293,36 +296,15 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         return firstSpan;
     }
 
-    private boolean isViewPoint(final Align align, long focusTimestamp, String agentId, long spanId) {
-        if (align.getCollectorAcceptTime() != focusTimestamp) {
-            return false;
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Matched focusTimestamp of view point. focusTimestamp={}, spanAlign={focusTimestamp={}, agentId={}, spanId={}}", focusTimestamp, align.getCollectorAcceptTime(), align.getAgentId(), align.getSpanId());
-        }
-
-        // agentId
-        if (agentId != null) {
-            if (align.getAgentId() == null || !align.getAgentId().equals(agentId)) {
-                return false;
-            }
+    private boolean isViewPoint(final SpanBo spanBo, Predicate<SpanBo> viewPointFilter) {
+        if (viewPointFilter.test(spanBo)) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Matched agentId of view point. agentId={}, spanAlign={focusTimestamp={}, agentId={}, spanId={}}", agentId, align.getCollectorAcceptTime(), align.getAgentId(), align.getSpanId());
+                logger.debug("Matched view point. viewPointFilter={}, spanAlign={focusTimestamp={}, agentId={}, spanId={}}",
+                        viewPointFilter, spanBo.getCollectorAcceptTime(), spanBo.getAgentId(), spanBo.getSpanId());
             }
+            return true;
         }
-
-        // spanId
-        if (spanId != -1) {
-            if (align.getSpanId() != spanId) {
-                return false;
-            }
-            if (logger.isDebugEnabled()) {
-                logger.debug("Matched spanId of view point. spanId={}, spanAlign={focusTimestamp={}, agentId={}, spanId={}}", spanId, align.getCollectorAcceptTime(), align.getAgentId(), align.getSpanId());
-            }
-        }
-
-        return true;
+        return false;
     }
 
     private String getRpcArgument(Align align) {

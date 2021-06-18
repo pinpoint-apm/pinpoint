@@ -47,12 +47,12 @@ public class SpanAlign implements Align {
 
     public SpanAlign(SpanBo spanBo, boolean meta) {
         this.spanBo = Objects.requireNonNull(spanBo, "spanBo");
-        this.hasChild = hasChild0();
+        this.hasChild = hasChild0(spanBo);
         this.meta = meta;
     }
 
-    private boolean hasChild0() {
-        final List<SpanEventBo> spanEvents = this.spanBo.getSpanEventBoList();
+    private boolean hasChild0(SpanBo spanBo) {
+        final List<SpanEventBo> spanEvents = spanBo.getSpanEventBoList();
         if (CollectionUtils.isNotEmpty(spanEvents)) {
             return true;
         }

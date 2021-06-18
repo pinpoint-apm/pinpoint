@@ -48,16 +48,8 @@ public class LinkMap {
         this.duplicatedNodeList = Objects.requireNonNull(duplicatedNodeList, "duplicatedNodeList");
     }
 
-    public static Predicate<SpanBo> focusFilter(final long collectorAcceptTime) {
-        return new Predicate<SpanBo>() {
-            @Override
-            public boolean test(SpanBo spanBo) {
-                return spanBo.getCollectorAcceptTime() == collectorAcceptTime;
-            }
-        };
-    }
-
     public static LinkMap buildLinkMap(NodeList nodeList, TraceState traceState, Predicate<SpanBo> focusFilter, ServiceTypeRegistryService serviceTypeRegistryService) {
+        Objects.requireNonNull(focusFilter, "focusFilter");
 
         final MultiValueMap<LongPair, Node> spanToLinkMap = new LinkedMultiValueMap<>();
 
