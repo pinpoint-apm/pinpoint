@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author jaehong.kim
@@ -106,11 +107,11 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         List<List<SpanBo>> traceList;
 
         if (filter == Filter.<List<SpanBo>>acceptAllFilter()) {
-            List<GetTraceInfo> getTraceInfoList = new ArrayList<>(transactionIdList.size());
-            for (TransactionId transactionId : transactionIdList) {
-                getTraceInfoList.add(new GetTraceInfo(transactionId));
-            }
-            traceList = this.traceDao.selectSpans(getTraceInfoList);
+            List<GetTraceInfo> queryList = transactionIdList.stream()
+                    .map(GetTraceInfo::new)
+                    .collect(Collectors.toList());
+
+            traceList = this.traceDao.selectSpans(queryList);
         } else {
             traceList = this.traceDao.selectAllSpans(transactionIdList);
         }
