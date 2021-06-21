@@ -22,6 +22,7 @@ import org.apache.curator.RetryPolicy;
 import org.apache.curator.RetrySleeper;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.state.ConnectionState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,11 +92,15 @@ class CuratorZookeeperConnectionManager {
         }
     }
 
+    public ConnectionState getConnectionState() {
+        return connectionStateListener.getCurrentState();
+    }
+
     public boolean isConnected() {
         return curatorFramework.getZookeeperClient().isConnected();
     }
 
-    CuratorFramework getZookeeperClient() {
+    CuratorFramework getCuratorFramework() {
         return curatorFramework;
     }
 
