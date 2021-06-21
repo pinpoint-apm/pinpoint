@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.web.calltree.span.SpanFilters;
@@ -27,6 +28,7 @@ public class SpanQueryBuilder {
         return new SpanQuery(getTraceInfo.getTransactionId(), spanPredicate, hbaseFilter);
     }
 
+    @VisibleForTesting
     Predicate<SpanBo> newSpanFilter(TransactionId transactionId, SpanHint spanHint) {
         SpanFilters.FilterBuilder builder = SpanFilters.newBuilder();
 
