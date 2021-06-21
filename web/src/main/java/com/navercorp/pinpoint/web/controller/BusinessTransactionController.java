@@ -141,7 +141,8 @@ public class BusinessTransactionController {
 
         // select spans
         Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);
-        final CallTreeIterator callTreeIterator = this.spanService.selectSpan(transactionId, spanMatchFilter, columnGetCount).getCallTree();
+        SpanResult spanResult = this.spanService.selectSpan(transactionId, spanMatchFilter, columnGetCount);
+        final CallTreeIterator callTreeIterator = spanResult.getCallTree();
 
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
         TransactionTimelineInfoViewModel result = new TransactionTimelineInfoViewModel(transactionId, spanId, recordSet, logConfiguration);
