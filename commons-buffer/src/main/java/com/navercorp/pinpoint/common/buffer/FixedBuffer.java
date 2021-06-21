@@ -25,7 +25,6 @@ import java.nio.ByteBuffer;
  * @author emeroad
  */
 public class FixedBuffer implements Buffer {
-    protected static final int NULL = -1;
     protected byte[] buffer;
     protected int offset;
 
