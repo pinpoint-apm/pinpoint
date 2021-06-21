@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+
 /**
  * @author emeroad
  */
@@ -103,16 +105,10 @@ public class RetryMessage {
         final StringBuilder sb = new StringBuilder("RetryMessage{");
         sb.append("retryCount=").append(retryCount);
         sb.append(", maxRetryCount=").append(maxRetryCount);
-        sb.append(", bytes=").append(getLength(bytes));
+        sb.append(", bytes=").append(ArrayUtils.getLength(bytes, -1));
         sb.append(", messageDescription='").append(messageDescription).append('\'');
         sb.append('}');
         return sb.toString();
     }
 
-    private int getLength(byte[] bytes) {
-        if (bytes == null) {
-            return -1;
-        }
-        return bytes.length;
-    }
 }

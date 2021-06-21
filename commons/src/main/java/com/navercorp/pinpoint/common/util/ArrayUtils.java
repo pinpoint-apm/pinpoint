@@ -438,8 +438,12 @@ public final class ArrayUtils {
      * @since 1.7.0
      */
     public static int getLength(final byte[] array) {
+        return getLength(array, 0);
+    }
+
+    public static int getLength(final byte[] array, int nullValue) {
         if (array == null) {
-            return 0;
+            return nullValue;
         }
         return array.length;
     }

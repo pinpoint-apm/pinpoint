@@ -82,11 +82,8 @@ public final class IdValidateUtils {
         }
 
         final byte[] idBytes = BytesUtils.toBytes(id);
-        if (idBytes == null) {
-            // encoding fail
-            return -1;
-        }
-        return idBytes.length;
+        // -1 encoding fail
+        return ArrayUtils.getLength(idBytes, -1);
     }
 
 }
