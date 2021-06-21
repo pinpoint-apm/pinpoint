@@ -23,7 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Taejin Koo
@@ -34,29 +36,44 @@ class PinpointZookeeperConnectionStateListener implements ConnectionStateListene
 
     private final AtomicBoolean connected = new AtomicBoolean(false);
 
+    private final AtomicReference<ConnectionState> currentState = new AtomicReference<>();
+
+    private final String objectId;
     private final ZookeeperEventWatcher zookeeperEventWatcher;
 
     public PinpointZookeeperConnectionStateListener(ZookeeperEventWatcher zookeeperEventWatcher) {
         this.zookeeperEventWatcher = Objects.requireNonNull(zookeeperEventWatcher, "zookeeperEventWatcher");
+
+        final UUID uuid = UUID.randomUUID();
+        String uuidString = uuid.toString();
+        if (uuidString.length() > 8) {
+            objectId = uuidString.substring(0, 8);
+        } else {
+            objectId = uuidString;
+        }
     }
 
     @Override
     public void stateChanged(CuratorFramework client, ConnectionState newState) {
         if (newState.isConnected()) {
             boolean changed = connected.compareAndSet(false, true);
+            logger.info("{} handleConnected() executed. newState:{}", objectId, newState);
             if (changed) {
-                logger.info("handleConnected() started.");
                 boolean result = zookeeperEventWatcher.handleConnected();
-                logger.info("handleConnected() completed. result:{}", result);
+                logger.info("{} handleConnected() completed. result:{}", objectId, result);
             }
         } else {
             boolean changed = connected.compareAndSet(true, false);
+            logger.info("{} handleDisconnected() executed. newState:{}", objectId, newState);
             if (changed) {
-                logger.info("handleDisconnected() started.");
                 boolean result = zookeeperEventWatcher.handleDisconnected();
-                logger.info("handleDisconnected() completed. result:{}", result);
+                logger.info("{} handleDisconnected() completed. result:{}", objectId, result);
             }
         }
+        currentState.set(newState);
     }
 
+    public ConnectionState getCurrentState() {
+        return currentState.get();
+    }
 }

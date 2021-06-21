@@ -21,8 +21,10 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.Pinpoint
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.CreateBuilder;
+import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -34,6 +36,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Taejin Koo
@@ -43,6 +46,10 @@ public class CuratorZookeeperClient implements ZookeeperClient {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final CommonStateContext stateContext = new CommonStateContext();
+
+    private final ReconnectCondition reconnectCondition =
+            new ReconnectCondition(TimeUnit.MINUTES.toMillis(5), (int) TimeUnit.MINUTES.toSeconds(5));
+    private final NotConnectedStatus notConnectedStatus = new NotConnectedStatus();
 
     private final ZookeeperEventWatcher zookeeperEventWatcher;
 
@@ -77,17 +84,17 @@ public class CuratorZookeeperClient implements ZookeeperClient {
 
         logger.debug("createPath() started. value:{}, path:{}", value, path);
 
-        CuratorFramework client = connectionManager.getZookeeperClient();
+        CuratorFramework curator = connectionManager.getCuratorFramework();
         Stat stat = null;
         try {
-            stat = client.checkExists().forPath(path);
+            stat = curator.checkExists().forPath(path);
         } catch (Exception e) {
             ZookeeperExceptionResolver.resolve(e, true);
         }
 
         if (stat == null) {
             try {
-                client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path);
+                curator.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path);
             } catch (KeeperException.NodeExistsException nodeExists) {
                 // skip
             } catch (Exception e) {
@@ -131,9 +138,9 @@ public class CuratorZookeeperClient implements ZookeeperClient {
         checkState();
 
         try {
-            CuratorFramework client = connectionManager.getZookeeperClient();
+            CuratorFramework curator = connectionManager.getCuratorFramework();
 
-            CreateBuilder createBuilder = client.create();
+            CreateBuilder createBuilder = curator.create();
             if (message.isCreatingParentPathsIfNeeded()) {
                 createBuilder.creatingParentsIfNeeded();
             }
@@ -163,13 +170,13 @@ public class CuratorZookeeperClient implements ZookeeperClient {
         logger.debug("getData() started. path:{}, watch:{}", path, watch);
 
         try {
-            CuratorFramework client = connectionManager.getZookeeperClient();
+            CuratorFramework curator = connectionManager.getCuratorFramework();
 
             if (watch) {
-                byte[] bytes = client.getData().usingWatcher(zookeeperEventWatcher).forPath(path);
+                byte[] bytes = curator.getData().usingWatcher(zookeeperEventWatcher).forPath(path);
                 return bytes;
             } else {
-                byte[] bytes = client.getData().forPath(path);
+                byte[] bytes = curator.getData().forPath(path);
                 return bytes;
             }
         } catch (Exception e) {
@@ -187,13 +194,13 @@ public class CuratorZookeeperClient implements ZookeeperClient {
         logger.debug("getChildNodeList() started. path:{}, watch:{}", path, watch);
 
         try {
-            CuratorFramework client = connectionManager.getZookeeperClient();
+            CuratorFramework curator = connectionManager.getCuratorFramework();
 
             if (watch) {
-                List<String> childList = client.getChildren().usingWatcher(zookeeperEventWatcher).forPath(path);
+                List<String> childList = curator.getChildren().usingWatcher(zookeeperEventWatcher).forPath(path);
                 return childList;
             } else {
-                List<String> childList = client.getChildren().forPath(path);
+                List<String> childList = curator.getChildren().forPath(path);
                 return childList;
             }
         } catch (KeeperException.NoNodeException noNode) {
@@ -213,9 +220,9 @@ public class CuratorZookeeperClient implements ZookeeperClient {
         logger.debug("delete() started. path:{}", path);
 
         try {
-            CuratorFramework client = connectionManager.getZookeeperClient();
+            CuratorFramework curator = connectionManager.getCuratorFramework();
 
-            client.delete().forPath(path);
+            curator.delete().forPath(path);
         } catch (KeeperException.NoNodeException noNode) {
             // skip
         } catch (Exception e) {
@@ -235,7 +242,22 @@ public class CuratorZookeeperClient implements ZookeeperClient {
 
     private void checkState() throws PinpointZookeeperException {
         if (!isConnected()) {
-            throw new ConnectionException("Instance must be connected.");
+            notConnectedStatus.update();
+            if (reconnectCondition.check(notConnectedStatus)) {
+                notConnectedStatus.reset();
+                try {
+                    final org.apache.curator.CuratorZookeeperClient zookeeperClient = connectionManager.getCuratorFramework().getZookeeperClient();
+                    logger.warn("ConnectionState looks something wrong. It will be reset.");
+                    zookeeperClient.reset();
+                    return;
+                } catch (Exception e) {
+                    logger.warn("Could not reset connection. cause:{}", e.getMessage(), e);
+                }
+            }
+            final ConnectionState connectionState = connectionManager.getConnectionState();
+            throw new ConnectionException("Instance must be connected. connectionState:" + connectionState);
+        } else {
+            notConnectedStatus.reset();
         }
     }
 
