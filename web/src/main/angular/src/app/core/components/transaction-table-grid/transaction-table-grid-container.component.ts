@@ -51,7 +51,9 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
             filter((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlQuery.DRAG_INFO))
         ).subscribe((urlService: NewUrlStateNotificationService) => {
             if (urlService.hasValue(UrlQuery.TRANSACTION_INFO)) {
-                this.selectedTransactionId = urlService.getQueryValue(UrlQuery.TRANSACTION_INFO).replace(/(.*)-(\d*)-\d*$/, '$1-$2');
+                const {agentId, spanId, traceId, collectorAcceptTime} = JSON.parse(urlService.getQueryValue(UrlQuery.TRANSACTION_INFO));
+
+                this.selectedTransactionId = `${agentId}${spanId}${traceId}${collectorAcceptTime}`;
                 this.dispatchTransaction();
             }
 
@@ -138,8 +140,8 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
     }
 
     private findTransaction(transactionId: string): ITransactionMetaData {
-        return this.transactionData.find(({traceId, collectorAcceptTime}: ITransactionMetaData) => {
-            return `${traceId}-${collectorAcceptTime}` === transactionId;
+        return this.transactionData.find(({agentId, spanId, traceId, collectorAcceptTime}: ITransactionMetaData) => {
+            return `${agentId}${spanId}${traceId}${collectorAcceptTime}` === transactionId;
         });
     }
 
@@ -153,7 +155,7 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
         }
     }
 
-    onSelectTransaction({traceId, collectorAcceptTime, elapsed}: {traceId: string, collectorAcceptTime: number, elapsed: number}): void {
+    onSelectTransaction({agentId, spanId, traceId, collectorAcceptTime, elapsed}: {[key: string]: any}): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_TRANSACTION);
         this.urlRouteManagerService.moveOnPage({
             url: [
@@ -163,7 +165,7 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
             ],
             queryParams: {
-                [UrlQuery.TRANSACTION_INFO]: `${traceId}-${collectorAcceptTime}-${elapsed}`
+                [UrlQuery.TRANSACTION_INFO]: {agentId, spanId, traceId, collectorAcceptTime, elapsed}
             }
         });
     }

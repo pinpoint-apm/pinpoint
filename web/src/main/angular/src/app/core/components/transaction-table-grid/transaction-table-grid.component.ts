@@ -95,19 +95,21 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
                     }
                 }
 
-                const selectedTransactionId = `${params.data.traceId}-${params.data.collectorAcceptTime}`;
+                const selectedTransactionId = `${params.data.agentId}${params.data.spanId}${params.data.traceId}${params.data.collectorAcceptTime}`;
 
                 if (this.selectedTransactionId === selectedTransactionId) {
                     return;
                 }
 
                 this.outSelectTransaction.next({
+                    agentId: params.data.agentId,
+                    spanId: params.data.spanId,
                     traceId: params.data.traceId,
                     collectorAcceptTime: params.data.collectorAcceptTime,
                     elapsed: params.data.responseTime
                 });
             },
-            getRowNodeId: (data) => `${data.traceId}-${data.collectorAcceptTime}`
+            getRowNodeId: (data) => `${data.agentId}${data.spanId}${data.traceId}${data.collectorAcceptTime}`
         };
     }
 

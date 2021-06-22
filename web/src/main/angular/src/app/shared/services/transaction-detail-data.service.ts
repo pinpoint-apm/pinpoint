@@ -18,7 +18,7 @@ export class TransactionDetailDataService {
     ) {}
 
     getData(agentId: string, spanId: string, traceId: string, focusTimestamp: number): Observable<ITransactionDetailData> {
-        this.lastKey = agentId + spanId + traceId + focusTimestamp;
+        this.lastKey = `${agentId}${spanId}${traceId}${focusTimestamp}`;
 
         if (this.hasData()) {
             return this.cachedData[this.lastKey];

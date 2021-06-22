@@ -260,13 +260,9 @@ export class TransactionMetaDataService {
     }
     private checkUrlInfo(): any[] {
         if (this.newUrlStateNotificationService.hasValue(UrlQuery.TRANSACTION_INFO)) {
-            const transactionInfo = this.newUrlStateNotificationService.getQueryValue(UrlQuery.TRANSACTION_INFO).split('-');
-            const length = transactionInfo.length;
-            return [[
-                transactionInfo.slice(0, length - 2).join('-'),
-                transactionInfo[length - 2],
-                transactionInfo[length - 1]
-            ]];
+            const {traceId, collectorAcceptTime, elapsed} = JSON.parse(this.newUrlStateNotificationService.getQueryValue(UrlQuery.TRANSACTION_INFO));
+
+            return [[traceId, collectorAcceptTime, elapsed]];
         }
         return [];
     }
