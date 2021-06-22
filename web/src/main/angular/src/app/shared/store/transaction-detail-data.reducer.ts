@@ -8,13 +8,9 @@ export class UpdateTransactionDetailData implements Action {
 }
 
 export function Reducer(state: ITransactionDetailData, action: UpdateTransactionDetailData): ITransactionDetailData {
-    switch ( action.type ) {
+    switch (action.type) {
         case UPDATE_TRANSACTION_DETAIL_DATA:
-            if (state && (state.agentId === action.payload.agentId && state.applicationId === action.payload['applicationId'] && state.transactionId === action.payload.transactionId)) {
-                return state;
-            } else {
-                return action.payload;
-            }
+            return action.payload;
         default:
             return state;
     }

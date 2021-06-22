@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ViewChild, Renderer2, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { filter, map, switchMap, tap } from 'rxjs/operators';
+import { filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import {
     StoreHelperService,
@@ -9,9 +9,10 @@ import {
     AnalyticsService,
     TRACKED_EVENT_LIST,
     DynamicPopupService,
+    NewUrlStateNotificationService,
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store';
-import { UrlPath } from 'app/shared/models';
+import { UrlPath, UrlQuery } from 'app/shared/models';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 import { CallTreeContainerComponent } from 'app/core/components/call-tree/call-tree-container.component';
@@ -41,6 +42,7 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
         private storeHelperService: StoreHelperService,
         private urlRouteManagerService: UrlRouteManagerService,
         private transactionDetailDataService: TransactionDetailDataService,
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
         private translateService: TranslateService,
         private transactionMetaDataService: TransactionMetaDataService,
         private analyticsService: AnalyticsService,
@@ -52,6 +54,14 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
     ) {}
 
     ngOnInit() {
+        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            takeUntil(this.unsubscribe),
+            filter((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlQuery.TRANSACTION_INFO))
+        ).subscribe((_: NewUrlStateNotificationService) => {
+            this.isTransactionSelected = true;
+            this.cd.detectChanges();
+        });
+
         this.message$ = this.transactionMetaDataService.onTransactionDataLoad$.pipe(
             map(({length}: ITransactionMetaData[]) => length === 0),
             filter((isEmpty: boolean) => !isEmpty),
@@ -78,7 +88,6 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
 
         this.storeHelperService.getTransactionData(this.unsubscribe).pipe(
             filter((data: ITransactionMetaData) => !!data),
-            tap(() => this.isTransactionSelected = true),
             filter(({agentId, spanId, traceId, collectorAcceptTime}: ITransactionMetaData) => !!agentId && !!spanId && !!traceId && !!collectorAcceptTime),
             tap(() => {
                 this.setDisplayGuide(true);
@@ -86,11 +95,13 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
             }),
             tap((transactionInfo: ITransactionMetaData) => this.transactionInfo = transactionInfo)
         ).subscribe(({agentId, spanId, traceId, collectorAcceptTime}: ITransactionMetaData) => {
+            // TODO: subscribe 중첩 풀기.
             this.transactionDetailDataService.getData(agentId, spanId, traceId, collectorAcceptTime).subscribe((transactionDetailInfo: ITransactionDetailData) => {
                 this.storeHelperService.dispatch(new Actions.UpdateTransactionDetailData(transactionDetailInfo));
                 this.storeHelperService.dispatch(new Actions.ChangeTransactionViewType('callTree'));
                 this.setDisplayGuide(false);
                 this.renderer.setStyle(this.callTreeComponent.nativeElement, 'display', 'block');
+                this.cd.detectChanges();
             });
             this.transactionDetailDataService.getTimelineData(agentId, spanId, traceId, collectorAcceptTime).subscribe((transactionTimelineInfo: ITransactionTimelineData) => {
                 this.storeHelperService.dispatch(new Actions.UpdateTransactionTimelineData(transactionTimelineInfo));
