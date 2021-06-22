@@ -1,10 +1,8 @@
 spring:
   main:
     allow-bean-definition-overriding: true
-#    web-application-type: none
   profiles:
-    active: local
+    active: release
 
 server:
   port: 8081
-

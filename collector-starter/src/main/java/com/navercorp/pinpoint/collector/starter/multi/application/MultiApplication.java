@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.collector.env.CollectorEnvironmentApplicationListe
 import com.navercorp.pinpoint.common.server.profile.ProfileApplicationListener;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import com.navercorp.pinpoint.metric.collector.MetricCollectorApp;
+import com.navercorp.pinpoint.metric.collector.env.MetricEnvironmentApplicationListener;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.WebApplicationType;
@@ -33,7 +34,7 @@ public class MultiApplication {
         SpringApplicationBuilder metricAppBuilder = builder.child(MetricCollectorApp.class)
                 .web(WebApplicationType.SERVLET)
                 .bannerMode(Banner.Mode.OFF)
-                .listeners(new CollectorEnvironmentApplicationListener())
+                .listeners(new MetricEnvironmentApplicationListener())
                 .properties(new StringBuilder("server.port:").append(8081).toString());
 
         collectorAppBuilder.build().run(args);

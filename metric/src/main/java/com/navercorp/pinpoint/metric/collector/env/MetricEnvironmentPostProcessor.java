@@ -1,4 +1,20 @@
-package com.navercorp.pinpoint.collector.env;
+/*
+ * Copyright 2021 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.navercorp.pinpoint.metric.collector.env;
 
 import com.navercorp.pinpoint.common.server.env.BaseEnvironment;
 import com.navercorp.pinpoint.common.server.env.ExternalEnvironment;
@@ -11,42 +27,26 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 
 import java.util.Arrays;
-import java.util.Objects;
 
-public class CollectorEnvironmentPostProcessor implements EnvironmentPostProcessor {
+/**
+ * @author minwoo.jung
+ */
+public class MetricEnvironmentPostProcessor implements EnvironmentPostProcessor {
     private final ServerBootLogger logger = ServerBootLogger.getLogger(getClass());
 
     public static final String COLLECTOR_PROPERTY_SOURCE_NAME = "CollectorEnvironment";
     public static final String COLLECTOR_EXTERNAL_PROPERTY_SOURCE_NAME = "CollectorExternalEnvironment";
 
     private final String[] resources = new String[] {
-            "classpath:hbase-root.properties",
-            "classpath:pinpoint-collector-root.properties",
-            "classpath:pinpoint-collector-grpc-root.properties",
-            "classpath:jdbc-root.properties",
-//            <!-- override configuration -->
-            "classpath:profiles/${pinpoint.profiles.active}/hbase.properties",
-            "classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector.properties",
-            "classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector-grpc.properties",
-            "classpath:profiles/${pinpoint.profiles.active}/jdbc.properties",
+            "classpath:pinot-collector/profiles/${pinpoint.profiles.active}/jdbc.properties",
     };
     private static final String EXTERNAL_CONFIGURATION_KEY = "pinpoint.collector.config.location";
-
-    private final String defaultProfile;
-
-    public CollectorEnvironmentPostProcessor() {
-        this.defaultProfile = null;
-    }
-
-    public CollectorEnvironmentPostProcessor(String defaultProfile) {
-        this.defaultProfile = Objects.requireNonNull(defaultProfile, "defaultProfile");
-    }
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         logger.info("postProcessEnvironment");
 
-        ProfileEnvironment profileEnvironment = newProfileEnvironment();
+        ProfileEnvironment profileEnvironment = new ProfileEnvironment();
         profileEnvironment.processEnvironment(environment);
 
         ExternalEnvironment externalEnvironment
@@ -64,10 +64,4 @@ public class CollectorEnvironmentPostProcessor implements EnvironmentPostProcess
 
     }
 
-    private ProfileEnvironment newProfileEnvironment() {
-        if (defaultProfile == null) {
-            return new ProfileEnvironment();
-        }
-        return new ProfileEnvironment(defaultProfile);
-    }
 }
