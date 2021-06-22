@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.metric.web.dao.SystemMetricDataTypeDao">
+
+    <select id="selectMetricDataType" resultType="MetricData" parameterType="MetricDataName">
+        SELECT metric_name as metricName, field_name as fieldName, data_type as metricDataType
+        FROM system_metric_data_type
+        WHERE metric_name = #{metricName} AND field_name = #{fieldName};
+    </select>
+</mapper>
