@@ -1,6 +1,12 @@
 ### LongConter, w/o tags, w/o interval
-GET http://localhost:8080/systemMetric/chart.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=mem&fieldName=free&from=1613539750000&to=1613539840000
+GET http://localhost:8080/systemMetric/chart.pinpoint?applicationName=hyunjoon.cho&hostName=dev-pinpoint-olap01-ncl&metricName=mem&fieldName=used&from=1620593660000&to=1620594260000
 Accept: application/json
+
+
+### LongConter, w/o tags, w/o interval
+GET http://localhost:8080/systemMetric/chart.pinpoint?applicationName=hyunjoon.cho&hostName=dev-pinpoint-olap01-ncl&metricName=mem&fieldName=used&tags=cpu:cpu1&from=1620273984000&to=1620274584000
+Accept: application/json
+
 
 ### LongCounter, w/o tags, with interval
 GET http://localhost:8080/systemMetric/chart.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=mem&fieldName=free&from=1612245100000&to=1612246100000&timeUnit=SECONDS&timeSize=30

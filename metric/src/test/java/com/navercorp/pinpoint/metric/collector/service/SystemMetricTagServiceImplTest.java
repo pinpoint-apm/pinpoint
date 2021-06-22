@@ -1,8 +1,7 @@
 package com.navercorp.pinpoint.metric.collector.service;
 
-import com.navercorp.pinpoint.metric.collector.model.MetricTagCollection;
+import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.*;
-import com.yammer.metrics.core.Metric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -118,7 +117,7 @@ public class SystemMetricTagServiceImplTest {
         tagList.add(new Tag("key2", "value2"));
 
         MetricTagCollection metricTagCollection = systemMetricTagService.createMetricTagCollection(applicationName, hostName, metricName, fieldName, tagList);
-        assertEquals(metricTagCollection.getApplicationId(), applicationName);
+        assertEquals(metricTagCollection.getHostGroupId(), applicationName);
         assertEquals(metricTagCollection.getHostName(), hostName);
         assertEquals(metricTagCollection.getMetricName(), metricName);
         assertEquals(metricTagCollection.getFieldName(), fieldName);
@@ -126,7 +125,7 @@ public class SystemMetricTagServiceImplTest {
         List<MetricTag> metricTagList = metricTagCollection.getMetricTagList();
         assertEquals(metricTagList.size(), 1);
         MetricTag metricTag = metricTagList.get(0);
-        assertEquals(metricTag.getApplicationId(), applicationName);
+        assertEquals(metricTag.getHostGroupId(), applicationName);
         assertEquals(metricTag.getHostName(), hostName);
         assertEquals(metricTag.getMetricName(), metricName);
         assertEquals(metricTag.getFieldName(), fieldName);
@@ -171,7 +170,7 @@ public class SystemMetricTagServiceImplTest {
         MetricTagCollection mtc = new MetricTagCollection(applicationName, hostName, metricName, fieldName, metricTagList);
         MetricTagCollection metricTagCollection = systemMetricTagService.createMetricTagCollection(mtc, tagList4);
 
-        assertEquals(metricTagCollection.getApplicationId(), applicationName);
+        assertEquals(metricTagCollection.getHostGroupId(), applicationName);
         assertEquals(metricTagCollection.getHostName(), hostName);
         assertEquals(metricTagCollection.getMetricName(), metricName);
         assertEquals(metricTagCollection.getFieldName(), fieldName);

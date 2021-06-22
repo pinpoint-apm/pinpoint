@@ -1,6 +1,11 @@
 ### LongCounter, w/o tags
+GET http://localhost:8080/systemMetric/list.pinpoint?applicationName=hyunjoon.cho&hostName=dev-pinpoint-olap01-ncl&metricName=mem&fieldName=used&from=1620273984000&to=1620274584000
+Accept: application/json
+
+### LongCounter, w/o tags
 GET http://localhost:8080/systemMetric/list.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=mem&fieldName=free&from=1612245100000&to=1612246100000
 Accept: application/json
+
 
 ### DoubleCounter, w/o tags
 GET http://localhost:8080/systemMetric/list.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=cpu&fieldName=usage_user&from=1612245100000&to=1612245400000

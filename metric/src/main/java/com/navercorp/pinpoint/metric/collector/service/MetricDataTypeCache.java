@@ -17,11 +17,8 @@
 package com.navercorp.pinpoint.metric.collector.service;
 
 import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDataTypeDao;
-import com.navercorp.pinpoint.metric.collector.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricData;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
-import com.navercorp.pinpoint.metric.common.model.MetricDataType;
-import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CachePut;

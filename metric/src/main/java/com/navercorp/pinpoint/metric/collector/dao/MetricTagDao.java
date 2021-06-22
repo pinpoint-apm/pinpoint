@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.metric.collector.dao;
 
-import com.navercorp.pinpoint.metric.collector.model.MetricTagCollection;
+import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
 

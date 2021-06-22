@@ -21,7 +21,7 @@
         <!-- mybatis basic config -->
         <property name="configLocation" value="classpath:/pinot-web/mybatis-pinot-config.xml"/>
         <!-- setting the location of mapper -->
-        <property name="mapperLocations" value="classpath*:/pinot-web/*Mapper.xml"/>
+        <property name="mapperLocations" value="classpath*:/pinot-web/mapper/pinot/*Mapper.xml"/>
         <!-- set "true" in order to catch the errors of declaration of statement more quickly -->
         <property name="failFast" value="true"/>
 
