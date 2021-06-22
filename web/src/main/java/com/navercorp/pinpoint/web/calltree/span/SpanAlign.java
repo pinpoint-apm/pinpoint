@@ -277,7 +277,7 @@ public class SpanAlign implements Align {
     @Override
     public String toString() {
         return "SpanAlign{" +
-                "spanBo=" + spanBo +
+                "spanBo=" + spanBo.getSpanId() +
                 ", hasChild=" + hasChild +
                 ", meta=" + meta +
                 ", id=" + id +
