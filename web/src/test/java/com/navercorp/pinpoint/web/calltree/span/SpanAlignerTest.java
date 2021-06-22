@@ -103,6 +103,56 @@ public class SpanAlignerTest {
     }
 
     @Test
+    public void duplicatedNextSpan() throws Exception {
+        List<String> expectResult = new ArrayList<>();
+        expectResult.add("#");
+        expectResult.add("##");
+        expectResult.add("###");
+        expectResult.add("####");
+        expectResult.add("#####"); // nextSpan
+        expectResult.add("######");
+        expectResult.add("#######");
+        expectResult.add("########");
+        expectResult.add("###");
+        expectResult.add("####");
+
+        List<SpanBo> list = new ArrayList<>();
+        SpanBo span = new SpanBo();
+        span.setParentSpanId(-1);
+        span.setSpanId(1);
+
+        span.addSpanEvent(makeSpanEvent(0, 1, -1));
+        span.addSpanEvent(makeSpanEvent(1, 2, -1));
+        span.addSpanEvent(makeSpanEvent(2, 3, 100));
+        span.addSpanEvent(makeSpanEvent(3, 2, -1));
+        // Duplicated next span
+        span.addSpanEvent(makeSpanEvent(4, 3, 100));
+        list.add(span);
+
+        SpanBo nextSpan = new SpanBo();
+        nextSpan.setParentSpanId(1);
+        nextSpan.setSpanId(100);
+        nextSpan.addSpanEvent(makeSpanEvent(0, 1, -1));
+        nextSpan.addSpanEvent(makeSpanEvent(1, 2, -1));
+        nextSpan.addSpanEvent(makeSpanEvent(2, 3, -1));
+        list.add(nextSpan);
+
+        // Duplicated span - skip(in LinkMap)
+        SpanBo nextSpan2 = new SpanBo();
+        nextSpan2.setParentSpanId(1);
+        nextSpan2.setSpanId(100);
+        nextSpan2.addSpanEvent(makeSpanEvent(0, 1, -1));
+        nextSpan2.addSpanEvent(makeSpanEvent(1, 2, -1));
+        nextSpan2.addSpanEvent(makeSpanEvent(2, 3, -1));
+        list.add(nextSpan2);
+
+        Predicate<SpanBo> filter = SpanFilters.collectorAcceptTimeFilter(1);
+        SpanAligner spanAligner = new SpanAligner(list, filter, serviceTypeRegistryService);
+        final CallTree callTree = spanAligner.align();
+        CallTreeAssert.assertDepth("duplicatedNextSpanId", callTree, expectResult);
+    }
+
+    @Test
     public void notFoundNextSpan() throws Exception {
         List<String> expectResult = new ArrayList<>();
         expectResult.add("#");

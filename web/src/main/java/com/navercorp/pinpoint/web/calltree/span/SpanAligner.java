@@ -183,9 +183,17 @@ public class SpanAligner {
         if (node == null) {
             return false;
         }
+
+        if (node.isLinked()) {
+            // Duplicated nextSpanId
+            logger.warn("Already linked node. link {} to node {}", link, node);
+            return false;
+        }
+
         if (isDebug) {
             logger.debug("Linked link {} to node {}", link, node);
         }
+
         // linked
         node.setLinked(true);
         link.setLinked(true);

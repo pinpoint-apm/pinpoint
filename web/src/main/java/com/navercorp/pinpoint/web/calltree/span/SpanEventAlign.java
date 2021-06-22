@@ -241,7 +241,7 @@ public class SpanEventAlign implements Align {
     @Override
     public String toString() {
         return "SpanEventAlign{" +
-                "spanBo=" + spanBo +
+                "spanBo=" + spanBo.getSpanId() +
                 ", spanEventBo=" + spanEventBo +
                 ", id=" + id +
                 ", gap=" + gap +
