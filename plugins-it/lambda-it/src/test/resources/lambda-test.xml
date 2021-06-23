@@ -3,13 +3,13 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="maru" class="com.navercorp.test.pinpoint.jdk8.lambda.Maru"/>
+    <bean id="bean1" class="com.navercorp.pinpoint.plugin.lambda.Bean1"/>
     
-    <bean id="morae" class="com.navercorp.test.pinpoint.jdk8.lambda.Morae">
-        <constructor-arg ref="mozzi"/>
+    <bean id="bean2" class="com.navercorp.pinpoint.plugin.lambda.Bean2">
+        <constructor-arg ref="model"/>
     </bean>
     
-    <bean id="mozzi" class="com.navercorp.test.pinpoint.jdk8.lambda.Mozzi" scope="prototype">
+    <bean id="model" class="com.navercorp.pinpoint.plugin.lambda.Model" scope="prototype">
         <constructor-arg value="4"/>
     </bean>
     

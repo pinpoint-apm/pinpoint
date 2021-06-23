@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.test.pinpoint.jdk8.lambda;
+package com.navercorp.pinpoint.plugin.lambda;
 
 /**
  * @author Jongho Moon
  *
  */
-public class Maru {
-    public boolean test(Morae morae) {
-        return morae.test((m) -> m.getAge() > 1);
+public class Bean1 {
+    public boolean test(Bean2 bean2) {
+        return bean2.test((m) -> m.getAge() > 1);
     }
 }
