@@ -52,4 +52,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-node_install-
     - name: Build with Maven
-      run: ./mvnw -B package --file pom.xml
+      run: ./mvnw -B -DskipITs -Pcode.coverage install --file pom.xml
+    - name: Code coverage
+      uses: codecov/codecov-action@v1
+      with:
+        files: ./**/target/site/jacoco/jacoco.xml
+        name: codecov
