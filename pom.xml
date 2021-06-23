@@ -1207,6 +1207,33 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${plugin.failsafe.version}</version>
+                <configuration>
+                    <jvm>${test.jdk.home}/bin/java</jvm>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/*Base</exclude>
+                            </excludes>
+                            <includes>
+                                <include>**/*IT.java</include>
+                            </includes>
+                            <!-- AbstractPinpointPluginTestSuite needs this to resolve
+                            path of required jars -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>${plugin.enforcer.version}</version>
                 <executions>
