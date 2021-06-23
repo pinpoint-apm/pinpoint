@@ -1128,6 +1128,12 @@
                     </executions>
                     <configuration>
                         <skip>${plugin.jacoco.skip}</skip>
+                        <excludes>
+                            <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
+                            <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                            <exclude>com/navercorp/pinpoint/common/profiler/util/jsr166/**/*.java</exclude>
+                            <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+                        </excludes>
                     </configuration>
                 </plugin>
             </plugins>
