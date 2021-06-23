@@ -74,26 +74,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${plugin.failsafe.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <jvm>${jdk.home}/bin/java</jvm>
-                    <!-- AbstractPinpointPluginTestSuite needs this to resolve
-                        path of required jars -->
-                    <useSystemClassLoader>false</useSystemClassLoader>
-                    <failIfNoTests>true</failIfNoTests>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <executions>

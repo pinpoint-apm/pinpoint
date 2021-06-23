@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.test.pinpoint.jdk8.lambda;
+package com.navercorp.pinpoint.plugin.lambda;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
@@ -40,16 +40,16 @@ public class LambdaIT {
     public void test() throws Exception {
         ApplicationContext context = new ClassPathXmlApplicationContext("lambda-test.xml");
 
-        Maru maru = context.getBean(Maru.class);
-        Morae morae = context.getBean(Morae.class);
-        maru.test(morae);
+        Bean1 bean1 = context.getBean(Bean1.class);
+        Bean2 bean2 = context.getBean(Bean2.class);
+        bean1.test(bean2);
         
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
         
-        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Maru.class.getMethod("test", Morae.class)));
-        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Morae.class.getMethod("test", Predicate.class)));
-        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Mozzi.class.getMethod("getAge")));
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Bean1.class.getMethod("test", Bean2.class)));
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Bean2.class.getMethod("test", Predicate.class)));
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Model.class.getMethod("getAge")));
         
         verifier.verifyTraceCount(0);
     }

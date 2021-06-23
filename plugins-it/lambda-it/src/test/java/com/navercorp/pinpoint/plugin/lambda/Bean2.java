@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.test.pinpoint.jdk8.lambda;
+package com.navercorp.pinpoint.plugin.lambda;
 
 import java.util.function.Predicate;
 
-public class Morae {
+public class Bean2 {
     
-    private final Mozzi mozzi;
+    private final Model model;
     
-    public Morae(Mozzi mozzi) {
-        this.mozzi = mozzi;
+    public Bean2(Model model) {
+        this.model = model;
     }
 
-    public boolean test(Predicate<Mozzi> predicate) {
-        return predicate.test(mozzi);
+    public boolean test(Predicate<Model> predicate) {
+        return predicate.test(model);
     }
 }
