@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.lambda;
+package com.navercorp.test.pinpoint;
 
-import org.springframework.stereotype.Component;
+import java.util.function.Predicate;
 
-@Component
-public class Model {
-    private final int age;
+public class Bean2 {
     
-    public Model(int age) {
-        this.age = age;
+    private final Model model;
+    
+    public Bean2(Model model) {
+        this.model = model;
     }
 
-    public int getAge() {
-        return age;
+    public boolean test(Predicate<Model> predicate) {
+        return predicate.test(model);
     }
 }
