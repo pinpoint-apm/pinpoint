@@ -19,10 +19,15 @@ package com.navercorp.pinpoint.plugin.lambda;
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
+import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.test.pinpoint.Bean1;
+import com.navercorp.test.pinpoint.Bean2;
+import com.navercorp.test.pinpoint.Model;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
@@ -32,6 +37,7 @@ import java.util.function.Predicate;
 
 @RunWith(PinpointPluginTestSuite.class)
 @JvmVersion({8})
+@PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-lambda-test.config")
 @Dependency({"org.springframework:spring-context:[4.2.0.RELEASE]"})
 public class LambdaIT {
