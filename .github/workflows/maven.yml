@@ -27,7 +27,7 @@ jobs:
       run: |
         echo "JAVA_7_HOME=$JAVA_HOME_7_0_302_X64" >> $GITHUB_ENV
         echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
-        echo "JAVA_9_HOME=$JAVA_HOME_9_0_7_X64" >> $GITHUB_ENV	
+        echo "JAVA_9_HOME=$JAVA_HOME_9_0_7_X64" >> $GITHUB_ENV
         echo "JAVA_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
     - name: Java Environment
       run: env | grep '^JAVA'
@@ -52,7 +52,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-node_install-
     - name: Build with Maven
-      run: ./mvnw -B -DskipITs -Pcode.coverage install --file pom.xml
+      run: ./mvnw --batch-mode -Pcode.coverage package --file pom.xml
+    - name: Code coverage report
+      run: ./mvnw --batch-mode -Pcode.coverage jacoco:report --file pom.xml
     - name: Code coverage
       uses: codecov/codecov-action@v1
       with:
