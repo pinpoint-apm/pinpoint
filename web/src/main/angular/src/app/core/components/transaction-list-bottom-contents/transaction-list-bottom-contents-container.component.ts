@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ViewChild, Renderer2, ElementRef, ChangeDetectorRef } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { EMPTY, forkJoin, Observable, Subject } from 'rxjs';
+import { filter, map, switchMap, takeUntil, tap, catchError } from 'rxjs/operators';
 
 import {
     StoreHelperService,
@@ -12,7 +12,7 @@ import {
     NewUrlStateNotificationService,
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store';
-import { UrlPath, UrlQuery } from 'app/shared/models';
+import { UrlPath, UrlPathId, UrlQuery } from 'app/shared/models';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 import { CallTreeContainerComponent } from 'app/core/components/call-tree/call-tree-container.component';
@@ -93,32 +93,52 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
                 this.setDisplayGuide(true);
                 // this.renderer.setStyle(this.callTreeComponent.nativeElement, 'display', 'none');
             }),
-            tap((transactionInfo: ITransactionMetaData) => this.transactionInfo = transactionInfo)
-        ).subscribe(({agentId, spanId, traceId, collectorAcceptTime}: ITransactionMetaData) => {
-            // TODO: subscribe 중첩 풀기.
-            this.transactionDetailDataService.getData(agentId, spanId, traceId, collectorAcceptTime).subscribe((transactionDetailInfo: ITransactionDetailData) => {
-                this.storeHelperService.dispatch(new Actions.UpdateTransactionDetailData(transactionDetailInfo));
+            tap((transactionInfo: ITransactionMetaData) => this.transactionInfo = transactionInfo),
+            switchMap(({agentId, spanId, traceId, collectorAcceptTime}: ITransactionMetaData) => {
+                return forkJoin(
+                    this.transactionDetailDataService.getData(agentId, spanId, traceId, collectorAcceptTime),
+                    this.transactionDetailDataService.getTimelineData(agentId, spanId, traceId, collectorAcceptTime)
+                ).pipe(
+                    catchError((error: IServerErrorFormat) => {
+                        this.dynamicPopupService.openPopup({
+                            data: {
+                                title: 'Error',
+                                contents: error
+                            },
+                            component: ServerErrorPopupContainerComponent,
+                            onCloseCallback: () => {
+                                this.urlRouteManagerService.moveOnPage({
+                                    url: [
+                                        UrlPath.TRANSACTION_LIST,
+                                        this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                                        this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
+                                        this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
+                                    ],
+                                    queryParams: {
+                                        // [UrlQuery.DRAG_INFO]: null,
+                                        [UrlQuery.TRANSACTION_INFO]: null
+                                    }
+                                });
+                            }
+                        }, {
+                            resolver: this.componentFactoryResolver,
+                            injector: this.injector
+                        });
+                        this.setDisplayGuide(false);
+                        this.cd.detectChanges();
+                        return EMPTY;
+                    }),
+                );
+            }),
+            tap(() => {
                 this.storeHelperService.dispatch(new Actions.ChangeTransactionViewType('callTree'));
                 this.setDisplayGuide(false);
                 this.renderer.setStyle(this.callTreeComponent.nativeElement, 'display', 'block');
                 this.cd.detectChanges();
-            });
-            this.transactionDetailDataService.getTimelineData(agentId, spanId, traceId, collectorAcceptTime).subscribe((transactionTimelineInfo: ITransactionTimelineData) => {
-                this.storeHelperService.dispatch(new Actions.UpdateTransactionTimelineData(transactionTimelineInfo));
-            });
-        }, (error: IServerErrorFormat) => {
-            this.dynamicPopupService.openPopup({
-                data: {
-                    title: 'Error',
-                    contents: error
-                },
-                component: ServerErrorPopupContainerComponent
-            }, {
-                resolver: this.componentFactoryResolver,
-                injector: this.injector
-            });
-            this.setDisplayGuide(false);
-            this.cd.detectChanges();
+            })
+        ).subscribe(([transactionDetailInfo, transactionTimelineInfo]: [ITransactionDetailData, ITransactionTimelineData]) => {
+            this.storeHelperService.dispatch(new Actions.UpdateTransactionDetailData(transactionDetailInfo));
+            this.storeHelperService.dispatch(new Actions.UpdateTransactionTimelineData(transactionTimelineInfo));
         });
     }
 

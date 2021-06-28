@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ComponentFactoryResolver, Injector, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, combineLatest, of } from 'rxjs';
 import { filter, catchError, pluck, tap } from 'rxjs/operators';
@@ -6,7 +6,8 @@ import { filter, catchError, pluck, tap } from 'rxjs/operators';
 import { ApplicationNameDuplicationCheckInteractionService } from 'app/core/components/duplication-check/application-name-duplication-check-interaction.service';
 import { AgentIdDuplicationCheckInteractionService } from 'app/core/components/duplication-check/agent-id-duplication-check-interaction.service';
 import { ConfigurationInstallationDataService, IInstallationData } from './configuration-installation-data.service';
-import { AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { AnalyticsService, DynamicPopupService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Component({
     selector: 'pp-configuration-installation-container',
@@ -25,6 +26,9 @@ export class ConfigurationInstallationContainerComponent implements OnInit {
         private applicationNameDuplicationCheckInteractionService: ApplicationNameDuplicationCheckInteractionService,
         private agentIdDuplicationCheckInteractionService: AgentIdDuplicationCheckInteractionService,
         private analyticsService: AnalyticsService,
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
 
     ngOnInit() {
@@ -44,8 +48,22 @@ export class ConfigurationInstallationContainerComponent implements OnInit {
                     return data.code === 0;
                 }),
                 pluck('message'),
-                catchError((err) => {
-                    return this.onAjaxError(err);
+                catchError((error: IServerErrorFormat) => {
+                    this.dynamicPopupService.openPopup({
+                        data: {
+                            title: 'Error',
+                            contents: error
+                        },
+                        component: ServerErrorPopupContainerComponent
+                    }, {
+                        resolver: this.componentFactoryResolver,
+                        injector: this.injector
+                    });
+
+                    return of({
+                        downloadUrl: '',
+                        installationArgument: ''
+                    });
                 }),
                 tap(() => this.showLoading = false)
             );
@@ -56,14 +74,6 @@ export class ConfigurationInstallationContainerComponent implements OnInit {
             this.applicationNameDuplicationCheckInteractionService.onCheckSuccess$,
             this.agentIdDuplicationCheckInteractionService.onCheckSuccess$,
         );
-    }
-
-    private onAjaxError(err: Error): Observable<any> {
-        // TODO: Error발생시 띄워줄 팝업 컴포넌트 Call - issue#170
-        return of({
-            downloadUrl: '',
-            installationArgument: ''
-        });
     }
 
     onLinkClick(): void {

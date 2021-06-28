@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, ChangeDetectorRef, ChangeDetectionStrategy, OnDestroy, Renderer2 } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, ChangeDetectorRef, ChangeDetectionStrategy, OnDestroy, Renderer2, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject, combineLatest, fromEvent, of, forkJoin } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, takeUntil, pluck, delay } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -10,10 +10,12 @@ import {
     NewUrlStateNotificationService,
     AnalyticsService,
     TRACKED_EVENT_LIST,
-    ApplicationListDataService
+    ApplicationListDataService,
+    DynamicPopupService
 } from 'app/shared/services';
 import { UrlPathId } from 'app/shared/models';
 import { FOCUS_TYPE } from './application-list-for-header.component';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Component({
     selector: 'pp-application-list-for-header-container',
@@ -59,7 +61,10 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
         private urlRouteManagerService: UrlRouteManagerService,
         private translateService: TranslateService,
         private analyticsService: AnalyticsService,
-        private renderer: Renderer2
+        private renderer: Renderer2,
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
 
     ngOnInit() {
@@ -239,7 +244,18 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
     onReload(): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_RELOAD_APPLICATION_LIST_BUTTON);
         this.showLoading = true;
-        this.applicationListDataService.getApplicationList().subscribe(() => {});
+        this.applicationListDataService.getApplicationList().subscribe(() => {}, (error: IServerErrorFormat) => {
+            this.dynamicPopupService.openPopup({
+                data: {
+                    title: 'Server Error',
+                    contents: error
+                },
+                component: ServerErrorPopupContainerComponent,
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
+            });
+        });
     }
 
     private isArrowKey(key: number): boolean {

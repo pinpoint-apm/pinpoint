@@ -6,7 +6,6 @@ import { Component, OnInit } from '@angular/core';
     styleUrls: ['./url-statistic-page.component.css']
 })
 export class UrlStatisticPageComponent implements OnInit {
-    constructor(
-    ) {}
+    constructor() {}
     ngOnInit() {}
 }

@@ -12,7 +12,7 @@ import { SyntaxHighlightPopupModule } from 'app/core/components/syntax-highlight
 import { TransactionListBottomContentsContainerComponent } from './transaction-list-bottom-contents-container.component';
 import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
 import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
-import { TransactionTimelineModuleV2 } from 'app/core/components/transaction-timeline-v2';
+import { TransactionTimelineV2Module } from 'app/core/components/transaction-timeline-v2';
 
 @NgModule({
     declarations: [
@@ -30,7 +30,7 @@ import { TransactionTimelineModuleV2 } from 'app/core/components/transaction-tim
         SyntaxHighlightPopupModule,
         HelpViewerPopupModule,
         ServerErrorPopupModule,
-        TransactionTimelineModuleV2
+        TransactionTimelineV2Module
     ],
     exports: [
         TransactionListBottomContentsContainerComponent

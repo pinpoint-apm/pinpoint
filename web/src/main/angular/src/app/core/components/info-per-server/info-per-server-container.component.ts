@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-import { Subject } from 'rxjs';
-import { filter, map, switchMap, tap } from 'rxjs/operators';
+import { EMPTY, Subject } from 'rxjs';
+import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
 
 import {
     StoreHelperService,
@@ -114,27 +114,30 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
                             load: this.agentHistogramData['agentTimeSeriesHistogram'][this.selectedAgent],
                             responseStatistics: this.agentHistogramData['agentResponseStatistics'][this.selectedAgent]
                         }));
+                    }),
+                    catchError((error: IServerErrorFormat) => {
+                        this.dynamicPopupService.openPopup({
+                            data: {
+                                title: 'Error',
+                                contents: error
+                            },
+                            component: ServerErrorPopupContainerComponent
+                        }, {
+                            resolver: this.componentFactoryResolver,
+                            injector: this.injector
+                        });
+
+                        this.messageQueueService.sendMessage({
+                            to: MESSAGE_TO.SERVER_MAP_DISABLE,
+                            param: false
+                        });
+
+                        return EMPTY;
                     })
                 );
             })
         ).subscribe(() => {
             this.show();
-            this.cd.detectChanges();
-        }, (error: IServerErrorFormat) => {
-            this.dynamicPopupService.openPopup({
-                data: {
-                    title: 'Error',
-                    contents: error
-                },
-                component: ServerErrorPopupContainerComponent
-            }, {
-                resolver: this.componentFactoryResolver,
-                injector: this.injector
-            });
-            this.messageQueueService.sendMessage({
-                to: MESSAGE_TO.SERVER_MAP_DISABLE,
-                param: false
-            });
             this.cd.detectChanges();
         });
     }

@@ -16,7 +16,7 @@ export class AgentJVMHeapChartContainer implements IInspectorChartContainer {
         private inspectorChartDataService: InspectorChartDataService
     ) {}
 
-    getData(range: number[]): Observable<IInspectorChartData | AjaxException> {
+    getData(range: number[]): Observable<IInspectorChartData> {
         return this.inspectorChartDataService.getData(this.apiUrl, range);
     }
 

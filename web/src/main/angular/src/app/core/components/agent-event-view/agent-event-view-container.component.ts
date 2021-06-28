@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Observable, Subject, EMPTY } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
 
 import { StoreHelperService, DynamicPopupService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { ITimelineEventSegment } from 'app/core/components/timeline/class/timeline-data.class';
@@ -40,23 +40,27 @@ export class AgentEventViewContainerComponent implements OnInit, OnDestroy {
         this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 1);
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.TIMELINE_SELECTED_EVENT_STATUS).pipe(
             switchMap((eventSegment: ITimelineEventSegment) => {
-                return this.agentEventsDataService.getData(eventSegment.startTimestamp, eventSegment.endTimestamp);
+                return this.agentEventsDataService.getData(eventSegment.startTimestamp, eventSegment.endTimestamp).pipe(
+                    catchError((error: IServerErrorFormat) => {
+                        this.dynamicPopupService.openPopup({
+                            data: {
+                                title: 'Error',
+                                contents: error
+                            },
+                            component: ServerErrorPopupContainerComponent
+                        }, {
+                            resolver: this.componentFactoryResolver,
+                            injector: this.injector
+                        });
+
+                        return EMPTY;
+                    })
+                );
             })
         ).subscribe((response: IEventStatus[]) => {
             this.eventData = response;
             this.viewComponent = true;
             this.changeDetectorRef.detectChanges();
-        }, (error: IServerErrorFormat) => {
-            this.dynamicPopupService.openPopup({
-                data: {
-                    title: 'Error',
-                    contents: error
-                },
-                component: ServerErrorPopupContainerComponent
-            }, {
-                resolver: this.componentFactoryResolver,
-                injector: this.injector
-            });
         });
     }
 

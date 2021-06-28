@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { retry } from 'rxjs/operators';
 
 export interface IActiveThreadDump {
     threadId: string;
@@ -35,9 +34,7 @@ export class ActiveThreadDumpListDataService {
     ) {}
 
     getData(applicationName: string, agentId: string): Observable<any> {
-        return this.http.get<any>(this.requestURL, this.makeRequestOptionsArgs(applicationName, agentId)).pipe(
-            retry(3)
-        );
+        return this.http.get<any>(this.requestURL, this.makeRequestOptionsArgs(applicationName, agentId));
     }
 
     private makeRequestOptionsArgs(applicationName: string, agentId: string): object {

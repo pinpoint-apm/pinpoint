@@ -37,7 +37,7 @@ export interface IInspectorChartContainer {
     title: string;
     defaultYMax: number;
 
-    getData(range: number[]): Observable<IInspectorChartData | AjaxException>;
+    getData(range: number[]): Observable<IInspectorChartData>;
     makeChartData(data: IInspectorChartData): PrimitiveArray[];
     makeDataOption(): Data;
     makeElseOption(): {[key: string]: any};
