@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.web;
 
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
-import com.navercorp.pinpoint.metric.web.MetricWebApp;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration;
