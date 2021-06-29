@@ -16,19 +16,12 @@
 
 package com.navercorp.pinpoint.metric.collector.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.navercorp.pinpoint.metric.collector.model.SystemMetricJsonDeserializer;
 import com.navercorp.pinpoint.metric.collector.service.SystemMetricDataTypeService;
 import com.navercorp.pinpoint.metric.collector.service.SystemMetricService;
 import com.navercorp.pinpoint.metric.collector.service.SystemMetricTagService;
-import com.navercorp.pinpoint.metric.common.model.DoubleCounter;
-import com.navercorp.pinpoint.metric.common.model.LongCounter;
-import com.navercorp.pinpoint.metric.common.model.MetricDataType;
+import com.navercorp.pinpoint.metric.common.model.Metrics;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
-import com.navercorp.pinpoint.metric.common.model.SystemMetricMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -39,7 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.Arrays;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -60,8 +53,8 @@ public class SystemMetricController {
                                   SystemMetricService<SystemMetric> systemMetricService,
                                   SystemMetricDataTypeService systemMetricMetadataService,
                                   SystemMetricTagService systemMetricTagService) {
-        Objects.requireNonNull(objectMapper, "objectMapper");
-        this.objectMapper = objectMapper.registerModule(deserializerModule());
+        this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
+
         this.systemMetricService = Objects.requireNonNull(systemMetricService, "systemMetricService");
         this.systemMetricMetadataService = Objects.requireNonNull(systemMetricMetadataService, "systemMetricMetadataService");
         this.systemMetricTagService = Objects.requireNonNull(systemMetricTagService, "systemMetricTagService");
@@ -71,19 +64,17 @@ public class SystemMetricController {
     @ResponseStatus(value = HttpStatus.OK)
     public void saveSystemMetric(
             @RequestHeader(value = "Application-Name") String applicationName,
-            @RequestBody String body) throws JsonProcessingException {
-        // TODO : (minwoo) 아래 로그 제거 필요
-        logger.info("Application-Name : " + applicationName);
-        logger.info("body : " + body);
-        JsonNode jsonNode = objectMapper.readTree(body).get("metrics");
-        List<SystemMetric> systemMetrics = Arrays.asList(objectMapper.readValue(jsonNode.toString(), SystemMetric[].class));
-        updateMetadata(applicationName, systemMetrics);
-        systemMetricService.insert(applicationName, systemMetrics);
-    }
+            @RequestBody String body) throws IOException {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Application-Name : {}", applicationName);
+            logger.debug("body : {}", body);
+        }
 
-    // TODO : (minwoo) 이 함수 불필요해보임
-    private SimpleModule deserializerModule() {
-        return new SimpleModule().addDeserializer(SystemMetric.class, new SystemMetricJsonDeserializer());
+        Metrics metrics = objectMapper.readValue(body, Metrics.class);
+        List<SystemMetric> metricList = metrics.getMetrics();
+
+        updateMetadata(applicationName, metricList);
+        systemMetricService.insert(applicationName, metricList);
     }
 
     private void updateMetadata(String applicationName, List<SystemMetric> systemMetrics) {

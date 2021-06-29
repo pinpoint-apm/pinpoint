@@ -17,13 +17,11 @@
 package com.navercorp.pinpoint.metric.collector.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.navercorp.pinpoint.metric.collector.dao.pinot.PinotSystemMetricDoubleDao;
-import com.navercorp.pinpoint.metric.collector.dao.pinot.PinotSystemMetricLongDao;
+import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDao;
 
 import com.navercorp.pinpoint.metric.common.model.DoubleCounter;
 import com.navercorp.pinpoint.metric.common.model.LongCounter;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
-import com.navercorp.pinpoint.metric.common.model.SystemMetricMetadata;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,29 +33,36 @@ import java.util.stream.Collectors;
  */
 @Service
 public class SystemMetricService<T extends SystemMetric> {
-    private final PinotSystemMetricLongDao pinotSystemMetricLongDao;
-    private final PinotSystemMetricDoubleDao pinotSystemMetricDoubleDao;
+    private final SystemMetricDao<LongCounter> systemMetricLongDao;
+    private final SystemMetricDao<DoubleCounter> systemMetricDoubleDao;
 
-    public SystemMetricService(PinotSystemMetricLongDao pinotSystemMetricLongDao,
-                               PinotSystemMetricDoubleDao pinotSystemMetricDoubleDao) {
-        this.pinotSystemMetricLongDao = Objects.requireNonNull(pinotSystemMetricLongDao, "pinotSystemMetricLongDao");
-        this.pinotSystemMetricDoubleDao = Objects.requireNonNull(pinotSystemMetricDoubleDao, "pinotSystemMetricDoubleDao");
+    public SystemMetricService(SystemMetricDao<LongCounter> systemMetricLongDao,
+                               SystemMetricDao<DoubleCounter> systemMetricDoubleDao) {
+        this.systemMetricLongDao = Objects.requireNonNull(systemMetricLongDao, "systemMetricLongDao");
+        this.systemMetricDoubleDao = Objects.requireNonNull(systemMetricDoubleDao, "systemMetricDoubleDao");
     }
 
     public void insert(String applicationName, List<T> systemMetricList) throws JsonProcessingException {
+        Objects.requireNonNull(applicationName, "applicationName");
+
         List<LongCounter> longCounters = filterLongCounter(systemMetricList);
         List<DoubleCounter> doubleCounters = filterDoubleCounter(systemMetricList);
-        pinotSystemMetricLongDao.insert(applicationName, longCounters);
-        pinotSystemMetricDoubleDao.insert(applicationName, doubleCounters);
+
+        systemMetricLongDao.insert(applicationName, longCounters);
+        systemMetricDoubleDao.insert(applicationName, doubleCounters);
     }
 
     public List<LongCounter> filterLongCounter(List<T> systemMetrics) {
-        return systemMetrics.stream().filter(LongCounter.class::isInstance)
-                .map(LongCounter.class::cast).collect(Collectors.toList());
+        return systemMetrics.stream()
+                .filter(LongCounter.class::isInstance)
+                .map(LongCounter.class::cast)
+                .collect(Collectors.toList());
     }
 
     public List<DoubleCounter> filterDoubleCounter(List<T> systemMetrics) {
-        return systemMetrics.stream().filter(DoubleCounter.class::isInstance)
-                .map(DoubleCounter.class::cast).collect(Collectors.toList());
+        return systemMetrics.stream()
+                .filter(DoubleCounter.class::isInstance)
+                .map(DoubleCounter.class::cast)
+                .collect(Collectors.toList());
     }
 }

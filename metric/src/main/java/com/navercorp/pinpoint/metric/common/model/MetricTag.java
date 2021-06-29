@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.metric.common.model;
 
-import org.springframework.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -37,22 +35,10 @@ public class MetricTag {
     }
 
     public MetricTag(String hostGroupId, String hostName, String metricName, String fieldName, List<Tag> tags) {
-        if (StringUtils.isEmpty(hostGroupId)) {
-            throw new IllegalArgumentException("hostGroupId must not be empty");
-        }
-        if (StringUtils.isEmpty(hostName)) {
-            throw new IllegalArgumentException("hostName must not be empty");
-        }
-        if (StringUtils.isEmpty(metricName)) {
-            throw new IllegalArgumentException("metricName must not be empty");
-        }
-        if (StringUtils.isEmpty(fieldName)) {
-            throw new IllegalArgumentException("fieldName must not be empty");
-        }
-        this.hostGroupId = hostGroupId;
-        this.hostName = hostName;
-        this.metricName = metricName;
-        this.fieldName = fieldName;
+        this.hostGroupId = StringPrecondition.requireHasLength(hostGroupId, "hostGroupId");
+        this.hostName = StringPrecondition.requireHasLength(hostName, "hostName");
+        this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
+        this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
         this.tags = Objects.requireNonNull(tags, "tags");
     }
 
@@ -97,11 +83,7 @@ public class MetricTag {
     }
 
     public MetricTag copy() {
-        List<Tag> tagList = new ArrayList<Tag>(tags.size());
-
-        for (Tag tag : tagList) {
-            tagList.add(tag.copy());
-        }
+        List<Tag> tagList = new ArrayList<>(this.tags);
 
         return new MetricTag(hostGroupId, hostName, metricName, fieldName, tagList);
     }
@@ -121,11 +103,24 @@ public class MetricTag {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         MetricTag metricTag = (MetricTag) o;
-        return Objects.equals(hostGroupId, metricTag.hostGroupId) &&
-                Objects.equals(hostName, metricTag.hostName) &&
-                Objects.equals(metricName, metricTag.metricName) &&
-                Objects.equals(fieldName, metricTag.fieldName) &&
-                Objects.equals(tags, metricTag.tags);
+
+        if (hostGroupId != null ? !hostGroupId.equals(metricTag.hostGroupId) : metricTag.hostGroupId != null)
+            return false;
+        if (hostName != null ? !hostName.equals(metricTag.hostName) : metricTag.hostName != null) return false;
+        if (metricName != null ? !metricName.equals(metricTag.metricName) : metricTag.metricName != null) return false;
+        if (fieldName != null ? !fieldName.equals(metricTag.fieldName) : metricTag.fieldName != null) return false;
+        return tags != null ? tags.equals(metricTag.tags) : metricTag.tags == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = hostGroupId != null ? hostGroupId.hashCode() : 0;
+        result = 31 * result + (hostName != null ? hostName.hashCode() : 0);
+        result = 31 * result + (metricName != null ? metricName.hashCode() : 0);
+        result = 31 * result + (fieldName != null ? fieldName.hashCode() : 0);
+        result = 31 * result + (tags != null ? tags.hashCode() : 0);
+        return result;
     }
 }
