@@ -19,11 +19,17 @@ package com.navercorp.pinpoint.metric.common.model;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StreamUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Hyunjoon Cho
@@ -62,5 +68,22 @@ public class SystemMetricSerializerTest {
         SystemMetricView systemMetricView = new SystemMetricView("applicationName", doubleCounter);
         String json = mapper.writeValueAsString(systemMetricView);
         logger.info("{}", json);
+    }
+
+
+    @Test
+    public void deserialize() throws IOException {
+
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("/metric_json/test.json");
+        String s = StreamUtils.copyToString(resourceAsStream, StandardCharsets.UTF_8);
+
+        Metrics systemMetrics = mapper.readValue(s, Metrics.class);
+        List<SystemMetric> metrics = systemMetrics.getMetrics();
+
+        Assert.assertEquals(2, metrics.size());
+        logger.debug("{}", metrics);
+
+        Assert.assertEquals("disk1", metrics.get(0).getMetricName());
+        Assert.assertEquals("disk2", metrics.get(1).getMetricName());
     }
 }

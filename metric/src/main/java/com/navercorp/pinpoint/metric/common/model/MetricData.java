@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.metric.common.model;
 
-import org.springframework.util.StringUtils;
-
 import java.util.Objects;
 
 /**
@@ -33,15 +31,8 @@ public class MetricData {
     }
 
     public MetricData(String metricName, String fieldName, MetricDataType metricDataType) {
-        if (StringUtils.isEmpty(metricName)) {
-            throw new IllegalArgumentException("metricName must not be empty");
-        }
-        if (StringUtils.isEmpty(fieldName)) {
-            throw new IllegalArgumentException("fieldName must not be empty");
-        }
-
-        this.metricName = metricName;
-        this.fieldName = fieldName;
+        this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
+        this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
         this.metricDataType = Objects.requireNonNull(metricDataType, "metricDataType");
     }
 

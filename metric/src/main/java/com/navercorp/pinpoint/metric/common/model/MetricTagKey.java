@@ -25,22 +25,22 @@ import java.util.Objects;
  */
 public class MetricTagKey {
 
-    private String hostGroupId;
-    private String hostName;
-    private String metricName;
-    private String fieldName;
+    private final String hostGroupId;
+    private final String hostName;
+    private final String metricName;
+    private final String fieldName;
 
     public MetricTagKey(String hostGroupId, String hostName, String metricName, String fieldName) {
-        if (StringUtils.isEmpty(hostGroupId)) {
+        if (!StringUtils.hasLength(hostGroupId)) {
             throw new IllegalArgumentException("hostGroupId must not be empty");
         }
-        if (StringUtils.isEmpty(hostName)) {
+        if (!StringUtils.hasLength(hostName)) {
             throw new IllegalArgumentException("hostName must not be empty");
         }
-        if (StringUtils.isEmpty(metricName)) {
+        if (!StringUtils.hasLength(metricName)) {
             throw new IllegalArgumentException("metricName must not be empty");
         }
-        if (StringUtils.isEmpty(fieldName)) {
+        if (!StringUtils.hasLength(fieldName)) {
             throw new IllegalArgumentException("fieldName must not be empty");
         }
         this.hostGroupId = hostGroupId;

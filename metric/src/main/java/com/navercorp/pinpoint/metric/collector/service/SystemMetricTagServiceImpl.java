@@ -58,7 +58,7 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
             metricTagCache.saveMetricTag(new MetricTag(applicationName, hostName, metricName, fieldName, copiedTagList));
         } else {
             for (MetricTag metricTag : metricTagCollection.getMetricTagList()) {
-                if(isEquals(tagList, metricTag.getTags())) {
+                if (isEquals(tagList, metricTag.getTags())) {
                     return;
                 }
             }

@@ -45,15 +45,17 @@ public class SystemMetricDataTypeServiceImpl implements SystemMetricDataTypeServ
     public void saveMetricDataType(SystemMetric systemMetric) {
         MetricDataName metricDataName = new MetricDataName(systemMetric.getMetricName(), systemMetric.getFieldName());
         MetricData metricData = metricDataTypeCache.getMetricDataType(metricDataName);
+        if (!Objects.isNull(metricData)) {
+            // cache hit
+            return;
+        }
 
-        if (Objects.isNull(metricData)) {
-            if (systemMetric instanceof LongCounter) {
-                metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.LONG));
-            } else if (systemMetric instanceof DoubleCounter) {
-                metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.DOUBLE));
-            } else {
-                logger.error("can not find metric data type.  systemMetric : {}", systemMetric);
-            }
-        };
+        if (systemMetric instanceof LongCounter) {
+            metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.LONG));
+        } else if (systemMetric instanceof DoubleCounter) {
+            metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.DOUBLE));
+        } else {
+            logger.error("can not find metric data type.  systemMetric : {}", systemMetric);
+        }
     }
 }
