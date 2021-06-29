@@ -18,12 +18,14 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.strategy;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.stat.join.AbstractJoinFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -65,21 +67,28 @@ public class JoinIntFieldEncodingStrategy implements JoinEncodingStrategy<JoinIn
 
     @Override
     public void encodeValues(Buffer buffer, List<JoinIntFieldBo> values) {
-        final List<Integer> avgValues = values.stream().map(e -> e.getAvg()).collect(Collectors.toList());
+        final List<Integer> avgValues = mapping(values, AbstractJoinFieldBo::getAvg);
         avgValueStrategy.encodeValues(buffer, avgValues);
 
-        final List<Integer> minValues = values.stream().map(e -> e.getMin()).collect(Collectors.toList());
+        final List<Integer> minValues = mapping(values, AbstractJoinFieldBo::getMin);
         minValueStrategy.encodeValues(buffer, minValues);
 
-        final List<String> minAgentIds = values.stream().map(e -> e.getMinAgentId()).collect(Collectors.toList());
+        final List<String> minAgentIds = mapping(values, AbstractJoinFieldBo::getMinAgentId);
         minAgentIdStrategy.encodeValues(buffer, minAgentIds);
 
-        final List<Integer> maxValues = values.stream().map(e -> e.getMax()).collect(Collectors.toList());
+        final List<Integer> maxValues = mapping(values, AbstractJoinFieldBo::getMax);
         maxValueStrategy.encodeValues(buffer, maxValues);
 
-        final List<String> maxAgentIds = values.stream().map(e -> e.getMaxAgentId()).collect(Collectors.toList());
+        final List<String> maxAgentIds = mapping(values, AbstractJoinFieldBo::getMaxAgentId);
         maxAgentIdStrategy.encodeValues(buffer, maxAgentIds);
     }
+
+    private <T, R> List<R> mapping(List<T> values, Function<T, R> mapper) {
+        return values.stream()
+                .map(mapper)
+                .collect(Collectors.toList());
+    }
+
 
     public static JoinIntFieldEncodingStrategy getFromCode(int[] codes) {
         Objects.requireNonNull(codes, "codes");

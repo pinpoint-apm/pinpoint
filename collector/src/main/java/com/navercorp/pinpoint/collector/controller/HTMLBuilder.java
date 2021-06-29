@@ -73,8 +73,8 @@ public class HTMLBuilder {
         }
 
         private List<? extends Map.Entry<?, ?>> sort(Map<?, ?> map) {
-            Stream<? extends Map.Entry<?, ?>> stream = map.entrySet().stream();
-            return stream.sorted(Comparator.comparing(anotherString -> (String) anotherString.getKey()))
+            return map.entrySet().stream()
+                    .sorted(Comparator.comparing(anotherString -> (String) anotherString.getKey()))
                     .collect(Collectors.toList());
         }
     }

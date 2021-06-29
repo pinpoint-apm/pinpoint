@@ -88,7 +88,8 @@ public class JoinTransactionBo implements JoinStatBo {
             return JoinTransactionBo.EMPTY_JOIN_TRANSACTION_BO;
         }
 
-        List<JoinLongFieldBo> totalCountFieldBoList = joinTransactionBoList.stream().map(JoinTransactionBo::getTotalCountJoinValue).collect(Collectors.toList());
+        List<JoinLongFieldBo> totalCountFieldBoList = joinTransactionBoList.stream()
+                .map(JoinTransactionBo::getTotalCountJoinValue).collect(Collectors.toList());
         final JoinLongFieldBo totalCountJoinValue = JoinLongFieldBo.merge(totalCountFieldBoList);
 
         final JoinTransactionBo firstJoinTransactionBo = joinTransactionBoList.get(0);

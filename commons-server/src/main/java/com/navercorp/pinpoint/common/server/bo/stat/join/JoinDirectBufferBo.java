@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.common.server.bo.stat.join;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -70,16 +71,16 @@ public class JoinDirectBufferBo implements JoinStatBo {
             return EMPTY_JOIN_DIRECT_BUFFER_BO;
         }
 
-        List<JoinLongFieldBo> directCountFieldBoList = joinDirectBufferBoList.stream().map(JoinDirectBufferBo::getDirectCountJoinValue).collect(Collectors.toList());
+        List<JoinLongFieldBo> directCountFieldBoList = mapping(joinDirectBufferBoList, JoinDirectBufferBo::getDirectCountJoinValue);
         JoinLongFieldBo directCountJoinValue = JoinLongFieldBo.merge(directCountFieldBoList);
 
-        List<JoinLongFieldBo> directMemoryUsedFieldBoList = joinDirectBufferBoList.stream().map(JoinDirectBufferBo::getDirectMemoryUsedJoinValue).collect(Collectors.toList());
+        List<JoinLongFieldBo> directMemoryUsedFieldBoList = mapping(joinDirectBufferBoList, JoinDirectBufferBo::getDirectMemoryUsedJoinValue);
         JoinLongFieldBo directMemoryUsedJoinValue = JoinLongFieldBo.merge(directMemoryUsedFieldBoList);
 
-        List<JoinLongFieldBo> mappedCountFieldBoList = joinDirectBufferBoList.stream().map(JoinDirectBufferBo::getMappedCountJoinValue).collect(Collectors.toList());
+        List<JoinLongFieldBo> mappedCountFieldBoList = mapping(joinDirectBufferBoList, JoinDirectBufferBo::getMappedCountJoinValue);
         JoinLongFieldBo mappedCountJoinValue = JoinLongFieldBo.merge(mappedCountFieldBoList);
 
-        List<JoinLongFieldBo> mappedMemoryUsedFieldBoList = joinDirectBufferBoList.stream().map(JoinDirectBufferBo::getMappedMemoryUsedJoinValue).collect(Collectors.toList());
+        List<JoinLongFieldBo> mappedMemoryUsedFieldBoList = mapping(joinDirectBufferBoList, JoinDirectBufferBo::getMappedMemoryUsedJoinValue);
         JoinLongFieldBo mappedMemoryUsedJoinValue = JoinLongFieldBo.merge(mappedMemoryUsedFieldBoList);
 
         JoinDirectBufferBo firstJoinDirectBufferBo = joinDirectBufferBoList.get(0);
@@ -92,6 +93,12 @@ public class JoinDirectBufferBo implements JoinStatBo {
         newJoinDirectBufferBo.setMappedCountJoinValue(mappedCountJoinValue);
         newJoinDirectBufferBo.setMappedMemoryUsedJoinValue(mappedMemoryUsedJoinValue);
         return newJoinDirectBufferBo;
+    }
+
+    private static <T, R> List<R> mapping(List<T> values, Function<T, R> mapper) {
+        return values.stream()
+                .map(mapper)
+                .collect(Collectors.toList());
     }
 
     @Override
