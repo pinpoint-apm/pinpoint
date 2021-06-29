@@ -30,19 +30,21 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class FilteredMapServiceOption {
-    private List<TransactionId> transactionIdList;
-    private Range originalRange;
-    private Range scanRange;
-    private int xGroupUnit;
-    private int yGroupUnit;
-    private Filter<List<SpanBo>> filter;
-    private int version;
-    private boolean useStatisticsServerInstanceList;
-    private ColumnGetCount columnGetCount;
+    private final List<TransactionId> transactionIdList;
+    private final Range originalRange;
+    private final Range scanRange;
+    private final int xGroupUnit;
+    private final int yGroupUnit;
+    private final Filter<List<SpanBo>> filter;
+    private final int version;
+    private final boolean useStatisticsServerInstanceList;
+    private final ColumnGetCount columnGetCount;
 
     public FilteredMapServiceOption(final Builder builder) {
         this.transactionIdList = builder.transactionIdList;
         this.originalRange = builder.originalRange;
+//        this.scanRange = builder.scanRange;
+        this.scanRange = null;
         this.xGroupUnit = builder.xGroupUnit;
         this.yGroupUnit = builder.yGroupUnit;
         this.filter = builder.filter;
