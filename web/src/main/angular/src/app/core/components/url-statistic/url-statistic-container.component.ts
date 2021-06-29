@@ -69,6 +69,7 @@ export class UrlStatisticContainerComponent implements OnInit, OnDestroy {
     }
 
     private initData(): void {
+        // TODO: Add Error handling
         this.urlStatisticDataService.getData().pipe(
             tap((data: any[]) => {
                 console.log(data);

@@ -10,7 +10,7 @@
     display: flex;
     align-items: center;
     justify-content:space-between;
-    background: var(--background-primary);
+    background: var(--background-default);
 }
 .l-title-group .fas {
     font-size: 18px;

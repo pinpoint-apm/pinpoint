@@ -52,7 +52,11 @@ export class TransactionListPageComponent implements OnInit {
                             this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
                             this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
                             this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
-                        ]
+                        ],
+                        queryParams: {
+                            [UrlQuery.DRAG_INFO]: null,
+                            [UrlQuery.TRANSACTION_INFO]: null
+                        }
                     });
                 }
             }, {

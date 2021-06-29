@@ -14,6 +14,7 @@ export class ConfigurationFavoriteContainerComponent implements OnInit {
     constructor(
         private translateService: TranslateService,
     ) {}
+
     ngOnInit() {
         this.initDescText();
     }

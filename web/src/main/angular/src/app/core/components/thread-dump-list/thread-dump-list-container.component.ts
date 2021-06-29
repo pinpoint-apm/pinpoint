@@ -41,7 +41,12 @@ export class ThreadDumpListContainerComponent implements OnInit, OnDestroy {
             }),
             switchMap((data: {[key: string]: any}) => {
                 if (data.code === -1)  {
-                    return throwError({message: data.message});
+                    return throwError({
+                        exception: {
+                            request: {},
+                            message: data.message
+                        }
+                    });
                 } else {
                     return of(data.message.threadDumpData.map((threadDump: IActiveThreadDump, index: number) => {
                         return <IThreadDumpData>{

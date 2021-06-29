@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Subject, forkJoin } from 'rxjs';
-import { switchMapTo } from 'rxjs/operators';
+import { Subject, forkJoin, EMPTY } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
 
 import {
     WebAppSettingDataService,
@@ -10,11 +10,13 @@ import {
     TRACKED_EVENT_LIST,
     MessageQueueService,
     MESSAGE_TO,
-    ApplicationListDataService
+    ApplicationListDataService,
+    DynamicPopupService
 } from 'app/shared/services';
 import { ApplicationListInteractionForConfigurationService } from './application-list-interaction-for-configuration.service';
 import { FOCUS_TYPE } from './application-list-for-header.component';
 import { isEmpty } from 'app/core/utils/util';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Component({
     selector: 'pp-application-list-for-agent-management-container',
@@ -49,6 +51,9 @@ export class ApplicationListForAgentManagementContainerComponent implements OnIn
         private applicationListDataService: ApplicationListDataService,
         private applicationListInteractionForConfigurationService: ApplicationListInteractionForConfigurationService,
         private analyticsService: AnalyticsService,
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
 
     ngOnInit() {
@@ -56,7 +61,24 @@ export class ApplicationListForAgentManagementContainerComponent implements OnIn
         this.initI18nText();
         this.funcImagePath = this.webAppSettingDataService.getIconPathMakeFunc();
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.APPLICATION_REMOVED).pipe(
-            switchMapTo(this.applicationListDataService.getApplicationList())
+            switchMap(() => {
+                return this.applicationListDataService.getApplicationList().pipe(
+                    catchError((error: IServerErrorFormat) => {
+                        this.dynamicPopupService.openPopup({
+                            data: {
+                                title: 'Server Error',
+                                contents: error
+                            },
+                            component: ServerErrorPopupContainerComponent,
+                        }, {
+                            resolver: this.componentFactoryResolver,
+                            injector: this.injector
+                        });
+
+                        return EMPTY;
+                    })
+                );
+            })
         ).subscribe(() => {
             this.selectedApp = null;
         });

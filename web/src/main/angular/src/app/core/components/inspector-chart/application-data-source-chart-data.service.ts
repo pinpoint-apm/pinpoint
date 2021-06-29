@@ -20,8 +20,8 @@ export class ApplicationDataSourceChartDataService {
         private newUrlStateNotificationService: NewUrlStateNotificationService,
     ) {}
 
-    getData(range: number[]): Observable<IApplicationDataSourceChart[] | AjaxException> {
-        return this.http.get<IApplicationDataSourceChart[] | AjaxException>(this.requestURL, this.getHttpParams(range));
+    getData(range: number[]): Observable<IApplicationDataSourceChart[]> {
+        return this.http.get<IApplicationDataSourceChart[]>(this.requestURL, this.getHttpParams(range));
     }
 
     private getHttpParams([from, to]: number[]): object {

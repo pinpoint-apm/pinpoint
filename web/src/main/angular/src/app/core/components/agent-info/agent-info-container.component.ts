@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { filter, tap, map, switchMap, takeUntil } from 'rxjs/operators';
+import { EMPTY, Observable, Subject } from 'rxjs';
+import { filter, tap, map, switchMap, takeUntil, catchError } from 'rxjs/operators';
 
 import { UrlPathId } from 'app/shared/models';
 import {
@@ -49,7 +49,13 @@ export class AgentInfoContainerComponent implements OnInit, OnDestroy {
             tap(() => this.showLoading = true),
             switchMap(({agentId, selectedTime}: ISourceForAgentInfo) => {
                 this.lastRequestParam = [agentId, selectedTime];
-                return this.agentInfoDataService.getData(agentId, selectedTime);
+                return this.agentInfoDataService.getData(agentId, selectedTime).pipe(
+                    catchError(() => {
+                        this.dataRequestSuccess = false;
+                        this.completed();
+                        return EMPTY;
+                    })
+                );
             }),
             filter((agentData: IServerAndAgentData) => {
                 return !!(agentData && agentData.applicationName);
@@ -57,9 +63,6 @@ export class AgentInfoContainerComponent implements OnInit, OnDestroy {
         ).subscribe((agentData: IServerAndAgentData) => {
             this.agentData = agentData;
             this.dataRequestSuccess = true;
-            this.completed();
-        }, (_: IServerErrorFormat) => {
-            this.dataRequestSuccess = false;
             this.completed();
         });
     }

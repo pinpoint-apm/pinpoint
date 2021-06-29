@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, Input, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Subject, forkJoin, of, merge } from 'rxjs';
+import { Subject, forkJoin, of, merge, EMPTY } from 'rxjs';
 import { filter, tap, switchMap, pluck, map, catchError, withLatestFrom, takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimitiveArray, Data, DataItem, bar } from 'billboard.js';
@@ -21,6 +21,7 @@ import { Actions } from 'app/shared/store';
 import { SourceType } from 'app/core/components/response-summary-chart/response-summary-chart-container.component';
 import { Layer } from 'app/core/components/response-summary-chart/response-summary-chart-container.component';
 import { filterObj } from 'app/core/utils/util';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Component({
     selector: 'pp-response-avg-max-chart-container',
@@ -99,7 +100,22 @@ export class ResponseAvgMaxChartContainerComponent implements OnInit, OnDestroy 
 
         this.agentHistogramDataService.getData(this.serverMapData, this.previousRange, target).pipe(
             // map((data: any) => this.isAllAgent() ? data['responseStatistics'] : data['agentResponseStatistics'][this.selectedAgent]),
-            pluck('agentResponseStatistics', this.selectedAgent)
+            pluck('agentResponseStatistics', this.selectedAgent),
+            catchError((error: IServerErrorFormat) => {
+                this.activeLayer = Layer.RETRY;
+                this.dynamicPopupService.openPopup({
+                    data: {
+                        title: 'Error',
+                        contents: error
+                    },
+                    component: ServerErrorPopupContainerComponent
+                }, {
+                    resolver: this.componentFactoryResolver,
+                    injector: this.injector
+                });
+
+                return EMPTY;
+            })
         ).pipe(
             map((data: IResponseStatistics) => this.cleanIntermediateChartData(data)),
             map((data: IResponseStatistics) => this.makeChartData(data)),

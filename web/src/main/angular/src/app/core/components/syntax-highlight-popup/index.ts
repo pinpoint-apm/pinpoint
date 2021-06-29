@@ -6,6 +6,7 @@ import { SharedModule } from 'app/shared';
 import { SyntaxHighlightPopupComponent } from './syntax-highlight-popup.component';
 import { SyntaxHighlightPopupContainerComponent } from './syntax-highlight-popup-container.component';
 import { SyntaxHighlightDataService } from './syntax-highlight-data.service';
+import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
 
 @NgModule({
     declarations: [
@@ -15,6 +16,7 @@ import { SyntaxHighlightDataService } from './syntax-highlight-data.service';
     imports: [
         SharedModule,
         ClipboardModule,
+        ServerErrorPopupModule
     ],
     exports: [],
     entryComponents: [

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { retry } from 'rxjs/operators';
 
 export interface IGroupMember {
     department: string;
@@ -17,28 +16,28 @@ export interface IGroupMemberResponse {
 @Injectable()
 export class GroupMemberDataService {
     private url = 'userGroup/member.pinpoint';
-    constructor(private http: HttpClient) { }
+
+    constructor(
+        private http: HttpClient
+    ) {}
+
     retrieve(userGroupId: string): Observable<IGroupMember[]> {
-        return this.http.get<IGroupMember[]>(this.url, { params: new HttpParams().set('userGroupId', userGroupId) }).pipe(
-            retry(3)
-        );
+        return this.http.get<IGroupMember[]>(this.url, { params: new HttpParams().set('userGroupId', userGroupId) });
     }
+
     create(memberId: string, userGroupId: string): Observable<IGroupMemberResponse> {
         return this.http.post<IGroupMemberResponse>(this.url, {
             memberId,
             userGroupId
-        }).pipe(
-            retry(3)
-        );
+        });
     }
+
     remove(memberId: string, userGroupId: string): Observable<IGroupMemberResponse> {
         return this.http.request<IGroupMemberResponse>('delete', this.url, {
             body: {
                 memberId,
                 userGroupId
             }
-        }).pipe(
-            retry(3)
-        );
+        });
     }
 }
