@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.metric.web.model.basic.metric.group;
 
+import com.navercorp.pinpoint.metric.common.model.StringPrecondition;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,15 +33,8 @@ public class ElementOfBasicGroup {
     private final MatchingRule matchingRule;
 
     public ElementOfBasicGroup(String metricName, String fieldName, List<Tag> tagList, MatchingRule matchingRule) {
-        if (StringUtils.isEmpty(metricName)) {
-            throw new IllegalArgumentException("metricName must not be empty");
-        }
-        if (StringUtils.isEmpty(fieldName)) {
-            throw new IllegalArgumentException("fieldName must not be empty");
-        }
-
-        this.metricName = metricName;
-        this.fieldName = fieldName;
+        this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
+        this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
         this.tagList = Objects.requireNonNull(tagList, "tagList");
         this.matchingRule = Objects.requireNonNull(matchingRule, "matchingRule");
     }
