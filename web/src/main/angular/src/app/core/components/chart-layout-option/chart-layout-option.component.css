@@ -13,9 +13,9 @@
 }
 
 .l-layout-option-button:hover {
-    color: var(--primary-color);
+    color: var(--primary);
 }
 
 .l-layout-option-button.active {
-    color: var(--primary-color) !important;
+    color: var(--primary) !important;
 }

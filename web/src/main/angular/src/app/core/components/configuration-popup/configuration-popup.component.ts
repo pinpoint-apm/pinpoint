@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, HostBinding, Output, EventEmitter, ChangeDetectionStrategy, Input } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 
 @Component({
@@ -29,12 +29,15 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
                 animate('0.1s')
             ])
         ])
-    ]
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConfigurationPopupComponent implements OnInit {
     @HostBinding('class.font-opensans') fontFamily = true;
+    @Input() currentTheme: string;
     @Output() outMenuClick = new EventEmitter<string>();
     @Output() outOpenLink = new EventEmitter<void>();
+    @Output() outChangeTheme = new EventEmitter<string>();
 
     isMenuCollapsed: {[key: string]: boolean} = {
         admin: false,
@@ -49,6 +52,20 @@ export class ConfigurationPopupComponent implements OnInit {
 
     onOpenLink(): void {
         this.outOpenLink.emit();
+    }
+
+    onClickTheme($event: MouseEvent): void {
+        const target = $event.target as HTMLElement;
+
+        if (!Array.from(target.classList).includes('active')) {
+            const theme = target.dataset.theme;
+
+            this.outChangeTheme.emit(theme);
+        }
+    }
+
+    isThemeActive(themeButtonElement: HTMLButtonElement): boolean {
+        return themeButtonElement.dataset.theme === this.currentTheme ? true : false;
     }
 
     toggleMenu(menu: string): void {

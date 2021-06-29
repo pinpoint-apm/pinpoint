@@ -18,11 +18,11 @@
     margin-right: 4px;
 }
 .l-wrapper.active {
-    color: var(--primary-color);
+    color: var(--primary);
     font-weight: 600;
 }
 .l-wrapper:hover {
     cursor: pointer;
-    color: var(--primary-color);
+    color: var(--primary);
     background-color: var(--background-hover-default);
 }

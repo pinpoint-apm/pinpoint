@@ -26,7 +26,7 @@
     background-color: var(--background-hover-primary);
 }
 .l-target-item.selected, .l-target-sub-item.selected {
-    color: var(--primary-color);
+    color: var(--primary);
     font-weight: 600;
 }
 .l-application-name {
@@ -42,12 +42,12 @@ button {
     outline: none;
 }
 button:first-of-type {
-    color: var(--primary-color);
+    color: var(--primary);
     border: var(--border-primary-darker) 1px solid;
     margin-right: 1px;
 }
 button:last-of-type {
-    color: var(--primary-color);
+    color: var(--primary);
     border: var(--border-primary-darker) 1px solid;
     margin-right: 4px;
 }

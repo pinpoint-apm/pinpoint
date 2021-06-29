@@ -50,8 +50,8 @@
     bottom: -439px;
     position: absolute;
     left: -36px;
-    background: var(--background-default);
-    border: 1px solid var(--dark-primary-color);
+    background: var(--background-layer);
+    border: 1px solid var(--header-border);
     width: calc(100% + 37px);
     z-index: 701;
 }
@@ -108,7 +108,7 @@
 }
 .l-btn-group .l-time-set li.active button, .l-btn-group .l-time-set li button:hover, .l-btn-group .l-time-set li button:focus {
     border: none;
-    background: var(--primary-color);
+    background: var(--primary);
     color: var(--text-knockout);
 }
 .l-btn-group .l-time-set button {
@@ -132,14 +132,51 @@
 }
 
 .ngui-datetime-picker {
+    color: var(--text-primary-lighter) !important;
     font: normal 12px sans-serif !important;
     border: none !important;
 }
+
+.ngui-datetime-picker .days .day-of-week.weekend  {
+    color: var(--text-primary-lighter) !important;
+}
+
+.ngui-datetime-picker .week-numbers-and-days {
+    background-color: var(--background-layer);
+}
+
 .ngui-datetime-picker > .days {
     margin: 4px !important;
     padding: 0 4px;
-} 
-.ngui-datetime-picker > .days .day.selected { 
-    background: var(--primary-color) !important;
+}
+
+.ngui-datetime-picker .days .day { 
+    color: var(--text-disable) !important;
+}
+
+.ngui-datetime-picker .days .day.selectable { 
+    color: var(--text-primary-lightest) !important;
+}
+
+.ngui-datetime-picker .days .day.selectable:hover { 
+    background-color: var(--background-hover-primary-darker) !important;
+}
+
+.ngui-datetime-picker .days .day.weekend {
+    background-color: var(--background-primary-darkest) !important;
+}
+
+.ngui-datetime-picker .days .day.selected { 
     color: var(--text-knockout) !important;
+    background: var(--primary) !important;
+}
+
+/* calenter month selector header */
+.ngui-datetime-picker .month.ng-star-inserted {
+    background-color: var(--background-layer);
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.ngui-datetime-picker .month span {
+    color: var(--text-primary);
 }

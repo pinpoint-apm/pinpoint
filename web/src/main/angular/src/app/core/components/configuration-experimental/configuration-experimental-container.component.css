@@ -7,7 +7,7 @@
 }
 
 .l-desc-text {
-    color: #999;
+    color: var(--text-secondary);
     font-size: 14px;
 }
 
@@ -24,6 +24,6 @@
     display: flex;
     align-items: center;
     padding: 10px 10px;
-    background: white;
+    background: var(--background-default);
     font-size: 13px;
 }

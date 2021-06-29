@@ -5,7 +5,7 @@
     width: 100%;
 }
 .l-thread-chart-wrap {
-    background: var(--background-secondary);
+    background: var(--background-primary-darkest);
     position: absolute;
     bottom: 0;
     left: 0;
@@ -22,7 +22,7 @@
     justify-content: space-between;
     align-items: center;
     border-top: 1px solid var(--border-primary-darker);
-    border-bottom: 1px solid var(--border-primary-darker);
+    border-bottom: 1px solid var(--border-primary);
     cursor: ns-resize;
     background: var(--background-default);
 }

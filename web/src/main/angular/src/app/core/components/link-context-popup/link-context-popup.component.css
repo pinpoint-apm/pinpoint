@@ -1,5 +1,6 @@
 :host {
     display: block;
+    background-color: var(--background-layer);
 }
 .l-one-depth-list {
     width: 100%;
@@ -16,7 +17,7 @@
 }
 li.l-selectable-command .fa-filter,
 li.l-selectable-command .fa-magic {
-    color: var(--primary-color);
+    color: var(--primary);
 }
 
 li.l-selectable-command {

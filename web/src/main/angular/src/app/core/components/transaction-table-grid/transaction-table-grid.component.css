@@ -31,10 +31,10 @@
     line-height: 2;
 }
 #transaction-table .ag-header-cell {
-    color: black;
+    color: var(--text-primary);
     background-color: var(--background-default);
     font-size: 13px;
-    font-weight: 600;
+    font-weight: bold;
     font-family: 'Open Sans', sans-serif;
     padding-left: 2px;
     padding-right: 2px;
@@ -54,6 +54,12 @@
 #transaction-table .ag-row {
     cursor: pointer;
     line-height: 2;
+    color: var(--text-primary-lighter);
+    background-color: var(--background-primary);
+    border-color: var(--border-primary);
+}
+#transaction-table .ag-row-even {
+    background-color: var(--background-default);
 }
 #transaction-table .ag-body {
     background-color: var(--background-default);

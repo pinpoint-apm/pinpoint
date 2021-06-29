@@ -65,7 +65,7 @@
     justify-content: space-between;
 }
 .l-chart-logo {
-    color: var(--primary-color);
+    color: var(--primary);
 }
 .l-chart-action-remove {
     color: var(--status-danger-lighter);

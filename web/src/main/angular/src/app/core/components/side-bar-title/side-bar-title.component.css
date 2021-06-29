@@ -25,6 +25,7 @@
 .l-select-agent {
     width: 150px;
     font-size: 12px;
+    color: var(--text-primary);
 }
 .l-wrapper-grid {
     display: grid;
@@ -42,4 +43,12 @@
 }
 .l-wrapper .l-title span, .l-wrapper-grid .l-title span {
     padding-left: 8px;
+}
+
+::ng-deep .mat-select-value-text {
+    color: var(--text-primary-lighter) !important;
+}
+
+::ng-deep .mat-select-arrow {
+    border-top-color: var(--text-primary-lighter) !important;
 }

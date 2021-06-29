@@ -12,7 +12,7 @@ button {
 .l-dropdown-button {
     width: 100%;
     height: 32px;
-    border: 1px solid var(--dark-primary-color);
+    border: 1px solid var(--header-border);
     padding: 4px 0 4px 0;
     display: flex;
     font-size: 13px;
@@ -40,7 +40,7 @@ button {
     font-weight: 600;
 }
 .l-bound-double-text.selected {
-    color: var(--primary-color);
+    color: var(--primary);
 }
 
 .l-dropdown-menu-wrapper {
@@ -50,8 +50,8 @@ button {
     z-index: 9999;
     display: flex;
     flex-wrap: wrap;
-    border: 1px solid var(--dark-primary-color);
-    background-color: var(--background-default);
+    border: 1px solid var(--header-border);
+    background-color: var(--background-layer);
     width: 180px;
 }
 
@@ -83,18 +83,18 @@ button {
 }
 
 .l-bound-list-item:hover {
-    color: var(--primary-color);
+    color: var(--primary);
     background-color: var(--background-hover-primary);
 }
 
 .l-bound-list-item.active {
     font-weight: 600;
-    color: var(--primary-color);
+    color: var(--primary);
     background-color: var(--background-focus-primary);
 }
 .l-bidirectional-selector {
     text-align: center;
-    color: var(--primary-color);
+    color: var(--primary);
     margin: 10px;
     cursor: pointer;
 }
@@ -106,7 +106,7 @@ button {
     cursor:pointer;
 }
 .l-was-only-selector .selected {
-    color: var(--primary-color);
+    color: var(--primary);
 }
 
 .l-button-group-wrapper {
@@ -117,7 +117,7 @@ button {
 }
 .l-apply-button {
     font-size: 12px !important;
-    background-color: var(--primary-color);
+    background-color: var(--primary);
     margin-left: 2px;
     color: var(--text-knockout);
 }

@@ -75,11 +75,11 @@ button {
 
 .l-bound-list-item:hover {
     background-color: var(--background-hover-default);
-    color: var(--primary-color);
+    color: var(--primary);
 }
 
 .l-bound-list-item.active {
-    color: var(--primary-color);
+    color: var(--primary);
     font-weight: 600;
     background-color: var(--background-focus-primary)
 }
@@ -93,7 +93,7 @@ button {
 
 .l-apply-button {
     font-size: 12px !important;
-    background-color: var(--primary-color);
+    background-color: var(--primary);
     margin-left: 2px;
     color: var(--text-knockout);
 }

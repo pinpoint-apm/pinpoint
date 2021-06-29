@@ -21,7 +21,7 @@
     background: var(--secondary);
 }
 .l-time-set button:focus {
-    background-color:var(--primary-color);
+    background-color:var(--primary);
     color: var(--text-knockout);
 }
 .l-time-set button:hover, .l-time-set button:focus {

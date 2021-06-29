@@ -15,7 +15,7 @@
     width: 100%;
     z-index: 1000;
     padding: 15px;
-    background-color: var(--background-default);
+    background-color: var(--background-layer);
     font-weight: 400;
 }
 .l-source-select-modal::after {
@@ -23,7 +23,7 @@
     width: 0;
     height: 0;
     position: absolute;
-    border-bottom: 7px solid var(--border-knockout);
+    border-bottom: 7px solid var(--background-layer);
     border-right: 7px solid transparent;
     border-left: 7px solid transparent;
     bottom: 100%;

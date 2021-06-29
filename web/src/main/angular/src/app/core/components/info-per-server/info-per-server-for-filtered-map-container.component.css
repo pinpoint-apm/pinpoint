@@ -32,7 +32,7 @@
     font-size: 11px;
     font-weight: 600;
     display: inline-block;
-    background: var(--primary-color);
+    background: var(--primary);
     margin: 0 12px 0 0;
     padding: 6px 11px;
     line-height: 1em;
@@ -45,7 +45,7 @@
     height:0;
     border-top:4px solid transparent;
     border-bottom:4px solid transparent;
-    border-left:3px solid var(--primary-color);
+    border-left:3px solid var(--primary);
     right:-3px;
     top:50%;
     transform:translateY(-50%);
@@ -89,7 +89,7 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: var(--primary-color);
+    background: var(--primary);
     color: var(--text-knockout);
     align-items: center;
     display: flex;

@@ -1,4 +1,6 @@
 // TODO: Restructure it according to the new stylesheet
+const computedStyle = getComputedStyle(document.body);
+
 export default {
     general: {
         common: {
@@ -10,25 +12,25 @@ export default {
             font: {
                 small: '8pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif',
                 normal: '10pt Helvetica, Arial, avn85,NanumGothic,ng,dotum,AppleGothic,sans-serif',
-                big: 'bold 12pt Helvetica, Arial, avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif'
+                big: 'bold 12pt Helvetica, Arial, avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif',
             }
         },
         circle: {
             default: {
-                stroke: '#D0D7DF',
-                strokeWidth: 5
+                stroke: computedStyle.getPropertyValue('--server-map-node-border-default'),
+                strokeWidth: 10,
             },
             good: {
                 stroke: '#32BA94',
-                strokeWidth: 5,
+                strokeWidth: 10,
             },
             slow: {
                 stroke: '#E48022',
-                strokeWidth: 5,
+                strokeWidth: 10,
             },
             bad: {
                 stroke: '#F0515B',
-                strokeWidth: 5,
+                strokeWidth: 10,
             }
         },
         instance: {

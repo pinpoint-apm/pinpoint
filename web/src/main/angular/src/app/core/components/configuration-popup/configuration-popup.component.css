@@ -2,6 +2,7 @@
     display: block;
     width: 100%;
     padding: 8px 0;
+    background-color: var(--background-layer);
 }
 
 .l-list-item {
@@ -10,7 +11,7 @@
 }
 
 .l-separator {
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    border-top: 1px solid var(--border-primary);
     margin-top: 10px;
     margin-bottom: 10px;
 }
@@ -20,13 +21,13 @@
     width: 100%;
     padding: 12px 12px 12px 25px;
     font-weight: 600;
-    color: rgba(0,0,0,.85);
+    color: var(--text-primary);
 }
 
 .l-link:hover {
     cursor: pointer;
     background-color: var(--background-hover-default);
-    color: var(--primary-color) !important;
+    color: var(--primary) !important;
 }
 
 .l-link-with-arrow {
@@ -41,6 +42,42 @@
 .l-depth-1 .l-link {
     margin-left: 15px;
     font-size: 90%;
-    color: rgba(0,0,0,.65);
+    color: var(--text-secondary);
     max-width: calc(100% - 15px);
+}
+
+.l-theme-title {
+    display: inline-block;
+    padding: 12px 12px 12px 25px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.l-theme-conf-wrapper {
+    display: inline-block;
+    margin: 14px;
+    border: 1px solid var(--border-primary);
+    border-radius: 4px;
+}
+
+.l-theme-button-wrapper {
+    display: inline-block;
+}
+
+.l-theme-button {
+    display: inline-block;
+    font-size: 11px;
+    padding: 3px 7px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+}
+
+.l-theme-button:hover {
+    background-color: var(--background-hover-primary);
+}
+
+.l-theme-button.active {
+    color: var(--text-knockout);
+    background-color: var(--primary);
+    font-weight: bold;
 }

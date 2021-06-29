@@ -18,7 +18,7 @@
     cursor: pointer;
     height: 32px;
     padding: 0 13px;
-    border: 1px solid var(--dark-primary-color);
+    border: 1px solid var(--header-border);
     background: var(--background-default);
     font-size: 13px;
     border-radius: 0px;
@@ -43,8 +43,8 @@
     position: absolute;
     top: 32px;
     width: 100%;
-    border: 1px solid var(--dark-primary-color);
-    background: var(--background-default);
+    border: 1px solid var(--header-border);
+    background: var(--background-layer);
     z-index: 10;
 }
 .l-search-group-wrap {
@@ -57,7 +57,7 @@
 }
 .l-search-group {
     width: 100%;
-    background: var(--background-default);
+    background: var(--background-layer);
     height: 32px;
     position: relative;
 }
@@ -65,13 +65,13 @@
     color: var(--text-primary);
     width: 100%;
     height: 100%;
-    border: 1px solid var(--from-input-border);
+    border: 1px solid var(--form-input-border);
     padding: 0 10px;
     font-weight: 600;
 }
 .l-search-group input:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0px 1px 1px var(--primary-color);
+    border-color: var(--primary);
+    box-shadow: 0 0px 1px 1px var(--primary);
     outline: none;
 }
 .l-app-list {

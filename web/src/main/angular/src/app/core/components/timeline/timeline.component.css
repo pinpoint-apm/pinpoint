@@ -21,6 +21,7 @@
 .x-axis text {
     font-size: 12px;
     text-anchor: middle;
+    fill: var(--text-primary);
 }
 .x-axis line {
     stroke: var(--text-knockout);
@@ -83,6 +84,7 @@ image {
     stroke: rgba(239, 246, 105, .9);
 }
 .time-left-signboard text, .time-right-signboard text {
+    fill: var(--text-primary);
     font-size: 13px;
 }
 .time-series-signboard text {

@@ -1,5 +1,6 @@
 :host {
     display: block;
+    background-color: var(--background-layer);
 }
 
 .l-list {
