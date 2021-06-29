@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.metric.common.model;
 
-import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Objects;
 
@@ -25,23 +24,14 @@ import java.util.Objects;
  */
 public class MetricTagName {
 
-    private String applicationId;
-    private String metricName;
-    private String fieldName;
+    private final String applicationId;
+    private final String metricName;
+    private final String fieldName;
 
     public MetricTagName(String applicationId, String metricName, String fieldName) {
-        if (org.springframework.util.StringUtils.isEmpty(applicationId)) {
-            throw new IllegalArgumentException("applicationId must not be empty");
-        }
-        if (org.springframework.util.StringUtils.isEmpty(metricName)) {
-            throw new IllegalArgumentException("metricName must not be empty");
-        }
-        if (org.springframework.util.StringUtils.isEmpty(fieldName)) {
-            throw new IllegalArgumentException("fieldName must not be empty");
-        }
-        this.applicationId = applicationId;
-        this.metricName = metricName;
-        this.fieldName = fieldName;
+        this.applicationId = StringPrecondition.requireHasLength(applicationId, "applicationId");
+        this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
+        this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
     }
 
     @Override

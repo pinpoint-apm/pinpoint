@@ -22,11 +22,8 @@ import java.util.Objects;
  * @author Hyunjoon Cho
  */
 public class Tag {
-    private String name;
-    private String value;
-
-    public Tag() {
-    }
+    private final String name;
+    private final String value;
 
     public Tag(String name, String value) {
         this.name = Objects.requireNonNull(name);
@@ -52,17 +49,18 @@ public class Tag {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Tag)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         Tag tag = (Tag) o;
 
-        return name.equals(tag.getName()) && value.equals(tag.getValue());
+        if (!name.equals(tag.name)) return false;
+        return value.equals(tag.value);
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (value != null ? value.hashCode() : 0);
+        int result = name.hashCode();
+        result = 31 * result + value.hashCode();
         return result;
     }
 
