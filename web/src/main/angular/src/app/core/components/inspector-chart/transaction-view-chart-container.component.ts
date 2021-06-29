@@ -9,8 +9,7 @@ import { InspectorChartComponent } from './inspector-chart.component';
 import { StoreHelperService, NewUrlStateNotificationService } from 'app/shared/services';
 import { InspectorChartDataService, IInspectorChartData } from './inspector-chart-data.service';
 import { UrlPathId } from 'app/shared/models';
-import { catchError } from 'rxjs/operators';
-import { isThatType } from 'app/core/utils/util';
+import { catchError, filter } from 'rxjs/operators';
 
 export enum Layer {
     LOADING = 'loading',
@@ -130,14 +129,14 @@ export class TransactionViewChartContainerComponent implements OnInit, OnDestroy
 
     private getChartData(range: number[]): void {
         this.chartContainer.getData(range).pipe(
-            catchError(() => of(null))
-        ).subscribe((data: IInspectorChartData | AjaxException | null) => {
-            if (data === null || isThatType<AjaxException>(data, 'exception')) {
+            catchError((error: IServerErrorFormat) => {
                 this.activeLayer = Layer.RETRY;
-                this.setRetryMessage(data);
-            } else {
-                this.setChartConfig(this.makeChartData(data));
-            }
+                this.setRetryMessage(error.exception.message);
+                return of(null);
+            }),
+            filter((data: IInspectorChartData | null) => !!data)
+        ).subscribe((data: IInspectorChartData) => {
+            this.setChartConfig(this.makeChartData(data));
         });
     }
 
@@ -148,8 +147,8 @@ export class TransactionViewChartContainerComponent implements OnInit, OnDestroy
         };
     }
 
-    private setRetryMessage(data: any): void {
-        this.retryMessage = data ? data.exception.message : this.dataFetchFailedText;
+    private setRetryMessage(message: string): void {
+        this.retryMessage = message;
     }
 
     private makeChartData(data: IInspectorChartData): PrimitiveArray[] {

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ViewChild, AfterViewInit } from '@angular/core';
-import { Subject, Observable, of } from 'rxjs';
-import { take, takeUntil, switchMap } from 'rxjs/operators';
+import { Subject, EMPTY } from 'rxjs';
+import { take, takeUntil, switchMap, catchError } from 'rxjs/operators';
 import { SplitComponent } from 'angular-split';
 
 import {
@@ -69,30 +69,29 @@ export class TransactionViewPageComponent implements OnInit, OnDestroy, AfterVie
                     urlService.getPathValue(UrlPathId.SPAN_ID),
                     urlService.getPathValue(UrlPathId.TRACE_ID),
                     urlService.getPathValue(UrlPathId.FOCUS_TIMESTAMP)
+                ).pipe(
+                    catchError((error: IServerErrorFormat) => {
+                        this.dynamicPopupService.openPopup({
+                            data: {
+                                title: 'Error',
+                                contents: error
+                            },
+                            component: ServerErrorPopupContainerComponent,
+                            onCloseCallback: () => {
+                                this.urlRouteManagerService.reload();
+                            }
+                        }, {
+                            resolver: this.componentFactoryResolver,
+                            injector: this.injector
+                        });
+
+                        return EMPTY;
+                    })
                 );
             })
         ).subscribe((transactionDetailInfo: ITransactionDetailData) => {
             this.storeHelperService.dispatch(new Actions.UpdateTransactionDetailData(transactionDetailInfo));
-        }, (error: IServerErrorFormat) => {
-            this.dynamicPopupService.openPopup({
-                data: {
-                    title: 'Error',
-                    contents: error
-                },
-                component: ServerErrorPopupContainerComponent,
-                onCloseCallback: () => {
-                    this.urlRouteManagerService.reload();
-                }
-            }, {
-                resolver: this.componentFactoryResolver,
-                injector: this.injector
-            });
         });
-    }
-
-    onAjaxError(err: Error): Observable<any> {
-        // TODO: Error발생시 띄워줄 팝업 컴포넌트 Call - issue#170
-        return of({});
     }
 
     onGutterResized({sizes}: {sizes: number[]}): void {

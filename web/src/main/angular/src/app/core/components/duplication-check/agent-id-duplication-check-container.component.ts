@@ -61,7 +61,7 @@ export class AgentIdDuplicationCheckContainerComponent implements OnInit {
                     })
                 );
             }),
-            filter(({ res }) => {
+            filter(({res}) => {
                 return this.isValueAvailable(res.code) ? true : (this.onCheckFail(res.message), false);
             }),
             pluck('value')

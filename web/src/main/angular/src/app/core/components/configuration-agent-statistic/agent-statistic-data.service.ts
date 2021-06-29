@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Injectable()
 export class AgentStatisticDataService {
@@ -14,22 +14,13 @@ export class AgentStatisticDataService {
 
     getData(): Observable<IAgentList> {
         return this.http.get<IAgentList>(this.url).pipe(
-            tap((data: any) => {
-                if (data.errorCode) {
-                    throw data.errorMessage;
-                }
-
+            tap(() => {
                 this.lastRequestTime = new Date().getTime();
-            }),
-            catchError(this.handleError)
+            })
         );
     }
 
     getLastRequestTime(): number {
         return this.lastRequestTime;
-    }
-
-    private handleError(error: HttpErrorResponse) {
-        return throwError(error.statusText || error);
     }
 }

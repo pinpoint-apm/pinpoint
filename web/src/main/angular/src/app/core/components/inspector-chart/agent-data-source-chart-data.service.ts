@@ -22,8 +22,8 @@ export class AgentDataSourceChartDataService {
         private newUrlStateNotificationService: NewUrlStateNotificationService,
     ) {}
 
-    getData(range: number[]): Observable<IAgentDataSourceChart[] | AjaxException> {
-        return this.http.get<IAgentDataSourceChart[] | AjaxException>(this.requestURL, this.getHttpParams(range));
+    getData(range: number[]): Observable<IAgentDataSourceChart[]> {
+        return this.http.get<IAgentDataSourceChart[]>(this.requestURL, this.getHttpParams(range));
     }
 
     private getHttpParams([from, to]: number[]): object {

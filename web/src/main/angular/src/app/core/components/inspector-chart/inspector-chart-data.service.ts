@@ -24,8 +24,8 @@ export class InspectorChartDataService {
         private newUrlStateNotificationService: NewUrlStateNotificationService
     ) {}
 
-    getData(url: string, range: number[]): Observable<IInspectorChartData | AjaxException> {
-        return this.http.get<IInspectorChartData | AjaxException>(url, this.getHttpParams(range));
+    getData(url: string, range: number[]): Observable<IInspectorChartData> {
+        return this.http.get<IInspectorChartData>(url, this.getHttpParams(range));
     }
 
     private getHttpParams([from, to]: number[]): object {

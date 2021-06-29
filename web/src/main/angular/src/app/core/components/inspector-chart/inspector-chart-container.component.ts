@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ComponentFactoryResolver, Injector, OnDestroy } from '@angular/core';
 import { Subject, forkJoin, combineLatest, of } from 'rxjs';
-import { takeUntil, tap, switchMap, catchError } from 'rxjs/operators';
+import { takeUntil, tap, switchMap, catchError, filter } from 'rxjs/operators';
 import * as moment from 'moment-timezone';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimitiveArray, Data, zoom } from 'billboard.js';
@@ -14,7 +14,6 @@ import {
     MESSAGE_TO
 } from 'app/shared/services';
 import { InspectorPageService, ISourceForChart } from 'app/routes/inspector-page/inspector-page.service';
-import { isThatType } from 'app/core/utils/util';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
@@ -132,10 +131,15 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
             tap(({range}: ISourceForChart) => this.previousRange = range),
             switchMap(({range}: ISourceForChart) => {
                 return this.chartContainer.getData(range).pipe(
-                    catchError(() => of(null))
+                    catchError((error: IServerErrorFormat) => {
+                        this.activeLayer = Layer.RETRY;
+                        this.setRetryMessage(error.exception.message);
+                        return of(null);
+                    })
                 );
-            })
-        ).subscribe((data) => this.chartDataResCallbackFn(data));
+            }),
+            filter((data: IInspectorChartData | null) => !!data)
+        ).subscribe((data: IInspectorChartData) => this.chartDataResCallbackFn(data));
     }
 
     private setChartVisibility(showChart: boolean): void {
@@ -152,17 +156,17 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
     onRetry(): void {
         this.activeLayer = Layer.LOADING;
         this.chartContainer.getData(this.previousRange).pipe(
-            catchError(() => of(null))
-        ).subscribe((data) => this.chartDataResCallbackFn(data));
+            catchError((error: IServerErrorFormat) => {
+                this.activeLayer = Layer.RETRY;
+                this.setRetryMessage(error.exception.message);
+                return of(null);
+            }),
+            filter((data: IInspectorChartData | null) => !!data)
+        ).subscribe((data: IInspectorChartData) => this.chartDataResCallbackFn(data));
     }
 
-    private chartDataResCallbackFn(data: IInspectorChartData | AjaxException | null): void {
-        if (data === null || isThatType<AjaxException>(data, 'exception')) {
-            this.activeLayer = Layer.RETRY;
-            this.setRetryMessage(data);
-        } else {
-            this.setChartConfig(this.makeChartData(data));
-        }
+    private chartDataResCallbackFn(data: IInspectorChartData): void {
+        this.setChartConfig(this.makeChartData(data));
     }
 
     private setChartConfig(data: PrimitiveArray[]): void {
@@ -173,8 +177,8 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
         this.isDataEmpty = this.isEmpty(data);
     }
 
-    private setRetryMessage(data: any): void {
-        this.retryMessage = data ? data.exception.message : this.dataFetchFailedText;
+    private setRetryMessage(message: string): void {
+        this.retryMessage = message;
     }
 
     private isEmpty(data: PrimitiveArray[]): boolean {

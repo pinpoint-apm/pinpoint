@@ -1,7 +1,7 @@
 import { Injectable, ComponentFactoryResolver, Injector } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Subject, Observable, throwError, of, empty, merge } from 'rxjs';
-import { retry, switchMap, expand, tap, finalize, takeUntil } from 'rxjs/operators';
+import { Subject, Observable, throwError, of, empty, merge, EMPTY } from 'rxjs';
+import { switchMap, expand, tap, finalize, takeUntil, catchError } from 'rxjs/operators';
 
 import { Actions } from 'app/shared/store';
 import { UrlQuery, UrlPathId, UrlPath } from 'app/shared/models';
@@ -59,10 +59,7 @@ export class ServerMapForFilteredMapDataService {
         const pauseObs$ = this.pauseSrc.asObservable();
         const resumeObs$ = this.resumeSrc.asObservable();
 
-        const getHttp$ = ((to: number) => this.http.get(this.url, this.makeRequestOptionsArgs(to)).pipe(
-            retry(3),
-            switchMap((res: any) => isThatType(res, 'exception') ? throwError(res) : of(res))
-        ));
+        const getHttp$ = (to: number) => this.http.get<any>(this.url, this.makeRequestOptionsArgs(to));
 
         merge(startObs$, resumeObs$).pipe(
             tap(() => this.isPaused = false),
@@ -79,39 +76,42 @@ export class ServerMapForFilteredMapDataService {
                             // Should be triggered only when the http call is COMPLETED, not when the http request is CANCELED by the pause button.
                             this.storeHelperService.dispatch(new Actions.UpdateServerMapLoadingState('completed'));
                         }
+                    }),
+                    catchError((error: IServerErrorFormat) => {
+                        this.dynamicPopupService.openPopup({
+                            data: {
+                                title: 'Server Error',
+                                contents: error
+                            },
+                            component: ServerErrorPopupContainerComponent,
+                            onCloseCallback: () => {
+                                this.urlRouteManagerService.move({
+                                    url: [
+                                        UrlPath.MAIN
+                                    ],
+                                    needServerTimeRequest: false,
+                                    queryParams: {
+                                        filter: null,
+                                        hint: null,
+                                    },
+                                });
+                            }
+                        }, {
+                            resolver: this.componentFactoryResolver,
+                            injector: this.injector
+                        });
+
+                        return EMPTY;
                     })
                 );
             })
         ).subscribe((res: any) => {
             this.serverMapData.next(res);
-        }, (error: IServerErrorFormat) => {
-            this.dynamicPopupService.openPopup({
-                data: {
-                    title: 'Server Error',
-                    contents: error
-                },
-                component: ServerErrorPopupContainerComponent,
-                onCloseCallback: () => {
-                    this.urlRouteManagerService.move({
-                        url: [
-                            UrlPath.MAIN
-                        ],
-                        needServerTimeRequest: false,
-                        queryParams: {
-                            filter: null,
-                            hint: null,
-                        },
-                    });
-                }
-            }, {
-                resolver: this.componentFactoryResolver,
-                injector: this.injector
-            });
         });
 
     }
 
-    private makeRequestOptionsArgs(to?: number): any {
+    private makeRequestOptionsArgs(to?: number): object {
         return {
             params: new HttpParams()
                 .set('applicationName', this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).applicationName)

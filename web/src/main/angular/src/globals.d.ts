@@ -211,15 +211,6 @@ interface ISelectedTarget {
     isAuthorized?: boolean;
 }
 
-interface AjaxExceptionObj {
-    message: string;
-    request: {[key: string]: any};
-    stacktrace: string
-}
-
-interface AjaxException {
-    exception: AjaxExceptionObj;
-}
 // @store
 interface IScatterXRange {
     from: number;

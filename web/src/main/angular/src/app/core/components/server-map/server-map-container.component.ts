@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Inject, ComponentFactoryResolver, Injector, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router, NavigationStart, RouterEvent } from '@angular/router';
-import { Subject, of, interval } from 'rxjs';
-import { takeUntil, filter, switchMap, tap, delayWhen, pluck, startWith } from 'rxjs/operators';
+import { Subject, of, interval, EMPTY } from 'rxjs';
+import { takeUntil, filter, switchMap, tap, delayWhen, pluck, startWith, catchError } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import {
@@ -108,6 +108,34 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             switchMap((range: number[]) => {
                 this.serverMapRangeHandlerService.setReservedNextTo(range[1] + this.interval);
                 return this.serverMapDataService.getData(range).pipe(
+                    catchError((error: IServerErrorFormat) => {
+                        this.dynamicPopupService.openPopup({
+                            data: {
+                                title: 'Server Error',
+                                contents: error
+                            },
+                            component: ServerErrorPopupContainerComponent,
+                            onCloseCallback: () => {
+                                this.urlRouteManagerService.move({
+                                    url: [
+                                        this.newUrlStateNotificationService.getStartPath()
+                                    ],
+                                    needServerTimeRequest: false,
+                                    queryParams: {
+                                        inbound: null,
+                                        outbound: null,
+                                        bidirectional: null,
+                                        wasOnly: null
+                                    },
+                                });
+                            }
+                        }, {
+                            resolver: this.componentFactoryResolver,
+                            injector: this.injector
+                        });
+
+                        return EMPTY;
+                    }),
                     tap(() => {
                         if (this.newUrlStateNotificationService.isRealTimeMode()) {
                             this.serverMapRangeHandlerService.onFetchCompleted(Date.now());
@@ -132,31 +160,6 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             }
 
             this.cd.detectChanges();
-        }, (error: IServerErrorFormat) => {
-            this.dynamicPopupService.openPopup({
-                data: {
-                    title: 'Server Error',
-                    contents: error
-                },
-                component: ServerErrorPopupContainerComponent,
-                onCloseCallback: () => {
-                    this.urlRouteManagerService.move({
-                        url: [
-                            this.newUrlStateNotificationService.getStartPath()
-                        ],
-                        needServerTimeRequest: false,
-                        queryParams: {
-                            inbound: null,
-                            outbound: null,
-                            bidirectional: null,
-                            wasOnly: null
-                        },
-                    });
-                }
-            }, {
-                resolver: this.componentFactoryResolver,
-                injector: this.injector
-            });
         });
     }
 

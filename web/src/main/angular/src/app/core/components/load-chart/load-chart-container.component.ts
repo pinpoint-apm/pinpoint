@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, Input, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Subject, forkJoin, merge, of } from 'rxjs';
+import { Subject, forkJoin, merge, of, EMPTY } from 'rxjs';
 import { filter, map, tap, switchMap, catchError, pluck, withLatestFrom, takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimitiveArray, Data, areaStep } from 'billboard.js';
@@ -10,6 +10,7 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 import { getMaxTickValue, getStackedData } from 'app/core/utils/chart-util';
 import { Actions } from 'app/shared/store';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 export enum SourceType {
     MAIN = 'MAIN',
@@ -102,7 +103,22 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
         const target = this.getTargetInfo();
 
         this.agentHistogramDataService.getData(this.serverMapData, this.previousRange, target).pipe(
-            pluck('agentTimeSeriesHistogram', this.selectedAgent)
+            pluck('agentTimeSeriesHistogram', this.selectedAgent),
+            catchError((error: IServerErrorFormat) => {
+                this.activeLayer = Layer.RETRY;
+                this.dynamicPopupService.openPopup({
+                    data: {
+                        title: 'Error',
+                        contents: error
+                    },
+                    component: ServerErrorPopupContainerComponent
+                }, {
+                    resolver: this.componentFactoryResolver,
+                    injector: this.injector
+                });
+
+                return EMPTY;
+            })
         ).pipe(
             map((data: IHistogram[]) => this.cleanStatisticsChartData(data)),
             map((data: IHistogram[]) => this.makeChartData(data)),

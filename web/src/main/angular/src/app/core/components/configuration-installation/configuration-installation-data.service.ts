@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { retry } from 'rxjs/operators';
 
 export interface IInstallationData {
     code: number;
@@ -21,8 +20,6 @@ export class ConfigurationInstallationDataService {
     ) {}
 
     getData(): Observable<IInstallationData> {
-        return this.http.get<IInstallationData>(this.dataRequestURL).pipe(
-            retry(3)
-        );
+        return this.http.get<IInstallationData>(this.dataRequestURL);
     }
 }

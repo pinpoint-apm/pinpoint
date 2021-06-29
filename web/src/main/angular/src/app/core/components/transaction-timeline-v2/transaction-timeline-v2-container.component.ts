@@ -10,17 +10,17 @@ import {
     MESSAGE_TO
 } from 'app/shared/services';
 import { TransactionSearchInteractionService, ISearchParam } from 'app/core/components/transaction-search/transaction-search-interaction.service';
-import { TransactionTimelineComponentV2 } from './transaction-timeline-v2.component';
+import { TransactionTimelineV2Component } from './transaction-timeline-v2.component';
 import { Actions } from 'app/shared/store';
 
 @Component({
-    selector: 'pp-transaction-timeline-container-v2',
-    templateUrl: './transaction-timeline-container-v2.component.html',
-    styleUrls: ['./transaction-timeline-container-v2.component.css'],
+    selector: 'pp-transaction-timeline-v2-container',
+    templateUrl: './transaction-timeline-v2-container.component.html',
+    styleUrls: ['./transaction-timeline-v2-container.component.css'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TransactionTimelineContainerComponentV2 implements OnInit, OnDestroy {
-    @ViewChild(TransactionTimelineComponentV2, { static: true }) transactionTimelineComponent: TransactionTimelineComponentV2;
+export class TransactionTimelineV2ContainerComponent implements OnInit, OnDestroy {
+    @ViewChild(TransactionTimelineV2Component, { static: true }) transactionTimelineComponent: TransactionTimelineV2Component;
 
     private unsubscribe = new Subject<void>();
 
@@ -64,7 +64,7 @@ export class TransactionTimelineContainerComponentV2 implements OnInit, OnDestro
             this.databaseCalls = transactionTimelineInfo.databaseCalls;
             this.focusedRows = transactionTimelineInfo.focusedRows;
             this.applicationName = transactionTimelineInfo.applicationId;
-            this.cd.detectChanges()
+            this.cd.detectChanges();
         });
     }
 
