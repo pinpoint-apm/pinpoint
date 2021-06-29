@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.metric.web.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.metric.common.model.StringPrecondition;
 import com.navercorp.pinpoint.metric.web.view.SystemMetricDataSerializer;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,11 +33,7 @@ public class SystemMetricData {
     private final List<MetricValue> metricValueList;
 
     public SystemMetricData(String title, List<Long> timeStampList, List<MetricValue> metricValueList) {
-        if (StringUtils.isEmpty(title)) {
-            throw new IllegalArgumentException("title must not be empty");
-        }
-
-        this.title = title;
+        this.title = StringPrecondition.requireHasLength(title, "title");
         this.timeStampList = Objects.requireNonNull(timeStampList, "timeStampList");
         this.metricValueList = Objects.requireNonNull(metricValueList, "metricValueList");
     }

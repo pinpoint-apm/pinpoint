@@ -1,0 +1,36 @@
+{
+  "metrics": [
+    {
+      "fields": {
+        "fieldType": "int",
+        "fieldValue": 11709579788288
+      },
+      "name": "disk1",
+      "tags": {
+        "device": "G:",
+        "fieldName": "free",
+        "fstype": "NTFS",
+        "host": "EMEROAD-PC",
+        "mode": "unknown",
+        "path": "\\G:"
+      },
+      "timestamp": 1624873340
+    },
+    {
+      "fields": {
+        "fieldType": "int",
+        "fieldValue": 2290936705024
+      },
+      "name": "disk2",
+      "tags": {
+        "device": "G:",
+        "fieldName": "used",
+        "fstype": "NTFS",
+        "host": "EMEROAD-PC",
+        "mode": "unknown",
+        "path": "\\G:"
+      },
+      "timestamp": 1624873340
+    }
+  ]
+}

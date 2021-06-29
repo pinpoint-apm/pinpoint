@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.metric.web.model;
 
+import com.navercorp.pinpoint.metric.common.model.StringPrecondition;
 import com.navercorp.pinpoint.metric.web.util.Range;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
-import com.navercorp.pinpoint.metric.web.util.TimeWindow;
-import org.springframework.util.StringUtils;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -38,23 +37,10 @@ public class MetricDataSearchKey {
     private final long limit;
 
     public MetricDataSearchKey(String hostGroupId, String hostName, String metricName, String metricDefinitionId, Range range) {
-        if (StringUtils.isEmpty(hostGroupId)) {
-            throw new IllegalArgumentException("hostGroupId must not be empty");
-        }
-        if (StringUtils.isEmpty(hostName)) {
-            throw new IllegalArgumentException("hostName must not be empty");
-        }
-        if (StringUtils.isEmpty(metricName)) {
-            throw new IllegalArgumentException("hostName must not be empty");
-        }
-        if (StringUtils.isEmpty(metricDefinitionId)) {
-            throw new IllegalArgumentException("hostGroupId must not be empty");
-        }
-
-        this.hostGroupId = hostGroupId;
-        this.hostName = hostName;
-        this.metricName = metricName;
-        this.metricDefinitionId = metricDefinitionId;
+        this.hostGroupId = StringPrecondition.requireHasLength(hostGroupId, "hostGroupId");
+        this.hostName = StringPrecondition.requireHasLength(hostName, "hostName");
+        this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
+        this.metricDefinitionId = StringPrecondition.requireHasLength(metricDefinitionId, "metricDefinitionId");
         this.range = Objects.requireNonNull(range, "range");
         // TODO : (minwoo) 동적으로 설정할수 있도록 해야한다.
         this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, 10000);

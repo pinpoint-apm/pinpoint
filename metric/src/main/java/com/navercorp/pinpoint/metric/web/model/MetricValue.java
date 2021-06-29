@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.metric.web.model;
 
+import com.navercorp.pinpoint.metric.common.model.StringPrecondition;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -31,11 +31,7 @@ public class MetricValue<Y extends Number> {
     private final List<Y> valueList;
 
     public MetricValue(String fieldName, List<Tag> tagList, List<Y> valueList) {
-        if (StringUtils.isEmpty(fieldName)) {
-            throw new IllegalArgumentException("fieldName must not be empty");
-        }
-
-        this.fieldName = fieldName;
+        this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
         this.tagList = Objects.requireNonNull(tagList, "tagList");
         this.valueList = Objects.requireNonNull(valueList, "valueList");
     }

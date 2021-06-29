@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.metric.common.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.metric.collector.model.SystemMetricJsonDeserializer;
 
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +27,7 @@ import java.util.Objects;
 /**
  * @author Hyunjoon Cho
  */
-
+@JsonDeserialize(using = SystemMetricJsonDeserializer.class)
 public class SystemMetric {
     protected final String metricName;
     protected final String hostName;
@@ -37,7 +39,7 @@ public class SystemMetric {
         this.metricName = Objects.requireNonNull(metricName, "metricName");
         this.hostName = Objects.requireNonNull(hostName, "hostName");
         this.fieldName = Objects.requireNonNull(fieldName, "fieldName");
-        this.tags = tags;
+        this.tags = Objects.requireNonNull(tags, "tags");
         this.timestamp = timestamp;
     }
 
