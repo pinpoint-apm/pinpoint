@@ -64,10 +64,16 @@ public class AgentUriStatSampler implements AgentStatSampler<EachUriStatBo, Samp
 
         final String uri = getUri(eachUriStatBoList);
 
-        List<UriStatHistogram> totalUriStatHistogramList = eachUriStatBoList.stream().map(EachUriStatBo::getTotalHistogram).filter(h -> Objects.nonNull(h)).collect(Collectors.toList());
+        List<UriStatHistogram> totalUriStatHistogramList = eachUriStatBoList.stream()
+                .map(EachUriStatBo::getTotalHistogram)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         SampledUriStatHistogramBo sampledTotalUriStatHistogramBo = create(timestamp, totalUriStatHistogramList);
 
-        List<UriStatHistogram> failedUriStatHistogramList = eachUriStatBoList.stream().map(EachUriStatBo::getFailedHistogram).filter(h -> Objects.nonNull(h)).collect(Collectors.toList());
+        List<UriStatHistogram> failedUriStatHistogramList = eachUriStatBoList.stream()
+                .map(EachUriStatBo::getFailedHistogram)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         SampledUriStatHistogramBo failedSampledUriStatHistogramBo = create(timestamp, failedUriStatHistogramList);
 
         SampledEachUriStatBo sampledEachUriStatBo = new SampledEachUriStatBo(uri, sampledTotalUriStatHistogramBo, failedSampledUriStatHistogramBo);

@@ -178,7 +178,8 @@ public class HbaseSchemaServiceImpl implements HbaseSchemaService {
         if (appliedChangeSets.isEmpty()) {
             logger.info("[{}] Current table schema does not match any schema from the change sets.", namespace);
         } else {
-            List<String> appliedChangeSetIds = appliedChangeSets.stream().map(ChangeSet::getId).collect(Collectors.toList());
+            List<String> appliedChangeSetIds = appliedChangeSets.stream()
+                    .map(ChangeSet::getId).collect(Collectors.toList());
             logger.info("[{}] Change sets already applied : {}", namespace, appliedChangeSetIds);
         }
 
@@ -195,7 +196,8 @@ public class HbaseSchemaServiceImpl implements HbaseSchemaService {
     private boolean updateExistingSchemas(String namespace, String compression, List<ChangeSet> changeSets, List<HTableDescriptor> currentHtds, List<SchemaChangeLog> executedLogs) {
         logger.info("[{}] Updating hbase schema.", namespace);
 
-        List<String> executedChangeLogIds = executedLogs.stream().map(SchemaChangeLog::getId).collect(Collectors.toList());
+        List<String> executedChangeLogIds = executedLogs.stream()
+                .map(SchemaChangeLog::getId).collect(Collectors.toList());
         logger.info("[{}] Executed change logs : {}", namespace, executedChangeLogIds);
 
         ChangeSetManager changeSetManager = new ChangeSetManager(changeSets);
