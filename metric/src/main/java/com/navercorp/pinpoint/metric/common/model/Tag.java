@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.metric.common.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 /**
@@ -25,7 +28,9 @@ public class Tag {
     private final String name;
     private final String value;
 
-    public Tag(String name, String value) {
+    @JsonCreator
+    public Tag(@JsonProperty("name") String name,
+               @JsonProperty("value") String value) {
         this.name = Objects.requireNonNull(name);
         this.value = Objects.requireNonNull(value);
     }
