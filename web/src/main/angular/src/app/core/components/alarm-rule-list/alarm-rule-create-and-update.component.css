@@ -16,7 +16,7 @@
     align-items: center;
     flex-direction: column;
     justify-content: center;
-    background-color: rgba(226, 226, 226, 0.8);
+    background-color: var(--background-blind);
 }
 
 .l-wrapper h1 {
@@ -92,8 +92,8 @@ form {
 .l-input:focus,
 .l-select:focus,
 .l-textarea:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0px 1px 1px var(--primary-color);
+    border-color: var(--primary);
+    box-shadow: 0 0px 1px 1px var(--primary);
 }
 
 .fa-angle-down {

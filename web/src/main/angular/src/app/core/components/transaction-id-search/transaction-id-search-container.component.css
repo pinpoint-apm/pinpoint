@@ -13,7 +13,7 @@
 .l-search-input {
     width: 100%;
     height: 100%;
-    border: 1px solid var(--from-input-border);
+    border: 1px solid var(--form-input-border);
     padding: 0 28px 0 10px;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -22,8 +22,8 @@
 }
 
 .l-search-input:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0px 1px 1px var(--primary-color);
+    border-color: var(--primary);
+    box-shadow: 0 0px 1px 1px var(--primary);
     outline: none;
 }
 

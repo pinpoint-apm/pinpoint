@@ -16,7 +16,7 @@
 .l-btn-group button.active, .l-btn-group button:hover {
     color:var(--text-knockout);
     font-weight:600;
-    background:var(--primary-color);
+    background:var(--primary);
 }
 .l-transaction-state {
     color: var(--text-knockout);

@@ -50,7 +50,7 @@
 
 .l-button {
     color: var(--text-knockout);
-    background-color: var(--primary-color);
+    background-color: var(--primary);
     border-radius: 3px;
     outline: none;
     font-size: 16px;

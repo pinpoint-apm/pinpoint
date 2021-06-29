@@ -19,8 +19,9 @@
     display:block;
     height:100%;
     width:100%;
-    background: var(--background-knockout);
-    opacity:0.6;
+    /* background: var(--background-knockout); */
+    background: var(--background-blind);
+    /* opacity:0.6; */
     position:absolute;
     left:0;
     top:0;

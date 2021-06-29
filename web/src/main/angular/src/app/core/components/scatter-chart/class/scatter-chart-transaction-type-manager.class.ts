@@ -11,7 +11,7 @@ export class ScatterChartTransactionTypeManager {
     private dataByIndex: { [key: number]: ITransactionTypeInfo } = {};
     private dataByName: { [key: string]: ITransactionTypeInfo } = {};
 
-    computedStyle = window.getComputedStyle(document.body);
+    computedStyle = getComputedStyle(document.body);
     chartColor = {
         success: this.computedStyle.getPropertyValue('--chart-success'),
         fail: this.computedStyle.getPropertyValue('--chart-fail'),
@@ -31,7 +31,7 @@ export class ScatterChartTransactionTypeManager {
         }
     }
     static getDefaultTransactionTypeInfo(): {[key: string]: ITransactionTypeInfo} {
-        const computedStyle = window.getComputedStyle(document.body);
+        const computedStyle = getComputedStyle(document.body);
         const chartColor = {
             success: computedStyle.getPropertyValue('--chart-success'),
             fail: computedStyle.getPropertyValue('--chart-fail'),

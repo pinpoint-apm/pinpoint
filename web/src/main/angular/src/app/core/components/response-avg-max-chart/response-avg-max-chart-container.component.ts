@@ -300,7 +300,7 @@ export class ResponseAvgMaxChartContainerComponent implements OnInit, OnDestroy 
             type: bar(),
             color: (_, {index}: DataItem): string => this.chartColors[index],
             labels: {
-                colors: '#333',
+                colors: getComputedStyle(document.body).getPropertyValue('--text-primary'),
                 format: {
                     rs: (v: number) => this.convertWithUnit(v)
                 }

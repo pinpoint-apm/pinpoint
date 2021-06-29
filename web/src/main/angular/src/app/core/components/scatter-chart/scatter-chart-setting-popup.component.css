@@ -21,7 +21,7 @@
     background-color: var(--background-default);
 }
 .l-title-group dt {
-    color: var(--primary-color);
+    color: var(--primary);
     font-size: 20px;
     font-weight: 600;
 }
@@ -38,15 +38,15 @@
     display: inline-block
 }
 .l-contents-group input {
-    border:1px solid var(--from-input-border);
+    border:1px solid var(--form-input-border);
     font-size:13px;
     color:var(--text-primary-lightest);
     height:22px;
     padding:0 8px;
 }
 .l-contents-group input:focus {
-    border: 1px solid var(--primary-color);
-    box-shadow: 0 0 1px 1px var(--primary-color);
+    border: 1px solid var(--primary);
+    box-shadow: 0 0 1px 1px var(--primary);
     outline: none;
 }
 .l-bottom-group {
@@ -57,7 +57,7 @@ input {
     color: var(--text-primary-lightest);
     width: 40%;
     height: 22px;
-    border: 1px solid var(--from-input-border);
+    border: 1px solid var(--form-input-border);
     padding: 0 8px;
     font-size: 13px;
 }

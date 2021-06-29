@@ -10,7 +10,7 @@
     align-items: center;
     flex-direction: column;
     justify-content: center;
-    background-color: rgba(226, 226, 226, 0.9);
+    background-color: var(--background-blind);
 }
 
 .l-form {
@@ -48,8 +48,8 @@
 }
 
 .l-input:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0px 1px 1px var(--primary-color);
+    border-color: var(--primary);
+    box-shadow: 0 0px 1px 1px var(--primary);
 }
 
 .l-label {

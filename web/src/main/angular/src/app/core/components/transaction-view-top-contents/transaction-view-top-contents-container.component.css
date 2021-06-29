@@ -45,11 +45,12 @@
 }
 .active a {
     color: var(--text-knockout);
-    background: var(--primary-color);
+    background: var(--primary);
 }
 .active a:hover {
     border-color: transparent;
 }
 .l-right-section {
     position: relative;
+    background-color: var(--background-primary);
 }

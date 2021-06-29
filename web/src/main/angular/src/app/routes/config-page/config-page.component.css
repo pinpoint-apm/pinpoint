@@ -22,7 +22,7 @@
 }
 
 .l-separator {
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    border-top: 1px solid var(--border-primary);
     margin-top: 10px;
     margin-bottom: 10px;
 }
@@ -32,17 +32,17 @@
     width: 100%;
     padding: 15px 15px 15px 27px;
     font-weight: 600;
-    color: rgba(0,0,0,.85);
+    color: var(--text-primary);
 }
 
 .l-link:hover {
     cursor: pointer;
     background-color: var(--background-hover-default);
-    color: var(--primary-color) !important;
+    color: var(--primary) !important;
 }
 
 .l-link.active { 
-    color: var(--primary-color) !important;
+    color: var(--primary) !important;
 }
 
 .l-link-with-arrow {
@@ -57,7 +57,7 @@
 .l-depth-1 .l-link {
     margin-left: 15px;
     font-size: 90%;
-    color: rgba(0,0,0,.65);
+    color: var(--text-secondary);
     max-width: calc(100% - 15px);
 }
 

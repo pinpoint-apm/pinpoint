@@ -5,8 +5,8 @@
     border: none;
 }
 .l-info-table tbody th, .l-info-table td {
-    color: var(--text-default);
-    border-top:1px solid var(--border-primary);
+    color: var(--text-primary);
+    border-top:1px solid var(--border-primary-lighter);
 }
 .l-info-table tr:nth-child(2n) {
     background-color: var(--background-primary);
@@ -46,7 +46,7 @@
     border-top-color: transparent;
 }
 .l-server-info-list li.active {
-    background-color: var(--primary-color);
+    background-color: var(--primary);
     color: var(--text-knockout);
 }
 .l-server-info-list li ul {
@@ -68,7 +68,7 @@
     cursor: pointer;
 }
 .l-category.blue {
-    background-color: var(--primary-color);
+    background-color: var(--primary);
 }
 .l-sub-table {
     display: table-cell;

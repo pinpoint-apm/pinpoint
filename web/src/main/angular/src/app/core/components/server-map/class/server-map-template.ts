@@ -39,13 +39,15 @@ export abstract class ServerMapTemplate {
     private static getSVGCircleString(styleOption: {[key: string]: any}): string {
         const {stroke, strokeWidth, strokeDashOffset = 0, strokeDashArray = 'none'} = styleOption;
 
-        return `<circle cx="50" cy="50" r="${ServerMapTemplate.RADIUS}"
-            style="fill:none;
-            stroke:${stroke};
-            stroke-width:${strokeWidth};
-            stroke-dashoffset:${strokeDashOffset};
-            stroke-dasharray:${strokeDashArray} 1000">
-            </circle>`;
+        return `
+            <circle cx="50" cy="50" r="${ServerMapTemplate.RADIUS}"
+                style="fill:none;
+                stroke:${stroke};
+                stroke-width:${strokeWidth};
+                stroke-dashoffset:${strokeDashOffset};
+                stroke-dasharray:${strokeDashArray} 1000" 
+            />
+        `;
     }
 
     private static calcArc(sum: number, value: number): number {
@@ -79,15 +81,18 @@ export abstract class ServerMapTemplate {
     }
 
     private static getInstanceCountTextString(instanceCount: number): string {
-        return `<text x="50%" y="0" text-anchor="middle" alignment-baseline="central" fill="black" transform="translate(0, 80)" font-size="15px">${instanceCount >= 2 ? instanceCount : ''}</text>`;
+        const textColor = getComputedStyle(document.body).getPropertyValue('--chart-text-lighter');
+        return `<text x="50%" y="0" text-anchor="middle" alignment-baseline="central" fill="${textColor}" transform="translate(0, 80)" font-size="15px">${instanceCount >= 2 ? instanceCount : ''}</text>`;
     }
 
     public static getSVGString(nodeData: {[key: string]: any}): string {
         const {key, isAuthorized, isMerged, isWas, histogram, instanceCount} = nodeData;
 
-        return `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" xmlns:xlink="http://www.w3.org/1999/xlink">` +
-            ServerMapTemplate.getCompleteSVGCircleString(isMerged || !(isAuthorized && isWas), histogram) +
-            ServerMapTemplate.getInstanceCountTextString(instanceCount) +
-            `</svg>`;
+        return `
+            <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" xmlns:xlink="http://www.w3.org/1999/xlink">
+                ${ServerMapTemplate.getCompleteSVGCircleString(isMerged || !(isAuthorized && isWas), histogram)}
+                ${ServerMapTemplate.getInstanceCountTextString(instanceCount)}
+            </svg>
+        `;
     }
 }

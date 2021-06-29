@@ -31,8 +31,8 @@
 }
 
 .l-target-container .l-search-header input:focus {
-    border: 1px solid var(--primary-color);
-    box-shadow: 0 0 1px 1px var(--primary-color);
+    border: 1px solid var(--primary);
+    box-shadow: 0 0 1px 1px var(--primary);
     outline: none;
 }
 
@@ -55,7 +55,7 @@
 
     grid-column: 1 / 2;
     grid-row: 3 / 4;
-    background-color: var(--primary-color);
+    background-color: var(--primary);
 }
 .l-target-container .l-summary > div {
     display: flex;

@@ -364,11 +364,11 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
             },
             grid: {
                 y: {
-                    show: true
+                    show: true,
                 }
             },
             point: {
-                show: false
+                show: false,
             },
             tooltip: {
                 order: '',

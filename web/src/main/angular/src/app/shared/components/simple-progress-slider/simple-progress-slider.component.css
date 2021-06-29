@@ -27,7 +27,7 @@
         width: 8px;
         height: 8px;
         border-radius: 50%;
-        background-color: var(--primary-color);
+        background-color: var(--primary);
     }
     .slider-for-progress .sfp-left-handler {
         left: 100%;              /* @script position reset */
@@ -71,7 +71,7 @@
         left: 100%;
     }
     .slider-for-progress .sfp-label-right-arrow span:before {
-    	border-left-color: var(--primary-color);
+    	border-left-color: var(--primary);
     }
     .slider-for-progress .sfp-label-right-arrow span:after {
     	border-left-color: var(--border-knockout);
@@ -80,7 +80,7 @@
         right: 100%;
     }
     .slider-for-progress .sfp-label-left-arrow span:before {
-    	border-right-color: var(--primary-color);
+    	border-right-color: var(--primary);
     }
     .slider-for-progress .sfp-label-left-arrow span:after {
     	border-right-color: var(--border-knockout);

@@ -15,7 +15,7 @@ export class RealTimeTotalChartComponent implements OnChanges, OnInit {
     @Input() sum: number[];
     @Input() activeRequestCounts: {[key: string]: IParsedARC};
 
-    computedStyle = window.getComputedStyle(document.body);
+    computedStyle = getComputedStyle(document.body);
     chartColor = {
         one: this.computedStyle.getPropertyValue('--chart-1s'),
         three: this.computedStyle.getPropertyValue('--chart-3s'),

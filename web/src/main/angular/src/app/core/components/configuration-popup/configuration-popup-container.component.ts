@@ -1,16 +1,27 @@
 import { Component, OnInit, Output, EventEmitter, AfterViewInit, Input, ElementRef } from '@angular/core';
 
-import { DynamicPopup, WindowRefService, PopupConstant, UrlRouteManagerService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import {
+    DynamicPopup,
+    WindowRefService,
+    PopupConstant,
+    UrlRouteManagerService,
+    AnalyticsService,
+    TRACKED_EVENT_LIST,
+    ThemeService,
+    WebAppSettingDataService
+} from 'app/shared/services';
 
 @Component({
     selector: 'pp-configuration-popup-container',
     templateUrl: './configuration-popup-container.component.html',
-    styleUrls: ['./configuration-popup-container.component.css']
+    styleUrls: ['./configuration-popup-container.component.css'],
 })
 export class ConfigurationPopupContainerComponent implements OnInit, AfterViewInit, DynamicPopup {
     @Input() coord: ICoordinate;
     @Output() outClose = new EventEmitter<void>();
     @Output() outCreated = new EventEmitter<ICoordinate>();
+
+    currentTheme: string;
 
     private posX: number;
 
@@ -18,13 +29,16 @@ export class ConfigurationPopupContainerComponent implements OnInit, AfterViewIn
         private urlRouteManagerService: UrlRouteManagerService,
         private windowRefService: WindowRefService,
         private analyticsService: AnalyticsService,
-        private el: ElementRef
+        private webAppSettingDataService: WebAppSettingDataService,
+        private el: ElementRef,
+        private themeService: ThemeService,
     ) {}
 
     ngOnInit() {
         this.posX = this.coord.coordX - PopupConstant.SPACE_FROM_LEFT + this.el.nativeElement.offsetWidth <= this.windowRefService.nativeWindow.innerWidth
             ? this.coord.coordX - PopupConstant.SPACE_FROM_LEFT
             : this.windowRefService.nativeWindow.innerWidth - this.el.nativeElement.offsetWidth;
+        this.currentTheme = this.webAppSettingDataService.getTheme();
     }
 
     ngAfterViewInit() {
@@ -58,5 +72,9 @@ export class ConfigurationPopupContainerComponent implements OnInit, AfterViewIn
 
     onClickOutside(): void {
         this.outClose.emit();
+    }
+
+    onChangeTheme(theme: string): void {
+        this.themeService.changeTheme(theme);
     }
 }

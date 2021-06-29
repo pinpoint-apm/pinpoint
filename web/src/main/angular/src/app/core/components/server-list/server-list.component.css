@@ -70,7 +70,7 @@
     font-size: 10px;
     color: var(--text-knockout);
     margin-left: 13px;
-    background-color: var(--primary-color);
+    background-color: var(--primary);
 }
 .l-icon-alert {
     height: 1em;

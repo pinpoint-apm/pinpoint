@@ -3,7 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
-import { RouteInfoCollectorService, ThemeService, Theme, StoreHelperService } from 'app/shared/services';
+import { RouteInfoCollectorService, ThemeService, StoreHelperService } from 'app/shared/services';
 
 @Component({
     selector: 'pp-root',
@@ -33,9 +33,7 @@ export class AppComponent implements OnInit {
     }
 
     private setTheme(): void {
-        // Fetch the user's theme in the future
-        // in the meantime, set the default theme at the moment
-        this.themeService.changeTheme(Theme.Light);
+        this.themeService.setTheme();
     }
 
     private listenToRouter(): void {

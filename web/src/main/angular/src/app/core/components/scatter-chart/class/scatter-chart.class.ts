@@ -23,6 +23,7 @@ export interface IOptions {
     };
     axisLabelStyle: string;
     axisColor: string;
+    textColor: string;
     lineColor: string;
     x: {
         from: number;
@@ -134,6 +135,12 @@ export class ScatterChart {
             .reduce((acc, [_, obj]) => sumObjByKey(acc, mergeCount(obj)), {});
     }
     private setOptions() {
+        const computedStyle = getComputedStyle(document.body);
+        const colors = {
+            text: computedStyle.getPropertyValue('--chart-text'),
+            line: computedStyle.getPropertyValue('--chart-line'),
+            guideLine: computedStyle.getPropertyValue('--chart-guide-line'),
+        }
         this.options = {
             mode: this.mode,
             prefix: 'scatter-chart-' + (Math.random() * 10000),
@@ -148,7 +155,8 @@ export class ScatterChart {
             },
             axisLabelStyle: 'font-size:10px; line-height: 12px; padding-top: 3px',
             axisColor: '#000',
-            lineColor: '#3D3D3D',
+            textColor: colors.text,
+            lineColor: colors.line,
             x: {
                 from: this.fromX,
                 to: this.toX
@@ -173,7 +181,7 @@ export class ScatterChart {
                 lineDash: [1, 0],
                 lineWidth: 1,
                 globalAlpha: 1,
-                strokeStyle : '#e3e3e3'
+                strokeStyle : colors.guideLine,
             },
             axisUnit: {
                 x: '',

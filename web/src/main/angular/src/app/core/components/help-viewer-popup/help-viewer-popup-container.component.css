@@ -3,6 +3,7 @@
     border: 1px solid transparent;
     max-height: 800px;
     overflow-y: auto;
+    background-color: var(--background-layer);
 }
 
 :host(.navbar),
@@ -95,4 +96,5 @@
     height: 0;
     display: inline-block;
     position: fixed;
+    border-bottom-color: var(--background-layer) !important;
 }

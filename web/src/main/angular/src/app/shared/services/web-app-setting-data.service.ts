@@ -10,6 +10,7 @@ import { AppState, Actions, STORE_KEY } from 'app/shared/store';
 import { ComponentDefaultSettingDataService } from 'app/shared/services/component-default-setting-data.service';
 import { Application, Period } from 'app/core/models';
 import { NewUrlStateNotificationService } from 'app/shared/services/new-url-state-notification.service';
+import { Theme } from 'app/shared/services/theme.service';
 
 interface IMinMax {
     min: number;
@@ -32,6 +33,7 @@ export class WebAppSettingDataService {
         APPLICATION_CHART_LAYOUT_INFO: 'applicationChartLayoutInfo',
         AGENT_CHART_LAYOUT_INFO: 'agentChartLayoutInfo',
         LANGUAGE: 'language',
+        THEME: 'theme',
     };
     private IMAGE_PATH = './assets/img/';
     private IMAGE_EXT = '.png';
@@ -273,6 +275,12 @@ export class WebAppSettingDataService {
     }
     setLanguage(value: string): void {
         this.localStorageService.set(WebAppSettingDataService.KEYS.LANGUAGE, value);
+    }
+    setTheme(theme: string): void {
+        this.localStorageService.set(WebAppSettingDataService.KEYS.THEME, theme);
+    }
+    getTheme(): Theme {
+        return this.localStorageService.get(WebAppSettingDataService.KEYS.THEME) || Theme.Light;
     }
     private getLanguage(): string {
         let userLang = this.localStorageService.get<string>(WebAppSettingDataService.KEYS.LANGUAGE);

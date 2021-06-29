@@ -23,11 +23,11 @@
 
 .l-item.active { 
     color: var(--text-knockout) !important;
-    background-color: var(--primary-color); 
+    background-color: var(--primary); 
 }
 
 .l-item.active.focus { 
-    background-color: var(--primary-color); 
+    background-color: var(--primary); 
 }
 
 .l-item.focus { 

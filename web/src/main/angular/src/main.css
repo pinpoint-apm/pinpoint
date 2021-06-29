@@ -56,7 +56,7 @@ body {
   --grey-300: #d1d1d1;
   --grey-400: #acacac;
   --grey-500: #8b8b8b;
-  --grey-600: #515151;
+  --grey-600: #646464;
   --grey-700: #515151;
   --grey-800: #333333;
   --grey-900: #131313;
@@ -85,10 +85,98 @@ body {
   /* black & white */
   --black-default: #000000;
   --white-default: #FFFFFF;
-  
-  /********************************/
-  /********** variables ***********/
-  /********************************/
+}
+
+body.dark-mode {
+  /* primary blue */
+  --blue-50: #244d92;
+  --blue-100: #306ab2;
+  --blue-200: #367bc4;
+  --blue-300: #3f8cd7;
+  --blue-400: #469ae4;
+  --blue-500: #5aa8e8;
+  --blue-600: #74b8eb;
+  --blue-700: #98ccf2;
+  --blue-800: #bfdff7;
+  --blue-900: #e5f2fb;
+  /* emerald green */
+  --emerald-green-50: #004c29;                
+  --emerald-green-100: #006843;
+  --emerald-green-200: #007850;
+  --emerald-green-300: #00885f;
+  --emerald-green-400: #00956b;
+  --emerald-green-500: #00a67e;
+  --emerald-green-600: #3dcfa8;
+  --emerald-green-700: #74cbb1;
+  --emerald-green-800: #acdfd0;
+  --emerald-green-900: #ddf2ed;                
+  /* green */
+  --green-default: #41c464;
+  /* yellow */
+  --yellow-default: #ffff00;
+  /* purple */
+  --purple-default: #660099;
+  /* red */
+  --red-50: #b20011;
+  --red-100: #c2101e;
+  --red-200: #ce1b25;
+  --red-300: #e0272b;
+  --red-400: #ef322b;
+  --red-500: #eb4747;
+  --red-600: #e26b6b;
+  --red-700: #ed9494;
+  --red-800: #fecacf;
+  --red-900: #ffeaed;
+  /* orange */
+  --orange-50: #ea5001;
+  --orange-100: #f36c01;
+  --orange-200: #f97c01;
+  --orange-300: #ff8c00;
+  --orange-400: #ff9800;
+  --orange-500: #ffa726;
+  --orange-600: #ffb84d;
+  --orange-700: #ffcc80;
+  --orange-800: #ffe0b2;
+  --orange-900: #fff3e0;
+  /* grey */
+  --grey-50: #131313;
+  --grey-100: #1f1f1f;
+  --grey-200: #2c2c2c;
+  --grey-300: #393939;
+  --grey-400: #8b8b8b;
+  --grey-500: #acacac;
+  --grey-600: #d1d1d1;
+  --grey-700: #e3e3e3;
+  --grey-800: #eeeeee;
+  --grey-900: #f7f7f7;
+  /* blue-grey */
+  --blue-grey-50: #282b32;
+  --blue-grey-100: #4a4d55;
+  --blue-grey-200: #696d75;
+  --blue-grey-300: #7e828a;
+  --blue-grey-400: #a8acb5;
+  --blue-grey-500: #c6cad3;
+  --blue-grey-600: #e7ebf5;
+  --blue-grey-700: #eef2fc;
+  --blue-grey-800: #f3f7ff;
+  --blue-grey-900: #f8fcff;
+  /* navy */
+  --navy-50: #1d2b41;
+  --navy-100: #303f59;
+  --navy-200: #3f516f;
+  --navy-300: #506486;
+  --navy-400: #5e7297;
+  --navy-500: #7587a9;
+  --navy-600: #8b9cbc;
+  --navy-700: #aab8d4;
+  --navy-800: #c7d5ed;
+  --navy-900: #e7edff;
+  /* black & white */
+  --black-default: #FFFFFF;
+  --white-default: #000000;
+}
+
+body {
   --primary: var(--blue-500);
   --secondary: var(--emerald-green-300);
   --secondary-lighter: var(--emerald-green-100);
@@ -102,15 +190,19 @@ body {
   --background-default: var(--white-default);
   --background-primary: var(--grey-50);
   --background-primary-darker: var(--grey-100);
+  --background-primary-darkest: var(--grey-200);
   --background-danger: var(--red-50);
   --background-row-danger: var(--red-50);
-  --background-secondary: var(--blue-grey-300);
   --background-hover-primary: var(--blue-50);
+  --background-hover-primary-darker: var(--blue-100);
   --background-focus-primary: var(--blue-50);
   --background-hover-secondary: var(--emerald-green-50);
   --background-hover-default: var(--grey-100);
   --background-knockout: var(--black-default);
   --background-disable: var(--grey-300);
+  --background-layer: var(--white-default);
+  --background-blind: rgba(226, 226, 226, 0.8);
+  --background-blind-gradient: linear-gradient(135deg, rgba(226,226,226,0.7) 0%, rgba(219,219,219,0.7) 43%, rgba(209,209,209,0.7) 51%, rgba(254,254,254,0.7) 100%);
   
   --border-knockout: var(--white-default);
   --border-default: var(--black-default);
@@ -125,6 +217,10 @@ body {
   --chart-3s: var(--blue-300);
   --chart-5s: var(--orange-500);
   --chart-slow: var(--orange-800);
+  --chart-text: var(--text-primary);
+  --chart-text-lighter: var(--text-primary-lightest);
+  --chart-line: var(--text-primary);
+  --chart-guide-line: rgba(0, 0, 0, 0.1);
 
   --icon-hover: var(--blue-grey-600);
   --icon-default: var(--blue-grey-500);
@@ -144,14 +240,16 @@ body {
   --text-secondary-lightest: var(--grey-300);
   --text-knockout: var(--white-default);
   --text-shadow: var(--grey-100);
+  --text-disable: var(--grey-300);
 
   --form-require: var(--red-900);
   --form-link: var(--blue-700);
   --form-link-visited: var(--purple-default);
-  --from-input-border: var(--grey-200);
+  --form-input-border: var(--grey-400);
   
   --header-background: var(--blue-500);
   --header-background-lighter: var(--blue-300);
+  --header-border: var(--blue-700);
 
   --period-select-background: var(--navy-800);
   --period-select-box-shadow: var(--navy-900);
@@ -160,4 +258,98 @@ body {
 
   --transaction-short-info-background: var(--navy-700);
   --simple-progress-slider-bar-background: var(--blue-100);
+  
+  --server-map-node-background: var(--white-default);
+  --server-map-node-border-default: var(--blue-grey-400);
+  --server-map-node-border-outline: var(--grey-50);
+}
+  
+body.dark-mode {
+  color-scheme: dark;
+
+  --primary: var(--blue-500);
+  --secondary: var(--emerald-green-600);
+  --secondary-lighter: var(--emerald-green-100);
+
+  --status-success: var(--green-default);
+  --status-warn: var(--orange-600);
+  --status-fail: var(--red-400);
+  --status-danger: var(--red-50);
+  --status-danger-lighter: var(--red-500);
+
+  --background-default: var(--grey-100);
+  --background-primary: var(--grey-50);
+  --background-primary-darker: var(--grey-200);
+  --background-primary-darkest: var(--grey-300);
+  --background-danger: var(--red-50);
+  --background-row-danger: var(--red-50);
+  --background-hover-primary: var(--blue-50);
+  --background-hover-primary-darker: var(--blue-100);
+  --background-focus-primary: var(--blue-50);
+  --background-hover-secondary: var(--emerald-green-50);
+  --background-hover-default: var(--grey-200);
+  --background-knockout: var(--black-default);
+  --background-disable: var(--grey-300);
+  --background-layer: var(--grey-200);
+  --background-blind: rgba(46, 44, 44, 0.8);
+  --background-blind-gradient: linear-gradient(135deg, rgba(29,29,29,0.7) 0%, rgba(36,36,36,0.7) 43%, rgba(46,46,46,0.7) 51%, rgba(1,1,1,0.7) 100%);
+  
+  --border-knockout: var(--white-default);
+  --border-default: var(--black-default);
+  --border-primary: var(--grey-300);
+  --border-primary-lighter: var(--grey-200);
+  --border-primary-darker: var(--grey-400);
+  --border-primary-darkest: var(--grey-500);
+
+  --chart-success: var(--emerald-green-600); 
+  --chart-fail: var(--red-500);
+  --chart-1s: var(--emerald-green-600);
+  --chart-3s: var(--blue-600);
+  --chart-5s: var(--orange-400);
+  --chart-slow: var(--orange-100);
+  --chart-text: var(--text-primary-lighter);
+  --chart-text-lighter: var(--text-primary-lightest);
+  --chart-line: var(--text-primary-lighter);
+  --chart-guide-line: rgba(255, 255, 255, 0.2);
+
+  --icon-hover: var(--blue-grey-600);
+  --icon-default: var(--blue-grey-500);
+  --icon-default-darker: var(--blue-grey-600);
+  --icon-default-lighter: var(--blue-grey-400);
+  --icon-disable: var(--blue-grey-300);
+
+  --table-header-background: var(--blue-grey-50);
+  --table-header-moving-background: var(--blue-grey-400);
+
+  --text-default: var(--black-default);
+  --text-primary: var(--grey-800);
+  --text-primary-lighter: var(--grey-700);
+  --text-primary-lightest: var(--grey-600);
+  --text-secondary: var(--grey-500);
+  --text-secondary-lighter: var(--grey-400);
+  --text-secondary-lightest: var(--grey-300);
+  --text-knockout: var(--black-default);
+  --text-shadow: var(--grey-100);
+  --text-disable: var(--blue-grey-100);
+
+  --form-require: var(--red-300);
+  --form-link: var(--blue-700);
+  --form-link-visited: var(--purple-default);
+  --form-input-border: var(--grey-400);
+  
+  --header-background: var(--navy-50);
+  --header-background-lighter: var(--blue-300);
+  --header-border: var(--navy-100);
+
+  --period-select-background: var(--navy-100);
+  --period-select-box-shadow: var(--navy-200);
+  --period-select-box-border: var(--navy-200);
+  --period-select-box-border-lighter: var(--navy-50);
+
+  --transaction-short-info-background: var(--navy-100);
+  --simple-progress-slider-bar-background: var(--blue-100);
+  
+  --server-map-node-background: var(--grey-300);
+  --server-map-node-border-default: var(--blue-grey-400);
+  --server-map-node-border-outline: var(--grey-50);
 }

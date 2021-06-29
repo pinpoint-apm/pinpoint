@@ -21,8 +21,8 @@ input {
 }
 
 input:focus {
-    border-color: var(--primary-color);;
-    box-shadow: 0 0 1px 1px var(--primary-color);;
+    border-color: var(--primary);;
+    box-shadow: 0 0 1px 1px var(--primary);;
 }
 
 input.l-success-input {

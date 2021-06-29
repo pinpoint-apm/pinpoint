@@ -12,6 +12,14 @@ import { ServerMapTemplate } from './server-map-template';
 export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
     private cy: any;
     private addedElements: any[] = [];
+    protected computedStyle = getComputedStyle(document.body);
+    protected serverMapColor = {
+        text: this.computedStyle.getPropertyValue('--text-primary'),
+        textFail: this.computedStyle.getPropertyValue('--status-fail'),
+        textBackground: this.computedStyle.getPropertyValue('--background-primary'),
+        nodeBackground: this.computedStyle.getPropertyValue('--server-map-node-background'),
+        nodeBorderOutLine: this.computedStyle.getPropertyValue('--server-map-node-border-outline'),
+    }
 
     constructor(
         private option: IServerMapOption
@@ -48,9 +56,9 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                     style: {
                         width: 100,
                         height: 100,
-                        'background-color': '#fff',
+                        'background-color': this.serverMapColor.nodeBackground,
                         'border-width': '3',
-                        'border-color': '#D0D7DF',
+                        'border-color': this.serverMapColor.nodeBorderOutLine,
                         'text-valign': 'bottom',
                         'text-halign': 'center',
                         'text-margin-y': 4,
@@ -67,7 +75,8 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                         'text-max-width': 200,
                         // 'text-overflow-wrap': 'anywhere',
                         // 'text-justification': 'left',
-                        'line-height': 1.5
+                        'line-height': 1.5,
+                        color: this.serverMapColor.text,
                     }
                 },
                 {
@@ -83,13 +92,13 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                         // 'font-family': 'Font Awesome 5 Free',
                         // 'font-size': 13,
                         // 'font-weight': 900,
-                        'text-background-color': getComputedStyle(this.option.container).getPropertyValue('--background-color'),
+                        'text-background-color': this.serverMapColor.textBackground,
                         'text-background-opacity': 1,
                         // 'text-wrap': 'wrap',
                         // 'font-family': 'FontAwesome, helvetica neue',
                         // 'font-style': 'normal',
                         'overlay-opacity': 0,
-                        color: (ele: any) => ele.data('hasAlert') ? '#FF1300' : '#000'
+                        color: (ele: any) => ele.data('hasAlert') ? this.serverMapColor.textFail : this.serverMapColor.text,
                     }
                 },
                 {
@@ -472,7 +481,7 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
 
     private getInActiveNodeStyle(): {[key: string]: any} {
         return {
-            'border-color': '#D0D7DF'
+            'border-color': this.serverMapColor.nodeBorderOutLine,
         };
     }
 

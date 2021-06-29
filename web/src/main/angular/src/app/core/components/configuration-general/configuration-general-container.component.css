@@ -43,7 +43,7 @@ tbody > tr {
 }
 
 .l-color-blue {
-    color: var(--primary-color);
+    color: var(--primary);
 }
 
 .l-text-bold {

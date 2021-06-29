@@ -101,7 +101,7 @@ export class ScatterChartAxisRenderer {
         const height = this.coordinateManager.getHeight();
         const padding = this.coordinateManager.getPadding();
         const bubbleHalfSize = this.coordinateManager.getBubbleHalfSize();
-        const axisColor = this.options.axisColor;
+        const textColor = this.options.textColor;
 
         this.elementAxisContainer = document.createElement('div');
         const elementDivStyle = `top: 0px; width:${width}px ; height:${height}px ;cursor: corsshair; z-index: 10; position: absolute; background-color: rgba(0,0,0,0)`;
@@ -115,7 +115,7 @@ export class ScatterChartAxisRenderer {
                 top: ${height - padding.bottom + 10}px;
                 left: ${padding.left - (widthTickX / 2) + (i * widthTickX)}px;
                 width: ${widthTickX}px;
-                color: ${axisColor};
+                color: ${textColor};
                 position: absolute;
                 text-align: center;
             `;
@@ -131,7 +131,7 @@ export class ScatterChartAxisRenderer {
                 top: ${bubbleHalfSize + (i * widthTickY) + padding.top - 10}px;
                 left: 0px;
                 width: ${padding.left - 10}px;
-                color: ${axisColor};
+                color: ${textColor};
                 position: absolute;
                 text-align: center;
                 vertical-align: middle;
@@ -149,7 +149,7 @@ export class ScatterChartAxisRenderer {
             const style = `
                 top: ${height - padding.bottom + 10}px;
                 right: 80px;
-                color: ${axisColor};
+                color: ${textColor};
                 position: absolute;
                 text-align: right;
             `;
@@ -164,7 +164,7 @@ export class ScatterChartAxisRenderer {
             const style = `
                 top: 0px;
                 left: 10px;
-                color: ${axisColor};
+                color: ${textColor};
                 width: ${padding.left - 15};
                 position: absolute;
                 text-align: right;

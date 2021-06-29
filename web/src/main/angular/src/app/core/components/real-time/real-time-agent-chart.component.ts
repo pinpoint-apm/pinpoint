@@ -15,7 +15,7 @@ export class RealTimeAgentChartComponent implements OnInit, AfterViewInit {
     @Output() outOpenThreadDump = new EventEmitter<string>();
     @Output() outRenderCompleted = new EventEmitter<void>(true);
 
-    computedStyle = window.getComputedStyle(document.body);
+    computedStyle = getComputedStyle(document.body);
     chartColor = {
         one: this.computedStyle.getPropertyValue('--chart-1s'),
         three: this.computedStyle.getPropertyValue('--chart-3s'),

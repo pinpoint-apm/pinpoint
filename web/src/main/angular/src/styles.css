@@ -47,7 +47,7 @@ caption {
 
 .l-header {
     background: var(--header-background);
-    border-bottom: 1px solid var(--dark-primary-color);
+    border-bottom: 1px solid var(--header-border);
     height: 50px;
     justify-content: space-between;
     position: relative;
@@ -94,7 +94,7 @@ caption {
 }
 
 .btn.active {
-    background-color: var(--primary-color);
+    background-color: var(--primary);
     color: var(--text-knockout);
 }
 
@@ -110,7 +110,7 @@ caption {
 
 .btn-blue {
     color: var(--text-knockout);
-    background-color: var(--primary-color);
+    background-color: var(--primary);
 }
 
 .btn-black {
@@ -125,7 +125,7 @@ caption {
 }
 
 .pinpoint-btn {
-    background-color: var(--primary-color);
+    background-color: var(--primary);
     color: var(--text-knockout);
     font-family: 'Open Sans', sans-serif;
     font-weight: 600;
@@ -385,7 +385,7 @@ caption {
 .l-response-summary-chart .bb-grid line,
 .l-load-chart .bb-grid line,
 .l-url-statistic-chart .bb-grid line {
-    stroke: rgba(0, 0, 0, 0.1);
+    stroke: var(--chart-guide-line);
     stroke-width: 1.5;
 }
 
@@ -401,6 +401,32 @@ caption {
 
 .l-load-chart .bb-line {
     stroke-width: 0;
+}
+
+.as-split-gutter {
+    background-color: var(--background-primary-darkest) !important;
+}
+
+.bb-axis text {
+    fill: var(--chart-text);
+}
+
+.bb-axis line, 
+.bb-axis .domain {
+    stroke: var(--chart-line);
+}
+
+.bb-legend-item text {
+    fill: var(--chart-text);
+}
+
+.bb-tooltip td {
+    background-color: var(--background-layer);
+}
+
+.bb-button .bb-zoom-reset {
+    color: var(--text-primary);
+    background-color: var(--background-default);
 }
 
 /* path.bb-shape {
