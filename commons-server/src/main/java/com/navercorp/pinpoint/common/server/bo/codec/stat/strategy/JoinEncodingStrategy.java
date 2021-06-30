@@ -19,6 +19,10 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.strategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFieldBo;
 
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 /**
  * @author Taejin Koo
  */
@@ -28,5 +32,11 @@ public interface JoinEncodingStrategy<T extends JoinFieldBo> extends EncodingStr
 
     @Deprecated
     byte getCode();
+
+    default <R> List<R> mapping(List<T> values, Function<T, R> mapper) {
+        return values.stream()
+                .map(mapper)
+                .collect(Collectors.toList());
+    }
 
 }
