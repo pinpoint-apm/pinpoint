@@ -19,7 +19,9 @@ package com.navercorp.pinpoint.common.server.bo.stat.join;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * @author Taejin Koo
@@ -29,8 +31,8 @@ public class JoinLongFieldBo extends AbstractJoinFieldBo<Long> {
     private static final long UNCOLLECTED_VALUE = -1L;
     static final JoinLongFieldBo UNCOLLECTED_FIELD_BO = new JoinLongFieldBo(UNCOLLECTED_VALUE, UNCOLLECTED_VALUE, JoinStatBo.UNKNOWN_AGENT, UNCOLLECTED_VALUE, JoinStatBo.UNKNOWN_AGENT);
 
-    public JoinLongFieldBo(Long value, Long minValue, String minAgentId, Long maxValue, String maxAgentid) {
-        super(value, minValue, minAgentId, maxValue, maxAgentid);
+    public JoinLongFieldBo(Long avgValue, Long minValue, String minAgentId, Long maxValue, String maxAgentId) {
+        super(avgValue, minValue, minAgentId, maxValue, maxAgentId);
     }
 
     @Override
@@ -46,35 +48,27 @@ public class JoinLongFieldBo extends AbstractJoinFieldBo<Long> {
     }
 
     protected static JoinLongFieldBo merge(List<JoinLongFieldBo> joinLongFieldBoList) {
-        int size = CollectionUtils.nullSafeSize(joinLongFieldBoList);
-        if (size == 0) {
+        if (CollectionUtils.isEmpty(joinLongFieldBoList)) {
             return UNCOLLECTED_FIELD_BO;
         }
+        double avg = joinLongFieldBoList.stream()
+                .mapToLong(JoinFieldBo::getAvg)
+                .average()
+                .orElseThrow(NoSuchElementException::new);
+        JoinLongFieldBo max = joinLongFieldBoList.stream()
+                .max(Comparator.comparing(JoinFieldBo::getMax))
+                .orElseThrow(NoSuchElementException::new);
+        JoinLongFieldBo min = joinLongFieldBoList.stream()
+                .min(Comparator.comparing(JoinFieldBo::getMin))
+                .orElseThrow(NoSuchElementException::new);
 
-        JoinFieldBo<Long> firstJoinLongFieldBo = joinLongFieldBoList.get(0);
-        long sumTotalValue = 0;
+        String maxAgentId = max.getMaxAgentId();
+        long maxValue = max.getMax();
 
-        String maxAgentId = firstJoinLongFieldBo.getMaxAgentId();
-        long maxValue = firstJoinLongFieldBo.getMax();
+        String minAgentId = min.getMinAgentId();
+        long minValue = min.getMin();
 
-        String minAgentId = firstJoinLongFieldBo.getMinAgentId();
-        long minValue = firstJoinLongFieldBo.getMin();
-
-        for (JoinFieldBo<Long> joinLongFieldBo : joinLongFieldBoList) {
-            sumTotalValue += joinLongFieldBo.getAvg();
-
-            if (joinLongFieldBo.getMax() > maxValue) {
-                maxValue = joinLongFieldBo.getMax();
-                maxAgentId = joinLongFieldBo.getMaxAgentId();
-            }
-
-            if (joinLongFieldBo.getMin() < minValue) {
-                minValue = joinLongFieldBo.getMin();
-                minAgentId = joinLongFieldBo.getMinAgentId();
-            }
-        }
-
-        return new JoinLongFieldBo(sumTotalValue / size, minValue, minAgentId, maxValue, maxAgentId);
+        return new JoinLongFieldBo((long) avg, minValue, minAgentId, maxValue, maxAgentId);
     }
 
 }

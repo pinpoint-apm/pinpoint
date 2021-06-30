@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author Taejin Koo
@@ -81,12 +79,6 @@ public class JoinIntFieldEncodingStrategy implements JoinEncodingStrategy<JoinIn
 
         final List<String> maxAgentIds = mapping(values, AbstractJoinFieldBo::getMaxAgentId);
         maxAgentIdStrategy.encodeValues(buffer, maxAgentIds);
-    }
-
-    private <T, R> List<R> mapping(List<T> values, Function<T, R> mapper) {
-        return values.stream()
-                .map(mapper)
-                .collect(Collectors.toList());
     }
 
 
