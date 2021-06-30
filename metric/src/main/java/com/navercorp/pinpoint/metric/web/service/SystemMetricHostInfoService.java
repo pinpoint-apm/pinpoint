@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.metric.web.service;
 
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
-import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.ElementOfBasicGroup;
 
@@ -31,7 +30,7 @@ public interface SystemMetricHostInfoService {
 
     List<String> getHostList(String hostGroupId);
 
-    List<String> getcollectedMetricInfo(String hostGroupId, String hostName);
+    List<String> getCollectedMetricInfo(String hostGroupId, String hostName);
 
     List<MetricTag> getTag(MetricDataSearchKey metricDataSearchKey, ElementOfBasicGroup elementOfBasicGroup);
 }

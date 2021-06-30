@@ -36,7 +36,7 @@ import java.util.Objects;
  * @author Hyunjoon Cho
  */
 @Repository
-public class PinotSystemMetricDoubleDao implements SystemMetricDao {
+public class PinotSystemMetricDoubleDao implements SystemMetricDao<Double> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final String NAMESPACE = PinotSystemMetricDoubleDao.class.getPackage().getName() + "." + PinotSystemMetricDoubleDao.class.getSimpleName() + ".";
 
@@ -48,17 +48,17 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao {
 
     @Override
     public List<SystemMetric> getSystemMetric(QueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE+ "selectSystemMetric", queryParameter);
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectSystemMetric", queryParameter);
     }
 
     @Override
     public List<SampledSystemMetric<Double>> getSampledSystemMetric(QueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE+ "selectSampledSystemMetric", queryParameter);
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectSampledSystemMetric", queryParameter);
     }
 
     @Override
     public List<SystemMetricPoint<Double>> getSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag) {
         SystemMetricDataSearchKey systemMetricDataSearchKey = new SystemMetricDataSearchKey(metricDataSearchKey, metricTag);
-        return sqlPinotSessionTemplate.selectList(NAMESPACE+ "selectSampledSystemMetricData", systemMetricDataSearchKey);
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectSampledSystemMetricData", systemMetricDataSearchKey);
     }
 }
