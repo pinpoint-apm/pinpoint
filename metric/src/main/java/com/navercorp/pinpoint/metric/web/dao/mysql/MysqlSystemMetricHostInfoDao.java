@@ -55,7 +55,7 @@ public class MysqlSystemMetricHostInfoDao implements SystemMetricHostInfoDao {
     }
 
     @Override
-    public List<String> getcollectedMetricInfo(String hostGroupId, String hostName) {
+    public List<String> getCollectedMetricInfo(String hostGroupId, String hostName) {
         return sqlSessionTemplate.selectList(NAMESPACE + "selectCollectedMetricInfo", new MetricInfoSearchKey(hostGroupId, hostName));
     }
 
