@@ -33,10 +33,10 @@ import java.util.stream.Collectors;
  * @author Hyunjoon Cho
  */
 @JsonSerialize(using = SystemMetricChartSerializer.class)
-public class SystemMetricChart {
+public class SystemMetricChart<T extends Number> {
     private final SystemMetricChartGroup systemMetricChartGroup;
 
-    public <T extends Number> SystemMetricChart(TimeWindow timeWindow, String chartName, List<SampledSystemMetric<T>> sampledSystemMetrics) {
+    public SystemMetricChart(TimeWindow timeWindow, String chartName, List<SampledSystemMetric<T>> sampledSystemMetrics) {
         this.systemMetricChartGroup = new SystemMetricChartGroup<>(timeWindow, chartName, sampledSystemMetrics);
     }
 

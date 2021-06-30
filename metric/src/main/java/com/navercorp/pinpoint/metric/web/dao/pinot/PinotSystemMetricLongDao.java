@@ -36,7 +36,7 @@ import java.util.Objects;
  * @author Hyunjoon Cho
  */
 @Repository
-public class PinotSystemMetricLongDao implements SystemMetricDao {
+public class PinotSystemMetricLongDao implements SystemMetricDao<Long> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final String NAMESPACE = PinotSystemMetricLongDao.class.getPackage().getName() + "." + PinotSystemMetricLongDao.class.getSimpleName() + ".";
 
@@ -59,6 +59,6 @@ public class PinotSystemMetricLongDao implements SystemMetricDao {
     @Override
     public List<SystemMetricPoint<Long>> getSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag) {
         SystemMetricDataSearchKey systemMetricDataSearchKey = new SystemMetricDataSearchKey(metricDataSearchKey, metricTag);
-        return sqlPinotSessionTemplate.selectList(NAMESPACE+ "selectSampledSystemMetricData", systemMetricDataSearchKey);
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectSampledSystemMetricData", systemMetricDataSearchKey);
     }
 }

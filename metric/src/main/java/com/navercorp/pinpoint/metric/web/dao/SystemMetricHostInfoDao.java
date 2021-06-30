@@ -30,7 +30,7 @@ public interface SystemMetricHostInfoDao {
 
     List<String> selectHostList(String hostGroupId);
 
-    List<String> getcollectedMetricInfo(String hostGroupId, String hostName);
+    List<String> getCollectedMetricInfo(String hostGroupId, String hostName);
 
     MetricTagCollection selectMetricTagCollection(MetricTagKey metricTagKey);
 }

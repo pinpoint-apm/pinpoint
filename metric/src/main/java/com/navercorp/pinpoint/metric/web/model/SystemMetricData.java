@@ -27,12 +27,12 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @JsonSerialize(using = SystemMetricDataSerializer.class)
-public class SystemMetricData {
+public class SystemMetricData<Y extends Number> {
     private final String title;
     private final List<Long> timeStampList;
-    private final List<MetricValue> metricValueList;
+    private final List<MetricValue<Y>> metricValueList;
 
-    public SystemMetricData(String title, List<Long> timeStampList, List<MetricValue> metricValueList) {
+    public SystemMetricData(String title, List<Long> timeStampList, List<MetricValue<Y>> metricValueList) {
         this.title = StringPrecondition.requireHasLength(title, "title");
         this.timeStampList = Objects.requireNonNull(timeStampList, "timeStampList");
         this.metricValueList = Objects.requireNonNull(metricValueList, "metricValueList");
@@ -46,7 +46,7 @@ public class SystemMetricData {
         return timeStampList;
     }
 
-    public List<MetricValue> getMetricValueList() {
+    public List<MetricValue<Y>> getMetricValueList() {
         return metricValueList;
     }
 }
