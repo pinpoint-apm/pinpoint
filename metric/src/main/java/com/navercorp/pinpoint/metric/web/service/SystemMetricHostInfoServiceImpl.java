@@ -52,8 +52,8 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
     }
 
     @Override
-    public List<String> getcollectedMetricInfo(String hostGroupId, String hostName) {
-        return systemMetricHostInfoDao.getcollectedMetricInfo(hostGroupId, hostName);
+    public List<String> getCollectedMetricInfo(String hostGroupId, String hostName) {
+        return systemMetricHostInfoDao.getCollectedMetricInfo(hostGroupId, hostName);
     }
 
     @Override
