@@ -44,8 +44,9 @@ public class SystemMetricController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final SystemMetricService<SystemMetric> systemMetricService;
     private final ObjectMapper objectMapper;
+
+    private final SystemMetricService<SystemMetric> systemMetricService;
     private final SystemMetricDataTypeService systemMetricMetadataService;
     private final SystemMetricTagService systemMetricTagService;
 
