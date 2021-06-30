@@ -28,8 +28,8 @@ import java.util.List;
 /**
  * @author Hyunjoon Cho
  */
-public interface SystemMetricDao {
+public interface SystemMetricDao<T extends Number> {
     List<SystemMetric> getSystemMetric(QueryParameter queryParameter);
-    <T extends Number> List<SampledSystemMetric<T>> getSampledSystemMetric(QueryParameter queryParameter);
-    <T extends Number> List<SystemMetricPoint<T>> getSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag);
+    List<SampledSystemMetric<T>> getSampledSystemMetric(QueryParameter queryParameter);
+    List<SystemMetricPoint<T>> getSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag);
 }

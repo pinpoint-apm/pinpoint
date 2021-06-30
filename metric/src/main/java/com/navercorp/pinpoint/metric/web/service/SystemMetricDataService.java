@@ -34,5 +34,5 @@ public interface SystemMetricDataService {
 
     SystemMetricChart getSystemMetricChart(TimeWindow timeWindow, QueryParameter queryParameter);
 
-    SystemMetricData getcollectedMetricData(MetricDataSearchKey metricDataSearchKey, TimeWindow timeWindow);
+    SystemMetricData getCollectedMetricData(MetricDataSearchKey metricDataSearchKey, TimeWindow timeWindow);
 }

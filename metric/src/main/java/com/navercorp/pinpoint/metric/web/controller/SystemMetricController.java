@@ -162,7 +162,7 @@ public class SystemMetricController {
     @RequestMapping(value = "/hostGroup/host/collectedMetricInfo")
     @ResponseBody
     public List<String> getcollectedMetricInfo(@RequestParam("hostGroupId") String hostGroupId, @RequestParam("hostName") String hostName) {
-        return systemMetricHostInfoService.getcollectedMetricInfo(hostGroupId, hostName);
+        return systemMetricHostInfoService.getCollectedMetricInfo(hostGroupId, hostName);
     }
 
     @RequestMapping(value = "/hostGroup/host/collectedMetricData")
@@ -177,7 +177,7 @@ public class SystemMetricController {
         Range range = Range.newRange(from, to);
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
         MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(hostGroupId, hostName, metricName, metricDefinitionId, range);
-        SystemMetricData systemMetricData = systemMetricDataService.getcollectedMetricData(metricDataSearchKey, timeWindow);
+        SystemMetricData systemMetricData = systemMetricDataService.getCollectedMetricData(metricDataSearchKey, timeWindow);
         return systemMetricData;
     }
 
