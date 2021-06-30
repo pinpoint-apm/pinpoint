@@ -41,6 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -51,6 +52,8 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     private static final String APPLICATION_NAME = "applicationName";
     private static final String ACTIVE_THREAD_COUNTS = "activeThreadCounts";
     private static final String TIME_STAMP = "timeStamp";
+
+    private static final long DEFAULT_AGENT_LOOKUP_TIME = TimeUnit.HOURS.toMillis(3);
 
     private final static int LOG_RECORD_RATE = 60;
 
@@ -119,7 +122,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
         logger.info("addWebSocketSession. applicationName:{}, webSocketSession:{}", applicationName, webSocketSession);
 
-        List<AgentInfo> agentInfoList = agentService.getRecentAgentInfoList(applicationName);
+        List<AgentInfo> agentInfoList = agentService.getRecentAgentInfoList(applicationName, DEFAULT_AGENT_LOOKUP_TIME);
         synchronized (workerManagingLock) {
             if (isStopped) {
                 return;

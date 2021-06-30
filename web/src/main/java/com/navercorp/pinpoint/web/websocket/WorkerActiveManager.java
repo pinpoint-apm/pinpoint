@@ -33,6 +33,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -42,6 +43,8 @@ public class WorkerActiveManager {
 
     private static final long DEFAULT_RECONNECT_DELAY = 5000;
     private static final long DEFAULT_AGENT_CHECK_DELAY = 10000;
+
+    private static final long DEFAULT_AGENT_LOOKUP_TIME = TimeUnit.HOURS.toMillis(1);
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -163,7 +166,7 @@ public class WorkerActiveManager {
 
             List<AgentInfo> agentInfoList = Collections.emptyList();
             try {
-                agentInfoList = agentService.getRecentAgentInfoList(applicationName);
+                agentInfoList = agentService.getRecentAgentInfoList(applicationName, DEFAULT_AGENT_LOOKUP_TIME);
             } catch (Exception e) {
                 logger.warn("failed while to get RecentAgentInfoList(applicationName:{}). error:{}.", applicationName, e.getMessage(), e);
             }
