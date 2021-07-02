@@ -33,6 +33,7 @@
         <module>proxy-apache</module>
         <module>proxy-app</module>
         <module>proxy-nginx</module>
+        <module>proxy-user</module>
     </modules>
 
     <dependencies>
@@ -54,6 +55,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-agent-proxy-nginx-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-agent-proxy-user-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

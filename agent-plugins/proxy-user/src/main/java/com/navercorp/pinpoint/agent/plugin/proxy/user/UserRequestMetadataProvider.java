@@ -14,28 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.recorder.proxy;
+package com.navercorp.pinpoint.agent.plugin.proxy.user;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestMetadataProvider;
+import com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestMetadataSetupContext;
 
-import java.util.List;
-
-/**
- * @author jaehong.kim
- */
-public interface ProxyRequestParser {
-
-    @Deprecated
-    ProxyRequestHeader parse(String value);
-
-    ProxyRequestHeader parseHeader(String name, String value);
-
-    @Deprecated
-    String getHttpHeaderName();
-
-    List<String> getHttpHeaderNameList();
-
-    int getCode();
-
-    void init(ProfilerConfig profilerConfig);
+public class UserRequestMetadataProvider implements ProxyRequestMetadataProvider {
+    @Override
+    public void setup(ProxyRequestMetadataSetupContext context) {
+        context.addProxyHttpHeaderType(UserRequestConstants.USER_REQUEST_TYPE);
+    }
 }
