@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.agent.plugin.proxy.apache;
+package com.navercorp.pinpoint.agent.plugin.proxy.user;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
@@ -23,32 +23,33 @@ import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeader
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeaderBuilder;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParser;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-/**
- * @author jaehong.kim
- */
-public class ApacheRequestParser implements ProxyRequestParser {
+public class UserRequestParser implements ProxyRequestParser {
+    private List<String> headerNameList = Collections.emptyList();
 
     @Override
-    @Deprecated
     public String getHttpHeaderName() {
-        return ApacheRequestConstants.APACHE_REQUEST_TYPE.getHttpHeaderName();
+        return "";
     }
 
     @Override
     public List<String> getHttpHeaderNameList() {
-        return Arrays.asList(ApacheRequestConstants.APACHE_REQUEST_TYPE.getHttpHeaderName());
+        return this.headerNameList;
     }
 
     @Override
     public int getCode() {
-        return ApacheRequestConstants.APACHE_REQUEST_TYPE.getCode();
+        return UserRequestConstants.USER_REQUEST_TYPE.getCode();
     }
 
     @Override
     public void init(ProfilerConfig profilerConfig) {
+        if (profilerConfig == null) {
+            return;
+        }
+        this.headerNameList = profilerConfig.readList(UserRequestConstants.USER_PROXY_HEADER_NAME_LIST);
     }
 
     @Override
@@ -60,9 +61,9 @@ public class ApacheRequestParser implements ProxyRequestParser {
     @Override
     public ProxyRequestHeader parseHeader(String name, String value) {
         final ProxyRequestHeaderBuilder header = new ProxyRequestHeaderBuilder();
+        header.setApp(name);
         for (String token : StringUtils.tokenizeToStringList(value, " ")) {
             if (token.startsWith("t=")) {
-                // convert to milliseconds from microseconds.
                 final long receivedTimeMillis = toReceivedTimeMillis(token.substring(2));
                 if (receivedTimeMillis > 0) {
                     header.setReceivedTimeMillis(receivedTimeMillis);
@@ -77,24 +78,6 @@ public class ApacheRequestParser implements ProxyRequestParser {
                 if (durationTimeMicroseconds > 0) {
                     header.setDurationTimeMicroseconds((int) durationTimeMicroseconds);
                 }
-            } else if (token.startsWith("i=")) {
-                try {
-                    final int idlePercent = Integer.parseInt(token.substring(2));
-                    if (idlePercent >= 0 && idlePercent <= 100) {
-                        header.setIdlePercent((byte) idlePercent);
-                        continue;
-                    }
-                } catch (NumberFormatException ignored) {
-                }
-            } else if (token.startsWith("b=")) {
-                try {
-                    int busyPercent = Integer.parseInt(token.substring(2));
-                    if (busyPercent >= 0 && busyPercent <= 100) {
-                        header.setBusyPercent((byte) busyPercent);
-                        continue;
-                    }
-                } catch (NumberFormatException ignored) {
-                }
             }
         }
 
@@ -106,18 +89,16 @@ public class ApacheRequestParser implements ProxyRequestParser {
             return 0;
         }
 
-        final int length = value.length();
-        // convert to milliseconds from microseconds.
-        if (length > 3) {
-            return NumberUtils.parseLong(value.substring(0, length - 3), 0);
-        }
-        return 0;
+        // to milliseconds.
+        return NumberUtils.parseLong(value, 0);
     }
 
     public int toDurationTimeMicros(final String value) {
         if (value == null) {
             return 0;
         }
+
+        // to microseconds.
         return NumberUtils.parseInteger(value, 0);
     }
 }

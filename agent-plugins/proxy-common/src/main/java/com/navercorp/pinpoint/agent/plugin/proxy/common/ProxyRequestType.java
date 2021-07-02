@@ -24,6 +24,7 @@ package com.navercorp.pinpoint.agent.plugin.proxy.common;
  * <tr><td>1</td><td>APP</td></tr>
  * <tr><td>2</td><td>NGINX</td></tr>
  * <tr><td>3</td><td>APACHE</td></tr>
+ * <tr><td>4</td><td>USER</td></tr>
  * </table>
  *
  * @author jaehong.kim
@@ -41,7 +42,15 @@ public interface ProxyRequestType {
      *
      * @return String
      */
+    @Deprecated
     String getDisplayName();
+
+    /**
+     * Web Display Name
+     *
+     * @return String
+     */
+    String getDisplayName(String name);
 
     /**
      * Type Code
@@ -49,4 +58,6 @@ public interface ProxyRequestType {
      * @return int
      */
     int getCode();
+
+    boolean useApp();
 }

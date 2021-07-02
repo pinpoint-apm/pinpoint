@@ -52,7 +52,7 @@ public class AnnotationRecordFormatter {
 
             final LongIntIntByteByteStringValue value = (LongIntIntByteByteStringValue) annotationBo.getValue();
             final ProxyRequestType type = this.proxyRequestTypeRegistryService.findByCode(value.getIntValue1());
-            return type.getDisplayName();
+            return type.getDisplayName(value.getStringValue());
         }
         return annotationKey.getName();
     }
@@ -88,6 +88,7 @@ public class AnnotationRecordFormatter {
     }
 
     String buildProxyHttpHeaderAnnotationArguments(final LongIntIntByteByteStringValue value, final long startTimeMillis) {
+        final ProxyRequestType type = this.proxyRequestTypeRegistryService.findByCode(value.getIntValue1());
         final StringBuilder sb = new StringBuilder(150);
         if (value.getLongValue() != 0) {
             sb.append(toDifferenceTimeFormat(value.getLongValue(), startTimeMillis));
@@ -104,9 +105,12 @@ public class AnnotationRecordFormatter {
             appendComma(sb);
             sb.append("busy: ").append(value.getByteValue2()).append("%");
         }
-        if (StringUtils.hasLength(value.getStringValue())) {
-            appendComma(sb);
-            sb.append("app: ").append(value.getStringValue());
+
+        if (type.useApp()) {
+            if (StringUtils.hasLength(value.getStringValue())) {
+                appendComma(sb);
+                sb.append("app: ").append(value.getStringValue());
+            }
         }
 
         return sb.toString();

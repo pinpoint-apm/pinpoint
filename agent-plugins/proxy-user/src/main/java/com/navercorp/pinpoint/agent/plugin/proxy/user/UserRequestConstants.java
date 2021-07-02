@@ -14,37 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.agent.plugin.proxy.apache;
+package com.navercorp.pinpoint.agent.plugin.proxy.user;
 
 import com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestType;
 
-/**
- * @author jaehong.kim
- */
-public class ApacheRequestType implements ProxyRequestType {
-    @Override
-    public String getHttpHeaderName() {
-        return "Pinpoint-ProxyApache";
-    }
-
-    @Override
-    @Deprecated
-    public String getDisplayName() {
-        return getDisplayName("");
-    }
-
-    @Override
-    public String getDisplayName(String name) {
-        return "PROXY(APACHE)";
-    }
-
-    @Override
-    public int getCode() {
-        return 3;
-    }
-
-    @Override
-    public boolean useApp() {
-        return false;
-    }
+public class UserRequestConstants {
+    public static final String USER_PROXY_HEADER_NAME_LIST = "profiler.proxy.http.headers";
+    public static final ProxyRequestType USER_REQUEST_TYPE = new UserRequestType();
 }

@@ -16,11 +16,15 @@
 
 package com.navercorp.pinpoint.agent.plugin.proxy.app;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeader;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeaderBuilder;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParser;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author jaehong.kim
@@ -28,8 +32,14 @@ import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParser
 public class AppRequestParser implements ProxyRequestParser {
 
     @Override
+    @Deprecated
     public String getHttpHeaderName() {
         return AppRequestConstants.APP_REQUEST_TYPE.getHttpHeaderName();
+    }
+
+    @Override
+    public List<String> getHttpHeaderNameList() {
+        return Arrays.asList(AppRequestConstants.APP_REQUEST_TYPE.getHttpHeaderName());
     }
 
     @Override
@@ -37,9 +47,18 @@ public class AppRequestParser implements ProxyRequestParser {
         return AppRequestConstants.APP_REQUEST_TYPE.getCode();
     }
 
+    @Override
+    public void init(ProfilerConfig profilerConfig) {
+    }
 
     @Override
+    @Deprecated
     public ProxyRequestHeader parse(String value) {
+        return parseHeader("UNKNOWN", value);
+    }
+
+    @Override
+    public ProxyRequestHeader parseHeader(String name, String value) {
         final ProxyRequestHeaderBuilder header = new ProxyRequestHeaderBuilder();
         for (String token : StringUtils.tokenizeToStringList(value, " ")) {
             if (token.startsWith("t=")) {

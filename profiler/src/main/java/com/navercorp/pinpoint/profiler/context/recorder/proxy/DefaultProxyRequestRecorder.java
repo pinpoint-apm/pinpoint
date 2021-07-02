@@ -19,7 +19,9 @@ package com.navercorp.pinpoint.profiler.context.recorder.proxy;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
+
 import java.util.Objects;
+
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import org.slf4j.Logger;
@@ -41,21 +43,17 @@ public class DefaultProxyRequestRecorder<T> implements ProxyRequestRecorder<T> {
     public DefaultProxyRequestRecorder(final List<ProxyRequestParser> proxyRequestParserList, final RequestAdaptor<T> requestAdaptor) {
         Objects.requireNonNull(proxyRequestParserList, "proxyRequestParserList");
         this.proxyRequestParsers = proxyRequestParserList.toArray(new ProxyRequestParser[0]);
-
         this.requestAdaptor = Objects.requireNonNull(requestAdaptor, "requestAdaptor");
     }
 
     public void record(final SpanRecorder recorder, final T request) {
-        if (recorder == null) {
-            return;
-        }
-        if (request == null) {
+        if (recorder == null || request == null) {
             return;
         }
 
         try {
             for (ProxyRequestParser parser : proxyRequestParsers) {
-                parseAndRecord(recorder, request, parser);
+                parseHeaderAndRecord(recorder, request, parser);
             }
         } catch (Exception e) {
             // for handler operations.
@@ -65,23 +63,23 @@ public class DefaultProxyRequestRecorder<T> implements ProxyRequestRecorder<T> {
         }
     }
 
-
-    private void parseAndRecord(final SpanRecorder recorder, final T request, final ProxyRequestParser parser) {
-        final String name = parser.getHttpHeaderName();
-        final String value = requestAdaptor.getHeader(request, name);
-        if (StringUtils.isEmpty(value)) {
-            return;
-        }
-
-        final ProxyRequestHeader header = parser.parse(value);
-        if (header.isValid()) {
-            recorder.recordAttribute(annotationFactory.getAnnotationKey(), annotationFactory.getAnnotationValue(parser.getCode(), header));
-            if (isDebug) {
-                logger.debug("Record proxy request header. name={}, value={}", name, value);
+    private void parseHeaderAndRecord(final SpanRecorder recorder, final T request, final ProxyRequestParser parser) {
+        for (String name : parser.getHttpHeaderNameList()) {
+            final String value = requestAdaptor.getHeader(request, name);
+            if (StringUtils.isEmpty(value)) {
+                return;
             }
-        } else {
-            if (logger.isInfoEnabled()) {
-                logger.info("Failed to parse proxy request header. name={}. value={}, cause={}", name, value, header.getCause());
+
+            final ProxyRequestHeader header = parser.parseHeader(name, value);
+            if (header.isValid()) {
+                recorder.recordAttribute(annotationFactory.getAnnotationKey(), annotationFactory.getAnnotationValue(parser.getCode(), header));
+                if (isDebug) {
+                    logger.debug("Record proxy request header. name={}, value={}", name, value);
+                }
+            } else {
+                if (logger.isInfoEnabled()) {
+                    logger.info("Failed to parse proxy request header. name={}. value={}, cause={}", name, value, header.getCause());
+                }
             }
         }
     }

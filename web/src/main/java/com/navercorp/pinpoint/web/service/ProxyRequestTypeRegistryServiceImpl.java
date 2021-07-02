@@ -36,6 +36,8 @@ import java.util.ServiceLoader;
 @Service
 public class ProxyRequestTypeRegistryServiceImpl implements ProxyRequestTypeRegistryService {
     private static final ProxyRequestType UNKNOWN = new ProxyRequestType() {
+        private static final String DEFAULT_DISPLAY_NAME = "PROXY(UNKNOWN)";
+
         @Override
         public String getHttpHeaderName() {
             return "";
@@ -43,12 +45,22 @@ public class ProxyRequestTypeRegistryServiceImpl implements ProxyRequestTypeRegi
 
         @Override
         public String getDisplayName() {
-            return "PROXY(UNKNOWN)";
+            return DEFAULT_DISPLAY_NAME;
+        }
+
+        @Override
+        public String getDisplayName(String name) {
+            return DEFAULT_DISPLAY_NAME;
         }
 
         @Override
         public int getCode() {
             return 0;
+        }
+
+        @Override
+        public boolean useApp() {
+            return false;
         }
     };
 
