@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
@@ -192,10 +193,11 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public PinpointRouteResponse invoke(AgentInfo agentInfo, byte[] payload, long timeout) throws TException {
         TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
-        PinpointSocket socket = clusterManager.getSocket(agentInfo);
+        List<PinpointSocket> socketList = clusterManager.getSocket(agentInfo);
 
         Future<ResponseMessage> future = null;
-        if (socket != null) {
+        if (CollectionUtils.nullSafeSize(socketList) == 1) {
+            PinpointSocket socket = socketList.get(0);
             future = socket.request(serializeRequest(transferObject));
         }
 
@@ -229,8 +231,10 @@ public class AgentServiceImpl implements AgentService {
         Map<AgentInfo, Future<ResponseMessage>> futureMap = new HashMap<>();
         for (AgentInfo agentInfo : agentInfoList) {
             TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
-            PinpointSocket socket = clusterManager.getSocket(agentInfo);
-            if (socket != null) {
+            List<PinpointSocket> socketList = clusterManager.getSocket(agentInfo);
+
+            if (CollectionUtils.nullSafeSize(socketList) == 1) {
+                PinpointSocket socket = socketList.get(0);
                 Future<ResponseMessage> future = socket.request(serializeRequest(transferObject));
                 futureMap.put(agentInfo, future);
             } else {
@@ -259,13 +263,18 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public ClientStreamChannel openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws TException, StreamException {
-        TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
-        PinpointSocket socket = clusterManager.getSocket(agentInfo);
-        if (socket == null) {
-            throw new StreamException(StreamCode.CONNECTION_NOT_FOUND);
-        }
+        assertClusterEnabled();
 
-        return socket.openStream(serializeRequest(transferObject), streamChannelEventHandler);
+        TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
+        List<PinpointSocket> socketList = clusterManager.getSocket(agentInfo);
+        if (CollectionUtils.nullSafeSize(socketList) == 1) {
+            PinpointSocket socket = socketList.get(0);
+            return socket.openStream(serializeRequest(transferObject), streamChannelEventHandler);
+        } else if (CollectionUtils.isEmpty(socketList)) {
+            throw new StreamException(StreamCode.CONNECTION_NOT_FOUND);
+        } else {
+            throw new StreamException(StreamCode.CONNECTION_DUPLICATED);
+        }
     }
 
     @Override
@@ -276,13 +285,24 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public ClientStreamChannel openStreamAndAwait(AgentInfo agentInfo, byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws TException, StreamException {
-        TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
-        PinpointSocket socket = clusterManager.getSocket(agentInfo);
-        if (socket == null) {
-            throw new StreamException(StreamCode.CONNECTION_NOT_FOUND);
-        }
+        assertClusterEnabled();
 
-        return socket.openStreamAndAwait(serializeRequest(transferObject), streamChannelEventHandler, timeout);
+        TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
+        List<PinpointSocket> socketList = clusterManager.getSocket(agentInfo);
+        if (CollectionUtils.nullSafeSize(socketList) == 1) {
+            PinpointSocket socket = socketList.get(0);
+            return socket.openStreamAndAwait(serializeRequest(transferObject), streamChannelEventHandler, timeout);
+        } else if (CollectionUtils.isEmpty(socketList)) {
+            throw new StreamException(StreamCode.CONNECTION_NOT_FOUND);
+        } else {
+            throw new StreamException(StreamCode.CONNECTION_DUPLICATED);
+        }
+    }
+
+    private void assertClusterEnabled() throws StreamException {
+        if (!clusterManager.isEnabled()) {
+            throw new StreamException(StreamCode.CONNECTION_UNSUPPORT);
+        }
     }
 
     @Override

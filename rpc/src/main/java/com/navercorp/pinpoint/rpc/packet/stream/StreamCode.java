@@ -51,6 +51,8 @@ public enum StreamCode {
     CONNECTION_TIMEOUT((short) 152),
     CONNECTION_UNSUPPORT((short) 153),
 
+    CONNECTION_DUPLICATED((short) 154),
+
     ROUTE_ERROR((short)160);
 
     private final short value;
