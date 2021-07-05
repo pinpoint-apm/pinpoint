@@ -27,17 +27,22 @@ import com.navercorp.pinpoint.metric.common.model.*;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Hyunjoon Cho
  */
 @Component
 public class SystemMetricJsonDeserializer extends JsonDeserializer<SystemMetric> {
-    
+
     private final static long SEC_TO_MILLIS = 1000;
 
     private final static TagComparator TAG_COMPARATOR = new TagComparator();
+
+    private final String[] ignoreTagNames = {"host", "fieldName"};
 
     public SystemMetricJsonDeserializer() {
     }
@@ -81,8 +86,8 @@ public class SystemMetricJsonDeserializer extends JsonDeserializer<SystemMetric>
         }
     }
 
-    private boolean isInt(String type) {
-        if ("int".equals(type)) {
+    private boolean isInt(String typeString) {
+        if (TelegrafHttpFieldType.INT.getType().equals(typeString)) {
             return true;
         }
         return false;
@@ -93,13 +98,23 @@ public class SystemMetricJsonDeserializer extends JsonDeserializer<SystemMetric>
         Iterator<Map.Entry<String, JsonNode>> tagIterator = tagsNode.fields();
         while (tagIterator.hasNext()) {
             Map.Entry<String, JsonNode> tag = tagIterator.next();
-            if (!"host".equals(tag.getKey()) && !"fieldName".equals(tag.getKey())) {
-                tags.add(new Tag(tag.getKey(), tag.getValue().asText()));
+            if (isIgnoreHeaderNames(tag.getKey())) {
+                continue;
             }
+            tags.add(new Tag(tag.getKey(), tag.getValue().asText()));
         }
 
         tags.sort(TAG_COMPARATOR);
         return tags;
+    }
+
+    private boolean isIgnoreHeaderNames(String tagName) {
+        for (String ignoreTagName : ignoreTagNames) {
+            if (ignoreTagName.equals(tagName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String getTextNode(JsonNode jsonNode, String key) {
