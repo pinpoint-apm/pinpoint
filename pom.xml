@@ -117,6 +117,7 @@
         <module>hbase2-module</module>
         <module>metric</module>
         <module>collector-starter</module>
+        <module>web-starter</module>
 
         <!-- <module>agent-testweb</module> -->
         <!-- <module>plugins-it</module> -->

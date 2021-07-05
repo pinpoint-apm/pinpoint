@@ -17,9 +17,12 @@
 package com.navercorp.pinpoint.metric.web.controller;
 
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
+import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
+import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
+import com.navercorp.pinpoint.metric.web.service.SystemMetricDataService;
+import com.navercorp.pinpoint.metric.web.service.SystemMetricHostInfoService;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
-import com.navercorp.pinpoint.metric.web.service.SystemMetricService;
 import com.navercorp.pinpoint.metric.web.util.Range;
 import com.navercorp.pinpoint.metric.web.util.TagParser;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
@@ -40,13 +43,17 @@ import java.util.concurrent.TimeUnit;
 @Controller
 @RequestMapping(value = "/systemMetric")
 public class SystemMetricController {
-    private final SystemMetricService systemMetricService;
+    private final SystemMetricDataService systemMetricDataService;
+    private final SystemMetricHostInfoService systemMetricHostInfoService;
+    private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new DefaultTimeWindowSampler();
     private final TagParser tagParser = new TagParser();
 
-    public SystemMetricController(SystemMetricService systemMetricService) {
-        this.systemMetricService = Objects.requireNonNull(systemMetricService, "systemMetricService");
+    public SystemMetricController(SystemMetricDataService systemMetricDataService, SystemMetricHostInfoService systemMetricHostInfoService) {
+        this.systemMetricDataService = Objects.requireNonNull(systemMetricDataService, "systemMetricService");
+        this.systemMetricHostInfoService = Objects.requireNonNull(systemMetricHostInfoService, "systemMetricHostInfoService");
     }
 
+    @Deprecated
     @RequestMapping(value = "/list")
     @ResponseBody
     public List<SystemMetric> getSystemMetricBoList(
@@ -67,9 +74,10 @@ public class SystemMetricController {
         builder.setRange(Range.newRange(from, to));
         QueryParameter queryParameter = builder.build();
 
-        return systemMetricService.getSystemMetricBoList(queryParameter);
+        return systemMetricDataService.getSystemMetricBoList(queryParameter);
     }
 
+    @Deprecated
     @RequestMapping(value = "/chart")
     @ResponseBody
     public SystemMetricChart getSystemMetricChart(
@@ -97,9 +105,10 @@ public class SystemMetricController {
         };
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
 
-        return systemMetricService.getSystemMetricChart(timeWindow, queryParameter);
+        return systemMetricDataService.getSystemMetricChart(timeWindow, queryParameter);
     }
 
+    @Deprecated
     @RequestMapping(value = "/chart", params = {"timeUnit", "timeSize"})
     @ResponseBody
     public SystemMetricChart getSystemMetricChart(
@@ -135,6 +144,48 @@ public class SystemMetricController {
         };
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
 
-        return systemMetricService.getSystemMetricChart(timeWindow, queryParameter);
+        return systemMetricDataService.getSystemMetricChart(timeWindow, queryParameter);
     }
+
+    @RequestMapping(value = "/hostGroup")
+    @ResponseBody
+    public List<String> getHostGroup() {
+        return systemMetricHostInfoService.getHostGroupIdList();
+    }
+
+    @RequestMapping(value = "/hostGroup/host")
+    @ResponseBody
+    public List<String> getHostGroup(@RequestParam("hostGroupId") String hostGroupId) {
+        return systemMetricHostInfoService.getHostList(hostGroupId);
+    }
+
+    @RequestMapping(value = "/hostGroup/host/collectedMetricInfo")
+    @ResponseBody
+    public List<String> getcollectedMetricInfo(@RequestParam("hostGroupId") String hostGroupId, @RequestParam("hostName") String hostName) {
+        return systemMetricHostInfoService.getcollectedMetricInfo(hostGroupId, hostName);
+    }
+
+    @RequestMapping(value = "/hostGroup/host/collectedMetricData")
+    @ResponseBody
+    public SystemMetricData getcollectedMetricData(@RequestParam("hostGroupId") String hostGroupId,
+                                                   @RequestParam("hostName") String hostName,
+                                                   @RequestParam("metricName") String metricName,
+                                                   @RequestParam("metricDefinitionId") String metricDefinitionId,
+                                                   @RequestParam("from") long from,
+                                                   @RequestParam("to") long to) {
+        //TODO : (minwoo) sampler 를 range 값에 따라서 다르게 설정해주는 로직이 들어가는게 필요함
+        Range range = Range.newRange(from, to);
+        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
+        MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(hostGroupId, hostName, metricName, metricDefinitionId, range);
+        SystemMetricData systemMetricData = systemMetricDataService.getcollectedMetricData(metricDataSearchKey, timeWindow);
+        return systemMetricData;
+    }
+
+    private class DefaultTimeWindowSampler implements TimeWindowSampler {
+        @Override
+        public long getWindowSize(Range range) {
+            return 10000L;
+        }
+    };
+
 }

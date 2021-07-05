@@ -3,4 +3,8 @@ spring:
     allow-bean-definition-overriding: true
 #    web-application-type: none
   profiles:
-    active: local, metric
+    active: local
+
+server:
+  port: 8081
+
