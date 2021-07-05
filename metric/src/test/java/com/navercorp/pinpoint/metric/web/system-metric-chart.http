@@ -1,0 +1,41 @@
+### LongConter, w/o tags, w/o interval
+GET http://localhost:8080/systemMetric/chart.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=mem&fieldName=free&from=1613539750000&to=1613539840000
+Accept: application/json
+
+### LongCounter, w/o tags, with interval
+GET http://localhost:8080/systemMetric/chart.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=mem&fieldName=free&from=1612245100000&to=1612246100000&timeUnit=SECONDS&timeSize=30
+Accept: application/json
+
+### DoubleCounter, w/o tags, with interval
+GET http://localhost:8080/systemMetric/chart.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=cpu&fieldName=usage_user&from=1612245100000&to=1612248100000&timeUnit=MINUTES&timeSize=10
+Accept: application/json
+
+### DoubleCounter, with tags, with interval
+GET http://localhost:8080/systemMetric/chart.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=cpu&fieldName=usage_user&tags=cpu:cpu1&from=1612245100000&to=1612245700000&timeUnit=MINUTES&timeSize=3
+Accept: application/json
+
+### with multiple tags > wrong behavior
+GET http://localhost:8080/systemMetric/chart.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=disk&fieldName=used_percent&tags=device:disk1s4,fstype:apfs,mode:rw,path:/private/var/vm&from=1612245100000&to=1612245200000&timeUnit=SECONDS&timeSize=40
+Accept: application/json
+
+### Cpu tag for Mem query
+GET http://localhost:8080/systemMetric/chart.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=disk&fieldName=used_percent&tags=cpu:cpu1&from=1612245100000&to=1612249100000&timeUnit=MINUTES&timeSize=5
+Accept: application/json
+
+### No Such Metric
+GET http://localhost:8080/systemMetric/chart.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=mem&fieldName=freer&from=1612245100000&to=1612246100000
+Accept: application/json
+
+### Lowercase timeUnit
+GET http://localhost:8080/systemMetric/chart.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=cpu&fieldName=usage_user&tags=cpu:cpu1&from=1612245100000&to=1612245700000&timeUnit=minutes&timeSize=3
+Accept: application/json
+
+### Wrong timeUnit
+GET http://localhost:8080/systemMetric/chart.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=disk&fieldName=used_percent&tags=cpu:cpu1&from=1612245100000&to=1612249100000&timeUnit=MINS&timeSize=5
+Accept: application/json
+
+### Invalid timeSize
+GET http://localhost:8080/systemMetric/chart.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=disk&fieldName=used_percent&tags=cpu:cpu1&from=1612245100000&to=1612249100000&timeUnit=MINUTES&timeSize=0
+Accept: application/json
+
+###
