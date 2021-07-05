@@ -1,0 +1,18 @@
+### LongCounter, w/o tags
+GET http://localhost:8080/systemMetric/list.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=mem&fieldName=free&from=1612245100000&to=1612246100000
+Accept: application/json
+
+### DoubleCounter, w/o tags
+GET http://localhost:8080/systemMetric/list.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=cpu&fieldName=usage_user&from=1612245100000&to=1612245400000
+Accept: application/json
+
+### DoubleCounter, with tags
+GET http://localhost:8080/systemMetric/list.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=cpu&fieldName=usage_user&tags=cpu:cpu0&from=1612245100000&to=1612245700000
+Accept: application/json
+
+### No Such Metric
+GET http://localhost:8080/systemMetric/list.pinpoint?applicationName=hyunjoon.cho&hostName=AL01256785.local&metricName=mem&fieldName=freer&from=1612245100000&to=1612247100000
+Accept: application/json
+
+###
+
