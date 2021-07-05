@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="pinotDataSource"
+          class="com.navercorp.pinpoint.metric.web.mybatis.DataSourceDelegator">
+        <constructor-arg index="0" ref="originalDataSource"/>
+    </bean>
+
+    <bean id="originalDataSource"
+          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${pinpoint.pinot.jdbc.driverClassName}" />
+        <property name="url" value="${pinpoint.pinot.jdbc.url}" />
+        <property name="username" value="${pinpoint.pinot.jdbc.username}" />
+        <property name="password" value="${pinpoint.pinot.jdbc.password}" />
+    </bean>
+</beans>
