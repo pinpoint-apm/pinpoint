@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.metric.web.service;
+package com.navercorp.pinpoint.metric.web.model.chart;
 
 /**
  * @author minwoo.jung
  */
-public class SystemMetricTagService {
+public class CollectedMetricData {
 }
