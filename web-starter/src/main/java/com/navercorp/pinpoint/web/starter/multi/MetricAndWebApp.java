@@ -20,19 +20,14 @@ import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import com.navercorp.pinpoint.metric.web.MetricWebApp;
 import com.navercorp.pinpoint.web.WebApp;
 import com.navercorp.pinpoint.web.WebMvcConfig;
+import com.navercorp.pinpoint.web.WebServerConfig;
 import com.navercorp.pinpoint.web.WebStarter;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportResource;
-import org.springframework.web.filter.ShallowEtagHeaderFilter;
-
-import java.util.Arrays;
-
 /**
  * @author minwoo.jung
  */
@@ -45,7 +40,7 @@ public class MetricAndWebApp {
 
     public static void main(String[] args) {
         try {
-            WebStarter starter = new WebStarter(MetricAndWebApp.class, WebMvcConfig.class, MetricWebApp.class);
+            WebStarter starter = new WebStarter(MetricAndWebApp.class, WebServerConfig.class, WebMvcConfig.class, MetricWebApp.class);
             starter.start(args);
         } catch (Exception exception) {
             logger.error("[WebApp] could not launch app.", exception);
