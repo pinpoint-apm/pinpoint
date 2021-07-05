@@ -2,7 +2,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   profiles:
-    active: release
+    active: release, metric
 
 server:
   port: 8080
