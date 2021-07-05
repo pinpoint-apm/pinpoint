@@ -17,8 +17,7 @@
 package com.navercorp.pinpoint.metric.collector.dao.mysql;
 
 import com.navercorp.pinpoint.metric.collector.dao.MetricTagDao;
-import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDataTypeDao;
-import com.navercorp.pinpoint.metric.collector.model.MetricTagCollection;
+import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -52,6 +51,6 @@ public class MysqlMetricTagDao implements MetricTagDao {
     @Override
     public MetricTagCollection selectMetricTag(MetricTagKey metricTagKey) {
         List<MetricTag> metricTagList = sqlSessionTemplate.selectList(NAMESPACE + "selectMetricTagList", metricTagKey);
-        return new MetricTagCollection(metricTagKey.getApplicationId(), metricTagKey.getHostName(), metricTagKey.getMetricName(), metricTagKey.getFieldName(), metricTagList);
+        return new MetricTagCollection(metricTagKey.getHostGroupId(), metricTagKey.getHostName(), metricTagKey.getMetricName(), metricTagKey.getFieldName(), metricTagList);
     }
 }

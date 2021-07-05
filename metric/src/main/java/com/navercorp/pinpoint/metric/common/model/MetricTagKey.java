@@ -25,14 +25,14 @@ import java.util.Objects;
  */
 public class MetricTagKey {
 
-    private String applicationId;
+    private String hostGroupId;
     private String hostName;
     private String metricName;
     private String fieldName;
 
-    public MetricTagKey(String applicationId, String hostName, String metricName, String fieldName) {
-        if (StringUtils.isEmpty(applicationId)) {
-            throw new IllegalArgumentException("applicationId must not be empty");
+    public MetricTagKey(String hostGroupId, String hostName, String metricName, String fieldName) {
+        if (StringUtils.isEmpty(hostGroupId)) {
+            throw new IllegalArgumentException("hostGroupId must not be empty");
         }
         if (StringUtils.isEmpty(hostName)) {
             throw new IllegalArgumentException("hostName must not be empty");
@@ -43,14 +43,14 @@ public class MetricTagKey {
         if (StringUtils.isEmpty(fieldName)) {
             throw new IllegalArgumentException("fieldName must not be empty");
         }
-        this.applicationId = applicationId;
+        this.hostGroupId = hostGroupId;
         this.hostName = hostName;
         this.metricName = metricName;
         this.fieldName = fieldName;
     }
 
-    public String getApplicationId() {
-        return applicationId;
+    public String getHostGroupId() {
+        return hostGroupId;
     }
 
     public String getHostName() {
@@ -70,7 +70,7 @@ public class MetricTagKey {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MetricTagKey that = (MetricTagKey) o;
-        return Objects.equals(applicationId, that.applicationId) &&
+        return Objects.equals(hostGroupId, that.hostGroupId) &&
                 Objects.equals(hostName, that.hostName) &&
                 Objects.equals(metricName, that.metricName) &&
                 Objects.equals(fieldName, that.fieldName);
@@ -78,13 +78,13 @@ public class MetricTagKey {
 
     @Override
     public int hashCode() {
-        return Objects.hash(applicationId, hostName, metricName, fieldName);
+        return Objects.hash(hostGroupId, hostName, metricName, fieldName);
     }
 
     @Override
     public String toString() {
         return "MetricTagKey{" +
-                "applicationId='" + applicationId + '\'' +
+                "hostGroupId='" + hostGroupId + '\'' +
                 ", hostName='" + hostName + '\'' +
                 ", metricName='" + metricName + '\'' +
                 ", fieldName='" + fieldName + '\'' +

@@ -27,7 +27,7 @@ import java.util.Objects;
  */
 public class MetricTag {
 
-    private String applicationId;
+    private String hostGroupId;
     private String hostName;
     private String metricName;
     private String fieldName;
@@ -36,9 +36,9 @@ public class MetricTag {
     public MetricTag() {
     }
 
-    public MetricTag(String applicationId, String hostName, String metricName, String fieldName, List<Tag> tags) {
-        if (StringUtils.isEmpty(applicationId)) {
-            throw new IllegalArgumentException("applicationId must not be empty");
+    public MetricTag(String hostGroupId, String hostName, String metricName, String fieldName, List<Tag> tags) {
+        if (StringUtils.isEmpty(hostGroupId)) {
+            throw new IllegalArgumentException("hostGroupId must not be empty");
         }
         if (StringUtils.isEmpty(hostName)) {
             throw new IllegalArgumentException("hostName must not be empty");
@@ -49,19 +49,19 @@ public class MetricTag {
         if (StringUtils.isEmpty(fieldName)) {
             throw new IllegalArgumentException("fieldName must not be empty");
         }
-        this.applicationId = applicationId;
+        this.hostGroupId = hostGroupId;
         this.hostName = hostName;
         this.metricName = metricName;
         this.fieldName = fieldName;
         this.tags = Objects.requireNonNull(tags, "tags");
     }
 
-    public String getApplicationId() {
-        return applicationId;
+    public String getHostGroupId() {
+        return hostGroupId;
     }
 
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
+    public void setHostGroupId(String hostGroupId) {
+        this.hostGroupId = hostGroupId;
     }
 
     public String getMetricName() {
@@ -103,13 +103,13 @@ public class MetricTag {
             tagList.add(tag.copy());
         }
 
-        return new MetricTag(applicationId, hostName, metricName, fieldName, tagList);
+        return new MetricTag(hostGroupId, hostName, metricName, fieldName, tagList);
     }
 
     @Override
     public String toString() {
         return "MetricTag{" +
-                "applicationId='" + applicationId + '\'' +
+                "hostGroupId='" + hostGroupId + '\'' +
                 ", hostName='" + hostName + '\'' +
                 ", metricName='" + metricName + '\'' +
                 ", fieldName='" + fieldName + '\'' +
@@ -122,7 +122,7 @@ public class MetricTag {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MetricTag metricTag = (MetricTag) o;
-        return Objects.equals(applicationId, metricTag.applicationId) &&
+        return Objects.equals(hostGroupId, metricTag.hostGroupId) &&
                 Objects.equals(hostName, metricTag.hostName) &&
                 Objects.equals(metricName, metricTag.metricName) &&
                 Objects.equals(fieldName, metricTag.fieldName) &&
