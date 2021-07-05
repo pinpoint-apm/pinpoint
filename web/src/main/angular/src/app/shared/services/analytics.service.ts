@@ -138,7 +138,8 @@ export enum TRACKED_EVENT_LIST {
     RESUME_DATA_LOAD_ON_FILTERED_MAP_PAGE = 'Resume Data Load on FilteredMap Page',
     SWITCH_TRANSACTION_VIEW_TYPE_THROUGH_TAB = 'Switch Transaction View Type through Tab',
     OPEN_LOG_PAGE_THROUGH_TAB = 'Open Log Page through Tab',
-    MOVE_NODE_IN_SERVER_MAP = 'Move Node in Server Map'
+    MOVE_NODE_IN_SERVER_MAP = 'Move Node in Server Map',
+    CHANGE_THEME = 'Change Theme'
 }
 
 @Injectable()

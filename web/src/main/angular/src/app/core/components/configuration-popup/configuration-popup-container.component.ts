@@ -75,6 +75,7 @@ export class ConfigurationPopupContainerComponent implements OnInit, AfterViewIn
     }
 
     onChangeTheme(theme: string): void {
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CHANGE_THEME, theme);
         this.themeService.changeTheme(theme);
     }
 }
