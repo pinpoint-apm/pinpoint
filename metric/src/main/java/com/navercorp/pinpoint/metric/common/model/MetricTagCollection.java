@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.metric.collector.model;
+package com.navercorp.pinpoint.metric.common.model;
 
-import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -27,17 +26,16 @@ import java.util.Objects;
  */
 public class MetricTagCollection {
 
-    //TODO : (minwoo) applicationId 이름을 다른 이름으로 써야할듯함.
-    private final String applicationId;
+    private final String hostGroupId;
     private final String hostName;
     private final String metricName;
     private final String fieldName;
 
     private final List<MetricTag> metricTagList;
 
-    public MetricTagCollection(String applicationId, String hostName, String metricName, String fieldName, List<MetricTag> metricTagList) {
-        if (StringUtils.isEmpty(applicationId)) {
-            throw new IllegalArgumentException("applicationId must not be empty");
+    public MetricTagCollection(String hostGroupId, String hostName, String metricName, String fieldName, List<MetricTag> metricTagList) {
+        if (StringUtils.isEmpty(hostGroupId)) {
+            throw new IllegalArgumentException("hostGroupId must not be empty");
         }
         if (StringUtils.isEmpty(hostName)) {
             throw new IllegalArgumentException("hostName must not be empty");
@@ -49,7 +47,7 @@ public class MetricTagCollection {
             throw new IllegalArgumentException("fieldName must not be empty");
         }
 
-        this.applicationId = applicationId;
+        this.hostGroupId = hostGroupId;
         this.hostName = hostName;
         this.metricName = metricName;
         this.fieldName = fieldName;
@@ -60,8 +58,8 @@ public class MetricTagCollection {
         return metricTagList;
     }
 
-    public String getApplicationId() {
-        return applicationId;
+    public String getHostGroupId() {
+        return hostGroupId;
     }
 
     public String getHostName() {
@@ -79,7 +77,7 @@ public class MetricTagCollection {
     @Override
     public String toString() {
         return "MetricTagCollection{" +
-                "applicationId='" + applicationId + '\'' +
+                "hostGroupId='" + hostGroupId + '\'' +
                 ", hostName='" + hostName + '\'' +
                 ", metricName='" + metricName + '\'' +
                 ", fieldName='" + fieldName + '\'' +
@@ -92,7 +90,7 @@ public class MetricTagCollection {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MetricTagCollection that = (MetricTagCollection) o;
-        return Objects.equals(applicationId, that.applicationId) &&
+        return Objects.equals(hostGroupId, that.hostGroupId) &&
                 Objects.equals(hostName, that.hostName) &&
                 Objects.equals(metricName, that.metricName) &&
                 Objects.equals(fieldName, that.fieldName) &&
