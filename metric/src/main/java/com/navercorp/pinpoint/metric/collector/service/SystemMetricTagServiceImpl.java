@@ -36,6 +36,7 @@ import java.util.Objects;
 public class SystemMetricTagServiceImpl implements SystemMetricTagService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final MetricTagCache metricTagCache;
 
     public SystemMetricTagServiceImpl(MetricTagCache metricTagCache) {
@@ -101,7 +102,7 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
     }
 
     boolean isEquals(List<Tag> tagList1, List<Tag> tagList2) {
-        if(tagList1.containsAll(tagList2) == false) {
+        if (tagList1.containsAll(tagList2) == false) {
             return false;
         }
 

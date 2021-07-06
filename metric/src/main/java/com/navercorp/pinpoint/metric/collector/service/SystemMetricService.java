@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDao;
 
 import com.navercorp.pinpoint.metric.common.model.DoubleCounter;
 import com.navercorp.pinpoint.metric.common.model.LongCounter;
+import com.navercorp.pinpoint.metric.common.model.Metrics;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import org.springframework.stereotype.Service;
 
@@ -42,24 +43,25 @@ public class SystemMetricService<T extends SystemMetric> {
         this.systemMetricDoubleDao = Objects.requireNonNull(systemMetricDoubleDao, "systemMetricDoubleDao");
     }
 
-    public void insert(String applicationName, List<T> systemMetricList) throws JsonProcessingException {
+    public void insert(String applicationName, Metrics systemMetrics) {
         Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(systemMetrics, "systemMetrics");
 
-        List<LongCounter> longCounters = filterLongCounter(systemMetricList);
-        List<DoubleCounter> doubleCounters = filterDoubleCounter(systemMetricList);
+        List<LongCounter> longCounters = filterLongCounter(systemMetrics);
+        List<DoubleCounter> doubleCounters = filterDoubleCounter(systemMetrics);
 
         systemMetricLongDao.insert(applicationName, longCounters);
         systemMetricDoubleDao.insert(applicationName, doubleCounters);
     }
 
-    public List<LongCounter> filterLongCounter(List<T> systemMetrics) {
+    public List<LongCounter> filterLongCounter(Metrics systemMetrics) {
         return systemMetrics.stream()
                 .filter(LongCounter.class::isInstance)
                 .map(LongCounter.class::cast)
                 .collect(Collectors.toList());
     }
 
-    public List<DoubleCounter> filterDoubleCounter(List<T> systemMetrics) {
+    public List<DoubleCounter> filterDoubleCounter(Metrics systemMetrics) {
         return systemMetrics.stream()
                 .filter(DoubleCounter.class::isInstance)
                 .map(DoubleCounter.class::cast)
