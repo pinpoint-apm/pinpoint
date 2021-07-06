@@ -21,6 +21,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.metric.collector.model.SystemMetricJsonDeserializer;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,10 +31,14 @@ import java.util.Objects;
  */
 @JsonDeserialize(using = SystemMetricJsonDeserializer.class)
 public class SystemMetric {
+    @NotBlank
     protected final String metricName;
+    @NotBlank
     protected final String hostName;
+    @NotBlank
     protected final String fieldName;
     protected final List<Tag> tags;
+    @Positive
     protected final long timestamp;
 
     public SystemMetric(String metricName, String hostName, String fieldName, List<Tag> tags, long timestamp) {
