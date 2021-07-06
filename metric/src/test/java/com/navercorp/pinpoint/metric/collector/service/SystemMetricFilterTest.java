@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.metric.collector.dao.pinot.PinotSystemMetricDouble
 import com.navercorp.pinpoint.metric.collector.dao.pinot.PinotSystemMetricLongDao;
 import com.navercorp.pinpoint.metric.common.model.DoubleCounter;
 import com.navercorp.pinpoint.metric.common.model.LongCounter;
+import com.navercorp.pinpoint.metric.common.model.Metrics;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import org.junit.Assert;
 import org.junit.Before;
@@ -58,16 +59,16 @@ public class SystemMetricFilterTest {
     public void testFilter() {
         int longCount = random.nextInt(100);
         int doubleCount = random.nextInt(100);
-        List<SystemMetric> systemMetricList = createList(longCount, doubleCount);
+        Metrics systemMetrics = createList(longCount, doubleCount);
 
-        List<LongCounter> longCounterList = systemMetricService.filterLongCounter(systemMetricList);
-        List<DoubleCounter> doubleCounterList = systemMetricService.filterDoubleCounter(systemMetricList);
+        List<LongCounter> longCounterList = systemMetricService.filterLongCounter(systemMetrics);
+        List<DoubleCounter> doubleCounterList = systemMetricService.filterDoubleCounter(systemMetrics);
 
         Assert.assertEquals(longCount, longCounterList.size());
         Assert.assertEquals(doubleCount, doubleCounterList.size());
     }
 
-    private List<SystemMetric> createList(int longCount, int doubleCount) {
+    private Metrics createList(int longCount, int doubleCount) {
         List<SystemMetric> systemMetricList = new ArrayList<>();
 
         for (int i = 0; i < longCount; i++) {
@@ -77,6 +78,6 @@ public class SystemMetricFilterTest {
             systemMetricList.add(doubleCounter);
         }
 
-        return systemMetricList;
+        return new Metrics(systemMetricList);
     }
 }
