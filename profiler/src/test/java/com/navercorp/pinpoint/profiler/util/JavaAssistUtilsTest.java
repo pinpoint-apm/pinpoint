@@ -246,4 +246,18 @@ public class JavaAssistUtilsTest {
         Assert.assertSame(className, variableName);
     }
 
+    @Test
+    public void getParameterDescription() {
+        String[] parameters = {"a", "b"};
+        String variableName = JavaAssistUtils.getParameterDescription(parameters);
+        Assert.assertEquals("(a, b)", variableName);
+    }
+
+    @Test
+    public void getParameterDescription_single() {
+        String[] parameters = {"a"};
+        String variableName = JavaAssistUtils.getParameterDescription(parameters);
+        Assert.assertEquals("(a)", variableName);
+    }
+
 }

@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
  * @author emeroad
  */
 public final class JavaAssistUtils {
-    private static final String EMPTY_ARRAY = "()";
+    private static final String EMPTY_PARAMETER = "()";
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final String ARRAY = "[]";
 
@@ -74,7 +74,7 @@ public final class JavaAssistUtils {
 
     public static String javaTypeToJvmSignature(String[] javaTypeArray) {
         if (ArrayUtils.isEmpty(javaTypeArray)) {
-            return "()";
+            return EMPTY_PARAMETER;
         }
         final StringBuilder buffer = new StringBuilder();
         buffer.append('(');
@@ -392,16 +392,14 @@ public final class JavaAssistUtils {
     @Deprecated
     public static String getParameterDescription(Class<?>[] params) {
         if (params == null) {
-            return EMPTY_ARRAY;
+            return EMPTY_PARAMETER;
         }
         StringBuilder sb = new StringBuilder(64);
         sb.append('(');
-        int end = params.length - 1;
-        for (int i = 0; i < params.length; i++) {
+        sb.append(params[0].getName());
+        for (int i = 1; i < params.length; i++) {
+            sb.append(", ");
             sb.append(params[i].getName());
-            if (i < end) {
-                sb.append(", ");
-            }
         }
         sb.append(')');
         return sb.toString();
@@ -409,17 +407,15 @@ public final class JavaAssistUtils {
 
 
     public static String getParameterDescription(String[] params) {
-        if (params == null) {
-            return EMPTY_ARRAY;
+        if (ArrayUtils.isEmpty(params)) {
+            return EMPTY_PARAMETER;
         }
         StringBuilder sb = new StringBuilder(64);
         sb.append('(');
-        int end = params.length - 1;
-        for (int i = 0; i < params.length; i++) {
+        sb.append(params[0]);
+        for (int i = 1; i < params.length; i++) {
+            sb.append(", ");
             sb.append(params[i]);
-            if (i < end) {
-                sb.append(", ");
-            }
         }
         sb.append(')');
         return sb.toString();

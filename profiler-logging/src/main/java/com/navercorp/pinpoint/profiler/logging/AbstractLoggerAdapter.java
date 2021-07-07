@@ -138,15 +138,15 @@ public abstract class AbstractLoggerAdapter {
             sb.append("()");
             return;
         }
-        if (args.length > 0) {
-            sb.append('(');
-            sb.append(normalizedParameter(args[0]));
-            for (int i = 1; i < args.length; i++) {
-                sb.append(", ");
-                sb.append(normalizedParameter(args[i]));
-            }
-            sb.append(')');
+
+        sb.append('(');
+        sb.append(normalizedParameter(args[0]));
+        for (int i = 1; i < args.length; i++) {
+            sb.append(", ");
+            sb.append(normalizedParameter(args[i]));
         }
+        sb.append(')');
+
     }
 
     private static String normalizedParameter(Object arg) {

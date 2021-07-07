@@ -9,11 +9,11 @@ public class StringJoinUtils {
     private StringJoinUtils() {
     }
 
-    public static <T> String join(final Collection<String> collection, final String delemeter) {
+    public static <T> String join(final Collection<String> collection, final String delimiter) {
         if (collection == null) {
             return null;
         }
-        Objects.requireNonNull(delemeter, "separator");
+        Objects.requireNonNull(delimiter, "delimiter");
 
         final int size = collection.size();
         if (size == 0) {
@@ -23,9 +23,9 @@ public class StringJoinUtils {
             return getFirstElement(collection);
         }
 
-        final int bufferSize = StringJoiner.getBufferSize(collection, delemeter);
+        final int bufferSize = StringJoiner.getBufferSize(collection, delimiter);
         final StringBuilder buffer = new StringBuilder(bufferSize);
-        StringJoiner.build(buffer, collection, delemeter);
+        StringJoiner.build(buffer, collection, delimiter);
         return buffer.toString();
     }
 
