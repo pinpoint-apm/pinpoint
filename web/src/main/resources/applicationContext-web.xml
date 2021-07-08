@@ -86,6 +86,9 @@
     <bean id="annotationKeyRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService">
         <constructor-arg ref="typeLoaderService"/>
     </bean>
+
+    <bean id="apiParserProvider" class="com.navercorp.pinpoint.common.server.trace.ApiParserProvider">
+    </bean>
     
     <bean id="spanServiceImpl" class="com.navercorp.pinpoint.web.service.SpanServiceImpl">
     </bean>

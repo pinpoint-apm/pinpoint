@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.server.trace.ApiDescription;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -34,7 +35,7 @@ public class ApiMetaDataBo {
     private int apiId;
 
     private String apiInfo;
-    private int lineNumber = -1;
+    private int lineNumber = ApiDescription.LINE_NUMBER_NOT_EXIST;
     private MethodTypeEnum methodTypeEnum = MethodTypeEnum.DEFAULT;
 
     public ApiMetaDataBo() {
@@ -96,7 +97,7 @@ public class ApiMetaDataBo {
     }
     
     public String getDescription() {
-        if (lineNumber != -1) {
+        if (lineNumber != ApiDescription.LINE_NUMBER_NOT_EXIST) {
             return apiInfo + ":" + lineNumber;
         }
         

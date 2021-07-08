@@ -176,13 +176,17 @@ public class AnnotationRecordFormatter {
         }
 
         buffer.append('(');
-        if (TimeUnit.MILLISECONDS.toDays(proxyTimeMillis) == TimeUnit.MILLISECONDS.toDays(startTimeMillis)) {
-            buffer.append(DateTimeFormatUtils.formatAbsolute(proxyTimeMillis));
-        } else {
-            buffer.append(DateTimeFormatUtils.format(proxyTimeMillis));
-        }
+        buffer.append(format(proxyTimeMillis, startTimeMillis));
         buffer.append(')');
         return buffer.toString();
+    }
+
+    private String format(long proxyTimeMillis, long startTimeMillis) {
+        if (TimeUnit.MILLISECONDS.toDays(proxyTimeMillis) == TimeUnit.MILLISECONDS.toDays(startTimeMillis)) {
+            return DateTimeFormatUtils.formatAbsolute(proxyTimeMillis);
+        } else {
+            return DateTimeFormatUtils.format(proxyTimeMillis);
+        }
     }
 
     String toDurationTimeFormat(final int durationTimeMicroseconds) {

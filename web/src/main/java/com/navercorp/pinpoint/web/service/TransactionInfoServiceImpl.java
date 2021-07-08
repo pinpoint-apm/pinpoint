@@ -16,14 +16,12 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.Event;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.calltree.span.Align;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
@@ -37,11 +35,9 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordFactory;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -64,25 +60,18 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     private final AnnotationKeyMatcherService annotationKeyMatcherService;
 
-    private final ServiceTypeRegistryService registry;
-
-    private final AnnotationKeyRegistryService annotationKeyRegistryService;
-
     private final MetaDataFilter metaDataFilter;
 
-    private final ProxyRequestTypeRegistryService proxyRequestTypeRegistryService;
+    private final RecorderFactoryProvider recordFactoryProvider;
 
     public TransactionInfoServiceImpl(@Qualifier("hbaseTraceDaoFactory") TraceDao traceDao,
                                       AnnotationKeyMatcherService annotationKeyMatcherService,
-                                      ServiceTypeRegistryService registry,
-                                      AnnotationKeyRegistryService annotationKeyRegistryService,
-                                      Optional<MetaDataFilter> metaDataFilter, ProxyRequestTypeRegistryService proxyRequestTypeRegistryService) {
+                                      Optional<MetaDataFilter> metaDataFilter,
+                                      RecorderFactoryProvider recordFactoryProvider) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.annotationKeyMatcherService = Objects.requireNonNull(annotationKeyMatcherService, "annotationKeyMatcherService");
-        this.registry = Objects.requireNonNull(registry, "registry");
-        this.annotationKeyRegistryService = Objects.requireNonNull(annotationKeyRegistryService, "annotationKeyRegistryService");
         this.metaDataFilter = Objects.requireNonNull(metaDataFilter, "metaDataFilter").orElse(null);
-        this.proxyRequestTypeRegistryService = Objects.requireNonNull(proxyRequestTypeRegistryService, "proxyRequestTypeRegistryService");
+        this.recordFactoryProvider = Objects.requireNonNull(recordFactoryProvider, "recordFactoryProvider");
     }
 
     // Temporarily disabled Because We need to solve authentication problem inter system.
@@ -352,13 +341,13 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             Objects.requireNonNull(callTreeIterator, "callTreeIterator");
 
             final List<Record> recordList = new ArrayList<>(callTreeIterator.size() * 2);
-            final RecordFactory factory = new RecordFactory(annotationKeyMatcherService, registry, annotationKeyRegistryService, proxyRequestTypeRegistryService);
+            final RecordFactory factory = recordFactoryProvider.getRecordFactory();
 
             // annotation id has nothing to do with spanAlign's seq and thus may be incremented as long as they don't overlap.
             while (callTreeIterator.hasNext()) {
                 final CallTreeNode node = callTreeIterator.next();
                 if (node == null) {
-                    logger.warn("Corrupt CallTree found : {}", callTreeIterator.toString());
+                    logger.warn("Corrupt CallTree found : {}", callTreeIterator);
                     throw new IllegalStateException("CallTree corrupted");
                 }
                 final Align align = node.getAlign();

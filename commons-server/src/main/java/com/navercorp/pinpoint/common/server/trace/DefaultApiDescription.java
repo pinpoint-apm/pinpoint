@@ -16,75 +16,81 @@
 
 package com.navercorp.pinpoint.common.server.trace;
 
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.server.util.ParameterUtils;
 import com.navercorp.pinpoint.common.util.ClassUtils;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public class DefaultApiDescription implements ApiDescription {
-    private String className;
+    private final String apiDescription;
 
-    private String methodName;
+    private final String className;
 
-    private String[] simpleParameter;
+    private final String methodName;
 
-    private int line = -1;
+    private final String[] simpleParameter;
 
-    public void setClassName(String className) {
-        this.className = className;
+    private final int line;
+
+    public DefaultApiDescription(String apiDescription, String className, String methodName, String[] simpleParameter, int line) {
+        this.apiDescription = Objects.requireNonNull(apiDescription, "apiDescription");
+        this.className = Objects.requireNonNull(className, "className");
+        this.methodName = Objects.requireNonNull(methodName, "methodName");
+        this.simpleParameter = simpleParameter;
+        this.line = line;
     }
 
+    @Override
+    public String getApiDescription() {
+        return apiDescription;
+    }
+
+    @Override
+    public String getSimpleClassName() {
+        int classNameStartIndex = className.lastIndexOf('.') + 1;
+        return className.substring(classNameStartIndex);
+    }
+
+    @Override
     public String getClassName() {
         return className;
     }
 
-    public String getSimpleClassName() {
-        int classNameStartIndex = className.lastIndexOf('.') + 1;
-        return className.substring(classNameStartIndex, className.length());
-    }
-
-    public String getPackageNameName() {
+    public String getPackageName() {
         return ClassUtils.getPackageName(className);
     }
 
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
-    }
-
+    @Override
     public String getMethodName() {
         return this.methodName;
     }
 
-    public void setSimpleParameter(String[] simpleParameter) {
-        this.simpleParameter = simpleParameter;
-    }
-
+    @Override
     public String[] getSimpleParameter() {
         return simpleParameter;
     }
 
-    public void setLine(int line) {
-        this.line = line;
-    }
-
-    public String getSimpleMethodDescription() {
-        String simpleParameterDescription = concateLine(simpleParameter, ", ");
+    @Override
+    public String getMethodDescription() {
+        String simpleParameterDescription = ParameterUtils.join(simpleParameter, ", ");
         return methodName + simpleParameterDescription;
     }
 
-    public String concateLine(String[] stringList, String separator) {
-        if (ArrayUtils.isEmpty(stringList)) {
-            return "()";
-        }
 
-        StringBuilder sb = new StringBuilder();
-        if (stringList.length > 0) {
-            sb.append('(');
-            sb.append(stringList[0]);
-            for (int i = 1; i < stringList.length; i++) {
-                sb.append(separator);
-                sb.append(stringList[i]);
-            }
-            sb.append(')');
-        }
-        return sb.toString();
+    @Override
+    public int getLineNumber() {
+        return line;
+    }
+
+    @Override
+    public String toString() {
+        return "JavaApiDescription{" +
+                "apiDescription='" + apiDescription + '\'' +
+                ", className='" + className + '\'' +
+                ", methodName='" + methodName + '\'' +
+                ", simpleParameter=" + Arrays.toString(simpleParameter) +
+                ", line=" + line +
+                '}';
     }
 }
