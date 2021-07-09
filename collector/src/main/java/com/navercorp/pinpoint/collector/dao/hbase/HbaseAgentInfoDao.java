@@ -20,12 +20,11 @@ import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
@@ -52,6 +51,8 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     private final TableDescriptor<HbaseColumnFamily.AgentInfo> descriptor;
 
+    private final AgentIdRowKeyEncoder rowKeyEncoder = new AgentIdRowKeyEncoder();
+
     public HbaseAgentInfoDao(HbaseOperations2 hbaseTemplate, TableDescriptor<HbaseColumnFamily.AgentInfo> descriptor, ResultsExtractor<AgentInfoBo> agentInfoResultsExtractor) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
@@ -72,9 +73,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         //check agentName if set
         CollectorUtils.checkAgentName(agentInfo.getAgentName());
 
-        final byte[] agentId = Bytes.toBytes(agentInfo.getAgentId());
-        final long reverseKey = TimeUtils.reverseTimeMillis(agentInfo.getStartTime());
-        final byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(agentId, HbaseTableConstants.AGENT_ID_MAX_LEN, reverseKey);
+        final byte[] rowKey = rowKeyEncoder.encodeRowKey(agentInfo.getAgentId(), agentInfo.getStartTime());
         final Put put = new Put(rowKey);
 
         // should add additional agent informations. for now added only starttime for sqlMetaData
@@ -105,10 +104,9 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     private Scan createScan(String agentId, long currentTime) {
         final Scan scan = new Scan();
-        final byte[] agentIdBytes = Bytes.toBytes(agentId);
-        final long startTime = TimeUtils.reverseTimeMillis(currentTime);
-        final byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_ID_MAX_LEN, startTime);
-        final byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_ID_MAX_LEN, Long.MAX_VALUE);
+
+        final byte[] startKeyBytes = rowKeyEncoder.encodeRowKey(agentId, currentTime);
+        final byte[] endKeyBytes = RowKeyUtils.agentIdAndTimestamp(agentId, Long.MAX_VALUE);
 
         scan.withStartRow(startKeyBytes);
         scan.withStopRow(endKeyBytes);

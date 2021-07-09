@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import java.util.Objects;
 
@@ -31,6 +31,10 @@ import static com.navercorp.pinpoint.common.util.BytesUtils.LONG_BYTE_LENGTH;
  */
 public final class RowKeyUtils {
     private RowKeyUtils() {
+    }
+
+    public static byte[] agentIdAndTimestamp(String agentId, long timestamp) {
+        return concatFixedByteAndLong(BytesUtils.toBytes(agentId), HbaseTableConstants.AGENT_ID_MAX_LEN, timestamp);
     }
 
     public static byte[] concatFixedByteAndLong(byte[] fixedBytes, int maxFixedLength, long l) {

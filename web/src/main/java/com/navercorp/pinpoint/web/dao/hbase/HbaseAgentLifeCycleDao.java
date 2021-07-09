@@ -24,9 +24,8 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
+import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 
@@ -35,7 +34,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
@@ -59,6 +57,8 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
     private final RowMapper<AgentLifeCycleBo> agentLifeCycleMapper;
 
     private final TableDescriptor<HbaseColumnFamily.AgentLifeCycleStatus> descriptor;
+
+    private final AgentIdRowKeyEncoder agentIdEncoder = new AgentIdRowKeyEncoder();
 
     public HbaseAgentLifeCycleDao(TableDescriptor<HbaseColumnFamily.AgentLifeCycleStatus> descriptor, HbaseOperations2 hbaseOperations2,
                                   @Qualifier("agentLifeCycleMapper")RowMapper<AgentLifeCycleBo> agentLifeCycleMapper) {
@@ -137,11 +137,8 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
     }
 
     private Scan createScan(String agentId, long fromTimestamp, long toTimestamp) {
-        byte[] agentIdBytes = Bytes.toBytes(agentId);
-        long reverseFromTimestamp = TimeUtils.reverseTimeMillis(fromTimestamp);
-        long reverseToTimestamp = TimeUtils.reverseTimeMillis(toTimestamp);
-        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_ID_MAX_LEN, reverseToTimestamp);
-        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstants.AGENT_ID_MAX_LEN, reverseFromTimestamp);
+        byte[] startKeyBytes = agentIdEncoder.encodeRowKey(agentId, toTimestamp);
+        byte[] endKeyBytes = agentIdEncoder.encodeRowKey(agentId, fromTimestamp);
 
         Scan scan = new Scan(startKeyBytes, endKeyBytes);
         scan.addColumn(descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_STATES);

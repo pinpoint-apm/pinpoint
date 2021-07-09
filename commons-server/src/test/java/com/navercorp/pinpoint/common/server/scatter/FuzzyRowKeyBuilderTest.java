@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.common.server.scatter;
 
-import com.navercorp.pinpoint.common.server.util.SpanUtils;
+import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.junit.Assert;
@@ -108,7 +108,8 @@ public class FuzzyRowKeyBuilderTest {
 
 
     private byte[] newRowKeyV2(byte fuzzyKey) {
-        final byte[] apps = SpanUtils.getApplicationTraceIndexRowKey("app", 100);
+        ApplicationNameRowKeyEncoder encoder = new ApplicationNameRowKeyEncoder();
+        final byte[] apps = encoder.encodeRowKey("app", 100);
         // salt + fuzzy
         int etcSize = 2;
         final byte[] copy = new byte[apps.length + etcSize];
