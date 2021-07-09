@@ -20,8 +20,6 @@ package com.navercorp.pinpoint.common.server.trace;
  * @author emeroad
  */
 public interface ApiDescription {
-    int LINE_NUMBER_NOT_EXIST = -1;
-
     String getClassName();
 
     String getSimpleClassName();

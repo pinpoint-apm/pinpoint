@@ -25,6 +25,9 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
+import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataEncoder;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
@@ -50,6 +53,8 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
+    private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder = new MetadataEncoder();
+
     public HbaseApiMetaDataDao(HbaseOperations2 hbaseTemplate,
                                TableDescriptor<HbaseColumnFamily.ApiMetadata> description,
                                @Qualifier("metadataRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
@@ -68,7 +73,7 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
         // Assert agentId
         CollectorUtils.checkAgentId(apiMetaData.getAgentId());
 
-        final byte[] rowKey = getDistributedKey(apiMetaData.toRowKey());
+        final byte[] rowKey = getDistributedKey(rowKeyEncoder.encodeRowKey(apiMetaData));
         final Put put = new Put(rowKey);
         final Buffer buffer = new AutomaticBuffer(64);
         final String api = apiMetaData.getApiInfo();

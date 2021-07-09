@@ -46,23 +46,4 @@ public final class RowKeyUtils {
     }
 
 
-    public static byte[] getMetaInfoRowKey(String agentId, long agentStartTime, int keyCode) {
-        Objects.requireNonNull(agentId, "agentId");
-
-        final byte[] agentBytes = BytesUtils.toBytes(agentId);
-        if (agentBytes.length > AGENT_ID_MAX_LEN) {
-            throw new IndexOutOfBoundsException("agent.length too big. agent:" + agentId + " length:" + agentId.length());
-        }
-
-        final byte[] buffer = new byte[AGENT_ID_MAX_LEN + LONG_BYTE_LENGTH + INT_BYTE_LENGTH];
-        BytesUtils.writeBytes(buffer, 0, agentBytes);
-
-        long reverseCurrentTimeMillis = TimeUtils.reverseTimeMillis(agentStartTime);
-        BytesUtils.writeLong(reverseCurrentTimeMillis, buffer, AGENT_ID_MAX_LEN);
-
-        BytesUtils.writeInt(keyCode, buffer, AGENT_ID_MAX_LEN + LONG_BYTE_LENGTH);
-        return buffer;
-    }
-
-
 }

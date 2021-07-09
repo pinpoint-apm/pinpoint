@@ -23,8 +23,8 @@ public class ApiMetaData {
 
     private final int apiId; // required
     private final String apiInfo; // required
-    private int line; // optional
-    private int type; // optional
+    private final int line; // optional
+    private final int type; // optional
 
     public ApiMetaData(int apiId, String apiInfo, int line, int type) {
         this.apiId = apiId;

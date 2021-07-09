@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.trace;
 
 
+import com.navercorp.pinpoint.common.util.LineNumber;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -40,7 +41,7 @@ public class ApiDescriptionParserTest {
 // com.mysql.jdbc.ConnectionImpl.commit()
 // org.apache.catalina.core.StandardHostValve.invoke(org.apache.catalina.connector.Request request, org.apache.catalina.connector.Response response):110
         String api = "a.StandardHostValve.invoke(b.Request request, b.Response response)";
-        ApiDescription result = apiParser.parse(api, -1);
+        ApiDescription result = apiParser.parse(api, LineNumber.NO_LINE_NUMBER);
 
         Assert.assertEquals("a.StandardHostValve", result.getClassName());
         Assert.assertEquals("StandardHostValve", result.getSimpleClassName());
@@ -56,7 +57,7 @@ public class ApiDescriptionParserTest {
     @Test
     public void parseNoArgs() {
         String api = "a.StandardHostValve.invoke()";
-        ApiDescription result = apiParser.parse(api, -1);
+        ApiDescription result = apiParser.parse(api, LineNumber.NO_LINE_NUMBER);
 
         Assert.assertEquals("a.StandardHostValve", result.getClassName());
         Assert.assertEquals("StandardHostValve", result.getSimpleClassName());
@@ -74,7 +75,7 @@ public class ApiDescriptionParserTest {
     public void parseNoPackage() {
 
         String api = "StandardHostValve.invoke(Request request, Response response)";
-        ApiDescription result = apiParser.parse(api, -1);
+        ApiDescription result = apiParser.parse(api, LineNumber.NO_LINE_NUMBER);
 
         Assert.assertEquals("StandardHostValve", result.getClassName());
         Assert.assertEquals("StandardHostValve", result.getSimpleClassName());
@@ -102,7 +103,7 @@ public class ApiDescriptionParserTest {
     @Test
     public void parseNoClass() {
         String api = "function()";
-        ApiDescription result = apiParser.parse(api, -1);
+        ApiDescription result = apiParser.parse(api, LineNumber.NO_LINE_NUMBER);
 
         Assert.assertEquals("", result.getClassName());
         Assert.assertEquals("", result.getSimpleClassName());
@@ -118,7 +119,7 @@ public class ApiDescriptionParserTest {
     @Test
     public void parseNoClass_classskip_trick() {
         String api = ".function()";
-        ApiDescription result = apiParser.parse(api, -1);
+        ApiDescription result = apiParser.parse(api, LineNumber.NO_LINE_NUMBER);
 
         Assert.assertEquals("", result.getClassName());
         Assert.assertEquals("", result.getSimpleClassName());
@@ -135,7 +136,7 @@ public class ApiDescriptionParserTest {
     @Test
     public void parse_noParameterTYpe() {
         String api = "express.app.get(path, callback)";
-        ApiDescription result = apiParser.parse(api, -1);
+        ApiDescription result = apiParser.parse(api, LineNumber.NO_LINE_NUMBER);
 
         Assert.assertEquals("express.app", result.getClassName());
         Assert.assertEquals("app", result.getSimpleClassName());
