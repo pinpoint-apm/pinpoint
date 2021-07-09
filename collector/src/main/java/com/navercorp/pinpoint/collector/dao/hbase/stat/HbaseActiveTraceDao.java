@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ActiveTraceSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -72,5 +73,10 @@ public class HbaseActiveTraceDao implements AgentStatDaoV2<ActiveTraceBo> {
             TableName agentStatTableName = tableNameProvider.getTableName(HbaseTable.AGENT_STAT_VER2);
             this.hbaseTemplate.asyncPut(agentStatTableName, activeTracePuts);
         }
+    }
+
+    @Override
+    public void dispatch(AgentStatBo agentStatBo) {
+        insert(agentStatBo.getAgentId(), agentStatBo.getActiveTraceBos());
     }
 }

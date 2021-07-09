@@ -142,8 +142,8 @@ public class GrpcAgentUriStatHandlerV2Test {
     private GrpcAgentStatHandlerV2 createMockHandler(AgentUriStatService agentUriStatService, boolean enableUriStat) {
         GrpcAgentStatMapper mockAgentStatMapper = Mockito.mock(GrpcAgentStatMapper.class);
         GrpcAgentStatBatchMapper agentStatBatchMapper = new GrpcAgentStatBatchMapper(mockAgentStatMapper);
-        List<AgentStatService> agentStatServiceList = new ArrayList<>();
-        Optional<List<AgentStatService>> agentStatServices = Optional.of(agentStatServiceList);
+
+        AgentStatService[] agentStatServices = new AgentStatService[0];
 
         CollectorConfiguration collectorConfiguration = Mockito.mock(CollectorConfiguration.class);
         Mockito.when(collectorConfiguration.isUriStatEnable()).thenReturn(enableUriStat);

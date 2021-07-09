@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.LoadedClassSerializer;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
@@ -66,5 +67,10 @@ public class HBaseLoadedClassDao implements AgentStatDaoV2<LoadedClassBo> {
             TableName agentStatTableName = tableNameProvider.getTableName(HbaseTable.AGENT_STAT_VER2);
             this.hbaseTemplate.asyncPut(agentStatTableName, loadedClassPuts);
         }
+    }
+
+    @Override
+    public void dispatch(AgentStatBo agentStatBo) {
+        this.insert(agentStatBo.getAgentId(), agentStatBo.getLoadedClassBos());
     }
 }
