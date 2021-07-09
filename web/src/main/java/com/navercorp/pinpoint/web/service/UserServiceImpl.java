@@ -134,7 +134,10 @@ public class UserServiceImpl implements UserService {
     public String getUserIdFromSecurity() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
-            return (String)authentication.getPrincipal();
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof String) {
+                return (String)authentication.getPrincipal();
+            }
         }
 
         return EMPTY;
