@@ -23,6 +23,9 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
+import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataEncoder;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
@@ -48,6 +51,8 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
+    private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder = new MetadataEncoder();
+
     public HbaseSqlMetaDataDao(HbaseOperations2 hbaseTemplate,
                                TableDescriptor<HbaseColumnFamily.SqlMetadataV2> descriptor,
                                @Qualifier("metadataRowKeyDistributor2") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
@@ -66,7 +71,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
         // Assert agentId
         CollectorUtils.checkAgentId(sqlMetaData.getAgentId());
 
-        final byte[] rowKey = getDistributedKey(sqlMetaData.toRowKey());
+        final byte[] rowKey = getDistributedKey(rowKeyEncoder.encodeRowKey(sqlMetaData));
         final Put put = new Put(rowKey);
         final String sql = sqlMetaData.getSql();
         final byte[] sqlBytes = Bytes.toBytes(sql);
@@ -75,6 +80,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
         final TableName sqlMetaDataTableName = descriptor.getTableName();
         hbaseTemplate.put(sqlMetaDataTableName, put);
     }
+
 
     private byte[] getDistributedKey(byte[] rowKey) {
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);

@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
 import com.navercorp.pinpoint.common.profiler.sql.OutputParameterParser;
 import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
+import com.navercorp.pinpoint.common.util.LineNumber;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
@@ -345,10 +346,8 @@ public class SpanServiceImpl implements SpanService {
                     String apiString = AnnotationUtils.findApiAnnotation(annotationBoList);
                     // annotation base api
                     if (apiString != null) {
-                        ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(align.getAgentId(), align.getStartTime(), apiId);
-                        apiMetaDataBo.setApiInfo(apiString);
-                        apiMetaDataBo.setLineNumber(-1);
-                        apiMetaDataBo.setMethodTypeEnum(MethodTypeEnum.DEFAULT);
+                        ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(align.getAgentId(), align.getStartTime(), apiId,
+                                LineNumber.NO_LINE_NUMBER, MethodTypeEnum.DEFAULT, apiString);
 
                         AnnotationBo apiAnnotation = new AnnotationBo(AnnotationKey.API_METADATA.getCode(), apiMetaDataBo);
                         annotationBoList.add(apiAnnotation);
@@ -447,9 +446,7 @@ public class SpanServiceImpl implements SpanService {
         final List<StringMetaDataBo> metaDataList = stringMetaDataDao.getStringMetaData(agentId, agentStartTime, cacheId);
         if (CollectionUtils.isEmpty(metaDataList)) {
             logger.warn("StringMetaData not Found agent:{}, cacheId{}, agentStartTime:{}", agentId, cacheId, agentStartTime);
-            StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(agentId, agentStartTime, cacheId);
-            stringMetaDataBo.setStringValue("STRING-META-DATA-NOT-FOUND");
-            return stringMetaDataBo;
+            return new StringMetaDataBo(agentId, agentStartTime, cacheId, "STRING-META-DATA-NOT-FOUND");
         }
         if (metaDataList.size() == 1) {
             return metaDataList.get(0);
@@ -476,7 +473,7 @@ public class SpanServiceImpl implements SpanService {
     }
 
     private String getApiInfo(ApiMetaDataBo apiMetaDataBo) {
-        if (apiMetaDataBo.getLineNumber() != -1) {
+        if (LineNumber.isLineNumber(apiMetaDataBo.getLineNumber())) {
             return apiMetaDataBo.getApiInfo() + ":" + apiMetaDataBo.getLineNumber();
         } else {
             return apiMetaDataBo.getApiInfo();

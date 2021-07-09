@@ -61,8 +61,9 @@ public class ThriftSqlMetaDataHandler implements RequestResponseHandler<TBase<?,
 
     private TResult handleSqlMetaData(TSqlMetaData sqlMetaData) {
         try {
-            final SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(sqlMetaData.getAgentId(), sqlMetaData.getAgentStartTime(), sqlMetaData.getSqlId());
-            sqlMetaDataBo.setSql(sqlMetaData.getSql());
+            final SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(sqlMetaData.getAgentId(), sqlMetaData.getAgentStartTime(),
+                    sqlMetaData.getSqlId(), sqlMetaData.getSql());
+
             sqlMetaDataService.insert(sqlMetaDataBo);
         } catch (Exception e) {
             logger.warn("Failed to handle SqlMetaData={}, Caused:{}", sqlMetaData, e.getMessage(), e);

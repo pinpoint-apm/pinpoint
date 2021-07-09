@@ -16,85 +16,46 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
 
 import java.util.Objects;
 
 /**
  * @author emeroad
  */
-public class StringMetaDataBo {
-    private String agentId;
-    private long startTime;
+public class StringMetaDataBo implements MetaDataRowKey {
+    private final String agentId;
+    private final long startTime;
 
-    private int stringId;
+    private final int stringId;
+    private final String stringValue;
 
-    private String stringValue;
-
-    public StringMetaDataBo() {
-    }
-
-
-    public StringMetaDataBo(String agentId, long startTime, int stringId) {
+    public StringMetaDataBo(String agentId, long startTime, int stringId, String stringValue) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.stringId = stringId;
         this.startTime = startTime;
+        this.stringValue = stringValue;
     }
 
+    @Override
     public String getAgentId() {
         return agentId;
     }
 
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-
-    public int getStringId() {
-        return stringId;
-    }
-
-    public void setStringId(int stringId) {
-        this.stringId = stringId;
-    }
-
-    public long getStartTime() {
+    @Override
+    public long getAgentStartTime() {
         return startTime;
     }
 
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
+    @Override
+    public int getId() {
+        return stringId;
     }
 
     public String getStringValue() {
         return stringValue;
     }
 
-    public void setStringValue(String stringValue) {
-        this.stringValue = stringValue;
-    }
-
-    public void readRowKey(byte[] rowKey) {
-        this.agentId = BytesUtils.safeTrim(BytesUtils.toString(rowKey, 0, PinpointConstants.AGENT_ID_MAX_LEN));
-        this.startTime = TimeUtils.recoveryTimeMillis(readTime(rowKey));
-        this.stringId = readKeyCode(rowKey);
-    }
-
-
-    private static long readTime(byte[] rowKey) {
-        return BytesUtils.bytesToLong(rowKey, PinpointConstants.AGENT_ID_MAX_LEN);
-    }
-
-    private static int readKeyCode(byte[] rowKey) {
-        return BytesUtils.bytesToInt(rowKey, PinpointConstants.AGENT_ID_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH);
-    }
-
-    public byte[] toRowKey() {
-        return RowKeyUtils.getMetaInfoRowKey(this.agentId, this.startTime, this.stringId);
-    }
 
     @Override
     public String toString() {

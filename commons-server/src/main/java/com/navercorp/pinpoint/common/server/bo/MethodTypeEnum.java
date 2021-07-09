@@ -59,4 +59,12 @@ public enum MethodTypeEnum {
         }
         return methodTypeEnum;
     }
+
+    public static MethodTypeEnum defaultValueOf(int code) {
+        final MethodTypeEnum methodTypeEnum = METHOD_TYPE_MAP.get(code);
+        if (methodTypeEnum == null) {
+            return DEFAULT;
+        }
+        return methodTypeEnum;
+    }
 }

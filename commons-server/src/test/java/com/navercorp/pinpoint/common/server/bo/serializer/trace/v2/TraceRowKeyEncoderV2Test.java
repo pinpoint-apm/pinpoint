@@ -48,7 +48,7 @@ public class TraceRowKeyEncoderV2Test {
     private RowKeyDecoder<TransactionId> traceRowKeyDecoder = new TraceRowKeyDecoderV2();
 
     @Test
-    public void encodeRowKey() throws Exception {
+    public void encodeRowKey() {
 
         TransactionId spanTransactionId = new TransactionId("traceAgentId", System.currentTimeMillis(), RandomUtils.nextLong(0, 10000));
 
