@@ -16,7 +16,8 @@
     cursor: pointer;
     padding: 6px 12px;
     background-color: var(--background-default);
-    border: 1px solid var(--border-primary) !important;
+    border: 1px solid;
+    border-color: var(--border-primary) !important;
     border-radius: 0px;
     font-size: 13px;
     color: var(--text-primary-lightest);

@@ -111,8 +111,9 @@ form {
     margin-bottom: 4px;
 }
 
-.ng-valid[required]  {
-    border-left: 5px solid var(--status-success) !important; 
+.ng-valid[required] {
+    border-left: 5px solid; 
+    border-color: var(--status-success) !important; 
 }
 
 .ng-valid[required]:focus {
@@ -120,9 +121,9 @@ form {
     box-shadow: 0 0 1px 0px var(--status-success);
 }
 
-.ng-invalid:not(form).ng-touched  {
-    border-left: 5px solid var(--form-require) !important;
-    border-color: var(--form-require);
+.ng-invalid:not(form).ng-touched {
+    border-left: 5px solid;
+    border-color: var(--form-require) !important;
 }
 
 .ng-invalid:not(form).ng-touched:focus {

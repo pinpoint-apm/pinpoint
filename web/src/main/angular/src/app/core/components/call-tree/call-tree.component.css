@@ -33,7 +33,7 @@
 }
 
 ::ng-deep #call-tree-table .ag-header-cell {
-    color: var(--text-primary)  !important;
+    color: var(--text-primary) !important;
     background-color: var(--background-default);
     font-weight: bold;
 }

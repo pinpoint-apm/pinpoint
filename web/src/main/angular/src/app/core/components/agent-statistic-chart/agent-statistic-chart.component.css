@@ -9,3 +9,46 @@
     width: 100%;
     height: 100%;
 }
+
+::ng-deep #callTree .ag-root,
+::ng-deep #callTree .ag-header {
+    border-color: var(--border-primary-darker);
+}
+
+::ng-deep #callTree .ag-row {
+    color: var(--text-primary-lighter);
+    background-color: var(--background-primary);
+    border-color: var(--border-primary);
+}
+
+::ng-deep #callTree .ag-row-even {
+    background-color: var(--background-default);
+}
+
+::ng-deep #callTree .ag-body {
+    background-color: var(--background-default);
+}
+
+::ng-deep #callTree .ag-header-cell {
+    color: var(--text-primary) !important;
+    background-color: var(--background-default);
+    border-color: var(--border-primary-darker);
+    font-weight: bold;
+}
+::ng-deep #callTree .ag-header-viewport,
+::ng-deep #callTree .ag-body-viewport {
+    background-color: var(--background-default);
+}
+
+::ng-deep #callTree .ag-filter {
+    background-color: var(--background-layer);
+}
+
+::ng-deep #callTree .ag-filter .ag-filter-select {
+    color: var(--text-primary);
+}
+
+::ng-deep #callTree .ag-filter .ag-filter-body,
+::ng-deep #callTree .ag-filter .ag-filter-condition {
+    color: var(--text-secondary);
+}

@@ -6,6 +6,7 @@
 #thread-dump-table .ag-root {
     font-size: 12px;    
     font-family: 'Open Sans', sans-serif;
+    border-color: var(--border-primary-darker);
 }
 #thread-dump-table .ag-cell {
     padding: 4px;
@@ -31,6 +32,7 @@
     line-height: 2;
 }
 #thread-dump-table .ag-header-cell {
+    color: var(--text-primary) !important;
     font-size: 12px;
     font-weight: 600;
     font-family: 'Open Sans', sans-serif;
@@ -52,7 +54,15 @@
 }
 #thread-dump-table .ag-row {
     line-height: 2;
+    color: var(--text-primary-lightest);
+    background-color: var(--background-primary);
+    border-color: var(--border-primary);
 }
+
+#thread-dump-table .ag-row-even {
+    background-color: var(--background-default);
+}
+
 #thread-dump-table .ag-body {
     background-color: var(--background-default);
 }
@@ -75,4 +85,7 @@
 #thread-dump-table .order-header .ag-header-cell-label,
 #thread-dump-table .id-header .ag-header-cell-label {
     justify-content: center !important;
+}
+#thread-dump-table .ag-overlay {
+    color: var(--text-default);
 }
