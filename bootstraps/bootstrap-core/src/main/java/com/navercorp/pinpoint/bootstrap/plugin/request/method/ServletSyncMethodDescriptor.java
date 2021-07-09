@@ -18,13 +18,13 @@ package com.navercorp.pinpoint.bootstrap.plugin.request.method;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.MethodType;
+import com.navercorp.pinpoint.common.util.LineNumber;
 
 /**
  * @author jaehong.kim
  */
 public class ServletSyncMethodDescriptor implements MethodDescriptor {
     private int apiId = 0;
-    private int type = MethodType.WEB_REQUEST;
 
     @Override
     public String getMethodName() {
@@ -53,7 +53,7 @@ public class ServletSyncMethodDescriptor implements MethodDescriptor {
 
     @Override
     public int getLineNumber() {
-        return -1;
+        return LineNumber.NO_LINE_NUMBER;
     }
 
     @Override
@@ -77,10 +77,7 @@ public class ServletSyncMethodDescriptor implements MethodDescriptor {
     }
 
     public int getType() {
-        return type;
+        return MethodType.WEB_REQUEST;
     }
 
-    public void setType(int type) {
-        this.type = type;
-    }
 }

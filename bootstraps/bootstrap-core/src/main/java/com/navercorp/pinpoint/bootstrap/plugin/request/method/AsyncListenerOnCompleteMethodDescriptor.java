@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.plugin.request.method;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.common.trace.MethodType;
+import com.navercorp.pinpoint.common.util.LineNumber;
 
 /**
  * @author jaehong.kim
@@ -52,7 +54,7 @@ public class AsyncListenerOnCompleteMethodDescriptor implements MethodDescriptor
 
     @Override
     public int getLineNumber() {
-        return 0;
+        return LineNumber.NO_LINE_NUMBER;
     }
 
     @Override
@@ -77,6 +79,6 @@ public class AsyncListenerOnCompleteMethodDescriptor implements MethodDescriptor
 
     @Override
     public int getType() {
-        return 0;
+        return MethodType.DEFAULT;
     }
 }
