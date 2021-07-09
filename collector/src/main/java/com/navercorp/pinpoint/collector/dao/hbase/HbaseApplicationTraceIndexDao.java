@@ -26,13 +26,12 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyFactory;
 import com.navercorp.pinpoint.common.server.scatter.OneByteFuzzyRowKeyFactory;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.SpanUtils;
 
-import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
@@ -43,8 +42,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
 
-import static com.navercorp.pinpoint.common.PinpointConstants.APPLICATION_NAME_MAX_LEN;
-import static com.navercorp.pinpoint.common.util.BytesUtils.LONG_BYTE_LENGTH;
 
 /**
  * find traceids by application name
@@ -67,6 +64,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final FuzzyRowKeyFactory<Byte> fuzzyRowKeyFactory = new OneByteFuzzyRowKeyFactory();
     private final ScatterConfiguration scatterConfiguration;
+
+    private final ApplicationNameRowKeyEncoder rowKeyEncoder = new ApplicationNameRowKeyEncoder();
 
     public HbaseApplicationTraceIndexDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate,
                                          TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor,
@@ -124,32 +123,30 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private byte[] createRowKeyV1(SpanBo span, long acceptedTime) {
         // distribute key evenly
-        final byte[] applicationTraceIndexRowKey = SpanUtils.getApplicationTraceIndexRowKey(span.getApplicationId(), acceptedTime);
+        final byte[] applicationTraceIndexRowKey = rowKeyEncoder.encodeRowKey(span.getApplicationId(), acceptedTime);
         return rowKeyDistributor.getDistributedKey(applicationTraceIndexRowKey);
     }
 
 
     private byte[] createRowKeyV2(SpanBo span, long acceptedTime) {
         // distribute key evenly
-        final byte[] bApplicationName = BytesUtils.toBytes(span.getApplicationId());
         byte fuzzyKey = fuzzyRowKeyFactory.getKey(span.getElapsed());
-        final byte[] applicationTraceIndexRowKey = newRowKeyV2(bApplicationName, APPLICATION_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(acceptedTime), fuzzyKey);
-        return rowKeyDistributor.getDistributedKey(applicationTraceIndexRowKey);
+        final byte[] appTraceIndexRowKey = newRowKeyV2(span.getApplicationId(), acceptedTime, fuzzyKey);
+        return rowKeyDistributor.getDistributedKey(appTraceIndexRowKey);
     }
 
-    byte[] newRowKeyV2(byte[] fixedBytes, int maxFixedLength, long l, byte fuzzySlotKey) {
-        Objects.requireNonNull(fixedBytes, "fixedBytes");
-        if (fixedBytes.length > maxFixedLength) {
-            throw new IndexOutOfBoundsException("fixedBytes.length too big. length:" + fixedBytes.length);
-        }
+    byte[] newRowKeyV2(String applicationName, long acceptedTime, byte fuzzySlotKey) {
+        Objects.requireNonNull(applicationName, "applicationName");
+
         if (logger.isDebugEnabled()) {
             logger.debug("fuzzySlotKey:{}", fuzzySlotKey);
         }
-        int fuzzySlotSize = 1;
-        byte[] rowKey = new byte[maxFixedLength + LONG_BYTE_LENGTH + fuzzySlotSize];
-        BytesUtils.writeBytes(rowKey, 0, fixedBytes);
-        BytesUtils.writeLong(l, rowKey, maxFixedLength);
-        rowKey[rowKey.length -1] = fuzzySlotKey;
-        return rowKey;
+        byte[] rowKey = rowKeyEncoder.encodeRowKey(applicationName, acceptedTime);
+
+        byte[] fuzzyRowKey = new byte[rowKey.length + 1];
+        System.arraycopy(rowKey, 0, fuzzyRowKey, 0, rowKey.length);
+
+        fuzzyRowKey[rowKey.length] = fuzzySlotKey;
+        return fuzzyRowKey;
     }
 }

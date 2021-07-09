@@ -34,19 +34,6 @@ public final class SpanUtils {
     private SpanUtils() {
     }
 
-    public static byte[] getApplicationTraceIndexRowKey(String applicationName, long timestamp) {
-        Objects.requireNonNull(applicationName, applicationName);
-
-        final byte[] bApplicationName = BytesUtils.toBytes(applicationName);
-        return RowKeyUtils.concatFixedByteAndLong(bApplicationName, APPLICATION_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(timestamp));
-    }
-
-    public static byte[] getApplicationTraceIndexRowKey(byte[] applicationName, long timestamp) {
-        Objects.requireNonNull(applicationName, "applicationName");
-
-        return RowKeyUtils.concatFixedByteAndLong(applicationName, APPLICATION_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(timestamp));
-    }
-
     public static byte[] getVarTransactionId(SpanBo span) {
         Objects.requireNonNull(span, "span");
 

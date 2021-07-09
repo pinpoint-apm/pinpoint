@@ -23,11 +23,9 @@ import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
-import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
-import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
 import com.navercorp.pinpoint.web.vo.Range;
 
@@ -64,6 +62,8 @@ public class HbaseAgentEventDao implements AgentEventDao {
     private final ResultsExtractor<List<AgentEventBo>> agentEventResultsExtractor;
 
     private final TableDescriptor<HbaseColumnFamily.AgentEvent> descriptor;
+
+    private final AgentIdRowKeyEncoder rowKeyEncoder = new AgentIdRowKeyEncoder();
 
     public HbaseAgentEventDao(HbaseOperations2 hbaseOperations2, TableDescriptor<HbaseColumnFamily.AgentEvent> descriptor,
                               @Qualifier("agentEventMapper") RowMapper<List<AgentEventBo>> agentEventMapper,
@@ -123,9 +123,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
     }
 
     private byte[] createRowKey(String agentId, long timestamp) {
-        byte[] agentIdKey = BytesUtils.toBytes(agentId);
-        long reverseTimestamp = TimeUtils.reverseTimeMillis(timestamp);
-        return RowKeyUtils.concatFixedByteAndLong(agentIdKey, HbaseTableConstants.AGENT_ID_MAX_LEN, reverseTimestamp);
+        return rowKeyEncoder.encodeRowKey(agentId, timestamp);
     }
 
 

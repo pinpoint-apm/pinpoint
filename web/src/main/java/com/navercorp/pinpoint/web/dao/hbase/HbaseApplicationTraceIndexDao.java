@@ -23,9 +23,9 @@ import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyBuilder;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
-import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.config.ScatterChartConfig;
@@ -46,7 +46,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -82,6 +81,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     private final AbstractRowKeyDistributor traceIdRowKeyDistributor;
 
     private int scanCacheSize = 256;
+
+    private final ApplicationNameRowKeyEncoder rowKeyEncoder = new ApplicationNameRowKeyEncoder();
 
     public HbaseApplicationTraceIndexDao(ScatterChartConfig scatterChartConfig,
                                          HbaseOperations2 hbaseOperations2,
@@ -184,9 +185,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         Scan scan = new Scan();
         scan.setCaching(this.scanCacheSize);
 
-        byte[] bApplicationName = Bytes.toBytes(applicationName);
-        byte[] traceIndexStartKey = SpanUtils.getApplicationTraceIndexRowKey(bApplicationName, range.getFrom());
-        byte[] traceIndexEndKey = SpanUtils.getApplicationTraceIndexRowKey(bApplicationName, range.getTo());
+        byte[] traceIndexStartKey = rowKeyEncoder.encodeRowKey(applicationName, range.getFrom());
+        byte[] traceIndexEndKey = rowKeyEncoder.encodeRowKey(applicationName, range.getTo());
 
         if (scanBackward) {
             // start key is replaced by end key because key has been reversed
