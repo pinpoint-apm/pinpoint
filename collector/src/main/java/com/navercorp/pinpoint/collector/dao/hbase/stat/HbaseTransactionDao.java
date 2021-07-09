@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.TransactionSerializer;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 
@@ -68,5 +69,10 @@ public class HbaseTransactionDao implements AgentStatDaoV2<TransactionBo> {
             TableName agentStatTableName = tableNameProvider.getTableName(HbaseTable.AGENT_STAT_VER2);
             this.hbaseTemplate.asyncPut(agentStatTableName, transactionPuts);
         }
+    }
+
+    @Override
+    public void dispatch(AgentStatBo agentStatBo) {
+        insert(agentStatBo.getAgentId(), agentStatBo.getTransactionBos());
     }
 }

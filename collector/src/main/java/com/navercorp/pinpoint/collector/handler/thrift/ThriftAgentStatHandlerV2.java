@@ -29,10 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author emeroad
@@ -46,14 +43,18 @@ public class ThriftAgentStatHandlerV2 implements SimpleHandler<TBase<?, ?>> {
 
     private final ThriftAgentStatBatchMapper agentStatBatchMapper;
 
-    private final List<AgentStatService> agentStatServiceList;
+    private final AgentStatService[] agentStatServiceList;
 
     public ThriftAgentStatHandlerV2(ThriftAgentStatMapper agentStatMapper,
                                     ThriftAgentStatBatchMapper agentStatBatchMapper,
-                                    Optional<List<AgentStatService>> agentStatServiceList) {
+                                    AgentStatService[] agentStatServiceList) {
         this.agentStatMapper = Objects.requireNonNull(agentStatMapper, "agentStatMapper");
         this.agentStatBatchMapper = Objects.requireNonNull(agentStatBatchMapper, "agentStatBatchMapper");
-        this.agentStatServiceList = Objects.requireNonNull(agentStatServiceList, "agentStatServiceList").orElseGet(Collections::emptyList);
+
+        this.agentStatServiceList = Objects.requireNonNull(agentStatServiceList, "agentStatServiceList");
+        for (AgentStatService agentStatService : this.agentStatServiceList) {
+            logger.info("AgentStatService:{}", agentStatService.getClass().getSimpleName());
+        }
     }
 
     @Override

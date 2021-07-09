@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.FileDescriptorSerializer;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 
@@ -69,5 +70,10 @@ public class HbaseFileDescriptorDao implements AgentStatDaoV2<FileDescriptorBo> 
             TableName agentStatTableName = tableNameProvider.getTableName(HbaseTable.AGENT_STAT_VER2);
             this.hbaseTemplate.asyncPut(agentStatTableName, fileDescriptorPuts);
         }
+    }
+
+    @Override
+    public void dispatch(AgentStatBo agentStatBo) {
+        insert(agentStatBo.getAgentId(), agentStatBo.getFileDescriptorBos());
     }
 }

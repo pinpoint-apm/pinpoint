@@ -31,7 +31,6 @@ import org.mockito.Spy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
@@ -92,10 +91,11 @@ public class ThriftAgentStatHandlerV2Test {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        hBaseAgentStatService = new HBaseAgentStatService(jvmGcDao, jvmGcDetailedDao, cpuLoadDao, transactionDao,
-                activeTraceDao, dataSourceDao, responseTimeDao, deadlockDao, fileDescriptorDao, directBufferDao, totalThreadCountDao, loadedClassDao);
+        hBaseAgentStatService = new HBaseAgentStatService(new AgentStatDaoV2[] {jvmGcDao, jvmGcDetailedDao, cpuLoadDao, transactionDao,
+                activeTraceDao, dataSourceDao, responseTimeDao, deadlockDao, fileDescriptorDao,
+                directBufferDao, totalThreadCountDao, loadedClassDao});
         agentStatServiceList.add(hBaseAgentStatService);
-        thriftAgentStatHandlerV2 = new ThriftAgentStatHandlerV2(agentStatMapper, agentStatBatchMapper, Optional.of(agentStatServiceList));
+        thriftAgentStatHandlerV2 = new ThriftAgentStatHandlerV2(agentStatMapper, agentStatBatchMapper, agentStatServiceList.toArray(new AgentStatService[0]));
     }
 
     @Test
@@ -109,18 +109,18 @@ public class ThriftAgentStatHandlerV2Test {
         // When
         thriftAgentStatHandlerV2.handleSimple(agentStat);
         // Then
-        verify(jvmGcDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getJvmGcBos());
-        verify(jvmGcDetailedDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getJvmGcDetailedBos());
-        verify(cpuLoadDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getCpuLoadBos());
-        verify(transactionDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getTransactionBos());
-        verify(activeTraceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getActiveTraceBos());
-        verify(dataSourceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDataSourceListBos());
-        verify(responseTimeDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getResponseTimeBos());
-        verify(deadlockDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDeadlockThreadCountBos());
-        verify(fileDescriptorDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getFileDescriptorBos());
-        verify(directBufferDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDirectBufferBos());
-        verify(totalThreadCountDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getTotalThreadCountBos());
-        verify(loadedClassDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getLoadedClassBos());
+        verify(jvmGcDao).dispatch(mappedAgentStat);
+        verify(jvmGcDetailedDao).dispatch(mappedAgentStat);
+        verify(cpuLoadDao).dispatch(mappedAgentStat);
+        verify(transactionDao).dispatch(mappedAgentStat);
+        verify(activeTraceDao).dispatch(mappedAgentStat);
+        verify(dataSourceDao).dispatch(mappedAgentStat);
+        verify(responseTimeDao).dispatch(mappedAgentStat);
+        verify(deadlockDao).dispatch(mappedAgentStat);
+        verify(fileDescriptorDao).dispatch(mappedAgentStat);
+        verify(directBufferDao).dispatch(mappedAgentStat);
+        verify(totalThreadCountDao).dispatch(mappedAgentStat);
+        verify(loadedClassDao).dispatch(mappedAgentStat);
     }
 
     @Test
@@ -135,18 +135,18 @@ public class ThriftAgentStatHandlerV2Test {
         // When
         thriftAgentStatHandlerV2.handleSimple(agentStatBatch);
         // Then
-        verify(jvmGcDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getJvmGcBos());
-        verify(jvmGcDetailedDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getJvmGcDetailedBos());
-        verify(cpuLoadDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getCpuLoadBos());
-        verify(transactionDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getTransactionBos());
-        verify(activeTraceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getActiveTraceBos());
-        verify(dataSourceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDataSourceListBos());
-        verify(responseTimeDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getResponseTimeBos());
-        verify(deadlockDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDeadlockThreadCountBos());
-        verify(fileDescriptorDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getFileDescriptorBos());
-        verify(directBufferDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDirectBufferBos());
-        verify(totalThreadCountDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getTotalThreadCountBos());
-        verify(loadedClassDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getLoadedClassBos());
+        verify(jvmGcDao).dispatch(mappedAgentStat);
+        verify(jvmGcDetailedDao).dispatch(mappedAgentStat);
+        verify(cpuLoadDao).dispatch(mappedAgentStat);
+        verify(transactionDao).dispatch(mappedAgentStat);
+        verify(activeTraceDao).dispatch(mappedAgentStat);
+        verify(dataSourceDao).dispatch(mappedAgentStat);
+        verify(responseTimeDao).dispatch(mappedAgentStat);
+        verify(deadlockDao).dispatch(mappedAgentStat);
+        verify(fileDescriptorDao).dispatch(mappedAgentStat);
+        verify(directBufferDao).dispatch(mappedAgentStat);
+        verify(totalThreadCountDao).dispatch(mappedAgentStat);
+        verify(loadedClassDao).dispatch(mappedAgentStat);
     }
 
     @Test

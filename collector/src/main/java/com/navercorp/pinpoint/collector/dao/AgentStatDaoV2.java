@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.dao;
 
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 
 import java.util.List;
@@ -25,4 +26,6 @@ import java.util.List;
  */
 public interface AgentStatDaoV2<T extends AgentStatDataPoint> {
     void insert(String agentId, List<T> agentStatDataPoints);
+
+    void dispatch(AgentStatBo agentStatBo);
 }
