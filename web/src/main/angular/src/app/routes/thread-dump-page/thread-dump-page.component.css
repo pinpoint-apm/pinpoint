@@ -11,6 +11,7 @@
 }
 .l-main-container {
     display: flex;
+    background-color: var(--background-default);
     flex-flow: column nowrap;
     padding-top: 20px;
     overflow-y: hidden;

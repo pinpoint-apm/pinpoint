@@ -52,3 +52,7 @@
 ::ng-deep .mat-select-arrow {
     border-top-color: var(--text-primary-lighter) !important;
 }
+
+::ng-deep .mat-form-field-underline {
+    background-color: var(--text-primary-lightest) !important;
+}
