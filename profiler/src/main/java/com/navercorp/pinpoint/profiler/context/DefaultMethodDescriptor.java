@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.common.trace.MethodType;
 import com.navercorp.pinpoint.profiler.util.ApiUtils;
 
 import java.util.Arrays;
@@ -25,63 +26,42 @@ import java.util.Arrays;
  * @author emeroad
  */
 public class DefaultMethodDescriptor implements MethodDescriptor {
-    private String className;
+    private final String className;
 
-    private String methodName;
+    private final String methodName;
 
-    private String[] parameterTypes;
+    private final String[] parameterTypes;
 
-    private String[] parameterVariableName;
+    private final String[] parameterVariableName;
 
 
-    private String parameterDescriptor;
+    private final String parameterDescriptor;
 
-    private String apiDescriptor;
+    private final String apiDescriptor;
 
-    private int lineNumber;
+    private final int lineNumber;
 
     private int apiId = 0;
 
     private String fullName;
-    
-    private int type = 0;
 
-    public DefaultMethodDescriptor() {
-    }
+    private final int type = MethodType.DEFAULT;
 
-    public DefaultMethodDescriptor(String className, String methodName, String[] parameterTypes, String[] parameterVariableName) {
+
+    public DefaultMethodDescriptor(String className, String methodName, String[] parameterTypes, String[] parameterVariableName, int lineNumber) {
         this.className = className;
         this.methodName = methodName;
         this.parameterTypes = parameterTypes;
         this.parameterVariableName = parameterVariableName;
         this.parameterDescriptor = ApiUtils.mergeParameterVariableNameDescription(parameterTypes, parameterVariableName);
         this.apiDescriptor = ApiUtils.mergeApiDescriptor(className, methodName, parameterDescriptor);
+        this.lineNumber = lineNumber;
     }
 
     public String getParameterDescriptor() {
         return parameterDescriptor;
     }
 
-    public void setParameterDescriptor(String parameterDescriptor) {
-        this.parameterDescriptor = parameterDescriptor;
-    }
-
-
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
-    }
-
-    public void setParameterTypes(String[] parameterTypes) {
-        this.parameterTypes = parameterTypes;
-    }
-
-    public void setParameterVariableName(String[] parameterVariableName) {
-        this.parameterVariableName = parameterVariableName;
-    }
-
-    public void setLineNumber(int lineNumber) {
-        this.lineNumber = lineNumber;
-    }
 
     @Override
     public String getMethodName() {
@@ -93,10 +73,6 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
         return className;
     }
 
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
 
     @Override
     public String[] getParameterTypes() {
@@ -131,9 +107,6 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
         return fullName;
     }
 
-    public void setApiDescriptor(String apiDescriptor) {
-        this.apiDescriptor = apiDescriptor;
-    }
 
     @Override
     public String getApiDescriptor() {
@@ -154,9 +127,6 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
         return type;
     }
 
-    public void setType(int type) {
-        this.type = type;
-    }
 
     @Override
     public String toString() {
