@@ -39,7 +39,7 @@ import java.util.Objects;
  * @author Hyunjoon Cho
  */
 @RestController
-public class SystemMetricController {
+public class TelegrafMetricController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -47,9 +47,9 @@ public class SystemMetricController {
     private final SystemMetricDataTypeService systemMetricMetadataService;
     private final SystemMetricTagService systemMetricTagService;
 
-    public SystemMetricController(SystemMetricService<SystemMetric> systemMetricService,
-                                  SystemMetricDataTypeService systemMetricMetadataService,
-                                  SystemMetricTagService systemMetricTagService) {
+    public TelegrafMetricController(SystemMetricService<SystemMetric> systemMetricService,
+                                    SystemMetricDataTypeService systemMetricMetadataService,
+                                    SystemMetricTagService systemMetricTagService) {
         this.systemMetricService = Objects.requireNonNull(systemMetricService, "systemMetricService");
         this.systemMetricMetadataService = Objects.requireNonNull(systemMetricMetadataService, "systemMetricMetadataService");
         this.systemMetricTagService = Objects.requireNonNull(systemMetricTagService, "systemMetricTagService");
@@ -58,12 +58,16 @@ public class SystemMetricController {
     @PostMapping(value = "/telegraf")
     public ResponseEntity<Void> saveSystemMetric(
             @RequestHeader(value = "Application-Name") String applicationName,
-            @RequestBody @Valid Metrics metrics, BindingResult bindingResult) throws BindException {
+            @RequestBody @Valid Metrics metrics, BindingResult bindingResult
+    ) throws BindException {
+        Object target = bindingResult.getModel();
+        logger.info("target:{}", target);
         if (bindingResult.hasErrors()) {
             SimpleErrorMessage simpleErrorMessage = new SimpleErrorMessage(bindingResult);
             logger.warn("metric binding error. header=Application-Name:{} errorCount:{} {}", applicationName, bindingResult.getErrorCount(), simpleErrorMessage);
             throw new BindException(bindingResult);
         }
+
         if (logger.isInfoEnabled()) {
             logger.info("Application-Name:{} size:{}", applicationName, metrics.size());
         }
