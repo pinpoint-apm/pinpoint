@@ -25,7 +25,7 @@ public class MetricsValidatorTest {
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
         final Validator validator = validatorFactory.getValidator();
 
-        SystemMetric systemMetric = new SystemMetric("", "hostName", "fieldname", Collections.emptyList(), System.currentTimeMillis());
+        SystemMetric systemMetric = new SystemMetric("", "fieldname", "hostName", Collections.emptyList(), System.currentTimeMillis());
         Metrics metrics = new Metrics(Arrays.asList(systemMetric));
 
         Set<ConstraintViolation<Metrics>> result = validator.validate(metrics);
