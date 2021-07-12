@@ -7,7 +7,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -64,7 +63,7 @@ public class SystemMetricDataTypeServiceImplTest {
         SystemMetricDataTypeService systemMetricDataTypeService = new SystemMetricDataTypeServiceImpl(metricDataTypeCache);
         when(metricDataTypeCache.getMetricDataType(any(MetricDataName.class))).thenReturn(null);
 
-        SystemMetric systemMetric = new SystemMetric("metricName", "hostName", "fieldName", new ArrayList<Tag>(), Long.MAX_VALUE);
+        SystemMetric systemMetric = new SystemMetric("metricName", "fieldName", "hostName", new ArrayList<Tag>(), Long.MAX_VALUE);
         systemMetricDataTypeService.saveMetricDataType(systemMetric);
 
         MetricDataName metricDataName = new MetricDataName(systemMetric.getMetricName(), systemMetric.getFieldName());

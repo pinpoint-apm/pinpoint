@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.metric.common.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.metric.collector.model.SystemMetricJsonDeserializer;
+import com.navercorp.pinpoint.metric.collector.model.TelegrafHttpJsonDeserializer;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
@@ -29,19 +29,18 @@ import java.util.Objects;
 /**
  * @author Hyunjoon Cho
  */
-@JsonDeserialize(using = SystemMetricJsonDeserializer.class)
 public class SystemMetric {
     @NotBlank
     protected final String metricName;
     @NotBlank
-    protected final String hostName;
-    @NotBlank
     protected final String fieldName;
+    @NotBlank
+    protected final String hostName;
     protected final List<Tag> tags;
     @Positive
     protected final long timestamp;
 
-    public SystemMetric(String metricName, String hostName, String fieldName, List<Tag> tags, long timestamp) {
+    public SystemMetric(String metricName, String fieldName, String hostName, List<Tag> tags, long timestamp) {
         this.metricName = Objects.requireNonNull(metricName, "metricName");
         this.hostName = Objects.requireNonNull(hostName, "hostName");
         this.fieldName = Objects.requireNonNull(fieldName, "fieldName");

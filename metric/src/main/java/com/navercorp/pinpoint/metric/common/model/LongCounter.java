@@ -6,7 +6,7 @@ public class LongCounter extends SystemMetric {
     private final long fieldValue;
 
     public LongCounter(String metricName, String hostName, String fieldName, long fieldValue, List<Tag> tags, long timestamp) {
-        super(metricName, hostName, fieldName, tags, timestamp);
+        super(metricName, fieldName, hostName, tags, timestamp);
         this.fieldValue = fieldValue;
     }
 
