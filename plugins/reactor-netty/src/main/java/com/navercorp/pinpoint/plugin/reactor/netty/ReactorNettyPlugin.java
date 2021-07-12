@@ -139,9 +139,9 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
                 method.addInterceptor(ChannelOperationsInterceptor.class);
             }
 
-            final InstrumentMethod onInboudCompleteMethod = target.getDeclaredMethod("onInboundComplete");
-            if(onInboudCompleteMethod != null) {
-                onInboudCompleteMethod.addInterceptor(ChannelOperationsOnInboundCompleteMethodInterceptor.class);
+            final InstrumentMethod onInboundCompleteMethod = target.getDeclaredMethod("onInboundComplete");
+            if(onInboundCompleteMethod != null) {
+                onInboundCompleteMethod.addInterceptor(ChannelOperationsOnInboundCompleteMethodInterceptor.class);
             }
 
             // HTTP server end-point(defense code for try ~ catch)
