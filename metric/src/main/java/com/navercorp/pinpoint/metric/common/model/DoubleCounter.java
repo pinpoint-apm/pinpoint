@@ -6,7 +6,7 @@ public class DoubleCounter extends SystemMetric {
     private final double fieldValue;
 
     public DoubleCounter(String metricName, String hostName, String fieldName, double fieldValue, List<Tag> tags, long timestamp) {
-        super(metricName, hostName, fieldName, tags, timestamp);
+        super(metricName, fieldName, hostName, tags, timestamp);
         this.fieldValue = fieldValue;
     }
 

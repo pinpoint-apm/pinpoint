@@ -16,11 +16,7 @@
 
 package com.navercorp.pinpoint.metric.collector.service;
 
-import com.navercorp.pinpoint.metric.common.model.MetricDataName;
-import com.navercorp.pinpoint.metric.common.model.MetricDataType;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
-
-import java.util.Map;
 
 /**
  * @author minwoo.jung
