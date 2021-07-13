@@ -72,4 +72,7 @@
     <bean id="userGroupService" class="com.navercorp.pinpoint.web.service.UserGroupServiceImpl"/>
     <bean id="alarmService" class="com.navercorp.pinpoint.web.service.AlarmServiceImpl"/>
     <bean id="userService" class="com.navercorp.pinpoint.web.service.UserServiceImpl"/>
+
+    <bean id="apiParserProvider" class="com.navercorp.pinpoint.common.server.trace.ApiParserProvider">
+    </bean>
 </beans>
