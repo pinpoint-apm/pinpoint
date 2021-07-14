@@ -4,7 +4,8 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
 
     <context:annotation-config/>
@@ -13,12 +14,12 @@
                                          com.navercorp.pinpoint.metric.collector.model,
                                          com.navercorp.pinpoint.metric.collector.service,
                                          com.navercorp.pinpoint.metric.common,
-                                         com.navercorp.pinpoint.common.server.util" />
+                                         com.navercorp.pinpoint.common.server.util"/>
 
     <import resource="classpath:pinot-collector/applicationContext-collector-pinot-kafka.xml"/>
     <import resource="classpath:pinot-collector/applicationContext-collector-metric-datasource.xml"/>
     <import resource="classpath:pinot-collector/applicationContext-collector-metric-dao-config.xml"/>
     <import resource="classpath:pinot-collector/applicationContext-collector-metric-cache.xml"/>
 
-    <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
+    <bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
 </beans>

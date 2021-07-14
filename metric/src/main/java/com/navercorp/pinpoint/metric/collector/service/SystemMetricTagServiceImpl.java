@@ -56,7 +56,7 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
             MetricTagKey metricTagKey = new MetricTagKey(applicationName, hostName, metricName, fieldName);
             List<Tag> copiedTagList = tagListCopy(tagList);
 
-            metricTagCache.updateCacheforMetricTag(metricTagKey, createMetricTagCollection(applicationName, hostName, metricName, fieldName, copiedTagList));
+            metricTagCache.updateCacheForMetricTag(metricTagKey, createMetricTagCollection(applicationName, hostName, metricName, fieldName, copiedTagList));
             metricTagCache.saveMetricTag(new MetricTag(applicationName, hostName, metricName, fieldName, copiedTagList));
         } else {
             for (MetricTag metricTag : metricTagCollection.getMetricTagList()) {
@@ -67,7 +67,7 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
             MetricTagKey metricTagKey = new MetricTagKey(applicationName, hostName, metricName, fieldName);
             List<Tag> copiedTagList = tagListCopy(tagList);
 
-            metricTagCache.updateCacheforMetricTag(metricTagKey, createMetricTagCollection(metricTagCollection, copiedTagList));
+            metricTagCache.updateCacheForMetricTag(metricTagKey, createMetricTagCollection(metricTagCollection, copiedTagList));
             metricTagCache.saveMetricTag(new MetricTag(applicationName, hostName, metricName, fieldName, copiedTagList));
         }
 

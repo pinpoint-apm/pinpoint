@@ -12,13 +12,5 @@
         base-package="com.navercorp.pinpoint.metric.collector.controller">
     </context:component-scan>
 
-    <bean id="jsonView"
-        class="org.springframework.web.servlet.view.json.MappingJackson2JsonView">
-        <!-- another filter caches -->
-        <property name="disableCaching" value="false" />
-    </bean>
-
-    <bean id="viewResolver"
-        class="org.springframework.web.servlet.view.BeanNameViewResolver" />
 
 </beans>

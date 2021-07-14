@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
@@ -34,13 +33,11 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @Component
-// TODO : (minwoo) cache만 호출될때도 transaction걸리면 제거 필요함
-@Transactional(transactionManager="metricTransactionManager")
 public class MetricTagCache {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private MetricTagDao metricTagDao;
+    private final MetricTagDao metricTagDao;
 
     public MetricTagCache(MetricTagDao metricTagDao) {
         this.metricTagDao = Objects.requireNonNull(metricTagDao, "metricTagDao");
@@ -57,15 +54,14 @@ public class MetricTagCache {
         return metricTagCollection;
     }
 
-    @Transactional(transactionManager="metricTransactionManager")
     public void saveMetricTag(MetricTag metricTag) {
         metricTagDao.insertMetricTag(metricTag);
     }
 
     @CachePut(value="metricTagCollection", key="#metricTagKey")
-    public MetricTagCollection updateCacheforMetricTag(MetricTagKey metricTagKey, MetricTagCollection metricTagCollection) {
+    public MetricTagCollection updateCacheForMetricTag(MetricTagKey metricTagKey, MetricTagCollection metricTagCollection) {
         if (logger.isDebugEnabled()) {
-            logger.debug("updateCacheforMetricTag metricTagKey: {}, metricTagCollection : {}", metricTagKey, metricTagCollection);
+            logger.debug("updateCacheForMetricTag metricTagKey: {}, metricTagCollection : {}", metricTagKey, metricTagCollection);
         }
 
         return metricTagCollection;

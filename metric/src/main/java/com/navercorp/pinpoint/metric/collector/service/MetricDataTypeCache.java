@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -32,7 +31,6 @@ import java.util.*;
  * @author minwoo.jung
  */
 @Component
-@Transactional(transactionManager="metricTransactionManager")
 public class MetricDataTypeCache {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
