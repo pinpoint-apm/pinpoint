@@ -45,11 +45,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
-        </dependency>
-
         <!-- for tests -->
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
