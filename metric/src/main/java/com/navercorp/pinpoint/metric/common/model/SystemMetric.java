@@ -17,9 +17,7 @@
 package com.navercorp.pinpoint.metric.common.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.metric.collector.model.TelegrafHttpJsonDeserializer;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
