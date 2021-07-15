@@ -76,9 +76,11 @@ public class HttpURLConnectionIT {
         String destinationId = webServer.getHostAndPort();
         String httpUrl = webServer.getCallHttpUrl();
         verifier.verifyTraceCount(2);
-        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, destinationId, annotation("http.url", httpUrl)));
+        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, destinationId,
+                annotation("http.url", httpUrl),
+                annotation("http.resp.header", anyAnnotationValue())));
     }
-
+    
     @Test
     public void testConnectTwice() throws Exception {
         URL url = new URL(webServer.getCallHttpUrl());
@@ -96,9 +98,11 @@ public class HttpURLConnectionIT {
         String destinationId = webServer.getHostAndPort();
         String httpUrl = webServer.getCallHttpUrl();
         verifier.verifyTraceCount(2);
-        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", connect, null, null, destinationId, annotation("http.url", httpUrl)));
+        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", connect, null, null, destinationId,
+                annotation("http.url", httpUrl),
+                annotation("http.resp.header", anyAnnotationValue())));
     }
-
+    
     @Test
     public void testConnecting() throws Exception {
 
