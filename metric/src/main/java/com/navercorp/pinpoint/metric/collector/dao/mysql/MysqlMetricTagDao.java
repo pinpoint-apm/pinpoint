@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
 import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -38,7 +37,6 @@ public class MysqlMetricTagDao implements MetricTagDao {
 
     private final SqlSessionTemplate sqlSessionTemplate;
 
-    @Autowired
     public MysqlMetricTagDao(@Qualifier("metricSqlSessionTemplate") SqlSessionTemplate sqlSessionTemplate) {
         this.sqlSessionTemplate = Objects.requireNonNull(sqlSessionTemplate, "metricSqlSessionTemplate");
     }

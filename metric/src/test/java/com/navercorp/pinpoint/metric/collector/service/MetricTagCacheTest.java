@@ -65,7 +65,7 @@ class MetricTagCacheTest {
 
         MetricTagKey metricTagKey = new MetricTagKey("applicationId", "hostName", "metricName", "fieldName");
         MetricTagCollection metricTagCollection = new MetricTagCollection("applicationId", "hostName", "metricName", "fieldName", new ArrayList<MetricTag>(1));
-        MetricTagCollection metricTagCollectionResult = metricTagCache.updateCacheforMetricTag(metricTagKey, metricTagCollection);
+        MetricTagCollection metricTagCollectionResult = metricTagCache.updateCacheForMetricTag(metricTagKey, metricTagCollection);
 
         assertEquals(metricTagCollection, metricTagCollectionResult);
     }

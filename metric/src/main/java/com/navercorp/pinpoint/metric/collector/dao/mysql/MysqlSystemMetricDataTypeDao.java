@@ -19,9 +19,7 @@ package com.navercorp.pinpoint.metric.collector.dao.mysql;
 import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDataTypeDao;
 import com.navercorp.pinpoint.metric.common.model.MetricData;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
-import com.navercorp.pinpoint.metric.common.model.MetricDataType;
 import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -39,7 +37,6 @@ public class MysqlSystemMetricDataTypeDao implements SystemMetricDataTypeDao {
 
     private final SqlSessionTemplate sqlSessionTemplate;
 
-    @Autowired
     public MysqlSystemMetricDataTypeDao(@Qualifier("metricSqlSessionTemplate") SqlSessionTemplate sqlSessionTemplate) {
         this.sqlSessionTemplate = Objects.requireNonNull(sqlSessionTemplate, "metricSqlSessionTemplate");
     }

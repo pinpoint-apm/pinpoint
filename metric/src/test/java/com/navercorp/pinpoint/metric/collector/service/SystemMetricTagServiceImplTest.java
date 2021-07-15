@@ -46,7 +46,7 @@ public class SystemMetricTagServiceImplTest {
         metricTagList.add(metricTag);
         MetricTagCollection metricTagCollection = new MetricTagCollection(applicationName, hostName, metricName, fieldName, metricTagList);
 
-        verify(metricTagCache, times(1)).updateCacheforMetricTag(metricTagKey, metricTagCollection);
+        verify(metricTagCache, times(1)).updateCacheForMetricTag(metricTagKey, metricTagCollection);
         verify(metricTagCache, times(1)).saveMetricTag(metricTag);
     }
 
@@ -72,7 +72,7 @@ public class SystemMetricTagServiceImplTest {
         SystemMetric systemMetric = new LongCounter(metricName, hostName, fieldName, 0, tagList, Long.MAX_VALUE);
         systemMetricTagService.saveMetricTag(applicationName, systemMetric);
 
-        verify(metricTagCache, times(0)).updateCacheforMetricTag(any(MetricTagKey.class), any(MetricTagCollection.class));
+        verify(metricTagCache, times(0)).updateCacheForMetricTag(any(MetricTagKey.class), any(MetricTagCollection.class));
         verify(metricTagCache, times(0)).saveMetricTag(any(MetricTag.class));
     }
 
@@ -99,7 +99,7 @@ public class SystemMetricTagServiceImplTest {
         SystemMetric systemMetric = new LongCounter(metricName, hostName, fieldName, 0, new ArrayList<Tag>(), Long.MAX_VALUE);
         systemMetricTagService.saveMetricTag(applicationName, systemMetric);
 
-        verify(metricTagCache, times(1)).updateCacheforMetricTag(any(MetricTagKey.class), any(MetricTagCollection.class));
+        verify(metricTagCache, times(1)).updateCacheForMetricTag(any(MetricTagKey.class), any(MetricTagCollection.class));
         verify(metricTagCache, times(1)).saveMetricTag(any(MetricTag.class));
     }
 
