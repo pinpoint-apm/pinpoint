@@ -16,21 +16,22 @@
 
 package com.navercorp.pinpoint.metric.collector.service;
 
-import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDataTypeDao;
-import com.navercorp.pinpoint.metric.common.model.*;
+import com.navercorp.pinpoint.metric.common.model.DoubleCounter;
+import com.navercorp.pinpoint.metric.common.model.LongCounter;
+import com.navercorp.pinpoint.metric.common.model.MetricData;
+import com.navercorp.pinpoint.metric.common.model.MetricDataName;
+import com.navercorp.pinpoint.metric.common.model.MetricDataType;
+import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
 @Service
-@Transactional(transactionManager="metricTransactionManager")
 public class SystemMetricDataTypeServiceImpl implements SystemMetricDataTypeService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
