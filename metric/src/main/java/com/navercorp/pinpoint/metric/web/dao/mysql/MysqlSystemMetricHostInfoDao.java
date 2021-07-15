@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricHostInfoDao;
 import com.navercorp.pinpoint.metric.web.dao.model.MetricInfoSearchKey;
 import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -39,7 +38,6 @@ public class MysqlSystemMetricHostInfoDao implements SystemMetricHostInfoDao {
 
     private final SqlSessionTemplate sqlSessionTemplate;
 
-    @Autowired
     public MysqlSystemMetricHostInfoDao(@Qualifier("metricMysqlSqlSessionTemplate") SqlSessionTemplate sqlSessionTemplate) {
         this.sqlSessionTemplate = Objects.requireNonNull(sqlSessionTemplate, "metricMysqlSqlSessionTemplate");
     }

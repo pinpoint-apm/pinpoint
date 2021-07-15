@@ -1,16 +1,15 @@
 package com.navercorp.pinpoint.metric.common.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.navercorp.pinpoint.metric.collector.model.TelegrafHttpJsonDeserializer;
+import com.navercorp.pinpoint.metric.common.model.serialize.TelegrafJsonDeserializer;
 
 import javax.validation.Valid;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-@JsonDeserialize(using = TelegrafHttpJsonDeserializer.class)
+@JsonDeserialize(using = TelegrafJsonDeserializer.class)
 public class Metrics implements Iterable<SystemMetric> {
     @Valid
     private final List<SystemMetric> metrics;
