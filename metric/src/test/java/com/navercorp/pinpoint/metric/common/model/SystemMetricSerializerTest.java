@@ -27,8 +27,8 @@ import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -54,7 +54,7 @@ public class SystemMetricSerializerTest {
     @Test
     public void testLongCounterWithoutTags() throws JsonProcessingException {
         LongCounter longCounter = new LongCounter("mem", "localhost", "free", 103714816L,
-                null, System.currentTimeMillis());
+                Collections.emptyList(), System.currentTimeMillis());
         SystemMetricView systemMetricView = new SystemMetricView("applicationName", longCounter);
         String json = mapper.writeValueAsString(systemMetricView);
         logger.info("{}", json);
@@ -72,18 +72,32 @@ public class SystemMetricSerializerTest {
 
 
     @Test
-    public void deserialize() throws IOException {
+    public void deserialize_batch() throws IOException {
 
-        InputStream resourceAsStream = this.getClass().getResourceAsStream("/metric_json/test.json");
-        String s = StreamUtils.copyToString(resourceAsStream, StandardCharsets.UTF_8);
+        InputStream stream = this.getClass().getResourceAsStream("/metric_json/telegraf-batch.json");
 
-        Metrics systemMetrics = mapper.readValue(s, Metrics.class);
+        Metrics systemMetrics = mapper.readValue(stream, Metrics.class);
         List<SystemMetric> metrics = systemMetrics.getMetrics();
 
-        Assert.assertEquals(2, metrics.size());
+        Assert.assertEquals(8, metrics.size());
         logger.debug("{}", metrics);
 
-        Assert.assertEquals("disk1", metrics.get(0).getMetricName());
-        Assert.assertEquals("disk2", metrics.get(1).getMetricName());
+        Assert.assertEquals("field_1", metrics.get(0).getFieldName());
+        Assert.assertEquals("field_2", metrics.get(1).getFieldName());
+    }
+
+    @Test
+    public void deserialize_standard() throws IOException {
+
+        InputStream stream = this.getClass().getResourceAsStream("/metric_json/telegraf-standard.json");
+
+        Metrics systemMetrics = mapper.readValue(stream, Metrics.class);
+        List<SystemMetric> metrics = systemMetrics.getMetrics();
+
+        Assert.assertEquals(4, metrics.size());
+        logger.debug("{}", metrics);
+
+        Assert.assertEquals("field_1", metrics.get(0).getFieldName());
+        Assert.assertEquals("field_2", metrics.get(1).getFieldName());
     }
 }

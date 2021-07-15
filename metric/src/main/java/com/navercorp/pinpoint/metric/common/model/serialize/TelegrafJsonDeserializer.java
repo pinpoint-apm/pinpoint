@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.metric.collector.model;
+package com.navercorp.pinpoint.metric.common.model.serialize;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -32,37 +32,50 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author Hyunjoon Cho
  */
 @Component
-public class TelegrafHttpJsonDeserializer extends JsonDeserializer<Metrics> {
-
+public class TelegrafJsonDeserializer extends JsonDeserializer<Metrics> {
 
     private final static TagComparator TAG_COMPARATOR = new TagComparator();
 
-    private final String[] ignoreTagNames = {"host"};
+    public static final String[] DEFAULT_IGNORE_NAMES = {"host"};
 
-    public TelegrafHttpJsonDeserializer() {
+    private final String[] ignoreTagNames;
+
+    public TelegrafJsonDeserializer() {
+        this(DEFAULT_IGNORE_NAMES);
+    }
+
+    public TelegrafJsonDeserializer(String[] ignoreTagNames) {
+        this.ignoreTagNames = Objects.requireNonNull(ignoreTagNames, "ignoreTagNames");
     }
 
     @Override
     public Metrics deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         JsonNode root = jsonParser.readValueAsTree();
 
-        List<SystemMetric> metricList = new ArrayList<>();
-
-        for (JsonNode jsonNode : root.get("metrics")) {
-            List<SystemMetric> systemMetrics = getSystemMetrics(jsonNode);
-            metricList.addAll(systemMetrics);
+        JsonNode batchNode = root.get("metrics");
+        if (batchNode != null) {
+            // batch format
+            List<SystemMetric> metricList = new ArrayList<>();
+            for (JsonNode jsonNode : batchNode) {
+                List<SystemMetric> systemMetrics = getMetrics(jsonNode);
+                metricList.addAll(systemMetrics);
+            }
+            return new Metrics(metricList);
+        } else {
+            // standard format
+            List<SystemMetric> singleMetric = getMetrics(root);
+            return new Metrics(singleMetric);
         }
-
-        return new Metrics(metricList);
     }
 
-    private List<SystemMetric> getSystemMetrics(JsonNode jsonNode) {
+    private List<SystemMetric> getMetrics(JsonNode jsonNode) {
         if (!jsonNode.isObject()) {
             return Collections.emptyList();
         }
@@ -84,11 +97,11 @@ public class TelegrafHttpJsonDeserializer extends JsonDeserializer<Metrics> {
         if (fieldsNode == null || !fieldsNode.isObject()) {
             return Collections.emptyList();
         }
-        return getSystemMetrics(fieldsNode, metricName, hostName, tags, timestamp);
+        return getMetrics(fieldsNode, metricName, hostName, tags, timestamp);
     }
 
 
-    private List<SystemMetric> getSystemMetrics(JsonNode fieldsNode, String metricName, String hostName, List<Tag> tags, long timestamp) {
+    private List<SystemMetric> getMetrics(JsonNode fieldsNode, String metricName, String hostName, List<Tag> tags, long timestamp) {
         List<SystemMetric> metricList = new ArrayList<>();
         Iterator<Map.Entry<String, JsonNode>> fields = fieldsNode.fields();
         while (fields.hasNext()) {

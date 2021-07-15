@@ -21,10 +21,11 @@ import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.ImportResource;
 
 @SpringBootConfiguration
-@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class})
+@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, TransactionAutoConfiguration.class})
 @ImportResource({ "classpath:applicationContext-collector.xml", "classpath:servlet-context-collector.xml", "classpath:pinot-collector/applicationContext-collector-pinot.xml", "classpath:pinot-collector/servlet-context-collector-pinot.xml"})
 public class TotalCollectorApp {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(TotalCollectorApp.class);

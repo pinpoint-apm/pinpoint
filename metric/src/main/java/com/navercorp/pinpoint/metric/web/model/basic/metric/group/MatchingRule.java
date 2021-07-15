@@ -1,7 +1,5 @@
 package com.navercorp.pinpoint.metric.web.model.basic.metric.group;
 
-import com.navercorp.pinpoint.metric.common.model.MetricDataType;
-
 import java.util.Objects;
 
 /**
