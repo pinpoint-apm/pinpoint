@@ -38,16 +38,16 @@ import java.util.Random;
 public class SystemMetricFilterTest {
     private final Random random = new Random(System.currentTimeMillis());
 
-    SystemMetricService systemMetricService;
+    private SystemMetricService systemMetricService;
 
     @Mock
-    LongCounter longCounter;
+    private LongCounter longCounter;
     @Mock
-    DoubleCounter doubleCounter;
+    private DoubleCounter doubleCounter;
     @Mock
-    PinotSystemMetricLongDao longDao;
+    private PinotSystemMetricLongDao longDao;
     @Mock
-    PinotSystemMetricDoubleDao doubleDao;
+    private PinotSystemMetricDoubleDao doubleDao;
 
     @Before
     public void setUp() {
@@ -78,6 +78,6 @@ public class SystemMetricFilterTest {
             systemMetricList.add(doubleCounter);
         }
 
-        return new Metrics(systemMetricList);
+        return new Metrics("id", systemMetricList);
     }
 }

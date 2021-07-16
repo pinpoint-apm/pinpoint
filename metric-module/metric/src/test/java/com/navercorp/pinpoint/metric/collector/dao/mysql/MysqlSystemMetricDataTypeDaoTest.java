@@ -4,6 +4,7 @@ package com.navercorp.pinpoint.metric.collector.dao.mysql;
 import com.navercorp.pinpoint.metric.common.model.MetricData;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
 import com.navercorp.pinpoint.metric.common.model.MetricDataType;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +12,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.transaction.annotation.Transactional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author minwoo.jung
@@ -22,11 +20,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration({"classpath:pinot-collector/applicationContext-collector-test.xml", "classpath:pinot-collector/applicationContext-collector-pinot.xml"})
 @TestPropertySource(properties = {"pinpoint.profiles.active=local"})
 @WebAppConfiguration
-@Transactional("metricTransactionManager")
 public class MysqlSystemMetricDataTypeDaoTest {
 
     @Autowired
-    MysqlSystemMetricDataTypeDao systemMetricDataTypeDao;
+    private MysqlSystemMetricDataTypeDao systemMetricDataTypeDao;
 
     @Test
     public void insertSelectTest() {
@@ -36,10 +33,10 @@ public class MysqlSystemMetricDataTypeDaoTest {
         systemMetricDataTypeDao.updateMetricDataType(metricData2);
 
         MetricData metricData1Result = systemMetricDataTypeDao.selectMetricDataType(new MetricDataName(metricData1.getMetricName(), metricData1.getFieldName()));
-        assertEquals(metricData1Result.getMetricDataType(), metricData1.getMetricDataType());
+        Assert.assertEquals(metricData1Result.getMetricDataType(), metricData1.getMetricDataType());
 
         MetricData metricData2Result = systemMetricDataTypeDao.selectMetricDataType(new MetricDataName(metricData2.getMetricName(), metricData2.getFieldName()));
-        assertEquals(metricData2Result.getMetricDataType(), metricData2.getMetricDataType());
+        Assert.assertEquals(metricData2Result.getMetricDataType(), metricData2.getMetricDataType());
     }
 
     @Test
@@ -53,8 +50,8 @@ public class MysqlSystemMetricDataTypeDaoTest {
 
         MetricData metricData1Result = systemMetricDataTypeDao.selectMetricDataType(new MetricDataName(metricData1.getMetricName(), metricData1.getFieldName()));
         MetricData metricData2Result = systemMetricDataTypeDao.selectMetricDataType(new MetricDataName(metricData2.getMetricName(), metricData2.getFieldName()));
-        assertNotNull(metricData1Result);
-        assertNotNull(metricData2Result);
+        Assert.assertNotNull(metricData1Result);
+        Assert.assertNotNull(metricData2Result);
     }
 
 }
