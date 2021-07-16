@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * @author Hyunjoon Cho
  */
 @Service
-public class SystemMetricService<T extends SystemMetric> {
+public class SystemMetricService {
     private final SystemMetricDao<LongCounter> systemMetricLongDao;
     private final SystemMetricDao<DoubleCounter> systemMetricDoubleDao;
 
@@ -42,15 +42,14 @@ public class SystemMetricService<T extends SystemMetric> {
         this.systemMetricDoubleDao = Objects.requireNonNull(systemMetricDoubleDao, "systemMetricDoubleDao");
     }
 
-    public void insert(String applicationName, Metrics systemMetrics) {
-        Objects.requireNonNull(applicationName, "applicationName");
+    public void insert(Metrics systemMetrics) {
         Objects.requireNonNull(systemMetrics, "systemMetrics");
 
         List<LongCounter> longCounters = filterLongCounter(systemMetrics);
         List<DoubleCounter> doubleCounters = filterDoubleCounter(systemMetrics);
 
-        systemMetricLongDao.insert(applicationName, longCounters);
-        systemMetricDoubleDao.insert(applicationName, doubleCounters);
+        systemMetricLongDao.insert(systemMetrics.getId(), longCounters);
+        systemMetricDoubleDao.insert(systemMetrics.getId(), doubleCounters);
     }
 
     public List<LongCounter> filterLongCounter(Metrics systemMetrics) {
