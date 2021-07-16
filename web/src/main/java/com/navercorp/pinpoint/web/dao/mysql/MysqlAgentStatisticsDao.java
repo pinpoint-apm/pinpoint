@@ -32,7 +32,7 @@ import java.util.Objects;
 @Repository
 public class MysqlAgentStatisticsDao implements AgentStatisticsDao {
 
-    private static final String NAMESPACE = MysqlAgentStatisticsDao.class.getPackage().getName() + "." + MysqlAgentStatisticsDao.class.getSimpleName() + ".";
+    private static final String NAMESPACE = MysqlAgentStatisticsDao.class.getName() + ".";
 
     private final SqlSessionTemplate sqlSessionTemplate;
 

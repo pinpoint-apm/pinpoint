@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.web.vo.UserGroupMember;
 @Repository
 public class MysqlUserGroupDao implements UserGroupDao {
     
-    private static final String NAMESPACE = UserGroupDao.class.getPackage().getName() + "." + UserGroupDao.class.getSimpleName() + ".";
+    private static final String NAMESPACE = UserGroupDao.class.getName() + ".";
 
     private final SqlSessionTemplate sqlSessionTemplate;
 
