@@ -200,6 +200,12 @@
             <artifactId>spring-kafka-test</artifactId>
             <version>2.3.10.RELEASE</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Logging dependencies -->

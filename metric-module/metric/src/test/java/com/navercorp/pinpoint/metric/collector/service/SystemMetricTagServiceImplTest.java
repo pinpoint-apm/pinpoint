@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.metric.collector.service;
 
 import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.*;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -9,7 +10,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
@@ -117,22 +117,22 @@ public class SystemMetricTagServiceImplTest {
         tagList.add(new Tag("key2", "value2"));
 
         MetricTagCollection metricTagCollection = systemMetricTagService.createMetricTagCollection(applicationName, hostName, metricName, fieldName, tagList);
-        assertEquals(metricTagCollection.getHostGroupId(), applicationName);
-        assertEquals(metricTagCollection.getHostName(), hostName);
-        assertEquals(metricTagCollection.getMetricName(), metricName);
-        assertEquals(metricTagCollection.getFieldName(), fieldName);
+        Assert.assertEquals(metricTagCollection.getHostGroupId(), applicationName);
+        Assert.assertEquals(metricTagCollection.getHostName(), hostName);
+        Assert.assertEquals(metricTagCollection.getMetricName(), metricName);
+        Assert.assertEquals(metricTagCollection.getFieldName(), fieldName);
 
         List<MetricTag> metricTagList = metricTagCollection.getMetricTagList();
-        assertEquals(metricTagList.size(), 1);
+        Assert.assertEquals(metricTagList.size(), 1);
         MetricTag metricTag = metricTagList.get(0);
-        assertEquals(metricTag.getHostGroupId(), applicationName);
-        assertEquals(metricTag.getHostName(), hostName);
-        assertEquals(metricTag.getMetricName(), metricName);
-        assertEquals(metricTag.getFieldName(), fieldName);
+        Assert.assertEquals(metricTag.getHostGroupId(), applicationName);
+        Assert.assertEquals(metricTag.getHostName(), hostName);
+        Assert.assertEquals(metricTag.getMetricName(), metricName);
+        Assert.assertEquals(metricTag.getFieldName(), fieldName);
 
         List<Tag> tags = metricTag.getTags();
-        assertEquals(tags.size(), 2);
-        assertEquals(tags, tagList);
+        Assert.assertEquals(tags.size(), 2);
+        Assert.assertEquals(tags, tagList);
     }
 
     @Test
@@ -170,13 +170,13 @@ public class SystemMetricTagServiceImplTest {
         MetricTagCollection mtc = new MetricTagCollection(applicationName, hostName, metricName, fieldName, metricTagList);
         MetricTagCollection metricTagCollection = systemMetricTagService.createMetricTagCollection(mtc, tagList4);
 
-        assertEquals(metricTagCollection.getHostGroupId(), applicationName);
-        assertEquals(metricTagCollection.getHostName(), hostName);
-        assertEquals(metricTagCollection.getMetricName(), metricName);
-        assertEquals(metricTagCollection.getFieldName(), fieldName);
+        Assert.assertEquals(metricTagCollection.getHostGroupId(), applicationName);
+        Assert.assertEquals(metricTagCollection.getHostName(), hostName);
+        Assert.assertEquals(metricTagCollection.getMetricName(), metricName);
+        Assert.assertEquals(metricTagCollection.getFieldName(), fieldName);
 
         List<MetricTag> mtList = metricTagCollection.getMetricTagList();
-        assertEquals(mtList.size(), 4);
+        Assert.assertEquals(mtList.size(), 4);
     }
 
     @Test
@@ -191,7 +191,7 @@ public class SystemMetricTagServiceImplTest {
 
         List<Tag> tags = systemMetricTagService.tagListCopy(tagList);
 
-        assertEquals(tags, tagList);
+        Assert.assertEquals(tags, tagList);
     }
 
 
