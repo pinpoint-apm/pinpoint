@@ -5,23 +5,23 @@ import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
  * @author minwoo.jung
  */
 @RunWith(MockitoJUnitRunner.class)
-class MetricTagCacheTest {
+public class MetricTagCacheTest {
 
     @Test
-    void getMetricTag() {
+    public void getMetricTag() {
         MetricTagDao metricTagDao = mock(MetricTagDao.class);
         MetricTagCache metricTagCache = new MetricTagCache(metricTagDao);
 
@@ -30,11 +30,11 @@ class MetricTagCacheTest {
 
         MetricTagCollection metricTagCollection = metricTagCache.getMetricTag(metricTagKey);
 
-        assertNull(metricTagCollection);
+        Assert.assertNull(metricTagCollection);
     }
 
     @Test
-    void getMetricTag2() {
+    public void getMetricTag2() {
         MetricTagDao metricTagDao = mock(MetricTagDao.class);
         MetricTagCache metricTagCache = new MetricTagCache(metricTagDao);
 
@@ -44,11 +44,11 @@ class MetricTagCacheTest {
 
         MetricTagCollection returnData = metricTagCache.getMetricTag(metricTagKey);
 
-        assertEquals(returnData, metricTagCollection);
+        Assert.assertEquals(returnData, metricTagCollection);
     }
 
     @Test
-    void saveMetricTag() {
+    public void saveMetricTag() {
         MetricTagDao metricTagDao = mock(MetricTagDao.class);
         MetricTagCache metricTagCache = new MetricTagCache(metricTagDao);
 
@@ -59,7 +59,7 @@ class MetricTagCacheTest {
     }
 
     @Test
-    void updateCacheforMetricTag() {
+    public void updateCacheforMetricTag() {
         MetricTagDao metricTagDao = mock(MetricTagDao.class);
         MetricTagCache metricTagCache = new MetricTagCache(metricTagDao);
 
@@ -67,6 +67,6 @@ class MetricTagCacheTest {
         MetricTagCollection metricTagCollection = new MetricTagCollection("applicationId", "hostName", "metricName", "fieldName", new ArrayList<MetricTag>(1));
         MetricTagCollection metricTagCollectionResult = metricTagCache.updateCacheForMetricTag(metricTagKey, metricTagCollection);
 
-        assertEquals(metricTagCollection, metricTagCollectionResult);
+        Assert.assertEquals(metricTagCollection, metricTagCollectionResult);
     }
 }

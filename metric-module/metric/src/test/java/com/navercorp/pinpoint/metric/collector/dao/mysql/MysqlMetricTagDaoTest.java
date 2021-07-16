@@ -1,9 +1,10 @@
 package com.navercorp.pinpoint.metric.collector.dao.mysql;
 
-import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
+import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
 import com.navercorp.pinpoint.metric.common.model.Tag;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,12 +12,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author minwoo.jung
@@ -26,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration({"classpath:pinot-collector/applicationContext-collector-test.xml", "classpath:pinot-collector/applicationContext-collector-pinot.xml"})
 @TestPropertySource(properties = {"pinpoint.profiles.active=local"})
 @WebAppConfiguration
-@Transactional("metricTransactionManager")
 public class MysqlMetricTagDaoTest {
 
     @Autowired
@@ -51,11 +48,11 @@ public class MysqlMetricTagDaoTest {
         mysqlMetricTagDao.insertMetricTag(metricTag);
 
         MetricTagCollection metricTagCollection = mysqlMetricTagDao.selectMetricTag(new MetricTagKey(applicationId, hostName, metricName, fieldName));
-        assertEquals(metricTagCollection.getMetricTagList().size(), 1);
+        Assert.assertEquals(metricTagCollection.getMetricTagList().size(), 1);
 
         mysqlMetricTagDao.insertMetricTag(metricTag);
         MetricTagCollection metricTagCollection2 = mysqlMetricTagDao.selectMetricTag(new MetricTagKey(applicationId, hostName, metricName, fieldName));
-        assertEquals(metricTagCollection2.getMetricTagList().size(), 1);
+        Assert.assertEquals(metricTagCollection2.getMetricTagList().size(), 1);
 
         List<Tag> tagList2 = new ArrayList<Tag>(5);
         tagList2.add(new Tag("A_key1", "A_value1"));
@@ -69,6 +66,6 @@ public class MysqlMetricTagDaoTest {
         mysqlMetricTagDao.insertMetricTag(metricTag2);
 
         MetricTagCollection metricTagCollection3 = mysqlMetricTagDao.selectMetricTag(new MetricTagKey(applicationId, hostName, metricName, fieldName));
-        assertEquals(metricTagCollection3.getMetricTagList().size(), 2);
+        Assert.assertEquals(metricTagCollection3.getMetricTagList().size(), 2);
     }
 }

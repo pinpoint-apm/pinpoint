@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.metric.common.model.validation;
 
-
 import com.navercorp.pinpoint.metric.common.model.Metrics;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import org.junit.Assert;
@@ -13,11 +12,10 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
-public class MetricsValidatorTest {
+public class TelegrafMetricsValidatorTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
@@ -26,7 +24,7 @@ public class MetricsValidatorTest {
         final Validator validator = validatorFactory.getValidator();
 
         SystemMetric systemMetric = new SystemMetric("", "fieldname", "hostName", Collections.emptyList(), System.currentTimeMillis());
-        Metrics metrics = new Metrics(Arrays.asList(systemMetric));
+        Metrics metrics = new Metrics("id", Collections.singletonList(systemMetric));
 
         Set<ConstraintViolation<Metrics>> result = validator.validate(metrics);
 

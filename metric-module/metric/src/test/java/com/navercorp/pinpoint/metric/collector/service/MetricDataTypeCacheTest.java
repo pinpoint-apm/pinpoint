@@ -4,11 +4,11 @@ import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDataTypeDao;
 import com.navercorp.pinpoint.metric.common.model.MetricData;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
 import com.navercorp.pinpoint.metric.common.model.MetricDataType;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -16,10 +16,10 @@ import static org.mockito.Mockito.when;
  * @author minwoo.jung
  */
 @RunWith(MockitoJUnitRunner.class)
-class MetricDataTypeCacheTest {
+public class MetricDataTypeCacheTest {
 
     @Test
-    void getMetricDataTypeTest() {
+    public void getMetricDataTypeTest() {
         SystemMetricDataTypeDao systemMetricDataTypeDao = mock(SystemMetricDataTypeDao.class);
         MetricDataTypeCache metricDataTypeCache = new MetricDataTypeCache(systemMetricDataTypeDao);
         MetricData metricData = new MetricData("metricName", "fieldName", MetricDataType.DOUBLE);
@@ -28,11 +28,11 @@ class MetricDataTypeCacheTest {
         when(systemMetricDataTypeDao.selectMetricDataType(metricDataName)).thenReturn(null);
         MetricData metricDataResult = metricDataTypeCache.getMetricDataType(metricDataName);
 
-        assertNull(metricDataResult);
+        Assert.assertNull(metricDataResult);
     }
 
     @Test
-    void getMetricDataType2Test() {
+    public void getMetricDataType2Test() {
         SystemMetricDataTypeDao systemMetricDataTypeDao = mock(SystemMetricDataTypeDao.class);
         MetricDataTypeCache metricDataTypeCache = new MetricDataTypeCache(systemMetricDataTypeDao);
         MetricData metricData = new MetricData("metricName", "fieldName", MetricDataType.DOUBLE);
@@ -41,11 +41,11 @@ class MetricDataTypeCacheTest {
         when(systemMetricDataTypeDao.selectMetricDataType(metricDataName)).thenReturn(metricData);
         MetricData metricDataResult = metricDataTypeCache.getMetricDataType(metricDataName);
 
-        assertEquals(metricData, metricDataResult);
+        Assert.assertEquals(metricData, metricDataResult);
     }
 
     @Test
-    void saveMetricDataTypeTest() {
+    public void saveMetricDataTypeTest() {
         SystemMetricDataTypeDao systemMetricDataTypeDao = mock(SystemMetricDataTypeDao.class);
         MetricDataTypeCache metricDataTypeCache = new MetricDataTypeCache(systemMetricDataTypeDao);
         MetricData metricData = new MetricData("metricName", "fieldName", MetricDataType.DOUBLE);
@@ -53,6 +53,6 @@ class MetricDataTypeCacheTest {
         MetricDataName metricDataName = new MetricDataName(metricData.getMetricName(), metricData.getFieldName());
         MetricData metricDataResult = metricDataTypeCache.saveMetricDataType(metricDataName, metricData);
 
-        assertEquals(metricData, metricDataResult);
+        Assert.assertEquals(metricData, metricDataResult);
     }
 }
