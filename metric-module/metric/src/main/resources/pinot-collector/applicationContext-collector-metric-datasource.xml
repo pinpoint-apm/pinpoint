@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
+
+    <util:properties id="metricDriverProperties">
+        <prop key="cachePrepStmts">${metric.jdbc.cachePrepStmts}</prop>
+        <prop key="useServerPrepStmts">${metric.jdbc.useServerPrepStmts}</prop>
+        <prop key="prepStmtCacheSize">${metric.jdbc.prepStmtCacheSize}</prop>
+        <prop key="prepStmtCacheSqlLimit">${metric.jdbc.prepStmtCacheSqlLimit}</prop>
+    </util:properties>
+
+    <bean id="metricDataSourceConfig" class="com.zaxxer.hikari.HikariConfig">
+        <property name="driverClassName" value="${metric.jdbc.driverClassName}"/>
+        <property name="jdbcUrl" value="${metric.jdbc.url}"/>
+        <property name="username" value="${metric.jdbc.username}"/>
+        <property name="password" value="${metric.jdbc.password}"/>
+        <property name="dataSourceProperties" ref="metricDriverProperties"/>
+
+        <property name="connectionTimeout" value="5000"/>
+
+        <property name="maxLifetime" value="1200000"/>
+
+        <property name="maximumPoolSize" value="30"/>
+        <property name="minimumIdle" value="30"/>
+    </bean>
+
+    <bean id="metricDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <constructor-arg ref="metricDataSourceConfig"/>
+    </bean>
+
+</beans>
