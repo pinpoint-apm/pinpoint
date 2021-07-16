@@ -19,23 +19,20 @@ package com.navercorp.pinpoint.metric.common.model;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
-import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Hyunjoon Cho
  */
 public class SystemMetricSerializerTest {
-    private final ObjectMapper mapper = new ObjectMapper();
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
     public void testLongCounterWithTags() throws JsonProcessingException {
@@ -69,34 +66,4 @@ public class SystemMetricSerializerTest {
         logger.info("{}", json);
     }
 
-
-    @Test
-    public void deserialize_batch() throws IOException {
-
-        InputStream stream = this.getClass().getResourceAsStream("/metric_json/telegraf-batch.json");
-
-        Metrics systemMetrics = mapper.readValue(stream, Metrics.class);
-        List<SystemMetric> metrics = systemMetrics.getMetrics();
-
-        Assert.assertEquals(8, metrics.size());
-        logger.debug("{}", metrics);
-
-        Assert.assertEquals("field_1", metrics.get(0).getFieldName());
-        Assert.assertEquals("field_2", metrics.get(1).getFieldName());
-    }
-
-    @Test
-    public void deserialize_standard() throws IOException {
-
-        InputStream stream = this.getClass().getResourceAsStream("/metric_json/telegraf-standard.json");
-
-        Metrics systemMetrics = mapper.readValue(stream, Metrics.class);
-        List<SystemMetric> metrics = systemMetrics.getMetrics();
-
-        Assert.assertEquals(4, metrics.size());
-        logger.debug("{}", metrics);
-
-        Assert.assertEquals("field_1", metrics.get(0).getFieldName());
-        Assert.assertEquals("field_2", metrics.get(1).getFieldName());
-    }
 }
