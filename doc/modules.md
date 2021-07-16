@@ -81,8 +81,7 @@
 | Gson                                                                                       | gson                       | 1.1     | 2.8.3   |                        | <AG>
 | Json                                                                                       | json-lib                   | 1.0     | 2.2.2   |                        | <AG>
 | FastJson                                                                                   | fastjson                   | 1.2.10  | 1.2.76  |                        | <AG>
-| Dubbo                                                                                      | dubbo                      | 2.5.1   | 2.6.9   |                        | <AG> 
- 
+| Dubbo                                                                                      | dubbo                      | 2.5.1   | 2.6.9   |                        | <AG>  
 | kafka-clients                                                                     | kafka-clients              | 0.11.0.0| 2.6.1   |                        | <AG> 
 | postgresql                                                                        | postgresql                 | 9.4.1208| 42.2.19 |                        | <AG> 
 | ojdbc8                                                                            | ojdbc8                     | 12.2.0.1| 21.1.0.0|                        | <AG> 
