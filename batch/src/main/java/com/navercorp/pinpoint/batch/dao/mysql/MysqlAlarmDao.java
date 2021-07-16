@@ -29,7 +29,7 @@ import java.util.Objects;
  */
 public class MysqlAlarmDao implements AlarmDao {
 
-    private static final String NAMESPACE = AlarmDao.class.getPackage().getName() + "." + AlarmDao.class.getSimpleName() + ".";
+    private static final String NAMESPACE = AlarmDao.class.getName() + ".";
 
     private final SqlSessionTemplate sqlSessionTemplate;
 

@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.web.vo.User;
 @Repository
 public class MysqlUserDao implements UserDao {
 
-    private static final String NAMESPACE = UserDao.class.getPackage().getName() + "." + UserDao.class.getSimpleName() + ".";
+    private static final String NAMESPACE = UserDao.class.getName() + ".";
 
     private final SqlSessionTemplate sqlSessionTemplate;
 
