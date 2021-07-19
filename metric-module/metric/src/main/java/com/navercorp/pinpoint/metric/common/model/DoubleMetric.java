@@ -2,21 +2,21 @@ package com.navercorp.pinpoint.metric.common.model;
 
 import java.util.List;
 
-public class LongCounter extends SystemMetric {
-    private final long fieldValue;
+public class DoubleMetric extends SystemMetric {
+    private final double fieldValue;
 
-    public LongCounter(String metricName, String hostName, String fieldName, long fieldValue, List<Tag> tags, long timestamp) {
+    public DoubleMetric(String metricName, String hostName, String fieldName, double fieldValue, List<Tag> tags, long timestamp) {
         super(metricName, fieldName, hostName, tags, timestamp);
         this.fieldValue = fieldValue;
     }
 
-    public long getFieldValue() {
+    public double getFieldValue() {
         return fieldValue;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("LongCounter{");
+        final StringBuilder sb = new StringBuilder("DoubleCounter{");
         sb.append("metric=").append(metricName);
         sb.append(", host=").append(hostName);
         sb.append(", field=").append(fieldName);

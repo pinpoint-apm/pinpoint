@@ -28,8 +28,8 @@
     <typeAliases>
         <typeAlias type="java.lang.Number" alias="Number" />
 
-        <typeAlias type="com.navercorp.pinpoint.metric.common.model.LongCounter" alias="LongCounter" />
-        <typeAlias type="com.navercorp.pinpoint.metric.common.model.DoubleCounter" alias="DoubleCounter" />
+        <typeAlias type="com.navercorp.pinpoint.metric.common.model.LongMetric" alias="LongMetric" />
+        <typeAlias type="com.navercorp.pinpoint.metric.common.model.DoubleMetric" alias="DoubleMetric" />
         <typeAlias type="com.navercorp.pinpoint.metric.common.model.Tag" alias="Tag" />
         <typeAlias type="com.navercorp.pinpoint.metric.web.util.Range" alias="Range" />
         <typeAlias type="com.navercorp.pinpoint.metric.web.util.QueryParameter" alias="QueryParameter" />

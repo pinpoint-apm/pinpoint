@@ -36,7 +36,7 @@ public class MysqlMetricTagDaoTest {
         String metricName = "metricName";
         String fieldName = "fieldName";
 
-        List<Tag> tagList = new ArrayList<Tag>(5);
+        List<Tag> tagList = new ArrayList<>(5);
         tagList.add(new Tag("key1", "value1"));
         tagList.add(new Tag("key2", "value2"));
         tagList.add(new Tag("key3", "value3"));
@@ -54,7 +54,7 @@ public class MysqlMetricTagDaoTest {
         MetricTagCollection metricTagCollection2 = mysqlMetricTagDao.selectMetricTag(new MetricTagKey(applicationId, hostName, metricName, fieldName));
         Assert.assertEquals(metricTagCollection2.getMetricTagList().size(), 1);
 
-        List<Tag> tagList2 = new ArrayList<Tag>(5);
+        List<Tag> tagList2 = new ArrayList<>(5);
         tagList2.add(new Tag("A_key1", "A_value1"));
         tagList2.add(new Tag("A_key2", "A_value2"));
         tagList2.add(new Tag("A_key3", "A_value3"));

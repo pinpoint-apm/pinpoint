@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.metric.collector.service;
 
-import com.navercorp.pinpoint.metric.common.model.DoubleCounter;
-import com.navercorp.pinpoint.metric.common.model.LongCounter;
+import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
+import com.navercorp.pinpoint.metric.common.model.LongMetric;
 import com.navercorp.pinpoint.metric.common.model.MetricData;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
 import com.navercorp.pinpoint.metric.common.model.MetricDataType;
@@ -51,9 +51,9 @@ public class SystemMetricDataTypeServiceImpl implements SystemMetricDataTypeServ
             return;
         }
 
-        if (systemMetric instanceof LongCounter) {
+        if (systemMetric instanceof LongMetric) {
             metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.LONG));
-        } else if (systemMetric instanceof DoubleCounter) {
+        } else if (systemMetric instanceof DoubleMetric) {
             metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.DOUBLE));
         } else {
             logger.error("can not find metric data type.  systemMetric : {}", systemMetric);

@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.metric.collector.model.TelegrafMetrics;
 import com.navercorp.pinpoint.metric.collector.service.SystemMetricDataTypeService;
 import com.navercorp.pinpoint.metric.collector.service.SystemMetricService;
 import com.navercorp.pinpoint.metric.collector.service.SystemMetricTagService;
-import com.navercorp.pinpoint.metric.common.model.DoubleCounter;
-import com.navercorp.pinpoint.metric.common.model.LongCounter;
+import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
+import com.navercorp.pinpoint.metric.common.model.LongMetric;
 import com.navercorp.pinpoint.metric.common.model.Metrics;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import com.navercorp.pinpoint.metric.common.model.Tag;
@@ -117,10 +117,12 @@ public class TelegrafMetricController {
 
             Number value = entry.getValue();
             if (value instanceof Integer || value instanceof Long) {
-                systemMetric = new LongCounter(tMetric.getName(), host, entry.getKey(), value.longValue(), tag, timestamp);
+                systemMetric = new LongMetric(tMetric.getName(), host, entry.getKey(), value.longValue(), tag, timestamp);
             }
             else if (value instanceof Float || value instanceof Double){
-                systemMetric = new DoubleCounter(tMetric.getName(), host, entry.getKey(), value.doubleValue(), tag, timestamp);
+                systemMetric = new DoubleMetric(tMetric.getName(), host, entry.getKey(), value.doubleValue(), tag, timestamp);
+            } else {
+                throw new IllegalArgumentException("Unexpected datatype:" +  value);
             }
 
             metricList.add(systemMetric);
