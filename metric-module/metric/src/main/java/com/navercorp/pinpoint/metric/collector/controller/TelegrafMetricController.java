@@ -81,7 +81,8 @@ public class TelegrafMetricController {
         }
 
         if (logger.isInfoEnabled()) {
-            logger.info("Application-Name:{} size:{}", applicationName, telegrafMetrics.size());
+            String host = getHost(telegrafMetrics);
+            logger.info("Application-Name:{} host:{} size:{}", applicationName, host, telegrafMetrics.size());
         }
         logger.debug("telegrafMetrics:{}", telegrafMetrics);
 
@@ -91,6 +92,15 @@ public class TelegrafMetricController {
         systemMetricService.insert(systemMetric);
 
         return ResponseEntity.ok().build();
+    }
+
+    private String getHost(TelegrafMetrics metrics) {
+        List<TelegrafMetric> metricList = metrics.getMetrics();
+        if( metricList.isEmpty()) {
+            return "";
+        }
+        Map<String, String> tags = metricList.get(0).getTags();
+        return tags.get("host");
     }
 
     private Metrics toMetrics(String id, TelegrafMetrics telegrafMetrics) {
