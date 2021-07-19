@@ -28,10 +28,10 @@ import com.navercorp.pinpoint.metric.web.util.TagParser;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricChart;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Hyunjoon Cho
  */
-@Controller
+@RestController
 @RequestMapping(value = "/systemMetric")
 public class SystemMetricController {
     private final SystemMetricDataService systemMetricDataService;
@@ -54,8 +54,7 @@ public class SystemMetricController {
     }
 
     @Deprecated
-    @RequestMapping(value = "/list")
-    @ResponseBody
+    @GetMapping(value = "/list")
     public List<SystemMetric> getSystemMetricBoList(
             @RequestParam("applicationName") String applicationName,
             @RequestParam("hostName") String hostName,
@@ -78,8 +77,7 @@ public class SystemMetricController {
     }
 
     @Deprecated
-    @RequestMapping(value = "/chart")
-    @ResponseBody
+    @GetMapping(value = "/chart")
     public SystemMetricChart getSystemMetricChart(
             @RequestParam("applicationName") String applicationName,
             @RequestParam("hostName") String hostName,
@@ -109,8 +107,7 @@ public class SystemMetricController {
     }
 
     @Deprecated
-    @RequestMapping(value = "/chart", params = {"timeUnit", "timeSize"})
-    @ResponseBody
+    @GetMapping(value = "/chart", params = {"timeUnit", "timeSize"})
     public SystemMetricChart getSystemMetricChart(
             @RequestParam("applicationName") String applicationName,
             @RequestParam("hostName") String hostName,
@@ -147,26 +144,22 @@ public class SystemMetricController {
         return systemMetricDataService.getSystemMetricChart(timeWindow, queryParameter);
     }
 
-    @RequestMapping(value = "/hostGroup")
-    @ResponseBody
+    @GetMapping(value = "/hostGroup")
     public List<String> getHostGroup() {
         return systemMetricHostInfoService.getHostGroupIdList();
     }
 
-    @RequestMapping(value = "/hostGroup/host")
-    @ResponseBody
+    @GetMapping(value = "/hostGroup/host")
     public List<String> getHostGroup(@RequestParam("hostGroupId") String hostGroupId) {
         return systemMetricHostInfoService.getHostList(hostGroupId);
     }
 
-    @RequestMapping(value = "/hostGroup/host/collectedMetricInfo")
-    @ResponseBody
+    @GetMapping(value = "/hostGroup/host/collectedMetricInfo")
     public List<String> getcollectedMetricInfo(@RequestParam("hostGroupId") String hostGroupId, @RequestParam("hostName") String hostName) {
         return systemMetricHostInfoService.getCollectedMetricInfo(hostGroupId, hostName);
     }
 
-    @RequestMapping(value = "/hostGroup/host/collectedMetricData")
-    @ResponseBody
+    @GetMapping(value = "/hostGroup/host/collectedMetricData")
     public SystemMetricData getcollectedMetricData(@RequestParam("hostGroupId") String hostGroupId,
                                                    @RequestParam("hostName") String hostName,
                                                    @RequestParam("metricName") String metricName,
@@ -181,7 +174,7 @@ public class SystemMetricController {
         return systemMetricData;
     }
 
-    private class DefaultTimeWindowSampler implements TimeWindowSampler {
+    private static class DefaultTimeWindowSampler implements TimeWindowSampler {
         @Override
         public long getWindowSize(Range range) {
             return 10000L;
