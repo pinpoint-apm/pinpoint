@@ -40,18 +40,18 @@ public class SystemMetricSerializerTest {
         Tag fstypeTag = new Tag("fstype", "apfs");
         Tag modeTag = new Tag("mode", "ro");
         Tag pathTag = new Tag("path", "/");
-        LongCounter longCounter = new LongCounter("disk", "localhost", "free", 250685575168L,
+        LongMetric longMetric = new LongMetric("disk", "localhost", "free", 250685575168L,
                 Arrays.asList(deviceTag, fstypeTag, modeTag, pathTag), System.currentTimeMillis());
-        SystemMetricView systemMetricView = new SystemMetricView("applicationName", longCounter);
+        SystemMetricView systemMetricView = new SystemMetricView("applicationName", longMetric);
         String json = mapper.writeValueAsString(systemMetricView);
         logger.info("{}", json);
     }
 
     @Test
     public void testLongCounterWithoutTags() throws JsonProcessingException {
-        LongCounter longCounter = new LongCounter("mem", "localhost", "free", 103714816L,
+        LongMetric longMetric = new LongMetric("mem", "localhost", "free", 103714816L,
                 Collections.emptyList(), System.currentTimeMillis());
-        SystemMetricView systemMetricView = new SystemMetricView("applicationName", longCounter);
+        SystemMetricView systemMetricView = new SystemMetricView("applicationName", longMetric);
         String json = mapper.writeValueAsString(systemMetricView);
         logger.info("{}", json);
     }
@@ -59,9 +59,9 @@ public class SystemMetricSerializerTest {
     @Test
     public void testDoubleCounter() throws JsonProcessingException {
         Tag cpuTag = new Tag("cpu", "cpu0");
-        DoubleCounter doubleCounter = new DoubleCounter("cpu", "localhost", "usage_user", 16.200000000001854,
+        DoubleMetric doubleMetric = new DoubleMetric("cpu", "localhost", "usage_user", 16.200000000001854,
                 Arrays.asList(cpuTag), System.currentTimeMillis());
-        SystemMetricView systemMetricView = new SystemMetricView("applicationName", doubleCounter);
+        SystemMetricView systemMetricView = new SystemMetricView("applicationName", doubleMetric);
         String json = mapper.writeValueAsString(systemMetricView);
         logger.info("{}", json);
     }

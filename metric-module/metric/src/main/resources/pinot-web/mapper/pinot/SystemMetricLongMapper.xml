@@ -3,7 +3,7 @@
 
 
 <mapper namespace="com.navercorp.pinpoint.metric.web.dao.pinot.PinotSystemMetricLongDao">
-    <resultMap id="systemMetricResultMap" type="LongCounter">
+    <resultMap id="systemMetricResultMap" type="LongMetric">
         <constructor>
             <arg column="metricName" javaType="string"/>
             <arg column="hostName" javaType="string"/>

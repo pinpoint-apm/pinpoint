@@ -55,10 +55,10 @@ public class PinotIngestionTest {
 
         long time = 0;
         int num;
-        StringBuilder sb;
+
 
         for (int i = 0 ; i < 100000 ; i++) {
-            sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.append("{\"applicationName\":\"hyunjoon\", ");
             sb.append("\"metricName\":").append("\"metric").append(getRandomAlphabet()).append("\", ");
             sb.append("\"fieldName\":").append("\"field").append(getRandomAlphabet()).append("\", ");
@@ -74,7 +74,7 @@ public class PinotIngestionTest {
             for (int j = 0; j < num; j++) {
                 sb.append("\"value").append(getRandomAlphabet()).append("\", ");
             }
-            sb.append("\"").append(new Date().toString()).append("\"], ");
+            sb.append("\"").append(new Date()).append("\"], ");
 
             sb.append("\"timestamp\":" + time +"}");
 
@@ -87,7 +87,7 @@ public class PinotIngestionTest {
     }
 
     private char getRandomAlphabet() {
-        if(random.nextBoolean()){
+        if (random.nextBoolean()){
             return (char) (65 + random.nextInt(26));
         } else {
             return (char) (97 + random.nextInt(26));
