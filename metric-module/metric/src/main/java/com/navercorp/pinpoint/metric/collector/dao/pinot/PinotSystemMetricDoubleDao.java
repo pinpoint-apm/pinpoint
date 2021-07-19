@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.metric.collector.dao.pinot;
 
 import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDao;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
-import com.navercorp.pinpoint.metric.common.model.DoubleCounter;
+import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Repository;
@@ -30,7 +30,7 @@ import java.util.Objects;
  * @author Hyunjoon Cho
  */
 @Repository
-public class PinotSystemMetricDoubleDao implements SystemMetricDao<DoubleCounter> {
+public class PinotSystemMetricDoubleDao implements SystemMetricDao<DoubleMetric> {
 
     private final KafkaTemplate<String, SystemMetricView> kafkaDoubleTemplate;
 
@@ -43,12 +43,12 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<DoubleCounter
     }
 
     @Override
-    public void insert(String applicationName, List<DoubleCounter> systemMetrics) {
+    public void insert(String applicationName, List<DoubleMetric> systemMetrics) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(systemMetrics, "systemMetrics");
 
-        for (DoubleCounter doubleCounter : systemMetrics) {
-            SystemMetricView systemMetricView = new SystemMetricView(applicationName, doubleCounter);
+        for (DoubleMetric doubleMetric : systemMetrics) {
+            SystemMetricView systemMetricView = new SystemMetricView(applicationName, doubleMetric);
             this.kafkaDoubleTemplate.send(topic, systemMetricView);
         }
     }

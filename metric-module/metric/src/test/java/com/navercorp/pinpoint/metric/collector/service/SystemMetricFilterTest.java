@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.metric.collector.service;
 
 import com.navercorp.pinpoint.metric.collector.dao.pinot.PinotSystemMetricDoubleDao;
 import com.navercorp.pinpoint.metric.collector.dao.pinot.PinotSystemMetricLongDao;
-import com.navercorp.pinpoint.metric.common.model.DoubleCounter;
-import com.navercorp.pinpoint.metric.common.model.LongCounter;
+import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
+import com.navercorp.pinpoint.metric.common.model.LongMetric;
 import com.navercorp.pinpoint.metric.common.model.Metrics;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import org.junit.Assert;
@@ -41,9 +41,9 @@ public class SystemMetricFilterTest {
     private SystemMetricService systemMetricService;
 
     @Mock
-    private LongCounter longCounter;
+    private LongMetric longMetric;
     @Mock
-    private DoubleCounter doubleCounter;
+    private DoubleMetric doubleMetric;
     @Mock
     private PinotSystemMetricLongDao longDao;
     @Mock
@@ -61,21 +61,21 @@ public class SystemMetricFilterTest {
         int doubleCount = random.nextInt(100);
         Metrics systemMetrics = createList(longCount, doubleCount);
 
-        List<LongCounter> longCounterList = systemMetricService.filterLongCounter(systemMetrics);
-        List<DoubleCounter> doubleCounterList = systemMetricService.filterDoubleCounter(systemMetrics);
+        List<LongMetric> longMetricList = systemMetricService.filterLongCounter(systemMetrics);
+        List<DoubleMetric> doubleMetricList = systemMetricService.filterDoubleCounter(systemMetrics);
 
-        Assert.assertEquals(longCount, longCounterList.size());
-        Assert.assertEquals(doubleCount, doubleCounterList.size());
+        Assert.assertEquals(longCount, longMetricList.size());
+        Assert.assertEquals(doubleCount, doubleMetricList.size());
     }
 
     private Metrics createList(int longCount, int doubleCount) {
         List<SystemMetric> systemMetricList = new ArrayList<>();
 
         for (int i = 0; i < longCount; i++) {
-            systemMetricList.add(longCounter);
+            systemMetricList.add(longMetric);
         }
         for (int i = 0; i < doubleCount; i++) {
-            systemMetricList.add(doubleCounter);
+            systemMetricList.add(doubleMetric);
         }
 
         return new Metrics("id", systemMetricList);

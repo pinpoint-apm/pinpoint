@@ -31,13 +31,13 @@ public class SystemMetricTagServiceImplTest {
         String hostName = "hostName";
         String metricName = "metricName";
         String fieldName = "fieldName";
-        List<Tag> tagList = new ArrayList<Tag>();
+        List<Tag> tagList = new ArrayList<>();
         tagList.add(new Tag("key", "value"));
 
         MetricTagKey metricTagKey = new MetricTagKey(applicationName, hostName, metricName, fieldName);
         when(metricTagCache.getMetricTag(metricTagKey)).thenReturn(null);
 
-        SystemMetric systemMetric = new LongCounter(metricName, hostName, fieldName, 0, tagList, Long.MAX_VALUE);
+        SystemMetric systemMetric = new LongMetric(metricName, hostName, fieldName, 0, tagList, Long.MAX_VALUE);
         systemMetricTagService.saveMetricTag(applicationName, systemMetric);
 
 
@@ -59,7 +59,7 @@ public class SystemMetricTagServiceImplTest {
         String hostName = "hostName";
         String metricName = "metricName";
         String fieldName = "fieldName";
-        List<Tag> tagList = new ArrayList<Tag>();
+        List<Tag> tagList = new ArrayList<>();
         tagList.add(new Tag("key", "value"));
 
         MetricTagKey metricTagKey = new MetricTagKey(applicationName, hostName, metricName, fieldName);
@@ -69,7 +69,7 @@ public class SystemMetricTagServiceImplTest {
         MetricTagCollection metricTagCollection = new MetricTagCollection(applicationName, hostName, metricName, fieldName, metricTagList);
         when(metricTagCache.getMetricTag(metricTagKey)).thenReturn(metricTagCollection);
 
-        SystemMetric systemMetric = new LongCounter(metricName, hostName, fieldName, 0, tagList, Long.MAX_VALUE);
+        SystemMetric systemMetric = new LongMetric(metricName, hostName, fieldName, 0, tagList, Long.MAX_VALUE);
         systemMetricTagService.saveMetricTag(applicationName, systemMetric);
 
         verify(metricTagCache, times(0)).updateCacheForMetricTag(any(MetricTagKey.class), any(MetricTagCollection.class));
@@ -86,7 +86,7 @@ public class SystemMetricTagServiceImplTest {
         String hostName = "hostName";
         String metricName = "metricName";
         String fieldName = "fieldName";
-        List<Tag> tagList = new ArrayList<Tag>();
+        List<Tag> tagList = new ArrayList<>();
         tagList.add(new Tag("key", "value"));
 
         MetricTagKey metricTagKey = new MetricTagKey(applicationName, hostName, metricName, fieldName);
@@ -96,7 +96,7 @@ public class SystemMetricTagServiceImplTest {
         MetricTagCollection metricTagCollection = new MetricTagCollection(applicationName, hostName, metricName, fieldName, metricTagList);
         when(metricTagCache.getMetricTag(metricTagKey)).thenReturn(metricTagCollection);
 
-        SystemMetric systemMetric = new LongCounter(metricName, hostName, fieldName, 0, new ArrayList<Tag>(), Long.MAX_VALUE);
+        SystemMetric systemMetric = new LongMetric(metricName, hostName, fieldName, 0, new ArrayList<>(), Long.MAX_VALUE);
         systemMetricTagService.saveMetricTag(applicationName, systemMetric);
 
         verify(metricTagCache, times(1)).updateCacheForMetricTag(any(MetricTagKey.class), any(MetricTagCollection.class));
@@ -112,7 +112,7 @@ public class SystemMetricTagServiceImplTest {
         String hostName = "hostName";
         String metricName = "metricName";
         String fieldName = "fieldName";
-        List<Tag> tagList = new ArrayList<Tag>();
+        List<Tag> tagList = new ArrayList<>();
         tagList.add(new Tag("key", "value"));
         tagList.add(new Tag("key2", "value2"));
 
@@ -145,24 +145,24 @@ public class SystemMetricTagServiceImplTest {
         String metricName = "metricName";
         String fieldName = "fieldName";
 
-        MetricTag metricTag = new MetricTag(applicationName, hostName, metricName, fieldName, new ArrayList<Tag>());
-        List<Tag> tagList2 = new ArrayList<Tag>();
+        MetricTag metricTag = new MetricTag(applicationName, hostName, metricName, fieldName, new ArrayList<>());
+        List<Tag> tagList2 = new ArrayList<>();
         tagList2.add(new Tag("key", "value"));
         tagList2.add(new Tag("key2", "value2"));
         MetricTag metricTag2 = new MetricTag(applicationName, hostName, metricName, fieldName, tagList2);
 
-        List<Tag> tagList3 = new ArrayList<Tag>();
+        List<Tag> tagList3 = new ArrayList<>();
         tagList3.add(new Tag("key", "value"));
         tagList3.add(new Tag("key2", "value2"));
         tagList3.add(new Tag("key3", "value3"));
         MetricTag metricTag3 = new MetricTag(applicationName, hostName, metricName, fieldName, tagList3);
 
-        List<MetricTag> metricTagList = new ArrayList<MetricTag>();
+        List<MetricTag> metricTagList = new ArrayList<>();
         metricTagList.add(metricTag);
         metricTagList.add(metricTag2);
         metricTagList.add(metricTag3);
 
-        List<Tag> tagList4 = new ArrayList<Tag>();
+        List<Tag> tagList4 = new ArrayList<>();
         tagList4.add(new Tag("key", "value"));
         tagList4.add(new Tag("key2", "value2"));
         tagList4.add(new Tag("key3", "value3"));
@@ -181,7 +181,7 @@ public class SystemMetricTagServiceImplTest {
 
     @Test
     public void tagListCopyAndEquals() {
-        List<Tag> tagList = new ArrayList<Tag>();
+        List<Tag> tagList = new ArrayList<>();
         tagList.add(new Tag("key", "value"));
         tagList.add(new Tag("key2", "value2"));
         tagList.add(new Tag("key3", "value3"));

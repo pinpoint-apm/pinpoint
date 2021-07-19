@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.metric.collector.dao.pinot;
 
 import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDao;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
-import com.navercorp.pinpoint.metric.common.model.LongCounter;
+import com.navercorp.pinpoint.metric.common.model.LongMetric;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Repository;
@@ -30,7 +30,7 @@ import java.util.Objects;
  * @author Hyunjoon Cho
  */
 @Repository
-public class PinotSystemMetricLongDao implements SystemMetricDao<LongCounter> {
+public class PinotSystemMetricLongDao implements SystemMetricDao<LongMetric> {
 
     private final KafkaTemplate<String, SystemMetricView> kafkaLongTemplate;
 
@@ -43,12 +43,12 @@ public class PinotSystemMetricLongDao implements SystemMetricDao<LongCounter> {
     }
 
     @Override
-    public void insert(String applicationName, List<LongCounter> systemMetrics) {
+    public void insert(String applicationName, List<LongMetric> systemMetrics) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(systemMetrics, "systemMetrics");
 
-        for (LongCounter longCounter : systemMetrics) {
-            SystemMetricView systemMetricView = new SystemMetricView(applicationName, longCounter);
+        for (LongMetric longMetric : systemMetrics) {
+            SystemMetricView systemMetricView = new SystemMetricView(applicationName, longMetric);
             this.kafkaLongTemplate.send(topic, systemMetricView);
         }
     }
