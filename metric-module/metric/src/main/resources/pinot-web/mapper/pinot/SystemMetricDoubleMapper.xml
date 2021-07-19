@@ -3,7 +3,7 @@
 
 
 <mapper namespace="com.navercorp.pinpoint.metric.web.dao.pinot.PinotSystemMetricDoubleDao">
-    <resultMap id="systemMetricResultMap" type="DoubleCounter">
+    <resultMap id="systemMetricResultMap" type="DoubleMetric">
         <constructor>
             <arg column="metricName" javaType="string"/>
             <arg column="hostName" javaType="string"/>

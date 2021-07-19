@@ -40,7 +40,7 @@ public class MysqlSystemMetricDataTypeDaoTest {
     }
 
     @Test
-    public void upSertTest() {
+    public void upsertTest() {
         MetricData metricData1 = new MetricData("metricName1", "fieldName1", MetricDataType.DOUBLE);
         MetricData metricData2 = new MetricData("metricName2", "fieldName2", MetricDataType.LONG);
         systemMetricDataTypeDao.updateMetricDataType(metricData1);

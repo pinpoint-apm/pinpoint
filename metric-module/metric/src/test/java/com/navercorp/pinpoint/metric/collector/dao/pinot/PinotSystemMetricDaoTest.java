@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.metric.collector.dao.pinot;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
-import com.navercorp.pinpoint.metric.common.model.LongCounter;
+import com.navercorp.pinpoint.metric.common.model.LongMetric;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,9 +49,9 @@ public class PinotSystemMetricDaoTest {
     private final SendCount sendCount = new SendCount();
 
     @Mock
-    KafkaTemplate<String, SystemMetricView> kafkaTemplate;
+    private KafkaTemplate<String, SystemMetricView> kafkaTemplate;
     @Mock
-    LongCounter longCounter;
+    private LongMetric longMetric;
 
     @Before
     public void setupTemplate() {
@@ -70,21 +70,21 @@ public class PinotSystemMetricDaoTest {
     @Test
     public void testLogDao() throws JsonProcessingException {
         PinotSystemMetricLongDao longDao = new PinotSystemMetricLongDao(kafkaTemplate, TOPIC);
-        List<LongCounter> longCounterList = createLongCounterList();
+        List<LongMetric> longMetricList = createLongCounterList();
 
-        longDao.insert("applicationName", longCounterList);
+        longDao.insert("applicationName", longMetricList);
 
-        Assert.assertEquals(longCounterList.size(), sendCount.getSendCount());
+        Assert.assertEquals(longMetricList.size(), sendCount.getSendCount());
     }
 
-    private List<LongCounter> createLongCounterList() {
-        List<LongCounter> longCounterList = new ArrayList<>();
+    private List<LongMetric> createLongCounterList() {
+        List<LongMetric> longMetricList = new ArrayList<>();
         int numCounter = random.nextInt(100);
         for (int i = 0; i < numCounter; i++) {
-            longCounterList.add(longCounter);
+            longMetricList.add(longMetric);
         }
 
-        return longCounterList;
+        return longMetricList;
     }
 
     public class SendCount {
