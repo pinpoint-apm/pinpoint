@@ -45,7 +45,9 @@ import java.util.concurrent.TimeUnit;
 public class SystemMetricController {
     private final SystemMetricDataService systemMetricDataService;
     private final SystemMetricHostInfoService systemMetricHostInfoService;
-    private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new DefaultTimeWindowSampler();
+
+    private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new DefaultTimeWindowSampler(10000L);
+
     private final TagParser tagParser = new TagParser();
 
     public SystemMetricController(SystemMetricDataService systemMetricDataService, SystemMetricHostInfoService systemMetricHostInfoService) {
@@ -95,12 +97,8 @@ public class SystemMetricController {
         builder.setRange(Range.newRange(from, to));
         QueryParameter queryParameter = builder.build();
 
-        TimeWindowSampler sampler = new TimeWindowSampler() {
-            @Override
-            public long getWindowSize(Range range) {
-                return 10000L;
-            }
-        };
+        TimeWindowSampler sampler = DEFAULT_TIME_WINDOW_SAMPLER;
+
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
 
         return systemMetricDataService.getSystemMetricChart(timeWindow, queryParameter);
@@ -132,13 +130,8 @@ public class SystemMetricController {
 
         final long minSamplingInterval = 10000L;
         final long inputInterval = timePrecision.getInterval();
-        final long interval = inputInterval < minSamplingInterval ? minSamplingInterval : inputInterval;
-        TimeWindowSampler sampler = new TimeWindowSampler() {
-            @Override
-            public long getWindowSize(Range range) {
-                return interval;
-            }
-        };
+        final long interval = Math.max(inputInterval, minSamplingInterval);
+        TimeWindowSampler sampler = new DefaultTimeWindowSampler(interval);
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
 
         return systemMetricDataService.getSystemMetricChart(timeWindow, queryParameter);
@@ -155,17 +148,17 @@ public class SystemMetricController {
     }
 
     @GetMapping(value = "/hostGroup/host/collectedMetricInfo")
-    public List<String> getcollectedMetricInfo(@RequestParam("hostGroupId") String hostGroupId, @RequestParam("hostName") String hostName) {
+    public List<String> getCollectedMetricInfo(@RequestParam("hostGroupId") String hostGroupId, @RequestParam("hostName") String hostName) {
         return systemMetricHostInfoService.getCollectedMetricInfo(hostGroupId, hostName);
     }
 
     @GetMapping(value = "/hostGroup/host/collectedMetricData")
-    public SystemMetricData getcollectedMetricData(@RequestParam("hostGroupId") String hostGroupId,
-                                                   @RequestParam("hostName") String hostName,
-                                                   @RequestParam("metricName") String metricName,
-                                                   @RequestParam("metricDefinitionId") String metricDefinitionId,
-                                                   @RequestParam("from") long from,
-                                                   @RequestParam("to") long to) {
+    public SystemMetricData getCollectedMetricData(@RequestParam("hostGroupId") String hostGroupId,
+                                                           @RequestParam("hostName") String hostName,
+                                                           @RequestParam("metricName") String metricName,
+                                                           @RequestParam("metricDefinitionId") String metricDefinitionId,
+                                                           @RequestParam("from") long from,
+                                                           @RequestParam("to") long to) {
         //TODO : (minwoo) sampler 를 range 값에 따라서 다르게 설정해주는 로직이 들어가는게 필요함
         Range range = Range.newRange(from, to);
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
@@ -175,9 +168,15 @@ public class SystemMetricController {
     }
 
     private static class DefaultTimeWindowSampler implements TimeWindowSampler {
+        private final long windowSize;
+
+        public DefaultTimeWindowSampler(long windowSize) {
+            this.windowSize = windowSize;
+        }
+
         @Override
         public long getWindowSize(Range range) {
-            return 10000L;
+            return windowSize;
         }
     };
 

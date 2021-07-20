@@ -6,13 +6,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
 
 public class TelegrafMetric {
-    private final Map<String, Number> fields;
+    private final Map<String, Double> fields;
     private final String name;
     private final Map<String, String> tags;
     private final long timestamp;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public TelegrafMetric(@JsonProperty("fields") Map<String, Number> fields,
+    public TelegrafMetric(@JsonProperty("fields") Map<String, Double> fields,
                           @JsonProperty("name") String name,
                           @JsonProperty("tags") Map<String, String> tags,
                           @JsonProperty("timestamp") long timestamp) {
@@ -22,7 +22,7 @@ public class TelegrafMetric {
         this.timestamp = timestamp;
     }
 
-    public Map<String, Number> getFields() {
+    public Map<String, Double> getFields() {
         return fields;
     }
 

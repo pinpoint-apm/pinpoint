@@ -16,7 +16,7 @@ public class LongMetric extends SystemMetric {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("LongCounter{");
+        final StringBuilder sb = new StringBuilder("LongMetric{");
         sb.append("metric=").append(metricName);
         sb.append(", host=").append(hostName);
         sb.append(", field=").append(fieldName);
