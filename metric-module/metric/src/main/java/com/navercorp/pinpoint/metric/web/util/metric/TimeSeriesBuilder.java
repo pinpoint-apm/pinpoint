@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -28,18 +29,18 @@ import java.util.List;
 public class TimeSeriesBuilder<T extends Number> {
 
     private final TimeWindow timeWindow;
-    private final UncollectedDataCreator uncollectedDataCreator;
+    private final UncollectedDataCreator<T> uncollectedDataCreator;
 
-    public TimeSeriesBuilder(TimeWindow timeWindow, UncollectedDataCreator uncollectedDataCreator) {
-        this.timeWindow = timeWindow;
-        this.uncollectedDataCreator = uncollectedDataCreator;
+    public TimeSeriesBuilder(TimeWindow timeWindow, UncollectedDataCreator<T> uncollectedDataCreator) {
+        this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
+        this.uncollectedDataCreator = Objects.requireNonNull(uncollectedDataCreator, "uncollectedDataCreator");
     }
 
 
     public List<SystemMetricPoint<T>> build(List<SystemMetricPoint<T>> systemMetricDataList) {
         List<SystemMetricPoint<T>> filledSystemMetricPointList = createInitialPoints();
 
-        for (SystemMetricPoint systemMetricPoint : systemMetricDataList) {
+        for (SystemMetricPoint<T> systemMetricPoint : systemMetricDataList) {
             int timeslotIndex = this.timeWindow.getWindowIndex(systemMetricPoint.getXVal());
             if (timeslotIndex < 0 || timeslotIndex >= timeWindow.getWindowRangeCount()) {
                 continue;
