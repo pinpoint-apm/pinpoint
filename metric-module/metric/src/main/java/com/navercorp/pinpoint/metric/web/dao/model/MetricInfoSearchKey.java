@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.metric.web.dao.model;
 
+import java.util.Objects;
+
 /**
  * @author minwoo.jung
  */
@@ -25,8 +27,8 @@ public class MetricInfoSearchKey {
     private final String hostName;
 
     public MetricInfoSearchKey(String hostGroupId, String hostName) {
-        this.hostGroupId = hostGroupId;
-        this.hostName = hostName;
+        this.hostGroupId = Objects.requireNonNull(hostGroupId, "hostGroupId");
+        this.hostName = Objects.requireNonNull(hostName, "hostName");
     }
 
     public String getHostGroupId() {

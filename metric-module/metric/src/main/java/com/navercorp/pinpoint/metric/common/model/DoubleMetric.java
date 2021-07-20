@@ -16,7 +16,7 @@ public class DoubleMetric extends SystemMetric {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DoubleCounter{");
+        final StringBuilder sb = new StringBuilder("DoubleMetric{");
         sb.append("metric=").append(metricName);
         sb.append(", host=").append(hostName);
         sb.append(", field=").append(fieldName);

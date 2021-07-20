@@ -23,10 +23,10 @@ import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricPoint;
  */
 public class LongUncollectedDataCreator implements UncollectedDataCreator<Long> {
     public static final Long UNCOLLECTED_VALUE = -1L;
-    public static final DoubleUncollectedDataCreator UNCOLLECTED_DATA_CREATOR = new DoubleUncollectedDataCreator();
+    public static final UncollectedDataCreator<Long> UNCOLLECTED_DATA_CREATOR = new LongUncollectedDataCreator();
 
     @Override
     public SystemMetricPoint<Long> createUnCollectedPoint(long xVal) {
-        return new SystemMetricPoint<Long>(xVal, UNCOLLECTED_VALUE);
+        return new SystemMetricPoint<>(xVal, UNCOLLECTED_VALUE);
     }
 }

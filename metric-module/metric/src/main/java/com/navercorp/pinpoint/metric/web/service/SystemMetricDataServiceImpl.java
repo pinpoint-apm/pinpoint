@@ -122,13 +122,13 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
                 switch (metricDataType) {
                     case LONG:
                         List<SystemMetricPoint<Long>> longSampledSystemMetricData = systemMetricLongDao.getSampledSystemMetricData(metricDataSearchKey, metricTag);
-                        MetricValue longMetricValue = createSystemMetricValue(timeWindow, metricTag, longSampledSystemMetricData, LongUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
+                        MetricValue<Long> longMetricValue = createSystemMetricValue(timeWindow, metricTag, longSampledSystemMetricData, LongUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
                         metricValueList.add(longMetricValue);
                         //TODO : (minwoo) 위의 2줄도 중복 제거필요
                         break;
                     case DOUBLE:
                         List<SystemMetricPoint<Double>> doubleSampledSystemMetricData = systemMetricDoubleDao.getSampledSystemMetricData(metricDataSearchKey, metricTag);
-                        MetricValue doubleMetricValue = createSystemMetricValue(timeWindow, metricTag, doubleSampledSystemMetricData, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
+                        MetricValue<Double> doubleMetricValue = createSystemMetricValue(timeWindow, metricTag, doubleSampledSystemMetricData, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
                         metricValueList.add(doubleMetricValue);
                         break;
                     default:
@@ -151,15 +151,17 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
         return timestampList;
     }
 
-    private <T extends Number> MetricValue createSystemMetricValue(TimeWindow timeWindow, MetricTag metricTag, List<SystemMetricPoint<T>> sampledSystemMetricDataList, UncollectedDataCreator uncollectedDataCreator) {
-        TimeSeriesBuilder<T> builder = new TimeSeriesBuilder(timeWindow, uncollectedDataCreator);
+    private <T extends Number> MetricValue<T> createSystemMetricValue(TimeWindow timeWindow, MetricTag metricTag,
+                                                                      List<SystemMetricPoint<T>> sampledSystemMetricDataList,
+                                                                      UncollectedDataCreator<T> uncollectedDataCreator) {
+        TimeSeriesBuilder<T> builder = new TimeSeriesBuilder<>(timeWindow, uncollectedDataCreator);
         List<SystemMetricPoint<T>> filledSystemMetricDataList = builder.build(sampledSystemMetricDataList);
 
         List<T> valueList = filledSystemMetricDataList.stream()
                 .map(SystemMetricPoint::getYVal)
                 .collect(Collectors.toList());
 
-        return new MetricValue(metricTag.getFieldName(), metricTag.getTags(), valueList);
+        return new MetricValue<>(metricTag.getFieldName(), metricTag.getTags(), valueList);
     }
 
     private String getChartName(String metricName, String fieldName) {
