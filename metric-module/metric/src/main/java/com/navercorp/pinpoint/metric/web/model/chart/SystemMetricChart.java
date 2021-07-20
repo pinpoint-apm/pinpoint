@@ -34,17 +34,17 @@ import java.util.stream.Collectors;
  */
 @JsonSerialize(using = SystemMetricChartSerializer.class)
 public class SystemMetricChart<T extends Number> {
-    private final SystemMetricChartGroup systemMetricChartGroup;
+    private final SystemMetricChartGroup<T> systemMetricChartGroup;
 
     public SystemMetricChart(TimeWindow timeWindow, String chartName, List<SampledSystemMetric<T>> sampledSystemMetrics) {
         this.systemMetricChartGroup = new SystemMetricChartGroup<>(timeWindow, chartName, sampledSystemMetrics);
     }
 
-    public SystemMetricChartGroup getSystemMetricChartGroup() {
+    public SystemMetricChartGroup<T> getSystemMetricChartGroup() {
         return systemMetricChartGroup;
     }
 
-    public static class SystemMetricChartGroup <T extends Number> {
+    public static class SystemMetricChartGroup<T extends Number> {
 
         private final String chartName;
 

@@ -84,7 +84,7 @@ public class TelegrafMetricController {
             String host = getHost(telegrafMetrics);
             logger.info("Application-Name:{} host:{} size:{}", applicationName, host, telegrafMetrics.size());
         }
-        logger.debug("telegrafMetrics:{}", telegrafMetrics);
+        logger.info("telegrafMetrics:{}", telegrafMetrics);
 
         Metrics systemMetric = toMetrics(applicationName, telegrafMetrics);
 
@@ -113,38 +113,21 @@ public class TelegrafMetricController {
         return new Metrics(id, metricList);
     }
 
-    private Stream<SystemMetric> toMetric(TelegrafMetric tMetric) {
+    Stream<SystemMetric> toMetric(TelegrafMetric tMetric) {
         Map<String, String> tTags = tMetric.getTags();
         List<Tag> tag = toTag(tTags, ignoreTags);
         final String host = tTags.get("host");
         final long timestamp = TimeUnit.SECONDS.toMillis(tMetric.getTimestamp());
 
-        List<SystemMetric> metricList = new ArrayList<>();
 
-        Map<String, Number> fields = tMetric.getFields();
-        for (Map.Entry<String, Number> entry : fields.entrySet()) {
-            SystemMetric systemMetric = null;
-
-            Number value = entry.getValue();
-            if (value instanceof Integer || value instanceof Long) {
-                systemMetric = new LongMetric(tMetric.getName(), host, entry.getKey(), value.longValue(), tag, timestamp);
-            }
-            else if (value instanceof Float || value instanceof Double){
-                systemMetric = new DoubleMetric(tMetric.getName(), host, entry.getKey(), value.doubleValue(), tag, timestamp);
-            } else {
-                throw new IllegalArgumentException("Unexpected datatype:" +  value);
-            }
-
-            metricList.add(systemMetric);
-        }
-        return metricList.stream();
+        Map<String, Double> fields = tMetric.getFields();
+        return fields.entrySet().stream()
+                .map(entry -> new DoubleMetric(tMetric.getName(), host, entry.getKey(), entry.getValue(), tag, timestamp));
     }
-
-
 
     private List<Tag> toTag(Map<String, String> tTags, List<String> ignoreTagName) {
         return tTags.entrySet().stream()
-                .filter(entry -> ignoreTagName.contains(entry.getKey()))
+                .filter(entry -> !ignoreTagName.contains(entry.getKey()))
                 .map(this::newTag)
                 .collect(Collectors.toList());
     }
