@@ -13,6 +13,7 @@ export class ConfigurationExperimentalContainerComponent implements OnInit {
     desc$: Observable<string>;
 
     enableServerSideScanForScatter: boolean;
+    useStatisticsAgentState: boolean;
 
     constructor(
         private translateService: TranslateService,
@@ -30,6 +31,7 @@ export class ConfigurationExperimentalContainerComponent implements OnInit {
 
     private setOptions(): void {
         this.enableServerSideScanForScatter = this.webAppSettingDataService.getExperimentalOption('scatterScan');
+        this.useStatisticsAgentState = this.webAppSettingDataService.getExperimentalOption('statisticsAgentState');
     }
 
     onChangeOption(optionKey: string): void {
@@ -37,6 +39,10 @@ export class ConfigurationExperimentalContainerComponent implements OnInit {
             case 'scatterScan':
                 this.enableServerSideScanForScatter = !this.enableServerSideScanForScatter;
                 this.webAppSettingDataService.setExperimentalOption('scatterScan', this.enableServerSideScanForScatter);
+                break;
+            case 'statisticsAgentState':
+                this.useStatisticsAgentState = !this.useStatisticsAgentState;
+                this.webAppSettingDataService.setExperimentalOption('statisticsAgentState', this.useStatisticsAgentState);
                 break;
         }
     }
