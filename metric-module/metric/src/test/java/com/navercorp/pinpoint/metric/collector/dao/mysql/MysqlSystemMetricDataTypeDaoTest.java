@@ -17,7 +17,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
  * @author minwoo.jung
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({"classpath:pinot-collector/applicationContext-collector-test.xml", "classpath:pinot-collector/applicationContext-collector-pinot.xml"})
+@ContextConfiguration(classes = MysqlTestConfig.class)
 @TestPropertySource(properties = {"pinpoint.profiles.active=local"})
 @WebAppConfiguration
 public class MysqlSystemMetricDataTypeDaoTest {
