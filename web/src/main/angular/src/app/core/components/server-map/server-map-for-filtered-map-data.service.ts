@@ -127,6 +127,7 @@ export class ServerMapForFilteredMapDataService {
                 .set('limit', this.REQUEST_LIMIT + '')
                 .set('xGroupUnit', this.X_GROUP_UNIT + '') // for scatter-chart
                 .set('yGroupUnit', this.Y_GROUP_UNIT + '') // for scatter-chart
+                .set('useStatisticsAgentState', this.webAppSettingDataService.getExperimentalOption('statisticsAgentState').toString())
         };
     }
 }

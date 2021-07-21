@@ -3,6 +3,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 
+import { WebAppSettingDataService } from 'app/shared/services/web-app-setting-data.service';
+
 @Injectable()
 export class TransactionDetailDataService {
     private requestURL = 'transactionInfo.pinpoint';
@@ -14,7 +16,8 @@ export class TransactionDetailDataService {
     cachedTimelineData: {[key: string]: Observable<ITransactionTimelineData>} = {};
 
     constructor(
-        private http: HttpClient
+        private http: HttpClient,
+        private webAppSettingDataService: WebAppSettingDataService
     ) {}
 
     getData(agentId: string, spanId: string, traceId: string, focusTimestamp: number): Observable<ITransactionDetailData> {
@@ -59,6 +62,7 @@ export class TransactionDetailDataService {
                 .set('spanId', spanId)
                 .set('traceId', traceId)
                 .set('focusTimestamp', focusTimestamp + '')
+                .set('useStatisticsAgentState', this.webAppSettingDataService.getExperimentalOption('statisticsAgentState').toString())
         };
     }
 }
