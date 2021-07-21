@@ -28,9 +28,7 @@ public class Tag {
     private final String name;
     private final String value;
 
-    @JsonCreator
-    public Tag(@JsonProperty("name") String name,
-               @JsonProperty("value") String value) {
+    public Tag(String name, String value) {
         this.name = Objects.requireNonNull(name);
         this.value = Objects.requireNonNull(value);
     }
@@ -38,7 +36,6 @@ public class Tag {
     public String getName() {
         return name;
     }
-
 
     public String getValue() {
         return value;

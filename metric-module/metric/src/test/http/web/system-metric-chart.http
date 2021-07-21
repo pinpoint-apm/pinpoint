@@ -110,6 +110,6 @@ Accept: application/json
 
 ###
 GET http://{{host}}/systemMetric/hostGroup/host/collectedMetricData.pinpoint
-    ?hostGroupId={{applicationName}}&hostName={{metric-host}}&metricName=cpu&metricDefinitionId=memoryPercent
+    ?hostGroupId={{applicationName}}&hostName={{metric-host}}&metricName=cpu&metricDefinitionId=cpu
     &from={{from}}&to={{to}}
 Accept: application/json

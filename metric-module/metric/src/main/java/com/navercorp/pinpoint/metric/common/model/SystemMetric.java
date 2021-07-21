@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.metric.common.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
@@ -61,7 +62,7 @@ public class SystemMetric {
         return fieldName;
     }
 
-    @JsonSerialize(using = TagSerializer.class)
+    @JsonSerialize(contentUsing = ToStringSerializer.class)
     public List<Tag> getTags() {
         return tags;
     }

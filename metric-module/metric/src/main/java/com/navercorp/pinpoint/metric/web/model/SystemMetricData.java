@@ -16,9 +16,7 @@
 
 package com.navercorp.pinpoint.metric.web.model;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.metric.common.model.StringPrecondition;
-import com.navercorp.pinpoint.metric.web.view.SystemMetricDataSerializer;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,7 +24,6 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-@JsonSerialize(using = SystemMetricDataSerializer.class)
 public class SystemMetricData<Y extends Number> {
     private final String title;
     private final List<Long> timeStampList;
