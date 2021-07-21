@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.metric.collector.controller;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetric;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetrics;
 import com.navercorp.pinpoint.metric.collector.service.SystemMetricDataTypeService;
@@ -37,10 +38,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -96,11 +95,15 @@ public class TelegrafMetricController {
 
     private String getHost(TelegrafMetrics metrics) {
         List<TelegrafMetric> metricList = metrics.getMetrics();
-        if( metricList.isEmpty()) {
+        if (CollectionUtils.isEmpty(metricList)) {
             return "";
         }
-        Map<String, String> tags = metricList.get(0).getTags();
-        return tags.get("host");
+        List<Tag> tags = metricList.get(0).getTags();
+        Tag host = getHost(tags);
+        if (host == null) {
+            return null;
+        }
+        return host.getValue();
     }
 
     private Metrics toMetrics(String id, TelegrafMetrics telegrafMetrics) {
@@ -114,26 +117,33 @@ public class TelegrafMetricController {
     }
 
     Stream<SystemMetric> toMetric(TelegrafMetric tMetric) {
-        Map<String, String> tTags = tMetric.getTags();
-        List<Tag> tag = toTag(tTags, ignoreTags);
-        final String host = tTags.get("host");
+        List<Tag> tTags = tMetric.getTags();
+
+        final Tag hostTag = getHost(tTags);
+        if (hostTag == null) {
+            throw new RuntimeException("host tag not found");
+        }
+
+        List<Tag> tag = filterTag(tTags, ignoreTags);
+
         final long timestamp = TimeUnit.SECONDS.toMillis(tMetric.getTimestamp());
 
 
-        Map<String, Double> fields = tMetric.getFields();
-        return fields.entrySet().stream()
-                .map(entry -> new DoubleMetric(tMetric.getName(), host, entry.getKey(), entry.getValue(), tag, timestamp));
+        List<TelegrafMetric.Field> fields = tMetric.getFields();
+        return fields.stream()
+                .map(field -> new DoubleMetric(tMetric.getName(), hostTag.getValue(), field.getName(), field.getValue(), tag, timestamp));
     }
 
-    private List<Tag> toTag(Map<String, String> tTags, List<String> ignoreTagName) {
-        return tTags.entrySet().stream()
-                .filter(entry -> !ignoreTagName.contains(entry.getKey()))
-                .map(this::newTag)
+    private Tag getHost(List<Tag> tTags) {
+        return tTags.stream()
+                .filter(tag -> tag.getName().equals("host"))
+                .findFirst().orElse(null);
+    }
+
+    private List<Tag> filterTag(List<Tag> tTags, List<String> ignoreTagName) {
+        return tTags.stream()
+                .filter(entry -> !ignoreTagName.contains(entry.getName()))
                 .collect(Collectors.toList());
-    }
-
-    private Tag newTag(Map.Entry<String, String> entry) {
-        return new Tag(entry.getKey(), entry.getValue());
     }
 
     private void updateMetadata(Metrics systemMetrics) {
