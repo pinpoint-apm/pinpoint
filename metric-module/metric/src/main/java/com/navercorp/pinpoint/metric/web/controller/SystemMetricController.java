@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.metric.web.util.TagParser;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricChart;
+import com.navercorp.pinpoint.metric.web.view.SystemMetricView;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -153,18 +154,19 @@ public class SystemMetricController {
     }
 
     @GetMapping(value = "/hostGroup/host/collectedMetricData")
-    public SystemMetricData getCollectedMetricData(@RequestParam("hostGroupId") String hostGroupId,
-                                                           @RequestParam("hostName") String hostName,
-                                                           @RequestParam("metricName") String metricName,
-                                                           @RequestParam("metricDefinitionId") String metricDefinitionId,
-                                                           @RequestParam("from") long from,
-                                                           @RequestParam("to") long to) {
+    public SystemMetricView getCollectedMetricData(@RequestParam("hostGroupId") String hostGroupId,
+                                                   @RequestParam("hostName") String hostName,
+                                                   @RequestParam("metricName") String metricName,
+                                                   @RequestParam("metricDefinitionId") String metricDefinitionId,
+                                                   @RequestParam("from") long from,
+                                                   @RequestParam("to") long to) {
         //TODO : (minwoo) sampler 를 range 값에 따라서 다르게 설정해주는 로직이 들어가는게 필요함
         Range range = Range.newRange(from, to);
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
         MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(hostGroupId, hostName, metricName, metricDefinitionId, range);
         SystemMetricData systemMetricData = systemMetricDataService.getCollectedMetricData(metricDataSearchKey, timeWindow);
-        return systemMetricData;
+
+        return new SystemMetricView(systemMetricData);
     }
 
     private static class DefaultTimeWindowSampler implements TimeWindowSampler {

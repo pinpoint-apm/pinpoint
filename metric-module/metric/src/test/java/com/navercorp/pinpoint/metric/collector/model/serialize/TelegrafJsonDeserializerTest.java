@@ -31,8 +31,8 @@ public class TelegrafJsonDeserializerTest {
         Assert.assertEquals(2, metrics.size());
         logger.debug("{}", metrics);
 
-        Assert.assertTrue(metrics.get(0).getFields().containsKey("field_1"));
-        Assert.assertTrue(metrics.get(1).getFields().containsKey("field_N"));
+        Assert.assertTrue(metrics.get(0).getFields().contains(new TelegrafMetric.Field("field_1", 30)));
+        Assert.assertTrue(metrics.get(1).getFields().contains(new TelegrafMetric.Field("field_N", 59)));
     }
 
     @Test
@@ -47,6 +47,6 @@ public class TelegrafJsonDeserializerTest {
         logger.debug("{}", metrics);
 
 
-        Assert.assertTrue(metrics.get(0).getFields().containsKey("field_1"));
+        Assert.assertTrue(metrics.get(0).getFields().contains(new TelegrafMetric.Field("field_1", 30)));
     }
 }
