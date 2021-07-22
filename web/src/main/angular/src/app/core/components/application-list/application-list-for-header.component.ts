@@ -34,7 +34,7 @@ export class ApplicationListForHeaderComponent implements OnInit, OnChanges, Aft
     ngOnChanges(changes: SimpleChanges) {
         const {applicationList, focusIndex} = changes;
 
-        if (applicationList) {
+        if (applicationList && applicationList.currentValue) {
             this.isEmpty = (applicationList.currentValue as IApplication[]).length === 0;
         }
 

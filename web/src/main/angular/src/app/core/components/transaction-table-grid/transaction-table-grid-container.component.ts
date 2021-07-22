@@ -10,7 +10,7 @@ import {
     StoreHelperService,
     AnalyticsService, TRACKED_EVENT_LIST
 } from 'app/shared/services';
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 import { UrlPath, UrlPathId, UrlQuery } from 'app/shared/models';
 import { IGridData } from './transaction-table-grid.component';
 import { TransactionMetaDataService } from './transaction-meta-data.service';

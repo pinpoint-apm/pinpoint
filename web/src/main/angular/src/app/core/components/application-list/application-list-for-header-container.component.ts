@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, ChangeDetectorRef, ChangeDetectionStrategy, OnDestroy, Renderer2, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject, combineLatest, fromEvent, of, forkJoin } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, takeUntil, pluck, delay } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, takeUntil, pluck, delay, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import {
@@ -10,12 +10,13 @@ import {
     NewUrlStateNotificationService,
     AnalyticsService,
     TRACKED_EVENT_LIST,
-    ApplicationListDataService,
     DynamicPopupService
 } from 'app/shared/services';
 import { UrlPathId } from 'app/shared/models';
 import { FOCUS_TYPE } from './application-list-for-header.component';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
+import { isEmpty } from 'app/core/utils/util';
+import { getApplicationList, getFavApplicationList, initApplicationList, initFavoriteApplicationList } from 'app/shared/store/actions';
 
 @Component({
     selector: 'pp-application-list-for-header-container',
@@ -30,8 +31,8 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
     private minLength = 3;
     private filterStr = '';
     private initApplication: IApplication;
-    private applicationList: IApplication[];
-    private favoriteApplicationList: IApplication[];
+    private applicationList: IApplication[] = [];
+    private favoriteApplicationList: IApplication[] = [];
 
     i18nText: { [key: string]: string } = {
         FAVORITE_LIST_TITLE: '',
@@ -44,11 +45,12 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
     selectedApplication: IApplication;
     focusType: FOCUS_TYPE = FOCUS_TYPE.KEYBOARD;
     focusIndex = -1;
-    hiddenComponent = true;
+    hide = true;
     filteredApplicationList: IApplication[] = [];
     filteredFavoriteApplicationList: IApplication[] = [];
     funcImagePath: Function;
-    showLoading = false;
+    useDisable = true;
+    showLoading = true;
     selectedAppIcon: string;
     selectedAppName: string;
 
@@ -56,7 +58,6 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
         private cd: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
         private webAppSettingDataService: WebAppSettingDataService,
-        private applicationListDataService: ApplicationListDataService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
         private translateService: TranslateService,
@@ -77,9 +78,9 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
             if (urlService.hasValue(UrlPathId.APPLICATION)) {
                 this.initApplication = urlService.getPathValue(UrlPathId.APPLICATION);
                 this.selectApplication(this.initApplication);
-                this.hiddenComponent = true;
+                this.toggleApplicationList({open: false});
             } else {
-                this.hiddenComponent = false;
+                this.toggleApplicationList({open: true});
                 this.selectApplication(null);
             }
 
@@ -100,12 +101,59 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
 
     private connectStore(): void {
         combineLatest(
-            this.storeHelperService.getApplicationList(this.unsubscribe),
+            this.storeHelperService.getApplicationList(this.unsubscribe).pipe(filter((appList: IApplication[]) => !isEmpty(appList))),
             this.storeHelperService.getFavoriteApplicationList(this.unsubscribe)
-        ).subscribe((responseData: any[]) => {
-            this.refreshList(responseData[0], responseData[1]);
-            this.showLoading = false;
+        ).pipe(
+            map(([appList, favAppList]: IApplication[][]) => {
+                const validFavAppList = favAppList.filter((favApp: IApplication) => {
+                    return appList.some((app: IApplication) => app.equals(favApp));
+                });
+
+                return {appList, favAppList: validFavAppList};
+            }),
+            takeUntil(this.unsubscribe)
+        ).subscribe(({appList, favAppList}: {appList: IApplication[], favAppList: IApplication[]}) => {
+            this.hideProcessing();
+            this.refreshList(appList, favAppList);
             this.cd.detectChanges();
+        });
+
+        this.storeHelperService.getApplicationListError().pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((error: IServerErrorFormat) => {
+            this.hideProcessing();
+            this.dynamicPopupService.openPopup({
+                data: {
+                    title: 'Server Error',
+                    contents: error
+                },
+                component: ServerErrorPopupContainerComponent,
+                onCloseCallback: () => {
+                    this.storeHelperService.dispatch(initApplicationList());
+                }
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
+            });
+        });
+
+        this.storeHelperService.getFavoriteApplicationListError().pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((error: IServerErrorFormat) => {
+            this.hideProcessing();
+            this.dynamicPopupService.openPopup({
+                data: {
+                    title: 'Server Error',
+                    contents: error
+                },
+                component: ServerErrorPopupContainerComponent,
+                onCloseCallback: () => {
+                    this.storeHelperService.dispatch(initFavoriteApplicationList());
+                }
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
+            });
         });
     }
 
@@ -182,19 +230,35 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
     }
 
 
-    toggleApplicationList(): void {
-        this.hiddenComponent = !this.hiddenComponent;
-        if (this.hiddenComponent === false) {
+    toggleApplicationList({open}: {open: boolean} = {open: this.hide}): void {
+        this.hide = !open;
+        if (this.hide === false) {
             this.setFocusToInput();
+        }
+
+        if (open) {
+            const isAppListEmpty = isEmpty(this.applicationList);
+            const isFavAppListEmpty = isEmpty(this.favoriteApplicationList);
+
+            if (isAppListEmpty || isFavAppListEmpty) {
+                this.showProcessing();
+                if (isAppListEmpty) {
+                    this.storeHelperService.dispatch(getApplicationList());
+                }
+
+                if (isFavAppListEmpty) {
+                    this.storeHelperService.dispatch(getFavApplicationList());
+                }
+            }
         }
     }
 
     onClose(): void {
-        this.hiddenComponent = true;
+        this.toggleApplicationList({open: false});
     }
 
     onSelectApplication(selectedApplication: IApplication): void {
-        this.hiddenComponent = true;
+        this.toggleApplicationList({open: false});
         if (!selectedApplication.equals(this.selectedApplication)) {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_APPLICATION);
             this.urlRouteManagerService.changeApplication(selectedApplication.getUrlStr());
@@ -208,12 +272,12 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
     }
 
     onKeyDown(keyCode: number): void {
-        if (!this.hiddenComponent) {
+        if (!this.hide) {
             switch (keyCode) {
                 case 27: // ESC
                     this.renderer.setProperty(this.inputQuery.nativeElement, 'value', '');
                     this.applyQuery('');
-                    this.hiddenComponent = true;
+                    this.toggleApplicationList({open: false});
                     break;
                 case 13: // Enter
                     if (this.focusIndex !== -1) {
@@ -243,19 +307,8 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
 
     onReload(): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_RELOAD_APPLICATION_LIST_BUTTON);
-        this.showLoading = true;
-        this.applicationListDataService.getApplicationList().subscribe(() => {}, (error: IServerErrorFormat) => {
-            this.dynamicPopupService.openPopup({
-                data: {
-                    title: 'Server Error',
-                    contents: error
-                },
-                component: ServerErrorPopupContainerComponent,
-            }, {
-                resolver: this.componentFactoryResolver,
-                injector: this.injector
-            });
-        });
+        this.showProcessing();
+        this.storeHelperService.dispatch(getApplicationList(true));
     }
 
     private isArrowKey(key: number): boolean {
@@ -264,5 +317,15 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
 
     private isLengthValid(length: number): boolean {
         return length === 0 || length >= this.minLength;
+    }
+
+    private showProcessing(): void {
+        this.useDisable = true;
+        this.showLoading = true;
+    }
+
+    private hideProcessing(): void {
+        this.useDisable = false;
+        this.showLoading = false;
     }
 }

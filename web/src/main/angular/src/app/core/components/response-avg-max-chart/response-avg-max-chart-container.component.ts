@@ -17,7 +17,7 @@ import {
 } from 'app/shared/services';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 import { getMaxTickValue } from 'app/core/utils/chart-util';
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 import { SourceType } from 'app/core/components/response-summary-chart/response-summary-chart-container.component';
 import { Layer } from 'app/core/components/response-summary-chart/response-summary-chart-container.component';
 import { filterObj } from 'app/core/utils/util';

@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Subject, Observable, throwError, of, empty, merge, EMPTY } from 'rxjs';
 import { switchMap, expand, tap, finalize, takeUntil, catchError } from 'rxjs/operators';
 
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 import { UrlQuery, UrlPathId, UrlPath } from 'app/shared/models';
 import { WebAppSettingDataService, NewUrlStateNotificationService, StoreHelperService, DynamicPopupService, UrlRouteManagerService } from 'app/shared/services';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';

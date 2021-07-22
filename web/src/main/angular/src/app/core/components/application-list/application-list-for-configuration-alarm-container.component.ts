@@ -1,11 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, forkJoin } from 'rxjs';
+import { filter, takeUntil } from 'rxjs/operators';
 
-import { WebAppSettingDataService, StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { WebAppSettingDataService, StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
 import { ApplicationListInteractionForConfigurationService } from './application-list-interaction-for-configuration.service';
 import { FOCUS_TYPE } from './application-list-for-header.component';
 import { isEmpty } from 'app/core/utils/util';
+import { getApplicationList, initApplicationList } from 'app/shared/store/actions';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Component({
     selector: 'pp-application-list-for-configuration-alarm-container',
@@ -15,7 +18,7 @@ import { isEmpty } from 'app/core/utils/util';
 export class ApplicationListForConfigurationAlarmContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
     private _query = '';
-    private originalAppList: IApplication[];
+    private originalAppList: IApplication[] = [];
 
     filteredAppList: IApplication[];
     funcImagePath: Function;
@@ -31,6 +34,8 @@ export class ApplicationListForConfigurationAlarmContainerComponent implements O
         EMPTY: ''
     };
     isEmpty: boolean;
+    useDisable = true;
+    showLoading = true;
 
     constructor(
         private storeHelperService: StoreHelperService,
@@ -38,11 +43,15 @@ export class ApplicationListForConfigurationAlarmContainerComponent implements O
         private translateService: TranslateService,
         private applicationListInteractionForConfigurationService: ApplicationListInteractionForConfigurationService,
         private analyticsService: AnalyticsService,
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
 
     ngOnInit() {
         this.initList();
         this.initI18nText();
+        this.connectStore();
         this.funcImagePath = this.webAppSettingDataService.getIconPathMakeFunc();
     }
 
@@ -52,10 +61,8 @@ export class ApplicationListForConfigurationAlarmContainerComponent implements O
     }
 
     private initList(): void {
-        this.storeHelperService.getApplicationList(this.unsubscribe).subscribe((appList: IApplication[]) => {
-            this.originalAppList = appList;
-            this.filterList();
-        });
+        this.showProcessing();
+        this.storeHelperService.dispatch(getApplicationList());
     }
 
     private initI18nText(): void {
@@ -68,12 +75,34 @@ export class ApplicationListForConfigurationAlarmContainerComponent implements O
         });
     }
 
-    private selectApp(app: IApplication): void {
-        if (!app) {
-            return;
-        }
+    private connectStore(): void {
+        this.storeHelperService.getApplicationList(this.unsubscribe).pipe(
+            filter((appList: IApplication[]) => !isEmpty(appList)),
+            takeUntil(this.unsubscribe)
+        ).subscribe((appList: IApplication[]) => {
+            this.hideProcessing();
+            this.originalAppList = appList;
+            this.filterList();
+        });
 
-        this.selectedApp = app;
+        this.storeHelperService.getApplicationListError().pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((error: IServerErrorFormat) => {
+            this.hideProcessing();
+            this.dynamicPopupService.openPopup({
+                data: {
+                    title: 'Server Error',
+                    contents: error
+                },
+                component: ServerErrorPopupContainerComponent,
+                onCloseCallback: () => {
+                    this.storeHelperService.dispatch(initApplicationList());
+                }
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
+            });
+        });
     }
 
     private filterList(): void {
@@ -114,7 +143,7 @@ export class ApplicationListForConfigurationAlarmContainerComponent implements O
             return;
         }
 
-        this.selectApp(app);
+        this.selectedApp = app;
         this.applicationListInteractionForConfigurationService.setSelectedApplication(app);
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_APPLICATION_FOR_ALARM);
     }
@@ -122,5 +151,15 @@ export class ApplicationListForConfigurationAlarmContainerComponent implements O
     onFocused(index: number): void {
         this.focusIndex = index;
         this.focusType = FOCUS_TYPE.MOUSE;
+    }
+
+    private showProcessing(): void {
+        this.useDisable = true;
+        this.showLoading = true;
+    }
+
+    private hideProcessing(): void {
+        this.useDisable = false;
+        this.showLoading = false;
     }
 }

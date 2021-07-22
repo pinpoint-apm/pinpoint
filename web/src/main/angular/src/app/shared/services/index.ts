@@ -1,6 +1,5 @@
 export * from './agent-histogram-data.service';
 export * from './analytics.service';
-export * from './application-list-resolver.service';
 export * from './browser-support-check.service';
 export * from './component-default-setting-data.service';
 export * from './gutter-event.service';
@@ -20,6 +19,5 @@ export * from './web-app-setting-data.service';
 export * from './window-ref.service';
 export * from './dynamic-popup.service';
 export * from './message-queue.service';
-export * from './application-list-data.service';
 export * from './theme.service';
 export * from './auth.service';

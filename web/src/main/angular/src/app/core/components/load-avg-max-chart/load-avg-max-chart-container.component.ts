@@ -8,7 +8,7 @@ import * as moment from 'moment-timezone';
 import { WebAppSettingDataService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService, MESSAGE_TO, StoreHelperService, MessageQueueService, AgentHistogramDataService, NewUrlStateNotificationService } from 'app/shared/services';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 import { getMaxTickValue, getStackedData } from 'app/core/utils/chart-util';
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 import { SourceType } from 'app/core/components/load-chart/load-chart-container.component';
 import { Layer } from 'app/core/components/load-chart/load-chart-container.component';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';

@@ -29,4 +29,6 @@
             <p class="l-empty-text">{{i18nText.EMPTY}}</p>
         </ng-template>
     </div>
+    <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
+    <pp-loading [showLoading]="showLoading" [zIndex]="11"></pp-loading>
 </div>

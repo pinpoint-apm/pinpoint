@@ -6,7 +6,7 @@ import { map, tap } from 'rxjs/operators';
 
 import { StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
 import { AgentStatisticDataService } from './agent-statistic-data.service';
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 import { ServerErrorPopupContainerComponent } from '../server-error-popup/server-error-popup-container.component';
 
 @Component({

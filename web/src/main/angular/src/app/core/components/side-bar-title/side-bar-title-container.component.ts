@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, HostBinding, ChangeDetectionStrategy, Cha
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 import { WebAppSettingDataService, StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 

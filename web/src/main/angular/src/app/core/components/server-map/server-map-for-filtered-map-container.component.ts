@@ -14,7 +14,7 @@ import {
     MessageQueueService,
     MESSAGE_TO
 } from 'app/shared/services';
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 import { UrlPathId, UrlQuery } from 'app/shared/models';
 import { Filter } from 'app/core/models';
 import { SERVER_MAP_TYPE, ServerMapType, ServerMapData, MergeServerMapData } from 'app/core/components/server-map/class';

@@ -12,6 +12,8 @@ import { ApplicationListForConfigurationAlarmContainerComponent } from './applic
 import { ApplicationListInteractionForConfigurationService } from './application-list-interaction-for-configuration.service';
 import { ApplicationListForAgentManagementContainerComponent } from './application-list-for-agent-management-container.component';
 import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
+import { ApplicationListDataService } from './application-list-data.service';
+import { FavoriteApplicationListDataService } from './favorite-application-list-data.service';
 
 @NgModule({
     declarations: [
@@ -37,6 +39,8 @@ import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
     ],
     providers: [
         ApplicationListInteractionForConfigurationService,
+        ApplicationListDataService,
+        FavoriteApplicationListDataService
     ]
 })
 export class ApplicationListModule { }

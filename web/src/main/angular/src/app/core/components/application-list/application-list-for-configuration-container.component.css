@@ -4,6 +4,11 @@
     position: relative;
 }
 
+.l-wrapper {
+    position: relative;
+    height: 100%;
+}
+
 .l-search-section {
     position: relative;
     padding: 11px;
