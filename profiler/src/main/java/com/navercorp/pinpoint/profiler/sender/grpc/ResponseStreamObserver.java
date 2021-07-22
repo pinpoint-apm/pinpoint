@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
+
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
 import io.grpc.stub.ClientCallStreamObserver;
@@ -41,9 +43,15 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
     public void beforeStart(final ClientCallStreamObserver<ReqT> requestStream) {
         logger.info("beforeStart {}", listener);
         requestStream.setOnReadyHandler(new Runnable() {
+            private final AtomicLong isReadyCounter = new AtomicLong(0);
+
             @Override
             public void run() {
-                listener.start(requestStream);
+                final long isReadyCount = isReadyCounter.incrementAndGet();
+                logger.info("onReadyHandler {} isReadyCount:{}", listener, isReadyCount);
+                if (isReadyCount == 1) {
+                    listener.start(requestStream);
+                }
             }
         });
     }
@@ -61,7 +69,7 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
         if (statusError.isSimpleError()) {
             logger.info("Failed to stream, name={}, cause={}", listener, statusError.getMessage());
         } else {
-            logger.warn("Failed to stream, name={}, cause={}", listener, statusError.getMessage(), statusError.getThrowable());
+            logger.info("Failed to stream, name={}, cause={}", listener, statusError.getMessage(), statusError.getThrowable());
         }
         listener.onError(t);
     }

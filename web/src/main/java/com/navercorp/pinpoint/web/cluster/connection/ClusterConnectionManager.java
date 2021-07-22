@@ -47,9 +47,14 @@ public class ClusterConnectionManager {
     public void start() throws InterruptedException, IOException, KeeperException {
         logger.info("start() started.");
 
+        String hostAddress = config.getHostAddress();
         int bindPort = config.getClusterTcpPort();
         if (bindPort > 0) {
-            clusterAcceptor = new ClusterAcceptor(getRepresentationLocalV4Ip(), bindPort);
+            if (StringUtils.isEmpty(hostAddress)) {
+                hostAddress = getRepresentationLocalV4Ip();
+            }
+
+            clusterAcceptor = new ClusterAcceptor(hostAddress, bindPort);
             clusterAcceptor.start();
         }
 

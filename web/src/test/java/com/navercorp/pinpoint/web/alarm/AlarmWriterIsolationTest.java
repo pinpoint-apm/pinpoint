@@ -31,6 +31,7 @@ import java.util.*;
 
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("deprecation")
 @RunWith(MockitoJUnitRunner.class)
 public class AlarmWriterIsolationTest {
 
@@ -62,7 +63,7 @@ public class AlarmWriterIsolationTest {
         
         AlarmChecker<Long> checker = getCheckerStub(rule, 1000L);
     
-        List<AlarmChecker> checkers = new LinkedList<AlarmChecker>();
+        List<AlarmChecker> checkers = new LinkedList<>();
         checkers.add(checker);
     
         mockingAlarmService(getBeforeCheckerStub(0, 1));
@@ -83,7 +84,7 @@ public class AlarmWriterIsolationTest {
         
         AlarmChecker<Long> checker = getCheckerStub(rule, 1000L);
     
-        List<AlarmChecker> checkers = new LinkedList<AlarmChecker>();
+        List<AlarmChecker> checkers = new LinkedList<>();
         checkers.add(checker);
     
         mockingAlarmService(getBeforeCheckerStub(1, 1));

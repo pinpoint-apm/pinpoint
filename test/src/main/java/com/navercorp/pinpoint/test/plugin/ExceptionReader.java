@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ExceptionReader {
-    private TaggedLogger logger = TestLogger.getLogger();
+    private final TaggedLogger logger = TestLogger.getLogger();
 
     public Exception read(String exceptionClass, String message, List<String> traceInText) {
         StackTraceElement[] stackTrace = new StackTraceElement[traceInText.size()];

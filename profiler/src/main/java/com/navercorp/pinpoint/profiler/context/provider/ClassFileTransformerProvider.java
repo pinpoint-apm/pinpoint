@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import java.util.Objects;
+
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.classloading.DebugTransformerClassInjector;
@@ -43,6 +45,7 @@ import com.navercorp.pinpoint.profiler.transformer.ClassFileFilter;
 import com.navercorp.pinpoint.profiler.transformer.DefaultClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.transformer.DelegateTransformerRegistry;
 import com.navercorp.pinpoint.profiler.transformer.DynamicTransformerRegistry;
+import com.navercorp.pinpoint.profiler.transformer.PinpointClassFilter;
 import com.navercorp.pinpoint.profiler.transformer.UnmodifiableClassFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,9 +88,18 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
 
         final TransformerRegistry transformerRegistry = newTransformerRegistry();
 
+        final String classFilterBasePackage = StringUtils.defaultString(profilerConfig.getPinpointBasePackage(), PinpointClassFilter.DEFAULT_PACKAGE);
+        List<String> excludeSub = StringUtils.tokenizeToStringList(profilerConfig.getPinpointExcludeSubPackage(), ",");
+        if (excludeSub.isEmpty()) {
+            excludeSub = PinpointClassFilter.DEFAULT_EXCLUDES;
+        }
+
+        final ClassFileFilter pinpointClassFilter = new PinpointClassFilter(classFilterBasePackage, excludeSub);
+
         final List<String> allowJdkClassName = profilerConfig.getAllowJdkClassName();
         final ClassFileFilter unmodifiableFilter = new UnmodifiableClassFilter(allowJdkClassName);
-        return new DefaultClassFileTransformerDispatcher(unmodifiableFilter, transformerRegistry, dynamicTransformerRegistry, lambdaClassFileResolver);
+        return new DefaultClassFileTransformerDispatcher(pinpointClassFilter, unmodifiableFilter, transformerRegistry,
+                dynamicTransformerRegistry, lambdaClassFileResolver);
     }
 
     private TransformerRegistry newTransformerRegistry() {

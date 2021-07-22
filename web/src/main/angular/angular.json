@@ -19,8 +19,11 @@
                         "polyfills": "src/polyfills.ts",
                         "tsConfig": "src/tsconfig.app.json",
                         "assets": [
+                            "src/favicon-16x16.png",
+                            "src/favicon-32x32.png",
                             "src/favicon.ico",
                             "src/assets",
+                            "src/not_authorized.html",
                             {
                                 "glob": "utils.js",
                                 "input": "node_modules/intl-tel-input/build/js",
@@ -36,6 +39,7 @@
                             "./node_modules/intl-tel-input/build/css/intlTelInput.min.css",
                             "src/assets/lib/prettify/prettify.css",
                             "src/assets/lib/prettify/sunburst.css",
+                            "src/main.css",
                             "src/custom.css",
                             "src/styles.css"
                         ],
@@ -100,6 +104,8 @@
                         ],
                         "scripts": [],
                         "assets": [
+                            "src/favicon-16x16.png",
+                            "src/favicon-32x32.png",
                             "src/favicon.ico",
                             "src/assets"
                         ]

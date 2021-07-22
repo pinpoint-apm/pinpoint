@@ -5,6 +5,7 @@ import { AgentStatisticChartModule } from 'app/core/components/agent-statistic-c
 import { AgentStatisticListModule } from 'app/core/components/agent-statistic-list';
 import { ConfigurationAgentStatisticContainerComponent } from './configuration-agent-statistic-container.component';
 import { AgentStatisticDataService } from './agent-statistic-data.service';
+import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
 
 @NgModule({
     declarations: [
@@ -13,7 +14,8 @@ import { AgentStatisticDataService } from './agent-statistic-data.service';
     imports: [
         SharedModule,
         AgentStatisticChartModule,
-        AgentStatisticListModule
+        AgentStatisticListModule,
+        ServerErrorPopupModule
     ],
     exports: [
         ConfigurationAgentStatisticContainerComponent

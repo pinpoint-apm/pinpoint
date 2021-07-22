@@ -1,13 +1,13 @@
 :host {
     display: block;
     width: 100%;
-    background-color: #fff;
+    background-color: var(--background-default);
     font-size: 12px;
     padding: 0 10px 10px;
 }
 
 .l-source-info-table {
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-primary);
     width: 100%;
 }
 
@@ -15,11 +15,11 @@
     padding: 10px;
     font-size: 13px;
     text-align: left;
-    background-color: #f6f8fb;
+    background-color: var(--table-header-background);
 }
 
 .l-source-info-table tbody th, tbody td {
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-primary);
     padding: 4px;
     text-align: center;
     word-break: break-all;

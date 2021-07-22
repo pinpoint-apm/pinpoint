@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from
 import { TranslateService } from '@ngx-translate/core';
 import { PrimitiveArray, Data, DataItem, spline, zoom } from 'billboard.js';
 import { Subject, forkJoin, combineLatest, of } from 'rxjs';
-import { tap, takeUntil, switchMap, catchError } from 'rxjs/operators';
+import { tap, takeUntil, switchMap, catchError, filter } from 'rxjs/operators';
 import * as moment from 'moment-timezone';
 
 import {
@@ -156,10 +156,15 @@ export class AgentDataSourceChartContainerComponent implements OnInit, OnDestroy
             tap(({range}: ISourceForChart) => this.previousRange = range),
             switchMap(({range}: ISourceForChart) => {
                 return this.inspectorChartDataService.getData(range).pipe(
-                    catchError(() => of(null))
+                    catchError((error: IServerErrorFormat) => {
+                        this.activeLayer = Layer.RETRY;
+                        this.setRetryMessage(error.exception.message);
+                        return of(null);
+                    })
                 );
-            })
-        ).subscribe((data) => this.chartDataResCallbackFn(data));
+            }),
+            filter((data: IAgentDataSourceChart[] | null) => !!data)
+        ).subscribe((data: IAgentDataSourceChart[]) => this.chartDataResCallbackFn(data));
     }
 
     private setChartVisibility(showChart: boolean): void {
@@ -176,19 +181,19 @@ export class AgentDataSourceChartContainerComponent implements OnInit, OnDestroy
     onRetry(): void {
         this.activeLayer = Layer.LOADING;
         this.inspectorChartDataService.getData(this.previousRange).pipe(
-            catchError(() => of(null))
-        ).subscribe((data) => this.chartDataResCallbackFn(data));
+            catchError((error: IServerErrorFormat) => {
+                this.activeLayer = Layer.RETRY;
+                this.setRetryMessage(error.exception.message);
+                return of(null);
+            }),
+            filter((data: IAgentDataSourceChart[] | null) => !!data)
+        ).subscribe((data: IAgentDataSourceChart[]) => this.chartDataResCallbackFn(data));
     }
 
-    private chartDataResCallbackFn(data: IAgentDataSourceChart[] | AjaxException | null): void {
-        if (!data || isThatType<AjaxException>(data, 'exception')) {
-            this.activeLayer = Layer.RETRY;
-            this.setRetryMessage(data);
-        } else {
-            this.chartData = data;
-            this.sourceListForFilter = data.map(({databaseName, id}: IAgentDataSourceChart) => ({databaseName, id}));
-            this.setChartConfig(this.makeChartData(data));
-        }
+    private chartDataResCallbackFn(data: IAgentDataSourceChart[]): void {
+        this.chartData = data;
+        this.sourceListForFilter = data.map(({databaseName, id}: IAgentDataSourceChart) => ({databaseName, id}));
+        this.setChartConfig(this.makeChartData(data));
     }
 
     private setChartConfig(data: PrimitiveArray[]): void {
@@ -199,8 +204,8 @@ export class AgentDataSourceChartContainerComponent implements OnInit, OnDestroy
         this.isDataEmpty = this.isEmpty(data);
     }
 
-    private setRetryMessage(data: any): void {
-        this.retryMessage = data ? data.exception.message : this.dataFetchFailedText;
+    private setRetryMessage(message: string): void {
+        this.retryMessage = message;
     }
 
     private isEmpty(data: PrimitiveArray[]): boolean {

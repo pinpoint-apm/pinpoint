@@ -60,6 +60,13 @@ public class SharedPinpointPluginTest {
             return;
         }
 
+        final String repositoryUrlString = System.getProperty(SharedPluginTestConstants.TEST_REPOSITORY_URLS);
+        if (repositoryUrlString == null) {
+            logger.error("repositoryUrls must not be empty");
+            return;
+        }
+        logger.debug("-D{}={}", SharedPluginTestConstants.TEST_REPOSITORY_URLS, repositoryUrlString);
+
         final String testLocation = System.getProperty(SharedPluginTestConstants.TEST_LOCATION);
         if (testLocation == null) {
             logger.error("testLocation must not be empty");
@@ -91,10 +98,11 @@ public class SharedPinpointPluginTest {
         }
 
         String[] mavenDependencyResolverClassPathArray = mavenDependencyResolverClassPaths.split(File.pathSeparator);
+        String[] repositoryUrls = repositoryUrlString.split(",");
         TestParameterParser parser = new TestParameterParser();
         List<TestParameter> testParameters = parser.parse(args);
         SharedPinpointPluginTest pluginTest = new SharedPinpointPluginTest(testClazzName, testLocation, testLogger,
-                mavenDependencyResolverClassPathArray, testParameters, System.out);
+                mavenDependencyResolverClassPathArray, repositoryUrls, testParameters, System.out);
         pluginTest.execute();
 
     }
@@ -103,26 +111,29 @@ public class SharedPinpointPluginTest {
     private final String testLocation;
     private final boolean testLogger;
     private final String[] mavenDependencyResolverClassPaths;
+    private final String[] repositoryUrls;
     private final List<TestParameter> testParameters;
     private final PrintStream out;
 
     public SharedPinpointPluginTest(String testClazzName, String testLocation, boolean testLogger,
-                                    String[] mavenDependencyResolverClassPaths, List<TestParameter> testParameters, PrintStream out) {
+                                    String[] mavenDependencyResolverClassPaths, String[] repositoryUrls,
+                                    List<TestParameter> testParameters, PrintStream out) {
         this.testClazzName = testClazzName;
         this.testLocation = testLocation;
         this.testLogger = testLogger;
         this.mavenDependencyResolverClassPaths = mavenDependencyResolverClassPaths;
+        this.repositoryUrls = repositoryUrls;
         this.testParameters = testParameters;
         this.out = out;
 
     }
 
-    private List<TestInfo> newTestCaseInfo(List<TestParameter> testParameters, File testClazzLocation, ClassLoader dependencyClassLoader) throws Exception {
-        ReflectionDependencyResolver dependencyResolver = new ReflectionDependencyResolver(dependencyClassLoader);
+    private List<TestInfo> newTestCaseInfo(List<TestParameter> testParameters, File testClazzLocation, String[] repositoryUrls, ClassLoader dependencyClassLoader) throws Exception {
+        ReflectionDependencyResolver dependencyResolver = new ReflectionDependencyResolver(dependencyClassLoader, repositoryUrls);
         List<File> loggerDependencies = getLoggerDependencies(dependencyResolver, dependencyClassLoader);
         logger.debug("loggerDependency:{}", loggerDependencies);
 
-        List<TestInfo> testInfos = new ArrayList<TestInfo>();
+        List<TestInfo> testInfos = new ArrayList<>();
         for (TestParameter testParameter : testParameters) {
             final List<File> testDependency = new ArrayList<>();
             testDependency.add(testClazzLocation);
@@ -132,7 +143,7 @@ public class SharedPinpointPluginTest {
             List<File> testParameterDependency = getTestParameterDependency(dependencyClassLoader, dependencyResolver, testParameter);
             testDependency.addAll(testParameterDependency);
 
-            final TestInfo testInfo = new TestInfo(testParameter.getTestId(), testDependency);
+            final TestInfo testInfo = new TestInfo(testParameter.getTestId(), testDependency, Arrays.asList(repositoryUrls));
             testInfos.add(testInfo);
         }
         return testInfos;
@@ -158,7 +169,7 @@ public class SharedPinpointPluginTest {
             return Collections.emptyList();
         }
         List<String> dependencyLib = PluginClassLoading.LOGGER_DEPENDENCY;
-        List<File> libFiles = lookup(dependencyResolver, dependencyLib, mavenDependencyResolverClassLoader);
+        List<File> libFiles = lookup(dependencyResolver, dependencyLib,  mavenDependencyResolverClassLoader);
         if (logger.isDebugEnabled()) {
             logger.debug("LoggerDependency {}", dependencyLib);
             for (File libFile : libFiles) {
@@ -188,6 +199,9 @@ public class SharedPinpointPluginTest {
             for (TestParameter testParameter : testParameters) {
                 logger.debug("{} {}", testClazzName, testParameter);
             }
+            for (String repositoryUrl : repositoryUrls) {
+                logger.debug("{}: {}", SharedPluginTestConstants.TEST_REPOSITORY_URLS, repositoryUrl);
+            }
         }
     }
 
@@ -195,7 +209,7 @@ public class SharedPinpointPluginTest {
         logTestInformation();
         ClassLoader mavenDependencyResolverClassLoader = new ChildFirstClassLoader(URLUtils.fileToUrls(mavenDependencyResolverClassPaths));
         File testClazzLocation = new File(testLocation);
-        List<TestInfo> testInfos = newTestCaseInfo(testParameters, testClazzLocation, mavenDependencyResolverClassLoader);
+        List<TestInfo> testInfos = newTestCaseInfo(testParameters, testClazzLocation, repositoryUrls, mavenDependencyResolverClassLoader);
         for (TestInfo testInfo : testInfos) {
             execute(testInfo);
         }

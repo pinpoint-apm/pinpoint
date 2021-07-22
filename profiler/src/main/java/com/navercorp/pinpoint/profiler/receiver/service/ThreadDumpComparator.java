@@ -27,7 +27,7 @@ public class ThreadDumpComparator implements Comparator<ThreadDump> {
     public int compare(ThreadDump oldElement, ThreadDump newElement) {
         final long oldStartTime = oldElement.getActiveTraceSnapshot().getStartTime();
         final long newStartTime = newElement.getActiveTraceSnapshot().getStartTime();
-        return StartTimeComparator.compare(oldStartTime, newStartTime);
+        return Long.compare(oldStartTime, newStartTime);
     }
 
 }

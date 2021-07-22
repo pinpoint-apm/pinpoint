@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
 import com.navercorp.pinpoint.plugin.hystrix.descriptor.HystrixThreadPoolMetricsMethodDescriptor;
 import com.navercorp.pinpoint.plugin.hystrix.field.HystrixKeyNameAccessor;
@@ -46,7 +47,7 @@ public class HystrixThreadPoolMetricsConstructInterceptor extends SpanEventSimpl
         recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
         recorder.recordApi(HYSTRIX_THREAD_POOL_METRICS_METHOD_DESCRIPTOR);
         recorder.recordException(throwable);
-        if (args != null && args.length > 0) {
+        if (ArrayUtils.hasLength(args)) {
             if (args[0] instanceof HystrixKeyNameAccessor) {
                 String threadPoolKey = ((HystrixKeyNameAccessor) args[0])._$PINPOINT$_getHystrixKeyName();
                 if (threadPoolKey != null) {

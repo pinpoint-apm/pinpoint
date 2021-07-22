@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.hbase.schema.core.CheckSum;
 import com.navercorp.pinpoint.hbase.schema.dao.SchemaChangeLogDao;
 import com.navercorp.pinpoint.hbase.schema.domain.SchemaChangeLog;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ChangeSet;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,8 +64,8 @@ public class SchemaChangeLogServiceImplTest {
         // When
         SchemaChangeLog schemaChangeLog = schemaChangeLogService.recordChangeSet("namespace", changeSet);
         // Then
-        Assert.assertThat(schemaChangeLog.getId(), equalTo(changeSet.getId()));
-        Assert.assertThat(schemaChangeLog.getExecOrder(), equalTo(1));
+        MatcherAssert.assertThat(schemaChangeLog.getId(), equalTo(changeSet.getId()));
+        MatcherAssert.assertThat(schemaChangeLog.getExecOrder(), equalTo(1));
     }
 
     @Test
@@ -76,8 +77,8 @@ public class SchemaChangeLogServiceImplTest {
         // When
         SchemaChangeLog schemaChangeLog = schemaChangeLogService.recordChangeSet("namespace", executionOrder, changeSet);
         // Then
-        Assert.assertThat(schemaChangeLog.getId(), equalTo(changeSet.getId()));
-        Assert.assertThat(schemaChangeLog.getExecOrder(), equalTo(executionOrder));
+        MatcherAssert.assertThat(schemaChangeLog.getId(), equalTo(changeSet.getId()));
+        MatcherAssert.assertThat(schemaChangeLog.getExecOrder(), equalTo(executionOrder));
     }
 
     @Test
@@ -92,14 +93,14 @@ public class SchemaChangeLogServiceImplTest {
         // When
         List<SchemaChangeLog> schemaChangeLogs = schemaChangeLogService.recordChangeSets("namespace", changeSets);
         // Then
-        Assert.assertThat(schemaChangeLogs.size(), equalTo(numChangeSets));
+        MatcherAssert.assertThat(schemaChangeLogs.size(), equalTo(numChangeSets));
         final int initialExecOrder = 1;
         for (int i = 0; i < numChangeSets; i++) {
             SchemaChangeLog schemaChangeLog = schemaChangeLogs.get(i);
             ChangeSet changeSet = changeSets.get(i);
-            Assert.assertThat(schemaChangeLog.getId(), equalTo(changeSet.getId()));
+            MatcherAssert.assertThat(schemaChangeLog.getId(), equalTo(changeSet.getId()));
             int expectedExecOrder = initialExecOrder + i;
-            Assert.assertThat(schemaChangeLog.getExecOrder(), equalTo(expectedExecOrder));
+            MatcherAssert.assertThat(schemaChangeLog.getExecOrder(), equalTo(expectedExecOrder));
         }
     }
 
@@ -116,13 +117,13 @@ public class SchemaChangeLogServiceImplTest {
         // When
         List<SchemaChangeLog> schemaChangeLogs = schemaChangeLogService.recordChangeSets("namespace", initialExecOrder, changeSets);
         // Then
-        Assert.assertThat(schemaChangeLogs.size(), equalTo(numChangeSets));
+        MatcherAssert.assertThat(schemaChangeLogs.size(), equalTo(numChangeSets));
         for (int i = 0; i < numChangeSets; i++) {
             SchemaChangeLog schemaChangeLog = schemaChangeLogs.get(i);
             ChangeSet changeSet = changeSets.get(i);
-            Assert.assertThat(schemaChangeLog.getId(), equalTo(changeSet.getId()));
+            MatcherAssert.assertThat(schemaChangeLog.getId(), equalTo(changeSet.getId()));
             int expectedExecOrder = initialExecOrder + i;
-            Assert.assertThat(schemaChangeLog.getExecOrder(), equalTo(expectedExecOrder));
+            MatcherAssert.assertThat(schemaChangeLog.getExecOrder(), equalTo(expectedExecOrder));
         }
     }
 
@@ -143,8 +144,8 @@ public class SchemaChangeLogServiceImplTest {
             final SchemaChangeLog actualSchemaChangeLog = actualSchemaChangeLogs.get(i);
             final int expectedOrder = i + 1;
             final String expectedId = "id" + expectedOrder;
-            Assert.assertThat(actualSchemaChangeLog.getId(), equalTo(expectedId));
-            Assert.assertThat(actualSchemaChangeLog.getExecOrder(), equalTo(expectedOrder));
+            MatcherAssert.assertThat(actualSchemaChangeLog.getId(), equalTo(expectedId));
+            MatcherAssert.assertThat(actualSchemaChangeLog.getExecOrder(), equalTo(expectedOrder));
         }
     }
 

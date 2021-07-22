@@ -4,14 +4,13 @@ package com.navercorp.pinpoint.profiler.logging;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import java.util.Objects;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.spi.LoggerRepository;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.logging.Handler;
+import java.util.Objects;
 
 public class Log4jLoggingSystem implements LoggingSystem {
 

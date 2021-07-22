@@ -16,15 +16,12 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
-import java.util.Objects;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.rpc.ChannelWriteFailListenableFuture;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.RequestManager;
 import com.navercorp.pinpoint.rpc.client.WriteFailFutureListener;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
-import com.navercorp.pinpoint.rpc.cluster.Role;
 import com.navercorp.pinpoint.rpc.common.CyclicStateChecker;
 import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
@@ -51,8 +48,6 @@ import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.IDGenerator;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
-import com.navercorp.pinpoint.rpc.util.MapUtils;
-
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -65,6 +60,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -240,6 +236,16 @@ public class DefaultPinpointServer implements PinpointServer {
         ClientStreamChannel streamChannel = streamChannelManager.openStream(payload, streamChannelEventHandler);
 
         logger.info("{} createStream() completed.", objectUniqName);
+        return streamChannel;
+    }
+
+    @Override
+    public ClientStreamChannel openStreamAndAwait(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws StreamException {
+        logger.info("{} createStreamAndAwait() started.", objectUniqName);
+
+        ClientStreamChannel streamChannel = streamChannelManager.openStreamAndAwait(payload, streamChannelEventHandler, timeout);
+
+        logger.info("{} createStreamAndAwait() completed.", objectUniqName);
         return streamChannel;
     }
 

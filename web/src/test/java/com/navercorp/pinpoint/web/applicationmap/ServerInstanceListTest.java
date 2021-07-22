@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 
-import org.junit.Assert;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -53,9 +53,9 @@ public class ServerInstanceListTest {
         ServerInstanceList serverInstanceList = builder.build();
         List<String> agentIdList = serverInstanceList.getAgentIdList();
 
-        Assert.assertThat(agentIdList, hasSize(2));
-        Assert.assertThat(agentIdList, hasItem("agentId1"));
-        Assert.assertThat(agentIdList, hasItem("agentId2"));
+        MatcherAssert.assertThat(agentIdList, hasSize(2));
+        MatcherAssert.assertThat(agentIdList, hasItem("agentId1"));
+        MatcherAssert.assertThat(agentIdList, hasItem("agentId2"));
     }
 
     public static AgentInfo createAgentInfo(String agentId, String hostName) {

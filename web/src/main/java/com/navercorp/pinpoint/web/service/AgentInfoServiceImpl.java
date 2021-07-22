@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
+import com.navercorp.pinpoint.web.vo.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
@@ -45,7 +46,6 @@ import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegme
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.PredicateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -53,14 +53,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author netspider
@@ -220,13 +221,29 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp) {
-        Set<AgentInfo> agentInfos = this.getAgentsByApplicationNameWithoutStatus(applicationName, timestamp);
-        this.agentLifeCycleDao.populateAgentStatuses(agentInfos, timestamp);
-        return agentInfos;
+        List<AgentInfo> agentInfos = this.getAgentsByApplicationNameWithoutStatus0(applicationName, timestamp);
+
+
+        AgentStatusQuery query = AgentStatusQuery.buildQuery(agentInfos, timestamp);
+        List<Optional<AgentStatus>> agentStatus = this.agentLifeCycleDao.getAgentStatus(query);
+        for (int i = 0; i < agentStatus.size(); i++) {
+            Optional<AgentStatus> status = agentStatus.get(i);
+            if (status.isPresent()) {
+                AgentInfo agentInfo = agentInfos.get(i);
+                agentInfo.setStatus(status.get());
+            }
+        }
+        return new HashSet<>(agentInfos);
     }
+
 
     @Override
     public Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, long timestamp) {
+        List<AgentInfo> agentInfos = getAgentsByApplicationNameWithoutStatus0(applicationName, timestamp);
+        return new HashSet<>(agentInfos);
+    }
+
+    public List<AgentInfo> getAgentsByApplicationNameWithoutStatus0(String applicationName, long timestamp) {
         Objects.requireNonNull(applicationName, "applicationName");
         if (timestamp < 0) {
             throw new IllegalArgumentException("timestamp must not be less than 0");
@@ -234,11 +251,11 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
         List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
         List<AgentInfo> agentInfos = this.agentInfoDao.getAgentInfos(agentIds, timestamp);
-        CollectionUtils.filter(agentInfos, PredicateUtils.notNullPredicate());
-        if (CollectionUtils.isEmpty(agentInfos)) {
-            return Collections.emptySet();
-        }
-        return new HashSet<>(agentInfos);
+
+        return agentInfos.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
     }
 
     @Override
@@ -270,19 +287,33 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
         AgentInfo agentInfo = this.agentInfoDao.getAgentInfo(agentId, timestamp);
         if (agentInfo != null) {
-            this.agentLifeCycleDao.populateAgentStatus(agentInfo, timestamp);
+            Optional<AgentStatus> agentStatus = this.agentLifeCycleDao.getAgentStatus(agentInfo.getAgentId(), agentInfo.getStartTimestamp(), timestamp);
+            agentInfo.setStatus(agentStatus.orElse(null));
         }
         return agentInfo;
     }
 
     @Override
+    public AgentInfo getAgentInfoNoStatus(String agentId, long agentStartTime, int deltaTimeInMilliSeconds) {
+        return this.agentInfoDao.getAgentInfo(agentId, agentStartTime, deltaTimeInMilliSeconds);
+    }
+
+    @Override
     public AgentStatus getAgentStatus(String agentId, long timestamp) {
         Objects.requireNonNull(agentId, "agentId");
-
         if (timestamp < 0) {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
         return this.agentLifeCycleDao.getAgentStatus(agentId, timestamp);
+    }
+
+    @Override
+    public List<Optional<AgentStatus>> getAgentStatus(AgentStatusQuery query) {
+        Objects.requireNonNull(query, "query");
+        if (query.getQueryTimestamp() < 0) {
+            throw new IllegalArgumentException("timestamp must not be less than 0");
+        }
+        return this.agentLifeCycleDao.getAgentStatus(query);
     }
 
     @Override
@@ -294,11 +325,6 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
         List<AgentEvent> agentEvents = this.agentEventService.getAgentEvents(agentId, range);
         return agentEvents.stream().anyMatch(e -> e.getEventTypeCode() == AgentEventType.AGENT_PING.getCode());
-    }
-
-    @Override
-    public void populateAgentStatuses(Collection<AgentInfo> agentInfos, long timestamp) {
-        this.agentLifeCycleDao.populateAgentStatuses(agentInfos, timestamp);
     }
 
     @Override
@@ -330,7 +356,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private volatile AgentDownloadInfo cachedAgentDownloadInfo;
 
-    private static final Comparator<AgentDownloadInfo> REVERSE = Collections.reverseOrder(Comparator.comparing(AgentDownloadInfo::getVersion));
+    private static final Comparator<AgentDownloadInfo> REVERSE = Comparator.comparing(AgentDownloadInfo::getVersion).reversed();
 
     @Override
     public AgentDownloadInfo getLatestStableAgentDownloadInfo() {

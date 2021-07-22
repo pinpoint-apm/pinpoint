@@ -1,5 +1,8 @@
 :host {
     display: block;
+    --icon-faq: var(--blue-200);
+    --icon-github: var(--blue-100);
+    --icon-guide: var(--blue-200);
 }
 
 .l-card-link-list {
@@ -30,21 +33,21 @@
 }
 
 .l-faq-link {
-    background-color: #4a8fd2;
+    background-color: var(--form-link);
 }
 
 .l-issue-link {
-    background-color: #4ab0d2;
+    background-color: var(--primary);
 }
 
 .l-user-community-link {
-    background-color: #50cba4;
+    background-color: var(--secondary);
 }
 
 .l-card-text {
     font-size: 18px;
     font-weight: 400;
-    color: #fff;
+    color: var(--text-knockout);
 }
 
 .l-card-link .fas, .l-card-link .fab {
@@ -53,20 +56,20 @@
 }
 
 .fa-comments {
-    color: #b4cce9;
+    color: var(--icon-faq);
 }
 
 .fa-github {
-    color: #b4dae9;
+    color: var(--icon-github);
 }
 
 .fa-users {
-    color: #b5e6d5;
+    color: var(--secondary-lighter);
 }
 
 .l-guide-section {
-    background-color: #fff;
-    border: 1px solid #e5e8f0;
+    background-color: var(--background-default);
+    border: 1px solid var(--border-primary);
     border-radius: 1px;
 }
 
@@ -74,7 +77,7 @@
     font-size: 18px;
     font-weight: 600;
     padding: 20px 28px;
-    border-bottom: 1px solid #e5e8f0;
+    border-bottom: 1px solid var(--border-primary);
 }
 
 .l-guide-contents-wrapper {
@@ -88,11 +91,10 @@
 }
 
 .l-guide-contents:first-child {
-    border-right: 1px solid #e5e8f0;
+    border-right: 1px solid var(--border-primary);
 }
 
 .l-guide-language-text {
-    /* color: #666; */
     font-size: 17px;
     font-weight: 600;
     margin-bottom: 15px;
@@ -103,14 +105,14 @@
 }
 
 .l-guide-contents-list a > .fas {
-    color: #9ec2e4;
+    color: var(--icon-guide);
     margin-right: 5px;
 }
 
 .l-guide-contents-list a:link {
-    color: #428bca;
+    color: var(--form-link);
 }
 
 .l-guide-contents-list a:visited {
-    color: #609;
+    color: var(--form-link-visited);
 }

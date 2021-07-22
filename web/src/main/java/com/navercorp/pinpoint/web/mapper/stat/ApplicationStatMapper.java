@@ -40,7 +40,7 @@ import java.util.List;
 public class ApplicationStatMapper implements RowMapper<List<JoinStatBo>> {
 
     public final static Comparator<JoinStatBo> REVERSE_TIMESTAMP_COMPARATOR
-            = Collections.reverseOrder(Comparator.comparingLong(JoinStatBo::getTimestamp));
+            = Comparator.comparingLong(JoinStatBo::getTimestamp).reversed();
 
     private final ApplicationStatHbaseOperationFactory hbaseOperationFactory;
     private final ApplicationStatDecoder decoder;

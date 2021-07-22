@@ -98,7 +98,7 @@ public class DefaultProcessManager implements ProcessManager {
     }
 
     private String[] buildCommand(PinpointPluginTestInstance pluginTestInstance) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
 
         list.add(context.getJavaExecutable());
 

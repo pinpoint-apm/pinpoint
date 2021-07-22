@@ -46,9 +46,8 @@ public class MockApiMetaDataService implements ApiMetaDataService {
 
         methodDescriptor.setApiId(result.getId());
 
-        final ApiMetaData apiMetadata = new ApiMetaData(result.getId(), methodDescriptor.getApiDescriptor());
-        apiMetadata.setLine(methodDescriptor.getLineNumber());
-        apiMetadata.setType(methodDescriptor.getType());
+        final ApiMetaData apiMetadata = new ApiMetaData(result.getId(), methodDescriptor.getApiDescriptor(),
+                methodDescriptor.getLineNumber(), methodDescriptor.getType());
 
         this.enhancedDataSender.request(apiMetadata);
 

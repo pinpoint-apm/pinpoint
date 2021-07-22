@@ -11,7 +11,7 @@ import {
 } from 'app/shared/services';
 import { UrlPath } from 'app/shared/models';
 import { MessagePopupContainerComponent } from 'app/core/components/message-popup/message-popup-container.component';
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 import { parseURL } from 'app/core/utils/url-utils';
 
 @Component({

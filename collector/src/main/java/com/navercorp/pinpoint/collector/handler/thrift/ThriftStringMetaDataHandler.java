@@ -61,8 +61,12 @@ public class ThriftStringMetaDataHandler implements RequestResponseHandler<TBase
 
     private TResult handleStringMetaData(TStringMetaData stringMetaData) {
         try {
-            final StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(stringMetaData.getAgentId(), stringMetaData.getAgentStartTime(), stringMetaData.getStringId());
-            stringMetaDataBo.setStringValue(stringMetaData.getStringValue());
+            String agentId = stringMetaData.getAgentId();
+            long agentStartTime = stringMetaData.getAgentStartTime();
+            int stringId = stringMetaData.getStringId();
+            String stringValue = stringMetaData.getStringValue();
+            final StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(agentId, agentStartTime, stringId, stringValue);
+
             stringMetaDataService.insert(stringMetaDataBo);
         } catch (Exception e) {
             logger.warn("Failed to handle stringMetaData={}, Caused:{}", stringMetaData, e.getMessage(), e);

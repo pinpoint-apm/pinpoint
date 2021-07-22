@@ -121,15 +121,15 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
                 final Object decodeObject = spanDecoder.decode(qualifier, columnValue, decodingContext);
                 if (decodeObject instanceof SpanBo) {
                     SpanBo spanBo = (SpanBo) decodeObject;
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("spanBo:{}", spanBo);
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("spanBo:{}", spanBo);
                     }
                     AgentKey agentKey = newAgentKey(spanBo);
                     spanMap.put(agentKey, spanBo);
                 } else if (decodeObject instanceof SpanChunkBo) {
                     SpanChunkBo spanChunkBo = (SpanChunkBo) decodeObject;
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("spanChunkBo:{}", spanChunkBo);
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("spanChunkBo:{}", spanChunkBo);
                     }
                     spanChunkList.add(spanChunkBo);
                 }

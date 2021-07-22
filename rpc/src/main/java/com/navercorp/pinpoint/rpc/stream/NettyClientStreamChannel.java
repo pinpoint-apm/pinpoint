@@ -43,10 +43,13 @@ public class NettyClientStreamChannel extends AbstractStreamChannel implements C
         this.streamChannelEventHandler = Objects.requireNonNull(streamChannelEventHandler, "streamChannelEventHandler");
     }
 
-    public void connect(byte[] payload, long timeout) throws StreamException {
+    public void connect(byte[] payload) throws StreamException {
         changeStateTo(StreamChannelStateCode.CONNECT_AWAIT, true);
-
         sendCreate(payload);
+    }
+
+    public void connectAndAwait(byte[] payload, long timeout) throws StreamException {
+        connect(payload);
 
         boolean connected = awaitOpen(timeout);
         if (connected) {

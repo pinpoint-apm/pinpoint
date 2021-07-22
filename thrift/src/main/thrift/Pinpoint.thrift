@@ -48,6 +48,7 @@ struct TAgentInfo {
     30: optional TJvmInfo   jvmInfo
 
     40: optional bool container = false
+    50: optional string	agentName
 }
 
 struct TJvmGc {

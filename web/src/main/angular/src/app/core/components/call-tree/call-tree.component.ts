@@ -18,6 +18,7 @@ export interface IGridData {
     clazz: string;
     api: string;
     agent: string;
+    agentName?: string;
     application: string;
     isMethod: boolean;
     methodType: string;
@@ -278,7 +279,7 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
                 tooltipField: 'api'
             },
             {
-                headerName: 'Agent',
+                headerName: 'Agent Id',
                 field: 'agent',
                 width: 150,
                 tooltipField: 'agent'
@@ -288,6 +289,12 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
                 field: 'application',
                 width: 150,
                 tooltipField: 'application'
+            },
+            {
+                headerName: 'Agent Name',
+                field: 'agentName',
+                width: 150,
+                tooltipField: 'agentName'
             }
         ];
     }
@@ -446,6 +453,7 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
         oRow['clazz'] = callTree[oIndex.simpleClassName];
         oRow['api'] = callTree[oIndex.apiType];
         oRow['agent'] = callTree[oIndex.agent];
+        oRow['agentName'] = callTree[oIndex.agentName];
         oRow['application'] = callTree[oIndex.applicationName];
         oRow['isMethod'] = callTree[oIndex.isMethod];
         oRow['methodType'] = callTree[oIndex.methodType];

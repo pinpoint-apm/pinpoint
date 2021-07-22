@@ -150,7 +150,7 @@ public class CollectorGrpcSpanFactoryTest {
 
 
     private Header newHeader() {
-        return new Header("agentId", "applicationName", 1000, 88, -1, null);
+        return new Header("test", "agentId", "agentName", "applicationName", 1000, 88, -1, null);
     }
 
 }

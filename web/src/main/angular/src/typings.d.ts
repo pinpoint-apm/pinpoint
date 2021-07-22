@@ -3,6 +3,10 @@
 declare var ga: Function;
 declare var module: NodeModule;
 declare var intlTelInputGlobals: any;
+declare module '*.json' {
+    const value: any;
+    export default value;
+}
 interface NodeModule {
     id: string;
 }

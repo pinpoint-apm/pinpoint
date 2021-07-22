@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author minwoo.jung
  */
+@SuppressWarnings("deprecation")
 public class SystemCpuUsageRateCheckerTest {
 
 

@@ -66,7 +66,7 @@ public class AgentClientMock {
         NettyChannelBuilder builder = NettyChannelBuilder.forAddress(host, port);
 
         if (agentHeader) {
-            HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
+            HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockAgentName", "mockApplicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
             final Metadata extraHeaders = headerFactory.newHeader();
             final ClientInterceptor headersInterceptor = MetadataUtils.newAttachHeadersInterceptor(extraHeaders);
             builder.intercept(headersInterceptor);
@@ -184,14 +184,19 @@ public class AgentClientMock {
         @Override
         public void handleResolvedAddressGroups(List<EquivalentAddressGroup> servers, Attributes attributes) {
             if (subchannel == null) {
-                subchannel = helper.createSubchannel(servers, Attributes.EMPTY);
+                CreateSubchannelArgs.Builder builder = CreateSubchannelArgs.newBuilder();
+                builder.setAddresses(servers);
+                builder.setAttributes(Attributes.EMPTY);
+                CreateSubchannelArgs subchannelArgs = builder.build();
+
+                subchannel = helper.createSubchannel(subchannelArgs);
 
                 // The channel state does not get updated when doing name resolving today, so for the moment
                 // let LB report CONNECTION and call subchannel.requestConnection() immediately.
                 helper.updateBalancingState(CONNECTING, new Picker(PickResult.withSubchannel(subchannel)));
                 subchannel.requestConnection();
             } else {
-                helper.updateSubchannelAddresses(subchannel, servers);
+                subchannel.updateAddresses(servers);
             }
         }
 

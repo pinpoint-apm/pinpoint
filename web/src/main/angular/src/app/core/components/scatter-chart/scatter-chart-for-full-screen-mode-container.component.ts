@@ -14,7 +14,7 @@ import {
     MessageQueueService,
     MESSAGE_TO
 } from 'app/shared/services';
-import { UrlPath, UrlPathId } from 'app/shared/models';
+import { UrlPath, UrlPathId, UrlQuery } from 'app/shared/models';
 import { EndTime } from 'app/core/models';
 import { ScatterChartDataService } from './scatter-chart-data.service';
 import { ScatterChart } from './class/scatter-chart.class';
@@ -56,6 +56,7 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     timezone$: Observable<string>;
     dateFormat: string[];
     showBlockMessagePopup = false;
+    enableServerSideScan: boolean;
 
     constructor(
         private renderer: Renderer2,
@@ -73,6 +74,7 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
         private messageQueueService: MessageQueueService
     ) {}
     ngOnInit() {
+        this.enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
         this.setScatterY();
         this.getI18NText();
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
@@ -238,6 +240,8 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
         });
         this.onHideSetting();
         this.webAppSettingDataService.setScatterY(this.instanceKey, { min: params.min, max: params.max });
+        this.reset({fromX: this.fromX, toX: this.toX});
+        this.getScatterData();
     }
 
     onHideSetting(): void {
@@ -293,28 +297,34 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
 
     onSelectArea(params: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_AREA_ON_SCATTER);
-        let returnOpenWindow;
-        if (this.newUrlStateNotificationService.isRealTimeMode()) {
-            returnOpenWindow = this.urlRouteManagerService.openPage({
-                path: [
-                    UrlPath.TRANSACTION_LIST,
-                    `${this.selectedApplication.replace('^', '@')}`,
-                    this.webAppSettingDataService.getSystemDefaultPeriod().getValueWithTime(),
-                    EndTime.newByNumber(this.currentRange.to).getEndTime(),
-                ],
-                metaInfo: `${this.selectedApplication}|${params.x.from}|${params.x.to}|${params.y.from}|${params.y.to}|${this.selectedAgent}|${params.type.join(',')}`
-            });
-        } else {
-            returnOpenWindow = this.urlRouteManagerService.openPage({
-                path: [
-                    UrlPath.TRANSACTION_LIST,
-                    `${this.selectedApplication.replace('^', '@')}`,
-                    this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
-                    this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
-                ],
-                metaInfo: `${this.selectedApplication}|${params.x.from}|${params.x.to}|${params.y.from}|${params.y.to}|${this.selectedAgent}|${params.type.join(',')}`
-            });
-        }
+        const {period, endTime} = this.newUrlStateNotificationService.isRealTimeMode() ?
+            {
+                period: this.webAppSettingDataService.getSystemDefaultPeriod().getValueWithTime(),
+                endTime: EndTime.newByNumber(this.currentRange.to).getEndTime()
+            } :
+            {
+                period: this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
+                endTime: this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
+            };
+
+        const returnOpenWindow = this.urlRouteManagerService.openPage({
+            path: [
+                UrlPath.TRANSACTION_LIST,
+                `${this.selectedApplication.replace('^', '@')}`,
+                period,
+                endTime
+            ],
+            queryParams: {
+                [UrlQuery.DRAG_INFO]: {
+                    x1: params.x.from,
+                    x2: params.x.to,
+                    y1: params.y.from,
+                    y2: params.y.to,
+                    agentId: this.selectedAgent,
+                    dotStatus: params.type
+                }
+            },
+        });
 
         if (returnOpenWindow === null || returnOpenWindow === undefined) {
             this.showBlockMessagePopup = true;

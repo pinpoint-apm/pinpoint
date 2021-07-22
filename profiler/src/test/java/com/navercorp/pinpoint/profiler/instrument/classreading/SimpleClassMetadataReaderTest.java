@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.instrument.classreading;
 
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -47,7 +48,7 @@ public class SimpleClassMetadataReaderTest {
         // interfaces
         List<String> interfaceList = getInterfaceList(clazz.getInterfaces());
         List<String> interfaceNames = simpleClassMetadata.getInterfaceNames();
-        Assert.assertThat(interfaceNames, containsInAnyOrder(interfaceList.toArray()));
+        MatcherAssert.assertThat(interfaceNames, containsInAnyOrder(interfaceList.toArray()));
 
         // super
         Assert.assertEquals(simpleClassMetadata.getSuperClassName(), "java.lang.Object");

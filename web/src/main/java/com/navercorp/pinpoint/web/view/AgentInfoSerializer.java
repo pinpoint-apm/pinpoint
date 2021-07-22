@@ -48,6 +48,7 @@ public class AgentInfoSerializer extends JsonSerializer<AgentInfo> {
 
         jgen.writeStringField("applicationName", agentInfo.getApplicationName());
         jgen.writeStringField("agentId", agentInfo.getAgentId());
+        jgen.writeStringField("agentName", agentInfo.getAgentName());
         jgen.writeNumberField("startTimestamp", agentInfo.getStartTimestamp());
         jgen.writeStringField("hostName", agentInfo.getHostName());
         jgen.writeStringField("ip", agentInfo.getIp());

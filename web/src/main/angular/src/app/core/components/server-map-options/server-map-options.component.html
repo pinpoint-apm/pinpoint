@@ -18,13 +18,13 @@
             <dd *ngFor="let outbound of outboundList" class="l-bound-list-item" [class.active]="selectedOutbound === outbound" (click)="onSelectOutbound(outbound)">{{outbound}}</dd>
         </dl>
         <dl class="l-inbound-list">
-            <dt class="l-bound-title">WAS ONLY</dt>
+            <dt class="l-bound-title l-last-title">WAS ONLY</dt>
             <dd class="l-was-only-selector" (click)="onChangeWasOnly()">
                 <i class="fas fa-check-square" [class.selected]="selectedWasOnly"></i>
             </dd>
         </dl>
         <dl class="l-outbound-list">
-            <dt class="l-bound-title l-bidirectional-title">Bidirectional</dt>
+            <dt class="l-bound-title l-last-title">Bidirectional</dt>
             <dd class="l-bidirectional-selector" (click)="onChangeBidirectional()"><img [src]="bidirectionalImgSrc" width="22px" height="22px"></dd>
         </dl>
         <div class="l-button-group-wrapper">

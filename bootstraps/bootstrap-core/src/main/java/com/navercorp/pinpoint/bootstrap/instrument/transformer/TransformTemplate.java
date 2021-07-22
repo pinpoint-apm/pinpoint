@@ -85,8 +85,6 @@ public class TransformTemplate implements TransformOperations {
         Objects.requireNonNull(className, "className");
         Objects.requireNonNull(transformCallbackClass, "transformCallbackClass");
 
-
-
         TransformCallbackChecker.validate(transformCallbackClass, parameterTypes);
         if (ParameterUtils.hasNull(parameterTypes)) {
             throw new IllegalArgumentException("null parameterType not supported");

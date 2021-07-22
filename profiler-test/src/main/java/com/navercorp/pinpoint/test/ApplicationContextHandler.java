@@ -22,10 +22,17 @@ import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
+import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.SpanChunk;
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
+
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -83,6 +90,32 @@ public class ApplicationContextHandler {
     private ServiceTypeRegistryService findServiceTypeRegistry(Injector injector) {
         return injector.getInstance(ServiceTypeRegistryService.class);
     }
+
+
+    public List<String> getExecutedMethod() {
+        List<String> list = new ArrayList<>();
+        for (Object item : orderedSpanRecorder) {
+            if (item instanceof Span) {
+                Span span = (Span) item;
+                List<SpanEvent> spanEventList = span.getSpanEventList();
+                addApiDescription(list, spanEventList);
+            } else if (item instanceof SpanChunk) {
+                SpanChunk spanChunk = (SpanChunk) item;
+                List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
+                addApiDescription(list, spanEventList);
+            }
+        }
+        return list;
+    }
+
+    private void addApiDescription(List<String> list, List<SpanEvent> spanEventList) {
+        for (SpanEvent spanEvent : spanEventList) {
+            int apiId = spanEvent.getApiId();
+            String apiDescription = this.tcpDataSender.getApiDescription(apiId);
+            list.add(apiDescription);
+        }
+    }
+
 
     public OrderedSpanRecorder getOrderedSpanRecorder() {
         return orderedSpanRecorder;

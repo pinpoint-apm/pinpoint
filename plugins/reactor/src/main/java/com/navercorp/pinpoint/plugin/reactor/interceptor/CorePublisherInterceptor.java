@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 
 /**
@@ -37,10 +38,11 @@ public class CorePublisherInterceptor extends AsyncContextSpanEventSimpleAroundI
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
         final AsyncContext publisherAsyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
-        if (publisherAsyncContext != null && args != null && args.length >= 1) {
+        if (publisherAsyncContext != null) {
+            Object asyncContextAccessor = ArrayUtils.get(args, 0);
             // Set AsyncContext to CoreSubscriber
-            if (args[0] instanceof AsyncContextAccessor) {
-                ((AsyncContextAccessor) (args[0]))._$PINPOINT$_setAsyncContext(publisherAsyncContext);
+            if (asyncContextAccessor instanceof AsyncContextAccessor) {
+                ((AsyncContextAccessor) asyncContextAccessor)._$PINPOINT$_setAsyncContext(publisherAsyncContext);
             }
         }
     }

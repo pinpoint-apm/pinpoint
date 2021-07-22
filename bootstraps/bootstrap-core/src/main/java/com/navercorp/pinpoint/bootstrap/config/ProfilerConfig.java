@@ -41,6 +41,9 @@ public interface ProfilerConfig {
 
     List<String> getAllowJdkClassName();
 
+    String getPinpointBasePackage();
+    String getPinpointExcludeSubPackage();
+
     boolean isTraceAgentActiveThread();
 
     boolean isTraceAgentDataSource();

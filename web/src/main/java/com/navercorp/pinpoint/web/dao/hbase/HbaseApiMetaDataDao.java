@@ -21,6 +21,10 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.metadata.DefaultMetaDataRowKey;
+import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
+import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataEncoder;
 import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
@@ -49,6 +53,8 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
 
     private final TableDescriptor<HbaseColumnFamily.ApiMetadata> descriptor;
 
+    private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder = new MetadataEncoder();
+
     public HbaseApiMetaDataDao(HbaseOperations2 hbaseOperations2,
                                TableDescriptor<HbaseColumnFamily.ApiMetadata> descriptor,
                                @Qualifier("apiMetaDataMapper") RowMapper<List<ApiMetaDataBo>> apiMetaDataMapper,
@@ -64,8 +70,9 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
     public List<ApiMetaDataBo> getApiMetaData(String agentId, long time, int apiId) {
         Objects.requireNonNull(agentId, "agentId");
 
-        ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(agentId, time, apiId);
-        byte[] sqlId = getDistributedKey(apiMetaDataBo.toRowKey());
+        MetaDataRowKey metaDataRowKey = new DefaultMetaDataRowKey(agentId, time, apiId);
+        byte[] sqlId = getDistributedKey(rowKeyEncoder.encodeRowKey(metaDataRowKey));
+
         Get get = new Get(sqlId);
         get.addFamily(descriptor.getColumnFamilyName());
 

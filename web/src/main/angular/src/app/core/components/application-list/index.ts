@@ -11,6 +11,9 @@ import { FavoriteApplicationListForConfigurationContainerComponent } from './fav
 import { ApplicationListForConfigurationAlarmContainerComponent } from './application-list-for-configuration-alarm-container.component';
 import { ApplicationListInteractionForConfigurationService } from './application-list-interaction-for-configuration.service';
 import { ApplicationListForAgentManagementContainerComponent } from './application-list-for-agent-management-container.component';
+import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
+import { ApplicationListDataService } from './application-list-data.service';
+import { FavoriteApplicationListDataService } from './favorite-application-list-data.service';
 
 @NgModule({
     declarations: [
@@ -24,7 +27,8 @@ import { ApplicationListForAgentManagementContainerComponent } from './applicati
     ],
     imports: [
         ScrollingModule,
-        SharedModule
+        SharedModule,
+        ServerErrorPopupModule
     ],
     exports: [
         ApplicationListForHeaderContainerComponent,
@@ -35,6 +39,8 @@ import { ApplicationListForAgentManagementContainerComponent } from './applicati
     ],
     providers: [
         ApplicationListInteractionForConfigurationService,
+        ApplicationListDataService,
+        FavoriteApplicationListDataService
     ]
 })
 export class ApplicationListModule { }

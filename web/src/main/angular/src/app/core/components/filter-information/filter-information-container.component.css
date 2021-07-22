@@ -1,7 +1,7 @@
 .l-filter-info {
     padding: 16px 25px;
-    border-bottom: 1px solid #EAEEF4;
-    background-color: #F9FAFC;
+    border-bottom: 1px solid var(--border-primary);
+    background-color: var(--background-primary);
 }
 .l-title {
     font-size: 16px;

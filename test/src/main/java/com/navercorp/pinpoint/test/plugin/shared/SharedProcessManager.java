@@ -145,7 +145,7 @@ public class SharedProcessManager implements ProcessManager {
     }
 
     private String[] buildCommand() {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
 
         list.add(context.getJavaExecutable());
 
@@ -163,6 +163,8 @@ public class SharedProcessManager implements ProcessManager {
 
         final String mavenDependencyResolverClassPaths = join(context.getMavenDependencyLibraries());
         list.add(format(SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS, mavenDependencyResolverClassPaths));
+        final String repositoryUrlString = join(context.getRepositoryUrls());
+        list.add(format(SharedPluginTestConstants.TEST_REPOSITORY_URLS, repositoryUrlString));
         list.add(format(SharedPluginTestConstants.TEST_LOCATION,  context.getTestClassLocation()));
         list.add(format(SharedPluginTestConstants.TEST_CLAZZ_NAME, context.getTestClass().getName()));
 
@@ -224,7 +226,7 @@ public class SharedProcessManager implements ProcessManager {
     }
 
     private String buildAgentArguments() {
-        final Map<String, String> agentArgumentMap = new LinkedHashMap<String, String>();
+        final Map<String, String> agentArgumentMap = new LinkedHashMap<>();
         agentArgumentMap.put("AGENT_TYPE", "PLUGIN_TEST");
 
         final List<String> importPluginIds = context.getImportPluginIds();

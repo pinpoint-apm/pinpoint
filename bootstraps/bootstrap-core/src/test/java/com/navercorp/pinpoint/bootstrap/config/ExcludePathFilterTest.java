@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -91,11 +92,11 @@ public class ExcludePathFilterTest {
     }
 
     private void assertFiltered(Filter<String> filter, String testValue) {
-        Assert.assertThat(filter.filter(testValue), is(FILTERED));
+        MatcherAssert.assertThat(filter.filter(testValue), is(FILTERED));
     }
 
     private void assertNotFiltered(Filter<String> filter, String testValue) {
-        Assert.assertThat(filter.filter(testValue), is(NOT_FILTERED));
+        MatcherAssert.assertThat(filter.filter(testValue), is(NOT_FILTERED));
     }
 
     // Tests for urls

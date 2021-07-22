@@ -47,9 +47,9 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
 
     private final BiHashMap<Integer, String> stringIdMap = newBiHashMap();
 
-    private static final Comparator<Pair<Integer, String>> COMPARATOR = new Comparator<Pair<Integer, String>>() {
+    private static final Comparator<Pair<Integer, ?>> COMPARATOR = new Comparator<Pair<Integer, ?>>() {
         @Override
-        public int compare(Pair<Integer, String> o1, Pair<Integer, String> o2) {
+        public int compare(Pair<Integer, ?> o1, Pair<Integer, ?> o2) {
             final int key1 = o1.getKey();
             final int key2 = o2.getKey();
             return Integer.compare(key1, key2);
@@ -102,6 +102,12 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
     private <K, V> V syncGet(BiHashMap<K, V> map, K key) {
         synchronized (map) {
             return map.get(key);
+        }
+    }
+
+    private <K, V> int syncSize(BiHashMap<K, V> map) {
+        synchronized (map) {
+            return map.size();
         }
     }
 
@@ -198,27 +204,45 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
     }
 
     public void printDatas(PrintStream out) {
-        out.println("API(" + apiIdMap.size() + "):");
+        out.println("API(" + syncSize(apiIdMap) + "):");
         printApis(out);
-        out.println("SQL(" + sqlIdMap.size() + "):");
+        out.println("SQL(" + syncSize(sqlIdMap) + "):");
         printSqls(out);
-        out.println("STRING(" + stringIdMap.size() + "):");
+        out.println("STRING(" + syncSize(stringIdMap) + "):");
         printStrings(out);
     }
     
     public void printApis(PrintStream out) {
         List<Pair<Integer, String>> apis = syncCopy(apiIdMap);
-        printEntries(out, apis);
+        Collections.sort(apis, COMPARATOR);
+        List<String> apiList = toStringList(apis);
+        printEntries(out, apiList);
     }
     
     public void printStrings(PrintStream out) {
         List<Pair<Integer, String>> strings = syncCopy(stringIdMap);
-        printEntries(out, strings);
+        Collections.sort(strings, COMPARATOR);
+        List<String> strList = toStringList(strings);
+        printEntries(out, strList);
     }
 
     public void printSqls(PrintStream out) {
         List<Pair<Integer, String>> sqls = syncCopy(sqlIdMap);
-        printEntries(out, sqls);
+        Collections.sort(sqls, COMPARATOR);
+        List<String> sqlList = toStringList(sqls);
+        printEntries(out, sqlList);
+    }
+
+    private <K, V> List<String> toStringList(List<Pair<K, V>> list) {
+        List<String> result = new ArrayList<>(list.size());
+        for (Pair<K, V> pair : list) {
+            result.add(toStringPair(pair));
+        }
+        return result;
+    }
+
+    public <K, V> String toStringPair(Pair<K, V> input) {
+        return input.getKey() + ":" + input.getValue();
     }
 
     private <K, V> List<Pair<K, V>> syncCopy(BiHashMap<K, V> map) {
@@ -231,10 +255,10 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
         }
     }
 
-    private void printEntries(PrintStream out, List<Pair<Integer, String>> entries) {
-        Collections.sort(entries, COMPARATOR);
-        for (Pair<Integer, String> e : entries) {
-            out.println(e.getKey() + ": " + e.getValue());
+
+    private void printEntries(PrintStream out, List<String> list) {
+        for (String str : list) {
+            out.println(str);
         }
     }
     

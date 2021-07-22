@@ -17,7 +17,7 @@
     float: left;
 }
 .l-status button:disabled {
-    background-color: #CCC;
+    background-color: var(--background-disable);
     cursor: not-allowed;
 }
 .l-status-count {
@@ -25,7 +25,7 @@
 }
 .l-status-count li {
     font-size: 12px;
-    color: #B3B3B4;
+    color: var(--text-secondary);
     float: left;
 }
 .l-status-count li:first-child {
@@ -36,10 +36,11 @@
 .l-status-count span {
     font-size: 18px;
     font-weight: 600;
-    color: #EB4747;
+    margin-left: 5px;
+    color: var(--status-fail);
 }
 .l-status-count span.l-total {
-    color: #000;
+    color: var(--text-default);
 }
 button:first-child {
     margin-right: 10px;

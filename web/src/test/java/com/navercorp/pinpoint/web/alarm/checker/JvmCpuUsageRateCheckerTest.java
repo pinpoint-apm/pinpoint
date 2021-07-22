@@ -39,6 +39,7 @@ import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 
+@SuppressWarnings("deprecation")
 public class JvmCpuUsageRateCheckerTest {
 
     private static final String SERVICE_NAME = "local_service";

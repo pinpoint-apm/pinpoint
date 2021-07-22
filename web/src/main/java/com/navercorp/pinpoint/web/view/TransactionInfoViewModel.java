@@ -80,6 +80,11 @@ public class TransactionInfoViewModel {
         return recordSet.getAgentId();
     }
 
+    @JsonProperty("agentName")
+    public String getAgentName() {
+        return recordSet.getAgentName();
+    }
+
     @JsonProperty("applicationId")
     public String getApplicationId() {
         return recordSet.getApplicationId();
@@ -207,7 +212,8 @@ public class TransactionInfoViewModel {
                 "agent",
                 "isFocused",
                 "hasException",
-                "isAuthorized"
+                "isAuthorized",
+                "agentName"
         };
 
         private String depth = "";
@@ -231,6 +237,7 @@ public class TransactionInfoViewModel {
         private String methodType = "";
         private String apiType = "";
         private String agent = "";
+        private String agentName = "";
         private boolean isFocused;
         private boolean hasException;
         private boolean isAuthorized;
@@ -259,7 +266,8 @@ public class TransactionInfoViewModel {
             simpleClassName = record.getSimpleClassName();
             methodType = String.valueOf(record.getMethodTypeEnum().getCode());
             apiType = record.getApiType();
-            agent = record.getAgent();
+            agent = record.getAgentId();
+            agentName = record.getAgentName();
             isFocused = record.isFocused();
             hasException = record.getHasException();
             isAuthorized = record.isAuthorized();
@@ -347,6 +355,10 @@ public class TransactionInfoViewModel {
 
         public String getAgent() {
             return agent;
+        }
+
+        public String getAgentName() {
+            return agentName;
         }
 
         public boolean isFocused() {

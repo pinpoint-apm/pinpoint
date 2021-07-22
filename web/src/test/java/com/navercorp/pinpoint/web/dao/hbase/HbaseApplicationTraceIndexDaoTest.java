@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.*;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.web.config.ScatterChartConfig;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
@@ -35,10 +36,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Predicate;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class HbaseApplicationTraceIndexDaoTest {
@@ -81,7 +86,8 @@ public class HbaseApplicationTraceIndexDaoTest {
         MockitoAnnotations.initMocks(this);
         TableDescriptorConfig tableDescriptorConfig = new TableDescriptorConfig(tableNameProvider);
         TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor = tableDescriptorConfig.getApplicationTraceIndexTrace();
-        this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(hbaseOperations2, descriptor, traceIndexMapper, traceIndexScatterMapper, traceIdRowKeyDistributor);
+        ScatterChartConfig scatterChartConfig = new ScatterChartConfig();
+        this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(scatterChartConfig, hbaseOperations2, descriptor, traceIndexMapper, traceIndexScatterMapper, traceIdRowKeyDistributor);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -168,6 +174,38 @@ public class HbaseApplicationTraceIndexDaoTest {
             }
         }
         return ret;
+    }
+
+    @Test
+    public void dotStatusFilterTest() {
+        Predicate<Dot> dotStatusFilter = new HbaseApplicationTraceIndexDao.DotStatusFilter("agent", Dot.Status.SUCCESS);
+        Dot dot = mock(Dot.class);
+        when(dot.getAgentId()).thenReturn("agent");
+        when(dot.getStatus()).thenReturn(Dot.Status.SUCCESS);
+
+        Assert.assertTrue(dotStatusFilter.test(dot));
+    }
+
+    @Test
+    public void dotStatusFilterTest_fail1() {
+        Predicate<Dot> dotStatusFilter = new HbaseApplicationTraceIndexDao.DotStatusFilter("agent", Dot.Status.SUCCESS);
+        Dot dot = mock(Dot.class);
+        when(dot.getAgentId()).thenReturn("agent");
+        when(dot.getStatus()).thenReturn(Dot.Status.FAILED);
+
+        Assert.assertFalse(dotStatusFilter.test(dot));
+
+    }
+
+    @Test
+    public void dotStatusFilterTest_fail2() {
+        Predicate<Dot> dotStatusFilter = new HbaseApplicationTraceIndexDao.DotStatusFilter("agent", Dot.Status.SUCCESS);
+        Dot dot = mock(Dot.class);
+        when(dot.getAgentId()).thenReturn("xxx");
+        when(dot.getStatus()).thenReturn(Dot.Status.SUCCESS);
+
+        Assert.assertFalse(dotStatusFilter.test(dot));
+
     }
 
 }

@@ -15,6 +15,11 @@
                 <property name="objectMapper" ref="jsonObjectMapper" />
             </bean>
         </mvc:message-converters>
+        <!--
+        Turn off useSuffixPatternMatching by default
+        https://github.com/spring-projects/spring-framework/issues/23915
+        -->
+        <mvc:path-matching suffix-pattern="true"/>
     </mvc:annotation-driven>
 
     <tx:annotation-driven />

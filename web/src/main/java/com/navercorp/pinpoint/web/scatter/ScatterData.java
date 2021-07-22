@@ -40,12 +40,7 @@ public class ScatterData {
     private final long oldestAcceptedTime;
     private final long latestAcceptedTime;
 
-    private static final Comparator<DotGroups> REVERSE = new Comparator<DotGroups>() {
-        @Override
-        public int compare(DotGroups left, DotGroups right) {
-            return Long.compare(right.getXCoordinates(), left.getXCoordinates());
-        }
-    };
+    private static final Comparator<DotGroups> REVERSE = Comparator.comparingLong(DotGroups::getXCoordinates).reversed();
 
 
     public ScatterData(long from,

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
@@ -60,11 +61,13 @@ public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor extends
         }
         // arguments(final IOException exception, final int executionCount, final HttpContext context)
         final StringBuilder sb = new StringBuilder();
-        if (args.length >= 1 && args[0] instanceof Exception) {
-            sb.append(args[0].getClass().getName()).append(", ");
+        final Object ex = ArrayUtils.get(args, 0);
+        if (ex instanceof Exception) {
+            sb.append(ex.getClass().getName()).append(", ");
         }
-        if (args.length >= 2 && args[1] instanceof Integer) {
-            sb.append(args[1]);
+        final Object executionCount = ArrayUtils.get(args, 1);
+        if (executionCount instanceof Integer) {
+            sb.append(executionCount);
         }
         return sb.toString();
     }

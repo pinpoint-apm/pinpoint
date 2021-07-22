@@ -111,6 +111,7 @@ public class ObjectMapperJDK7IT {
         verifier.verifyTraceCount(0);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testReadValue() throws Exception {
         String json_str = "{\"name\" : \"Jackson\"}";

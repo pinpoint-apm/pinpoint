@@ -2,7 +2,7 @@
     top: 50%;
     left: 50%;
     width: 100%;
-    border: 1px solid #e5e8f0;
+    border: 1px solid var(--border-primary);
     display: block;    
     position: absolute;
     min-width: 500px;
@@ -10,10 +10,10 @@
     transform: translateX(-50%) translateY(-50%);
     text-align: left;
     box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.75);
-    background-color: #fff;
+    background-color: var(--background-default);
 }
 .l-title-group {
-    color: #FFF;
+    color: var(--background-default);
     height: auto;
     display: flex;
     padding: 20px 20px;
@@ -21,9 +21,9 @@
     font-size: 13px;
     font-weight: 600;
     align-items: center;
-    border-bottom: 1px solid #e5e8f0;
+    border-bottom: 1px solid var(--border-primary);
     justify-content: space-between;
-    background-color: #d65b65;
+    background-color: var(--status-fail);
 }
 .l-title-group dt {
     font-size: 20px;
@@ -40,7 +40,7 @@
     height: 500px;
     padding: 17px 18px;
     overflow: auto;
-    background: #f6f8fb;
+    background: var(--background-primary);
 }
 .l-contents {
     display: flex;
@@ -51,16 +51,16 @@
     padding: 20px 0px;
     display: flex;
     flex-direction: row;
-    background-color: #FFF;
+    background-color: var(--background-default);
 }
 .l-toggle-btn {
-    color: #FFF;
+    color: var(--text-knockout);
     display: block;
     padding: 6px 10px;
-    background-color: #D65B65;
+    background-color: var(--status-fail);
 }
 .l-red {
-    color: #d65b65;
+    color: var(--status-fail);
 }
 .l-row-header {
     width: 15%;
@@ -75,14 +75,14 @@
     padding: 4px;
     font-size: 14px;
     margin-top: 10px;
-    border: 1px solid #DDD;
+    border: 1px solid var(--border-primary-darker);
 }
 .l-data-table {
     display: flex;
     margin-top: 10px;
     align-items: center;
     flex-direction: column;
-    background-color: #d65b65;
+    background-color: var(--status-fail);
 }
 .l-data-table > div {
     width: 100%;
@@ -90,7 +90,7 @@
     display: flex;
     padding: 10px 0px;
     align-items: center;
-    background-color: #FFF;
+    background-color: var(--background-default);
 }
 .l-data-table > div > div:first-child {
     width: 25%;

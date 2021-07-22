@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.test.plugin;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ReflectPluginTestVerifier {
@@ -51,9 +50,7 @@ public class ReflectPluginTestVerifier {
     public void initialize(boolean initializeTraceObject) {
         try {
             initialize.invoke(instance, initializeTraceObject);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        } catch (InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -61,9 +58,7 @@ public class ReflectPluginTestVerifier {
     public void cleanUp(boolean detachTraceObject) {
         try {
             cleanUp.invoke(instance, detachTraceObject);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        } catch (InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }

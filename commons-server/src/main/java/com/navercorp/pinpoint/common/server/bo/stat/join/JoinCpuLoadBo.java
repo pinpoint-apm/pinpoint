@@ -56,10 +56,12 @@ public class JoinCpuLoadBo implements JoinStatBo {
             return EMPTY_JOIN_CPU_LOAD_BO;
         }
 
-        final List<JoinDoubleFieldBo> jvmCpuLoadFieldBoList = joinCpuLoadBoList.stream().map(JoinCpuLoadBo::getJvmCpuLoadJoinValue).collect(Collectors.toList());
+        final List<JoinDoubleFieldBo> jvmCpuLoadFieldBoList = joinCpuLoadBoList.stream()
+                .map(JoinCpuLoadBo::getJvmCpuLoadJoinValue).collect(Collectors.toList());
         final JoinDoubleFieldBo jvmCpuLoadJoinValue = JoinDoubleFieldBo.merge(jvmCpuLoadFieldBoList);
 
-        final List<JoinDoubleFieldBo> systemCpuLoadFieldBoList = joinCpuLoadBoList.stream().map(JoinCpuLoadBo::getSystemCpuLoadJoinValue).collect(Collectors.toList());
+        final List<JoinDoubleFieldBo> systemCpuLoadFieldBoList = joinCpuLoadBoList.stream()
+                .map(JoinCpuLoadBo::getSystemCpuLoadJoinValue).collect(Collectors.toList());
         final JoinDoubleFieldBo systenCpuLoadJoinValue = JoinDoubleFieldBo.merge(systemCpuLoadFieldBoList);
 
         JoinCpuLoadBo firstJoinCpuLoadBo = joinCpuLoadBoList.get(0);

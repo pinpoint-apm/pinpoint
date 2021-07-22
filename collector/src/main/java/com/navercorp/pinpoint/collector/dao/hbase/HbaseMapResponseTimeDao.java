@@ -67,7 +67,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
 
     @Override
-    public void received(String applicationName, ServiceType applicationServiceType, String agentId, int elapsed, boolean isError, boolean isPing) {
+    public void received(String applicationName, ServiceType applicationServiceType, String agentId, int elapsed, boolean isError) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(agentId, "agentId");
 
@@ -82,19 +82,37 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
         final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError);
         final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);
-
-        HistogramSchema histogramSchema = applicationServiceType.getHistogramSchema();
-
-        final ColumnName maxColumnName = new ResponseColumnName(agentId, histogramSchema.getMaxStatSlot().getSlotTime());
         this.bulkWriter.increment(selfRowKey, selfColumnName);
 
+        HistogramSchema histogramSchema = applicationServiceType.getHistogramSchema();
         if (mapLinkConfiguration.isEnableAvg()) {
             final ColumnName sumColumnName = new ResponseColumnName(agentId, histogramSchema.getSumStatSlot().getSlotTime());
             this.bulkWriter.increment(selfRowKey, sumColumnName, elapsed);
         }
+
+        final ColumnName maxColumnName = new ResponseColumnName(agentId, histogramSchema.getMaxStatSlot().getSlotTime());
         if (mapLinkConfiguration.isEnableMax()) {
             this.bulkWriter.updateMax(selfRowKey, maxColumnName, elapsed);
         }
+    }
+
+    @Override
+    public void updatePing(String applicationName, ServiceType applicationServiceType, String agentId, int elapsed, boolean isError) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(agentId, "agentId");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("[Received] {} ({})[{}]", applicationName, applicationServiceType, agentId);
+        }
+
+        // make row key. rowkey is me
+        final long acceptedTime = acceptedTimeService.getAcceptedTime();
+        final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
+        final RowKey selfRowKey = new CallRowKey(applicationName, applicationServiceType.getCode(), rowTimeSlot);
+
+        final short slotNumber = ApplicationMapStatisticsUtils.getPingSlotNumber(applicationServiceType, elapsed, isError);
+        final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);
+        this.bulkWriter.increment(selfRowKey, selfColumnName);
     }
 
 

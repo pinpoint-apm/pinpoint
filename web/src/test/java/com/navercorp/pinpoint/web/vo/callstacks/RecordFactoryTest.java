@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.vo.callstacks;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.trace.ApiParserProvider;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
@@ -25,13 +26,17 @@ import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import com.navercorp.pinpoint.web.service.AnnotationKeyMatcherService;
 import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
 
+import com.navercorp.pinpoint.web.service.RecorderFactoryProvider;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class RecordFactoryTest {
 
     @Mock
@@ -46,8 +51,13 @@ public class RecordFactoryTest {
     @Mock
     private ProxyRequestTypeRegistryService mockProxyRequestTypeRegistryService;
 
+    @Mock
+    private ApiParserProvider apiParserProvider;
+
     private RecordFactory newRecordFactory() {
-        return new RecordFactory(mockAnnotationKeyMatcherService, mockServiceTypeRegistryService, mockAnnotationKeyRegistryService, mockProxyRequestTypeRegistryService);
+        RecorderFactoryProvider recorderFactoryProvider = new RecorderFactoryProvider(mockServiceTypeRegistryService,
+                mockAnnotationKeyMatcherService, mockAnnotationKeyRegistryService, mockProxyRequestTypeRegistryService, apiParserProvider);
+        return recorderFactoryProvider.getRecordFactory();
     }
 
     public void get() {

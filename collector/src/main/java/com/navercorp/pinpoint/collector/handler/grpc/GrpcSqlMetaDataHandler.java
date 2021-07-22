@@ -71,8 +71,8 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler<GeneratedM
             final String agentId = agentInfo.getAgentId();
             final long agentStartTime = agentInfo.getAgentStartTime();
 
-            final SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(agentId, agentStartTime, sqlMetaData.getSqlId());
-            sqlMetaDataBo.setSql(sqlMetaData.getSql());
+            final SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(agentId, agentStartTime, sqlMetaData.getSqlId(), sqlMetaData.getSql());
+
             sqlMetaDataService.insert(sqlMetaDataBo);
             return PResult.newBuilder().setSuccess(true).build();
         } catch (Exception e) {

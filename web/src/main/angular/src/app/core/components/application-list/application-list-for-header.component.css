@@ -8,30 +8,30 @@
 
 .l-application-list > dt  {
     padding: 12px 15px;
-    background-color: #edf2f8;
-    color: #333;
-    font-weight: 600;
+    color: var(--text-primary);
+    font-weight: bold;
+    font-size: 14px;
 }
 
 .l-item {
-    padding: 12px 15px;
-    color: #666;
+    padding: 12px 15px 12px 20px;
+    color: var(--text-primary-lightest);
     display: flex;
     align-items: center;
     cursor: pointer; 
 }
 
 .l-item.active { 
-    color: #FFF !important;
-    background-color: var(--primary-color); 
+    color: var(--text-knockout) !important;
+    background-color: var(--primary); 
 }
 
 .l-item.active.focus { 
-    background-color: var(--primary-color); 
+    background-color: var(--primary); 
 }
 
 .l-item.focus { 
-    background-color:  #e4f3eb;
+    background-color: var(--background-hover-secondary);
 }
 
 .l-icon-img {

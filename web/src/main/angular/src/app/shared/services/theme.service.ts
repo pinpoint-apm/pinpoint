@@ -1,21 +1,37 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Renderer2, RendererFactory2 } from '@angular/core';
 
-import * as themeMap from 'app/core/constants/theme';
+import { WebAppSettingDataService } from 'app/shared/services/web-app-setting-data.service';
+import { UrlRouteManagerService } from 'app/shared/services/url-route-manager.service';
 
 export const enum Theme {
-    Light = 'light',
+    Dark = 'dark-mode',
+    Light = 'light-mode',
 }
 
 @Injectable()
 export class ThemeService {
-    constructor() {}
-    private setTheme(theme: Theme): void {
-        Object.entries(themeMap[theme]).forEach(([key, value]) => {
-            document.documentElement.style.setProperty(`--${key}`, value);
-        });
+    private renderer: Renderer2;
+
+    constructor(
+        private webAppSettingDataService: WebAppSettingDataService,
+        private urlRouteManagerService: UrlRouteManagerService,
+        private rendererFactory: RendererFactory2,
+    ) {
+        this.renderer = this.rendererFactory.createRenderer(null, null);
     }
 
-    changeTheme(theme: Theme): void {
-        this.setTheme(theme);
+    changeTheme(theme: Theme[keyof Theme]): void {
+        this.webAppSettingDataService.setTheme(theme as string);
+        this.urlRouteManagerService.reload();
+    }
+
+    setTheme(): void {
+        const theme = this.webAppSettingDataService.getTheme();
+
+        this.renderer.addClass(document.body, theme);
+    }
+
+    getTheme(): Theme {
+        return this.webAppSettingDataService.getTheme();
     }
 }

@@ -1,9 +1,12 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Subject, forkJoin } from 'rxjs';
+import { Subject, forkJoin, combineLatest } from 'rxjs';
+import { filter, map, takeUntil } from 'rxjs/operators';
 
-import { WebAppSettingDataService, StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { WebAppSettingDataService, StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
 import { isEmpty } from 'app/core/utils/util';
+import { initFavoriteApplicationList, removeFavApplication } from 'app/shared/store/actions';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Component({
     selector: 'pp-favorite-application-list-for-configuration-container',
@@ -13,7 +16,7 @@ import { isEmpty } from 'app/core/utils/util';
 export class FavoriteApplicationListForConfigurationContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
     private _query = '';
-    private favoriteAppList: IApplication[];
+    private favoriteAppList: IApplication[] = [];
 
     filteredAppList: IApplication[];
     funcImagePath: Function;
@@ -25,17 +28,23 @@ export class FavoriteApplicationListForConfigurationContainerComponent implement
         EMPTY: ''
     };
     isEmpty: boolean;
+    useDisable = true;
+    showLoading = true;
 
     constructor(
         private storeHelperService: StoreHelperService,
         private translateService: TranslateService,
         private webAppSettingDataService: WebAppSettingDataService,
         private analyticsService: AnalyticsService,
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
 
     ngOnInit() {
         this.initList();
         this.initI18nText();
+        this.connectStore();
         this.funcImagePath = this.webAppSettingDataService.getIconPathMakeFunc();
     }
 
@@ -45,10 +54,7 @@ export class FavoriteApplicationListForConfigurationContainerComponent implement
     }
 
     private initList(): void {
-        this.storeHelperService.getFavoriteApplicationList(this.unsubscribe).subscribe((favoriteAppList: IApplication[]) => {
-            this.favoriteAppList = favoriteAppList;
-            this.filterList();
-        });
+        this.showProcessing();
     }
 
     private initI18nText(): void {
@@ -61,13 +67,64 @@ export class FavoriteApplicationListForConfigurationContainerComponent implement
         });
     }
 
-    private filterList(): void {
-        if (this.query !== '') {
-            this.filteredAppList = this.favoriteAppList.filter((app: IApplication) => {
-                return app.getApplicationName().toLowerCase().indexOf(this.query.toLowerCase()) !== -1;
+    private connectStore(): void {
+        combineLatest(
+            this.storeHelperService.getApplicationList(this.unsubscribe).pipe(filter((appList: IApplication[]) => !isEmpty(appList))),
+            this.storeHelperService.getFavoriteApplicationList(this.unsubscribe)
+        ).pipe(
+            map(([appList, favAppList]: IApplication[][]) => {
+                const validFavAppList = favAppList.filter((favApp: IApplication) => {
+                    return appList.some((app: IApplication) => app.equals(favApp));
+                });
+
+                return validFavAppList;
+            }),
+            takeUntil(this.unsubscribe)
+        ).subscribe((favAppList: IApplication[]) => {
+            this.hideProcessing();
+            this.favoriteAppList = favAppList;
+            this.filterList();
+        });
+
+        this.storeHelperService.getApplicationListError().pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((error: IServerErrorFormat) => {
+            this.hideProcessing();
+        });
+
+        this.storeHelperService.getFavoriteApplicationListError().pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((error: IServerErrorFormat) => {
+            this.hideProcessing();
+        });
+
+        this.storeHelperService.getFavoriteApplicationRemoveError().pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((error: IServerErrorFormat) => {
+            this.hideProcessing();
+            this.dynamicPopupService.openPopup({
+                data: {
+                    title: 'Server Error',
+                    contents: error
+                },
+                component: ServerErrorPopupContainerComponent,
+                onCloseCallback: () => {
+                    this.storeHelperService.dispatch(initFavoriteApplicationList());
+                }
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
-        } else {
+        });
+    }
+
+    private filterList(): void {
+        if (this.query === '') {
             this.filteredAppList = this.favoriteAppList;
+        } else {
+            this.filteredAppList = this.favoriteAppList.filter((app: IApplication) => {
+                return new RegExp(this.query, 'i').test(app.getApplicationName());
+            });
         }
 
         this.isEmpty = isEmpty(this.filteredAppList);
@@ -95,7 +152,17 @@ export class FavoriteApplicationListForConfigurationContainerComponent implement
     }
 
     onSelectApp(app: IApplication): void {
-        this.webAppSettingDataService.removeFavoriteApplication(app);
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_FAVORITE_APPLICATION);
+        this.storeHelperService.dispatch(removeFavApplication(app));
+    }
+
+    private showProcessing(): void {
+        this.useDisable = true;
+        this.showLoading = true;
+    }
+
+    private hideProcessing(): void {
+        this.useDisable = false;
+        this.showLoading = false;
     }
 }

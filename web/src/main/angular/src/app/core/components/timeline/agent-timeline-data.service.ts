@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { retry } from 'rxjs/operators';
 
 export interface IAgentTimeline {
     agentEventTimeline: {
@@ -26,9 +25,7 @@ export class AgentTimelineDataService {
     ) {}
 
     getData(agentId: string, range: number[]): Observable<IAgentTimeline> {
-        return this.http.get<IAgentTimeline>(this.requestURL, this.makeRequestOptionsArgs(agentId, range)).pipe(
-            retry(3)
-        );
+        return this.http.get<IAgentTimeline>(this.requestURL, this.makeRequestOptionsArgs(agentId, range));
     }
 
     private makeRequestOptionsArgs(agentId: string, [from, to]: number[]): { 'params': { [key: string]: any } } {

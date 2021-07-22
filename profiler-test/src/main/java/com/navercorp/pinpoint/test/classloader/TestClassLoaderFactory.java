@@ -17,7 +17,6 @@
 
 package com.navercorp.pinpoint.test.classloader;
 
-import com.navercorp.pinpoint.common.util.ClassUtils;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

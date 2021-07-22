@@ -8,8 +8,8 @@
     align-items: center;
     height: 100%;
     justify-content: space-between;
-    background: #3e506b;
-    color: #fff;
+    background: var(--period-select-background);
+    color: var(--text-knockout);
     width: 427px;
 }
 .l-input-group input {
@@ -26,8 +26,8 @@
     flex: 1 1 0;
     justify-content: center;
     height: 100%;
-    border-left:1px solid #4c5c75;
-    box-shadow: -1px 0px 0px #303f59;
+    border-left:1px solid var(--period-select-box-border-lighter);
+    box-shadow: -1px 0px 0px var(--period-select-box-shadow);
     align-items: center;
 }
 .l-input-wrap .l-sy {
@@ -37,21 +37,21 @@
 .l-input-group .fa-search {
     width: 35px;
     height: 100%;
-    border-left: 1px solid #4c5c75;
-    box-shadow: -1px 0px 0px #303f59;
+    border-left: 1px solid var(--period-select-box-border-lighter);
+    box-shadow: -1px 0px 0px var(--period-select-box-shadow);
 }
 
 .l-inner-calendar {
     height: 260px;
-    border-bottom: 1px solid #DBDEE6;
+    border-bottom: 1px solid var(--border-primary);
 }
 
 .l-calendar-group {
     bottom: -439px;
     position: absolute;
     left: -36px;
-    background:#fff;
-    border: 1px solid var(--dark-primary-color);
+    background: var(--background-layer);
+    border: 1px solid var(--header-border);
     width: calc(100% + 37px);
     z-index: 701;
 }
@@ -63,11 +63,10 @@
     flex:1;
 }
 .l-calendar-section:nth-last-child(2) {
-    border-right: 1px solid #dbdee6;
+    border-right: 1px solid var(--border-primary);
 }
 .l-calendar-section .l-set-group {
-    background: #f8f9fb;
-    color: #777879;
+    color: var(--text-primary-lightest);
     font-size: 12px;
     padding: 15px 13px;
 }
@@ -83,12 +82,12 @@
 .l-calendar-section .l-set-group li span {
     display: inline-block; 
     width: 52px;
-    border-right: 1px solid #e6e8ec;
+    border-right: 1px solid var(--border-primary-lighter);
     margin: 0 10px 0 0;
 }
 .l-calendar-section .l-set-group li select {
-    border: 1px solid #d7dde4;
-    background:#fff;
+    border: 1px solid var(--border-primary);
+    background: var(--background-default);
 }
 .l-btn-group {
     border: none;
@@ -101,7 +100,7 @@
     justify-content: space-between;
 }
 .l-btn-group .l-time-set li {
-    color:#777879;
+    color:var(--text-primary-lightest);
     font-size: 13px;
     flex: 1;
     text-align: center;
@@ -109,38 +108,75 @@
 }
 .l-btn-group .l-time-set li.active button, .l-btn-group .l-time-set li button:hover, .l-btn-group .l-time-set li button:focus {
     border: none;
-    background: var(--primary-color);
-    color:#fff;
+    background: var(--primary);
+    color: var(--text-knockout);
 }
 .l-btn-group .l-time-set button {
     background:none;
-    color:#777879;
+    color:var(--text-primary-lightest);
     border-left:none;
     height: 34px;
     font-size: 12px;
     font-weight: 600;
     padding: 0 8px;
     border-radius: 0px;
-    border-bottom: 1px solid #dbdee6;
-    border-top: 1px solid #dbdee6;
+    border-bottom: 1px solid var(--border-primary);
+    border-top: 1px solid var(--border-primary);
     width: 100%;
 }
 
 .l-calendar-group .l-text {
     padding: 15px 13px;
     font-size: 13px;
-    color: #38c2a2;
+    color: var(--secondary);
 }
 
 .ngui-datetime-picker {
+    color: var(--text-primary-lighter) !important;
     font: normal 12px sans-serif !important;
     border: none !important;
 }
+
+.ngui-datetime-picker .days .day-of-week.weekend  {
+    color: var(--text-primary-lighter) !important;
+}
+
+.ngui-datetime-picker .week-numbers-and-days {
+    background-color: var(--background-layer);
+}
+
 .ngui-datetime-picker > .days {
     margin: 4px !important;
     padding: 0 4px;
-} 
-.ngui-datetime-picker > .days .day.selected { 
-    background: var(--primary-color) !important;
-    color: #FFF !important;
+}
+
+.ngui-datetime-picker .days .day { 
+    color: var(--text-disable) !important;
+}
+
+.ngui-datetime-picker .days .day.selectable { 
+    color: var(--text-primary-lightest) !important;
+}
+
+.ngui-datetime-picker .days .day.selectable:hover { 
+    background-color: var(--background-hover-primary-darker) !important;
+}
+
+.ngui-datetime-picker .days .day.weekend {
+    background-color: var(--background-primary-darkest) !important;
+}
+
+.ngui-datetime-picker .days .day.selected { 
+    color: var(--text-knockout) !important;
+    background: var(--primary) !important;
+}
+
+/* calenter month selector header */
+.ngui-datetime-picker .month.ng-star-inserted {
+    background-color: var(--background-layer);
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.ngui-datetime-picker .month span {
+    color: var(--text-primary);
 }

@@ -28,6 +28,7 @@ public class PluginTestContext {
 
     private final List<String> requiredLibraries;
     private final List<String> mavenDependencyLibraries;
+    private final List<String> repositoryUrls;
     private final Class<?> testClass;
     private final String testClassLocation;
 
@@ -40,7 +41,7 @@ public class PluginTestContext {
     private final List<String> importPluginIds;
 
     public PluginTestContext(String agentJar, String profile, String configFile,
-                             List<String> requiredLibraries, List<String> mavenDependencyLibraries,
+                             List<String> requiredLibraries, List<String> mavenDependencyLibraries, List<String> repositoryUrls,
                              Class<?> testClass, String testClassLocation, String[] jvmArguments,
                              boolean debug, int jvmVersion,
                              String javaExecutable, List<String> importPluginIds) {
@@ -49,6 +50,7 @@ public class PluginTestContext {
         this.configFile = configFile;
         this.requiredLibraries = requiredLibraries;
         this.mavenDependencyLibraries = mavenDependencyLibraries;
+        this.repositoryUrls = repositoryUrls;
         this.testClass = testClass;
         this.testClassLocation = testClassLocation;
         this.jvmArguments = jvmArguments;
@@ -65,6 +67,8 @@ public class PluginTestContext {
     public List<String> getMavenDependencyLibraries() {
         return mavenDependencyLibraries;
     }
+
+    public List<String> getRepositoryUrls() { return repositoryUrls; }
 
     public String getTestClassLocation() {
         return testClassLocation;
@@ -114,6 +118,7 @@ public class PluginTestContext {
                 ", configFile='" + configFile + '\'' +
                 ", requiredLibraries=" + requiredLibraries +
                 ", mavenDependencyLibraries=" + mavenDependencyLibraries +
+                ", repositoryUrls=" + repositoryUrls +
                 ", testClass=" + testClass +
                 ", testClassLocation='" + testClassLocation + '\'' +
                 ", jvmArguments=" + Arrays.toString(jvmArguments) +

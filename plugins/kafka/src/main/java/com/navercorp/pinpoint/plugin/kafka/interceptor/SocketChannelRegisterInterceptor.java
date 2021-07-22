@@ -51,6 +51,10 @@ public class SocketChannelRegisterInterceptor implements AroundInterceptor {
             return;
         }
 
+        if (throwable != null) {
+            return;
+        }
+
         final SocketChannel socketChannel = getSocketChannel(args);
         if (socketChannel != null) {
             if (target instanceof SocketChannelListFieldAccessor) {

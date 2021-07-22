@@ -63,10 +63,8 @@ public class ASMMethod implements InstrumentMethod {
         final String[] parameterVariableNames = this.methodNode.getParameterNames();
         final int lineNumber = this.methodNode.getLineNumber();
 
-        final DefaultMethodDescriptor descriptor = new DefaultMethodDescriptor(declaringClass.getName(), methodNode.getName(), getParameterTypes(), parameterVariableNames);
-        descriptor.setLineNumber(lineNumber);
-
-        this.descriptor = descriptor;
+        this.descriptor = new DefaultMethodDescriptor(declaringClass.getName(), methodNode.getName(),
+                getParameterTypes(), parameterVariableNames, lineNumber);
     }
 
     @Override

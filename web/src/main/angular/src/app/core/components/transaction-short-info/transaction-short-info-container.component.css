@@ -1,13 +1,13 @@
 .l-route {
     display: flex;
     flex-flow: row wrap;
-    background:#506078;
+    background: var(--transaction-short-info-background);
     height: 30px;
     align-items: center;
     justify-content: space-around;
 }
 .l-route > div {
-    color:#fff;
+    color:var(--text-knockout);
     display: block;
     position:relative;
     font-size: 12px;

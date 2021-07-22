@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.httpclient4.EndPointUtils;
 import org.apache.http.conn.routing.HttpRoute;
 
@@ -37,7 +38,8 @@ public class HttpClientConnectionManagerConnectMethodInterceptor extends SpanEve
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        if (args != null && args.length >= 2 && args[1] instanceof HttpRoute) {
+        final Object httpRoute = ArrayUtils.get(args, 1);
+        if (httpRoute instanceof HttpRoute) {
             final HttpRoute route = (HttpRoute) args[1];
             final String hostAndPort = EndPointUtils.getHostAndPort(route);
             recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, hostAndPort);

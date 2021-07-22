@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil, filter, switchMap } from 'rxjs/operators';
+import { Subject, forkJoin, EMPTY } from 'rxjs';
+import { takeUntil, filter, switchMap, catchError } from 'rxjs/operators';
 
 import {
     StoreHelperService,
@@ -9,7 +9,7 @@ import {
     DynamicPopupService,
     TransactionDetailDataService
 } from 'app/shared/services';
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 import { UrlPathId } from 'app/shared/models';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
@@ -19,7 +19,7 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
     styleUrls: ['./transaction-detail-page.component.css']
 })
 export class TransactionDetailPageComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<void> = new Subject();
+    private unsubscribe = new Subject<void>();
 
     constructor(
         private storeHelperService: StoreHelperService,
@@ -37,39 +37,38 @@ export class TransactionDetailPageComponent implements OnInit, OnDestroy {
             filter((urlService: NewUrlStateNotificationService) => {
                 return urlService.hasValue(UrlPathId.AGENT_ID, UrlPathId.SPAN_ID, UrlPathId.TRACE_ID, UrlPathId.FOCUS_TIMESTAMP);
             }),
-        ).subscribe((urlService: NewUrlStateNotificationService) => {
-            this.transactionDetailDataService.getData(
-                urlService.getPathValue(UrlPathId.AGENT_ID),
-                urlService.getPathValue(UrlPathId.SPAN_ID),
-                urlService.getPathValue(UrlPathId.TRACE_ID),
-                urlService.getPathValue(UrlPathId.FOCUS_TIMESTAMP)
-            ).subscribe((transactionDetailInfo: ITransactionDetailData) => {
-                this.storeHelperService.dispatch(new Actions.UpdateTransactionDetailData(transactionDetailInfo));
-            });
+            switchMap((urlService: NewUrlStateNotificationService) => {
+                const agentId = urlService.getPathValue(UrlPathId.AGENT_ID);
+                const spanId = urlService.getPathValue(UrlPathId.SPAN_ID);
+                const traceId = urlService.getPathValue(UrlPathId.TRACE_ID);
+                const focusTimestamp = urlService.getPathValue(UrlPathId.FOCUS_TIMESTAMP);
 
-            this.transactionDetailDataService.getTimelineData(
-                urlService.getPathValue(UrlPathId.AGENT_ID),
-                urlService.getPathValue(UrlPathId.SPAN_ID),
-                urlService.getPathValue(UrlPathId.TRACE_ID),
-                urlService.getPathValue(UrlPathId.FOCUS_TIMESTAMP)
-            ).subscribe((transactionTimelineData: ITransactionTimelineData) => {
-                this.storeHelperService.dispatch(new Actions.UpdateTransactionTimelineData(transactionTimelineData));
-            });
+                return forkJoin(
+                    this.transactionDetailDataService.getData(agentId, spanId, traceId, focusTimestamp),
+                    this.transactionDetailDataService.getTimelineData(agentId, spanId, traceId, focusTimestamp)
+                ).pipe(
+                    catchError((error: IServerErrorFormat) => {
+                        this.dynamicPopupService.openPopup({
+                            data: {
+                                title: 'Error',
+                                contents: error
+                            },
+                            component: ServerErrorPopupContainerComponent,
+                            onCloseCallback: () => {
+                                this.urlRouteManagerService.reload();
+                            }
+                        }, {
+                            resolver: this.componentFactoryResolver,
+                            injector: this.injector
+                        });
 
-        }, (error: IServerErrorFormat) => {
-            this.dynamicPopupService.openPopup({
-                data: {
-                    title: 'Error',
-                    contents: error
-                },
-                component: ServerErrorPopupContainerComponent,
-                onCloseCallback: () => {
-                    this.urlRouteManagerService.reload();
-                }
-            }, {
-                resolver: this.componentFactoryResolver,
-                injector: this.injector
-            });
+                        return EMPTY;
+                    })
+                );
+            })
+        ).subscribe(([transactionDetailInfo, transactionTimelineInfo]: [ITransactionDetailData, ITransactionTimelineData]) => {
+            this.storeHelperService.dispatch(new Actions.UpdateTransactionDetailData(transactionDetailInfo));
+            this.storeHelperService.dispatch(new Actions.UpdateTransactionTimelineData(transactionTimelineInfo));
         });
     }
 

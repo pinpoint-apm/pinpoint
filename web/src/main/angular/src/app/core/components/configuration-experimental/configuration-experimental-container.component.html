@@ -1,0 +1,11 @@
+<div class="l-desc-text-wrapper"><p class="l-desc-text nanumgothic">{{desc$ | async}}</p></div>
+<section class="l-contents">
+    <div class="l-checkbox-wrapper">
+        <input type="checkbox" class="l-checkbox-input" id="scatter-scan" [checked]="enableServerSideScanForScatter" (change)="onChangeOption('scatterScan')">
+        <label class="l-item-label" for="scatter-scan">Enable server-side scanning to query the data in the scatter chart.</label>
+    </div>
+    <div class="l-checkbox-wrapper">
+        <input type="checkbox" class="l-checkbox-input" id="statistics-agent-state" [checked]="useStatisticsAgentState" (change)="onChangeOption('statisticsAgentState')">
+        <label class="l-item-label" for="statistics-agent-state">Uses statistics-based agent state in the server map.</label>
+    </div>
+</section>

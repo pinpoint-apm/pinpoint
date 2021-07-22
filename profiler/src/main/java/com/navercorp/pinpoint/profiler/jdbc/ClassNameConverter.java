@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.jdbc;
 
-import com.navercorp.pinpoint.common.util.StringUtils;
-
 /**
  * @author emeroad
  */
@@ -28,10 +26,10 @@ public class ClassNameConverter implements Converter {
             return "null";
         }
         if (args.length == 2) {
-            return StringUtils.abbreviate(getClassName(args[1]));
-        } else if(args.length == 3) {
+            return getClassName(args[1]);
+        } else if (args.length == 3) {
            // need to handle 3rd arg?
-            return StringUtils.abbreviate(getClassName(args[1]));
+            return getClassName(args[1]);
         }
         return "error";
     }

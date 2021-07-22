@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.redis.jedis;
 
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,8 +35,9 @@ public class EndPointUtils {
 
     private static int getPort(Object[] args) {
         // second argument is port
-        if (args.length >= 2 && args[1] instanceof Integer) {
-            return (Integer) args[1];
+        Object integer = ArrayUtils.get(args, 1);
+        if (integer instanceof Integer) {
+            return (Integer) integer;
         }
         // default port
         return 6379;

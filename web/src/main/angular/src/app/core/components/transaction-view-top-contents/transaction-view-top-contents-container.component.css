@@ -13,10 +13,10 @@
     padding: 5px 25px
 }
 .l-left-section {
-    background-color: #fff;
+    background-color: var(--background-default);
 }
 .l-tab-menu-list {
-    border-bottom: 1px solid #e6e8ec;
+    border-bottom: 1px solid var(--border-primary);
 }
 .l-tab-menu-list:after {
     content: "";
@@ -33,7 +33,7 @@
     cursor: pointer;
     display:inline-block;
     font-size: 13px;
-    color: #666;
+    color: var(--text-primary-lightest);
     padding: 14px 15px;
     border: 1px solid transparent;
     border-top-left-radius: 3px;
@@ -41,15 +41,16 @@
     line-height: 1em;
 }
 .l-tab-menu-list-item:hover a {
-    border-color: #e6e8ec #e6e8ec #fff;
+    border-color: var(--border-primary) var(--border-primary) var(--border-knockout);
 }
 .active a {
-    color: #fff;
-    background: var(--primary-color);
+    color: var(--text-knockout);
+    background: var(--primary);
 }
 .active a:hover {
     border-color: transparent;
 }
 .l-right-section {
     position: relative;
+    background-color: var(--background-primary);
 }

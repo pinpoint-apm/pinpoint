@@ -17,13 +17,30 @@
 package com.navercorp.pinpoint.profiler.transformer;
 
 import java.security.ProtectionDomain;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
  */
 public class PinpointClassFilter implements ClassFileFilter {
 
+    public static final String DEFAULT_PACKAGE = "com/navercorp/pinpoint/";
+    public static final List<String> DEFAULT_EXCLUDES = Collections.unmodifiableList(Arrays.asList("web/", "sdk/"));
+
+    private final String basePackage;
+    private final String[] excludes;
+
     public PinpointClassFilter() {
+        this(DEFAULT_PACKAGE, DEFAULT_EXCLUDES);
+    }
+
+    public PinpointClassFilter(String basePackage, List<String> excludes) {
+        this.basePackage = Objects.requireNonNull(basePackage, "basePackage");
+        Objects.requireNonNull(excludes, "excludes");
+        this.excludes = excludes.toArray(new String[0]);
     }
 
     @Override
@@ -33,13 +50,23 @@ public class PinpointClassFilter implements ClassFileFilter {
         }
 
         // Skip pinpoint packages too.
-        if (className.startsWith("com/navercorp/pinpoint/")) {
-            if (className.startsWith("com/navercorp/pinpoint/web/")) {
-                return CONTINUE;
+        if (className.startsWith(basePackage)) {
+            for (String exclude : excludes) {
+                if (className.startsWith(exclude, basePackage.length())) {
+                    return CONTINUE;
+                }
             }
             return SKIP;
         }
 
         return CONTINUE;
+    }
+
+    @Override
+    public String toString() {
+        return "PinpointClassFilter{" +
+                "basePackage='" + basePackage + '\'' +
+                ", excludes=" + Arrays.toString(excludes) +
+                '}';
     }
 }

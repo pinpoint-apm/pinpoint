@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { retry } from 'rxjs/operators';
 
 export interface IPinpointUserResponse {
     result: string;
@@ -16,29 +15,21 @@ export class PinpointUserDataService {
     ) {}
 
     retrieve(query?: string): Observable<IUserProfile[] | {}> {
-        return this.http.get<IUserProfile[] | {}>(this.url, this.makeRequestOptionsArgs(query)).pipe(
-            retry(3)
-        );
+        return this.http.get<IUserProfile[] | {}>(this.url, this.makeRequestOptionsArgs(query));
     }
 
     create(params: IUserProfile): Observable<IPinpointUserResponse> {
-        return this.http.post<IPinpointUserResponse>(this.url, params).pipe(
-            retry(3)
-        );
+        return this.http.post<IPinpointUserResponse>(this.url, params);
     }
 
     update(params: IUserProfile): Observable<IPinpointUserResponse> {
-        return this.http.put<IPinpointUserResponse>(this.url, params).pipe(
-            retry(3)
-        );
+        return this.http.put<IPinpointUserResponse>(this.url, params);
     }
 
     remove(userId: string): Observable<IPinpointUserResponse> {
         return this.http.request<IPinpointUserResponse>('delete', this.url, {
             body: { userId }
-        }).pipe(
-            retry(3)
-        );
+        });
     }
 
     private makeRequestOptionsArgs(query?: string): object {

@@ -41,8 +41,8 @@ public class AgentInfoMapper implements RowMapper<AgentInfoBo> {
     @Override
     public AgentInfoBo mapRow(Result result, int rowNum) throws Exception {
         byte[] rowKey = result.getRow();
-        String agentId = BytesUtils.safeTrim(BytesUtils.toString(rowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN));
-        long reverseStartTime = BytesUtils.bytesToLong(rowKey, HbaseTableConstants.AGENT_NAME_MAX_LEN);
+        String agentId = BytesUtils.safeTrim(BytesUtils.toString(rowKey, 0, PinpointConstants.AGENT_ID_MAX_LEN));
+        long reverseStartTime = BytesUtils.bytesToLong(rowKey, HbaseTableConstants.AGENT_ID_MAX_LEN);
         long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
 
         byte[] serializedAgentInfo = result.getValue(AGENTINFO_INFO.getName(), AGENTINFO_INFO.QUALIFIER_IDENTIFIER);
@@ -82,6 +82,10 @@ public class AgentInfoMapper implements RowMapper<AgentInfoBo> {
         // FIXME - 2018.06 v1.8.0 added container (check for compatibility)
         if (buffer.hasRemaining()) {
             builder.isContainer(buffer.readBoolean());
+        }
+        // 2021.03.24 added agent name
+        if (buffer.hasRemaining()) {
+            builder.setAgentName(buffer.readPrefixedString());
         }
         return builder;
     }

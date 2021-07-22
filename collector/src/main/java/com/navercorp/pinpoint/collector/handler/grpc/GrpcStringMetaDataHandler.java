@@ -69,8 +69,12 @@ public class GrpcStringMetaDataHandler implements RequestResponseHandler<Generat
             final Header agentInfo = ServerContext.getAgentInfo();
             final String agentId = agentInfo.getAgentId();
             final long agentStartTime = agentInfo.getAgentStartTime();
-            final StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(agentId, agentStartTime, stringMetaData.getStringId());
-            stringMetaDataBo.setStringValue(stringMetaData.getStringValue());
+
+            final String stringValue = stringMetaData.getStringValue();
+
+            final StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(agentId, agentStartTime,
+                    stringMetaData.getStringId(), stringValue);
+
             stringMetaDataService.insert(stringMetaDataBo);
             return PResult.newBuilder().setSuccess(true).build();
         } catch (Exception e) {

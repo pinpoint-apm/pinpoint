@@ -35,7 +35,8 @@ public class DefaultApiMetaDataServiceTest {
         SimpleCache<String> cache = new SimpleCache<String>(new SimpleCache.ZigZagTransformer());
         ApiMetaDataService apiMetaDataService = new DefaultApiMetaDataService(dataSender, cache);
 
-        MethodDescriptor methodDescriptor = new DefaultMethodDescriptor("clazz", "method", null, null);
+        MethodDescriptor methodDescriptor = new DefaultMethodDescriptor("clazz", "method",
+                null, null, 0);
 
         int first = apiMetaDataService.cacheApi(methodDescriptor);
 

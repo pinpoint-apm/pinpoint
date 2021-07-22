@@ -6,7 +6,6 @@ import { takeUntil } from 'rxjs/operators';
 import { NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { ServerMapInteractionService } from 'app/core/components/server-map/server-map-interaction.service';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
-import { NodeGroup } from 'app/core/components/server-map/class';
 import { Application } from 'app/core/models';
 
 @Component({
@@ -68,8 +67,8 @@ export class ServerMapSearchResultViewerContainerComponent implements OnInit, On
             this.cd.markForCheck();
         });
 
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe((data: ServerMapData) => {
-            this.serverMapData = data;
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe(({serverMapData}: {serverMapData: ServerMapData}) => {
+            this.serverMapData = serverMapData;
         });
     }
 
@@ -87,9 +86,9 @@ export class ServerMapSearchResultViewerContainerComponent implements OnInit, On
         this.listDisplay = 'block';
         this.searchResultList = this.serverMapData.getNodeList()
             .reduce((acc: {[key: string]: any}[], curr: {[key: string]: any}) => {
-                const {key, mergedNodes} = curr;
+                const {isMerged, mergedNodes} = curr;
 
-                return NodeGroup.isGroupKey(key) ? [...acc, ...mergedNodes] : [...acc, curr];
+                return isMerged ? [...acc, ...mergedNodes] : [...acc, curr];
             }, [])
             .filter(({applicationName}: {applicationName: string}) => {
                 const regCheckQuery = new RegExp(query, 'i');

@@ -47,7 +47,9 @@ public interface Record {
 
     long getGap();
 
-    String getAgent();
+    String getAgentId();
+
+    String getAgentName();
 
     String getApplicationName();
 

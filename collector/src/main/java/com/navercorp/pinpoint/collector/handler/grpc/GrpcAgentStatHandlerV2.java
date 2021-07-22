@@ -38,10 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author jaehong.kim
@@ -59,20 +56,25 @@ public class GrpcAgentStatHandlerV2 implements SimpleHandler<GeneratedMessageV3>
 
     private final GrpcAgentUriStatMapper agentUriStatMapper;
 
-    private final List<AgentStatService> agentStatServiceList;
+    private final AgentStatService[] agentStatServiceList;
 
     private final AgentUriStatService agentUriStatService;
 
     public GrpcAgentStatHandlerV2(GrpcAgentStatMapper agentStatMapper,
                                   GrpcAgentStatBatchMapper agentStatBatchMapper,
                                   GrpcAgentUriStatMapper agentUriStatMapper,
-                                  Optional<List<AgentStatService>> agentStatServiceList,
+                                  AgentStatService[] agentStatServiceList,
                                   AgentUriStatService agentUriStatService,
                                   CollectorConfiguration collectorConfiguration) {
         this.agentStatMapper = Objects.requireNonNull(agentStatMapper, "agentStatMapper");
         this.agentStatBatchMapper = Objects.requireNonNull(agentStatBatchMapper, "agentStatBatchMapper");
         this.agentUriStatMapper = Objects.requireNonNull(agentUriStatMapper, "agentUriStatMapper");
-        this.agentStatServiceList = Objects.requireNonNull(agentStatServiceList, "agentStatServiceList2").orElseGet(Collections::emptyList);
+
+        this.agentStatServiceList = Objects.requireNonNull(agentStatServiceList, "agentStatServiceList");
+        for (AgentStatService agentStatService : this.agentStatServiceList) {
+            logger.info("AgentStatService:{}", agentStatService.getClass().getSimpleName());
+        }
+
         this.agentUriStatService = Objects.requireNonNull(agentUriStatService, "agentUriStatService");
         this.collectorConfiguration = Objects.requireNonNull(collectorConfiguration, "collectorConfiguration");
     }

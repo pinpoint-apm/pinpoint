@@ -20,25 +20,20 @@ package com.navercorp.pinpoint.common.server.trace;
  * @author emeroad
  */
 public interface ApiDescription {
-    void setClassName(String className);
-
     String getClassName();
 
     String getSimpleClassName();
 
-    String getPackageNameName();
-
-    void setMethodName(String methodName);
+    String getPackageName();
 
     String getMethodName();
 
-    void setSimpleParameter(String[] simpleParameter);
-
     String[] getSimpleParameter();
 
-    void setLine(int line);
+    String getMethodDescription();
 
-    String getSimpleMethodDescription();
+    String getApiDescription();
 
-    String concateLine(String[] stringList, String separator);
+    int getLineNumber();
+
 }

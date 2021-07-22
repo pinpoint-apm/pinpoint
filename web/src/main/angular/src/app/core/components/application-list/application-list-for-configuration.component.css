@@ -6,7 +6,7 @@
 .l-application-list-item {
     font-size: 13px;
     padding: 12px 15px;
-    color: #666 !important;
+    color: var(--text-primary-lightest) !important;
     font-weight: 400 !important;
     display: flex;
     align-items: center;
@@ -14,7 +14,7 @@
 }
 
 .l-application-list-item:hover {
-    background-color:  #e4f3eb;
+    background-color: var(--background-hover-secondary);
 }
 
 .l-application-name-wrapper {
@@ -32,5 +32,5 @@
 }
 
 .l-select-button > .fa-arrow-right {
-    color: var(--primary-color);
+    color: var(--primary);
 }

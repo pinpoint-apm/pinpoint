@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.bootstrap.plugin.uri;
 
 import com.navercorp.pinpoint.common.trace.UriExtractorType;
 
-import java.net.URI;
 
 /**
  * Class that extract URI from Request

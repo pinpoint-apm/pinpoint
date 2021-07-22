@@ -142,12 +142,17 @@ export class GroupMemberContainerComponent implements OnInit, OnDestroy {
     }
     onRemoveGroupMember(id: string): void {
         this.showProcessing();
-        this.groupMemberDataService.remove(id, this.currentUserGroupId).subscribe((response: IGroupMemberResponse) => {
-            this.doAfterAddAndRemoveAction(response);
-            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_GROUP_MEMBER);
-        }, (error: string) => {
+        this.groupMemberDataService.remove(id, this.currentUserGroupId).subscribe((response: IGroupMemberResponse | IServerErrorShortFormat) => {
+            if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
+                this.errorMessage = response.errorMessage;
+                this.hideProcessing();
+            } else {
+                this.doAfterAddAndRemoveAction(response);
+                this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_GROUP_MEMBER);
+            }
+        }, (error: IServerErrorFormat) => {
             this.hideProcessing();
-            this.errorMessage = error;
+            this.errorMessage = error.exception.message;
         });
     }
     onCloseErrorMessage(): void {

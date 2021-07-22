@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.activemq.client.ActiveMQClientConstants;
 import com.navercorp.pinpoint.plugin.activemq.client.ActiveMQClientHeader;
 import com.navercorp.pinpoint.plugin.activemq.client.ActiveMQClientUtils;
@@ -229,7 +230,7 @@ public class ActiveMQMessageConsumerDispatchInterceptor implements AroundInterce
         if (!validateTransport(((ActiveMQSessionGetter) target)._$PINPOINT$_getActiveMQSession())) {
             return false;
         }
-        if (args == null || args.length < 1) {
+        if (ArrayUtils.isEmpty(args)) {
             return false;
         }
         if (!(args[0] instanceof MessageDispatch)) {

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of, Subject, ReplaySubject, throwError } from 'rxjs';
-import { switchMap, delay, retry, filter, catchError } from 'rxjs/operators';
+import { Observable, of, Subject, ReplaySubject, throwError, EMPTY } from 'rxjs';
+import { switchMap, delay, filter, catchError } from 'rxjs/operators';
 
 import { isThatType } from 'app/core/utils/util';
 
@@ -56,23 +56,23 @@ export class ScatterChartDataService {
 
     private connectDataRequest(): void {
         this.innerDataRequest.pipe(
-            filter(() => this.loadStart),
             switchMap((params: IScatterRequest) => {
                 return this.requestHttp(params).pipe(
-                    retry(3),
-                    switchMap((res: IScatterData | IServerErrorFormat) => isThatType(res, 'exception') ? throwError(res) : of(res))
+                    filter(() => this.loadStart),
+                    catchError((error: IServerErrorFormat) => {
+                        this.outScatterErrorData.next(error);
+                        return EMPTY;
+                    })
                 );
             })
         ).subscribe((scatterData: IScatterData) => {
             this.subscribeStaticRequest(scatterData);
-        }, (error: IServerErrorFormat) => {
-            this.outScatterErrorData.next(error);
         });
+
         this.innerRealTimeDataRequest.pipe(
-            filter(() => this.loadStart),
             switchMap((params: IScatterRequest) => {
                 return this.requestHttp(params).pipe(
-                    retry(3),
+                    filter(() => this.loadStart),
                     catchError((error: IServerErrorFormat) => of(error)),
                     filter((res: IScatterData | IServerErrorFormat) => {
                         if (isThatType(res, 'exception')) {

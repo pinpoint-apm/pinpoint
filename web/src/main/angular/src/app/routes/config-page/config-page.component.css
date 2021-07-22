@@ -1,7 +1,6 @@
 :host {
     display: block;
     height: 100%;
-    background-color: #edf2f8;
 }
 
 .l-main-container {
@@ -12,10 +11,9 @@
 .l-sidemenu-section {
     width: 240px;
     height: 100%;
-    border-right: 1px solid #E5E8F0;
-    background: #FFF;
+    border-right: 1px solid var(--border-primary);
+    background: var(--background-default);
     font-size: 15px;
-    /* padding-top: 12px; */
 }
 
 .l-list-item {
@@ -24,7 +22,7 @@
 }
 
 .l-separator {
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    border-top: 1px solid var(--border-primary);
     margin-top: 10px;
     margin-bottom: 10px;
 }
@@ -34,17 +32,17 @@
     width: 100%;
     padding: 15px 15px 15px 27px;
     font-weight: 600;
-    color: rgba(0,0,0,.85);
+    color: var(--text-primary);
 }
 
 .l-link:hover {
     cursor: pointer;
-    background-color: #eee;
-    color: var(--primary-color) !important;
+    background-color: var(--background-hover-default);
+    color: var(--primary) !important;
 }
 
 .l-link.active { 
-    color: var(--primary-color) !important;
+    color: var(--primary) !important;
 }
 
 .l-link-with-arrow {
@@ -59,20 +57,28 @@
 .l-depth-1 .l-link {
     margin-left: 15px;
     font-size: 90%;
-    color: rgba(0,0,0,.65);
+    color: var(--text-secondary);
     max-width: calc(100% - 15px);
 }
 
 .l-main-section {
-    background: #edf2f8;
+    background: var(--background-primary);
     width: calc(100% - 240px);
     height: 100%;
     padding: 20px 15px;
 }
 
 .l-exit-button {
-    color: #fff;
+    color: var(--text-knockout);
     font-size: 20px;
     height: 100%;
     outline: none;
+}
+
+.l-experimental-menu-link {
+    font-style: italic;
+}
+
+.l-experimental-menu-link i {
+    font-size: 13px;
 }

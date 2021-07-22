@@ -137,6 +137,14 @@ public class DefaultPinpointClient implements PinpointClient {
     }
 
     @Override
+    public ClientStreamChannel openStreamAndAwait(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws StreamException {
+        // StreamChannel must be changed into interface in order to throw the StreamChannel that returns failure.
+        // fow now throw just exception
+        ensureOpen();
+        return pinpointClientHandler.openStreamAndAwait(payload, streamChannelEventHandler, timeout);
+    }
+
+    @Override
     public SocketAddress getRemoteAddress() {
         return pinpointClientHandler.getRemoteAddress();
     }

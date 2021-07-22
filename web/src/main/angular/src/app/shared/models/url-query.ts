@@ -28,6 +28,8 @@ export class UrlQuery {
     static OUTBOUND = 'outbound';
     static WAS_ONLY = 'wasOnly';
     static ACTIVE_ONLY = 'activeOnly';
+    static DRAG_INFO = 'dragInfo';
+    static TRANSACTION_INFO = 'transactionInfo';
 
     constructor() {}
     static getQueryList(): string[] {
@@ -38,7 +40,9 @@ export class UrlQuery {
             UrlQuery.INBOUND,
             UrlQuery.OUTBOUND,
             UrlQuery.WAS_ONLY,
-            UrlQuery.ACTIVE_ONLY
+            UrlQuery.ACTIVE_ONLY,
+            UrlQuery.DRAG_INFO,
+            UrlQuery.TRANSACTION_INFO
         ];
     }
 }
@@ -56,6 +60,8 @@ export class UrlQueryFactory {
                 return new UrlQueryClass<boolean>(queryValue === 'true') as IUrlQuery<boolean>;
             case UrlQuery.FILTER:
             case UrlQuery.HINT:
+            case UrlQuery.DRAG_INFO:
+            case UrlQuery.TRANSACTION_INFO:
                 return new UrlQueryClass<string>(queryValue) as IUrlQuery<string>;
             default:
                 return new UrlQueryClass<string>(queryValue) as IUrlQuery<string>;

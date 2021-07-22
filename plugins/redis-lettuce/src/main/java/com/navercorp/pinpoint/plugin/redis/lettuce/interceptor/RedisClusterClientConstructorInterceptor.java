@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.redis.lettuce.EndPointAccessor;
 
 import io.lettuce.core.RedisURI;
@@ -62,7 +63,7 @@ public class RedisClusterClientConstructorInterceptor implements AroundIntercept
     }
 
     private boolean validate(final Object target, final Object[] args) {
-        if (args == null || args.length < 2 || args[1] == null) {
+        if (ArrayUtils.getLength(args) < 2 || args[1] == null) {
             if (isDebug) {
                 logger.debug("Invalid arguments. Null or not found args({}).", args);
             }

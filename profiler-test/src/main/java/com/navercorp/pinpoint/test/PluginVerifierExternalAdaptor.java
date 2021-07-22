@@ -163,17 +163,22 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
     @Override
     public void verifyTraceCount(int expected) {
-        int actual = 0;
+        final int actual = getTraceCount();
 
+        if (expected != actual) {
+            throw new AssertionError("ResolvedExpectedTrace count: " + expected + ", actual: " + actual);
+        }
+    }
+
+    @Override
+    public int getTraceCount() {
+        int actual = 0;
         for (Object obj : this.handler.getOrderedSpanRecorder()) {
             if (!isIgnored(obj)) {
                 actual++;
             }
         }
-
-        if (expected != actual) {
-            throw new AssertionError("ResolvedExpectedTrace count: " + expected + ", actual: " + actual);
-        }
+        return actual;
     }
 
     private ServiceType findServiceType(String name) {
@@ -824,6 +829,21 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
                 return item;
             }
         }
+    }
+
+    @Override
+    public void printMethod() {
+        List<String> executedMethod = this.handler.getExecutedMethod();
+        System.out.println("Method(" + executedMethod.size() + ")");
+        for (String method : executedMethod) {
+            System.out.println(method);
+        }
+
+    }
+
+    @Override
+    public List<String> getExecutedMethod() {
+        return this.handler.getExecutedMethod();
     }
 
     @Override

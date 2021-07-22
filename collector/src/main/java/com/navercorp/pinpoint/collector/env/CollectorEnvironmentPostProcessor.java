@@ -11,6 +11,7 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class CollectorEnvironmentPostProcessor implements EnvironmentPostProcessor {
     private final ServerBootLogger logger = ServerBootLogger.getLogger(getClass());
@@ -31,11 +32,21 @@ public class CollectorEnvironmentPostProcessor implements EnvironmentPostProcess
     };
     private static final String EXTERNAL_CONFIGURATION_KEY = "pinpoint.collector.config.location";
 
+    private final String defaultProfile;
+
+    public CollectorEnvironmentPostProcessor() {
+        this.defaultProfile = null;
+    }
+
+    public CollectorEnvironmentPostProcessor(String defaultProfile) {
+        this.defaultProfile = Objects.requireNonNull(defaultProfile, "defaultProfile");
+    }
+
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         logger.info("postProcessEnvironment");
 
-        ProfileEnvironment profileEnvironment = new ProfileEnvironment();
+        ProfileEnvironment profileEnvironment = newProfileEnvironment();
         profileEnvironment.processEnvironment(environment);
 
         ExternalEnvironment externalEnvironment
@@ -53,4 +64,10 @@ public class CollectorEnvironmentPostProcessor implements EnvironmentPostProcess
 
     }
 
+    private ProfileEnvironment newProfileEnvironment() {
+        if (defaultProfile == null) {
+            return new ProfileEnvironment();
+        }
+        return new ProfileEnvironment(defaultProfile);
+    }
 }

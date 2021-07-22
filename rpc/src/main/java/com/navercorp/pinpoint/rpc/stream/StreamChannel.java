@@ -35,6 +35,8 @@ public interface StreamChannel {
 
     void init() throws StreamException;
 
+    boolean awaitOpen(long timeoutMillis);
+
     void sendPing(int requestId);
     void sendPong(int requestId);
 

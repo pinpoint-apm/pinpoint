@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.util;
 /**
  * @author emeroad
  */
-public class IntStringStringValue {
+public class IntStringStringValue implements DataType {
     private final int intValue;
     private final String stringValue1;
     private final String stringValue2;

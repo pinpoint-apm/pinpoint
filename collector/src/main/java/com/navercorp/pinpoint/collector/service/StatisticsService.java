@@ -78,10 +78,10 @@ public class StatisticsService {
     }
 
     public void updateResponseTime(String applicationName, ServiceType serviceType, String agentId, int elapsed, boolean isError) {
-        mapResponseTimeDao.received(applicationName, serviceType, agentId, elapsed, isError, false);
+        mapResponseTimeDao.received(applicationName, serviceType, agentId, elapsed, isError);
     }
 
     public void updateAgentState(final String callerApplicationName, final ServiceType callerServiceType, final String callerAgentId) {
-        mapResponseTimeDao.received(callerApplicationName, callerServiceType, callerAgentId, 0, false, true);
+        mapResponseTimeDao.updatePing(callerApplicationName, callerServiceType, callerAgentId, 0, false);
     }
 }

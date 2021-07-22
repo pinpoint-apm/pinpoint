@@ -4,13 +4,23 @@
     height: 100%;
 }
 
+.l-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    font-size: 20px;
+    font-weight: 600;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--background-primary);
+}
+
 .l-content-section {
     height: 100%;
     position: relative;
 }
 
 .l-middle-tool-box {
-    background-color: #edf2f8;
 }
 
 .l-component-wrapper {
@@ -23,14 +33,15 @@
     display: flex;
     flex-flow: row wrap;
     height: 54px;
-    background-color: #edf2f8;
     align-items: center;
     justify-content: space-between;
     padding: 0 25px;
     position:relative;
+    background-color: var(--background-default);
+    border-bottom: 1px solid var(--border-primary);
 }
 
 .l-middle-tool-box, .l-middle-tool-box-tip {
-    color:#a8acb5;
+    color: var(--icon-default);
     font-size: 18px
 }

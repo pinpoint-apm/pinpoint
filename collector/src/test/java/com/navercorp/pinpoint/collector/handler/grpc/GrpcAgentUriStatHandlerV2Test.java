@@ -95,7 +95,7 @@ public class GrpcAgentUriStatHandlerV2Test {
     public void handleTest() {
         AgentUriStatService mockAgentUriStatService = Mockito.mock(AgentUriStatService.class);
 
-        attachContext(new Header("agent", "applicationName", ServiceType.UNKNOWN.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, new ArrayList<>()));
+        attachContext(new Header("name", "agentId", "agentName", "applicationName", ServiceType.UNKNOWN.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, new ArrayList<>()));
 
         PAgentUriStat pAgentUriStat = createPAgentUriStat();
 
@@ -112,7 +112,7 @@ public class GrpcAgentUriStatHandlerV2Test {
         PUriHistogram.Builder histogramBuilder = PUriHistogram.newBuilder();
 
         int totalCount = 0;
-        for (int i = 0; i < UriStatHistogramBucket.values().length; i++) {
+        for (int i = 0; i < UriStatHistogramBucket.getBucketSize(); i++) {
             int count = ThreadLocalRandom.current().nextInt(0, 10);
             totalCount += count;
 
@@ -142,8 +142,8 @@ public class GrpcAgentUriStatHandlerV2Test {
     private GrpcAgentStatHandlerV2 createMockHandler(AgentUriStatService agentUriStatService, boolean enableUriStat) {
         GrpcAgentStatMapper mockAgentStatMapper = Mockito.mock(GrpcAgentStatMapper.class);
         GrpcAgentStatBatchMapper agentStatBatchMapper = new GrpcAgentStatBatchMapper(mockAgentStatMapper);
-        List<AgentStatService> agentStatServiceList = new ArrayList<>();
-        Optional<List<AgentStatService>> agentStatServices = Optional.of(agentStatServiceList);
+
+        AgentStatService[] agentStatServices = new AgentStatService[0];
 
         CollectorConfiguration collectorConfiguration = Mockito.mock(CollectorConfiguration.class);
         Mockito.when(collectorConfiguration.isUriStatEnable()).thenReturn(enableUriStat);

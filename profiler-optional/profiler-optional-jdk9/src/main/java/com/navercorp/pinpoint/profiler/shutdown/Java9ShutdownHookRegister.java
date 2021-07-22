@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.profiler.instrument.classloading.JavaLangAccessHel
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandle;
 
 /**
  * If  change the name of this class,

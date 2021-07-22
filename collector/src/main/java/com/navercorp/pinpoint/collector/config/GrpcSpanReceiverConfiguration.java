@@ -69,6 +69,8 @@ public class GrpcSpanReceiverConfiguration {
     private int grpcStreamSchedulerPeriodMillis;
     @Value("${collector.receiver.grpc.span.stream.scheduler.recovery.message.count:10}")
     private int grpcStreamSchedulerRecoveryMessageCount;
+    @Value("${collector.receiver.grpc.span.stream.idletimeout:-1}")
+    private long grpcStreamIdleTimeout;
 
     private ServerOption grpcServerOption;
 
@@ -154,6 +156,10 @@ public class GrpcSpanReceiverConfiguration {
         return grpcStreamSchedulerRecoveryMessageCount;
     }
 
+    public long getGrpcStreamIdleTimeout() {
+        return grpcStreamIdleTimeout;
+    }
+
     public ServerOption getGrpcServerOption() {
         return grpcServerOption;
     }
@@ -174,6 +180,7 @@ public class GrpcSpanReceiverConfiguration {
         sb.append(", grpcStreamCallInitRequestCount=").append(grpcStreamCallInitRequestCount);
         sb.append(", grpcStreamSchedulerPeriodMillis=").append(grpcStreamSchedulerPeriodMillis);
         sb.append(", grpcStreamSchedulerRecoveryMessageCount=").append(grpcStreamSchedulerRecoveryMessageCount);
+        sb.append(", grpcStreamIdleTimeout=").append(grpcStreamIdleTimeout);
         sb.append(", grpcServerOption=").append(grpcServerOption);
         sb.append('}');
         return sb.toString();

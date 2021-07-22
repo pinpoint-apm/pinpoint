@@ -5,11 +5,11 @@
     border: none;
 }
 .l-info-table tbody th, .l-info-table td {
-    color: #000;
-    border-top:1px solid #e5e8f0;
+    color: var(--text-primary);
+    border-top:1px solid var(--border-primary-lighter);
 }
 .l-info-table tr:nth-child(2n) {
-    background-color: #FAFAFC;
+    background-color: var(--background-primary);
 }
 .l-argument-list {
     width: 100%;
@@ -29,33 +29,31 @@
     overflow: auto;
 }
 .l-server-info-list {
-    border: 1px solid #e7e8ec;
     position: relative;
     margin-right: 10px;
 }
 .l-server-info-list li {
     height: 30px;
     font-size: 12px;
-    color:#999;
+    color:var(--text-secondary);
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 10px;
     cursor: pointer;
-    border-top: 1px solid #e7e8ec;
 }
 .l-server-info-list li:first-child {
     border-top-color: transparent;
 }
 .l-server-info-list li.active {
-    background-color: var(--primary-color);
-    color: #fff;
+    background-color: var(--primary);
+    color: var(--text-knockout);
 }
 .l-server-info-list li ul {
     position: absolute;
     right: -250px;
     top: 0;
-    color:#999;
+    color:var(--text-secondary);
 }
 .l-server-info-list li ul li {
     height: auto;
@@ -65,29 +63,29 @@
     display: inline-block;
     padding: 2px 5px;
     font-size: 10px;
-    color: #fff;
+    color: var(--text-knockout);
     font-weight: 600;
     cursor: pointer;
 }
 .l-category.blue {
-    background-color: var(--primary-color);
+    background-color: var(--primary);
 }
 .l-sub-table {
     display: table-cell;
     padding: 16px 19px;
-    background: #fff
+    background: var(--background-default);
 }
 .l-sub-table .table th, .l-sub-table .table td {
     padding:14px 10px;
 }
 .l-sub-table .table td + td {
-    border-left:1px solid #e5e8f0;
+    border-left:1px solid var(--border-primary);
 }
 .l-sub-table .table tr {
-    background:#fff;
+    background: var(--background-default);
 }
 .l-not-same {
-    color: #f27d70 !important;
+    color: var(--status-danger-lighter) !important;
 }
 .l-not-same-button {
     float: right;

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
-import { Subject, combineLatest, iif, of, Observable } from 'rxjs';
-import { tap, concatMap, filter, switchMap, delay, takeUntil } from 'rxjs/operators';
+import { Subject, combineLatest, iif, of, Observable, EMPTY } from 'rxjs';
+import { tap, concatMap, filter, switchMap, delay, takeUntil, catchError } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import {
@@ -107,6 +107,20 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
                                 to: MESSAGE_TO.INSPECTOR_PAGE_VALID,
                                 param: {range, now}
                             });
+                        }),
+                        catchError((error: IServerErrorFormat) => {
+                            this.dynamicPopupService.openPopup({
+                                data: {
+                                    title: 'Error',
+                                    contents: error
+                                },
+                                component: ServerErrorPopupContainerComponent
+                            }, {
+                                resolver: this.componentFactoryResolver,
+                                injector: this.injector
+                            });
+
+                            return EMPTY;
                         })
                     );
                 }),
@@ -116,17 +130,6 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
             this.filteredServerList = this.filterServerList(data, query, ({ agentId }: IServerAndAgentData) => agentId.toLowerCase().includes(query.toLowerCase()));
             this.filteredServerKeyList = Object.keys(this.filteredServerList).sort();
             this.isEmpty = isEmpty(this.filteredServerList);
-        }, (error: IServerErrorFormat) => {
-            this.dynamicPopupService.openPopup({
-                data: {
-                    title: 'Error',
-                    contents: error
-                },
-                component: ServerErrorPopupContainerComponent
-            }, {
-                resolver: this.componentFactoryResolver,
-                injector: this.injector
-            });
         });
     }
 

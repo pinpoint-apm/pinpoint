@@ -20,6 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -29,22 +32,22 @@ public final class FileUtils {
     }
 
     public static URL toURL(final File file) throws IOException {
-        requireNonNull(file, "file");
+        Objects.requireNonNull(file, "file");
         return toURL(file, new FileFunction());
     }
 
     public static URL toURL(final String filePath) throws IOException {
-        requireNonNull(filePath, "filePath");
+        Objects.requireNonNull(filePath, "filePath");
         return toURL(filePath, new FilePathFunction());
     }
 
     public static URL[] toURLs(final File[] files) throws IOException {
-        requireNonNull(files, "files");
+        Objects.requireNonNull(files, "files");
         return toURLs(files, new FileFunction());
     }
 
     public static URL[] toURLs(final String[] filePaths) throws IOException {
-        requireNonNull(filePaths, "filePaths");
+        Objects.requireNonNull(filePaths, "filePaths");
         return toURLs(filePaths, new FilePathFunction());
     }
 
@@ -79,11 +82,14 @@ public final class FileUtils {
         }
     }
 
-    private static <T> T requireNonNull(T object, String message) {
-        if (object == null) {
-            throw new NullPointerException(message);
+    public static List<String> toAbsolutePath(List<File> files) {
+        Objects.requireNonNull(files, "files");
+
+        List<String> libs = new ArrayList<>(files.size());
+        for (File lib : files) {
+            libs.add(lib.getAbsolutePath());
         }
-        return object;
+        return libs;
     }
 
 }

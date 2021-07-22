@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.util;
 /**
  * @author Roy Kim
  */
-public class StringStringValue {
+public class StringStringValue implements DataType {
     private final String stringValue1;
     private final String stringValue2;
 

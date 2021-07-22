@@ -56,7 +56,6 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -169,7 +168,7 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
 
     private final class NettyClientTransportServersBuilder implements ClientTransportServersBuilder {
         @Override
-        public List<? extends InternalServer> buildClientTransportServers(
+        public InternalServer buildClientTransportServers(
                 List<? extends ServerStreamTracer.Factory> streamTracerFactories) {
             return buildTransportServers(streamTracerFactories);
         }
@@ -635,35 +634,31 @@ public final class PinpointNettyServerBuilder extends AbstractServerImplBuilder<
     //--------------------------------  modify pinpoint
 
     @CheckReturnValue
-    List<NettyServer> buildTransportServers(
+    NettyServer buildTransportServers(
             List<? extends ServerStreamTracer.Factory> streamTracerFactories) {
         assertEventLoopsAndChannelType();
 
         ProtocolNegotiator negotiator = protocolNegotiatorFactory.newNegotiator(
                 this.serverImplBuilder.getExecutorPool());
 
-        List<NettyServer> transportServers = new ArrayList<>(listenAddresses.size());
-        for (SocketAddress listenAddress : listenAddresses) {
-            NettyServer transportServer = new NettyServer(
-                    listenAddress, channelFactory, channelOptions, childChannelOptions,
-                    bossEventLoopGroupPool, workerEventLoopGroupPool, forceHeapBuffer, negotiator,
-                    streamTracerFactories, transportTracerFactory, maxConcurrentCallsPerConnection,
-                    autoFlowControl, flowControlWindow, maxMessageSize, maxHeaderListSize,
-                    keepAliveTimeInNanos, keepAliveTimeoutInNanos,
-                    maxConnectionIdleInNanos, maxConnectionAgeInNanos,
-                    maxConnectionAgeGraceInNanos, permitKeepAliveWithoutCalls, permitKeepAliveTimeInNanos,
-                    eagAttributes, this.serverImplBuilder.getChannelz()) {
-                //--------------------------------  modify pinpoint
-                @Override
-                public void start(final ServerListener serverListener) throws IOException {
-                    ServerListener delegate = serverListenerDelegator.wrapServerListener(serverListener);
-                    super.start(delegate);
-                }
-                //--------------------------------  modify pinpoint
-            };
-            transportServers.add(transportServer);
-        }
-        return Collections.unmodifiableList(transportServers);
+        final NettyServer transportServer = new NettyServer(listenAddresses, channelFactory, channelOptions, childChannelOptions,
+                bossEventLoopGroupPool, workerEventLoopGroupPool, forceHeapBuffer, negotiator,
+                streamTracerFactories, transportTracerFactory, maxConcurrentCallsPerConnection,
+                autoFlowControl, flowControlWindow, maxMessageSize, maxHeaderListSize,
+                keepAliveTimeInNanos, keepAliveTimeoutInNanos,
+                maxConnectionIdleInNanos, maxConnectionAgeInNanos,
+                maxConnectionAgeGraceInNanos, permitKeepAliveWithoutCalls, permitKeepAliveTimeInNanos,
+                eagAttributes, this.serverImplBuilder.getChannelz()) {
+            //--------------------------------  modify pinpoint
+            @Override
+            public void start(final ServerListener serverListener) throws IOException {
+                ServerListener delegate = serverListenerDelegator.wrapServerListener(serverListener);
+                super.start(delegate);
+            }
+            //--------------------------------  modify pinpoint
+        };
+
+        return transportServer;
     }
 
     @VisibleForTesting

@@ -136,6 +136,16 @@ public class ModuleSupport {
         // Error:class com.navercorp.pinpoint.bootstrap.AgentBootLoader$1 cannot access class com.navercorp.pinpoint.profiler.DefaultAgent (in module pinpoint.agent)
         // because module pinpoint.agent does not export com.navercorp.pinpoint.profiler to unnamed module @7bfcd12c
         agentModule.addExports("com.navercorp.pinpoint.profiler", bootstrapModule);
+
+        // Error:class com.navercorp.pinpoint.bootstrap.AgentBootLoader$1 cannot access class com.navercorp.pinpoint.test.PluginTestAgent (in module pinpoint.agent)
+        // because module pinpoint.agent does not export com.navercorp.pinpoint.test to unnamed module @4b9e13df
+        final String pinpointTestModule = "com.navercorp.pinpoint.test";
+        if (agentModule.getPackages().contains(pinpointTestModule)) {
+            agentModule.addExports(pinpointTestModule, bootstrapModule);
+        } else {
+            logger.info(pinpointTestModule + " package not found");
+        }
+
         agentModule.addReads(bootstrapModule);
 
         // Caused by: java.lang.reflect.InaccessibleObjectException: Unable to make protected void java.net.URLClassLoader.addURL(java.net.URL) accessible:

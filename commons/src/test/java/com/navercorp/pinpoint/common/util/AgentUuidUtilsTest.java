@@ -32,7 +32,7 @@ public class AgentUuidUtilsTest {
         for (int i = 0; i < 1; ++i) {
             UUID expected = UUID.randomUUID();
             String encoded = AgentUuidUtils.encode(expected);
-            Assert.assertTrue(IdValidateUtils.validateId(encoded, PinpointConstants.AGENT_NAME_MAX_LEN));
+            Assert.assertTrue(IdValidateUtils.validateId(encoded, PinpointConstants.AGENT_ID_MAX_LEN));
             UUID actual = AgentUuidUtils.decode(encoded);
             Assert.assertEquals(expected, actual);
         }

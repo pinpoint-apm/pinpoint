@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Subject, forkJoin } from 'rxjs';
+import { Subject, forkJoin, merge } from 'rxjs';
+import { tap, filter, takeUntil } from 'rxjs/operators';
 
 import { UrlPathId, UrlQuery, UrlPath } from 'app/shared/models';
 import { Filter } from 'app/core/models/filter';
@@ -32,7 +33,6 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
 
     i18nText: { [key: string]: string } = {};
-    query = '';
     target: ISelectedTarget;
     minLength = 2;
     targetList: any[];
@@ -74,18 +74,39 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
     }
 
     private listenToEmitter(): void {
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe((data: ServerMapData) => {
-            this.serverMapData = data;
+        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            takeUntil((this.unsubscribe)),
+        ).subscribe(() => {
+            this.serverMapData = null;
+            this.target = null;
+            this.originalTargetList = null;
+            this.targetList = null;
         });
 
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe((target: ISelectedTarget) => {
-            this.target = target;
-            this.showList = this.hasMultiInput(target);
-            if (this.showList) {
-                this.gatherTargets();
-                this.initSearchInput();
-            }
+        merge(
+            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).pipe(
+                tap(({serverMapData}: {serverMapData: ServerMapData}) => this.serverMapData = serverMapData)
+            ),
+            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).pipe(
+                tap((target: ISelectedTarget) => this.target = target)
+            )
+        ).pipe(
+            filter(() => !!this.serverMapData && !!this.target),
+            filter(() => {
+                if (this.target.isNode) {
+                    const relatedNodeList = this.target.groupedNode ? [...this.target.groupedNode, ...this.target.node] : this.target.node;
 
+                    return relatedNodeList.every((key: string) => !!this.serverMapData.getNodeData(key));
+                } else {
+                    const relatedLinkList = this.target.link;
+
+                    return relatedLinkList.every((key: string) => !!this.serverMapData.getLinkData(key));
+                }
+            }),
+        ).subscribe(() => {
+            this.showList = this.hasMultiInput(this.target);
+            this.originalTargetList = this.targetList = this.gatherTargets();
+            this.initSearchInput();
             this.cd.detectChanges();
         });
     }
@@ -104,29 +125,17 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
             : false;
     }
 
-    // TODO: Refactor
-    private gatherTargets(): void {
-        const targetList: any[] = [];
+    private gatherTargets(): any[] {
+        return this.target.isLink ? this.target.link.map((key: string) => this.serverMapData.getLinkData(key))
+            : this.target.node.map((key: string) => {
+                const nodeData = this.serverMapData.getNodeData(key);
 
-        if (this.target.isNode) {
-            this.target.node.forEach((nodeKey: string) => {
-                targetList.push([this.serverMapData.getNodeData(nodeKey), '']);
+                return !this.target.isMerged ? {...nodeData, fromList: this.serverMapData.getLinkListByTo(this.target.node[0])}
+                    : this.target.groupedNode ? {...nodeData, fromList: this.target.groupedNode.map((sourceNodeKey: string) => {
+                        return this.serverMapData.getLinkData(`${sourceNodeKey}~${key}`);
+                    })}
+                    : nodeData;
             });
-            if (this.target.groupedNode) {
-                targetList.forEach((targetData: any[]) => {
-                    targetData[0].fromList = this.target.groupedNode.map((key: string) => {
-                        return this.serverMapData.getLinkData(key + '~' + targetData[0].key);
-                    });
-                });
-            } else if (this.target.isMerged === false) {
-                targetList[0][0].fromList = this.serverMapData.getLinkListByTo(this.target.node[0]);
-            }
-        } else if (this.target.isLink) {
-            this.target.link.forEach((linkKey: string) => {
-                targetList.push([this.serverMapData.getLinkData(linkKey), linkKey]);
-            });
-        }
-        this.originalTargetList = this.targetList = targetList;
     }
 
     onSelectTarget(target: any): void {
@@ -137,7 +146,7 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
         });
     }
 
-    onOpenFilter([target]: any): void {
+    onOpenFilter(target: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_FILTERED_MAP_PAGE_ON_MERGED_TARGET_LIST);
         const appKey = `${target.filterApplicationName}@${target.filterApplicationServiceTypeName}`;
         const period = this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithAddedWords();
@@ -167,15 +176,13 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
     }
 
     getRequestSum(): number  {
-        return this.targetList.reduce((acc: number, target: any) => {
-            return acc + target[0].totalCount;
-        }, 0);
+        return this.targetList.reduce((acc: number, target: any) => acc + target.totalCount, 0);
     }
 
     onOpenFilterWizard(target: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_FILTER_TRANSACTION_WIZARD_POPUP_ON_MERGED_TARGET_LIST);
         this.dynamicPopupService.openPopup({
-            data: this.serverMapData.getLinkData(target[1]),
+            data: target,
             component: FilterTransactionWizardPopupContainerComponent
         }, {
             resolver: this.componentFactoryResolver,
@@ -196,21 +203,15 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
     }
 
     setFilterQuery(query: string): void {
-        this.query = query;
-        this.targetList = this.filterList();
+        this.targetList = this.filterList(query);
     }
 
-    private filterList(): any[] {
-        if (this.query === '') {
+    private filterList(query: string): any[] {
+        if (query === '') {
             return this.originalTargetList;
         }
-        const filteredList: any = [];
-        this.originalTargetList.forEach((aTarget: any) => {
-            if (aTarget[0].applicationName.indexOf(this.query) !== -1) {
-                filteredList.push(aTarget);
-            }
-        });
 
-        return filteredList;
+        return this.target.isLink ? this.originalTargetList.filter(({targetInfo: {applicationName}}) => applicationName.includes(query))
+            : this.originalTargetList.filter(({applicationName}) => applicationName.includes(query));
     }
 }

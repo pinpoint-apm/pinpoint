@@ -26,7 +26,10 @@
         "noImplicitAny": true,
         "noImplicitReturns": true,
         "strict": false,
-        "noUnusedLocals": true
+        "noUnusedLocals": true,
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
     },
     "angularCompilerOptions": {
         "fullTemplateTypeCheck": true,

@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactory;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.vertx.HttpRequestClientHeaderAdaptor;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import com.navercorp.pinpoint.plugin.vertx.VertxCookieExtractor;
@@ -102,7 +103,7 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(final Object[] args) {
-        if (args == null || args.length < 2) {
+        if (ArrayUtils.getLength(args) < 2) {
             logger.debug("Invalid args object. args={}.", args);
             return false;
         }

@@ -1,5 +1,7 @@
 <pp-configuration-popup
+    [currentTheme]="currentTheme"
     (outMenuClick)="onMenuClick($event)"
+    (outChangeTheme)="onChangeTheme($event)"
     (outOpenLink)="onOpenLink()"
     (clickOutside)="onClickOutside()"
     [exclude]="'.fa-cog'">

@@ -35,16 +35,6 @@ public interface ProfilerPluginSetupContext {
      */
     ProfilerConfig getConfig();
 
-    /**
-     * Add a {@link ApplicationTypeDetector} to Pinpoint agent.
-     *
-     * @param detectors application type detectors to add
-     *
-     * @deprecated As of 1.9.0, {@code ApplicationTypeDetector} has been deprecated.
-     *             Use {@link #registerApplicationType(ServiceType)} instead.
-     */
-    @Deprecated
-    void addApplicationTypeDetector(ApplicationTypeDetector... detectors);
 
     /**
      * Returns the {@link ServiceType} configured by <tt>profiler.applicationservertype</tt>

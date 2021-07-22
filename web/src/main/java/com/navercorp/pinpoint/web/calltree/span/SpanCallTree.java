@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * @author jaehong.kim
@@ -31,6 +32,8 @@ public class SpanCallTree implements CallTree {
     private static final int MIN_DEPTH = -1;
     private static final int LEVEL_DEPTH = -1;
     private static final int ROOT_DEPTH = 0;
+
+    private static final Comparator<CallTreeNode> START_TIME_COMPARATOR = Comparator.comparingLong((CallTreeNode node) -> node.getAlign().getStartTime());
 
     private final CallTreeNode root;
     private CallTreeNode cursor;
@@ -48,43 +51,73 @@ public class SpanCallTree implements CallTree {
         return this.getSpanBo().isRoot();
     }
 
-    public boolean hasFocusSpan(final long collectorAcceptTime) {
-        travel(collectorAcceptTime, root);
-        return this.getSpanBo().getCollectorAcceptTime() == collectorAcceptTime;
+    public boolean filterSpan(Predicate<SpanBo> spanFilter) {
+        Objects.requireNonNull(spanFilter, "spanFilter");
+
+        DfsTraversal context = new DfsTraversal(spanFilter);
+        return context.travel(root);
     }
 
-    boolean travel(final long collectorAcceptTime, CallTreeNode node) {
-        if (isFoucsNode(collectorAcceptTime, node)) {
-            return true;
+    private static class DfsTraversal {
+        private final static int MAX_OVERFLOW_COUNT = 1024;
+        private final Predicate<SpanBo> filter;
+
+        // Defence cycle ref
+        // Weak validate
+        private int overflowCounter;
+        // Aggressive validate
+        // equals, hashcode not implemented
+        // private List<CallTreeNode> visited = new ArrayList<>();
+
+        public DfsTraversal(Predicate<SpanBo> filter) {
+            this.filter = Objects.requireNonNull(filter, "filter");
         }
 
-        if (node.hasChild()) {
-            travel(node.getChild());
-        }
-
-        // change logic from recursive to loop, because of avoid call-stack-overflow.
-        CallTreeNode sibling = node.getSibling();
-        while (sibling != null) {
-            if (isFoucsNode(collectorAcceptTime, sibling)) {
+        private boolean travel(CallTreeNode node) {
+            if (checkOverFlow()) {
+                return false;
+            }
+            if (filterNode(node)) {
                 return true;
             }
-            if (sibling.hasChild()) {
-                travel(sibling.getChild());
-            }
-            sibling = sibling.getSibling();
-        }
-        return false;
-    }
 
-    boolean isFoucsNode(final long collectorAcceptTime, CallTreeNode node) {
-        if (!node.getAlign().isSpan()) {
-            // fast filter
+            if (node.hasChild()) {
+                if (travel(node.getChild())) {
+                    return true;
+                }
+            }
+
+            // change logic from recursive to loop, because of avoid call-stack-overflow.
+            CallTreeNode sibling = node.getSibling();
+            while (sibling != null) {
+                if (filterNode(sibling)) {
+                    return true;
+                }
+                if (sibling.hasChild()) {
+                    if (travel(sibling.getChild())) {
+                        return true;
+                    }
+                }
+                sibling = sibling.getSibling();
+            }
             return false;
         }
-        if (node.getAlign().getSpanBo().getCollectorAcceptTime() == collectorAcceptTime) {
-            return true;
+
+        private boolean checkOverFlow() {
+            if (overflowCounter++ > MAX_OVERFLOW_COUNT) {
+                return true;
+            }
+            return false;
         }
-        return false;
+
+        boolean filterNode(CallTreeNode node) {
+            if (!node.getAlign().isSpan()) {
+                // fast filter
+                return false;
+            }
+            SpanBo spanBo = node.getAlign().getSpanBo();
+            return filter.test(spanBo);
+        }
     }
 
     public CallTreeNode getRoot() {
@@ -297,7 +330,7 @@ public class SpanCallTree implements CallTree {
         }
 
         // order by abs.
-        spans.sort(Comparator.comparingLong((CallTreeNode node) -> node.getAlign().getStartTime()));
+        spans.sort(START_TIME_COMPARATOR);
 
         // sort
         final List<CallTreeNode> nodes = new ArrayList<>();

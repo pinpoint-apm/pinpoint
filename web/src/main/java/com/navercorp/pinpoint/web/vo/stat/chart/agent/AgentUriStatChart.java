@@ -57,10 +57,12 @@ public class AgentUriStatChart implements StatChart {
             this.uri = representative.getUri();
         }
 
-        List<SampledUriStatHistogramBo> total = sampledEachUriStatBoList.stream().map(SampledEachUriStatBo::getTotalSampledUriStatHistogramBo).collect(Collectors.toList());
+        List<SampledUriStatHistogramBo> total = sampledEachUriStatBoList.stream()
+                .map(SampledEachUriStatBo::getTotalSampledUriStatHistogramBo).collect(Collectors.toList());
         this.agentUriChartGroup = new AgentUriChartGroup(timeWindow, total);
 
-        List<SampledUriStatHistogramBo> failed = sampledEachUriStatBoList.stream().map(SampledEachUriStatBo::getFailedSampledUriStatHistogramBo).collect(Collectors.toList());
+        List<SampledUriStatHistogramBo> failed = sampledEachUriStatBoList.stream()
+                .map(SampledEachUriStatBo::getFailedSampledUriStatHistogramBo).collect(Collectors.toList());
         this.failedAgentUriChartGroup = new AgentUriChartGroup(timeWindow, failed);
     }
 
@@ -199,7 +201,7 @@ public class AgentUriStatChart implements StatChart {
 
     }
 
-    public static final int[] UNCOLLECTED = UriStatHistogramBucket.createNewArrayValue();
+    public static final int[] UNCOLLECTED = new int[UriStatHistogramBucket.getBucketSize()];
     public static final Point.UncollectedPointCreator<UriStatHistogramPoint> UNCOLLECTED_POINT_CREATOR = new Point.UncollectedPointCreator<UriStatHistogramPoint>() {
         @Override
         public UriStatHistogramPoint createUnCollectedPoint(long xVal) {

@@ -330,12 +330,7 @@ public class SpanFactory {
     }
 
     private TransactionId newTransactionId(byte[] transactionIdBytes, String spanAgentId) {
-        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(transactionIdBytes);
-        String transactionAgentId = transactionId.getAgentId();
-        if (transactionAgentId != null) {
-            return transactionId;
-        }
-        return new TransactionId(spanAgentId, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+        return TransactionIdUtils.parseTransactionId(transactionIdBytes, spanAgentId);
     }
 
 

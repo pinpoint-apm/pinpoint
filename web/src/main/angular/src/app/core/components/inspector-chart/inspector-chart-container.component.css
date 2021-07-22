@@ -4,20 +4,20 @@
 }
 
 .l-title-group {
-    height: 34px;
-    font-size: 13px;
+    height: 40px;
+    font-size: 14px;
     font-weight: 600;
     padding: 0 20px;
-    color: #333;
+    color: var(--text-primary);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #f6f8fb;
+    background: var(--background-default);
 }
 
 .l-title-group .fas {
     font-size: 18px;
-    color: #a8acb5;
+    color: var(--icon-default);
     cursor: pointer;
 }
 

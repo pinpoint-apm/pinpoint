@@ -5,6 +5,9 @@ import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 final class ReflectionUtils {
     public static final String ARRAY_POSTFIX = "[]";
 
+    private ReflectionUtils() {
+    }
+
     @VisibleForTesting
     static String getParameterTypeName(Class<?> parameterType) {
         if (parameterType == null) {
@@ -16,9 +19,10 @@ final class ReflectionUtils {
         }
 
         // get arrayDepth & arrayType
-        int arrayDepth;
-        for (arrayDepth = 0; parameterType.isArray(); arrayDepth++) {
+        int arrayDepth = 0;
+        while (parameterType.isArray()) {
             parameterType = parameterType.getComponentType();
+            arrayDepth++;
         }
 
         final int bufferSize = getBufferSize(parameterType.getName(), arrayDepth);

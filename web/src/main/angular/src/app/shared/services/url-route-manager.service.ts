@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { APP_BASE_HREF } from '@angular/common';
 
 import { WindowRefService } from 'app/shared/services/window-ref.service';
 import { ServerTimeDataService } from 'app/shared/services/server-time-data.service';
@@ -7,7 +8,7 @@ import { EndTime } from 'app/core/models/end-time';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { NewUrlStateNotificationService } from 'app/shared/services/new-url-state-notification.service';
 import { WebAppSettingDataService } from 'app/shared/services/web-app-setting-data.service';
-import { APP_BASE_HREF } from '@angular/common';
+import { isEmpty } from 'app/core/utils/util';
 
 // TODO: Router Navigation Refactoring
 @Injectable()
@@ -59,16 +60,24 @@ export class UrlRouteManagerService {
         ]);
     }
 
-    move({url, needServerTimeRequest, nextUrl = [], queryParams}: {url: string[], needServerTimeRequest: boolean, nextUrl?: string[], queryParams?: any}): void {
+    move({url, needServerTimeRequest, nextUrl = [], queryParams = {}}: {url: string[], needServerTimeRequest: boolean, nextUrl?: string[], queryParams?: any}): void {
         url = url[0] === this.getBaseHref().replace(/\//g, '') ? url.slice(1) : url;
+
+        const query = Object.entries(queryParams).reduce((acc: {[key: string]: any}, [key, value]: [string, any]) => {
+            const queryValue = (typeof value === 'object' && value !== null) ? JSON.stringify(value) : value;
+
+            return {...acc, [key]: queryValue};
+        }, {});
+
         if (needServerTimeRequest) {
             this.serverTimeDataService.getServerTime().subscribe(time => {
                 const newUrl = url.concat([EndTime.formatDate(time)]).concat(nextUrl).filter((v: string) => {
                     return v !== '';
                 });
-                if (queryParams) {
+
+                if (!isEmpty(queryParams)) {
                     this.router.navigate(newUrl, {
-                        queryParams,
+                        queryParams: query,
                         queryParamsHandling: 'merge'
                     });
                 } else {
@@ -80,9 +89,9 @@ export class UrlRouteManagerService {
         } else {
             const newUrl = [...url, ...nextUrl];
 
-            if (queryParams) {
+            if (!isEmpty(queryParams)) {
                 this.router.navigate(newUrl, {
-                    queryParams,
+                    queryParams: query,
                     queryParamsHandling: 'merge'
                 });
             } else {
@@ -102,8 +111,6 @@ export class UrlRouteManagerService {
         });
     }
 
-    // There seems to no way to open a new window through router.navigate method so implemented it by using window.open for now.
-    // TODO: Refactor Scatter-TransactionList Page linking URL creation
     openPage({path, queryParams = {}, metaInfo = ''}: {path: string[], queryParams?: {[key: string]: any}, metaInfo?: string}): any {
         const pathStr = path.filter((p: string) => !!p).join('/');
         const queryStr = Object.entries(queryParams).map(([key, value]: [string, any]) => {

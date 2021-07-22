@@ -22,14 +22,15 @@ import java.util.Objects;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
+import com.navercorp.pinpoint.common.server.trace.Api;
+import com.navercorp.pinpoint.common.server.trace.ApiParser;
+import com.navercorp.pinpoint.common.server.trace.ApiParserProvider;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.server.util.AnnotationUtils;
-import com.navercorp.pinpoint.common.server.trace.ApiDescription;
-import com.navercorp.pinpoint.common.server.trace.ApiDescriptionParser;
 import com.navercorp.pinpoint.web.calltree.span.Align;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
 import com.navercorp.pinpoint.web.service.AnnotationKeyMatcherService;
@@ -49,16 +50,22 @@ public class RecordFactory {
     private final AnnotationKeyMatcherService annotationKeyMatcherService;
     private final ServiceTypeRegistryService registry;
     private final AnnotationKeyRegistryService annotationKeyRegistryService;
-    private final ApiDescriptionParser apiDescriptionParser = new ApiDescriptionParser();
-    private final AnnotationRecordFormatter annotationRecordFormatter;
-    private final ProxyRequestTypeRegistryService proxyRequestTypeRegistryService;
 
-    public RecordFactory(final AnnotationKeyMatcherService annotationKeyMatcherService, final ServiceTypeRegistryService registry, final AnnotationKeyRegistryService annotationKeyRegistryService, final ProxyRequestTypeRegistryService proxyRequestTypeRegistryService) {
-        this.annotationKeyMatcherService = annotationKeyMatcherService;
-        this.registry = registry;
-        this.annotationKeyRegistryService = annotationKeyRegistryService;
-        this.proxyRequestTypeRegistryService = proxyRequestTypeRegistryService;
+    private final AnnotationRecordFormatter annotationRecordFormatter;
+
+    private final ApiParserProvider apiParserProvider;
+
+    public RecordFactory(final AnnotationKeyMatcherService annotationKeyMatcherService,
+                         final ServiceTypeRegistryService registry,
+                         final AnnotationKeyRegistryService annotationKeyRegistryService,
+                         final ProxyRequestTypeRegistryService proxyRequestTypeRegistryService,
+                         final ApiParserProvider apiParserProvider) {
+        this.annotationKeyMatcherService = Objects.requireNonNull(annotationKeyMatcherService, "annotationKeyMatcherService");
+        this.registry = Objects.requireNonNull(registry, "registry");
+        this.annotationKeyRegistryService = Objects.requireNonNull(annotationKeyRegistryService, "annotationKeyRegistryService");
+
         this.annotationRecordFormatter = new AnnotationRecordFormatter(proxyRequestTypeRegistryService);
+        this.apiParserProvider = Objects.requireNonNull(apiParserProvider, "apiParserRegistry");
     }
 
     public Record get(final CallTreeNode node) {
@@ -72,12 +79,13 @@ public class RecordFactory {
                 align.getId(),
                 parentId,
                 true,
-                api.getTitle(),
+                api.getMethod(),
                 argument,
                 align.getStartTime(),
                 align.getElapsed(),
                 align.getGap(),
                 align.getAgentId(),
+                align.getAgentName(),
                 align.getApplicationId(),
                 registry.findServiceType(align.getServiceType()),
                 align.getDestinationId(),
@@ -150,6 +158,7 @@ public class RecordFactory {
                 align.getElapsed(),
                 align.getGap(),
                 "UNKNOWN",
+                align.getAgentName(),
                 align.getApplicationId(),
                 ServiceType.UNKNOWN,
                 "",
@@ -206,36 +215,22 @@ public class RecordFactory {
     private Api getApi(final Align align) {
         final AnnotationBo annotation = AnnotationUtils.findAnnotationBo(align.getAnnotationBoList(), AnnotationKey.API_METADATA);
         if (annotation != null) {
-            final Api api = new Api();
             final ApiMetaDataBo apiMetaData = (ApiMetaDataBo) annotation.getValue();
-            String apiInfo = getApiInfo(apiMetaData);
-            api.setTitle(apiInfo);
-            api.setDescription(apiInfo);
+            String apiInfo = apiMetaData.getDescription();
+
             if (apiMetaData.getMethodTypeEnum() == MethodTypeEnum.DEFAULT) {
-                try {
-                    ApiDescription apiDescription = apiDescriptionParser.parse(api.description);
-                    api.setTitle(apiDescription.getSimpleMethodDescription());
-                    api.setClassName(apiDescription.getSimpleClassName());
-                } catch (Exception ignored) {
-                }
+                ApiParser parser = apiParserProvider.getParser();
+                return parser.parse(apiMetaData);
             }
-            api.setMethodTypeEnum(apiMetaData.getMethodTypeEnum());
-            return api;
+            // parse error
+            return new Api(apiInfo, "", apiInfo, apiMetaData.getMethodTypeEnum());
         } else {
-            final Api api = new Api();
             AnnotationKey apiMetaDataError = getApiMetaDataError(align.getAnnotationBoList());
-            api.setTitle(apiMetaDataError.getName());
-            return api;
+
+            return new Api(apiMetaDataError.getName(), "", "", MethodTypeEnum.DEFAULT);
         }
     }
 
-    private String getApiInfo(ApiMetaDataBo apiMetaDataBo) {
-        if (apiMetaDataBo.getLineNumber() != -1) {
-            return apiMetaDataBo.getApiInfo() + ":" + apiMetaDataBo.getLineNumber();
-        } else {
-            return apiMetaDataBo.getApiInfo();
-        }
-    }
 
     public AnnotationKey getApiMetaDataError(List<AnnotationBo> annotationBoList) {
         for (AnnotationBo bo : annotationBoList) {
@@ -256,45 +251,4 @@ public class RecordFactory {
         return idGen++;
     }
 
-    private static class Api {
-        private String title = "";
-        private String className = "";
-        private String description = "";
-        private MethodTypeEnum methodTypeEnum = MethodTypeEnum.DEFAULT;
-
-        public Api() {
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-
-        public String getClassName() {
-            return className;
-        }
-
-        public void setClassName(String className) {
-            this.className = className;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public MethodTypeEnum getMethodTypeEnum() {
-            return methodTypeEnum;
-        }
-
-        public void setMethodTypeEnum(MethodTypeEnum methodTypeEnum) {
-            this.methodTypeEnum = Objects.requireNonNull(methodTypeEnum, "methodTypeEnum");
-        }
-    }
 }

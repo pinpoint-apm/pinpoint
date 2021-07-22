@@ -59,8 +59,8 @@ public class ApplicationMapStatisticsUtils {
         return findResponseHistogramSlotNo(serviceType, elapsed, isError, false);
     }
 
-    public static short getSlotNumber(ServiceType serviceType, int elapsed, boolean isError, boolean isPing) {
-        return findResponseHistogramSlotNo(serviceType, elapsed, isError, isPing);
+    public static short getPingSlotNumber(ServiceType serviceType, int elapsed, boolean isError) {
+        return findResponseHistogramSlotNo(serviceType, elapsed, isError, true);
     }
 
     public static byte[] makeColumnName(String agentId, short columnSlotNumber) {

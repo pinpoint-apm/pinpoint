@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactory;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxConstants;
 import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxPluginConfig;
 
@@ -90,7 +91,7 @@ public class BodyInserterRequestBuilderWriteToInterceptor extends AsyncContextSp
     }
 
     private boolean validate(final Object[] args) {
-        if (args == null || args.length < 1) {
+        if (ArrayUtils.isEmpty(args)) {
             if (isDebug) {
                 logger.debug("Invalid args object. args={}.", args);
             }

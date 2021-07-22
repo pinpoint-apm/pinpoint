@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 
 /**
@@ -40,8 +41,9 @@ public class HttpClientOperationsOnOutboundErrorInterceptor extends AsyncContext
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
-        if (args != null && args.length >= 1 && args[0] instanceof Throwable) {
-            final Throwable t = (Throwable) args[0];
+        Object th = ArrayUtils.get(args, 0);
+        if (th instanceof Throwable) {
+            final Throwable t = (Throwable) th;
             recorder.recordException(t);
         } else {
             recorder.recordException(throwable);

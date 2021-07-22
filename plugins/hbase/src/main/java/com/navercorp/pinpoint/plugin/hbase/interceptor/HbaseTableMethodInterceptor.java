@@ -18,6 +18,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.hbase.HbasePluginConstants;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Mutation;
@@ -74,11 +75,11 @@ public class HbaseTableMethodInterceptor extends SpanEventSimpleAroundIntercepto
     protected String parseAttributes(Object[] args) {
 
         Object param = null;
-
-        if (args != null && args.length == 1) { // only one
+        final int argsLength = ArrayUtils.getLength(args);
+        if (argsLength == 1) { // only one
             param = args[0];
-        } else if (args != null && args.length > 1) { // last param
-            param = args[args.length - 1];
+        } else if (argsLength > 1) { // last param
+            param = args[argsLength - 1];
         } else {
             return null;
         }

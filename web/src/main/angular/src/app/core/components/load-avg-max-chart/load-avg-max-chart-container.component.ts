@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, Input, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Subject, forkJoin, merge, of } from 'rxjs';
-import { filter, map, tap, switchMap, catchError, pluck, withLatestFrom } from 'rxjs/operators';
+import { Subject, forkJoin, merge, of, EMPTY } from 'rxjs';
+import { filter, map, tap, switchMap, catchError, pluck, withLatestFrom, takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimitiveArray, Data, areaStep } from 'billboard.js';
 import * as moment from 'moment-timezone';
@@ -8,9 +8,10 @@ import * as moment from 'moment-timezone';
 import { WebAppSettingDataService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService, MESSAGE_TO, StoreHelperService, MessageQueueService, AgentHistogramDataService, NewUrlStateNotificationService } from 'app/shared/services';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 import { getMaxTickValue, getStackedData } from 'app/core/utils/chart-util';
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 import { SourceType } from 'app/core/components/load-chart/load-chart-container.component';
 import { Layer } from 'app/core/components/load-chart/load-chart-container.component';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Component({
     selector: 'pp-load-avg-max-chart-container',
@@ -24,13 +25,15 @@ export class LoadAvgMaxChartContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
     private serverMapData: ServerMapData;
     private isOriginalNode: boolean;
-    private selectedTarget: ISelectedTarget;
     private selectedAgent = '';
     private chartColors: string[];
     private defaultYMax = 10;
     private timezone: string;
     private dateFormatMonth: string;
     private dateFormatDay: string;
+
+    private originalTarget: ISelectedTarget; // from serverMap
+    private targetFromList: INodeInfo; // from targetList
 
     dataFetchFailedText: string;
     dataEmptyText: string;
@@ -86,10 +89,25 @@ export class LoadAvgMaxChartContainerComponent implements OnInit, OnDestroy {
 
     onRetry(): void {
         this.activeLayer = Layer.LOADING;
-        const {key, applicationName, serviceTypeCode} = this.getTargetInfo();
+        const target = this.getTargetInfo();
 
-        this.agentHistogramDataService.getData(key, applicationName, serviceTypeCode, this.serverMapData, this.previousRange).pipe(
-            map((data: any) => this.isAllAgent() ? data['timeSeriesHistogram'] : data['agentTimeSeriesHistogram'][this.selectedAgent])
+        this.agentHistogramDataService.getData(this.serverMapData, this.previousRange, target).pipe(
+            pluck('agentTimeSeriesHistogram', this.selectedAgent),
+            catchError((error: IServerErrorFormat) => {
+                this.activeLayer = Layer.RETRY;
+                this.dynamicPopupService.openPopup({
+                    data: {
+                        title: 'Error',
+                        contents: error
+                    },
+                    component: ServerErrorPopupContainerComponent
+                }, {
+                    resolver: this.componentFactoryResolver,
+                    injector: this.injector
+                });
+
+                return EMPTY;
+            })
         ).pipe(
             map((data: IHistogram[]) => this.cleanIntermediateChartData(data)),
             map((data: IHistogram[]) => this.makeChartData(data)),
@@ -119,6 +137,14 @@ export class LoadAvgMaxChartContainerComponent implements OnInit, OnDestroy {
     }
 
     private listenToEmitter(): void {
+        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            takeUntil((this.unsubscribe)),
+        ).subscribe(() => {
+            this.serverMapData = null;
+            this.originalTarget = null;
+            this.targetFromList = null;
+        });
+
         this.storeHelperService.getTimezone(this.unsubscribe).subscribe((timezone: string) => {
             this.timezone = timezone;
         });
@@ -128,17 +154,14 @@ export class LoadAvgMaxChartContainerComponent implements OnInit, OnDestroy {
             this.dateFormatDay = dateFormatDay;
         });
 
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe((data: ServerMapData) => {
-            this.serverMapData = data;
-        });
-
         merge(
             this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).pipe(
                 filter(() => this.sourceType !== SourceType.INFO_PER_SERVER),
                 filter((target: ISelectedTarget) => {
                     this.isOriginalNode = true;
                     this.selectedAgent = '';
-                    this.selectedTarget = target;
+                    this.originalTarget = target;
+                    this.targetFromList = null;
 
                     return !target.isMerged;
                 }),
@@ -148,21 +171,20 @@ export class LoadAvgMaxChartContainerComponent implements OnInit, OnDestroy {
                 filter(() => this.sourceType !== SourceType.INFO_PER_SERVER),
                 filter((agent: string) => this.selectedAgent !== agent),
                 tap((agent: string) => this.selectedAgent = agent),
-                filter(() => !!this.selectedTarget),
+                filter(() => !!this.originalTarget),
                 map(() => this.getTargetInfo()),
-                switchMap((target: any) => {
+                switchMap((target: INodeInfo) => {
                     if (this.isAllAgent()) {
                         return of(target.timeSeriesHistogram);
                     } else {
                         let data;
 
                         if (this.sourceType === SourceType.MAIN) {
-                            this.previousRange = [
-                                this.newUrlStateNotificationService.getStartTimeToNumber(),
-                                this.newUrlStateNotificationService.getEndTimeToNumber()
-                            ];
+                            const range = this.previousRange = this.newUrlStateNotificationService.isRealTimeMode()
+                                ? this.previousRange ? this.previousRange : [this.newUrlStateNotificationService.getStartTimeToNumber(), this.newUrlStateNotificationService.getEndTimeToNumber()]
+                                : [this.newUrlStateNotificationService.getStartTimeToNumber(), this.newUrlStateNotificationService.getEndTimeToNumber()];
 
-                            data = this.agentHistogramDataService.getData(target.key, target.applicationName, target.serviceTypeCode, this.serverMapData, this.previousRange).pipe(
+                            data = this.agentHistogramDataService.getData(this.serverMapData, range, target).pipe(
                                 catchError(() => of(null)),
                                 filter((res: any) => res === null ? (this.activeLayer = Layer.RETRY, false) : true)
                             );
@@ -178,9 +200,15 @@ export class LoadAvgMaxChartContainerComponent implements OnInit, OnDestroy {
             ),
             this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT_BY_LIST).pipe(
                 filter(() => this.sourceType !== SourceType.INFO_PER_SERVER),
-                tap(() => this.selectedAgent = ''),
-                tap(({key}: any) => {
-                    this.isOriginalNode = this.selectedTarget.isNode ? this.selectedTarget.node.includes(key) : this.selectedTarget.link.includes(key);
+                tap((target: any) => {
+                    this.selectedAgent = '';
+                    this.targetFromList = target;
+                    if (this.originalTarget.isNode) {
+                        // this.isOriginalNode = this.originalTarget.node.includes(target.key);
+                        this.isOriginalNode = true;
+                    } else {
+                        this.isOriginalNode = true;
+                    }
                 }),
                 map((target: any) => target.timeSeriesHistogram)
             ),
@@ -190,18 +218,25 @@ export class LoadAvgMaxChartContainerComponent implements OnInit, OnDestroy {
                 tap(({agent}: IAgentSelection) => this.selectedAgent = agent),
                 pluck('load'),
             ),
-            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.REAL_TIME_SCATTER_CHART_X_RANGE).pipe(
+            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).pipe(
+                tap(({serverMapData, range}: {serverMapData: ServerMapData, range: number[]}) => {
+                    this.serverMapData = serverMapData;
+                    this.previousRange = range;
+                }),
+                filter(() => !!this.originalTarget),
                 filter(() => this.sourceType === SourceType.MAIN),
-                map(({from, to}: IScatterXRange) => [from, to]),
-                tap((range: number[]) => this.previousRange = range),
-                switchMap((range: number[]) => {
-                    const {key, applicationName, serviceTypeCode} = this.getTargetInfo();
+                filter(() => !this.originalTarget.isMerged || !!this.targetFromList),
+                switchMap(({serverMapData, range}: {serverMapData: ServerMapData, range: number[]}) => {
+                    const target = this.originalTarget.isMerged || this.targetFromList ? serverMapData.getNodeData(this.targetFromList.key) || serverMapData.getLinkData(this.targetFromList.key)
+                        : this.getTargetInfo();
 
-                    return this.agentHistogramDataService.getData(key, applicationName, serviceTypeCode, this.serverMapData, range).pipe(
-                        catchError(() => of(null)),
-                        filter((res: any) => !!res),
-                        map((data: any) => this.isAllAgent() ? data['timeSeriesHistogram'] : data['agentTimeSeriesHistogram'][this.selectedAgent])
-                    );
+                    return !target ? of(null)
+                        : this.selectedAgent ? this.agentHistogramDataService.getData(serverMapData, range, target).pipe(
+                            catchError(() => of(null)),
+                            filter((res: any) => !!res),
+                            pluck('agentTimeSeriesHistogram', this.selectedAgent)
+                        )
+                        : of (target.timeSeriesHistogram);
                 }),
             )
         ).pipe(
@@ -240,9 +275,9 @@ export class LoadAvgMaxChartContainerComponent implements OnInit, OnDestroy {
     }
 
     private getTargetInfo(): any {
-        return this.selectedTarget.isNode
-            ? this.serverMapData.getNodeData(this.selectedTarget.node[0])
-            : this.serverMapData.getLinkData(this.selectedTarget.link[0]);
+        return this.originalTarget.isNode
+            ? this.serverMapData.getNodeData(this.originalTarget.node[0])
+            : this.serverMapData.getLinkData(this.originalTarget.link[0]);
     }
 
     private cleanIntermediateChartData(data: IHistogram[]): IHistogram[] {

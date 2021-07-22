@@ -62,7 +62,10 @@ public class StatServerTestMain {
     }
 
     private ServerServiceDefinition newStatBindableService(Executor executor) throws Exception {
-        FactoryBean<ServerInterceptor> interceptorFactory = new StreamExecutorServerInterceptorFactory(executor, 100, Executors.newSingleThreadScheduledExecutor(), 1000, 10);
+        FactoryBean<ServerInterceptor> interceptorFactory = new StreamExecutorServerInterceptorFactory(executor,
+                100, Executors.newSingleThreadScheduledExecutor(),
+                1000, 10,
+                 -1);
         ServerInterceptor interceptor = interceptorFactory.getObject();
         StatService statService = new StatService(new MockDispatchHandler(), new DefaultServerRequestFactory());
         return ServerInterceptors.intercept(statService, interceptor);

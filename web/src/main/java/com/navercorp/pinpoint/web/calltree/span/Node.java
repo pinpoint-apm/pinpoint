@@ -20,12 +20,12 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,8 +44,8 @@ public class Node {
     private SpanAsyncEventMap asyncSpanEventMap;
 
     public Node(final SpanBo span, final SpanCallTree spanCallTree) {
-        this.span = span;
-        this.spanCallTree = spanCallTree;
+        this.span = Objects.requireNonNull(span, "span");
+        this.spanCallTree = Objects.requireNonNull(spanCallTree, "spanCallTree");
     }
 
 
@@ -76,10 +76,13 @@ public class Node {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("{");
-        sb.append("parentSpanId=").append(span.getParentSpanId());
+        sb.append("applicationId").append(span.getApplicationId());
+        sb.append(", agentId=").append(span.getAgentId());
+        sb.append(", parentSpanId=").append(span.getParentSpanId());
         sb.append(", spanId=").append(span.getSpanId());
         sb.append(", startTime=").append(span.getStartTime());
         sb.append(", elapsed=").append(span.getElapsed());
+        sb.append(", collectorAcceptTime=").append(span.getCollectorAcceptTime());
         sb.append(", linked=").append(linked);
         sb.append('}');
         return sb.toString();
@@ -96,18 +99,9 @@ public class Node {
         return new SpanChunkEventAlign(span, spanChunkBo, spanEventBo);
     }
 
-    public static List<Node> newNodeList(List<SpanBo> spans) {
-        final List<Node> nodeList = new ArrayList<>(spans.size());
-        // init sorted node list
-        for (SpanBo span : spans) {
-            SpanCallTree spanCallTree = new SpanCallTree(new SpanAlign(span));
-            final Node node = Node.build(span, spanCallTree);
-            nodeList.add(node);
-        }
-
-        // sort
-        nodeList.sort(Comparator.comparingLong(node -> node.getSpanBo().getStartTime()));
-        return nodeList;
+    public static Node toNode(SpanBo span) {
+        SpanCallTree spanCallTree = new SpanCallTree(new SpanAlign(span));
+        return Node.build(span, spanCallTree);
     }
 
     public static Node build(SpanBo spanBo, SpanCallTree spanCallTree) {
@@ -135,10 +129,7 @@ public class Node {
     }
 
     private static List<Align> mergeAndSort(List<Align> alignList1, List<Align> alignList2) {
-
-        List<Align> mergedList = new ArrayList<>(alignList1.size() + alignList2.size());
-        mergedList.addAll(alignList1);
-        mergedList.addAll(alignList2);
+        List<Align> mergedList = ListUtils.union(alignList1, alignList2);
 
         mergedList.sort(AlignComparator.INSTANCE);
         return mergedList;
@@ -180,8 +171,8 @@ public class Node {
             }
             List<SpanEventBo> spanEventList = chunkBo.getSpanEventBoList();
             for (SpanEventBo spanEventBo : spanEventList) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Populate spanEvent{seq={}, depth={}, event={}}", spanEventBo.getSequence(), spanEventBo.getDepth(), spanEventBo);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("Populate spanEvent{seq={}, depth={}, event={}}", spanEventBo.getSequence(), spanEventBo.getDepth(), spanEventBo);
                 }
                 final Align spanEventAlign = this.newSpanEventAlign(chunkBo, spanEventBo);
                 alignList.add(spanEventAlign);

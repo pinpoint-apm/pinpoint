@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleA
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 import reactor.netty.channel.ChannelOperations;
 
@@ -41,7 +42,7 @@ public class HttpClientHandlerRequestWithBodyInterceptor extends AsyncContextSpa
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-        if (args == null || args.length < 1) {
+        if (ArrayUtils.isEmpty(args)) {
             // Skip
             return;
         }

@@ -33,7 +33,6 @@ import org.springframework.util.MultiValueMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 /**
  * @author Taejin Koo
@@ -79,12 +78,18 @@ public class DataSourceDataCollector extends DataCollector {
                 List<DataSourceBo> dataSourceBoList = entry.getValue();
 
                 if (CollectionUtils.hasLength(dataSourceBoList)) {
-                    double activeConnectionAvg = dataSourceBoList.stream().mapToInt(b -> b.getActiveConnectionSize()).average().getAsDouble();
-                    double maxConnectionAvg = dataSourceBoList.stream().mapToInt(b -> b.getMaxConnectionSize()).average().getAsDouble();
+                    double activeConnectionAvg = dataSourceBoList.stream()
+                            .mapToInt(DataSourceBo::getActiveConnectionSize)
+                            .average()
+                            .orElse(-1);
+                    double maxConnectionAvg = dataSourceBoList.stream()
+                            .mapToInt(DataSourceBo::getMaxConnectionSize)
+                            .average()
+                            .orElse(-1);
 
                     DataSourceBo dataSourceBo = ListUtils.getFirst(dataSourceBoList);
                     DataSourceAlarmVO dataSourceAlarmVO = new DataSourceAlarmVO(dataSourceBo.getId(), dataSourceBo.getDatabaseName(),
-                            new Double(Math.floor(activeConnectionAvg)).intValue(), new Double(Math.floor(maxConnectionAvg)).intValue());
+                            (int) Math.floor(activeConnectionAvg), new Double(Math.floor(maxConnectionAvg)).intValue());
 
                     agentDataSourceConnectionUsageRateMap.add(agentId, dataSourceAlarmVO);
                 }

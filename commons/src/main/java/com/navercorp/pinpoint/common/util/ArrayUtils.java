@@ -23,6 +23,7 @@ package com.navercorp.pinpoint.common.util;
 public final class ArrayUtils {
 
     private static final int DEFAULT_ABBREVIATE_MAX_WIDTH = 32;
+    private static char DELIMITER = ',';
 
     private ArrayUtils() {
     }
@@ -36,49 +37,74 @@ public final class ArrayUtils {
             return "null";
         }
         if (maxWidth < 0) {
-            throw new IllegalArgumentException("negative maxWidth:" + maxWidth);
+            throw new IllegalArgumentException("negative maxWidth");
         }
-        // TODO handle negative limit
-
-        // Last valid index is length - 1
-        int bytesMaxLength = bytes.length - 1;
-        final int maxLimit = maxWidth - 1;
-        if (bytesMaxLength > maxLimit) {
-            bytesMaxLength = maxLimit;
+        if (bytes.length == 0) {
+            return "[]";
         }
-        if (bytesMaxLength == -1) {
-            if (bytes.length == 0) {
-                return "[]";
-            } else {
-                return "[...(" + bytes.length + ")]";
-            }
+        if (maxWidth == 0) {
+            return "[...(" + bytes.length + ")]";
         }
 
+        final int bytesMaxLength = Math.min(bytes.length, maxWidth);
 
-        final StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder(abbreviateBufferSize(bytes, maxWidth));
         sb.append('[');
-        for (int i = 0; ; i++) {
+
+        final int lastIndex = bytesMaxLength - 1;
+        for (int i = 0; i < bytesMaxLength; i++) {
             sb.append(bytes[i]);
-            if (i == bytesMaxLength) {
-                if ((bytes.length - 1) <= maxLimit) {
-                    return sb.append(']').toString();
-                } else {
-                    sb.append(", ...(");
-                    sb.append(bytes.length - (i+1));
-                    sb.append(")]");
-                    return sb.toString();
-                }
+            if (i < lastIndex) {
+                sb.append(DELIMITER);
             }
-            sb.append(", ");
         }
+
+        if (bytes.length <= maxWidth) {
+            sb.append(']');
+        } else {
+            sb.append(DELIMITER);
+            sb.append("...(");
+            sb.append(bytes.length);
+            sb.append(")]");
+        }
+        return sb.toString();
     }
 
 
+    static int stringLength(byte[] bytes, int toOffset) {
+        int length = 0;
+        for (int i = 0; i < toOffset; i++) {
+            byte b = bytes[i];
+            length += StringUtils.stringLength(b);
+        }
+        return length;
+    }
+
+    static int abbreviateBufferSize(byte[] bytes, int maxWidth) {
+        final int min = Math.min(bytes.length, maxWidth);
+        final int delimiter = Math.max(min - 1, 0);
+        final int defaultBufferSize = stringLength(bytes, min) + delimiter;
+        if (bytes.length <= maxWidth) {
+            // "[]";
+            return defaultBufferSize + "[]".length();
+        } else {
+            final int size = defaultBufferSize + StringUtils.stringLength(bytes.length);
+            if (defaultBufferSize == 0) {
+                // "[...()]";
+                return size + "[...()]".length();
+            } else {
+                // "[,...()]";
+                return size + "[,...()]".length();
+            }
+        }
+    }
+
     // copy apache commons lang3 ----------------------------------------------------------------------
+
     /**
      * <p>Checks if an array of Objects is empty or {@code null}.
      *
-     * @param array  the array to test
+     * @param array the array to test
      * @return {@code true} if the array is empty or {@code null}
      * @since 1.7.0
      */
@@ -89,7 +115,7 @@ public final class ArrayUtils {
     /**
      * <p>Checks if an array of primitive longs is empty or {@code null}.
      *
-     * @param array  the array to test
+     * @param array the array to test
      * @return {@code true} if the array is empty or {@code null}
      * @since 1.7.0
      */
@@ -100,7 +126,7 @@ public final class ArrayUtils {
     /**
      * <p>Checks if an array of primitive ints is empty or {@code null}.
      *
-     * @param array  the array to test
+     * @param array the array to test
      * @return {@code true} if the array is empty or {@code null}
      * @since 1.7.0
      */
@@ -111,7 +137,7 @@ public final class ArrayUtils {
     /**
      * <p>Checks if an array of primitive shorts is empty or {@code null}.
      *
-     * @param array  the array to test
+     * @param array the array to test
      * @return {@code true} if the array is empty or {@code null}
      * @since 1.7.0
      */
@@ -122,7 +148,7 @@ public final class ArrayUtils {
     /**
      * <p>Checks if an array of primitive chars is empty or {@code null}.
      *
-     * @param array  the array to test
+     * @param array the array to test
      * @return {@code true} if the array is empty or {@code null}
      * @since 1.7.0
      */
@@ -133,7 +159,7 @@ public final class ArrayUtils {
     /**
      * <p>Checks if an array of primitive bytes is empty or {@code null}.
      *
-     * @param array  the array to test
+     * @param array the array to test
      * @return {@code true} if the array is empty or {@code null}
      * @since 1.7.0
      */
@@ -144,7 +170,7 @@ public final class ArrayUtils {
     /**
      * <p>Checks if an array of primitive doubles is empty or {@code null}.
      *
-     * @param array  the array to test
+     * @param array the array to test
      * @return {@code true} if the array is empty or {@code null}
      * @since 1.7.0
      */
@@ -155,7 +181,7 @@ public final class ArrayUtils {
     /**
      * <p>Checks if an array of primitive floats is empty or {@code null}.
      *
-     * @param array  the array to test
+     * @param array the array to test
      * @return {@code true} if the array is empty or {@code null}
      * @since 1.7.0
      */
@@ -166,7 +192,7 @@ public final class ArrayUtils {
     /**
      * <p>Checks if an array of primitive booleans is empty or {@code null}.
      *
-     * @param array  the array to test
+     * @param array the array to test
      * @return {@code true} if the array is empty or {@code null}
      * @since 1.7.0
      */
@@ -176,11 +202,12 @@ public final class ArrayUtils {
 
 
     // copy apache commons lang3 ----------------------------------------------------------------------
+
     /**
      * <p>Checks if an array of Objects is not empty and not {@code null}.
      *
-     * @param <T> the component type of the array
-     * @param array  the array to test
+     * @param <T>   the component type of the array
+     * @param array the array to test
      * @return {@code true} if the array is not empty and not {@code null}
      * @since 1.7.0
      */
@@ -191,7 +218,7 @@ public final class ArrayUtils {
     /**
      * <p>Checks if an array of primitive longs is not empty and not {@code null}.
      *
-     * @param array  the array to test
+     * @param array the array to test
      * @return {@code true} if the array is not empty and not {@code null}
      * @since 1.7.0
      */
@@ -202,7 +229,7 @@ public final class ArrayUtils {
     /**
      * <p>Checks if an array of primitive ints is not empty and not {@code null}.
      *
-     * @param array  the array to test
+     * @param array the array to test
      * @return {@code true} if the array is not empty and not {@code null}
      * @since 1.7.0
      */
@@ -213,7 +240,7 @@ public final class ArrayUtils {
     /**
      * <p>Checks if an array of primitive shorts is not empty and not {@code null}.
      *
-     * @param array  the array to test
+     * @param array the array to test
      * @return {@code true} if the array is not empty and not {@code null}
      * @since 1.7.0
      */
@@ -224,7 +251,7 @@ public final class ArrayUtils {
     /**
      * <p>Checks if an array of primitive chars is not empty and not {@code null}.
      *
-     * @param array  the array to test
+     * @param array the array to test
      * @return {@code true} if the array is not empty and not {@code null}
      * @since 1.7.0
      */
@@ -235,7 +262,7 @@ public final class ArrayUtils {
     /**
      * <p>Checks if an array of primitive bytes is not empty and not {@code null}.
      *
-     * @param array  the array to test
+     * @param array the array to test
      * @return {@code true} if the array is not empty and not {@code null}
      * @since 1.7.0
      */
@@ -246,7 +273,7 @@ public final class ArrayUtils {
     /**
      * <p>Checks if an array of primitive doubles is not empty and not {@code null}.
      *
-     * @param array  the array to test
+     * @param array the array to test
      * @return {@code true} if the array is not empty and not {@code null}
      * @since 1.7.0
      */
@@ -257,7 +284,7 @@ public final class ArrayUtils {
     /**
      * <p>Checks if an array of primitive floats is not empty and not {@code null}.
      *
-     * @param array  the array to test
+     * @param array the array to test
      * @return {@code true} if the array is not empty and not {@code null}
      * @since 1.7.0
      */
@@ -268,7 +295,7 @@ public final class ArrayUtils {
     /**
      * <p>Checks if an array of primitive booleans is not empty and not {@code null}.
      *
-     * @param array  the array to test
+     * @param array the array to test
      * @return {@code true} if the array is not empty and not {@code null}
      * @since 1.7.0
      */
@@ -280,6 +307,7 @@ public final class ArrayUtils {
 
 
     // Enhancement type safety & Remove native call ---------------------------------------------------------------------------
+
     /**
      * <p>Returns the length of the specified array.
      * This method can deal with {@code Object} arrays and with primitive arrays.
@@ -296,7 +324,7 @@ public final class ArrayUtils {
      * ArrayUtils.getLength(["a", "b", "c"]) = 3
      * </pre>
      *
-     * @param array  the array to retrieve the length from, may be null
+     * @param array the array to retrieve the length from, may be null
      * @return The length of the array, or {@code 0} if the array is {@code null}
      * @throws IllegalArgumentException if the object argument is not an array.
      * @since 1.7.0
@@ -323,7 +351,7 @@ public final class ArrayUtils {
      * ArrayUtils.getLength(["a", "b", "c"]) = 3
      * </pre>
      *
-     * @param array  the array to retrieve the length from, may be null
+     * @param array the array to retrieve the length from, may be null
      * @return The length of the array, or {@code 0} if the array is {@code null}
      * @throws IllegalArgumentException if the object argument is not an array.
      * @since 1.7.0
@@ -350,7 +378,7 @@ public final class ArrayUtils {
      * ArrayUtils.getLength(["a", "b", "c"]) = 3
      * </pre>
      *
-     * @param array  the array to retrieve the length from, may be null
+     * @param array the array to retrieve the length from, may be null
      * @return The length of the array, or {@code 0} if the array is {@code null}
      * @throws IllegalArgumentException if the object argument is not an array.
      * @since 1.7.0
@@ -377,7 +405,7 @@ public final class ArrayUtils {
      * ArrayUtils.getLength(["a", "b", "c"]) = 3
      * </pre>
      *
-     * @param array  the array to retrieve the length from, may be null
+     * @param array the array to retrieve the length from, may be null
      * @return The length of the array, or {@code 0} if the array is {@code null}
      * @throws IllegalArgumentException if the object argument is not an array.
      * @since 1.7.0
@@ -404,14 +432,18 @@ public final class ArrayUtils {
      * ArrayUtils.getLength(["a", "b", "c"]) = 3
      * </pre>
      *
-     * @param array  the array to retrieve the length from, may be null
+     * @param array the array to retrieve the length from, may be null
      * @return The length of the array, or {@code 0} if the array is {@code null}
      * @throws IllegalArgumentException if the object argument is not an array.
      * @since 1.7.0
      */
     public static int getLength(final byte[] array) {
+        return getLength(array, 0);
+    }
+
+    public static int getLength(final byte[] array, int nullValue) {
         if (array == null) {
-            return 0;
+            return nullValue;
         }
         return array.length;
     }
@@ -431,7 +463,7 @@ public final class ArrayUtils {
      * ArrayUtils.getLength(["a", "b", "c"]) = 3
      * </pre>
      *
-     * @param array  the array to retrieve the length from, may be null
+     * @param array the array to retrieve the length from, may be null
      * @return The length of the array, or {@code 0} if the array is {@code null}
      * @throws IllegalArgumentException if the object argument is not an array.
      * @since 1.7.0
@@ -485,7 +517,7 @@ public final class ArrayUtils {
      * ArrayUtils.getLength(["a", "b", "c"]) = 3
      * </pre>
      *
-     * @param array  the array to retrieve the length from, may be null
+     * @param array the array to retrieve the length from, may be null
      * @return The length of the array, or {@code 0} if the array is {@code null}
      * @throws IllegalArgumentException if the object argument is not an array.
      * @since 1.7.0
@@ -524,4 +556,49 @@ public final class ArrayUtils {
         return array.length;
     }
 
+    /**
+     * Gets the nTh element of an array or null if the index is out of bounds or the array is null.
+     *
+     * @param <T> The type of array elements.
+     * @param array The array to index.
+     * @param index The index
+     * @return the nTh element of an array or null if the index is out of bounds or the array is null.
+     * @since 3.11
+     */
+    public static <T> T get(final T[] array, final int index) {
+        return get(array, index, null);
+    }
+
+    /**
+     * Gets the nTh element of an array or a default value if the index is out of bounds.
+     *
+     * @param <T> The type of array elements.
+     * @param array The array to index.
+     * @param index The index
+     * @param defaultValue The return value of the given index is out of bounds.
+     * @return the nTh element of an array or a default value if the index is out of bounds.
+     * @since 3.11
+     */
+    public static <T> T get(final T[] array, final int index, final T defaultValue) {
+        return isArrayIndexValid(array, index) ? array[index] : defaultValue;
+    }
+
+    /**
+     * Returns whether a given array can safely be accessed at the given index.
+     *
+     * <pre>
+     * ArrayUtils.isArrayIndexValid(null, 0)       = false
+     * ArrayUtils.isArrayIndexValid([], 0)         = false
+     * ArrayUtils.isArrayIndexValid(["a"], 0)      = true
+     * </pre>
+     *
+     * @param <T> the component type of the array
+     * @param array the array to inspect, may be null
+     * @param index the index of the array to be inspected
+     * @return Whether the given index is safely-accessible in the given array
+     * @since 3.8
+     */
+    public static <T> boolean isArrayIndexValid(final T[] array, final int index) {
+        return index >= 0 && getLength(array) > index;
+    }
 }

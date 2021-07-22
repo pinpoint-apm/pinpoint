@@ -3,7 +3,7 @@
     padding: 0 15px;
     height: 100%;
     align-items: center;
-    color: #FFF;
+    color: var(--text-knockout);
     display: flex;
     flex-flow: row wrap;
 }
@@ -14,6 +14,7 @@
     margin-right: 10px;
 }
 .l-main-container {
+    background-color: var(--background-primary);
     display: flex;
     flex-flow: row wrap;
     justify-content: center;

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.zookeeper.KeeperException;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author minwoo.jung
@@ -47,12 +48,12 @@ public class EmptyClusterManager extends ClusterManager {
     }
 
     @Override
-    public PinpointSocket getSocket(AgentInfo agentInfo) {
+    public List<PinpointSocket> getSocket(AgentInfo agentInfo) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public PinpointSocket getSocket(String applicationName, String agentId, long startTimeStamp) {
+    public List<PinpointSocket> getSocket(String applicationName, String agentId, long startTimeStamp) {
         throw new UnsupportedOperationException();
     }
 

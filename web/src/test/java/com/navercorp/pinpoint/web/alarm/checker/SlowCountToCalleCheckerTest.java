@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 
+@SuppressWarnings("deprecation")
 public class SlowCountToCalleCheckerTest {
     
     private static final String FROM_SERVICE_NAME = "from_local_service";

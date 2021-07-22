@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 
+import com.navercorp.pinpoint.web.vo.AgentStatusQuery;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.junit.Assert;
@@ -42,6 +43,7 @@ import org.mockito.Spy;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author HyunGil Jeong
@@ -131,7 +133,8 @@ public class HbaseAgentLifeCycleDaoTest {
         AgentInfo givenAgentInfo = new AgentInfo();
         givenAgentInfo.setAgentId(expectedAgentId);
         givenAgentInfo.setStartTimestamp(expectedTimestamp);
-        this.agentLifeCycleDao.populateAgentStatus(givenAgentInfo, expectedTimestamp);
+        Optional<AgentStatus> agentStatus = this.agentLifeCycleDao.getAgentStatus(givenAgentInfo.getAgentId(), givenAgentInfo.getStartTimestamp(), expectedTimestamp);
+        givenAgentInfo.setStatus(agentStatus.get());
         // Then
         AgentStatus actualAgentStatus = givenAgentInfo.getStatus();
         Assert.assertEquals(expectedAgentId, actualAgentStatus.getAgentId());
@@ -153,7 +156,9 @@ public class HbaseAgentLifeCycleDaoTest {
         givenAgentInfo.setAgentId(expectedAgentId);
         givenAgentInfo.setStartTimestamp(expectedTimestamp);
         // When
-        this.agentLifeCycleDao.populateAgentStatus(givenAgentInfo, expectedTimestamp);
+        Optional<AgentStatus> agentStatus = this.agentLifeCycleDao.getAgentStatus(givenAgentInfo.getAgentId(), givenAgentInfo.getStartTimestamp(), expectedTimestamp);
+        givenAgentInfo.setStatus(agentStatus.get());
+
         // Then
         AgentStatus actualAgentStatus = givenAgentInfo.getStatus();
         Assert.assertEquals(expectedAgentId, actualAgentStatus.getAgentId());
@@ -177,13 +182,15 @@ public class HbaseAgentLifeCycleDaoTest {
         AgentInfo nullAgentInfo = null;
         List<AgentInfo> givenAgentInfos = Arrays.asList(nonNullAgentInfo, nullAgentInfo, nonNullAgentInfo, nullAgentInfo);
         // When
-        this.agentLifeCycleDao.populateAgentStatuses(givenAgentInfos, expectedTimestamp);
+        AgentStatusQuery query = AgentStatusQuery.buildQuery(givenAgentInfos, expectedTimestamp);
+        List<Optional<AgentStatus>> agentStatus = this.agentLifeCycleDao.getAgentStatus(query);
+
         // Then
         Assert.assertEquals(nonNullAgentInfo, givenAgentInfos.get(0));
         Assert.assertEquals(nullAgentInfo, givenAgentInfos.get(1));
         Assert.assertEquals(nonNullAgentInfo, givenAgentInfos.get(2));
         Assert.assertEquals(nullAgentInfo, givenAgentInfos.get(3));
-        AgentStatus nonNullAgentInfoStatus = nonNullAgentInfo.getStatus();
+        AgentStatus nonNullAgentInfoStatus = agentStatus.get(0).get();
         Assert.assertEquals(expectedAgentId, nonNullAgentInfoStatus.getAgentId());
         Assert.assertEquals(expectedTimestamp, nonNullAgentInfoStatus.getEventTimestamp());
         Assert.assertEquals(expectedAgentLifeCycleState, nonNullAgentInfoStatus.getState());
@@ -191,8 +198,10 @@ public class HbaseAgentLifeCycleDaoTest {
 
     @Test
     public void populateAgentStatus_should_not_crash_with_invalid_inputs() {
-        this.agentLifeCycleDao.populateAgentStatus(null, 1000L);
-        this.agentLifeCycleDao.populateAgentStatuses(Arrays.asList(), 1000L);
+        this.agentLifeCycleDao.getAgentStatus(null, 1000, 1000L);
+        AgentStatusQuery.Builder builder = AgentStatusQuery.newBuilder();
+        AgentStatusQuery query = builder.build(1000L);
+        this.agentLifeCycleDao.getAgentStatus(query);
     }
 
     private AgentLifeCycleBo createAgentLifeCycleBo(String agentId, long eventTimestamp, AgentLifeCycleState state) {

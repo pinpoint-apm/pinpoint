@@ -60,6 +60,7 @@ interface IAgentList {
 // @store
 interface IAgent {
     agentId: string;
+    agentName?: string;
     agentVersion: string;
     applicationName: string;
     hostName: string;
@@ -112,15 +113,16 @@ interface IServerInfo {
 }
 interface ILinkInfo {
     errorCount: number;
-    filterApplicationName: string;
-    filterApplicationServiceTypeCode: number;
-    filterApplicationServiceTypeName: string;
+    filterApplicationName?: string;
+    filterApplicationServiceTypeCode?: number;
+    filterApplicationServiceTypeName?: string;
     filterTargetRpcList?: any[];
     from: string;
     fromAgent?: string[];
+    fromAgentIdNameMap?: { [key: string]: string }
     hasAlert: boolean;
-    histogram: IResponseTime | IResponseMilliSecondTime;
-    responseStatistics: IResponseStatistics;
+    histogram?: IResponseTime | IResponseMilliSecondTime;
+    responseStatistics?: IResponseStatistics;
     key: string;
     slowCount: number;
     sourceHistogram?: { [key: string]: IResponseTime | IResponseMilliSecondTime };
@@ -130,34 +132,43 @@ interface ILinkInfo {
     targetHistogram?: { [key: string]: IResponseTime | IResponseMilliSecondTime };
     targetResponseStatistics?: { [key: string]: IResponseStatistics };
     targetInfo: ISourceInfo;
-    timeSeriesHistogram: IHistogram[];
+    timeSeriesHistogram?: IHistogram[];
     to: string;
     toAgent?: string[];
+    toAgentIdNameMap?: { [key: string]: string }
     totalCount: number;
+    isMerged?: boolean;
+    isFiltered?: boolean;
 }
 interface INodeInfo {
     agentHistogram?: { [key: string]: IResponseTime | IResponseMilliSecondTime }[];
     agentTimeSeriesHistogram?: { [key: string]: IHistogram[] };
-    agentIds: string[];
+    agentIds?: string[];
+    agentIdNameMap?: { [key: string]: string }
     applicationName: string;
     category: string;
-    errorCount: number;
-    hasAlert: boolean;
-    histogram: IResponseTime | IResponseMilliSecondTime;
-    responseStatistics: IResponseStatistics;
+    errorCount?: number;
+    hasAlert?: boolean;
+    histogram?: IResponseTime | IResponseMilliSecondTime;
+    responseStatistics?: IResponseStatistics;
     agentResponseStatistics?: { [key: string]: IResponseStatistics};
     instanceCount: number;
-    instanceErrorCount: number;
+    instanceErrorCount?: number;
     isAuthorized: boolean;
-    isQueue: boolean;
-    isWas: boolean;
+    isQueue?: boolean;
+    isWas?: boolean;
     key: string;
     serverList?: { [key: string]: IServerInfo };
     serviceType: string;
-    serviceTypeCode: string;
-    slowCount: number;
-    timeSeriesHistogram: IHistogram[];
-    totalCount: number;
+    serviceTypeCode?: string;
+    slowCount?: number;
+    timeSeriesHistogram?: IHistogram[];
+    totalCount?: number;
+
+    isMerged?: boolean;
+    mergedNodes?: any[];
+    topCountNodes?: any[];
+    mergedSourceNodes?: any[];
 }
 interface IQueryRange {
     from: number;
@@ -200,15 +211,6 @@ interface ISelectedTarget {
     isAuthorized?: boolean;
 }
 
-interface AjaxExceptionObj {
-    message: string;
-    request: {[key: string]: any};
-    stacktrace: string
-}
-
-interface AjaxException {
-    exception: AjaxExceptionObj;
-}
 // @store
 interface IScatterXRange {
     from: number;
@@ -243,6 +245,7 @@ interface ICoordinate {
 // @store
 interface ITransactionMetaData {
     agentId: string;
+    agentName?: string;
     application: string;
     collectorAcceptTime: number;
     elapsed: number;
@@ -256,6 +259,7 @@ interface ITransactionMetaData {
 // @store
 interface ITransactionDetailData {
     agentId: string;
+    agentName?: string;
     applicationId: string;
     applicationMapData: any;
     applicationName: string;
@@ -302,6 +306,7 @@ interface ISelectedRowInfo {
 // @store
 interface IServerAndAgentData {
     agentId: string;
+    agentName?: string;
     agentVersion: string;
     applicationName: string;
     hostName: string;

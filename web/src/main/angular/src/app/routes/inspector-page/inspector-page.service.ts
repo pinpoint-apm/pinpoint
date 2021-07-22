@@ -10,7 +10,7 @@ import {
     MESSAGE_TO
 } from 'app/shared/services';
 import { UrlPath, UrlPathId } from 'app/shared/models';
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 import { Timeline } from 'app/core/components/timeline/class';
 
 export interface ISourceForServerAndAgentList {

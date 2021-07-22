@@ -138,7 +138,7 @@ public class StreamChannelManagerTest {
             RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
 
             if (writableServer instanceof  PinpointServer) {
-                ClientStreamChannel clientStreamChannel = ((PinpointServer)writableServer).openStream(new byte[0], clientListener);
+                ClientStreamChannel clientStreamChannel = ((PinpointServer)writableServer).openStreamAndAwait(new byte[0], clientListener, 3000);
 
                 int sendCount = 4;
                 for (int i = 0; i < sendCount; i++) {
@@ -232,7 +232,7 @@ public class StreamChannelManagerTest {
             if (writableServer instanceof  PinpointServer) {
                 RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
 
-                ClientStreamChannel clientStreamChannel = ((PinpointServer)writableServer).openStream(new byte[0], clientListener);
+                ClientStreamChannel clientStreamChannel = ((PinpointServer)writableServer).openStreamAndAwait(new byte[0], clientListener, 3000);
 
                 StreamChannel streamChannel = serverStreamChannelMessageHandler.bo.serverStreamChannelList.get(0);
 

@@ -1,35 +1,41 @@
+import { catchError } from 'rxjs/operators';
 import { Injectable, ComponentFactoryResolver, Injector } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Subject, Observable } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Subject, Observable, EMPTY } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
-import { UrlPath, UrlPathId } from 'app/shared/models';
+import { UrlPath, UrlPathId, UrlQuery } from 'app/shared/models';
 import {
     UrlRouteManagerService,
     NewUrlStateNotificationService,
     WindowRefService,
-    DynamicPopupService
+    DynamicPopupService,
+    WebAppSettingDataService
 } from 'app/shared/services';
 import { MessagePopupContainerComponent } from 'app/core/components/message-popup/message-popup-container.component';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Injectable()
 export class TransactionMetaDataService {
-    private requestURL = 'transactionmetadata.pinpoint';
+    private requestURLV1 = 'transactionmetadata.pinpoint';
+    private requestURLV2 = 'heatmap/drag.pinpoint';
     private retrieveErrorMessage: string;
+    private lastFetchedFrom: number;
     private lastFetchedIndex = 0;
     private maxLoadLength = 100;
     private requestSourceData: any[];
     private requestCount = 0;
     private countStatus = [0, 0];
-    private outTransactionDataLoad: Subject<ITransactionMetaData[]> = new Subject();
-    private outTransactionDataRange: Subject<number[]> = new Subject();
-    private outTransactionDataCount: Subject<number[]> = new Subject();
+    private enableServerSideScan: boolean;
+    private outTransactionDataLoad = new Subject<ITransactionMetaData[]>();
+    private outTransactionDataRange = new Subject<number[]>();
+    private outTransactionDataCount = new Subject<number[]>();
+    private outTransactionDataFetchState = new Subject<boolean>();
 
     onTransactionDataLoad$: Observable<ITransactionMetaData[]>;
     onTransactionDataRange$: Observable<number[]>;
     onTransactionDataCount$: Observable<number[]>;
+    onTransactionDataFecthState$: Observable<boolean>;
 
     constructor(
         private http: HttpClient,
@@ -38,89 +44,105 @@ export class TransactionMetaDataService {
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
         private dynamicPopupService: DynamicPopupService,
+        private webAppSettingDataService: WebAppSettingDataService,
         private componentFactoryResolver: ComponentFactoryResolver,
         private injector: Injector
     ) {
         this.onTransactionDataLoad$ = this.outTransactionDataLoad.asObservable();
         this.onTransactionDataRange$ = this.outTransactionDataRange.asObservable();
         this.onTransactionDataCount$ = this.outTransactionDataCount.asObservable();
+        this.onTransactionDataFecthState$ = this.outTransactionDataFetchState.asObservable();
 
+        this.enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
         this.translateService.get('TRANSACTION_LIST.TRANSACTION_RETRIEVE_ERROR').subscribe((text: string) => {
             this.retrieveErrorMessage = text;
         });
-        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            filter((urlService: NewUrlStateNotificationService) => {
-                return urlService && urlService.hasValue(UrlPathId.APPLICATION, UrlPathId.PERIOD, UrlPathId.END_TIME);
-            })
-        ).subscribe(() => {
-            this.requestSourceData = this.getInfoFromOpener();
-            this.countStatus[1] = this.requestSourceData.length;
-        });
     }
     loadData(): void {
-        if (this.requestSourceData.length === 0) {
-            this.dynamicPopupService.openPopup({
-                data: {
-                    title: 'Notice',
-                    contents: this.retrieveErrorMessage,
-                },
-                component: MessagePopupContainerComponent,
-                onCloseCallback: () => {
-                    this.urlRouteManagerService.moveOnPage({
-                        url: [
-                            UrlPath.MAIN,
-                            this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
-                            this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
-                            this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
-                        ]
-                    });
-                }
-            }, {
-                resolver: this.componentFactoryResolver,
-                injector: this.injector
-            });
-        } else {
-            this.http.post<{ metadata: ITransactionMetaData[] }>(this.requestURL, this.makeRequestOptionsArgs(), {
-                headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
-            }).subscribe((responseData: { metadata: ITransactionMetaData[] }) => {
-                const responseLength = responseData.metadata.length;
-                if (this.requestCount !== responseLength) {
-                    if (this.requestCount > responseLength) {
-                        this.countStatus[1] -= (this.requestCount - responseLength);
-                    } else {
-                        this.countStatus[1] += (responseLength - this.requestCount);
-                    }
-                }
-                if (responseLength === 0) {
-                    this.outFullRange();
-                } else {
-                    this.countStatus[0] += responseLength;
-                    if (this.countStatus[0] === this.countStatus[1]) {
+        if (this.enableServerSideScan) {
+            this.http.get<{metadata: ITransactionMetaData[], resultFrom: number, complete: boolean}>(this.requestURLV2, this.makeV2RequestOptionsArgs())
+                .pipe(
+                    catchError((error: IServerErrorFormat) => {
+                        this.onError({
+                            data: {title: 'Error', contents: error},
+                            component: ServerErrorPopupContainerComponent
+                        });
+
+                        return EMPTY;
+                    })
+                )
+                .subscribe((responseData: {metadata: ITransactionMetaData[], resultFrom: number, complete: boolean}) => {
+                    const responseLength = responseData.metadata.length;
+
+                    if (responseLength === 0) {
                         this.outFullRange();
+                        this.outTransactionDataFetchState.next(true);
                     } else {
-                        this.outTransactionDataRange.next([
-                            responseData.metadata[responseLength - 1].collectorAcceptTime,
-                            this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getDate().valueOf()
-                        ]);
+                        if (responseData.complete) {
+                            this.lastFetchedFrom = null;
+                            this.outFullRange();
+                            this.outTransactionDataFetchState.next(true);
+                        } else {
+                            this.lastFetchedFrom = responseData.resultFrom;
+                            this.outTransactionDataRange.next([
+                                responseData.metadata[responseLength - 1].collectorAcceptTime,
+                                this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getDate().valueOf()
+                            ]);
+                            this.outTransactionDataFetchState.next(false);
+                        }
+
                     }
                     this.outTransactionDataLoad.next(responseData.metadata);
-                }
-                this.outTransactionDataCount.next(this.countStatus);
-            }, (error: IServerErrorFormat) => {
-                this.dynamicPopupService.openPopup({
-                    data: {
-                        title: 'Error',
-                        contents: error
-                    },
-                    component: ServerErrorPopupContainerComponent,
-                    onCloseCallback: () => {
-                        this.urlRouteManagerService.reload();
-                    }
-                }, {
-                    resolver: this.componentFactoryResolver,
-                    injector: this.injector
                 });
-            });
+        } else {
+            this.requestSourceData = this.getInfoFromOpener();
+            this.countStatus[1] = this.requestSourceData.length;
+
+            if (this.requestSourceData.length === 0) {
+                this.onError({
+                    data: {title: 'Notice', contents: this.retrieveErrorMessage},
+                    component: MessagePopupContainerComponent
+                });
+            } else {
+                this.http.post<{metadata: ITransactionMetaData[]}>(this.requestURLV1, this.makeV1RequestOptionsArgs(), {
+                    headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
+                }).pipe(
+                    catchError((error: IServerErrorFormat) => {
+                        this.onError({
+                            data: {title: 'Error', contents: error},
+                            component: ServerErrorPopupContainerComponent
+                        });
+
+                        return EMPTY;
+                    })
+                ).subscribe((responseData: {metadata: ITransactionMetaData[]}) => {
+                    const responseLength = responseData.metadata.length;
+                    if (this.requestCount !== responseLength) {
+                        if (this.requestCount > responseLength) {
+                            this.countStatus[1] -= (this.requestCount - responseLength);
+                        } else {
+                            this.countStatus[1] += (responseLength - this.requestCount);
+                        }
+                    }
+                    if (responseLength === 0) {
+                        this.outFullRange();
+                    } else {
+                        this.countStatus[0] += responseLength;
+                        if (this.countStatus[0] === this.countStatus[1]) {
+                            this.outFullRange();
+                        } else {
+                            this.outTransactionDataRange.next([
+                                responseData.metadata[responseLength - 1].collectorAcceptTime,
+                                this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getDate().valueOf()
+                            ]);
+                        }
+                        // this.outTransactionDataLoad.next(responseData.metadata);
+                    }
+
+                    this.outTransactionDataLoad.next(responseData.metadata);
+                    this.outTransactionDataCount.next(this.countStatus);
+                });
+            }
         }
     }
     moreLoad(): void {
@@ -132,7 +154,29 @@ export class TransactionMetaDataService {
             this.newUrlStateNotificationService.getEndTimeToNumber()
         ]);
     }
-    private makeRequestOptionsArgs(): string {
+    private makeV2RequestOptionsArgs(): {[key: string]: any} {
+        const {x1, x2, y1, y2, agentId, dotStatus} = JSON.parse(this.newUrlStateNotificationService.getQueryValue(UrlQuery.DRAG_INFO));
+        const application = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
+
+        let params = new HttpParams()
+            .set('application', application)
+            .set('x1', x1)
+            .set('x2', this.lastFetchedFrom ? this.lastFetchedFrom - 1 : x2)
+            .set('y1', y1)
+            .set('y2', y2);
+
+        if (agentId) {
+            params = params.set('agentId', agentId);
+        }
+
+        // TODO: dotStatus 파라미터 전달 방식 및 조건처리 고민
+        if (dotStatus.length === 1) {
+            params = params.set('dotStatus', (dotStatus[0] === 'success').toString());
+        }
+
+        return {params};
+    }
+    private makeV1RequestOptionsArgs(): string {
         const requestStr = [];
         const len = this.requestSourceData.length;
         const appName = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
@@ -173,39 +217,53 @@ export class TransactionMetaDataService {
     }
     private getInfoFromOpener(): any[] {
         if (this.windowRefService.nativeWindow.opener) {
-            const paramsInfo = this.windowRefService.nativeWindow.name.split('|');
-            if (paramsInfo.length === 7) {
-                const params = {
-                    application: paramsInfo[0],
-                    fromX: paramsInfo[1],
-                    toX: paramsInfo[2],
-                    fromY: paramsInfo[3],
-                    toY: paramsInfo[4],
-                    agent: paramsInfo[5],
-                    types: paramsInfo[6].split(',')
-                };
-                try {
-                    const scatterChartInstance = this.windowRefService.nativeWindow.opener.scatterChartInstance[params.application];
-                    if (scatterChartInstance) {
-                        return scatterChartInstance.getDataByRange(params.fromX, params.toX, params.fromY, params.toY, params.agent, params.types);
-                    }
-                } catch (error) {
-                    return [];
+            const {x1, x2, y1, y2, agentId, dotStatus} = JSON.parse(this.newUrlStateNotificationService.getQueryValue(UrlQuery.DRAG_INFO));
+            const application = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getKeyStr();
+
+            try {
+                const scatterChartInstance = this.windowRefService.nativeWindow.opener.scatterChartInstance[application];
+
+                if (scatterChartInstance) {
+                    return scatterChartInstance.getDataByRange(x1, x2, y1, y2, agentId, dotStatus);
                 }
+            } catch (error) {
+                return [];
             }
         }
+
         return this.checkUrlInfo();
     }
     private checkUrlInfo(): any[] {
-        if (this.newUrlStateNotificationService.hasValue(UrlPathId.TRANSACTION_INFO)) {
-            const transactionInfo = this.newUrlStateNotificationService.getPathValue(UrlPathId.TRANSACTION_INFO).split('-');
-            const length = transactionInfo.length;
-            return [[
-                transactionInfo.slice(0, length - 2).join('-'),
-                transactionInfo[length - 2],
-                transactionInfo[length - 1]
-            ]];
+        if (this.newUrlStateNotificationService.hasValue(UrlQuery.TRANSACTION_INFO)) {
+            const {traceId, collectorAcceptTime, elapsed} = JSON.parse(this.newUrlStateNotificationService.getQueryValue(UrlQuery.TRANSACTION_INFO));
+
+            return [[traceId, collectorAcceptTime, elapsed]];
         }
         return [];
+    }
+
+    // TODO: When v1 gets removed, no need to receive component parameter. Just use ServerError component.
+    private onError({data, component}: {data: any, component: any}): void {
+        this.dynamicPopupService.openPopup({
+            data,
+            component,
+            onCloseCallback: () => {
+                this.urlRouteManagerService.moveOnPage({
+                    url: [
+                        UrlPath.MAIN,
+                        this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                        this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
+                        this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
+                    ],
+                    queryParams: {
+                        [UrlQuery.DRAG_INFO]: null,
+                        [UrlQuery.TRANSACTION_INFO]: null
+                    }
+                });
+            }
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
+        });
     }
 }

@@ -78,7 +78,7 @@ public class SpanServerTestMain {
         grpcReceiver.setEnable(true);
         grpcReceiver.setServerOption(new ServerOption.Builder().build());
 
-        AgentHeaderReader agentHeaderReader = new AgentHeaderReader();
+        AgentHeaderReader agentHeaderReader = new AgentHeaderReader("test");
         HeaderPropagationInterceptor interceptor = new HeaderPropagationInterceptor(agentHeaderReader);
         grpcReceiver.setServerInterceptorList(Arrays.asList(interceptor));
 
@@ -96,7 +96,8 @@ public class SpanServerTestMain {
     }
 
     private ServerServiceDefinition newSpanBindableService(Executor executor) throws Exception {
-        FactoryBean<ServerInterceptor> interceptorFactory = new StreamExecutorServerInterceptorFactory(executor, 100, Executors.newSingleThreadScheduledExecutor(), 1000, 100);
+        FactoryBean<ServerInterceptor> interceptorFactory = new StreamExecutorServerInterceptorFactory(executor, 100,
+                Executors.newSingleThreadScheduledExecutor(), 1000, 100, -1);
         ((StreamExecutorServerInterceptorFactory) interceptorFactory).setBeanName("SpanService");
 
         ServerInterceptor interceptor = interceptorFactory.getObject();

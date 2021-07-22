@@ -82,13 +82,12 @@ class ProfilePropertyLoader implements PropertyLoader {
         // 2. load profile
         final String activeProfile = getActiveProfile(defaultProperties);
         logger.info(String.format("active profile:%s", activeProfile));
-        if (activeProfile != null) {
-            final String profilePath = this.profilesPath + SEPARATOR + activeProfile + SEPARATOR + Profiles.PROFILE_CONFIG_FILE_NAME;
-            logger.info(String.format("load profile:%s", profilePath));
-            loadFileProperties(defaultProperties, profilePath);
 
-            defaultProperties.setProperty(Profiles.ACTIVE_PROFILE_KEY, activeProfile);
-        }
+        final String profilePath = this.profilesPath + SEPARATOR + activeProfile + SEPARATOR + Profiles.PROFILE_CONFIG_FILE_NAME;
+        logger.info(String.format("load profile:%s", profilePath));
+        loadFileProperties(defaultProperties, profilePath);
+
+        defaultProperties.setProperty(Profiles.ACTIVE_PROFILE_KEY, activeProfile);
 
         // 3. load external config
         final String externalConfig = this.javaSystemProperty.getProperty(Profiles.EXTERNAL_CONFIG_KEY);
@@ -129,11 +128,11 @@ class ProfilePropertyLoader implements PropertyLoader {
 //        String envProfile = System.getenv(ACTIVE_PROFILE_KEY);
         String profile = javaSystemProperty.getProperty(Profiles.ACTIVE_PROFILE_KEY);
         if (profile == null) {
-            profile = defaultProperties.getProperty(Profiles.ACTIVE_PROFILE_KEY, Profiles.DEFAULT_ACTIVE_PROFILE);
+            profile = defaultProperties.getProperty(Profiles.ACTIVE_PROFILE_KEY);
         }
         if (profile == null) {
-            // empty profile
-            return null;
+            // default profile
+            profile = Profiles.DEFAULT_ACTIVE_PROFILE;
         }
 
         // prevent directory traversal attack

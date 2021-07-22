@@ -114,21 +114,12 @@
         <ref bean="commandService"/>
     </util:list>
 
-    <util:list id="interceptorList" value-type="io.grpc.ServerInterceptor">
-        <ref bean="headerPropagationInterceptor"/>
-    </util:list>
 
     <util:list id="serverTransportFilterList" value-type="io.grpc.ServerTransportFilter">
         <bean class="com.navercorp.pinpoint.grpc.channelz.ChannelzServerTransportFilter">
             <constructor-arg ref="channelzRegistry"/>
         </bean>
     </util:list>
-
-    <bean id="headerRader" class="com.navercorp.pinpoint.grpc.server.AgentHeaderReader"/>
-
-    <bean id="headerPropagationInterceptor" class="com.navercorp.pinpoint.grpc.server.HeaderPropagationInterceptor">
-        <constructor-arg index="0" ref="headerRader"/>
-    </bean>
 
     <bean id="grpcAgentServerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
         <property name="corePoolSize" value="#{grpcAgentReceiverConfig.grpcServerExecutorThreadSize}"/>
@@ -144,7 +135,7 @@
         <property name="executor" ref="grpcAgentServerExecutor"/>
         <property name="addressFilter" ref="addressFilter"/>
         <property name="bindableServiceList" ref="agentServiceList"/>
-        <property name="serverInterceptorList" ref="interceptorList"/>
+        <property name="serverInterceptorList" ref="agentInterceptorList"/>
         <property name="enable" value="#{grpcAgentReceiverConfig.isGrpcEnable()}"/>
         <property name="serverOption" value="#{grpcAgentReceiverConfig.getGrpcServerOption()}"/>
     </bean>
@@ -172,6 +163,7 @@
         <constructor-arg index="2" ref="grpcSpanStreamScheduler"/>
         <constructor-arg index="3" value="#{grpcSpanReceiverConfig.grpcStreamSchedulerPeriodMillis}"/>
         <constructor-arg index="4" value="#{grpcSpanReceiverConfig.grpcStreamSchedulerRecoveryMessageCount}"/>
+        <constructor-arg index="5" value="#{grpcSpanReceiverConfig.grpcStreamIdleTimeout}"/>
     </bean>
     <bean id="spanServiceFactory" class="com.navercorp.pinpoint.collector.receiver.grpc.service.SpanServiceFactory">
         <property name="dispatchHandler" ref="grpcSpanDispatchHandlerFactoryBean"/>
@@ -195,7 +187,7 @@
         <property name="bindPort" value="#{grpcSpanReceiverConfig.grpcBindPort}"/>
         <property name="addressFilter" ref="addressFilter"/>
         <property name="bindableServiceList" ref="spanServiceList"/>
-        <property name="serverInterceptorList" ref="interceptorList"/>
+        <property name="serverInterceptorList" ref="spanInterceptorList"/>
         <property name="transportFilterList" ref="serverTransportFilterList"/>
         <property name="channelzRegistry" ref="channelzRegistry"/>
         <property name="executor" ref="grpcSpanServerExecutor"/>
@@ -226,6 +218,7 @@
         <constructor-arg index="2" ref="grpcStatStreamScheduler"/>
         <constructor-arg index="3" value="#{grpcStatReceiverConfig.grpcStreamSchedulerPeriodMillis}"/>
         <constructor-arg index="4" value="#{grpcStatReceiverConfig.grpcStreamSchedulerRecoveryMessageCount}"/>
+        <constructor-arg index="5" value="#{grpcStatReceiverConfig.grpcStreamIdleTimeout}"/>
     </bean>
     <bean id="statServiceFactory" class="com.navercorp.pinpoint.collector.receiver.grpc.service.StatServiceFactory">
         <property name="dispatchHandler" ref="grpcStatDispatchHandlerFactoryBean"/>
@@ -250,7 +243,7 @@
         <property name="bindPort" value="#{grpcStatReceiverConfig.grpcBindPort}"/>
         <property name="addressFilter" ref="addressFilter"/>
         <property name="bindableServiceList" ref="statServiceList"/>
-        <property name="serverInterceptorList" ref="interceptorList"/>
+        <property name="serverInterceptorList" ref="statInterceptorList"/>
         <property name="transportFilterList" ref="serverTransportFilterList"/>
         <property name="channelzRegistry" ref="channelzRegistry"/>
         <property name="executor" ref="grpcStatServerExecutor"/>

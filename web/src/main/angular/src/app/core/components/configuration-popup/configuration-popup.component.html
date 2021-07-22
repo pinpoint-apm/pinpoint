@@ -25,4 +25,16 @@
     <li class="l-list-item l-separator"></li>
     <li class="l-list-item"><a (click)="onMenuClick('help')" class="l-link">Help</a></li>
     <li class="l-list-item"><a (click)="onOpenLink()" class="l-link">Github</a></li>
+    <li class="l-list-item l-separator"></li>
+    <li class="l-list-item">
+        <div class="l-theme-title">Theme</div>
+        <div class="l-theme-conf-wrapper">
+            <div class="l-theme-button-wrapper"> 
+                <button #refLight class="l-theme-button" [class.active]="isThemeActive(refLight)" (click)="onClickTheme($event)" data-theme="light-mode">Light</button>
+            </div>
+            <div class="l-theme-button-wrapper">
+                <button #refDark class="l-theme-button" [class.active]="isThemeActive(refDark)" (click)="onClickTheme($event)" data-theme="dark-mode">Dark</button>
+            </div>
+        </div>
+    </li>
 </ul>

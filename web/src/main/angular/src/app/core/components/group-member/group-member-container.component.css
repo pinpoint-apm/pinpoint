@@ -2,15 +2,15 @@
     position: relative;
 }
 .l-group-member-wrapper {
-    color: #333;
-    border: 1px solid #e5e8f0;
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
     height: 100%;
     display: grid;
     position: relative;
     font-size: 13px;
     font-family: 'Open Sans', sans-serif;
     font-weight: 600;
-    background-color: #FFF;
+    background-color: var(--background-default);
     grid-template-columns: auto;
     grid-template-rows: 48px calc(100% - 48px);
 }
@@ -19,14 +19,15 @@
     padding: 0px 15px;
     align-items: center;
     justify-content: space-between;
-    background-color: #f6f8fb;
-    border-bottom: 1px solid #e5e8f0;
+    font-weight: bold;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border-primary);
 }
 .l-group-member-title button:last-child {
     margin-left: 12px;
 }
 .l-group-member-sort-exchange {
-    color: #b3b6bf;
+    color: var(--icon-default);
     transform: rotate(90deg);
 }
 .l-group-member-list {

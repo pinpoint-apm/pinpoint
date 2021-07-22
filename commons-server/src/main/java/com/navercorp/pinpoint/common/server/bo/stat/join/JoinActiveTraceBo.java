@@ -100,7 +100,9 @@ public class JoinActiveTraceBo implements JoinStatBo {
             return JoinActiveTraceBo.EMPTY_JOIN_ACTIVE_TRACE_BO;
         }
 
-        List<JoinIntFieldBo> totalCountFieldBoList = joinActiveTraceBoList.stream().map(JoinActiveTraceBo::getTotalCountJoinValue).collect(Collectors.toList());
+        List<JoinIntFieldBo> totalCountFieldBoList = joinActiveTraceBoList.stream()
+                .map(JoinActiveTraceBo::getTotalCountJoinValue)
+                .collect(Collectors.toList());
         JoinIntFieldBo totalCountJoinValue = JoinIntFieldBo.merge(totalCountFieldBoList);
 
         final JoinActiveTraceBo firstJoinActiveTraceBo = joinActiveTraceBoList.get(0);

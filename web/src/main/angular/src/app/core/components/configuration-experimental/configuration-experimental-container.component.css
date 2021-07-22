@@ -1,0 +1,29 @@
+:host {
+    display: block;
+}
+
+.l-desc-text-wrapper {
+    margin-bottom: 20px;
+}
+
+.l-desc-text {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.l-checkbox-input {
+    cursor: pointer;
+}
+
+.l-item-label {
+    margin-left: 4px;
+    cursor: pointer;
+}
+
+.l-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    padding: 10px 10px;
+    background: var(--background-default);
+    font-size: 13px;
+}

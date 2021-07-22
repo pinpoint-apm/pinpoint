@@ -6,7 +6,9 @@ export interface IGridData {
     application: string;
     serviceType: string;
     agent: string;
+    agentName?: string;
     agentVersion: string;
+    startTimestamp: number;
     jvmVersion: string;
     folder?: boolean;
     open?: boolean;
@@ -76,19 +78,25 @@ export class AgentStatisticListComponent implements OnInit  {
                     },
                     suppressCount: true
                 },
-                cellStyle: {
-                    color: 'rgb(54, 162, 235)',
-                    'font-weight': 600
-                },
                 filter: 'agTextColumnFilter',
+                cellStyle: this.cellLinkStyle(),
                 tooltipField: 'application'
             },
             {
-                headerName: `Agent`,
+                headerName: `Agent Id`,
                 field: 'agent',
                 width: 300,
                 filter: 'agTextColumnFilter',
-                tooltipField: 'agent'
+                cellStyle: this.cellLinkStyle(),
+                tooltipField: 'agent',
+            },
+            {
+                headerName: `Agent Name`,
+                field: 'agentName',
+                width: 300,
+                filter: 'agTextColumnFilter',
+                cellStyle: this.cellLinkStyle(),
+                tooltipField: 'agentName'
             },
             {
                 headerName: 'Agent Version',
@@ -107,15 +115,16 @@ export class AgentStatisticListComponent implements OnInit  {
         ];
     }
 
-    onCellClick(params: any): void {
-        if (params.colDef.field !== 'application') {
-            return;
-        }
+    cellLinkStyle(): any {
+       return  {
+           color: 'rgb(54, 162, 235)',
+           'font-weight': 600,
+           'cursor': 'pointer'
+       }
+    }
 
-        this.outCellClick.next({
-            application: params.data.application,
-            serviceType: params.data.serviceType
-        });
+    onCellClick(params: any): void {
+        this.outCellClick.next(params);
     }
 
     onRendered(): void {

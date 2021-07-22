@@ -35,6 +35,8 @@ import java.util.Objects;
  */
 public class AgentLifecycleListener implements LifecycleListener {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
+
     private final KeepAliveService lifecycleService;
     private final AgentInfoService agentInfoService;
     private final ShutdownEventListener shutdownEventListener;
@@ -63,7 +65,9 @@ public class AgentLifecycleListener implements LifecycleListener {
 
     @Override
     public void handshake(PingSession lifecycle) {
-        logger.info("handshake:{}", lifecycle);
+        if (isDebug) {
+            logger.debug("handshake:{}", lifecycle);
+        }
         lifecycleService.updateState(lifecycle);
     }
 

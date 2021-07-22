@@ -23,7 +23,8 @@ public class BindVariableServiceProvider implements Provider<BindVariableService
 
     @Override
     public BindVariableService get() {
-        BindValueConverter bindVariable = BindValueConverter.defaultBindValueConverter();
+        int maxWidth = jdbcContextConfig.getMaxWidth();
+        BindValueConverter bindVariable = BindValueConverter.defaultBindValueConverter(maxWidth);
 
         if (jdbcContextConfig.getByteFormat() == JdbcContextConfig.ByteFormat.raw) {
             bindVariable.setRawBytesConverter();

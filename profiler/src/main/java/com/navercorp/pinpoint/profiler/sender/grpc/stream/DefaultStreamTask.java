@@ -98,7 +98,7 @@ public class DefaultStreamTask<ReqT, ResT> implements StreamTask<ReqT> {
                             failState.fail();
 
                             if (failState.isFailure()) {
-                                logger.warn("isReadyState error, Trigger stream.cancel {}", this);
+                                logger.info("isReadyState error, Trigger stream.cancel {}", this);
                                 stream.cancel("isReadyState error", new Exception("isReadyState error"));
                                 status = FinishStatus.ISREADY_ERROR;
                                 break;

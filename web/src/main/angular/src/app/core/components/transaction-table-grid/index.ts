@@ -7,6 +7,7 @@ import { TransactionTableGridComponent } from './transaction-table-grid.componen
 import { TransactionTableGridContainerComponent } from './transaction-table-grid-container.component';
 import { TransactionMetaDataService } from './transaction-meta-data.service';
 import { MessagePopupModule } from 'app/core/components/message-popup';
+import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
 
 @NgModule({
     declarations: [
@@ -16,7 +17,8 @@ import { MessagePopupModule } from 'app/core/components/message-popup';
     imports: [
         AgGridModule.withComponents([]),
         SharedModule,
-        MessagePopupModule
+        MessagePopupModule,
+        ServerErrorPopupModule
     ],
     exports: [
         TransactionTableGridContainerComponent

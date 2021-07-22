@@ -40,6 +40,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("deprecation")
 public class ErrorCountToCalleCheckerTest {
 
     private static final Logger logger = LoggerFactory.getLogger(ErrorCountToCalleCheckerTest.class);

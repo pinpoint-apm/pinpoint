@@ -15,9 +15,7 @@
 .l-main-section {
     display: flex;
     flex: 1;
-    /* background: #edf2f8; */
-    --background-color: #edf2f8;
-    background: var(--background-color);
+    background: var(--background-primary);
     position: relative;
     height: 100%;
     overflow: hidden;

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.grpc;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import io.grpc.Metadata;
 
@@ -28,12 +29,14 @@ import java.util.Objects;
 public class AgentHeaderFactory implements HeaderFactory {
 
     private final String agentId;
+    private final String agentName;
     private final String applicationName;
     private final long agentStartTime;
     private final int serviceType;
 
-    public AgentHeaderFactory(String agentId, String applicationName, int serviceType, long agentStartTime) {
+    public AgentHeaderFactory(String agentId, String agentName, String applicationName, int serviceType, long agentStartTime) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.agentName = agentName;
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serviceType = serviceType;
         this.agentStartTime = agentStartTime;
@@ -45,6 +48,9 @@ public class AgentHeaderFactory implements HeaderFactory {
         headers.put(Header.APPLICATION_NAME_KEY, applicationName);
         headers.put(Header.SERVICE_TYPE_KEY, Integer.toString(serviceType));
         headers.put(Header.AGENT_START_TIME_KEY, Long.toString(agentStartTime));
+        if (!StringUtils.isEmpty(agentName)) {
+            headers.put(Header.AGENT_NAME_KEY, agentName);
+        }
         return headers;
     }
 }

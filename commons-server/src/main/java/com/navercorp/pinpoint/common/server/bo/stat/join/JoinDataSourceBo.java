@@ -85,7 +85,9 @@ public class JoinDataSourceBo implements JoinStatBo {
             return JoinDataSourceBo.EMPTY_JOIN_DATA_SOURCE_BO;
         }
 
-        List<JoinIntFieldBo> activeConnectionSizeFieldBoList = joinDataSourceBoList.stream().map(JoinDataSourceBo::getActiveConnectionSizeJoinValue).collect(Collectors.toList());
+        List<JoinIntFieldBo> activeConnectionSizeFieldBoList = joinDataSourceBoList.stream()
+                .map(JoinDataSourceBo::getActiveConnectionSizeJoinValue)
+                .collect(Collectors.toList());
         JoinIntFieldBo activeConnectionSizeJoinValue = JoinIntFieldBo.merge(activeConnectionSizeFieldBoList);
 
         final JoinDataSourceBo firstJoindataSourceBo = joinDataSourceBoList.get(0);

@@ -7,26 +7,27 @@
     align-items: center;
 }
 .l-widget-group span {
-    color: #FFF;
+    color: var(--text-knockout);
 }
 .l-main-container {
     display: flex;
+    background-color: var(--background-default);
     flex-flow: column nowrap;
     padding-top: 20px;
     overflow-y: hidden;
     height: calc(100vh - 50px);
 }
 .l-main-container h3 {
-    color: #00ccff;
+    color: var(--primary);
     padding-left: 20px;
     font-weight: 200;
-    border-bottom: 1px solid #D0D7E1;
+    border-bottom: 1px solid var(--border-primary-darker);
     padding-bottom: 20px;
 }
 .l-main-section {
     display: flex;
     flex-flow: column nowrap;
-    background-color: #FFF;
+    background-color: var(--background-default);
     flex: 1;
     position: relative;
     height: 100%;
@@ -39,5 +40,5 @@
 .l-thread-dump-log {
     height: 60%;
     position: relative;
-    background-color: #edf2f8;
+    background-color: var(--background-primary);
 }

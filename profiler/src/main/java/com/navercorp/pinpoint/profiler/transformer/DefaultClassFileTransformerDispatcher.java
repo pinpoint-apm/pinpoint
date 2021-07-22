@@ -41,13 +41,16 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
 
     private final LambdaClassFileResolver lambdaClassFileResolver;
 
-    public DefaultClassFileTransformerDispatcher(ClassFileFilter unmodifiableFilter, TransformerRegistry transformerRegistry,
-                                                 DynamicTransformerRegistry dynamicTransformerRegistry, LambdaClassFileResolver lambdaClassFileResolver) {
+    public DefaultClassFileTransformerDispatcher(ClassFileFilter pinpointClassFilter,
+                                                 ClassFileFilter unmodifiableFilter,
+                                                 TransformerRegistry transformerRegistry,
+                                                 DynamicTransformerRegistry dynamicTransformerRegistry,
+                                                 LambdaClassFileResolver lambdaClassFileResolver) {
 
         this.baseClassFileTransformer = new BaseClassFileTransformer(this.getClass().getClassLoader());
 
         this.classLoaderFilter = new PinpointClassLoaderFilter(this.getClass().getClassLoader());
-        this.pinpointClassFilter = new PinpointClassFilter();
+        this.pinpointClassFilter = Objects.requireNonNull(pinpointClassFilter, "pinpointClassFilter");
         this.unmodifiableFilter = Objects.requireNonNull(unmodifiableFilter, "unmodifiableFilter");
 
         this.transformerRegistry = Objects.requireNonNull(transformerRegistry, "transformerRegistry");

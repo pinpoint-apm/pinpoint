@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.common.server.trace;
 
+import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
@@ -28,59 +30,56 @@ import java.util.regex.Pattern;
  * @author emeroad
  */
 public class ApiDescriptionParser {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final char DOT = '.';
     private static final char METHOD_PARAM_START = '(';
     private static final char METHOD_PARAM_END = ')';
+
     private static final char PARAMETER_SP = ',';
     private static final Pattern PARAMETER_REGEX = Pattern.compile(", |,");
+
+
+    public ApiDescription parse(ApiMetaDataBo apiMetaDataBo) {
+        return parse(apiMetaDataBo.getApiInfo(), apiMetaDataBo.getLineNumber());
+    }
+
     //  org.springframework.web.servlet.FrameworkServlet.doGet(javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response)
 // com.mysql.jdbc.ConnectionImpl.setAutoCommit(boolean autoCommitFlag)
 //        com.mysql.jdbc.ConnectionImpl.commit()
 
     // org.apache.catalina.core.StandardHostValve.invoke(org.apache.catalina.connector.Request request, org.apache.catalina.connector.Response response):110
-    public ApiDescription parse(String apiDescriptionString) {
-        Objects.requireNonNull(apiDescriptionString, "apiDescriptionString");
+    public ApiDescription parse(String apiDescription, int lineNumber) {
+        Objects.requireNonNull(apiDescription, "apiDescriptionString");
 
-        final int methodStart = apiDescriptionString.lastIndexOf(METHOD_PARAM_START);
+        final int methodStart = apiDescription.lastIndexOf(METHOD_PARAM_START);
         if (methodStart == -1) {
-            throw new IllegalArgumentException("'(' not found. invalid apiDescriptionString:" + apiDescriptionString);
+            throw new IllegalArgumentException("'(' not found. invalid apiDescriptionString:" + apiDescription);
         }
 
-        final int methodEnd = apiDescriptionString.lastIndexOf(METHOD_PARAM_END);
+        final int methodEnd = apiDescription.lastIndexOf(METHOD_PARAM_END);
         if (methodEnd == -1) {
-            throw new IllegalArgumentException("')' not found. invalid apiDescriptionString:" + apiDescriptionString);
+            throw new IllegalArgumentException("')' not found. invalid apiDescriptionString:" + apiDescription);
         }
 
-        final int classIndex = apiDescriptionString.lastIndexOf(DOT, methodStart);
-        if (classIndex == -1) {
-            throw new IllegalArgumentException("'.' not found. invalid apiDescriptionString:" + apiDescriptionString);
-        }
+        final int classIndex = apiDescription.lastIndexOf(DOT, methodStart);
+        String className = getClassName(apiDescription, classIndex);
+        String methodName = parseMethodName(apiDescription, methodStart, classIndex);
 
-        String className = parseClassName(apiDescriptionString, classIndex);
-        ApiDescription api = new DefaultApiDescription();
-        api.setClassName(className);
-
-        String methodName = parseMethodName(apiDescriptionString, methodStart, classIndex);
-        api.setMethodName(methodName);
-
-        String parameterDescriptor = apiDescriptionString.substring(methodStart + 1, methodEnd);
+        String parameterDescriptor = apiDescription.substring(methodStart + 1, methodEnd);
         String[] parameterList = parseParameter(parameterDescriptor);
         String[] simpleParameterList = parseSimpleParameter(parameterList);
-        api.setSimpleParameter(simpleParameterList);
 
-        int lineIndex = apiDescriptionString.lastIndexOf(':');
-        // TODO for now, check and display the lineNumber
-        if (lineIndex != -1) {
-            try {
-                int line = Integer.parseInt(apiDescriptionString.substring(lineIndex + 1, apiDescriptionString.length()));
-                api.setLine(line);
-            } catch (NumberFormatException e) {
-                LoggerFactory.getLogger(this.getClass()).warn("line number parse error", e);
-            }
+        return new DefaultApiDescription(apiDescription, className, methodName, simpleParameterList, lineNumber);
+    }
+
+    private String getClassName(String apiDescription, int classIndex) {
+        if (classIndex == -1) {
+            return "";
+        } else {
+            return parseClassName(apiDescription, classIndex);
         }
-
-        return api;
     }
 
     private String[] parseSimpleParameter(String[] parameterList) {

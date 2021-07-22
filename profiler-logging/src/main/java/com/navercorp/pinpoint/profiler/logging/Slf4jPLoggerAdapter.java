@@ -17,19 +17,9 @@
 package com.navercorp.pinpoint.profiler.logging;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.SqlModule;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
-import java.util.Objects;
 import org.slf4j.Marker;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.URL;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.IdentityHashMap;
-import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad

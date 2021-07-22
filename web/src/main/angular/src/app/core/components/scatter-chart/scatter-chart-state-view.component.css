@@ -2,7 +2,7 @@
     display: block;
 }
 .l-checkbox-group {
-    color:#b3b3b4;
+    color:var(--text-secondary);
     margin: 24px 0 0 0;
     display: flex;
     flex-flow: row wrap;
@@ -10,8 +10,9 @@
     justify-content: space-around;
 }
 .l-checkbox-group span {
-    color:#333;
+    color:var(--text-primary);
     font-size:22px;
+    margin-left: 5px;
 }
 .l-checkbox-group .success:before {
     width: 13px;
@@ -19,7 +20,7 @@
     margin: 0 6px 0 0;
     content: '';
     display: inline-block;
-    background: #34b994;
+    background: var(--chart-success);
     border-radius: 50%;
 }
 .l-checkbox-group .failed:before {
@@ -28,7 +29,7 @@
     margin: 0 6px 0 0;
     content: '';
     display: inline-block;
-    background: #e95459;
+    background: var(--status-fail);
     border-radius: 50%;
 }
 input {

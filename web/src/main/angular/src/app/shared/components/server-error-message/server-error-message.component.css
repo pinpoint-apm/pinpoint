@@ -12,7 +12,7 @@
 }
 
 .l-message {
-    color: #ff8c00;
+    color: var(--status-warn);
     text-align: center;
 }
 

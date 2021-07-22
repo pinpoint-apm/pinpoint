@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.plugin.request.method;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.common.trace.MethodType;
 
 /**
  * @author jaehong.kim
@@ -77,6 +78,6 @@ public class ServletRequestListenerMethodDescriptor implements MethodDescriptor 
 
     @Override
     public int getType() {
-        return 0;
+        return MethodType.DEFAULT;
     }
 }

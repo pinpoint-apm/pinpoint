@@ -12,6 +12,7 @@ import { ConfigurationInstallationContainerComponent } from 'app/core/components
 import { ConfigurationHelpContainerComponent } from 'app/core/components/configuration-help/configuration-help-container.component';
 import { ConfigurationAgentStatisticContainerComponent } from 'app/core/components/configuration-agent-statistic/configuration-agent-statistic-container.component';
 import { ConfigurationAgentManagementContainerComponent } from 'app/core/components/configuration-agent-management/configuration-agent-management-container.component';
+import { ConfigurationExperimentalContainerComponent } from 'app/core/components/configuration-experimental/configuration-experimental-container.component';
 
 const routes: Routes = [
     {
@@ -53,6 +54,10 @@ const routes: Routes = [
             {
                 path: UrlPathId.HELP,
                 component: ConfigurationHelpContainerComponent
+            },
+            {
+                path: UrlPathId.EXPERIMENTAL,
+                component: ConfigurationExperimentalContainerComponent
             },
             {
                 path: '',

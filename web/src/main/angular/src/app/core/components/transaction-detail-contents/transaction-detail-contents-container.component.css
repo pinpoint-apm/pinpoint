@@ -17,8 +17,10 @@
     justify-content: space-between;
     padding: 0 25px;
     position:relative;
+    background-color: var(--background-default);
+    border-bottom: 1px solid var(--border-primary);
 }
 .l-middle-tool-box, .l-middle-tool-box-tip {
-    color:#a8acb5;
+    color:var(--icon-default);
     font-size: 18px
 }

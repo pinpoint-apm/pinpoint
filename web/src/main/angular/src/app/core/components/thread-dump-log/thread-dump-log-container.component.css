@@ -10,6 +10,6 @@ textarea {
     resize: none;
     padding: 10px;
     margin: 20px;
-    background-color: #FFF;
-    border: 1px solid #D0D7E1;
+    background-color: var(--background-default);
+    border: 1px solid var(--border-primary-darker);
 }

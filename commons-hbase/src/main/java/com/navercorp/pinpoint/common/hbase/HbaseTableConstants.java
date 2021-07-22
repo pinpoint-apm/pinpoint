@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 public final class HbaseTableConstants {
 
     public static final int APPLICATION_NAME_MAX_LEN = PinpointConstants.APPLICATION_NAME_MAX_LEN;
-    public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_NAME_MAX_LEN;
+    public static final int AGENT_ID_MAX_LEN = PinpointConstants.AGENT_ID_MAX_LEN;
 
     // Time delta (in milliseconds) we can store in each row of AgentStatV2
     public static final int AGENT_STAT_TIMESPAN_MS = 5 * 60 * 1000;

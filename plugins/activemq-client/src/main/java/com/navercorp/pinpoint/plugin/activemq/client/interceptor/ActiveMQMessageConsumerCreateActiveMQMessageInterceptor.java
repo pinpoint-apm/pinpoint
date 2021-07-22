@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 /**
  * @author HyunGil Jeong
@@ -33,7 +34,7 @@ public class ActiveMQMessageConsumerCreateActiveMQMessageInterceptor implements 
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (args == null || args.length < 1) {
+        if (ArrayUtils.isEmpty(args)) {
             return;
         }
         if (result instanceof AsyncContextAccessor) {

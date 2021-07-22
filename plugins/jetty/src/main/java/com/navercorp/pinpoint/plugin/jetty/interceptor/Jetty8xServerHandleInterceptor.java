@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.jetty.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.eclipse.jetty.server.AbstractHttpConnection;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,7 +40,7 @@ public class Jetty8xServerHandleInterceptor extends AbstractServerHandleIntercep
 
     @Override
     HttpServletRequest toHttpServletRequest(Object[] args) {
-        if (args == null || args.length < 1) {
+        if (ArrayUtils.isEmpty(args)) {
             return null;
         }
 
@@ -55,7 +56,7 @@ public class Jetty8xServerHandleInterceptor extends AbstractServerHandleIntercep
 
     @Override
     HttpServletResponse toHttpServletResponse(Object[] args) {
-        if (args == null || args.length < 1) {
+        if (ArrayUtils.isEmpty(args)) {
             return null;
         }
 

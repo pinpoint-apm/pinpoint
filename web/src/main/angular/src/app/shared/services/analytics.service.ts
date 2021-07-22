@@ -20,6 +20,7 @@ export enum TRACKED_EVENT_LIST {
     SHOW_GROUPED_LINK_VIEW = 'Show Grouped Link View',
     CLICK_SCATTER_SETTING = 'Click Scatter Setting',
     DOWNLOAD_SCATTER = 'Download Scatter',
+    CHANGE_Y_RANGE_ON_SCATTER = 'Change Y Range on Scatter',
     GO_TO_FULL_SCREEN_SCATTER = 'Go to FullScreen Scatter',
     CLICK_RESPONSE_GRAPH = 'Click Response Graph',
     CLICK_RESPONSE_AVG_MAX_GRAPH = 'Click Response Avg Max Graph',
@@ -117,6 +118,7 @@ export enum TRACKED_EVENT_LIST {
     FETCH_AGENT_STATISTIC_DATA = 'Fetch Agent Statistic Data',
     RELOAD_AGENT_STATISTIC_DATA = 'Reload Agent Statistic Data',
     CLICK_APPLICATION_IN_STATISTIC_LIST = 'Click Application in Statistic List',
+    CLICK_AGENT_IN_STATISTIC_LIST = 'Click Agent in Statistic List',
     SHOW_ONE_AGENT_REMOVE_CONFIRM_VIEW = 'Show One Agent Remove Confirm View',
     SHOW_ALL_INACTIVE_AGENTS_REMOVE_CONFIRM_VIEW = 'Show All Inactive Agents Remove Confirm View',
     REMOVE_ONE_AGENT = 'Remove One Agent',
@@ -135,7 +137,9 @@ export enum TRACKED_EVENT_LIST {
     PAUSE_DATA_LOAD_ON_FILTERED_MAP_PAGE = 'Pause Data Load on FilteredMap Page',
     RESUME_DATA_LOAD_ON_FILTERED_MAP_PAGE = 'Resume Data Load on FilteredMap Page',
     SWITCH_TRANSACTION_VIEW_TYPE_THROUGH_TAB = 'Switch Transaction View Type through Tab',
-    OPEN_LOG_PAGE_THROUGH_TAB = 'Open Log Page through Tab'
+    OPEN_LOG_PAGE_THROUGH_TAB = 'Open Log Page through Tab',
+    MOVE_NODE_IN_SERVER_MAP = 'Move Node in Server Map',
+    CHANGE_THEME = 'Change Theme'
 }
 
 @Injectable()

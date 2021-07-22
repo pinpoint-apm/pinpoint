@@ -2,7 +2,7 @@
     position: relative;
 }
 .l-chart-wrapper {
-    color: #333;
+    color: var(--text-primary);
     height: 100%;
     display: grid;
     position: relative;
@@ -16,9 +16,9 @@
     padding: 0px 15px;
     align-items: center;
     font-weight: 600;
-    border: 1px solid #e5e8f0;
+    border: 1px solid var(--border-primary);
     justify-content: space-between;
-    background-color: #f6f8fb;
+    background-color: var(--background-primary);
 }
 .l-chart-list {
     /* overflow-y: auto; */

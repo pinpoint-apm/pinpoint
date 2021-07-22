@@ -90,21 +90,15 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     public void addTransformers(TomcatConfig config) {
         // Add server metadata
-        addStandardService();
-        addTomcatConnector();
-        addWebappLoader();
-
-        // Add async listener. Servlet 3.0
-        addRequest();
-        // Hide pinpoint headers & Trace HTTP response status code
-        addRequestFacade(config);
-        // Entry Point
-        addStandardHostValve();
-    }
-
-
-    private void addStandardService() {
         transformTemplate.transform("org.apache.catalina.core.StandardService", StandardServiceTransform.class);
+        transformTemplate.transform("org.apache.catalina.connector.Connector", ConnectorTransform.class);
+        transformTemplate.transform("org.apache.catalina.loader.WebappLoader", WebappLoaderTransform.class);
+        // Add async listener. Servlet 3.0
+        transformTemplate.transform("org.apache.catalina.connector.Request", RequestTransform.class);
+        // Hide pinpoint headers & Trace HTTP response status code
+        transformTemplate.transform("org.apache.catalina.connector.RequestFacade", RequestFacadeTransform.class);
+        // Entry Point
+        transformTemplate.transform("org.apache.catalina.core.StandardHostValve", StandardHostValveTransform.class);
     }
 
     public static class StandardServiceTransform implements TransformCallback {
@@ -128,9 +122,6 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addTomcatConnector() {
-        transformTemplate.transform("org.apache.catalina.connector.Connector", ConnectorTransform.class);
-    }
     public static class ConnectorTransform implements TransformCallback {
 
         @Override
@@ -150,11 +141,6 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             }
             return target.toBytecode();
         }
-    }
-
-
-    private void addWebappLoader() {
-        transformTemplate.transform("org.apache.catalina.loader.WebappLoader", WebappLoaderTransform.class);
     }
 
     public static class WebappLoaderTransform implements TransformCallback {
@@ -179,15 +165,12 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addRequest() {
-        transformTemplate.transform("org.apache.catalina.connector.Request", RequestTransform.class);
-    }
-
     public static class RequestTransform implements TransformCallback {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
             // Add async listener. Servlet 3.0
             final InstrumentMethod startAsyncMethodEditor = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
             if (startAsyncMethodEditor != null) {
@@ -195,10 +178,6 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             }
             return target.toBytecode();
         }
-    }
-
-    private void addRequestFacade(final TomcatConfig config) {
-        transformTemplate.transform("org.apache.catalina.connector.RequestFacade", RequestFacadeTransform.class);
     }
 
     public static class RequestFacadeTransform implements TransformCallback {
@@ -215,10 +194,6 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addStandardHostValve() {
-        transformTemplate.transform("org.apache.catalina.core.StandardHostValve", StandardHostValveTransform.class);
-    }
-
     public static class StandardHostValveTransform implements TransformCallback {
 
         @Override
@@ -232,7 +207,6 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             return target.toBytecode();
         }
     }
-
 
     @Override
     public void setTransformTemplate(TransformTemplate transformTemplate) {

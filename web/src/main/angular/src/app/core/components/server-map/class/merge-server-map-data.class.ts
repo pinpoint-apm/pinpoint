@@ -11,6 +11,7 @@ export class MergeServerMapData {
         old.instanceErrorCount = Math.max(old.instanceErrorCount, neo.instanceErrorCount);
 
         mergeAgentIds(old, neo);
+        mergeNodeAgentIdNameMap(old, neo);
         mergeHistogram(old, neo);
         mergeResponseStatistics(old, neo);
         mergeAgentHistogram(old, neo);
@@ -27,7 +28,11 @@ export class MergeServerMapData {
         old.errorCount += neo.errorCount;
         old.totalCount += neo.totalCount;
 
+        mergeLinkAgentIdNameMap(old, neo, 'fromAgentIdNameMap');
+        mergeLinkAgentIdNameMap(old, neo, 'toAgentIdNameMap');
         mergeHistogram(old, neo);
+        mergeLinkAgentIds(old, neo, 'fromAgent');
+        mergeLinkAgentIds(old, neo, 'toAgent');
         mergeResponseStatistics(old, neo);
         mergeTimeSeriesHistogram(old, neo);
         mergeAgentTimeSeriesHistogramByType(old, neo, 'sourceTimeSeriesHistogram');
@@ -43,6 +48,41 @@ function mergeAgentIds(old: INodeInfo, neo: INodeInfo): void {
             old.agentIds.push(agentId);
         }
     });
+}
+function mergeLinkAgentIdNameMap(old: ILinkInfo, neo: ILinkInfo, type: string): void {
+    const oldMap = old[type];
+    const newMap = neo[type];
+    if (newMap) {
+        const oldIds = Object.keys(oldMap);
+        const newIds = Object.keys(newMap);
+        newIds.forEach((agentId: string) => {
+            if (oldIds.indexOf(agentId) === -1) {
+                old[type][agentId] = newMap[agentId];
+            }
+        });
+    }
+}
+function mergeNodeAgentIdNameMap(old: INodeInfo, neo: INodeInfo): void {
+    if (neo.agentIdNameMap) {
+        const oldIds = Object.keys(old.agentIdNameMap);
+        const newIds = Object.keys(neo.agentIdNameMap);
+        newIds.forEach((agentId: string) => {
+            if (oldIds.indexOf(agentId) === -1) {
+                old.agentIdNameMap[agentId] = neo.agentIdNameMap[agentId];
+            }
+        });
+    }
+}
+function mergeLinkAgentIds(old: ILinkInfo, neo: ILinkInfo, type: string): void {
+    const oldIds = old[type];
+    const newIds = neo[type];
+    if (newIds) {
+        newIds.forEach((agentId: string) => {
+            if (oldIds.indexOf(agentId) === -1) {
+                old[type].push(agentId);
+            }
+        });
+    }
 }
 function mergeHistogram(old: INodeInfo | ILinkInfo, neo: INodeInfo | ILinkInfo): void {
     if (neo.histogram) {
