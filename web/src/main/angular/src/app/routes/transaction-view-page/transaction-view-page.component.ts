@@ -11,7 +11,7 @@ import {
     DynamicPopupService,
     GutterEventService
 } from 'app/shared/services';
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 import { UrlPathId } from 'app/shared/models';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 import { IOutputData } from 'angular-split/lib/interface';

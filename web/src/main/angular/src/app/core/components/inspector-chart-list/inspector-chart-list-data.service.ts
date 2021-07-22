@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject, Observable, of } from 'rxjs';
 import { map, filter, tap } from 'rxjs/operators';
 
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 import { WebAppSettingDataService, StoreHelperService } from 'app/shared/services';
 
 export enum SOURCE_TYPE {

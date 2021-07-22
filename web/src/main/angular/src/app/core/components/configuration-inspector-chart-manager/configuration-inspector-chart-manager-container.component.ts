@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 import { StoreHelperService } from 'app/shared/services';
 import { InspectorChartListDataService, SOURCE_TYPE } from '../inspector-chart-list/inspector-chart-list-data.service';
 

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 import { StoreHelperService, WebAppSettingDataService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 
 @Component({

@@ -11,7 +11,7 @@ import {
 } from 'app/shared/services';
 import { TransactionSearchInteractionService, ISearchParam } from 'app/core/components/transaction-search/transaction-search-interaction.service';
 import { TransactionTimelineV2Component } from './transaction-timeline-v2.component';
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 
 @Component({
     selector: 'pp-transaction-timeline-v2-container',

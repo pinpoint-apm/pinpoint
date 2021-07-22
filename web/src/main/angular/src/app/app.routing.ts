@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { UrlPath } from 'app/shared/models';
-import { SystemConfigurationResolverService, ApplicationListResolverService } from 'app/shared/services';
+import { SystemConfigurationResolverService } from 'app/shared/services';
 import { PageNotFoundComponent } from 'app/shared/components/page-not-found';
 
 const appRoutes: Routes = [
@@ -18,7 +18,6 @@ const appRoutes: Routes = [
                 path: '',
                 resolve: {
                     configuration: SystemConfigurationResolverService,
-                    applicationList: ApplicationListResolverService
                 },
                 children: [
                     {

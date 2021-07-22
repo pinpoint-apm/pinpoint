@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Store, select } from '@ngrx/store';
 import { LocalStorageService } from 'angular-2-local-storage';
 import 'moment-timezone';
 import * as moment from 'moment-timezone';
-import { map, filter, take } from 'rxjs/operators';
 
-import { AppState, Actions, STORE_KEY } from 'app/shared/store';
+import { AppState, Actions, STORE_KEY } from 'app/shared/store/reducers';
 import { ComponentDefaultSettingDataService } from 'app/shared/services/component-default-setting-data.service';
 import { Application, Period } from 'app/core/models';
 import { NewUrlStateNotificationService } from 'app/shared/services/new-url-state-notification.service';
@@ -46,23 +45,10 @@ export class WebAppSettingDataService {
         private componentDefaultSettingDataService: ComponentDefaultSettingDataService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
     ) {
+        // TODO: Set these configuration in AppComponent init-phase
         this.store.dispatch(new Actions.ChangeTimezone(this.getTimezone()));
         this.store.dispatch(new Actions.ChangeDateFormat(this.getDateFormat()));
         this.store.dispatch(new Actions.ChangeLanguage(this.getLanguage()));
-        this.store.pipe(
-            select(STORE_KEY.APPLICATION_LIST),
-            filter((appList: IApplication[]) => appList.length !== 0),
-            take(1),
-            map((appList: IApplication[]) => {
-                const registeredFavAppList = this.getFavoriteApplicationList();
-
-                return registeredFavAppList.filter((favApp: IApplication) => {
-                    return appList.some((app: IApplication) => app.equals(favApp));
-                });
-            })
-        ).subscribe((filteredFavAppList: IApplication[]) => {
-            this.store.dispatch(new Actions.AddFavoriteApplication(filteredFavAppList));
-        });
     }
     useActiveThreadChart(): Observable<boolean> {
         return this.newUrlStateNotificationService.getConfiguration('showActiveThread');
@@ -145,22 +131,25 @@ export class WebAppSettingDataService {
     private saveFavoriteList(data: any[]): void {
         this.localStorageService.set(WebAppSettingDataService.KEYS.FAVORLIITE_APPLICATION_LIST, JSON.stringify(data));
     }
-    addFavoriteApplication(application: IApplication): void {
+    addFavoriteApplication(application: IApplication): Observable<IApplication> {
         this.saveFavoriteList([...this.loadFavoriteList(), {
             applicationName: application.getApplicationName(),
             serviceType: application.getServiceType(),
             code: application.getCode()
         }]);
-        this.store.dispatch(new Actions.AddFavoriteApplication([application]));
+
+        return of(application);
     }
-    removeFavoriteApplication(application: IApplication): void {
+    removeFavoriteApplication(application: IApplication): Observable<IApplication> {
         const removedList = this.getFavoriteApplicationList().filter((app: IApplication) => {
             return !app.equals(application);
         });
+
         this.saveFavoriteList(removedList);
-        this.store.dispatch(new Actions.RemoveFavoriteApplication([application]));
+
+        return of(application);
     }
-    private getFavoriteApplicationList(): IApplication[] {
+    getFavoriteApplicationList(): IApplication[] {
         return this.loadFavoriteList().map(({applicationName, serviceType, code}) => {
             return new Application(applicationName, serviceType, code);
         });

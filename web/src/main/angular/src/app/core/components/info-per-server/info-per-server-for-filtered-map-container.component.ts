@@ -11,7 +11,7 @@ import {
     MessageQueueService,
     MESSAGE_TO
 } from 'app/shared/services';
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 
 @Component({
