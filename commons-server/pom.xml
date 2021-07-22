@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>2.3.0</version>
+        <version>2.3.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-commons-server</artifactId>
