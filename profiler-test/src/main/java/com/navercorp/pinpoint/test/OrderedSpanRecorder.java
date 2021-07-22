@@ -36,7 +36,7 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener<Object
     public static final int ASYNC_ID_NOT_SET = -1;
     public static final int ASYNC_SEQUENCE_NOT_SET = -1;
 
-    private final List<Item> list = new ArrayList<Item>();
+    private final List<Item> list = new ArrayList<>();
 
     public OrderedSpanRecorder() {
     }

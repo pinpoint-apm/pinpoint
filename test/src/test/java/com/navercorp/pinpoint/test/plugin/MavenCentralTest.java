@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.test.plugin;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Properties;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -26,6 +28,12 @@ public class MavenCentralTest {
 
     @Test
     public void getAddress() {
-        Assert.assertEquals(MavenCentral.MAVEN_CENTRAL_INSECURE, MavenCentral.getAddress());
+        Properties system = System.getProperties();
+        system.setProperty(MavenCentral.INSECURE_ENABLE, Boolean.TRUE.toString());
+        try {
+            Assert.assertEquals(MavenCentral.MAVEN_CENTRAL_INSECURE, MavenCentral.getAddress());
+        } finally {
+            system.remove(MavenCentral.INSECURE_ENABLE);
+        }
     }
 }

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService;
@@ -25,11 +26,14 @@ import com.navercorp.pinpoint.grpc.server.AgentHeaderReader;
 import com.navercorp.pinpoint.grpc.server.HeaderPropagationInterceptor;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.trace.PResult;
+import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+import io.netty.util.internal.logging.Log4J2LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 
 import java.net.InetAddress;
@@ -42,15 +46,25 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author jaehong.kim
  */
 public class SpanServerTestMain {
     public static final String IP = "0.0.0.0";
-    public static final int PORT = 9998;
+    public static final int PORT = 9993;
+    private static final AtomicInteger IncomingCounter = new AtomicInteger(0);
 
     public void run() throws Exception {
+//        InternalLoggerFactory.setDefaultFactory(Log4J2LoggerFactory.INSTANCE);
+
+        Logger logger = Logger.getLogger("io.grpc");
+        logger.setLevel(Level.FINER);
+        logger.addHandler(new ConsoleHandler());
+
         GrpcReceiver grpcReceiver = new GrpcReceiver();
         grpcReceiver.setBeanName("TraceServer");
         grpcReceiver.setBindIp(IP);
@@ -64,18 +78,26 @@ public class SpanServerTestMain {
         grpcReceiver.setEnable(true);
         grpcReceiver.setServerOption(new ServerOption.Builder().build());
 
-        AgentHeaderReader agentHeaderReader = new AgentHeaderReader();
+        AgentHeaderReader agentHeaderReader = new AgentHeaderReader("test");
         HeaderPropagationInterceptor interceptor = new HeaderPropagationInterceptor(agentHeaderReader);
         grpcReceiver.setServerInterceptorList(Arrays.asList(interceptor));
 
+//        for(int i = 0; i < 9999; i++) {
         grpcReceiver.afterPropertiesSet();
 
         grpcReceiver.blockUntilShutdown();
-        grpcReceiver.destroy();
+//            TimeUnit.SECONDS.sleep(30);
+//            System.out.println("###### SHUTDOWN");
+//            grpcReceiver.destroy();
+//            grpcReceiver.blockUntilShutdown();
+//            System.out.println("###### START");
+//            TimeUnit.SECONDS.sleep(30);
+
     }
 
     private ServerServiceDefinition newSpanBindableService(Executor executor) throws Exception {
-        FactoryBean<ServerInterceptor> interceptorFactory = new StreamExecutorServerInterceptorFactory(executor, 100, Executors.newSingleThreadScheduledExecutor(), 1000, 10);
+        FactoryBean<ServerInterceptor> interceptorFactory = new StreamExecutorServerInterceptorFactory(executor, 100,
+                Executors.newSingleThreadScheduledExecutor(), 1000, 100, -1);
         ((StreamExecutorServerInterceptorFactory) interceptorFactory).setBeanName("SpanService");
 
         ServerInterceptor interceptor = interceptorFactory.getObject();
@@ -94,22 +116,29 @@ public class SpanServerTestMain {
         main.run();
     }
 
-    private static class MockDispatchHandler implements DispatchHandler {
+    private static class MockDispatchHandler implements DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> {
         private static final AtomicInteger counter = new AtomicInteger(0);
 
         @Override
-        public void dispatchSendMessage(ServerRequest serverRequest) {
+        public void dispatchSendMessage(ServerRequest<GeneratedMessageV3> serverRequest) {
+//            System.out.println("## Incoming " + IncomingCounter.addAndGet(1));
             try {
                 TimeUnit.SECONDS.sleep(1);
-            } catch (Exception e) {
+            } catch (InterruptedException ignore) {
             }
 
-//            System.out.println("Dispatch send message " + serverRequest);
+            final GeneratedMessageV3 data = serverRequest.getData();
+            if (data instanceof PSpan) {
+                PSpan span = (PSpan) data;
+                System.out.println("Dispatch send message " + span.getSpanId());
+            } else {
+                System.out.println("Invalid send message " + serverRequest.getData());
+            }
         }
 
         @Override
-        public void dispatchRequestMessage(ServerRequest serverRequest, ServerResponse serverResponse) {
-            System.out.println("Dispatch request message " + serverRequest + ", " + serverResponse);
+        public void dispatchRequestMessage(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
+//            System.out.println("Dispatch request message " + serverRequest + ", " + serverResponse);
             serverResponse.write(PResult.newBuilder().setMessage("Success" + counter.getAndIncrement()).build());
         }
     }

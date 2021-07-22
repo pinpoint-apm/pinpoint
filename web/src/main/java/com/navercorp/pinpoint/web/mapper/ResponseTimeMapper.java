@@ -67,9 +67,9 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
                 recordColumn(responseTime, cell);
             }
 
-            if (logger.isDebugEnabled()) {
+            if (logger.isTraceEnabled()) {
                 String columnFamily = Bytes.toString(cell.getFamilyArray(), cell.getFamilyOffset(), cell.getFamilyLength());
-                logger.debug("unknown column family:{}", columnFamily);
+                logger.trace("unknown column family:{}", columnFamily);
             }
         }
         return responseTime;

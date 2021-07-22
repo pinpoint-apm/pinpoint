@@ -19,8 +19,9 @@
     display:block;
     height:100%;
     width:100%;
-    background:#000;
-    opacity:0.6;
+    /* background: var(--background-knockout); */
+    background: var(--background-blind);
+    /* opacity:0.6; */
     position:absolute;
     left:0;
     top:0;
@@ -31,13 +32,13 @@
     max-width: 1000px;
     box-shadow: 1 1 10px 0 rgba(0, 0, 0, 0.75);
     position: static;
-    background: #fff;
-    border: 1px solid #e5e8f0;
+    background: var(--background-default);
+    border: 1px solid var(--border-primary);
     text-align: left;
     z-index: 10;
 }
 .l-contents-group {
-    background: #F6F8FB;
+    background: var(--background-primary);
     padding: 17px 18px;
     overflow-y: auto;
 }
@@ -47,15 +48,15 @@
 .l-sql-list dt {
     font-size: 13px;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
     margin: 0 0 12px;
 }
 .l-sql-list dd {
-    border: 1px solid #cfd7e1;
-    background: #fff;
+    border: 1px solid var(--border-primary);
+    background: var(--background-default);
     padding: 28px 28px;
     font-size: 13px;
-    color: #999;
+    color: var(--text-secondary);
     line-height: 2em;
     position: relative;
 }

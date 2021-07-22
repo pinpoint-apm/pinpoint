@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
+import com.navercorp.pinpoint.web.scatter.ScatterView;
+import com.navercorp.pinpoint.web.scatter.Status;
 import com.navercorp.pinpoint.web.service.FilteredMapService;
 import com.navercorp.pinpoint.web.service.ScatterChartService;
 import com.navercorp.pinpoint.web.util.LimitUtils;
@@ -126,7 +128,7 @@ public class ScatterChartController {
             dotView = selectFilterScatterData(applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection, filterText);
         }
 
-        ScatterView.Status status = new ScatterView.Status(System.currentTimeMillis(), range);
+        Status status = new Status(System.currentTimeMillis(), range);
         return ScatterView.wrapResult(dotView, status);
     }
 

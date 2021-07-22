@@ -18,11 +18,10 @@ package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.DefaultClientFactory;
-import com.navercorp.pinpoint.profiler.context.module.MetadataConverter;
+import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.context.thrift.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.MessageSerializer;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
@@ -30,6 +29,8 @@ import com.navercorp.pinpoint.profiler.sender.ThriftMessageSerializer;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import org.apache.thrift.TBase;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -43,11 +44,11 @@ public class TcpDataSenderProvider implements Provider<EnhancedDataSender<Object
     @Inject
     public TcpDataSenderProvider(ThriftTransportConfig thriftTransportConfig, @DefaultClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
                                  Provider<HeaderTBaseSerializer> tBaseSerializerProvider,
-                                 @MetadataConverter MessageConverter<TBase<?, ?>> messageConverter) {
-        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
-        this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider");
-        this.tBaseSerializerProvider = Assert.requireNonNull(tBaseSerializerProvider, "tBaseSerializerProvider");
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
+                                 @MetadataDataSender MessageConverter<TBase<?, ?>> messageConverter) {
+        this.thriftTransportConfig = Objects.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
+        this.clientFactoryProvider = Objects.requireNonNull(clientFactoryProvider, "clientFactoryProvider");
+        this.tBaseSerializerProvider = Objects.requireNonNull(tBaseSerializerProvider, "tBaseSerializerProvider");
+        this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
     }
 
     @Override

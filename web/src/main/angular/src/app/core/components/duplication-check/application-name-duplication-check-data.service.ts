@@ -10,7 +10,11 @@ export interface IApplicationAvailable {
 @Injectable()
 export class ApplicationNameDuplicationCheckDataService {
     private requestURL = 'isAvailableApplicationName.pinpoint';
-    constructor(private http: HttpClient) {}
+
+    constructor(
+        private http: HttpClient
+    ) {}
+
     getResponseWithParams(value: string): Observable<IApplicationAvailable> {
         return this.http.get<IApplicationAvailable>(this.requestURL, {
             params: new HttpParams().set('applicationName', value)

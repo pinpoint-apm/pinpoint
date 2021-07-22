@@ -39,6 +39,7 @@ CREATE TABLE `alarm_rule` (
   `user_group_id` VARCHAR(30) NOT NULL,
   `sms_send` CHAR(1) DEFAULT NULL,
   `email_send` CHAR(1) DEFAULT NULL,
+  `webhook_send` CHAR(1) DEFAULT NULL,
   `notes` VARCHAR(100) DEFAULT NULL,
   PRIMARY KEY (`rule_id`)
 );

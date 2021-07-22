@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject, Observable, forkJoin, merge, of } from 'rxjs';
+import { Subject, Observable, forkJoin, merge, EMPTY } from 'rxjs';
 import { filter, tap, switchMap, catchError, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -76,15 +76,17 @@ export class RemovableAgentListContainerComponent implements OnInit, OnDestroy {
                 map((data: IAgentList) => {
                     return Object.entries(data).reduce((acc: {[key: string]: any}[], [key, value]: [string, IAgent[]]) => {
                         return [...acc, ...value.map((agent: IAgent) => {
-                            const {applicationName, hostName, agentId, agentVersion, startTimestamp, ip} = agent;
+                            const {applicationName, hostName, agentId, agentName, agentVersion, startTimestamp, ip} = agent;
+                            const agentNameText = agentName ? agentName : 'N/A';
 
-                            return {applicationName, hostName, agentId, agentVersion, startTimestamp, ip};
+                            return {applicationName, hostName, agentId, agentNameText, agentVersion, startTimestamp, ip};
                         })];
                     }, []);
                 }),
                 catchError((error: IServerErrorFormat) => {
                     this.errorMessage = error.exception.message;
-                    return of(null);
+                    this.hideProcessing();
+                    return EMPTY;
                 }),
                 tap(() => this.hideProcessing())
             )),

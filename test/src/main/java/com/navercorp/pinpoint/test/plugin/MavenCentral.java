@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.common.util.JvmUtils;
-import com.navercorp.pinpoint.common.util.JvmVersion;
+import com.navercorp.pinpoint.test.plugin.util.JDKUtils;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -33,15 +32,26 @@ public final class MavenCentral {
      * https://central.sonatype.org/articles/2018/May/04/discontinued-support-for-tlsv11-and-below/
      * */
     public static final String MAVEN_CENTRAL_INSECURE = "http://insecure.repo1.maven.org/maven2/";
-    
+
+    public static final String INSECURE_ENABLE = "pinpoint.plugin.maven.insecure.enable";
+
     private MavenCentral() {
     }
 
     public static String getAddress() {
-        if (JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_8)) {
-            return MAVEN_CENTRAL_SECURE;
-        } else {
-            return MAVEN_CENTRAL_INSECURE;
+        if (enableMavenInsecure()) {
+            if (JDKUtils.isJdk8Plus()) {
+                return MAVEN_CENTRAL_SECURE;
+            } else {
+                return MAVEN_CENTRAL_INSECURE;
+            }
         }
+        return MAVEN_CENTRAL_SECURE;
+
+    }
+
+    private static boolean enableMavenInsecure() {
+        String mavenInsecureEnable = System.getProperty(INSECURE_ENABLE, Boolean.FALSE.toString());
+        return mavenInsecureEnable.equals(Boolean.TRUE.toString());
     }
 }

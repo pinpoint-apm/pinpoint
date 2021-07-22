@@ -18,13 +18,14 @@ package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MetadataMessageConverter;
 import org.apache.thrift.TBase;
+
+import java.util.Objects;
 
 
 /**
@@ -38,8 +39,8 @@ public class MetadataMessageConverterProvider implements Provider<MessageConvert
 
     @Inject
     public MetadataMessageConverterProvider(@ApplicationName String applicationName, @AgentId String agentId, @AgentStartTime long agentStartTime) {
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
     }
 

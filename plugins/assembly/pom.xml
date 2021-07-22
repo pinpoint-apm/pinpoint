@@ -6,8 +6,8 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <relativePath>../..</relativePath>
-        <version>2.1.1-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+        <version>2.3.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-plugins-assembly</artifactId>
@@ -15,6 +15,12 @@
     <packaging>pom</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-agentsdk-async-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-common-servlet</artifactId>
@@ -376,6 +382,12 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-paho-mqtt-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-rocketmq-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
 

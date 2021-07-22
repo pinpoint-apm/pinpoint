@@ -22,6 +22,7 @@ import org.springframework.batch.core.StepExecution;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public interface AlarmMessageSender {
     void sendSms(AlarmChecker checker, int sequenceCount, StepExecution stepExecution);
     void sendEmail(AlarmChecker checker, int sequenceCount, StepExecution stepExecution);

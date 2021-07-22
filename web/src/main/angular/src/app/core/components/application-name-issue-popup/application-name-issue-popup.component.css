@@ -8,7 +8,7 @@
     width: 0;
     height: 0;
     position: absolute;
-    border-bottom: 7px solid #f6f8fb;
+    border-bottom: 7px solid var(--background-primary);
     border-right: 7px solid transparent;
     border-left: 7px solid transparent;
     bottom: 100%;
@@ -18,8 +18,8 @@
 }
 
 .l-popup-title {
-    background-color: #f6f8fb;
-    border-bottom: 1px solid #e5e8f0;
+    background-color: var(--background-primary);
+    border-bottom: 1px solid var(--border-primary);
     padding:10px;
     display: flex;
     justify-content: space-evenly;
@@ -38,7 +38,7 @@
 .l-cause-list {
     padding: 0 12px 12px;
     font-size: 13px;
-    border-bottom: 1px solid #e5e8f0;
+    border-bottom: 1px solid var(--border-primary);
 }
 
 .l-cause-list-item, .l-solution-list-item {

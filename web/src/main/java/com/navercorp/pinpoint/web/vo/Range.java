@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
+import com.navercorp.pinpoint.common.util.Assert;
+
 
 import java.util.concurrent.TimeUnit;
 
@@ -38,6 +40,15 @@ public final class Range {
         final Range range = new Range(from, to);
         validate(range);
         return range;
+    }
+
+    public static Range newRange(TimeUnit timeUnit, long duration, long toTimestamp) {
+        Assert.isTrue(duration > 0, "duration must be '> 0'");
+        Assert.isTrue(toTimestamp > 0, "toTimestamp must be '> 0'");
+
+        final long durationMillis = timeUnit.toMillis(duration);
+
+        return Range.newRange(toTimestamp - durationMillis, toTimestamp);
     }
 
     public static Range newUncheckedRange(long from, long to) {
@@ -94,10 +105,23 @@ public final class Range {
     public String toString() {
         final StringBuilder sb = new StringBuilder("Range{");
         sb.append("from=").append(from);
-        sb.append(", to=").append(to);
+        sb.append(' ');
+        sb.append(getSign(from, to));
+        sb.append(" to=").append(to);
         sb.append(", range=").append(getRange());
         sb.append('}');
         return sb.toString();
+    }
+
+    static char getSign(long long1, long long2 ) {
+        if (long1 < long2) {
+            return '<';
+        }
+        if (long1 == long2) {
+            return '=';
+        } else {
+            return '>';
+        }
     }
 
     public String prettyToString() {

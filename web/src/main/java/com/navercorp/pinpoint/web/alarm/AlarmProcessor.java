@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class AlarmProcessor implements ItemProcessor<AlarmChecker, AlarmChecker> {
     
     public AlarmChecker process(AlarmChecker checker) {

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.net.InetSocketAddress;
 
@@ -28,7 +28,7 @@ public class StaticSocketAddressProvider implements SocketAddressProvider {
     private final InetSocketAddress socketAddress;
 
     public StaticSocketAddressProvider(InetSocketAddress inetSocketAddress) {
-        this.socketAddress = Assert.requireNonNull(inetSocketAddress, "inetSocketAddress");
+        this.socketAddress = Objects.requireNonNull(inetSocketAddress, "inetSocketAddress");
     }
 
     @Override

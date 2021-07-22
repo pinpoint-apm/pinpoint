@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.FutureListener;
 
@@ -34,7 +34,7 @@ public class WriteFailFutureListener implements FutureListener {
 
 
     public WriteFailFutureListener(Logger logger, String message, String address) {
-        this.logger = Assert.requireNonNull(logger, "logger");
+        this.logger = Objects.requireNonNull(logger, "logger");
         this.message = message;
         this.address = address;
         this.isWarn = logger.isWarnEnabled();

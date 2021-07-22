@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ServerHeaderRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListener;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.weblogic.ParameterRecorderFactory;
 import com.navercorp.pinpoint.plugin.weblogic.WeblogicConfiguration;
 import com.navercorp.pinpoint.plugin.weblogic.WeblogicConstants;
@@ -108,7 +109,7 @@ public class WebAppServletContextExecuteInterceptor implements AroundInterceptor
     }
 
     private boolean validate(final Object[] args) {
-        if (args == null || args.length < 2) {
+        if (ArrayUtils.getLength(args) < 2) {
             return false;
         }
 

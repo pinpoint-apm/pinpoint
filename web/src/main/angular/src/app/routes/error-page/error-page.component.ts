@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 
-import { SystemConfigurationDataService, ServerTimeDataService, UrlRouteManagerService, ApplicationListDataService } from 'app/shared/services';
+import { SystemConfigurationDataService, ServerTimeDataService, UrlRouteManagerService } from 'app/shared/services';
 
 @Component({
     templateUrl: './error-page.component.html',
     styleUrls: ['./error-page.component.css']
 })
 export class ErrorPageComponent implements OnInit {
-    stateList = ['serverTime', 'configuration', 'applicationList'];
+    stateList = ['serverTime', 'configuration'];
     state: any = {
         serverTime: {
             url: 'serverTime.pinpoint',
@@ -20,25 +20,17 @@ export class ErrorPageComponent implements OnInit {
             loading: true,
             success: false,
             message: ''
-        },
-        applicationList: {
-            url: 'applicationList.pinpoint',
-            loading: true,
-            success: false,
-            message: ''
         }
     };
     constructor(
         private urlRouteManagerService: UrlRouteManagerService,
         private systemConfigurationDataService: SystemConfigurationDataService,
-        private applicationListDataService: ApplicationListDataService,
         private serverTimeDataService: ServerTimeDataService
     ) {}
 
     ngOnInit() {
         this.checkServerTime(this.stateList[0]);
         this.checkSystemConfiguration(this.stateList[1]);
-        this.checkApplicationList(this.stateList[2]);
     }
     private setState(type: string, result: boolean, loading: boolean, message: string = ''): void {
         this.state[type].success = result;
@@ -54,13 +46,6 @@ export class ErrorPageComponent implements OnInit {
     }
     private checkSystemConfiguration(type: string): void {
         this.systemConfigurationDataService.getConfiguration().subscribe((configuration: ISystemConfiguration) => {
-            this.setState(type, true, false);
-        }, (error: IServerErrorFormat) => {
-            this.setState(type, false, false, error.exception.message);
-        });
-    }
-    private checkApplicationList(type: string): void {
-        this.applicationListDataService.getApplicationList().subscribe((applicationList: IApplication[]) => {
             this.setState(type, true, false);
         }, (error: IServerErrorFormat) => {
             this.setState(type, false, false, error.exception.message);

@@ -23,7 +23,7 @@
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-profiler-optional-parent</artifactId>
         <relativePath>../profiler-optional-parent</relativePath>
-        <version>2.1.1-SNAPSHOT</version>
+        <version>2.3.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-profiler-optional-jdk8</artifactId>
@@ -74,24 +74,19 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${plugin.failsafe.version}</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
+                        <phase>generate-sources</phase>
+                        <goals><goal>add-source</goal></goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/java-ibm</source>
+                            </sources>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <jvm>${jdk.home}/bin/java</jvm>
-                    <!-- AbstractPinpointPluginTestSuite needs this to resolve
-                        path of required jars -->
-                    <useSystemClassLoader>false</useSystemClassLoader>
-                    <failIfNoTests>true</failIfNoTests>
-                </configuration>
             </plugin>
         </plugins>
     </build>

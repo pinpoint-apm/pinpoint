@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
-import com.navercorp.pinpoint.grpc.client.ClientOption;
+import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.profiler.AgentInformation;
@@ -45,15 +45,17 @@ import java.util.concurrent.TimeUnit;
 
 public class AgentGrpcDataSenderTestMain {
     private static final String AGENT_ID = "mockAgentId";
+    private static final String AGENT_NAME = "mockAgentName";
     private static final String APPLICATION_NAME = "mockApplicationName";
     private static final long START_TIME = System.currentTimeMillis();
+    private static final int SERVICE_TYPE = ServiceType.UNDEFINED.getCode();
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
     private final ReconnectExecutor reconnectExecutor = new ReconnectExecutor(scheduledExecutorService);
 
 
     public void request() throws Exception {
         MessageConverter<GeneratedMessageV3> messageConverter = new GrpcMetadataMessageConverter();
-        HeaderFactory headerFactory = new AgentHeaderFactory(AGENT_ID, APPLICATION_NAME, START_TIME);
+        HeaderFactory headerFactory = new AgentHeaderFactory(AGENT_ID, AGENT_NAME, APPLICATION_NAME, SERVICE_TYPE, START_TIME);
 
         DnsExecutorServiceProvider dnsExecutorServiceProvider = new DnsExecutorServiceProvider();
         GrpcNameResolverProvider grpcNameResolverProvider = new GrpcNameResolverProvider(dnsExecutorServiceProvider);
@@ -62,7 +64,7 @@ public class AgentGrpcDataSenderTestMain {
         ChannelFactoryBuilder channelFactoryBuilder = new DefaultChannelFactoryBuilder("TestAgentGrpcDataSender");
         channelFactoryBuilder.setHeaderFactory(headerFactory);
         channelFactoryBuilder.setNameResolverProvider(nameResolverProvider);
-        channelFactoryBuilder.setClientOption(new ClientOption.Builder().build());
+        channelFactoryBuilder.setClientOption(new ClientOption());
         ChannelFactory channelFactory = channelFactoryBuilder.build();
 
         AgentGrpcDataSender sender = new AgentGrpcDataSender("localhost", 9997, 1, messageConverter,
@@ -77,7 +79,7 @@ public class AgentGrpcDataSenderTestMain {
     }
 
     private AgentInfo newAgentInfo() {
-        AgentInformation agentInformation = new DefaultAgentInformation(AGENT_ID, APPLICATION_NAME, true, START_TIME, 99, "", "", ServiceType.TEST_STAND_ALONE, "1.0", "1.0");
+        AgentInformation agentInformation = new DefaultAgentInformation(AGENT_ID, AGENT_NAME, APPLICATION_NAME, true, START_TIME, 99, "", "", ServiceType.TEST_STAND_ALONE, "1.0", "1.0");
         JvmInformation jvmInformation = new JvmInformation("1.0", JvmGcType.G1);
         ServerMetaData serverInfo = new DefaultServerMetaData("serverInfo", Collections.<String>emptyList(), Collections.<Integer, String>emptyMap(), Collections.<ServiceInfo>emptyList());
         return new AgentInfo(agentInformation, serverInfo, jvmInformation);

@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.InterceptorRegistryModule;
@@ -42,6 +41,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 import static org.mockito.Mockito.mock;
@@ -84,7 +84,7 @@ public class DependencyGraph {
 
         Instrumentation instrumentation = mock(Instrumentation.class);
         AgentOption agentOption = new DefaultAgentOption(instrumentation,
-                "mockAgent", "mockApplicationName", false, profilerConfig, Collections.<String>emptyList(),
+                "mockAgentId", "mockAgentName", "mockApplicationName", false, profilerConfig, Collections.<String>emptyList(),
                 null);
 
         InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
@@ -103,7 +103,7 @@ public class DependencyGraph {
 
     public class Grapher {
         public void graph(String filename, Injector demoInjector) throws IOException {
-            PrintWriter out = new PrintWriter(new File(filename), Charsets.UTF_8.name());
+            PrintWriter out = new PrintWriter(new File(filename), StandardCharsets.UTF_8.name());
 
             Injector injector = Guice.createInjector(new GraphvizModule());
             GraphvizGrapher grapher = injector.getInstance(GraphvizGrapher.class);

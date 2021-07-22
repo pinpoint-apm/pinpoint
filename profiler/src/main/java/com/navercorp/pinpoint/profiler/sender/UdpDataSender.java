@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import java.util.Objects;
+
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.client.DnsSocketAddressProvider;
 import com.navercorp.pinpoint.rpc.client.SocketAddressProvider;
@@ -55,16 +57,16 @@ public class UdpDataSender implements DataSender {
     public UdpDataSender(String host, int port, String threadName,
                          int queueSize, int timeout, int sendBufferSize,
                          MessageSerializer<ByteMessage> messageSerializer) {
-        Assert.requireNonNull(host, "host");
+        Objects.requireNonNull(host, "host");
         if (!HostAndPort.isValidPort(port)) {
             throw new IllegalArgumentException("port out of range:" + port);
         }
-        Assert.requireNonNull(host, "host");
+        Objects.requireNonNull(host, "host");
         Assert.isTrue(queueSize > 0, "queueSize");
         Assert.isTrue(timeout > 0, "timeout");
         Assert.isTrue(sendBufferSize > 0, "sendBufferSize");
 
-        this.messageSerializer = Assert.requireNonNull(messageSerializer, "messageSerializer");
+        this.messageSerializer = Objects.requireNonNull(messageSerializer, "messageSerializer");
 
         final SocketAddressProvider socketAddressProvider = new DnsSocketAddressProvider(host, port);
         this.socketAddressProvider = new RefreshStrategy(socketAddressProvider);

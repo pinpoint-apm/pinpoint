@@ -144,7 +144,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
     
     private ClientStreamChannel createStreamChannel(ThriftAgentConnection clusterPoint, byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
         PinpointServer pinpointServer = clusterPoint.getPinpointServer();
-        return pinpointServer.openStream(payload, streamChannelEventHandler);
+        return pinpointServer.openStreamAndAwait(payload, streamChannelEventHandler, 3000);
     }
     
     public void close(ServerStreamChannel consumerStreamChannel) {

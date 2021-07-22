@@ -20,12 +20,12 @@ package com.navercorp.pinpoint.profiler.context.errorhandler;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -36,7 +36,7 @@ public class IgnoreErrorHandlerProvider implements Provider<IgnoreErrorHandler> 
 
     @Inject
     public IgnoreErrorHandlerProvider(ProfilerConfig profilerConfig) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
     }
 
     @Override

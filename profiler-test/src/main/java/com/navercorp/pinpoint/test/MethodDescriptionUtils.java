@@ -91,12 +91,10 @@ final class MethodDescriptionUtils {
             buffer.append(EMPTY_ARRAY);
         } else {
             buffer.append('(');
-            int end = parameterType.length - 1;
-            for (int i = 0; i < parameterType.length; i++) {
+            buffer.append(parameterType[0]);
+            for (int i = 1; i < parameterType.length; i++) {
+                buffer.append(", ");
                 buffer.append(parameterType[i]);
-                if (i < end) {
-                    buffer.append(", ");
-                }
             }
             buffer.append(')');
         }

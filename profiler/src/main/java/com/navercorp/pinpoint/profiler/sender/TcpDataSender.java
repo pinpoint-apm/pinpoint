@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 
+import java.util.Objects;
+
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.io.request.Message;
@@ -97,12 +99,12 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
     private TcpDataSender(String name, ClientFactoryUtils.PinpointClientProvider clientProvider, MessageSerializer<byte[]> messageSerializer, int queueSize) {
         this.logger = newLogger(name);
 
-        Assert.requireNonNull(clientProvider, "clientProvider");
+        Objects.requireNonNull(clientProvider, "clientProvider");
         this.client = clientProvider.get();
 
         Assert.isTrue(queueSize > 0, "queueSize must be 'queueSize > 0'");
 
-        this.messageSerializer = Assert.requireNonNull(messageSerializer, "messageSerializer");
+        this.messageSerializer = Objects.requireNonNull(messageSerializer, "messageSerializer");
         this.timer = createTimer(name);
 
         this.writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", clientProvider.getAddressAsString());

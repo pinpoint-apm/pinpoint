@@ -16,17 +16,17 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
-import com.navercorp.pinpoint.bootstrap.AgentParameter;
-import com.navercorp.pinpoint.bootstrap.ArgsParser;
-import com.navercorp.pinpoint.common.Charsets;
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.common.util.SystemProperty;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestContext;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestInstance;
+import com.navercorp.pinpoint.test.plugin.PluginTestConstants;
+import com.navercorp.pinpoint.test.plugin.PluginTestContext;
 import com.navercorp.pinpoint.test.plugin.ProcessManager;
+import com.navercorp.pinpoint.test.plugin.util.CollectionUtils;
+import com.navercorp.pinpoint.test.plugin.util.StringJoiner;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;
+import com.navercorp.pinpoint.test.plugin.util.TLSOption;
+import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.eclipse.aether.artifact.Artifact;
+import org.tinylog.TaggedLogger;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,9 +35,12 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static com.navercorp.pinpoint.test.plugin.util.SystemPropertyBuilder.format;
 
 /**
  * @author Taejin Koo
@@ -45,13 +48,16 @@ import java.util.TimerTask;
 public class SharedProcessManager implements ProcessManager {
     public static final String PATH_SEPARATOR = File.pathSeparator;
 
-    private final PinpointPluginTestContext context;
-    private final Map<String, List<Artifact>> testRepository = new LinkedHashMap<String, List<Artifact>>();
+    private final TaggedLogger logger = TestLogger.getLogger();
+
+    private final PluginTestContext context;
+    private final Map<String, List<Artifact>> testRepository = new LinkedHashMap<>();
 
     private Process process = null;
 
-    public SharedProcessManager(PinpointPluginTestContext context) {
-        this.context = Assert.requireNonNull(context, "context");
+    public SharedProcessManager(PluginTestContext context) {
+        this.context = Objects.requireNonNull(context, "context");
+        TLSOption.applyTLSv12();
     }
 
     @Override
@@ -65,7 +71,7 @@ public class SharedProcessManager implements ProcessManager {
             try {
                 this.process = fork();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error(e, "process fork failed");
             }
 //            this.process = process;
         }
@@ -108,9 +114,9 @@ public class SharedProcessManager implements ProcessManager {
         builder.redirectErrorStream(true);
         builder.directory(workingDirectory);
 
-        System.out.println("Working directory: " + SystemProperty.INSTANCE.getProperty("user.dir"));
-        System.out.println("Command: " + builder.command());
-        System.out.println("CommandSize: " + builder.command().toString().length());
+        logger.info("Working directory: {}", System.getProperty("user.dir"));
+        logger.info("Command: {}", builder.command());
+        logger.info("CommandSize: {}", builder.command().toString().length());
 
         this.process = builder.start();
         return process;
@@ -139,7 +145,7 @@ public class SharedProcessManager implements ProcessManager {
     }
 
     private String[] buildCommand() {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
 
         list.add(context.getJavaExecutable());
 
@@ -151,15 +157,16 @@ public class SharedProcessManager implements ProcessManager {
         list.add(classPath);
 
         list.add(getAgent());
-
-        list.add("-Dpinpoint.agentId=build.test.0");
-        list.add("-Dpinpoint.applicationName=test");
-        list.add("-Djava.net.preferIPv4Addresses=true");
+        list.add(format("pinpoint.agentId", "build.test.0"));
+        list.add(format("pinpoint.applicationName", "test"));
+        list.add(format("java.net.preferIPv4Addresses", "true"));
 
         final String mavenDependencyResolverClassPaths = join(context.getMavenDependencyLibraries());
-        list.add("-D" + SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS + "=" + mavenDependencyResolverClassPaths);
-        list.add("-D" + SharedPluginTestConstants.TEST_LOCATION + "=" + context.getTestClassLocation());
-        list.add("-D" + SharedPluginTestConstants.TEST_CLAZZ_NAME +"=" + context.getTestClass().getName());
+        list.add(format(SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS, mavenDependencyResolverClassPaths));
+        final String repositoryUrlString = join(context.getRepositoryUrls());
+        list.add(format(SharedPluginTestConstants.TEST_REPOSITORY_URLS, repositoryUrlString));
+        list.add(format(SharedPluginTestConstants.TEST_LOCATION,  context.getTestClassLocation()));
+        list.add(format(SharedPluginTestConstants.TEST_CLAZZ_NAME, context.getTestClass().getName()));
 
 //        list.add("-D" + PINPOINT_TEST_ID + "=" + testCase.getTestId());
 
@@ -172,12 +179,12 @@ public class SharedProcessManager implements ProcessManager {
         }
 
         if (context.getProfile() != null) {
-            list.add("-Dpinpoint.profiler.profiles.active=" + context.getProfile());
+            list.add(format("pinpoint.profiler.profiles.active", context.getProfile()));
         }
 
         if (context.getConfigFile() != null) {
-            list.add("-Dpinpoint.config=" + context.getConfigFile());
-            list.add("-Dpinpoint.config.load.mode=simple");
+            list.add(format("pinpoint.config", context.getConfigFile()));
+            list.add(format("pinpoint.config.load.mode", "simple"));
         }
 
         for (String arg : getVmArgs()) {
@@ -204,10 +211,10 @@ public class SharedProcessManager implements ProcessManager {
         return StringUtils.join(mavenDependencyLibraries, PATH_SEPARATOR);
     }
 
-    private static final String DEFAULT_ENCODING = Charsets.UTF_8_NAME;
+    private static final String DEFAULT_ENCODING = PluginTestConstants.UTF_8_NAME;
 
     private List<String> getVmArgs() {
-        return Arrays.asList("-Dfile.encoding=" + DEFAULT_ENCODING);
+        return Arrays.asList(format("file.encoding", DEFAULT_ENCODING));
     }
 
     private List<String> getDebugOptions() {
@@ -215,19 +222,27 @@ public class SharedProcessManager implements ProcessManager {
     }
 
     private String getAgent() {
-        return "-javaagent:" + context.getAgentJar() + "=" + buildAgentArguments();
+        return String.format("-javaagent:%s=%s", context.getAgentJar(), buildAgentArguments());
     }
 
     private String buildAgentArguments() {
-        final Map<String, String> agentArgumentMap = new LinkedHashMap<String, String>();
+        final Map<String, String> agentArgumentMap = new LinkedHashMap<>();
         agentArgumentMap.put("AGENT_TYPE", "PLUGIN_TEST");
 
         final List<String> importPluginIds = context.getImportPluginIds();
         if (CollectionUtils.hasLength(importPluginIds)) {
             String enablePluginIds = StringUtils.join(importPluginIds, ArtifactIdUtils.ARTIFACT_SEPARATOR);
-            agentArgumentMap.put(AgentParameter.IMPORT_PLUGIN, enablePluginIds);
+            agentArgumentMap.put(PluginTestConstants.AGENT_PARAMETER_IMPORT_PLUGIN, enablePluginIds);
         }
-        return StringUtils.join(agentArgumentMap, "=", ArgsParser.DELIMITER);
+        return join(agentArgumentMap);
+    }
+
+    private String join(Map<String, String> map) {
+        StringJoiner joiner = new StringJoiner(PluginTestConstants.AGENT_PARSER_DELIMITER);
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            joiner.add(entry.getKey() + "=" + entry.getValue());
+        }
+        return joiner.toString();
     }
 
     private String addTest(String testId, List<Artifact> artifactList) {

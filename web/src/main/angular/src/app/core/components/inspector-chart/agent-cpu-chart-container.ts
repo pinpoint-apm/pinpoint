@@ -1,4 +1,4 @@
-import { PrimitiveArray, Data } from 'billboard.js';
+import { PrimitiveArray, Data, areaSpline, spline } from 'billboard.js';
 import { Observable } from 'rxjs';
 
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
@@ -15,7 +15,7 @@ export class AgentCPUChartContainer implements IInspectorChartContainer {
         private inspectorChartDataService: InspectorChartDataService
     ) {}
 
-    getData(range: number[]): Observable<IInspectorChartData | AjaxException> {
+    getData(range: number[]): Observable<IInspectorChartData> {
         return this.inspectorChartDataService.getData(this.apiUrl, range);
     }
 
@@ -30,8 +30,8 @@ export class AgentCPUChartContainer implements IInspectorChartContainer {
     makeDataOption(): Data {
         return {
             types: {
-                jvm: 'area-spline',
-                system: 'spline'
+                jvm: areaSpline(),
+                system: spline()
             },
             names: {
                 jvm: 'JVM',

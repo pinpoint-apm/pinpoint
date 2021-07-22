@@ -53,7 +53,7 @@ public class StreamChannelTest {
         sc.init();
         Assert.assertEquals(StreamChannelStateCode.OPEN, recordEventHandler.getCurrentState());
 
-        sc.connect(new byte[0], 3000);
+        sc.connectAndAwait(new byte[0], 3000);
     }
 
 }

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.hbase.schema.core;
 
 import org.springframework.util.DigestUtils;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -58,7 +58,7 @@ public class CheckSum {
 
     public static CheckSum compute(int version, String value) {
         if (version == 0) {
-            byte[] bValue = value.getBytes(Charset.forName("UTF-8"));
+            byte[] bValue = value.getBytes(StandardCharsets.UTF_8);
             return new CheckSum(version, DigestUtils.md5DigestAsHex(bValue));
         }
         throw new IllegalArgumentException("Unsupported check sum version : " + version);

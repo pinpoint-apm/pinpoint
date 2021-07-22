@@ -63,7 +63,7 @@ public class BufferMetricProvider implements Provider<BufferMetric> {
             Constructor<BufferMetric> bufferMetricConstructor = bufferMetricClass.getConstructor();
             return bufferMetricConstructor.newInstance();
         } catch (Exception e) {
-            logger.warn("BufferMetric initialize fail: {}", classToLoad, e);
+            logger.warn("BufferMetric initialize fail: {}", classToLoad);
             return BufferMetric.UNSUPPORTED_BUFFER_METRIC;
         }
     }

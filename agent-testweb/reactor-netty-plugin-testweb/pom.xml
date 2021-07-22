@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pinpoint-agent-testweb</artifactId>
+        <version>2.3.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pinpoint-reactor-netty-plugin-testweb</artifactId>
+
+    <packaging>jar</packaging>
+
+    <properties>
+        <pinpoint.agent.jvmargument>
+            ${pinpoint.agent.default.jvmargument}
+            -Dprofiler.reactor-netty.client.enable=true
+            -Dprofiler.reactor-netty.client.param=true
+        </pinpoint.agent.jvmargument>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty</artifactId>
+            <version>0.9.12.RELEASE</version>
+        </dependency>
+    </dependencies>
+
+</project>

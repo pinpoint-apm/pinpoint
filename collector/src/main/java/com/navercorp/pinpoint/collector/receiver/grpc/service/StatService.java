@@ -20,8 +20,10 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
+import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
+import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PStatMessage;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
 import com.navercorp.pinpoint.io.header.Header;
@@ -51,10 +53,10 @@ public class StatService extends StatGrpc.StatImplBase {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final DispatchHandler dispatchHandler;
+    private final DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler;
     private final ServerRequestFactory serverRequestFactory;
 
-    public StatService(DispatchHandler dispatchHandler, ServerRequestFactory serverRequestFactory) {
+    public StatService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler, ServerRequestFactory serverRequestFactory) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
     }
@@ -73,6 +75,9 @@ public class StatService extends StatGrpc.StatImplBase {
                     send(message, responseObserver);
                 } else if (statMessage.hasAgentStatBatch()) {
                     final Message<PAgentStatBatch> message = newMessage(statMessage.getAgentStatBatch(), DefaultTBaseLocator.AGENT_STAT_BATCH);
+                    send(message, responseObserver);
+                } else if (statMessage.hasAgentUriStat()) {
+                    final Message<PAgentUriStat> message = newMessage(statMessage.getAgentUriStat(), DefaultTBaseLocator.AGENT_URI_STAT);
                     send(message, responseObserver);
                 } else {
                     if (isDebug) {
@@ -93,6 +98,9 @@ public class StatService extends StatGrpc.StatImplBase {
 
             @Override
             public void onCompleted() {
+                com.navercorp.pinpoint.grpc.Header header = ServerContext.getAgentInfo();
+                logger.info("onCompleted {}", header);
+
                 responseObserver.onNext(Empty.newBuilder().build());
                 responseObserver.onCompleted();
             }
@@ -109,7 +117,7 @@ public class StatService extends StatGrpc.StatImplBase {
 
     private void send(final Message<? extends GeneratedMessageV3> message, StreamObserver<Empty> responseObserver) {
         try {
-            ServerRequest<?> request = serverRequestFactory.newServerRequest(message);
+            ServerRequest<GeneratedMessageV3> request = (ServerRequest<GeneratedMessageV3>) serverRequestFactory.newServerRequest(message);
             this.dispatchHandler.dispatchSendMessage(request);
         } catch (Exception e) {
             logger.warn("Failed to request. message={}", message, e);

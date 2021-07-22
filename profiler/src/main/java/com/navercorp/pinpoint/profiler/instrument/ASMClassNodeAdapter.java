@@ -16,12 +16,13 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.instrument.ClassInputStreamProvider;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.profiler.instrument.scanner.ClassScannerFactory;
 import com.navercorp.pinpoint.profiler.instrument.scanner.Scanner;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
+import com.navercorp.pinpoint.profiler.util.StringMatchUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -57,8 +58,8 @@ public class ASMClassNodeAdapter {
     }
 
     public static ASMClassNodeAdapter get(final ClassInputStreamProvider pluginClassInputStreamProvider, final ClassLoader classLoader, ProtectionDomain protectionDomain, final String classInternalName, final boolean skipCode) {
-        Assert.requireNonNull(pluginClassInputStreamProvider, "pluginInputStreamProvider");
-        Assert.requireNonNull(classInternalName, "classInternalName");
+        Objects.requireNonNull(pluginClassInputStreamProvider, "pluginInputStreamProvider");
+        Objects.requireNonNull(classInternalName, "classInternalName");
 
         final String classPath = classInternalName.concat(".class");
         final byte[] bytes = readStream(classPath, pluginClassInputStreamProvider, protectionDomain, classLoader);
@@ -169,7 +170,7 @@ public class ASMClassNodeAdapter {
             return new String[0];
         }
 
-        final List<String> list = new ArrayList<String>(interfaces.size());
+        final List<String> list = new ArrayList<>(interfaces.size());
         for (String name : interfaces) {
             if (name != null) {
                 list.add(JavaAssistUtils.jvmNameToJavaName(name));
@@ -200,7 +201,7 @@ public class ASMClassNodeAdapter {
     }
 
     private ASMMethodNodeAdapter findDeclaredMethod(final String methodName, final String desc) {
-        Assert.requireNonNull(methodName, "methodName");
+        Objects.requireNonNull(methodName, "methodName");
 
         final List<MethodNode> declaredMethods = classNode.methods;
         if (CollectionUtils.isEmpty(declaredMethods)) {
@@ -208,11 +209,11 @@ public class ASMClassNodeAdapter {
         }
 
         for (MethodNode methodNode : declaredMethods) {
-            if (!strEquals(methodNode.name, methodName)) {
+            if (!StringMatchUtils.equals(methodNode.name, methodName)) {
                 continue;
             }
 
-            if (desc == null || startWith(methodNode.desc, desc)) {
+            if (desc == null || StringMatchUtils.startWith(methodNode.desc, desc)) {
                 return new ASMMethodNodeAdapter(getInternalName(), methodNode);
             }
         }
@@ -221,16 +222,16 @@ public class ASMClassNodeAdapter {
     }
 
     private List<ASMMethodNodeAdapter> findDeclaredMethod(final String methodName) {
-        Assert.requireNonNull(methodName, "methodName");
+        Objects.requireNonNull(methodName, "methodName");
 
         final List<MethodNode> declaredMethods = classNode.methods;
         if (CollectionUtils.isEmpty(declaredMethods)) {
             return Collections.emptyList();
         }
 
-        final List<ASMMethodNodeAdapter> methodNodes = new ArrayList<ASMMethodNodeAdapter>();
+        final List<ASMMethodNodeAdapter> methodNodes = new ArrayList<>();
         for (MethodNode methodNode : declaredMethods) {
-            if (!strEquals(methodNode.name, methodName)) {
+            if (!StringMatchUtils.equals(methodNode.name, methodName)) {
                 continue;
             }
 
@@ -239,19 +240,6 @@ public class ASMClassNodeAdapter {
         return methodNodes;
     }
 
-    private static boolean startWith(String str1, String str2) {
-        if (str1 == null) {
-            return false;
-        }
-        return str1.startsWith(str2);
-    }
-
-    private static boolean strEquals(String str1, String str2) {
-        if (str1 == null) {
-            return false;
-        }
-        return str1.equals(str2);
-    }
 
     public List<ASMMethodNodeAdapter> getDeclaredMethods() {
         if (this.skipCode) {
@@ -263,7 +251,7 @@ public class ASMClassNodeAdapter {
             return Collections.emptyList();
         }
 
-        final List<ASMMethodNodeAdapter> methodNodes = new ArrayList<ASMMethodNodeAdapter>(methods.size());
+        final List<ASMMethodNodeAdapter> methodNodes = new ArrayList<>(methods.size());
         for (MethodNode methodNode : methods) {
             final String methodName = methodNode.name;
             if (methodName == null || methodName.equals("<init>") || methodName.equals("<clinit>")) {
@@ -284,7 +272,7 @@ public class ASMClassNodeAdapter {
         if (desc == null) {
             return true;
         }
-        if (startWith(this.classNode.outerMethodDesc, desc)) {
+        if (StringMatchUtils.startWith(this.classNode.outerMethodDesc, desc)) {
             return true;
         }
 
@@ -308,7 +296,7 @@ public class ASMClassNodeAdapter {
     }
 
     public ASMFieldNodeAdapter getField(final String fieldName, final String fieldDesc) {
-        Assert.requireNonNull(fieldName, "fieldName");
+        Objects.requireNonNull(fieldName, "fieldName");
 
         if (this.classNode.fields == null) {
             return null;
@@ -316,7 +304,7 @@ public class ASMClassNodeAdapter {
 
         final List<FieldNode> fields = this.classNode.fields;
         for (FieldNode fieldNode : fields) {
-            if (strEquals(fieldNode.name, fieldName) && (fieldDesc == null || (strEquals(fieldNode.desc, fieldDesc)))) {
+            if (StringMatchUtils.equals(fieldNode.name, fieldName) && (fieldDesc == null || (StringMatchUtils.equals(fieldNode.desc, fieldDesc)))) {
                 return new ASMFieldNodeAdapter(fieldNode);
             }
         }
@@ -355,8 +343,8 @@ public class ASMClassNodeAdapter {
     }
 
     public ASMFieldNodeAdapter addField(final String fieldName, final String fieldDesc) {
-        Assert.requireNonNull(fieldName, "fieldName");
-        Assert.requireNonNull(fieldDesc, "fieldDesc");
+        Objects.requireNonNull(fieldName, "fieldName");
+        Objects.requireNonNull(fieldDesc, "fieldDesc");
         final FieldNode fieldNode = new FieldNode(getFieldAccessFlags(), fieldName, fieldDesc, null, null);
         addFieldNode0(fieldNode);
 
@@ -370,13 +358,13 @@ public class ASMClassNodeAdapter {
 
     private void addFieldNode0(FieldNode fieldNode) {
         if (this.classNode.fields == null) {
-            this.classNode.fields = new ArrayList<FieldNode>();
+            this.classNode.fields = new ArrayList<>();
         }
         this.classNode.fields.add(fieldNode);
     }
 
     public ASMMethodNodeAdapter addDelegatorMethod(final ASMMethodNodeAdapter superMethodNode) {
-        Assert.requireNonNull(superMethodNode, "superMethodNode");
+        Objects.requireNonNull(superMethodNode, "superMethodNode");
 
         final String[] exceptions = getSuperMethodExceptions(superMethodNode);
 
@@ -397,8 +385,8 @@ public class ASMClassNodeAdapter {
     }
 
     public void addGetterMethod(final String methodName, final ASMFieldNodeAdapter fieldNode) {
-        Assert.requireNonNull(methodName, "methodName");
-        Assert.requireNonNull(fieldNode, "fieldNode");
+        Objects.requireNonNull(methodName, "methodName");
+        Objects.requireNonNull(fieldNode, "fieldNode");
 
 
         // no argument is ().
@@ -418,14 +406,14 @@ public class ASMClassNodeAdapter {
 
     private void addMethodNode0(MethodNode methodNode) {
         if (this.classNode.methods == null) {
-            this.classNode.methods = new ArrayList<MethodNode>();
+            this.classNode.methods = new ArrayList<>();
         }
         this.classNode.methods.add(methodNode);
     }
 
     public void addSetterMethod(final String methodName, final ASMFieldNodeAdapter fieldNode) {
-        Assert.requireNonNull(methodName, "methodName");
-        Assert.requireNonNull(fieldNode, "fieldNode");
+        Objects.requireNonNull(methodName, "methodName");
+        Objects.requireNonNull(fieldNode, "fieldNode");
 
 
         // void is V.
@@ -452,16 +440,16 @@ public class ASMClassNodeAdapter {
     }
 
     public void addInterface(final String interfaceName) {
-        Assert.requireNonNull(interfaceName, "interfaceName");
+        Objects.requireNonNull(interfaceName, "interfaceName");
 
         if (this.classNode.interfaces == null) {
-            this.classNode.interfaces = new ArrayList<String>();
+            this.classNode.interfaces = new ArrayList<>();
         }
         this.classNode.interfaces.add(JavaAssistUtils.javaNameToJvmName(interfaceName));
     }
 
     public void copyMethod(final ASMMethodNodeAdapter methodNode) {
-        Assert.requireNonNull(methodNode, "methodNode");
+        Objects.requireNonNull(methodNode, "methodNode");
 
         // change local call.
         final ASMMethodInsnNodeRemapper.Builder remapBuilder = new ASMMethodInsnNodeRemapper.Builder();
@@ -494,7 +482,7 @@ public class ASMClassNodeAdapter {
         }
 
         for (AnnotationNode annotation : annotationNodes) {
-            if (strEquals(annotation.desc, annotationClassDesc)) {
+            if (StringMatchUtils.equals(annotation.desc, annotationClassDesc)) {
                 return true;
             }
         }
@@ -536,7 +524,7 @@ public class ASMClassNodeAdapter {
             return Collections.emptyList();
         }
 
-        final List<ASMClassNodeAdapter> innerClasses = new ArrayList<ASMClassNodeAdapter>();
+        final List<ASMClassNodeAdapter> innerClasses = new ArrayList<>();
         final List<InnerClassNode> innerClassNodes = this.classNode.innerClasses;
         for (InnerClassNode node : innerClassNodes) {
             if (node.name == null) {

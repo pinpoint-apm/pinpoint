@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.springframework.http.HttpHeaders;
 
 /**
@@ -77,7 +78,7 @@ public class BodyInserterRequestBuilderConstructorInterceptor implements AroundI
     }
 
     private boolean validate(final Object[] args) {
-        if (args == null || args.length < 3) {
+        if (ArrayUtils.getLength(args) < 3) {
             if (isDebug) {
                 logger.debug("Invalid args object. args={}.", args);
             }

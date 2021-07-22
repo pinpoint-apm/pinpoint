@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.web.alarm;
 
 import com.navercorp.pinpoint.web.batch.DefaultDivider;
 import com.navercorp.pinpoint.web.batch.Divider;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.partition.support.Partitioner;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Map;
@@ -31,6 +31,7 @@ import java.util.Optional;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class AlarmPartitioner implements Partitioner {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

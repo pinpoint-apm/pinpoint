@@ -49,6 +49,8 @@ import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 
 import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
+import io.grpc.Status;
+import io.grpc.StatusException;
 import io.grpc.stub.StreamObserver;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -83,12 +85,18 @@ public class PinpointGrpcServer {
     private final ProfilerClusterManager profilerClusterManager;
     private final StreamObserver<PCmdRequest> requestObserver;
 
+    private Runnable onCloseHandler;
+
     public PinpointGrpcServer(InetSocketAddress remoteAddress, AgentInfo agentInfo, RequestManager requestManager, ProfilerClusterManager profilerClusterManager, StreamObserver<PCmdRequest> requestObserver) {
         this.remoteAddress = Objects.requireNonNull(remoteAddress, "remoteAddress");
         this.agentInfo = Objects.requireNonNull(agentInfo, "agentInfo");
         this.requestManager = Objects.requireNonNull(requestManager, "requestManager");
         this.profilerClusterManager = Objects.requireNonNull(profilerClusterManager, "profilerClusterManager");
         this.requestObserver = Objects.requireNonNull(requestObserver, "requestObserver");
+    }
+
+    public void setOnCloseHandler(Runnable onCloseHandler) {
+        this.onCloseHandler = onCloseHandler;
     }
 
     public void connected() {
@@ -119,8 +127,9 @@ public class PinpointGrpcServer {
                 GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(this, Collections.emptyList());
                 profilerClusterManager.unregister(grpcAgentConnection);
             }
+        } else {
+            logger.warn("Failed to change state. agent:{}, result:{}", agentInfo, result);
         }
-
 
         if (logger.isDebugEnabled()) {
             logger.debug(result.toString());
@@ -162,7 +171,7 @@ public class PinpointGrpcServer {
                 public void run() {
                     requestObserver.onNext(request);
                 }
-            }, 3000);
+            }, 1000);
         } catch (StreamException e) {
             grpcClientStreamChannel.close(e.getStreamCode());
             throw e;
@@ -286,28 +295,36 @@ public class PinpointGrpcServer {
     }
 
     public void disconnected() {
-        close(false);
+        close(SocketStateCode.BEING_CLOSE_BY_CLIENT);
     }
 
     public void close() {
-        close(true);
+        close(SocketStateCode.BEING_CLOSE_BY_SERVER);
     }
 
-    public void close(boolean serverStop) {
+    public void close(SocketStateCode toState) {
+        logger.info("close() will be started. ( remoteAddress:{}, agentInfo:{}, closeState:{}", remoteAddress, agentInfo.getAgentKey(), toState);
+
+        if (onCloseHandler != null) {
+            onCloseHandler.run();
+        }
+
         synchronized (this) {
             try {
-                if (SocketStateCode.isRun(getState())) {
-                    if (serverStop) {
-                        toState(SocketStateCode.BEING_CLOSE_BY_SERVER);
+                SocketStateCode currentState = getState();
+                if (SocketStateCode.isRun(currentState)) {
+                    if (toState == SocketStateCode.BEING_CLOSE_BY_SERVER || toState == SocketStateCode.BEING_CLOSE_BY_CLIENT) {
+                        toState(toState);
                         requestObserver.onCompleted();
                     } else {
-                        toState(SocketStateCode.BEING_CLOSE_BY_CLIENT);
-                        requestObserver.onCompleted();
+                        toState(toState);
+                        requestObserver.onError(new StatusException(Status.UNKNOWN));
                     }
                 }
 
             } catch (Exception e) {
                 // It could throw exception when requestObserver is already completed.
+                logger.warn("Exception occurred while requestObserver invokes onCompleted. message:{}", e.getMessage(), e);
             }
 
             try {
@@ -327,6 +344,7 @@ public class PinpointGrpcServer {
                 streamChannelRepository.close(StreamCode.STATE_CLOSED);
             }
         }
+
     }
 
     private void setFailMessageToFuture(int responseId, String message) {
@@ -334,6 +352,10 @@ public class PinpointGrpcServer {
         if (future != null) {
             future.setFailure(new PinpointSocketException(message));
         }
+    }
+
+    public InetSocketAddress getRemoteAddress() {
+        return remoteAddress;
     }
 
     public SocketStateCode getState() {

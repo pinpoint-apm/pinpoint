@@ -16,37 +16,34 @@
 
 package com.navercorp.pinpoint.grpc.client.interceptor;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.logging.ThrottledLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class LoggingDiscardEventListener<ReqT>  implements DiscardEventListener<ReqT> {
-    private final Logger logger;
+public class LoggingDiscardEventListener<ReqT> implements DiscardEventListener<ReqT> {
+    private final ThrottledLogger logger;
 
-    private final long rateLimitCount;
-    private final AtomicLong discardCounter = new AtomicLong();
 
     public LoggingDiscardEventListener(String loggerName, long rateLimitCount) {
-        Assert.requireNonNull(loggerName, "loggerName");
-        this.logger = LoggerFactory.getLogger(loggerName);
-        this.rateLimitCount = rateLimitCount;
+        Objects.requireNonNull(loggerName, "loggerName");
+        Logger log = LoggerFactory.getLogger(loggerName);
+        this.logger = ThrottledLogger.getLogger(log, rateLimitCount);
     }
 
     @Override
     public void onDiscard(ReqT message, String cause) {
-        final long beforeDiscardCount = this.discardCounter.getAndIncrement();
-        if ((beforeDiscardCount % this.rateLimitCount) == 0) {
-            logDiscardMessage(message, cause, beforeDiscardCount+1);
-        }
+        logDiscardMessage(message, cause);
     }
 
-    private void logDiscardMessage(ReqT message, String cause, long discardCount) {
-        logger.info("Discard {} message, {}. discardCount:{}", getMessageType(message), cause, discardCount);
+    private void logDiscardMessage(ReqT message, String cause) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Discard {} message, {}. discardCount:{}", getMessageType(message), cause, logger.getCounter() + 1);
+        }
     }
 
     @Override
@@ -62,6 +59,6 @@ public class LoggingDiscardEventListener<ReqT>  implements DiscardEventListener<
     }
 
     public long getDiscardCount() {
-        return discardCounter.get();
+        return logger.getCounter();
     }
 }

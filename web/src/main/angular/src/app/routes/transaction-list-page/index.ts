@@ -10,13 +10,11 @@ import { ConfigurationIconModule } from 'app/core/components/configuration-icon'
 import { TransactionTableGridModule } from 'app/core/components/transaction-table-grid';
 import { TransactionListBottomContentsModule } from 'app/core/components/transaction-list-bottom-contents';
 
-import { TransactionListEmptyComponent } from './transaction-list-empty.component';
 import { TransactionListPageComponent } from './transaction-list-page.component';
 import { routing } from './transaction-list-page.routing';
 
 @NgModule({
     declarations: [
-        TransactionListEmptyComponent,
         TransactionListPageComponent
     ],
     imports: [

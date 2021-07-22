@@ -36,6 +36,8 @@ import java.util.Arrays;
 public class DefaultTransactionIdEncoderTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    public static final String DEFAULT_AGENT_ID = "defaultAgentId";
+
     private final String agentId = "agentId";
     private final long agentStartTime = 11;
     private final long transactionId = 1;
@@ -53,9 +55,10 @@ public class DefaultTransactionIdEncoderTest {
 
         ByteBuffer encodeTxId = transactionIdEncoder.encodeTransactionId(traceId);
 
-        TransactionId parsedTxId = TransactionIdUtils.parseTransactionId(Arrays.copyOf(encodeTxId.array(), encodeTxId.remaining()));
+        byte[] transactionId = Arrays.copyOf(encodeTxId.array(), encodeTxId.remaining());
+        TransactionId parsedTxId = TransactionIdUtils.parseTransactionId(transactionId, DEFAULT_AGENT_ID);
         logger.debug("transactionId:{}", parsedTxId);
-        Assert.assertNull(parsedTxId.getAgentId());
+        Assert.assertEquals(DEFAULT_AGENT_ID, parsedTxId.getAgentId());
         Assert.assertEquals(parsedTxId.getAgentStartTime(), agentStartTime);
         Assert.assertEquals(parsedTxId.getTransactionSequence(), transactionId2);
     }
@@ -68,7 +71,8 @@ public class DefaultTransactionIdEncoderTest {
         ByteBuffer encodeTxId = transactionIdEncoder.encodeTransactionId(traceId);
 
 
-        TransactionId parsedTxId = TransactionIdUtils.parseTransactionId(Arrays.copyOf(encodeTxId.array(), encodeTxId.remaining()));
+        byte[] transactionId = Arrays.copyOf(encodeTxId.array(), encodeTxId.remaining());
+        TransactionId parsedTxId = TransactionIdUtils.parseTransactionId(transactionId, DEFAULT_AGENT_ID);
         logger.debug("transactionId:{}", parsedTxId);
         Assert.assertEquals(parsedTxId.getAgentId(), agentId2);
         Assert.assertEquals(parsedTxId.getAgentStartTime(), agentStartTime2);
@@ -83,9 +87,10 @@ public class DefaultTransactionIdEncoderTest {
         ByteBuffer encodeTxId = transactionIdEncoder.encodeTransactionId(traceId);
 
 
-        TransactionId parsedTxId = TransactionIdUtils.parseTransactionId(Arrays.copyOf(encodeTxId.array(), encodeTxId.remaining()));
+        byte[] transactionId = Arrays.copyOf(encodeTxId.array(), encodeTxId.remaining());
+        TransactionId parsedTxId = TransactionIdUtils.parseTransactionId(transactionId, DEFAULT_AGENT_ID);
         logger.debug("transactionId:{}", parsedTxId);
-        Assert.assertNull(parsedTxId.getAgentId());
+        Assert.assertEquals(DEFAULT_AGENT_ID, parsedTxId.getAgentId());
         Assert.assertEquals(parsedTxId.getAgentStartTime(), agentStartTime2);
         Assert.assertEquals(parsedTxId.getTransactionSequence(), transactionId2);
     }

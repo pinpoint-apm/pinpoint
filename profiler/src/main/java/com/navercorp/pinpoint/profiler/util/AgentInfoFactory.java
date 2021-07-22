@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.util;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
@@ -33,9 +33,9 @@ public class AgentInfoFactory {
     private final JvmInformation jvmInformation;
 
     public AgentInfoFactory(AgentInformation agentInformation, ServerMetaDataRegistryService serverMetaDataRegistryService, JvmInformation jvmInformation) {
-        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation");
-        this.serverMetaDataRegistryService = Assert.requireNonNull(serverMetaDataRegistryService, "serverMetaDataRegistryService");
-        this.jvmInformation = Assert.requireNonNull(jvmInformation, "jvmInformation");
+        this.agentInformation = Objects.requireNonNull(agentInformation, "agentInformation");
+        this.serverMetaDataRegistryService = Objects.requireNonNull(serverMetaDataRegistryService, "serverMetaDataRegistryService");
+        this.jvmInformation = Objects.requireNonNull(jvmInformation, "jvmInformation");
     }
 
     public AgentInfo createAgentInfo() {

@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy, Input, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Subject, forkJoin, of, merge } from 'rxjs';
+import { Subject, forkJoin, of, merge, EMPTY } from 'rxjs';
 import { filter, tap, switchMap, pluck, map, catchError, withLatestFrom, takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
-import { PrimitiveArray, Data, DataItem } from 'billboard.js';
+import { PrimitiveArray, Data, DataItem, bar } from 'billboard.js';
 
 import {
     WebAppSettingDataService,
@@ -18,7 +18,8 @@ import {
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 import { getMaxTickValue } from 'app/core/utils/chart-util';
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 export enum SourceType {
     MAIN = 'MAIN',
@@ -44,10 +45,12 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
     private unsubscribe = new Subject<void>();
     private serverMapData: ServerMapData;
     private isOriginalNode: boolean;
-    private selectedTarget: ISelectedTarget;
     private selectedAgent = '';
     private chartColors: string[];
     private defaultYMax = 10;
+
+    private originalTarget: ISelectedTarget; // from serverMap
+    private targetFromList: INodeInfo; // from targetList
 
     dataFetchFailedText: string;
     dataEmptyText: string;
@@ -103,10 +106,26 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
 
     onRetry(): void {
         this.activeLayer = Layer.LOADING;
-        const {key, applicationName, serviceTypeCode} = this.getTargetInfo();
+        const target = this.getTargetInfo();
 
-        this.agentHistogramDataService.getData(key, applicationName, serviceTypeCode, this.serverMapData, this.previousRange).pipe(
-            map((data: any) => this.isAllAgent() ? data['histogram'] : data['agentHistogram'][this.selectedAgent])
+        this.agentHistogramDataService.getData(this.serverMapData, this.previousRange, target).pipe(
+            // map((data: any) => this.isAllAgent() ? data['histogram'] : data['agentHistogram'][this.selectedAgent])
+            pluck('agentHistogram', this.selectedAgent),
+            catchError((error: IServerErrorFormat) => {
+                this.activeLayer = Layer.RETRY;
+                this.dynamicPopupService.openPopup({
+                    data: {
+                        title: 'Error',
+                        contents: error
+                    },
+                    component: ServerErrorPopupContainerComponent
+                }, {
+                    resolver: this.componentFactoryResolver,
+                    injector: this.injector
+                });
+
+                return EMPTY;
+            })
         ).pipe(
             map((data: IResponseTime | IResponseMilliSecondTime) => this.makeChartData(data)),
             withLatestFrom(this.storeHelperService.getResponseSummaryChartYMax(this.unsubscribe))
@@ -139,11 +158,8 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
             takeUntil((this.unsubscribe)),
         ).subscribe(() => {
             this.serverMapData = null;
-            this.selectedTarget = null;
-        });
-
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe((data: ServerMapData) => {
-            this.serverMapData = data;
+            this.originalTarget = null;
+            this.targetFromList = null;
         });
 
         merge(
@@ -152,7 +168,8 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
                 filter((target: ISelectedTarget) => {
                     this.isOriginalNode = true;
                     this.selectedAgent = '';
-                    this.selectedTarget = target;
+                    this.originalTarget = target;
+                    this.targetFromList = null;
 
                     return !target.isMerged;
                 }),
@@ -162,21 +179,20 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
                 filter(() => this.sourceType !== SourceType.INFO_PER_SERVER),
                 filter((agent: string) => this.selectedAgent !== agent),
                 tap((agent: string) => this.selectedAgent = agent),
-                filter(() => !!this.selectedTarget),
+                filter(() => !!this.originalTarget),
                 map(() => this.getTargetInfo()),
-                switchMap((target: any) => {
+                switchMap((target: INodeInfo) => {
                     if (this.isAllAgent()) {
                         return of(target.histogram);
                     } else {
                         let data;
 
                         if (this.sourceType === SourceType.MAIN) {
-                            this.previousRange = [
-                                this.newUrlStateNotificationService.getStartTimeToNumber(),
-                                this.newUrlStateNotificationService.getEndTimeToNumber()
-                            ];
+                            const range = this.previousRange = this.newUrlStateNotificationService.isRealTimeMode()
+                                ? this.previousRange ? this.previousRange : [this.newUrlStateNotificationService.getStartTimeToNumber(), this.newUrlStateNotificationService.getEndTimeToNumber()]
+                                : [this.newUrlStateNotificationService.getStartTimeToNumber(), this.newUrlStateNotificationService.getEndTimeToNumber()];
 
-                            data = this.agentHistogramDataService.getData(target.key, target.applicationName, target.serviceTypeCode, this.serverMapData, this.previousRange).pipe(
+                            data = this.agentHistogramDataService.getData(this.serverMapData, range, target).pipe(
                                 catchError(() => of(null)),
                                 filter((res: any) => res === null ? (this.activeLayer = Layer.RETRY, false) : true)
                             );
@@ -192,9 +208,16 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
             ),
             this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT_BY_LIST).pipe(
                 filter(() => this.sourceType !== SourceType.INFO_PER_SERVER),
-                tap(() => this.selectedAgent = ''),
-                tap(({key}: any) => {
-                    this.isOriginalNode = this.selectedTarget.isNode ? this.selectedTarget.node.includes(key) : this.selectedTarget.link.includes(key);
+                tap((target: any) => {
+                    this.selectedAgent = '';
+                    this.targetFromList = target;
+                    if (this.originalTarget.isNode) {
+                        // TODO: Need to update the ymax when directly selecting the input link before the related node.
+                        // this.isOriginalNode = this.originalTarget.node.includes(target.key);
+                        this.isOriginalNode = true;
+                    } else {
+                        this.isOriginalNode = true;
+                    }
                 }),
                 map((target: any) => target.histogram),
             ),
@@ -204,18 +227,31 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
                 tap(({agent}: IAgentSelection) => this.selectedAgent = agent),
                 pluck('responseSummary'),
             ),
-            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.REAL_TIME_SCATTER_CHART_X_RANGE).pipe(
+            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).pipe(
+                tap(({serverMapData, range}: {serverMapData: ServerMapData, range: number[]}) => {
+                    this.serverMapData = serverMapData;
+                    this.previousRange = range;
+                }),
+                filter(() => !!this.originalTarget),
                 filter(() => this.sourceType === SourceType.MAIN),
-                map(({from, to}: IScatterXRange) => [from, to]),
-                tap((range: number[]) => this.previousRange = range),
-                switchMap((range: number[]) => {
-                    const {key, applicationName, serviceTypeCode} = this.getTargetInfo();
+                filter(() => !this.originalTarget.isMerged || !!this.targetFromList),
+                switchMap(({serverMapData, range}: {serverMapData: ServerMapData, range: number[]}) => {
+                    const target = this.originalTarget.isMerged || this.targetFromList ? serverMapData.getNodeData(this.targetFromList.key) || serverMapData.getLinkData(this.targetFromList.key)
+                        : this.getTargetInfo();
 
-                    return this.agentHistogramDataService.getData(key, applicationName, serviceTypeCode, this.serverMapData, range).pipe(
-                        catchError(() => of(null)),
-                        filter((res: any) => !!res),
-                        map((data: any) => this.isAllAgent() ? data['histogram'] : data['agentHistogram'][this.selectedAgent])
-                    );
+                    return !target ? of(null)
+                        : this.selectedAgent ? this.agentHistogramDataService.getData(serverMapData, range, target).pipe(
+                            catchError(() => of(null)),
+                            filter((res: any) => !!res),
+                            pluck('agentHistogram', this.selectedAgent)
+                        )
+                        : of (target.histogram);
+                    // Consider reusing the below flow after investigating the api
+                    // return isRemoved ? of(null) : this.agentHistogramDataService.getData(serverMapData, range, target).pipe(
+                    //     catchError(() => of(null)),
+                    //     filter((res: any) => !!res),
+                    //     map((data: any) => this.isAllAgent() ? data['histogram'] : data['agentHistogram'][this.selectedAgent])
+                    // );
                 }),
             )
         ).pipe(
@@ -253,9 +289,9 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
     }
 
     private getTargetInfo(): any {
-        return this.selectedTarget.isNode
-            ? this.serverMapData.getNodeData(this.selectedTarget.node[0])
-            : this.serverMapData.getLinkData(this.selectedTarget.link[0]);
+        return this.originalTarget.isNode
+            ? this.serverMapData.getNodeData(this.originalTarget.node[0])
+            : this.serverMapData.getLinkData(this.originalTarget.link[0]);
     }
 
     private makeChartData(data: IResponseTime | IResponseMilliSecondTime): PrimitiveArray[] {
@@ -273,10 +309,10 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
                     text: this.dataEmptyText
                 }
             },
-            type: 'bar',
+            type: bar(),
             color: (_, {index}: DataItem): string => this.chartColors[index],
             labels: {
-                colors: '#333',
+                colors: getComputedStyle(document.body).getPropertyValue('--text-primary'),
                 format: {
                     rs: (v: number) => this.addComma(v.toString())
                 }

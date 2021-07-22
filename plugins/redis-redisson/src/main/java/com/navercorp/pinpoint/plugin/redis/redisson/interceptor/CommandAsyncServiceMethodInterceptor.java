@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.redis.redisson.RedissonConstants;
 import com.navercorp.pinpoint.plugin.redis.redisson.RedissonPluginConfig;
@@ -66,7 +67,7 @@ public class CommandAsyncServiceMethodInterceptor extends SpanEventSimpleAroundI
     }
 
     private boolean isAsynchronousInvocation(final Object target, final Object[] args) {
-        if (args == null || args.length < 6) {
+        if (ArrayUtils.getLength(args) < 6) {
             return false;
         }
 
@@ -106,7 +107,7 @@ public class CommandAsyncServiceMethodInterceptor extends SpanEventSimpleAroundI
     }
 
     private boolean validate(final Object target, final Object[] args) {
-        if (args == null || args.length < 4) {
+        if (ArrayUtils.getLength(args) < 4) {
             if (isDebug) {
                 logger.debug("Invalid arguments. Null or not found args({}).", args);
             }

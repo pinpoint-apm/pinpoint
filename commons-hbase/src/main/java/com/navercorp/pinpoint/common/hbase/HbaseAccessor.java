@@ -16,8 +16,8 @@
 package com.navercorp.pinpoint.common.hbase;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
-import com.navercorp.pinpoint.common.Charsets;
 import org.apache.hadoop.conf.Configuration;
 import org.springframework.util.StringUtils;
 
@@ -31,7 +31,7 @@ import org.springframework.util.StringUtils;
 public abstract class HbaseAccessor {
 
     private String encoding;
-    private static final Charset CHARSET = Charsets.UTF_8;
+    private static final Charset CHARSET = StandardCharsets.UTF_8;
 
     private TableFactory tableFactory;
     private Configuration configuration;

@@ -22,12 +22,11 @@ import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntGauge;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongGauge;
-import com.navercorp.pinpoint.common.util.Assert;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -50,12 +49,12 @@ public class DefaultCustomMetricRegistryService implements CustomMetricRegistryS
 
     public DefaultCustomMetricRegistryService(int limitIdNumber, CustomMetricRegistryFilter filter) {
         this.customMetricIdGenerator = new CustomMetricIdGenerator(limitIdNumber);
-        this.filter = Assert.requireNonNull(filter, "filter");
+        this.filter = Objects.requireNonNull(filter, "filter");
     }
 
     @Override
     public boolean register(IntCounter intCounter) {
-        Assert.requireNonNull(intCounter, "intCount");
+        Objects.requireNonNull(intCounter, "intCount");
 
         boolean filter = this.filter.filter(intCounter);
         if (filter) {
@@ -75,7 +74,7 @@ public class DefaultCustomMetricRegistryService implements CustomMetricRegistryS
 
     @Override
     public boolean register(LongCounter longCounter) {
-        Assert.requireNonNull(longCounter, "longCount");
+        Objects.requireNonNull(longCounter, "longCount");
 
         boolean filter = this.filter.filter(longCounter);
         if (filter) {
@@ -95,7 +94,7 @@ public class DefaultCustomMetricRegistryService implements CustomMetricRegistryS
 
     @Override
     public boolean register(IntGauge intGauge) {
-        Assert.requireNonNull(intGauge, "intGauge");
+        Objects.requireNonNull(intGauge, "intGauge");
 
         boolean filter = this.filter.filter(intGauge);
         if (filter) {
@@ -115,7 +114,7 @@ public class DefaultCustomMetricRegistryService implements CustomMetricRegistryS
 
     @Override
     public boolean register(LongGauge longGauge) {
-        Assert.requireNonNull(longGauge, "longGauge");
+        Objects.requireNonNull(longGauge, "longGauge");
 
         boolean filter = this.filter.filter(longGauge);
         if (filter) {
@@ -135,7 +134,7 @@ public class DefaultCustomMetricRegistryService implements CustomMetricRegistryS
 
     @Override
     public boolean register(DoubleGauge doubleGauge) {
-        Assert.requireNonNull(doubleGauge, "doubleGauge");
+        Objects.requireNonNull(doubleGauge, "doubleGauge");
 
         boolean filter = this.filter.filter(doubleGauge);
         if (filter) {

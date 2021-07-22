@@ -8,14 +8,16 @@ import { APP_BASE_HREF } from '@angular/common';
 import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { EffectsModule } from '@ngrx/effects';
 
 import { httpInterceptorProviders } from 'app/core/httpInterceptor';
 import { AppComponent } from 'app/app.component';
 import { PageNotFoundComponent } from 'app/shared/components/page-not-found';
 import { SharedModule } from 'app/shared';
-import { reducers } from 'app/shared/store';
+import { reducers } from 'app/shared/store/reducers';
 import { AppRoutingModule } from 'app/app.routing';
 import { SERVER_MAP_TYPE, ServerMapType } from 'app/core/components/server-map/class/server-map-factory';
+import { effects } from 'app/shared/store/effects';
 
 export function HttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http, 'assets/i18n/', '.json');
@@ -30,6 +32,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         BrowserAnimationsModule,
         HttpClientModule,
         StoreModule.forRoot(reducers, {}),
+        EffectsModule.forRoot(effects),
         LocalStorageModule.forRoot({
             prefix: 'pp',
             storageType: 'localStorage'

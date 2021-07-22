@@ -4,18 +4,18 @@
     width: 115px;
 }
 .fa-sign-in-alt, .fa-sign-out-alt {
-    color: #33b692;
+    color: var(--secondary);
 }
 button {
     outline: none;
 }
 .l-wrapper {
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-primary);
 }
 .l-dropdown-button {
     text-align: left;
     width: 100%;
-    background-color: #fff;
+    background-color: var(--background-default);
     font-size: 13px;
     padding: 7px 0 6px 0;
     outline: 0;
@@ -24,32 +24,33 @@ button {
     font-size: 15px;
     display: inline-block;
     margin-left: 9px;
-    color: #33b692;
+    color: var(--secondary);
 }
 
 .l-bound-text {
     display: inline-block;
     font-size: 14px;
     margin-left: 15px;
-    color: #333;
+    color: var(--text-primary);
 }
 
 .l-dropdown-menu-wrapper {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
     position: absolute;
     top: 100%;
     left: 0;
     z-index: 9999;
     display: flex;
     flex-wrap: wrap;
-    border: 1px solid #e5e8f0;
+    border: 1px solid var(--border-primary);
     border-radius: 2px;
     margin-top: 2px;
-    background-color: #fff;
+    background-color: var(--background-default);
     width: 180px;
 }
 
 .l-inbound-list {
-    border-right: 1px solid #e5e8f0;
+    border-right: 1px solid var(--border-primary);
 }
 
 .l-inbound-list, .l-outbound-list {
@@ -58,8 +59,7 @@ button {
 }
 
 .l-bound-list-item {
-    font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
     font-size: 13px;
     padding: 5px 10px;
     cursor: pointer;
@@ -67,35 +67,35 @@ button {
 
 .l-bound-title {
     padding: 5px 10px;
-    color: #333;
-    background-color: #edf2f8;
+    color: var(--text-primary);
     font-weight: 600 !important;
     font-size: 13px;
-    border-bottom: 1px solid #e5e8f0;
+    border-bottom: 1px solid var(--border-primary);
 }
 
 .l-bound-list-item:hover {
-    background-color: #eee;
-    color: var(--primary-color);
+    background-color: var(--background-hover-default);
+    color: var(--primary);
 }
 
 .l-bound-list-item.active {
-    color: var(--primary-color);
-    background-color: #edf2f8;
+    color: var(--primary);
+    font-weight: 600;
+    background-color: var(--background-focus-primary)
 }
 
 .l-button-group-wrapper {
     width: 100%;
-    border-top: 1px solid #e5e8f0;
+    border-top: 1px solid var(--border-primary);
     padding: 2px;
     text-align: right;
 }
 
 .l-apply-button {
     font-size: 12px !important;
-    background-color: var(--primary-color);
+    background-color: var(--primary);
     margin-left: 2px;
-    color: #fff;
+    color: var(--text-knockout);
 }
 
 .l-cancel-button {

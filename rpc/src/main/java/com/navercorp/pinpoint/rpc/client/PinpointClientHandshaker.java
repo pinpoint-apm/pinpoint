@@ -16,18 +16,12 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
-import com.navercorp.pinpoint.rpc.cluster.Role;
+import com.navercorp.pinpoint.rpc.control.ProtocolException;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
@@ -40,10 +34,12 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.control.ProtocolException;
-import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
-import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class PinpointClientHandshaker {
 
@@ -77,8 +73,8 @@ public class PinpointClientHandshaker {
         Assert.isTrue(maxHandshakeCount > 0, "maxHandshakeCount must greater than zero.");
         
         this.state = new AtomicInteger(STATE_INIT);
-        this.handshakerTimer = Assert.requireNonNull(handshakerTimer, "handshakerTimer");
-        this.handshakeData = Assert.requireNonNull(handshakeData, "handshakeData");
+        this.handshakerTimer = Objects.requireNonNull(handshakerTimer, "handshakerTimer");
+        this.handshakeData = Objects.requireNonNull(handshakeData, "handshakeData");
 
         this.retryInterval = retryInterval;
         this.maxHandshakeCount = maxHandshakeCount;
@@ -170,7 +166,7 @@ public class PinpointClientHandshaker {
             HandshakeResponseCode code = getResponseCode(handshakeResponse);
             handshakeResult.compareAndSet(null, code);
 
-            ClusterOption clusterOption = getClusterOption(handshakeResponse);
+            ClusterOption clusterOption = ClusterOption.getClusterOption(handshakeResponse);
             this.clusterOption.compareAndSet(null, clusterOption);
 
             logger.info("{} handshakeComplete() completed. handshake-response:{}.", id, handshakeResponse);
@@ -187,15 +183,15 @@ public class PinpointClientHandshaker {
         try {
             Map result = (Map) ControlMessageEncodingUtils.decode(payload);
             return result;
-        } catch (ProtocolException e) {
-
+        } catch (ProtocolException ignore) {
+            // ignore
         }
 
         return Collections.emptyMap();
     }
 
     private HandshakeResponseCode getResponseCode(Map handshakeResponse) {
-        if (handshakeResponse == Collections.emptyMap()) {
+        if (MapUtils.isEmpty(handshakeResponse)) {
             return HandshakeResponseCode.PROTOCOL_ERROR;
         }
 
@@ -203,41 +199,6 @@ public class PinpointClientHandshaker {
         int subCode = MapUtils.getInteger(handshakeResponse, ControlHandshakeResponsePacket.SUB_CODE, -1);
 
         return HandshakeResponseCode.getValue(code, subCode);
-    }
-
-    private ClusterOption getClusterOption(Map handshakeResponse) {
-        if (handshakeResponse == Collections.emptyMap()) {
-            return ClusterOption.DISABLE_CLUSTER_OPTION;
-        }
-
-        Map cluster = (Map) handshakeResponse.get(ControlHandshakeResponsePacket.CLUSTER);
-        if (cluster == null) {
-            return ClusterOption.DISABLE_CLUSTER_OPTION;
-        }
-
-        String id = MapUtils.getString(cluster, "id", "");
-        List<Role> roles = getRoles(cluster.get("roles"));
-
-        if (StringUtils.isEmpty(id)) {
-            return ClusterOption.DISABLE_CLUSTER_OPTION;
-        } else {
-            return new ClusterOption(true, id, roles);
-        }
-    }
-
-    private List<Role> getRoles(Object roleNames) {
-        final List<Role> roles = new ArrayList<Role>();
-        if (roleNames == null || !(roleNames instanceof List)) {
-            return roles;
-        }
-
-        final List list = (List) roleNames;
-        for (Object roleName : list) {
-            if (roleName instanceof String && StringUtils.hasLength((String) roleName)) {
-                roles.add(Role.getValue((String) roleName));
-            }
-        }
-        return roles;
     }
 
     public HandshakeResponseCode getHandshakeResult() {

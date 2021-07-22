@@ -338,8 +338,9 @@ public class JoinApplicationStatBo implements JoinStatBo {
         }
 
         public List<JoinAgentStatBo> build() {
-            Stream<JoinAgentStatBo.Builder> stream = joinAgentStatBoMap.values().stream();
-            return stream.map(JoinAgentStatBo.Builder::build).collect(Collectors.toList());
+            return joinAgentStatBoMap.values().stream()
+                    .map(JoinAgentStatBo.Builder::build)
+                    .collect(Collectors.toList());
         }
     }
 

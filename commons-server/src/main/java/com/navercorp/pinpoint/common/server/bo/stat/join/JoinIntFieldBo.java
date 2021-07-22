@@ -18,7 +18,9 @@ package com.navercorp.pinpoint.common.server.bo.stat.join;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * @author Taejin Koo
@@ -28,8 +30,8 @@ public class JoinIntFieldBo extends AbstractJoinFieldBo<Integer> {
     private static final int UNCOLLECTED_VALUE = -1;
     static final JoinIntFieldBo UNCOLLECTED_FIELD_BO = new JoinIntFieldBo(UNCOLLECTED_VALUE, UNCOLLECTED_VALUE, JoinStatBo.UNKNOWN_AGENT, UNCOLLECTED_VALUE, JoinStatBo.UNKNOWN_AGENT);
 
-    public JoinIntFieldBo(Integer value, Integer minValue, String minAgentId, Integer maxValue, String maxAgentid) {
-        super(value, minValue, minAgentId, maxValue, maxAgentid);
+    public JoinIntFieldBo(Integer avgValue, Integer minValue, String minAgentId, Integer maxValue, String maxAgentId) {
+        super(avgValue, minValue, minAgentId, maxValue, maxAgentId);
     }
 
     @Override
@@ -38,35 +40,28 @@ public class JoinIntFieldBo extends AbstractJoinFieldBo<Integer> {
     }
 
     protected static JoinIntFieldBo merge(List<JoinIntFieldBo> joinIntFieldBoList) {
-        final int size = CollectionUtils.nullSafeSize(joinIntFieldBoList);
-        if (size == 0) {
+        if (CollectionUtils.isEmpty(joinIntFieldBoList)) {
             return UNCOLLECTED_FIELD_BO;
         }
 
-        JoinFieldBo<Integer> firstIntJoinFieldBo = joinIntFieldBoList.get(0);
-        int sumTotalValue = 0;
+        double avg = joinIntFieldBoList.stream()
+                .mapToInt(JoinFieldBo::getAvg)
+                .average()
+                .orElseThrow(NoSuchElementException::new);
+        JoinIntFieldBo max = joinIntFieldBoList.stream()
+                .max(Comparator.comparing(JoinFieldBo::getMax))
+                .orElseThrow(NoSuchElementException::new);
+        JoinIntFieldBo min = joinIntFieldBoList.stream()
+                .min(Comparator.comparing(JoinFieldBo::getMin))
+                .orElseThrow(NoSuchElementException::new);
 
-        String maxAgentId = firstIntJoinFieldBo.getMaxAgentId();
-        int maxValue = firstIntJoinFieldBo.getMax();
+        String maxAgentId = max.getMaxAgentId();
+        int maxValue = max.getMax();
 
-        String minAgentId = firstIntJoinFieldBo.getMinAgentId();
-        int minValue = firstIntJoinFieldBo.getMin();
+        String minAgentId = min.getMinAgentId();
+        int minValue = min.getMin();
 
-        for (JoinFieldBo<Integer> joinIntFieldBo : joinIntFieldBoList) {
-            sumTotalValue += joinIntFieldBo.getAvg();
-
-            if (joinIntFieldBo.getMax() > maxValue) {
-                maxValue = joinIntFieldBo.getMax();
-                maxAgentId = joinIntFieldBo.getMaxAgentId();
-            }
-
-            if (joinIntFieldBo.getMin() < minValue) {
-                minValue = joinIntFieldBo.getMin();
-                minAgentId = joinIntFieldBo.getMinAgentId();
-            }
-        }
-
-        return new JoinIntFieldBo(sumTotalValue / size, minValue, minAgentId, maxValue, maxAgentId);
+        return new JoinIntFieldBo((int) avg, minValue, minAgentId, maxValue, maxAgentId);
     }
 
 }

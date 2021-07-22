@@ -80,7 +80,8 @@ public class JoinResponseTimeBo implements JoinStatBo {
             return JoinResponseTimeBo.EMPTY_JOIN_RESPONSE_TIME_BO;
         }
 
-        List<JoinLongFieldBo> responseTimeFieldBoList = joinResponseTimeBoList.stream().map(JoinResponseTimeBo::getResponseTimeJoinValue).collect(Collectors.toList());
+        List<JoinLongFieldBo> responseTimeFieldBoList = joinResponseTimeBoList.stream()
+                .map(JoinResponseTimeBo::getResponseTimeJoinValue).collect(Collectors.toList());
         final JoinLongFieldBo responseTimeJoinValue = JoinLongFieldBo.merge(responseTimeFieldBoList);
 
         final JoinResponseTimeBo firstJoinResponseTimeBo = joinResponseTimeBoList.get(0);

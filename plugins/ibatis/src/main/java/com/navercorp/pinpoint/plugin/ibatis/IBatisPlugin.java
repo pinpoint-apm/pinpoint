@@ -16,17 +16,12 @@
 
 package com.navercorp.pinpoint.plugin.ibatis;
 
-import static com.navercorp.pinpoint.common.util.VarArgs.va;
-
-import java.security.ProtectionDomain;
-import java.util.List;
-
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
-import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -36,8 +31,13 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.plugin.ibatis.interceptor.SqlMapOperationInterceptor;
+
+import java.security.ProtectionDomain;
+import java.util.List;
+import java.util.Objects;
+
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
  * @author HyunGil Jeong
@@ -117,7 +117,7 @@ public class IBatisPlugin implements ProfilerPlugin, TransformTemplateAware {
         private final ServiceType serviceType;
 
         public ApiTransform(ServiceType serviceType) {
-            this.serviceType = Assert.requireNonNull(serviceType, "serviceType");
+            this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
         }
 
         @Override

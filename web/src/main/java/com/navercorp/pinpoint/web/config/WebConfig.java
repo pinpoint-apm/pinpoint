@@ -16,15 +16,16 @@
 
 package com.navercorp.pinpoint.web.config;
 
-import javax.annotation.PostConstruct;
-
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.PostConstruct;
 
 /**
  * @author koo.taejin
@@ -36,6 +37,9 @@ public class WebConfig {
 
     @Value("${cluster.enable:false}")
     private boolean clusterEnable;
+
+    @Value("${cluster.web.tcp.hostaddress:}")
+    private String hostAddress;
 
     @Value("${cluster.web.tcp.port:0}")
     private int clusterTcpPort;
@@ -74,7 +78,7 @@ public class WebConfig {
         }
 
         logger.info("{}", this);
-        AnnotationVisitor annotationVisitor = new AnnotationVisitor(Value.class);
+        AnnotationVisitor<Value> annotationVisitor = new AnnotationVisitor<>(Value.class);
         annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
 
@@ -96,6 +100,10 @@ public class WebConfig {
 
     public boolean isClusterEnable() {
         return clusterEnable;
+    }
+
+    public String getHostAddress() {
+        return hostAddress;
     }
 
     public int getClusterTcpPort() {

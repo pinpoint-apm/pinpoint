@@ -18,12 +18,10 @@ package com.navercorp.pinpoint.profiler.logging;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.Assert;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
-import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -36,7 +34,7 @@ public class Log4j2Binder implements PLoggerBinder {
     private final LoggerContext loggerContext;
 
     public Log4j2Binder(LoggerContext loggerContext) {
-        this.loggerContext = Assert.requireNonNull(loggerContext, "loggerContext");
+        this.loggerContext = Objects.requireNonNull(loggerContext, "loggerContext");
     }
 
     @Override

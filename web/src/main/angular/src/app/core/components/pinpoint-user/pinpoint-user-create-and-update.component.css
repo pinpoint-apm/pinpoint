@@ -10,7 +10,7 @@
     align-items: center;
     flex-direction: column;
     justify-content: center;
-    background-color: rgba(226, 226, 226, 0.9);
+    background-color: var(--background-blind);
 }
 
 .l-form {
@@ -29,27 +29,27 @@
 }
 
 .l-required-icon {
-    color: #d00;
+    color: var(--form-require);
     margin-left: 2px;
 }
 
 .l-input {
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-primary-darker);
     border-radius: 4px;
-    box-shadow: 0 0 1px 0 #ccc;
+    box-shadow: 0 0 1px 0 var(--border-primary-darker);
     padding: 10px 14px;
     font-size: 13px;
     width: 100%;
     display: inline-block;
     outline: 0;
-    color: #333;
+    color: var(--text-primary);
     margin-top: 4px;
-    background-color: #fff;
+    background-color: var(--background-default);
 }
 
 .l-input:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0px 1px 1px var(--primary-color);
+    border-color: var(--primary);
+    box-shadow: 0 0px 1px 1px var(--primary);
 }
 
 .l-label {
@@ -68,22 +68,23 @@
 }
 
 .ng-valid[required]  {
-    border-left: 5px solid #42A948 !important; 
+    border-left: 5px solid; 
+    border-color: var(--status-success) !important; 
 }
 
 .ng-valid[required]:focus {
-    border-color: #42a948;
-    box-shadow: 0 0 1px 0px #42a948;
+    border-color: var(--status-success);
+    box-shadow: 0 0 1px 0px var(--status-success);
 }
 
 .ng-invalid:not(form).ng-touched  {
-    border-left: 5px solid #a94442 !important;
-    border-color: #d00;
+    border-left: 5px solid;
+    border-color: var(--form-require) !important;
 }
 
 .ng-invalid:not(form).ng-touched:focus {
-    border-color: #d00;
-    box-shadow: 0 0 1px 0px #d00;
+    border-color: var(--form-require);
+    box-shadow: 0 0 1px 0px var(--form-require);
 }
 
 ::ng-deep .iti {

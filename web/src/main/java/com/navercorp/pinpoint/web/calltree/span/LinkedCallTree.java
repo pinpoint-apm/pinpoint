@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.calltree.span;
 
+import com.navercorp.pinpoint.common.util.LineNumber;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
@@ -95,10 +96,8 @@ public class LinkedCallTree implements CallTree {
     }
 
     private AnnotationBo createMultiChildAnnotation() {
-        ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo("UNKNOWN", 0, -1);
-        apiMetaDataBo.setApiInfo("Multi Child");
-        apiMetaDataBo.setLineNumber(-1);
-        apiMetaDataBo.setMethodTypeEnum(MethodTypeEnum.INVOCATION);
+        ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo("UNKNOWN", 0, -1,
+                LineNumber.NO_LINE_NUMBER, MethodTypeEnum.INVOCATION, "Multi Child");
 
         return new AnnotationBo(AnnotationKey.API_METADATA.getCode(), apiMetaDataBo);
     }

@@ -153,6 +153,11 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         this.errorMessage = '';
     }
 
+    onCheckUser(userId: string): void {
+        this.userInfo = this.getUserInfo(userId);
+        this.showCreate = true;
+    }
+
     onSearch(query: string): void {
         this.searchQuery = query;
         this.getPinpointUserList(this.searchQuery);
@@ -184,9 +189,9 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
                     this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CREATE_USER)
                 );
             this.hideProcessing();
-        }, (error: string) => {
+        }, (error: IServerErrorFormat) => {
             this.hideProcessing();
-            this.errorMessage = error;
+            this.errorMessage = error.exception.message;
         });
     }
 

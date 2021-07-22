@@ -45,6 +45,10 @@ public class TableDescriptors {
         return new DefaultTableDescriptor<>(tableNameProvider, HbaseColumnFamily.AGENT_STAT_STATISTICS);
     }
 
+    public TableDescriptor<HbaseColumnFamily.AgentUriStatStatistics> getAgentUriStatStatus() {
+        return new DefaultTableDescriptor<>(tableNameProvider, HbaseColumnFamily.AGENT_URI_STAT_STATISTICS);
+    }
+
     public TableDescriptor<HbaseColumnFamily.ApiMetadata> getApiMetadata() {
         return new DefaultTableDescriptor<>(tableNameProvider, HbaseColumnFamily.API_METADATA_API);
     }

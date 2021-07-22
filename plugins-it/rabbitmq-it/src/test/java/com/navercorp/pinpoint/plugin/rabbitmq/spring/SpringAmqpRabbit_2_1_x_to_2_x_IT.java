@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.plugin.rabbitmq.util.TestBroker;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.JvmArgument;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
@@ -63,6 +64,7 @@ import java.util.List;
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-rabbitmq-plugin", "com.navercorp.pinpoint:pinpoint-jetty-plugin", "com.navercorp.pinpoint:pinpoint-user-plugin"})
 @Dependency({"org.springframework.amqp:spring-rabbit:[2.1.0.RELEASE],(2.1.1.RELEASE,2.1.9.RELEASE),(2.1.9.RELEASE,)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
 @JvmVersion(8)
+@JvmArgument("-DtestLoggerEnable=false")
 public class SpringAmqpRabbit_2_1_x_to_2_x_IT {
 
     private static final TestBroker BROKER = new TestBroker();
@@ -315,7 +317,7 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT {
                 "Asynchronous Invocation");
         // RabbitTemplate internal consumer implementation - may change in future versions which will cause tests to
         // fail, in which case the integration test needs to be updated to match code changes
-        Class<?> rabbitTemplateInternalConsumerClass = Class.forName("org.springframework.amqp.rabbit.core.RabbitTemplate$2");
+        Class<?> rabbitTemplateInternalConsumerClass = getRabbitTemplateClazz();
         Method rabbitTemplateInternalConsumerHandleDelivery = rabbitTemplateInternalConsumerClass.getDeclaredMethod("handleDelivery", String.class, Envelope.class, AMQP.BasicProperties.class, byte[].class);
         ExpectedTrace rabbitTemplateInternalConsumerHandleDeliveryTrace = Expectations.event(
                 RabbitMQTestConstants.RABBITMQ_CLIENT_INTERNAL, // serviceType
@@ -363,4 +365,22 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT {
 
         verifier.verifyTraceCount(0);
     }
+
+    private Class getRabbitTemplateClazz() {
+        int[] indexes = {3, 2};
+
+        for (int index : indexes) {
+            try {
+                Class<?> rabbitTemplateInternalConsumerClass = Class.forName("org.springframework.amqp.rabbit.core.RabbitTemplate$" + index);
+                if (rabbitTemplateInternalConsumerClass != null) {
+                    return rabbitTemplateInternalConsumerClass;
+                }
+            } catch (ClassNotFoundException e) {
+            }
+        }
+
+        throw new IllegalArgumentException("Failed to find RabbitTemplate$ clazz");
+    }
+
+
 }

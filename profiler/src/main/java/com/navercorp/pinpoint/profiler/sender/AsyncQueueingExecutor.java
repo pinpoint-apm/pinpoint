@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,7 @@ public class AsyncQueueingExecutor<T> implements Runnable {
 
 
     public AsyncQueueingExecutor(int queueSize, String executorName, AsyncQueueingExecutorListener<T> listener) {
-        Assert.requireNonNull(executorName, "executorName");
+        Objects.requireNonNull(executorName, "executorName");
 
         this.logger = LoggerFactory.getLogger(this.getClass().getName() + "@" + executorName);
         this.isWarn = logger.isWarnEnabled();
@@ -61,7 +61,7 @@ public class AsyncQueueingExecutor<T> implements Runnable {
         this.executeThread = this.createExecuteThread(executorName);
         this.executorName = executeThread.getName();
 
-        this.listener = Assert.requireNonNull(listener, "listener");
+        this.listener = Objects.requireNonNull(listener, "listener");
     }
 
     private Thread createExecuteThread(String executorName) {
@@ -78,6 +78,7 @@ public class AsyncQueueingExecutor<T> implements Runnable {
     }
 
     private void doExecute() {
+        long timeout = 2000;
         drainStartEntry:
         while (isRun()) {
             try {
@@ -89,10 +90,12 @@ public class AsyncQueueingExecutor<T> implements Runnable {
                 }
 
                 while (isRun()) {
-                    final T dto = takeOne();
+                    final T dto = takeOne(timeout);
                     if (dto != null) {
                         doExecute(dto);
                         continue drainStartEntry;
+                    } else {
+                        pollTimeout(timeout);
                     }
                 }
             } catch (Throwable th) {
@@ -120,9 +123,9 @@ public class AsyncQueueingExecutor<T> implements Runnable {
         }
     }
 
-    private T takeOne() {
+    private T takeOne(long timeout) {
         try {
-            return queue.poll(1000 * 2, TimeUnit.MILLISECONDS);
+            return queue.poll(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return null;
@@ -131,6 +134,10 @@ public class AsyncQueueingExecutor<T> implements Runnable {
 
     private int takeN(Collection<T> drain, int maxDrainSize) {
         return queue.drainTo(drain, maxDrainSize);
+    }
+
+    protected void pollTimeout(long timeout) {
+        // do nothing
     }
 
     public boolean execute(T data) {

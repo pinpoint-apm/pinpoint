@@ -24,9 +24,49 @@
     </organization>
     <groupId>com.navercorp.pinpoint</groupId>
     <artifactId>pinpoint</artifactId>
-    <version>2.1.1-SNAPSHOT</version>
+    <version>2.3.1-SNAPSHOT</version>
     <name>pinpoint</name>
     <packaging>pom</packaging>
+
+    <url>https://github.com/pinpoint-apm/pinpoint</url>
+    <description>
+        Pinpoint APM, Application Performance Management tool for large-scale distributed systems
+    </description>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <inceptionYear>2012</inceptionYear>
+
+    <scm>
+        <url>https://github.com/pinpoint-apm/pinpoint</url>
+        <connection>scm:git:git://github.com/pinpoint-apm/pinpoint.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/pinpoint-apm/pinpoint.git</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <id>emeroad</id>
+            <name>WoonDuk Kang</name>
+            <email>emeroad@gamil.com</email>
+            <organization>NAVER Corp.</organization>
+            <organizationUrl>http://www.naver.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
     <repositories>
         <!--
@@ -38,17 +78,14 @@
         -->
     </repositories>
 
-
     <modules>
         <module>annotations</module>
         <module>agent</module>
+        <module>agent-sdk</module>
+
         <module>agent-testweb</module>
         <module>agent-plugins</module>
-        <module>bootstrap</module>
-        <module>bootstrap-core</module>
-        <module>bootstrap-java7</module>
-        <module>bootstrap-java8</module>
-        <module>bootstrap-java9</module>
+        <module>bootstraps</module>
         <module>collector</module>
         <module>commons</module>
         <module>commons-buffer</module>
@@ -71,47 +108,49 @@
         <module>hbase</module>
         <module>flink</module>
         <module>testcase</module>
+        <module>batch</module>
+
+        <module>hbase2-module</module>
     </modules>
 
     <properties>
         <encoding>UTF-8</encoding>
-        <jdk.version>1.6</jdk.version>
-        <jdk.home>${env.JAVA_6_HOME}</jdk.home>
+        <jdk.version>1.7</jdk.version>
+        <jdk.home>${env.JAVA_7_HOME}</jdk.home>
         <test.jdk.home>${jdk.home}</test.jdk.home>
 
         <!-- hbase -->
         <hbase.shaded.client.version>1.4.13</hbase.shaded.client.version>
+        <hbase2.client.version>2.4.2</hbase2.client.version>
 
-        <plugin.clover.skip>false</plugin.clover.skip>
+        <plugin.jacoco.skip>true</plugin.jacoco.skip>
         <plugin.animal-sniffer.skip>false</plugin.animal-sniffer.skip>
 
         <!-- library -->
         <metrics.version>3.2.6</metrics.version>
 
-        <!-- jdk 6 compatibility version -->
-        <fastxml.jackson-jdk6.version>2.6.6</fastxml.jackson-jdk6.version>
-        <fastxml.jackson.version>2.10.4</fastxml.jackson.version>
-        <snakeyaml.version>1.26</snakeyaml.version>
+        <fastxml.jackson.version>2.12.1</fastxml.jackson.version>
+        <snakeyaml.version>1.27</snakeyaml.version>
 
         <httpcomponents.version>4.5.6</httpcomponents.version>
         <httpcomponents-core.version>4.4.10</httpcomponents-core.version>
 
 
         <spring4.version>4.3.27.RELEASE</spring4.version>
-        <spring5.version>5.2.7.RELEASE</spring5.version>
+        <spring5.version>5.3.6</spring5.version>
         <spring.version>${spring4.version}</spring.version>
         <spring.batch.version>4.2.4.RELEASE</spring.batch.version>
 
         <spring.security4.version>4.2.8.RELEASE</spring.security4.version>
-        <spring.security5.version>5.3.3.RELEASE</spring.security5.version>
+        <spring.security5.version>5.4.6</spring.security5.version>
         <spring.security.version>${spring.security4.version}</spring.security.version>
 
-        <spring.boot.version>2.2.8.RELEASE</spring.boot.version>
+        <spring.boot.version>2.4.5</spring.boot.version>
 
         <slf4j.version>1.7.30</slf4j.version>
-        <log4j2-jdk6.version>2.3</log4j2-jdk6.version>
+        <log4j2-jdk7.version>2.12.1</log4j2-jdk7.version>
         <log4j2-jdk8.version>2.13.3</log4j2-jdk8.version>
-        <log4j2.version>${log4j2-jdk6.version}</log4j2.version>
+        <log4j2.version>${log4j2-jdk7.version}</log4j2.version>
         <!-- for plugin & hbase client -->
         <log4j1.version>1.2.17</log4j1.version>
 
@@ -120,41 +159,45 @@
         <javax.servlet.version>3.0.1</javax.servlet.version>
 
 
-        <asm.version>8.0.1</asm.version>
+        <asm.version>9.1</asm.version>
         <!-- 0.13.0 required Java 1.8 https://github.com/apache/thrift/pull/1657 -->
         <thrift.version>0.12.0</thrift.version>
         <ehcache.version>2.10.6</ehcache.version>
         <netty3.version>3.10.6.Final</netty3.version>
-        <netty4.version>4.1.50.Final</netty4.version>
+        <netty4.version>4.1.58.Final</netty4.version>
 
 
-        <guava-jdk6.version>20.0</guava-jdk6.version>
-        <guava-jdk8.version>29.0-jre</guava-jdk8.version>
-        <guava.version>${guava-jdk6.version}</guava.version>
+        <guava-jdk7.version>30.1-android</guava-jdk7.version>
+        <guava-jdk8.version>30.1-jre</guava-jdk8.version>
+        <guava.version>${guava-jdk7.version}</guava.version>
 
         <mybatis.spring.version>1.3.3</mybatis.spring.version>
         <mybatis.version>3.4.6</mybatis.version>
 
+        <jjwt.version>0.9.1</jjwt.version>
+        <jaxb.version>2.3.1</jaxb.version>
+
+        <zookeeper.version>3.4.14</zookeeper.version>
+        <curator.version>4.2.0</curator.version>
+        <curator.test.version>2.13.0</curator.test.version>
+
         <!-- maven-plugin -->
         <plugin.compiler.version>3.8.1</plugin.compiler.version>
-        <plugin.resources.version>3.1.0</plugin.resources.version>
+        <plugin.resources.version>3.2.0</plugin.resources.version>
         <plugin.surefire.version>2.22.2</plugin.surefire.version>
         <plugin.failsafe.version>2.22.2</plugin.failsafe.version>
         <plugin.shade.version>3.1.1</plugin.shade.version>
-        <plugin.assembly.version>3.1.1</plugin.assembly.version>
-        <plugin.war.version>3.2.2</plugin.war.version>
+        <plugin.assembly.version>3.3.0</plugin.assembly.version>
         <plugin.jar.version>3.2.0</plugin.jar.version>
-        <plugin.antrun.version>1.8</plugin.antrun.version>
+        <plugin.antrun.version>3.0.0</plugin.antrun.version>
 
-        <!--<plugin.clover.verison>4.3.0</plugin.clover.verison>-->
-        <plugin.clover.version>4.2.1</plugin.clover.version>
-        <plugin.spotbugs.version>3.1.12</plugin.spotbugs.version>
-        <plugin.pmd.version>3.12.0</plugin.pmd.version>
+        <plugin.spotbugs.version>4.1.4</plugin.spotbugs.version>
+        <plugin.pmd.version>3.14.0</plugin.pmd.version>
 
-        <plugin.enforcer.version>3.0.0-M2</plugin.enforcer.version>
-        <plugin.animal-sniffer.version>1.18</plugin.animal-sniffer.version>
+        <plugin.enforcer.version>3.0.0-M3</plugin.enforcer.version>
+        <plugin.animal-sniffer.version>1.19</plugin.animal-sniffer.version>
 
-        <sniffer.artifactid>java16</sniffer.artifactid>
+        <sniffer.artifactid>java17</sniffer.artifactid>
 
         <!-- frontend-plugin -->
         <plugin.frontend.version>1.9.0</plugin.frontend.version>
@@ -172,7 +215,7 @@
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-library</artifactId>
+            <artifactId>hamcrest</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -252,17 +295,18 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-bootstraps</artifactId>
+                <type>pom</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-bootstrap</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-bootstrap-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-bootstrap-java7</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -306,6 +350,11 @@
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-agent-plugins</artifactId>
                 <type>zip</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-batch</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -453,6 +502,12 @@
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-servlets</artifactId>
                 <version>${metrics.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.papertrail</groupId>
+                        <artifactId>profiler</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -475,7 +530,11 @@
                 <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>${fastxml.jackson.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.hbase</groupId>
@@ -671,16 +730,12 @@
                 <version>${netty4.version}</version>
             </dependency>
             <dependency>
+                <!-- https://netty.io/wiki/native-transports.html -->
                 <groupId>io.netty</groupId>
                 <artifactId>netty-transport-native-epoll</artifactId>
                 <version>${netty4.version}</version>
+                <classifier>linux-x86_64</classifier>
             </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-transport-native-unix-common</artifactId>
-                <version>${netty4.version}</version>
-            </dependency>
-
 
             <dependency>
                 <groupId>net.sf.ehcache</groupId>
@@ -705,13 +760,14 @@
                 <artifactId>commons-io</artifactId>
                 <!-- 2.7 (requires Java 8 -->
                 <!-- 2.6 (requires Java 7 -->
-                <version>2.5</version>
+                <version>2.6</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
+                <!-- https://commons.apache.org/proper/commons-lang/changes-report.html -->
                 <!-- Lang 3.9 and onwards now targets Java 8, making use of features that arrived with Java 8.-->
-                <version>3.10</version>
+                <version>3.8.1</version>
             </dependency>
             <dependency>
                 <groupId>commons-lang</groupId>
@@ -725,16 +781,35 @@
                 <version>3.2.2</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>4.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>1.20</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <!-- Codec 1.14 (mirrors) requires Java 7-->
-                <!-- Codec 1.11 (archives) requires Java 6-->
                 <version>1.14</version>
             </dependency>
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
                 <version>1.9.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math3</artifactId>
+                <version>3.6.1</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-digester</groupId>
+                <artifactId>commons-digester</artifactId>
+                <version>2.1</version>
             </dependency>
 
             <dependency>
@@ -803,17 +878,23 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.12</version>
+                <version>4.13.2</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.hamcrest</groupId>
+                        <artifactId>hamcrest-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest-library</artifactId>
-                <version>1.3</version>
+                <artifactId>hamcrest</artifactId>
+                <version>2.2</version>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>2.7.22</version>
+                <version>2.28.2</version>
             </dependency>
             <dependency>
                 <groupId>org.dbunit</groupId>
@@ -825,7 +906,7 @@
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
-                <version>3.4.14</version>
+                <version>${zookeeper.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.jboss.netty</groupId>
@@ -845,7 +926,7 @@
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-framework</artifactId>
-                <version>4.2.0</version>
+                <version>${curator.version}</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>zookeeper</artifactId>
@@ -863,7 +944,7 @@
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-test</artifactId>
-                <version>2.13.0</version>
+                <version>${curator.test.version}</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>zookeeper</artifactId>
@@ -896,14 +977,25 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>listenablefuture</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.google.inject</groupId>
                 <artifactId>guice</artifactId>
-                <version>4.1.0</version>
+                <version>4.2.2</version>
             </dependency>
 
 
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.10.10</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -913,7 +1005,7 @@
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>2.3.3.RELEASE</version>
+                    <version>${spring.boot.version}</version>
                     <executions>
                         <execution>
                             <goals>
@@ -949,10 +1041,129 @@
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>3.1.0</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.9.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>3.1.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.1.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>3.0.0-M1</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.cj.jshintmojo</groupId>
+                    <artifactId>jshint-maven-plugin</artifactId>
+                    <version>1.6.0</version>
+                    <configuration>
+                        <options>sub, boss, newcap, loopfunc</options>
+                        <globals></globals>
+                        <directories>
+                            <directory>src/main/webapp</directory>
+                        </directories>
+                        <excludes>
+                            <exclude>src/main/webapp/components</exclude>
+                        </excludes>
+                        <reporter>checkstyle</reporter>
+                        <reportFile>${project.build.directory}/jshint.xml</reportFile>
+                        <failOnError>false</failOnError>
+                    </configuration>
+                </plugin>
+
+                <!-- reporting -->
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>${plugin.spotbugs.version}</version>
+                    <configuration>
+                        <excludeFilterFile>${maven.multiModuleProjectDirectory}/spotbugs-exclude.xml</excludeFilterFile>
+                        <xmlOutput>true</xmlOutput>
+                        <xmlOutputDirectory>${project.build.directory}/spotbugs</xmlOutputDirectory>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-pmd-plugin</artifactId>
+                    <version>${plugin.pmd.version}</version>
+                    <configuration>
+                        <linkXRef>true</linkXRef>
+                        <sourceEncoding>${encoding}</sourceEncoding>
+                        <targetJdk>${jdk.version}</targetJdk>
+                        <excludes>
+                            <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
+                            <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                            <exclude>com/navercorp/pinpoint/common/profiler/util/jsr166/**/*.java</exclude>
+                            <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+                            <exclude>com/navercorp/pinpoint/grpc/trace/**/*.java</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.6</version>
+                    <executions>
+                        <execution>
+                            <id>prepare-agent</id>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>report</id>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <skip>${plugin.jacoco.skip}</skip>
+                        <excludes>
+                            <exclude>com/navercorp/pinpoint/thrift/dto/**/*.class</exclude>
+                            <exclude>com/navercorp/pinpoint/common/util/apache/**/*.class</exclude>
+                            <exclude>com/navercorp/pinpoint/common/profiler/util/jsr166/**/*.class</exclude>
+                            <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.class</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
 
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>submodule update</id>
+                        <phase>initialize</phase>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <executable>git</executable>
+                            <arguments>
+                                <argument>submodule</argument>
+                                <argument>update</argument>
+                                <argument>--init</argument>
+                                <argument>--recursive</argument>
+                            </arguments>
+                        </configuration>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -988,48 +1199,38 @@
                         <exclude>**/*Helper</exclude>
                         <exclude>**/*$*</exclude>
                     </excludes>
-                    <argLine>-Dfile.encoding=${encoding}</argLine>
+                    <!-- Add  @{argLine} for jacoco -->
+                    <argLine>@{argLine} -Dfile.encoding=${encoding}</argLine>
                     <jvm>${test.jdk.home}/bin/java</jvm>
                     <forkMode>once</forkMode>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.openclover</groupId>
-                <artifactId>clover-maven-plugin</artifactId>
-                <version>${plugin.clover.version}</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${plugin.failsafe.version}</version>
                 <configuration>
-                    <encoding>${encoding}</encoding>
-                    <jdk>${jdk.version}</jdk>
-                    <generateXml>true</generateXml>
-                    <generateHtml>true</generateHtml>
-                    <generateHistorical>false</generateHistorical>
-                    <license>
-                        <![CDATA[
-                        RMRqrdbgbKFhbaVnDxHUdDQvrOQXxIBklnvcmahheubVC
-                        mh2KM35CLkwUHS4DH7QVhxy52J5hnWbyEm6Cyd3KkF<mV
-                        RmmnSVOqOMnOnMMrmMqwXomoroNrqPNRrPSsWwtUxXuUU
-                        sRONqpnmqmUUnqonmstsmmmmmUUnqonmstsmmmmmUUGfk
-                        mlfkqUUnmmmm
-                        ]]>
-                    </license>
-                    <singleCloverDatabase>false</singleCloverDatabase>
-                    <includesTestSourceRoots>false</includesTestSourceRoots>
-                    <excludes>
-                        <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/common/profiler/util/jsr166/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
-                    </excludes>
-                    <skip>${plugin.clover.skip}</skip>
+                    <jvm>${test.jdk.home}/bin/java</jvm>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>${plugin.spotbugs.version}</version>
-                <configuration>
-                    <excludeFilterFile>${maven.multiModuleProjectDirectory}/spotbugs-exclude.xml</excludeFilterFile>
-                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/*Base</exclude>
+                            </excludes>
+                            <includes>
+                                <include>**/*IT.java</include>
+                            </includes>
+                            <!-- AbstractPinpointPluginTestSuite needs this to resolve
+                            path of required jars -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -1054,9 +1255,6 @@
                                     <variableName>JAVA_HOME</variableName>
                                 </requireEnvironmentVariable>
                                 <requireEnvironmentVariable>
-                                    <variableName>JAVA_6_HOME</variableName>
-                                </requireEnvironmentVariable>
-                                <requireEnvironmentVariable>
                                     <variableName>JAVA_7_HOME</variableName>
                                 </requireEnvironmentVariable>
                                 <requireEnvironmentVariable>
@@ -1070,43 +1268,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>${plugin.pmd.version}</version>
-                <configuration>
-                    <linkXRef>true</linkXRef>
-                    <sourceEncoding>${encoding}</sourceEncoding>
-                    <targetJdk>${jdk.version}</targetJdk>
-                    <excludes>
-                        <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/common/profiler/util/jsr166/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/grpc/trace/**/*.java</exclude>
-
-                        <exclude>com/navercorp/pinpoint/bootstrap/util/jdk/ThreadLocalRandom.java</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.cj.jshintmojo</groupId>
-                <artifactId>jshint-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <configuration>
-                    <options>sub, boss, newcap, loopfunc</options>
-                    <globals></globals>
-                    <directories>
-                        <directory>src/main/webapp</directory>
-                    </directories>
-                    <excludes>
-                        <exclude>src/main/webapp/components</exclude>
-                    </excludes>
-                    <reporter>checkstyle</reporter>
-                    <reportFile>${project.build.directory}/jshint.xml</reportFile>
-                    <failOnError>false</failOnError>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -1133,10 +1294,22 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>3.7.1</version>
+                <artifactId>maven-pmd-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.cj.jshintmojo</groupId>
+                <artifactId>jshint-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
@@ -1146,69 +1319,20 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>${plugin.spotbugs.version}</version>
-                <configuration>
-                    <excludeFilterFile>${maven.multiModuleProjectDirectory}/spotbugs-exclude.xml</excludeFilterFile>
-                    <xmlOutput>true</xmlOutput>
-                    <xmlOutputDirectory>${project.build.directory}/spotbugs</xmlOutputDirectory>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>${plugin.pmd.version}</version>
-                <configuration>
-                    <linkXRef>true</linkXRef>
-                    <sourceEncoding>${encoding}</sourceEncoding>
-                    <targetJdk>${jdk.version}</targetJdk>
-                    <!-- <rulesets> <ruleset>/rulesets/unusedcode.xml</ruleset>
-                        <ruleset>/rulesets/basic.xml</ruleset> <ruleset>/rulesets/imports.xml</ruleset>
-                        <ruleset>/rulesets/design.xml</ruleset> </rulesets> -->
-                    <excludes>
-                        <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/common/profiler/util/jsr166/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.openclover</groupId>
-                <artifactId>clover-maven-plugin</artifactId>
-                <version>${plugin.clover.version}</version>
-                <configuration>
-                    <includesTestSourceRoots>true</includesTestSourceRoots>
-                    <license>
-                        <![CDATA[
-                        RMRqrdbgbKFhbaVnDxHUdDQvrOQXxIBklnvcmahheubVC
-                        mh2KM35CLkwUHS4DH7QVhxy52J5hnWbyEm6Cyd3KkF<mV
-                        RmmnSVOqOMnOnMMrmMqwXomoroNrqPNRrPSsWwtUxXuUU
-                        sRONqpnmqmUUnqonmstsmmmmmUUnqonmstsmmmmmUUGfk
-                        mlfkqUUnmmmm
-                        ]]>
-                    </license>
-                    <encoding>${encoding}</encoding>
-                    <jdk>${jdk.version}</jdk>
-                    <excludes>
-                        <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/common/profiler/util/jsr166/**/*.java</exclude>
-                        <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
-                    </excludes>
-                    <skip>${plugin.clover.skip}</skip>
-                </configuration>
-            </plugin>
-
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.7.1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
-                <version>2.5</version>
+                <version>3.0.0</version>
                 <inherited>false</inherited>
                 <configuration>
                     <aggregate>true</aggregate>
@@ -1249,6 +1373,79 @@
             <properties>
                 <env>release</env>
                 <spring.profiles.active>release</spring.profiles.active>
+            </properties>
+        </profile>
+        <!-- for maven.central.release -->
+        <profile>
+            <id>maven.central.release</id>
+            <properties>
+                <env>release</env>
+                <spring.profiles.active>release</spring.profiles.active>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <configuration>
+                            <additionalJOption>-Xdoclint:none</additionalJOption>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.8</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>code.coverage</id>
+            <properties>
+                <plugin.jacoco.skip>false</plugin.jacoco.skip>
             </properties>
         </profile>
 

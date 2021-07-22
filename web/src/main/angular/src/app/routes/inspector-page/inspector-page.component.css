@@ -25,13 +25,13 @@
 .l-sidemenu-left {
     width: 250px;
     overflow: visible;
-    border-right: 1px solid #E5E8F0;
-    background: #FFF;
+    border-right: 1px solid var(--border-primary);
+    background: var(--background-default);
     height: 100%;
 }
 .l-main-section {
     flex: 1;
-    background: #edf2f8;
+    background: var(--background-primary);
     position: relative;
     height: 100%;
     width: calc(100% - 250px);
@@ -45,5 +45,5 @@ button {
     outline: none;
 }
 .l-application-inspector-title-wrapper {
-    border-bottom: 1px solid #e0e7ee;
+    border-bottom: 1px solid var(--border-primary);
 }

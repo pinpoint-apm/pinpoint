@@ -26,8 +26,6 @@ import java.security.PrivilegedAction;
 import java.security.ProtectionDomain;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.logging.Level;
@@ -40,9 +38,11 @@ import java.util.logging.Logger;
  */
 public class TransformClassLoader extends ClassLoader {
 
-    private final Logger logger = Logger.getLogger(TransformClassLoader.class.getName());
+    static {
+        registerAsParallelCapable();
+    }
 
-    private final ConcurrentMap<String, Object> lockMap = new ConcurrentHashMap<String, Object>();
+    private final Logger logger = Logger.getLogger(TransformClassLoader.class.getName());
 
     private final Set<String> notDefinedClass = new CopyOnWriteArraySet<String>();
     private final List<String> notDefinedPackages = new CopyOnWriteArrayList<String>();
@@ -157,16 +157,6 @@ public class TransformClassLoader extends ClassLoader {
 
             return c;
         }
-    }
-
-    protected Object getClassLoadingLock(String className) {
-
-        final Object newLock = new Object();
-        final Object existLock = lockMap.putIfAbsent(className, newLock);
-        if (existLock != null) {
-            return existLock;
-        }
-        return newLock;
     }
 
     /**

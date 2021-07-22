@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.Header;
@@ -27,24 +29,37 @@ import io.grpc.Status;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim
  */
 public class AgentHeaderReader implements HeaderReader<Header> {
 
-    public AgentHeaderReader() {
+    // for debug
+    protected final String name;
+
+    public AgentHeaderReader(String name) {
+        this.name = Objects.requireNonNull(name, "name");
     }
 
     @Override
     public Header extract(Metadata headers) {
         final String agentId = getId(headers, Header.AGENT_ID_KEY);
+        final String agentName = getAgentName(headers, Header.AGENT_NAME_KEY);
         final String applicationName = getId(headers, Header.APPLICATION_NAME_KEY);
         final long startTime = getTime(headers, Header.AGENT_START_TIME_KEY);
+        final int serviceType = getServiceType(headers);
         final long socketId = getSocketId(headers);
         final List<Integer> supportCommandCodeList = getSupportCommandCodeList(headers);
+        final Map<String, Object> properties = newProperties(headers);
+        return new Header(name, agentId, agentName, applicationName, serviceType, startTime, socketId, supportCommandCodeList, properties);
+    }
 
-        return new Header(agentId, applicationName, startTime, socketId, supportCommandCodeList);
+    protected Map<String, Object> newProperties(Metadata headers) {
+        return Collections.emptyMap();
     }
 
     protected long getTime(Metadata headers, Metadata.Key<String> timeKey) {
@@ -66,6 +81,19 @@ public class AgentHeaderReader implements HeaderReader<Header> {
             throw Status.INVALID_ARGUMENT.withDescription(idKey.name() + " header is missing").asRuntimeException();
         }
         return validateId(id, idKey);
+    }
+
+    protected String getAgentName(Metadata headers, Metadata.Key<String> idKey) {
+        final String name = headers.get(idKey);
+        if (!StringUtils.isEmpty(name)) {
+            if (!IdValidateUtils.checkPattern(name)) {
+                throw Status.INVALID_ARGUMENT.withDescription("invalid " + idKey.name()).asRuntimeException();
+            }
+            if (!IdValidateUtils.checkLength(name,  PinpointConstants.AGENT_NAME_MAX_LEN)) {
+                throw Status.INVALID_ARGUMENT.withDescription("invalid " + idKey.name() + ".length").asRuntimeException();
+            }
+        }
+        return name;
     }
 
     protected long getSocketId(Metadata headers) {
@@ -105,11 +133,22 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         }
     }
 
-    private String validateId(String id, Metadata.Key key) {
+    String validateId(String id, Metadata.Key key) {
         if (!IdValidateUtils.validateId(id)) {
             throw Status.INVALID_ARGUMENT.withDescription("invalid " + key.name()).asRuntimeException();
         }
         return id;
     }
 
+    protected int getServiceType(Metadata headers) {
+        final String serviceTypeStr = headers.get(Header.SERVICE_TYPE_KEY);
+        if (serviceTypeStr == null) {
+            return ServiceType.UNDEFINED.getCode();
+        }
+        try {
+            return Integer.parseInt(serviceTypeStr);
+        } catch (NumberFormatException ignored) {
+            return ServiceType.UNDEFINED.getCode();
+        }
+    }
 }

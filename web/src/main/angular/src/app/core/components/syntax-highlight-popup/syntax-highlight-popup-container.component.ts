@@ -1,9 +1,10 @@
-import { Component, OnInit, Input, Output, EventEmitter, AfterViewInit } from '@angular/core';
-import { Observable, iif, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Component, OnInit, Input, Output, EventEmitter, AfterViewInit, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Observable, iif, of, EMPTY } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
-import { DynamicPopup } from 'app/shared/services';
+import { DynamicPopup, DynamicPopupService } from 'app/shared/services';
 import { SyntaxHighlightDataService } from './syntax-highlight-data.service';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Component({
     selector: 'pp-syntax-highlight-popup-container',
@@ -18,12 +19,29 @@ export class SyntaxHighlightPopupContainerComponent implements OnInit, AfterView
     data$: Observable<ISyntaxHighlightData>;
 
     constructor(
-        private syntaxHighlightDataService: SyntaxHighlightDataService
+        private syntaxHighlightDataService: SyntaxHighlightDataService,
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
 
     ngOnInit() {
         this.data$ = iif(() => !!this.data.bindValue,
             this.syntaxHighlightDataService.getData(this.data).pipe(
+                catchError((error: IServerErrorFormat) => {
+                    this.dynamicPopupService.openPopup({
+                        data: {
+                            title: 'Error',
+                            contents: error
+                        },
+                        component: ServerErrorPopupContainerComponent
+                    }, {
+                        resolver: this.componentFactoryResolver,
+                        injector: this.injector
+                    });
+
+                    return EMPTY;
+                }),
                 map((bindedContents: string) => {
                     return { ...this.data, bindedContents };
                 })

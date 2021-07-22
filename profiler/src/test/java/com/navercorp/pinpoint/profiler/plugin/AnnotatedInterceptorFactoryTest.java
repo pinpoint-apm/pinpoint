@@ -27,9 +27,11 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetricRegistry;
+import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
 import com.navercorp.pinpoint.profiler.instrument.ScopeInfo;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -52,12 +54,14 @@ public class AnnotatedInterceptorFactoryTest {
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry = mock(DataSourceMonitorRegistry.class);
     private final CustomMetricRegistry customMetricRegistry = mock(CustomMetricRegistry.class);
     private final ApiMetaDataService apiMetaDataService = mock(ApiMetaDataService.class);
+
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
     private final TraceContext traceContext = mock(TraceContext.class);
     private final InstrumentClass instrumentClass = mock(InstrumentClass.class);
     private final InstrumentMethod instrumentMethod = mock(InstrumentMethod.class);
     private final MethodDescriptor descriptor = mock(MethodDescriptor.class);
     private final RequestRecorderFactory requestRecorderFactory = mock(RequestRecorderFactory.class);
+    private final UriStatRecorderFactory uriStatRecorderFactory = mock(UriStatRecorderFactory.class);
 
     private final ExceptionHandlerFactory exceptionHandlerFactory = new ExceptionHandlerFactory(false);
 
@@ -79,7 +83,9 @@ public class AnnotatedInterceptorFactoryTest {
     }
 
     private AnnotatedInterceptorFactory newAnnotatedInterceptorFactory() {
-        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, customMetricRegistry, apiMetaDataService, pluginContext, exceptionHandlerFactory, requestRecorderFactory);
+        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, customMetricRegistry,
+                apiMetaDataService, pluginContext, exceptionHandlerFactory, requestRecorderFactory,
+                uriStatRecorderFactory);
     }
 
     private ScopeInfo newEmptyScopeInfo() {

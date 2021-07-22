@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.transformer;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.security.ProtectionDomain;
 
@@ -27,7 +27,7 @@ public class PinpointClassLoaderFilter implements ClassFileFilter {
 
     public PinpointClassLoaderFilter(ClassLoader agentLoader) {
 
-        this.agentLoader = Assert.requireNonNull(agentLoader, "agentLoader");
+        this.agentLoader = Objects.requireNonNull(agentLoader, "agentLoader");
     }
 
     @Override

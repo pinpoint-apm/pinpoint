@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.DefaultAsyncSpanChunk;
 import com.navercorp.pinpoint.profiler.context.DefaultLocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanChunk;
@@ -223,7 +223,7 @@ public class OrderedSpanRecorderTest {
     }
     
     private SpanEvent createAsyncSpanEvent(TraceRoot traceRoot, int startElapsed, short sequence) {
-        Assert.requireNonNull(traceRoot, "traceRoot");
+        Objects.requireNonNull(traceRoot, "traceRoot");
         if (startElapsed < 0) {
             throw new IllegalArgumentException("startElapsed cannot be less than 0");
         }

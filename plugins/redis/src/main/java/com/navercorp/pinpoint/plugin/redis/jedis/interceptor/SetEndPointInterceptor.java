@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.redis.jedis.interceptor;
 import java.net.URI;
 
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.redis.jedis.EndPointUtils;
 import redis.clients.jedis.JedisShardInfo;
 
@@ -28,6 +29,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.redis.jedis.EndPointAccessor;
+//import redis.clients.jedis.JedisSocketFactory; // For compatibility with Java 1.7
 
 /**
  * Jedis (redis client) constructor interceptor
@@ -74,12 +76,16 @@ public class SetEndPointInterceptor implements AroundInterceptor {
         } else if (argZero instanceof JedisShardInfo) {
             final JedisShardInfo info = (JedisShardInfo) argZero;
             return HostAndPort.toHostAndPortString(info.getHost(), info.getPort());
+        // TODO The JedisSocketFactory class is supported from jedis version 3.6, and java 1.8 is required.
+        // } else if (argZero instanceof JedisSocketFactory) {
+        //    final JedisSocketFactory factory = (JedisSocketFactory) argZero;
+        //    return HostAndPort.toHostAndPortString(factory.getHost(), factory.getPort());
         }
         return "Unknown";
     }
 
     private boolean validate(final Object target, final Object[] args) {
-        if (args == null || args.length == 0 || args[0] == null) {
+        if (ArrayUtils.isEmpty(args) || args[0] == null) {
             if (isDebug) {
                 logger.debug("Invalid arguments. Null or not found args({}).", args);
             }

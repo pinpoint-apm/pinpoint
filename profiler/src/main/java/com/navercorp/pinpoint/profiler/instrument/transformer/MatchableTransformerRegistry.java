@@ -22,8 +22,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.MatcherType;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.ClassInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.PackageInternalNameMatcherOperand;
-import com.navercorp.pinpoint.common.profiler.util.IntegerUtils;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadataReader;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
@@ -60,8 +59,8 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
     private final TransformerMatcher transformerMatcher;
 
     public MatchableTransformerRegistry(InstrumentMatcherCacheConfig instrumentMatcherCacheConfig, List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
-        Assert.requireNonNull(instrumentMatcherCacheConfig, "instrumentMatcherCacheConfig");
-        Assert.requireNonNull(matchableClassFileTransformerList, "matchableClassFileTransformerList");
+        Objects.requireNonNull(instrumentMatcherCacheConfig, "instrumentMatcherCacheConfig");
+        Objects.requireNonNull(matchableClassFileTransformerList, "matchableClassFileTransformerList");
 
         final List<MatchableClassFileTransformer> defaultTransfomerList = filterDefaultMatcher(matchableClassFileTransformerList);
         this.defaultTransformerRegistry = new DefaultTransformerRegistry(defaultTransfomerList);
@@ -70,7 +69,7 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         this.packageNameBasedIndex = new TreeMap<String, Set<IndexValue>>(new Comparator<String>() {
             @Override
             public int compare(String key1, String key2) {
-                return IntegerUtils.compare(key1.length(), key2.length());
+                return key1.compareTo(key2);
             }
         });
 

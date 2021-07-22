@@ -37,17 +37,21 @@ public class JavaAssistUtilsTest {
 
     @Test
     public void javaArraySize() {
-        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize(""), 0);
-        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("[]"), 1);
-        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("[][][]"), 3);
+        Assert.assertEquals(0, JavaAssistUtils.getJavaObjectArraySize(""));
+        Assert.assertEquals(1, JavaAssistUtils.getJavaObjectArraySize("[]"));
+        Assert.assertEquals(3, JavaAssistUtils.getJavaObjectArraySize("[][][]"));
 
-        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("int"), 0);
-        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("int[]"), 1);
-        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("int[][][]"), 3);
+        Assert.assertEquals(0, JavaAssistUtils.getJavaObjectArraySize("int"));
+        Assert.assertEquals(1, JavaAssistUtils.getJavaObjectArraySize("int[]"));
+        Assert.assertEquals(3, JavaAssistUtils.getJavaObjectArraySize("int[][][]"));
 
+        Assert.assertEquals(0, JavaAssistUtils.getJavaObjectArraySize("java.lang.String"));
+        Assert.assertEquals(2, JavaAssistUtils.getJavaObjectArraySize("java.lang.String[][]"));
+    }
 
-        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("java.lang.String"), 0);
-        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("java.lang.String[][]"), 2);
+    @Test
+    public void javaArraySize_invalid() {
+        Assert.assertEquals(2, JavaAssistUtils.getJavaObjectArraySize("[]test[][]"));
     }
 
     @Test
@@ -195,14 +199,65 @@ public class JavaAssistUtilsTest {
 
     @Test
     public void testGetParameterDescription2() throws Exception {
+        @SuppressWarnings("deprecation")
         String clsDescription = JavaAssistUtils.getParameterDescription(new Class[]{String.class, Integer.class});
-        logger.debug(clsDescription);
         Assert.assertEquals("(java.lang.String, java.lang.Integer)", clsDescription);
     }
 
     @Test
-    public void testJavaClassNameToJvmResourceName() throws Exception {
+    public void testJavaClassNameToJvmResourceName1() throws Exception {
         Assert.assertEquals("java/lang/String.class", JavaAssistUtils.javaClassNameToJvmResourceName("java.lang.String"));
+    }
+
+    @Test
+    public void testJavaClassNameToJvmResourceName2() throws Exception {
+        Assert.assertEquals("java/lang/String.class", JavaAssistUtils.javaClassNameToJvmResourceName("java/lang/String"));
+    }
+
+    @Test
+    public void testToPinpointParameterType() {
+        int[][] stringArray = new int[0][0];
+        String parameterType = JavaAssistUtils.toPinpointParameterType(stringArray.getClass());
+        Assert.assertEquals("int[][]", parameterType);
+    }
+
+    @Test
+    public void javaClassNameToVariableName1() {
+        String variableName = JavaAssistUtils.javaClassNameToVariableName("Test$CgLib");
+        Assert.assertEquals("Test_CgLib", variableName);
+    }
+
+    @Test
+    public void javaClassNameToVariableName2() {
+        String variableName = JavaAssistUtils.javaClassNameToVariableName("Test$$CgLib");
+        Assert.assertEquals("Test__CgLib", variableName);
+    }
+
+    @Test
+    public void javaClassNameToVariableName3() {
+        String variableName = JavaAssistUtils.javaClassNameToVariableName("Test$");
+        Assert.assertEquals("Test_", variableName);
+    }
+
+    @Test
+    public void javaClassNameToVariableName_same_ref() {
+        String className = "Test";
+        String variableName = JavaAssistUtils.javaClassNameToVariableName(className);
+        Assert.assertSame(className, variableName);
+    }
+
+    @Test
+    public void getParameterDescription() {
+        String[] parameters = {"a", "b"};
+        String variableName = JavaAssistUtils.getParameterDescription(parameters);
+        Assert.assertEquals("(a, b)", variableName);
+    }
+
+    @Test
+    public void getParameterDescription_single() {
+        String[] parameters = {"a"};
+        String variableName = JavaAssistUtils.getParameterDescription(parameters);
+        Assert.assertEquals("(a)", variableName);
     }
 
 }

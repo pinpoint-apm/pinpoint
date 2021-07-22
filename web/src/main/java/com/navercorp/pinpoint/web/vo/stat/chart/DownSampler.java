@@ -16,24 +16,12 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart;
 
-import java.util.Collection;
-
 /**
  * @author harebox
  * @author HyunGil Jeong
  */
-public interface DownSampler<T extends Number> {
+public interface DownSampler<T extends Number> extends Sampler<T> {
 
     T getDefaultValue();
-
-    T sampleMin(Collection<T> values);
-
-    double sampleAvg(Collection<T> values);
-
-    double sampleAvg(Collection<T> values, int numDecimals);
-
-    T sampleMax(Collection<T> values);
-
-    T sampleSum(Collection<T> values);
 
 }

@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
-import com.navercorp.pinpoint.common.profiler.util.IntegerUtils;
 import org.junit.Test;
 
 import java.util.Comparator;
@@ -39,24 +38,5 @@ public class DefaultHierarchyCachesTest {
         caches.put("java/lang/Runnable", "java/util/TimerTask");
 
         assertTrue(caches.get("java/lang/Runnable", "java/util/TimerTask"));
-
-
-        // sorted
-        TreeMap<String, String> packageNameBasedIndex = new TreeMap<String, String>(new Comparator<String>() {
-            @Override
-            public int compare(String key1, String key2) {
-                return IntegerUtils.compare(key1.length(), key2.length());
-            }
-        });
-
-        packageNameBasedIndex.put("a", "a");
-        packageNameBasedIndex.put("aa", "a");
-        packageNameBasedIndex.put("bb", "a");
-        packageNameBasedIndex.put("bbb", "a");
-        packageNameBasedIndex.put("bbbb", "a");
-        packageNameBasedIndex.put("c", "a");
-        packageNameBasedIndex.put("cccc", "a");
-        packageNameBasedIndex.put("ccccc", "a");
-        packageNameBasedIndex.put("dddddddddddd", "a");
     }
 }

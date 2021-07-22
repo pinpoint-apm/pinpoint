@@ -17,12 +17,14 @@
 package com.navercorp.pinpoint.grpc.client;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -42,7 +44,7 @@ public class DefaultChannelFactoryBuilder implements ChannelFactoryBuilder {
     private NameResolverProvider nameResolverProvider;
 
     public DefaultChannelFactoryBuilder(String factoryName) {
-        this.factoryName = Assert.requireNonNull(factoryName, "factoryName");
+        this.factoryName = Objects.requireNonNull(factoryName, "factoryName");
     }
 
     @Override
@@ -53,36 +55,36 @@ public class DefaultChannelFactoryBuilder implements ChannelFactoryBuilder {
 
     @Override
     public void setHeaderFactory(HeaderFactory headerFactory) {
-        this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory");
+        this.headerFactory = Objects.requireNonNull(headerFactory, "headerFactory");
     }
 
     @Override
     public void addFirstClientInterceptor(ClientInterceptor clientInterceptor) {
-        Assert.requireNonNull(clientInterceptor, "clientInterceptor");
+        Objects.requireNonNull(clientInterceptor, "clientInterceptor");
         this.clientInterceptorList.addFirst(clientInterceptor);
     }
 
     @Override
     public void addClientInterceptor(ClientInterceptor clientInterceptor) {
-        Assert.requireNonNull(clientInterceptor, "clientInterceptor");
+        Objects.requireNonNull(clientInterceptor, "clientInterceptor");
         this.clientInterceptorList.add(clientInterceptor);
     }
 
     @Override
     public void setClientOption(ClientOption clientOption) {
-        this.clientOption = Assert.requireNonNull(clientOption, "clientOption");
+        this.clientOption = Objects.requireNonNull(clientOption, "clientOption");
     }
 
     @Override
     public void setNameResolverProvider(NameResolverProvider nameResolverProvider) {
-        this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider");
+        this.nameResolverProvider = Objects.requireNonNull(nameResolverProvider, "nameResolverProvider");
     }
 
     @Override
     public ChannelFactory build() {
         logger.info("build ChannelFactory:{}", factoryName);
-        Assert.requireNonNull(headerFactory, "headerFactory");
-        Assert.requireNonNull(clientOption, "clientOption");
+        Objects.requireNonNull(headerFactory, "headerFactory");
+        Objects.requireNonNull(clientOption, "clientOption");
 
         return new DefaultChannelFactory(factoryName, executorQueueSize,
                 headerFactory, nameResolverProvider,

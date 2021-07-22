@@ -17,11 +17,12 @@
 package com.navercorp.pinpoint.web.dao;
 
 
-import java.util.List;
-
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
+
+import java.util.List;
 
 /**
  * @author emeroad
@@ -30,9 +31,13 @@ public interface TraceDao {
 
     List<SpanBo> selectSpan(TransactionId transactionId);
 
+    List<SpanBo> selectSpan(TransactionId transactionId, ColumnGetCount columnGetCount);
+
     List<List<SpanBo>> selectSpans(List<GetTraceInfo> getTraceInfoList);
     
     List<List<SpanBo>> selectAllSpans(List<TransactionId> transactionIdList);
+
+    List<List<SpanBo>> selectAllSpans(List<TransactionId> transactionIdList, ColumnGetCount columnGetCount);
 
 
 }

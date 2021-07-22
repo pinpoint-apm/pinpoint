@@ -1,5 +1,4 @@
 import { NodeGroup } from './node-group.class';
-import { IShortNodeInfo } from './server-map-data.class';
 
 export class MultiConnectNodeGroup extends NodeGroup {
     // KEY_SEPERATOR: string = '^';
@@ -11,7 +10,7 @@ export class MultiConnectNodeGroup extends NodeGroup {
     // groupKey: string;
     // groupType: string;
     // nodeData: any;
-    nodeData: IShortNodeInfo;
+    nodeData: INodeInfo;
     subNodeGroup: Array<any>;
     subNodeGroupMap: any;
     constructor(protected type: string) {
@@ -29,42 +28,18 @@ export class MultiConnectNodeGroup extends NodeGroup {
     initTemplateSet() {
         this.nodeData = {
             'key': this.groupKey,
-            'isWas': false,
             'category': this.groupType,
-            'serviceType': this.groupType,
             'mergedNodes': [],
+            'serviceType': this.groupType,
+            'isWas': false,
             'isAuthorized': false,
+            'isMerged': true,
             'instanceCount': 0,
             'topCountNodes': [],
-            'applicationName': this.applicationName,
+            'applicationName': '',
             'mergedSourceNodes': []
         };
     }
-    // private randomValue(): string {
-    //     return Math.floor(Math.random() * 10000000).toString();
-    // }
-    // private setTopCountNodes(): void {
-    //     this.nodeData['topCountNodes'].length = 0;
-    //     this.nodeData['topCountNodes'].push({
-    //         'applicationName': `Total : ${this.nodeData['mergedNodes'].length}`,
-    //         'totalCount': this.nodeData['mergedNodes'].reduce((preValue, nowNode) => { return preValue + nowNode.totalCount; }, 0),
-    //         'tableHeader': true
-    //     });
-    //     for (let i = 0 ; i < Math.min(this.nodeData['mergedNodes'].length, this.TOP_LIST_MAX_COUNT) ; i++ ) {
-    //         this.nodeData['topCountNodes'].push(this.nodeData['mergedNodes'][i]);
-    //     }
-    //     if ( this.nodeData['mergedNodes'].length > this.TOP_LIST_MAX_COUNT ) {
-    //        this.nodeData['topCountNodes'].push({
-    //             'applicationName': '...',
-    //             'totalCount': ''
-    //         });
-    //     }
-    // }
-    // addNodeData(node: any): void {
-    //     delete node.category;
-    //     this.nodeData['instanceCount'] += node.instanceCount;
-    //     this.nodeData['mergedNodes'].push(node);
-    // }
     addSubNodeGroup(key: string): void {
         const subNodeGroup = {
             group: [],
@@ -101,7 +76,7 @@ export class MultiConnectNodeGroup extends NodeGroup {
     //     return this.groupType;
     // }
 
-    getNodeGroupData(): IShortNodeInfo {
+    getNodeGroupData(): INodeInfo {
         this.nodeData.mergedSourceNodes = this.subNodeGroup;
         return super.getNodeGroupData();
     }

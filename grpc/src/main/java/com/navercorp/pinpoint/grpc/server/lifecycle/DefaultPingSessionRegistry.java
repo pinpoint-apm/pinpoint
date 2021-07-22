@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.grpc.server.lifecycle;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 import java.util.Collection;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -32,19 +31,19 @@ public class DefaultPingSessionRegistry implements PingSessionRegistry {
 
     @Override
     public PingSession add(Long transportId, PingSession lifecycle) {
-        Assert.requireNonNull(transportId, "transportId");
+        Objects.requireNonNull(transportId, "transportId");
         return map.put(transportId, lifecycle);
     }
 
     @Override
     public PingSession get(Long transportId) {
-        Assert.requireNonNull(transportId, "transportId");
+        Objects.requireNonNull(transportId, "transportId");
         return map.get(transportId);
     }
 
     @Override
     public PingSession remove(Long transportId) {
-        Assert.requireNonNull(transportId, "transportId");
+        Objects.requireNonNull(transportId, "transportId");
         return map.remove(transportId);
     }
 

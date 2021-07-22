@@ -21,12 +21,12 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.JvmType;
 import com.navercorp.pinpoint.common.util.JvmUtils;
-import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -34,10 +34,8 @@ import java.lang.reflect.Constructor;
 public class CpuLoadMetricProvider implements Provider<CpuLoadMetric> {
 
     // Oracle
-    private static final String ORACLE_JDK6_CPU_LOAD_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.cpu.oracle.Java6CpuLoadMetric";
     private static final String ORACLE_CPU_LOAD_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.cpu.oracle.DefaultCpuLoadMetric";
     // IBM
-    private static final String IBM_JDK6_CPU_LOAD_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.cpu.ibm.Java6CpuLoadMetric";
     private static final String IBM_CPU_LOAD_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.cpu.ibm.DefaultCpuLoadMetric";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -46,9 +44,7 @@ public class CpuLoadMetricProvider implements Provider<CpuLoadMetric> {
 
     @Inject
     public CpuLoadMetricProvider(ProfilerConfig profilerConfig) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig");
-        }
+        Objects.requireNonNull(profilerConfig, "profilerConfig");
         vendorName = profilerConfig.getProfilerJvmVendorName();
     }
 
@@ -65,21 +61,12 @@ public class CpuLoadMetricProvider implements Provider<CpuLoadMetric> {
     }
 
     private String getCpuLoadMetricClassName(JvmType jvmType) {
-        final JvmVersion jvmVersion = JvmUtils.getVersion();
         if (jvmType == JvmType.ORACLE || jvmType == JvmType.OPENJDK) {
-            if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
-                return ORACLE_CPU_LOAD_METRIC;
-            } else if (jvmVersion.onOrAfter(JvmVersion.JAVA_5)) {
-                return ORACLE_JDK6_CPU_LOAD_METRIC;
-            }
+            return ORACLE_CPU_LOAD_METRIC;
         }
 
         if (jvmType == JvmType.IBM) {
-            if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
-                return IBM_CPU_LOAD_METRIC;
-            } else if (jvmVersion == JvmVersion.JAVA_6) {
-                return IBM_JDK6_CPU_LOAD_METRIC;
-            }
+            return IBM_CPU_LOAD_METRIC;
         }
         return null;
     }

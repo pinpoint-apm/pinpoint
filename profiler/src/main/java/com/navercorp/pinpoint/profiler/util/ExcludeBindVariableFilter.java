@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.lang.reflect.Method;
 
@@ -28,7 +28,7 @@ public class ExcludeBindVariableFilter implements BindVariableFilter {
     private final String[] excludes;
 
     public ExcludeBindVariableFilter(String[] excludes) {
-        this.excludes = Assert.requireNonNull(excludes, "excludes");
+        this.excludes = Objects.requireNonNull(excludes, "excludes");
     }
 
     @Override

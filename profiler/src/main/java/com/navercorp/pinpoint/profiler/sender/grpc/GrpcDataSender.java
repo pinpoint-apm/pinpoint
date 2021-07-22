@@ -16,21 +16,26 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.ManagedChannelUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
+import com.navercorp.pinpoint.grpc.logging.ThrottledLogger;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 
 import com.google.protobuf.GeneratedMessageV3;
+
+import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 
 /**
@@ -45,6 +50,7 @@ public abstract class GrpcDataSender implements DataSender<Object> {
     protected final int port;
 
     protected final ManagedChannel managedChannel;
+    protected final long logId;
 
     // not thread safe
     protected final MessageConverter<GeneratedMessageV3> messageConverter;
@@ -54,23 +60,56 @@ public abstract class GrpcDataSender implements DataSender<Object> {
     protected final ChannelFactory channelFactory;
 
     protected volatile boolean shutdown;
+    
+    protected final BlockingQueue<Object> queue;
+    protected final ThrottledLogger tLogger;
 
 
     public GrpcDataSender(String host, int port,
                           int executorQueueSize,
                           MessageConverter<GeneratedMessageV3> messageConverter,
                           ChannelFactory channelFactory) {
-        this.channelFactory = Assert.requireNonNull(channelFactory, "channelFactory");
+        this.channelFactory = Objects.requireNonNull(channelFactory, "channelFactory");
 
-        this.name = Assert.requireNonNull(channelFactory.getFactoryName(), "channelFactory.name");
-        this.host = Assert.requireNonNull(host, "host");
+        this.name = Objects.requireNonNull(channelFactory.getFactoryName(), "channelFactory.name");
+        this.host = Objects.requireNonNull(host, "host");
         this.port = port;
 
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
+        this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
 
         this.executor = newExecutorService(name + "-Executor", executorQueueSize);
 
         this.managedChannel = channelFactory.build(host, port);
+        this.logId = ManagedChannelUtils.getLogId(managedChannel);
+
+        final ConnectivityState state = managedChannel.getState(false);
+        this.managedChannel.notifyWhenStateChanged(state, new ConnectivityStateMonitor(state));
+
+
+        this.tLogger = ThrottledLogger.getLogger(logger, 100);
+        this.queue = new LinkedBlockingQueue<Object>(executorQueueSize);
+    }
+
+    public long getLogId() {
+        return logId;
+    }
+
+    private class ConnectivityStateMonitor implements Runnable {
+        private final ConnectivityState before;
+
+        public ConnectivityStateMonitor(ConnectivityState before) {
+            this.before = Objects.requireNonNull(before, "before");
+        }
+
+        @Override
+        public void run() {
+            final ConnectivityState change = managedChannel.getState(false);
+            logger.info("ConnectivityState changed before:{}, change:{}", before, change);
+            if (change == ConnectivityState.TRANSIENT_FAILURE) {
+                logger.info("Failed to connect to collector server {} {}/{}", name, host, port);
+            }
+            managedChannel.notifyWhenStateChanged(change, new ConnectivityStateMonitor(change));
+        }
     }
 
     protected ExecutorService newExecutorService(String name, int senderExecutorQueueSize) {
@@ -78,6 +117,20 @@ public abstract class GrpcDataSender implements DataSender<Object> {
         return ExecutorFactory.newFixedThreadPool(1, senderExecutorQueueSize, threadFactory);
     }
 
+    @Override
+    public boolean send(final Object data) {
+        if (this.queue.offer(data)) {
+            return true;
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("reject message queue size:{}", this.queue.size());
+        } else {
+            if (tLogger.isInfoEnabled()) {
+                tLogger.info("reject message queue size : {}", this.queue.size());
+            }
+        }
+        return false;
+    }
 
 
     protected void release() {

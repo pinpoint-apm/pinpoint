@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.plugin.filter;
 
-import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -33,7 +33,7 @@ public class ImportPluginFilter implements PluginFilter {
     private final Set<String> enablePluginIds;
 
     public ImportPluginFilter(List<String> pluginIds) {
-        Assert.requireNonNull(pluginIds, "pluginIds");
+        Objects.requireNonNull(pluginIds, "pluginIds");
         this.enablePluginIds = new HashSet<String>(pluginIds);
     }
 

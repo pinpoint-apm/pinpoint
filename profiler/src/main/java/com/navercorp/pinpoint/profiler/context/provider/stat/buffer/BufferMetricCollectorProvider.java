@@ -18,12 +18,13 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.buffer;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.buffer.DefaultBufferMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;
+
+import java.util.Objects;
 
 /**
  * @author Roy Kim
@@ -34,7 +35,7 @@ public class BufferMetricCollectorProvider implements Provider<AgentStatMetricCo
 
     @Inject
     public BufferMetricCollectorProvider(BufferMetric bufferMetric) {
-        this.bufferMetric = Assert.requireNonNull(bufferMetric, "bufferMetric");
+        this.bufferMetric = Objects.requireNonNull(bufferMetric, "bufferMetric");
     }
 
     @Override

@@ -9,13 +9,13 @@
     height: 30px;
     align-items: center;
     position: relative;
-    border-bottom: 1px solid #e6e8ec;
+    border-bottom: 1px solid var(--border-primary);
 }
 
 .l-alarm-rules-tr div {
     height: 100%;
     line-height: 30px;
-    border-right: 1px solid #e6e8ec;
+    border-right: 1px solid var(--border-primary);
     text-align: center;
 }
 
@@ -45,7 +45,7 @@
 
 .l-alarm-rules-btn-group {
     display: flex;
-    color: #b3b6bf;
+    color: var(--icon-default);
     font-size: 13px;
     align-items: center;
     justify-content: flex-end;
@@ -60,7 +60,7 @@
 }
 
 .fa-trash-alt {
-    color: #b3b6bf;
+    color: var(--icon-default);
     font-size: 14px;
 }
 
@@ -69,6 +69,6 @@
 }
 
 .fa-check {
-    color: #F00;
+    color: var(--status-danger-lighter);
     margin-left: 10px;
 }

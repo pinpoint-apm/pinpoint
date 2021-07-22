@@ -12,7 +12,7 @@ export class HandleObsPipe implements PipeTransform {
             ? val.pipe(
                 map((value: any) => ({loading: false, value})),
                 startWith({loading: true}),
-                catchError((error: {[key: string]: any}) => of({loading: false, error}))
+                catchError((error: IServerErrorFormat) => of({loading: false, error}))
             )
             : val;
     }

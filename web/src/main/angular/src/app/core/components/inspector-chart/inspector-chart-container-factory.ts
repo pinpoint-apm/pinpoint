@@ -15,7 +15,7 @@ import { AgentDirectBufferMemoryChartContainer } from './agent-direct-buffer-mem
 import { AgentMappedBufferCountChartContainer } from './agent-mapped-buffer-count-chart-container';
 import { AgentMappedBufferMemoryChartContainer } from './agent-mapped-buffer-memory-chart-container';
 import { AgentLoadedCLassCountChartContainer } from './agent-loaded-class-count-chart-container';
-import { AgentUnloadedCLassCountChartContainer } from "./agent-unloaded-class-count-chart-container";
+import { AgentUnloadedCLassCountChartContainer } from './agent-unloaded-class-count-chart-container';
 import { ApplicationJVMHeapChartContainer } from './application-jvm-heap-chart-container';
 import { ApplicationJVMNonHeapChartContainer } from './application-jvm-non-heap-chart-container';
 import { ApplicationJVMCpuChartContainer } from './application-jvm-cpu-chart-container';
@@ -37,7 +37,7 @@ export interface IInspectorChartContainer {
     title: string;
     defaultYMax: number;
 
-    getData(range: number[]): Observable<IInspectorChartData | AjaxException>;
+    getData(range: number[]): Observable<IInspectorChartData>;
     makeChartData(data: IInspectorChartData): PrimitiveArray[];
     makeDataOption(): Data;
     makeElseOption(): {[key: string]: any};

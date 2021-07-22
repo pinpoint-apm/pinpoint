@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -72,7 +71,9 @@ public class JoinTotalThreadCountBo implements JoinStatBo {
             return JoinTotalThreadCountBo.EMPTY_TOTAL_THREAD_COUNT_BO;
         }
 
-        final List<JoinLongFieldBo> totalThreadCountFieldBoList = joinTotalThreadCountBoList.stream().map(e -> e.getTotalThreadCountJoinValue()).collect(Collectors.toList());
+        final List<JoinLongFieldBo> totalThreadCountFieldBoList = joinTotalThreadCountBoList.stream()
+                .map(JoinTotalThreadCountBo::getTotalThreadCountJoinValue)
+                .collect(Collectors.toList());
         final JoinLongFieldBo totalThreadCountJoinValue = JoinLongFieldBo.merge(totalThreadCountFieldBoList);
 
         final JoinTotalThreadCountBo firstJoinTotalThreadCountBo = joinTotalThreadCountBoList.get(0);

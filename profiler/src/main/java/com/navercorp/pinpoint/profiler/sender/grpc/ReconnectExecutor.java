@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,11 +38,11 @@ public class ReconnectExecutor {
     private final AtomicLong rejectedCounter = new AtomicLong();
 
     public ReconnectExecutor(ScheduledExecutorService scheduledExecutorService) {
-        this.scheduledExecutorService = Assert.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
+        this.scheduledExecutorService = Objects.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
     }
 
     private void execute0(Runnable command) {
-        Assert.requireNonNull(command, "command");
+        Objects.requireNonNull(command, "command");
 
         if (shutdown) {
             logger.debug("already shutdown");
@@ -66,9 +66,9 @@ public class ReconnectExecutor {
     }
 
     public Reconnector newReconnector(Runnable reconnectJob) {
-        Assert.requireNonNull(reconnectJob, "reconnectJob");
+        Objects.requireNonNull(reconnectJob, "reconnectJob");
         if (logger.isInfoEnabled()) {
-            logger.info("newReconnector(reconnectJob = [{}])", reconnectJob);
+            logger.info("newReconnector({})", reconnectJob);
         }
 
         final Executor dispatch = new Executor() {

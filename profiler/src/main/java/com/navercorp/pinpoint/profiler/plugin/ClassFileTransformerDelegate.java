@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.GuardInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
@@ -38,9 +38,9 @@ public class ClassFileTransformerDelegate implements ClassFileTransformer {
     private final TransformCallbackProvider transformCallbackProvider;
 
     public ClassFileTransformerDelegate(ProfilerConfig profilerConfig, InstrumentContext instrumentContext, TransformCallbackProvider transformCallbackProvider) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.instrumentContext = Assert.requireNonNull(instrumentContext, "instrumentContext");
-        this.transformCallbackProvider = Assert.requireNonNull(transformCallbackProvider, "transformCallbackProvider");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.instrumentContext = Objects.requireNonNull(instrumentContext, "instrumentContext");
+        this.transformCallbackProvider = Objects.requireNonNull(transformCallbackProvider, "transformCallbackProvider");
     }
 
     @Override

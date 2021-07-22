@@ -160,7 +160,7 @@ export class ScatterChartDataBlock {
         return data[DataIndex.Y];
     }
     getTypeIndex(data: number[]): number {
-    return data[DataIndex.TYPE];
+        return data[DataIndex.TYPE];
     }
     getXRange(): {from: number, to: number} {
         return {

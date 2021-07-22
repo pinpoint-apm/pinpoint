@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.util.Assert;
  */
 public class DefaultAgentInformation implements AgentInformation {
     private final String agentId;
+    private final String agentName;
     private final String applicationName;
     private final boolean isContainer;
     private final long startTime;
@@ -38,6 +39,7 @@ public class DefaultAgentInformation implements AgentInformation {
 
     public DefaultAgentInformation(
             String agentId,
+            String agentName,
             String applicationName,
             boolean isContainer,
             long startTime,
@@ -47,21 +49,27 @@ public class DefaultAgentInformation implements AgentInformation {
             ServiceType serverType,
             String jvmVersion,
             String agentVersion) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.agentName = Objects.requireNonNull(agentName, "agentName");
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.isContainer = isContainer;
         this.startTime = startTime;
         this.pid = pid;
-        this.machineName = Assert.requireNonNull(machineName, "machineName");
+        this.machineName = Objects.requireNonNull(machineName, "machineName");
         this.hostIp = hostIp;
         this.serverType = serverType;
         this.jvmVersion = jvmVersion;
-        this.agentVersion = Assert.requireNonNull(agentVersion, "agentVersion");
+        this.agentVersion = Objects.requireNonNull(agentVersion, "agentVersion");
     }
 
     @Override
     public String getAgentId() {
         return agentId;
+    }
+
+    @Override
+    public String getAgentName() {
+        return agentName;
     }
 
     @Override
@@ -113,6 +121,7 @@ public class DefaultAgentInformation implements AgentInformation {
     public String toString() {
         final StringBuilder sb = new StringBuilder("DefaultAgentInformation{");
         sb.append("agentId='").append(agentId).append('\'');
+        sb.append(", agentName='").append(agentName).append('\'');
         sb.append(", applicationName='").append(applicationName).append('\'');
         sb.append(", isContainer=").append(isContainer);
         sb.append(", startTime=").append(startTime);

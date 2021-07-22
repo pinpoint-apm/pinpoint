@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
+@SuppressWarnings("deprecation")
 public class ErrorCountCheckerTest {
     
     private static final String SERVICE_NAME = "local_service";
@@ -82,7 +83,7 @@ public class ErrorCountCheckerTest {
     public void checkTest1() {
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 74, "testGroup", false, false, "");
+        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 74, "testGroup", false, false, false, "");
         ErrorCountChecker filter = new ErrorCountChecker(collector, rule);
     
         filter.check();
@@ -96,7 +97,7 @@ public class ErrorCountCheckerTest {
     public void checkTest2() {
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 76, "testGroup", false, false, "");
+        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 76, "testGroup", false, false, false, "");
         ErrorCountChecker filter = new ErrorCountChecker(collector, rule);
     
         filter.check();

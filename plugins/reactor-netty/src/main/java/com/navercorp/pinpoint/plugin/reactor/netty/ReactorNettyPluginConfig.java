@@ -36,6 +36,8 @@ public class ReactorNettyPluginConfig {
     private final boolean enableAsyncEndPoint;
     private final boolean traceSubscribeError;
     private final List<String> traceSubscribeErrorExcludeMessageList;
+    private final boolean clientEnable;
+    private boolean param = true;
 
     public ReactorNettyPluginConfig(ProfilerConfig config) {
         if (config == null) {
@@ -53,6 +55,10 @@ public class ReactorNettyPluginConfig {
         this.realIpHeader = serverConfig.getRealIpHeader("profiler.reactor-netty.server.realipheader");
         this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.reactor-netty.server.realipemptyvalue");
         this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.reactor-netty.server.excludemethod");
+        // Client
+        this.clientEnable = config.readBoolean("profiler.reactor-netty.client.enable", true);
+        this.param = config.readBoolean("profiler.reactor-netty.client.param", true);
+
         // Reactor
         this.traceSubscribeError = config.readBoolean("profiler.reactor-netty.trace.subscribe.error", true);
         this.traceSubscribeErrorExcludeMessageList = config.readList("profiler.reactor-netty.trace.subscribe.error.exclude.message");
@@ -98,20 +104,29 @@ public class ReactorNettyPluginConfig {
         return traceSubscribeErrorExcludeMessageList;
     }
 
+    public boolean isClientEnable() {
+        return clientEnable;
+    }
+
+    public boolean isParam() {
+        return param;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ReactorNettyPluginConfig{");
-        sb.append("enable=").append(enable);
-        sb.append(", bootstrapMains=").append(bootstrapMains);
-        sb.append(", traceRequestParam=").append(traceRequestParam);
-        sb.append(", excludeUrlFilter=").append(excludeUrlFilter);
-        sb.append(", realIpHeader='").append(realIpHeader).append('\'');
-        sb.append(", realIpEmptyValue='").append(realIpEmptyValue).append('\'');
-        sb.append(", excludeProfileMethodFilter=").append(excludeProfileMethodFilter);
-        sb.append(", enableAsyncEndPoint=").append(enableAsyncEndPoint);
-        sb.append(", traceSubscribeError=").append(traceSubscribeError);
-        sb.append(", traceSubscribeErrorExcludeMessageList=").append(traceSubscribeErrorExcludeMessageList);
-        sb.append('}');
-        return sb.toString();
+        return "ReactorNettyPluginConfig{" +
+                "enable=" + enable +
+                ", bootstrapMains=" + bootstrapMains +
+                ", traceRequestParam=" + traceRequestParam +
+                ", excludeUrlFilter=" + excludeUrlFilter +
+                ", realIpHeader='" + realIpHeader + '\'' +
+                ", realIpEmptyValue='" + realIpEmptyValue + '\'' +
+                ", excludeProfileMethodFilter=" + excludeProfileMethodFilter +
+                ", enableAsyncEndPoint=" + enableAsyncEndPoint +
+                ", traceSubscribeError=" + traceSubscribeError +
+                ", traceSubscribeErrorExcludeMessageList=" + traceSubscribeErrorExcludeMessageList +
+                ", clientEnable=" + clientEnable +
+                ", param=" + param +
+                '}';
     }
 }

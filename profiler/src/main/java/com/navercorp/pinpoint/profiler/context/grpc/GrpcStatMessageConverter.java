@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.grpc.trace.PActiveTrace;
 import com.navercorp.pinpoint.grpc.trace.PActiveTraceHistogram;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
+import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PCpuLoad;
 import com.navercorp.pinpoint.grpc.trace.PCustomMetricMessage;
 import com.navercorp.pinpoint.grpc.trace.PDataSource;
@@ -30,11 +31,11 @@ import com.navercorp.pinpoint.grpc.trace.PFileDescriptor;
 import com.navercorp.pinpoint.grpc.trace.PJvmGc;
 import com.navercorp.pinpoint.grpc.trace.PJvmGcDetailed;
 import com.navercorp.pinpoint.grpc.trace.PJvmGcType;
+import com.navercorp.pinpoint.grpc.trace.PLoadedClass;
 import com.navercorp.pinpoint.grpc.trace.PResponseTime;
 import com.navercorp.pinpoint.grpc.trace.PThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PTotalThread;
 import com.navercorp.pinpoint.grpc.trace.PTransaction;
-import com.navercorp.pinpoint.grpc.trace.PLoadedClass;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -54,6 +55,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.loadedclass.LoadedClassMet
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
 import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
 
 import com.google.protobuf.GeneratedMessageV3;
 
@@ -66,6 +68,8 @@ public class GrpcStatMessageConverter implements MessageConverter<GeneratedMessa
     private GrpcThreadDumpMessageConverter threadDumpMessageConverter = new GrpcThreadDumpMessageConverter();
     private GrpcJvmGcTypeMessageConverter jvmGcTypeConverter = new GrpcJvmGcTypeMessageConverter();
     private final GrpcCustomMetricMessageConverter customMetricMessageConverter = new GrpcCustomMetricMessageConverter();
+    private final GrpcUriStatMessageConverter uriStatMessageConverter = new GrpcUriStatMessageConverter();
+
 
     @Override
     public GeneratedMessageV3 toMessage(Object message) {
@@ -86,6 +90,10 @@ public class GrpcStatMessageConverter implements MessageConverter<GeneratedMessa
             final AgentCustomMetricSnapshotBatch agentCustomMetricSnapshotBatch = (AgentCustomMetricSnapshotBatch) message;
             final PCustomMetricMessage pCustomMetricMessage = customMetricMessageConverter.toMessage(agentCustomMetricSnapshotBatch);
             return pCustomMetricMessage;
+        } else if (message instanceof AgentUriStatData) {
+            final AgentUriStatData agentUriStatData = (AgentUriStatData) message;
+            final PAgentUriStat agentUriStat = uriStatMessageConverter.toMessage(agentUriStatData);
+            return agentUriStat;
         }
         return null;
     }

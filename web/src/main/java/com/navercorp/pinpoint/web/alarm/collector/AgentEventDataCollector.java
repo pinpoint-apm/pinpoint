@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 public class AgentEventDataCollector extends DataCollector {
 
     private final Application application;

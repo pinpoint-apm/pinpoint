@@ -6,17 +6,28 @@
     <groupId>com.navercorp.pinpoint</groupId>
     <artifactId>pinpoint-testcase</artifactId>
     <name>pinpoint-testcase</name>
-    <version>2.1.1-SNAPSHOT</version>
+    <version>2.3.1-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
     <properties>
-        <maven.compiler.target>1.6</maven.compiler.target>
-        <maven.compiler.source>1.6</maven.compiler.source>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.7</maven.compiler.source>
         <!-- copy parent pom -->
-        <plugin.clover.version>4.2.1</plugin.clover.version>
-        <plugin.spotbugs.version>3.1.12</plugin.spotbugs.version>
+        <plugin.spotbugs.version>4.1.4</plugin.spotbugs.version>
         <plugin.pmd.version>3.12.0</plugin.pmd.version>
         <plugin.jshint.version>1.6.0</plugin.jshint.version>
     </properties>
@@ -27,14 +38,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.openclover</groupId>
-                <artifactId>clover-maven-plugin</artifactId>
-                <version>${plugin.clover.version}</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
@@ -47,6 +50,14 @@
                 <groupId>com.cj.jshintmojo</groupId>
                 <artifactId>jshint-maven-plugin</artifactId>
                 <version>${plugin.jshint.version}</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.6</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>

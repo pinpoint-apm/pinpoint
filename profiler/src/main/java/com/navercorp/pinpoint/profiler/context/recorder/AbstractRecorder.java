@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
@@ -35,9 +35,9 @@ public abstract class AbstractRecorder {
     protected final IgnoreErrorHandler ignoreErrorHandler;
 
     public AbstractRecorder(final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService, IgnoreErrorHandler ignoreErrorHandler) {
-        this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService");
-        this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
-        this.ignoreErrorHandler = Assert.requireNonNull(ignoreErrorHandler, "ignoreErrorHandler");
+        this.stringMetaDataService = Objects.requireNonNull(stringMetaDataService, "stringMetaDataService");
+        this.sqlMetaDataService = Objects.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
+        this.ignoreErrorHandler = Objects.requireNonNull(ignoreErrorHandler, "ignoreErrorHandler");
     }
 
     public void recordError() {

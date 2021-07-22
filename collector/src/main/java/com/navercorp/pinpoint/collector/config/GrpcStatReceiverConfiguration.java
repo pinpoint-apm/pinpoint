@@ -23,10 +23,10 @@ import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 
 import javax.annotation.PostConstruct;
 import java.util.Objects;
-import java.util.Properties;
 
 /**
  * @author Taejin Koo
@@ -66,27 +66,27 @@ public class GrpcStatReceiverConfiguration {
     @Value("${collector.receiver.grpc.stat.stream.scheduler.recovery.message.count:10}")
     private int grpcStreamSchedulerRecoveryMessageCount;
 
+    @Value("${collector.receiver.grpc.stat.stream.idletimeout:-1}")
+    private long grpcStreamIdleTimeout;
+
     private ServerOption grpcServerOption;
 
-    public GrpcStatReceiverConfiguration() {
+
+    public GrpcStatReceiverConfiguration(Environment environment) {
+        this.grpcServerOption = loadServerOption(environment);
     }
 
-    public GrpcStatReceiverConfiguration(Properties properties) {
-        // WARNING ServerOption does not support PropertyPlaceholder
-        loadServerOption(properties);
-    }
-
-    public void loadServerOption(Properties properties) {
-        Objects.requireNonNull(properties, "properties");
+    public static ServerOption loadServerOption(Environment environment) {
+        Objects.requireNonNull(environment, "environment");
         // Server option
-        final ServerOption.Builder serverOptionBuilder = GrpcPropertiesServerOptionBuilder.newBuilder(properties, GRPC_PREFIX);
-        this.grpcServerOption = serverOptionBuilder.build();
+        final ServerOption.Builder builder = GrpcPropertiesServerOptionBuilder.newBuilder(environment, GRPC_PREFIX);
+        return builder.build();
     }
 
     @PostConstruct
     public void validate() {
         logger.info("{}", this);
-        AnnotationVisitor visitor = new AnnotationVisitor(Value.class);
+        AnnotationVisitor<Value> visitor = new AnnotationVisitor<>(Value.class);
         visitor.visit(this, new LoggingEvent(logger));
 
         // Server executor
@@ -150,8 +150,12 @@ public class GrpcStatReceiverConfiguration {
         return grpcStreamSchedulerPeriodMillis;
     }
 
-    public int getGrpcStreamSchedulerRecoveryMessageCount() {
+    public long getGrpcStreamSchedulerRecoveryMessageCount() {
         return grpcStreamSchedulerRecoveryMessageCount;
+    }
+
+    public long getGrpcStreamIdleTimeout() {
+        return grpcStreamIdleTimeout;
     }
 
     public ServerOption getGrpcServerOption() {

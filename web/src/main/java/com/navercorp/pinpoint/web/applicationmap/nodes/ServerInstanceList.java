@@ -52,6 +52,18 @@ public class ServerInstanceList {
         return agentList;
     }
 
+    public Map<String, String> getAgentIdNameMap() {
+        final Collection<List<ServerInstance>> serverInstanceValueList = this.serverInstanceList.values();
+
+        final Map<String, String> map = new HashMap<>();
+        for (List<ServerInstance> serverInstanceList : serverInstanceValueList) {
+            for (ServerInstance serverInstance : serverInstanceList) {
+                map.put(serverInstance.getName(), serverInstance.getAgentName());
+            }
+        }
+        return map;
+    }
+
     public int getInstanceCount() {
         int count = 0;
         for (List<ServerInstance> entry : serverInstanceList.values()) {

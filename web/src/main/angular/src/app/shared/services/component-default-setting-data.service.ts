@@ -50,6 +50,20 @@ export class ComponentDefaultSettingDataService {
         'rgba(230, 127, 34, 0.5)',  // #e67f22
         'rgba(233, 84, 89, 0.5)'    // #e95459
     ];
+    private colorByResponseStatistics: string[] = [
+        'rgb(151,227,134)',    // #97E386
+        'rgb(19,182,231)'    // #13B6E7
+    ];
+    private colorByRequestInDetail: string[] = [
+        'rgba(40, 190, 120)',  // #34b994
+        'rgba(52, 185, 148)',  // #34b994
+        'rgba(60, 183, 170)',  // #34b994
+        'rgba(70, 180, 200)',  // #34b994
+        'rgba(81, 175, 223)',  // #51afdf
+        'rgba(255, 186, 0)',   // #ffba00
+        'rgba(220, 90, 70)',    // #e95459
+        'rgba(233, 84, 89)'    // #e95459
+    ];
     private dateFormatList = [
         // [default, default + timezone, default + millisecond, time+millisecond, year+month+day, time, variation1, variation2]
         ['YYYY.MM.DD HH:mm:ss', 'YYYY.MM.DD HH:mm:ss Z', 'YYYY.MM.DD HH:mm:ss SSS', 'HH:mm:ss SSS', 'YYYY.MM.DD', 'HH:mm:ss', 'MM.DD', 'HH:mm'],
@@ -117,8 +131,14 @@ export class ComponentDefaultSettingDataService {
     getMaxPeriodTime(): number {
         return this.maxPeriodTime;
     }
+    getColorByRequestInDetail(): string[] {
+        return this.colorByRequestInDetail;
+    }
     getColorByRequest(): string[] {
         return this.colorByRequest;
+    }
+    getColorByResponseStatistics(): string[] {
+        return this.colorByResponseStatistics;
     }
     getDateFormatList(): string[][] {
         return this.dateFormatList;

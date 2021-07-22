@@ -1,0 +1,9 @@
+:host {
+    display: block;
+    height: 100%;
+    background-color: var(--background-primary);
+}
+
+.l-main-container {
+    height: calc(100% - 50px);
+}

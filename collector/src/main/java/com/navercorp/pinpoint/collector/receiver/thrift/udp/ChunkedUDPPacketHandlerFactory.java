@@ -43,12 +43,12 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
 
     private final DeserializerFactory<ChunkHeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<>(new ChunkHeaderTBaseDeserializerFactory());
 
-    private final DispatchHandler dispatchHandler;
-    private final TBaseFilter filter;
+    private final DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler;
+    private final TBaseFilter<SocketAddress> filter;
 
     private final PacketHandler<T> dispatchPacket = new DispatchPacket();
 
-    public ChunkedUDPPacketHandlerFactory(DispatchHandler dispatchHandler, TBaseFilter<T> filter) {
+    public ChunkedUDPPacketHandlerFactory(DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler, TBaseFilter<SocketAddress> filter) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         this.filter = filter;
     }

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.io.TBaseSerializer;
@@ -43,8 +43,8 @@ public class ThriftMessageSerializer implements MessageSerializer<byte[]> {
     }
 
     public ThriftMessageSerializer(MessageConverter<TBase<?, ?>> messageConverter, TBaseSerializer serializer) {
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
-        this.serializer = Assert.requireNonNull(serializer, "serializer");
+        this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
+        this.serializer = Objects.requireNonNull(serializer, "serializer");
 
     }
 

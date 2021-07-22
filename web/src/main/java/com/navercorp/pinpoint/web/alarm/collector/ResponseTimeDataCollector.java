@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.web.vo.ResponseTime;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class ResponseTimeDataCollector extends DataCollector {
 
     private final Application application;

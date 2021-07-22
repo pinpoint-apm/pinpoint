@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
 import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterDataManager;
 import com.navercorp.pinpoint.web.config.WebConfig;
-import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
+
 import org.apache.curator.test.TestingServer;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
@@ -61,36 +61,38 @@ public class ClusterTest {
 
     private static TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 10000);
 
-    private static final String DEFAULT_IP = PinpointWebTestUtils.getRepresentationLocalV4Ip();
+    private static final String DEFAULT_IP = NetUtils.LOOPBACK_ADDRESS_V4;
     static ClusterConnectionManager clusterConnectionManager;
     static ZookeeperClusterDataManager clusterDataManager;
-    private static String CLUSTER_NODE_PATH;
-    private static int acceptorPort;
+
     private static int zookeeperPort;
-    private static String acceptorAddress;
     private static String zookeeperAddress;
+
+    private static int acceptorPort;
+    private static String acceptorAddress;
+    private static String CLUSTER_NODE_PATH;
+
     private static TestingServer ts = null;
 
     @BeforeClass
     public static void setUp() throws Exception {
-        acceptorPort = SocketUtils.findAvailableTcpPort(28000);
-        acceptorAddress = DEFAULT_IP + ":" + acceptorPort;
-
-        zookeeperPort = SocketUtils.findAvailableTcpPort(acceptorPort + 1);
+        zookeeperPort = SocketUtils.findAvailableTcpPort(28000);
         zookeeperAddress = DEFAULT_IP + ":" + zookeeperPort;
-
         ts = createZookeeperServer(zookeeperPort);
 
-        CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + acceptorAddress;
-        LOGGER.debug("CLUSTER_NODE_PATH:{}", CLUSTER_NODE_PATH);
-
         WebConfig config = mock(WebConfig.class);
-
         when(config.isClusterEnable()).thenReturn(true);
-        when(config.getClusterTcpPort()).thenReturn(acceptorPort);
+        when(config.getHostAddress()).thenReturn(DEFAULT_IP);
         when(config.getClusterZookeeperAddress()).thenReturn(zookeeperAddress);
         when(config.getClusterZookeeperRetryInterval()).thenReturn(60000);
         when(config.getClusterZookeeperSessionTimeout()).thenReturn(3000);
+
+        acceptorPort = SocketUtils.findAvailableTcpPort(zookeeperPort);
+        acceptorAddress = DEFAULT_IP + ":" + acceptorPort;
+        when(config.getClusterTcpPort()).thenReturn(acceptorPort);
+
+        CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + acceptorAddress;
+        LOGGER.debug("CLUSTER_NODE_PATH:{}", CLUSTER_NODE_PATH);
 
         clusterConnectionManager = new ClusterConnectionManager(config);
         clusterConnectionManager.start();

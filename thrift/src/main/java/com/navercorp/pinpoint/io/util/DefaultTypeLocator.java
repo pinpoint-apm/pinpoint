@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.io.util;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 import com.navercorp.pinpoint.io.header.Header;
 
@@ -36,12 +36,12 @@ public class DefaultTypeLocator<T> implements TypeLocator<T> {
 
     DefaultTypeLocator(IntHashMap<BodyFactory<T>> bodyFactoryMap, Map<Class<?>, Header> bodyToHeaderMap,
                        IntHashMap<Header> headerMap , List<Entry<Class<?>, Header>> bodyClassToHeaderList) {
-        this.bodyFactoryMap = Assert.requireNonNull(bodyFactoryMap, "bodyFactoryMap");
-        this.bodyToHeaderMap = Assert.requireNonNull(bodyToHeaderMap, "bodyToHeaderMap");
+        this.bodyFactoryMap = Objects.requireNonNull(bodyFactoryMap, "bodyFactoryMap");
+        this.bodyToHeaderMap = Objects.requireNonNull(bodyToHeaderMap, "bodyToHeaderMap");
 
-        this.headerMap = Assert.requireNonNull(headerMap , "headerMap ");
+        this.headerMap = Objects.requireNonNull(headerMap , "headerMap ");
 
-        Assert.requireNonNull(bodyClassToHeaderList, "bodyClassToHeaderList");
+        Objects.requireNonNull(bodyClassToHeaderList, "bodyClassToHeaderList");
         this.bodyClassToHeaderArray = bodyClassToHeaderList.toArray(new Entry[0]);
     }
 

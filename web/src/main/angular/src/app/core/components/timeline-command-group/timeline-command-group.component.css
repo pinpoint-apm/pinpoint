@@ -6,23 +6,23 @@
     display: flex;
 }
 .l-current-time label {
-    color: #FFF;
+    color: var(--text-knockout);
     cursor: pointer;
     height: 100%;
     display: inline-block;
     padding: 7px 10px;
     font-size: 13px;
     font-weight: 600;
-    background-color: var(--primary-color);
+    background-color: var(--primary);
 }
 .l-current-time input {
     width: 180px;
     height: 100%;
-    border: 1px solid var(--primary-color);
+    border: 1px solid var(--primary);
     display: inline-block;
     font-size: 13px;
     text-align: center;
-    background-color: #FFF;
+    background-color: var(--background-default);
     outline: 0;
 }
 .l-command-group {

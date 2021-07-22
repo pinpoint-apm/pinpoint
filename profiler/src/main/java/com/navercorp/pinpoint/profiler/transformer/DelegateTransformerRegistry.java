@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.profiler.transformer;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 import com.navercorp.pinpoint.profiler.instrument.transformer.TransformerRegistry;
 
@@ -12,8 +12,8 @@ public class DelegateTransformerRegistry implements TransformerRegistry {
     private final TransformerRegistry debugTransformerRegistry;
 
     public DelegateTransformerRegistry(TransformerRegistry transformerRegistry, TransformerRegistry debugTransformerRegistry) {
-        this.transformerRegistry = Assert.requireNonNull(transformerRegistry, "transformerRegistry");
-        this.debugTransformerRegistry = Assert.requireNonNull(debugTransformerRegistry, "debugTransformerRegistry");
+        this.transformerRegistry = Objects.requireNonNull(transformerRegistry, "transformerRegistry");
+        this.debugTransformerRegistry = Objects.requireNonNull(debugTransformerRegistry, "debugTransformerRegistry");
     }
 
     @Override

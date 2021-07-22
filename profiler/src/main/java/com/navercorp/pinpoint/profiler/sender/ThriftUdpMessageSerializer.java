@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
@@ -45,7 +45,7 @@ public class ThriftUdpMessageSerializer implements MessageSerializer<ByteMessage
 
 
     public ThriftUdpMessageSerializer(MessageConverter<TBase<?, ?>> messageConverter, int maxPacketLength) {
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
+        this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
         this.maxPacketLength = maxPacketLength;
         // Caution. not thread safe
         SerializerFactory<HeaderTBaseSerializer> headerTBaseSerializerFactory = new HeaderTBaseSerializerFactory(false, maxPacketLength, false);

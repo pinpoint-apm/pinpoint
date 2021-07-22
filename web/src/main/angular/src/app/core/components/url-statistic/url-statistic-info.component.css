@@ -1,0 +1,50 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.l-content-group {
+    height: 36px;
+}
+
+.l-content-group.active {
+    background-color: var(--background-hover-secondary);
+}
+
+.l-content-group.active:hover {
+    background-color: var(--background-hover-secondary);
+}
+
+.l-content-group:hover {
+    background-color: var(--background-hover-default);
+}
+
+.l-content-item {
+    text-align: center;
+    border-top: 1px solid var(--border-primary);
+    padding: 0;
+}
+
+.l-url {
+    cursor: pointer;
+}
+
+.l-ratio-bar {
+    display: inline-block;
+    width: 100px;
+    height: 20px;
+    margin-left: 7px;
+}
+
+.l-sub {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.l-count {
+    width: 50px;
+    text-align: right;
+}

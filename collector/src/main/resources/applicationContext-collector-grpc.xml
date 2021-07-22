@@ -11,39 +11,28 @@
 
     <context:component-scan base-package="com.navercorp.pinpoint.collector.receiver.grpc"/>
 
-    <!-- TODO Temporary properties -->
-    <bean id="collectorGrpcProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-        <property name="locations">
-            <list>
-                <value>classpath:pinpoint-collector-grpc-root.properties</value>
-                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector-grpc.properties</value>
-            </list>
-        </property>
-        <property name="fileEncoding" value="UTF-8"/>
-    </bean>
-
     <!-- gRPC -->
     <bean id="grpcAgentReceiverConfig" class="com.navercorp.pinpoint.collector.config.GrpcAgentDataReceiverConfiguration">
-        <constructor-arg ref="collectorGrpcProperties"/>
     </bean>
     <bean id="grpcSpanReceiverConfig" class="com.navercorp.pinpoint.collector.config.GrpcSpanReceiverConfiguration">
-        <constructor-arg ref="collectorGrpcProperties"/>
     </bean>
     <bean id="grpcStatReceiverConfig" class="com.navercorp.pinpoint.collector.config.GrpcStatReceiverConfiguration">
-        <constructor-arg ref="collectorGrpcProperties"/>
+    </bean>
+
+    <bean id="channelzRegistry" class="com.navercorp.pinpoint.collector.receiver.grpc.channelz.DefaultChannelzRegistry">
     </bean>
 
     <bean id="collectorGrpcSpanFactory" class="com.navercorp.pinpoint.common.server.bo.grpc.CollectorGrpcSpanFactory"/>
     <bean id="grpcSpanBinder" class="com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanBinder"/>
 
-    <bean id="grpcTcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler">
+    <bean id="grpcTcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.AgentDispatchHandler">
         <constructor-arg index="0" ref="grpcAgentInfoHandler"/>
         <constructor-arg index="1" ref="grpcSqlMetaDataHandler"/>
         <constructor-arg index="2" ref="grpcApiMetaDataHandler"/>
         <constructor-arg index="3" ref="grpcStringMetaDataHandler"/>
     </bean>
 
-    <bean id="grpcDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
+    <bean id="grpcDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean">
         <property name="dispatchHandler" ref="grpcTcpDispatchHandler"/>
         <property name="handlerManager" ref="handlerManager"/>
     </bean>
@@ -52,7 +41,7 @@
         <constructor-arg index="0" ref="grpcSpanHandler"/>
         <constructor-arg index="1" ref="grpcSpanChunkHandler"/>
     </bean>
-    <bean id="grpcSpanDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
+    <bean id="grpcSpanDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean">
         <property name="dispatchHandler" ref="grpcSpanDispatchHandler"/>
         <property name="handlerManager" ref="handlerManager"/>
     </bean>
@@ -61,12 +50,12 @@
         <constructor-arg index="0" ref="grpcAgentStatHandlerV2"/>
         <constructor-arg index="1" ref="grpcAgentEventHandler"/>
     </bean>
-    <bean id="grpcStatDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
+    <bean id="grpcStatDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean">
         <property name="dispatchHandler" ref="grpcStatDispatchHandler"/>
         <property name="handlerManager" ref="handlerManager"/>
     </bean>
 
-    <bean id="grpcAgentWorkerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
+    <bean id="grpcAgentWorkerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
         <property name="corePoolSize" value="#{grpcAgentReceiverConfig.grpcWorkerExecutorThreadSize}"/>
         <property name="maxPoolSize" value="#{grpcAgentReceiverConfig.grpcWorkerExecutorThreadSize}"/>
         <property name="queueCapacity" value="#{grpcAgentReceiverConfig.grpcWorkerExecutorQueueSize}"/>
@@ -125,17 +114,14 @@
         <ref bean="commandService"/>
     </util:list>
 
-    <util:list id="interceptorList" value-type="io.grpc.ServerInterceptor">
-        <ref bean="headerPropagationInterceptor"/>
+
+    <util:list id="serverTransportFilterList" value-type="io.grpc.ServerTransportFilter">
+        <bean class="com.navercorp.pinpoint.grpc.channelz.ChannelzServerTransportFilter">
+            <constructor-arg ref="channelzRegistry"/>
+        </bean>
     </util:list>
 
-    <bean id="headerRader" class="com.navercorp.pinpoint.grpc.server.AgentHeaderReader"/>
-
-    <bean id="headerPropagationInterceptor" class="com.navercorp.pinpoint.grpc.server.HeaderPropagationInterceptor">
-        <constructor-arg index="0" ref="headerRader"/>
-    </bean>
-
-    <bean id="grpcAgentServerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
+    <bean id="grpcAgentServerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
         <property name="corePoolSize" value="#{grpcAgentReceiverConfig.grpcServerExecutorThreadSize}"/>
         <property name="maxPoolSize" value="#{grpcAgentReceiverConfig.grpcServerExecutorThreadSize}"/>
         <property name="queueCapacity" value="#{grpcAgentReceiverConfig.grpcServerExecutorQueueSize}"/>
@@ -149,7 +135,7 @@
         <property name="executor" ref="grpcAgentServerExecutor"/>
         <property name="addressFilter" ref="addressFilter"/>
         <property name="bindableServiceList" ref="agentServiceList"/>
-        <property name="serverInterceptorList" ref="interceptorList"/>
+        <property name="serverInterceptorList" ref="agentInterceptorList"/>
         <property name="enable" value="#{grpcAgentReceiverConfig.isGrpcEnable()}"/>
         <property name="serverOption" value="#{grpcAgentReceiverConfig.getGrpcServerOption()}"/>
     </bean>
@@ -162,7 +148,7 @@
         <property name="awaitTerminationSeconds" value="10"/>
     </bean>
 
-    <bean id="grpcSpanWorkerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
+    <bean id="grpcSpanWorkerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
         <property name="rejectedExecutionHandler" ref="abortPolicy"/>
         <property name="corePoolSize" value="#{grpcSpanReceiverConfig.grpcWorkerExecutorThreadSize}"/>
         <property name="maxPoolSize" value="#{grpcSpanReceiverConfig.grpcWorkerExecutorThreadSize}"/>
@@ -177,6 +163,7 @@
         <constructor-arg index="2" ref="grpcSpanStreamScheduler"/>
         <constructor-arg index="3" value="#{grpcSpanReceiverConfig.grpcStreamSchedulerPeriodMillis}"/>
         <constructor-arg index="4" value="#{grpcSpanReceiverConfig.grpcStreamSchedulerRecoveryMessageCount}"/>
+        <constructor-arg index="5" value="#{grpcSpanReceiverConfig.grpcStreamIdleTimeout}"/>
     </bean>
     <bean id="spanServiceFactory" class="com.navercorp.pinpoint.collector.receiver.grpc.service.SpanServiceFactory">
         <property name="dispatchHandler" ref="grpcSpanDispatchHandlerFactoryBean"/>
@@ -187,7 +174,7 @@
         <ref bean="spanServiceFactory"/>
     </util:list>
 
-    <bean id="grpcSpanServerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
+    <bean id="grpcSpanServerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
         <property name="corePoolSize" value="#{grpcSpanReceiverConfig.grpcServerExecutorThreadSize}"/>
         <property name="maxPoolSize" value="#{grpcSpanReceiverConfig.grpcServerExecutorThreadSize}"/>
         <property name="queueCapacity" value="#{grpcSpanReceiverConfig.grpcServerExecutorQueueSize}"/>
@@ -195,12 +182,14 @@
         <property name="registry" value="#{grpcSpanReceiverConfig.grpcServerExecutorMonitorEnable ? metricRegistry : null}"/>
     </bean>
 
-    <bean id="grpcSpanReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
+    <bean name="grpcSpanReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
         <property name="bindIp" value="#{grpcSpanReceiverConfig.grpcBindIp}"/>
         <property name="bindPort" value="#{grpcSpanReceiverConfig.grpcBindPort}"/>
         <property name="addressFilter" ref="addressFilter"/>
         <property name="bindableServiceList" ref="spanServiceList"/>
-        <property name="serverInterceptorList" ref="interceptorList"/>
+        <property name="serverInterceptorList" ref="spanInterceptorList"/>
+        <property name="transportFilterList" ref="serverTransportFilterList"/>
+        <property name="channelzRegistry" ref="channelzRegistry"/>
         <property name="executor" ref="grpcSpanServerExecutor"/>
         <property name="enable" value="#{grpcSpanReceiverConfig.isGrpcEnable()}"/>
         <property name="serverOption" value="#{grpcSpanReceiverConfig.getGrpcServerOption()}"/>
@@ -214,7 +203,7 @@
         <property name="awaitTerminationSeconds" value="10"/>
     </bean>
 
-    <bean id="grpcStatWorkerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
+    <bean id="grpcStatWorkerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
         <property name="rejectedExecutionHandler" ref="abortPolicy"/>
         <property name="corePoolSize" value="#{grpcStatReceiverConfig.grpcWorkerExecutorThreadSize}"/>
         <property name="maxPoolSize" value="#{grpcStatReceiverConfig.grpcWorkerExecutorThreadSize}"/>
@@ -229,6 +218,7 @@
         <constructor-arg index="2" ref="grpcStatStreamScheduler"/>
         <constructor-arg index="3" value="#{grpcStatReceiverConfig.grpcStreamSchedulerPeriodMillis}"/>
         <constructor-arg index="4" value="#{grpcStatReceiverConfig.grpcStreamSchedulerRecoveryMessageCount}"/>
+        <constructor-arg index="5" value="#{grpcStatReceiverConfig.grpcStreamIdleTimeout}"/>
     </bean>
     <bean id="statServiceFactory" class="com.navercorp.pinpoint.collector.receiver.grpc.service.StatServiceFactory">
         <property name="dispatchHandler" ref="grpcStatDispatchHandlerFactoryBean"/>
@@ -240,7 +230,7 @@
         <ref bean="statServiceFactory"/>
     </util:list>
 
-    <bean id="grpcStatServerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
+    <bean id="grpcStatServerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
         <property name="corePoolSize" value="#{grpcStatReceiverConfig.grpcServerExecutorThreadSize}"/>
         <property name="maxPoolSize" value="#{grpcStatReceiverConfig.grpcServerExecutorThreadSize}"/>
         <property name="queueCapacity" value="#{grpcStatReceiverConfig.grpcServerExecutorQueueSize}"/>
@@ -253,7 +243,9 @@
         <property name="bindPort" value="#{grpcStatReceiverConfig.grpcBindPort}"/>
         <property name="addressFilter" ref="addressFilter"/>
         <property name="bindableServiceList" ref="statServiceList"/>
-        <property name="serverInterceptorList" ref="interceptorList"/>
+        <property name="serverInterceptorList" ref="statInterceptorList"/>
+        <property name="transportFilterList" ref="serverTransportFilterList"/>
+        <property name="channelzRegistry" ref="channelzRegistry"/>
         <property name="executor" ref="grpcStatServerExecutor"/>
         <property name="enable" value="#{grpcStatReceiverConfig.isGrpcEnable()}"/>
         <property name="serverOption" value="#{grpcStatReceiverConfig.getGrpcServerOption()}"/>

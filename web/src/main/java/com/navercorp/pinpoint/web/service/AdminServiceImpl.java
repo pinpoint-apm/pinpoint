@@ -17,15 +17,13 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -36,6 +34,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author netspider
@@ -50,11 +49,11 @@ public class AdminServiceImpl implements AdminService {
 
     private final ApplicationIndexDao applicationIndexDao;
 
-    private final JvmGcDao jvmGcDao;
+    private final AgentInfoService agentInfoService;
 
-    public AdminServiceImpl(ApplicationIndexDao applicationIndexDao, @Qualifier("jvmGcDaoFactory") JvmGcDao jvmGcDao) {
+    public AdminServiceImpl(ApplicationIndexDao applicationIndexDao, AgentInfoService agentInfoService) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
-        this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
+        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
     }
 
     @Override
@@ -147,17 +146,26 @@ public class AdminServiceImpl implements AdminService {
         if (CollectionUtils.isEmpty(agentIds)) {
             return Collections.emptyList();
         }
-        List<String> inactiveAgentIds = new ArrayList<>();
-        final long toTimestamp = System.currentTimeMillis();
+
+        Range fastRange = Range.newRange(TimeUnit.HOURS, 1, System.currentTimeMillis());
+
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, durationDays * -1);
         final long fromTimestamp = cal.getTimeInMillis();
-        Range queryRange = Range.newRange(fromTimestamp, toTimestamp);
+        Range queryRange = Range.newRange(fromTimestamp, fastRange.getFrom() + 1);
+
+        List<String> inactiveAgentIds = new ArrayList<>();
         for (String agentId : agentIds) {
             // FIXME This needs to be done with a more accurate information.
             // If at any time a non-java agent is introduced, or an agent that does not collect jvm data,
             // this will fail
-            boolean dataExists = this.jvmGcDao.agentStatExists(agentId, queryRange);
+
+            boolean dataExists = agentInfoService.isActiveAgent(agentId, fastRange);
+            if (dataExists) {
+                continue;
+            }
+
+            dataExists = agentInfoService.isActiveAgent(agentId, queryRange);
             if (!dataExists) {
                 inactiveAgentIds.add(agentId);
             }

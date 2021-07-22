@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Store, Action, select } from '@ngrx/store';
-import { Observable, Subject, iif } from 'rxjs';
-import { takeUntil, map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Observable, Subject, iif, pipe } from 'rxjs';
+import { takeUntil, map, debounceTime, distinctUntilChanged, filter, pluck } from 'rxjs/operators';
 
 import {
     AppState,
@@ -10,23 +10,66 @@ import {
     selectTimelineRange,
     selectTimelineSelectedTime,
     selectTimelineSelectionRange
-} from 'app/shared/store';
+} from 'app/shared/store/reducers';
 import { WebAppSettingDataService } from './web-app-setting-data.service';
+import { isEmpty } from 'app/core/utils/util';
+import { applicationList, applicationListError } from 'app/shared/store/selectors/application-list.selector';
+import { favoriteApplicationList, favoriteApplicationListError } from 'app/shared/store/selectors/favorite-application-list.selector';
+import { ErrorType } from 'app/shared/store/reducers/favorite-application-list.reducer';
 
 @Injectable()
 export class StoreHelperService {
     private dateFormatList: string[][];
     constructor(
         private store: Store<AppState>,
-        private webAppSettingDataService: WebAppSettingDataService
+        private webAppSettingDataService: WebAppSettingDataService,
     ) {
         this.dateFormatList = this.webAppSettingDataService.getDateFormatList();
     }
+
     getApplicationList(unsubscribe?: Subject<void>): Observable<IApplication[]> {
-        return this.getObservable(STORE_KEY.APPLICATION_LIST, unsubscribe);
+        return this.store.pipe(select(applicationList));
     }
-    getFavoriteApplicationList(unsubscribe: Subject<void>): Observable<IApplication[]> {
-        return this.getObservable(STORE_KEY.FAVORITE_APPLICATION_LIST, unsubscribe);
+    getApplicationListError(): Observable<IServerErrorFormat> {
+        const selectError = pipe(
+            select(applicationListError),
+            filter((error: IServerErrorFormat) => error && !isEmpty(error))
+        );
+
+        return this.store.pipe(selectError);
+    }
+    getFavoriteApplicationList(unsubscribe?: Subject<void>): Observable<IApplication[]> {
+        return this.store.pipe(select(favoriteApplicationList));
+    }
+    getFavoriteApplicationListError(): Observable<IServerErrorFormat> {
+        const selectError = pipe(
+            select(favoriteApplicationListError),
+            filter((error) => error && !isEmpty(error)),
+            filter(({errorType}) => errorType === ErrorType.GET),
+            pluck('error')
+        );
+
+        return this.store.pipe(selectError);
+    }
+    getFavoriteApplicationAddError(): Observable<IServerErrorFormat> {
+        const selectError = pipe(
+            select(favoriteApplicationListError),
+            filter((error) => error && !isEmpty(error)),
+            filter(({errorType}) => errorType === ErrorType.ADD),
+            pluck('error')
+        );
+
+        return this.store.pipe(selectError);
+    }
+    getFavoriteApplicationRemoveError(): Observable<IServerErrorFormat> {
+        const selectError = pipe(
+            select(favoriteApplicationListError),
+            filter((error) => error && !isEmpty(error)),
+            filter(({errorType}) => errorType === ErrorType.REMOVE),
+            pluck('error')
+        );
+
+        return this.store.pipe(selectError);
     }
     getTimezone(unsubscribe?: Subject<void>): Observable<string> {
         return this.getObservable(STORE_KEY.TIMEZONE, unsubscribe);
@@ -89,8 +132,14 @@ export class StoreHelperService {
     getResponseSummaryChartYMax(unsubscribe: Subject<void>): Observable<number> {
         return this.getObservable(STORE_KEY.RESPONSE_SUMMARY_CHART_Y_MAX, unsubscribe);
     }
+    getResponseAvgMaxChartYMax(unsubscribe: Subject<void>): Observable<number> {
+        return this.getObservable(STORE_KEY.RESPONSE_AVG_MAX_CHART_Y_MAX, unsubscribe);
+    }
     getLoadChartYMax(unsubscribe: Subject<void>): Observable<number> {
         return this.getObservable(STORE_KEY.LOAD_CHART_Y_MAX, unsubscribe);
+    }
+    getLoadAvgMaxChartYMax(unsubscribe: Subject<void>): Observable<number> {
+        return this.getObservable(STORE_KEY.LOAD_AVG_MAX_CHART_Y_MAX, unsubscribe);
     }
     getInfoPerServerState(unsubscribe: Subject<void>): Observable<boolean> {
         return this.store.pipe(
@@ -125,7 +174,7 @@ export class StoreHelperService {
     getTransactionViewType(unsubscribe: Subject<void>): Observable<string> {
         return this.getObservable(STORE_KEY.TRANSACTION_VIEW_TYPE, unsubscribe);
     }
-    getObservable(key: string, unsubscribe?: Subject<void>): Observable<any> {
+    getObservable(key: keyof AppState, unsubscribe?: Subject<void>): Observable<any> {
         return iif(
             () => !!unsubscribe,
             this.store.pipe(

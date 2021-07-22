@@ -21,7 +21,7 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +37,8 @@ public class ConfiguredApplicationTypeProvider implements Provider<ServiceType> 
 
     @Inject
     public ConfiguredApplicationTypeProvider(ProfilerConfig profilerConfig, ServiceTypeRegistryService serviceTypeRegistryService) {
-        Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.serviceTypeRegistryService = Assert.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
+        Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.applicationTypeString = profilerConfig.getApplicationServerType();
     }
 

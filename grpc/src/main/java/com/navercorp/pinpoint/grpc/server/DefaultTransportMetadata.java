@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 import java.net.InetSocketAddress;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -27,20 +26,29 @@ public class DefaultTransportMetadata implements TransportMetadata {
 
     private final String debugString;
     private final InetSocketAddress remoteAddress;
+    private final InetSocketAddress localAddress;
     private final Long transportId;
     private final long connectTime;
+    private final Long logId;
 
 
-    public DefaultTransportMetadata(String debugString, InetSocketAddress remoteAddress, long transportId, long connectTime) {
-        this.debugString = Assert.requireNonNull(debugString, "debugString");
-        this.remoteAddress = Assert.requireNonNull(remoteAddress, "remoteAddress");
+    public DefaultTransportMetadata(String debugString, InetSocketAddress remoteAddress, InetSocketAddress localAddreess, long transportId, long connectTime, Long logId) {
+        this.debugString = Objects.requireNonNull(debugString, "debugString");
+        this.remoteAddress = Objects.requireNonNull(remoteAddress, "remoteAddress");
+        this.localAddress = Objects.requireNonNull(localAddreess, "localAddreess");
         this.transportId = transportId;
         this.connectTime = connectTime;
+        this.logId = Objects.requireNonNull(logId, "logId");
     }
 
     @Override
     public InetSocketAddress getRemoteAddress() {
         return remoteAddress;
+    }
+
+    @Override
+    public InetSocketAddress getLocalAddress() {
+        return localAddress;
     }
 
     @Override
@@ -53,14 +61,20 @@ public class DefaultTransportMetadata implements TransportMetadata {
         return connectTime;
     }
 
+    @Override
+    public Long getLogId() {
+        return logId;
+    }
 
     @Override
     public String toString() {
         return "DefaultTransportMetadata{" +
                 "debugString='" + debugString + '\'' +
                 ", remoteAddress=" + remoteAddress +
+                ", localAddress=" + localAddress +
                 ", transportId=" + transportId +
                 ", connectTime=" + connectTime +
+                ", logId=" + logId +
                 '}';
     }
 }

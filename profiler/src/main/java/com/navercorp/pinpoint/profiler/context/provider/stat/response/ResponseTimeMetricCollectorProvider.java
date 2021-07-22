@@ -18,12 +18,13 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.response;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.response.DefaultResponseTimeMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -34,7 +35,7 @@ public class ResponseTimeMetricCollectorProvider implements Provider<AgentStatMe
 
     @Inject
     public ResponseTimeMetricCollectorProvider(ResponseTimeMetric responseTimeMetric) {
-        this.responseTimeMetric = Assert.requireNonNull(responseTimeMetric, "responseTimeMetric");
+        this.responseTimeMetric = Objects.requireNonNull(responseTimeMetric, "responseTimeMetric");
     }
 
     @Override

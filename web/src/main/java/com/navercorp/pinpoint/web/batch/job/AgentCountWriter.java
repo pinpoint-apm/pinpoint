@@ -27,6 +27,7 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 public class AgentCountWriter implements ItemWriter<AgentCountStatistics> {
 
     @Autowired

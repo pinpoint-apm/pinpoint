@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.PipelineFactory;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
@@ -48,16 +48,16 @@ public class Connection {
     private ChannelFuture connectFuture;
 
     public Connection(ConnectionFactory connectionFactory, SocketOption socketOption, ChannelFactory channelFactory, ClientHandlerFactory clientHandlerFactory) {
-        this.connectionFactory = Assert.requireNonNull(connectionFactory, "connectionFactory");
+        this.connectionFactory = Objects.requireNonNull(connectionFactory, "connectionFactory");
 
-        this.socketOption = Assert.requireNonNull(socketOption, "socketOption");
+        this.socketOption = Objects.requireNonNull(socketOption, "socketOption");
 
-        this.channelFactory = Assert.requireNonNull(channelFactory, "channelFactory");
-        this.clientHandlerFactory = Assert.requireNonNull(clientHandlerFactory, "clientHandlerFactory");
+        this.channelFactory = Objects.requireNonNull(channelFactory, "channelFactory");
+        this.clientHandlerFactory = Objects.requireNonNull(clientHandlerFactory, "clientHandlerFactory");
     }
 
     void connect(SocketAddressProvider remoteAddressProvider, boolean reconnect, PipelineFactory pipelineFactory) {
-        Assert.requireNonNull(remoteAddressProvider, "remoteAddress");
+        Objects.requireNonNull(remoteAddressProvider, "remoteAddress");
 
         final ChannelPipeline pipeline = pipelineFactory.newPipeline();
 

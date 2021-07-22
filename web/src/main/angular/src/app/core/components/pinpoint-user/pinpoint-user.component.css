@@ -3,18 +3,18 @@
     align-items: center;
     width: 100%;
     margin: 0;
-    color: #333;
+    color: var(--text-primary);
     padding: 12px 15px;
     font-size: 13px;    
 }
 
 :host:hover {
-    background:#e4f3eb;
+    background: var(--background-hover-secondary);
 }
 
 :host.selected {
     /* TODO: 체크된 유저에 대한 스타일링 */
-    color: var(--primary-color);
+    color: var(--primary);
 }
 
 .l-btn-section {
@@ -26,20 +26,24 @@
 }
 
 .fa-edit {
-    color: #666;
+    color: var(--text-primary-lightest);
     font-size: 14px;
 }
 
 .fa-trash-alt {
-    color: #b3b6bf;
+    color: var(--icon-default);
     font-size: 15px;
     margin-left: 4px;
 }
 
 .fa-check {
     font-size: 14px;
-    color: #F00;
+    color: var(--status-danger-lighter);
     margin-left: 8px;
+}
+
+.l-checkbox-input {
+    cursor: pointer;
 }
 
 .l-userinfo-label {
@@ -48,4 +52,5 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    cursor: pointer;
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, OnChanges, SimpleChanges, HostBinding } from '@angular/core';
-import bb, { PrimitiveArray, Data } from 'billboard.js';
+import bb, { PrimitiveArray, Data, bar, zoom } from 'billboard.js';
 
 import { getMaxTickValue } from 'app/core/utils/chart-util';
 
@@ -82,7 +82,7 @@ export class AgentStatisticChartComponent implements OnInit, OnChanges {
                     text: this.emptyText
                 }
             },
-            type: 'bar',
+            type: bar(),
             labels: true,
             color: () => this.barColor
         };
@@ -124,7 +124,7 @@ export class AgentStatisticChartComponent implements OnInit, OnChanges {
                 duration: 0
             },
             zoom: {
-                enabled: true
+                enabled: zoom()
             },
         };
     }

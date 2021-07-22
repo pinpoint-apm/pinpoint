@@ -19,7 +19,9 @@ package com.navercorp.pinpoint.profiler.context.thrift;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.common.Version;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
+
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
@@ -50,8 +52,8 @@ public class MetadataMessageConverter implements MessageConverter<TBase<?, ?>> {
     private final JvmGcTypeThriftMessageConverter jvmGcTypeMessageConverter = new JvmGcTypeThriftMessageConverter();
 
     public MetadataMessageConverter(String applicationName, String agentId, long agentStartTime) {
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
     }
 
@@ -81,6 +83,10 @@ public class MetadataMessageConverter implements MessageConverter<TBase<?, ?>> {
         tAgentInfo.setHostname(agentInformation.getMachineName());
         tAgentInfo.setPorts("");
         tAgentInfo.setAgentId(agentInformation.getAgentId());
+        final String agentName = agentInformation.getAgentName();
+        if (!StringUtils.isEmpty(agentName)) {
+            tAgentInfo.setAgentName(agentName);
+        }
         tAgentInfo.setApplicationName(agentInformation.getApplicationName());
         tAgentInfo.setContainer(agentInformation.isContainer());
         tAgentInfo.setPid(agentInformation.getPid());

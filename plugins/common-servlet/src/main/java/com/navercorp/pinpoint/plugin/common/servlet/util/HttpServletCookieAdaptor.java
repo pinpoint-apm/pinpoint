@@ -1,15 +1,15 @@
 package com.navercorp.pinpoint.plugin.common.servlet.util;
 
 import com.navercorp.pinpoint.bootstrap.plugin.request.CookieAdaptor;
-import com.navercorp.pinpoint.common.util.Assert;
 
 import javax.servlet.http.Cookie;
+import java.util.Objects;
 
 class HttpServletCookieAdaptor implements CookieAdaptor {
     private final Cookie cookie;
 
     public HttpServletCookieAdaptor(Cookie cookie) {
-        this.cookie = Assert.requireNonNull(cookie, "cookie");
+        this.cookie = Objects.requireNonNull(cookie, "cookie");
     }
 
     @Override

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.handler.grpc;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.SqlMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
@@ -37,7 +38,7 @@ import java.util.Objects;
  * @author emeroad
  */
 @Service
-public class GrpcSqlMetaDataHandler implements RequestResponseHandler {
+public class GrpcSqlMetaDataHandler implements RequestResponseHandler<GeneratedMessageV3, GeneratedMessageV3> {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -49,10 +50,10 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler {
 
 
     @Override
-    public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {
-        final Object data = serverRequest.getData();
+    public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
+        final GeneratedMessageV3 data = serverRequest.getData();
         if (data instanceof PSqlMetaData) {
-            Object result = handleSqlMetaData((PSqlMetaData) data);
+            PResult result = handleSqlMetaData((PSqlMetaData) data);
             serverResponse.write(result);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);
@@ -60,7 +61,7 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler {
         }
     }
 
-    private Object handleSqlMetaData(PSqlMetaData sqlMetaData) {
+    private PResult handleSqlMetaData(PSqlMetaData sqlMetaData) {
         if (isDebug) {
             logger.debug("Handle PSqlMetaData={}", MessageFormatUtils.debugLog(sqlMetaData));
         }
@@ -70,8 +71,8 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler {
             final String agentId = agentInfo.getAgentId();
             final long agentStartTime = agentInfo.getAgentStartTime();
 
-            final SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(agentId, agentStartTime, sqlMetaData.getSqlId());
-            sqlMetaDataBo.setSql(sqlMetaData.getSql());
+            final SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(agentId, agentStartTime, sqlMetaData.getSqlId(), sqlMetaData.getSql());
+
             sqlMetaDataService.insert(sqlMetaDataBo);
             return PResult.newBuilder().setSuccess(true).build();
         } catch (Exception e) {

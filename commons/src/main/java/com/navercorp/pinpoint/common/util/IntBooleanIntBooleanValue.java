@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.util;
 /**
  * @author jaehong.kim
  */
-public class IntBooleanIntBooleanValue {
+public class IntBooleanIntBooleanValue implements DataType {
     private final int intValue1;
     private final boolean booleanValue1;
     private final int intValue2;

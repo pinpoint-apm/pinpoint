@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.metadata;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import java.util.concurrent.ConcurrentMap;
@@ -45,7 +45,7 @@ public class SimpleCache<T> {
     public SimpleCache(IdTransformer idTransformer, int cacheSize, int startValue) {
         this.idGen = new AtomicInteger(startValue);
         this.cache = createCache(cacheSize);
-        this.idTransformer = Assert.requireNonNull(idTransformer, "idTransformer");
+        this.idTransformer = Objects.requireNonNull(idTransformer, "idTransformer");
 
     }
 

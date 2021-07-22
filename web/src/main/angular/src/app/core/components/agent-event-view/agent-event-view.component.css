@@ -3,14 +3,14 @@
     font-size:13px;
     font-weight:600;
     padding:0 20px;
-    color:#333;
+    color: var(--text-primary);
     display: flex;
     align-items: center;
     justify-content:space-between;
-    background-color: #9DD4BB;
+    background-color: var(--secondary-lighter);
 }
 .l-title-group button {
-    color: #000;
+    color: var(--text-default);
     float: right;
     font-size: 14px;
 }

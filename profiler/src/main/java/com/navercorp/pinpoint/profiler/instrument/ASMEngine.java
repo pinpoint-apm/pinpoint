@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.instrument;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
@@ -41,8 +41,8 @@ public class ASMEngine implements InstrumentEngine {
 
 
     public ASMEngine(Instrumentation instrumentation, EngineComponent engineComponent) {
-        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
-        this.engineComponent = Assert.requireNonNull(engineComponent, "engineComponent");
+        this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
+        this.engineComponent = Objects.requireNonNull(engineComponent, "engineComponent");
     }
 
     @Override

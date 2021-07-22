@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.util;
 /**
  * @author jaehong.kim
  */
-public class LongIntIntByteByteStringValue {
+public class LongIntIntByteByteStringValue implements DataType {
     private final long longValue;
     private final int intValue1;
     private final int intValue2;

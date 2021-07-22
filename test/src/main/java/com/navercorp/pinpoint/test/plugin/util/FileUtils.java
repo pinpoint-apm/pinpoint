@@ -18,8 +18,11 @@ package com.navercorp.pinpoint.test.plugin.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -29,62 +32,64 @@ public final class FileUtils {
     }
 
     public static URL toURL(final File file) throws IOException {
-        requireNonNull(file, "file");
+        Objects.requireNonNull(file, "file");
         return toURL(file, new FileFunction());
     }
 
     public static URL toURL(final String filePath) throws IOException {
-        requireNonNull(filePath, "filePath");
+        Objects.requireNonNull(filePath, "filePath");
         return toURL(filePath, new FilePathFunction());
     }
 
     public static URL[] toURLs(final File[] files) throws IOException {
-        requireNonNull(files, "files");
+        Objects.requireNonNull(files, "files");
         return toURLs(files, new FileFunction());
     }
 
     public static URL[] toURLs(final String[] filePaths) throws IOException {
-        requireNonNull(filePaths, "filePaths");
+        Objects.requireNonNull(filePaths, "filePaths");
         return toURLs(filePaths, new FilePathFunction());
     }
 
-    private static <T> URL toURL(final T source, final Function<T, URI> function) throws IOException {
-        URI uri = function.apply(source);
-        return uri.toURL();
+    private static <T> URL toURL(final T source, final Function<T, URL> function) throws IOException {
+        return function.apply(source);
     }
 
-    private static <T> URL[] toURLs(final T[] source, final Function<T, URI> function) throws IOException {
+    public static <T> URL[] toURLs(final T[] source, final Function<T, URL> function) throws IOException {
         final URL[] urls = new URL[source.length];
         for (int i = 0; i < source.length; i++) {
             T t = source[i];
-            urls[i] = toURL(t, function);
+            urls[i] = function.apply(t);
         }
         return urls;
     }
 
     private interface Function<T, R> {
-        R apply(T t);
+        R apply(T t) throws IOException;
     }
 
 
-    private static class FileFunction implements Function<File, URI> {
-        public URI apply(File file) {
-            return file.toURI();
+    private static class FileFunction implements Function<File, URL> {
+        public URL apply(File file) throws MalformedURLException {
+            return file.toURI().toURL();
         }
     }
 
-    private static class FilePathFunction implements Function<String, URI> {
-        public URI apply(String filePath) {
+    private static class FilePathFunction implements Function<String, URL> {
+        public URL apply(String filePath) throws MalformedURLException {
             final File file = new File(filePath);
-            return file.toURI();
+            return file.toURI().toURL();
         }
     }
 
-    private static <T> T requireNonNull(T object, String message) {
-        if (object == null) {
-            throw new NullPointerException(message);
+    public static List<String> toAbsolutePath(List<File> files) {
+        Objects.requireNonNull(files, "files");
+
+        List<String> libs = new ArrayList<>(files.size());
+        for (File lib : files) {
+            libs.add(lib.getAbsolutePath());
         }
-        return object;
+        return libs;
     }
 
 }

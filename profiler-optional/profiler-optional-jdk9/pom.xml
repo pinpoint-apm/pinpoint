@@ -23,7 +23,7 @@
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-profiler-optional-parent</artifactId>
         <relativePath>../profiler-optional-parent</relativePath>
-        <version>2.1.1-SNAPSHOT</version>
+        <version>2.3.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-profiler-optional-jdk9</artifactId>
@@ -35,10 +35,6 @@
         <jdk.version>9</jdk.version>
         <jdk.home>${env.JAVA_9_HOME}</jdk.home>
 
-        <!-- http://openclover.org/ -->
-        <!-- https://bitbucket.org/openclover/clover/issues/61/430-support-java-9 -->
-        <!-- 4.3 will support java9 -->
-        <plugin.clover.skip>true</plugin.clover.skip>
         <plugin.animal-sniffer.skip>true</plugin.animal-sniffer.skip>
     </properties>
 
@@ -80,29 +76,51 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Temporary patch for java9-->
-        <dependency>
-            <groupId>org.openclover</groupId>
-            <artifactId>clover</artifactId>
-            <version>4.2.1</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals><goal>add-source</goal></goals>
+                        <configuration>
+                            <sources>
+<!--                                <source>src/main/java9</source>-->
+                                <source>src/main/java11</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <argLine>
                         --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
-                        --add-exports=java.base/jdk.internal.access=ALL-UNNAMED
                         -Dfile.encoding=${encoding}
                     </argLine>
+<!--                    <argLine>-->
+<!--                        &#45;&#45;add-exports java.base/jdk.internal.access=ALL-UNNAMED-->
+<!--                        -Dfile.encoding=${encoding}-->
+<!--                    </argLine>-->
                 </configuration>
             </plugin>
-            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgs>
+                        <arg>--add-exports</arg><arg>java.base/jdk.internal.misc=ALL-UNNAMED</arg>
+<!--                        <arg>&#45;&#45;add-exports</arg><arg>java.base/jdk.internal.access=ALL-UNNAMED</arg>-->
+                    </compilerArgs>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

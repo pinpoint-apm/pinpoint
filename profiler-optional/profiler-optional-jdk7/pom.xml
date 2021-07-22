@@ -23,7 +23,7 @@
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-profiler-optional-parent</artifactId>
         <relativePath>../profiler-optional-parent</relativePath>
-        <version>2.1.1-SNAPSHOT</version>
+        <version>2.3.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-profiler-optional-jdk7</artifactId>
@@ -34,6 +34,8 @@
     <properties>
         <jdk.version>1.7</jdk.version>
         <jdk.home>${env.JAVA_7_HOME}</jdk.home>
+        <!-- TODO       -->
+        <plugin.animal-sniffer.skip>true</plugin.animal-sniffer.skip>
     </properties>
 
     <dependencies>
@@ -94,6 +96,22 @@
                         <goals>
                             <goal>check</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals><goal>add-source</goal></goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/java-ibm</source>
+                                <source>src/main/java-oracle</source>
+                            </sources>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

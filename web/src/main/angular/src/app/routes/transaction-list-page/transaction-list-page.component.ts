@@ -1,6 +1,15 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ComponentFactoryResolver, Injector } from '@angular/core';
 
-import { WebAppSettingDataService, GutterEventService } from 'app/shared/services';
+import {
+    WebAppSettingDataService,
+    GutterEventService,
+    NewUrlStateNotificationService,
+    DynamicPopupService,
+    UrlRouteManagerService
+} from 'app/shared/services';
+import { UrlPathId, UrlPath, UrlQuery } from 'app/shared/models';
+import { TranslateService } from '@ngx-translate/core';
+import { MessagePopupContainerComponent } from 'app/core/components/message-popup/message-popup-container.component';
 
 @Component({
     selector: 'pp-transaction-list-page',
@@ -9,14 +18,53 @@ import { WebAppSettingDataService, GutterEventService } from 'app/shared/service
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TransactionListPageComponent implements OnInit {
+    private errorMessage: string;
+
     splitSize: number[];
 
     constructor(
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
+        private urlRouteManagerService: UrlRouteManagerService,
+        private translateService: TranslateService,
         private webAppSettingDataService: WebAppSettingDataService,
+        private dynamicPopupService: DynamicPopupService,
         private gutterEventService: GutterEventService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
 
     ngOnInit() {
+        this.translateService.get('TRANSACTION_LIST.TRANSACTION_RETRIEVE_ERROR').subscribe((text: string) => {
+            this.errorMessage = text;
+        });
+
+        if (!this.newUrlStateNotificationService.hasValue(UrlQuery.DRAG_INFO)) {
+            this.dynamicPopupService.openPopup({
+                data: {
+                    title: 'Notice',
+                    contents: this.errorMessage,
+                },
+                component: MessagePopupContainerComponent,
+                onCloseCallback: () => {
+                    this.urlRouteManagerService.moveOnPage({
+                        url: [
+                            UrlPath.MAIN,
+                            this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                            this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
+                            this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
+                        ],
+                        queryParams: {
+                            [UrlQuery.DRAG_INFO]: null,
+                            [UrlQuery.TRANSACTION_INFO]: null
+                        }
+                    });
+                }
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
+            });
+        }
+
         this.splitSize = this.webAppSettingDataService.getSplitSize();
     }
 

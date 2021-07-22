@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.service.map.processor;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
@@ -36,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Replaces link data pointing to domains into applications if the target has an agent installed.
@@ -50,7 +50,7 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
 
     private final VirtualLinkMarker virtualLinkMarker;
 
-    private final Map<AcceptApplicationCacheKey, Set<AcceptApplication>> acceptApplicationCache = Maps.newConcurrentMap();
+    private final Map<AcceptApplicationCacheKey, Set<AcceptApplication>> acceptApplicationCache = new ConcurrentHashMap<>();
 
     private final AcceptApplicationLocalCache rpcAcceptApplicationCache = new AcceptApplicationLocalCache();
 

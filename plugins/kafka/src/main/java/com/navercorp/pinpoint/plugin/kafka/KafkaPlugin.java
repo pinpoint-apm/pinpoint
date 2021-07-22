@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2021 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,15 +35,18 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.EndPointFieldAccessor;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.SocketChannelListFieldAccessor;
+import com.navercorp.pinpoint.plugin.kafka.field.getter.ApiVersionsGetter;
 import com.navercorp.pinpoint.plugin.kafka.field.getter.SelectorGetter;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerMultiRecordEntryPointInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerPollInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerRecordEntryPointInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerRecordsInterceptor;
+import com.navercorp.pinpoint.plugin.kafka.interceptor.ProducerAddHeaderInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.NetworkClientPollInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ProducerConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ProducerSendInterceptor;
+import com.navercorp.pinpoint.plugin.kafka.interceptor.SocketChannelCloseInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.SocketChannelRegisterInterceptor;
 
 import java.security.ProtectionDomain;
@@ -53,6 +56,7 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
  * @author Harris Gwag (gwagdalf)
+ * @author Taejin Koo
  */
 public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
 
@@ -143,7 +147,17 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
                 sendMethod.addInterceptor(ProducerSendInterceptor.class);
             }
 
+            // Version 0.11.0+ is supported.
+            InstrumentMethod setReadOnlyMethod = target.getDeclaredMethod("setReadOnly", "org.apache.kafka.common.header.Headers");
+            if (setReadOnlyMethod != null) {
+                setReadOnlyMethod.addInterceptor(ProducerAddHeaderInterceptor.class);
+            }
+            if (target.hasField("apiVersions")) {
+                target.addGetter(ApiVersionsGetter.class, "apiVersions");
+            }
+
             target.addField(RemoteAddressFieldAccessor.class);
+
             return target.toBytecode();
         }
 
@@ -340,6 +354,15 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     public static class KafkaSelectorTransform implements TransformCallback {
 
+        private static final String[][] SELECTOR_CLOSE_METHOD_PARAMS = {
+                // for v1.1.0+
+                {"org.apache.kafka.common.network.KafkaChannel", "org.apache.kafka.common.network.Selector$CloseMode"},
+                // for v1.0.1 ~ 1.0.2
+                {"org.apache.kafka.common.network.KafkaChannel", "boolean"},
+                // for ~ v1.0.0            // for
+                {"org.apache.kafka.common.network.KafkaChannel", "boolean", "boolean"}
+        };
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
@@ -355,6 +378,23 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
                 registerMethod.addInterceptor(SocketChannelRegisterInterceptor.class);
 
                 target.addField(SocketChannelListFieldAccessor.class);
+            }
+
+            InstrumentMethod closeMethod = null;
+            for (String[] selectorCloseMethodParam : SELECTOR_CLOSE_METHOD_PARAMS) {
+                closeMethod = target.getDeclaredMethod("close", selectorCloseMethodParam);
+                if (closeMethod != null) {
+                    break;
+                }
+            }
+
+            if (closeMethod != null) {
+                closeMethod.addInterceptor(SocketChannelCloseInterceptor.class);
+            }
+
+            InstrumentMethod doCloseMethod = target.getDeclaredMethod("close", "org.apache.kafka.common.network.KafkaChannel", "boolean");
+            if (doCloseMethod != null) {
+                doCloseMethod.addInterceptor(SocketChannelCloseInterceptor.class);
             }
 
             return target.toBytecode();

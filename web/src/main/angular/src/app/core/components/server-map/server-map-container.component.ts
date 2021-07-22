@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Inject, ComponentFactoryResolver, Injector, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router, NavigationStart, RouterEvent } from '@angular/router';
-import { Subject } from 'rxjs';
-import { takeUntil, filter, map, switchMap } from 'rxjs/operators';
+import { Subject, of, interval, EMPTY } from 'rxjs';
+import { takeUntil, filter, switchMap, tap, delayWhen, pluck, startWith, catchError } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import {
@@ -15,13 +15,13 @@ import {
     MESSAGE_TO
 } from 'app/shared/services';
 import { UrlPathId } from 'app/shared/models';
-import { EndTime } from 'app/core/models';
-import { SERVER_MAP_TYPE, ServerMapType, NodeGroup, ServerMapData } from 'app/core/components/server-map/class';
+import { SERVER_MAP_TYPE, ServerMapType, ServerMapData } from 'app/core/components/server-map/class';
 import { ServerMapDataService } from './server-map-data.service';
 import { LinkContextPopupContainerComponent } from 'app/core/components/link-context-popup/link-context-popup-container.component';
 import { NodeContextPopupContainerComponent } from 'app/core/components/node-context-popup/node-context-popup-container.component';
 import { ServerMapContextPopupContainerComponent } from 'app/core/components/server-map-context-popup/server-map-context-popup-container.component';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
+import { ServerMapRangeHandlerService } from './server-map-range-handler.service';
 
 @Component({
     selector: 'pp-server-map-container',
@@ -41,8 +41,8 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
     showLoading = true;
     useDisable = true;
     isEmpty: boolean;
-    endTime: string;
-    period: string;
+    interval = 2000;
+    shouldRefresh: boolean;
 
     constructor(
         private router: Router,
@@ -57,6 +57,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         private analyticsService: AnalyticsService,
         private cd: ChangeDetectorRef,
         private messageQueueService: MessageQueueService,
+        private serverMapRangeHandlerService: ServerMapRangeHandlerService,
         @Inject(SERVER_MAP_TYPE) public type: ServerMapType
     ) {}
 
@@ -72,65 +73,93 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
 
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_MERGE_STATE_CHANGE).subscribe((mergeState: IServerMapMergeState) => {
             this.mapData = new ServerMapData(this.mapData.getOriginalNodeList(), this.mapData.getOriginalLinkList(), {...this.mapData.getMergeState(), ...mergeState});
+            this.shouldRefresh = true;
             this.cd.detectChanges();
         });
 
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            takeUntil(this.unsubscribe),
-            map((urlService: NewUrlStateNotificationService) => {
+            tap((urlService: NewUrlStateNotificationService) => {
+                this.showLoading = true;
+                this.useDisable = true;
+                this.baseApplicationKey = urlService.getPathValue(UrlPathId.APPLICATION).getKeyStr();
+                this.shouldRefresh = true;
+
+                if (urlService.isValueChanged(UrlPathId.APPLICATION)) {
+                    this.mapData = null;
+                }
+            }),
+            switchMap((urlService: NewUrlStateNotificationService) => {
                 if (urlService.isRealTimeMode()) {
                     const endTime = urlService.getUrlServerTimeData();
                     const period = this.webAppSettingDataService.getSystemDefaultPeriod();
+                    const range = [endTime - period.getMiliSeconds(), endTime];
 
-                    this.initVarBeforeDataLoad(
-                        EndTime.formatDate(endTime),
-                        period.getValueWithTime(),
-                        urlService.getPathValue(UrlPathId.APPLICATION)
+                    return this.serverMapRangeHandlerService.onFetchCompleted$.pipe(
+                        delayWhen(({delay: delayTime}: {delay: number}) => interval(delayTime)),
+                        pluck('range'),
+                        tap(() => this.shouldRefresh = false),
+                        startWith(range),
                     );
-
-                    return [endTime - period.getMiliSeconds(), endTime];
                 } else {
-                    this.initVarBeforeDataLoad(
-                        urlService.getPathValue(UrlPathId.END_TIME).getEndTime(),
-                        urlService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
-                        urlService.getPathValue(UrlPathId.APPLICATION)
-                    );
-
-                    return [urlService.getStartTimeToNumber(), urlService.getEndTimeToNumber()];
+                    const range = [urlService.getStartTimeToNumber(), urlService.getEndTimeToNumber()];
+                    return of(range);
                 }
             }),
-            switchMap((range: number[]) => this.serverMapDataService.getData(range))
-        ).subscribe((res: IServerMapInfo) => {
-            this.mapData = new ServerMapData(res.applicationMapData.nodeDataArray, res.applicationMapData.linkDataArray);
+            switchMap((range: number[]) => {
+                this.serverMapRangeHandlerService.setReservedNextTo(range[1] + this.interval);
+                return this.serverMapDataService.getData(range).pipe(
+                    catchError((error: IServerErrorFormat) => {
+                        this.dynamicPopupService.openPopup({
+                            data: {
+                                title: 'Server Error',
+                                contents: error
+                            },
+                            component: ServerErrorPopupContainerComponent,
+                            onCloseCallback: () => {
+                                this.urlRouteManagerService.move({
+                                    url: [
+                                        this.newUrlStateNotificationService.getStartPath()
+                                    ],
+                                    needServerTimeRequest: false,
+                                    queryParams: {
+                                        inbound: null,
+                                        outbound: null,
+                                        bidirectional: null,
+                                        wasOnly: null
+                                    },
+                                });
+                            }
+                        }, {
+                            resolver: this.componentFactoryResolver,
+                            injector: this.injector
+                        });
+
+                        return EMPTY;
+                    }),
+                    tap(() => {
+                        if (this.newUrlStateNotificationService.isRealTimeMode()) {
+                            this.serverMapRangeHandlerService.onFetchCompleted(Date.now());
+                        }
+                    })
+                );
+            }),
+            takeUntil(this.unsubscribe),
+        ).subscribe(({applicationMapData: {nodeDataArray, linkDataArray, range: {from, to}}}: IServerMapInfo) => {
+            this.mapData = new ServerMapData(
+                nodeDataArray,
+                linkDataArray,
+                this.mapData ? {...this.mapData.getMergeState()} : {}
+            );
             this.isEmpty = this.mapData.getNodeCount() === 0;
             this.messageQueueService.sendMessage({
                 to: MESSAGE_TO.SERVER_MAP_DATA_UPDATE,
-                param: this.mapData
+                param: {serverMapData: this.mapData, range: [from, to]}
             });
             if (this.isEmpty) {
                 this.showLoading = false;
             }
 
             this.cd.detectChanges();
-        }, (error: IServerErrorFormat) => {
-            this.dynamicPopupService.openPopup({
-                data: {
-                    title: 'Server Error',
-                    contents: error
-                },
-                component: ServerErrorPopupContainerComponent,
-                onCloseCallback: () => {
-                    this.urlRouteManagerService.move({
-                        url: [
-                            this.newUrlStateNotificationService.getStartPath()
-                        ],
-                        needServerTimeRequest: false
-                    });
-                }
-            }, {
-                resolver: this.componentFactoryResolver,
-                injector: this.injector
-            });
         });
     }
 
@@ -156,12 +185,8 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         });
     }
 
-    private initVarBeforeDataLoad(endTime: string, period: string, application: IApplication): void {
-        this.endTime = endTime;
-        this.period = period;
-        this.showLoading = true;
-        this.useDisable = true;
-        this.baseApplicationKey = application.getKeyStr();
+    onMoveNode(): void {
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.MOVE_NODE_IN_SERVER_MAP);
     }
 
     onRenderCompleted(): void {
@@ -170,14 +195,12 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         this.cd.detectChanges();
     }
 
-    onClickNode(nodeData: any): void {
+    onClickNode(nodeData: INodeInfo): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_NODE);
         let payload: any;
-        if (NodeGroup.isGroupKey(nodeData.key)) {
+        if (nodeData.isMerged) {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_GROUPED_NODE_VIEW);
             payload = {
-                period: this.period,
-                endTime: this.endTime,
                 isAuthorized: true,
                 isNode: true,
                 isLink: false,
@@ -194,8 +217,6 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             }
         } else {
             payload = {
-                period: this.period,
-                endTime: this.endTime,
                 isAuthorized: nodeData.isAuthorized,
                 isNode: true,
                 isLink: false,
@@ -211,36 +232,33 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         });
     }
 
-    onClickLink(linkData: any): void {
+    onClickLink(linkData: ILinkInfo): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_LINK);
         let payload;
-        if (NodeGroup.isGroupKey(linkData.key)) {
+        if (linkData.isMerged) {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_GROUPED_LINK_VIEW);
             payload = {
-                period: this.period,
-                endTime: this.endTime,
                 isAuthorized: true,
                 isNode: false,
                 isLink: true,
                 isMerged: true,
-                isSourceMerge: NodeGroup.isGroupKey(linkData.from),
+                // isSourceMerge: NodeGroup.isGroupKey(linkData.from),
+                isSourceMerge: this.mapData.getNodeData(linkData.from).isMerged,
                 isWAS: false,
-                node: [linkData.from],
-                link: linkData.targetInfo.map((linkInfo: any) => {
+                node: [linkData.from, linkData.to],
+                link: (linkData.targetInfo as any).map((linkInfo: any) => {
                     return linkInfo.key;
                 }),
                 hasServerList: false
             };
         } else {
             payload = {
-                period: this.period,
-                endTime: this.endTime,
                 isAuthorized: this.mapData.getNodeData(linkData.from).isAuthorized,
                 isNode: false,
                 isLink: true,
                 isMerged: false,
                 isWAS: false,
-                node: [linkData.from],
+                node: [linkData.from, linkData.to],
                 link: [linkData.key],
                 hasServerList: false
             };

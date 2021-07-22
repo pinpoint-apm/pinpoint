@@ -25,7 +25,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"com.alibaba:druid:[1.0.0][1.0.31],[1.1.0,1.1.20]", "com.h2database:h2:1.4.191"})
-@JvmVersion(6)
+@JvmVersion(7)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-druid-plugin")
 @PinpointConfig("druid/pinpoint-druid-test.config")
 public class DruidIT {
@@ -37,14 +37,12 @@ public class DruidIT {
 
     @BeforeClass
     public static void setUp() throws NoSuchMethodException {
-
         getConnectionMethod = DruidDataSource.class.getDeclaredMethod("getConnection");
         closeConnectionMethod = DruidPooledConnection.class.getDeclaredMethod("close");
     }
 
     @Test
     public void test() throws InterruptedException, SQLException {
-
         DruidDataSource dataSource = new DruidDataSource();
 
         dataSource.setUrl(JDBC_URL);

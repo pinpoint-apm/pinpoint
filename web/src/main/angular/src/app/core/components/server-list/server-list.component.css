@@ -12,7 +12,7 @@
 }
 .l-servers-list li {
     font-size: 13px;
-    color:#333;
+    color:var(--text-primary);
     font-weight: 600;
 }
 .l-servers-list li {
@@ -26,7 +26,7 @@
     content: '\f0ae';
     font-size: 14px;
     margin: 0 8px 0 0;
-    color: #999;
+    color: var(--text-secondary);
     font-weight: normal;
 }
 .l-servers-list li .l-category {
@@ -36,7 +36,7 @@
     display: inline-block;
     padding: 2px 5px;
     font-size: 10px;
-    color: #fff;
+    color: var(--text-knockout);
     font-weight: 600;
 }
 .l-servers-list li ul {
@@ -44,11 +44,11 @@
 }
 .l-servers-list li ul li {
     font-size: 12px;
-    color: #666;
+    color: var(--text-primary-lightest);
     font-weight: 400;
     height: 20px;
     margin: 5px 0px;
-    color: #999;
+    color: var(--text-secondary);
 }
 .l-servers-list li ul li input {
     margin: 0 5px;
@@ -63,14 +63,14 @@
     text-overflow : ellipsis;
 }
 .l-servers-list li ul li:hover {
-    background:#f1f3f7;
+    background: var(--background-hover-default);
 }
 .l-text-box {
     padding: 3px 5px;
     font-size: 10px;
-    color: #FFF;
+    color: var(--text-knockout);
     margin-left: 13px;
-    background-color: var(--primary-color);
+    background-color: var(--primary);
 }
 .l-icon-alert {
     height: 1em;

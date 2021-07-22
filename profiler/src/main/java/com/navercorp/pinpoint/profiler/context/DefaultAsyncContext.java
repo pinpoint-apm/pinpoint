@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -43,9 +45,9 @@ public class DefaultAsyncContext implements AsyncContext {
 
 
     public DefaultAsyncContext(AsyncTraceContext asyncTraceContext, TraceRoot traceRoot, AsyncId asyncId, int asyncMethodApiId) {
-        this.asyncTraceContext = Assert.requireNonNull(asyncTraceContext, "asyncTraceContext");
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
-        this.asyncId = Assert.requireNonNull(asyncId, "asyncId");
+        this.asyncTraceContext = Objects.requireNonNull(asyncTraceContext, "asyncTraceContext");
+        this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
+        this.asyncId = Objects.requireNonNull(asyncId, "asyncId");
 
 
         this.asyncMethodApiId = asyncMethodApiId;

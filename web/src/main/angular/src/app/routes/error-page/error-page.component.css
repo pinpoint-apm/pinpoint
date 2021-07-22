@@ -1,7 +1,7 @@
 .l-title {
     display: flex;
     flex: 1;
-    color: #FFF;
+    color: var(--text-knockout);
     font-size: 20px;
     align-items: center;
     padding-left: 20px;
@@ -15,6 +15,7 @@
     align-items: center;
     flex-direction: column;
     align-items: center;
+    background: var(--background-primary);
 }
 .l-api-check .l-apis {
     width: 700px;
@@ -39,10 +40,10 @@
     border-radius: 50px;
 }
 .l-success {
-    color: #03a203;
+    color: var(--status-success);
 }
 .l-fail {
-    color: #c10404;
+    color: var(--status-fail);
 }
 .l-error {
     padding: 20px;

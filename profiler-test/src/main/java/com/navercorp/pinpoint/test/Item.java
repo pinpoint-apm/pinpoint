@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
 import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -42,7 +43,7 @@ public class Item implements Comparable<Item> {
     public Item(Object value, long time, TraceRoot traceRoot, int sequence) {
         this.value = value;
         this.time = time;
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
+        this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
         this.spanId = traceRoot.getTraceId().getSpanId();
         this.sequence = sequence;
         if (value instanceof AsyncSpanChunk) {

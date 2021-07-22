@@ -23,11 +23,11 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.vo.Application;
+
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListener {
     
     private final DataCollectorFactory dataCollectorFactory;

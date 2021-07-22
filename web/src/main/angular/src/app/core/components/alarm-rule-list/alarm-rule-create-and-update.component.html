@@ -1,6 +1,6 @@
 <div class="l-wrapper">
     <button class="btn btn-black l-close" (click)="onClose(); formDir.resetForm();"><i class="fas fa-times"></i></button>
-    <h1>Alarm</h1> 
+    <h1>Alarm</h1>
     <form [formGroup]="alarmForm" #formDir="ngForm" (ngSubmit)="onCreateOrUpdate()">
         <div class="l-form-grid">
             <div>
@@ -45,6 +45,7 @@
                     <option value="all">All</option>
                     <option value="email">Email</option>
                     <option value="sms">SMS</option>
+                    <option *ngIf="webhookEnable" value="webhook">Webhook</option>
                     <option value="none">None</option>
                 </select>
                 <span class="fas fa-angle-down"></span>

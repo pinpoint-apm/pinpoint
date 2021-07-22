@@ -7,6 +7,7 @@ import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientConstants;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.Envelope;
@@ -118,7 +119,7 @@ public class ConsumerHandleDeliveryInterceptor implements AroundInterceptor {
         if (!(target instanceof Consumer)) {
             return false;
         }
-        if (args == null || args.length < 2) {
+        if (ArrayUtils.getLength(args) < 2) {
             return false;
         }
         if (!(args[1] instanceof Envelope)) {

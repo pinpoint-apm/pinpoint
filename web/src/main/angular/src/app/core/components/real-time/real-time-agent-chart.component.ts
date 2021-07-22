@@ -15,6 +15,14 @@ export class RealTimeAgentChartComponent implements OnInit, AfterViewInit {
     @Output() outOpenThreadDump = new EventEmitter<string>();
     @Output() outRenderCompleted = new EventEmitter<void>(true);
 
+    computedStyle = getComputedStyle(document.body);
+    chartColor = {
+        one: this.computedStyle.getPropertyValue('--chart-1s'),
+        three: this.computedStyle.getPropertyValue('--chart-3s'),
+        five: this.computedStyle.getPropertyValue('--chart-5s'),
+        slow: this.computedStyle.getPropertyValue('--chart-slow'),
+    };
+
     maxChartNumberPerPage = 30;
     chartOption = {
         canvasLeftPadding: 0,
@@ -28,7 +36,7 @@ export class RealTimeAgentChartComponent implements OnInit, AfterViewInit {
         chartHeight: 60,
         titleHeight: 24,
         gapBtnChart: 5,
-        chartColors: ['#33b692', '#51afdf', '#fea63e', '#e76f4b'],
+        chartColors: [this.chartColor.one, this.chartColor.three, this.chartColor.five, this.chartColor.slow],
         chartLabels: ['1s', '3s', '5s', 'Slow'],
         linkIconCode: '\uf002',
         marginRightForLinkIcon: 10,

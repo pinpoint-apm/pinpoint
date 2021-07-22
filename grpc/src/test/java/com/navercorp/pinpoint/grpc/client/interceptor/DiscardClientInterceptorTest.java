@@ -80,7 +80,7 @@ public class DiscardClientInterceptorTest {
         when(channel.newCall(descriptor, callOptions)).thenReturn(clientCall);
 
         discardEventListener = spy(new LoggingDiscardEventListener<String>(DiscardClientInterceptorTest.class.getName(), 1));
-        this.interceptor = new DiscardClientInterceptor(discardEventListener, 1);
+        this.interceptor = new DiscardClientInterceptor(discardEventListener, 1, 100, 1000);
 
         this.call = (DiscardClientCall<String, Integer>) interceptor.interceptCall(descriptor, callOptions, channel);
     }

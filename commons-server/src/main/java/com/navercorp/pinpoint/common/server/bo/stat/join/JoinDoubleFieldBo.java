@@ -19,7 +19,9 @@ package com.navercorp.pinpoint.common.server.bo.stat.join;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * @author Taejin Koo
@@ -29,8 +31,8 @@ public class JoinDoubleFieldBo extends AbstractJoinFieldBo<Double> {
     private static final double UNCOLLECTED_VALUE = -1;
     static final JoinDoubleFieldBo UNCOLLECTED_FIELD_BO = new JoinDoubleFieldBo(UNCOLLECTED_VALUE, UNCOLLECTED_VALUE, JoinStatBo.UNKNOWN_AGENT, UNCOLLECTED_VALUE, JoinStatBo.UNKNOWN_AGENT);
 
-    public JoinDoubleFieldBo(Double value, Double minValue, String minAgentId, Double maxValue, String maxAgentid) {
-        super(value, minValue, minAgentId, maxValue, maxAgentid);
+    public JoinDoubleFieldBo(Double avgValue, Double minValue, String minAgentId, Double maxValue, String maxAgentId) {
+        super(avgValue, minValue, minAgentId, maxValue, maxAgentId);
     }
 
     @Override
@@ -47,35 +49,28 @@ public class JoinDoubleFieldBo extends AbstractJoinFieldBo<Double> {
     }
 
     protected static JoinDoubleFieldBo merge(List<JoinDoubleFieldBo> joinDoubleFieldBoList) {
-        int size = CollectionUtils.nullSafeSize(joinDoubleFieldBoList);
-        if (size == 0) {
+        if (CollectionUtils.isEmpty(joinDoubleFieldBoList)) {
             return UNCOLLECTED_FIELD_BO;
         }
 
-        JoinFieldBo<Double> firstJoinDoubleFieldBo = joinDoubleFieldBoList.get(0);
-        double sumTotalValue = 0;
+        double avg = joinDoubleFieldBoList.stream()
+                .mapToDouble(JoinFieldBo::getAvg)
+                .average()
+                .orElseThrow(NoSuchElementException::new);
+        JoinDoubleFieldBo max = joinDoubleFieldBoList.stream()
+                .max(Comparator.comparing(JoinFieldBo::getMax))
+                .orElseThrow(NoSuchElementException::new);
+        JoinDoubleFieldBo min = joinDoubleFieldBoList.stream()
+                .min(Comparator.comparing(JoinFieldBo::getMin))
+                .orElseThrow(NoSuchElementException::new);
 
-        String maxAgentId = firstJoinDoubleFieldBo.getMaxAgentId();
-        double maxValue = firstJoinDoubleFieldBo.getMax();
+        String maxAgentId = max.getMaxAgentId();
+        double maxValue = max.getMax();
 
-        String minAgentId = firstJoinDoubleFieldBo.getMinAgentId();
-        double minValue = firstJoinDoubleFieldBo.getMin();
+        String minAgentId = min.getMinAgentId();
+        double minValue = min.getMin();
 
-        for (JoinFieldBo<Double> joinDoubleFieldBo : joinDoubleFieldBoList) {
-            sumTotalValue += joinDoubleFieldBo.getAvg();
-
-            if (joinDoubleFieldBo.getMax() > maxValue) {
-                maxValue = joinDoubleFieldBo.getMax();
-                maxAgentId = joinDoubleFieldBo.getMaxAgentId();
-            }
-
-            if (joinDoubleFieldBo.getMin() < minValue) {
-                minValue = joinDoubleFieldBo.getMin();
-                minAgentId = joinDoubleFieldBo.getMinAgentId();
-            }
-        }
-
-        return new JoinDoubleFieldBo(sumTotalValue / size, minValue, minAgentId, maxValue, maxAgentId);
+        return new JoinDoubleFieldBo(avg, minValue, minAgentId, maxValue, maxAgentId);
     }
 
 }

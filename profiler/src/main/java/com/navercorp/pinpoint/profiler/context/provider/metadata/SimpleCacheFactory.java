@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.context.provider.metadata;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -27,7 +28,7 @@ public class SimpleCacheFactory {
     private final SimpleCache.IdTransformer idTransformer;
 
     public SimpleCacheFactory(SimpleCache.IdTransformer idTransformer) {
-        this.idTransformer = Assert.requireNonNull(idTransformer, "idTransformer");
+        this.idTransformer = Objects.requireNonNull(idTransformer, "idTransformer");
     }
 
     public <T> SimpleCache<T> newSimpleCache() {

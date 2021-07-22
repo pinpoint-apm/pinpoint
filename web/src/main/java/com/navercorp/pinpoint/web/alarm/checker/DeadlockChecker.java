@@ -26,6 +26,7 @@ import java.util.Map;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 public class DeadlockChecker extends AgentChecker<Boolean> {
 
     public DeadlockChecker(AgentEventDataCollector agentEventDataCollector, Rule rule) {
@@ -46,6 +47,7 @@ public class DeadlockChecker extends AgentChecker<Boolean> {
         return ((AgentEventDataCollector) dataCollector).getAgentDeadlockEventDetected();
     }
 
+    @Override
     public List<String> getSmsMessage() {
         List<String> messages = new LinkedList<>();
 

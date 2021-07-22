@@ -1,4 +1,4 @@
-import { PrimitiveArray, Data } from 'billboard.js';
+import { PrimitiveArray, Data, areaSpline } from 'billboard.js';
 import { Observable } from 'rxjs';
 
 import { makeYData, makeXData, getMaxTickValue, getStackedData } from 'app/core/utils/chart-util';
@@ -15,7 +15,7 @@ export class AgentActiveRequestChartContainer implements IInspectorChartContaine
         private inspectorChartDataService: InspectorChartDataService
     ) {}
 
-    getData(range: number[]): Observable<IInspectorChartData | AjaxException> {
+    getData(range: number[]): Observable<IInspectorChartData> {
         return this.inspectorChartDataService.getData(this.apiUrl, range);
     }
 
@@ -31,7 +31,7 @@ export class AgentActiveRequestChartContainer implements IInspectorChartContaine
 
     makeDataOption(): Data {
         return {
-            type: 'area-spline',
+            type: areaSpline(),
             names: {
                 fast: 'Fast',
                 normal: 'Normal',

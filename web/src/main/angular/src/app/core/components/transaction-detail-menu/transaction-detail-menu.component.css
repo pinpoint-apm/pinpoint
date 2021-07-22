@@ -3,37 +3,38 @@
     flex-flow: row wrap;
 }
 .l-btn-group {
-    border:1px solid #e5e8ea;
+    border:1px solid var(--border-primary);
     height:32px;
 }
 .l-btn-group button {
-    background:#fff;
+    background:var(--background-default);
     float:left;
     padding:0 15px;
     height:100%;
     outline: none;
 }
 .l-btn-group button.active, .l-btn-group button:hover {
-    color:#fff;
+    color:var(--text-knockout);
     font-weight:600;
-    background:var(--primary-color);
+    background:var(--primary);
 }
 .l-transaction-state {
-    color: #FFF;
+    color: var(--text-knockout);
     height: 32px;
     padding: 8px;
     font-size: 12px;
     margin-left: 10px;
 }
 .l-transaction-complete {
-    background-color: #5CB85C;
+    background-color: var(--status-success);
 }
-.l-transaction-progress {
+.l-transaction-progress,
+.l-transaction-overflow {
     background-color: rgb(91, 192, 222);
 }
 .l-transaction-error {
-    background-color: #D9534F;
+    background-color: var(--status-fail-lighter);
 }
 .l-log-info.disabled {
-    background-color: #dfdfdf !important;
+    background-color: var(--background-focus-primary) !important;
 }

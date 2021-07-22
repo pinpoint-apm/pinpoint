@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.web.vo.stat.SampledTotalThreadCount;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -57,11 +58,7 @@ public class TotalThreadCountSampler implements AgentStatSampler<TotalThreadCoun
         if(values.isEmpty()) {
             return SampledTotalThreadCount.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
-        return new AgentStatPoint<>(timestamp,
-                LONG_DOWN_SAMPLER.sampleMin(values),
-                LONG_DOWN_SAMPLER.sampleMax(values),
-                LONG_DOWN_SAMPLER.sampleAvg(values),
-                LONG_DOWN_SAMPLER.sampleSum(values)
-        );
+        return new AgentStatPoint<>(timestamp, values, LONG_DOWN_SAMPLER);
     }
+
 }

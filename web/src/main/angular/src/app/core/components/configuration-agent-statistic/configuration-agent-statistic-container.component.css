@@ -15,7 +15,7 @@
     left: 20px;
     top: 50%;
     transform: translateY(-50%);
-    color: #333;
+    color: var(--text-primary);
     font-size: 14px;
     font-style: italic;
 }
@@ -49,8 +49,8 @@
 }
 
 .l-button {
-    color: #fff;
-    background-color: var(--primary-color);
+    color: var(--text-knockout);
+    background-color: var(--primary);
     border-radius: 3px;
     outline: none;
     font-size: 16px;

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.grpc.trace.PActiveThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDump;
@@ -57,7 +57,7 @@ public class GrpcActiveThreadDumpService implements ProfilerGrpcCommandService {
     private final ActiveThreadDumpCoreService activeThreadDump;
 
     public GrpcActiveThreadDumpService(ActiveTraceRepository activeTraceRepository) {
-        Assert.requireNonNull(activeTraceRepository, "activeTraceRepository");
+        Objects.requireNonNull(activeTraceRepository, "activeTraceRepository");
 
         this.activeThreadDump = new ActiveThreadDumpCoreService(activeTraceRepository);
     }

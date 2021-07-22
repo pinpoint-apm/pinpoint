@@ -1,15 +1,14 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 import java.util.Arrays;
+import java.util.Objects;
 
 
 public class ClassNameThrowableMatcher implements ThrowableMatcher {
     private final String[] classPatterns;
 
     public ClassNameThrowableMatcher(String[] classPatterns) {
-        this.classPatterns = Assert.requireNonNull(classPatterns, "classPattern");
+        this.classPatterns = Objects.requireNonNull(classPatterns, "classPattern");
     }
 
 

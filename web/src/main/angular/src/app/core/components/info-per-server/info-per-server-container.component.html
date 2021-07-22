@@ -2,7 +2,7 @@
     <div class="l-title-group2">
         <div class="l-selected-agent">
             <label>Selected Agent</label>
-            <span [attr.title]="selectedAgent">{{selectedAgent}}</span>
+            <span title="{{selectedAgentName ? selectedAgentName : 'N/A'}}">{{selectedAgent}} ({{selectedAgentName ? selectedAgentName : "N/A"}})</span>
         </div>
     </div>
     <div class="l-contents-group">
@@ -11,7 +11,11 @@
             <hr/>
             <pp-response-summary-chart-container [sourceType]="'INFO_PER_SERVER'"></pp-response-summary-chart-container>
             <hr/>
+            <pp-response-avg-max-chart-container [sourceType]="'INFO_PER_SERVER'"></pp-response-avg-max-chart-container>
+            <hr/>
             <pp-load-chart-container [sourceType]="'INFO_PER_SERVER'"></pp-load-chart-container>
+            <hr/>
+            <pp-load-avg-max-chart-container [sourceType]="'INFO_PER_SERVER'"></pp-load-avg-max-chart-container>
         </div>
     </div>
 </div>

@@ -9,7 +9,7 @@
     margin: auto;
     position: relative;
     top: 35%;
-    background-color: #fff;
+    background-color: var(--background-default);
     padding: 15px 20px;
     border-radius: 3px;
     line-height: 200%;

@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import reactor.netty.ConnectionObserver;
 import reactor.netty.http.server.HttpServerRequest;
 
@@ -33,7 +34,7 @@ public class HttpServerHandleStateInterceptor extends AbstractHttpServerHandleIn
     }
 
     public boolean validate(Object[] args) {
-        if (args == null || args.length < 2) {
+        if (ArrayUtils.getLength(args) < 2) {
             return false;
         }
 

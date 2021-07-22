@@ -57,7 +57,7 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
     private listenToEmitter(): void {
         this.storeHelperService.getServerMapLoadingState(this.unsubscribe).pipe(
             withLatestFrom(this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).pipe(
-                map((data: ServerMapData) => data.getNodeCount() === 0)
+                map(({serverMapData}: {serverMapData: ServerMapData}) => serverMapData.getNodeCount() === 0)
             )),
             tap(([state, isEmpty]: [string, boolean]) => {
                 switch (state) {

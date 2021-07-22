@@ -41,13 +41,13 @@ import java.util.List;
  *
  */
 public class PinpointPluginTestRunner extends BlockJUnit4ClassRunner {
-    private final PinpointPluginTestContext context;
+    private final PluginTestContext context;
     private final PinpointPluginTestInstance testCase;
 
     private final Object childrenLock = new Object();
     private volatile Collection<FrameworkMethod> filteredChildren = null;
 
-    private volatile RunnerScheduler scheduler = new RunnerScheduler() {
+    private final RunnerScheduler scheduler = new RunnerScheduler() {
         public void schedule(Runnable childStatement) {
             childStatement.run();
         }
@@ -57,7 +57,7 @@ public class PinpointPluginTestRunner extends BlockJUnit4ClassRunner {
         }
     };
 
-    PinpointPluginTestRunner(PinpointPluginTestContext context, PinpointPluginTestInstance testCase) throws InitializationError {
+    PinpointPluginTestRunner(PluginTestContext context, PinpointPluginTestInstance testCase) throws InitializationError {
         super(context.getTestClass());
 
         this.context = context;
@@ -82,7 +82,7 @@ public class PinpointPluginTestRunner extends BlockJUnit4ClassRunner {
     @Override
     public void filter(Filter filter) throws NoTestsRemainException {
         synchronized (childrenLock) {
-            List<FrameworkMethod> children = new ArrayList<FrameworkMethod>(getFilteredChildren());
+            List<FrameworkMethod> children = new ArrayList<>(getFilteredChildren());
             for (Iterator<FrameworkMethod> iter = children.iterator(); iter.hasNext(); ) {
                 FrameworkMethod each = iter.next();
                 if (shouldRun(filter, each)) {
@@ -118,7 +118,7 @@ public class PinpointPluginTestRunner extends BlockJUnit4ClassRunner {
             for (FrameworkMethod each : getFilteredChildren()) {
                 sorter.apply(each);
             }
-            List<FrameworkMethod> sortedChildren = new ArrayList<FrameworkMethod>(getFilteredChildren());
+            List<FrameworkMethod> sortedChildren = new ArrayList<>(getFilteredChildren());
             Collections.sort(sortedChildren, comparator(sorter));
             filteredChildren = Collections.unmodifiableCollection(sortedChildren);
         }
@@ -158,7 +158,7 @@ public class PinpointPluginTestRunner extends BlockJUnit4ClassRunner {
 
     boolean isAvailable(Filter filter) {
         synchronized (childrenLock) {
-            List<FrameworkMethod> children = new ArrayList<FrameworkMethod>(getFilteredChildren());
+            List<FrameworkMethod> children = new ArrayList<>(getFilteredChildren());
             for (FrameworkMethod method : children) {
                 if (shouldRun(filter, method)) {
                     return true;

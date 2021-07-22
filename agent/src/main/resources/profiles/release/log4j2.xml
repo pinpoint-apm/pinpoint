@@ -1,34 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Configuration status="INFO">
+<Configuration status="WARN">
     <Properties>
         <Property name="logging_dir">${sys:pinpoint.log}/${sys:pinpoint.agentId}/</Property>
 
         <Property name="rolling-date-format">%d{yyyy-MM-dd}</Property>
-        <Property name="backupsize">50m</Property>
 
-        <Property name="file_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.} -- %msg%n</Property>
+        <Property name="backupsize">100m</Property>
+        <Property name="lastmodified">7d</Property>
+        <Property name="default-rollover-strategy-max">10</Property>
+
+        <!-- message_pattern -->
+        <Property name="line_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.}:%-3L -- %msg%n</Property>
+        <Property name="simple_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.} -- %msg%n</Property>
+        <Property name="console_message_pattern">${simple_message_pattern}</Property>
+        <Property name="file_message_pattern">${simple_message_pattern}</Property>
     </Properties>
 
     <Appenders>
         <Console name="console" target="system_out">
-            <PatternLayout pattern="${file_message_pattern}"/>
+            <PatternLayout>
+                <Pattern>${console_message_pattern}</Pattern>
+            </PatternLayout>
             <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
         </Console>
 
         <RollingFile name="rollingFile" filename="${logging_dir}/pinpoint.log"
-                     filepattern="${logging_dir}/pinpoint-%i.log">
+                     filepattern="${logging_dir}/pinpoint-${rolling-date-format}-%i.log">
             <PatternLayout>
                 <Pattern>${file_message_pattern}</Pattern>
             </PatternLayout>
             <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
                 <SizeBasedTriggeringPolicy size="${backupsize}" />
             </Policies>
-            <DefaultRolloverStrategy max="20"/>
+            <DefaultRolloverStrategy max="${default-rollover-strategy-max}">
+                <Delete basePath="${logging_dir}/" maxDepth="1">
+                    <IfFileName glob="pinpoint-*.log"/>
+                    <IfLastModified age="${lastmodified}"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <RollingFile name="statRollingFile" filename="${logging_dir}/pinpoint_stat.log"
+                     filepattern="${logging_dir}/pinpoint_stat-${rolling-date-format}-%i.log">
+            <PatternLayout>
+                <Pattern>${file_message_pattern}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${backupsize}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${default-rollover-strategy-max}">
+                <IfFileName glob="pinpoint_stat-*.log"/>
+                <IfLastModified age="${lastmodified}"/>
+            </DefaultRolloverStrategy>
         </RollingFile>
     </Appenders>
 
     <Loggers>
+        <Logger name="com.navercorp.pinpoint.metric" level="INFO" additivity="false">
+            <AppenderRef ref="statRollingFile"/>
+<!--            <AppenderRef ref="console"/>-->
+<!--            <AppenderRef ref="rollingFile"/>-->
+        </Logger>
         <Logger name="com.navercorp.pinpoint" level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Logger>
+        <Logger name="io.grpc" level="INFO" additivity="false">
+            <AppenderRef ref="rollingFile"/>
+        </Logger>
+
+        <Logger name="io.grpc.Context" level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Logger>
+        <Logger name="io.grpc.netty.Utils" level="INFO" additivity="false">
             <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>
         </Logger>

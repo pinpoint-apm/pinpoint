@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.scanner;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +31,7 @@ public class JarFileScanner implements Scanner {
     private final JarFile jarFile;
 
     public JarFileScanner(String path) {
-        Assert.requireNonNull(path, "path");
+        Objects.requireNonNull(path, "path");
         try {
             this.jarFile = new JarFile(path);
         } catch (IOException e) {

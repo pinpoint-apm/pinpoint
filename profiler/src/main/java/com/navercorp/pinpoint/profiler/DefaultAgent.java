@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultModuleFactoryResolver;
@@ -36,6 +36,9 @@ import com.navercorp.pinpoint.profiler.util.SystemPropertyDumper;
 import com.navercorp.pinpoint.rpc.ClassPreLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+import java.util.Properties;
 
 
 /**
@@ -57,9 +60,9 @@ public class DefaultAgent implements Agent {
 
 
     public DefaultAgent(AgentOption agentOption) {
-        Assert.requireNonNull(agentOption, "agentOption");
-        Assert.requireNonNull(agentOption.getInstrumentation() , "instrumentation");
-        Assert.requireNonNull(agentOption.getProfilerConfig() , "profilerConfig");
+        Objects.requireNonNull(agentOption, "agentOption");
+        Objects.requireNonNull(agentOption.getInstrumentation(), "instrumentation");
+        Objects.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
 
         this.profilerConfig = agentOption.getProfilerConfig();
 
@@ -68,7 +71,7 @@ public class DefaultAgent implements Agent {
         this.loggingSystem.start();
 
         logger = LoggerFactory.getLogger(this.getClass());
-        logger.info("AgentOption:{}", agentOption);
+        dumpAgentOption(agentOption);
 
         dumpSystemProperties();
         dumpConfig(agentOption.getProfilerConfig());
@@ -85,14 +88,23 @@ public class DefaultAgent implements Agent {
 
     }
 
+    private void dumpAgentOption(AgentOption agentOption) {
+        logger.info("AgentOption");
+        logger.info("- agentId:{}", agentOption.getAgentId());
+        logger.info("- applicationName:{}", agentOption.getApplicationName());
+        logger.info("- agentName:{}", agentOption.getAgentName());
+        logger.info("- isContainer:{}", agentOption.isContainer());
+        logger.info("- instrumentation:{}", agentOption.getInstrumentation());
+    }
+
     private LoggingSystem newLoggingSystem(String profilePath) {
 //        return new Log4jLoggingSystem(logConfigPath);
         return new Log4j2LoggingSystem(profilePath);
     }
 
     protected ApplicationContext newApplicationContext(AgentOption agentOption) {
-        Assert.requireNonNull(agentOption, "agentOption");
-        ProfilerConfig profilerConfig = Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
+        Objects.requireNonNull(agentOption, "agentOption");
+        ProfilerConfig profilerConfig = Objects.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
 
         ModuleFactoryResolver moduleFactoryResolver = new DefaultModuleFactoryResolver(profilerConfig.getInjectionModuleFactoryClazzName());
         ModuleFactory moduleFactory = moduleFactoryResolver.resolve();
@@ -110,8 +122,11 @@ public class DefaultAgent implements Agent {
 
     private void dumpConfig(ProfilerConfig profilerConfig) {
         if (logger.isInfoEnabled()) {
-            logger.info("{}\n{}", "dumpConfig", profilerConfig);
-
+            logger.info("{}", profilerConfig);
+            Properties properties = profilerConfig.getProperties();
+            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+                logger.info("- {}={}", entry.getKey(), entry.getValue());
+            }
         }
     }
 

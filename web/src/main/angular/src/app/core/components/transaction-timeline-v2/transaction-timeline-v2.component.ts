@@ -6,7 +6,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
     styleUrls: ['./transaction-timeline-v2.component.css']
 })
 
-export class TransactionTimelineComponentV2 implements OnInit {
+export class TransactionTimelineV2Component implements OnInit {
     @Input() startTime: number;
     @Input() endTime: number;
     @Input() barRatio: number;

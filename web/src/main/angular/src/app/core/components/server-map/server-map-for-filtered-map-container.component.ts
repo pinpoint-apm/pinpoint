@@ -14,10 +14,10 @@ import {
     MessageQueueService,
     MESSAGE_TO
 } from 'app/shared/services';
-import { Actions } from 'app/shared/store';
+import { Actions } from 'app/shared/store/reducers';
 import { UrlPathId, UrlQuery } from 'app/shared/models';
 import { Filter } from 'app/core/models';
-import { SERVER_MAP_TYPE, ServerMapType, NodeGroup, ServerMapData, MergeServerMapData } from 'app/core/components/server-map/class';
+import { SERVER_MAP_TYPE, ServerMapType, ServerMapData, MergeServerMapData } from 'app/core/components/server-map/class';
 import { ServerMapForFilteredMapDataService } from './server-map-for-filtered-map-data.service';
 import { LinkContextPopupContainerComponent } from 'app/core/components/link-context-popup/link-context-popup-container.component';
 import { NodeContextPopupContainerComponent } from 'app/core/components/node-context-popup/node-context-popup-container.component';
@@ -47,8 +47,6 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
     showLoading = true;
     useDisable = true;
     isEmpty: boolean;
-    endTime: string;
-    period: string;
 
     constructor(
         private router: Router,
@@ -74,8 +72,6 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((urlService: NewUrlStateNotificationService) => {
-            this.endTime = urlService.getPathValue(UrlPathId.END_TIME).getEndTime();
-            this.period = urlService.getPathValue(UrlPathId.PERIOD).getValueWithTime();
             this.showLoading = true;
             this.useDisable = true;
             this.baseApplicationKey = urlService.getPathValue(UrlPathId.APPLICATION).getKeyStr();
@@ -83,12 +79,12 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         });
         this.serverMapForFilteredMapDataService.onServerMapData$.pipe(
             takeUntil(this.unsubscribe)
-        ).subscribe((serverMapAndScatterData: any) => {
-            if (!isEmpty(serverMapAndScatterData.applicationScatterData)) {
-                this.storeHelperService.dispatch(new Actions.AddScatterChartData(serverMapAndScatterData.applicationScatterData));
+        ).subscribe(({applicationScatterData, applicationMapData}: any) => {
+            if (!isEmpty(applicationScatterData)) {
+                this.storeHelperService.dispatch(new Actions.AddScatterChartData(applicationScatterData));
             }
 
-            this.mergeServerMapData(serverMapAndScatterData);
+            this.mergeServerMapData(applicationMapData);
             this.mapData = new ServerMapData(
                 this.mergedNodeDataList,
                 this.mergedLinkDataList,
@@ -98,7 +94,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             this.isEmpty = this.mapData.getNodeCount() === 0;
             this.messageQueueService.sendMessage({
                 to: MESSAGE_TO.SERVER_MAP_DATA_UPDATE,
-                param: this.mapData
+                param: {serverMapData: this.mapData, range: [applicationMapData.range.from, applicationMapData.range.to]}
             });
 
             this.cd.detectChanges();
@@ -169,6 +165,10 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         });
     }
 
+    onMoveNode(): void {
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.MOVE_NODE_IN_SERVER_MAP);
+    }
+
     onRenderCompleted(): void {
         if (!this.loadingCompleted) {
             return;
@@ -179,14 +179,12 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         this.cd.detectChanges();
     }
 
-    onClickNode(nodeData: any): void {
+    onClickNode(nodeData: INodeInfo): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_NODE);
         let payload;
-        if (NodeGroup.isGroupKey(nodeData.key)) {
+        if (nodeData.isMerged) {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_GROUPED_NODE_VIEW);
             payload = {
-                period: this.period,
-                endTime: this.endTime,
                 isAuthorized: true,
                 isNode: true,
                 isLink: false,
@@ -198,8 +196,6 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             };
         } else {
             payload = {
-                period: this.period,
-                endTime: this.endTime,
                 isAuthorized: nodeData.isAuthorized,
                 isNode: true,
                 isLink: false,
@@ -215,34 +211,30 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         });
     }
 
-    onClickLink(linkData: any): void {
+    onClickLink(linkData: ILinkInfo): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_LINK);
         let payload;
-        if (NodeGroup.isGroupKey(linkData.key)) {
+        if (linkData.isMerged) {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_GROUPED_LINK_VIEW);
             payload = {
-                period: this.period,
-                endTime: this.endTime,
                 isAuthorized: true,
                 isNode: false,
                 isLink: true,
                 isMerged: true,
                 isWAS: false,
-                node: [linkData.from],
-                link: linkData.targetInfo.map((linkInfo: any) => {
+                node: [linkData.from, linkData.to],
+                link: (linkData.targetInfo as any).map((linkInfo: any) => {
                     return linkInfo.key;
                 })
             };
         } else {
             payload = {
-                period: this.period,
-                endTime: this.endTime,
                 isAuthorized: this.mapData.getNodeData(linkData.from).isAuthorized,
                 isNode: false,
                 isLink: true,
                 isMerged: false,
                 isWAS: false,
-                node: [linkData.from],
+                node: [linkData.from, linkData.to],
                 link: [linkData.key]
             };
         }
@@ -292,9 +284,9 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         });
     }
 
-    mergeServerMapData(serverMapAndScatterData: any): void {
-        const newNodeDataList = serverMapAndScatterData.applicationMapData.nodeDataArray;
-        const newLinkDataList = serverMapAndScatterData.applicationMapData.linkDataArray;
+    mergeServerMapData({nodeDataArray, linkDataArray}: any): void {
+        const newNodeDataList = nodeDataArray;
+        const newLinkDataList = linkDataArray;
 
         if (this.mergedNodeDataList.length === 0) {
             this.mergedNodeDataList = newNodeDataList;

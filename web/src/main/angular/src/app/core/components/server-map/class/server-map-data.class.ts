@@ -8,62 +8,11 @@ interface INodeInfoMap {
 interface ILinkInfoMap {
     [key: string]: ILinkInfo;
 }
-export interface IShortNodeInfo {
-    key: string;
-    isWas?: boolean;
-    isQueue?: boolean;
-    category: string;
-    hasAlert?: boolean;
-    slowCount?: number;
-    histogram?: IResponseTime | IResponseMilliSecondTime;
-    errorCount?: number;
-    totalCount?: number;
-    serviceType: string;
-    isAuthorized: boolean;
-    instanceCount: number;
-    applicationName: string;
-
-    mergedNodes?: any[];
-    topCountNodes?: any[];
-
-    mergedSourceNodes?: any[];
-
-    agentHistogram?: { [key: string]: IResponseTime | IResponseMilliSecondTime }[];
-    agentTimeSeriesHistogram?: { [key: string]: IHistogram[] };
-    agentIds?: string[];
-    instanceErrorCount?: number;
-    serverList?: { [key: string]: IServerInfo };
-    serviceTypeCode?: string;
-    timeSeriesHistogram?: IHistogram[];
-}
-export interface IShortLinkInfo {
-    to: string;
-    key: string;
-    from: string;
-    hasAlert: boolean;
-    slowCount: number;
-    targetInfo: ISourceInfo;
-    totalCount: number;
-    sourceInfo: ISourceInfo;
-    errorCount: number;
-
-    filterApplicationName?: string;
-    filterApplicationServiceTypeCode?: number;
-    filterApplicationServiceTypeName?: string;
-    filterTargetRpcList?: any[];
-    fromAgent?: string[];
-    histogram?: IResponseTime | IResponseMilliSecondTime;
-    sourceHistogram?: { [key: string]: IResponseTime | IResponseMilliSecondTime };
-    sourceTimeSeriesHistogram?: { [key: string]: IHistogram }[];
-    targetHistogram?: { [key: string]: IResponseTime | IResponseMilliSecondTime };
-    timeSeriesHistogram?: IHistogram[];
-    toAgent?: string[];
-}
 interface IShortNodeInfoMap {
-    [key: string]: IShortNodeInfo;
+    [key: string]: INodeInfo;
 }
 interface IShortLinkInfoMap {
-    [key: string]: IShortLinkInfo;
+    [key: string]: ILinkInfo;
 }
 interface IStateCheckMap {
     [key: string]: boolean;
@@ -75,8 +24,8 @@ interface ILinkCount {
     loopCount: number;
 }
 export class ServerMapData {
-    private nodeList: IShortNodeInfo[];
-    private linkList: IShortLinkInfo[];
+    private nodeList: INodeInfo[];
+    private linkList: ILinkInfo[];
     private mergeableServiceType: IStateCheckMap;
     private canNotMergeServiceTypeList = ['USER'];
     private countMap: { [key: string]: ILinkCount };
@@ -137,7 +86,7 @@ export class ServerMapData {
     // 원본 노드 데이터로 부터 server-map 을 그릴 때 필요 한 정보들로 구성 된 새로운 node list를 만들어 둠.
     private extractNodeData(): void {
         this.originalNodeList.forEach((node: INodeInfo) => {
-            const oNewNode: IShortNodeInfo = {
+            const oNewNode: INodeInfo = {
                 key: node.key,
                 isWas: node.isWas,
                 isQueue: node.isQueue,
@@ -145,6 +94,8 @@ export class ServerMapData {
                 hasAlert: node.hasAlert,
                 slowCount: node.slowCount,
                 histogram: node.histogram,
+                responseStatistics: node.responseStatistics,
+                agentResponseStatistics: node.agentResponseStatistics,
                 errorCount: node.errorCount,
                 totalCount: node.totalCount,
                 serviceType: node.serviceType,
@@ -160,7 +111,7 @@ export class ServerMapData {
     // 원본 링크 데이터로 부터 server-map 을 그릴 때 필요 한 정보들로 구성 된 새로운 link list를 만들어 둠.
     private extractLinkData(): void {
         this.originalLinkList.forEach((link: ILinkInfo) => {
-            const oNewLink: IShortLinkInfo = {
+            const oNewLink: ILinkInfo = {
                 to: link.to,
                 key: link.key,
                 from: link.from,
@@ -176,14 +127,14 @@ export class ServerMapData {
         });
     }
     private extractLinkCountData(): void {
-        this.nodeList.forEach((node: IShortNodeInfo) => {
+        this.nodeList.forEach((node: INodeInfo) => {
             this.countMap[node.key] = {
                 inCount: 0,
                 outCount: 0,
                 loopCount: 0
             };
         });
-        this.linkList.forEach((link: IShortLinkInfo) => {
+        this.linkList.forEach((link: ILinkInfo) => {
             this.countMap[link.to].inCount++;
             this.countMap[link.from].outCount++;
             if (typeof this.linkMap[link.to + '~' + link.from] !== 'undefined') {
@@ -235,8 +186,8 @@ export class ServerMapData {
                         continue;
                     }
                     const nodeGroup = new NodeGroup(type);
-                    const linkGroup = new LinkGroup(nodeKey, nodeGroup.getGroupKey());
-                    const collectLoopLink: IShortLinkInfo[] = [];
+                    const linkGroup = new LinkGroup(nodeKey);
+                    const collectLoopLink: ILinkInfo[] = [];
 
                     // 링크를 병합한 그룹 링크를 만들어 추가하고 기존 링크는 삭제
                     // loop 링크가 있다면 모아둠.
@@ -249,14 +200,19 @@ export class ServerMapData {
                             collectLoopLink.push(this.linkMap[link.to + '~' + link.from]);
                         }
                     });
+
+                    nodeGroup.setGroupKey();
+                    linkGroup.setGroupKey(nodeGroup.getGroupKey());
                     const hasLoopLink = collectLoopLink.length > 0;
                     if (hasLoopLink) {
                         // loop 링크가 있다면 병합된 노드에 맞추어 새로운 링크를 생성해서 연결해 주고 기존 링크는 삭제
-                        const loopLinkGroup = new LinkGroup(nodeGroup.getGroupKey(), nodeKey);
+                        const loopLinkGroup = new LinkGroup(nodeGroup.getGroupKey());
+
                         collectLoopLink.forEach((link: any) => {
                             loopLinkGroup.addLinkData(link);
                             removeLinkKeys[link.key] = true;
                         });
+                        loopLinkGroup.setGroupKey(nodeKey);
                         this.addNewLink(loopLinkGroup.sortLinkData().getLinkGroupData());
                     }
                     this.countMap[nodeGroup.getGroupKey()] = {
@@ -293,7 +249,7 @@ export class ServerMapData {
         }
         return true;
     }
-    private addNewNode(newNode: IShortNodeInfo): void {
+    private addNewNode(newNode: INodeInfo): void {
         this.nodeList.push(newNode);
         this.nodeMap[newNode.key] = newNode;
     }
@@ -329,7 +285,7 @@ export class ServerMapData {
             return;
         }
 
-        targetNodeList.forEach((outerNode: IShortNodeInfo) => {
+        targetNodeList.forEach((outerNode: INodeInfo) => {
             if (this.mergeStateMap[outerNode.serviceType] === false) {
                 return;
             }
@@ -339,12 +295,12 @@ export class ServerMapData {
                 return;
             }
             checkedNodes[outerNodeKey] = true;
-            const fromNodeKeysOfOuter: string[] = this.getFromNodeKeys(outerNodeKey); // * 타겟 노드들을 가리키고있는 fromNode들
-            const mergeTargetLinks: {[key: string]: IShortLinkInfo[] } = {};
-            const mergeTargetLoopLinks: {[key: string]: IShortLinkInfo[] } = {};
-            const mergeTargetNodeList: IShortNodeInfo[] = [];
+            const fromNodeKeysOfOuter: string[] = this.getFromNodeKeys(outerNodeKey); // * 타겟 노드들을 가리키고있는 fromNode들의 key
+            const mergeTargetLinks: {[key: string]: ILinkInfo[] } = {};
+            const mergeTargetLoopLinks: {[key: string]: ILinkInfo[] } = {};
+            const mergeTargetNodeList: INodeInfo[] = [];
 
-            targetNodeList.forEach((innerNode: IShortNodeInfo) => {
+            targetNodeList.forEach((innerNode: INodeInfo) => {
                 const innerNodeKey = innerNode.key;
                 if (checkedNodes[innerNodeKey] === true) {
                     return;
@@ -367,38 +323,44 @@ export class ServerMapData {
 
                 const multiConnectNodeGroup = new MultiConnectNodeGroup(outerNode.serviceType);
                 // 노드를 병합하여 새로운 그룹 노드를 만든다.
-                mergeTargetNodeList.forEach((node: IShortNodeInfo) => {
+                mergeTargetNodeList.forEach((node: INodeInfo) => {
                     multiConnectNodeGroup.addNodeData(node);
                     removeNodeKeys[node.key] = true;
                 });
+                multiConnectNodeGroup.setGroupKey();
 
                 for (const fromKey in mergeTargetLinks) {
                     if (mergeTargetLinks.hasOwnProperty(fromKey)) {
                         multiConnectNodeGroup.addSubNodeGroup(fromKey);
-                        const linkGroup = new LinkGroup(fromKey, multiConnectNodeGroup.getGroupKey());
+                        const linkGroup = new LinkGroup(fromKey);
                         for (let i = 0; i < mergeTargetLinks[fromKey].length; i++) {
                             const link = mergeTargetLinks[fromKey][i];
                             multiConnectNodeGroup.addSubNodeGroupData(fromKey, link);
                             linkGroup.addLinkData(link);
                             removeLinkKeys[link.key] = true;
                         }
-                        this.linkList.push(linkGroup.sortLinkData().getLinkGroupData());
+                        linkGroup.setGroupKey(multiConnectNodeGroup.getGroupKey());
+                        // this.linkList.push(linkGroup.sortLinkData().getLinkGroupData());
+                        this.addNewLink(linkGroup.sortLinkData().getLinkGroupData());
                     }
                 }
                 for (const fromKey in mergeTargetLoopLinks) {
                     if (mergeTargetLoopLinks.hasOwnProperty(fromKey)) {
                         // multiConnectNodeGroup.addSubNodeGroup(multiConnectNodeGroup.getGroupKey());
-                        const linkGroup = new LinkGroup(multiConnectNodeGroup.getGroupKey(), fromKey);
+                        const linkGroup = new LinkGroup(multiConnectNodeGroup.getGroupKey());
                         for (let i = 0; i < mergeTargetLoopLinks[fromKey].length; i++) {
                             const link = mergeTargetLoopLinks[fromKey][i];
                             // multiConnectNodeGroup.addSubNodeGroupData(multiConnectNodeGroup.getGroupKey(), link);
                             linkGroup.addLinkData(link);
                             removeLinkKeys[link.key] = true;
                         }
-                        this.linkList.push(linkGroup.sortLinkData().getLinkGroupData());
+                        linkGroup.setGroupKey(fromKey);
+                        // this.linkList.push(linkGroup.sortLinkData().getLinkGroupData());
+                        this.addNewLink(linkGroup.sortLinkData().getLinkGroupData());
                     }
                 }
-                this.nodeList.push(multiConnectNodeGroup.sortNodeData().getNodeGroupData());
+                // this.nodeList.push(multiConnectNodeGroup.sortNodeData().getNodeGroupData());
+                this.addNewNode(multiConnectNodeGroup.sortNodeData().getNodeGroupData());
                 this.groupServiceTypeMap[multiConnectNodeGroup.getGroupServiceType()] = true;
                 this.mergeStateMap[outerNode.serviceType] = true;
             }
@@ -407,7 +369,7 @@ export class ServerMapData {
         this.removeByKey(this.linkList, this.linkMap, removeLinkKeys);
         // console.timeEnd('mergeMultiLinkGroup()');
     }
-    private extractConnectLink(mergeTargetLinks: {[key: string]: IShortLinkInfo[] }, mergeTargetLoopLinks: {[key: string]: IShortLinkInfo[] }, fromKeys: string[], toKey: string): void {
+    private extractConnectLink(mergeTargetLinks: {[key: string]: ILinkInfo[] }, mergeTargetLoopLinks: {[key: string]: ILinkInfo[] }, fromKeys: string[], toKey: string): void {
         fromKeys.forEach((fromKey: string) => {
             if ((fromKey in mergeTargetLinks) === false) {
                 mergeTargetLinks[fromKey] = [];
@@ -422,7 +384,7 @@ export class ServerMapData {
             }
         });
     }
-    private getMergeTargetNodes(): IShortNodeInfo[] {
+    private getMergeTargetNodes(): INodeInfo[] {
         return this.nodeList.filter((node) => {
             const count = this.countMap[node.key];
             if (count.outCount - count.loopCount > 0) {
@@ -453,10 +415,10 @@ export class ServerMapData {
             return acc;
         }, []);
     }
-    getNodeList(): {[key: string]: any}[] {
+    getNodeList(): INodeInfo[] {
         return this.nodeList;
     }
-    getLinkList(): {[key: string]: any}[] {
+    getLinkList(): ILinkInfo[] {
         return this.linkList;
     }
     getOriginalNodeList(): INodeInfo[] {
@@ -497,17 +459,19 @@ export class ServerMapData {
         });
         return linkList;
     }
-    getMergedNodeData(key: string): IShortNodeInfo {
-        return this.nodeList.find((node: IShortNodeInfo) => node.key === key);
+    getMergedNodeData(key: string): INodeInfo {
+        return this.nodeList.find((node: INodeInfo) => node.key === key);
     }
-    getMergedLinkData(key: string): IShortLinkInfo {
-        return this.linkList.find((link: IShortLinkInfo) => link.key === key);
+    getMergedLinkData(key: string): ILinkInfo {
+        return this.linkList.find((link: ILinkInfo) => link.key === key);
     }
-    getNodeData(key: string): INodeInfo | IShortNodeInfo {
+    getNodeData(key: string): INodeInfo {
         return this.originalNodeMap[key] || this.nodeMap[key];
+        // return this.nodeMap[key];
     }
-    getLinkData(key: string): ILinkInfo | IShortLinkInfo {
+    getLinkData(key: string): ILinkInfo {
         return this.originalLinkMap[key] || this.linkMap[key];
+        // return this.linkMap[key];
     }
     addFilterFlag(): void {
         if (this.filters) {

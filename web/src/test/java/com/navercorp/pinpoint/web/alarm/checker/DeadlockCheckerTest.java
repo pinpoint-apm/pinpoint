@@ -45,6 +45,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Taejin Koo
  */
+@SuppressWarnings("deprecation")
 @RunWith(MockitoJUnitRunner.class)
 public class DeadlockCheckerTest {
 
@@ -79,7 +80,7 @@ public class DeadlockCheckerTest {
 
     @Test
     public void checkTest1() {
-        Rule rule = new Rule(APPLICATION_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 50, "testGroup", false, false, "");
+        Rule rule = new Rule(APPLICATION_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 50, "testGroup", false, false, false, "");
         Application application = new Application(APPLICATION_NAME, ServiceType.STAND_ALONE);
 
         Range range = Range.newUncheckedRange(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
@@ -101,7 +102,7 @@ public class DeadlockCheckerTest {
 
     @Test
     public void checkTest2() {
-        Rule rule = new Rule(APPLICATION_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 50, "testGroup", false, false, "");
+        Rule rule = new Rule(APPLICATION_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 50, "testGroup", false, false, false, "");
         Application application = new Application(APPLICATION_NAME, ServiceType.STAND_ALONE);
 
         Range range = Range.newUncheckedRange(START_TIME_MILLIS, CURRENT_TIME_MILLIS);

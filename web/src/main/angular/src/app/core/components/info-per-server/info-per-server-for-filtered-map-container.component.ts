@@ -11,8 +11,8 @@ import {
     MessageQueueService,
     MESSAGE_TO
 } from 'app/shared/services';
-import { Actions } from 'app/shared/store';
-import { ServerMapData, IShortNodeInfo } from 'app/core/components/server-map/class/server-map-data.class';
+import { Actions } from 'app/shared/store/reducers';
+import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 
 @Component({
     selector: 'pp-info-per-server-for-filtered-map-container',
@@ -72,8 +72,8 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
     }
 
     private listenToEmitter(): void {
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe((data: ServerMapData) => {
-            this.serverMapData = data;
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe(({serverMapData}: {serverMapData: ServerMapData}) => {
+            this.serverMapData = serverMapData;
         });
 
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe((target: ISelectedTarget) => {
@@ -86,11 +86,12 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
             filter(() => this.selectedTarget && this.selectedTarget.isNode),
             filter((visibleState: boolean) => visibleState ? true : (this.hide(), this.cd.detectChanges(), false)),
             map(() => this.serverMapData.getNodeData(this.selectedTarget.node[0])),
-            tap(({serverList, agentHistogram, agentTimeSeriesHistogram, isWas}: INodeInfo | IShortNodeInfo) => {
+            tap(({serverList, agentHistogram, agentTimeSeriesHistogram, agentResponseStatistics, isWas}: INodeInfo) => {
                 this.agentHistogramData = {
                     serverList,
                     agentHistogram,
                     agentTimeSeriesHistogram,
+                    agentResponseStatistics,
                     isWas
                 };
             })
@@ -100,7 +101,8 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
             this.storeHelperService.dispatch(new Actions.ChangeAgentForServerList({
                 agent: this.selectedAgent,
                 responseSummary: this.agentHistogramData['agentHistogram'][this.selectedAgent],
-                load: this.agentHistogramData['agentTimeSeriesHistogram'][this.selectedAgent]
+                load: this.agentHistogramData['agentTimeSeriesHistogram'][this.selectedAgent],
+                responseStatistics: this.agentHistogramData['agentResponseStatistics'][this.selectedAgent]
             }));
             this.cd.detectChanges();
         });
@@ -131,7 +133,8 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
         this.storeHelperService.dispatch(new Actions.ChangeAgentForServerList({
             agent,
             responseSummary: this.agentHistogramData['agentHistogram'][agent],
-            load: this.agentHistogramData['agentTimeSeriesHistogram'][agent]
+            load: this.agentHistogramData['agentTimeSeriesHistogram'][agent],
+            responseStatistics: this.agentHistogramData['agentResponseStatistics'][agent]
         }));
         this.selectedAgent = agent;
     }

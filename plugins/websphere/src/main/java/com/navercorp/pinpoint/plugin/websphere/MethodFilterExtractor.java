@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.websphere;
 import com.ibm.websphere.servlet.request.IRequest;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterExtractor;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -30,8 +30,8 @@ public class MethodFilterExtractor implements ParameterExtractor<IRequest> {
     private final ParameterExtractor<IRequest> delegate;
 
     public MethodFilterExtractor(Filter<String> excludeProfileMethodFilter, ParameterExtractor<IRequest> delegate) {
-        this.excludeProfileMethodFilter = Assert.requireNonNull(excludeProfileMethodFilter, "excludeProfileMethodFilter");
-        this.delegate = Assert.requireNonNull(delegate, "delegate");
+        this.excludeProfileMethodFilter = Objects.requireNonNull(excludeProfileMethodFilter, "excludeProfileMethodFilter");
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
     @Override

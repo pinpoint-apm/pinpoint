@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.plugin.logback;
 
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.JvmArgument;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,6 +35,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @Dependency({"ch.qos.logback:logback-classic:[1.0.13],[1.1.3,1.2.3]", "org.slf4j:slf4j-api:1.7.12"})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-logback-plugin"})
 @PinpointConfig("pinpoint-spring-bean-test.config")
+@JvmArgument("-DtestLoggerEnable=false")
 public class LogbackIT {
 
     @Test

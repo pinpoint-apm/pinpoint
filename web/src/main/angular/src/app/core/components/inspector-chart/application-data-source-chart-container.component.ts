@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
-import { PrimitiveArray, Data } from 'billboard.js';
+import { PrimitiveArray, Data, spline, zoom } from 'billboard.js';
 import { Subject, forkJoin, combineLatest, of } from 'rxjs';
-import { takeUntil, tap, switchMap, catchError } from 'rxjs/operators';
+import { takeUntil, tap, switchMap, catchError, filter } from 'rxjs/operators';
 
 import { AnalyticsService, StoreHelperService, DynamicPopupService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { ApplicationDataSourceChartDataService, IApplicationDataSourceChart } from './application-data-source-chart-data.service';
@@ -103,10 +103,15 @@ export class ApplicationDataSourceChartContainerComponent implements OnInit, OnD
             tap(({range}: ISourceForChart) => this.previousRange = range),
             switchMap(({range}: ISourceForChart) => {
                 return this.inspectorChartDataService.getData(range).pipe(
-                    catchError(() => of(null))
+                    catchError((error: IServerErrorFormat) => {
+                        this.activeLayer = Layer.RETRY;
+                        this.setRetryMessage(error.exception.message);
+                        return of(null);
+                    })
                 );
-            })
-        ).subscribe((data) => this.chartDataResCallbackFn(data));
+            }),
+            filter((data: IApplicationDataSourceChart[] | null) => !!data)
+        ).subscribe((data: IApplicationDataSourceChart[]) => this.chartDataResCallbackFn(data));
     }
 
     private setChartVisibility(showChart: boolean): void {
@@ -123,8 +128,13 @@ export class ApplicationDataSourceChartContainerComponent implements OnInit, OnD
     onRetry(): void {
         this.activeLayer = Layer.LOADING;
         this.inspectorChartDataService.getData(this.previousRange).pipe(
-            catchError(() => of(null))
-        ).subscribe((data) => this.chartDataResCallbackFn(data));
+            catchError((error: IServerErrorFormat) => {
+                this.activeLayer = Layer.RETRY;
+                this.setRetryMessage(error.exception.message);
+                return of(null);
+            }),
+            filter((data: IApplicationDataSourceChart[] | null) => !!data)
+        ).subscribe((data: IApplicationDataSourceChart[]) => this.chartDataResCallbackFn(data));
     }
 
     onSourceDataSelected(index: number): void {
@@ -133,16 +143,11 @@ export class ApplicationDataSourceChartContainerComponent implements OnInit, OnD
         this.setChartConfig(this.makeChartData((this.chartData as IApplicationDataSourceChart[])[index]));
     }
 
-    chartDataResCallbackFn(data: IApplicationDataSourceChart[] | AjaxException | null): void {
-        if (data === null || isThatType<AjaxException>(data, 'exception')) {
-            this.activeLayer = Layer.RETRY;
-            this.setRetryMessage(data);
-        } else {
-            this.chartData = data;
-            this.sourceForList = data.map(({serviceType, jdbcUrl}: IApplicationDataSourceChart) => ({serviceType, jdbcUrl}));
-            this.setMinMaxAgentIdList(data[0]);
-            this.setChartConfig(this.makeChartData(data[0]));
-        }
+    chartDataResCallbackFn(data: IApplicationDataSourceChart[]): void {
+        this.chartData = data;
+        this.sourceForList = data.map(({serviceType, jdbcUrl}: IApplicationDataSourceChart) => ({serviceType, jdbcUrl}));
+        this.setMinMaxAgentIdList(data[0]);
+        this.setChartConfig(this.makeChartData(data[0]));
     }
 
     private setChartConfig(data: PrimitiveArray[]): void {
@@ -153,8 +158,8 @@ export class ApplicationDataSourceChartContainerComponent implements OnInit, OnD
         this.isDataEmpty = this.isEmpty(data);
     }
 
-    private setRetryMessage(data: any): void {
-        this.retryMessage = data ? data.exception.message : this.dataFetchFailedText;
+    private setRetryMessage(message: string): void {
+        this.retryMessage = message;
     }
 
     private isEmpty(data: PrimitiveArray[]): boolean {
@@ -179,7 +184,7 @@ export class ApplicationDataSourceChartContainerComponent implements OnInit, OnD
         return {
             x: 'x',
             columns,
-            type: 'spline',
+            type: spline(),
             names: {
                 min: 'Min',
                 avg: 'Avg',
@@ -246,6 +251,7 @@ export class ApplicationDataSourceChartContainerComponent implements OnInit, OnD
             point: {
                 r: 0,
                 focus: {
+                    only: true,
                     expand: {
                         r: 3
                     }
@@ -261,9 +267,8 @@ export class ApplicationDataSourceChartContainerComponent implements OnInit, OnD
                 duration: 0
             },
             zoom: {
-                enabled: {
-                    type: 'drag'
-                }
+                enabled: zoom(),
+                type: 'drag'
             }
         };
     }

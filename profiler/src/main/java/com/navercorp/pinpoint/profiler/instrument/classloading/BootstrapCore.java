@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.BootstrapPackage;
 import com.navercorp.pinpoint.profiler.instrument.scanner.JarFileRepository;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ public class BootstrapCore {
 
 
     public BootstrapCore(List<String> bootstrapJarPaths) {
-        Assert.requireNonNull(bootstrapJarPaths, "bootstrapJarPaths");
+        Objects.requireNonNull(bootstrapJarPaths, "bootstrapJarPaths");
 
         this.bootstrapRepository = new JarFileRepository(bootstrapJarPaths);
         this.bootstrapPackage = new BootstrapPackage();

@@ -4,25 +4,26 @@
     height: 100%;
 }
 .l-time-set li {
-    border-left: 1px solid #364660;
+    box-shadow: -1px 0px 0px var(--period-select-box-shadow);
 }
 .l-time-set button {
     height: 100%;
     font-size:12px;
     font-weight:600;
-    color:#fff;
+    color: var(--text-knockout);
     padding:0 8px;
-    background: #3e506b;
-    border-left:1px solid #4c5c75;
+    background: var(--period-select-background);
+    border-left:1px solid var(--period-select-box-border-lighter);
     border-radius: 0px;
+    box-shadow: -1px 0px 0px var(--period-select-box-shadow);
 }
 .l-time-set button.active {
-    background:#33b692;
+    background: var(--secondary);
 }
 .l-time-set button:focus {
-    background-color:var(--primary-color);
-    color:#fff;
+    background-color:var(--primary);
+    color: var(--text-knockout);
 }
 .l-time-set button:hover, .l-time-set button:focus {
-    background:#33b692
+    background: var(--secondary)
 }

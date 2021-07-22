@@ -26,11 +26,11 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.navercorp.pinpoint.common.Charsets;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -260,7 +260,7 @@ public class FilterDescriptor {
         if (urlPattern == null) {
             return null;
         }
-        return new String(Base64.decodeBase64(urlPattern), Charsets.UTF_8);
+        return new String(Base64.decodeBase64(urlPattern), StandardCharsets.UTF_8);
     }
 
 

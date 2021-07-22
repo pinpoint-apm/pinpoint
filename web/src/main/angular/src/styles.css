@@ -16,7 +16,7 @@ html {
 }
 
 body {
-    color: #333;
+    color: var(--text-primary);
     font-family: 'Nanum Gothic', '나눔고딕';
 }
 
@@ -46,8 +46,8 @@ caption {
 }
 
 .l-header {
-    background: var(--header-background-color);
-    border-bottom: 1px solid var(--dark-primary-color);
+    background: var(--header-background);
+    border-bottom: 1px solid var(--header-border);
     height: 50px;
     justify-content: space-between;
     position: relative;
@@ -81,7 +81,7 @@ caption {
 
 .btn {
     font-size: 13px;
-    color: #666;
+    color: var(--text-primary-lightest);
     height: 30px;
     padding: 0 9px;
     border-radius: 2px;
@@ -94,12 +94,12 @@ caption {
 }
 
 .btn.active {
-    background-color: var(--primary-color);
-    color: #fff;
+    background-color: var(--primary);
+    color: var(--text-knockout);
 }
 
 .btn:disabled {
-    background-color: #ccc;
+    background-color: var(--background-disable);
     cursor: not-allowed;
 }
 
@@ -109,24 +109,24 @@ caption {
 }
 
 .btn-blue {
-    color: #fff;
-    background-color: var(--primary-color);
+    color: var(--text-knockout);
+    background-color: var(--primary);
 }
 
 .btn-black {
-    color: #fff;
+    color: var(--text-knockout);
     background-color: #3f506c;
     border: 1px solid #384c65;
 }
 
 .btn-gray {
-    color: #fff;
-    background-color: #ccc;
+    color: var(--text-knockout);
+    background-color: var(--background-disable);
 }
 
 .pinpoint-btn {
-    background-color: var(--primary-color);
-    color: #fff;
+    background-color: var(--primary);
+    color: var(--text-knockout);
     font-family: 'Open Sans', sans-serif;
     font-weight: 600;
     padding: 10px 15px;
@@ -160,8 +160,8 @@ caption {
 .table {
     max-width: 100%;
     width: 100%;
-    border: 1px solid #e5e8f0;
-    background: #fff
+    border: 1px solid var(--border-primary);
+    background: var(--background-default);
 }
 
 .table th, .table td {
@@ -172,9 +172,8 @@ caption {
 }
 
 .table thead th {
-    background: #f6f8fb;
     height: 36px;
-    font-weight: 600;
+    font-weight: bold;
 }
 
 .table tbody th {
@@ -182,11 +181,11 @@ caption {
 }
 
 .table th {
-    color: #666;
+    color: var(--text-primary-lightest);
 }
 
 .table td{
-    color: #999;
+    color: var(--text-secondary);
 }
 
 .table td, .table tbody th {
@@ -203,13 +202,13 @@ caption {
 }
 
 .table tr.tr-bg-red {
-    background-color: #fff1f1;
+    background-color: var(--background-row-danger);
 }
 
 .popup {
     position: absolute;
     z-index: 999999;
-    background-color: #FFF;
+    background-color: var(--background-default);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
     font-size: 14px;
     min-width: 160px;
@@ -232,7 +231,7 @@ caption {
     text-anchor: middle !important;
     font-family: 'Open Sans';
     font-size: 0.75vw;
-    fill: #333;
+    fill: var(--text-primary);
     font-weight: bold;
 }
 
@@ -272,7 +271,7 @@ caption {
 
 .l-calltree .ag-cell {
     padding: 4px;
-    border-right: 1px solid #e6e8ec;
+    border-right: 1px solid var(--border-primary);
     font-family: 'Open Sans', sans-serif;
 }
 
@@ -286,18 +285,18 @@ caption {
 }
 
 .l-calltree .ag-header-cell-moving {
-    background-color: #bebebe;
+    background-color: var(--table-header-moving-background);
 }
 
 .l-calltree .ag-header-cell-moving-clone {
-    border-right: 1px solid #808080;
-    border-left: 1px solid #808080;
+    border-right: 1px solid var(--border-primary-darkest);
+    border-left: 1px solid var(--border-primary-darkest);
     background-color: rgba(220,220,220,0.8);
 }
 
 .l-calltree .ag-header {
-    background: #f6f8fb;
-    border-bottom: 1px solid #e6e8ec;
+    background: var(--table-header-background);
+    border-bottom: 1px solid var(--border-primary);
     line-height: 2;
 }
 
@@ -305,7 +304,6 @@ caption {
     font-size: 12px;
     font-weight: 600;
     font-family: 'Open Sans', sans-serif;
-    /* border-right: 1px solid #e6e8ec; */
     padding-left: 2px;
     padding-right: 2px;
 }
@@ -331,23 +329,23 @@ caption {
 }
 
 .l-calltree .ag-row-exception {
-    background-color: #fff1f1;
+    background-color: var(--background-row-danger);
 }
 
 .l-calltree .ag-row-focused {
-    background-color: #e4f5e3;
+    background-color: var(--background-hover-secondary);
 }
 
 .l-calltree .ag-body {
-    background-color: #ffffff;
+    background-color: var(--background-default);
 }
 
 .l-calltree .ag-body-viewport {
-    background-color: #ffffff;
+    background-color: var(--background-default);
 }
 
 .l-calltree .ag-menu {
-    background-color: #ffffff;
+    background-color: var(--background-default);
     border: 1px solid grey;
 }
 
@@ -356,12 +354,12 @@ caption {
 }
 
 .l-calltree .ag-row-focused {
-    background-color: #e4f5e3;
+    background-color: var(--background-hover-secondary);
 }
 
 .l-calltree .ag-row-selected {
     color: #4a8fd2;
-    background-color: #e7f5f9;
+    background-color: var(--background-hover-secondary);
 }
 
 .l-calltree .div-percent-bar {
@@ -385,13 +383,15 @@ caption {
 }
 
 .l-response-summary-chart .bb-grid line,
-.l-load-chart .bb-grid line {
-    stroke: rgba(0, 0, 0, 0.1);
+.l-load-chart .bb-grid line,
+.l-url-statistic-chart .bb-grid line {
+    stroke: var(--chart-guide-line);
     stroke-width: 1.5;
 }
 
 .l-response-summary-chart .bb-ygrid,
-.l-load-chart .bb-ygrid {
+.l-load-chart .bb-ygrid,
+.l-url-statistic-chart .bb-ygrid {
     stroke-dasharray: 0;
 }
 
@@ -402,3 +402,34 @@ caption {
 .l-load-chart .bb-line {
     stroke-width: 0;
 }
+
+.as-split-gutter {
+    background-color: var(--background-primary-darkest) !important;
+}
+
+.bb-axis text {
+    fill: var(--chart-text);
+}
+
+.bb-axis line, 
+.bb-axis .domain {
+    stroke: var(--chart-line);
+}
+
+.bb-legend-item text {
+    fill: var(--chart-text);
+}
+
+.bb-tooltip td {
+    background-color: var(--background-layer);
+}
+
+.bb-button .bb-zoom-reset {
+    color: var(--text-primary);
+    background-color: var(--background-default);
+}
+
+/* path.bb-shape {
+    stroke: red;
+    stroke-width: 1px;
+} */

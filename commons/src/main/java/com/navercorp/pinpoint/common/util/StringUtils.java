@@ -91,13 +91,17 @@ public final class StringUtils {
             throw new IllegalArgumentException("negative maxWidth:" + maxWidth);
         }
         if (str.length() > maxWidth) {
-            StringBuilder buffer = new StringBuilder(maxWidth + 10);
+            StringBuilder buffer = new StringBuilder(abbreviateBufferSize(maxWidth, str.length()));
             buffer.append(str, 0, maxWidth);
             appendAbbreviateMessage(buffer, str.length());
             return buffer.toString();
         } else {
             return str;
         }
+    }
+
+    static int abbreviateBufferSize(int maxWidth, int strLength) {
+        return maxWidth + "...()".length() + stringLength(strLength);
     }
 
     public static void appendAbbreviate(final StringBuilder builder, final String str, final int maxWidth) {
@@ -121,6 +125,16 @@ public final class StringUtils {
         buffer.append(')');
     }
 
+
+    final static int[] INT_TABLE = {9, 99, 999, 9999, 99999, 999999, 9999999, 99999999, 999999999, Integer.MAX_VALUE};
+
+    static int stringLength(int x) {
+        for (int i = 0; ; i++) {
+            if (x <= INT_TABLE[i]) {
+                return i + 1;
+            }
+        }
+    }
 
     /**
      * Copy Spring Framework StringUtils
@@ -252,7 +266,7 @@ public final class StringUtils {
         increase *= max < 0 ? 16 : max > 64 ? 64 : max;
         StringBuilder buf = new StringBuilder(text.length() + increase);
         while (end != INDEX_NOT_FOUND) {
-            buf.append(text.substring(start, end)).append(replacement);
+            buf.append(text, start, end).append(replacement);
             start = end + replLength;
             if (--max == 0) {
                 break;

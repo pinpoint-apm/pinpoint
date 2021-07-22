@@ -11,7 +11,7 @@
 }
 
 input {
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-primary-darker);
     border-radius: 4px;
     padding: 9px 14px;
     font-size: 13px;
@@ -21,24 +21,24 @@ input {
 }
 
 input:focus {
-    border-color: var(--primary-color);;
-    box-shadow: 0 0 1px 1px var(--primary-color);;
+    border-color: var(--primary);;
+    box-shadow: 0 0 1px 1px var(--primary);;
 }
 
 input.l-success-input {
-    border: 1px solid #3c763d;
+    border: 1px solid var(--status-success);
 }
 
 input.l-success-input:focus {
-    box-shadow: 0 0 2px #3c763d;
+    box-shadow: 0 0 2px var(--status-success);
 }
 
 input.l-fail-input {
-    border: 1px solid #a94442;
+    border: 1px solid var(--form-require);
 }
 
 input.l-fail-input:focus {
-    box-shadow: 0 0 2px #a94442;
+    box-shadow: 0 0 2px var(--form-require);
 }
 
 .l-check-status-icon {
@@ -49,15 +49,15 @@ input.l-fail-input:focus {
 }
 
 .fa-check {
-    color: #3c763d;
+    color: var(--status-success);
 }
 
 .fa-times {
-    color: #a94442;
+    color: var(--status-danger);
 }
 
 .l-check-button {
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-primary-darker);
     border-radius: 4px;
     padding: 9px;
     font-size: 13px;
@@ -66,7 +66,7 @@ input.l-fail-input:focus {
 }
 
 .l-check-button:hover {
-    background-color: #e5e8f0;
+    background-color: var(--background-hover-default);
 }
 
 .l-check-button:focus {
@@ -78,5 +78,5 @@ input.l-fail-input:focus {
     font-size: 14px;
     margin-top: 10px;
     width: 100%;
-    color: #a94442;
+    color: var(--form-require);
 }

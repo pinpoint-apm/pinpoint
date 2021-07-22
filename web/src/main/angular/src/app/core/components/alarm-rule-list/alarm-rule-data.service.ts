@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { retry, shareReplay } from 'rxjs/operators';
+import { shareReplay } from 'rxjs/operators';
 
 export interface IAlarmRule {
     applicationId: string;
@@ -11,6 +11,7 @@ export interface IAlarmRule {
     ruleId: string;
     serviceType: string;
     smsSend: boolean;
+    webhookSend: boolean;
     threshold: number;
     userGroupId: string;
 }
@@ -43,29 +44,21 @@ export class AlarmRuleDataService {
     }
 
     retrieve(applicationId: string): Observable<IAlarmRule[]> {
-        return this.http.get<IAlarmRule[]>(this.alarmRuleURL, this.makeRequestOptionsArgs(applicationId)).pipe(
-            retry(3)
-        );
+        return this.http.get<IAlarmRule[]>(this.alarmRuleURL, this.makeRequestOptionsArgs(applicationId));
     }
 
     create(params: {[key: string]: any}): Observable<IAlarmRuleCreated> {
-        return this.http.post<IAlarmRuleCreated>(this.alarmRuleURL, params).pipe(
-            retry(3)
-        );
+        return this.http.post<IAlarmRuleCreated>(this.alarmRuleURL, params);
     }
 
     update(params: IAlarmRule): Observable<IAlarmRuleResponse> {
-        return this.http.put<IAlarmRuleResponse>(this.alarmRuleURL, params).pipe(
-            retry(3)
-        );
+        return this.http.put<IAlarmRuleResponse>(this.alarmRuleURL, params);
     }
 
     remove(applicationId: string, ruleId: string): Observable<IAlarmRuleResponse> {
         return this.http.request<IAlarmRuleResponse>('delete', this.alarmRuleURL, {
             body: { applicationId, ruleId }
-        }).pipe(
-            retry(3)
-        );
+        });
     }
 
     private makeRequestOptionsArgs(applicationId: string): object {

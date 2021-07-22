@@ -17,15 +17,15 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classreading;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -48,7 +48,7 @@ public class SimpleClassMetadataReaderTest {
         // interfaces
         List<String> interfaceList = getInterfaceList(clazz.getInterfaces());
         List<String> interfaceNames = simpleClassMetadata.getInterfaceNames();
-        Assert.assertThat(interfaceNames, containsInAnyOrder(interfaceList.toArray()));
+        MatcherAssert.assertThat(interfaceNames, containsInAnyOrder(interfaceList.toArray()));
 
         // super
         Assert.assertEquals(simpleClassMetadata.getSuperClassName(), "java.lang.Object");
@@ -60,12 +60,10 @@ public class SimpleClassMetadataReaderTest {
     }
 
     private List<String> getInterfaceList(Class<?>[] interfaces) {
-        List<Class<?>> collection = Lists.newArrayList(interfaces);
-        return Lists.transform(collection, new Function<Class<?>, String>() {
-            @Override
-            public String apply(Class<?> input) {
-                return input.getName();
-            }
-        });
+        List<String> interfaceNames = new ArrayList<>();
+        for (Class<?> interfaceClass : interfaces) {
+            interfaceNames.add(interfaceClass.getName());
+        }
+        return interfaceNames;
     }
 }

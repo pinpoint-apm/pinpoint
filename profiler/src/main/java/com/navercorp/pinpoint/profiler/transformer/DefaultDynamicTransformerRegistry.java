@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.instrument.RequestHandle;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.ProfilerException;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.slf4j.Logger;
@@ -40,8 +40,8 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
 
     @Override
     public RequestHandle onRetransformRequest(Class<?> target, final ClassFileTransformer transformer) {
-        Assert.requireNonNull(target, "target");
-        Assert.requireNonNull(transformer, "transformer");
+        Objects.requireNonNull(target, "target");
+        Objects.requireNonNull(transformer, "transformer");
 
         final TransformerKey key = createTransformKey(target);
         add(key, transformer);
@@ -115,7 +115,7 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
         
         public TransformerKey(ClassLoader classLoader, String targetClassInternalName) {
             this.classLoader = classLoader;
-            this.targetClassInternalName = Assert.requireNonNull(targetClassInternalName, "targetClassInternalName");
+            this.targetClassInternalName = Objects.requireNonNull(targetClassInternalName, "targetClassInternalName");
         }
 
         @Override

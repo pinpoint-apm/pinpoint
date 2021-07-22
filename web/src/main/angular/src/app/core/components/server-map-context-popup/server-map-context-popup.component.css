@@ -1,5 +1,6 @@
 :host {
     display: block;
+    background-color: var(--background-layer);
 }
 
 .l-list {
@@ -29,7 +30,7 @@
 }
 
 .l-list-item:hover {
-    background-color: #e4f3eb;
+    background-color: var(--background-hover-secondary);
 }
 
 .l-refresh-btn {
@@ -41,5 +42,5 @@
 }
 
 .l-refresh-btn:hover {
-    background-color: #eee;
+    background-color: var(--background-hover-default);
 }

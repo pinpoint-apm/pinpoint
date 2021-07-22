@@ -16,34 +16,41 @@
 
 package com.navercorp.pinpoint.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import io.grpc.Metadata;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim
  */
 public class AgentHeaderFactory implements HeaderFactory {
 
     private final String agentId;
+    private final String agentName;
     private final String applicationName;
     private final long agentStartTime;
+    private final int serviceType;
 
-
-    public AgentHeaderFactory(String agentId, String applicationName, long agentStartTime) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
+    public AgentHeaderFactory(String agentId, String agentName, String applicationName, int serviceType, long agentStartTime) {
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.agentName = agentName;
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.serviceType = serviceType;
         this.agentStartTime = agentStartTime;
-
     }
 
     public Metadata newHeader() {
         Metadata headers = new Metadata();
         headers.put(Header.AGENT_ID_KEY, agentId);
         headers.put(Header.APPLICATION_NAME_KEY, applicationName);
+        headers.put(Header.SERVICE_TYPE_KEY, Integer.toString(serviceType));
         headers.put(Header.AGENT_START_TIME_KEY, Long.toString(agentStartTime));
+        if (!StringUtils.isEmpty(agentName)) {
+            headers.put(Header.AGENT_NAME_KEY, agentName);
+        }
         return headers;
     }
-
-
 }

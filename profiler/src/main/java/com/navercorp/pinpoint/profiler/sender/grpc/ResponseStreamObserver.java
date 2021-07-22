@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
+
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
 import io.grpc.stub.ClientCallStreamObserver;
@@ -24,41 +26,40 @@ import io.grpc.stub.ClientResponseObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ResponseStreamObserver<ReqT, RespT> implements ClientResponseObserver<ReqT, RespT> {
+public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserver<ReqT, ResT> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final StreamId name;
-    private final Reconnector reconnector;
+    private final StreamEventListener<ReqT> listener;
 
-    public ResponseStreamObserver(StreamId name, Reconnector reconnector) {
-        this.name = Assert.requireNonNull(name, "name");
-        this.reconnector = Assert.requireNonNull(reconnector, "reconnector");
-
+    public ResponseStreamObserver(StreamEventListener<ReqT> listener) {
+        this.listener = Objects.requireNonNull(listener, "listener");
     }
 
     @Override
-    public void beforeStart(ClientCallStreamObserver<ReqT> requestStream) {
-        logger.info("beforeStart:{}", name);
+    public void beforeStart(final ClientCallStreamObserver<ReqT> requestStream) {
+        logger.info("beforeStart {}", listener);
         requestStream.setOnReadyHandler(new Runnable() {
-            private final AtomicInteger counter = new AtomicInteger();
+            private final AtomicLong isReadyCounter = new AtomicLong(0);
+
             @Override
             public void run() {
-                logger.info("onReadyHandler:{} eventNumber:{}", name, counter.getAndIncrement());
-                reconnector.reset();
+                final long isReadyCount = isReadyCounter.incrementAndGet();
+                logger.info("onReadyHandler {} isReadyCount:{}", listener, isReadyCount);
+                if (isReadyCount == 1) {
+                    listener.start(requestStream);
+                }
             }
         });
     }
 
     @Override
-    public void onNext(RespT value) {
+    public void onNext(ResT value) {
         if (logger.isDebugEnabled()) {
-            logger.debug("{} onNext:{}", name, value);
+            logger.debug("{} onNext:{}", listener, value);
         }
     }
 
@@ -66,22 +67,24 @@ public class ResponseStreamObserver<ReqT, RespT> implements ClientResponseObserv
     public void onError(Throwable t) {
         final StatusError statusError = StatusErrors.throwable(t);
         if (statusError.isSimpleError()) {
-            logger.info("Failed to stream, name={}, cause={}", name, statusError.getMessage());
+            logger.info("Failed to stream, name={}, cause={}", listener, statusError.getMessage());
         } else {
-            logger.warn("Failed to stream, name={}, cause={}", name, statusError.getMessage(), statusError.getThrowable());
+            logger.info("Failed to stream, name={}, cause={}", listener, statusError.getMessage(), statusError.getThrowable());
         }
-        reconnector.reconnect();
+        listener.onError(t);
     }
 
     @Override
     public void onCompleted() {
-        logger.debug("{} onCompleted", name);
+        logger.warn("{} onCompleted", listener);
+        listener.onCompleted();
+
     }
 
     @Override
     public String toString() {
         return "ResponseStreamObserver{" +
-                "name=" + name +
+                "name=" + listener +
                 '}';
     }
 }

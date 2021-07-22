@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context.thrift;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
@@ -59,12 +59,12 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
 
     public SpanThriftMessageConverter(String applicationName, String agentId, long agentStartTime, short applicationServiceType,
                                       TransactionIdEncoder transactionIdEncoder, SpanProcessor<TSpan, TSpanChunk> spanPostProcessor) {
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
         this.applicationServiceType = applicationServiceType;
-        this.transactionIdEncoder = Assert.requireNonNull(transactionIdEncoder, "transactionIdEncoder");
-        this.spanPostProcessor = Assert.requireNonNull(spanPostProcessor, "spanPostProcessor");
+        this.transactionIdEncoder = Objects.requireNonNull(transactionIdEncoder, "transactionIdEncoder");
+        this.spanPostProcessor = Objects.requireNonNull(spanPostProcessor, "spanPostProcessor");
 
     }
 

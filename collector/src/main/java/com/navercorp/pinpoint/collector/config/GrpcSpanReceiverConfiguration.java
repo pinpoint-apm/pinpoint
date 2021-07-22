@@ -23,14 +23,15 @@ import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+
 import javax.annotation.PostConstruct;
 import java.util.Objects;
-import java.util.Properties;
 
 /**
  * @author Taejin Koo
  */
-//@ConfigurationProeprties(prefix=GRPC_PREFIX) spring-boot
+//@ConfigurationProperties(prefix=GRPC_PREFIX) spring-boot
 public class GrpcSpanReceiverConfiguration {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -52,7 +53,6 @@ public class GrpcSpanReceiverConfiguration {
     @Value("${collector.receiver.grpc.span.server.executor.monitor.enable}")
     private boolean grpcServerExecutorMonitorEnable;
 
-
     @Value("${collector.receiver.grpc.span.worker.executor.thread.size:128}")
     private int grpcWorkerExecutorThreadSize;
     @Value("${collector.receiver.grpc.span.worker.executor.queue.size:5120}")
@@ -69,29 +69,27 @@ public class GrpcSpanReceiverConfiguration {
     private int grpcStreamSchedulerPeriodMillis;
     @Value("${collector.receiver.grpc.span.stream.scheduler.recovery.message.count:10}")
     private int grpcStreamSchedulerRecoveryMessageCount;
+    @Value("${collector.receiver.grpc.span.stream.idletimeout:-1}")
+    private long grpcStreamIdleTimeout;
 
     private ServerOption grpcServerOption;
 
-    public GrpcSpanReceiverConfiguration() {
+
+    public GrpcSpanReceiverConfiguration(Environment environment) {
+        this.grpcServerOption = logServerOption(environment);
     }
 
-    public GrpcSpanReceiverConfiguration(Properties properties) {
-        // WARNING ServerOption does not support PropertyPlaceholder
-        logServerOption(properties);
-    }
-
-    public void logServerOption(Properties properties) {
-        Objects.requireNonNull(properties, "properties");
+    public static ServerOption logServerOption(Environment environment) {
+        Objects.requireNonNull(environment, "properties");
         // Server option
-        final ServerOption.Builder serverOptionBuilder = GrpcPropertiesServerOptionBuilder.newBuilder(properties, GRPC_PREFIX);
-        this.grpcServerOption = serverOptionBuilder.build();
-
+        final ServerOption.Builder serverOptionBuilder = GrpcPropertiesServerOptionBuilder.newBuilder(environment, GRPC_PREFIX);
+        return serverOptionBuilder.build();
     }
 
     @PostConstruct
     public void validate() {
         logger.info("{}", this);
-        AnnotationVisitor visitor = new AnnotationVisitor(Value.class);
+        AnnotationVisitor<Value> visitor = new AnnotationVisitor<>(Value.class);
         visitor.visit(this, new LoggingEvent(logger));
 
         // Server executor
@@ -158,6 +156,10 @@ public class GrpcSpanReceiverConfiguration {
         return grpcStreamSchedulerRecoveryMessageCount;
     }
 
+    public long getGrpcStreamIdleTimeout() {
+        return grpcStreamIdleTimeout;
+    }
+
     public ServerOption getGrpcServerOption() {
         return grpcServerOption;
     }
@@ -178,6 +180,7 @@ public class GrpcSpanReceiverConfiguration {
         sb.append(", grpcStreamCallInitRequestCount=").append(grpcStreamCallInitRequestCount);
         sb.append(", grpcStreamSchedulerPeriodMillis=").append(grpcStreamSchedulerPeriodMillis);
         sb.append(", grpcStreamSchedulerRecoveryMessageCount=").append(grpcStreamSchedulerRecoveryMessageCount);
+        sb.append(", grpcStreamIdleTimeout=").append(grpcStreamIdleTimeout);
         sb.append(", grpcServerOption=").append(grpcServerOption);
         sb.append('}');
         return sb.toString();

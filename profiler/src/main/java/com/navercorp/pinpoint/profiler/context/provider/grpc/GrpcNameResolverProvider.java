@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.profiler.context.provider.grpc;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import io.grpc.NameResolverProvider;
 import io.grpc.internal.PinpointDnsNameResolverProvider;
 
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
 
@@ -34,7 +34,7 @@ public class GrpcNameResolverProvider implements Provider<NameResolverProvider> 
 
     @Inject
     public GrpcNameResolverProvider(Provider<ExecutorService> dnsExecutorService) {
-        this.dnsExecutorService = Assert.requireNonNull(dnsExecutorService, "dnsExecutorServiceProvider");
+        this.dnsExecutorService = Objects.requireNonNull(dnsExecutorService, "dnsExecutorServiceProvider");
     }
 
     @Override

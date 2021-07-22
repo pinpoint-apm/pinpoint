@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 
 import {
     UrlRouteManagerService,
@@ -9,8 +10,8 @@ import {
     StoreHelperService,
     AnalyticsService, TRACKED_EVENT_LIST
 } from 'app/shared/services';
-import { Actions } from 'app/shared/store';
-import { UrlPath, UrlPathId } from 'app/shared/models';
+import { Actions } from 'app/shared/store/reducers';
+import { UrlPath, UrlPathId, UrlQuery } from 'app/shared/models';
 import { IGridData } from './transaction-table-grid.component';
 import { TransactionMetaDataService } from './transaction-meta-data.service';
 
@@ -24,13 +25,14 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
     private unsubscribe = new Subject<void>();
 
     areaResized: any;
-    selectedTraceId: string;
+    selectedTransactionId: string;
     transactionData: ITransactionMetaData[] = [];
     transactionDataForAgGrid: IGridData[];
     transactionAddedDataForAgGrid: IGridData[];
     transactionIndex = 1;
     timezone: string;
     dateFormat: string;
+    dataEmptyText: string;
 
     constructor(
         private storeHelperService: StoreHelperService,
@@ -38,29 +40,37 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private transactionMetaDataService: TransactionMetaDataService,
         private gutterEventService: GutterEventService,
+        private translateService: TranslateService,
         private analyticsService: AnalyticsService,
         private cd: ChangeDetectorRef
     ) {}
 
     ngOnInit() {
-        this.connectStore();
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            takeUntil(this.unsubscribe)
+            takeUntil(this.unsubscribe),
+            filter((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlQuery.DRAG_INFO))
         ).subscribe((urlService: NewUrlStateNotificationService) => {
-            if (urlService.hasValue(UrlPathId.TRANSACTION_INFO)) {
-                this.selectedTraceId = urlService.getPathValue(UrlPathId.TRANSACTION_INFO).replace(/(.*)-\d*-\d*$/, '$1');
+            if (urlService.hasValue(UrlQuery.TRANSACTION_INFO)) {
+                const {agentId, spanId, traceId, collectorAcceptTime} = JSON.parse(urlService.getQueryValue(UrlQuery.TRANSACTION_INFO));
+
+                this.selectedTransactionId = `${agentId}${spanId}${traceId}${collectorAcceptTime}`;
                 this.dispatchTransaction();
             }
+
             if (this.transactionData.length === 0) {
                 this.transactionMetaDataService.loadData();
             }
         });
-        this.connectMetaDataService();
+
         this.gutterEventService.onGutterResized$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((params: any) => {
             this.areaResized = params;
         });
+
+        this.connectStore();
+        this.connectMetaDataService();
+        this.initI18nText();
     }
 
     ngOnDestroy() {
@@ -80,7 +90,14 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
     private connectMetaDataService(): void {
         this.transactionMetaDataService.onTransactionDataLoad$.pipe(
             takeUntil(this.unsubscribe),
-            filter((responseData: any) => responseData.length > 0)
+            filter((responseData: ITransactionMetaData[]) => {
+                if (responseData.length === 0) {
+                    this.transactionDataForAgGrid = [];
+                    return false;
+                } else {
+                    return true;
+                }
+            }),
         ).subscribe((responseData: ITransactionMetaData[]) => {
             this.transactionData = this.transactionData.concat(responseData || []);
             if (this.transactionDataForAgGrid) {
@@ -90,6 +107,12 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
                 this.dispatchTransaction();
             }
             this.cd.detectChanges();
+        });
+    }
+
+    private initI18nText(): void {
+        this.translateService.get('COMMON.NO_DATA').subscribe((dataEmptyText: string) => {
+           this.dataEmptyText = dataEmptyText;
         });
     }
 
@@ -108,6 +131,7 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
             responseTime: gridData.elapsed,
             exception: gridData.exception,
             agentId: gridData.agentId,
+            agentName: gridData.agentName,
             clientIp:  gridData.remoteAddr,
             traceId: gridData.traceId,
             spanId: gridData.spanId,
@@ -115,19 +139,15 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
         } as IGridData;
     }
 
-    private findTransaction(traceId: string): ITransactionMetaData {
-        for (let i = 0; i < this.transactionData.length; i++) {
-            if (this.transactionData[i].traceId === traceId) {
-                return this.transactionData[i];
-            }
-        }
-
-        return null;
+    private findTransaction(transactionId: string): ITransactionMetaData {
+        return this.transactionData.find(({agentId, spanId, traceId, collectorAcceptTime}: ITransactionMetaData) => {
+            return `${agentId}${spanId}${traceId}${collectorAcceptTime}` === transactionId;
+        });
     }
 
     private dispatchTransaction(): void {
-        if (this.selectedTraceId) {
-            const transaction = this.findTransaction(this.selectedTraceId);
+        if (this.selectedTransactionId) {
+            const transaction = this.findTransaction(this.selectedTransactionId);
 
             if (transaction) {
                 this.storeHelperService.dispatch(new Actions.UpdateTransactionData(transaction));
@@ -135,7 +155,7 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
         }
     }
 
-    onSelectTransaction(transactionShortInfo: { traceId: string, collectorAcceptTime: number, elapsed: number }): void {
+    onSelectTransaction({agentId, spanId, traceId, collectorAcceptTime, elapsed}: {[key: string]: any}): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_TRANSACTION);
         this.urlRouteManagerService.moveOnPage({
             url: [
@@ -143,8 +163,10 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
-                `${transactionShortInfo.traceId}-${transactionShortInfo.collectorAcceptTime}-${transactionShortInfo.elapsed}`
-            ]
+            ],
+            queryParams: {
+                [UrlQuery.TRANSACTION_INFO]: {agentId, spanId, traceId, collectorAcceptTime, elapsed}
+            }
         });
     }
 

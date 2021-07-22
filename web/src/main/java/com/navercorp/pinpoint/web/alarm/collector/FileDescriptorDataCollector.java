@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class FileDescriptorDataCollector extends DataCollector {
 
     private final Application application;

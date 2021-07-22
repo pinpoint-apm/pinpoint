@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.client;
 
+import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
 

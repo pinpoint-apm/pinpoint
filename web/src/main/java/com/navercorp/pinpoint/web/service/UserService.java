@@ -34,10 +34,14 @@ public interface UserService {
 
     void updateUser(User user);
 
+    List<User> searchUser(String condition);
+
     List<User> selectUser();
 
     User selectUserByUserId(String userId);
-
+    
+    List<User> selectUserByUserGroupId(String userGroupId);
+    
     List<User> selectUserByUserName(String userName);
 
     List<User> selectUserByDepartment(String department);

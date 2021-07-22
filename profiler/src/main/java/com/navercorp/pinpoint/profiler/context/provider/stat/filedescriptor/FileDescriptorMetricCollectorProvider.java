@@ -18,12 +18,13 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.filedescriptor;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.filedescriptor.DefaultFileDescriptorMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
+
+import java.util.Objects;
 
 /**
  * @author Roy Kim
@@ -34,7 +35,7 @@ public class FileDescriptorMetricCollectorProvider implements Provider<AgentStat
 
     @Inject
     public FileDescriptorMetricCollectorProvider(FileDescriptorMetric fileDescriptorMetric) {
-        this.fileDescriptorMetric = Assert.requireNonNull(fileDescriptorMetric, "fileDescriptorMetric");
+        this.fileDescriptorMetric = Objects.requireNonNull(fileDescriptorMetric, "fileDescriptorMetric");
     }
 
     @Override

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class ErrorRateChecker extends LongValueAlarmChecker {
     
     public ErrorRateChecker(ResponseTimeDataCollector dataCollector, Rule rule) {

@@ -20,14 +20,11 @@ import com.navercorp.pinpoint.collector.dao.AgentEventDao;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.hbase.ValueMapper;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
-import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
-import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -51,6 +48,8 @@ public class HbaseAgentEventDao implements AgentEventDao {
     private final TableDescriptor<HbaseColumnFamily.AgentEvent> descriptor;
 
     private final ValueMapper<AgentEventBo> valueMapper;
+
+    private final AgentIdRowKeyEncoder rowKeyEncoder = new AgentIdRowKeyEncoder();
 
     @Autowired
     public HbaseAgentEventDao(HbaseOperations2 hbaseTemplate, TableDescriptor<HbaseColumnFamily.AgentEvent> descriptor, ValueMapper<AgentEventBo> valueMapper) {
@@ -82,8 +81,6 @@ public class HbaseAgentEventDao implements AgentEventDao {
     }
 
     byte[] createRowKey(String agentId, long eventTimestamp) {
-        byte[] agentIdKey = BytesUtils.toBytes(agentId);
-        long reverseStartTimestamp = TimeUtils.reverseTimeMillis(eventTimestamp);
-        return RowKeyUtils.concatFixedByteAndLong(agentIdKey, HbaseTableConstants.AGENT_NAME_MAX_LEN, reverseStartTimestamp);
+        return rowKeyEncoder.encodeRowKey(agentId, eventTimestamp);
     }
 }

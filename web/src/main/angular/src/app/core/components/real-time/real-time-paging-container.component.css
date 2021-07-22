@@ -4,7 +4,7 @@
     height: 100%;
 }
 .l-thread-chart-wrap {
-    background:#d3dbe6;
+    background: var(--background-primary-darker);
     width:100%;
     height: 100%;
 }
@@ -30,12 +30,12 @@
 }
 .l-message h4 span {
     padding: 8px 40px 6px 40px;
-    background-color: #FFF;
+    background-color: var(--background-default);
 }
 .l-retry button span {
     margin-right: 6px;
 }
 .l-message.l-no-data h4 span {
-    background-color: #000;
-    color: #FFF;
+    background-color: var(--background-knockout);
+    color: var(--text-knockout);
 }

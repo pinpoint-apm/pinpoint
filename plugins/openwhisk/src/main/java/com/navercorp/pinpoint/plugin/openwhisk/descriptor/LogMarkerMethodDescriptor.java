@@ -18,17 +18,17 @@ package com.navercorp.pinpoint.plugin.openwhisk.descriptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.MethodType;
+import com.navercorp.pinpoint.common.util.LineNumber;
 import org.apache.openwhisk.common.LogMarkerToken;
 
 public class LogMarkerMethodDescriptor implements MethodDescriptor {
     private int apiId = 0;
-    private int type = MethodType.INVOCATION;
 
-    private String fullName;
+    private final String fullName;
 
-    private String className;
+    private final String className;
 
-    private String methodName;
+    private final String methodName;
 
     private String apiDescriptor;
 
@@ -65,7 +65,7 @@ public class LogMarkerMethodDescriptor implements MethodDescriptor {
 
     @Override
     public int getLineNumber() {
-        return -1;
+        return LineNumber.NO_LINE_NUMBER;
     }
 
     @Override
@@ -89,10 +89,7 @@ public class LogMarkerMethodDescriptor implements MethodDescriptor {
     }
 
     public int getType() {
-        return type;
+        return MethodType.INVOCATION;
     }
 
-    public void setType(int type) {
-        this.type = type;
-    }
 }

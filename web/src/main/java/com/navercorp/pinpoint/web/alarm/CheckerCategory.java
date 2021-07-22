@@ -29,6 +29,7 @@ import java.util.Set;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public enum CheckerCategory {
 
     SLOW_COUNT("SLOW COUNT", DataCollectorCategory.RESPONSE_TIME) {

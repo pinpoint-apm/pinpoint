@@ -243,4 +243,10 @@ public class StringUtilsTest {
 
     }
 
+    @Test
+    public void abbreviateBufferSize() {
+        Assert.assertEquals("a...(123)".length(), StringUtils.abbreviateBufferSize(1, 123));
+    }
+
+
 }

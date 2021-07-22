@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy, ViewChild, ComponentFactoryResolver, Injector } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
-import { map, switchMap, takeUntil } from 'rxjs/operators';
+import { Subject, Observable, EMPTY } from 'rxjs';
+import { map, switchMap, takeUntil, catchError } from 'rxjs/operators';
 
-import { StoreHelperService, NewUrlStateNotificationService, UrlRouteManagerService, AnalyticsService, DynamicPopupService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
+import { StoreHelperService, NewUrlStateNotificationService, AnalyticsService, DynamicPopupService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { ITimelineEventSegment, TimelineUIEvent } from './class';
 import { TimelineComponent } from './timeline.component';
 import { AgentTimelineDataService, IAgentTimeline } from './agent-timeline-data.service';
@@ -32,7 +32,6 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
     constructor(
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
-        private urlRouteManagerService: UrlRouteManagerService,
         private agentTimelineDataService: AgentTimelineDataService,
         private messageQueueService: MessageQueueService,
         private dynamicPopupService: DynamicPopupService,
@@ -84,24 +83,25 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
                 return {range, agentId};
             }),
             switchMap(({range, agentId}: {range: number[], agentId: string}) => {
-                return this.agentTimelineDataService.getData(agentId, range);
+                return this.agentTimelineDataService.getData(agentId, range).pipe(
+                    catchError((error: IServerErrorFormat) => {
+                        this.dynamicPopupService.openPopup({
+                            data: {
+                                title: 'Error',
+                                contents: error
+                            },
+                            component: ServerErrorPopupContainerComponent,
+                        }, {
+                            resolver: this.componentFactoryResolver,
+                            injector: this.injector
+                        });
+
+                        return EMPTY;
+                    })
+                );
             })
         ).subscribe((response: IAgentTimeline) => {
             this.timelineData = response;
-        }, (error: IServerErrorFormat) => {
-            this.dynamicPopupService.openPopup({
-                data: {
-                    title: 'Error',
-                    contents: error
-                },
-                component: ServerErrorPopupContainerComponent,
-                onCloseCallback: () => {
-                    this.urlRouteManagerService.reload();
-                }
-            }, {
-                resolver: this.componentFactoryResolver,
-                injector: this.injector
-            });
         });
     }
     ngOnDestroy() {

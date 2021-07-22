@@ -27,6 +27,10 @@ public final class MapUtils {
     private MapUtils() {
     }
 
+    public static boolean isEmpty(final Map<?, ?> map) {
+        return com.navercorp.pinpoint.common.util.MapUtils.isEmpty(map);
+    }
+
     public static String getString(Map<?, ?> map, String key) {
         return getString(map, key, null);
     }

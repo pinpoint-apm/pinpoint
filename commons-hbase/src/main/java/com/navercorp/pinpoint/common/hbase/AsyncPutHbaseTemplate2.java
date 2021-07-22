@@ -1,6 +1,23 @@
+/*
+ * Copyright 2020 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.common.hbase;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
@@ -9,10 +26,14 @@ import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.CompareFilter;
 
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * @author Taejin Koo
+ */
 public class AsyncPutHbaseTemplate2 implements HbaseOperations2 {
     private final HbaseOperations2 delegate;
 
@@ -140,6 +161,30 @@ public class AsyncPutHbaseTemplate2 implements HbaseOperations2 {
         delegate.put(tableName, puts);
     }
 
+    /**
+     * Atomically checks if a row/family/qualifier value matches the expected
+     * value. If it does, it adds the put.  If the passed value is null, the check
+     * is for the lack of column (ie: non-existance)
+     *
+     * @param tableName  target table
+     * @param rowName    to check
+     * @param familyName column family to check
+     * @param qualifier  column qualifier to check
+     * @param compareOp  comparison operator to use
+     * @param value      the expected value
+     * @param put        data to put if check succeeds
+     * @return true if the new put was executed, false otherwise
+     */
+    @Override
+    public boolean checkAndPut(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, CompareFilter.CompareOp compareOp, byte[] value, Put put) {
+        return delegate.checkAndPut(tableName, rowName, familyName, qualifier, compareOp, value, put);
+    }
+
+    @Override
+    public void maxColumnValue(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, long value) {
+        delegate.maxColumnValue(tableName, rowName, familyName, qualifier, value);
+    }
+
     @Override
     public void delete(TableName tableName, Delete delete) {
         delegate.delete(tableName, delete);
@@ -236,28 +281,8 @@ public class AsyncPutHbaseTemplate2 implements HbaseOperations2 {
     }
 
     @Override
-    public <T> T find(TableName tableName, String family, ResultsExtractor<T> action) {
-        return delegate.find(tableName, family, action);
-    }
-
-    @Override
-    public <T> T find(TableName tableName, String family, String qualifier, ResultsExtractor<T> action) {
-        return delegate.find(tableName, family, qualifier, action);
-    }
-
-    @Override
     public <T> T find(TableName tableName, Scan scan, ResultsExtractor<T> action) {
         return delegate.find(tableName, scan, action);
-    }
-
-    @Override
-    public <T> List<T> find(TableName tableName, String family, RowMapper<T> action) {
-        return delegate.find(tableName, family, action);
-    }
-
-    @Override
-    public <T> List<T> find(TableName tableName, String family, String qualifier, RowMapper<T> action) {
-        return delegate.find(tableName, family, qualifier, action);
     }
 
     @Override
@@ -265,18 +290,4 @@ public class AsyncPutHbaseTemplate2 implements HbaseOperations2 {
         return delegate.find(tableName, scan, action);
     }
 
-    @Override
-    public <T> T get(TableName tableName, String rowName, RowMapper<T> mapper) {
-        return delegate.get(tableName, rowName, mapper);
-    }
-
-    @Override
-    public <T> T get(TableName tableName, String rowName, String familyName, RowMapper<T> mapper) {
-        return delegate.get(tableName, rowName, familyName, mapper);
-    }
-
-    @Override
-    public <T> T get(TableName tableName, String rowName, String familyName, String qualifier, RowMapper<T> mapper) {
-        return delegate.get(tableName, rowName, familyName, qualifier, mapper);
-    }
 }

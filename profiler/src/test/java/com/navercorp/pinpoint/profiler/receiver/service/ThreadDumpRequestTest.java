@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,7 +42,7 @@ public class ThreadDumpRequestTest {
     @Test
     public void enableTransactionId() {
 
-        List<Long> localTransactionIdList = Lists.newArrayList(1L);
+        List<Long> localTransactionIdList = Collections.singletonList(1L);
         List<String> threadNameList = Collections.emptyList();
         ThreadDumpRequest request = new ThreadDumpRequest(StackTrace.DUMP, 10, localTransactionIdList, threadNameList);
         Assert.assertTrue(request.isEnableFilter());
@@ -61,7 +60,7 @@ public class ThreadDumpRequestTest {
     public void enableThreadDump() {
 
         List<Long> localTransactionIdList = Collections.emptyList();
-        List<String> threadNameList = Lists.newArrayList("a");
+        List<String> threadNameList = Collections.singletonList("a");
 
         ThreadDumpRequest request = new ThreadDumpRequest(StackTrace.DUMP, 10, localTransactionIdList, threadNameList);
         Assert.assertTrue(request.isEnableFilter());
@@ -79,8 +78,8 @@ public class ThreadDumpRequestTest {
     @Test
     public void filter() {
 
-        List<Long> localTransactionIdList = Lists.newArrayList(1L);
-        List<String> threadNameList = Lists.newArrayList("a");
+        List<Long> localTransactionIdList = Collections.singletonList(1L);
+        List<String> threadNameList = Collections.singletonList("a");
         ThreadDumpRequest request = new ThreadDumpRequest(StackTrace.DUMP, 10, localTransactionIdList, threadNameList);
         Assert.assertTrue(request.isEnableFilter());
         Assert.assertTrue(request.isEnableLocalTransactionIdFilter());

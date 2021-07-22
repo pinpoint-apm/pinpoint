@@ -3,6 +3,7 @@ import { Subject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { UrlPath } from 'app/shared/models';
+import { EndTime } from 'app/core/models/end-time';
 import { StoreHelperService, UrlRouteManagerService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { IGridData } from './agent-statistic-list.component';
 
@@ -62,10 +63,12 @@ export class AgentStatisticListContainerComponent implements OnInit, OnDestroy {
     private makeRow(agent: IAgent, index: number, hasChild: boolean, isChild: boolean): any {
         const oRow: IGridData = {
             index: index,
-            application: isChild ? '' : agent.applicationName,
+            application: agent.applicationName,
             serviceType: agent.serviceType,
             agent: agent.agentId,
+            agentName: agent.agentName ? agent.agentName : 'N/A',
             agentVersion: agent.agentVersion,
+            startTimestamp: agent.startTimestamp,
             jvmVersion: agent.jvmInfo ? agent.jvmInfo.jvmVersion : ''
         };
         if (hasChild) {
@@ -78,12 +81,28 @@ export class AgentStatisticListContainerComponent implements OnInit, OnDestroy {
     }
 
     onCellClick(params: any): void {
-        this.urlRouteManagerService.openPage({
-            path: [
-                UrlPath.MAIN,
-                `${params.application}@${params.serviceType}`
-            ]
-        });
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_APPLICATION_IN_STATISTIC_LIST);
+        if (params.colDef.field === 'application') {
+            this.urlRouteManagerService.openPage({
+                path: [
+                    UrlPath.MAIN,
+                    `${params.data.application}@${params.data.serviceType}`
+                ]
+            });
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_APPLICATION_IN_STATISTIC_LIST);
+        } else {
+            const diffMinute = 5;
+            const startTime = EndTime.newByNumber(params.data.startTimestamp);
+            this.urlRouteManagerService.openPage({
+                path: [
+                    UrlPath.INSPECTOR,
+                    `${params.data.application}@${params.data.serviceType}`,
+                    `${diffMinute}m`,
+                    startTime.calcuNextTime(diffMinute).getEndTime(),
+                    params.data.agent
+                ]
+            });
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_AGENT_IN_STATISTIC_LIST);
+        }
+
     }
 }

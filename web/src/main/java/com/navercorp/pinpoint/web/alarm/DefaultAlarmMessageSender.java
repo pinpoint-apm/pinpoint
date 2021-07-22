@@ -25,6 +25,7 @@ import java.util.Optional;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class DefaultAlarmMessageSender implements AlarmMessageSender {
 
     private final MailSender mailSender;

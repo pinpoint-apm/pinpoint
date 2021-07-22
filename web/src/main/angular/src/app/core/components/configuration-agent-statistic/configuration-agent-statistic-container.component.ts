@@ -1,12 +1,13 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, forkJoin, Observable } from 'rxjs';
 import * as moment from 'moment-timezone';
-
-import { StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
-import { AgentStatisticDataService } from './agent-statistic-data.service';
-import { Actions } from 'app/shared/store';
 import { map, tap } from 'rxjs/operators';
+
+import { StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
+import { AgentStatisticDataService } from './agent-statistic-data.service';
+import { Actions } from 'app/shared/store/reducers';
+import { ServerErrorPopupContainerComponent } from '../server-error-popup/server-error-popup-container.component';
 
 @Component({
     selector: 'pp-configuration-agent-statistic-container',
@@ -30,6 +31,9 @@ export class ConfigurationAgentStatisticContainerComponent implements OnInit, On
         private storeHelperService: StoreHelperService,
         private agentStatisticDataService: AgentStatisticDataService,
         private analyticsService: AnalyticsService,
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
 
     ngOnInit() {
@@ -77,7 +81,17 @@ export class ConfigurationAgentStatisticContainerComponent implements OnInit, On
         this.agentStatisticDataService.getData().subscribe((agentList: IAgentList) => {
             this.storeHelperService.dispatch(new Actions.UpdateAdminAgentList(agentList));
             this.hideProcessing();
-        }, (error: any) => {
+        }, (error: IServerErrorFormat) => {
+            this.dynamicPopupService.openPopup({
+                data: {
+                    title: 'Error',
+                    contents: error
+                },
+                component: ServerErrorPopupContainerComponent
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
+            });
             this.hideProcessing();
         });
     }

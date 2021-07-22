@@ -18,10 +18,11 @@ package com.navercorp.pinpoint.profiler.context.provider.grpc;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.profiler.AgentInformation;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -31,11 +32,11 @@ public class AgentHeaderFactoryProvider implements Provider<HeaderFactory> {
 
     @Inject
     public AgentHeaderFactoryProvider(AgentInformation agentInformation) {
-        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation");
+        this.agentInformation = Objects.requireNonNull(agentInformation, "agentInformation");
     }
 
     @Override
     public HeaderFactory get() {
-        return new AgentHeaderFactory(agentInformation.getAgentId(), agentInformation.getApplicationName(), agentInformation.getStartTime());
+        return new AgentHeaderFactory(agentInformation.getAgentId(), agentInformation.getAgentName(), agentInformation.getApplicationName(), agentInformation.getServerType().getCode(), agentInformation.getStartTime());
     }
 }

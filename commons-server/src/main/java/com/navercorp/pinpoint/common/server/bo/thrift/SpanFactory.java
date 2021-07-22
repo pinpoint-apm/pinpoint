@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.thrift;
 
 
-import com.google.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationComparator;
 import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
@@ -38,7 +38,7 @@ import com.navercorp.pinpoint.thrift.dto.TLocalAsyncId;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -330,12 +330,7 @@ public class SpanFactory {
     }
 
     private TransactionId newTransactionId(byte[] transactionIdBytes, String spanAgentId) {
-        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(transactionIdBytes);
-        String transactionAgentId = transactionId.getAgentId();
-        if (transactionAgentId != null) {
-            return transactionId;
-        }
-        return new TransactionId(spanAgentId, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+        return TransactionIdUtils.parseTransactionId(transactionIdBytes, spanAgentId);
     }
 
 

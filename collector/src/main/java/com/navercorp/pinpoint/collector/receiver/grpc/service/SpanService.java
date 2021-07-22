@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
+import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
@@ -50,10 +51,10 @@ import java.util.Objects;
 public class SpanService extends SpanGrpc.SpanImplBase {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final DispatchHandler dispatchHandler;
+    private final DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler;
     private final ServerRequestFactory serverRequestFactory;
 
-    public SpanService(DispatchHandler dispatchHandler, ServerRequestFactory serverRequestFactory) {
+    public SpanService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler, ServerRequestFactory serverRequestFactory) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
     }
@@ -82,16 +83,21 @@ public class SpanService extends SpanGrpc.SpanImplBase {
 
             @Override
             public void onError(Throwable throwable) {
+                com.navercorp.pinpoint.grpc.Header header = ServerContext.getAgentInfo();
+
                 final StatusError statusError = StatusErrors.throwable(throwable);
                 if (statusError.isSimpleError()) {
-                    logger.info("Failed to span stream, cause={}", statusError.getMessage());
+                    logger.info("Failed to span stream, {} cause={}", header, statusError.getMessage(), statusError.getThrowable());
                 } else {
-                    logger.warn("Failed to span stream, cause={}", statusError.getMessage(), statusError.getThrowable());
+                    logger.warn("Failed to span stream, {} cause={}", header, statusError.getMessage(), statusError.getThrowable());
                 }
             }
 
             @Override
             public void onCompleted() {
+                com.navercorp.pinpoint.grpc.Header header = ServerContext.getAgentInfo();
+                logger.info("onCompleted {}", header);
+
                 Empty empty = Empty.newBuilder().build();
                 responseObserver.onNext(empty);
                 responseObserver.onCompleted();
@@ -108,7 +114,7 @@ public class SpanService extends SpanGrpc.SpanImplBase {
 
     private void send(final Message<? extends GeneratedMessageV3> message, StreamObserver<Empty> responseObserver) {
         try {
-            ServerRequest<? extends GeneratedMessageV3> request = serverRequestFactory.newServerRequest(message);
+            ServerRequest<GeneratedMessageV3> request = (ServerRequest<GeneratedMessageV3>) serverRequestFactory.newServerRequest(message);
             this.dispatchHandler.dispatchSendMessage(request);
         } catch (Exception e) {
             logger.warn("Failed to request. message={}", message, e);

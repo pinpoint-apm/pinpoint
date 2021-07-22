@@ -31,11 +31,11 @@
 }
 .l-name-wrapper:hover {
     cursor: pointer;
-    background-color: #eee;
-    color: var(--primary-color) !important;
+    background-color: var(--background-hover-default);
+    color: var(--primary) !important;
 }
 .l-name-wrapper.active {
-    color: var(--primary-color) !important;
+    color: var(--primary) !important;
 }
 .l-icon-alert > img {
     vertical-align: middle;

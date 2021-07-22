@@ -49,7 +49,7 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
 
     private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<>(new HeaderTBaseDeserializerFactory());
 
-    private final DispatchHandler dispatchHandler;
+    private final DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler;
 
     private final TBaseFilter<SocketAddress> filter;
 
@@ -57,7 +57,7 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
     
     private final AddressFilter ignoreAddressFilter;
 
-    public BaseUDPHandlerFactory(DispatchHandler dispatchHandler, TBaseFilter<SocketAddress> filter, AddressFilter ignoreAddressFilter) {
+    public BaseUDPHandlerFactory(DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler, TBaseFilter<SocketAddress> filter, AddressFilter ignoreAddressFilter) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         this.filter = Objects.requireNonNull(filter, "filter");
         this.ignoreAddressFilter = Objects.requireNonNull(ignoreAddressFilter, "ignoreAddressFilter");

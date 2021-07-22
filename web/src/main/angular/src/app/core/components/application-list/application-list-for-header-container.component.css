@@ -18,11 +18,11 @@
     cursor: pointer;
     height: 32px;
     padding: 0 13px;
-    border: 1px solid var(--dark-primary-color);
-    background: #F6FAFE;
+    border: 1px solid var(--header-border);
+    background: var(--background-default);
     font-size: 13px;
     border-radius: 0px;
-    color: #666;
+    color: var(--text-primary-lightest);
 }
 .l-app-select img {
     margin-right: 6px;
@@ -43,8 +43,8 @@
     position: absolute;
     top: 32px;
     width: 100%;
-    border: 1px solid var(--dark-primary-color);
-    background: #FFF;
+    border: 1px solid var(--header-border);
+    background: var(--background-layer);
     z-index: 10;
 }
 .l-search-group-wrap {
@@ -57,22 +57,21 @@
 }
 .l-search-group {
     width: 100%;
-    background: #FFF;
+    background: var(--background-layer);
     height: 32px;
-    color: #B3B3B4;
     position: relative;
 }
 .l-search-group input {
-    color: #000;
+    color: var(--text-primary);
     width: 100%;
     height: 100%;
-    border: 1px solid #D7DDE4;
+    border: 1px solid var(--form-input-border);
     padding: 0 10px;
     font-weight: 600;
 }
 .l-search-group input:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0px 1px 1px var(--primary-color);
+    border-color: var(--primary);
+    box-shadow: 0 0px 1px 1px var(--primary);
     outline: none;
 }
 .l-app-list {

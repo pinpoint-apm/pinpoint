@@ -20,8 +20,6 @@ import org.junit.Assert;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.common.util.PropertyUtils;
-
 import java.net.URL;
 import java.util.Properties;
 

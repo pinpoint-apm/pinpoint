@@ -3,15 +3,15 @@
 }
 
 .l-user-group-wrapper {
-    color: #333;
-    border: 1px solid #e5e8f0;
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
     height: 100%;
     display: grid;
     position: relative;
     font-size: 13px;
     font-family: 'Open Sans', sans-serif;
     font-weight: 600;
-    background-color: #FFF;
+    background-color: var(--background-default);
     grid-template-columns: auto;
     grid-template-rows: 48px 53px calc(100% - 101px);
 }
@@ -20,9 +20,10 @@
     display: flex;
     padding: 0px 15px;
     align-items: center;
+    font-weight: bold;
+    font-size: 14px;
     justify-content: space-between;
-    background-color: #f6f8fb;
-    border-bottom: 1px solid #e5e8f0;
+    border-bottom: 1px solid var(--border-primary);
 }
 
 .l-user-group-title button:last-child {
@@ -32,8 +33,8 @@
 .l-user-group-search {
     position: relative;
     padding: 11px;
-    border-bottom: 1px solid #e5e8f0;
-    color: #b3b3b4;
+    border-bottom: 1px solid var(--border-primary);
+    color: var(--text-primary-lightest);
 }
 
 .l-user-group-list {
@@ -43,8 +44,8 @@
 .l-search-input {
     width: 100%;
     height: 100%;
-    color: #b3b3b4;
-    border: 1px solid #d7dde4;
+    color: var(--text-primary-lightest);
+    border: 1px solid var(--form-input-border);
     padding: 0 28px 0 10px;
     font-size: 13px;
     text-overflow: ellipsis;
@@ -53,8 +54,8 @@
 }
 
 .l-search-input:focus {
-    border: 1px solid var(--primary-color);
-    box-shadow: 0 0 1px 1px var(--primary-color);
+    border: 1px solid var(--primary);
+    box-shadow: 0 0 1px 1px var(--primary);
     outline: none;
 }
 

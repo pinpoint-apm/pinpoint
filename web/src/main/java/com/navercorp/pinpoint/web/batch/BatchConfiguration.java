@@ -47,17 +47,20 @@ public class BatchConfiguration {
     @Value("${pinpoint.url}")
     private String pinpointUrl;
 
+    @Value("${webhook.enable}")
+    private boolean webhookEnable;
+
     @Value("${batch.server.env}")
     private String batchEnv;
 
     @Value("${batch.flink.server}")
     private String[] flinkServerList = new String[0];
 
-
     @Value("${job.cleanup.inactive.agents:false}")
     private boolean enableCleanupInactiveAgents;
 
     private static final int DEFAULT_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS = 30;
+    private static final int MINIMUM_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS = 7;
 
     @Value("${job.cleanup.inactive.agents.duration.days:30}")
     private int cleanupInactiveAgentsDurationDays;
@@ -79,7 +82,7 @@ public class BatchConfiguration {
             cleanupInactiveAgentsDurationDays = DEFAULT_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS;
             cleanupInactiveAgentsCron = DISABLED_CLEANUP_INACTIVE_AGENTS_CRON;
         } else {
-            if (cleanupInactiveAgentsDurationDays < 30) {
+            if (cleanupInactiveAgentsDurationDays < MINIMUM_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS) {
                 throw new IllegalArgumentException("'cleanupInactiveAgentsDuration' must be 'cleanupInactiveAgentsDuration >= 30'");
             }
         }
@@ -89,16 +92,15 @@ public class BatchConfiguration {
 
     private void beforeLog() {
         logger.info("before setup field: {}", this);
-        AnnotationVisitor annotationVisitor = new AnnotationVisitor(Value.class);
+        AnnotationVisitor<Value> annotationVisitor = new AnnotationVisitor<>(Value.class);
         annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
 
     private void afterLog() {
         logger.info("after setup field : {}", this);
-        AnnotationVisitor annotationVisitor = new AnnotationVisitor(Value.class);
+        AnnotationVisitor<Value> annotationVisitor = new AnnotationVisitor<>(Value.class);
         annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
-
 
     public String getPinpointUrl() {
         return pinpointUrl;
@@ -136,12 +138,18 @@ public class BatchConfiguration {
         return cleanupInactiveAgentsCron;
     }
 
+    public boolean isWebhookEnable() {
+        return webhookEnable;
+    }
+
     @Override
     public String toString() {
+        
         final StringBuilder sb = new StringBuilder("BatchConfiguration{");
         sb.append("batchServerIp='").append(batchServerIp).append('\'');
         sb.append(", emailServerUrl='").append(emailServerUrl).append('\'');
         sb.append(", senderEmailAddress='").append(senderEmailAddress).append('\'');
+        sb.append(", enableWebhook='").append(webhookEnable).append('\'');
         sb.append(", pinpointUrl='").append(pinpointUrl).append('\'');
         sb.append(", batchEnv='").append(batchEnv).append('\'');
         sb.append(", flinkServerList=").append(Arrays.toString(flinkServerList));

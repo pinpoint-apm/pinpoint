@@ -55,9 +55,9 @@
         </property>
     </bean>
 
-    <import resource="classpath:applicationContext-hbase.xml"/>
-    <import resource="classpath:applicationContext-datasource.xml" />
-    <import resource="classpath:applicationContext-dao-config.xml" />
+    <import resource="classpath:applicationContext-web-hbase.xml"/>
+    <import resource="classpath:applicationContext-web-datasource.xml" />
+    <import resource="classpath:applicationContext-web-dao-config.xml" />
     <import resource="classpath:batch/applicationContext-batch.xml" />
 
     <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>

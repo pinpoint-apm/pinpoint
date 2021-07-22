@@ -83,7 +83,7 @@ export class InspectorChartComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     private setHeight(): void {
-        const width = window.getComputedStyle(this.chartHolder.nativeElement).getPropertyValue('width');
+        const width = getComputedStyle(this.chartHolder.nativeElement).getPropertyValue('width');
         const height = this.newUrlStateNotificationService.getStartPath() === UrlPath.INSPECTOR
             ? `${Number(width.replace(/px/, '')) / this.inspectorChartRatio}px`
             : `${this.el.nativeElement.offsetHeight}px`;

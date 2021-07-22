@@ -17,19 +17,9 @@
 package com.navercorp.pinpoint.profiler.logging;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.SqlModule;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.common.util.Assert;
 import org.apache.logging.log4j.Logger;
-import org.slf4j.Marker;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.URL;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.IdentityHashMap;
-import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -39,7 +29,7 @@ public class Log4j2PLoggerAdapter extends AbstractLoggerAdapter implements PLogg
     private final Logger logger;
 
     public Log4j2PLoggerAdapter(Logger logger) {
-        this.logger = Assert.requireNonNull(logger, "logger");
+        this.logger = Objects.requireNonNull(logger, "logger");
     }
 
     public String getName() {

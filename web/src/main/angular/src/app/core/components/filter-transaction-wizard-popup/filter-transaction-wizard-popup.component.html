@@ -17,14 +17,14 @@
         <div class="col1 row-col-2-1">Agent</div>
         <div class="row-col-2-2">
             <ul class="l-application-list">
-                <li [class.active]="isSelectedFromAgent('All')" (click)="onSelectFromAgent('All')">ALL</li>
-                <li *ngFor="let agent of link?.fromAgent" class="ellipsis" [class.active]="isSelectedFromAgent(agent)" (click)="onSelectFromAgent(agent)">{{agent}}</li>
+                <li [class.active]="isSelectedFromAgent('All')" (click)="onSelectFromAgent('All')" title="all">ALL</li>
+                <li *ngFor="let agent of link?.fromAgent" class="ellipsis" [class.active]="isSelectedFromAgent(agent)" (click)="onSelectFromAgent(agent)" [title]="getFromAgentName(agent)">{{agent}}</li>
             </ul>
         </div>
         <div class="row-col-2-3">
             <ul class="l-application-list">
-                <li [class.active]="isSelectedToAgent('All')" (click)="onSelectToAgent('All')">ALL</li>
-                <li *ngFor="let agent of link?.toAgent" class="ellipsis" [class.active]="isSelectedToAgent(agent)" (click)="onSelectToAgent(agent)">{{agent}}</li>
+                <li [class.active]="isSelectedToAgent('All')" (click)="onSelectToAgent('All')" title="all">ALL</li>
+                <li *ngFor="let agent of link?.toAgent" class="ellipsis" [class.active]="isSelectedToAgent(agent)" (click)="onSelectToAgent(agent)" [title]="getToAgentName(agent)">{{agent}}</li>
             </ul>
         </div>
         <div class="row-col-3"></div>

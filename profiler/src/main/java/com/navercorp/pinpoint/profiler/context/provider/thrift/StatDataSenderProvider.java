@@ -18,12 +18,9 @@ package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.module.StatClientFactory;
-import com.navercorp.pinpoint.profiler.context.module.StatConverter;
+import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.context.thrift.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.MessageSerializer;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
@@ -33,6 +30,8 @@ import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -56,12 +55,11 @@ public class StatDataSenderProvider implements Provider<DataSender> {
     private final MessageConverter<TBase<?, ?>> messageConverter;
 
     @Inject
-    public StatDataSenderProvider(ProfilerConfig profilerConfig, @StatClientFactory Provider<PinpointClientFactory> clientFactoryProvider, @StatConverter MessageConverter<TBase<?, ?>> messageConverter) {
-        Assert.requireNonNull(profilerConfig, "profilerConfig");
+    public StatDataSenderProvider(ThriftTransportConfig thriftTransportConfig, @StatDataSender Provider<PinpointClientFactory> clientFactoryProvider, @StatDataSender MessageConverter<TBase<?, ?>> messageConverter) {
+        Objects.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
 
-        this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider");
+        this.clientFactoryProvider = Objects.requireNonNull(clientFactoryProvider, "clientFactoryProvider");
 
-        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
         this.ip = thriftTransportConfig.getCollectorStatServerIp();
         this.port = thriftTransportConfig.getCollectorStatServerPort();
         this.writeQueueSize = thriftTransportConfig.getStatDataSenderWriteQueueSize();

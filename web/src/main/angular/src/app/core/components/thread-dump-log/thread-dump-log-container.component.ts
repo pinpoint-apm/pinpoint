@@ -37,15 +37,16 @@ export class ThreadDumpLogContainerComponent implements OnInit, OnDestroy {
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.THREAD_DUMP_SET_PARAM).pipe(
             tap(() => this.showLoading = true),
             switchMap(({threadName, localTraceId}: any) => {
-                return this.activeThreadDumpDetailInfoDataService.getData(this.applicationName, this.agentId, threadName, localTraceId);
-            }),
-            map(({code, message}: {[key: string]: any}) => {
-                return code === -1 ? message
-                    : message.threadDumpData.length > 0 ? message.threadDumpData[0].detailMessage
-                    : 'There is no message(may be completed)';
-            }),
-            catchError((error: IServerErrorFormat) => {
-                return of(error.exception.message);
+                return this.activeThreadDumpDetailInfoDataService.getData(this.applicationName, this.agentId, threadName, localTraceId).pipe(
+                    map(({code, message}: {[key: string]: any}) => {
+                        return code === -1 ? message
+                            : message.threadDumpData.length > 0 ? message.threadDumpData[0].detailMessage
+                            : 'There is no message(may be completed)';
+                    }),
+                    catchError((error: IServerErrorFormat) => {
+                        return of(error.exception.message);
+                    }),
+                );
             }),
         ).subscribe((message: string) => {
             this.showLoading = false;

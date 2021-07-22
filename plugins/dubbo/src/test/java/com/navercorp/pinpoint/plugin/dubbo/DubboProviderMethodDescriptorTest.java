@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.plugin.dubbo;
 
 import com.navercorp.pinpoint.common.trace.MethodType;
+import com.navercorp.pinpoint.common.util.LineNumber;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -16,7 +17,7 @@ public class DubboProviderMethodDescriptorTest {
         Assert.assertNull(descriptor.getClassName());
         Assert.assertEquals(descriptor.getFullName(), "com.navercorp.pinpoint.plugin.dubbo.DubboProviderMethodDescriptor.invoke()");
 
-        Assert.assertEquals(descriptor.getLineNumber(), -1);
+        Assert.assertEquals(descriptor.getLineNumber(), LineNumber.NO_LINE_NUMBER);
         Assert.assertNull(descriptor.getMethodName());
 
         Assert.assertNull(descriptor.getParameterDescriptor());

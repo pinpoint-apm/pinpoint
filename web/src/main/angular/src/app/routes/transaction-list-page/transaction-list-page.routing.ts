@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 
 import { UrlPath, UrlPathId } from 'app/shared/models';
-import { TransactionListEmptyComponent } from './transaction-list-empty.component';
 import { TransactionListBottomContentsContainerComponent } from 'app/core/components/transaction-list-bottom-contents/transaction-list-bottom-contents-container.component';
 import { TransactionListPageComponent } from './transaction-list-page.component';
 
@@ -13,12 +12,8 @@ export const routing: Routes = [
         component: TransactionListPageComponent,
         children: [
             {
-                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME + '/:' + UrlPathId.TRANSACTION_INFO,
-                component: TransactionListBottomContentsContainerComponent,
-            },
-            {
                 path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME,
-                component: TransactionListEmptyComponent,
+                component: TransactionListBottomContentsContainerComponent,
             },
             {
                 path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD,

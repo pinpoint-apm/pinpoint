@@ -19,7 +19,9 @@ package com.navercorp.pinpoint.web.mapper;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
-
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
+import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataDecoder;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
@@ -31,6 +33,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -39,11 +42,15 @@ import java.util.List;
 @Component
 public class StringMetaDataMapper implements RowMapper<List<StringMetaDataBo>> {
 
-    @Autowired
-    @Qualifier("metadataRowKeyDistributor")
-    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-    
     private final static String STRING_METADATA_CF_STR_QUALI_STRING = Bytes.toString(HbaseColumnFamily.STRING_METADATA_STR.QUALIFIER_STRING);
+
+    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+
+    private final RowKeyDecoder<MetaDataRowKey> decoder = new MetadataDecoder();
+
+    public StringMetaDataMapper(@Qualifier("metadataRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
+    }
 
     @Override
     public List<StringMetaDataBo> mapRow(Result result, int rowNum) throws Exception {
@@ -51,23 +58,25 @@ public class StringMetaDataMapper implements RowMapper<List<StringMetaDataBo>> {
             return Collections.emptyList();
         }
         final byte[] rowKey = getOriginalKey(result.getRow());
+        final MetaDataRowKey key = decoder.decodeRowKey(rowKey);
 
         List<StringMetaDataBo> stringMetaDataList = new ArrayList<>();
-        Cell[] rawCells = result.rawCells();
-        for (Cell cell : rawCells) {
-            StringMetaDataBo sqlMetaDataBo = new StringMetaDataBo();
-            sqlMetaDataBo.readRowKey(rowKey);
+
+        for (Cell cell : result.rawCells()) {
+
             String stringValue = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
             
             if (STRING_METADATA_CF_STR_QUALI_STRING.equals(stringValue)) {
                 stringValue = Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
             }
             
-            sqlMetaDataBo.setStringValue(stringValue);
-            stringMetaDataList.add(sqlMetaDataBo);
+            StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(key.getAgentId(), key.getAgentStartTime(), key.getId(), stringValue);
+
+            stringMetaDataList.add(stringMetaDataBo);
         }
         return stringMetaDataList;
     }
+
 
     private byte[] getOriginalKey(byte[] rowKey) {
         return rowKeyDistributorByHashPrefix.getOriginalKey(rowKey);

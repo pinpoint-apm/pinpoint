@@ -15,17 +15,17 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.scatter.DotGroup;
 import com.navercorp.pinpoint.web.scatter.DotGroups;
 import com.navercorp.pinpoint.web.scatter.ScatterAgentMetaData;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -89,7 +89,7 @@ public class ScatterDataSerializer extends JsonSerializer<ScatterData> {
             jgen.writeNumber(dot.getTransactionId().getTransactionSequence());
         }
 
-        jgen.writeNumber(dot.getSimpleExceptionCode());
+        jgen.writeNumber(dot.getStatus().getCode());
         jgen.writeNumber(thick);
 
         jgen.writeEndArray();

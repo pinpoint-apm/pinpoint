@@ -33,8 +33,6 @@ import java.io.OutputStream;
  */
 public class HeaderTBaseSerializer2 {
 
-    private static final String UTF8 = "UTF8";
-
     private final TOutputStreamTransport tOutputStreamTransport;
     private final TProtocol protocol;
     private final TypeLocator<TBase<?, ?>> tBaseLocator;

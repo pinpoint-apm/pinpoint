@@ -2,24 +2,23 @@
     width: calc(100% - 20px);
     display: block;
     margin: 20px 10px 10px;
-    border: 1px solid #000;
+    border: 1px solid var(--border-default);
     position: relative;
 }
 
 .l-title-group {
     height: 34px;
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: bold;
     padding: 0 20px;
-    color: #333;
+    color: var(--text-primary);
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #f6f8fb;
 }
 .l-reload-btn { 
-    color: #f06c6b;
+    color: var(--status-fail);
     float: right;
 }

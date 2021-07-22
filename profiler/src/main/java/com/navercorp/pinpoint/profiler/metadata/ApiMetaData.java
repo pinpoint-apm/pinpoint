@@ -23,12 +23,14 @@ public class ApiMetaData {
 
     private final int apiId; // required
     private final String apiInfo; // required
-    private int line; // optional
-    private int type; // optional
+    private final int line; // optional
+    private final int type; // optional
 
-    public ApiMetaData(int apiId, String apiInfo) {
+    public ApiMetaData(int apiId, String apiInfo, int line, int type) {
         this.apiId = apiId;
         this.apiInfo = apiInfo;
+        this.line = line;
+        this.type = type;
     }
 
     public int getApiId() {
@@ -44,15 +46,8 @@ public class ApiMetaData {
         return line;
     }
 
-    public void setLine(int line) {
-        this.line = line;
-    }
-
     public int getType() {
         return type;
     }
 
-    public void setType(int type) {
-        this.type = type;
-    }
 }

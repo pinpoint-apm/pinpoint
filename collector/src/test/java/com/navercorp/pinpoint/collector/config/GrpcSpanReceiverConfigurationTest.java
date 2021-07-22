@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.config;
 
-import com.navercorp.pinpoint.common.util.PropertyUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -27,7 +26,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
-import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -41,12 +39,10 @@ public class GrpcSpanReceiverConfigurationTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    GrpcSpanReceiverConfiguration configuration;
+    private GrpcSpanReceiverConfiguration configuration;
 
     @Test
     public void test() throws IOException {
-        Properties properties = PropertyUtils.loadPropertyFromClassPath("test-pinpoint-collector.properties");
-        configuration.logServerOption(properties);
 
         assertEquals(Boolean.FALSE, configuration.isGrpcEnable());
         assertEquals("3.3.3.3", configuration.getGrpcBindIp());
@@ -75,4 +71,5 @@ public class GrpcSpanReceiverConfigurationTest {
         // 3M
         assertEquals(3 * 1024 * 1024, configuration.getGrpcServerOption().getReceiveBufferSize());
     }
+
 }

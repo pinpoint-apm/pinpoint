@@ -6,8 +6,8 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <relativePath>../..</relativePath>
-        <version>2.1.1-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+        <version>2.3.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-profiler-optional-parent</artifactId>
@@ -42,19 +42,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.10</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals><goal>add-source</goal></goals>
-                        <configuration>
-                            <sources>
-                                <source>src/main/java-ibm</source>
-                                <source>src/main/java-oracle</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
+                <version>3.2.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

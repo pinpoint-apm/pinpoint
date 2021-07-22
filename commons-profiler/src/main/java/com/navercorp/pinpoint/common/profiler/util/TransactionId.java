@@ -16,24 +16,19 @@
 
 package com.navercorp.pinpoint.common.profiler.util;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author emeroad
  */
 public class TransactionId {
 
-    private String agentId;
+    private final String agentId;
     private final long agentStartTime;
     private final long transactionSequence;
 
     public TransactionId(String agentId, long agentStartTime, long transactionSequence) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
-        this.agentStartTime = agentStartTime;
-        this.transactionSequence = transactionSequence;
-    }
-
-    public TransactionId(long agentStartTime, long transactionSequence) {
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
         this.transactionSequence = transactionSequence;
     }

@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorFactory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.navercorp.pinpoint.web.alarm.checker.ResponseCountChecker;
 import com.navercorp.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
@@ -37,6 +36,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
+@SuppressWarnings("deprecation")
 public class ResponseCountCheckerTest {
 
     
@@ -83,7 +83,7 @@ public class ResponseCountCheckerTest {
     public void checkTest1() {
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
-        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.TOTAL_COUNT.getName(), 125, "testGroup", false, false, "");
+        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.TOTAL_COUNT.getName(), 125, "testGroup", false, false, false, "");
         ResponseCountChecker filter = new ResponseCountChecker(collector, rule);
     
         filter.check();
@@ -97,7 +97,7 @@ public class ResponseCountCheckerTest {
     public void checkTest2() {
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.TOTAL_COUNT.getName(), 126, "testGroup", false, false, "");
+        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.TOTAL_COUNT.getName(), 126, "testGroup", false, false, false, "");
         ResponseCountChecker filter = new ResponseCountChecker(collector, rule);
     
         filter.check();

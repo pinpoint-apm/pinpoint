@@ -17,10 +17,9 @@
 package com.navercorp.pinpoint.common.util;
 
 
-import com.navercorp.pinpoint.common.Charsets;
-
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author emeroad
@@ -36,8 +35,8 @@ public final class BytesUtils {
 
     private static final byte[] EMPTY_BYTES = new byte[0];
 
-    private static final Charset UTF8_CHARSET = Charsets.UTF_8;
-    private static final String UTF8 = Charsets.UTF_8_NAME;
+    private static final Charset UTF8_CHARSET = StandardCharsets.UTF_8;
+    private static final String UTF8 = StandardCharsets.UTF_8.name();
 
     private BytesUtils() {
     }
@@ -527,9 +526,9 @@ public final class BytesUtils {
             return null;
         }
         try {
-            return value.getBytes(Charsets.UTF_8_NAME);
+            return value.getBytes(UTF8);
         } catch (UnsupportedEncodingException e) {
-            return value.getBytes(Charsets.UTF_8);
+            return value.getBytes(UTF8_CHARSET);
         }
     }
 

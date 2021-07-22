@@ -63,7 +63,7 @@ public class InvokeMethodInterceptorTest {
 
     /** The descriptor. */
     private final MethodDescriptor descriptor = new DefaultMethodDescriptor("org.apache.catalina.core.StandardHostValve", "invoke", new String[] {
-        "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response" }, new String[] { "request", "response" });
+        "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response" }, new String[] { "request", "response" }, 0);
 
     private DefaultApplicationContext applicationContext;
 

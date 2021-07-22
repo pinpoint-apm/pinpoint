@@ -14,8 +14,6 @@
  */
 package com.navercorp.pinpoint.profiler.objectfactory;
 
-import com.navercorp.pinpoint.common.profiler.util.IntegerUtils;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -95,7 +93,7 @@ public class StaticMethodResolver {
         public int compare(Method o1, Method o2) {
             int p1 = o1.getParameterTypes().length;
             int p2 = o2.getParameterTypes().length;
-            return IntegerUtils.compare(p2, p1);
+            return Integer.compare(p2, p1);
         }
     };
 }

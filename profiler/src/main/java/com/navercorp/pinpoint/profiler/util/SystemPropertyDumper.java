@@ -33,8 +33,9 @@ public class SystemPropertyDumper {
         if (logger.isInfoEnabled()) {
             Properties properties = System.getProperties();
             Set<String> strings = properties.stringPropertyNames();
+            logger.info("SystemProperties");
             for (String key : strings) {
-                logger.info("SystemProperties {}={}", key, properties.get(key));
+                logger.info("- {}={}", key, properties.get(key));
             }
         }
     }

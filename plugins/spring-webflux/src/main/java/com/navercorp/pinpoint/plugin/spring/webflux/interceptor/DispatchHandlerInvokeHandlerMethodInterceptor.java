@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxConstants;
 
 /**
@@ -34,25 +35,39 @@ public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextS
         super(traceContext, methodDescriptor);
     }
 
+    // BEFORE
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-    }
-
-    @Override
-    protected AsyncContext getAsyncContext(Object target, Object[] args) {
-        if (args != null && args.length >= 1) {
+    public AsyncContext getAsyncContext(Object target, Object[] args) {
+        if (validate(args)) {
             return AsyncContextAccessorUtils.getAsyncContext(args[0]);
         }
         return null;
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    }
+
+    // AFTER
+    @Override
+    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
+        if (validate(args)) {
+            return AsyncContextAccessorUtils.getAsyncContext(args[0]);
+        }
+        return null;
+    }
+
+    @Override
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
         recorder.recordException(throwable);
 
-        final AsyncContext publisherAsyncContext = getAsyncContext(target, args);
+        if (Boolean.FALSE == validate(args)) {
+            return;
+        }
+
+        final AsyncContext publisherAsyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
         if (publisherAsyncContext != null) {
             // Set AsyncContext to CoreSubscriber
             if (result instanceof AsyncContextAccessor) {
@@ -62,5 +77,15 @@ public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextS
                 }
             }
         }
+    }
+
+    private boolean validate(final Object[] args) {
+        if (ArrayUtils.isEmpty(args)) {
+            if (isDebug) {
+                logger.debug("Invalid args object. args={}.", args);
+            }
+            return false;
+        }
+        return true;
     }
 }

@@ -72,6 +72,7 @@ public abstract class AbstractStreamChannel implements StreamChannel {
         }
     }
 
+    @Override
     public boolean awaitOpen(long timeoutMillis) {
         try {
             openLatch.await(timeoutMillis, TimeUnit.MILLISECONDS);

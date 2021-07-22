@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.packet.PacketType;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
@@ -48,25 +48,42 @@ public class StreamChannelManager {
     private final StreamChannelRepository streamChannelRepository = new StreamChannelRepository();
 
     public StreamChannelManager(Channel channel, IDGenerator idGenerator, ServerStreamChannelMessageHandler streamChannelMessageHandler) {
-        this.channel = Assert.requireNonNull(channel, "Channel");
-        this.idGenerator = Assert.requireNonNull(idGenerator, "IDGenerator");
-        this.streamChannelMessageHandler = Assert.requireNonNull(streamChannelMessageHandler, "streamChannelMessageHandler");
+        this.channel = Objects.requireNonNull(channel, "Channel");
+        this.idGenerator = Objects.requireNonNull(idGenerator, "IDGenerator");
+        this.streamChannelMessageHandler = Objects.requireNonNull(streamChannelMessageHandler, "streamChannelMessageHandler");
     }
 
     public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
         logger.info("Open streamChannel initialization started. Channel:{} ", channel);
 
-        final int streamChannelId = idGenerator.generate();
-
-        NettyClientStreamChannel newStreamChannel = new NettyClientStreamChannel(channel, streamChannelId, streamChannelRepository, streamChannelEventHandler);
+        NettyClientStreamChannel newStreamChannel = createNewStreamChannel(streamChannelEventHandler);
         try {
             newStreamChannel.init();
-            newStreamChannel.connect(payload, 3000);
+            newStreamChannel.connect(payload);
             return newStreamChannel;
         } catch (StreamException e) {
             newStreamChannel.close(e.getStreamCode());
             throw e;
         }
+    }
+
+    public ClientStreamChannel openStreamAndAwait(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws StreamException {
+        logger.info("Open streamChannel initialization started. Channel:{} ", channel);
+
+        NettyClientStreamChannel newStreamChannel = createNewStreamChannel(streamChannelEventHandler);
+        try {
+            newStreamChannel.init();
+            newStreamChannel.connectAndAwait(payload, timeout);
+            return newStreamChannel;
+        } catch (StreamException e) {
+            newStreamChannel.close(e.getStreamCode());
+            throw e;
+        }
+    }
+
+    private NettyClientStreamChannel createNewStreamChannel(ClientStreamChannelEventHandler streamChannelEventHandler) {
+        final int streamChannelId = idGenerator.generate();
+        return new NettyClientStreamChannel(channel, streamChannelId, streamChannelRepository, streamChannelEventHandler);
     }
 
     public void messageReceived(StreamPacket packet) {

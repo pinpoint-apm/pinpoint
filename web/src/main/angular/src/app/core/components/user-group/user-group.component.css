@@ -1,5 +1,5 @@
 li {
-    color: #333;
+    color: var(--text-primary);
     /* height: 28px; */
     margin: 0;
     cursor: pointer;
@@ -8,11 +8,11 @@ li {
 }
 
 li:hover {
-    background:#e4f3eb;
+    background: var(--background-hover-secondary);
 }
 
 li.selected {
-    background:#e4f3eb;
+    background: var(--background-hover-secondary);
 }
 
 .l-item-wrapper {
@@ -27,12 +27,12 @@ li.selected {
 }
 
 .l-item-wrapper .fa-trash-alt {
-    color: #b3b6bf;
+    color: var(--icon-default);
     font-size: 15px;
 }
 
 .l-item-wrapper .fa-check {
-    color: #F00;
+    color: var(--status-danger-lighter);
     margin-left: 10px;
     font-size: 14px;
 }

@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHead
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v2.JvmGcCodecV2;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

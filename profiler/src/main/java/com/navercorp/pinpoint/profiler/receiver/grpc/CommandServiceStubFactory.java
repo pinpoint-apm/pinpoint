@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import io.grpc.ManagedChannel;
 
@@ -27,7 +27,7 @@ public class CommandServiceStubFactory {
     private final ManagedChannel managedChannel;
 
     public CommandServiceStubFactory(ManagedChannel managedChannel) {
-        this.managedChannel = Assert.requireNonNull(managedChannel, "managedChannel");
+        this.managedChannel = Objects.requireNonNull(managedChannel, "managedChannel");
     }
 
     public ProfilerCommandServiceGrpc.ProfilerCommandServiceStub newStub() {

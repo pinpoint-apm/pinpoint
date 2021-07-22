@@ -8,18 +8,17 @@
 .l-search-input {
     width: 100%;
     height: 100%;
-    border: 1px solid #d7dde4;
+    border: 1px solid var(--form-input-border);
     padding: 0 28px 0 10px;
-    background-color: #fff;
+    background-color: var(--background-primary);
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
 }
 
 .l-search-input:focus {
-    border-color: var(--primary-color);
-    /* box-shadow: 0 0 10px -3px #4b99e3; */
-    box-shadow: 0 0px 1px 1px var(--primary-color);
+    border-color: var(--primary);
+    box-shadow: 0 0px 1px 1px var(--primary);
     outline: none;
 }
 
@@ -28,11 +27,14 @@
     top: 50%;
     right: 8px;
     transform: translateY(-50%);
-    color:#a8acb5;
+    color:var(--icon-default);
     font-size:18px;
 }
 
 .l-search-list {
+    padding: 5px 0;
+    background: var(--background-default);
+    box-shadow: 0 6px 12px rgb(0 0 0 / 18%);
     position: absolute;
     top: 35px;
     right: 0px;
@@ -40,24 +42,23 @@
 }
 
 .l-list-title {
-    background-color: #3e506b;
-    border-bottom: 1px solid #D0D7DF;
+    font-weight: 600;
     padding: 5px 0px 5px 10px;
-    color: #FFF; 
+    color: var(--text-primary-lightest);
 }
 
 .l-close-button {
     position: absolute;
     top: 14px;
     right: 10px;
-    color: white;
+    color: var(--text-secondary);
     font-size: 16px;
     transform: translateY(-50%);
 }
 
 .l-list-contents {
     width: 100%;
-    color:#8a939e;
+    color: var(--text-secondary);
     padding: 7px 7px 7px 10px;
     font-size:12px;
     white-space: nowrap;
@@ -67,24 +68,23 @@
 
 .l-list-contents-wrapper {
     width: 100%;
-    background: #f8fafc;
     max-height: 470px;
     overflow-y: auto;
 }
 
 .l-empty-contents {
     width: 100%;
-    color:#8a939e;
+    color: var(--text-secondary);
     padding: 7px 7px 7px 10px;
     font-size:12px;
 }
 
 .l-list-contents:hover {
     cursor: pointer;
-    background-color: #eee;
-    color: var(--primary-color) !important;
+    background-color: var(--background-hover-default);
+    color: var(--primary) !important;
 }
 
 .l-list-contents.selected {
-    color: var(--primary-color) !important;
+    color: var(--primary) !important;
 }

@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.commons.dbcp2.CommonsDbcp2Constants;
 
 /**
@@ -38,10 +39,12 @@ public class DataSourceGetConnectionInterceptor extends SpanEventSimpleAroundInt
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordServiceType(CommonsDbcp2Constants.SERVICE_TYPE);
-        if (args == null) {
+
+        final int argsLength = ArrayUtils.getLength(args);
+        if (argsLength == 0) {
 //          getConnection() without any arguments
             recorder.recordApi(getMethodDescriptor());
-        } else if(args.length == 2) {
+        } else if (argsLength == 2) {
 //          skip args[1] because it's a password.
             recorder.recordApi(getMethodDescriptor(), args[0], 0);
         }

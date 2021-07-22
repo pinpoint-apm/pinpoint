@@ -46,7 +46,7 @@ public class DotGroups {
         Objects.requireNonNull(coordinates, "coordinates");
         Objects.requireNonNull(dot, "dot");
 
-        final Key key = new Key(coordinates, dot.getSimpleExceptionCode());
+        final Key key = new Key(coordinates, dot.getStatus().getCode());
 
         DotGroup dotGroup = dotGroupMap.get(key);
         if (dotGroup == null) {

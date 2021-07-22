@@ -16,8 +16,11 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.test.plugin.util.ChildFirstClassLoader;
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.FileUtils;
+import com.navercorp.pinpoint.test.plugin.util.TestLogger;
+import com.navercorp.pinpoint.test.plugin.util.ThreadContextCallable;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -25,26 +28,28 @@ import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 import org.junit.runners.model.InitializationError;
+import org.tinylog.TaggedLogger;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.Callable;
 
-import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.CHILD_CLASS_PATH_PREFIX;
-import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.JUNIT_OUTPUT_DELIMITER;
-import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.PINPOINT_TEST_ID;
+import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.CHILD_CLASS_PATH_PREFIX;
+import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.JUNIT_OUTPUT_DELIMITER;
+import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.PINPOINT_TEST_ID;
 
 public class ForkedPinpointPluginTest {
+    private static final TaggedLogger logger = TestLogger.getLogger();
+
     private static boolean forked = false;
 
-    private static PluginTestLogger logger = PluginTestLogger.getLogger(ForkedPinpointPluginTest.class.getName());
-    
+
     public static boolean isForked() {
         return forked;
     }
 
-    
+
 
     public static void main(String[] args) throws Exception {
         forked = true;
@@ -53,10 +58,10 @@ public class ForkedPinpointPluginTest {
         final String agentType = getAgentType(args);
 
         final ClassLoader classLoader = getClassLoader(agentType);
-        
+
         final String testId = System.getProperty(PINPOINT_TEST_ID, "");
-        if (logger.isDebugEnabled()){
-            logger.debug("testId:" + testId);
+        if (logger.isDebugEnabled()) {
+            logger.debug("testId:{}", testId);
         }
 
         final Callable<Result> testCaseCallable = new Callable<Result>() {
@@ -70,7 +75,7 @@ public class ForkedPinpointPluginTest {
         try {
             result = executeTestCase(testCaseCallable, classLoader);
         } catch (Throwable e) {
-            logger.info("testcase run error:" + e.getMessage());
+            logger.error(e, "testcase run error:{}", e.getMessage());
             System.exit(-1);
         }
 
@@ -97,38 +102,35 @@ public class ForkedPinpointPluginTest {
     }
 
     private static ClassLoader getClassLoader(String agentType) throws IOException {
+
         if (agentType.startsWith(CHILD_CLASS_PATH_PREFIX)) {
             String jars = agentType.substring(CHILD_CLASS_PATH_PREFIX.length());
             final URL[] urls = getJarUrls(jars);
             for (URL url : urls) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("child-runner lib:" + url);
+                    logger.debug("child-runner lib:{}", url);
                 }
             }
-            return new PluginTestClassLoader(urls, ClassLoader.getSystemClassLoader());
+            logger.debug("ChildFirstClassLoader");
+            return new ChildFirstClassLoader(urls, ClassLoader.getSystemClassLoader());
         }
+        logger.debug("SystemClassloader");
         return ClassLoader.getSystemClassLoader();
     }
 
     private static Result executeTestCase(Callable<Result> callable, ClassLoader classLoader) throws Exception {
-        final Thread currentThread = Thread.currentThread();
-        ClassLoader old = currentThread.getContextClassLoader();
-        currentThread.setContextClassLoader(classLoader);
-        try {
-            return callable.call();
-        } finally {
-            currentThread.setContextClassLoader(old);
-        }
+        return new ThreadContextCallable<>(callable, classLoader).call();
+
     }
 
 
     private static Result runTests(Class<?> testClass, String testId) throws InitializationError {
         JUnitCore junit = new JUnitCore();
         junit.addListener(new PrintListener());
-        
+
         Runner runner = new ForkedPinpointPluginTestRunner(testClass, testId);
         Result result = junit.run(runner);
-        
+
         return result;
     }
 
@@ -143,6 +145,7 @@ public class ForkedPinpointPluginTest {
     }
 
     private static class PrintListener extends RunListener {
+        private final ExceptionWriter writer = new ExceptionWriter();
 
         @Override
         public void testRunStarted(Description description) throws Exception {
@@ -178,45 +181,9 @@ public class ForkedPinpointPluginTest {
         public void testIgnored(Description description) throws Exception {
             System.out.println(JUNIT_OUTPUT_DELIMITER + "testIgnored" + JUNIT_OUTPUT_DELIMITER + description.getDisplayName());
         }
-        
-        private String failureToString(Failure failure) {
-            StringBuilder builder = new StringBuilder();
-            
-            builder.append(failure.getTestHeader());
-            builder.append(JUNIT_OUTPUT_DELIMITER);
-            
-            Throwable t = failure.getException();
-            
-            while (true) {
-                builder.append(t.getClass().getName());
-                builder.append(JUNIT_OUTPUT_DELIMITER);
-                builder.append(t.getMessage());
-                builder.append(JUNIT_OUTPUT_DELIMITER);
 
-                for (StackTraceElement e : failure.getException().getStackTrace()) {
-                    builder.append(e.getClassName());
-                    builder.append(',');
-                    builder.append(e.getMethodName());
-                    builder.append(',');
-                    builder.append(e.getFileName());
-                    builder.append(',');
-                    builder.append(e.getLineNumber());
-                    
-                    builder.append(JUNIT_OUTPUT_DELIMITER);
-                }
-            
-                Throwable cause = t.getCause();
-                
-                if (cause == null || t == cause) {
-                    break;
-                }
-                
-                t = cause;
-                builder.append("$CAUSE$");
-                builder.append(JUNIT_OUTPUT_DELIMITER);
-            }
-            
-            return builder.toString();
+        private String failureToString(Failure failure) {
+            return writer.write(failure.getTestHeader(), failure.getException());
         }
     }
 

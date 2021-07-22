@@ -20,11 +20,13 @@ import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.ApiMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
+import com.navercorp.pinpoint.common.util.LineNumber;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 
+import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -35,7 +37,7 @@ import java.util.Objects;
  * @author emeroad
  */
 @Service
-public class ThriftApiMetaDataHandler implements RequestResponseHandler {
+public class ThriftApiMetaDataHandler implements RequestResponseHandler<TBase<?, ?>, TBase<?, ?>> {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -46,31 +48,39 @@ public class ThriftApiMetaDataHandler implements RequestResponseHandler {
     }
 
     @Override
-    public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {
-        final Object data = serverRequest.getData();
+    public void handleRequest(ServerRequest<TBase<?, ?>> serverRequest, ServerResponse<TBase<?, ?>> serverResponse) {
+        final TBase<?, ?> data = serverRequest.getData();
         if (logger.isDebugEnabled()) {
             logger.debug("Handle request data={}", data);
         }
 
         if (data instanceof TApiMetaData) {
-            Object result = handleApiMetaData((TApiMetaData) data);
+            TResult result = handleApiMetaData((TApiMetaData) data);
             serverResponse.write(result);
         } else {
             logger.warn("invalid serverRequest:{}", serverRequest);
         }
     }
 
-    private Object handleApiMetaData(TApiMetaData apiMetaData) {
+    private TResult handleApiMetaData(TApiMetaData apiMetaData) {
         try {
-            final ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(apiMetaData.getAgentId(), apiMetaData.getAgentStartTime(), apiMetaData.getApiId());
-            apiMetaDataBo.setApiInfo(apiMetaData.getApiInfo());
+            final String agentId = apiMetaData.getAgentId();
+            final long agentStartTime = apiMetaData.getAgentStartTime();
+            final int apiId = apiMetaData.getApiId();
+
+            int lineNumber = LineNumber.NO_LINE_NUMBER;
             if (apiMetaData.isSetLine()) {
-                apiMetaDataBo.setLineNumber(apiMetaData.getLine());
+                lineNumber = apiMetaData.getLine();
             }
 
+            MethodTypeEnum methodType = MethodTypeEnum.DEFAULT;
             if (apiMetaData.isSetType()) {
-                apiMetaDataBo.setMethodTypeEnum(MethodTypeEnum.valueOf(apiMetaData.getType()));
+                methodType = MethodTypeEnum.valueOf(apiMetaData.getType());
             }
+
+            final String apiInfo = apiMetaData.getApiInfo();
+            final ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(agentId, agentStartTime, apiId, lineNumber,
+                    methodType, apiInfo);
 
             this.apiMetaDataService.insert(apiMetaDataBo);
         } catch (Exception e) {

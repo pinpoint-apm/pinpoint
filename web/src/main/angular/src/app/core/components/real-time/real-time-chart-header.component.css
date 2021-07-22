@@ -2,7 +2,7 @@
     display: flex;
     width: 100%;
     background-color: #74879a;
-    color: #FFF;
+    color: var(--text-knockout);
     font-size: 14px;
     margin: 0px 0px 5px 0px;
     padding: 5px 5px 5px 13px;
@@ -44,12 +44,12 @@
 }
 
 .l-page-link.active {
-    color: #000;
+    color: var(--text-default);
     cursor: initial;
     text-decoration: initial;
-    background-color: #FFF;
+    background-color: var(--background-default);
 }
 
 .l-page-link:hover {
-    color: var(--primary-color);
+    color: var(--primary);
 }

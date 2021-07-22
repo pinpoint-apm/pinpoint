@@ -90,7 +90,7 @@ public class SampledDataSourceResultExtractor implements ResultsExtractor<List<S
     }
 
     private SampledDataSourceList getSampleData(List<DataSourceBo> dataSourceBoList) {
-        dataSourceBoList.sort(Collections.reverseOrder(Comparator.comparingLong(DataSourceBo::getTimestamp)));
+        dataSourceBoList.sort(Comparator.comparingLong(DataSourceBo::getTimestamp).reversed());
 
         AgentStatSamplingHandler<DataSourceBo, SampledDataSource> samplingHandler = new EagerSamplingHandler<>(timeWindow, sampler);
         for (DataSourceBo dataSourceBo : dataSourceBoList) {

@@ -19,7 +19,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.transformer.LambdaClassFileResolver;
 import com.navercorp.pinpoint.profiler.instrument.transformer.TransformerRegistry;
 
@@ -41,18 +41,21 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
 
     private final LambdaClassFileResolver lambdaClassFileResolver;
 
-    public DefaultClassFileTransformerDispatcher(ClassFileFilter unmodifiableFilter, TransformerRegistry transformerRegistry,
-                                                 DynamicTransformerRegistry dynamicTransformerRegistry, LambdaClassFileResolver lambdaClassFileResolver) {
+    public DefaultClassFileTransformerDispatcher(ClassFileFilter pinpointClassFilter,
+                                                 ClassFileFilter unmodifiableFilter,
+                                                 TransformerRegistry transformerRegistry,
+                                                 DynamicTransformerRegistry dynamicTransformerRegistry,
+                                                 LambdaClassFileResolver lambdaClassFileResolver) {
 
         this.baseClassFileTransformer = new BaseClassFileTransformer(this.getClass().getClassLoader());
 
         this.classLoaderFilter = new PinpointClassLoaderFilter(this.getClass().getClassLoader());
-        this.pinpointClassFilter = new PinpointClassFilter();
-        this.unmodifiableFilter = Assert.requireNonNull(unmodifiableFilter, "unmodifiableFilter");
+        this.pinpointClassFilter = Objects.requireNonNull(pinpointClassFilter, "pinpointClassFilter");
+        this.unmodifiableFilter = Objects.requireNonNull(unmodifiableFilter, "unmodifiableFilter");
 
-        this.transformerRegistry = Assert.requireNonNull(transformerRegistry, "transformerRegistry");
-        this.dynamicTransformerRegistry = Assert.requireNonNull(dynamicTransformerRegistry, "dynamicTransformerRegistry");
-        this.lambdaClassFileResolver = Assert.requireNonNull(lambdaClassFileResolver, "lambdaClassFileResolver");
+        this.transformerRegistry = Objects.requireNonNull(transformerRegistry, "transformerRegistry");
+        this.dynamicTransformerRegistry = Objects.requireNonNull(dynamicTransformerRegistry, "dynamicTransformerRegistry");
+        this.lambdaClassFileResolver = Objects.requireNonNull(lambdaClassFileResolver, "lambdaClassFileResolver");
     }
 
     @Override

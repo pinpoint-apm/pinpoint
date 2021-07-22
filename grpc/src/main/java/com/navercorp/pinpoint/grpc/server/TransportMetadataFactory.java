@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import io.grpc.Attributes;
 import io.grpc.Grpc;
 import io.grpc.Status;
 
 import java.net.InetSocketAddress;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -33,7 +33,7 @@ public class TransportMetadataFactory {
     private final String debugString;
 
     public TransportMetadataFactory(String debugString) {
-        this.debugString = Assert.requireNonNull(debugString, "debugString");
+        this.debugString = Objects.requireNonNull(debugString, "debugString");
     }
 
     public TransportMetadata build(Attributes attributes) {
@@ -42,9 +42,20 @@ public class TransportMetadataFactory {
             // Unauthenticated
             throw Status.INTERNAL.withDescription("RemoteSocketAddress is null").asRuntimeException();
         }
+        final InetSocketAddress localSocketAddress = (InetSocketAddress) attributes.get(Grpc.TRANSPORT_ATTR_LOCAL_ADDR);
+        if (localSocketAddress == null) {
+            // Unauthenticated
+            throw Status.INTERNAL.withDescription("LocalSocketAddress is null").asRuntimeException();
+        }
+
         final long transportId = idGenerator.getAndIncrement();
         final long connectedTime = System.currentTimeMillis();
-        return new DefaultTransportMetadata(debugString, remoteSocketAddress, transportId, connectedTime);
+
+        final Long logId = attributes.get(MetadataServerTransportFilter.LOG_ID);
+        if (logId == null) {
+            throw Status.INTERNAL.withDescription("LogId not found").asRuntimeException();
+        }
+        return new DefaultTransportMetadata(debugString, remoteSocketAddress, localSocketAddress, transportId, connectedTime, logId);
     }
 
     @Override

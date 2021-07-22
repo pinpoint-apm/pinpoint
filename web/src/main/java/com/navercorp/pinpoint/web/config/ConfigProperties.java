@@ -27,6 +27,7 @@ import javax.annotation.PostConstruct;
 
 /**
  * @author HyunGil Jeong
+ * @author Jongjin.Bae
  */
 @Configuration
 public class ConfigProperties {
@@ -65,6 +66,9 @@ public class ConfigProperties {
 
     @Value("${websocket.allowedOrigins:#{null}}")
     private String webSocketAllowedOrigins;
+    
+    @Value("${webhook.enable:false}")
+    private boolean webhookEnable;
 
     public String getSecurityGuideUrl() {
         return securityGuideUrl;
@@ -109,11 +113,15 @@ public class ConfigProperties {
     public String getWebSocketAllowedOrigins() {
         return webSocketAllowedOrigins;
     }
+    
+    public boolean isWebhookEnable() {
+        return webhookEnable;
+    }
 
     @PostConstruct
     public void log() {
         logger.info("{}", this);
-        AnnotationVisitor annotationVisitor = new AnnotationVisitor(Value.class);
+        AnnotationVisitor<Value> annotationVisitor = new AnnotationVisitor<>(Value.class);
         annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
 
@@ -131,6 +139,7 @@ public class ConfigProperties {
         sb.append(", showApplicationStat=").append(showApplicationStat);
         sb.append(", showStackTraceOnError=").append(showStackTraceOnError);
         sb.append(", webSocketAllowedOrigins=").append(webSocketAllowedOrigins);
+        sb.append(", webhookEnable=").append(webhookEnable);
         sb.append('}');
         return sb.toString();
     }

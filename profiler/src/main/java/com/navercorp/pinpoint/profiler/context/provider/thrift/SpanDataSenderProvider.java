@@ -18,11 +18,9 @@ package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.module.SpanClientFactory;
-import com.navercorp.pinpoint.profiler.context.module.SpanConverter;
+import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.context.thrift.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.MessageSerializer;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
@@ -32,6 +30,8 @@ import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -54,10 +54,11 @@ public class SpanDataSenderProvider  implements Provider<DataSender> {
     private final MessageConverter<TBase<?, ?>> messageConverter;
 
     @Inject
-    public SpanDataSenderProvider(ThriftTransportConfig thriftTransportConfig, @SpanClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
-                                  @SpanConverter MessageConverter<TBase<?, ?>> messageConverter) {
-        Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
-        this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider");
+    public SpanDataSenderProvider(ThriftTransportConfig thriftTransportConfig,
+                                  @SpanDataSender Provider<PinpointClientFactory> clientFactoryProvider,
+                                  @SpanDataSender MessageConverter<TBase<?, ?>> messageConverter) {
+        Objects.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
+        this.clientFactoryProvider = Objects.requireNonNull(clientFactoryProvider, "clientFactoryProvider");
 
         this.ip = thriftTransportConfig.getCollectorSpanServerIp();
         this.port = thriftTransportConfig.getCollectorSpanServerPort();
@@ -66,7 +67,7 @@ public class SpanDataSenderProvider  implements Provider<DataSender> {
         this.sendBufferSize = thriftTransportConfig.getSpanDataSenderSocketSendBufferSize();
         this.ioType = thriftTransportConfig.getSpanDataSenderSocketType();
         this.transportType = thriftTransportConfig.getSpanDataSenderTransportType();
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
+        this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
     }
 
     @Override

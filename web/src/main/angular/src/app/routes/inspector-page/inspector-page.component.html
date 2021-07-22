@@ -11,10 +11,10 @@
 <div class="l-main-container">
     <section *ngIf="(showSideMenu$ | async) as showSideMenu" class="l-sidemenu-wrap font-opensans">
         <div class="l-sidemenu-left">
-            <pp-agent-search-input-container></pp-agent-search-input-container>
             <section class="l-application-inspector-title-wrapper">
                 <pp-application-inspector-title-container></pp-application-inspector-title-container>
             </section>
+            <pp-agent-search-input-container></pp-agent-search-input-container>
             <pp-server-and-agent-list-container></pp-server-and-agent-list-container>            
         </div>
     </section>

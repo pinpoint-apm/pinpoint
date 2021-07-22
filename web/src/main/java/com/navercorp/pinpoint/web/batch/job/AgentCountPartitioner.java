@@ -17,8 +17,6 @@ package com.navercorp.pinpoint.web.batch.job;
 
 import com.navercorp.pinpoint.web.batch.DefaultDivider;
 import com.navercorp.pinpoint.web.batch.Divider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.partition.support.Partitioner;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +27,7 @@ import java.util.Map;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class AgentCountPartitioner implements Partitioner {
     private static final String PARTITION_NAME_PREFIX = "agent_count_partition_number_";
     private static final String BATCH_NAME = "agent_count_batch";

@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.plugin.spring.async.interceptor.AsyncTaskExecutorS
 import com.navercorp.pinpoint.plugin.spring.async.interceptor.TaskCallInterceptor;
 
 import java.security.ProtectionDomain;
-import java.util.List;
+import java.util.Set;
 
 public class SpringAsyncPlugin implements ProfilerPlugin, MatchableTransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
@@ -50,13 +50,22 @@ public class SpringAsyncPlugin implements ProfilerPlugin, MatchableTransformTemp
         }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        // Add task class
-        addAsyncExecutionInterceptorTask(Matchers.newClassNameMatcher("org.springframework.aop.interceptor.AsyncExecutionInterceptor$1"));
-        // Apply to spring framework 5.0 or later.
-        addAsyncExecutionInterceptorTask(Matchers.newPackageBasedMatcher("org.springframework.aop.interceptor.AsyncExecutionInterceptor$$Lambda$"));
-        // Add AsyncTaskExecutor classes
-        final List<String> asyncTaskExecutorClassNameList = config.getAsyncTaskExecutorClassNameList();
-        for (String className : asyncTaskExecutorClassNameList) {
+        interceptTask(config);
+        interceptTaskExecutor(config);
+    }
+
+    private void interceptTask(SpringAsyncConfig config) {
+        final Set<String> list = config.getAsyncTaskClassNameList();
+        for (String className : list) {
+            if (StringUtils.hasLength(className)) {
+                addAsyncExecutionInterceptorTask(Matchers.newPackageBasedMatcher(className));
+            }
+        }
+    }
+
+    private void interceptTaskExecutor(SpringAsyncConfig config) {
+        final Set<String> list = config.getAsyncTaskExecutorClassNameList();
+        for (String className : list) {
             if (StringUtils.hasLength(className)) {
                 addAsyncTaskExecutor(className);
             }
@@ -90,9 +99,16 @@ public class SpringAsyncPlugin implements ProfilerPlugin, MatchableTransformTemp
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-            final InstrumentMethod submitMethod = target.getDeclaredMethod("submit", "java.util.concurrent.Callable");
+            final String callable = "java.util.concurrent.Callable";
+
+            final InstrumentMethod submitMethod = target.getDeclaredMethod("submit", callable);
             if (submitMethod != null) {
                 submitMethod.addScopedInterceptor(AsyncTaskExecutorSubmitInterceptor.class, SpringAsyncConstants.ASYNC_TASK_EXECUTOR_SCOPE);
+            }
+
+            final InstrumentMethod submitListenableMethod = target.getDeclaredMethod("submitListenable", callable);
+            if (submitListenableMethod != null) {
+                submitListenableMethod.addScopedInterceptor(AsyncTaskExecutorSubmitInterceptor.class, SpringAsyncConstants.ASYNC_TASK_EXECUTOR_SCOPE);
             }
 
             return target.toBytecode();
