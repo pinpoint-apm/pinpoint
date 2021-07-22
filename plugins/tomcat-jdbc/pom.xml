@@ -21,13 +21,13 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-plugins</artifactId>
-        <version>2.1.1-SNAPSHOT</version>
+        <version>2.3.1-SNAPSHOT</version>
     </parent>
 
     <properties>
         <jdk.version>1.7</jdk.version>
-        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
-        <sniffer.artifactid>java18</sniffer.artifactid>
+        <jdk.home>${env.JAVA_7_HOME}</jdk.home>
+        <sniffer.artifactid>java17</sniffer.artifactid>
     </properties>
 
     <artifactId>pinpoint-tomcat-jdbc-plugin</artifactId>
