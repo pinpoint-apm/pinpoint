@@ -28,3 +28,9 @@ spring-profiles
 ```
 java -jar -Dpinpoint.zookeeper.address=$ZOOKEEPER_ADDRESS -Dspring.profiles.active=release web/target/deploy/pinpoint-web-boot-$VERSION.jar
 ```
+
+## Configuration for development environment
+Use /config directory [External Application Properties](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.files)
+- Create property file in `/resources/config/`
+  web/src/main/resources/config/MyConfig.properties
+

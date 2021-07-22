@@ -38,3 +38,9 @@ java -jar -Dpinpoint.zookeeper.address=$ZOOKEEPER_ADDRESS -Dspring.profiles.acti
 | 9994 | TCP  | agent
 | 9995 | UDP  | span
 | 9996 | UDP  | stat
+
+
+## Configuration for development environment
+Use /config directory [External Application Properties](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.files)
+- Create property file in `/resources/config/`
+  web/src/main/resources/config/MyConfig.properties
