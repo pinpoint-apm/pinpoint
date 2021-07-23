@@ -19,25 +19,34 @@ package com.navercorp.pinpoint.collector.manage.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.ModelAndViewDefiningException;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
-public class AuthInterceptor extends HandlerInterceptorAdapter {
+public class AuthInterceptor implements HandlerInterceptor {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("${collector.admin.password:}")
-    private String password;
+    private final String password;
+    private final boolean isActive;
 
-    @Value("${collector.admin.api.rest.active:false}")
-    private boolean isActive;
+    public AuthInterceptor(@Value("${collector.admin.api.rest.active:false}") boolean isActive,
+                           @Value("${collector.admin.password:}") String password) {
+        this.isActive = isActive;
+        this.password = password;
+    }
+
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -56,7 +65,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
 
         return true;
     }
-    
+
     private void throwAuthException(String message) throws ModelAndViewDefiningException {
         logger.warn(message);
         throw new ModelAndViewDefiningException(ControllerUtils.createJsonView(false, message));

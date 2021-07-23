@@ -24,10 +24,7 @@ import org.springframework.web.servlet.ModelAndView;
 public final class ControllerUtils {
 
     public static ModelAndView createJsonView() {
-        ModelAndView mv = new ModelAndView();
-        mv.setViewName("jsonView");
-        
-        return mv;
+        return new ModelAndView("jsonView");
     }
     
     public static ModelAndView createJsonView(boolean success) {
