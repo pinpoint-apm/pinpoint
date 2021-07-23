@@ -57,6 +57,8 @@
         <module>reactor-netty-plugin-testweb</module>
         <module>rocketmq-plugin-testweb</module>
         <module>dubbo-plugin-testweb</module>
+<!--        <module>spring-cloud-gateway-plugin-testweb</module>-->
+<!--        <module>spring-webflux-plugin-testweb</module>-->
     </modules>
 
 
