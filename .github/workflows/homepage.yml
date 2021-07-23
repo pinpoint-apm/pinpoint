@@ -4,8 +4,8 @@
 name: Homepage
 
 on:
-  push:
-    branches: [ master ]
+  schedule:
+    - cron:  '* 1 * * *'
 
 jobs:
 
