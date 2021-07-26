@@ -1,6 +1,5 @@
-package com.navercorp.pinpoint.web;
+package com.navercorp.pinpoint.collector;
 
-import com.navercorp.pinpoint.collector.CollectorStarter;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
