@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.MapWrap;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
@@ -94,7 +93,7 @@ public class MapController {
             @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
             @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
-            @RequestParam(value = "wasOnly", defaultValue="false", required = false) boolean wasOnly) {
+            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly) {
         final Range range = Range.newRange(from, to);
         this.dateLimit.limit(range);
 
@@ -124,7 +123,7 @@ public class MapController {
             @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
             @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
-            @RequestParam(value = "wasOnly", defaultValue="false", required = false) boolean wasOnly) {
+            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly) {
         final Range range = Range.newRange(from, to);
         this.dateLimit.limit(range);
 
@@ -154,7 +153,8 @@ public class MapController {
             @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
             @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
-            @RequestParam(value = "wasOnly", defaultValue="false", required = false) boolean wasOnly) {
+            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
         final Range range = Range.newRange(from, to);
         this.dateLimit.limit(range);
 
@@ -163,7 +163,7 @@ public class MapController {
 
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
-        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, false);
+        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, useStatisticsAgentState);
     }
 
     /**
@@ -175,6 +175,7 @@ public class MapController {
      * @param to
      * @return
      */
+
     @GetMapping(value = "/getServerMapDataV2", params="serviceTypeName")
     public MapWrap getServerMapDataV2(
             @RequestParam("applicationName") String applicationName,
@@ -184,7 +185,8 @@ public class MapController {
             @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
             @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
-            @RequestParam(value = "wasOnly", defaultValue ="false", required = false) boolean wasOnly) {
+            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
         final Range range = Range.newRange(from, to);
         this.dateLimit.limit(range);
 
@@ -192,75 +194,15 @@ public class MapController {
         assertSearchOption(searchOption);
 
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
-
-        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, false);
+        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, useStatisticsAgentState);
     }
 
-    /**
-     * Server map data query within from ~ to timeframe
-     *
-     * @param applicationName
-     * @param serviceTypeCode
-     * @param from
-     * @param to
-     * @return
-     */
-    @GetMapping(value = "/getServerMapDataV3", params="serviceTypeCode")
-    public MapWrap getServerMapDataV3(
-            @RequestParam("applicationName") String applicationName,
-            @RequestParam("serviceTypeCode") short serviceTypeCode,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to,
-            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
-            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
-            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
-            @RequestParam(value = "wasOnly", defaultValue="false", required = false) boolean wasOnly) {
-        final Range range = Range.newRange(from, to);
-        this.dateLimit.limit(range);
-
-        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
-        assertSearchOption(searchOption);
-
-        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
-        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, true);
-    }
-
-    /**
-     * Server map data query within from ~ to timeframe
-     *
-     * @param applicationName
-     * @param serviceTypeName
-     * @param from
-     * @param to
-     * @return
-     */
-    @GetMapping(value = "/getServerMapDataV3", params="serviceTypeName")
-    public MapWrap getServerMapDataV3(
-            @RequestParam("applicationName") String applicationName,
-            @RequestParam("serviceTypeName") String serviceTypeName,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to,
-            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
-            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
-            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
-            @RequestParam(value = "wasOnly", defaultValue ="false", required = false) boolean wasOnly) {
-        final Range range = Range.newRange(from, to);
-        this.dateLimit.limit(range);
-
-        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
-        assertSearchOption(searchOption);
-
-        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
-
-        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, true);
-    }
-
-    private MapWrap selectApplicationMap(Application application, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType, boolean useStatisticsServerInstanceList) {
+    private MapWrap selectApplicationMap(Application application, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType, boolean useStatisticsAgentState) {
         Objects.requireNonNull(application, "application");
         Objects.requireNonNull(range, "range");
         Objects.requireNonNull(searchOption, "searchOption");
 
-        final MapServiceOption mapServiceOption = new MapServiceOption.Builder(application, range, searchOption, nodeType, linkType).setUseStatisticsServerInstanceList(useStatisticsServerInstanceList).build();
+        final MapServiceOption mapServiceOption = new MapServiceOption.Builder(application, range, searchOption, nodeType, linkType).setUseStatisticsAgentState(useStatisticsAgentState).build();
         logger.info("Select applicationMap. option={}", mapServiceOption);
         final ApplicationMap map = mapService.selectApplicationMap(mapServiceOption);
         return new MapWrap(map);
@@ -297,7 +239,6 @@ public class MapController {
         ApplicationTimeHistogramViewModel applicationTimeHistogramViewModel = responseTimeHistogramService.selectResponseTimeHistogramData(application, range);
 
         return applicationTimeHistogramViewModel;
-
     }
 
     @PostMapping(value = "/getResponseTimeHistogramDataV2")
@@ -306,7 +247,8 @@ public class MapController {
             @RequestParam("serviceTypeCode") Short serviceTypeCode,
             @RequestParam("from") long from,
             @RequestParam("to") long to,
-            @RequestBody ApplicationPairs applicationPairs) {
+            @RequestBody ApplicationPairs applicationPairs,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
         final Range range = Range.newRange(from, to);
         dateLimit.limit(range);
 
@@ -314,26 +256,7 @@ public class MapController {
 
         List<Application> fromApplications = mapApplicationPairsToApplications(applicationPairs.getFromApplications());
         List<Application> toApplications = mapApplicationPairsToApplications(applicationPairs.getToApplications());
-        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications).build();
-
-        return responseTimeHistogramService.selectNodeHistogramData(option);
-    }
-
-    @PostMapping(value = "/getResponseTimeHistogramDataV3")
-    public NodeHistogramSummary postResponseTimeHistogramDataV3(
-            @RequestParam("applicationName") String applicationName,
-            @RequestParam("serviceTypeCode") Short serviceTypeCode,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to,
-            @RequestBody ApplicationPairs applicationPairs) {
-        final Range range = Range.newRange(from, to);
-        dateLimit.limit(range);
-
-        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
-
-        List<Application> fromApplications = mapApplicationPairsToApplications(applicationPairs.getFromApplications());
-        List<Application> toApplications = mapApplicationPairsToApplications(applicationPairs.getToApplications());
-        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications).setUseStatisticsServerInstanceList(true).build();
+        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications).setUseStatisticsAgentState(useStatisticsAgentState).build();
 
         return responseTimeHistogramService.selectNodeHistogramData(option);
     }
@@ -347,7 +270,8 @@ public class MapController {
             @RequestParam(value = "fromApplicationNames", defaultValue = "", required = false) List<String> fromApplicationNames,
             @RequestParam(value = "fromServiceTypeCodes", defaultValue = "", required = false) List<Short> fromServiceTypeCodes,
             @RequestParam(value = "toApplicationNames", defaultValue = "", required = false) List<String> toApplicationNames,
-            @RequestParam(value = "toServiceTypeCodes", defaultValue = "", required = false) List<Short> toServiceTypeCodes) {
+            @RequestParam(value = "toServiceTypeCodes", defaultValue = "", required = false) List<Short> toServiceTypeCodes,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
         final Range range = Range.newRange(from, to);
         dateLimit.limit(range);
 
@@ -370,44 +294,7 @@ public class MapController {
             Application toApplication = applicationFactory.createApplication(toApplicationNames.get(i), toServiceTypeCodes.get(i));
             toApplications.add(toApplication);
         }
-        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications).build();
-
-        return responseTimeHistogramService.selectNodeHistogramData(option);
-    }
-
-    @GetMapping(value = "/getResponseTimeHistogramDataV3")
-    public NodeHistogramSummary getResponseTimeHistogramDataV3(
-            @RequestParam("applicationName") String applicationName,
-            @RequestParam("serviceTypeCode") Short serviceTypeCode,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to,
-            @RequestParam(value = "fromApplicationNames", defaultValue = "", required = false) List<String> fromApplicationNames,
-            @RequestParam(value = "fromServiceTypeCodes", defaultValue = "", required = false) List<Short> fromServiceTypeCodes,
-            @RequestParam(value = "toApplicationNames", defaultValue = "", required = false) List<String> toApplicationNames,
-            @RequestParam(value = "toServiceTypeCodes", defaultValue = "", required = false) List<Short> toServiceTypeCodes) {
-        final Range range = Range.newRange(from, to);
-        dateLimit.limit(range);
-
-        if (fromApplicationNames.size() != fromServiceTypeCodes.size()) {
-            throw new IllegalArgumentException("fromApplicationNames and fromServiceTypeCodes must have the same number of elements");
-        }
-        if (toApplicationNames.size() != toServiceTypeCodes.size()) {
-            throw new IllegalArgumentException("toApplicationNames and toServiceTypeCodes must have the same number of elements");
-        }
-
-        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
-
-        List<Application> fromApplications = new ArrayList<>(fromApplicationNames.size());
-        for (int i = 0; i < fromApplicationNames.size(); i++) {
-            Application fromApplication = applicationFactory.createApplication(fromApplicationNames.get(i), fromServiceTypeCodes.get(i));
-            fromApplications.add(fromApplication);
-        }
-        List<Application> toApplications = new ArrayList<>(toApplicationNames.size());
-        for (int i = 0; i < toApplicationNames.size(); i++) {
-            Application toApplication = applicationFactory.createApplication(toApplicationNames.get(i), toServiceTypeCodes.get(i));
-            toApplications.add(toApplication);
-        }
-        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications).setUseStatisticsServerInstanceList(true).build();
+        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications).setUseStatisticsAgentState(useStatisticsAgentState).build();
 
         return responseTimeHistogramService.selectNodeHistogramData(option);
     }

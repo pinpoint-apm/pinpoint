@@ -37,7 +37,7 @@ public class FilteredMapServiceOption {
     private final int yGroupUnit;
     private final Filter<List<SpanBo>> filter;
     private final int version;
-    private final boolean useStatisticsServerInstanceList;
+    private final boolean useStatisticsAgentState;
     private final ColumnGetCount columnGetCount;
 
     public FilteredMapServiceOption(final Builder builder) {
@@ -49,7 +49,7 @@ public class FilteredMapServiceOption {
         this.yGroupUnit = builder.yGroupUnit;
         this.filter = builder.filter;
         this.version = builder.version;
-        this.useStatisticsServerInstanceList = builder.useStatisticsServerInstanceList;
+        this.useStatisticsAgentState = builder.useStatisticsAgentState;
         this.columnGetCount = builder.columnGetCount;
     }
 
@@ -81,8 +81,8 @@ public class FilteredMapServiceOption {
         return version;
     }
 
-    public boolean isUseStatisticsServerInstanceList() {
-        return useStatisticsServerInstanceList;
+    public boolean isUseStatisticsAgentState() {
+        return useStatisticsAgentState;
     }
 
     public ColumnGetCount getColumnGetCount() {
@@ -99,7 +99,7 @@ public class FilteredMapServiceOption {
         sb.append(", yGroupUnit=").append(yGroupUnit);
         sb.append(", filter=").append(filter);
         sb.append(", version=").append(version);
-        sb.append(", useStatisticsServerInstanceList=").append(useStatisticsServerInstanceList);
+        sb.append(", useStatisticsAgentState=").append(useStatisticsAgentState);
         sb.append('}');
         return sb.toString();
     }
@@ -114,7 +114,7 @@ public class FilteredMapServiceOption {
         private int version;
         private ColumnGetCount columnGetCount;
 
-        private boolean useStatisticsServerInstanceList;
+        private boolean useStatisticsAgentState;
 
         public Builder(TransactionId transactionId, int version, ColumnGetCount columnGetCount) {
             Objects.requireNonNull(transactionId, "transactionId");
@@ -135,8 +135,8 @@ public class FilteredMapServiceOption {
             this.version = version;
         }
 
-        public Builder setUseStatisticsServerInstanceList(boolean useStatisticsServerInstanceList) {
-            this.useStatisticsServerInstanceList = useStatisticsServerInstanceList;
+        public Builder setUseStatisticsAgentState(boolean useStatisticsAgentState) {
+            this.useStatisticsAgentState = useStatisticsAgentState;
             return this;
         }
 

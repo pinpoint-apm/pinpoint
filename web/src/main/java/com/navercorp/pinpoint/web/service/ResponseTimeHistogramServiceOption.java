@@ -30,14 +30,14 @@ public class ResponseTimeHistogramServiceOption {
     private Range range;
     private List<Application> fromApplications;
     private List<Application> toApplications;
-    private boolean useStatisticsServerInstanceList;
+    private boolean useStatisticsAgentState;
 
     private ResponseTimeHistogramServiceOption(Builder builder) {
         this.application = builder.application;
         this.range = builder.range;
         this.fromApplications = builder.fromApplications;
         this.toApplications = builder.toApplications;
-        this.useStatisticsServerInstanceList = builder.useStatisticsServerInstanceList;
+        this.useStatisticsAgentState = builder.useStatisticsAgentState;
     }
 
     public Application getApplication() {
@@ -56,8 +56,8 @@ public class ResponseTimeHistogramServiceOption {
         return toApplications;
     }
 
-    public boolean isUseStatisticsServerInstanceList() {
-        return useStatisticsServerInstanceList;
+    public boolean isUseStatisticsAgentState() {
+        return useStatisticsAgentState;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class ResponseTimeHistogramServiceOption {
         sb.append(", range=").append(range);
         sb.append(", fromApplications=").append(fromApplications);
         sb.append(", toApplications=").append(toApplications);
-        sb.append(", useStatisticsServerInstanceList=").append(useStatisticsServerInstanceList);
+        sb.append(", useStatisticsAgentState=").append(useStatisticsAgentState);
         sb.append('}');
         return sb.toString();
     }
@@ -78,7 +78,7 @@ public class ResponseTimeHistogramServiceOption {
         private List<Application> fromApplications;
         private List<Application> toApplications;
 
-        private boolean useStatisticsServerInstanceList;
+        private boolean useStatisticsAgentState;
 
         public Builder(Application application, Range range, List<Application> fromApplications, List<Application> toApplications) {
             this.application = Objects.requireNonNull(application, "application");
@@ -87,8 +87,8 @@ public class ResponseTimeHistogramServiceOption {
             this.toApplications = Objects.requireNonNull(toApplications, "toApplications");
         }
 
-        public Builder setUseStatisticsServerInstanceList(boolean useStatisticsServerInstanceList) {
-            this.useStatisticsServerInstanceList = useStatisticsServerInstanceList;
+        public Builder setUseStatisticsAgentState(boolean useStatisticsAgentState) {
+            this.useStatisticsAgentState = useStatisticsAgentState;
             return this;
         }
 
