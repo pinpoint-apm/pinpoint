@@ -136,7 +136,7 @@ public class MapServiceImpl implements MapService {
         NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
         builder.includeNodeHistogram(nodeHistogramFactory);
 
-        if (option.isUseStatisticsServerInstanceList()) {
+        if (option.isUseStatisticsAgentState()) {
             builder.includeServerInfo(new StatisticsServerInstanceListFactory());
         } else {
             ServerInstanceListDataSource serverInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService);

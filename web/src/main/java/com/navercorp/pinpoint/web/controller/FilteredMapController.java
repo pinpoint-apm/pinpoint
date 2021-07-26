@@ -70,26 +70,10 @@ public class FilteredMapController {
             @RequestParam(value = "filter", required = false) String filterText,
             @RequestParam(value = "hint", required = false) String filterHint,
             @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
-            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
+            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
         String serviceTypeName = registry.findServiceType(serviceTypeCode).getName();
-        return getFilteredServerMapDataMadeOfDotGroup(applicationName, serviceTypeName, from, to, originTo, xGroupUnit, yGroupUnit, filterText, filterHint, limit, viewVersion);
-    }
-
-    @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroupV2", params="serviceTypeCode")
-    public FilterMapWrap getFilteredServerMapDataMadeOfDotGroupV2(
-            @RequestParam("applicationName") String applicationName,
-            @RequestParam("serviceTypeCode") short serviceTypeCode,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to,
-            @RequestParam("originTo") long originTo,
-            @RequestParam("xGroupUnit") int xGroupUnit,
-            @RequestParam("yGroupUnit") int yGroupUnit,
-            @RequestParam(value = "filter", required = false) String filterText,
-            @RequestParam(value = "hint", required = false) String filterHint,
-            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
-            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
-        String serviceTypeName = registry.findServiceType(serviceTypeCode).getName();
-        return getFilteredServerMapDataMadeOfDotGroupV2(applicationName, serviceTypeName, from, to, originTo, xGroupUnit, yGroupUnit, filterText, filterHint, limit, viewVersion);
+        return getFilteredServerMapDataMadeOfDotGroup(applicationName, serviceTypeName, from, to, originTo, xGroupUnit, yGroupUnit, filterText, filterHint, limit, viewVersion, useStatisticsAgentState);
     }
 
     @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroup", params="serviceTypeName")
@@ -104,7 +88,8 @@ public class FilteredMapController {
             @RequestParam(value = "filter", required = false) String filterText,
             @RequestParam(value = "hint", required = false) String filterHint,
             @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
-            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
+            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
         if (xGroupUnit <= 0) {
             throw new IllegalArgumentException("xGroupUnit(" + xGroupUnit + ") must be positive number");
         }
@@ -123,7 +108,7 @@ public class FilteredMapController {
         // needed to figure out already scanned ranged
         final Range scannerRange = Range.newRange(lastScanTime, to);
         logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
-        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(limitedScanResult.getScanData(), originalRange, scannerRange, xGroupUnit, yGroupUnit, filter, viewVersion).build();
+        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(limitedScanResult.getScanData(), originalRange, scannerRange, xGroupUnit, yGroupUnit, filter, viewVersion).setUseStatisticsAgentState(useStatisticsAgentState).build();
         final ApplicationMap map = filteredMapService.selectApplicationMapWithScatterData(option);
 
         if (logger.isDebugEnabled()) {
@@ -131,48 +116,6 @@ public class FilteredMapController {
         }
 
         FilterMapWrap mapWrap = new FilterMapWrap(map);
-        mapWrap.setLastFetchedTimestamp(lastScanTime);
-        return mapWrap;
-    }
-
-    @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroupV2", params="serviceTypeName")
-    public FilterMapWrap getFilteredServerMapDataMadeOfDotGroupV2(
-            @RequestParam("applicationName") String applicationName,
-            @RequestParam("serviceTypeName") String serviceTypeName,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to,
-            @RequestParam("originTo") long originTo,
-            @RequestParam("xGroupUnit") int xGroupUnit,
-            @RequestParam("yGroupUnit") int yGroupUnit,
-            @RequestParam(value = "filter", required = false) String filterText,
-            @RequestParam(value = "hint", required = false) String filterHint,
-            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
-            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
-        if (xGroupUnit <= 0) {
-            throw new IllegalArgumentException("xGroupUnit(" + xGroupUnit + ") must be positive number");
-        }
-        if (yGroupUnit <= 0) {
-            throw new IllegalArgumentException("yGroupUnit(" + yGroupUnit + ") must be positive number");
-        }
-
-        limit = LimitUtils.checkRange(limit);
-        final Filter<List<SpanBo>> filter = filterBuilder.build(filterText, filterHint);
-        final Range range = Range.newRange(from, to);
-        final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
-
-        final long lastScanTime = limitedScanResult.getLimitedTime();
-        // original range: needed for visual chart data sampling
-        final Range originalRange = Range.newRange(from, originTo);
-        // needed to figure out already scanned ranged
-        final Range scannerRange = Range.newRange(lastScanTime, to);
-        logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
-        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(limitedScanResult.getScanData(), originalRange, scannerRange, xGroupUnit, yGroupUnit, filter, viewVersion).setUseStatisticsServerInstanceList(true).build();
-        final ApplicationMap map = filteredMapService.selectApplicationMapWithScatterData(option);
-        if (logger.isDebugEnabled()) {
-            logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}", limit, range.prettyToString(), DateTimeFormatUtils.format(lastScanTime));
-        }
-
-        final FilterMapWrap mapWrap = new FilterMapWrap(map);
         mapWrap.setLastFetchedTimestamp(lastScanTime);
         return mapWrap;
     }

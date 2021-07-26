@@ -33,7 +33,7 @@ public class MapServiceOption {
     private SearchOption searchOption;
     private NodeType nodeType;
     private LinkType linkType;
-    private boolean useStatisticsServerInstanceList;
+    private boolean useStatisticsAgentState;
 
     private MapServiceOption(Builder builder) {
         this.sourceApplication = builder.sourceApplication;
@@ -41,7 +41,7 @@ public class MapServiceOption {
         this.searchOption = builder.searchOption;
         this.nodeType = builder.nodeType;
         this.linkType = builder.linkType;
-        this.useStatisticsServerInstanceList = builder.useStatisticsServerInstanceList;
+        this.useStatisticsAgentState = builder.useStatisticsAgentState;
     }
 
     public Application getSourceApplication() {
@@ -64,8 +64,8 @@ public class MapServiceOption {
         return linkType;
     }
 
-    public boolean isUseStatisticsServerInstanceList() {
-        return useStatisticsServerInstanceList;
+    public boolean isUseStatisticsAgentState() {
+        return useStatisticsAgentState;
     }
 
     @Override
@@ -76,7 +76,7 @@ public class MapServiceOption {
         sb.append(", searchOption=").append(searchOption);
         sb.append(", nodeType=").append(nodeType);
         sb.append(", linkType=").append(linkType);
-        sb.append(", useStatisticsServerInstanceList=").append(useStatisticsServerInstanceList);
+        sb.append(", useStatisticsAgentState=").append(useStatisticsAgentState);
         sb.append('}');
         return sb.toString();
     }
@@ -88,7 +88,7 @@ public class MapServiceOption {
         private NodeType nodeType;
         private LinkType linkType;
         // option
-        boolean useStatisticsServerInstanceList;
+        boolean useStatisticsAgentState;
 
         public Builder(Application sourceApplication, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType) {
             this.sourceApplication = Objects.requireNonNull(sourceApplication, "sourceApplication");
@@ -98,8 +98,8 @@ public class MapServiceOption {
             this.linkType = Objects.requireNonNull(linkType, "linkType");
         }
 
-        public Builder setUseStatisticsServerInstanceList(boolean useStatisticsServerInstanceList) {
-            this.useStatisticsServerInstanceList = useStatisticsServerInstanceList;
+        public Builder setUseStatisticsAgentState(boolean useStatisticsAgentState) {
+            this.useStatisticsAgentState = useStatisticsAgentState;
             return this;
         }
 
