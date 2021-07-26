@@ -92,7 +92,8 @@ export class TransactionDetailMenuContainerComponent implements OnInit, OnDestro
             this.dynamicPopupService.openPopup({
                 data: {
                     title: 'Notice',
-                    contents: this.transactionDetailInfo.disableButtonMessage
+                    contents: this.transactionDetailInfo.disableButtonMessage,
+                    type: 'html'
                 },
                 component: MessagePopupContainerComponent
             }, {

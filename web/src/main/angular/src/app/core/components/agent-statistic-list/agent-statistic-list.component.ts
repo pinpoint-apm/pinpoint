@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, Renderer2 } from '@angular/core';
 import { GridOptions } from 'ag-grid-community';
 
 export interface IGridData {
@@ -26,7 +26,10 @@ export class AgentStatisticListComponent implements OnInit  {
 
     gridOptions: GridOptions;
 
-    constructor() {}
+    constructor(
+        private renderer: Renderer2
+    ) {}
+
     ngOnInit() {
         this.initGridOptions();
     }
@@ -74,7 +77,12 @@ export class AgentStatisticListComponent implements OnInit  {
                 cellRenderer: 'agGroupCellRenderer',
                 cellRendererParams: {
                     innerRenderer: (params: any) => {
-                        return '&nbsp;' + params.data.application;
+                        const span = this.renderer.createElement('span');
+                        const text = this.renderer.createText(params.data.application);
+
+                        this.renderer.appendChild(span, text);
+
+                        return span;
                     },
                     suppressCount: true
                 },
@@ -120,7 +128,7 @@ export class AgentStatisticListComponent implements OnInit  {
            color: 'rgb(54, 162, 235)',
            'font-weight': 600,
            'cursor': 'pointer'
-       }
+       };
     }
 
     onCellClick(params: any): void {

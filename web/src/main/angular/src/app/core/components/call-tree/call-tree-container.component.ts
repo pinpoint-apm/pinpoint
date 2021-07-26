@@ -104,7 +104,8 @@ export class CallTreeContainerComponent implements OnInit, OnDestroy {
         this.dynamicPopupService.openPopup({
             data: {
                 title: 'Contents',
-                contents
+                contents,
+                type: 'plain'
             },
             component: MessagePopupContainerComponent
         }, {

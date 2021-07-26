@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, ViewEncapsulation, Renderer2 } from '@angular/core';
 import * as moment from 'moment-timezone';
 import { GridOptions } from 'ag-grid-community';
 
@@ -37,7 +37,10 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
     gridOptions: GridOptions;
     overlayNoRowsTemplate: string;
 
-    constructor() {}
+    constructor(
+        private renderer: Renderer2,
+    ) {}
+
     ngOnInit() {
         this.initGridOptions();
         this.overlayNoRowsTemplate = `<span class="l-overlay-template l-no-rows">${this.dataEmptyText}</span>`;
@@ -158,7 +161,14 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
                 field: 'path',
                 width: 370,
                 cellRenderer: (params: any) => {
-                    return '<button style="margin-right:3px"><i class="fa fa-list-alt" aria-hidden="true"></i></button>' + params.value;
+                    const span = this.renderer.createElement('span');
+                    const text = this.renderer.createText(params.value);
+                    const btnStr = '<button style="margin-right:3px"><i class="fa fa-list-alt" aria-hidden="true"></i></button>';
+
+                    this.renderer.setProperty(span, 'innerHTML', btnStr);
+                    this.renderer.appendChild(span, text);
+
+                    return span;
                 },
                 tooltipField: 'path'
             },
