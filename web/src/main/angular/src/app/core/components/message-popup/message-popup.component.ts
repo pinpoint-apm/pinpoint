@@ -10,8 +10,13 @@ export class MessagePopupComponent implements OnInit {
     @Output() outClosePopup = new EventEmitter<void>();
     @HostBinding('class.font-opensans') fontFamily = true;
 
+    isPlainMessage: boolean;
+
     constructor() {}
-    ngOnInit() {}
+    ngOnInit() {
+        this.isPlainMessage = this.data.type === 'plain';
+    }
+
     onClose(): void {
         this.outClosePopup.emit();
     }

@@ -100,8 +100,8 @@ export class TransactionMetaDataService {
 
             if (this.requestSourceData.length === 0) {
                 this.onError({
-                    data: {title: 'Notice', contents: this.retrieveErrorMessage},
-                    component: MessagePopupContainerComponent
+                    data: {title: 'Notice', contents: this.retrieveErrorMessage, type: 'html'},
+                    component: MessagePopupContainerComponent,
                 });
             } else {
                 this.http.post<{metadata: ITransactionMetaData[]}>(this.requestURLV1, this.makeV1RequestOptionsArgs(), {

@@ -43,6 +43,7 @@ export class TransactionListPageComponent implements OnInit {
                 data: {
                     title: 'Notice',
                     contents: this.errorMessage,
+                    type: 'html'
                 },
                 component: MessagePopupContainerComponent,
                 onCloseCallback: () => {

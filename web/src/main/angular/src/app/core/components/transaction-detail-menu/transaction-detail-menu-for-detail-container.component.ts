@@ -71,7 +71,8 @@ export class TransactionDetailMenuForDetailContainerComponent implements OnInit 
             this.dynamicPopupService.openPopup({
                 data: {
                     title: 'Notice',
-                    contents: this.transactionDetailInfo.disableButtonMessage
+                    contents: this.transactionDetailInfo.disableButtonMessage,
+                    type: 'html'
                 },
                 component: MessagePopupContainerComponent
             }, {

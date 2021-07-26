@@ -355,6 +355,7 @@ interface IServerMapMergeState {
 interface ITransactionMessage {
     title: string;
     contents: string;
+    type: string;
 }
 
 // @store
