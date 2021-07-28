@@ -43,7 +43,7 @@ public class ThroughputSamplerTest {
 
     private TraceSampler newTraceSampler(int throughput) {
         IdGenerator atomicIdGenerator = new AtomicIdGenerator();
-        Sampler trueSampler = new TrueSampler();
+        Sampler trueSampler = TrueSampler.INSTANCE;
         TraceSampler basicSampler = new BasicTraceSampler(atomicIdGenerator, trueSampler);
         return new RateLimitTraceSampler(throughput, 0, atomicIdGenerator, basicSampler);
     }

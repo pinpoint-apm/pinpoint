@@ -28,6 +28,8 @@ import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.provider.sampler.SamplerConfig;
+import com.navercorp.pinpoint.profiler.sampler.CountingSamplerFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -118,10 +120,9 @@ public class DefaultTraceContextTest {
 
         final ProfilerConfig profilerConfig = getProfilerConfig();
         Mockito.when(profilerConfig.isTraceAgentActiveThread()).thenReturn(true);
-        Mockito.when((profilerConfig.getSamplingRate())).thenReturn(samplingRate);
-        Mockito.when((profilerConfig.isSamplingEnable())).thenReturn(true);
 
-
+        Mockito.when((profilerConfig.readInt(CountingSamplerFactory.LEGACY_SAMPLING_RATE_NAME, -1))).thenReturn(samplingRate);
+        Mockito.when((profilerConfig.readBoolean(SamplerConfig.SAMPLER_ENABLE_NAME, true))).thenReturn(true);
 
         DefaultApplicationContext customContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
         customContext.start();
