@@ -19,8 +19,8 @@ import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.UserGroup;
 import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.UserMember;
 import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.WebhookPayload;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
-import com.navercorp.pinpoint.batch.common.BatchConfiguration;
 import com.navercorp.pinpoint.web.service.UserService;
+import com.navercorp.pinpoint.web.vo.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepExecution;
@@ -41,51 +41,52 @@ import java.util.stream.Collectors;
 public class WebhookSenderImpl implements WebhookSender {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final BatchConfiguration batchConfiguration;
     private final UserService userService;
-    private final RestTemplate springRestTemplate;
+    private final RestTemplate restTemplate;
+
+    private final WebhookPayloadFactory webhookPayloadFactory;
     private final String webhookReceiverUrl;
-    private final boolean webhookEnable;
-    
-    public WebhookSenderImpl(BatchConfiguration batchConfiguration, UserService userService, RestTemplate springRestTemplate) {
-        Objects.requireNonNull(batchConfiguration, "batchConfiguration");
-        Objects.requireNonNull(springRestTemplate, "springRestTemplate");
-        Objects.requireNonNull(userService, "userService");
-        
-        this.userService = userService;
-        this.batchConfiguration = batchConfiguration;
-        this.webhookReceiverUrl = batchConfiguration.getWebhookReceiverUrl();
-        this.webhookEnable = batchConfiguration.isWebhookEnable();
-        this.springRestTemplate = springRestTemplate;
+
+
+    public WebhookSenderImpl(WebhookPayloadFactory webhookPayloadFactory,
+                             UserService userService,
+                             RestTemplate restTemplate,
+                             String webhookReceiverUrl) {
+        this.webhookPayloadFactory = Objects.requireNonNull(webhookPayloadFactory, "webhookPayloadFactory");
+
+        this.restTemplate = Objects.requireNonNull(restTemplate, "restTemplate");
+        this.userService = Objects.requireNonNull(userService, "userService");
+        // TODO Target address must be changed as a user configuration.
+        this.webhookReceiverUrl = webhookReceiverUrl;
     }
-    
+
+
     @Override
     public void sendWebhook(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
-        if (!webhookEnable) {
-            return;
-        }
-        if (webhookReceiverUrl.isEmpty()) {
-            return;
-        }
         try {
             String userGroupId = checker.getRule().getUserGroupId();
             
             List<UserMember> userMembers = userService.selectUserByUserGroupId(userGroupId)
                     .stream()
-                    .map(user -> new UserMember(user.getUserId(), user.getName(), user.getEmail(), user.getDepartment(), user.getPhoneNumber(), user.getPhoneCountryCode()))
+                    .map(WebhookSenderImpl::newUser)
                     .collect(Collectors.toList());
 
             UserGroup userGroup = new UserGroup(userGroupId, userMembers);
-            
-            WebhookPayload webhookPayload = new WebhookPayload(checker, batchConfiguration, sequenceCount, userGroup);
+
+            WebhookPayload webhookPayload = webhookPayloadFactory.newPayload(checker, sequenceCount, userGroup);
+
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
             
             HttpEntity<WebhookPayload> httpEntity = new HttpEntity<>(webhookPayload, httpHeaders);
-            springRestTemplate.exchange(new URI(webhookReceiverUrl), HttpMethod.POST, httpEntity, String.class);
+            restTemplate.exchange(new URI(webhookReceiverUrl), HttpMethod.POST, httpEntity, String.class);
             logger.info("send webhook : {}", checker.getRule());
         } catch (Exception e) {
             logger.error("can't send webhook. {}", checker.getRule(), e);
         }
+    }
+
+    private static UserMember newUser(User user) {
+        return new UserMember(user.getUserId(), user.getName(), user.getEmail(), user.getDepartment(), user.getPhoneNumber(), user.getPhoneCountryCode());
     }
 }
