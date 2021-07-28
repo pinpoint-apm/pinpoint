@@ -22,6 +22,10 @@ import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
  * @author emeroad
  */
 public class TrueSampler implements Sampler {
+    public static final Sampler INSTANCE = new TrueSampler();
+
+    private TrueSampler() {
+    }
 
     @Override
     public boolean isSampling() {

@@ -15,48 +15,23 @@
  */
 package com.navercorp.pinpoint.profiler.sampler;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author yjqg6666
  */
 public enum SamplerType {
 
-    CLASSIC_RATE(1, "classicRate"),
-    PERCENT_RATE(2, "percentRate");
+    COUNTING,
+    PERCENT;
 
-    private final int type;
-
-    private final String name;
-
-    private static final Map<String, SamplerType> map = new HashMap<>(2);
-
-    static {
-        for (SamplerType value : SamplerType.values()) {
-            map.put(value.name, value);
-        }
-    }
-
-    SamplerType(int type, String name) {
-        this.type = type;
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
+    public static final SamplerType DEFAULT_SAMPLER_TYPE = COUNTING;
 
     public static SamplerType of(String name) {
-        final SamplerType samplerType = map.get(name);
-        return samplerType != null ? samplerType : CLASSIC_RATE;
+        for (SamplerType type : values()) {
+            if (type.name().equalsIgnoreCase(name)) {
+                return type;
+            }
+        }
+        return DEFAULT_SAMPLER_TYPE;
     }
 
-    @Override
-    public String toString() {
-        return "RateSamplerType{" +
-                "type=" + type +
-                ", name='" + name + '\'' +
-                '}';
-    }
 }

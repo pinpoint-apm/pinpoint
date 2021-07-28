@@ -24,12 +24,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author emeroad
  */
-public class SamplingRateSampler implements Sampler {
+public class CountingSampler implements Sampler {
 
     private final AtomicInteger counter = new AtomicInteger(0);
     private final int samplingRate;
 
-    public SamplingRateSampler(int samplingRate) {
+    public CountingSampler(int samplingRate) {
         if (samplingRate <= 0) {
             throw new IllegalArgumentException("Invalid samplingRate " + samplingRate);
         }
@@ -37,11 +37,10 @@ public class SamplingRateSampler implements Sampler {
     }
 
 
-
     @Override
     public boolean isSampling() {
-        int samplingCount = MathUtils.fastAbs(counter.getAndIncrement());
-        int isSampling = samplingCount % samplingRate;
+        int samplingCount = counter.getAndIncrement();
+        int isSampling = MathUtils.floorMod(samplingCount, samplingRate);
         return isSampling == 0;
     }
 

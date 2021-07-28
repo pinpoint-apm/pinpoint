@@ -19,86 +19,44 @@ package com.navercorp.pinpoint.profiler.sampler;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.util.MathUtils;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * @author emeroad
  * @author yjqg6666
  */
 public class PercentRateSampler implements Sampler {
+    // Supported range 100% ~ 0.01%
+    public static final long MULTIPLIER = 100;
+    public static final long MAX = 100 * MULTIPLIER;
 
-    private final AtomicInteger counter = new AtomicInteger(0);
-    private final int samplingRate;
-    private final int samplingNotSampledMinSeq;
-    private final int samplingOutOfNum;
+    private final AtomicLong counter = new AtomicLong(0);
 
-    public PercentRateSampler(int samplingRate) {
-        if (samplingRate <= 0 || samplingRate > 100) {
+    private final long samplingRate;
+
+    public PercentRateSampler(long samplingRate) {
+        if (samplingRate <= 0 || samplingRate >= MAX) {
+            // Use TrueSampler for 100%
             throw new IllegalArgumentException("Invalid samplingRate " + samplingRate);
         }
         this.samplingRate = samplingRate;
-        final PercentSamplerHelper percentSamplerHelper = new PercentSamplerHelper(samplingRate);
-        this.samplingNotSampledMinSeq = percentSamplerHelper.getNotSampledMinSeq();
-        this.samplingOutOfNum = percentSamplerHelper.getOutOfNum();
     }
 
     @Override
     public boolean isSampling() {
-        int samplingCount = MathUtils.fastAbs(counter.getAndIncrement());
-        int mod = samplingCount % samplingOutOfNum;
-        return mod < samplingNotSampledMinSeq;
+        final long seed = counter.addAndGet(samplingRate);
+        final long remainder = MathUtils.floorMod(seed, MAX);
+        if (remainder > 0 && remainder <= samplingRate) {
+            return true;
+        }
+        return false;
     }
 
     @Override
     public String toString() {
-        return "SamplingRateSampler{" +
-                "counter=" + counter +
-                "samplingRate=" + samplingRate +
+        return "PercentRateSampler{" +
+                "seedGen=" + counter +
+                ", samplingRate=" + samplingRate +
                 '}';
     }
-
-    static class PercentSamplerHelper {
-
-        private int notSampledMinSeq;
-
-        private int outOfNum;
-
-        public PercentSamplerHelper(int samplingRate) {
-            this.notSampledMinSeq = samplingRate;
-            this.outOfNum = 100;
-            optimize(samplingRate);
-        }
-
-        private void optimize(int samplingRate) {
-            int numerator = samplingRate;
-            int denominator = 100;
-            boolean changed;
-            while (true) {
-                changed = false;
-                if (numerator % 2 == 0 && denominator % 2 == 0) {
-                    numerator = numerator / 2;
-                    denominator = denominator / 2;
-                    changed = true;
-                }
-                if (numerator % 5 == 0 && denominator % 5 == 0) {
-                    numerator = numerator / 5;
-                    denominator = denominator / 5;
-                    changed = true;
-                }
-                if (!changed) {
-                    break;
-                }
-            }
-            this.outOfNum = denominator;
-            this.notSampledMinSeq = numerator;
-        }
-
-        public int getNotSampledMinSeq() {
-            return notSampledMinSeq;
-        }
-
-        public int getOutOfNum() {
-            return outOfNum;
-        }
-    }
-
 }
