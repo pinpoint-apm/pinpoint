@@ -10,7 +10,7 @@
         <constructor-arg ref="javaMailSenderImpl"/>
     </bean>
 
-    <bean id="webhookSender" class="com.navercorp.pinpoint.batch.alarm.WebhookSenderImpl">
+    <bean id="webhookSender" class="com.navercorp.pinpoint.batch.alarm.WebhookSenderFactoryBean">
         <constructor-arg ref="batchConfiguration"/>
         <constructor-arg ref="restTemplate" />
         <constructor-arg ref="userServiceImpl"/>
