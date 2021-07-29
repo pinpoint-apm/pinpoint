@@ -40,4 +40,12 @@ public class HbasePluginConfigTest {
         assertFalse(config.isParamsProfile());
         System.out.println(config);
     }
+
+    @Test
+    public void isTableNameProfile() {
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
+        HbasePluginConfig config = new HbasePluginConfig(profilerConfig);
+        assertTrue(config.isTableNameProfile());
+        System.out.println(config);
+    }
 }

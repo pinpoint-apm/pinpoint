@@ -158,8 +158,9 @@ public class HbasePlugin implements ProfilerPlugin, TransformTemplateAware {
 
             HbasePluginConfig config = new HbasePluginConfig(instrumentor.getProfilerConfig());
             final boolean paramsProfile = config.isParamsProfile();
+            final boolean tableNameProfile = config.isTableNameProfile();
             for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(HbasePluginConstants.tableMethodNames))) {
-                method.addInterceptor(HbaseTableMethodInterceptor.class, va(paramsProfile));
+                method.addInterceptor(HbaseTableMethodInterceptor.class, va(paramsProfile,tableNameProfile));
             }
             return target.toBytecode();
         }
