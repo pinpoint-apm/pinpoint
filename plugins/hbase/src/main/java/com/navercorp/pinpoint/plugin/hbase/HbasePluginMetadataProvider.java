@@ -33,5 +33,6 @@ public class HbasePluginMetadataProvider implements TraceMetadataProvider {
         context.addServiceType(HbasePluginConstants.HBASE_CLIENT_TABLE);
         context.addServiceType(HbasePluginConstants.HBASE_ASYNC_CLIENT);
         context.addAnnotationKey(HbasePluginConstants.HBASE_CLIENT_PARAMS);
+        context.addAnnotationKey(HbasePluginConstants.HBASE_TABLE_NAME);
     }
 }
