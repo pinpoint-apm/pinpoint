@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeBuilder;
 import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -75,9 +77,8 @@ public class ParsedServiceType {
     }
 
     ServiceTypeInfo toServiceTypeInfo() {
-        if (code == null) {
-            throw new NullPointerException("service type code");
-        }
+        Objects.requireNonNull(code, "code");
+
         if (StringUtils.isEmpty(name)) {
             throw new IllegalArgumentException("service type name must not be empty");
         }

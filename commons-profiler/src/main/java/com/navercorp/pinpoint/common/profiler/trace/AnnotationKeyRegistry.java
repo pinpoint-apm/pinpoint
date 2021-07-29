@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -39,9 +40,8 @@ public class AnnotationKeyRegistry implements AnnotationKeyLocator {
     private final IntHashMap<AnnotationKey> apiErrorLookupTable;
 
     private AnnotationKeyRegistry(HashMap<Integer, AnnotationKey> buildMap) {
-        if (buildMap == null) {
-            throw new NullPointerException("buildMap");
-        }
+        Objects.requireNonNull(buildMap, "buildMap");
+
         this.codeLookupTable = IntHashMapUtils.copy(buildMap);
         this.nameLookupTable = buildNameTable(buildMap.values());
         this.apiErrorLookupTable = buildApiMetaDataError(buildMap.values());
@@ -101,9 +101,8 @@ public class AnnotationKeyRegistry implements AnnotationKeyLocator {
         private final HashMap<Integer, AnnotationKey> buildMap = new HashMap<Integer, AnnotationKey>();
 
         void addAnnotationKey(AnnotationKey annotationKey) {
-            if (annotationKey == null) {
-                throw new NullPointerException("annotationKey");
-            }
+            Objects.requireNonNull(annotationKey, "annotationKey");
+
             int code = annotationKey.getCode();
             final AnnotationKey exist = this.buildMap.put(code, annotationKey);
             if (exist != null) {

@@ -23,6 +23,8 @@ import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.receiver.TestReceiver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -34,10 +36,7 @@ public class TestReceiverService {
 
     @Autowired
     public TestReceiverService(TestReceiver testReceiver) {
-        if (testReceiver == null) {
-            throw new NullPointerException("testReceiver");
-        }
-        this.testReceiver = testReceiver;
+        this.testReceiver = Objects.requireNonNull(testReceiver, "testReceiver");
         this.propagationMarker = new PropagationMarker();
     }
 

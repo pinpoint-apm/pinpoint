@@ -38,6 +38,7 @@ import org.junit.Assert;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -50,10 +51,7 @@ class RabbitMQTestRunner {
     private static final Random RANDOM = new Random();
 
     RabbitMQTestRunner(ConnectionFactory connectionFactory) {
-        if (connectionFactory == null) {
-            throw new NullPointerException("connectionFactory");
-        }
-        this.connectionFactory = connectionFactory;
+        this.connectionFactory = Objects.requireNonNull(connectionFactory, "connectionFactory");
     }
 
     private final ConnectionFactory connectionFactory;

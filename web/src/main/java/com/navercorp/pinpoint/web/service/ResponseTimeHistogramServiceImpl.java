@@ -89,7 +89,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     }
 
     private ServerInstanceListFactory createServerInstanceListFactory(ResponseTimeHistogramServiceOption option) {
-        if (option.isUseStatisticsServerInstanceList()) {
+        if (option.isUseStatisticsAgentState()) {
             return new StatisticsServerInstanceListFactory();
         }
         ServerInstanceListDataSource serverInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService);

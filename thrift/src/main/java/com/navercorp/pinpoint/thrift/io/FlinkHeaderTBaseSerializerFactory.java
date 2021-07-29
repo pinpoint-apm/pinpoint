@@ -19,6 +19,8 @@ import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TProtocolFactory;
 
+import java.util.Objects;
+
 /**
  * @author minwoo.jung
  */
@@ -27,11 +29,8 @@ public class FlinkHeaderTBaseSerializerFactory implements SerializerFactory<Flin
     private final TypeLocator<TBase<?, ?>> tBaseLocator;
     private final HeaderTBaseSerializerFactory headerTBaseSerializerFactory;
 
-    public FlinkHeaderTBaseSerializerFactory(TypeLocator<TBase<?, ?>> flinkTBaseLocator) {
-        if (flinkTBaseLocator == null) {
-            throw new NullPointerException("flinkTBaseLocator");
-        }
-        tBaseLocator = flinkTBaseLocator;
+    public FlinkHeaderTBaseSerializerFactory(TypeLocator<TBase<?, ?>> tBaseLocator) {
+        this.tBaseLocator = Objects.requireNonNull(tBaseLocator, "tBaseLocator");
         headerTBaseSerializerFactory = new HeaderTBaseSerializerFactory(tBaseLocator);
     }
 

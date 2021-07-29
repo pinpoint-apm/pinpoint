@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.monitor.metric.gc;
 
 import java.lang.management.GarbageCollectorMXBean;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -27,14 +28,8 @@ public class DefaultDetailedGarbageCollectorMetric implements DetailedGarbageCol
     private final GarbageCollectorMXBean garbageCollectorMXBean;
 
     public DefaultDetailedGarbageCollectorMetric(GarbageCollectorType garbageCollectorType, GarbageCollectorMXBean garbageCollectorMXBean) {
-        if (garbageCollectorType == null) {
-            throw new NullPointerException("garbageCollectorType");
-        }
-        if (garbageCollectorMXBean == null) {
-            throw new NullPointerException("garbageCollectorMXBean");
-        }
-        this.garbageCollectorType = garbageCollectorType;
-        this.garbageCollectorMXBean = garbageCollectorMXBean;
+        this.garbageCollectorType = Objects.requireNonNull(garbageCollectorType, "garbageCollectorType");
+        this.garbageCollectorMXBean = Objects.requireNonNull(garbageCollectorMXBean, "garbageCollectorMXBean");
     }
 
     @Override

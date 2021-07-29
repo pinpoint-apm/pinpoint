@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
+import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
@@ -23,8 +24,6 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -34,9 +33,6 @@ import java.util.Set;
  * @author jaehong.kim
  */
 public class StatisticsServerInstanceListFactory implements ServerInstanceListFactory {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     public StatisticsServerInstanceListFactory() {
     }
 
@@ -49,13 +45,16 @@ public class StatisticsServerInstanceListFactory implements ServerInstanceListFa
 
         final ServerBuilder builder = new ServerBuilder();
         final Set<AgentInfo> agentInfoSet = new HashSet<>();
-        for(String agentId : wasNode.getNodeHistogram().getAgentHistogramMap().keySet()) {
-            AgentInfo agentInfo = new AgentInfo();
-            agentInfo.setAgentId(agentId);
-            agentInfo.setHostName(agentId);
-            agentInfo.setIp("");
-            agentInfo.setServiceTypeCode(wasNode.getServiceType().getCode());
-            agentInfoSet.add(agentInfo);
+        final NodeHistogram nodeHistogram = wasNode.getNodeHistogram();
+        if (nodeHistogram != null && nodeHistogram.getAgentHistogramMap() != null) {
+            for (String agentId : nodeHistogram.getAgentHistogramMap().keySet()) {
+                AgentInfo agentInfo = new AgentInfo();
+                agentInfo.setAgentId(agentId);
+                agentInfo.setHostName(agentId);
+                agentInfo.setIp("");
+                agentInfo.setServiceTypeCode(wasNode.getServiceType().getCode());
+                agentInfoSet.add(agentInfo);
+            }
         }
         builder.addAgentInfo(agentInfoSet);
         return builder.build();

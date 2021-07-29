@@ -20,6 +20,8 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -34,10 +36,7 @@ public class WriteFailFutureListener implements ChannelFutureListener {
     }
 
     public WriteFailFutureListener(Logger logger, String failMessage, String successMessage) {
-        if (logger == null) {
-            throw new NullPointerException("logger");
-        }
-        this.logger = logger;
+        this.logger = Objects.requireNonNull(logger, "logger");
         this.failMessage = failMessage;
         this.successMessage = successMessage;
     }

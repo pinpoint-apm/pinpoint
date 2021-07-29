@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.monitor.metric.memory;
 
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
+import java.util.Objects;
 
 /**
  * Metric for detailed memory usages
@@ -43,10 +44,7 @@ public class DefaultDetailedMemoryMetric implements DetailedMemoryMetric {
             MemoryPoolMXBean codeCachePool,
             MemoryPoolMXBean permGenPool,
             MemoryPoolMXBean metaspacePool) {
-        if (memoryPoolType == null) {
-            throw new NullPointerException("memoryPoolType");
-        }
-        this.memoryPoolType = memoryPoolType;
+        this.memoryPoolType = Objects.requireNonNull(memoryPoolType, "memoryPoolType");
         this.codeCachePool = wrap(codeCachePool);
         this.edenSpacePool = wrap(edenSpacePool);
         this.oldSpacePool = wrap(oldSpacePool);

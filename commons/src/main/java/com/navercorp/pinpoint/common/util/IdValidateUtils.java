@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.util;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,9 +43,8 @@ public final class IdValidateUtils {
     }
 
     public static boolean validateId(String id, int maxLength) {
-        if (id == null) {
-            throw new NullPointerException("id");
-        }
+        Objects.requireNonNull(id, "id");
+
         if (maxLength <= 0) {
             throw new IllegalArgumentException("negative maxLength:" + maxLength);
         }
@@ -65,9 +65,8 @@ public final class IdValidateUtils {
     }
 
     public static boolean checkLength(String id, int maxLength) {
-        if (id == null) {
-            throw new NullPointerException("id");
-        }
+        Objects.requireNonNull(id, "id");
+
         // try encode
         final int idLength = getLength(id);
         if (idLength <= 0) {

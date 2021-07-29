@@ -20,6 +20,8 @@ package com.navercorp.pinpoint.bootstrap.logging;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -53,9 +55,8 @@ public final class PLoggerFactory {
     }
 
     public static PLogger getLogger(Class clazz) {
-        if (clazz == null) {
-            throw new NullPointerException("class");
-        }
+        Objects.requireNonNull(clazz, "clazz");
+
         return getLogger(clazz.getName());
     }
 }

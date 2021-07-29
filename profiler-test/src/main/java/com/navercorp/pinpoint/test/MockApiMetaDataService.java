@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.profiler.metadata.Result;
 import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -33,10 +35,7 @@ public class MockApiMetaDataService implements ApiMetaDataService {
     private final EnhancedDataSender<Object> enhancedDataSender;
 
     public MockApiMetaDataService(EnhancedDataSender<Object> enhancedDataSender) {
-        if (enhancedDataSender == null) {
-            throw new NullPointerException("enhancedDataSender");
-        }
-        this.enhancedDataSender = enhancedDataSender;
+        this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
     }
 
     @Override

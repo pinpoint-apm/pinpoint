@@ -21,6 +21,8 @@ import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.TestMessageHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -32,10 +34,7 @@ public class TestMessageHandler {
 
     @Autowired
     public TestMessageHandler(TestMessageHolder testMessageHolder) {
-        if (testMessageHolder == null) {
-            throw new NullPointerException("testMessageHolder");
-        }
-        this.testMessageHolder = testMessageHolder;
+        this.testMessageHolder = Objects.requireNonNull(testMessageHolder, "testMessageHolder");
     }
 
     public void handleMessage(String message) {

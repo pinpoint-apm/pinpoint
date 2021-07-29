@@ -21,6 +21,8 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -35,10 +37,7 @@ public class AgentEventHeaderTBaseDeserializerFactory implements DeserializerFac
     }
 
     public AgentEventHeaderTBaseDeserializerFactory(TProtocolFactory protocolFactory) {
-        if (protocolFactory == null) {
-            throw new NullPointerException("protocolFactory");
-        }
-        this.protocolFactory = protocolFactory;
+        this.protocolFactory = Objects.requireNonNull(protocolFactory, "protocolFactory");
     }
 
     public TProtocolFactory getProtocolFactory() {

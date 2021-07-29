@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  * @author jaehong.kim
@@ -34,15 +36,9 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Aroun
     protected final MethodDescriptor methodDescriptor;
     protected final TraceContext traceContext;
 
-    protected SpanEventSimpleAroundInterceptorForPlugin(TraceContext traceContext, MethodDescriptor descriptor) {
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext");
-        }
-        if (descriptor == null) {
-            throw new NullPointerException("descriptor");
-        }
-        this.traceContext = traceContext;
-        this.methodDescriptor = descriptor;
+    protected SpanEventSimpleAroundInterceptorForPlugin(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
+        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
     }
 
     @Override

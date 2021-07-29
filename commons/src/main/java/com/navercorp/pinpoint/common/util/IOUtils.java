@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.DatagramSocket;
 import java.net.Socket;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -44,9 +45,8 @@ public final class IOUtils {
     }
 
     public static byte[] toByteArray(final InputStream inputStream, int bufferSize, boolean close) throws IOException {
-        if (inputStream == null) {
-            throw new NullPointerException("inputStream");
-        }
+        Objects.requireNonNull(inputStream, "inputStream");
+
         if (bufferSize < 0) {
             throw new IllegalArgumentException("negative bufferSize");
         }

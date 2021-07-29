@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.batch.alarm.vo.sender.payload;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
-import com.navercorp.pinpoint.batch.common.BatchConfiguration;
 
 /**
  * @author Jongjin.Bae
@@ -26,22 +25,23 @@ import com.navercorp.pinpoint.batch.common.BatchConfiguration;
 @JsonSerialize(using = WebhookPayloadSerializer.class)
 public class WebhookPayload {
     
-    private String pinpointUrl;
-    private String batchEnv;
-    private String applicationId;
-    private String serviceType;
-    private String checkerName;
-    private String checkerType;
-    private UserGroup userGroup;
-    private CheckerDetectedValue checkerDetectedValue;
-    private String unit;
-    private Integer threshold;
-    private String notes;
-    private Integer sequenceCount;
+    private final String pinpointUrl;
+    private final String batchEnv;
+    private final String applicationId;
+    private final String serviceType;
+    private final String checkerName;
+    private final String checkerType;
+    private final UserGroup userGroup;
+    private final CheckerDetectedValue checkerDetectedValue;
+    private final String unit;
+    private final Integer threshold;
+    private final String notes;
+    private final Integer sequenceCount;
     
-    public WebhookPayload(AlarmChecker checker, BatchConfiguration batchConfiguration, int sequenceCount, UserGroup userGroup) {
-        this.pinpointUrl = batchConfiguration.getPinpointUrl();
-        this.batchEnv = batchConfiguration.getBatchEnv();
+    public WebhookPayload(String pinpointUrl, String batchEnv, AlarmChecker checker, int sequenceCount, UserGroup userGroup) {
+        this.pinpointUrl = pinpointUrl;
+        this.batchEnv = batchEnv;
+
         this.applicationId = checker.getRule().getApplicationId();
         this.serviceType = checker.getRule().getServiceType();
         this.checkerName = checker.getRule().getCheckerName();

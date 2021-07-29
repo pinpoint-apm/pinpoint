@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -15,12 +16,9 @@ public class DriverManagerDataSource implements DataSource {
 
 
     public DriverManagerDataSource(String jdbcUrl, String user, String password) {
-        if (user == null) {
-            throw new NullPointerException("user");
-        }
-        if (password == null) {
-            throw new NullPointerException("password");
-        }
+        Objects.requireNonNull(user, "user");
+        Objects.requireNonNull(password, "password");
+
         this.jdbcUrl = jdbcUrl;
         Properties properties = new Properties();
         properties.put("user", user);

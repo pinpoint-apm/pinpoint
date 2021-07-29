@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -48,10 +49,7 @@ public class CollectJob implements Runnable {
                        String agentId, long agentStartTimestamp,
                        AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
                        int numCollectionsPerBatch) {
-        if (dataSender == null) {
-            throw new NullPointerException("dataSender");
-        }
-        this.dataSender = dataSender;
+        this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
         this.agentId = agentId;
         this.agentStartTimestamp = agentStartTimestamp;
         this.agentStatCollector = agentStatCollector;

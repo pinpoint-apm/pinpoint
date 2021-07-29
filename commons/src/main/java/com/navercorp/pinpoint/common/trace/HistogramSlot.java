@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.trace;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -26,15 +28,9 @@ public class HistogramSlot {
     private final String slotName;
 
     public HistogramSlot(short slotTime, SlotType slotType, String slotName) {
-        if (slotType == null) {
-            throw new NullPointerException("slotType");
-        }
-        if (slotName == null) {
-            throw new NullPointerException("slotName");
-        }
         this.slotTime = slotTime;
-        this.slotType = slotType;
-        this.slotName = slotName;
+        this.slotType = Objects.requireNonNull(slotType, "slotType");
+        this.slotName = Objects.requireNonNull(slotName, "slotName");
     }
 
     public short getSlotTime() {

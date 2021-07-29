@@ -2,6 +2,8 @@ package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 
+import java.util.Objects;
+
 final class ReflectionUtils {
     public static final String ARRAY_POSTFIX = "[]";
 
@@ -10,9 +12,7 @@ final class ReflectionUtils {
 
     @VisibleForTesting
     static String getParameterTypeName(Class<?> parameterType) {
-        if (parameterType == null) {
-            throw new NullPointerException("parameterType");
-        }
+        Objects.requireNonNull(parameterType, "parameterType");
 
         if (!parameterType.isArray()) {
             return parameterType.getName();

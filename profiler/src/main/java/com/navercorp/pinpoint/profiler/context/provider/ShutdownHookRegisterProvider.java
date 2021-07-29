@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -60,9 +61,8 @@ public class ShutdownHookRegisterProvider implements Provider<ShutdownHookRegist
     private final String vendorName;
 
     public ShutdownHookRegisterProvider(ProfilerConfig profilerConfig) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig");
-        }
+        Objects.requireNonNull(profilerConfig, "profilerConfig");
+        
         vendorName = profilerConfig.getProfilerJvmVendorName();
     }
 

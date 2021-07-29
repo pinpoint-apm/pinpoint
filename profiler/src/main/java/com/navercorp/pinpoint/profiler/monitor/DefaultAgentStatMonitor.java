@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -68,15 +69,10 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
                                    CustomMetricRegistryService customMetricRegistryService,
                                    UriStatStorage uriStatStorage,
                                    ProfilerConfig profilerConfig) {
-        if (dataSender == null) {
-            throw new NullPointerException("dataSender");
-        }
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
-        if (agentStatCollector == null) {
-            throw new NullPointerException("agentStatCollector");
-        }
+        Objects.requireNonNull(dataSender, "dataSender");
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(agentStatCollector, "agentStatCollector");
+
 
         long collectionIntervalMs = profilerConfig.getProfileJvmStatCollectIntervalMs();
         int numCollectionsPerBatch = profilerConfig.getProfileJvmStatBatchSendCount();

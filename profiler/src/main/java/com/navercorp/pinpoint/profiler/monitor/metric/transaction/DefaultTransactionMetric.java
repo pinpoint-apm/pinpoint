@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.monitor.metric.transaction;
 
 import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -31,9 +33,8 @@ public class DefaultTransactionMetric implements TransactionMetric {
     private final TransactionGauge skippedContinuationGauge;
 
     public DefaultTransactionMetric(final TransactionCounter transactionCounter) {
-        if (transactionCounter == null) {
-            throw new NullPointerException("transactionCounter");
-        }
+        Objects.requireNonNull(transactionCounter, "transactionCounter");
+
         sampledNewGauge = TransactionGauge.from(new LongCounter() {
             @Override
             public long getCount() {
@@ -103,10 +104,7 @@ public class DefaultTransactionMetric implements TransactionMetric {
         }
 
         private TransactionGauge(LongCounter longCounter) {
-            if (longCounter == null) {
-                throw new NullPointerException("longGauge");
-            }
-            this.longCounter = longCounter;
+            this.longCounter = Objects.requireNonNull(longCounter, "longCounter");
         }
 
         private long getTransactionCount() {

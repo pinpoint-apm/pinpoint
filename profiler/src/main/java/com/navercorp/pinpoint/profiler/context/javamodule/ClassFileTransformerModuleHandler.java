@@ -27,6 +27,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -40,17 +41,9 @@ public class ClassFileTransformerModuleHandler implements ClassFileTransformModu
 
 
     public ClassFileTransformerModuleHandler(Instrumentation instrumentation, ClassFileTransformer delegate, JavaModuleFactory javaModuleFactory) {
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation");
-        }
-        if (delegate == null) {
-            throw new NullPointerException("delegate");
-        }
-        if (javaModuleFactory == null) {
-            throw new NullPointerException("javaModuleFactory");
-        }
-        this.delegate = delegate;
-        this.javaModuleFactory = javaModuleFactory;
+        Objects.requireNonNull(instrumentation, "instrumentation");
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
+        this.javaModuleFactory = Objects.requireNonNull(javaModuleFactory, "javaModuleFactory");
         this.bootstrapModule = javaModuleFactory.wrapFromClass(JavaModuleFactory.class);
     }
 

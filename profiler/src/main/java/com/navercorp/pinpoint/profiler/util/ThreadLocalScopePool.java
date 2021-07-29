@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -31,9 +32,8 @@ public class ThreadLocalScopePool implements ScopePool {
 
     @Override
     public InterceptorScopeInvocation getScope(InterceptorScopeDefinition scopeDefinition) {
-        if (scopeDefinition == null) {
-            throw new NullPointerException("scopeDefinition");
-        }
+        Objects.requireNonNull(scopeDefinition, "scopeDefinition");
+
         final InterceptorScopeInvocation scope = this.pool.get(scopeDefinition);
         if (scope != null) {
             return scope;

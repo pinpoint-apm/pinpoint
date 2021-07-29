@@ -30,6 +30,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -41,13 +43,8 @@ public class MQExternalClientHandlerInterceptor implements AroundInterceptor {
     protected final MethodDescriptor methodDescriptor;
 
     public MQExternalClientHandlerInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext");
-        }
-        if (methodDescriptor == null) {
-            throw new NullPointerException("methodDescriptor");
-        }
-        this.methodDescriptor = methodDescriptor;
+        Objects.requireNonNull(traceContext, "traceContext");
+        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
     }
 
     @Override

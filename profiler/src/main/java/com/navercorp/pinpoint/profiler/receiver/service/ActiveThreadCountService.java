@@ -80,9 +80,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService<T
 
     @Override
     public TBase<?, ?> requestCommandService(TBase<?, ?> activeThreadCountObject) {
-        if (activeThreadCountObject == null) {
-            throw new NullPointerException("activeThreadCountObject");
-        }
+        Objects.requireNonNull(activeThreadCountObject, "activeThreadCountObject");
 
         return getActiveThreadCountResponse();
     }

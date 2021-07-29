@@ -23,7 +23,10 @@ import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
+
+import java.util.Objects;
 
 /**
  * <pre>
@@ -39,13 +42,9 @@ public class ApplicationMapStatisticsUtils {
     }
 
     public static byte[] makeColumnName(short serviceType, String applicationName, String destHost, short slotNumber) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
-        if (destHost == null) {
-            // throw new NullPointerException("destHost");
-            destHost = "";
-        }
+        Objects.requireNonNull(applicationName, "applicationName");
+        destHost = StringUtils.defaultString(destHost, "");
+
         // approximate size of destHost
         final Buffer buffer = new AutomaticBuffer(BytesUtils.SHORT_BYTE_LENGTH + PinpointConstants.APPLICATION_NAME_MAX_LEN + destHost.length() + BytesUtils.SHORT_BYTE_LENGTH);
         buffer.putShort(serviceType);
@@ -79,9 +78,8 @@ public class ApplicationMapStatisticsUtils {
 
 
     private static short findResponseHistogramSlotNo(ServiceType serviceType, int elapsed, boolean isError, boolean isPing) {
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType");
-        }
+        Objects.requireNonNull(serviceType, "serviceType");
+
         final HistogramSchema histogramSchema = serviceType.getHistogramSchema();
         if (isPing) {
             return histogramSchema.getPingSlot().getSlotTime();
@@ -136,9 +134,8 @@ public class ApplicationMapStatisticsUtils {
      * @return
      */
     public static byte[] makeRowKey(String applicationName, short applicationType, long timestamp) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
+        Objects.requireNonNull(applicationName, "applicationName");
+
         final byte[] applicationNameBytes= BytesUtils.toBytes(applicationName);
 
         final Buffer buffer = new AutomaticBuffer(2 + applicationNameBytes.length + 2 + 8);
@@ -152,9 +149,8 @@ public class ApplicationMapStatisticsUtils {
     }
 
     public static String getApplicationNameFromRowKey(byte[] bytes, int offset) {
-        if (bytes == null) {
-            throw new NullPointerException("bytes");
-        }
+        Objects.requireNonNull(bytes, "bytes");
+
         short applicationNameLength = BytesUtils.bytesToShort(bytes, offset);
         return BytesUtils.toString(bytes, offset + 2, applicationNameLength); //.trim();
     }
@@ -168,17 +164,15 @@ public class ApplicationMapStatisticsUtils {
     }
 
     public static short getApplicationTypeFromRowKey(byte[] bytes, int offset) {
-        if (bytes == null) {
-            throw new NullPointerException("bytes");
-        }
+        Objects.requireNonNull(bytes, "bytes");
+
         short applicationNameLength = BytesUtils.bytesToShort(bytes, offset);
         return BytesUtils.bytesToShort(bytes, offset + applicationNameLength + 2);
     }
 
     public static long getTimestampFromRowKey(byte[] bytes) {
-        if (bytes == null) {
-            throw new NullPointerException("bytes");
-        }
+        Objects.requireNonNull(bytes, "bytes");
+
         short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
         return TimeUtils.recoveryTimeMillis(BytesUtils.bytesToLong(bytes, applicationNameLength + 4));
     }

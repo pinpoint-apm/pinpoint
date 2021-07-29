@@ -45,16 +45,14 @@ public class ProgramCommand {
     }
 
     public static ProgramCommand parseArgs(String[] args) {
-        if (args == null) {
-            throw new NullPointerException("args");
-        }
+        Objects.requireNonNull(args, "args");
+
         return parseArgs(new DefaultApplicationArguments(args));
     }
 
     public static ProgramCommand parseArgs(ApplicationArguments applicationArguments) {
-        if (applicationArguments == null) {
-            throw new NullPointerException("applicationArguments");
-        }
+        Objects.requireNonNull(applicationArguments, "applicationArguments");
+
         List<String> nonOptionArgs = applicationArguments.getNonOptionArgs();
         if (CollectionUtils.isEmpty(nonOptionArgs)) {
             return EMPTY;

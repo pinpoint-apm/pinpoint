@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.bootstrap.interceptor.registry;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 
+import java.util.Objects;
+
 
 /**
  * @author emeroad
@@ -29,10 +31,8 @@ public final class InterceptorRegistry {
     private static InterceptorRegistryAdaptor REGISTRY = EmptyRegistryAdaptor.EMPTY;
 
     public static void bind(final InterceptorRegistryAdaptor interceptorRegistryAdaptor, final Object lock) {
-        if (interceptorRegistryAdaptor == null) {
-            throw new NullPointerException("interceptorRegistryAdaptor");
-        }
-        
+        Objects.requireNonNull(interceptorRegistryAdaptor, "interceptorRegistryAdaptor");
+
         if (LOCK.lock(lock)) {
             REGISTRY = interceptorRegistryAdaptor;
         } else {

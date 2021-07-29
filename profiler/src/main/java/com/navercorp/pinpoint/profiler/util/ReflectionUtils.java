@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.profiler.util;
 
+import java.util.Objects;
+
 /**
  * duplicate : com.navercorp.pinpoint.bootstrap.plugin.jdbc.ReflectionUtils
  */
@@ -10,9 +12,7 @@ public final class ReflectionUtils {
     }
 
     public static String getParameterTypeName(Class<?> parameterType) {
-        if (parameterType == null) {
-            throw new NullPointerException("parameterType");
-        }
+        Objects.requireNonNull(parameterType, "parameterType");
 
         if (!parameterType.isArray()) {
             return parameterType.getName();

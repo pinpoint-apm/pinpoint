@@ -20,6 +20,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.GetResponse;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -30,10 +31,7 @@ public class TestMessagePuller {
     private final PropagationMarker propagationMarker = new PropagationMarker();
 
     public TestMessagePuller(Channel channel) {
-        if (channel == null) {
-            throw new NullPointerException("channel");
-        }
-        this.channel = channel;
+        this.channel = Objects.requireNonNull(channel, "channel");
     }
 
     public <T> T pullMessage(MessageConverter<T> messageConverter, String queueName, boolean autoAck) throws IOException {

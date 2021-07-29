@@ -56,6 +56,8 @@ import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3PluginConfig;
 import org.apache.commons.httpclient.URI;
 
+import java.util.Objects;
+
 /**
  * @author Minwoo Jung
  * @author jaehong.kim
@@ -74,19 +76,10 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     private final CookieRecorder<HttpMethod> cookieRecorder;
     private final EntityRecorder<HttpMethod> entityRecorder;
 
-    public HttpMethodBaseExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext");
-        }
-        if (methodDescriptor == null) {
-            throw new NullPointerException("methodDescriptor");
-        }
-        if (interceptorScope == null) {
-            throw new NullPointerException("interceptorScope");
-        }
-        this.traceContext = traceContext;
-        this.descriptor = methodDescriptor;
-        this.interceptorScope = interceptorScope;
+    public HttpMethodBaseExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope interceptorScope) {
+        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
+        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.interceptorScope = Objects.requireNonNull(interceptorScope, "interceptorScope");
 
         final HttpClient3PluginConfig config = new HttpClient3PluginConfig(traceContext.getProfilerConfig());
         final boolean param = config.isParam();

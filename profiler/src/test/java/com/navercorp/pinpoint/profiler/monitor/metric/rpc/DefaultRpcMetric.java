@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -33,17 +34,13 @@ public class DefaultRpcMetric implements RpcMetric {
     private final ConcurrentMap<String, Histogram> histogramMap = new ConcurrentHashMap<String, Histogram>();
 
     public DefaultRpcMetric(ServiceType serviceType) {
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType");
-        }
-        this.serviceType = serviceType;
+        this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
     }
 
     @Override
     public void addResponseTime(String destinationId, int millis, boolean error) {
-        if (destinationId == null) {
-            throw new NullPointerException("destinationId");
-        }
+        Objects.requireNonNull(destinationId, "destinationId");
+
         Histogram histogram = getHistogram0(destinationId);
         histogram.addResponseTime(millis, error);
     }

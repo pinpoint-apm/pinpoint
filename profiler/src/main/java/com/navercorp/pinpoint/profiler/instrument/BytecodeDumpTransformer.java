@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -20,14 +21,9 @@ public class BytecodeDumpTransformer implements ClassFileTransformer {
     }
 
     private BytecodeDumpTransformer(ClassFileTransformer delegate, ProfilerConfig profilerConfig) {
-        if (delegate == null) {
-            throw new NullPointerException("delegate");
-        }
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig");
-        }
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
 
-        this.delegate = delegate;
+        Objects.requireNonNull(profilerConfig, "profilerConfig");
         this.bytecodeDumpService = new ASMBytecodeDumpService(profilerConfig);
 
     }

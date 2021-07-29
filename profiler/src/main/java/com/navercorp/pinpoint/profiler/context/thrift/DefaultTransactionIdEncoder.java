@@ -121,9 +121,7 @@ public class DefaultTransactionIdEncoder implements TransactionIdEncoder {
 
     @Override
     public ByteBuffer encodeTransactionId(TraceId traceId) {
-        if (traceId == null) {
-            throw new NullPointerException("traceId");
-        }
+        Objects.requireNonNull(traceId, "traceId");
 
         return ByteBuffer.wrap(encodeTransaction0(traceId));
     }

@@ -69,9 +69,8 @@ public class TestClassLoader extends TransformClassLoader {
 
 
     public void addDelegateClass(String className) {
-        if (className == null) {
-            throw new NullPointerException("className");
-        }
+        Objects.requireNonNull(className, "className");
+
         this.delegateClass.add(className);
     }
 

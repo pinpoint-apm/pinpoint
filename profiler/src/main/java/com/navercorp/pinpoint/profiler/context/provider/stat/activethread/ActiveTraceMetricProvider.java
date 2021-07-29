@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.profiler.context.active.EmptyActiveTraceRepository
 import com.navercorp.pinpoint.profiler.monitor.metric.activethread.ActiveTraceMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.activethread.DefaultActiveTraceMetric;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -32,9 +34,8 @@ public class ActiveTraceMetricProvider implements Provider<ActiveTraceMetric> {
 
     @Inject
     public ActiveTraceMetricProvider(Provider<ActiveTraceRepository> activeTraceRepositoryProvider) {
-        if (activeTraceRepositoryProvider == null) {
-            throw new NullPointerException("activeTraceRepositoryProvider");
-        }
+        Objects.requireNonNull(activeTraceRepositoryProvider, "activeTraceRepositoryProvider");
+
         this.activeTraceRepository = activeTraceRepositoryProvider.get();
     }
 

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -209,9 +210,8 @@ public class ActiveTraceRepositoryTest {
         private final long threadId;
 
         private TraceThreadTuple(Trace trace, long threadId) {
-            if (trace == null) {
-                throw new NullPointerException("trace");
-            }
+            Objects.requireNonNull(trace, "trace");
+
             this.id = trace.getId();
             this.startTime = trace.getStartTime();
             this.threadId = threadId;

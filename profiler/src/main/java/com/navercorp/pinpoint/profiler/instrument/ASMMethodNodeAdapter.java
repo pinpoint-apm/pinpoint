@@ -28,6 +28,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -179,9 +180,7 @@ public class ASMMethodNodeAdapter {
     }
 
     public void addDelegator(final String superClassInternalName) {
-        if (superClassInternalName == null) {
-            throw new NullPointerException("super class internal name");
-        }
+        Objects.requireNonNull(superClassInternalName, "superClassInternalName");
 
         final InsnList instructions = this.methodNode.instructions;
         if (isStatic()) {

@@ -24,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -36,22 +37,14 @@ public class ByteArrayHeaderWriter implements HeaderWriter {
     private final HeaderEntity headerEntity;
 
     public ByteArrayHeaderWriter(Header header) {
-        if (header == null) {
-            throw new NullPointerException("header");
-        }
-
+        this.header = Objects.requireNonNull(header, "header");
         this.buffer = new AutomaticBuffer(4);
-        this.header = header;
         this.headerEntity = HeaderEntity.EMPTY_HEADER_ENTITY;
     }
 
     public ByteArrayHeaderWriter(Header header, HeaderEntity headerEntity) {
-        if (header == null) {
-            throw new NullPointerException("header");
-        }
-
+        this.header = Objects.requireNonNull(header, "header");
         this.buffer = new AutomaticBuffer(4);
-        this.header = header;
         this.headerEntity = headerEntity;
     }
 

@@ -175,7 +175,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         applicationMapBuilder.linkType(LinkType.DETAILED);
         final WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(filteredMap.getResponseHistograms());
         applicationMapBuilder.includeNodeHistogram(new DefaultNodeHistogramFactory(wasNodeHistogramDataSource));
-        if(option.isUseStatisticsServerInstanceList()) {
+        if(option.isUseStatisticsAgentState()) {
             applicationMapBuilder.includeServerInfo(new StatisticsServerInstanceListFactory());
         } else {
             ServerInstanceListDataSource serverInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService);

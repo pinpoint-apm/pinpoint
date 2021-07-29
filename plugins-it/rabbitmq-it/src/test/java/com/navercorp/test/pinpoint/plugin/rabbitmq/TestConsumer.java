@@ -22,6 +22,7 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -39,10 +40,7 @@ public class TestConsumer<T> extends DefaultConsumer {
 
     public TestConsumer(Channel channel, MessageConverter<T> messageConverter) {
         super(channel);
-        if (messageConverter == null) {
-            throw new NullPointerException("messageConverter");
-        }
-        this.messageConverter = messageConverter;
+        this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
     }
 
     @Override

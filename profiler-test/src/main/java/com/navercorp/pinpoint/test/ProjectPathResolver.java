@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 import java.net.URL;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -33,9 +34,8 @@ public class ProjectPathResolver {
     // maven base path resolver
     // extract interface ????
     public ProjectPath resolvePathFromTestClass(Class testClass) {
-        if (testClass == null) {
-            throw new NullPointerException("testClass");
-        }
+        Objects.requireNonNull(testClass, "testClass");
+
         String testClassDir = getTestClassPath(testClass);
         // /D:/pinpoint_project/pinpoint/profiler/target/test-classes/
         String targetPath = getTargetPath(testClassDir);
@@ -69,9 +69,8 @@ public class ProjectPathResolver {
 
 
     private String getProjectPath(String modulePath) {
-        if (modulePath == null) {
-            throw new NullPointerException("modulePath");
-        }
+        Objects.requireNonNull(modulePath, "modulePath");
+
         // remove last /
         final int projectPathFound = modulePath.lastIndexOf('/');
         if (projectPathFound == -1) {
@@ -93,9 +92,7 @@ public class ProjectPathResolver {
     }
 
     private String getPinpointAgentPath(String projectPath) {
-        if (projectPath == null) {
-            throw new NullPointerException("projectPath");
-        }
+        Objects.requireNonNull(projectPath, "projectPath");
 
         String pinpointAgentDir = projectPath + "/profiler/target/pinpoint-agent";
         logger.debug("pinpointAgentDir:{}", pinpointAgentDir);
@@ -105,9 +102,8 @@ public class ProjectPathResolver {
 
 
     private String getTargetPath(String testClassDir) {
-        if (testClassDir == null) {
-            throw new NullPointerException("testClassDir");
-        }
+        Objects.requireNonNull(testClassDir, "testClassDir");
+
         // remove last '/'
         // D:/pinpoint_project/pinpoint/profiler/target/test-classes/ -> D:/pinpoint_project/pinpoint/profiler/target/test-classes
 

@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Objects;
 
 public class LogDirCleaner {
     private final BootLogger logger = BootLogger.getLogger(this.getClass());
@@ -14,10 +15,7 @@ public class LogDirCleaner {
     private final int maxSize;
 
     public LogDirCleaner(String logPath, int maxSize) {
-        if (logPath == null) {
-            throw new NullPointerException("logPath");
-        }
-        this.logPath = logPath;
+        this.logPath = Objects.requireNonNull(logPath, "logPath");
         this.maxSize = maxSize;
     }
 

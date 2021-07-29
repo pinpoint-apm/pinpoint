@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
@@ -82,12 +83,9 @@ public class PropertyPlaceholderHelper {
      */
     public PropertyPlaceholderHelper(String placeholderPrefix, String placeholderSuffix,
                                      String valueSeparator, boolean ignoreUnresolvablePlaceholders) {
-        if (placeholderPrefix == null) {
-            throw new NullPointerException("placeholderPrefix");
-        }
-        if (placeholderSuffix == null) {
-            throw new NullPointerException("placeholderSuffix");
-        }
+        Objects.requireNonNull(placeholderPrefix, "placeholderPrefix");
+        Objects.requireNonNull(placeholderSuffix, "placeholderSuffix");
+
         this.placeholderPrefix = placeholderPrefix;
         this.placeholderSuffix = placeholderSuffix;
         String simplePrefixForSuffix = wellKnownSimplePrefixes.get(this.placeholderSuffix);
@@ -110,9 +108,8 @@ public class PropertyPlaceholderHelper {
      * @return the supplied value with placeholders replaced inline.
      */
     public String replacePlaceholders(String value, final Properties properties) {
-        if (properties == null) {
-            throw new NullPointerException("properties");
-        }
+        Objects.requireNonNull(value, "value");
+
         return replacePlaceholders(value, new PlaceholderResolver() {
             public String resolvePlaceholder(String placeholderName) {
                 return properties.getProperty(placeholderName);
@@ -128,9 +125,8 @@ public class PropertyPlaceholderHelper {
      * @return the supplied value with placeholders replaced inline.
      */
     public String replacePlaceholders(String value, PlaceholderResolver placeholderResolver) {
-        if (value == null) {
-            throw new NullPointerException("value");
-        }
+        Objects.requireNonNull(value, "value");
+
         return parseStringValue(value, placeholderResolver, new HashSet<String>());
     }
 

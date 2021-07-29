@@ -47,9 +47,7 @@ public class ASMEngine implements InstrumentEngine {
 
     @Override
     public InstrumentClass getClass(InstrumentContext instrumentContext, ClassLoader classLoader, String className, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws NotFoundInstrumentException {
-        if (className == null) {
-            throw new NullPointerException("className");
-        }
+        Objects.requireNonNull(className, "className");
 
         try {
             if (classFileBuffer == null) {
@@ -75,9 +73,8 @@ public class ASMEngine implements InstrumentEngine {
 
     @Override
     public void appendToBootstrapClassPath(JarFile jarFile) {
-        if (jarFile == null) {
-            throw new NullPointerException("jarFile");
-        }
+        Objects.requireNonNull(jarFile, "jarFile");
+
         if (isInfo) {
             logger.info("appendToBootstrapClassPath:{}", jarFile.getName());
         }
