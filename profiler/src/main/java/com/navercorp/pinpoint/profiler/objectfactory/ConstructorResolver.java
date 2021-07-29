@@ -22,6 +22,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Objects;
 
 /**
  * @author Jongho Moon
@@ -37,10 +38,7 @@ public class ConstructorResolver {
     private Object[] resolvedArguments;
 
     public ConstructorResolver(Class<?> type, ArgumentsResolver argumentsResolver) {
-        if (type == null) {
-            throw new NullPointerException("type");
-        }
-        this.type = type;
+        this.type = Objects.requireNonNull(type, "type");
         this.argumentsResolver = argumentsResolver;
     }
 

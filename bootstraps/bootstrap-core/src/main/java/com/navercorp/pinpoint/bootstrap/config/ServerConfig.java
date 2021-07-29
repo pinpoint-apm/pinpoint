@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import java.util.Objects;
+
 /**
  * @author jaehong.kim
  */
@@ -27,19 +29,14 @@ public class ServerConfig {
     static final String REAL_IP_EMPTY_VALUE_PROPERTY_NAME = "profiler.server.realipemptyvalue";
     static final String EXCLUDE_METHOD_PROPERTY_NAME = "profiler.server.excludemethod";
 
-    private ProfilerConfig config;
+    private final ProfilerConfig config;
 
     public ServerConfig(final ProfilerConfig config) {
-        if (config == null) {
-            throw new NullPointerException("config");
-        }
-        this.config = config;
+        this.config = Objects.requireNonNull(config, "config");
     }
 
     public boolean isHidePinpointHeader(final String propertyName) {
-        if (propertyName == null) {
-            throw new NullPointerException("propertyName");
-        }
+        Objects.requireNonNull(propertyName, "propertyName");
 
         final String propertyValue = config.readString(propertyName, "");
         if (!propertyValue.isEmpty()) {
@@ -51,9 +48,7 @@ public class ServerConfig {
     }
 
     public boolean isTraceRequestParam(final String propertyName) {
-        if (propertyName == null) {
-            throw new NullPointerException("propertyName");
-        }
+        Objects.requireNonNull(propertyName, "propertyName");
 
         final String propertyValue = config.readString(propertyName, "");
         if (!propertyValue.isEmpty()) {
@@ -65,9 +60,7 @@ public class ServerConfig {
     }
 
     public Filter<String> getExcludeUrlFilter(final String propertyName) {
-        if (propertyName == null) {
-            throw new NullPointerException("propertyName");
-        }
+        Objects.requireNonNull(propertyName, "propertyName");
 
         final String excludeUrlPropertyValue = config.readString(propertyName, "");
         if (!excludeUrlPropertyValue.isEmpty()) {
@@ -79,13 +72,11 @@ public class ServerConfig {
             return new ExcludePathFilter(serverExcludeUrlPropertyValue);
         }
 
-        return new SkipFilter<String>();
+        return new SkipFilter<>();
     }
 
     public String getRealIpHeader(final String propertyName) {
-        if (propertyName == null) {
-            throw new NullPointerException("propertyName");
-        }
+        Objects.requireNonNull(propertyName, "propertyName");
 
         final String propertyValue = config.readString(propertyName, "");
         if (!propertyValue.isEmpty()) {
@@ -97,9 +88,7 @@ public class ServerConfig {
     }
 
     public String getRealIpEmptyValue(final String propertyName) {
-        if (propertyName == null) {
-            throw new NullPointerException("propertyName");
-        }
+        Objects.requireNonNull(propertyName, "propertyName");
 
         final String propertyValue = config.readString(propertyName, "");
         if (!propertyValue.isEmpty()) {
@@ -111,9 +100,7 @@ public class ServerConfig {
     }
 
     public Filter<String> getExcludeMethodFilter(final String propertyName) {
-        if (propertyName == null) {
-            throw new NullPointerException("propertyName");
-        }
+        Objects.requireNonNull(propertyName, "propertyName");
 
         final String propertyValue = config.readString(propertyName, "");
         if (!propertyValue.isEmpty()) {
@@ -125,6 +112,6 @@ public class ServerConfig {
             return new ExcludeMethodFilter(serverExcludeUrlPropertyValue);
         }
 
-        return new SkipFilter<String>();
+        return new SkipFilter<>();
     }
 }

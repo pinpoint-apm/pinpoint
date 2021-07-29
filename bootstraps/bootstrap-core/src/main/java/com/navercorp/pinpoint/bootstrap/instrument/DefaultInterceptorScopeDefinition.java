@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -24,10 +26,7 @@ public class DefaultInterceptorScopeDefinition implements InterceptorScopeDefini
     private final String name;
 
     public DefaultInterceptorScopeDefinition(String name) {
-        if (name == null) {
-            throw new NullPointerException("name");
-        }
-        this.name = name;
+        this.name = Objects.requireNonNull(name, "name");
     }
 
     @Override

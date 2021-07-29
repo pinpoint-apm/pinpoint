@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -28,13 +30,8 @@ public class MetricTraceFactory implements TraceFactory {
     private final MetricRegistry metricRegistry;
 
     private MetricTraceFactory(TraceFactory traceFactory, ServiceType serviceType) {
-        if (traceFactory == null) {
-            throw new NullPointerException("traceFactory");
-        }
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType");
-        }
-        this.delegate = traceFactory;
+        this.delegate = Objects.requireNonNull(traceFactory, "traceFactory");
+        Objects.requireNonNull(serviceType, "serviceType");
         this.metricRegistry = new MetricRegistry(serviceType);
     }
 
@@ -93,9 +90,7 @@ public class MetricTraceFactory implements TraceFactory {
     }
 
     public Metric getRpcMetric(ServiceType serviceType) {
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType");
-        }
+        Objects.requireNonNull(serviceType, "serviceType");
 
         return this.metricRegistry.getRpcMetric(serviceType);
     }

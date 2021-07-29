@@ -23,6 +23,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,10 +35,7 @@ public class JavaAgentPathResolver {
     private final AgentPathFinder[] agentPathFinders;
 
     JavaAgentPathResolver(AgentPathFinder[] agentPathFinders) {
-        if (agentPathFinders == null) {
-            throw new NullPointerException("agentPathFinders");
-        }
-        this.agentPathFinders = agentPathFinders;
+        this.agentPathFinders = Objects.requireNonNull(agentPathFinders, "agentPathFinders");
     }
 
     public static JavaAgentPathResolver newJavaAgentPathResolver() {

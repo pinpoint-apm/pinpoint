@@ -33,14 +33,8 @@ public class InstrumentorDelegate implements Instrumentor {
     private final InstrumentContext instrumentContext;
 
     public InstrumentorDelegate(ProfilerConfig profilerConfig, InstrumentContext instrumentContext) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig");
-        }
-        if (instrumentContext == null) {
-            throw new NullPointerException("instrumentContext");
-        }
-        this.profilerConfig = profilerConfig;
-        this.instrumentContext = instrumentContext;
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.instrumentContext = Objects.requireNonNull(instrumentContext, "instrumentContext");
     }
 
     @Override

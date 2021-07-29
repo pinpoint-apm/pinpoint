@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.rpc.stream.StreamException;
 
 import org.jboss.netty.channel.Channel;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -32,14 +34,8 @@ public class PinpointClientHandlerContext {
     private final StreamChannelManager streamChannelManager;
 
     public PinpointClientHandlerContext(Channel channel, StreamChannelManager streamChannelManager) {
-        if (channel == null) {
-            throw new NullPointerException("channel");
-        }
-        if (streamChannelManager == null) {
-            throw new NullPointerException("streamChannelManager");
-        }
-        this.channel = channel;
-        this.streamChannelManager = streamChannelManager;
+        this.channel = Objects.requireNonNull(channel, "channel");
+        this.streamChannelManager = Objects.requireNonNull(streamChannelManager, "streamChannelManager");
     }
 
     public Channel getChannel() {

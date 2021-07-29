@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.util;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -67,9 +69,7 @@ public final class ClassLoaderUtils {
     }
 
     public static ClassLoader getDefaultClassLoader(ClassLoaderCallable defaultClassLoaderCallable) {
-        if (defaultClassLoaderCallable == null) {
-            throw new NullPointerException("defaultClassLoaderCallable");
-        }
+        Objects.requireNonNull(defaultClassLoaderCallable, "defaultClassLoaderCallable");
 
         try {
             final Thread th = Thread.currentThread();

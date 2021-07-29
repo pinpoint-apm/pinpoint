@@ -47,9 +47,8 @@ public class DefaultTraceIdFactory implements TraceIdFactory {
     }
 
     public TraceId continueTraceId(String transactionId, long parentSpanId, long spanId, short flags) {
-        if (transactionId == null) {
-            throw new NullPointerException("transactionId");
-        }
+        Objects.requireNonNull(transactionId, "transactionId");
+
         final TransactionId parseId = TransactionIdUtils.parseTransactionId(transactionId);
         return new DefaultTraceId(parseId.getAgentId(), parseId.getAgentStartTime(), parseId.getTransactionSequence(), parentSpanId, spanId, flags);
     }

@@ -14,6 +14,8 @@
  */
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
+import java.util.Objects;
+
 /**
  * @author jaehong.kim
  */
@@ -23,12 +25,8 @@ public class ExceptionHandleAroundInterceptor5 implements AroundInterceptor5 {
     private final ExceptionHandler exceptionHandler;
 
     public ExceptionHandleAroundInterceptor5(AroundInterceptor5 delegate, ExceptionHandler exceptionHandler) {
-        if (delegate == null) {
-            throw new NullPointerException("delegate");
-        }
-
-        this.delegate = delegate;
-        this.exceptionHandler = exceptionHandler;
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
+        this.exceptionHandler = Objects.requireNonNull(exceptionHandler, "exceptionHandler");
     }
 
     @Override

@@ -12,6 +12,8 @@ import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientConstants;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.Envelope;
 
+import java.util.Objects;
+
 /**
  * @author Jinkai.Ma
  * @author Jiaqi Feng
@@ -26,13 +28,8 @@ public class ConsumerHandleDeliveryInterceptor implements AroundInterceptor {
     private final MethodDescriptor methodDescriptor;
 
     public ConsumerHandleDeliveryInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext");
-        }
-        if (methodDescriptor == null) {
-            throw new NullPointerException("methodDescriptor");
-        }
-        this.methodDescriptor = methodDescriptor;
+        Objects.requireNonNull(traceContext, "traceContext");
+        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
     }
 
     @Override

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -30,9 +31,7 @@ public final class JavaModuleFactoryFinder {
     }
 
     public static JavaModuleFactory lookup(Instrumentation instrumentation) {
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation");
-        }
+        Objects.requireNonNull(instrumentation, "instrumentation");
 
         final Class<JavaModuleFactory> javaModuleFactory = getJavaModuleFactory();
         try {

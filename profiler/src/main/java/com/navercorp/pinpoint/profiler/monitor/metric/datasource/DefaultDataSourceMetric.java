@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -36,15 +37,8 @@ public class DefaultDataSourceMetric implements DataSourceMetric {
     private final JdbcUrlParsingService jdbcUrlParsingService;
 
     public DefaultDataSourceMetric(DataSourceMonitorRegistryService dataSourceMonitorRegistryService, JdbcUrlParsingService jdbcUrlParsingService) {
-        if (dataSourceMonitorRegistryService == null) {
-            throw new NullPointerException("dataSourceMonitorRegistryService");
-        }
-        if (jdbcUrlParsingService == null) {
-            throw new NullPointerException("jdbcUrlParsingService");
-        }
-        this.dataSourceMonitorRegistryService = dataSourceMonitorRegistryService;
-        this.jdbcUrlParsingService = jdbcUrlParsingService;
-
+        this.dataSourceMonitorRegistryService = Objects.requireNonNull(dataSourceMonitorRegistryService, "dataSourceMonitorRegistryService");
+        this.jdbcUrlParsingService = Objects.requireNonNull(jdbcUrlParsingService, "jdbcUrlParsingService");
     }
 
     @Override
@@ -55,7 +49,7 @@ public class DefaultDataSourceMetric implements DataSourceMetric {
             return Collections.emptyList();
         }
 
-        List<DataSource> dataSourceList = new ArrayList<DataSource>(dataSourceMonitorList.size());
+        List<DataSource> dataSourceList = new ArrayList<>(dataSourceMonitorList.size());
         for (DataSourceMonitorWrapper dataSourceMonitor : dataSourceMonitorList) {
             DataSource dataSource = collectDataSource(dataSourceMonitor);
             dataSourceList.add(dataSource);

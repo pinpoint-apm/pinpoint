@@ -21,6 +21,8 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -156,9 +158,7 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
 
     @Override
     public boolean setListener(FutureListener<T> listener) {
-        if (listener == null) {
-            throw new NullPointerException("listener");
-        }
+        Objects.requireNonNull(listener, "listener");
 
         boolean alreadyReady = false;
         synchronized (this) {
@@ -236,17 +236,11 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
     }
 
     public void setTimeout(Timeout timeout) {
-        if (timeout == null) {
-            throw new NullPointerException("timeout");
-        }
-        this.timeout = timeout;
+        this.timeout = Objects.requireNonNull(timeout, "timeout");
     }
 
     public void setFailureEventHandler(FailureEventHandler failureEventHandler) {
-        if (failureEventHandler == null) {
-            throw new NullPointerException("failureEventHandler");
-        }
-        this.failureEventHandler = failureEventHandler;
+        this.failureEventHandler = Objects.requireNonNull(failureEventHandler, "failureEventHandler");
     }
 
     @Override

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -29,15 +30,14 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class MetricRegistry {
 
-    private final ConcurrentMap<Short, RpcMetric> rpcCache = new ConcurrentHashMap<Short, RpcMetric>();
+    private final ConcurrentMap<Short, RpcMetric> rpcCache = new ConcurrentHashMap<>();
 
     private final ContextMetric contextMetric;
 
 
     public MetricRegistry(ServiceType serviceType) {
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType");
-        }
+        Objects.requireNonNull(serviceType, "serviceType");
+
         if (!serviceType.isWas()) {
             throw new IllegalArgumentException("illegal serviceType:" + serviceType);
         }
@@ -46,9 +46,8 @@ public class MetricRegistry {
     }
 
     public RpcMetric getRpcMetric(ServiceType serviceType) {
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType");
-        }
+        Objects.requireNonNull(serviceType, "serviceType");
+
         if (!serviceType.isRecordStatistics()) {
             throw new IllegalArgumentException("illegal serviceType:" + serviceType);
         }

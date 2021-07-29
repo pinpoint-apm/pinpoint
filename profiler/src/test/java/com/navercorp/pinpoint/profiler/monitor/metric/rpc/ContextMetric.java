@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.monitor.metric.rpc;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -33,11 +35,7 @@ public class ContextMetric {
     private final AcceptHistogram acceptHistogram = new DefaultAcceptHistogram();
 
     public ContextMetric(ServiceType contextServiceType) {
-        if (contextServiceType == null) {
-            throw new NullPointerException("contextServiceType");
-        }
-
-        this.contextServiceType = contextServiceType;
+        this.contextServiceType = Objects.requireNonNull(contextServiceType, "contextServiceType");
 
         this.responseMetric = new LongAdderHistogram(contextServiceType);
         this.userHistogram = new LongAdderHistogram(contextServiceType);
@@ -48,9 +46,8 @@ public class ContextMetric {
     }
 
     public void addAcceptHistogram(String parentApplicationName, short serviceType, int millis, boolean error) {
-        if (parentApplicationName == null) {
-            throw new NullPointerException("parentApplicationName");
-        }
+        Objects.requireNonNull(parentApplicationName, "parentApplicationName");
+
         this.acceptHistogram.addResponseTime(parentApplicationName, serviceType, millis, error);
     }
 

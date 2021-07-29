@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author poap
@@ -185,10 +186,10 @@ public class StringUtilsTest {
         if (StringUtils.isEmpty(value)) {
             return Collections.emptyList();
         }
-        if (separator == null) {
-            throw new NullPointerException("separator");
-        }
-        final List<String> result = new ArrayList<String>();
+
+        Objects.requireNonNull(separator, "separator");
+
+        final List<String> result = new ArrayList<>();
         final String[] split = value.split(separator);
         for (String method : split) {
             if (StringUtils.isEmpty(method)) {

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -40,9 +41,7 @@ public class UndertowConfig {
     private final Filter<String> httpHandlerClassNameFilter;
 
     public UndertowConfig(ProfilerConfig config) {
-        if (config == null) {
-            throw new NullPointerException("config");
-        }
+        Objects.requireNonNull(config, "config");
 
         // plugin
         this.enable = config.readBoolean("profiler.undertow.enable", true);

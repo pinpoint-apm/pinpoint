@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -31,10 +33,7 @@ public class GuardProfilerPluginSetupContext implements ProfilerPluginSetupConte
     private boolean close = false;
 
     public GuardProfilerPluginSetupContext(ProfilerPluginSetupContext delegate) {
-        if (delegate == null) {
-            throw new NullPointerException("delegate");
-        }
-        this.delegate = delegate;
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
     @Override

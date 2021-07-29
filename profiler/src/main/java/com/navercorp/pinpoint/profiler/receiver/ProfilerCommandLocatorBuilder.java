@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -32,13 +33,11 @@ public class ProfilerCommandLocatorBuilder {
     private final Map<Short, ProfilerCommandService> profilerCommandServiceRepository;
 
     public ProfilerCommandLocatorBuilder() {
-        this.profilerCommandServiceRepository = new HashMap<Short, ProfilerCommandService>();
+        this.profilerCommandServiceRepository = new HashMap<>();
     }
 
     public void addService(ProfilerCommandServiceGroup serviceGroup) {
-        if (serviceGroup == null) {
-            throw new NullPointerException("serviceGroup");
-        }
+        Objects.requireNonNull(serviceGroup, "serviceGroup");
 
         for (ProfilerCommandService service : serviceGroup.getCommandServiceList()) {
             addService(service);
@@ -46,16 +45,13 @@ public class ProfilerCommandLocatorBuilder {
     }
 
     public boolean addService(ProfilerCommandService service) {
-        if (service == null) {
-            throw new NullPointerException("service");
-        }
+        Objects.requireNonNull(service, "service");
+
         return addService(service.getCommandServiceCode(), service);
     }
 
     boolean addService(short commandCode, ProfilerCommandService service) {
-        if (service == null) {
-            throw new NullPointerException("service");
-        }
+        Objects.requireNonNull(service, "service");
 
         final ProfilerCommandService exist = profilerCommandServiceRepository.get(commandCode);
         if (exist != null) {

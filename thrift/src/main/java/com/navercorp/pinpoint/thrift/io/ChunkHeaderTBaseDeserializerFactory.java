@@ -21,6 +21,8 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 
+import java.util.Objects;
+
 /**
  * @author koo.taejin
  */
@@ -48,14 +50,8 @@ public final class ChunkHeaderTBaseDeserializerFactory implements DeserializerFa
     }
 
     public ChunkHeaderTBaseDeserializerFactory(TProtocolFactory protocolFactory, TypeLocator<TBase<?, ?>> locator) {
-        if (protocolFactory == null) {
-            throw new NullPointerException("protocolFactory");
-        }
-        if (locator == null) {
-            throw new NullPointerException("locator");
-        }
-        this.protocolFactory = protocolFactory;
-        this.locator = locator;
+        this.protocolFactory = Objects.requireNonNull(protocolFactory, "protocolFactory");
+        this.locator = Objects.requireNonNull(locator, "locator");
     }
 
 

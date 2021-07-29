@@ -42,9 +42,8 @@ public class DebugTransformerRegistry implements TransformerRegistry {
 
     @Override
     public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, byte[] classFileBuffer, InternalClassMetadata classMetadata) {
-        if (classInternalName == null) {
-            throw new NullPointerException("classInternalName");
-        }
+        Objects.requireNonNull(classInternalName, "classInternalName");
+
         if (this.debugTargetFilter.filter(classInternalName)) {
             // Added to see if call stack view is OK on a test machine.
             return debugTransformer;

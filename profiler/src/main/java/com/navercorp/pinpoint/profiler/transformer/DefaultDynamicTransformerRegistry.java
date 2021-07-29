@@ -150,10 +150,7 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
         private final TransformerKey key;
 
         public DefaultRequestHandle(TransformerKey key) {
-            if (key == null) {
-                throw new NullPointerException("key");
-            }
-            this.key = key;
+            this.key = Objects.requireNonNull(key, "key");
         }
 
         @Override

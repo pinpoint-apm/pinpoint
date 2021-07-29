@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -41,9 +42,7 @@ public class ASMBytecodeDumpService implements BytecodeDumpService {
     private ASMBytecodeDisassembler disassembler = new ASMBytecodeDisassembler();
 
     public ASMBytecodeDumpService(ProfilerConfig profilerConfig) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig");
-        }
+        Objects.requireNonNull(profilerConfig, "profilerConfig");
 
         this.dumpBytecode = profilerConfig.readBoolean(BYTECODE_DUMP_BYTECODE, BYTECODE_DUMP_BYTECODE_DEFAULT_VALUE);
         this.dumpVerify = profilerConfig.readBoolean(BYTECODE_DUMP_VERIFY, BYTECODE_DUMP_VERIFY_DEFAULT_VALUE);
@@ -59,25 +58,24 @@ public class ASMBytecodeDumpService implements BytecodeDumpService {
         } else {
             final List<String> classList = StringUtils.tokenizeToStringList(classNameList, ",");
             final List<String> classInternalNameList = toInternalNames(classList);
-            return new HashSet<String>(classInternalNameList);
+            return new HashSet<>(classInternalNameList);
         }
     }
 
     public ASMBytecodeDumpService(boolean dumpBytecode, boolean dumpVerify, boolean dumpASM, List<String> classNameList) {
-        if (classNameList == null) {
-            throw new NullPointerException("classNameList");
-        }
+        Objects.requireNonNull(classNameList, "classNameList");
+
 
         this.dumpBytecode = dumpBytecode;
         this.dumpVerify = dumpVerify;
         this.dumpASM = dumpASM;
 
         List<String> classInternalNameList = toInternalNames(classNameList);
-        this.dumpClassInternalNameSet = new HashSet<String>(classInternalNameList);
+        this.dumpClassInternalNameSet = new HashSet<>(classInternalNameList);
     }
 
     private List<String> toInternalNames(List<String> classNameList) {
-        List<String> classInternalNameList = new ArrayList<String>(classNameList.size());
+        List<String> classInternalNameList = new ArrayList<>(classNameList.size());
 
         for (String className : classNameList) {
             classInternalNameList.add(JavaAssistUtils.javaNameToJvmName(className));
@@ -87,9 +85,7 @@ public class ASMBytecodeDumpService implements BytecodeDumpService {
 
     @Override
     public void dumpBytecode(String dumpMessage, final String classInternalName, final byte[] bytes, ClassLoader classLoader) {
-        if (classInternalName == null) {
-            throw new NullPointerException("classInternalName");
-        }
+        Objects.requireNonNull(classInternalName, "classInternalName");
 
         if (!filterClassName(classInternalName)) {
             return;

@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -28,26 +29,22 @@ import java.util.List;
 public class PinpointProfilerPackageSkipFilter implements ClassNameFilter {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final List<String> packageList;
+    private final String[] packageList;
 
     public PinpointProfilerPackageSkipFilter() {
         this(getPinpointPackageList());
     }
 
     public PinpointProfilerPackageSkipFilter(List<String> packageList) {
-        if (packageList == null) {
-            throw new NullPointerException("packageList");
-        }
-        this.packageList = new ArrayList<String>(packageList);
+        Objects.requireNonNull(packageList, "packageList");
+        this.packageList = packageList.toArray(new String[0]);
     }
 
 
 
     @Override
     public boolean accept(String className) {
-        if (className == null) {
-            throw new NullPointerException("className");
-        }
+        Objects.requireNonNull(className, "className");
 
         for (String packageName : packageList) {
             if (className.startsWith(packageName)) {
@@ -61,7 +58,7 @@ public class PinpointProfilerPackageSkipFilter implements ClassNameFilter {
     }
 
     private static List<String> getPinpointPackageList() {
-        List<String> pinpointPackageList = new ArrayList<String>();
+        List<String> pinpointPackageList = new ArrayList<>();
         pinpointPackageList.add("com.navercorp.pinpoint.bootstrap");
         pinpointPackageList.add("com.navercorp.pinpoint.profiler");
         pinpointPackageList.add("com.navercorp.pinpoint.common");

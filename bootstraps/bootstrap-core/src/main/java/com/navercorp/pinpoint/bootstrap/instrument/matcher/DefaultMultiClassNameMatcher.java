@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -27,9 +28,8 @@ public class DefaultMultiClassNameMatcher implements MultiClassNameMatcher {
     private final List<String> classNameList;
 
     DefaultMultiClassNameMatcher(List<String> classNameMatcherList) {
-        if (classNameMatcherList == null) {
-            throw new NullPointerException("classNameMatcherList");
-        }
+        Objects.requireNonNull(classNameMatcherList, "classNameMatcherList");
+        
         this.classNameList = Collections.unmodifiableList(classNameMatcherList);
     }
 

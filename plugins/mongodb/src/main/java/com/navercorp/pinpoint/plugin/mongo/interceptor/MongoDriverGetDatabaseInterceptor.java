@@ -27,6 +27,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
 
+import java.util.Objects;
+
 /**
  * @author Roy Kim
  */
@@ -36,12 +38,8 @@ public class MongoDriverGetDatabaseInterceptor implements AroundInterceptor {
     private final boolean isDebug = logger.isDebugEnabled();
 
     public MongoDriverGetDatabaseInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext");
-        }
-        if (descriptor == null) {
-            throw new NullPointerException("descriptor");
-        }
+        Objects.requireNonNull(traceContext, "traceContext");
+        Objects.requireNonNull(descriptor, "descriptor");
     }
 
     @Override

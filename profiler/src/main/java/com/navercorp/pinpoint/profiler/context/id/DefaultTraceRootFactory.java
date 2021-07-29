@@ -50,9 +50,8 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
 
     @Override
     public TraceRoot continueTraceRoot(TraceId traceId, long transactionId) {
-        if (traceId == null) {
-            throw new NullPointerException("traceId");
-        }
+        Objects.requireNonNull(traceId, "traceId");
+
         final long startTime = traceStartTime();
         return new DefaultTraceRoot(traceId, this.agentId, startTime, transactionId);
     }

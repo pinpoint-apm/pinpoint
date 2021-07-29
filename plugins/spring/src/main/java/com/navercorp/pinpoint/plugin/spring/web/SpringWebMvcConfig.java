@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.plugin.spring.web;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -26,9 +28,7 @@ public class SpringWebMvcConfig {
     private final boolean uriStatEnable;
 
     public SpringWebMvcConfig(ProfilerConfig config) {
-        if (config == null) {
-            throw new NullPointerException("config");
-        }
+        Objects.requireNonNull(config, "config");
 
         this.uriStatEnable = config.readBoolean("profiler.spring.webmvc.uri.stat.enable", false);
     }

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.jdbc.oracle.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -26,15 +27,14 @@ public class Description {
 
     private String serviceName;
     private String sid;
-    private ArrayList<Address> addressList = new ArrayList<Address>();
+    private ArrayList<Address> addressList = new ArrayList<>();
 
     public Description() {
     }
 
     public Description(KeyValue keyValue) {
-        if (keyValue == null) {
-            throw new NullPointerException("keyValue");
-        }
+        Objects.requireNonNull(keyValue, "keyValue");
+
         mapping(keyValue);
     }
 
@@ -98,7 +98,7 @@ public class Description {
     }
 
     public List<String> getJdbcHost() {
-        List<String> hostList = new ArrayList<String>();
+        List<String> hostList = new ArrayList<>();
         for(Address address : addressList) {
             String host = address.getHost();
             String port = address.getPort();

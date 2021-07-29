@@ -36,6 +36,7 @@ import java.sql.ResultSet;
 import java.sql.CallableStatement;
 import java.sql.Types;
 import java.sql.SQLException;
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
@@ -53,9 +54,8 @@ public class OracleItHelper {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     OracleItHelper(DriverProperties driverProperties) {
-        if (driverProperties == null) {
-            throw new NullPointerException("driverProperties");
-        }
+        Objects.requireNonNull(driverProperties, "driverProperties");
+
         JDBC_URL = driverProperties.getUrl();
 
         JdbcUrlParserV2 jdbcUrlParser = new OracleJdbcUrlParser();

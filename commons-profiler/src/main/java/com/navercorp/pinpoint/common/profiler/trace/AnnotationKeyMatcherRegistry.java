@@ -43,15 +43,12 @@ public class AnnotationKeyMatcherRegistry implements AnnotationKeyMatcherLocator
 
     static class Builder {
 
-        private final HashMap<Integer, AnnotationKeyMatcher> buildMap = new HashMap<Integer, AnnotationKeyMatcher>();
+        private final HashMap<Integer, AnnotationKeyMatcher> buildMap = new HashMap<>();
 
         AnnotationKeyMatcher addAnnotationKeyMatcher(ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher) {
-            if (serviceType == null) {
-                throw new NullPointerException("serviceType");
-            }
-            if (annotationKeyMatcher == null) {
-                throw new NullPointerException("annotationKeyMatcher");
-            }
+            Objects.requireNonNull(serviceType, "serviceType");
+            Objects.requireNonNull(annotationKeyMatcher, "annotationKeyMatcher");
+
             int code = serviceType.getCode();
             return this.buildMap.put(code, annotationKeyMatcher);
         }

@@ -101,11 +101,8 @@ public class DynamicTransformService implements DynamicTransformTrigger {
         }
     }
 
-    public void setTransformRequestEventListener(DynamicTransformRequestListener retransformEventListener) {
-        if (retransformEventListener == null) {
-            throw new NullPointerException("dynamicTransformRequestListener");
-        }
-        this.dynamicTransformRequestListener = retransformEventListener;
+    public void setTransformRequestEventListener(DynamicTransformRequestListener dynamicTransformRequestListener) {
+        this.dynamicTransformRequestListener = Objects.requireNonNull(dynamicTransformRequestListener, "dynamicTransformRequestListener");
     }
 
 }

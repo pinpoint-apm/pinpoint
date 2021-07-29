@@ -28,6 +28,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
 
+import java.util.Objects;
+
 /**
  * @author Roy Kim
  */
@@ -39,15 +41,9 @@ public class MongoWriteConcernInterceptor implements AroundInterceptor {
     private final MethodDescriptor methodDescriptor;
     private final TraceContext traceContext;
 
-    public MongoWriteConcernInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext");
-        }
-        if (descriptor == null) {
-            throw new NullPointerException("descriptor");
-        }
-        this.traceContext = traceContext;
-        this.methodDescriptor = descriptor;
+    public MongoWriteConcernInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
+        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
     }
 
     @Override

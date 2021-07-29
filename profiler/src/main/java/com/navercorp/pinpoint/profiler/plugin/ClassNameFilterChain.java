@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -26,9 +27,7 @@ public class ClassNameFilterChain implements ClassNameFilter {
     private final ClassNameFilter[] filterChain;
 
     public ClassNameFilterChain(List<ClassNameFilter> filterChain) {
-        if (filterChain == null) {
-            throw new NullPointerException("filterChain");
-        }
+        Objects.requireNonNull(filterChain, "filterChain");
         this.filterChain = filterChain.toArray(new ClassNameFilter[0]);
     }
 

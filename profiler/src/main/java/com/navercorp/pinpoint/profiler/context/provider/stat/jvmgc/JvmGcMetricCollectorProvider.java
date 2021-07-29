@@ -28,6 +28,8 @@ import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.DetailedMemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetric;
 
+import java.util.Objects;
+
 
 /**
  * @author HyunGil Jeong
@@ -47,26 +49,13 @@ public class JvmGcMetricCollectorProvider implements Provider<AgentStatMetricCol
             Provider<DetailedMemoryMetric> detailedMemoryMetricProvider,
             Provider<GarbageCollectorMetric> garbageCollectorMetricProvider,
             Provider<DetailedGarbageCollectorMetric> detailedGarbageCollectorMetricProvider) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig");
-        }
-        if (memoryMetricProivider == null) {
-            throw new NullPointerException("memoryMetricProivider");
-        }
-        if (detailedMemoryMetricProvider == null) {
-            throw new NullPointerException("detailedMemoryMetricProvider");
-        }
-        if (garbageCollectorMetricProvider == null) {
-            throw new NullPointerException("garbageCollectorMetricProvider");
-        }
-        if (detailedGarbageCollectorMetricProvider == null) {
-            throw new NullPointerException("detailedGarbageCollectorMetricProvider");
-        }
+        Objects.requireNonNull(profilerConfig, "profilerConfig");
         this.collectDetailedMetrics = profilerConfig.isProfilerJvmStatCollectDetailedMetrics();
-        this.memoryMetricProivider = memoryMetricProivider;
-        this.detailedMemoryMetricProvider = detailedMemoryMetricProvider;
-        this.garbageCollectorMetricProvider = garbageCollectorMetricProvider;
-        this.detailedGarbageCollectorMetricProvider = detailedGarbageCollectorMetricProvider;
+
+        this.memoryMetricProivider = Objects.requireNonNull(memoryMetricProivider, "memoryMetricProivider");
+        this.detailedMemoryMetricProvider = Objects.requireNonNull(detailedMemoryMetricProvider, "detailedMemoryMetricProvider");
+        this.garbageCollectorMetricProvider = Objects.requireNonNull(garbageCollectorMetricProvider, "garbageCollectorMetricProvider");
+        this.detailedGarbageCollectorMetricProvider = Objects.requireNonNull(detailedGarbageCollectorMetricProvider, "detailedGarbageCollectorMetricProvider");
     }
 
     @Override

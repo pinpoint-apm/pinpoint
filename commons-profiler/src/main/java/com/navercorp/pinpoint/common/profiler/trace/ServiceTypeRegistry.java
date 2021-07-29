@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -41,16 +42,15 @@ public class ServiceTypeRegistry implements ServiceTypeLocator {
     private final Map<String, List<ServiceType>> descLookupTable;
 
     private ServiceTypeRegistry(HashMap<Integer, ServiceType> buildMap) {
-        if (buildMap == null) {
-            throw new NullPointerException("codeLookupTable");
-        }
+        Objects.requireNonNull(buildMap, "buildMap");
+
         this.codeLookupTable = IntHashMapUtils.copy(buildMap);
         this.nameLookupTable = buildNameLookupTable(buildMap.values());
         this.descLookupTable = buildDescLookupTable(buildMap.values());
     }
 
     private Map<String, ServiceType> buildNameLookupTable(Collection<ServiceType> serviceTypes) {
-        final Map<String, ServiceType> copy = new HashMap<String, ServiceType>();
+        final Map<String, ServiceType> copy = new HashMap<>();
 
         for (ServiceType serviceType : serviceTypes) {
             final ServiceType duplicated = copy.put(serviceType.getName(), serviceType);
@@ -81,20 +81,19 @@ public class ServiceTypeRegistry implements ServiceTypeLocator {
 
     @Override
     public List<ServiceType> findDesc(String desc) {
-        if (desc == null) {
-            throw new NullPointerException("desc");
-        }
+        Objects.requireNonNull(desc, "desc");
+
         return descLookupTable.get(desc);
     }
 
     private Map<String, List<ServiceType>> buildDescLookupTable(Collection<ServiceType> serviceTypes) {
-        final Map<String, List<ServiceType>> table = new HashMap<String, List<ServiceType>>();
+        final Map<String, List<ServiceType>> table = new HashMap<>();
 
         for (ServiceType serviceType : serviceTypes) {
             if (serviceType.isRecordStatistics() || serviceType.isAlias()) {
                 List<ServiceType> serviceTypeList = table.get(serviceType.getDesc());
                 if (serviceTypeList == null) {
-                    serviceTypeList = new ArrayList<ServiceType>();
+                    serviceTypeList = new ArrayList<>();
                     table.put(serviceType.getDesc(), serviceTypeList);
                 }
                 serviceTypeList.add(serviceType);
@@ -105,7 +104,7 @@ public class ServiceTypeRegistry implements ServiceTypeLocator {
 
     private static Map<String, List<ServiceType>> unmodifiableMap(Map<String, List<ServiceType>> table) {
         // value of this table will be exposed. so make them unmodifiable.
-        final Map<String, List<ServiceType>> copy = new HashMap<String, List<ServiceType>>(table.size());
+        final Map<String, List<ServiceType>> copy = new HashMap<>(table.size());
 
         for (Map.Entry<String, List<ServiceType>> entry : table.entrySet()) {
             List<ServiceType> newValue = Collections.unmodifiableList(entry.getValue());
@@ -116,12 +115,11 @@ public class ServiceTypeRegistry implements ServiceTypeLocator {
 
     static class Builder {
 
-        private final HashMap<Integer, ServiceType> buildMap = new HashMap<Integer, ServiceType>();
+        private final HashMap<Integer, ServiceType> buildMap = new HashMap<>();
 
         void addServiceType(ServiceType serviceType) {
-            if (serviceType == null) {
-                throw new NullPointerException("serviceType");
-            }
+            Objects.requireNonNull(serviceType, "serviceType");
+
             int code = serviceType.getCode();
             final ServiceType exist = this.buildMap.put(code, serviceType);
             if (exist != null) {

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Span represent RPC
@@ -54,10 +55,7 @@ public class Span extends DefaultFrameAttachment {
 
 
     public Span(final TraceRoot traceRoot) {
-        if (traceRoot == null) {
-            throw new NullPointerException("traceRoot");
-        }
-        this.traceRoot = traceRoot;
+        this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
     }
 
     public TraceRoot getTraceRoot() {

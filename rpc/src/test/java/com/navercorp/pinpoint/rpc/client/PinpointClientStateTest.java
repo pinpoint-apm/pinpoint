@@ -32,6 +32,7 @@ import org.junit.Test;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -161,9 +162,7 @@ public class PinpointClientStateTest {
     }
 
     PinpointClientHandler getSocketHandler(ChannelFuture channelConnectFuture, SocketAddress address) {
-        if (address == null) {
-            throw new NullPointerException("address");
-        }
+        Objects.requireNonNull(address, "address");
 
         Channel channel = channelConnectFuture.getChannel();
         PinpointClientHandler pinpointClientHandler = (PinpointClientHandler) channel.getPipeline().getLast();

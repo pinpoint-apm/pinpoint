@@ -172,9 +172,8 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     @VisibleForTesting
     void setPipelineFactory(ChannelPipelineFactory channelPipelineFactory) {
-        if (channelPipelineFactory == null) {
-            throw new NullPointerException("channelPipelineFactory");
-        }
+        Objects.requireNonNull(channelPipelineFactory, "channelPipelineFactory");
+
         bootstrap.setPipelineFactory(channelPipelineFactory);
     }
 

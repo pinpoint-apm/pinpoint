@@ -90,19 +90,4 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
         return new Dot(transactionId, acceptedTime, elapsed, exceptionCode, agentId);
     }
 
-    /*
-    public static TransactionId parseVarTransactionId(byte[] bytes, int offset) {
-        if (bytes == null) {
-            throw new NullPointerException("bytes");
-        }
-        final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
-
-        buffer.readInt();
-
-        String agentId = buffer.readPrefixedString();
-        long agentStartTime = buffer.readSVarLong();
-        long transactionSequence = buffer.readVarLong();
-        return new TransactionId(agentId, agentStartTime, transactionSequence);
-    }
-    */
 }
