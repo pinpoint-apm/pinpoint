@@ -61,6 +61,11 @@ public final class HbasePluginConstants {
     public static final AnnotationKey HBASE_CLIENT_PARAMS = AnnotationKeyFactory.of(320, "hbase.client.params", VIEW_IN_RECORD_SET);
 
     /**
+     * The constant HBASE_TABLE_NAME.
+     */
+    public static final AnnotationKey HBASE_TABLE_NAME = AnnotationKeyFactory.of(110999, "hbase.table.name", VIEW_IN_RECORD_SET);
+
+    /**
      * The constant HBASE_DESTINATION_ID.
      */
     public static final String HBASE_DESTINATION_ID = "HBASE";
@@ -89,6 +94,11 @@ public final class HbasePluginConstants {
      * The constant HBASE_CLIENT_PARAMS_CONFIG.
      */
     public static final String HBASE_CLIENT_PARAMS_CONFIG = "profiler.hbase.client.params.enable";
+
+    /**
+     * The constant HBASE_CLIENT_TABLENAME_CONFIG.
+     */
+    public static final String HBASE_CLIENT_TABLENAME_CONFIG = "profiler.hbase.client.tablename.enable";
 
     /**
      * The constant tableMethodNames.
