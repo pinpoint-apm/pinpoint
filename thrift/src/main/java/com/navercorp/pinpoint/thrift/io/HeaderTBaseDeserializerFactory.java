@@ -21,6 +21,8 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 
+import java.util.Objects;
+
 /**
  * @author koo.taejin
  */
@@ -33,7 +35,7 @@ public final class HeaderTBaseDeserializerFactory implements DeserializerFactory
     public static final HeaderTBaseDeserializerFactory DEFAULT_FACTORY = new HeaderTBaseDeserializerFactory();
 
     private final TProtocolFactory protocolFactory;
-    private TypeLocator<TBase<?, ?>> locator;
+    private final TypeLocator<TBase<?, ?>> locator;
 
     public HeaderTBaseDeserializerFactory() {
         this(DEFAULT_PROTOCOL_FACTORY, DEFAULT_TBASE_LOCATOR);
@@ -52,14 +54,8 @@ public final class HeaderTBaseDeserializerFactory implements DeserializerFactory
     }
 
     public HeaderTBaseDeserializerFactory(TProtocolFactory protocolFactory, TypeLocator<TBase<?, ?>> locator) {
-        if (protocolFactory == null) {
-            throw new NullPointerException("protocolFactory");
-        }
-        if (locator == null) {
-            throw new NullPointerException("locator");
-        }
-        this.protocolFactory = protocolFactory;
-        this.locator = locator;
+        this.protocolFactory = Objects.requireNonNull(protocolFactory, "protocolFactory");
+        this.locator = Objects.requireNonNull(locator, "locator");
     }
 
 

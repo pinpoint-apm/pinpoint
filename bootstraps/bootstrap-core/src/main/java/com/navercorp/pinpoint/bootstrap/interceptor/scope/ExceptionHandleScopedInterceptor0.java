@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandler;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  * @author jaehong.kim
@@ -35,22 +37,10 @@ public class ExceptionHandleScopedInterceptor0 implements AroundInterceptor0 {
     private final ExceptionHandler exceptionHandler;
 
     public ExceptionHandleScopedInterceptor0(AroundInterceptor0 interceptor, InterceptorScope scope, ExecutionPolicy policy, ExceptionHandler exceptionHandler) {
-        if (interceptor == null) {
-            throw new NullPointerException("interceptor");
-        }
-        if (scope == null) {
-            throw new NullPointerException("scope");
-        }
-        if (policy == null) {
-            throw new NullPointerException("policy");
-        }
-        if (exceptionHandler == null) {
-            throw new NullPointerException("exceptionHandler");
-        }
-        this.interceptor = interceptor;
-        this.scope = scope;
-        this.policy = policy;
-        this.exceptionHandler = exceptionHandler;
+        this.interceptor = Objects.requireNonNull(interceptor, "interceptor");
+        this.scope = Objects.requireNonNull(scope, "scope");
+        this.policy = Objects.requireNonNull(policy, "policy");
+        this.exceptionHandler = Objects.requireNonNull(exceptionHandler, "exceptionHandler");
     }
 
     @Override

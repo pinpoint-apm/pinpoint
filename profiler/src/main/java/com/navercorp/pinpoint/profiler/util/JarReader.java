@@ -56,9 +56,7 @@ public class JarReader {
     }
 
     public List<FileBinary> read(JarEntryFilter jarEntryFilter) throws IOException{
-        if (jarEntryFilter == null) {
-            throw new NullPointerException("jarEntryFilter");
-        }
+        Objects.requireNonNull(jarEntryFilter, "jarEntryFilter");
 
         final BufferedContext bufferedContext = new BufferedContext();
 

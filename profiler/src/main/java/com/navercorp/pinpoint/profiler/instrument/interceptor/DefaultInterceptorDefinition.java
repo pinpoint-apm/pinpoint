@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.instrument.interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,22 +33,10 @@ public class DefaultInterceptorDefinition implements InterceptorDefinition {
     private final Method afterMethod;
 
     public DefaultInterceptorDefinition(Class<? extends Interceptor> baseInterceptorClazz, Class<? extends Interceptor> interceptorClazz, InterceptorType interceptorType, CaptureType captureType, Method beforeMethod, Method afterMethod) {
-        if (baseInterceptorClazz == null) {
-            throw new NullPointerException("baseInterceptorClazz");
-        }
-        if (interceptorClazz == null) {
-            throw new NullPointerException("interceptorClazz");
-        }
-        if (interceptorType == null) {
-            throw new NullPointerException("interceptorType");
-        }
-        if (captureType == null) {
-            throw new NullPointerException("captureType");
-        }
-        this.baseInterceptorClazz = baseInterceptorClazz;
-        this.interceptorClazz = interceptorClazz;
-        this.interceptorType = interceptorType;
-        this.captureType = captureType;
+        this.baseInterceptorClazz = Objects.requireNonNull(baseInterceptorClazz, "baseInterceptorClazz");
+        this.interceptorClazz = Objects.requireNonNull(interceptorClazz, "interceptorClazz");
+        this.interceptorType = Objects.requireNonNull(interceptorType, "interceptorType");
+        this.captureType = Objects.requireNonNull(captureType, "captureType");
         this.beforeMethod = beforeMethod;
         this.afterMethod = afterMethod;
     }

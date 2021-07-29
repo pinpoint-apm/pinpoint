@@ -10,6 +10,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -29,18 +30,14 @@ public class ASMBytecodeDisassembler {
     }
 
     public String dumpBytecode(final byte[] bytecode) {
-        if (bytecode == null) {
-            throw new NullPointerException("bytecode");
-        }
+        Objects.requireNonNull(bytecode, "bytecode");
 
         return writeBytecode(bytecode, new Textifier());
     }
 
 
     public String dumpASM(byte[] bytecode) {
-        if (bytecode == null) {
-            throw new NullPointerException("bytecode");
-        }
+        Objects.requireNonNull(bytecode, "bytecode");
 
         return writeBytecode(bytecode, new ASMifier());
     }
@@ -64,12 +61,8 @@ public class ASMBytecodeDisassembler {
     }
 
     public String dumpVerify(byte[] bytecode, ClassLoader classLoader) {
-        if (bytecode == null) {
-            throw new NullPointerException("bytecode");
-        }
-        if (classLoader == null) {
-            throw new NullPointerException("classLoader");
-        }
+        Objects.requireNonNull(bytecode, "bytecode");
+        Objects.requireNonNull(classLoader, "classLoader");
 
         final StringWriter out = new StringWriter();
         final PrintWriter writer = new PrintWriter(out);

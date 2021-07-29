@@ -24,17 +24,16 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
 public class ServerPipelineFactory implements ChannelPipelineFactory {
-    private PinpointServerChannelHandler pinpointServerChannelHandler;
+    private final PinpointServerChannelHandler pinpointServerChannelHandler;
 
     public ServerPipelineFactory(PinpointServerChannelHandler pinpointServerChannelHandler) {
-        if (pinpointServerChannelHandler == null) {
-            throw new NullPointerException("PinpointServerFactory");
-        }
-        this.pinpointServerChannelHandler = pinpointServerChannelHandler;
+        this.pinpointServerChannelHandler = Objects.requireNonNull(pinpointServerChannelHandler, "pinpointServerChannelHandler");
     }
 
     @Override

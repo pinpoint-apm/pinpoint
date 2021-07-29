@@ -4,6 +4,8 @@ import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
 
+import java.util.Objects;
+
 /**
  * @author huangpengjie@fang.com
  */
@@ -19,9 +21,7 @@ public class ResinConfig {
     private final Filter<String> excludeProfileMethodFilter;
 
     public ResinConfig(ProfilerConfig config) {
-        if (config == null) {
-            throw new NullPointerException("config");
-        }
+        Objects.requireNonNull(config, "config");
 
         // plugin
         this.enable = config.readBoolean("profiler.resin.enable", true);

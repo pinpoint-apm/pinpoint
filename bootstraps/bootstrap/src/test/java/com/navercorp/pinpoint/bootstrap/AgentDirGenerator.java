@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
@@ -49,10 +50,7 @@ public class AgentDirGenerator {
     private final String agentDirPath;
 
     public AgentDirGenerator(String agentDirPath) {
-        if (agentDirPath == null) {
-            throw new NullPointerException("agentDirPath");
-        }
-        this.agentDirPath = agentDirPath;
+        this.agentDirPath = Objects.requireNonNull(agentDirPath, "agentDirPath");
     }
 
     public void create() throws IOException {

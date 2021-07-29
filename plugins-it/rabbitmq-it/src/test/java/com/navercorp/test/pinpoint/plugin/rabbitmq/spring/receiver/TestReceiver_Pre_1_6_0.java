@@ -20,6 +20,8 @@ import com.navercorp.test.pinpoint.plugin.rabbitmq.MessageConverter;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -28,10 +30,7 @@ public class TestReceiver_Pre_1_6_0 implements TestReceiver {
     private final RabbitTemplate rabbitTemplate;
 
     public TestReceiver_Pre_1_6_0(RabbitTemplate rabbitTemplate) {
-        if (rabbitTemplate == null) {
-            throw new NullPointerException("rabbitTemplate");
-        }
-        this.rabbitTemplate = rabbitTemplate;
+        this.rabbitTemplate = Objects.requireNonNull(rabbitTemplate, "rabbitTemplate");
     }
 
     @Override

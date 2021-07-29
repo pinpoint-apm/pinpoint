@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor1;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -32,18 +34,9 @@ public class ScopedInterceptor1 implements AroundInterceptor1 {
     private final ExecutionPolicy policy;
     
     public ScopedInterceptor1(AroundInterceptor1 interceptor, InterceptorScope scope, ExecutionPolicy policy) {
-        if (interceptor == null) {
-            throw new NullPointerException("interceptor");
-        }
-        if (scope == null) {
-            throw new NullPointerException("scope");
-        }
-        if (policy == null) {
-            throw new NullPointerException("policy");
-        }
-        this.interceptor = interceptor;
-        this.scope = scope;
-        this.policy = policy;
+        this.interceptor = Objects.requireNonNull(interceptor, "interceptor");
+        this.scope = Objects.requireNonNull(scope, "scope");
+        this.policy = Objects.requireNonNull(policy, "policy");
     }
     
     @Override

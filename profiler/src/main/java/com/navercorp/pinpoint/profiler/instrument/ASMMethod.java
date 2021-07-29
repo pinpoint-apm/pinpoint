@@ -118,9 +118,8 @@ public class ASMMethod implements InstrumentMethod {
 
     // for internal api
     int addInterceptorInternal(Class<? extends Interceptor> interceptorClass, Object[] constructorArgs, InterceptorScope interceptorScope, ExecutionPolicy executionPolicy) throws InstrumentException {
-        if (interceptorClass == null) {
-            throw new NullPointerException("interceptorClass");
-        }
+        Objects.requireNonNull(interceptorClass, "interceptorClass");
+
         final Interceptor interceptor = newInterceptor(interceptorClass, constructorArgs, interceptorScope, executionPolicy);
         return addInterceptor0(interceptor);
     }
@@ -149,9 +148,7 @@ public class ASMMethod implements InstrumentMethod {
     }
 
     private void addInterceptor0(Interceptor interceptor, int interceptorId) {
-        if (interceptor == null) {
-            throw new NullPointerException("interceptor");
-        }
+        Objects.requireNonNull(interceptor, "interceptor");
 
         final InterceptorDefinition interceptorDefinition = this.engineComponent.createInterceptorDefinition(interceptor.getClass());
         final Class<?> interceptorClass = interceptorDefinition.getInterceptorClass();

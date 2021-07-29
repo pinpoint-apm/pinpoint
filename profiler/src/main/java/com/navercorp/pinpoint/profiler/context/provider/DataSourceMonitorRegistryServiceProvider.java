@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.profiler.context.monitor.DisabledDataSourceMonitor
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -39,9 +41,8 @@ public class DataSourceMonitorRegistryServiceProvider implements Provider<DataSo
 
     @Inject
     public DataSourceMonitorRegistryServiceProvider(ProfilerConfig profilerConfig) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig");
-        }
+        Objects.requireNonNull(profilerConfig, "profilerConfig");
+
         this.traceAgentDataSource = profilerConfig.isTraceAgentDataSource();
         this.dataSourceTraceLimitSize = profilerConfig.getDataSourceTraceLimitSize();
 

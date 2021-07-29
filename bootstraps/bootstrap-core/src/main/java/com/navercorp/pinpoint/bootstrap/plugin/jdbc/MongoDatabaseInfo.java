@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Roy Kim
@@ -43,14 +44,8 @@ public class MongoDatabaseInfo implements DatabaseInfo {
     }
 
     public MongoDatabaseInfo(ServiceType type, ServiceType executeQueryType, String realUrl, String normalizedUrl, List<String> host, String databaseId, String collectionName, boolean parsingComplete, String readPreference, String writeConcern) {
-        if (type == null) {
-            throw new NullPointerException("type");
-        }
-        if (executeQueryType == null) {
-            throw new NullPointerException("executeQueryType");
-        }
-        this.type = type;
-        this.executeQueryType = executeQueryType;
+        this.type = Objects.requireNonNull(type, "type");
+        this.executeQueryType = Objects.requireNonNull(executeQueryType, "executeQueryType");
         this.realUrl = realUrl;
         this.normalizedUrl = normalizedUrl;
         this.host = host;

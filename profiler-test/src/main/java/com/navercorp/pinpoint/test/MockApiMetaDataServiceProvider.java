@@ -21,6 +21,8 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -30,10 +32,7 @@ public class MockApiMetaDataServiceProvider implements Provider<ApiMetaDataServi
 
     @Inject
     public MockApiMetaDataServiceProvider(Provider<EnhancedDataSender<Object>> enhancedDataSenderProvider) {
-        if (enhancedDataSenderProvider == null) {
-            throw new NullPointerException("enhancedDataSenderProvider");
-        }
-        this.enhancedDataSenderProvider = enhancedDataSenderProvider;
+        this.enhancedDataSenderProvider = Objects.requireNonNull(enhancedDataSenderProvider, "enhancedDataSenderProvider");
     }
 
     @Override

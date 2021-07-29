@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -25,17 +26,13 @@ public class IncludeBindVariableFilter implements BindVariableFilter {
     private final String[] includes;
 
     public IncludeBindVariableFilter(String[] includes) {
-        if (includes == null) {
-            throw new NullPointerException("includes");
-        }
-        this.includes = includes;
+        this.includes = Objects.requireNonNull(includes, "includes");
     }
 
     @Override
     public boolean filter(Method method) {
-        if (method == null) {
-            throw new NullPointerException("method");
-        }
+        Objects.requireNonNull(method, "method");
+
         for (String include: includes) {
             if (method.getName().equals(include)) {
                 return true;

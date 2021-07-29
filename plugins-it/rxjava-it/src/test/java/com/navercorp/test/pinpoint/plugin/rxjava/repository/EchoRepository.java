@@ -16,6 +16,8 @@
 
 package com.navercorp.test.pinpoint.plugin.rxjava.repository;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -27,9 +29,8 @@ public class EchoRepository {
     }
 
     public String echo(String message, Exception exception) throws Exception {
-        if (exception == null) {
-            throw new NullPointerException("exception");
-        }
+        Objects.requireNonNull(exception, "exception");
+
         System.out.println("echo : " + message + ", with exception : " + exception);
         throw exception;
     }
@@ -39,9 +40,8 @@ public class EchoRepository {
     }
 
     public void shout(String message, Exception exception) throws Exception {
-        if (exception == null) {
-            throw new NullPointerException("exception");
-        }
+        Objects.requireNonNull(exception, "exception");
+
         System.out.println("shout : " + message + ", with exception : " + exception);
         throw exception;
     }

@@ -45,9 +45,7 @@ public class ClassFileTransformerDelegate implements ClassFileTransformer {
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        if (className == null) {
-            throw new NullPointerException("className");
-        }
+        Objects.requireNonNull(className, "className");
 
         final InstrumentContext instrumentContext = this.instrumentContext;
         final GuardInstrumentor guard = new GuardInstrumentor(this.profilerConfig, instrumentContext);

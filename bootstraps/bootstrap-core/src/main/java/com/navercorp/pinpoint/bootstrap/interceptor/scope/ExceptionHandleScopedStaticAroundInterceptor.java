@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  * @author jaehong.kim
@@ -35,22 +37,10 @@ public class ExceptionHandleScopedStaticAroundInterceptor implements StaticAroun
     private final ExceptionHandler exceptionHandler;
 
     public ExceptionHandleScopedStaticAroundInterceptor(StaticAroundInterceptor delegate, InterceptorScope scope, ExecutionPolicy policy, ExceptionHandler exceptionHandler) {
-        if (delegate == null) {
-            throw new NullPointerException("delegate");
-        }
-        if (scope == null) {
-            throw new NullPointerException("scope");
-        }
-        if (policy == null) {
-            throw new NullPointerException("policy");
-        }
-        if (exceptionHandler == null) {
-            throw new NullPointerException("exceptionHandler");
-        }
-        this.delegate = delegate;
-        this.scope = scope;
-        this.policy = policy;
-        this.exceptionHandler = exceptionHandler;
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
+        this.scope = Objects.requireNonNull(scope, "scope");
+        this.policy = Objects.requireNonNull(policy, "policy");
+        this.exceptionHandler = Objects.requireNonNull(exceptionHandler, "exceptionHandler");
     }
 
     @Override

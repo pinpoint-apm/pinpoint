@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.test;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -33,11 +35,8 @@ public class ExpectedTraceField {
     }
 
     public ExpectedTraceField(String expected, ExpectedTraceFieldType expectedType) {
-        if (expectedType == null) {
-            throw new NullPointerException("expectedType");
-        }
         this.expected = expected;
-        this.expectedType = expectedType;
+        this.expectedType = Objects.requireNonNull(expectedType, "expectedType");
     }
 
     public static ExpectedTraceField create(String value) {

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.jdbc.oracle.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -56,10 +57,7 @@ public class OracleNetConnectionDescriptorTokenizer {
     private int position = 0;
 
     public OracleNetConnectionDescriptorTokenizer(String connectionString) {
-        if (connectionString == null) {
-            throw new NullPointerException("connectionString");
-        }
-        this.connectionString = connectionString;
+        this.connectionString = Objects.requireNonNull(connectionString, "connectionString");
     }
 
     public void parse() {

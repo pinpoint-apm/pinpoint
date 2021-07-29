@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.lang.ref.WeakReference;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -32,12 +33,10 @@ public class DataSourceMonitorWrapper implements PluginMonitorWrapper, DataSourc
     private volatile ServiceType serviceType;
 
     public DataSourceMonitorWrapper(int id, DataSourceMonitor dataSourceMonitor) {
-        if (dataSourceMonitor == null) {
-            throw new NullPointerException("dataSourceMonitor");
-        }
+        Objects.requireNonNull(dataSourceMonitor, "dataSourceMonitor");
 
         this.id = id;
-        this.monitorReference = new WeakReference<DataSourceMonitor>(dataSourceMonitor);
+        this.monitorReference = new WeakReference<>(dataSourceMonitor);
     }
 
     private DataSourceMonitor getInstance() {

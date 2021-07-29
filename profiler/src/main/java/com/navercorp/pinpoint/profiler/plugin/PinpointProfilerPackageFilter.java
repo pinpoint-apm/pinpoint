@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -30,17 +31,15 @@ public class PinpointProfilerPackageFilter implements ClassNameFilter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean debug = logger.isDebugEnabled();
 
-    private final List<String> packageList;
+    private final String[] packageList;
 
     public PinpointProfilerPackageFilter() {
         this(getPinpointPackageList());
     }
 
     public PinpointProfilerPackageFilter(List<String> packageList) {
-        if (packageList == null) {
-            throw new NullPointerException("packageList");
-        }
-        this.packageList = new ArrayList<String>(packageList);
+        Objects.requireNonNull(packageList, "packageList");
+        this.packageList = packageList.toArray(new String[0]);
     }
 
 

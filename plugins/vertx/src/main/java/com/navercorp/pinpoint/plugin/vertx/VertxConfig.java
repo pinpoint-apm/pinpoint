@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.vertx;
 import com.navercorp.pinpoint.bootstrap.config.*;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -31,9 +32,7 @@ public class VertxConfig {
     private final List<String> handlerBasePackageNames;
 
     public VertxConfig(ProfilerConfig config) {
-        if (config == null) {
-            throw new NullPointerException("config");
-        }
+        Objects.requireNonNull(config, "config");
 
         // plugin
         this.enable = config.readBoolean("profiler.vertx.enable", false);

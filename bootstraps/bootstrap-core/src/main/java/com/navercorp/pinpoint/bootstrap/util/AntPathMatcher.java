@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.util;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -29,13 +31,10 @@ public class AntPathMatcher implements PathMatcher {
     }
 
     public AntPathMatcher(String pattern, String pathSeparator) {
-        if (pattern == null) {
-            throw new NullPointerException("pattern");
-        }
-        if (pathSeparator == null) {
-            throw new NullPointerException("pathSeparator");
-        }
-        this.pattern = pattern;
+        this.pattern = Objects.requireNonNull(pattern, "pattern");
+
+        Objects.requireNonNull(pathSeparator, "pathSeparator");
+
         this.springAntMatcher = new com.navercorp.pinpoint.bootstrap.util.spring.AntPathMatcher(pathSeparator);
         preCreatePatternCache();
     }

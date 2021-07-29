@@ -67,9 +67,8 @@ public class StaticFieldLookUp<T> {
     }
 
     public List<T> lookup(Filter<T> filter) {
-        if (filter == null) {
-            throw new NullPointerException("filter");
-        }
+        Objects.requireNonNull(filter, "filter");
+
         final List<T> lookup = new ArrayList<T>();
 
         Field[] declaredFields = targetClazz.getDeclaredFields();

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -47,9 +48,7 @@ public class RetryQueue {
     }
 
     public void add(RetryMessage retryMessage) {
-        if (retryMessage == null) {
-            throw new NullPointerException("retryMessage");
-        }
+        Objects.requireNonNull(retryMessage, "retryMessage");
 
         if (!retryMessage.isRetryAvailable()) {
             logger.warn("discard retry message({}).", retryMessage);

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.rpc;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -25,11 +27,8 @@ public class ResponseMessage implements Message {
     public ResponseMessage() {
     }
 
-    public void setMessage(byte[] payload) {
-        if (payload == null) {
-            throw new NullPointerException("message");
-        }
-        this.message = payload;
+    public void setMessage(byte[] message) {
+        this.message = Objects.requireNonNull(message, "message");
     }
 
     @Override

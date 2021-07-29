@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -32,16 +33,15 @@ import java.util.Map;
 public class TestBrokerService {
 
     private final Deque<TestBroker> testBrokers;
-    private final Map<String, TestBroker> testBrokerMap = new HashMap<String, TestBroker>();
+    private final Map<String, TestBroker> testBrokerMap = new HashMap<>();
 
     TestBrokerService(List<TestBroker> testBrokers) {
-        if (testBrokers == null) {
-            throw new NullPointerException("testBrokers");
-        }
+        Objects.requireNonNull(testBrokers, "testBrokers");
+
         if (testBrokers.isEmpty()) {
             throw new IllegalArgumentException("testBrokers must not be empty");
         }
-        this.testBrokers = new ArrayDeque<TestBroker>(testBrokers);
+        this.testBrokers = new ArrayDeque<>(testBrokers);
         for (TestBroker testBroker : testBrokers) {
             this.testBrokerMap.put(testBroker.getBrokerName(), testBroker);
         }

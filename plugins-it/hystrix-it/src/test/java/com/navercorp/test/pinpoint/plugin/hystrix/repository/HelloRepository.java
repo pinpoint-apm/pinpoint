@@ -18,6 +18,8 @@ package com.navercorp.test.pinpoint.plugin.hystrix.repository;
 
 import com.navercorp.pinpoint.plugin.hystrix.HystrixTestHelper;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -29,9 +31,8 @@ public class HelloRepository {
     }
 
     public String hello(String name, Exception exception) throws Exception {
-        if (exception == null) {
-            throw new NullPointerException("exception");
-        }
+        Objects.requireNonNull(exception, "exception");
+
         System.out.println("name : " + name + ", with exception : " + exception);
         throw exception;
     }

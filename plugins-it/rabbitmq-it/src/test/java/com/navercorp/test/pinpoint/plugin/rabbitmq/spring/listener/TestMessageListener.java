@@ -23,6 +23,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -34,10 +36,7 @@ public class TestMessageListener {
 
     @Autowired
     public TestMessageListener(TestMessageHolder testMessageHolder) {
-        if (testMessageHolder == null) {
-            throw new NullPointerException("testMessageHolder");
-        }
-        this.testMessageHolder = testMessageHolder;
+        this.testMessageHolder = Objects.requireNonNull(testMessageHolder, "testMessageHolder");
     }
 
     @RabbitListener(queues = RabbitMQTestConstants.QUEUE_PUSH)

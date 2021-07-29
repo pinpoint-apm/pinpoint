@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -32,18 +34,9 @@ public class ScopedApiIdAwareAroundInterceptor implements ApiIdAwareAroundInterc
     private final ExecutionPolicy policy;
 
     public ScopedApiIdAwareAroundInterceptor(ApiIdAwareAroundInterceptor delegate, InterceptorScope scope, ExecutionPolicy policy) {
-        if (delegate == null) {
-            throw new NullPointerException("delegate");
-        }
-        if (scope == null) {
-            throw new NullPointerException("scope");
-        }
-        if (policy == null) {
-            throw new NullPointerException("policy");
-        }
-        this.delegate = delegate;
-        this.scope = scope;
-        this.policy = policy;
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
+        this.scope = Objects.requireNonNull(scope, "scope");
+        this.policy = Objects.requireNonNull(policy, "policy");
     }
 
     @Override

@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
+import java.util.Objects;
+
 /**
  * @author jaehong.kim
  */
@@ -30,9 +32,7 @@ public class SpringWebFluxPluginConfig {
     private final boolean clientEnable;
 
     public SpringWebFluxPluginConfig(ProfilerConfig config) {
-        if (config == null) {
-            throw new NullPointerException("config");
-        }
+        Objects.requireNonNull(config, "config");
 
         this.enable = config.readBoolean("profiler.spring.webflux.enable", true);
 

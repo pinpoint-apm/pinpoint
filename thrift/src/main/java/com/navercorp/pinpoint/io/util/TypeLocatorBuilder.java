@@ -50,9 +50,7 @@ public class TypeLocatorBuilder<T> {
     }
 
     public void addBodyFactory(short type, BodyFactory<T> bodyFactory) {
-        if (bodyFactory == null) {
-            throw new NullPointerException("bodyFactory");
-        }
+        Objects.requireNonNull(bodyFactory, "bodyFactory");
 
         final BodyFactory<T> old = bodyFactoryMap.put((int) type, bodyFactory);
         if (old != null) {

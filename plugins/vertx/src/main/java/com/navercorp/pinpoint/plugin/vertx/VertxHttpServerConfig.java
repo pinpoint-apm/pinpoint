@@ -19,6 +19,8 @@ import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
 
+import java.util.Objects;
+
 /**
  * @author jaehong.kim
  */
@@ -33,9 +35,7 @@ public class VertxHttpServerConfig {
     private final String requestHandlerMethodName;
 
     public VertxHttpServerConfig(ProfilerConfig config) {
-        if (config == null) {
-            throw new NullPointerException("config");
-        }
+        Objects.requireNonNull(config, "config");
 
         this.requestHandlerMethodName = config.readString("profiler.vertx.http.server.request-handler.method.name", "io.vertx.ext.web.impl.RouterImpl.accept");
         // Server

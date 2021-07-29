@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -209,10 +210,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     public DefaultProfilerConfig(Properties properties) {
-        if (properties == null) {
-            throw new NullPointerException("properties");
-        }
-        this.properties = properties;
+        this.properties = Objects.requireNonNull(properties, "properties");
+
         readPropertyValues();
     }
 
@@ -536,9 +535,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     public String readString(String propertyName, String defaultValue, ValueResolver valueResolver) {
-        if (valueResolver == null) {
-            throw new NullPointerException("valueResolver");
-        }
+        Objects.requireNonNull(valueResolver, "valueResolver");
+
         String value = properties.getProperty(propertyName, defaultValue);
         value = valueResolver.resolve(propertyName, value);
         if (logger.isDebugEnabled()) {

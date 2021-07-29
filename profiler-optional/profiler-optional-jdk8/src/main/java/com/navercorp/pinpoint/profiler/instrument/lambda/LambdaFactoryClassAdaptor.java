@@ -23,6 +23,8 @@ import org.objectweb.asm.ClassWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -51,9 +53,7 @@ public class LambdaFactoryClassAdaptor {
     }
 
     public byte[] transform(byte[] bytes, LambdaClass lambdaClass) {
-        if (bytes == null) {
-            throw new NullPointerException("bytes");
-        }
+        Objects.requireNonNull(bytes, "bytes");
 
         final ClassReader reader = new ClassReader(bytes);
         final ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES);

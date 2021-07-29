@@ -32,9 +32,8 @@ public class IncludeBindVariableFilter implements BindVariableFilter {
 
     @Override
     public boolean filter(Method method) {
-        if (method == null) {
-            throw new NullPointerException("method");
-        }
+        Objects.requireNonNull(method, "method");
+
         for (String include: includes) {
             if (method.getName().equals(include)) {
                 return true;

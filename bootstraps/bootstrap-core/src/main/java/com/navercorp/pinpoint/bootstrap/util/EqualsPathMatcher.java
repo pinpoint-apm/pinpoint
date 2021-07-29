@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.util;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -24,10 +26,7 @@ public class EqualsPathMatcher implements PathMatcher {
     private final String pattern;
 
     public EqualsPathMatcher(String pattern) {
-        if (pattern == null) {
-            throw new NullPointerException("pattern");
-        }
-        this.pattern = pattern;
+        this.pattern = Objects.requireNonNull(pattern, "pattern");
     }
 
     @Override

@@ -2,17 +2,15 @@ package com.navercorp.pinpoint.profiler.util;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 
+import java.util.Objects;
+
 public final class StringMatchUtils {
     private StringMatchUtils() {
     }
 
     public static int indexOf(String str, char[] chars) {
-        if (str == null) {
-            throw new NullPointerException("str");
-        }
-        if (chars == null) {
-            throw new NullPointerException("chars");
-        }
+        Objects.requireNonNull(str, "str");
+        Objects.requireNonNull(chars, "chars");
 
         for (int i = 0; i < str.length(); i++) {
             final char c = str.charAt(i);
@@ -24,9 +22,7 @@ public final class StringMatchUtils {
     }
 
     public static boolean contains(char c, char[] validChars) {
-        if (validChars == null) {
-            throw new NullPointerException("validChars");
-        }
+        Objects.requireNonNull(validChars, "validChars");
 
         for (char validCh : validChars) {
             if (validCh == c) {
@@ -37,9 +33,7 @@ public final class StringMatchUtils {
     }
 
     public static int endsWithCountMatches(String str, String postfix) {
-        if (str == null) {
-            throw new NullPointerException("str");
-        }
+        Objects.requireNonNull(str, "str");
         if (StringUtils.isEmpty(postfix)) {
             return 0;
         }
@@ -82,12 +76,8 @@ public final class StringMatchUtils {
      * ExperimentalApi
      */
     static void appendAndReplace(String str, int startOffset, char oldChar, char newChar, StringBuilder output) {
-        if (str == null) {
-            throw new NullPointerException("str");
-        }
-        if (output == null) {
-            throw new NullPointerException("output");
-        }
+        Objects.requireNonNull(str, "str");
+        Objects.requireNonNull(output, "output");
 
         for (int i = startOffset; i < str.length(); i++) {
             final char c = str.charAt(i);

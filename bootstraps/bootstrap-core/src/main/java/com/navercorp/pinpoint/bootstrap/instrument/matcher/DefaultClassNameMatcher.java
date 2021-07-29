@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -23,10 +25,7 @@ public class DefaultClassNameMatcher implements ClassNameMatcher {
     private final String className;
 
     DefaultClassNameMatcher(String className) {
-        if (className == null) {
-            throw new NullPointerException("className");
-        }
-        this.className = className;
+        this.className = Objects.requireNonNull(className, "className");
     }
 
     @Override

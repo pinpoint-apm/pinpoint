@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -40,9 +41,7 @@ public class ReactorNettyPluginConfig {
     private boolean param = true;
 
     public ReactorNettyPluginConfig(ProfilerConfig config) {
-        if (config == null) {
-            throw new NullPointerException("config must not be null");
-        }
+        Objects.requireNonNull(config, "config");
 
         // plugin
         this.enable = config.readBoolean("profiler.reactor-netty.enable", true);

@@ -34,9 +34,8 @@ public class LoggingBaseTraceFactory implements BaseTraceFactory {
     private BaseTraceFactory baseTraceFactory;
 
     public static BaseTraceFactory wrap(BaseTraceFactory baseTraceFactory) {
-        if (baseTraceFactory == null) {
-            throw new NullPointerException("baseTraceFactory");
-        }
+        Objects.requireNonNull(baseTraceFactory, "baseTraceFactory");
+
         return new LoggingBaseTraceFactory(baseTraceFactory);
     }
 

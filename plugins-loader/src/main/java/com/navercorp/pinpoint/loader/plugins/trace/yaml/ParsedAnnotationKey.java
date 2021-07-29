@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyBuilder;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -54,9 +56,8 @@ public class ParsedAnnotationKey {
     }
 
     AnnotationKey toAnnotationKey() {
-        if (code == null) {
-            throw new NullPointerException("code");
-        }
+        Objects.requireNonNull(code, "code");
+
         if (StringUtils.isEmpty(name)) {
             throw new IllegalArgumentException("annotationKey name must not be empty");
         }

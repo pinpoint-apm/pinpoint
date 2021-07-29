@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -94,9 +95,8 @@ public class HbaseSchemaCommandManager {
     }
 
     public void applyChangeSet(ChangeSet changeSet) {
-        if (changeSet == null) {
-            throw new NullPointerException("changeSet");
-        }
+        Objects.requireNonNull(changeSet, "changeSet");
+
         List<TableChange> tableChanges = changeSet.getTableChanges();
         try {
             for (TableChange tableChange : tableChanges) {

@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -38,7 +39,7 @@ public class TestBroker {
     private final String brokerName;
     private final BrokerService brokerService;
     private final Map<String, ActiveMQConnectionFactory> connectionFactories;
-    private final Map<String, ActiveMQConnection> connections = new HashMap<String, ActiveMQConnection>();
+    private final Map<String, ActiveMQConnection> connections = new HashMap<>();
 
     private TestBroker(String brokerName, BrokerService brokerService, Map<String, ActiveMQConnectionFactory> connectionFactories) throws Exception {
         this.brokerName = brokerName;
@@ -84,14 +85,11 @@ public class TestBroker {
     public static class TestBrokerBuilder {
 
         private final String brokerName;
-        private final Set<String> connectors = new HashSet<String>();
-        private final Set<String> networkConnectors = new HashSet<String>();
+        private final Set<String> connectors = new HashSet<>();
+        private final Set<String> networkConnectors = new HashSet<>();
 
         public TestBrokerBuilder(String brokerName) {
-            if (brokerName == null) {
-                throw new NullPointerException("brokerName must not be empty");
-            }
-            this.brokerName = brokerName;
+            this.brokerName = Objects.requireNonNull(brokerName, "brokerName");
         }
 
         public TestBrokerBuilder addConnector(String bindAddress) {
@@ -112,7 +110,7 @@ public class TestBroker {
             brokerService.setBrokerName(this.brokerName);
             brokerService.setPersistent(false);
             brokerService.setUseJmx(false);
-            Map<String, ActiveMQConnectionFactory> connectionFactories = new HashMap<String, ActiveMQConnectionFactory>();
+            Map<String, ActiveMQConnectionFactory> connectionFactories = new HashMap<>();
             for (String bindAddress : this.connectors) {
                 TransportConnector connector = brokerService.addConnector(bindAddress);
                 connectionFactories.put(bindAddress, new ActiveMQConnectionFactory(connector.getConnectUri()));

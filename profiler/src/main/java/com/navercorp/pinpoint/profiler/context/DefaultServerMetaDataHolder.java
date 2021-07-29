@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
@@ -32,10 +33,7 @@ public class DefaultServerMetaDataHolder implements ServerMetaDataHolder {
     private final ServerMetaDataRegistryService serverMetaDataRegistryService;
 
     public DefaultServerMetaDataHolder(ServerMetaDataRegistryService serverMetaDataRegistryService) {
-        if (serverMetaDataRegistryService == null) {
-            throw new NullPointerException("serverMetaDataRegistryService");
-        }
-        this.serverMetaDataRegistryService = serverMetaDataRegistryService;
+        this.serverMetaDataRegistryService = Objects.requireNonNull(serverMetaDataRegistryService, "serverMetaDataRegistryService");
     }
 
     @Override

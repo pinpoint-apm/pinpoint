@@ -66,9 +66,8 @@ public class PluginInstrumentContext implements InstrumentContext {
 
     @Override
     public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, ProtectionDomain protectionDomain, byte[] classFileBuffer) {
-        if (className == null) {
-            throw new NullPointerException("className");
-        }
+        Objects.requireNonNull(className, "className");
+
         try {
             final InstrumentEngine instrumentEngine = getInstrumentEngine();
             return instrumentEngine.getClass(this, classLoader, className, protectionDomain, classFileBuffer);
@@ -80,9 +79,7 @@ public class PluginInstrumentContext implements InstrumentContext {
 
     @Override
     public boolean exist(ClassLoader classLoader, String className, ProtectionDomain protectionDomain) {
-        if (className == null) {
-            throw new NullPointerException("className");
-        }
+        Objects.requireNonNull(className, "className");
 
         final String jvmClassName = JavaAssistUtils.javaClassNameToJvmResourceName(className);
 
@@ -156,9 +153,7 @@ public class PluginInstrumentContext implements InstrumentContext {
 
     @Override
     public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className) {
-        if (className == null) {
-            throw new NullPointerException("className");
-        }
+        Objects.requireNonNull(className, "className");
 
         return classInjector.injectClass(targetClassLoader, className);
     }
@@ -175,9 +170,7 @@ public class PluginInstrumentContext implements InstrumentContext {
 
     @Override
     public InterceptorScope getInterceptorScope(String name) {
-        if (name == null) {
-            throw new NullPointerException("name");
-        }
+        Objects.requireNonNull(name, "name");
 
         return interceptorScopePool.get(name);
     }

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.lang.reflect.Constructor;
+import java.util.Objects;
 
 /**
  * test only
@@ -35,12 +36,9 @@ final class MethodDescriptionUtils {
     }
 
     public static String toJavaMethodDescriptor(String className, String methodName, String[] parameterType) {
-        if (className == null) {
-            throw new NullPointerException("className");
-        }
-        if (methodName == null) {
-            throw new NullPointerException("methodName");
-        }
+        Objects.requireNonNull(className, "className");
+        Objects.requireNonNull(methodName, "methodName");
+
         StringBuilder buffer = new StringBuilder(256);
         buffer.append(className);
         buffer.append('.');
