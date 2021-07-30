@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
 import com.navercorp.pinpoint.web.util.DefaultUserInfoDecoder;
@@ -25,9 +26,9 @@ import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
 import com.navercorp.pinpoint.web.vo.UserPhoneInfo;
 import com.navercorp.pinpoint.web.vo.exception.PinpointUserGroupException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -33,7 +34,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StringUtils;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -143,12 +144,9 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
     @Override
     public void deleteAgentId(String applicationName, String agentId) {
-        if (StringUtils.isEmpty(applicationName)) {
-            throw new IllegalArgumentException("applicationName cannot be empty");
-        }
-        if (StringUtils.isEmpty(agentId)) {
-            throw new IllegalArgumentException("agentId cannot be empty");
-        }
+        Assert.hasLength(applicationName, "applicationName");
+        Assert.hasLength(agentId, "agentId");
+
         byte[] rowKey = Bytes.toBytes(applicationName);
         Delete delete = new Delete(rowKey);
         byte[] qualifier = Bytes.toBytes(agentId);
