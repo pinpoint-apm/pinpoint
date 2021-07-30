@@ -31,6 +31,8 @@ import java.util.Objects;
 public final class IOUtils {
 
     public static final int DEFAULT_BUFFER_SIZE = 4096;
+    private static final int MAX_BUFFER_SIZE = 1024 * 1024;
+
     public static final int EOF = -1;
 
     private IOUtils() {
@@ -50,11 +52,17 @@ public final class IOUtils {
         if (bufferSize < 0) {
             throw new IllegalArgumentException("negative bufferSize");
         }
-
+        // https://gitlab.ow2.org/asm/asm/-/blob/master/asm/src/main/java/org/objectweb/asm/ClassReader.java#L316
+        // memory allocation optimization
+        bufferSize = calculateBufferSize(inputStream, bufferSize);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             final byte[] buffer = new byte[bufferSize];
-            copy(inputStream, outputStream, buffer);
+//            copy(inputStream, outputStream, buffer);
+            final int readCount = copy0(inputStream, outputStream, buffer);
+            if (readCount == 1) {
+                return buffer;
+            }
             outputStream.flush();
             return outputStream.toByteArray();
         } finally {
@@ -64,12 +72,31 @@ public final class IOUtils {
         }
     }
 
+    private static int calculateBufferSize(final InputStream inputStream, int defaultBufferSize) throws IOException {
+        final int expectedLength = inputStream.available();
+        if (expectedLength < 256) {
+            return defaultBufferSize;
+        }
+        return Math.min(expectedLength, MAX_BUFFER_SIZE);
+    }
+
     public static void copy(InputStream inputStream, OutputStream outputStream, byte[] buffer) throws IOException {
-        int readCount;
-        while ((readCount = inputStream.read(buffer, 0, buffer.length)) != EOF) {
-            outputStream.write(buffer, 0, readCount);
+        int bytesRead;
+        while ((bytesRead = inputStream.read(buffer, 0, buffer.length)) != EOF) {
+            outputStream.write(buffer, 0, bytesRead);
         }
     }
+
+    private static int copy0(InputStream inputStream, OutputStream outputStream, byte[] buffer) throws IOException {
+        int readCount = 0;
+        int bytesRead;
+        while ((bytesRead  = inputStream.read(buffer, 0, buffer.length)) != EOF) {
+            outputStream.write(buffer, 0, bytesRead);
+            readCount++;
+        }
+        return readCount;
+    }
+
 
     public static void closeQuietly(Closeable closeable) {
         if (closeable != null) {
