@@ -15,12 +15,13 @@
  */
 package com.navercorp.pinpoint.web.controller;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.service.UserService;
 import com.navercorp.pinpoint.web.util.ValueValidator;
 import com.navercorp.pinpoint.web.vo.User;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;

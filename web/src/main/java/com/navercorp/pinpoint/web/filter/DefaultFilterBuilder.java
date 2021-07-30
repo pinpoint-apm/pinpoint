@@ -26,6 +26,8 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 
@@ -35,7 +37,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
+import org.springframework.util.Assert;
 
 /**
  *
@@ -113,9 +115,7 @@ public class DefaultFilterBuilder implements FilterBuilder<List<SpanBo>> {
     }
 
     private Filter<List<SpanBo>> makeFilterFromJson(String jsonFilterText, String jsonFilterHint) {
-        if (StringUtils.isEmpty(jsonFilterText)) {
-            throw new IllegalArgumentException("json string is empty");
-        }
+        Assert.hasLength(jsonFilterText, "jsonFilterText");
 
         final List<FilterDescriptor> filterDescriptorList = readFilterDescriptor(jsonFilterText);
         final FilterHint hint = readFilterHint(jsonFilterHint);

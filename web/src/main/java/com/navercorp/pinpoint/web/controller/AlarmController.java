@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.web.controller;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -61,7 +61,7 @@ public class AlarmController {
     public Map<String, String> insertRule(@RequestBody Rule rule) {
         Map<String, String> result = new HashMap<>();
 
-        if (StringUtils.isEmpty(rule.getApplicationId()) || StringUtils.isEmpty(rule.getCheckerName()) || StringUtils.isEmpty(rule.getUserGroupId()) || StringUtils.isEmpty(rule.getThreshold())) {
+        if (StringUtils.isEmpty(rule.getApplicationId()) || StringUtils.isEmpty(rule.getCheckerName()) || StringUtils.isEmpty(rule.getUserGroupId()) || Objects.isNull(rule.getThreshold())) {
             result.put("errorCode", "500");
             result.put("errorMessage", "there is not applicationId/checkerName/userGroupId/threashold to insert alarm rule");
             return result;

@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializer;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
+import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -40,13 +40,10 @@ public class FlinkTcpDataSender extends TcpDataSender {
     public FlinkTcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory, FlinkHeaderTBaseSerializer serializer, FlinkRequestFactory flinkRequestFactory) {
         super(name, host, port, clientFactory);
 
-        if (StringUtils.isEmpty(name)) {
-            throw new IllegalArgumentException("name must not be empty.");
-        }
-        if (StringUtils.isEmpty(host)) {
-            throw new IllegalArgumentException("host must not be empty.");
-        }
+        Assert.hasLength(name, "name");
+        Assert.hasLength(host, "host");
         Objects.requireNonNull(clientFactory, "clientFactory");
+
         this.flinkHeaderTBaseSerializer = Objects.requireNonNull(serializer, "serializer");
         this.flinkRequestFactory = Objects.requireNonNull(flinkRequestFactory, "clientFactory");
     }
