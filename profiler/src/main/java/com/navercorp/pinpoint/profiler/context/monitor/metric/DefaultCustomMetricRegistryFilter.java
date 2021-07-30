@@ -30,8 +30,8 @@ import java.util.Objects;
 public class DefaultCustomMetricRegistryFilter implements CustomMetricRegistryFilter {
 
     // default
-    private static final AllowedSource<LongCounter> NETTY_USED_DIRECT_MEMORY = new AllowedSource<LongCounter>("custom/netty/usedDirectMemory", LongCounter.class);
-    private static final AllowedSource<LongCounter> NETTY_MAX_DIRECT_MEMORY = new AllowedSource<LongCounter>("custom/netty/maxDirectMemory ", LongCounter.class);
+    private static final AllowedSource<LongCounter> NETTY_USED_DIRECT_MEMORY = new AllowedSource<>("custom/netty/usedDirectMemory", LongCounter.class);
+    private static final AllowedSource<LongCounter> NETTY_MAX_DIRECT_MEMORY = new AllowedSource<>("custom/netty/maxDirectMemory ", LongCounter.class);
 
     private final List<AllowedSource> allowedSourceList;
 

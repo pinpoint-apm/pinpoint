@@ -73,7 +73,7 @@ public class JoinLongFieldStrategyAnalyzer implements JoinFieldStrategyAnalyzer<
         private final UnsignedLongEncodingStrategy.Analyzer.Builder maxValueAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         private final StringEncodingStrategy.Analyzer.Builder maxAgentIdAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
 
-        private final List<JoinLongFieldBo> values = new ArrayList<JoinLongFieldBo>();
+        private final List<JoinLongFieldBo> values = new ArrayList<>();
 
         @Override
         public JoinFieldStrategyAnalyzerBuilder<JoinLongFieldBo> addValue(JoinLongFieldBo value) {

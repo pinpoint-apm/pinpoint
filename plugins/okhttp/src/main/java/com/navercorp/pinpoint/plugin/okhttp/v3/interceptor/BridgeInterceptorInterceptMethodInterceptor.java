@@ -64,7 +64,7 @@ public class BridgeInterceptorInterceptMethodInterceptor implements AroundInterc
         final OkHttpPluginConfig config = new OkHttpPluginConfig(traceContext.getProfilerConfig());
 
         ClientRequestAdaptor<Request> clientRequestAdaptor = new OkHttpClientRequestAdaptor();
-        this.clientRequestRecorder = new ClientRequestRecorder<Request>(config.isParam(), clientRequestAdaptor);
+        this.clientRequestRecorder = new ClientRequestRecorder<>(config.isParam(), clientRequestAdaptor);
 
         CookieExtractor<Request> cookieExtractor = new OkHttpClientCookieExtractor();
         this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(config.getHttpDumpConfig(), cookieExtractor);

@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
 public class JoinCpuLoadBoTest {
     @Test
     public void joinCpuLoadBoList() throws Exception {
-        List<JoinCpuLoadBo> joinCpuLoadBoList = new ArrayList<JoinCpuLoadBo>();
+        List<JoinCpuLoadBo> joinCpuLoadBoList = new ArrayList<>();
         JoinCpuLoadBo joinCpuLoadBo1 = new JoinCpuLoadBo("agent1", 44, 70, "agent1", 30, "agent1", 50, 60, "agent1", 33, "agent1", 1496988667231L);
         JoinCpuLoadBo joinCpuLoadBo2 = new JoinCpuLoadBo("agent2", 33, 40, "agent2", 10, "agent2", 20, 78, "agent2", 12, "agent2", 1496988667231L);
         JoinCpuLoadBo joinCpuLoadBo3 = new JoinCpuLoadBo("agent3", 55, 60, "agent3", 7, "agent3", 30, 39, "agent3", 30, "agent3", 1496988667231L);
@@ -50,7 +50,7 @@ public class JoinCpuLoadBoTest {
 
     @Test
     public void  joinCpuLoadBo2List() {
-        List<JoinCpuLoadBo> joinCpuLoadBoList = new ArrayList<JoinCpuLoadBo>();
+        List<JoinCpuLoadBo> joinCpuLoadBoList = new ArrayList<>();
         JoinCpuLoadBo joinCpuLoadBo = JoinCpuLoadBo.joinCpuLoadBoList(joinCpuLoadBoList, 1496988667231L);
         assertEquals(joinCpuLoadBo, JoinCpuLoadBo.EMPTY_JOIN_CPU_LOAD_BO);
     }

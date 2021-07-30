@@ -50,7 +50,7 @@ public class BootDir {
             return null;
         }
 
-        List<String> resolvedJarList = new ArrayList<String>(jarDescriptions.size());
+        List<String> resolvedJarList = new ArrayList<>(jarDescriptions.size());
         for (JarDescription jarDescription : jarDescriptions) {
             final String jarFileName = find(jarFiles, jarDescription);
             if (jarFileName == null) {
@@ -85,7 +85,7 @@ public class BootDir {
     }
 
     private List<File> findFileByPattern(File[] jarFiles, Pattern pattern) {
-        List<File> findList = new ArrayList<File>();
+        List<File> findList = new ArrayList<>();
         for (File jarFile : jarFiles) {
             Matcher matcher = pattern.matcher(jarFile.getName());
             if (matcher.matches()) {
@@ -96,12 +96,12 @@ public class BootDir {
     }
 
     public List<String> toList() {
-        return new ArrayList<String>(jars);
+        return new ArrayList<>(jars);
     }
 
 
     public List<JarFile> openJarFiles() {
-        final List<JarFile> jarFileList = new ArrayList<JarFile>(jars.size());
+        final List<JarFile> jarFileList = new ArrayList<>(jars.size());
         for (String jarPath : jars) {
             final JarFile jarFile = JarFileUtils.openJarFile(jarPath);
             jarFileList.add(jarFile);

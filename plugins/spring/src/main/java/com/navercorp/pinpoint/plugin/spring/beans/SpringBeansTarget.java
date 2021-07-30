@@ -110,7 +110,7 @@ public class SpringBeansTarget {
             return null;
         }
 
-        final List<PathMatcher> pathMatchers = new ArrayList<PathMatcher>(patternStrings.size());
+        final List<PathMatcher> pathMatchers = new ArrayList<>(patternStrings.size());
         for (String patternString : patternStrings) {
             final int prefixEnd = patternString.indexOf(":");
             if (prefixEnd != -1) {

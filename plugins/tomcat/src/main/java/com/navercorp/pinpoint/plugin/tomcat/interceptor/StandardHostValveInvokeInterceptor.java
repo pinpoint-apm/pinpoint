@@ -69,7 +69,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
         ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
 
-        ServletRequestListenerBuilder<HttpServletRequest> builder = new ServletRequestListenerBuilder<HttpServletRequest>(TomcatConstants.TOMCAT, traceContext, requestAdaptor);
+        ServletRequestListenerBuilder<HttpServletRequest> builder = new ServletRequestListenerBuilder<>(TomcatConstants.TOMCAT, traceContext, requestAdaptor);
         builder.setExcludeURLFilter(config.getExcludeUrlFilter());
         builder.setParameterRecorder(parameterRecorder);
         builder.setRequestRecorderFactory(requestRecorderFactory);

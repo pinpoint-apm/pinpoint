@@ -74,7 +74,7 @@ public class SocketOption implements Cloneable {
 
     public Map<String, Object> toMap() {
 
-        final Map<String, Object> options = new HashMap<String, Object>();
+        final Map<String, Object> options = new HashMap<>();
         // connectTimeout
         options.put(CONNECT_TIMEOUT_MILLIS, connectTimeout);
         // read write timeout needed?  isn't it needed because of nio?
@@ -156,7 +156,7 @@ public class SocketOption implements Cloneable {
 
         public void setWriteBufferHighWaterMark(int writeBufferHighWaterMark) {
             Assert.isTrue(writeBufferHighWaterMark > 0, "must be writeBufferHighWaterMark > 0");
-            this.writeBufferHighWaterMark = (int) writeBufferHighWaterMark;
+            this.writeBufferHighWaterMark = writeBufferHighWaterMark;
         }
 
         public int getWriteBufferLowWaterMark() {
@@ -165,7 +165,7 @@ public class SocketOption implements Cloneable {
 
         public void setWriteBufferLowWaterMark(int writeBufferLowWaterMark) {
             Assert.isTrue(writeBufferLowWaterMark > 0, "must be writeBufferLowWaterMark > 0");
-            this.writeBufferLowWaterMark = (int) writeBufferLowWaterMark;
+            this.writeBufferLowWaterMark = writeBufferLowWaterMark;
         }
 
         public SocketOption build() {

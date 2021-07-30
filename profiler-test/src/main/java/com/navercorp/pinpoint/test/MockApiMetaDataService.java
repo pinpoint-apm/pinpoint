@@ -30,7 +30,7 @@ import java.util.Objects;
  */
 public class MockApiMetaDataService implements ApiMetaDataService {
 
-    private final SimpleCache<String> apiCache = new SimpleCache<String>(new SimpleCache.ZigZagTransformer());
+    private final SimpleCache<String> apiCache = new SimpleCache<>(new SimpleCache.ZigZagTransformer());
 
     private final EnhancedDataSender<Object> enhancedDataSender;
 

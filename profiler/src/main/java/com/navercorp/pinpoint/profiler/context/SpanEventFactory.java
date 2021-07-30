@@ -38,10 +38,7 @@ public class SpanEventFactory implements CallStack.Factory<SpanEvent> {
 
     @Override
     public boolean isDummy(SpanEvent element) {
-        if (element instanceof DummySpanEvent) {
-            return true;
-        }
-        return false;
+        return element instanceof DummySpanEvent;
     }
 
     @Override

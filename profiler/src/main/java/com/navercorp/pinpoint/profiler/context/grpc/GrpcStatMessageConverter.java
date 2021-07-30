@@ -65,8 +65,8 @@ import java.util.List;
  * @author jaehong.kim
  */
 public class GrpcStatMessageConverter implements MessageConverter<GeneratedMessageV3> {
-    private GrpcThreadDumpMessageConverter threadDumpMessageConverter = new GrpcThreadDumpMessageConverter();
-    private GrpcJvmGcTypeMessageConverter jvmGcTypeConverter = new GrpcJvmGcTypeMessageConverter();
+    private final GrpcThreadDumpMessageConverter threadDumpMessageConverter = new GrpcThreadDumpMessageConverter();
+    private final GrpcJvmGcTypeMessageConverter jvmGcTypeConverter = new GrpcJvmGcTypeMessageConverter();
     private final GrpcCustomMetricMessageConverter customMetricMessageConverter = new GrpcCustomMetricMessageConverter();
     private final GrpcUriStatMessageConverter uriStatMessageConverter = new GrpcUriStatMessageConverter();
 

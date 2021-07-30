@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import com.navercorp.pinpoint.web.dao.stat.AgentUriStatDao;
 import com.navercorp.pinpoint.web.vo.Range;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +34,6 @@ public class AgentUriStatService implements AgentStatService<AgentUriStatBo> {
 
     private final AgentUriStatDao agentUriStatDao;
 
-    @Autowired
     public AgentUriStatService(@Qualifier("agentUriStatDao") AgentUriStatDao agentUriStatDao) {
         this.agentUriStatDao = agentUriStatDao;
     }

@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class SampledDataSourceList implements SampledAgentStatDataPoint {
 
-    private final List<SampledDataSource> sampledDataSourceList = new ArrayList<SampledDataSource>();
+    private final List<SampledDataSource> sampledDataSourceList = new ArrayList<>();
 
     public void addSampledDataSource(SampledDataSource sampledDataSource) {
         sampledDataSourceList.add(sampledDataSource);

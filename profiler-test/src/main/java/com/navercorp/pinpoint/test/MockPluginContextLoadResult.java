@@ -61,7 +61,7 @@ public class MockPluginContextLoadResult implements PluginContextLoadResult {
 
     @Override
     public List<ClassFileTransformer> getClassFileTransformer() {
-        List<ClassFileTransformer> classFileTransformerList = new ArrayList<ClassFileTransformer>();
+        List<ClassFileTransformer> classFileTransformerList = new ArrayList<>();
         PluginsSetupResult pluginsSetupResult = getPluginsSetupResult();
         for (PluginSetupResult pluginContext : pluginsSetupResult.getPluginSetupResults()) {
             List<ClassFileTransformer> classFileTransformer = pluginContext.getClassTransformerList();
@@ -79,7 +79,7 @@ public class MockPluginContextLoadResult implements PluginContextLoadResult {
 
     @Override
     public List<JdbcUrlParserV2> getJdbcUrlParserList() {
-        final List<JdbcUrlParserV2> result = new ArrayList<JdbcUrlParserV2>();
+        final List<JdbcUrlParserV2> result = new ArrayList<>();
         PluginsSetupResult pluginsSetupResult = getPluginsSetupResult();
         for (PluginSetupResult context : pluginsSetupResult.getPluginSetupResults()) {
             List<JdbcUrlParserV2> jdbcUrlParserList = context.getJdbcUrlParserList();
@@ -90,7 +90,7 @@ public class MockPluginContextLoadResult implements PluginContextLoadResult {
 
     @Override
     public List<UriExtractorProvider> getUriExtractorProviderList() {
-        final List<UriExtractorProvider> result = new ArrayList<UriExtractorProvider>();
+        final List<UriExtractorProvider> result = new ArrayList<>();
         PluginsSetupResult pluginsSetupResult = getPluginsSetupResult();
         for (PluginSetupResult context : pluginsSetupResult.getPluginSetupResults()) {
             List<UriExtractorProvider> uriExtractorProviderList = context.getUriExtractorProviderList();

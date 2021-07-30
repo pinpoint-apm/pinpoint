@@ -156,7 +156,7 @@ public abstract class DataBaseTestCase {
                 List<User> users = template.executeQuery(selectQuery, new ResultSetExtractor<List<User>>() {
                     @Override
                     public List<User> extractData(ResultSet rs) throws SQLException {
-                        List<User> users = new ArrayList<User>();
+                        List<User> users = new ArrayList<>();
                         while (rs.next()) {
                             final int id = rs.getInt("id");
                             final String name = rs.getString("name");
@@ -263,7 +263,7 @@ public abstract class DataBaseTestCase {
 
     }
     public static class SwapResult {
-        private List<Integer> results = new ArrayList<Integer>();
+        private List<Integer> results = new ArrayList<>();
         private Swap swap;
     }
 

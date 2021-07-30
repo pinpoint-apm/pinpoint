@@ -44,8 +44,8 @@ public class TransformClassLoader extends ClassLoader {
 
     private final Logger logger = Logger.getLogger(TransformClassLoader.class.getName());
 
-    private final Set<String> notDefinedClass = new CopyOnWriteArraySet<String>();
-    private final List<String> notDefinedPackages = new CopyOnWriteArrayList<String>();
+    private final Set<String> notDefinedClass = new CopyOnWriteArraySet<>();
+    private final List<String> notDefinedPackages = new CopyOnWriteArrayList<>();
 
     private final static ProtectionDomain DEFAULT_DOMAIN = (ProtectionDomain) AccessController.doPrivileged(new PrivilegedAction() {
         public Object run() {

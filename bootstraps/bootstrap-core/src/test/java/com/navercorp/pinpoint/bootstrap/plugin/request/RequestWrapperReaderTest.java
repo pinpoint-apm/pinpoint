@@ -60,7 +60,7 @@ public class RequestWrapperReaderTest {
         TraceId traceId = mock(TraceId.class);
         when(traceContext.createTraceId(anyString(), anyLong(), anyLong(), anyShort())).thenReturn(traceId);
         RequestAdaptor<ServerRequestWrapper> serverRequestWrapperAdaptor = new ServerRequestWrapperAdaptor();
-        final RequestTraceReader<ServerRequestWrapper> reader = new RequestTraceReader<ServerRequestWrapper>(traceContext, serverRequestWrapperAdaptor);
+        final RequestTraceReader<ServerRequestWrapper> reader = new RequestTraceReader<>(traceContext, serverRequestWrapperAdaptor);
 
         // sampling flag is true
         ServerRequestWrapper samplingFlagServerRequestWrapper = mock(ServerRequestWrapper.class);

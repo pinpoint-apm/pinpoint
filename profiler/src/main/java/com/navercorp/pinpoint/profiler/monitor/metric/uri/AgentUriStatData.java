@@ -29,7 +29,7 @@ public class AgentUriStatData {
 
     private final long baseTimestamp;
 
-    private Map<String, EachUriStatData> eachUriStatDataMap = new HashMap<>();
+    private final Map<String, EachUriStatData> eachUriStatDataMap = new HashMap<>();
 
     public AgentUriStatData(long baseTimestamp) {
         Assert.isTrue(baseTimestamp > 0, "baseTimestamp must be  ` > 0`");

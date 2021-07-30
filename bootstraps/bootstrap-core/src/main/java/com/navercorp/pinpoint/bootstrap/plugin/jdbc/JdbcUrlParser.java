@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentMap;
 @Deprecated
 public abstract class JdbcUrlParser {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
-    private final ConcurrentMap<String, DatabaseInfo> cache = new ConcurrentHashMap<String, DatabaseInfo>();
+    private final ConcurrentMap<String, DatabaseInfo> cache = new ConcurrentHashMap<>();
 
     //http://www.petefreitag.com/articles/jdbc_urls/
     public DatabaseInfo parse(String url) {

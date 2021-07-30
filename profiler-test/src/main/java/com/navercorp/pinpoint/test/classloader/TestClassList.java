@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class TestClassList {
 
-    private List<String> testClassList = new ArrayList<String>();
+    private List<String> testClassList = new ArrayList<>();
 
     public TestClassList() {
         add("com.navercorp.pinpoint.bootstrap.");

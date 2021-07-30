@@ -34,7 +34,7 @@ public class ClassFileTransformerLoader {
     private final ProfilerConfig profilerConfig;
     private final DynamicTransformTrigger dynamicTransformTrigger;
 
-    private final List<ClassFileTransformer> classTransformers = new ArrayList<ClassFileTransformer>();
+    private final List<ClassFileTransformer> classTransformers = new ArrayList<>();
 
     public ClassFileTransformerLoader(ProfilerConfig profilerConfig, DynamicTransformTrigger dynamicTransformTrigger) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");

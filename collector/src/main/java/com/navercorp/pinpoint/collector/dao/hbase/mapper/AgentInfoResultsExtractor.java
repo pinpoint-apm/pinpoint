@@ -21,8 +21,9 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -30,8 +31,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class AgentInfoResultsExtractor implements ResultsExtractor<AgentInfoBo> {
 
-    @Autowired
-    private RowMapper<AgentInfoBo> agentInfoMapper;
+    private final RowMapper<AgentInfoBo> agentInfoMapper;
+
+    public AgentInfoResultsExtractor(RowMapper<AgentInfoBo> agentInfoMapper) {
+        this.agentInfoMapper = Objects.requireNonNull(agentInfoMapper, "agentInfoMapper");
+    }
 
     @Override
     public AgentInfoBo extractData(ResultScanner results) throws Exception {

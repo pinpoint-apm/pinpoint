@@ -67,7 +67,7 @@ public class ActiveTraceCodec implements ApplicationStatCodec {
 
         final int numValues = joinActiveTraceBoList.size();
         valueBuffer.putVInt(numValues);
-        List<Long> timestamps = new ArrayList<Long>(numValues);
+        List<Long> timestamps = new ArrayList<>(numValues);
         UnsignedShortEncodingStrategy.Analyzer.Builder versionAnalyzerBuilder = new UnsignedShortEncodingStrategy.Analyzer.Builder();
         UnsignedIntegerEncodingStrategy.Analyzer.Builder schemaTypeAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
         JoinIntFieldStrategyAnalyzer.Builder totalCountAnalyzerBuilder = new JoinIntFieldStrategyAnalyzer.Builder();
@@ -123,7 +123,7 @@ public class ActiveTraceCodec implements ApplicationStatCodec {
         List<Integer> schemaTypeList = this.codec.decodeValues(valueBuffer, schemaTypeEncodingStrategy, numValues);
         List<JoinIntFieldBo> totalCountJoinIntValueList = this.codec.decodeValues(valueBuffer, totalCountJoinIntValueEncodingStrategy, numValues);
 
-        List<JoinStatBo> joinActiveTraceBoList = new ArrayList<JoinStatBo>();
+        List<JoinStatBo> joinActiveTraceBoList = new ArrayList<>();
         for (int i = 0; i < numValues; i++) {
             JoinActiveTraceBo joinActiveTraceBo = new JoinActiveTraceBo();
             joinActiveTraceBo.setId(id);

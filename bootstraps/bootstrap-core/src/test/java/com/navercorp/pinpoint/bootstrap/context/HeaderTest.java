@@ -46,7 +46,7 @@ public class HeaderTest {
 
     @Test
     public void filteredHeaderNames() throws Exception {
-        Hashtable<String, String> hashtable = new Hashtable<String, String>();
+        Hashtable<String, String> hashtable = new Hashtable<>();
         hashtable.put("a", "aa");
         hashtable.put("b", Header.HTTP_FLAGS.toString());
         hashtable.put("c", "cc");

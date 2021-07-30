@@ -46,7 +46,7 @@ public class MqttV5ClientPublishInterceptor extends MqttClientPublishInterceptor
             return;
         }
         List<UserProperty> mqttUserProperties = mqttProperties.getUserProperties(); // mqttUserProperties may be AbstractList
-        List<UserProperty> userPropertiesWithHeader = new ArrayList<UserProperty>(mqttUserProperties);
+        List<UserProperty> userPropertiesWithHeader = new ArrayList<>(mqttUserProperties);
 
         cleanPinpointHeader(userPropertiesWithHeader);
         if (canSampled) {

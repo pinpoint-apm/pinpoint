@@ -90,10 +90,7 @@ public final class ClassLoaderUtils {
 
 
     public static boolean isJvmClassLoader(ClassLoader classLoader) {
-        if (BOOT_CLASS_LOADER == classLoader || SYSTEM_CLASS_LOADER == classLoader || EXT_CLASS_LOADER == classLoader) {
-            return true;
-        }
-        return false;
+        return BOOT_CLASS_LOADER == classLoader || SYSTEM_CLASS_LOADER == classLoader || EXT_CLASS_LOADER == classLoader;
     }
 
     public static String dumpStandardClassLoader() {
@@ -110,7 +107,7 @@ public final class ClassLoaderUtils {
         if (classLoader == null) {
             buffer.append("null");
         } else {
-            buffer.append(classLoader.toString());
+            buffer.append(classLoader);
         }
         buffer.append(", ");
     }

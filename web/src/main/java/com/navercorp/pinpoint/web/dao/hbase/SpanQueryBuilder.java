@@ -10,7 +10,6 @@ import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.TimestampsFilter;
 
 import java.util.Collections;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 public class SpanQueryBuilder {

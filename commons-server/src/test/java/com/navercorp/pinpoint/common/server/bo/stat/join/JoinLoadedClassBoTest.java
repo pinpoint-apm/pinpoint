@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 public class JoinLoadedClassBoTest {
     @Test
     public void joinLoadedClassBoListTest () {
-        List<JoinLoadedClassBo> joinLoadedClassBoList = new ArrayList<JoinLoadedClassBo>();
+        List<JoinLoadedClassBo> joinLoadedClassBoList = new ArrayList<>();
         JoinLoadedClassBo joinLoadedClassBo1 = new JoinLoadedClassBo("agent1", 35, 10, "agent1", 67, "agent1", 35, 10, "agent1", 67, "agent1", 1496988667231L);
         JoinLoadedClassBo joinLoadedClassBo2 = new JoinLoadedClassBo("agent2", 39, 2, "agent2", 164, "agent2", 39, 2, "agent2", 164, "agent2", 1496988667231L);
         JoinLoadedClassBo joinLoadedClassBo3 = new JoinLoadedClassBo("agent3", 52, 1, "agent3", 236, "agent3",52, 1, "agent3", 236, "agent3", 1496988667231L);
@@ -47,7 +47,7 @@ public class JoinLoadedClassBoTest {
     }
     @Test
     public void joinLoadedClassBoList2Test() {
-        List<JoinLoadedClassBo> joinLoadedClassBoList = new ArrayList<JoinLoadedClassBo>();
+        List<JoinLoadedClassBo> joinLoadedClassBoList = new ArrayList<>();
         JoinLoadedClassBo joinLoadedClassBo = JoinLoadedClassBo.joinLoadedClassBoList(joinLoadedClassBoList, 1496988668231L);
         assertEquals(joinLoadedClassBo, JoinLoadedClassBo.EMPTY_JOIN_LOADED_CLASS_BO);
     }

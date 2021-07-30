@@ -27,7 +27,7 @@ public class DefaultIgnoreErrorHandler implements IgnoreErrorHandler {
         if (throwableMatcher.match(thClass)) {
             if (messageMatcher.match(th.getMessage())) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Ignore Exception th:{} handler:{},", th.toString(), this);
+                    logger.debug("Ignore Exception th:{} handler:{},", th, this);
                 }
                 return true;
             }

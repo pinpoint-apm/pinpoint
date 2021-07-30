@@ -30,6 +30,6 @@ public class CallStackFactoryV2 implements CallStackFactory<SpanEvent> {
 
     @Override
     public CallStack<SpanEvent> newCallStack() {
-        return new DefaultCallStack<SpanEvent>(factory, maxDepth);
+        return new DefaultCallStack<>(factory, maxDepth);
     }
 }

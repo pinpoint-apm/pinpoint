@@ -74,7 +74,7 @@ public class MetricRegistry {
     }
 
     public Collection<HistogramSnapshot> createRpcResponseSnapshot() {
-        final List<HistogramSnapshot> histogramSnapshotList = new ArrayList<HistogramSnapshot>(16);
+        final List<HistogramSnapshot> histogramSnapshotList = new ArrayList<>(16);
         for (RpcMetric metric : rpcCache.values()) {
             histogramSnapshotList.addAll(metric.createSnapshotList());
         }

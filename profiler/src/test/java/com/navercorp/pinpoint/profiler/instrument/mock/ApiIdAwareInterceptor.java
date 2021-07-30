@@ -49,20 +49,20 @@ public class ApiIdAwareInterceptor implements ApiIdAwareAroundInterceptor {
 
     @Override
     public void before(Object target, int apiId, Object[] args) {
-        this.before = true;
-        this.beforeTarget = target;
-        this.beforeApiId = apiId;
-        this.beforeArgs = args;
+        before = true;
+        beforeTarget = target;
+        beforeApiId = apiId;
+        beforeArgs = args;
     }
 
     @Override
     public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
-        this.after = true;
-        this.afterTarget = target;
-        this.afterApiId = apiId;
-        this.afterArgs = args;
-        this.result = result;
-        this.throwable = throwable;
+        after = true;
+        afterTarget = target;
+        afterApiId = apiId;
+        afterArgs = args;
+        ApiIdAwareInterceptor.result = result;
+        ApiIdAwareInterceptor.throwable = throwable;
     }
 
     private String toArgs(Object[] args) {

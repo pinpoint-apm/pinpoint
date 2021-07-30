@@ -75,7 +75,7 @@ public class MssqlJdbcUrlParser implements JdbcUrlParserV2 {
         maker.after(MSSQL_URL_PREFIX);
 
         String host = maker.after("//").before(';').value();
-        List<String> hostList = new ArrayList<String>(1);
+        List<String> hostList = new ArrayList<>(1);
         hostList.add(host);
         // String port = maker.next().after(':').before(';').value();
 

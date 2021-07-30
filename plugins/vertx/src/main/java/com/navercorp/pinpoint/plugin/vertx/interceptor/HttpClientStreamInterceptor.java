@@ -57,13 +57,13 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
 
         final VertxHttpClientConfig config = new VertxHttpClientConfig(traceContext.getProfilerConfig());
         ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
-        this.clientRequestRecorder = new ClientRequestRecorder<ClientRequestWrapper>(config.isParam(), clientRequestAdaptor);
+        this.clientRequestRecorder = new ClientRequestRecorder<>(config.isParam(), clientRequestAdaptor);
 
         CookieExtractor<HttpRequest> cookieExtractor = new VertxCookieExtractor();
         this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(config.getHttpDumpConfig(), cookieExtractor);
 
         ClientHeaderAdaptor<HttpRequest> clientHeaderAdaptor = new HttpRequestClientHeaderAdaptor();
-        this.requestTraceWriter = new DefaultRequestTraceWriter<HttpRequest>(clientHeaderAdaptor, traceContext);
+        this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override

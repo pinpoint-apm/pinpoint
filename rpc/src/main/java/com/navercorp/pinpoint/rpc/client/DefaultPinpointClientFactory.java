@@ -70,7 +70,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     private ClusterOption clusterOption = ClusterOption.DISABLE_CLUSTER_OPTION;
 
     private MessageListener messageListener = SimpleMessageListener.INSTANCE;
-    private final List<StateChangeEventListener> stateChangeEventListeners = new ArrayList<StateChangeEventListener>();
+    private final List<StateChangeEventListener> stateChangeEventListeners = new ArrayList<>();
     private volatile ServerStreamChannelMessageHandler serverStreamChannelMessageHandler = ServerStreamChannelMessageHandler.DISABLED_INSTANCE;
 
 
@@ -220,7 +220,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         final ServerStreamChannelMessageHandler serverStreamChannelMessageHandler = this.getServerStreamChannelMessageHandler();
         final List<StateChangeEventListener> stateChangeEventListeners = this.getStateChangeEventListeners();
 
-        Map<String, Object> copyProperties = new HashMap<String, Object>(this.properties);
+        Map<String, Object> copyProperties = new HashMap<>(this.properties);
         final HandshakerFactory handshakerFactory = new HandshakerFactory(socketIdFactory, copyProperties, clientOption, clusterOption);
         final ClientHandlerFactory clientHandlerFactory =  new DefaultPinpointClientHandlerFactory(clientOption, clusterOption, handshakerFactory,
                 messageListener, serverStreamChannelMessageHandler, stateChangeEventListeners);
@@ -283,7 +283,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     public void setProperties(Map<String, Object> agentProperties) {
         Objects.requireNonNull(properties, "agentProperties");
 
-        this.properties = new HashMap<String, Object>(agentProperties);
+        this.properties = new HashMap<>(agentProperties);
     }
 
     public ClusterOption getClusterOption() {
@@ -325,7 +325,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
     public List<StateChangeEventListener> getStateChangeEventListeners() {
-        return new ArrayList<StateChangeEventListener>(stateChangeEventListeners);
+        return new ArrayList<>(stateChangeEventListeners);
     }
 
     public void addStateChangeEventListener(StateChangeEventListener stateChangeEventListener) {

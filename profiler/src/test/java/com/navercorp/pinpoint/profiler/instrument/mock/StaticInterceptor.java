@@ -57,24 +57,24 @@ public class StaticInterceptor implements StaticAroundInterceptor {
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        this.before = true;
-        this.beforeTarget = target;
-        this.beforeClassName = className;
-        this.beforeMethodName = methodName;
-        this.beforeParameterDescription = parameterDescription;
-        this.beforeArgs = args;
+        before = true;
+        beforeTarget = target;
+        beforeClassName = className;
+        beforeMethodName = methodName;
+        beforeParameterDescription = parameterDescription;
+        beforeArgs = args;
     }
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
-        this.after = true;
-        this.afterTarget = target;
-        this.afterClassName = className;
-        this.afterMethodName = methodName;
-        this.afterParameterDescription = parameterDescription;
-        this.afterArgs = args;
-        this.result = result;
-        this.throwable = throwable;
+        after = true;
+        afterTarget = target;
+        afterClassName = className;
+        afterMethodName = methodName;
+        afterParameterDescription = parameterDescription;
+        afterArgs = args;
+        StaticInterceptor.result = result;
+        StaticInterceptor.throwable = throwable;
 
     }
 

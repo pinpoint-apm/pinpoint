@@ -62,7 +62,7 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         final OkHttpPluginConfig config = new OkHttpPluginConfig(traceContext.getProfilerConfig());
 
         ClientRequestAdaptor<Request> clientRequestAdaptor = new OkHttpClientRequestAdaptor();
-        this.clientRequestRecorder = new ClientRequestRecorder<Request>(config.isParam(), clientRequestAdaptor);
+        this.clientRequestRecorder = new ClientRequestRecorder<>(config.isParam(), clientRequestAdaptor);
 
         CookieExtractor<Request> cookieExtractor = new OkHttpCookieExtractor();
         this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(config.getHttpDumpConfig(), cookieExtractor);

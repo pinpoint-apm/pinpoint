@@ -78,7 +78,7 @@ public class ClosableAsyncHttpClientIT {
         try {
             HttpPost httpRequest = new HttpPost(webServer.getCallHttpUrl());
             
-            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("param1", "value1"));
             httpRequest.setEntity(new UrlEncodedFormEntity(params, Consts.UTF_8.name()));
             

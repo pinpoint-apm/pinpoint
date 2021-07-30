@@ -24,7 +24,7 @@ public class MapUtilsTest {
 
     @Test
     public void testGetString() {
-        HashMap<Object, Object> hashMap = new HashMap<Object, Object>();
+        HashMap<Object, Object> hashMap = new HashMap<>();
         hashMap.put("foo", "111");
         hashMap.put("bar", "222");
         hashMap.put(1, "333");
@@ -43,7 +43,7 @@ public class MapUtilsTest {
 
     @Test
     public void testGetBoolean() {
-        HashMap<Object, Object> hashMap = new HashMap<Object, Object>();
+        HashMap<Object, Object> hashMap = new HashMap<>();
         hashMap.put("foo", true);
         hashMap.put("bar", "111");
 
@@ -58,7 +58,7 @@ public class MapUtilsTest {
 
     @Test
     public void testGetInteger() {
-        HashMap<Object, Object> hashMap = new HashMap<Object, Object>();
+        HashMap<Object, Object> hashMap = new HashMap<>();
         hashMap.put("foo", "111");
         hashMap.put("bar", "222");
         hashMap.put("baz", 333);
@@ -78,7 +78,7 @@ public class MapUtilsTest {
 
     @Test
     public void testGetLong() {
-        HashMap<Object, Object> hashMap = new HashMap<Object, Object>();
+        HashMap<Object, Object> hashMap = new HashMap<>();
         hashMap.put("foo", "111");
         hashMap.put("bar", "222");
         hashMap.put("baz", 2L);

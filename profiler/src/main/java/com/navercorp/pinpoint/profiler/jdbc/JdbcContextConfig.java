@@ -9,7 +9,7 @@ public class JdbcContextConfig {
     public static final String MAX_WIDTH = "profiler.jdbc.format.maxwidth";
 
     public enum ByteFormat {
-        raw, hex;
+        raw, hex
     }
 
     private final ByteFormat byteFormat;

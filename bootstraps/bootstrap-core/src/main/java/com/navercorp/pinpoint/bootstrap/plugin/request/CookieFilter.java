@@ -11,7 +11,7 @@ public abstract class CookieFilter<C> {
             return Collections.emptyList();
         }
 
-        final List<CookieAdaptor> result = new ArrayList<CookieAdaptor>(cookies.length);
+        final List<CookieAdaptor> result = new ArrayList<>(cookies.length);
         for (C cookie : cookies) {
             result.add(newCookieAdaptor(cookie));
         }
@@ -28,7 +28,7 @@ public abstract class CookieFilter<C> {
             final String name = getName(cookie);
             if (isMatch(cookieNames, name)) {
                 if (result == null) {
-                    result = new ArrayList<CookieAdaptor>(cookieNames.length);
+                    result = new ArrayList<>(cookieNames.length);
                 }
                 result.add(newCookieAdaptor(cookie));
             }

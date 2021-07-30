@@ -110,7 +110,7 @@ public class MongoDriverConnectInterceptor3_7 implements AroundInterceptor {
 
         List<ServerAddress> lists = mongoClientSettings.getClusterSettings().getHosts();
 
-        final List<String> hostList = new ArrayList<String>();
+        final List<String> hostList = new ArrayList<>();
         for (ServerAddress sa : lists) {
             final String hostAddress = HostAndPort.toHostAndPortString(sa.getHost(), sa.getPort());
             hostList.add(hostAddress);

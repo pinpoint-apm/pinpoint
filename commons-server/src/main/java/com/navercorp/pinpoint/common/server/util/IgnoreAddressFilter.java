@@ -40,7 +40,7 @@ public class IgnoreAddressFilter implements AddressFilter {
         Objects.requireNonNull(ignoreAddressList, "ignoreAddressList");
 
         List<String> ignoreRawAddressList = new ArrayList<>(ignoreAddressList.size());
-        List<CidrAddressFilter> cidrAddressFilterList = new ArrayList<CidrAddressFilter>(0);
+        List<CidrAddressFilter> cidrAddressFilterList = new ArrayList<>(0);
         for (String ignoreAddress : ignoreAddressList) {
             if (isCidrAddress(ignoreAddress)) {
                 CidrAddressFilter cidrAddressFilter = createCidrAddressFilter(ignoreAddress);

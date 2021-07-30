@@ -20,10 +20,8 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.web.mapper.AgentInfoMapper;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
-
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;

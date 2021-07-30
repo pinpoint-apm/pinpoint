@@ -18,7 +18,7 @@ public class ErrorHandlerBuilder {
     }
 
     public IgnoreErrorHandler build() {
-        List<IgnoreErrorHandler> errorHandlerList = new ArrayList<IgnoreErrorHandler>();
+        List<IgnoreErrorHandler> errorHandlerList = new ArrayList<>();
         for (Descriptor desc : descriptorList) {
 
             ThrowableMatcher throwableMatcher = newThrowableMatcher(desc);

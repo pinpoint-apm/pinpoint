@@ -100,7 +100,7 @@ public class HighLevelConnectInterceptor implements AroundInterceptor {
             return Collections.emptyList();
         }
 
-        final List<String> hostList = new ArrayList<String>();
+        final List<String> hostList = new ArrayList<>();
 
         HttpHost[] httpHosts = null;
         if (arg instanceof HttpHostInfoAccessor) {

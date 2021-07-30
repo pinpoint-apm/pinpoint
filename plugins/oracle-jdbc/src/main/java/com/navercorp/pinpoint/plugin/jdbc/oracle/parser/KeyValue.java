@@ -54,7 +54,7 @@ public class KeyValue {
 
     public void addKeyValueList(KeyValue keyValue) {
         if (keyValueList == null) {
-            keyValueList = new ArrayList<KeyValue>();
+            keyValueList = new ArrayList<>();
         }
         this.keyValueList.add(keyValue);
     }

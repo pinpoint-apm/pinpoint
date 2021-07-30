@@ -168,7 +168,7 @@ public class ActiveTraceRepositoryTest {
                 }
             }
         };
-        return (ListenableFuture<TraceThreadTuple>) executorService.submit(task);
+        return executorService.submit(task);
     }
 
     private ListenableFuture<TraceThreadTuple> executeSampledContinuedTrace(ListeningExecutorService executorService, final CountDownLatch awaitLatch, final CountDownLatch executeLatch, final long id) {

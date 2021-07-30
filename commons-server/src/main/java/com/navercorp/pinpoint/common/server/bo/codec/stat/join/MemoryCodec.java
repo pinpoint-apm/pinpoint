@@ -63,7 +63,7 @@ public class MemoryCodec implements ApplicationStatCodec {
 
         final int numValues = joinMemoryBoList.size();
         valueBuffer.putVInt(numValues);
-        List<Long> timestamps = new ArrayList<Long>(numValues);
+        List<Long> timestamps = new ArrayList<>(numValues);
         JoinLongFieldStrategyAnalyzer.Builder heapUsedAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
         JoinLongFieldStrategyAnalyzer.Builder nonHeapUsedAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
 
@@ -119,7 +119,7 @@ public class MemoryCodec implements ApplicationStatCodec {
         final List<JoinLongFieldBo> heapUsedList = this.codec.decodeValues(valueBuffer, heapUsedEncodingStrategy, numValues);
         final List<JoinLongFieldBo> nonHeapUsedList = this.codec.decodeValues(valueBuffer, nonHeapUsedEncodingStrategy, numValues);
 
-        List<JoinStatBo> joinMemoryBoList = new ArrayList<JoinStatBo>(numValues);
+        List<JoinStatBo> joinMemoryBoList = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; i++) {
             JoinMemoryBo joinMemoryBo = new JoinMemoryBo();
             joinMemoryBo.setId(id);

@@ -127,7 +127,7 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
             return Collections.emptyList();
         }
         final Collection<ActiveTrace> activeTraceCollection = this.activeTraceInfoMap.values();
-        final List<ActiveTraceSnapshot> collectData = new ArrayList<ActiveTraceSnapshot>(activeTraceCollection.size());
+        final List<ActiveTraceSnapshot> collectData = new ArrayList<>(activeTraceCollection.size());
 
         for (ActiveTrace trace : activeTraceCollection) {
             final long startTime = trace.getStartTime();
@@ -152,7 +152,7 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
             return Collections.emptyList();
         }
         final Collection<ActiveTrace> activeTraceCollection = this.activeTraceInfoMap.values();
-        final List<Long> collectData = new ArrayList<Long>(activeTraceCollection.size());
+        final List<Long> collectData = new ArrayList<>(activeTraceCollection.size());
 
         for (ActiveTrace trace : activeTraceCollection) {
             final long startTime = trace.getStartTime();

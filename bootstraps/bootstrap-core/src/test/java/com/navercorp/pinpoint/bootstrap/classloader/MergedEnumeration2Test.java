@@ -34,7 +34,7 @@ public class MergedEnumeration2Test {
         Enumeration<String> enumeration0 = newEnumeration("a", "b", "c");
         Enumeration<String> enumeration1 = newEnumeration("1", "2", "3");
 
-        Enumeration<String> mergedEnumeration = new MergedEnumeration2<String>(enumeration0, enumeration1);
+        Enumeration<String> mergedEnumeration = new MergedEnumeration2<>(enumeration0, enumeration1);
 
         List<String> list = Collections.list(mergedEnumeration);
 
@@ -51,7 +51,7 @@ public class MergedEnumeration2Test {
         Enumeration<String> enumeration0 = null;
         Enumeration<String> enumeration1 = newEnumeration("1", "2", "3");
 
-        Enumeration<String> mergedEnumeration = new MergedEnumeration2<String>(enumeration0, enumeration1);
+        Enumeration<String> mergedEnumeration = new MergedEnumeration2<>(enumeration0, enumeration1);
 
         List<String> list = Collections.list(mergedEnumeration);
 
@@ -65,7 +65,7 @@ public class MergedEnumeration2Test {
         Enumeration<String> enumeration0 = newEnumeration("a", "b", "c");
         Enumeration<String> enumeration1 = null;
 
-        Enumeration<String> mergedEnumeration = new MergedEnumeration2<String>(enumeration0, enumeration1);
+        Enumeration<String> mergedEnumeration = new MergedEnumeration2<>(enumeration0, enumeration1);
 
         List<String> list = Collections.list(mergedEnumeration);
 

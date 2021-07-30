@@ -2,7 +2,6 @@ package com.navercorp.pinpoint.collector.manage.controller;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.web.config.BasicLoginConfig;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -45,7 +44,6 @@ public class PinpointMemoryUserDetailsService implements UserDetailsService {
 
     private final Map<String, UserDetails> userDetailsMap;
 
-    @Autowired
     public PinpointMemoryUserDetailsService(BasicLoginConfig basicLoginConfig) {
         Map<String, UserDetails> userDetailsMap = new HashMap<>();
 

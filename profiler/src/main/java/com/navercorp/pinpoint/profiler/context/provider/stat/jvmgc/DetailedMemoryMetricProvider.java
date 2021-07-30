@@ -61,7 +61,7 @@ public class DetailedMemoryMetricProvider implements Provider<DetailedMemoryMetr
     }
 
     private Map<String, MemoryPoolMXBean> createMemoryPoolMap() {
-        Map<String, MemoryPoolMXBean> memoryPoolMap = new HashMap<String, MemoryPoolMXBean>();
+        Map<String, MemoryPoolMXBean> memoryPoolMap = new HashMap<>();
         List<MemoryPoolMXBean> memoryPools = ManagementFactory.getMemoryPoolMXBeans();
         for (MemoryPoolMXBean memoryPool : memoryPools) {
             memoryPoolMap.put(memoryPool.getName(), memoryPool);

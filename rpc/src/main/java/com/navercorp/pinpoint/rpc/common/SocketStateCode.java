@@ -66,7 +66,7 @@ public enum SocketStateCode {
             return Collections.emptySet();
         }
 
-        final Set<SocketStateCode> temp  = new HashSet<SocketStateCode>();
+        final Set<SocketStateCode> temp  = new HashSet<>();
         Collections.addAll(temp, validBeforeStates);
         return temp;
     }

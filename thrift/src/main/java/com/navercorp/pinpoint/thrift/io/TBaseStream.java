@@ -33,7 +33,7 @@ import org.apache.thrift.protocol.TProtocolFactory;
 public class TBaseStream {
     private final TProtocolFactory protocolFactory;
     private final ByteArrayOutputStreamTransport transport;
-    private final LinkedList<TBaseStreamNode> nodes = new LinkedList<TBaseStreamNode>();
+    private final LinkedList<TBaseStreamNode> nodes = new LinkedList<>();
 
     public TBaseStream(final TProtocolFactory protocolFactory) {
         this.protocolFactory = protocolFactory;
@@ -72,7 +72,7 @@ public class TBaseStream {
     }
 
     public List<ByteArrayOutput> splitAll() {
-        final List<ByteArrayOutput> list = new ArrayList<ByteArrayOutput>();
+        final List<ByteArrayOutput> list = new ArrayList<>();
         TBaseStreamNode node = null;
         while ((node = nodes.peek()) != null) {
             list.add(node);
@@ -83,7 +83,7 @@ public class TBaseStream {
     }
 
     public List<ByteArrayOutput> split(final int maxSize) {
-        final List<ByteArrayOutput> list = new ArrayList<ByteArrayOutput>();
+        final List<ByteArrayOutput> list = new ArrayList<>();
         int currentSize = 0;
         TBaseStreamNode node = null;
         while ((node = nodes.peek()) != null) {

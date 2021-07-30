@@ -30,7 +30,7 @@ public class JoinDataSourceBoTest {
 
     @Test
     public void joinDataSourceBoListTest() {
-        List<JoinDataSourceBo> joinDataSourceBoList = new ArrayList<JoinDataSourceBo>();
+        List<JoinDataSourceBo> joinDataSourceBoList = new ArrayList<>();
 
         JoinDataSourceBo joinDataSourceBo1 = new JoinDataSourceBo((short) 1000, "jdbc:mysql", 30, 25, "agent_id_1", 60, "agent_id_6");
         JoinDataSourceBo joinDataSourceBo2 = new JoinDataSourceBo((short) 1000, "jdbc:mysql", 20, 5, "agent_id_2", 30, "agent_id_7");
@@ -53,7 +53,7 @@ public class JoinDataSourceBoTest {
 
     @Test
     public void joinDataSourceBoList2Test() {
-        List<JoinDataSourceBo> joinDataSourceBoList = new ArrayList<JoinDataSourceBo>();
+        List<JoinDataSourceBo> joinDataSourceBoList = new ArrayList<>();
         JoinDataSourceBo joinDataSourceBo = JoinDataSourceBo.joinDataSourceBoList(joinDataSourceBoList);
 
         assertEquals(joinDataSourceBo, JoinDataSourceBo.EMPTY_JOIN_DATA_SOURCE_BO);

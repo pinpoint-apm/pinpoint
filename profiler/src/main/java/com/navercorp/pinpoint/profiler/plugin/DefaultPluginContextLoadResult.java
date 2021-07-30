@@ -45,7 +45,7 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
     @Override
     public List<ClassFileTransformer> getClassFileTransformer() {
         // TODO Need plugin context level grouping
-        final List<ClassFileTransformer> transformerList = new ArrayList<ClassFileTransformer>();
+        final List<ClassFileTransformer> transformerList = new ArrayList<>();
         for (PluginSetupResult pluginContext : pluginsSetupResult.getPluginSetupResults()) {
             List<ClassFileTransformer> classTransformerList = pluginContext.getClassTransformerList();
             transformerList.addAll(classTransformerList);
@@ -60,7 +60,7 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
 
     @Override
     public List<JdbcUrlParserV2> getJdbcUrlParserList() {
-        final List<JdbcUrlParserV2> result = new ArrayList<JdbcUrlParserV2>();
+        final List<JdbcUrlParserV2> result = new ArrayList<>();
 
         for (PluginSetupResult context : pluginsSetupResult.getPluginSetupResults()) {
             List<JdbcUrlParserV2> jdbcUrlParserList = context.getJdbcUrlParserList();
@@ -72,7 +72,7 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
 
     @Override
     public List<UriExtractorProvider> getUriExtractorProviderList() {
-        final List<UriExtractorProvider> result = new ArrayList<UriExtractorProvider>();
+        final List<UriExtractorProvider> result = new ArrayList<>();
 
         for (PluginSetupResult context : pluginsSetupResult.getPluginSetupResults()) {
             List<UriExtractorProvider> uriExtractorProviderList= context.getUriExtractorProviderList();

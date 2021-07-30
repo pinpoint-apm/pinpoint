@@ -22,7 +22,7 @@ public class ClientStreamingService<ReqT, ResT> {
 
 
     private ResponseStreamObserver<ReqT, ResT> newResponse(StreamJob<ReqT> streamJob) {
-        StreamEventListener<ReqT> listener = new DefaultStreamEventListener<ReqT>(reconnector, streamJob);
-        return new ResponseStreamObserver<ReqT, ResT>(listener);
+        StreamEventListener<ReqT> listener = new DefaultStreamEventListener<>(reconnector, streamJob);
+        return new ResponseStreamObserver<>(listener);
     }
 }

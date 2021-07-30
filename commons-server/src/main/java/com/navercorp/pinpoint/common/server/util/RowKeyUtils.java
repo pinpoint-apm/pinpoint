@@ -21,8 +21,6 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import java.util.Objects;
 
-import static com.navercorp.pinpoint.common.PinpointConstants.AGENT_ID_MAX_LEN;
-import static com.navercorp.pinpoint.common.util.BytesUtils.INT_BYTE_LENGTH;
 import static com.navercorp.pinpoint.common.util.BytesUtils.LONG_BYTE_LENGTH;
 
 

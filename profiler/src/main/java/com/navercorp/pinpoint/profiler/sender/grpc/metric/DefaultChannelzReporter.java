@@ -82,7 +82,7 @@ public class DefaultChannelzReporter implements ChannelzReporter {
         title.add("local", socketStats.local);
         title.add("remote", socketStats.remote);
         title.add("security", socketStats.security);
-        logger.info("{} {}", socketName, title.toString());
+        logger.info("{} {}", socketName, title);
 
         final InternalChannelz.TransportStats transportStats = socketStats.data;
         if (transportStats != null) {
@@ -90,14 +90,14 @@ public class DefaultChannelzReporter implements ChannelzReporter {
             socketStrHelper.add("streamsStarted", transportStats.streamsStarted);
             socketStrHelper.add("lastLocalStreamCreatedTime", toMillis(transportStats.lastLocalStreamCreatedTimeNanos));
             socketStrHelper.add("lastRemoteStreamCreatedTime", toMillis(transportStats.lastRemoteStreamCreatedTimeNanos));
-            logger.info("{} {}", socketName, socketStrHelper.toString());
+            logger.info("{} {}", socketName, socketStrHelper);
 
             MoreObjects.ToStringHelper socketStatStrHelper = MoreObjects.toStringHelper("");
             socketStatStrHelper.add("streamsSucceeded", transportStats.streamsSucceeded);
             socketStatStrHelper.add("streamsFailed", transportStats.streamsFailed);
             socketStatStrHelper.add("messagesSent", transportStats.messagesSent);
             socketStatStrHelper.add("messagesReceived", transportStats.messagesReceived);
-            logger.info("{} {}", socketName, socketStatStrHelper.toString());
+            logger.info("{} {}", socketName, socketStatStrHelper);
 
             MoreObjects.ToStringHelper socketStat2StrHelper = MoreObjects.toStringHelper("");
             socketStat2StrHelper.add("keepAlivesSent", transportStats.keepAlivesSent);
@@ -105,7 +105,7 @@ public class DefaultChannelzReporter implements ChannelzReporter {
             socketStat2StrHelper.add("lastMessageReceivedTime", toMillis(transportStats.lastMessageReceivedTimeNanos));
             socketStat2StrHelper.add("localFlowControlWindow", transportStats.localFlowControlWindow);
             socketStat2StrHelper.add("remoteFlowControlWindow", transportStats.remoteFlowControlWindow);
-            logger.info("{} {}", socketName, socketStat2StrHelper.toString());
+            logger.info("{} {}", socketName, socketStat2StrHelper);
         }
 
 //        InternalChannelz.SocketOptions socketOptions = socketStats.socketOptions;
@@ -129,14 +129,14 @@ public class DefaultChannelzReporter implements ChannelzReporter {
             MoreObjects.ToStringHelper title = MoreObjects.toStringHelper("");
             title.add("target", channelStats.target);
             title.add("stat", channelStats.state);
-            logger.info("{} {}", name, title.toString());
+            logger.info("{} {}", name, title);
 
             MoreObjects.ToStringHelper counter = MoreObjects.toStringHelper("");
             counter.add("callsFailed", channelStats.callsFailed);
             counter.add("callsStarted", channelStats.callsStarted);
             counter.add("callsSucceeded", channelStats.callsSucceeded);
             counter.add("lastCallStarted", toMillis(channelStats.lastCallStartedNanos));
-            logger.info("{} {}", name, counter.toString());
+            logger.info("{} {}", name, counter);
 
             if (CollectionUtils.hasLength(channelStats.sockets)) {
                 logger.info("{} sockets:{}", name, toLogIds(channelStats.sockets));
@@ -150,7 +150,7 @@ public class DefaultChannelzReporter implements ChannelzReporter {
                 traceStrHelper.add("numEventsLogged", channelTrace.numEventsLogged);
                 traceStrHelper.add("creationTime", toMillis(channelTrace.creationTimeNanos));
                 traceStrHelper.add("events.size", channelTrace.events.size());
-                logger.info("{} channelTrace {}", name, traceStrHelper.toString());
+                logger.info("{} channelTrace {}", name, traceStrHelper);
 
                 for (InternalChannelz.ChannelTrace.Event event : channelTrace.events) {
                     logger.info("{} channelTrace.events:{}", name, toString(event));

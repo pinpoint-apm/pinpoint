@@ -109,7 +109,7 @@ public class NetworkClientPollInterceptor implements AroundInterceptor {
             return null;
         }
 
-        List<String> endPointAddressList = new ArrayList<String>(socketChannels.size());
+        List<String> endPointAddressList = new ArrayList<>(socketChannels.size());
         for (SocketChannel socketChannel : socketChannels) {
             try {
                 if (!socketChannel.isConnected()) {

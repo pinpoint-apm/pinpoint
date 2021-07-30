@@ -54,13 +54,13 @@ public class MockRpcModule extends PrivateModule {
         logger.info("configure {}", this.getClass().getSimpleName());
 
         Key<DataSender> spanDataSenderKey = Key.get(DataSender.class, SpanDataSender.class);
-        final DataSender spanDataSender = new ListenableDataSender<TBase<?, ?>>("SpanDataSender");
+        final DataSender<TBase<?, ?>> spanDataSender = new ListenableDataSender<>("SpanDataSender");
         logger.debug("spanDataSender:{}", spanDataSender);
         bind(spanDataSenderKey).toInstance(spanDataSender);
         expose(spanDataSenderKey);
 
         Key<DataSender> statDataSenderKey = Key.get(DataSender.class, StatDataSender.class);
-        final DataSender statDataSender = new ListenableDataSender<TBase<?, ?>>("StatDataSender");
+        final DataSender<TBase<?, ?>> statDataSender = new ListenableDataSender<>("StatDataSender");
         logger.debug("statDataSender:{}", statDataSender);
         bind(statDataSenderKey).toInstance(statDataSender);
         expose(statDataSenderKey);

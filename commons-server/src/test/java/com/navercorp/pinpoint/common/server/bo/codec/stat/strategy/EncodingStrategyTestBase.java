@@ -78,7 +78,7 @@ public abstract class EncodingStrategyTestBase<T extends Number> {
 
     private Set<EncodingStrategy<T>> getBestEncodingStrategies(Map<EncodingStrategy<T>, Integer> bufferSizes) {
         int minimumBufferSize = Integer.MAX_VALUE;
-        Set<EncodingStrategy<T>> bestStrategies = new HashSet<EncodingStrategy<T>>();
+        Set<EncodingStrategy<T>> bestStrategies = new HashSet<>();
         for (Map.Entry<EncodingStrategy<T>, Integer> entry : bufferSizes.entrySet()) {
             EncodingStrategy<T> strategy = entry.getKey();
             int bufferSize = entry.getValue();
@@ -94,7 +94,7 @@ public abstract class EncodingStrategyTestBase<T extends Number> {
     }
 
     private Map<EncodingStrategy<T>, Integer> getBufferSizes(List<T> values) {
-        Map<EncodingStrategy<T>, Integer> bufferSizes = new HashMap<EncodingStrategy<T>, Integer>();
+        Map<EncodingStrategy<T>, Integer> bufferSizes = new HashMap<>();
         for (EncodingStrategy<T> strategy : getEncodingStrategies()) {
             Buffer encodedBuffer = new AutomaticBuffer();
             codec.encodeValues(encodedBuffer, strategy, values);

@@ -68,16 +68,16 @@ public class WebServerTest {
 
     @Test
     public void testServe() {
-        HashMap<String, List<String>> params = new HashMap<String, List<String>>();
+        HashMap<String, List<String>> params = new HashMap<>();
         NanoHTTPD.Response response = serve(params);
         assertResponse(response, "{}");
 
-        params = new HashMap<String, List<String>>();
+        params = new HashMap<>();
         params.put("foo", Collections.singletonList("bar"));
         response = serve(params);
         assertResponse(response, "{foo=[bar]}");
 
-        params = new HashMap<String, List<String>>();
+        params = new HashMap<>();
         params.put("a", Collections.singletonList("b"));
         params.put("c", Collections.singletonList("d"));
         response = serve(params);

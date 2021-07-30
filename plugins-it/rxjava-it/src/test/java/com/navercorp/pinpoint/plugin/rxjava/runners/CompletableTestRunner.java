@@ -89,7 +89,7 @@ public class CompletableTestRunner {
         final String message = "Hello World";
         final Exception expected = new RuntimeException("expected");
         final CountDownLatch latch = new CountDownLatch(1);
-        final AtomicReference<Exception> actual = new AtomicReference<Exception>();
+        final AtomicReference<Exception> actual = new AtomicReference<>();
         Subscription subscription = shoutService.shout(message, expected)
                 .subscribeOn(Schedulers.computation())
                 .doOnCompleted(new Action0() {

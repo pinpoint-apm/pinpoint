@@ -40,7 +40,7 @@ public class DefaultTranslator implements Translator {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ConcurrentMap<String, MatchableClassFileTransformer> transformerMap = new ConcurrentHashMap<String, MatchableClassFileTransformer>();
+    private final ConcurrentMap<String, MatchableClassFileTransformer> transformerMap = new ConcurrentHashMap<>();
 
     private final ClassLoader loader;
     private final ClassFileTransformer dispatcher;

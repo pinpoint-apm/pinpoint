@@ -26,7 +26,7 @@ public class NameValueListTest {
 
 	@Before
 	public void beforeTest() {
-		list = new NameValueList<Integer>();
+		list = new NameValueList<>();
 		list.add("one", 1);
 		list.add("two", 2);
 		list.add("three", 3);

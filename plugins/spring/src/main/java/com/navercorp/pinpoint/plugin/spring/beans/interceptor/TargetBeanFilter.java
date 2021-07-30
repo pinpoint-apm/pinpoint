@@ -35,8 +35,9 @@ import org.springframework.beans.factory.config.BeanDefinition;
  * @author jaehong.kim
  */
 public class TargetBeanFilter {
-    private final List<SpringBeansTarget> targets;
-    private static Cache cache = new Cache();
+    private static final Cache cache = new Cache();
+
+    private final SpringBeansTarget[] targets;
 
     public static TargetBeanFilter of(ProfilerConfig profilerConfig) {
         SpringBeansConfig config = new SpringBeansConfig(profilerConfig);
@@ -44,7 +45,7 @@ public class TargetBeanFilter {
     }
 
     public TargetBeanFilter(Collection<SpringBeansTarget> targets) {
-        this.targets = new ArrayList<SpringBeansTarget>(targets);
+        this.targets = targets.toArray(new SpringBeansTarget[0]);
     }
 
     public void clear() {

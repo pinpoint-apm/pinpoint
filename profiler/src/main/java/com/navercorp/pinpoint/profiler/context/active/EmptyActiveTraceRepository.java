@@ -80,6 +80,6 @@ public class EmptyActiveTraceRepository implements ActiveTraceRepository {
         public void purge(long purgeTime) {
             remove(startTime, purgeTime);
         }
-    };
+    }
 
 }

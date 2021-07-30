@@ -50,7 +50,7 @@ public class PluginInstrumentContext implements InstrumentContext {
     private final DynamicTransformTrigger dynamicTransformTrigger;
     private final ClassInjector classInjector;
 
-    private final Pool<String, InterceptorScope> interceptorScopePool = new ConcurrentPool<String, InterceptorScope>(new InterceptorScopeFactory());
+    private final Pool<String, InterceptorScope> interceptorScopePool = new ConcurrentPool<>(new InterceptorScopeFactory());
 
     private final ClassFileTransformerLoader transformerRegistry;
 

@@ -33,7 +33,7 @@ public class AgentEventTBaseLocator {
 
     public static TypeLocator<TBase<?, ?>>build() {
 
-        TypeLocatorBuilder<TBase<?, ?>> builder = new TypeLocatorBuilder<TBase<?, ?>>();
+        TypeLocatorBuilder<TBase<?, ?>> builder = new TypeLocatorBuilder<>();
         addBodyFactory(builder);
         return builder.build();
     }

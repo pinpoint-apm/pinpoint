@@ -23,7 +23,7 @@ package com.navercorp.pinpoint.common.util;
 public final class ArrayUtils {
 
     private static final int DEFAULT_ABBREVIATE_MAX_WIDTH = 32;
-    private static char DELIMITER = ',';
+    private static final char DELIMITER = ',';
 
     private ArrayUtils() {
     }

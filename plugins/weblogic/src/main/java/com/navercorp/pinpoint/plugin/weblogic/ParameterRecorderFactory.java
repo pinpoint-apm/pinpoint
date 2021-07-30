@@ -29,10 +29,10 @@ import weblogic.servlet.internal.ServletRequestImpl;
 public class ParameterRecorderFactory {
     public static ParameterRecorder<ServletRequestImpl> newParameterRecorderFactory(Filter<String> excludeProfileMethodFilter, boolean traceRequestParam) {
         if (!traceRequestParam) {
-            return new DisableParameterRecorder<ServletRequestImpl>();
+            return new DisableParameterRecorder<>();
         }
         ParameterExtractor<ServletRequestImpl> parameterExtractor = new ServletRequestImplParameterExtractor(64, 512);
         ParameterExtractor<ServletRequestImpl> methodFilterExtractor = new MethodFilterExtractor(excludeProfileMethodFilter, parameterExtractor);
-        return new HttpParameterRecorder<ServletRequestImpl>(methodFilterExtractor);
+        return new HttpParameterRecorder<>(methodFilterExtractor);
     }
 }

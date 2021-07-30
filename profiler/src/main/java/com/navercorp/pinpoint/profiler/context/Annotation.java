@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.profiler.util.AnnotationValueMapper;
  */
 public class Annotation {
 
-    private int key;
+    private final int key;
     private Object value;
 
     public Annotation(int key) {

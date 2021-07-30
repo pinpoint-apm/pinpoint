@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.common.hbase.ValueMapper;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
-
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -51,8 +50,9 @@ public class HbaseAgentEventDao implements AgentEventDao {
 
     private final AgentIdRowKeyEncoder rowKeyEncoder = new AgentIdRowKeyEncoder();
 
-    @Autowired
-    public HbaseAgentEventDao(HbaseOperations2 hbaseTemplate, TableDescriptor<HbaseColumnFamily.AgentEvent> descriptor, ValueMapper<AgentEventBo> valueMapper) {
+    public HbaseAgentEventDao(HbaseOperations2 hbaseTemplate,
+                              TableDescriptor<HbaseColumnFamily.AgentEvent> descriptor,
+                              ValueMapper<AgentEventBo> valueMapper) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
         this.valueMapper = Objects.requireNonNull(valueMapper, "valueMapper");

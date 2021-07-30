@@ -25,12 +25,12 @@ import java.util.Arrays;
  */
 public class UriStatHistogram {
 
-    private static byte BUCKET_VERSION = UriStatHistogramBucket.getBucketVersion();
+    private static final byte BUCKET_VERSION = UriStatHistogramBucket.getBucketVersion();
 
     private int count;
     private long total;
     private long max = 0;
-    private int[] timestampHistogram = new int[UriStatHistogramBucket.getBucketSize()];
+    private final int[] timestampHistogram = new int[UriStatHistogramBucket.getBucketSize()];
 
     public void add(long elapsed) {
         count++;

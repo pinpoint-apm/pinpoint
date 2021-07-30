@@ -32,11 +32,11 @@ public class ParameterRecorderFactory {
 
     public static ParameterRecorder<HttpServletRequest> newParameterRecorderFactory(Filter<String> excludeProfileMethodFilter, boolean traceRequestParam) {
         if (!traceRequestParam) {
-            return new DisableParameterRecorder<HttpServletRequest>();
+            return new DisableParameterRecorder<>();
         }
         ParameterExtractor<HttpServletRequest> parameterExtractor = new HttpServletParameterExtractor();
         ParameterExtractor<HttpServletRequest> methodFilterExtractor = new MethodFilterExtractor(excludeProfileMethodFilter, parameterExtractor);
-        return new HttpParameterRecorder<HttpServletRequest>(methodFilterExtractor);
+        return new HttpParameterRecorder<>(methodFilterExtractor);
     }
 
 }

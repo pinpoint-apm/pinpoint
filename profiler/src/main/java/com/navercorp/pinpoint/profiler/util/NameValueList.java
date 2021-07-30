@@ -29,7 +29,7 @@ public class NameValueList<T> {
     }
 
     public NameValueList(int size) {
-        this.list = new ArrayList<NameValue<T>>(size);
+        this.list = new ArrayList<>(size);
     }
     
     public T add(String name, T value) {

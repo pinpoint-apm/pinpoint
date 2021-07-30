@@ -75,7 +75,7 @@ public abstract class ActiveMQClientITBase {
         final ActiveMQQueue testQueue = new ActiveMQQueue(testQueueName);
         final String testMessage = "Hello World for Queue!";
         final CountDownLatch consumerLatch = new CountDownLatch(1);
-        final AtomicReference<Exception> exception = new AtomicReference<Exception>();
+        final AtomicReference<Exception> exception = new AtomicReference<>();
         // create producer
         final ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
         final MessageProducer producer = new MessageProducerBuilder(producerSession, testQueue).waitTillStarted().build();
@@ -135,7 +135,7 @@ public abstract class ActiveMQClientITBase {
         final String testMessage = "Hello World for Queue!";
         final MessagePrinter messagePrinter = new MessagePrinter();
         final CountDownLatch consumerLatch = new CountDownLatch(1);
-        final AtomicReference<Exception> exception = new AtomicReference<Exception>();
+        final AtomicReference<Exception> exception = new AtomicReference<>();
         // create producer
         final ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
         final MessageProducer producer = new MessageProducerBuilder(producerSession, testQueue).waitTillStarted().build();
@@ -232,7 +232,7 @@ public abstract class ActiveMQClientITBase {
         final ActiveMQTopic testTopic = new ActiveMQTopic(testTopicName);
         final String testMessage = "Hello World for Topic!";
         final CountDownLatch consumerLatch = new CountDownLatch(2);
-        final AtomicReference<Exception> exception = new AtomicReference<Exception>();
+        final AtomicReference<Exception> exception = new AtomicReference<>();
         // create producer
         final ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
         final MessageProducer producer = new MessageProducerBuilder(producerSession, testTopic).waitTillStarted().build();
@@ -311,7 +311,7 @@ public abstract class ActiveMQClientITBase {
         final String testMessage = "Hello World for Topic!";
         final MessagePrinter messagePrinter = new MessagePrinter();
         final CountDownLatch consumerLatch = new CountDownLatch(2);
-        final AtomicReference<Exception> exception = new AtomicReference<Exception>();
+        final AtomicReference<Exception> exception = new AtomicReference<>();
         // create producer
         final ActiveMQSession producerSession = ActiveMQClientITHelper.createSession(getProducerBrokerName(), getProducerBrokerUrl());
         final MessageProducer producer = new MessageProducerBuilder(producerSession, testTopic).waitTillStarted().build();

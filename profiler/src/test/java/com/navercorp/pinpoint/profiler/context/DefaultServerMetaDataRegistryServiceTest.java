@@ -62,7 +62,7 @@ public class DefaultServerMetaDataRegistryServiceTest {
         final CountDownLatch initLatch = new CountDownLatch(THREAD_COUNT);
         final CountDownLatch startLatch = new CountDownLatch(1);
         final CountDownLatch endLatch = new CountDownLatch(THREAD_COUNT);
-        final Queue<Exception> exceptions = new ConcurrentLinkedQueue<Exception>();
+        final Queue<Exception> exceptions = new ConcurrentLinkedQueue<>();
 
         final String protocolPrefix = "protocol-";
         final ServerMetaDataRegistryService serverMetaDataRegistryService = new DefaultServerMetaDataRegistryService(VM_ARGS);
@@ -110,14 +110,14 @@ public class DefaultServerMetaDataRegistryServiceTest {
         final CountDownLatch initLatch = new CountDownLatch(THREAD_COUNT);
         final CountDownLatch startLatch = new CountDownLatch(1);
         final CountDownLatch endLatch = new CountDownLatch(THREAD_COUNT);
-        final Queue<Exception> exceptions = new ConcurrentLinkedQueue<Exception>();
+        final Queue<Exception> exceptions = new ConcurrentLinkedQueue<>();
         
         final String serviceName = "/test";
         final ServerMetaDataRegistryService serverMetaDataRegistryService = new DefaultServerMetaDataRegistryService(VM_ARGS);
         serverMetaDataRegistryService.setServerName(SERVER_INFO);
         // When
         for (int i = 0; i < THREAD_COUNT; i++) {
-            final List<String> serviceLibs = new ArrayList<String>();
+            final List<String> serviceLibs = new ArrayList<>();
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {

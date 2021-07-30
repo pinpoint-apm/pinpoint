@@ -128,7 +128,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
     }
 
     List<String> filterBasePackageNames(List<String> basePackageNames) {
-        final List<String> list = new ArrayList<String>();
+        final List<String> list = new ArrayList<>();
         for (String basePackageName : basePackageNames) {
             final String name = basePackageName.trim();
             if (!name.isEmpty()) {

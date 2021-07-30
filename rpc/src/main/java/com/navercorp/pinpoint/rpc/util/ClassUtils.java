@@ -40,7 +40,7 @@ import java.util.Map;
  */
 public class ClassUtils {
 
-    private static final Map<Class<?>, Class<?>> primitiveWrapperMap = new HashMap<Class<?>, Class<?>>();
+    private static final Map<Class<?>, Class<?>> primitiveWrapperMap = new HashMap<>();
     static {
         primitiveWrapperMap.put(Boolean.TYPE, Boolean.class);
         primitiveWrapperMap.put(Byte.TYPE, Byte.class);
@@ -53,7 +53,7 @@ public class ClassUtils {
         primitiveWrapperMap.put(Void.TYPE, Void.TYPE);
     }
 
-    private static final Map<Class, Class> wrapperPrimitiveMap = new HashMap<Class, Class>();
+    private static final Map<Class, Class> wrapperPrimitiveMap = new HashMap<>();
     static {
         for (Object o : primitiveWrapperMap.keySet()) {
             Class primitiveClass = (Class) o;

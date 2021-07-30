@@ -24,11 +24,9 @@ import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEnc
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;

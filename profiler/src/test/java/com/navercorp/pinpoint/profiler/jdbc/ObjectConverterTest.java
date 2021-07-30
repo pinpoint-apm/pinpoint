@@ -57,6 +57,6 @@ public class ObjectConverterTest {
     public void convert_UUID() {
         UUID uuid = UUID.randomUUID();
         String uuidStr = convert(uuid);
-        Assert.assertEquals(uuidStr, uuidStr.toString());
+        Assert.assertEquals(uuidStr, uuidStr);
     }
 }

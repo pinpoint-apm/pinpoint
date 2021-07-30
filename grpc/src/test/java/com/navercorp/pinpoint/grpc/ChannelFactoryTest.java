@@ -120,7 +120,7 @@ public class ChannelFactoryTest {
 
         SpanGrpc.SpanStub spanStub = SpanGrpc.newStub(managedChannel);
 
-        final QueueingStreamObserver<Empty> responseObserver = new QueueingStreamObserver<Empty>();
+        final QueueingStreamObserver<Empty> responseObserver = new QueueingStreamObserver<>();
 
         logger.debug("sendSpan");
         StreamObserver<PSpanMessage> sendSpan = spanStub.sendSpan(responseObserver);

@@ -50,7 +50,7 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
     private final TaggedLogger logger = TestLogger.getLogger();
 
     private static final int NO_JVM_VERSION = -1;
-    private static final List<String> EMPTY_REPOSITORY_URLS = new ArrayList<String>();
+    private static final List<String> EMPTY_REPOSITORY_URLS = new ArrayList<>();
 
     private final List<String> requiredLibraries;
     private final List<String> mavenDependencyLibraries;

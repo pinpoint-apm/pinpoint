@@ -60,6 +60,6 @@ public class CounterFactory {
         public Counter newInstance() {
             return new Java6Counter();
         }
-    };
+    }
 
 }

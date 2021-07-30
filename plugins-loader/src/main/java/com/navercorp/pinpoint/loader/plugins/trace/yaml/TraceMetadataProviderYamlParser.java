@@ -100,7 +100,7 @@ public class TraceMetadataProviderYamlParser implements TraceMetadataProviderPar
         if (CollectionUtils.isEmpty(parsedServiceTypes)) {
             return Collections.emptyList();
         }
-        List<ServiceTypeInfo> serviceTypeInfos = new ArrayList<ServiceTypeInfo>(parsedServiceTypes.size());
+        List<ServiceTypeInfo> serviceTypeInfos = new ArrayList<>(parsedServiceTypes.size());
         for (ParsedServiceType parsedServiceType : parsedServiceTypes) {
             serviceTypeInfos.add(parsedServiceType.toServiceTypeInfo());
         }
@@ -111,7 +111,7 @@ public class TraceMetadataProviderYamlParser implements TraceMetadataProviderPar
         if (CollectionUtils.isEmpty(parsedAnnotationKeys)) {
             return Collections.emptyList();
         }
-        List<AnnotationKey> annotationKeys = new ArrayList<AnnotationKey>(parsedAnnotationKeys.size());
+        List<AnnotationKey> annotationKeys = new ArrayList<>(parsedAnnotationKeys.size());
         for (ParsedAnnotationKey parsedAnnotationKey : parsedAnnotationKeys) {
             annotationKeys.add(parsedAnnotationKey.toAnnotationKey());
         }

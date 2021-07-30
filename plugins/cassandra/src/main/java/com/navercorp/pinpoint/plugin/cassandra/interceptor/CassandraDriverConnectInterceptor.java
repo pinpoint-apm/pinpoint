@@ -95,7 +95,7 @@ public class CassandraDriverConnectInterceptor extends SpanEventSimpleAroundInte
         final Cluster cluster = (Cluster) target;
         final Set<Host> hosts = cluster.getMetadata().getAllHosts();
         final int port = cluster.getConfiguration().getProtocolOptions().getPort();
-        final List<String> hostList = new ArrayList<String>();
+        final List<String> hostList = new ArrayList<>();
         for (Host host : hosts) {
             final String hostAddress = HostAndPort.toHostAndPortString(host.getAddress().getHostAddress(), port);
             hostList.add(hostAddress);

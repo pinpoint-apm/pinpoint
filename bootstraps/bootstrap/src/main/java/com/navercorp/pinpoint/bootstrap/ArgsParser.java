@@ -34,7 +34,7 @@ public class ArgsParser {
             return Collections.emptyMap();
         }
 
-        final Map<String, String> map = new HashMap<String, String>();
+        final Map<String, String> map = new HashMap<>();
 
         Scanner scanner = new Scanner(args);
         scanner.useDelimiter(DELIMITER_PATTERN);

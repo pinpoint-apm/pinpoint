@@ -44,7 +44,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
 
     protected static final EntryPointMethodDescriptor ENTRY_POINT_METHOD_DESCRIPTOR = new EntryPointMethodDescriptor();
 
-    private final AtomicReference<TraceFactoryProvider.TraceFactory> tracyFactoryReference = new AtomicReference<TraceFactoryProvider.TraceFactory>();
+    private final AtomicReference<TraceFactoryProvider.TraceFactory> tracyFactoryReference = new AtomicReference<>();
 
     protected final int parameterIndex;
 

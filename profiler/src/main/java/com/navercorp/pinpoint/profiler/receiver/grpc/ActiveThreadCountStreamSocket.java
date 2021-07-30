@@ -40,7 +40,7 @@ public class ActiveThreadCountStreamSocket implements GrpcProfilerStreamSocket<P
     public ActiveThreadCountStreamSocket(int streamObserverId, GrpcStreamService grpcStreamService) {
         this.streamObserverId = streamObserverId;
         this.grpcStreamService = Objects.requireNonNull(grpcStreamService, "grpcStreamService");
-        this.clientResponseObserver = new PinpointClientResponseObserver<PCmdActiveThreadCountRes>(this);
+        this.clientResponseObserver = new PinpointClientResponseObserver<>(this);
     }
 
     @Override

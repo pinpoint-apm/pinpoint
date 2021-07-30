@@ -99,7 +99,7 @@ public class ObservableTestRunner {
         final List<String> messages = Arrays.asList("Hello", "World");
         final Exception expected = new RuntimeException("expected");
         final CountDownLatch latch = new CountDownLatch(1);
-        final AtomicReference<Exception> actual = new AtomicReference<Exception>();
+        final AtomicReference<Exception> actual = new AtomicReference<>();
         Subscription subscription = echoesService.echo(messages, expected)
                 .subscribeOn(Schedulers.computation())
                 .subscribe(new Action1<String>() {

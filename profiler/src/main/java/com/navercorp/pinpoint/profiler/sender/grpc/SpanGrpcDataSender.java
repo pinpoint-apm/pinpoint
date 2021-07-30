@@ -93,7 +93,7 @@ public class SpanGrpcDataSender extends GrpcDataSender {
         };
         this.reconnector = reconnectExecutor.newReconnector(reconnectJob);
         this.failState = Objects.requireNonNull(failState, "failState");
-        this.streamExecutorFactory = new StreamExecutorFactory<PSpanMessage>(executor);
+        this.streamExecutorFactory = new StreamExecutorFactory<>(executor);
 
         ClientStreamingProvider<PSpanMessage, Empty> clientStreamProvider = new ClientStreamingProvider<PSpanMessage, Empty>() {
             @Override

@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 

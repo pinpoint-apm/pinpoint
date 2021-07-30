@@ -70,14 +70,14 @@ public class RetryMessageTest {
     @Test
     public void test_toSting() {
         RetryMessage message1 = new RetryMessage(1, new byte[0]);
-        logger.debug("{}", message1.toString());
+        logger.debug("{}", message1);
 
         // check null safety
         RetryMessage message2 = new RetryMessage(1, null);
-        logger.debug("{}", message2.toString());
+        logger.debug("{}", message2);
 
         RetryMessage message3 = new RetryMessage(1, null, null);
-        logger.debug("{}", message3.toString());
+        logger.debug("{}", message3);
     }
 
 

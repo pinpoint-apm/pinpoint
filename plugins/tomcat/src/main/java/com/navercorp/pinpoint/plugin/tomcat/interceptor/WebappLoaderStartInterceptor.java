@@ -140,7 +140,7 @@ public class WebappLoaderStartInterceptor implements AroundInterceptor {
         if (urls == null) {
             return Collections.emptyList();
         }
-        List<String> libJarNames = new ArrayList<String>(urls.length);
+        List<String> libJarNames = new ArrayList<>(urls.length);
         for (URL url : urls) {
             try {
                 URI uri =  url.toURI();

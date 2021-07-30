@@ -19,8 +19,9 @@ package com.navercorp.pinpoint.collector.service;
 import com.navercorp.pinpoint.collector.dao.hbase.HbaseAgentUriStatDao;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -28,8 +29,11 @@ import org.springframework.stereotype.Service;
 @Service("hBaseAgentUriStatService")
 public class HBaseAgentUriStatService implements AgentUriStatService {
 
-    @Autowired
-    private HbaseAgentUriStatDao hbaseAgentUriStatDao;
+    private final HbaseAgentUriStatDao hbaseAgentUriStatDao;
+
+    public HBaseAgentUriStatService(HbaseAgentUriStatDao hbaseAgentUriStatDao) {
+        this.hbaseAgentUriStatDao = Objects.requireNonNull(hbaseAgentUriStatDao, "hbaseAgentUriStatDao");
+    }
 
     @Override
     public void save(AgentUriStatBo agentUriStatBo) {

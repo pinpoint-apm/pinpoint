@@ -146,7 +146,7 @@ public class ASMClass implements InstrumentClass {
     public List<InstrumentMethod> getDeclaredMethods(final MethodFilter methodFilter) {
         Objects.requireNonNull(methodFilter, "methodFilter");
 
-        final List<InstrumentMethod> candidateList = new ArrayList<InstrumentMethod>();
+        final List<InstrumentMethod> candidateList = new ArrayList<>();
         for (ASMMethodNodeAdapter methodNode : this.classNode.getDeclaredMethods()) {
             final InstrumentMethod method = new ASMMethod(this.engineComponent, this.pluginContext, this, methodNode);
             if (methodFilter.accept(method)) {
@@ -164,7 +164,7 @@ public class ASMClass implements InstrumentClass {
 
     @Override
     public List<InstrumentMethod> getDeclaredConstructors() {
-        final List<InstrumentMethod> candidateList = new ArrayList<InstrumentMethod>();
+        final List<InstrumentMethod> candidateList = new ArrayList<>();
         for (ASMMethodNodeAdapter methodNode : this.classNode.getDeclaredConstructors()) {
             final InstrumentMethod method = new ASMMethod(this.engineComponent, this.pluginContext, this, methodNode);
             candidateList.add(method);
@@ -610,7 +610,7 @@ public class ASMClass implements InstrumentClass {
     public List<InstrumentClass> getNestedClasses(ClassFilter filter) {
         Objects.requireNonNull(filter, "filter");
 
-        final List<InstrumentClass> nestedClasses = new ArrayList<InstrumentClass>();
+        final List<InstrumentClass> nestedClasses = new ArrayList<>();
         for (ASMClassNodeAdapter innerClassNode : this.classNode.getInnerClasses()) {
             final ASMNestedClass nestedClass = new ASMNestedClass(engineComponent, this.pluginContext, innerClassNode);
             if (filter.accept(nestedClass)) {

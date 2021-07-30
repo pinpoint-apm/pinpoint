@@ -161,7 +161,7 @@ public class MetadataGrpcDataSender extends GrpcDataSender implements EnhancedDa
     }
 
     private StreamObserver<PResult> newResponseStream(GeneratedMessageV3 message, int remainingRetryCount) {
-        return new RetryResponseStreamObserver<GeneratedMessageV3, PResult>(logger, retryScheduler, message, remainingRetryCount);
+        return new RetryResponseStreamObserver<>(logger, retryScheduler, message, remainingRetryCount);
     }
 
     // Retry

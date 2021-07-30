@@ -45,7 +45,7 @@ public final class NetworkUtils {
     private static final List<String> LOOP_BACK_ADDRESS_LIST;
 
     static {
-        LOOP_BACK_ADDRESS_LIST = new ArrayList<String>(3);
+        LOOP_BACK_ADDRESS_LIST = new ArrayList<>(3);
         LOOP_BACK_ADDRESS_LIST.add(LOOPBACK_ADDRESS_V4_1);
         LOOP_BACK_ADDRESS_LIST.add(LOOPBACK_ADDRESS_V4_2);
         LOOP_BACK_ADDRESS_LIST.add(LOOPBACK_ADDRESS_V6);
@@ -104,7 +104,7 @@ public final class NetworkUtils {
             return Collections.emptyList();
         }
 
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         while (interfaces.hasMoreElements()) {
             NetworkInterface current = interfaces.nextElement();
             if (isSkipNetworkInterface(current)) {
@@ -138,7 +138,7 @@ public final class NetworkUtils {
 
     public static List<String> getHostV4IpList() {
         List<String> hostIpList = getHostIpList();
-        List<String> hostV4IpList = new ArrayList<String>(hostIpList.size());
+        List<String> hostV4IpList = new ArrayList<>(hostIpList.size());
         for (String ip : hostIpList) {
             if (validationIpV4FormatAddress(ip)) {
                 hostV4IpList.add(ip);

@@ -29,7 +29,7 @@ public abstract class DefaultAttributeMap implements AttributeMap {
 
     protected Map<Object, Object> getAttributeMap() {
         if (attribute == null) {
-            attribute = new HashMap<Object, Object>();
+            attribute = new HashMap<>();
         }
         return attribute;
     }

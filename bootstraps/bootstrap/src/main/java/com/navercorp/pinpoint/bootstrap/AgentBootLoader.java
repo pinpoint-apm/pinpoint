@@ -37,7 +37,7 @@ public class AgentBootLoader {
     public AgentBootLoader(String bootClass, ClassLoader agentClassLoader) {
         this.bootClass = Objects.requireNonNull(bootClass, "bootClass");
         this.classLoader = Objects.requireNonNull(agentClassLoader, "agentClassLoader");
-        this.executeTemplate = new ContextClassLoaderExecuteTemplate<Object>(agentClassLoader);
+        this.executeTemplate = new ContextClassLoaderExecuteTemplate<>(agentClassLoader);
     }
 
     public Agent boot(final AgentOption agentOption) {

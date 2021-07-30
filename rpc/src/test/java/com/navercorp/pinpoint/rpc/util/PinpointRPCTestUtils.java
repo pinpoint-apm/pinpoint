@@ -96,7 +96,7 @@ public final class PinpointRPCTestUtils {
     }
 
     public static Map<String, Object> getParams() {
-        Map<String, Object> properties = new HashMap<String, Object>();
+        Map<String, Object> properties = new HashMap<>();
         properties.put(HandshakePropertyType.AGENT_ID.getName(), "agent");
         properties.put(HandshakePropertyType.APPLICATION_NAME.getName(), "application");
         properties.put(HandshakePropertyType.HOSTNAME.getName(), "hostname");
@@ -110,8 +110,8 @@ public final class PinpointRPCTestUtils {
     }
 
     public static class EchoClientListener implements MessageListener {
-        private final List<SendPacket> sendPacketRepository = new ArrayList<SendPacket>();
-        private final List<RequestPacket> requestPacketRepository = new ArrayList<RequestPacket>();
+        private final List<SendPacket> sendPacketRepository = new ArrayList<>();
+        private final List<RequestPacket> requestPacketRepository = new ArrayList<>();
 
         @Override
         public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {

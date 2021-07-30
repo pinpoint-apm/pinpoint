@@ -23,10 +23,10 @@ import com.navercorp.pinpoint.web.dao.stat.AgentUriStatDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.vo.Range;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -34,11 +34,14 @@ import java.util.List;
 @Repository("agentUriStatDaoV2")
 public class HbaseAgentUriStatDaoV2  implements AgentUriStatDao {
 
-    @Autowired
-    private AgentUriStatDecoder agentUriStatDecoder;
+    private final AgentUriStatDecoder agentUriStatDecoder;
 
-    @Autowired
-    private HbaseAgentUriStatDaoOperationsV2 operations;
+    private final HbaseAgentUriStatDaoOperationsV2 operations;
+
+    public HbaseAgentUriStatDaoV2(AgentUriStatDecoder agentUriStatDecoder, HbaseAgentUriStatDaoOperationsV2 operations) {
+        this.agentUriStatDecoder = Objects.requireNonNull(agentUriStatDecoder, "agentUriStatDecoder");
+        this.operations = Objects.requireNonNull(operations, "operations");
+    }
 
     @Override
     public List<AgentUriStatBo> getAgentStatList(String agentId, Range range) {

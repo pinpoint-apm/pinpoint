@@ -115,7 +115,7 @@ public class HeaderTBaseDeserializer {
     }
 
     public List<Message<TBase<?, ?>>> deserializeList(byte[] buffer) throws TException {
-        final List<Message<TBase<?, ?>>> tBaseList = new ArrayList<Message<TBase<?, ?>>>();
+        final List<Message<TBase<?, ?>>> tBaseList = new ArrayList<>();
 
         try {
             trans.reset(buffer, 0, buffer.length);

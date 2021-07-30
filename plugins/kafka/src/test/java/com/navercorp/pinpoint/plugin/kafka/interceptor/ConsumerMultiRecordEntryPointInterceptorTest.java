@@ -39,7 +39,7 @@ public class ConsumerMultiRecordEntryPointInterceptorTest {
 
     @Test
     public void createTraceTest1() {
-        List<ConsumerRecord> consumerRecordList = new ArrayList<ConsumerRecord>();
+        List<ConsumerRecord> consumerRecordList = new ArrayList<>();
         consumerRecordList.add(new ConsumerRecord("Test", 1, 1, "hello", "hello too"));
 
         doReturn(trace).when(traceContext).newTraceObject();
@@ -58,7 +58,7 @@ public class ConsumerMultiRecordEntryPointInterceptorTest {
 
     @Test
     public void createTraceTest2() {
-        List<ConsumerRecord> consumerRecordList = new ArrayList<ConsumerRecord>();
+        List<ConsumerRecord> consumerRecordList = new ArrayList<>();
         consumerRecordList.add(new ConsumerRecord("Test", 1, 1, "hello", "hello too"));
         consumerRecordList.add(new ConsumerRecord("Test2", 2, 1, "hello2", "hello too2"));
 

@@ -22,11 +22,6 @@ import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.common.util.OsType;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 
 import static org.mockito.Mockito.mock;
 

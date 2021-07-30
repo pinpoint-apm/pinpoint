@@ -92,7 +92,7 @@ public class GcCountCheckerTest {
             @Override
             public List<String> selectAgentIds(String applicationName) {
                 if (SERVICE_NAME.equals(applicationName)) {
-                    List<String> agentIds = new LinkedList<String>();
+                    List<String> agentIds = new LinkedList<>();
                     agentIds.add("local_tomcat");
                     return agentIds;
                 }

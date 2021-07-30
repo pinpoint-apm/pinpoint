@@ -89,7 +89,7 @@ public class ApplicationStatBoWindow extends RichWindowFunction<Tuple3<String, J
     }
 
     private JoinApplicationStatBo join(Iterable<Tuple3<String, JoinStatBo, Long>> values) {
-        List<JoinApplicationStatBo> joinApplicaitonStatBoList = new ArrayList<JoinApplicationStatBo>();
+        List<JoinApplicationStatBo> joinApplicaitonStatBoList = new ArrayList<>();
 
         for (Tuple3<String, JoinStatBo, Long> value : values) {
             joinApplicaitonStatBoList.add((JoinApplicationStatBo) value.f1);

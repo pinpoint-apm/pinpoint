@@ -57,7 +57,7 @@ public class SpanEvent extends DefaultFrameAttachment {
 
     public void addAnnotation(Annotation annotation) {
         if (this.annotations == null) {
-            this.annotations = new ArrayList<Annotation>();
+            this.annotations = new ArrayList<>();
         }
         this.annotations.add(annotation);
     }

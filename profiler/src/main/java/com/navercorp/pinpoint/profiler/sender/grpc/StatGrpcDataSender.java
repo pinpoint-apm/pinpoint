@@ -107,7 +107,7 @@ public class StatGrpcDataSender extends GrpcDataSender {
         };
         this.reconnector = reconnectExecutor.newReconnector(reconnectJob);
         this.failState = new SimpleStreamState(100, 5000);
-        this.streamExecutorFactory = new StreamExecutorFactory<PStatMessage>(executor);
+        this.streamExecutorFactory = new StreamExecutorFactory<>(executor);
 
         ClientStreamingProvider<PStatMessage, Empty> clientStreamProvider = new ClientStreamingProvider<PStatMessage, Empty>() {
             @Override
@@ -117,7 +117,7 @@ public class StatGrpcDataSender extends GrpcDataSender {
                 return (ClientCallStreamObserver<PStatMessage>) statStub.sendAgentStat(response);
             }
         };
-        this.clientStreamService = new ClientStreamingService<PStatMessage, Empty >(clientStreamProvider, reconnector);
+        this.clientStreamService = new ClientStreamingService<>(clientStreamProvider, reconnector);
 
         reconnectJob.run();
 

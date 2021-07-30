@@ -50,7 +50,7 @@ public abstract class ThreadLocalFactoryTest {
         when(baseTraceFactory.newTraceObject()).thenReturn(trace);
         when(baseTraceFactory.disableSampling()).thenReturn(disable);
 
-        Binder<Trace> binder = new ThreadLocalBinder<Trace>();
+        Binder<Trace> binder = new ThreadLocalBinder<>();
 
         TraceFactory traceFactory = new DefaultTraceFactory(baseTraceFactory, binder);
         return traceFactory;

@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 public class JoinMemoryBoTest {
     @Test
     public void joinMemoryBoListTest() throws Exception {
-        List<JoinMemoryBo> joinMemoryBoList = new ArrayList<JoinMemoryBo>();
+        List<JoinMemoryBo> joinMemoryBoList = new ArrayList<>();
         JoinMemoryBo joinMemoryBo1 = new JoinMemoryBo("agent1", 1496988667231L, 3000, 2000, 5000, "agent1", "agent1", 500, 50, 600, "agent1", "agent1");
         JoinMemoryBo joinMemoryBo2 = new JoinMemoryBo("agent2", 1496988667231L, 4000, 1000, 7000, "agent2", "agent2", 400, 150, 600, "agent2", "agent2");
         JoinMemoryBo joinMemoryBo3 = new JoinMemoryBo("agent3", 1496988667231L, 5000, 3000, 8000, "agent3", "agent3", 200, 100, 200, "agent3", "agent3");
@@ -51,7 +51,7 @@ public class JoinMemoryBoTest {
 
     @Test
     public void joinMemoryBoList2Test() {
-        List<JoinMemoryBo> joinMemoryBoList = new ArrayList<JoinMemoryBo>();
+        List<JoinMemoryBo> joinMemoryBoList = new ArrayList<>();
         JoinMemoryBo joinMemoryBo = JoinMemoryBo.joinMemoryBoList(joinMemoryBoList, 1496988667231L);
         assertEquals(joinMemoryBo, JoinMemoryBo.EMPTY_JOIN_MEMORY_BO);
     }

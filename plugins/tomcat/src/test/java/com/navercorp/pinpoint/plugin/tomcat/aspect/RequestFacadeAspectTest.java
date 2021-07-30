@@ -34,7 +34,7 @@ public class RequestFacadeAspectTest {
     public static class RequestFacadeAspectMock extends RequestFacadeAspect {
         @Override
         Enumeration __getHeaderNames() {
-            Hashtable<String, String> hashtable = new Hashtable<String, String>();
+            Hashtable<String, String> hashtable = new Hashtable<>();
             hashtable.put("b", "bb");
             hashtable.put("c", "cc");
             hashtable.put("d", Header.HTTP_SPAN_ID.toString());

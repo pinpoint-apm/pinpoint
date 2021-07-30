@@ -43,7 +43,7 @@ public class AgentStatDataPointCodec {
     }
 
     public List<Long> decodeTimestamps(long initialTimestamp, Buffer buffer, int numValues) {
-        List<Long> timestamps = new ArrayList<Long>(numValues);
+        List<Long> timestamps = new ArrayList<>(numValues);
         timestamps.add(initialTimestamp);
         long prevTimestamp = initialTimestamp;
         long prevDelta = 0;

@@ -16,14 +16,10 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import static com.navercorp.pinpoint.common.PinpointConstants.*;
-
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 
 import java.util.Objects;
 

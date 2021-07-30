@@ -44,7 +44,7 @@ public class AlarmJobTest {
      }
 
      private static JobParameters getParameters() {
-          Map<String, JobParameter> parameters = new HashMap<String, JobParameter>();
+          Map<String, JobParameter> parameters = new HashMap<>();
           parameters.put("schedule.scheduledFireTime", new JobParameter(new Date()));
           return new JobParameters(parameters);
      }

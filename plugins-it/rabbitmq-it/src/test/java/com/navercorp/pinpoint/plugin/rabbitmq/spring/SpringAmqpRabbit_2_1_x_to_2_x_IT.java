@@ -187,7 +187,7 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT {
     }
 
     private Method getExecuteListenerMethod0(Class<?> abstractMessageListenerContainerClass) throws NoSuchMethodException {
-        List<Method> availableMethodList = new ArrayList<Method>();
+        List<Method> availableMethodList = new ArrayList<>();
 
         Method[] declaredMethods = abstractMessageListenerContainerClass.getDeclaredMethods();
         for (Method declaredMethod : declaredMethods) {

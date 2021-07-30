@@ -62,7 +62,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
         RequestAdaptor<HttpServerRequest> requestAdaptor = new HttpRequestAdaptor();
         ParameterRecorder<HttpServerRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
 
-        ServletRequestListenerBuilder<HttpServerRequest> builder = new ServletRequestListenerBuilder<HttpServerRequest>(ReactorNettyConstants.REACTOR_NETTY, traceContext, requestAdaptor);
+        ServletRequestListenerBuilder<HttpServerRequest> builder = new ServletRequestListenerBuilder<>(ReactorNettyConstants.REACTOR_NETTY, traceContext, requestAdaptor);
         builder.setExcludeURLFilter(config.getExcludeUrlFilter());
         builder.setParameterRecorder(parameterRecorder);
         builder.setRequestRecorderFactory(requestRecorderFactory);

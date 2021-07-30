@@ -19,13 +19,6 @@ package com.navercorp.pinpoint.profiler.monitor.metric.memory;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-
 /**
  * @author HyunGil Jeong
  */

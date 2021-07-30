@@ -110,7 +110,7 @@ public enum AgentEventType {
     }
 
     public static Set<AgentEventType> getTypesByCategory(AgentEventTypeCategory category) {
-        final Set<AgentEventType> eventTypes = new HashSet<AgentEventType>();
+        final Set<AgentEventType> eventTypes = new HashSet<>();
         for (AgentEventType eventType : AGENT_EVENT_TYPE) {
             if (eventType.category.contains(category)) {
                 eventTypes.add(eventType);

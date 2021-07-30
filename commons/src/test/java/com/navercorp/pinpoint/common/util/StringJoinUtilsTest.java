@@ -31,7 +31,7 @@ public class StringJoinUtilsTest {
 
     @Test
     public void join1() {
-        List<String> stringList = new ArrayList<String>();
+        List<String> stringList = new ArrayList<>();
         stringList.add("abc");
 
         String join = StringJoinUtils.join(stringList, ",");
@@ -41,7 +41,7 @@ public class StringJoinUtilsTest {
 
     @Test
     public void join2() {
-        List<String> stringList = new ArrayList<String>();
+        List<String> stringList = new ArrayList<>();
         stringList.add("abc");
         stringList.add("bcd");
 
@@ -52,7 +52,7 @@ public class StringJoinUtilsTest {
 
     @Test
     public void join3() {
-        List<String> stringList = new ArrayList<String>();
+        List<String> stringList = new ArrayList<>();
         stringList.add("abc");
         stringList.add("bcd");
         stringList.add("f");

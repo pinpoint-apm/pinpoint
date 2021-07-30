@@ -46,7 +46,7 @@ public class WeakAtomicReferenceArrayTest {
     private final int arraySize = 1024 * 2000;
     private final int testMapSize = 1;
 
-    private final Map<Integer, AtomicReferenceTest> map = new HashMap<Integer, AtomicReferenceTest>();
+    private final Map<Integer, AtomicReferenceTest> map = new HashMap<>();
     private final AtomicInteger nextMapId = new AtomicInteger();
 
     private int writerThreadSize = 1;
@@ -96,16 +96,16 @@ public class WeakAtomicReferenceArrayTest {
 
         private final AtomicInteger nextId = new AtomicInteger(0);
         private final AtomicMaxUpdater maxIndex = new AtomicMaxUpdater();
-//        private final ConcurrentLinkedQueue<Integer> updateIndex = new ConcurrentLinkedQueue<Integer>();
+//        private final ConcurrentLinkedQueue<Integer> updateIndex = new ConcurrentLinkedQueue<>();
         private final WeakAtomicReferenceArray<Integer> ref;
         private final AtomicInteger afterLast = new AtomicInteger(-1);
-        private final AtomicReference<ChangedValue> lastChangeValue = new AtomicReference<ChangedValue>();
+        private final AtomicReference<ChangedValue> lastChangeValue = new AtomicReference<>();
 
 
         private final Random random = new Random();
 
         public AtomicReferenceTest() {
-            cell.weakAtomicReferenceArray = new WeakAtomicReferenceArray<Integer>(arraySize, Integer.class);
+            cell.weakAtomicReferenceArray = new WeakAtomicReferenceArray<>(arraySize, Integer.class);
             ref = cell.weakAtomicReferenceArray;
         }
 

@@ -84,7 +84,7 @@ public class DefaultChannelFactory implements ChannelFactory {
         this.clientOption = Objects.requireNonNull(clientOption, "clientOption");
 
         Objects.requireNonNull(clientInterceptorList, "clientInterceptorList");
-        this.clientInterceptorList = new ArrayList<ClientInterceptor>(clientInterceptorList);
+        this.clientInterceptorList = new ArrayList<>(clientInterceptorList);
 
         ChannelType channelType = getChannelType();
         this.channelType = channelType.getChannelType();
@@ -113,7 +113,7 @@ public class DefaultChannelFactory implements ChannelFactory {
 
     private ExecutorService newExecutorService(String name, int executorQueueSize) {
         ThreadFactory threadFactory = new PinpointThreadFactory(PinpointThreadFactory.DEFAULT_THREAD_NAME_PREFIX + name, true);
-        BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>(executorQueueSize);
+        BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>(executorQueueSize);
         return new ThreadPoolExecutor(1, 1,
                 0L, TimeUnit.MILLISECONDS,
                 workQueue, threadFactory);

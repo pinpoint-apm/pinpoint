@@ -55,10 +55,7 @@ public class DefaultModuleFactoryResolver implements ModuleFactoryResolver {
         if (StringUtils.isEmpty(moduleFactoryClazzName)) {
             return true;
         }
-        if (DEFAULT_MODULE_FACTORY.equals(moduleFactoryClazzName)) {
-            return true;
-        }
-        return false;
+        return DEFAULT_MODULE_FACTORY.equals(moduleFactoryClazzName);
     }
 
     @Override

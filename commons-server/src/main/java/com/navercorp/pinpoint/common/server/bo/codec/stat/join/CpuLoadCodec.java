@@ -65,7 +65,7 @@ public class CpuLoadCodec implements ApplicationStatCodec {
 
         final int numValues = joinCpuLoadBoList.size();
         valueBuffer.putVInt(numValues);
-        List<Long> timestamps = new ArrayList<Long>(numValues);
+        List<Long> timestamps = new ArrayList<>(numValues);
         JoinLongFieldStrategyAnalyzer.Builder jvmCpuLoadAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
         JoinLongFieldStrategyAnalyzer.Builder systemCpuLoadAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
         for (JoinStatBo joinStatBo : joinCpuLoadBoList) {
@@ -117,7 +117,7 @@ public class CpuLoadCodec implements ApplicationStatCodec {
         final List<JoinLongFieldBo> jvmCpuLoadList = this.codec.decodeValues(valueBuffer, jvmCpuLoadEncodingStrategy, numValues);
         final List<JoinLongFieldBo> systemCpuLoadList = this.codec.decodeValues(valueBuffer, systemCpuLoadEncodingStrategy, numValues);
 
-        List<JoinStatBo> joinCpuLoadBoList = new ArrayList<JoinStatBo>(numValues);
+        List<JoinStatBo> joinCpuLoadBoList = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; i++) {
             JoinCpuLoadBo joinCpuLoadBo = new JoinCpuLoadBo();
             joinCpuLoadBo.setId(id);

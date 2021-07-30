@@ -69,8 +69,8 @@ public final class MongoUtil {
             return null;
         }
 
-        final List<String> parsedJson = new ArrayList<String>(2);
-        final List<String> jsonParameter = new ArrayList<String>(16);
+        final List<String> parsedJson = new ArrayList<>(2);
+        final List<String> jsonParameter = new ArrayList<>(16);
 
         for (Object arg : args) {
 

@@ -27,7 +27,7 @@ import java.sql.SQLException;
  */
 public class ParentClassThrowableMatcherTest {
 
-    public class SQLExceptionEx extends SQLException {
+    public static class SQLExceptionEx extends SQLException {
     }
 
     @Test

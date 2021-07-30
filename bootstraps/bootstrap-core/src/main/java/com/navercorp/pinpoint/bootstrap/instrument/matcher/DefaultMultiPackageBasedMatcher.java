@@ -80,7 +80,7 @@ public class DefaultMultiPackageBasedMatcher implements MultiPackageBasedMatcher
     }
 
     private List<String> buildBasePackageNameList(List<String> basePackageNames) {
-        final List<String> list = new ArrayList<String>(basePackageNames.size());
+        final List<String> list = new ArrayList<>(basePackageNames.size());
         for (String basePackageName : basePackageNames) {
             // skip null and empty.
             if (StringUtils.hasText(basePackageName)) {

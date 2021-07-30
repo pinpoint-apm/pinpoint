@@ -1,13 +1,8 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class AgentIdStartTimeKey {
     private final String agentId;

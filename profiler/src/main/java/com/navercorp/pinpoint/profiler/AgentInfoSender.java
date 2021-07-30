@@ -144,7 +144,7 @@ public class AgentInfoSender {
 
         private final SuccessListener taskHandler;
         private final int retryCount;
-        private AtomicInteger counter;
+        private final AtomicInteger counter;
 
         private AgentInfoSendTask(SuccessListener taskHandler) {
             this(taskHandler, 0);
@@ -174,7 +174,7 @@ public class AgentInfoSender {
         private boolean sendAgentInfo() {
             try {
                 AgentInfo agentInfo = agentInfoFactory.createAgentInfo();
-                final DefaultFuture<ResponseMessage> future = new DefaultFuture<ResponseMessage>();
+                final DefaultFuture<ResponseMessage> future = new DefaultFuture<>();
 
                 logger.info("Sending AgentInfo {}", agentInfo);
                 dataSender.request(agentInfo, new ResponseMessageFutureListener(future));

@@ -45,7 +45,7 @@ public final class PreparedStatementUtils {
     public static List<Method> findBindVariableSetMethod(BindVariableFilter filter) {
         Objects.requireNonNull(filter, "filter");
 
-        List<Method> temp = new ArrayList<Method>(bindMethod.size());
+        List<Method> temp = new ArrayList<>(bindMethod.size());
         for (Method method : bindMethod) {
             if (filter.filter(method)) {
                 temp.add(method);
@@ -61,7 +61,7 @@ public final class PreparedStatementUtils {
         }
         final Class<?> preparedStatement = SqlModule.getSqlPreparedStatement();
         Method[] methods = preparedStatement.getDeclaredMethods();
-        List<Method> bindMethod = new LinkedList<Method>();
+        List<Method> bindMethod = new LinkedList<>();
         for (Method method : methods) {
             if (isSetter(method.getName())) {
                 final Class<?>[] parameterTypes = method.getParameterTypes();

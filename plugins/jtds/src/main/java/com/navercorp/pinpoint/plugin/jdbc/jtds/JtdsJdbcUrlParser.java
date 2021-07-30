@@ -80,7 +80,7 @@ public class JtdsJdbcUrlParser implements JdbcUrlParserV2 {
             hostAndPortString = hostAndPortAndDataBaseString;
         }
 
-        List<String> hostList = new ArrayList<String>(1);
+        List<String> hostList = new ArrayList<>(1);
         hostList.add(hostAndPortString);
         // option properties search
         if (databaseId.isEmpty()) {

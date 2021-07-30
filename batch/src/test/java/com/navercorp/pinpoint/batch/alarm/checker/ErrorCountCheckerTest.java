@@ -49,7 +49,7 @@ public class ErrorCountCheckerTest {
             
             @Override
             public List<ResponseTime> selectResponseTime(Application application, Range range) {
-                List<ResponseTime> list = new LinkedList<ResponseTime>();
+                List<ResponseTime> list = new LinkedList<>();
                 long timeStamp = 1409814914298L;
                 ResponseTime responseTime = new ResponseTime(SERVICE_NAME, ServiceType.STAND_ALONE, timeStamp);
                 list.add(responseTime);

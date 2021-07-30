@@ -55,7 +55,7 @@ public class ExcludePathFilter implements Filter<String> {
             return;
         }
         final List<String> excludePathFormats = StringUtils.tokenizeToStringList(excludePathFormatString, formatSeparator);
-        final List<PathMatcher> excludePathMatchers = new ArrayList<PathMatcher>(excludePathFormats.size());
+        final List<PathMatcher> excludePathMatchers = new ArrayList<>(excludePathFormats.size());
         for (String excludePathFormat : excludePathFormats) {
             final PathMatcher pathMatcher = createPathMatcher(excludePathFormat, pathSeparator);
             excludePathMatchers.add(pathMatcher);

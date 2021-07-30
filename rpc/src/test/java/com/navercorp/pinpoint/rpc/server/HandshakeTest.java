@@ -140,7 +140,7 @@ public class HandshakeTest {
             return null;
         }
 
-        List<PinpointSocket> result = new ArrayList<PinpointSocket>();
+        List<PinpointSocket> result = new ArrayList<>();
 
         for (PinpointSocket writableServer : writableServerList) {
 

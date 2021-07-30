@@ -20,7 +20,7 @@ public class ExcludeMethodFilter implements Filter<String> {
             return;
         }
         final List<String> splitList = StringUtils.tokenizeToStringList(excludeFormat, separator);
-        this.excludeMethods = new HashSet<String>();
+        this.excludeMethods = new HashSet<>();
         for (String method : splitList) {
             this.excludeMethods.add(method.toUpperCase());
         }

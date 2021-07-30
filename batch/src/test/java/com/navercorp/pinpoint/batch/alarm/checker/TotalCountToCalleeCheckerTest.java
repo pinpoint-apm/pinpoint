@@ -57,7 +57,7 @@ public class TotalCountToCalleeCheckerTest {
                 for (int i = 1 ; i < 6  ; i++) {
                     LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
                     Application toApplication = new Application(TO_SERVICE_NAME + i, ServiceType.STAND_ALONE);
-                    Collection<TimeHistogram> timeHistogramList = new ArrayList<TimeHistogram>();
+                    Collection<TimeHistogram> timeHistogramList = new ArrayList<>();
                     
                     for (int j = 1 ; j < 11  ; j++) {
                         TimeHistogram timeHistogram = new TimeHistogram(ServiceType.STAND_ALONE, timeStamp);

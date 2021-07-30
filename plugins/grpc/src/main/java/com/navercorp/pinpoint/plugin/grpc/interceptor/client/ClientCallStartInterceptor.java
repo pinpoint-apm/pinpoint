@@ -52,7 +52,7 @@ public class ClientCallStartInterceptor implements AroundInterceptor {
         this.descriptor = descriptor;
 
         GrpcClientHeaderAdaptor grpcClientHeaderAdaptor = new GrpcClientHeaderAdaptor();
-        this.requestTraceWriter = new DefaultRequestTraceWriter<Metadata>(grpcClientHeaderAdaptor, traceContext);
+        this.requestTraceWriter = new DefaultRequestTraceWriter<>(grpcClientHeaderAdaptor, traceContext);
     }
 
     @Override

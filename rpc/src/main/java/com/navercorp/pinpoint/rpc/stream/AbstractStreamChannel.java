@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -31,7 +32,7 @@ public abstract class AbstractStreamChannel implements StreamChannel {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ConcurrentHashMap<String, Object> attribute = new ConcurrentHashMap<String, Object>();
+    private final ConcurrentMap<String, Object> attribute = new ConcurrentHashMap<>();
 
     private final int streamChannelId;
     protected final StreamChannelState state  = new StreamChannelState();
