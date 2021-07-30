@@ -27,8 +27,6 @@ import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
  * @author hyungil.jeong
  */
 public class DefaultServerMetaDataHolder implements ServerMetaDataHolder {
-    
-    private final List<ServerMetaDataListener> listeners = new CopyOnWriteArrayList<>();
 
     private final ServerMetaDataRegistryService serverMetaDataRegistryService;
 
@@ -50,16 +48,6 @@ public class DefaultServerMetaDataHolder implements ServerMetaDataHolder {
     public void addServiceInfo(String serviceName, List<String> serviceLibs) {
         ServiceInfo serviceInfo = new DefaultServiceInfo(serviceName, serviceLibs);
         this.serverMetaDataRegistryService.addServiceInfo(serviceInfo);
-    }
-
-    @Override
-    public void addListener(ServerMetaDataListener listener) {
-        this.listeners.add(listener);
-    }
-
-    @Override
-    public void removeListener(ServerMetaDataListener listener) {
-        this.listeners.remove(listener);
     }
 
     @Override
