@@ -220,7 +220,7 @@ public final class ASMClassWriter extends ClassWriter {
         }
 
         try {
-            final byte[] bytes =IOUtils.toByteArray(in);
+            final byte[] bytes = IOUtils.toByteArray(in);
             return new ClassReader(bytes);
         } catch (IOException e) {
             return null;
