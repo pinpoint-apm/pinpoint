@@ -26,7 +26,6 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import java.io.InputStream;
-import java.io.PrintWriter;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyString;

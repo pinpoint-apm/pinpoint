@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class StreamChannelRepository {
 
-    private final ConcurrentMap<Integer, StreamChannel> streamChannelMap = new ConcurrentHashMap<Integer, StreamChannel>();
+    private final ConcurrentMap<Integer, StreamChannel> streamChannelMap = new ConcurrentHashMap<>();
 
     public void registerIfAbsent(StreamChannel streamChannel) throws StreamException {
         Objects.requireNonNull(streamChannel, "streamChannel");

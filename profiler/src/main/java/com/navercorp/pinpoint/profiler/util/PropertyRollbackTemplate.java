@@ -33,14 +33,14 @@ public class PropertyRollbackTemplate {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Properties properties;
-    private final List<ExecuteContext<String>> contexts = new ArrayList<ExecuteContext<String>>();
+    private final List<ExecuteContext<String>> contexts = new ArrayList<>();
 
     public PropertyRollbackTemplate(Properties properties) {
         this.properties = Objects.requireNonNull(properties, "properties");
     }
 
     public void addKey(String key, String value) {
-        final ExecuteContext<String> context = new ExecuteContext<String>(key, value);
+        final ExecuteContext<String> context = new ExecuteContext<>(key, value);
         contexts.add(context);
     }
 
@@ -48,7 +48,7 @@ public class PropertyRollbackTemplate {
         Objects.requireNonNull(runnable, "runnable");
 
         // before
-        final List<BeforeState<String>> beforeStates = new ArrayList<BeforeState<String>>(contexts.size());
+        final List<BeforeState<String>> beforeStates = new ArrayList<>(contexts.size());
         for (ExecuteContext<String> context : contexts) {
             final BeforeState<String> beforeState = context.prepare(properties);
             beforeStates.add(beforeState);
@@ -88,7 +88,7 @@ public class PropertyRollbackTemplate {
             final String backupValue = properties.getProperty(this.key, null);
             logger.debug("prepare put key:{} value:{}", this.key, this.value);
             properties.put(this.key, this.value);
-            return new BeforeState<String>(hasValue, backupValue);
+            return new BeforeState<>(hasValue, backupValue);
         }
 
         private void rollback(Properties properties, BeforeState<String> beforeState) {

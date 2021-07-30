@@ -2,7 +2,6 @@ package com.navercorp.pinpoint.profiler.context.errorhandler;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.rpc.server.PinpointServerConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -16,7 +15,7 @@ public class DescriptorParserTest {
 
     @Test
     public void parse() {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(OptionKey.getClassName("custom-error-handler"), "java.lang.RuntimeException");
         map.put(OptionKey.getExceptionMessageContains("custom-error-handler"), "error");
 

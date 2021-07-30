@@ -115,7 +115,7 @@ public class CubridJdbcUrlParser implements JdbcUrlParserV2 {
         StringMaker maker = new StringMaker(jdbcUrl);
         String normalizedUrl = maker.clear().before('?').value();
 
-        List<String> hostList = new ArrayList<String>(1);
+        List<String> hostList = new ArrayList<>(1);
         final String hostAndPort = host + ":" + portString;
         hostList.add(hostAndPort);
 
@@ -132,7 +132,7 @@ public class CubridJdbcUrlParser implements JdbcUrlParserV2 {
         // 10.11.12.13:3306 In case of replication driver could have multiple values
         // We have to consider mm db too.
         String host = maker.after("//").before('/').value();
-        List<String> hostList = new ArrayList<String>(1);
+        List<String> hostList = new ArrayList<>(1);
         hostList.add(host);
         // String port = maker.next().after(':').before('/').value();
 

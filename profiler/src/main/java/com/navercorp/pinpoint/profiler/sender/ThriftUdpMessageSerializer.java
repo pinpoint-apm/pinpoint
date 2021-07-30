@@ -99,9 +99,6 @@ public class ThriftUdpMessageSerializer implements MessageSerializer<ByteMessage
 
     @VisibleForTesting
     protected boolean isLimit(int interBufferSize) {
-        if (interBufferSize > maxPacketLength) {
-            return true;
-        }
-        return false;
+        return interBufferSize > maxPacketLength;
     }
 }

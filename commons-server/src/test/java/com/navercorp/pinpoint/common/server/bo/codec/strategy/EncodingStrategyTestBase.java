@@ -43,7 +43,7 @@ public abstract class EncodingStrategyTestBase {
     }
 
     public List<Short> createRandomShorts(int numTestValues, boolean unsigned) {
-        List<Short> values = new ArrayList<Short>(numTestValues);
+        List<Short> values = new ArrayList<>(numTestValues);
         for (int i = 0; i < numTestValues; i++) {
             if (unsigned) {
                 values.add((short) RANDOM.nextInt(Short.MAX_VALUE));
@@ -56,7 +56,7 @@ public abstract class EncodingStrategyTestBase {
     }
 
     public List<Integer> createRandomIntegers(int numTestValues, boolean unsigned) {
-        List<Integer> values = new ArrayList<Integer>(numTestValues);
+        List<Integer> values = new ArrayList<>(numTestValues);
         for (int i = 0; i < numTestValues; i++) {
             if (unsigned) {
                 values.add(RANDOM.nextInt(Integer.MAX_VALUE));
@@ -68,7 +68,7 @@ public abstract class EncodingStrategyTestBase {
     }
 
     public List<Long> createRandomLongs(int numTestValues, boolean unsigned) {
-        List<Long> values = new ArrayList<Long>(numTestValues);
+        List<Long> values = new ArrayList<>(numTestValues);
         for (int i = 0; i < numTestValues; i++) {
             long value = RANDOM.nextLong();
             if (unsigned) {

@@ -82,7 +82,7 @@ class ParallelClassLoader extends URLClassLoader {
             parentResource = this.bootLoader.findResources(name);
         }
 
-        return new MergedEnumeration2<URL>(currentResource, parentResource);
+        return new MergedEnumeration2<>(currentResource, parentResource);
     }
 
     @Override

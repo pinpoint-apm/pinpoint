@@ -25,7 +25,7 @@ import java.util.Set;
  */
 public class ClassLoadingChecker {
 
-    private final Set<String> loadClass = new HashSet<String>();
+    private final Set<String> loadClass = new HashSet<>();
 
     public boolean isFirstLoad(String className) {
         Objects.requireNonNull(className, "className");

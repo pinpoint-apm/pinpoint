@@ -38,7 +38,7 @@ public class CustomMetricIdGenerator {
 
     private final int limitIdNumber;
 
-    private Map<String, Integer> metricNameToIdMap = new HashMap<String, Integer>();
+    private final Map<String, Integer> metricNameToIdMap = new HashMap<>();
 
     private int currentId = 0;
 

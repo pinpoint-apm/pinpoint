@@ -92,7 +92,7 @@ public enum JvmVersion {
 
 
     private static IntHashMap<JvmVersion> toClassVersionMap() {
-        final IntHashMap<JvmVersion> jvmVersionIntHashMap = new IntHashMap<JvmVersion>();
+        final IntHashMap<JvmVersion> jvmVersionIntHashMap = new IntHashMap<>();
         for (JvmVersion version : values()) {
             jvmVersionIntHashMap.put(version.classVersion, version);
         }

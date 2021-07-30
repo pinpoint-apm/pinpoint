@@ -37,10 +37,10 @@ import java.util.Set;
  * @author HyunGil Jeong
  */
 public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
-    NONE(new ValueEncodingStrategy.Unsigned<Long>(TypedBufferHandler.LONG_BUFFER_HANDLER)),
-    REPEAT_COUNT(new RepeatCountEncodingStrategy.Unsigned<Long>(TypedBufferHandler.LONG_BUFFER_HANDLER)),
-    DELTA(new DeltaEncodingStrategy.Unsigned<Long>(TypedBufferHandler.LONG_BUFFER_HANDLER, ArithmeticOperation.LONG_OPERATIONS)),
-    DELTA_OF_DELTA(new DeltaOfDeltaEncodingStrategy.Unsigned<Long>(TypedBufferHandler.LONG_BUFFER_HANDLER, ArithmeticOperation.LONG_OPERATIONS));
+    NONE(new ValueEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER)),
+    REPEAT_COUNT(new RepeatCountEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER)),
+    DELTA(new DeltaEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER, ArithmeticOperation.LONG_OPERATIONS)),
+    DELTA_OF_DELTA(new DeltaOfDeltaEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER, ArithmeticOperation.LONG_OPERATIONS));
 
     private final EncodingStrategy<Long> delegate;
 
@@ -97,7 +97,7 @@ public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
 
         public static class Builder implements StrategyAnalyzerBuilder<Long> {
 
-            private final List<Long> values = new ArrayList<Long>();
+            private final List<Long> values = new ArrayList<>();
             private long previousValue = 0L;
             private long previousDelta = 0L;
 
@@ -143,7 +143,7 @@ public enum UnsignedLongEncodingStrategy implements EncodingStrategy<Long> {
                 } else {
                     bestStrategy = REPEAT_COUNT;
                 }
-                List<Long> values = new ArrayList<Long>(this.values);
+                List<Long> values = new ArrayList<>(this.values);
                 this.values.clear();
                 return new Analyzer(bestStrategy, values);
             }

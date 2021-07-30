@@ -115,7 +115,7 @@ public class OracleJdbcUrlParser implements JdbcUrlParserV2 {
         String port = maker.next().after(':').before(':', '/').value();
         String databaseId = maker.next().afterLast(':', '/').value();
 
-        List<String> hostList = new ArrayList<String>(1);
+        List<String> hostList = new ArrayList<>(1);
         hostList.add(host + ":" + port);
         return new DefaultDatabaseInfo(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, url, url, hostList, databaseId);
     }

@@ -102,7 +102,7 @@ public class OkHttpClient_3_4_0_to_3_x_IT {
         Request request = new Request.Builder().url(webServer.getCallHttpUrl()).build();
         OkHttpClient client = new OkHttpClient();
         final CountDownLatch latch = new CountDownLatch(1);
-        final AtomicReference<Response> responseRef = new AtomicReference<Response>(null);
+        final AtomicReference<Response> responseRef = new AtomicReference<>(null);
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {

@@ -55,7 +55,7 @@ public class WebAppServletContextExecuteInterceptor implements AroundInterceptor
         RequestAdaptor<ServletRequestImpl> requestAdaptor = new ServletRequestImplAdaptor();
         ParameterRecorder<ServletRequestImpl> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
 
-        ServletRequestListenerBuilder<ServletRequestImpl> builder = new ServletRequestListenerBuilder<ServletRequestImpl>(WeblogicConstants.WEBLOGIC, traceContext, requestAdaptor);
+        ServletRequestListenerBuilder<ServletRequestImpl> builder = new ServletRequestListenerBuilder<>(WeblogicConstants.WEBLOGIC, traceContext, requestAdaptor);
         builder.setExcludeURLFilter(config.getExcludeUrlFilter());
         builder.setParameterRecorder(parameterRecorder);
         builder.setRequestRecorderFactory(requestRecorderFactory);

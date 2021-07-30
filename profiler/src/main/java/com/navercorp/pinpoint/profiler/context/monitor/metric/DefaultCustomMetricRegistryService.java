@@ -38,7 +38,7 @@ public class DefaultCustomMetricRegistryService implements CustomMetricRegistryS
 
     private final CustomMetricWrapperFactory customMetricWrapperFactory = new CustomMetricWrapperFactory();
 
-    private final Map<String, CustomMetricWrapper> customMetricWrapperMap = new ConcurrentHashMap<String, CustomMetricWrapper>();
+    private final Map<String, CustomMetricWrapper> customMetricWrapperMap = new ConcurrentHashMap<>();
 
     private final CustomMetricIdGenerator customMetricIdGenerator;
     private final CustomMetricRegistryFilter filter;

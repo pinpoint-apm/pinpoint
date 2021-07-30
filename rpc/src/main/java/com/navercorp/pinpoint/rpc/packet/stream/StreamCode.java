@@ -85,7 +85,7 @@ public enum StreamCode {
     }
 
     private static IntHashMap<StreamCode> initializeCodeMapping() {
-        IntHashMap<StreamCode> codeMap = new IntHashMap<StreamCode>();
+        IntHashMap<StreamCode> codeMap = new IntHashMap<>();
         for (StreamCode streamCode : StreamCode.values()) {
             codeMap.put(streamCode.value, streamCode);
         }

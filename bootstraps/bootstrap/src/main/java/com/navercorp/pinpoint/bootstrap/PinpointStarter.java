@@ -293,7 +293,7 @@ class PinpointStarter {
     }
 
     private List<URL> order(List<URL> releaseLib) {
-        final List<URL> orderList = new ArrayList<URL>(releaseLib.size());
+        final List<URL> orderList = new ArrayList<>(releaseLib.size());
         // pinpoint module first
         for (URL url : releaseLib) {
             String fileName = getFileName(url);
@@ -326,7 +326,7 @@ class PinpointStarter {
     }
 
     private List<URL> filterTest(List<URL> urlList) {
-        final List<URL> releaseLib = new ArrayList<URL>(urlList.size());
+        final List<URL> releaseLib = new ArrayList<>(urlList.size());
         for (URL url : urlList) {
             String externalFrom = url.toExternalForm();
             if (!externalFrom.contains("pinpoint-profiler-test")) {

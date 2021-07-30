@@ -73,7 +73,7 @@ public class JoinIntFieldStrategyAnalyzer implements JoinFieldStrategyAnalyzer<J
         private final UnsignedIntegerEncodingStrategy.Analyzer.Builder maxValueAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
         private final StringEncodingStrategy.Analyzer.Builder maxAgentIdAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
 
-        private final List<JoinIntFieldBo> values = new ArrayList<JoinIntFieldBo>();
+        private final List<JoinIntFieldBo> values = new ArrayList<>();
 
 
         @Override

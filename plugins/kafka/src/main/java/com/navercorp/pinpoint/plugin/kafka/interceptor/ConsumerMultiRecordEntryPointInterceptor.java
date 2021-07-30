@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntryPointInterceptor {
 
-    private final AtomicReference<TraceFactoryProvider.TraceFactory> tracyFactoryReference = new AtomicReference<TraceFactoryProvider.TraceFactory>();
+    private final AtomicReference<TraceFactoryProvider.TraceFactory> tracyFactoryReference = new AtomicReference<>();
 
     /**
      * Instantiates a new Consumer multi record entry point interceptor.

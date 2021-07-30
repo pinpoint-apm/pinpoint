@@ -28,11 +28,11 @@ public final class RequestMessageFactory {
     }
 
     public static <T> RequestMessage<T> request(T message, int retryCount) {
-        return new RetryRequestMessage<T>(message, retryCount);
+        return new RetryRequestMessage<>(message, retryCount);
     }
 
     public static <T> RequestMessage<T> request(T message, FutureListener futureListener) {
-        return new ListenerableRequestMessage<T>(message, futureListener);
+        return new ListenerableRequestMessage<>(message, futureListener);
     }
 
 }

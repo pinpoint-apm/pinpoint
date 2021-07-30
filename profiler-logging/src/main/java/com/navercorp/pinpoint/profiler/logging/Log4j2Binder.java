@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class Log4j2Binder implements PLoggerBinder {
 
-    private final ConcurrentMap<String, PLogger> loggerCache = new ConcurrentHashMap<String, PLogger>(256, 0.75f, 128);
+    private final ConcurrentMap<String, PLogger> loggerCache = new ConcurrentHashMap<>(256, 0.75f, 128);
     private final LoggerContext loggerContext;
 
     public Log4j2Binder(LoggerContext loggerContext) {

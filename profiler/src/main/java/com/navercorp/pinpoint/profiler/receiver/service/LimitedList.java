@@ -31,7 +31,7 @@ import java.util.Queue;
  */
 class LimitedList<E> implements Collection<E> {
     private final int maxSize;
-    private Comparator<E> comparator;
+    private final Comparator<E> comparator;
     private final Queue<E> queue;
 
     public LimitedList(int maxSize, Comparator<E> comparator) {

@@ -92,7 +92,7 @@ public class AlarmReaderTest {
 
             @Override
             public List<Application> selectAllApplicationNames() {
-                List<Application> apps = new LinkedList<Application>();
+                List<Application> apps = new LinkedList<>();
 
                 for(int i = 0; i < 7; i++) {
                     apps.add(new Application(APP_NAME + i, ServiceType.STAND_ALONE));
@@ -102,7 +102,7 @@ public class AlarmReaderTest {
 
             @Override
             public List<Application> selectApplicationName(String applicationName) {
-                List<Application> apps = new LinkedList<Application>();
+                List<Application> apps = new LinkedList<>();
                 apps.add(new Application(APP_NAME, ServiceType.STAND_ALONE));
                 return apps;
             }
@@ -121,7 +121,7 @@ public class AlarmReaderTest {
             private final Map<String, Rule> ruleMap ;
 
             {
-                ruleMap = new HashMap<String, Rule>();
+                ruleMap = new HashMap<>();
 
                 for(int i = 0; i <=6; i++) {
                     ruleMap.put(APP_NAME + i, new Rule(APP_NAME + i, SERVICE_TYPE, CheckerCategory.SLOW_COUNT.getName(), 76, "testGroup", false, false, false, ""));

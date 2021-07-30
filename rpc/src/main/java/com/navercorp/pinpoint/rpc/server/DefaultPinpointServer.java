@@ -86,7 +86,7 @@ public class DefaultPinpointServer implements PinpointServer {
 
     private final StreamChannelManager streamChannelManager;
 
-    private final AtomicReference<Map<Object, Object>> properties = new AtomicReference<Map<Object, Object>>();
+    private final AtomicReference<Map<Object, Object>> properties = new AtomicReference<>();
 
     private final String objectUniqName;
 
@@ -111,7 +111,7 @@ public class DefaultPinpointServer implements PinpointServer {
         StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createEvenIdGenerator(), serverConfig.getServerStreamMessageHandler());
         this.streamChannelManager = streamChannelManager;
 
-        this.stateChangeEventListeners = new ArrayList<ServerStateChangeEventHandler>();
+        this.stateChangeEventListeners = new ArrayList<>();
         List<ServerStateChangeEventHandler> configuredStateChangeEventHandlers = serverConfig.getStateChangeEventHandlers();
         if (configuredStateChangeEventHandlers != null) {
             for (ServerStateChangeEventHandler configuredStateChangeEventHandler : configuredStateChangeEventHandlers) {
@@ -466,7 +466,7 @@ public class DefaultPinpointServer implements PinpointServer {
     private Map<String, Object> createHandshakeResponse(HandshakeResponseCode responseCode, boolean isFirst) {
         final HandshakeResponseCode createdCode = getHandshakeResponseCode(responseCode, isFirst);
 
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> result = new HashMap<>();
         result.put(ControlHandshakeResponsePacket.CODE, createdCode.getCode());
         result.put(ControlHandshakeResponsePacket.SUB_CODE, createdCode.getSubCode());
         if (localClusterOption.isEnable()) {

@@ -102,7 +102,7 @@ public final class ThreadMXBeanUtils {
             return Collections.emptyList();
         }
 
-        List<ThreadInfo> threadInfoList = new ArrayList<ThreadInfo>(1);
+        List<ThreadInfo> threadInfoList = new ArrayList<>(1);
         for (ThreadInfo threadInfo : threadInfos) {
             if (threadName.equals(threadInfo.getThreadName())) {
                 threadInfoList.add(threadInfo);

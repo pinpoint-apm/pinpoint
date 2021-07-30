@@ -36,7 +36,7 @@ public class TestConsumer<T> extends DefaultConsumer {
 
     private final MessageConverter<T> messageConverter;
 
-    private final BlockingQueue<T> messages = new LinkedBlockingQueue<T>();
+    private final BlockingQueue<T> messages = new LinkedBlockingQueue<>();
 
     public TestConsumer(Channel channel, MessageConverter<T> messageConverter) {
         super(channel);

@@ -84,7 +84,7 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
     }
 
     private static ThriftMessageSerializer newDefaultMessageSerializer() {
-        MessageConverter<TBase<?, ?>> messageConverter = new BypassMessageConverter<TBase<?, ?>>();
+        MessageConverter<TBase<?, ?>> messageConverter = new BypassMessageConverter<>();
         return new ThriftMessageSerializer(messageConverter);
     }
 
@@ -120,7 +120,7 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
                 TcpDataSender.this.sendPacket(message);
             }
         };
-        final AsyncQueueingExecutor<Object> executor = new AsyncQueueingExecutor<Object>(queueSize, executorName, listener);
+        final AsyncQueueingExecutor<Object> executor = new AsyncQueueingExecutor<>(queueSize, executorName, listener);
         return executor;
     }
 
@@ -355,11 +355,7 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
     }
 
     private boolean fireTimeout() {
-        if (fireState.compareAndSet(false, true)) {
-            return true;
-        } else {
-            return false;
-        }
+        return fireState.compareAndSet(false, true);
     }
 
     private void fireComplete() {

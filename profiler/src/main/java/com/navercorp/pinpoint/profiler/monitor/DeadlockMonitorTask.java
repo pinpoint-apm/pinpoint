@@ -38,7 +38,7 @@ public class DeadlockMonitorTask implements Runnable {
     private final DeadlockThreadRegistry deadlockThreadRegistry;
     private final long intervalMillis;
 
-    private AtomicBoolean stop = new AtomicBoolean(false);
+    private final AtomicBoolean stop = new AtomicBoolean(false);
 
     public DeadlockMonitorTask(DeadlockThreadRegistry deadlockThreadRegistry, long intervalMillis) {
         this.deadlockThreadRegistry = deadlockThreadRegistry;

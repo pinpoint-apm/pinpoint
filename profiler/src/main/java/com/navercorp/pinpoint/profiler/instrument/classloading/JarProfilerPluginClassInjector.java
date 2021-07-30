@@ -56,12 +56,12 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
                 return bootstrapCore.loadClass(className);
             }
             if (classLoader == null) {
-                return (Class<T>)bootstrapClassLoaderHandler.injectClass(null, className);
+                return bootstrapClassLoaderHandler.injectClass(null, className);
             } else if (classLoader instanceof URLClassLoader) {
                 final URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
-                return (Class<T>)urlClassLoaderHandler.injectClass(urlClassLoader, className);
+                return urlClassLoaderHandler.injectClass(urlClassLoader, className);
             } else {
-                return (Class<T>)plainClassLoaderHandler.injectClass(classLoader, className);
+                return plainClassLoaderHandler.injectClass(classLoader, className);
             }
         } catch (Throwable e) {
             // fixed for LinkageError

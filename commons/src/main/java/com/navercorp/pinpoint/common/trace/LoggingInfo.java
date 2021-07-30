@@ -65,7 +65,7 @@ public enum LoggingInfo {
     private final static IntHashMap<LoggingInfo> LOGGING_INFO_MAP = toLoggingInfoByCodeMap();
     
     private static IntHashMap<LoggingInfo> toLoggingInfoByCodeMap() {
-        final IntHashMap<LoggingInfo> loggingInfoMap = new IntHashMap<LoggingInfo>();
+        final IntHashMap<LoggingInfo> loggingInfoMap = new IntHashMap<>();
         for (LoggingInfo loggingInfo : LoggingInfo.values()) {
             loggingInfoMap.put(loggingInfo.getCode(), loggingInfo);
         }

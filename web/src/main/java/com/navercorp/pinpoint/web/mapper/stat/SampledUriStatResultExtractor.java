@@ -32,7 +32,6 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -88,7 +87,7 @@ public class SampledUriStatResultExtractor implements ResultsExtractor<List<Samp
                 for (EachUriStatBo eachUriStatBo : eachUriStatBoList) {
                     String uri = eachUriStatBo.getUri();
 
-                    List<EachUriStatBo> eachUriStatBos = eachUriStatBoListMap.computeIfAbsent(uri, k -> new ArrayList<EachUriStatBo>());
+                    List<EachUriStatBo> eachUriStatBos = eachUriStatBoListMap.computeIfAbsent(uri, k -> new ArrayList<>());
                     setAgentStatDataPointBaseData(eachUriStatBo, agentId, startTimestamp, timestamp);
 
                     eachUriStatBos.add(eachUriStatBo);

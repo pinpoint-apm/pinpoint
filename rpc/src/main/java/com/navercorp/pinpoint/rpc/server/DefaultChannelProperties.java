@@ -51,8 +51,8 @@ public class DefaultChannelProperties implements ChannelProperties {
         this.startTime = startTime;
         this.agentVersion = agentVersion;
         this.socketId = socketId;
-        this.supportCommand = new ArrayList<Integer>(supportCommandList);
-        this.properties = new HashMap<Object, Object>(customProperty);
+        this.supportCommand = new ArrayList<>(supportCommandList);
+        this.properties = new HashMap<>(customProperty);
     }
 
     @Override

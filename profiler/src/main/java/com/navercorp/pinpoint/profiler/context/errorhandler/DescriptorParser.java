@@ -25,7 +25,7 @@ public class DescriptorParser {
 
         final Set<String> handlerIdSet = parseHandlerId();
 
-        List<Descriptor> descriptorList = new ArrayList<Descriptor>();
+        List<Descriptor> descriptorList = new ArrayList<>();
         for (String handlerId : handlerIdSet) {
             final List<String> classNameList = getClassName(handlerId);
             if (classNameList.isEmpty()) {
@@ -66,7 +66,7 @@ public class DescriptorParser {
 
 
     private Set<String> parseHandlerId() {
-        Set<String> handlerIdSet = new HashSet<String>();
+        Set<String> handlerIdSet = new HashSet<>();
 
         for (String key : property.keySet()) {
             String handlerId = OptionKey.parseHandlerId(key);

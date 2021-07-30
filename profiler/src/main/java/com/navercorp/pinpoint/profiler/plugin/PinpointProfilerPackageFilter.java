@@ -55,7 +55,7 @@ public class PinpointProfilerPackageFilter implements ClassNameFilter {
     }
 
     private static List<String> getPinpointPackageList() {
-        List<String> pinpointPackageList = new ArrayList<String>();
+        List<String> pinpointPackageList = new ArrayList<>();
         pinpointPackageList.add("com.navercorp.pinpoint.bootstrap");
         pinpointPackageList.add("com.navercorp.pinpoint.profiler");
         pinpointPackageList.add("com.navercorp.pinpoint.common");

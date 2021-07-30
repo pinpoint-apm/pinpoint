@@ -159,7 +159,7 @@ public class SpanEncoderTest {
     private void assertSpan(SpanBo spanBo) {
         spanBo.setCollectorAcceptTime(getCollectorAcceptTime());
 
-        SpanEncodingContext<SpanBo> encodingContext = new SpanEncodingContext<SpanBo>(spanBo);
+        SpanEncodingContext<SpanBo> encodingContext = new SpanEncodingContext<>(spanBo);
         Buffer qualifier = wrapBuffer(spanEncoder.encodeSpanQualifier(encodingContext));
         Buffer column = wrapBuffer(spanEncoder.encodeSpanColumnValue(encodingContext));
 

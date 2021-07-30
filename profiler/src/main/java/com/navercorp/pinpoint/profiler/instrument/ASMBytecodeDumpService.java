@@ -39,6 +39,7 @@ public class ASMBytecodeDumpService implements BytecodeDumpService {
     private final boolean dumpASM;
     private final Set<String> dumpClassInternalNameSet;
 
+    // remove final keyword for mockito test failure
     private ASMBytecodeDisassembler disassembler = new ASMBytecodeDisassembler();
 
     public ASMBytecodeDumpService(ProfilerConfig profilerConfig) {

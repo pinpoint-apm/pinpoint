@@ -55,13 +55,13 @@ public class BodyInserterRequestBuilderWriteToInterceptor extends AsyncContextSp
 
         final SpringWebFluxPluginConfig config = new SpringWebFluxPluginConfig(traceContext.getProfilerConfig());
         final ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
-        this.clientRequestRecorder = new ClientRequestRecorder<ClientRequestWrapper>(config.isParam(), clientRequestAdaptor);
+        this.clientRequestRecorder = new ClientRequestRecorder<>(config.isParam(), clientRequestAdaptor);
 
         final CookieExtractor<ClientHttpRequest> cookieExtractor = new ClientHttpRequestCookieExtractor();
         this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(config.getHttpDumpConfig(), cookieExtractor);
 
         final ClientHttpRequestClientHeaderAdaptor clientHeaderAdaptor = new ClientHttpRequestClientHeaderAdaptor();
-        this.requestTraceWriter = new DefaultRequestTraceWriter<ClientHttpRequest>(clientHeaderAdaptor, traceContext);
+        this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override

@@ -42,7 +42,7 @@ public abstract class BasePinpointTest {
     private volatile ServerMetaDataRegistryService serverMetaDataRegistryService;
 
     protected List<SpanEvent> getCurrentSpanEvents() {
-        List<SpanEvent> spanEvents = new ArrayList<SpanEvent>();
+        List<SpanEvent> spanEvents = new ArrayList<>();
         for (Object value : this.tBaseRecorder) {
             if (value instanceof SpanChunk) {
                 final SpanChunk spanChunk = (SpanChunk) value;
@@ -56,7 +56,7 @@ public abstract class BasePinpointTest {
     }
 
     protected List<Span> getCurrentRootSpans() {
-        List<Span> rootSpans = new ArrayList<Span>();
+        List<Span> rootSpans = new ArrayList<>();
         for (Object value : this.tBaseRecorder) {
             if (value instanceof Span) {
                 Span span = (Span) value;
@@ -85,7 +85,7 @@ public abstract class BasePinpointTest {
         if (spanDataSender instanceof ListenableDataSender) {
             ListenableDataSender listenableDataSender = (ListenableDataSender) spanDataSender;
 
-            final TBaseRecorder<Object> tBaseRecord = new TBaseRecorder<Object>();
+            final TBaseRecorder<Object> tBaseRecord = new TBaseRecorder<>();
 
             listenableDataSender.setListener(new ListenableDataSender.Listener() {
                 @Override

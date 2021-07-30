@@ -57,8 +57,8 @@ public class AgentStatCodecV2<T extends AgentStatDataPoint> implements AgentStat
         final int numValues = statDataPointList.size();
         valueBuffer.putVInt(numValues);
 
-        List<Long> startTimestamps = new ArrayList<Long>(numValues);
-        List<Long> timestamps = new ArrayList<Long>(numValues);
+        List<Long> startTimestamps = new ArrayList<>(numValues);
+        List<Long> timestamps = new ArrayList<>(numValues);
 
         CodecEncoder<T> encoder = codecFactory.createCodecEncoder();
         for (T statDataPoint : statDataPointList) {

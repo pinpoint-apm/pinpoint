@@ -87,7 +87,7 @@ public abstract class GrpcDataSender implements DataSender<Object> {
 
 
         this.tLogger = ThrottledLogger.getLogger(logger, 100);
-        this.queue = new LinkedBlockingQueue<Object>(executorQueueSize);
+        this.queue = new LinkedBlockingQueue<>(executorQueueSize);
     }
 
     public long getLogId() {

@@ -32,7 +32,7 @@ import java.util.Set;
  */
 public class DefaultDeadlockMetricCollector implements AgentStatMetricCollector<DeadlockMetricSnapshot> {
 
-    private Set<Long> prevDeadlockedThreadIdSet = new HashSet<Long>();
+    private Set<Long> prevDeadlockedThreadIdSet = new HashSet<>();
 
     private final DeadlockMetric deadlockMetric;
 

@@ -26,7 +26,7 @@ import java.util.Properties;
  * @author Woonduk Kang(emeroad)
  */
 public class AgentIdResolverBuilder {
-    private final List<AgentProperties> agentProperties = new ArrayList<AgentProperties>();
+    private final List<AgentProperties> agentProperties = new ArrayList<>();
     
     public void addSystemProperties(Properties system) {
         Objects.requireNonNull(system, "system");
@@ -60,7 +60,7 @@ public class AgentIdResolverBuilder {
 
 
     public AgentIdResolver build() {
-        List<AgentProperties> copy = new ArrayList<AgentProperties>(this.agentProperties);
+        List<AgentProperties> copy = new ArrayList<>(this.agentProperties);
         return new AgentIdResolver(copy);
     }
 }

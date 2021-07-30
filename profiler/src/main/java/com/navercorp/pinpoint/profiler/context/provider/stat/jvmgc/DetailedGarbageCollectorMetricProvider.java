@@ -62,7 +62,7 @@ public class DetailedGarbageCollectorMetricProvider implements Provider<Detailed
     }
 
     private Map<String, GarbageCollectorMXBean> createGarbageCollectorMap() {
-        Map<String, GarbageCollectorMXBean> garbageCollectorMap = new HashMap<String, GarbageCollectorMXBean>();
+        Map<String, GarbageCollectorMXBean> garbageCollectorMap = new HashMap<>();
         List<GarbageCollectorMXBean> garbageCollectorMXBeans = ManagementFactory.getGarbageCollectorMXBeans();
         for (GarbageCollectorMXBean garbageCollectorMXBean : garbageCollectorMXBeans) {
             garbageCollectorMap.put(garbageCollectorMXBean.getName(), garbageCollectorMXBean);

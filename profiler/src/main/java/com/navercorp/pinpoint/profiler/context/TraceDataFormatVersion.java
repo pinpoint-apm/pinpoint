@@ -30,7 +30,7 @@ public enum TraceDataFormatVersion {
 
     public static final String GRPC_TRACE_VERSION_KEY = "profiler.transport.grpc.trace.dataformat.version";
 
-    private byte version;
+    private final byte version;
 
     TraceDataFormatVersion(byte version) {
         this.version = version;

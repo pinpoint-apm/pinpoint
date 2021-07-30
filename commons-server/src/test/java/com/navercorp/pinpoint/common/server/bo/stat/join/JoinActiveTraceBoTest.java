@@ -30,7 +30,7 @@ public class JoinActiveTraceBoTest {
 
     @Test
     public void joinActiveTraceBoTest() {
-        List<JoinActiveTraceBo> joinActiveTraceBoList = new ArrayList<JoinActiveTraceBo>();
+        List<JoinActiveTraceBo> joinActiveTraceBoList = new ArrayList<>();
         JoinActiveTraceBo joinActiveTraceBo1 = new JoinActiveTraceBo("agent1", 1, (short)2, 40, 10, "agent1", 70, "agent1", 1496988667231L);
         JoinActiveTraceBo joinActiveTraceBo2 = new JoinActiveTraceBo("agent2", 1, (short)2, 10, 9, "agent2", 71, "agent2", 1496988667231L);
         JoinActiveTraceBo joinActiveTraceBo3 = new JoinActiveTraceBo("agent3", 1, (short)2, 20, 14, "agent3", 88, "agent3", 1496988667231L);
@@ -52,7 +52,7 @@ public class JoinActiveTraceBoTest {
 
     @Test
     public void joinActiveTraceBo2Test() {
-        List<JoinActiveTraceBo> joinActiveTraceBoList = new ArrayList<JoinActiveTraceBo>();
+        List<JoinActiveTraceBo> joinActiveTraceBoList = new ArrayList<>();
         JoinActiveTraceBo joinActiveTraceBo = JoinActiveTraceBo.joinActiveTraceBoList(joinActiveTraceBoList, 1496988667231L);
         assertEquals(joinActiveTraceBo, JoinActiveTraceBo.EMPTY_JOIN_ACTIVE_TRACE_BO);
     }

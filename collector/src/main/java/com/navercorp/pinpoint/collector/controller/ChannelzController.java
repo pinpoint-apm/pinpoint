@@ -7,7 +7,6 @@ import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzUtils;
 import io.grpc.InternalChannelz;
 import io.grpc.InternalInstrumented;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,7 +25,6 @@ public class ChannelzController {
     private final InternalChannelz channelz = InternalChannelz.instance();
     private final ObjectMapper mapper;
 
-    @Autowired
     public ChannelzController(ChannelzRegistry channelzRegistry, ObjectMapper objectMapper) {
         this.channelzRegistry = Objects.requireNonNull(channelzRegistry, "channelzRegistry");
         this.mapper = Objects.requireNonNull(objectMapper, "objectMapper");

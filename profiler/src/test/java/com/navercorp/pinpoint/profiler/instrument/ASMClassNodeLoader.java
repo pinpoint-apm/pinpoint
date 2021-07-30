@@ -159,7 +159,7 @@ public class ASMClassNodeLoader {
 
                     return super.defineClass(name, bytecode, 0, bytecode.length);
                 } catch (Exception ex) {
-                    throw new ClassNotFoundException("Load error: " + ex.toString(), ex);
+                    throw new ClassNotFoundException("Load error: " + ex, ex);
                 }
             }
             return super.loadClass(name);

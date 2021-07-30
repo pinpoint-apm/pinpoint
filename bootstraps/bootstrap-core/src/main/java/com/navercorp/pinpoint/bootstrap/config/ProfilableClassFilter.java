@@ -26,8 +26,8 @@ import java.util.Set;
  */
 public class ProfilableClassFilter implements Filter<String> {
 
-    private final Set<String> profileInclude = new HashSet<String>();
-    private final Set<String> profileIncludeSub = new HashSet<String>();
+    private final Set<String> profileInclude = new HashSet<>();
+    private final Set<String> profileIncludeSub = new HashSet<>();
 
     public ProfilableClassFilter(String profilableClass) {
         if (StringUtils.isEmpty(profilableClass)) {

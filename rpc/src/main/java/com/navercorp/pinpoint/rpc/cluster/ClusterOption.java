@@ -73,10 +73,10 @@ public class ClusterOption {
             return Collections.emptyMap();
         }
 
-        Map<String, Object> clusterProperties = new HashMap<String, Object>(2);
+        Map<String, Object> clusterProperties = new HashMap<>(2);
         clusterProperties.put("id", id);
 
-        List<String> roleList = new ArrayList<String>(roles.size());
+        List<String> roleList = new ArrayList<>(roles.size());
         for (Role role : roles) {
             roleList.add(role.name());
         }

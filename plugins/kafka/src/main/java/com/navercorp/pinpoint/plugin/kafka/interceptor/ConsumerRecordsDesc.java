@@ -83,7 +83,7 @@ public class ConsumerRecordsDesc {
     }
 
     static ConsumerRecordsDesc create(Iterator consumerRecordIterator) {
-        Set<String> topicSet = new HashSet<String>(1);
+        Set<String> topicSet = new HashSet<>(1);
         String remoteAddress = null;
         String endPointAddress  = null;
         int count = 0;

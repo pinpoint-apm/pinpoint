@@ -33,9 +33,9 @@ public class FutureTest {
 
     @Test
     public void simpleTest1() {
-        DefaultFuture<String> future = new DefaultFuture<String>();
+        DefaultFuture<String> future = new DefaultFuture<>();
 
-        SimpleListener<String> listener1 = new SimpleListener<String>();
+        SimpleListener<String> listener1 = new SimpleListener<>();
 
         future.setListener(listener1);
 //        future.addListener(listener2);
@@ -51,9 +51,9 @@ public class FutureTest {
 
     @Test
     public void simpleTest2() {
-        DefaultFuture<String> future = new DefaultFuture<String>();
+        DefaultFuture<String> future = new DefaultFuture<>();
 
-        SimpleListener<String> listener = new SimpleListener<String>();
+        SimpleListener<String> listener = new SimpleListener<>();
 
         future.setResult("Hello");
 

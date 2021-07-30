@@ -37,7 +37,7 @@ public final class ASMClassWriter extends ClassWriter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ClassInputStreamProvider pluginInputStreamProvider;
-    private ClassLoader classLoader;
+    private final ClassLoader classLoader;
 
     public ASMClassWriter(final ClassInputStreamProvider pluginInputStreamProvider, final int flags, final ClassLoader classLoader) {
         super(flags);
@@ -106,7 +106,7 @@ public final class ASMClassWriter extends ClassWriter {
 
     // <interface, interface> or <interface, class>
     private String getCommonInterface(final ClassReader classReader1, final ClassReader classReader2) {
-        final Set<String> interfaceHierarchy = new HashSet<String>();
+        final Set<String> interfaceHierarchy = new HashSet<>();
         traversalInterfaceHierarchy(interfaceHierarchy, classReader1);
 
         if (isInterface(classReader2)) {
@@ -158,7 +158,7 @@ public final class ASMClassWriter extends ClassWriter {
     }
 
     private String getCommonClass(final ClassReader classReader1, final ClassReader classReader2) {
-        final Set<String> classHierarchy = new HashSet<String>();
+        final Set<String> classHierarchy = new HashSet<>();
         classHierarchy.add(classReader1.getClassName());
         classHierarchy.add(classReader2.getClassName());
 

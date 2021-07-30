@@ -58,7 +58,7 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
         RequestAdaptor<HttpServerExchange> requestAdaptor = new HttpServerExchangeAdaptor();
         ParameterRecorder<HttpServerExchange> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
 
-        ServletRequestListenerBuilder<HttpServerExchange> builder = new ServletRequestListenerBuilder<HttpServerExchange>(UndertowConstants.UNDERTOW, traceContext, requestAdaptor);
+        ServletRequestListenerBuilder<HttpServerExchange> builder = new ServletRequestListenerBuilder<>(UndertowConstants.UNDERTOW, traceContext, requestAdaptor);
         builder.setExcludeURLFilter(config.getExcludeUrlFilter());
         builder.setParameterRecorder(parameterRecorder);
         builder.setRequestRecorderFactory(requestRecorderFactory);

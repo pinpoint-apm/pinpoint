@@ -67,7 +67,7 @@ public class JarFileScanner implements Scanner {
             try {
                 jarFile.close();
             } catch (IOException ignore) {
-                ;
+                // ignore
             }
         }
     }

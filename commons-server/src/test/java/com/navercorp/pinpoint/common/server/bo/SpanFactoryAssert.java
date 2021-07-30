@@ -158,7 +158,7 @@ public class SpanFactoryAssert {
     private void assertSpanEventList(List<SpanEventBo> spanEventBoList, List<TSpanEvent> spanEventList) {
         Assert.assertEquals(CollectionUtils.isEmpty(spanEventBoList), CollectionUtils.isEmpty(spanEventList));
         if (CollectionUtils.isNotEmpty(spanEventBoList)) {
-            Map<Integer, SpanEventBo> spanEventBoMap = new HashMap<Integer, SpanEventBo>();
+            Map<Integer, SpanEventBo> spanEventBoMap = new HashMap<>();
             for (int i = 0; i < spanEventBoList.size(); i++) {
                 SpanEventBo spanEventBo = spanEventBoList.get(i);
                 spanEventBoMap.put((int)spanEventBo.getSequence(), spanEventBo);

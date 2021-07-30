@@ -35,7 +35,7 @@ public class ServletRequestUriExtractorService implements UriExtractorService<Ht
     public UriExtractor<HttpServletRequest> get(UriExtractorProviderLocator uriExtractorProviderLocator) {
         List<UriMappingExtractorProvider> uriMappingExtractorProviderList = uriExtractorProviderLocator.get(UriMappingExtractorProvider.class, ServletRequestAttributesMappingExtractor.TYPE);
 
-        List<UriExtractor<HttpServletRequest>> result = new ArrayList<UriExtractor<HttpServletRequest>>();
+        List<UriExtractor<HttpServletRequest>> result = new ArrayList<>();
         for (UriMappingExtractorProvider uriMappingExtractorProvider : uriMappingExtractorProviderList) {
             ServletRequestAttributesMappingExtractor servletRequestAttributesMappingExtractor = new ServletRequestAttributesMappingExtractor(uriMappingExtractorProvider.getMappingKeyCandidates());
             result.add(servletRequestAttributesMappingExtractor);
@@ -44,7 +44,7 @@ public class ServletRequestUriExtractorService implements UriExtractorService<Ht
         if (result.isEmpty()) {
             return null;
         } else {
-            return new UriExtractorChain<HttpServletRequest>(result);
+            return new UriExtractorChain<>(result);
         }
     }
 

@@ -158,7 +158,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
         // add directory
         URL agentDirUri = toURL(new File(agentLibPath));
 
-        List<URL> jarURLList = new ArrayList<URL>(libURLList);
+        List<URL> jarURLList = new ArrayList<>(libURLList);
         jarURLList.add(agentDirUri);
         return jarURLList;
     }
@@ -210,7 +210,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
     }
 
     private List<String> filterReadPermission(File[] jars) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (File pluginJar : jars) {
             if (!pluginJar.canRead()) {
                 logger.info("File '" + pluginJar + "' cannot be read");

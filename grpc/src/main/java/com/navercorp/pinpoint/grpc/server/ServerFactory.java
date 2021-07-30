@@ -66,9 +66,9 @@ public class ServerFactory {
 
     private final Executor serverExecutor;
 
-    private final List<Object> bindableServices = new ArrayList<Object>();
-    private final List<ServerTransportFilter> serverTransportFilters = new ArrayList<ServerTransportFilter>();
-    private final List<ServerInterceptor> serverInterceptors = new ArrayList<ServerInterceptor>();
+    private final List<Object> bindableServices = new ArrayList<>();
+    private final List<ServerTransportFilter> serverTransportFilters = new ArrayList<>();
+    private final List<ServerInterceptor> serverInterceptors = new ArrayList<>();
 
     private ServerOption serverOption;
     private ChannelzRegistry channelzRegistry;

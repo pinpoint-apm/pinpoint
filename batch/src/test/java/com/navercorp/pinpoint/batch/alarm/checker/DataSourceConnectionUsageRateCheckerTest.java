@@ -150,7 +150,7 @@ public class DataSourceConnectionUsageRateCheckerTest {
     }
 
     private List<Long> createIncreasingValues(Long minValue, Long maxValue, Long minIncrement, Long maxIncrement, int numValues) {
-        List<Long> values = new ArrayList<Long>(numValues);
+        List<Long> values = new ArrayList<>(numValues);
         long value = RandomUtils.nextLong(minValue, maxValue);
         values.add(value);
         for (int i = 0; i < numValues - 1; i++) {

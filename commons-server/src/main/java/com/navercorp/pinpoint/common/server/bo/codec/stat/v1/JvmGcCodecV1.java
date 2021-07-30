@@ -63,7 +63,7 @@ public class JvmGcCodecV1 implements AgentStatCodec<JvmGcBo> {
         final int numValues = jvmGcBos.size();
         valueBuffer.putVInt(numValues);
 
-        List<Long> timestamps = new ArrayList<Long>(numValues);
+        List<Long> timestamps = new ArrayList<>(numValues);
         JvmGcCodecV2.JvmGcCodecEncoder encoder = new JvmGcCodecV2.JvmGcCodecEncoder(codec);
 
         for (JvmGcBo jvmGcBo : jvmGcBos) {
@@ -94,7 +94,7 @@ public class JvmGcCodecV1 implements AgentStatCodec<JvmGcBo> {
         JvmGcCodecV2.JvmGcCodecDecoder decoder = new JvmGcCodecV2.JvmGcCodecDecoder(codec);
         decoder.decode(valueBuffer, headerDecoder, numValues);
 
-        List<JvmGcBo> jvmGcBos = new ArrayList<JvmGcBo>(numValues);
+        List<JvmGcBo> jvmGcBos = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; i++) {
             JvmGcBo jvmGcBo = decoder.getValue(i);
             jvmGcBo.setAgentId(agentId);

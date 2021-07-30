@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.web.applicationmap.appender.metric.DefaultMetricIn
 import com.navercorp.pinpoint.web.applicationmap.appender.metric.MetricInfoAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -38,7 +37,6 @@ public class ApplicationMapBuilderFactory {
     private final ServerInfoAppenderFactory serverInfoAppenderFactory;
     private final MetricInfoAppenderFactory metricInfoAppenderFactory;
 
-    @Autowired
     public ApplicationMapBuilderFactory(
             NodeHistogramAppenderFactory nodeHistogramAppenderFactory,
             ServerInfoAppenderFactory serverInfoAppenderFactory,

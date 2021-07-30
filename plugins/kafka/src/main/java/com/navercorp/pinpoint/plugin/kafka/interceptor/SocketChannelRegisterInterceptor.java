@@ -61,7 +61,7 @@ public class SocketChannelRegisterInterceptor implements AroundInterceptor {
                 List<SocketChannel> socketChannels = ((SocketChannelListFieldAccessor) target)._$PINPOINT$_getSocketChannelList();
 
                 if (socketChannels == null) {
-                    socketChannels = new ArrayList<SocketChannel>();
+                    socketChannels = new ArrayList<>();
                     ((SocketChannelListFieldAccessor) target)._$PINPOINT$_setSocketAddress(socketChannels);
                 }
 

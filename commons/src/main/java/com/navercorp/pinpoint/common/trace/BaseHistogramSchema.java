@@ -10,7 +10,7 @@ public class BaseHistogramSchema implements HistogramSchema {
     public static final HistogramSchema FAST_SCHEMA = new BaseHistogramSchema(1, (short) 100, "100ms", (short) 300, "300ms", (short) 500, "500ms", "Slow", "Error", (short) -100, "100ms", (short) -300, "300ms", (short) -500, "500ms", (short) -999, "Slow");
     public static final HistogramSchema NORMAL_SCHEMA = new BaseHistogramSchema(2, (short) 1000, "1s", (short) 3000, "3s", (short) 5000, "5s", "Slow", "Error", (short) -1000, "1s", (short) -3000, "3s", (short) -5000, "5s", (short) -9999, "Slow");
 
-    private static final IntHashMap<HistogramSchema> DEFAULT_HISTOGRAM_SCHEMA_MAP = new IntHashMap<HistogramSchema>();
+    private static final IntHashMap<HistogramSchema> DEFAULT_HISTOGRAM_SCHEMA_MAP = new IntHashMap<>();
 
     static {
         DEFAULT_HISTOGRAM_SCHEMA_MAP.put(FAST_SCHEMA.getTypeCode(), FAST_SCHEMA);

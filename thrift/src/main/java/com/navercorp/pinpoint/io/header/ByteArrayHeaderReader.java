@@ -91,7 +91,7 @@ public class ByteArrayHeaderReader implements HeaderReader {
             return HeaderEntity.EMPTY_HEADER_ENTITY;
         }
 
-        final Map<String, String> headerEntity = new HashMap<String, String>(headerEntitySize);
+        final Map<String, String> headerEntity = new HashMap<>(headerEntitySize);
         for (int i = 0 ; i < headerEntitySize ; i++ ) {
             final String key = readString();
             final String value = readString();

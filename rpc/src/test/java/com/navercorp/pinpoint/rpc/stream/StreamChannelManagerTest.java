@@ -284,7 +284,7 @@ public class StreamChannelManagerTest {
         private final List<ServerStreamChannel> serverStreamChannelList;
 
         public SimpleStreamBO() {
-            serverStreamChannelList = new CopyOnWriteArrayList<ServerStreamChannel>();
+            serverStreamChannelList = new CopyOnWriteArrayList<>();
         }
 
         public void addServerStreamChannelContext(ServerStreamChannel serverStreamChannel) {

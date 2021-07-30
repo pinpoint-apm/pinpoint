@@ -41,7 +41,7 @@ public class TReplaceListProtocol extends TProtocol {
 
     private boolean writeFieldBegin = false;
     private int writeListDepth = 0;
-    private Map<String, List<ByteArrayOutput>> replaceFields = new HashMap<String, List<ByteArrayOutput>>();
+    private Map<String, List<ByteArrayOutput>> replaceFields = new HashMap<>();
     private TField currentField = null;
     private TProtocol protocol;
 

@@ -79,13 +79,13 @@ public class KafkaProducerSendInterceptor implements AroundInterceptor {
         recorder.recordEndPoint(endPoint);
         recorder.recordDestinationId(endPoint);
 
-        Map<String,String> map = new Map.Map4<String,String>(
+        Map<String,String> map = new Map.Map4<>(
                 "transactionId", nextId.getTransactionId(),
                 "spanId", String.valueOf(nextId.getSpanId()),
                 "parentSpanId", String.valueOf(nextId.getParentSpanId()),
                 "flag", String.valueOf(nextId.getFlags())
         );
-        Map<String, String> traceMetadata = new Map.Map4<String,String>(
+        Map<String, String> traceMetadata = new Map.Map4<>(
                 "applicationName", applicationName,
                 "serverTypeCode", serverTypeCode,
                 "entityPath", entityPath,

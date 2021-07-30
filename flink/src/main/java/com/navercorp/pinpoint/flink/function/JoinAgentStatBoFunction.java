@@ -37,7 +37,7 @@ public class JoinAgentStatBoFunction implements WindowFunction<Tuple3<String, Jo
     }
 
     private JoinAgentStatBo join(Iterable<Tuple3<String, JoinStatBo, Long>> values) {
-        List<JoinAgentStatBo> joinAgentStatBoList =  new ArrayList<JoinAgentStatBo>();
+        List<JoinAgentStatBo> joinAgentStatBoList =  new ArrayList<>();
         for (Tuple3<String, JoinStatBo, Long> value : values) {
             joinAgentStatBoList.add((JoinAgentStatBo) value.f1);
         }

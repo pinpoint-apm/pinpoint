@@ -72,13 +72,13 @@ public class TransactionIdComparatorTest {
 
     @Test
     public void order() {
-        List<Integer> numbers = new ArrayList<Integer>(10);
+        List<Integer> numbers = new ArrayList<>(10);
         for (int i = 0; i < 10; i++) {
             numbers.add(i);
         }
         Collections.shuffle(numbers);
 
-        List<TransactionId> list = new ArrayList<TransactionId>();
+        List<TransactionId> list = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             list.add(new TransactionId("A", 1, numbers.get(i)));
         }

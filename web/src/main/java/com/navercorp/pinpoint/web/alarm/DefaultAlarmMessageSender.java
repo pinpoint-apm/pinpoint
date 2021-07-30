@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.web.alarm;
 
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -32,7 +31,6 @@ public class DefaultAlarmMessageSender implements AlarmMessageSender {
 
     private final SmsSender smsSender;
 
-    @Autowired
     public DefaultAlarmMessageSender(MailSender mailSender,
                                      Optional<SmsSender> smsSender) {
         this.mailSender = Objects.requireNonNull(mailSender, "mailSender");

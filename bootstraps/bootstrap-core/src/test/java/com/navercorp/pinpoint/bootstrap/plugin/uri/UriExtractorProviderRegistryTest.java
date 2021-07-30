@@ -39,7 +39,7 @@ public class UriExtractorProviderRegistryTest {
         UriMappingExtractorProvider provider2
                 = new UriMappingExtractorProvider(UriExtractorType.SERVLET_REQUEST_ATTRIBUTE, parameterArray2);
 
-        List<UriExtractorProvider> uriExtractorProviderList = new ArrayList<UriExtractorProvider>();
+        List<UriExtractorProvider> uriExtractorProviderList = new ArrayList<>();
         uriExtractorProviderList.add(provider1);
         uriExtractorProviderList.add(provider2);
 

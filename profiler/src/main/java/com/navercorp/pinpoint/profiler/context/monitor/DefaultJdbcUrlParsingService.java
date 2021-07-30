@@ -32,8 +32,8 @@ public class DefaultJdbcUrlParsingService implements JdbcUrlParsingService {
 
     private final JdbcUrlParserV2[] jdbcUrlParsers;
 
-    private final ConcurrentHashMap<String, DatabaseInfo> cache = new ConcurrentHashMap<String, DatabaseInfo>();
-    private final ConcurrentHashMap<CacheKey, DatabaseInfo> eachServiceTypeCache = new ConcurrentHashMap<CacheKey, DatabaseInfo>();
+    private final ConcurrentHashMap<String, DatabaseInfo> cache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<CacheKey, DatabaseInfo> eachServiceTypeCache = new ConcurrentHashMap<>();
 
     public DefaultJdbcUrlParsingService(List<JdbcUrlParserV2> jdbcUrlParsers) {
         Objects.requireNonNull(jdbcUrlParsers, "jdbcUrlParserList");

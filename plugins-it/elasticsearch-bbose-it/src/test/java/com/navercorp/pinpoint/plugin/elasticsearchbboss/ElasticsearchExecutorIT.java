@@ -183,7 +183,7 @@ public abstract class ElasticsearchExecutorIT {
     @Test
     public void bulkDocuments() throws Exception {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        List<Car> cars = new ArrayList<Car>();
+        List<Car> cars = new ArrayList<>();
         Car car = new Car();
         //set carid as the index documentid
         car.setCarId("2");

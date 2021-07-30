@@ -40,7 +40,7 @@ public class DefaultChannelFactoryBuilder implements ChannelFactoryBuilder {
 
     private ClientOption clientOption;
 
-    private final LinkedList<ClientInterceptor> clientInterceptorList = new LinkedList<ClientInterceptor>();
+    private final LinkedList<ClientInterceptor> clientInterceptorList = new LinkedList<>();
     private NameResolverProvider nameResolverProvider;
 
     public DefaultChannelFactoryBuilder(String factoryName) {

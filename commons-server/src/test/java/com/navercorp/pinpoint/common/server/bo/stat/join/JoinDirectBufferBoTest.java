@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 public class JoinDirectBufferBoTest {
     @Test
     public void joinDirectBufferBoList() throws Exception {
-        List<JoinDirectBufferBo> joinDirectBufferBoList = new ArrayList<JoinDirectBufferBo>();
+        List<JoinDirectBufferBo> joinDirectBufferBoList = new ArrayList<>();
         JoinDirectBufferBo joinDirectBufferBo1 = new JoinDirectBufferBo("agent1", 33, 70, "agent1", 30, "agent1"
                 , 33, 70, "agent1", 30, "agent1"
                 , 33, 70, "agent1", 30, "agent1"
@@ -73,7 +73,7 @@ public class JoinDirectBufferBoTest {
 
     @Test
     public void  joinDirectBufferBo2List() {
-        List<JoinDirectBufferBo> joinDirectBufferBoList = new ArrayList<JoinDirectBufferBo>();
+        List<JoinDirectBufferBo> joinDirectBufferBoList = new ArrayList<>();
         JoinDirectBufferBo joinDirectBufferBo = JoinDirectBufferBo.joinDirectBufferBoList(joinDirectBufferBoList, 1496988667231L);
         assertEquals(joinDirectBufferBo, JoinDirectBufferBo.EMPTY_JOIN_DIRECT_BUFFER_BO);
     }

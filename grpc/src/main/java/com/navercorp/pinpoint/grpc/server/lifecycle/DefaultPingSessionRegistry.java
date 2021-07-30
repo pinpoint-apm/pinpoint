@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class DefaultPingSessionRegistry implements PingSessionRegistry {
 
-    private final ConcurrentMap<Long, PingSession> map = new ConcurrentHashMap<Long, PingSession>();
+    private final ConcurrentMap<Long, PingSession> map = new ConcurrentHashMap<>();
 
 
     @Override

@@ -24,7 +24,7 @@ import java.util.Map;
  */
 public final class ByteBufferFactoryLocator {
 
-    private static final Map<ByteBufferType, ByteBufferFactory> FACTORY_REPOSITORY = new EnumMap<ByteBufferType, ByteBufferFactory>(ByteBufferType.class);
+    private static final Map<ByteBufferType, ByteBufferFactory> FACTORY_REPOSITORY = new EnumMap<>(ByteBufferType.class);
     static {
         FACTORY_REPOSITORY.put(ByteBufferType.DIRECT, new DirectByteBufferFactory());
         FACTORY_REPOSITORY.put(ByteBufferType.HEAP, new HeapByteBufferFactory());

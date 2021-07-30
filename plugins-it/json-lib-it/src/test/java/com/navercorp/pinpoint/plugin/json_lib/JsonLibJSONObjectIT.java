@@ -68,7 +68,7 @@ public class JsonLibJSONObjectIT {
     
     @Test
     public void mapToJsonTest() throws Exception {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         
         map.put("name", "pinpoint");
         map.put("lib", "json-lib");

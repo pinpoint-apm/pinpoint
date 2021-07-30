@@ -32,7 +32,7 @@ import java.nio.charset.StandardCharsets;
 public class Grapher {
 
     public void graph(String filename, Injector demoInjector) throws IOException {
-        PrintWriter out = new PrintWriter(new File(filename), StandardCharsets.UTF_8.name());
+        PrintWriter out = new PrintWriter(filename, StandardCharsets.UTF_8.name());
 
         Injector injector = Guice.createInjector(new GraphvizModule());
         GraphvizGrapher grapher = injector.getInstance(GraphvizGrapher.class);

@@ -40,9 +40,9 @@ public class GrpcStreamService {
 
     private final Object lock = new Object();
 
-    private final AtomicReference<TimerTask> currentTaskReference = new AtomicReference<TimerTask>();
+    private final AtomicReference<TimerTask> currentTaskReference = new AtomicReference<>();
 
-    private final List<GrpcProfilerStreamSocket> grpcProfilerStreamSocketList = new CopyOnWriteArrayList<GrpcProfilerStreamSocket>();
+    private final List<GrpcProfilerStreamSocket> grpcProfilerStreamSocketList = new CopyOnWriteArrayList<>();
 
     public GrpcStreamService(String name, long flushDelay) {
         Objects.requireNonNull(name, "name");

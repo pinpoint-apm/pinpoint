@@ -33,7 +33,7 @@ import org.apache.thrift.protocol.TType;
  */
 public class ThriftRequestProperty {
 
-    private EnumMap<ThriftHeader, Object> thriftHeaders = new EnumMap<ThriftHeader, Object>(ThriftHeader.class);
+    private EnumMap<ThriftHeader, Object> thriftHeaders = new EnumMap<>(ThriftHeader.class);
     
     // TRACE_ID
     

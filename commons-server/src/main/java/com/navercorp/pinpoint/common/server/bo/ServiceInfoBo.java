@@ -105,7 +105,7 @@ public class ServiceInfoBo {
             final Buffer buffer = new FixedBuffer(value);
             this.serviceName = buffer.read2PrefixedString();
             final int numServiceLibs = buffer.readVInt();
-            this.serviceLibs = new ArrayList<String>(numServiceLibs);
+            this.serviceLibs = new ArrayList<>(numServiceLibs);
             for (int i = 0; i < numServiceLibs; i++) {
                 this.serviceLibs.add(buffer.read2PrefixedString());
             }

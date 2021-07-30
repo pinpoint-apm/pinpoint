@@ -42,7 +42,7 @@ public class PropertyPlaceholderHelper {
 
     private static final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE.getLogger(PropertyPlaceholderHelper.class.getName());
 
-    private static final Map<String, String> wellKnownSimplePrefixes = new HashMap<String, String>(4);
+    private static final Map<String, String> wellKnownSimplePrefixes = new HashMap<>(4);
 
     static {
         wellKnownSimplePrefixes.put("}", "{");

@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvoca
  */
 public class ThreadLocalScopePool implements ScopePool {
 
-    private final ConcurrentMap<InterceptorScopeDefinition, InterceptorScopeInvocation> pool = new ConcurrentHashMap<InterceptorScopeDefinition, InterceptorScopeInvocation>();
+    private final ConcurrentMap<InterceptorScopeDefinition, InterceptorScopeInvocation> pool = new ConcurrentHashMap<>();
 
     @Override
     public InterceptorScopeInvocation getScope(InterceptorScopeDefinition scopeDefinition) {

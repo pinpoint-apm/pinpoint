@@ -33,7 +33,7 @@ import java.util.Objects;
  */
 public class ActiveTraceRepositoryProvider implements Provider<ActiveTraceRepository> {
 
-    private boolean isTraceAgentActiveThread;
+    private final boolean isTraceAgentActiveThread;
     private final ResponseTimeCollector responseTimeCollector;
 
     @Inject

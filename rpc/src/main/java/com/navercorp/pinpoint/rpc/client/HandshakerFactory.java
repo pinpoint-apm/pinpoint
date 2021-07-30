@@ -59,7 +59,7 @@ public class HandshakerFactory {
 
     private Map<String, Object> createHandShakeData() {
 
-        Map<String, Object> handshakeData = new HashMap<String, Object>(this.properties);
+        Map<String, Object> handshakeData = new HashMap<>(this.properties);
 
         final int socketId = this.socketIdFactory.nextSocketId();
         handshakeData.put(SOCKET_ID, socketId);

@@ -104,8 +104,8 @@ public class TraceMetadataProviderYamlParserTest {
 
     private static class TraceMetadataProviderVerifier {
 
-        private final Map<Short, ServiceTypeInfo> serviceTypes = new HashMap<Short, ServiceTypeInfo>();
-        private final Map<Integer, AnnotationKey> annotationKeys = new HashMap<Integer, AnnotationKey>();
+        private final Map<Short, ServiceTypeInfo> serviceTypes = new HashMap<>();
+        private final Map<Integer, AnnotationKey> annotationKeys = new HashMap<>();
 
         private TraceMetadataProviderVerifier(TraceMetadataProvider traceMetadataProvider) {
             traceMetadataProvider.setup(new TraceMetadataSetupContext() {
@@ -188,7 +188,7 @@ public class TraceMetadataProviderYamlParserTest {
     private static class ServiceTypeInfoExpectation {
         private final short code;
         private final String name;
-        private final List<ServiceTypeProperty> serviceTypeProperties = new ArrayList<ServiceTypeProperty>();
+        private final List<ServiceTypeProperty> serviceTypeProperties = new ArrayList<>();
         private String desc = null;
         private AnnotationKeyMatcher annotationKeyMatcher = null;
 
@@ -216,7 +216,7 @@ public class TraceMetadataProviderYamlParserTest {
     private static class AnnotationKeyExpectation {
         private final int code;
         private final String name;
-        private final List<AnnotationKeyProperty> annotationKeyProperties = new ArrayList<AnnotationKeyProperty>();
+        private final List<AnnotationKeyProperty> annotationKeyProperties = new ArrayList<>();
 
         AnnotationKeyExpectation(int code, String name) {
             this.code = code;

@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 public class JoinFileDescriptorBoTest {
     @Test
     public void joinFileDescriptorBoList() throws Exception {
-        List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<JoinFileDescriptorBo>();
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<>();
         JoinFileDescriptorBo joinFileDescriptorBo1 = new JoinFileDescriptorBo("agent1", 33, 70, "agent1", 30, "agent1", 1496988667231L);
         JoinFileDescriptorBo joinFileDescriptorBo2 = new JoinFileDescriptorBo("agent2", 33, 40, "agent2", 10, "agent2", 1496988667231L);
         JoinFileDescriptorBo joinFileDescriptorBo3 = new JoinFileDescriptorBo("agent3", 54, 60, "agent3", 7, "agent3", 1496988667231L);
@@ -49,7 +49,7 @@ public class JoinFileDescriptorBoTest {
 
     @Test
     public void  joinFileDescriptorBo2List() {
-        List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<JoinFileDescriptorBo>();
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<>();
         JoinFileDescriptorBo joinFileDescriptorBo = JoinFileDescriptorBo.joinFileDescriptorBoList(joinFileDescriptorBoList, 1496988667231L);
         assertEquals(joinFileDescriptorBo, JoinFileDescriptorBo.EMPTY_JOIN_FILE_DESCRIPTOR_BO);
     }

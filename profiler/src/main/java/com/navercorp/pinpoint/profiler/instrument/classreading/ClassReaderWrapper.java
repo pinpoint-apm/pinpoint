@@ -49,7 +49,7 @@ public class ClassReaderWrapper {
     private final ClassReader classReader;
 
     // need readAttributes.
-    private final List<String> annotationInternalNames = new ArrayList<String>();
+    private final List<String> annotationInternalNames = new ArrayList<>();
     private boolean innerClass = false;
 
     // bytecodes of the class.

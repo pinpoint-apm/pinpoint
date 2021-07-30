@@ -342,7 +342,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
         final boolean isEnable = state.isEnableCommunication();
         if (!isEnable) {
-            DefaultFuture<ResponseMessage> closedException = new DefaultFuture<ResponseMessage>();
+            DefaultFuture<ResponseMessage> closedException = new DefaultFuture<>();
             closedException.setFailure(new PinpointSocketException("invalid state:" + state.getCurrentStateCode() + " channel:" + channel));
             return closedException;
         }

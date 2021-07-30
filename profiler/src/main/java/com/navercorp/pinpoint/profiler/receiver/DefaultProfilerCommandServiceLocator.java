@@ -98,7 +98,7 @@ public class DefaultProfilerCommandServiceLocator implements ProfilerCommandServ
     }
 
     private Set<Short> buildCodeSet(Map<Short, ProfilerCommandService> codes) {
-        return new HashSet<Short>(codes.keySet());
+        return new HashSet<>(codes.keySet());
 
     }
 

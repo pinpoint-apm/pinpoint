@@ -73,12 +73,12 @@ public class PluginApplicationContextModule extends AbstractModule {
 
 
     private DataSender newUdpStatDataSender() {
-        return new ListenableDataSender<Object>("StatDataSender");
+        return new ListenableDataSender<>("StatDataSender");
     }
 
     private DataSender newUdpSpanDataSender() {
 
-        ListenableDataSender<Object> sender = new ListenableDataSender<Object>("SpanDataSender");
+        ListenableDataSender<Object> sender = new ListenableDataSender<>("SpanDataSender");
         OrderedSpanRecorder orderedSpanRecorder = new OrderedSpanRecorder();
         sender.setListener(orderedSpanRecorder);
         return sender;

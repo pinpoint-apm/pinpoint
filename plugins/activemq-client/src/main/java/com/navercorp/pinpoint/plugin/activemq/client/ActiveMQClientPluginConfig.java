@@ -48,7 +48,7 @@ public class ActiveMQClientPluginConfig {
         if (!excludeDestinations.isEmpty()) {
             this.excludeDestinationFilter = new ExcludePathFilter(excludeDestinations, excludeDestinationPathSeparator);
         } else {
-            this.excludeDestinationFilter = new SkipFilter<String>();
+            this.excludeDestinationFilter = new SkipFilter<>();
         }
     }
 

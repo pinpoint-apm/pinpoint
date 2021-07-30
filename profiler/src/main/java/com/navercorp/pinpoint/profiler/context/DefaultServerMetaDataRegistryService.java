@@ -34,12 +34,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class DefaultServerMetaDataRegistryService implements ServerMetaDataRegistryService {
 
-    private final List<OnChangeListener> listeners = new CopyOnWriteArrayList<OnChangeListener>();
+    private final List<OnChangeListener> listeners = new CopyOnWriteArrayList<>();
 
     private volatile String serverName;
     private final List<String> vmArgs;
-    private final Map<Integer, String> connectors = new ConcurrentHashMap<Integer, String>();
-    private final Queue<ServiceInfo> serviceInfos = new ConcurrentLinkedQueue<ServiceInfo>();
+    private final Map<Integer, String> connectors = new ConcurrentHashMap<>();
+    private final Queue<ServiceInfo> serviceInfos = new ConcurrentLinkedQueue<>();
 
     public DefaultServerMetaDataRegistryService(List<String> vmArgs) {
         this.vmArgs = Collections.unmodifiableList(vmArgs);
@@ -91,11 +91,11 @@ public class DefaultServerMetaDataRegistryService implements ServerMetaDataRegis
     private ServerMetaData createServerMetaData() {
         String serverName = this.serverName == null ? "" : this.serverName;
         List<String> vmArgs =
-                this.vmArgs == null ? Collections.<String>emptyList() : new ArrayList<String>(this.vmArgs);
+                this.vmArgs == null ? Collections.<String>emptyList() : new ArrayList<>(this.vmArgs);
         Map<Integer, String> connectors =
-                this.connectors.isEmpty() ? Collections.<Integer, String>emptyMap() : new HashMap<Integer, String>(this.connectors);
+                this.connectors.isEmpty() ? Collections.<Integer, String>emptyMap() : new HashMap<>(this.connectors);
         List<ServiceInfo> serviceInfos =
-                this.serviceInfos.isEmpty() ? Collections.<ServiceInfo>emptyList() : new ArrayList<ServiceInfo>(this.serviceInfos);
+                this.serviceInfos.isEmpty() ? Collections.<ServiceInfo>emptyList() : new ArrayList<>(this.serviceInfos);
         return new DefaultServerMetaData(serverName, vmArgs, connectors, serviceInfos);
     }
 }

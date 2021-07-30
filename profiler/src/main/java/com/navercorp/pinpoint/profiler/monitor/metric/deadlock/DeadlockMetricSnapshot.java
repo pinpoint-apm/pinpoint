@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class DeadlockMetricSnapshot {
     private int deadlockedThreadCount;
-    private List<ThreadDumpMetricSnapshot> deadlockedThreadList = new ArrayList<ThreadDumpMetricSnapshot>();
+    private final List<ThreadDumpMetricSnapshot> deadlockedThreadList = new ArrayList<ThreadDumpMetricSnapshot>();
 
     public int getDeadlockedThreadCount() {
         return deadlockedThreadCount;

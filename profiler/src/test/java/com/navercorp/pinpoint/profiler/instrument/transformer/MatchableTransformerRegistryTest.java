@@ -17,11 +17,9 @@
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
 import com.navercorp.pinpoint.bootstrap.config.InstrumentMatcherCacheConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchable;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
-import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.profiler.plugin.Foo;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.sender.Bar;
@@ -34,8 +32,6 @@ import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -112,7 +108,7 @@ public class MatchableTransformerRegistryTest {
         value.accumulatorTime(startTime);
     }
 
-    class IndexValue {
+    static class IndexValue {
         final MatcherOperand operand;
         final ClassFileTransformer transformer;
         final AtomicLong accumulatorTimeMillis = new AtomicLong(0);
@@ -128,7 +124,7 @@ public class MatchableTransformerRegistryTest {
         }
     }
 
-    private class MockMatchableClassFileTransformer implements MatchableClassFileTransformer {
+    private static class MockMatchableClassFileTransformer implements MatchableClassFileTransformer {
         public Matcher matcher;
 
         public MockMatchableClassFileTransformer(Matcher matcher) {

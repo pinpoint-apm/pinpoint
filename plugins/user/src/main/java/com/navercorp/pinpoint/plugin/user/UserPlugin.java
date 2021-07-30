@@ -143,14 +143,14 @@ public class UserPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private Map<String, Set<String>> parseUserMethods(List<String> fullyQualifiedMethodNames) {
-        Map<String, Set<String>> userMethods = new HashMap<String, Set<String>>();
+        Map<String, Set<String>> userMethods = new HashMap<>();
         for (String fullyQualifiedMethodName : fullyQualifiedMethodNames) {
             try {
                 final String className = toClassName(fullyQualifiedMethodName);
                 final String methodName = toMethodName(fullyQualifiedMethodName);
                 Set<String> methodNames = userMethods.get(className);
                 if (methodNames == null) {
-                    methodNames = new HashSet<String>();
+                    methodNames = new HashSet<>();
                     userMethods.put(className, methodNames);
                 }
                 methodNames.add(methodName);

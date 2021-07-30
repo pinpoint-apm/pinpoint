@@ -40,7 +40,7 @@ public class MongoWriteConcernMapper {
     }
 
     private Map<WriteConcern, String> buildWriteConcern() {
-        Map<WriteConcern, String> writeConcernMap = new HashMap<WriteConcern, String>();
+        Map<WriteConcern, String> writeConcernMap = new HashMap<>();
         for (final Field f : WriteConcern.class.getFields()) {
             if (Modifier.isStatic(f.getModifiers())
                     && f.getType().equals(WriteConcern.class)

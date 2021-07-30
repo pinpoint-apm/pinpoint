@@ -42,7 +42,7 @@ public abstract class AbstractLoggerAdapter {
     private static final Map<Class<?>, Object> SIMPLE_TYPE = prepare();
 
     private static Map<Class<?>, Object> prepare() {
-        final Map<Class<?>, Object> map = new IdentityHashMap<Class<?>, Object>(64);
+        final Map<Class<?>, Object> map = new IdentityHashMap<>(64);
         put(map, String.class);
         put(map, Boolean.class);
         put(map, boolean.class);

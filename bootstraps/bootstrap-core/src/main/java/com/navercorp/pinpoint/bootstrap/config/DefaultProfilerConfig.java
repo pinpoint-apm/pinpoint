@@ -163,7 +163,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Value("${profiler.jvm.stat.collect.detailed.metrics}")
     private boolean profilerJvmStatCollectDetailedMetrics = false;
 
-    private Filter<String> profilableClassFilter = new SkipFilter<String>();
+    private Filter<String> profilableClassFilter = new SkipFilter<>();
 
     private final long DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL = 5 * 60 * 1000L;
     @Value("${profiler.agentInfo.send.retry.interval}")
@@ -385,7 +385,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         if (profilableClass != null && !profilableClass.isEmpty()) {
             this.profilableClassFilter = new ProfilableClassFilter(profilableClass);
         } else {
-            this.profilableClassFilter = new SkipFilter<String>();
+            this.profilableClassFilter = new SkipFilter<>();
         }
     }
 
@@ -606,7 +606,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public Map<String, String> readPattern(String propertyNamePatternRegex) {
         final Pattern pattern = Pattern.compile(propertyNamePatternRegex);
-        final Map<String, String> result = new HashMap<String, String>();
+        final Map<String, String> result = new HashMap<>();
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
                 final String key = (String) entry.getKey();

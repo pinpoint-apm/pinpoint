@@ -46,11 +46,11 @@ class TraceMetadataVerifier {
     private final TraceMetadataVerifierSetupContext traceMetadataSetupContext;
 
     TraceMetadataVerifier() {
-        StaticFieldLookUp<ServiceType> staticServiceTypes = new StaticFieldLookUp<ServiceType>(ServiceType.class, ServiceType.class);
+        StaticFieldLookUp<ServiceType> staticServiceTypes = new StaticFieldLookUp<>(ServiceType.class, ServiceType.class);
         for (ServiceType staticServiceType : staticServiceTypes.lookup()) {
             addServiceType(staticServiceType);
         }
-        StaticFieldLookUp<AnnotationKey> staticAnnotationKeys = new StaticFieldLookUp<AnnotationKey>(AnnotationKey.class, AnnotationKey.class);
+        StaticFieldLookUp<AnnotationKey> staticAnnotationKeys = new StaticFieldLookUp<>(AnnotationKey.class, AnnotationKey.class);
         for (AnnotationKey staticAnnotationKey : staticAnnotationKeys.lookup()) {
             addAnnotationKey(staticAnnotationKey);
         }
@@ -132,8 +132,8 @@ class TraceMetadataVerifier {
         private final List<AnnotationKey> dynamicAnnotationKeys;
 
         private TraceMetadataVerifierSetupContext() {
-            this.dynamicServiceTypes = new ArrayList<ServiceType>();
-            this.dynamicAnnotationKeys = new ArrayList<AnnotationKey>();
+            this.dynamicServiceTypes = new ArrayList<>();
+            this.dynamicAnnotationKeys = new ArrayList<>();
         }
 
         @Override

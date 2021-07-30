@@ -59,7 +59,7 @@ public class CollectorMetric {
     private final HBaseAsyncOperationMetrics hBaseAsyncOperationMetrics;
     private final BulkOperationMetrics bulkOperationMetrics;
 
-    private List<Reporter> reporterList = new ArrayList<Reporter>(2);
+    private List<Reporter> reporterList = new ArrayList<>(2);
 
     private final boolean isEnable = isEnable0(REPORTER_LOGGER_NAME);
 

@@ -49,7 +49,7 @@ public abstract class AbstractRequestBuilderBuildMethodInterceptor implements Ar
         this.interceptorScope = interceptorScope;
 
         ClientHeaderAdaptor<Request.Builder> clientHeaderAdaptor = new RequestBuilder2ClientHeaderAdaptor();
-        this.requestTraceWriter = new DefaultRequestTraceWriter<Request.Builder>(clientHeaderAdaptor, traceContext);
+        this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
     }
 
     abstract String toHost(Object target);

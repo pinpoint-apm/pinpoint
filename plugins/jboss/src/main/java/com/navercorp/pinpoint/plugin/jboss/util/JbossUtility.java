@@ -48,7 +48,7 @@ public class JbossUtility {
         if (connection == null) {
             return "";
         }
-        final List<String> remoteAddressInfos = new ArrayList<String>();
+        final List<String> remoteAddressInfos = new ArrayList<>();
         for (final Principal principal : connection.getPrincipals()) {
             if (principal instanceof org.jboss.remoting3.security.InetAddressPrincipal) {
                 final InetAddress inetAddress = ((org.jboss.remoting3.security.InetAddressPrincipal) principal).getInetAddress();
@@ -93,7 +93,7 @@ public class JbossUtility {
      * @return the string
      */
     public static String fetchRemoteAddressDetails(final String remoteAddress) {
-        final List<String> remoteAddressInfos = new ArrayList<String>();
+        final List<String> remoteAddressInfos = new ArrayList<>();
         InetAddress inetAddress = null;
         try {
             // TODO check DNSLookup risk

@@ -36,7 +36,7 @@ public enum MethodTypeEnum {
     private static final IntHashMap<MethodTypeEnum> METHOD_TYPE_MAP = toMethodTypeMap();
 
     private static IntHashMap<MethodTypeEnum> toMethodTypeMap() {
-        IntHashMap<MethodTypeEnum> methodTypeEnumMap = new IntHashMap<MethodTypeEnum>();
+        IntHashMap<MethodTypeEnum> methodTypeEnumMap = new IntHashMap<>();
         for (MethodTypeEnum methodType : values()) {
             methodTypeEnumMap.put(methodType.getCode(), methodType);
         }

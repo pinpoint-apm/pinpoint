@@ -42,7 +42,7 @@ public class StringUtilsTest {
 
     @Test
     public void toStringTest() {
-        int array[] = {0, 1};
+        int[] array = {0, 1};
 
         Assert.assertEquals(StringUtils.toString(null), "null");
         Assert.assertEquals(StringUtils.toString(1), "1");
@@ -156,7 +156,7 @@ public class StringUtilsTest {
 
         final String sample = "a, b,  ,,   c";
         List<String> tokenList = StringUtils.tokenizeToStringList(sample, ",");
-        Assert.assertEquals(Arrays.asList(new String[]{"a", "b", "c"}), tokenList);
+        Assert.assertEquals(Arrays.asList("a", "b", "c"), tokenList);
 
 
     }

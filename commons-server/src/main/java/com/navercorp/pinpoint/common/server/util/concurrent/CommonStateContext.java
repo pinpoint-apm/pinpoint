@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class CommonStateContext {
 
-    private final AtomicReference<CommonState> currentState = new AtomicReference<CommonState>();
+    private final AtomicReference<CommonState> currentState = new AtomicReference<>();
 
     public CommonStateContext() {
         currentState.set(CommonState.NEW);

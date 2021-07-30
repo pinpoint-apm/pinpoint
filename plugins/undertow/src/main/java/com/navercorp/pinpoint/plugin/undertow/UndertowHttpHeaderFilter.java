@@ -40,7 +40,7 @@ public class UndertowHttpHeaderFilter {
         }
 
         final HeaderMap headerMap = request.getRequestHeaders();
-        final List<String> pinpointHeaderNameList = new ArrayList<String>();
+        final List<String> pinpointHeaderNameList = new ArrayList<>();
         for (HttpString name : headerMap.getHeaderNames()) {
             final String headerName = name.toString();
             if (Header.startWithPinpointHeader(headerName)) {

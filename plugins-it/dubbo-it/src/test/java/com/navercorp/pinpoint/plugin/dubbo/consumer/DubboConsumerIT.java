@@ -65,7 +65,7 @@ public class DubboConsumerIT {
 
     @Test
     public void testConsumer() throws NoSuchMethodException {
-        abstractClusterInvoker = new MockInvoker<Demo>(Demo.class, url);
+        abstractClusterInvoker = new MockInvoker<>(Demo.class, url);
         when(rpcInvocation.getInvoker()).thenReturn(abstractClusterInvoker);
         try {
             abstractClusterInvoker.invoke(rpcInvocation);

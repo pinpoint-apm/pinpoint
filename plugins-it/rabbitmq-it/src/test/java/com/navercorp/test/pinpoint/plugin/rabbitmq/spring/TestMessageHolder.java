@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TestMessageHolder {
 
-    private final BlockingQueue<String> messages = new LinkedBlockingQueue<String>();
+    private final BlockingQueue<String> messages = new LinkedBlockingQueue<>();
 
     public void addMessage(String message) {
         messages.add(message);

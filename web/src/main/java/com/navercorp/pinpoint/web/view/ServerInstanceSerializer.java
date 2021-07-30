@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -41,7 +41,6 @@ public class ServerInstanceSerializer extends JsonSerializer<ServerInstance> {
 
     private final AgentLifeCycleStateSerializer agentLifeCycleStateSerializer;
 
-    @Autowired
     public ServerInstanceSerializer(ServiceTypeRegistryService serviceTypeRegistryService, AgentLifeCycleStateSerializer agentLifeCycleStateSerializer) {
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.agentLifeCycleStateSerializer = Objects.requireNonNull(agentLifeCycleStateSerializer, "agentLifeCycleStateSerializer");

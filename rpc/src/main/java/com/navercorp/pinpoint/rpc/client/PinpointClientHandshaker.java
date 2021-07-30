@@ -60,8 +60,8 @@ public class PinpointClientHandshaker {
     private final int maxHandshakeCount;
     
     private final Object lock = new Object();
-    private final AtomicReference<HandshakeResponseCode> handshakeResult = new AtomicReference<HandshakeResponseCode>(null);
-    private final AtomicReference<ClusterOption> clusterOption = new AtomicReference<ClusterOption>(null);
+    private final AtomicReference<HandshakeResponseCode> handshakeResult = new AtomicReference<>(null);
+    private final AtomicReference<ClusterOption> clusterOption = new AtomicReference<>(null);
 
     private final String id = ClassUtils.simpleClassNameAndHashCodeString(this);
 

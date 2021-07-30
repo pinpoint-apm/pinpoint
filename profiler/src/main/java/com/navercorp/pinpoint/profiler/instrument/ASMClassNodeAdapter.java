@@ -272,11 +272,7 @@ public class ASMClassNodeAdapter {
         if (desc == null) {
             return true;
         }
-        if (StringMatchUtils.startWith(this.classNode.outerMethodDesc, desc)) {
-            return true;
-        }
-
-        return false;
+        return StringMatchUtils.startWith(this.classNode.outerMethodDesc, desc);
     }
 
     public boolean hasMethod(final String methodName, final String desc) {

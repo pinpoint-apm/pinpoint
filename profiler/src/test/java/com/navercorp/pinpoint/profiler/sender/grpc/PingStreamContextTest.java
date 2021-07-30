@@ -24,8 +24,6 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import static org.junit.Assert.*;
-
 /**
  * @author Woonduk Kang(emeroad)
  */

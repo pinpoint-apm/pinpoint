@@ -35,7 +35,7 @@ public class OutputParameterParser {
             return Collections.emptyList();
         }
 
-        final List<String> result = new LinkedList<String>();
+        final List<String> result = new LinkedList<>();
         StringBuilder params = new StringBuilder();
         for (int index = 0; index < outputParams.length(); index++) {
             final char ch = outputParams.charAt(index);

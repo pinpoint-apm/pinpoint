@@ -56,7 +56,7 @@ public class GrpcAgentConnection implements ClusterPoint<TBase> {
     public Future<ResponseMessage> request(TBase request) {
         GeneratedMessageV3 message = messageConverter.toMessage(request);
         if (message == null) {
-            DefaultFuture<ResponseMessage> failedFuture = new DefaultFuture<ResponseMessage>();
+            DefaultFuture<ResponseMessage> failedFuture = new DefaultFuture<>();
             failedFuture.setFailure(new PinpointSocketException(TRouteResult.NOT_SUPPORTED_REQUEST.name()));
             return failedFuture;
         }

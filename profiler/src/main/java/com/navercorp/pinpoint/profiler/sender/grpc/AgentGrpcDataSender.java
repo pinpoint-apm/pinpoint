@@ -49,7 +49,7 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
 
     private final AgentGrpc.AgentStub agentInfoStub;
     private final AgentGrpc.AgentStub agentPingStub;
-    private GrpcCommandService grpcCommandService;
+    private final GrpcCommandService grpcCommandService;
 
     private final ReconnectExecutor reconnectExecutor;
 
@@ -165,7 +165,7 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
 
         @Override
         public void onNext(PResult result) {
-            final DefaultFuture<ResponseMessage> future = new DefaultFuture<ResponseMessage>();
+            final DefaultFuture<ResponseMessage> future = new DefaultFuture<>();
             final ResponseMessage responseMessage = new ResponseMessage();
             responseMessage.setMessage(result.toByteArray());
             future.setResult(responseMessage);
@@ -174,7 +174,7 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
 
         @Override
         public void onError(Throwable throwable) {
-            final DefaultFuture<ResponseMessage> future = new DefaultFuture<ResponseMessage>();
+            final DefaultFuture<ResponseMessage> future = new DefaultFuture<>();
             future.setFailure(throwable);
             future.setListener(listener);
         }

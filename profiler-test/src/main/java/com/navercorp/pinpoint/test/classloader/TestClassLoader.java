@@ -64,7 +64,7 @@ public class TestClassLoader extends TransformClassLoader {
         this.instrumentContext = new PluginInstrumentContext(applicationContext.getProfilerConfig(), applicationContext.getInstrumentEngine(),
                 applicationContext.getDynamicTransformTrigger(), classInjector, classFileTransformerLoader);
 
-        this.delegateClass = new ArrayList<String>();
+        this.delegateClass = new ArrayList<>();
     }
 
 

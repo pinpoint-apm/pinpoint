@@ -51,10 +51,7 @@ public class LRUCache<T> {
     public boolean put(T value) {
 
         Object oldValue = cache.putIfAbsent(value, V);
-        if (oldValue == null) {
-            return true;
-        }
-        return false;
+        return oldValue == null;
 
     }
 

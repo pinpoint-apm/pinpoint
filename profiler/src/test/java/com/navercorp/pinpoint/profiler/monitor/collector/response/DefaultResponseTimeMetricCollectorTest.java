@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.monitor.collector.response;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
-import com.navercorp.pinpoint.thrift.dto.TResponseTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

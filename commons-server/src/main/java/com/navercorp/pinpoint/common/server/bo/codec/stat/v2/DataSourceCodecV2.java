@@ -87,8 +87,8 @@ public class DataSourceCodecV2 implements AgentStatCodec<DataSourceListBo> {
         // jdbcUrl              // string
         // activeConnectionSize //int
         // maxConnectionSize    // int
-        List<Long> startTimestamps = new ArrayList<Long>(numValues);
-        List<Long> timestamps = new ArrayList<Long>(numValues);
+        List<Long> startTimestamps = new ArrayList<>(numValues);
+        List<Long> timestamps = new ArrayList<>(numValues);
 
         UnsignedIntegerEncodingStrategy.Analyzer.Builder idAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
         UnsignedShortEncodingStrategy.Analyzer.Builder serviceTypeAnalyzerBuilder = new UnsignedShortEncodingStrategy.Analyzer.Builder();
@@ -144,7 +144,7 @@ public class DataSourceCodecV2 implements AgentStatCodec<DataSourceListBo> {
     public List<DataSourceListBo> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
         int numValues = valueBuffer.readVInt();
 
-        List<DataSourceListBo> dataSourceListBos = new ArrayList<DataSourceListBo>(numValues);
+        List<DataSourceListBo> dataSourceListBos = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; i++) {
             DataSourceListBo dataSourceListBo = decodeValue(valueBuffer, decodingContext);
             dataSourceListBos.add(dataSourceListBo);

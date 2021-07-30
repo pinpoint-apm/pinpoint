@@ -112,7 +112,7 @@ public class MongoDriverConnectInterceptor3_0 implements AroundInterceptor {
 
         final Cluster cluster = (Cluster) arg;
 
-        final List<String> hostList = new ArrayList<String>();
+        final List<String> hostList = new ArrayList<>();
 
         Collection<ServerDescription> serverDescriptions;// = cluster.getDescription().getAll();//.getServerDescriptions();
 

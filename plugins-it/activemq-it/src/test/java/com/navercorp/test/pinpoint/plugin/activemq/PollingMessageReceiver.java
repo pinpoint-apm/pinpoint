@@ -54,7 +54,7 @@ public class PollingMessageReceiver {
 
         private final MessageConsumer consumer;
         private final MessageReceiveHandler messageReceiveHandler;
-        private final AtomicReference<Exception> exception = new AtomicReference<Exception>();
+        private final AtomicReference<Exception> exception = new AtomicReference<>();
         private volatile boolean isRunning = true;
 
         private Poller(MessageConsumer consumer, MessageReceiveHandler messageReceiveHandler) {

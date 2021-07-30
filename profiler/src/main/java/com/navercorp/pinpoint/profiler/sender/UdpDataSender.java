@@ -91,7 +91,7 @@ public class UdpDataSender implements DataSender {
                 UdpDataSender.this.sendPacket(message);
             }
         };
-        final AsyncQueueingExecutor<Object> executor = new AsyncQueueingExecutor<Object>(queueSize, executorName, listener);
+        final AsyncQueueingExecutor<Object> executor = new AsyncQueueingExecutor<>(queueSize, executorName, listener);
         return executor;
     }
 

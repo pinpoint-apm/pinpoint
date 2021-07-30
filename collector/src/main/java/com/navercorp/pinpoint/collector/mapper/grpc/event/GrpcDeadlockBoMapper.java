@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.server.bo.event.ThreadDumpBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.trace.PDeadlock;
 import com.navercorp.pinpoint.grpc.trace.PThreadDump;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -33,8 +32,11 @@ import java.util.List;
 @Component
 public class GrpcDeadlockBoMapper {
 
-    @Autowired
-    private GrpcThreadDumpBoMapper threadDumpBoMapper;
+    private final GrpcThreadDumpBoMapper threadDumpBoMapper;
+
+    public GrpcDeadlockBoMapper(GrpcThreadDumpBoMapper threadDumpBoMapper) {
+        this.threadDumpBoMapper = threadDumpBoMapper;
+    }
 
     public DeadlockBo map(final PDeadlock deadlock) {
         final DeadlockBo deadlockBo = new DeadlockBo();

@@ -54,7 +54,7 @@ public class AlarmWriterTest {
             }
         };
         
-        List<AlarmChecker> checkers = new LinkedList<AlarmChecker>();
+        List<AlarmChecker> checkers = new LinkedList<>();
         checkers.add(checker);
         writer.write(checkers);
     }
@@ -75,7 +75,7 @@ public class AlarmWriterTest {
             }
         };
         
-        List<AlarmChecker> checkers = new LinkedList<AlarmChecker>();
+        List<AlarmChecker> checkers = new LinkedList<>();
         checkers.add(checker);
         writer.write(checkers);
     }

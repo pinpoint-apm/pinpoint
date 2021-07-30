@@ -36,7 +36,7 @@ public class ASMTryCatch {
 
         final TryCatchBlockNode tryCatchBlockNode = new TryCatchBlockNode(this.startLabelNode, this.endLabelNode, this.endLabelNode, "java/lang/Throwable");
         if (this.methodNode.tryCatchBlocks == null) {
-            this.methodNode.tryCatchBlocks = new ArrayList<TryCatchBlockNode>();
+            this.methodNode.tryCatchBlocks = new ArrayList<>();
         }
         this.methodNode.tryCatchBlocks.add(tryCatchBlockNode);
     }

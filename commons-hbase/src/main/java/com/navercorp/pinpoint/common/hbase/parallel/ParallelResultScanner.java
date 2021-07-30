@@ -80,7 +80,7 @@ public class ParallelResultScanner implements ResultScanner {
             int maxIndividualScans = (splitScans.length + (numParallelThreads - 1)) / numParallelThreads;
             List<List<Scan>> scanDistributions = new ArrayList<>(numParallelThreads);
             for (int i = 0; i < numParallelThreads; i++) {
-                scanDistributions.add(new ArrayList<Scan>(maxIndividualScans));
+                scanDistributions.add(new ArrayList<>(maxIndividualScans));
             }
             for (int i = 0; i < splitScans.length; i++) {
                 scanDistributions.get(i % numParallelThreads).add(splitScans[i]);

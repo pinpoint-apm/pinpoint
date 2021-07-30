@@ -31,7 +31,7 @@ public class LoggingBaseTraceFactory implements BaseTraceFactory {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private BaseTraceFactory baseTraceFactory;
+    private final BaseTraceFactory baseTraceFactory;
 
     public static BaseTraceFactory wrap(BaseTraceFactory baseTraceFactory) {
         Objects.requireNonNull(baseTraceFactory, "baseTraceFactory");

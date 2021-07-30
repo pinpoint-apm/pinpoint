@@ -37,7 +37,7 @@ public class RetryQueue {
 
 
     public RetryQueue(int capacity, int maxRetryCount) {
-        this.queue = new LinkedBlockingQueue<RetryMessage>();
+        this.queue = new LinkedBlockingQueue<>();
         this.capacity = capacity;
         this.halfCapacity = capacity / 2;
         this.maxRetryCount = maxRetryCount;

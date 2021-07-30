@@ -34,7 +34,7 @@ public class DefaultAsyncTraceContext implements AsyncTraceContext {
 
     private static final Reference<Trace> EMPTY = DefaultReference.emptyReference();
 
-    private Provider<BaseTraceFactory> baseTraceFactoryProvider;
+    private final Provider<BaseTraceFactory> baseTraceFactoryProvider;
     private final Binder<Trace> binder;
 
     public DefaultAsyncTraceContext(Provider<BaseTraceFactory> baseTraceFactoryProvider, Binder<Trace> binder) {

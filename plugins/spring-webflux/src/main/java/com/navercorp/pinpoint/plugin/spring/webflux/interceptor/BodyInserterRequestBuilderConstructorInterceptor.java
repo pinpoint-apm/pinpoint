@@ -46,7 +46,7 @@ public class BodyInserterRequestBuilderConstructorInterceptor implements AroundI
         this.methodDescriptor = methodDescriptor;
 
         final ClientHeaderAdaptor clientHeaderAdaptor = new HttpHeadersClientHeaderAdaptor();
-        this.requestTraceWriter = new DefaultRequestTraceWriter<HttpHeaders>(clientHeaderAdaptor, traceContext);
+        this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override

@@ -74,7 +74,7 @@ public class JoinDataSourceListBoTest {
     public void joinDataSourceListBoList2Test() {
         final String id = "test_app";
         final long currentTime = System.currentTimeMillis();
-        final List<JoinDataSourceListBo> joinDataSourceListBoList = new ArrayList<JoinDataSourceListBo>(0);
+        final List<JoinDataSourceListBo> joinDataSourceListBoList = new ArrayList<>(0);
         final JoinDataSourceListBo joinDataSourceListBo = JoinDataSourceListBo.joinDataSourceListBoList(joinDataSourceListBoList, currentTime);
         assertEquals(joinDataSourceListBo, JoinDataSourceListBo.EMPTY_JOIN_DATA_SOURCE_LIST_BO);
     }
@@ -82,7 +82,7 @@ public class JoinDataSourceListBoTest {
 
     private List<JoinDataSourceListBo> createJoinDataSourceListBoList(String id, long currentTime) {
 
-        List<JoinDataSourceListBo> joinDataSourceListBoList = new ArrayList<JoinDataSourceListBo>();
+        List<JoinDataSourceListBo> joinDataSourceListBoList = new ArrayList<>();
 
         JoinDataSourceListBo joinDataSourceListBo1 = new JoinDataSourceListBo(id, createJoinDataSourceBoList(10), currentTime);
         JoinDataSourceListBo joinDataSourceListBo2 = new JoinDataSourceListBo(id, createJoinDataSourceBoList(20), currentTime);
@@ -100,7 +100,7 @@ public class JoinDataSourceListBoTest {
     }
 
     private List<JoinDataSourceBo> createJoinDataSourceBoList(int plus) {
-        List<JoinDataSourceBo> joinDataSourceBoList = new ArrayList<JoinDataSourceBo>();
+        List<JoinDataSourceBo> joinDataSourceBoList = new ArrayList<>();
 
         JoinDataSourceBo joinDataSourceBo1 = new JoinDataSourceBo((short)1000, "jdbc:mysql", 30 + plus, 25 + plus, "agent_id_1_" + plus, 60 + plus, "agent_id_6_" + plus);
         JoinDataSourceBo joinDataSourceBo2 = new JoinDataSourceBo((short)2000, "jdbc:mssql", 20 + plus, 5 + plus, "agent_id_2_" + plus, 30 + plus, "agent_id_7_" + plus);

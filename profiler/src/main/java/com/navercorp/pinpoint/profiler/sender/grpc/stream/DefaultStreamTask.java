@@ -138,7 +138,7 @@ public class DefaultStreamTask<ReqT, ResT> implements StreamTask<ReqT> {
                 latch.await(3000, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-            };
+            }
         }
         logger.info("stop end {}", this.streamId);
     }

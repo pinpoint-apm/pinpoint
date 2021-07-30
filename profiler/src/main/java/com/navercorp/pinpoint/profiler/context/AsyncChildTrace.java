@@ -169,7 +169,7 @@ public class AsyncChildTrace implements Trace {
 
     public void close0() {
         if (closed) {
-            if (this.logger.isWarnEnabled()) {
+            if (logger.isWarnEnabled()) {
                 logger.warn("Already closed {}", this);
             }
             return;

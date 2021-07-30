@@ -24,7 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  */
 public class ClassLoaderLock {
-    private static final ConcurrentMap<ClassLoader, LockInfo> map = new ConcurrentHashMap<ClassLoader, LockInfo>();
+    private static final ConcurrentMap<ClassLoader, LockInfo> map = new ConcurrentHashMap<>();
 
     public static void register(ClassLoader parent, ClassLoader child) {
         LockInfo info = new LockInfo(parent, child, new ReentrantLock());

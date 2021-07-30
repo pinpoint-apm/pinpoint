@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.grpc.server.lifecycle.PingSession;
 import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Objects;
 
@@ -41,7 +40,6 @@ public class AgentLifecycleListener implements LifecycleListener {
     private final AgentInfoService agentInfoService;
     private final ShutdownEventListener shutdownEventListener;
 
-    @Autowired
     public AgentLifecycleListener(KeepAliveService lifecycleService, AgentInfoService agentInfoService, ShutdownEventListener shutdownEventListener) {
         this.lifecycleService = Objects.requireNonNull(lifecycleService, "lifecycleService");
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");

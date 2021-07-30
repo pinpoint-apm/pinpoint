@@ -84,7 +84,7 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
 
         List<ProfilerPlugin> filterProfilerPlugin = filterProfilerPlugin(plugin.getInstanceList(), profilerConfig.getDisabledPlugins());
 
-        List<PluginSetupResult> result = new ArrayList<PluginSetupResult>();
+        List<PluginSetupResult> result = new ArrayList<>();
         for (ProfilerPlugin profilerPlugin : filterProfilerPlugin) {
             if (logger.isInfoEnabled()) {
                 logger.info("{} Plugin {}:{}", profilerPlugin.getClass(), PluginJar.PINPOINT_PLUGIN_PACKAGE, pluginPackageList);
@@ -102,7 +102,7 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
     // 1.9.0 - Disabled plugin configuration should now be groupId:artifactId
     @Deprecated
     private List<ProfilerPlugin> filterProfilerPlugin(List<ProfilerPlugin> originalProfilerPlugin, List<String> disabled) {
-        List<ProfilerPlugin> result = new ArrayList<ProfilerPlugin>();
+        List<ProfilerPlugin> result = new ArrayList<>();
         for (ProfilerPlugin profilerPlugin : originalProfilerPlugin) {
             if (disabled.contains(profilerPlugin.getClass().getName())) {
                 logger.info("Skip disabled plugin: {}", profilerPlugin.getClass().getName());
@@ -131,7 +131,7 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
         private final Map<String, JarPluginComponent> componentMap;
 
         private JarPluginComponents(List<PluginJar> pluginJars) {
-            this.componentMap = new LinkedHashMap<String, JarPluginComponent>(pluginJars.size());
+            this.componentMap = new LinkedHashMap<>(pluginJars.size());
             for (PluginJar pluginJar : pluginJars) {
                 String key = generateKey(pluginJar.getUrl());
                 componentMap.put(key, new JarPluginComponent(pluginJar));
@@ -158,7 +158,7 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
         }
 
         public Collection<JarPlugin<ProfilerPlugin>> buildJarPlugins() {
-            List<JarPlugin<ProfilerPlugin>> jarPlugins = new ArrayList<JarPlugin<ProfilerPlugin>>(componentMap.size());
+            List<JarPlugin<ProfilerPlugin>> jarPlugins = new ArrayList<>(componentMap.size());
             for (JarPluginComponent component : componentMap.values()) {
                 jarPlugins.add(component.toJarPlugin());
             }
@@ -171,7 +171,7 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
 
             private JarPluginComponent(PluginJar pluginJar) {
                 this.pluginJar = Objects.requireNonNull(pluginJar, "pluginJar");
-                this.profilerPlugins = new ArrayList<ProfilerPlugin>();
+                this.profilerPlugins = new ArrayList<>();
             }
 
             private void addProfilerPlugin(ProfilerPlugin profilerPlugin) {

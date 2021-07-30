@@ -63,7 +63,7 @@ public class HttpStatusCodeErrors {
             return new StatusCode[0];
         }
 
-        List<StatusCode> statusCodeList = new ArrayList<StatusCode>();
+        List<StatusCode> statusCodeList = new ArrayList<>();
         for (String errorCode : errorCodes) {
             if (errorCode.equalsIgnoreCase("5xx")) {
                 statusCodeList.add(new ServerError());

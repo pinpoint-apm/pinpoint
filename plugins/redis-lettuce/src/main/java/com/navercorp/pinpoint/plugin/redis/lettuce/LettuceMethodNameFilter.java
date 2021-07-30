@@ -29,7 +29,7 @@ import java.util.Set;
  */
 public class LettuceMethodNameFilter implements MethodFilter {
 
-    private final Set<String> excludeMethodNames = new HashSet<String>();
+    private final Set<String> excludeMethodNames = new HashSet<>();
 
     public LettuceMethodNameFilter() {
         this.excludeMethodNames.addAll(Arrays.asList("clone", "equals", "finalize", "getClass", "hashCode", "notify", "notifyAll", "toString", "wait"));

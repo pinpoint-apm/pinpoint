@@ -86,7 +86,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         final HttpDumpConfig httpDumpConfig = config.getHttpDumpConfig();
 
         ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
-        this.clientRequestRecorder = new ClientRequestRecorder<ClientRequestWrapper>(param, clientRequestAdaptor);
+        this.clientRequestRecorder = new ClientRequestRecorder<>(param, clientRequestAdaptor);
 
         CookieExtractor<HttpMethod> cookieExtractor = HttpClient3CookieExtractor.INSTANCE;
         this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(httpDumpConfig, cookieExtractor);
@@ -95,7 +95,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         this.entityRecorder = EntityRecorderFactory.newEntityRecorder(httpDumpConfig, entityExtractor);
 
         ClientHeaderAdaptor<HttpMethod> clientHeaderAdaptor = new HttpMethodClientHeaderAdaptor();
-        this.requestTraceWriter = new DefaultRequestTraceWriter<HttpMethod>(clientHeaderAdaptor, traceContext);
+        this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
 
         this.io = config.isIo();
     }

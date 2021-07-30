@@ -109,7 +109,7 @@ public class AgentHeaderReader implements HeaderReader<Header> {
     }
 
     protected List<Integer> getSupportCommandCodeList(Metadata headers) {
-        List<Integer> supportCommandCodeList = new ArrayList<Integer>();
+        List<Integer> supportCommandCodeList = new ArrayList<>();
 
         final String value = headers.get(Header.SUPPORT_COMMAND_CODE);
         if (value == null) {

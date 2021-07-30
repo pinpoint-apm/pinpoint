@@ -50,7 +50,7 @@ public class OracleNetConnectionDescriptorTokenizer {
     public static final int TYPE_EOF = -1;
     public static final Token TOKEN_EOF_OBJECT = new Token("EOF", TYPE_EOF);
 
-    private final List<Token> tokenList = new ArrayList<Token>();
+    private final List<Token> tokenList = new ArrayList<>();
     private int tokenPosition = 0;
 
     private final String connectionString;

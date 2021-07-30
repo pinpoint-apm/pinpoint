@@ -127,7 +127,7 @@ public class PingStreamContext {
                 }
             });
         }
-    };
+    }
 
     private ScheduledFuture<?> schedule(Runnable command) {
         try {

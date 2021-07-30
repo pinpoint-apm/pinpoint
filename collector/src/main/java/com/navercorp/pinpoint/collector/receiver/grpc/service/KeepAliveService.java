@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.grpc.server.lifecycle.PingSessionRegistry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -43,7 +42,6 @@ public class KeepAliveService {
     private final AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask;
     private final PingSessionRegistry pingSessionRegistry;
 
-    @Autowired
     public KeepAliveService(AgentEventAsyncTaskService agentEventAsyncTask,
                             AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask,
                             PingSessionRegistry pingSessionRegistry) {

@@ -157,7 +157,7 @@ public class AgentStatHbaseOperationFactoryTest {
         final int numDataPoints = 6;
         final long initialTimestamp = System.currentTimeMillis() - (TEST_COLLECTION_INTERVAL * numDataPoints);
         final List<AgentStatDataPoint> testDataPoints = createTestDataPoints(initialTimestamp, TEST_COLLECTION_INTERVAL, numDataPoints);
-        final Set<Long> uniqueTimeslots = new TreeSet<Long>();
+        final Set<Long> uniqueTimeslots = new TreeSet<>();
         for (AgentStatDataPoint testDataPoint : testDataPoints) {
             uniqueTimeslots.add(AgentStatUtils.getBaseTimestamp(testDataPoint.getTimestamp()));
         }
@@ -176,7 +176,7 @@ public class AgentStatHbaseOperationFactoryTest {
     }
 
     private List<AgentStatDataPoint> createTestDataPoints(long initialTimestamp, long interval, int count) {
-        List<AgentStatDataPoint> dataPoints = new ArrayList<AgentStatDataPoint>(count);
+        List<AgentStatDataPoint> dataPoints = new ArrayList<>(count);
         long timestamp = initialTimestamp;
         for (int i = 0; i < count; i++) {
             AgentStatDataPoint dataPoint = createTestDataPoint(timestamp);

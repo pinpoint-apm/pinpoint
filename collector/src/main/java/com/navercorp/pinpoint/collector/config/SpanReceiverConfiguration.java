@@ -95,7 +95,7 @@ public class SpanReceiverConfiguration implements DataReceiverGroupConfiguration
     public void log() {
         logger.info("{}", this);
 
-        AnnotationVisitor<Value> visitor = new AnnotationVisitor<Value>(Value.class);
+        AnnotationVisitor<Value> visitor = new AnnotationVisitor<>(Value.class);
         visitor.visit(this, new LoggingEvent(logger));
     }
 

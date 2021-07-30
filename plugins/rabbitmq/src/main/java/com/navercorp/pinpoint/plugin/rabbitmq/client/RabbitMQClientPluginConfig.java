@@ -44,7 +44,7 @@ public class RabbitMQClientPluginConfig {
         if (!excludeExchange.isEmpty()) {
             this.excludeExchangeFilter = new ExcludePathFilter(excludeExchange);
         } else {
-            this.excludeExchangeFilter = new SkipFilter<String>();
+            this.excludeExchangeFilter = new SkipFilter<>();
         }
     }
 
