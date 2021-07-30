@@ -22,6 +22,9 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.redis.lettuce.EndPointAccessor;
+import io.lettuce.core.cluster.StatefulRedisClusterConnectionImpl;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author jaehong.kim
@@ -58,6 +61,11 @@ public class AttachEndPointInterceptor implements AroundInterceptor {
             }
 
             final String endPoint = ((EndPointAccessor) target)._$PINPOINT$_getEndPoint();
+            if(result instanceof CompletableFuture){
+                StatefulRedisClusterConnectionImpl statefulRedisClusterConnection = (StatefulRedisClusterConnectionImpl)((CompletableFuture)result).get();
+                ((EndPointAccessor) statefulRedisClusterConnection)._$PINPOINT$_setEndPoint(endPoint);
+                return;
+            }
             ((EndPointAccessor) result)._$PINPOINT$_setEndPoint(endPoint);
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
