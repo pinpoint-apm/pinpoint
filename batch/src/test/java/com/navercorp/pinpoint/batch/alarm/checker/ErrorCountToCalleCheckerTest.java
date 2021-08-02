@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.dao.MapStatisticsCallerCompactDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import org.junit.BeforeClass;
@@ -46,11 +46,11 @@ public class ErrorCountToCalleCheckerTest {
     private static final String FROM_SERVICE_NAME = "from_local_service";
     private static final String TO_SERVICE_NAME = "to_local_service";
     private static final String SERVICE_TYPE = "tomcat";
-    public static MapStatisticsCallerDao dao;
+    public static MapStatisticsCallerCompactDao dao;
     
     @BeforeClass
     public static void before() {
-        dao = new MapStatisticsCallerDao() {
+        dao = new MapStatisticsCallerCompactDao() {
             
             @Override
             public LinkDataMap selectCaller(Application callerApplication, Range range) {

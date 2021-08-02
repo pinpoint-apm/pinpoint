@@ -54,6 +54,18 @@ public class ApplicationMapStatisticsUtils {
         return buffer.getBuffer();
     }
 
+    public static byte[] makeColumnName(short serviceType, String applicationName, short slotNumber) {
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName");
+        }
+        // approximate size of destHost
+        final Buffer buffer = new AutomaticBuffer(BytesUtils.SHORT_BYTE_LENGTH + PinpointConstants.APPLICATION_NAME_MAX_LEN + BytesUtils.SHORT_BYTE_LENGTH);
+        buffer.putShort(serviceType);
+        buffer.putShort(slotNumber);
+        buffer.put2PrefixedString(applicationName);
+        return buffer.getBuffer();
+    }
+
     public static short getSlotNumber(ServiceType serviceType, int elapsed, boolean isError) {
         return findResponseHistogramSlotNo(serviceType, elapsed, isError, false);
     }
@@ -75,7 +87,6 @@ public class ApplicationMapStatisticsUtils {
 
         return buffer.getBuffer();
     }
-
 
     private static short findResponseHistogramSlotNo(ServiceType serviceType, int elapsed, boolean isError, boolean isPing) {
         Objects.requireNonNull(serviceType, "serviceType");

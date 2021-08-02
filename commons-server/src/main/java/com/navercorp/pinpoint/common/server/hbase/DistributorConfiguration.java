@@ -72,6 +72,18 @@ public class DistributorConfiguration {
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
+    @Bean("statisticsCalleeCompactRowKeyDistributor")
+    public RowKeyDistributorByHashPrefix getStatisticsCalleeCompactRowKeyDistributor() {
+        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 36, 32);
+        return new RowKeyDistributorByHashPrefix(hasher);
+    }
+
+    @Bean("statisticsCallerCompactRowKeyDistributor")
+    public RowKeyDistributorByHashPrefix getStatisticsCallerCompactRowKeyDistributor() {
+        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 36, 32);
+        return new RowKeyDistributorByHashPrefix(hasher);
+    }
+
     private RowKeyDistributorByHashPrefix.Hasher newRangeOneByteSimpleHash(int start, int end, int maxBuckets) {
         return new RangeOneByteSimpleHash(start, end, maxBuckets);
     }
