@@ -46,8 +46,8 @@ public class ResponseTime {
         return applicationName;
     }
 
-    public short getApplicationServiceType() {
-        return applicationServiceType.getCode();
+    public ServiceType getApplicationServiceType() {
+        return applicationServiceType;
     }
 
     public long getTimeStamp() {

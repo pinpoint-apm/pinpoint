@@ -44,6 +44,11 @@ public class LinkDataMap {
         linkData.addLinkData(sourceAgentId, sourceApplication.getServiceType(), destinationAgentId, destinationApplication.getServiceType(), timestamp, slotTime, count);
     }
 
+    public void addLinkData(Application sourceApplication, Application destinationApplication, String destinationAgentId, long timestamp, short slotTime, long count) {
+        final LinkData linkData = getLinkData(sourceApplication, destinationApplication);
+        linkData.addLinkData(sourceApplication.getName(), sourceApplication.getServiceType(), destinationAgentId, destinationApplication.getServiceType(), timestamp, slotTime, count);
+    }
+
     @Override
     public String toString() {
         return "LinkDataMap [" + linkDataMap + "]";

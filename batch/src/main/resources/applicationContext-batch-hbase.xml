@@ -177,6 +177,26 @@
         <constructor-arg type="int" value="8"/>
     </bean>
 
+    <bean id="statisticsCalleeCompactRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
+        <constructor-arg ref="statisticsCalleeCompactHasher"/>
+    </bean>
+
+    <bean id="statisticsCalleeCompactHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
+        <constructor-arg type="int" value="0"/>
+        <constructor-arg type="int" value="36"/>
+        <constructor-arg type="int" value="32"/>
+    </bean>
+
+    <bean id="statisticsCallerCompactRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
+        <constructor-arg ref="statisticsCallerCompactHasher"/>
+    </bean>
+
+    <bean id="statisticsCallerCompactHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
+        <constructor-arg type="int" value="0"/>
+        <constructor-arg type="int" value="36"/>
+        <constructor-arg type="int" value="32"/>
+    </bean>
+
     <bean id="slf4jCommonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Slf4jCommonLoggerFactory">
     </bean>
     <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.server.util.ServerTraceMetadataLoaderService">

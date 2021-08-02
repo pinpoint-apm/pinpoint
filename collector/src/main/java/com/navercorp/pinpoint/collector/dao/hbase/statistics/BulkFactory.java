@@ -141,6 +141,59 @@ public class BulkFactory {
         return newBulkWriter(loggerName, hbaseTemplate, HbaseColumnFamily.MAP_STATISTICS_SELF_VER2_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
     }
 
+    @Bean("callerCompactBulkIncrementer")
+    public BulkIncrementer getCallerCompactBulkIncrementer() {
+        String reporterName = "callerCompactBulkIncrementerReporter";
+        HbaseColumnFamily hbaseColumnFamily = HbaseColumnFamily.MAP_STATISTICS_CALLER_COMPACT_COUNTER;
+        int limitSize = bulkConfiguration.getCallerLimitSize();
+
+        return newBulkIncrementer(reporterName, hbaseColumnFamily, limitSize);
+    }
+
+    @Bean("callerCompactBulkUpdater")
+    public BulkUpdater getCallerCompactBulkUpdater() {
+        String reporterName = "callerCompactBulkUpdaterReporter";
+        return getBulkUpdater(reporterName);
+    }
+
+
+    @Bean("callerCompactBulkWriter")
+    public BulkWriter newCallerCompactBulkWriter(HbaseOperations2 hbaseTemplate,
+                                          TableNameProvider tableNameProvider,
+                                          @Qualifier("statisticsCallerCompactRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                          @Qualifier("callerCompactBulkIncrementer") BulkIncrementer bulkIncrementer,
+                                          @Qualifier("callerCompactBulkUpdater") BulkUpdater bulkUpdater) {
+        String loggerName = newBulkWriterName(HbaseMapStatisticsCallerDao.class.getName());
+        return newBulkWriter(loggerName, hbaseTemplate, HbaseColumnFamily.MAP_STATISTICS_CALLEE_COMPACT_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
+    }
+
+
+    @Bean("calleeCompactBulkIncrementer")
+    public BulkIncrementer getCalleeCompactBulkIncrementer() {
+        String reporterName = "calleeCompactBulkIncrementerReporter";
+        HbaseColumnFamily hbaseColumnFamily = HbaseColumnFamily.MAP_STATISTICS_CALLEE_COMPACT_COUNTER;
+        int limitSize = bulkConfiguration.getCalleeLimitSize();
+
+        return newBulkIncrementer(reporterName, hbaseColumnFamily, limitSize);
+    }
+
+
+    @Bean("calleeCompactBulkUpdater")
+    public BulkUpdater getCalleeCompactBulkUpdater() {
+        String reporterName = "calleeCompactBulkUpdaterReporter";
+        return getBulkUpdater(reporterName);
+    }
+
+    @Bean("calleeCompactBulkWriter")
+    public BulkWriter newCalleeCompactBulkWriter(HbaseOperations2 hbaseTemplate,
+                                          TableNameProvider tableNameProvider,
+                                          @Qualifier("statisticsCalleeCompactRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                          @Qualifier("calleeCompactBulkIncrementer") BulkIncrementer bulkIncrementer,
+                                          @Qualifier("calleeCompactBulkUpdater") BulkUpdater bulkUpdater) {
+        String loggerName = newBulkWriterName(HbaseMapStatisticsCalleeDao.class.getName());
+        return newBulkWriter(loggerName, hbaseTemplate, HbaseColumnFamily.MAP_STATISTICS_CALLER_COMPACT_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
+    }
+
     private String newBulkWriterName(String className) {
         return className + "-writer";
     }

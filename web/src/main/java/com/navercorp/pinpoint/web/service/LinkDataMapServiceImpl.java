@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.navercorp.pinpoint.web.dao.MapStatisticsCalleeDao;
-import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.dao.MapStatisticsCalleeCompactDao;
+import com.navercorp.pinpoint.web.dao.MapStatisticsCallerCompactDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import org.springframework.stereotype.Service;
@@ -30,23 +30,21 @@ import java.util.Objects;
  */
 @Service
 public class LinkDataMapServiceImpl implements LinkDataMapService {
+    private final MapStatisticsCallerCompactDao mapStatisticsCallerCompactDao;
+    private final MapStatisticsCalleeCompactDao mapStatisticsCalleeCompactDao;
 
-    private final MapStatisticsCallerDao mapStatisticsCallerDao;
-
-    private final MapStatisticsCalleeDao mapStatisticsCalleeDao;
-
-    public LinkDataMapServiceImpl(MapStatisticsCallerDao mapStatisticsCallerDao, MapStatisticsCalleeDao mapStatisticsCalleeDao) {
-        this.mapStatisticsCallerDao = Objects.requireNonNull(mapStatisticsCallerDao, "mapStatisticsCallerDao");
-        this.mapStatisticsCalleeDao = Objects.requireNonNull(mapStatisticsCalleeDao, "mapStatisticsCalleeDao");
+    public LinkDataMapServiceImpl(MapStatisticsCallerCompactDao mapStatisticsCallerCompactDao, MapStatisticsCalleeCompactDao mapStatisticsCalleeCompactDao) {
+        this.mapStatisticsCallerCompactDao = Objects.requireNonNull(mapStatisticsCallerCompactDao, "mapStatisticsCallerCompactDao");
+        this.mapStatisticsCalleeCompactDao = Objects.requireNonNull(mapStatisticsCalleeCompactDao, "mapStatisticsCalleeCompactDao");
     }
 
     @Override
     public LinkDataMap selectCallerLinkDataMap(Application application, Range range) {
-        return mapStatisticsCallerDao.selectCaller(application, range);
+        return this.mapStatisticsCallerCompactDao.selectCaller(application, range);
     }
 
     @Override
     public LinkDataMap selectCalleeLinkDataMap(Application application, Range range) {
-        return mapStatisticsCalleeDao.selectCallee(application, range);
+        return mapStatisticsCalleeCompactDao.selectCallee(application, range);
     }
 }

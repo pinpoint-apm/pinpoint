@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
 import com.navercorp.pinpoint.web.dao.hbase.HbaseApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.hbase.HbaseMapResponseTimeDao;
-import com.navercorp.pinpoint.web.dao.hbase.HbaseMapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.dao.hbase.HbaseMapStatisticsCallerCompactDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.dao.stat.FileDescriptorDao;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -64,7 +64,7 @@ public class DataCollectorFactory {
 
     private final HbaseApplicationIndexDao hbaseApplicationIndexDao;
 
-    private final HbaseMapStatisticsCallerDao mapStatisticsCallerDao;
+    private final HbaseMapStatisticsCallerCompactDao mapStatisticsCallerDao;
 
     public DataCollectorFactory(HbaseMapResponseTimeDao hbaseMapResponseTimeDao,
                                 @Qualifier("jvmGcDaoFactory") AgentStatDao<JvmGcBo> jvmGcDao,
@@ -73,7 +73,7 @@ public class DataCollectorFactory {
                                 @Qualifier("fileDescriptorDaoFactory") FileDescriptorDao fileDescriptorDao,
                                 AgentEventDao agentEventDao,
                                 HbaseApplicationIndexDao hbaseApplicationIndexDao,
-                                HbaseMapStatisticsCallerDao mapStatisticsCallerDao) {
+                                HbaseMapStatisticsCallerCompactDao mapStatisticsCallerDao) {
         this.hbaseMapResponseTimeDao = Objects.requireNonNull(hbaseMapResponseTimeDao, "hbaseMapResponseTimeDao");
         this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
         this.cpuLoadDao = Objects.requireNonNull(cpuLoadDao, "cpuLoadDao");

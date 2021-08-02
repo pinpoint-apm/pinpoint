@@ -15,6 +15,9 @@ flush 'ApplicationMapStatisticsCaller_Ver2'
 flush 'ApplicationMapStatisticsCallee_Ver2'
 flush 'ApplicationMapStatisticsSelf_Ver2'
 
+flush 'ApplicationMapStatisticsCallerCompact'
+flush 'ApplicationMapStatisticsCalleeCompact'
+
 flush 'HostApplicationMap_Ver2'
 
 exit
