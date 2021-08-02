@@ -83,7 +83,6 @@
         <module>agent</module>
         <module>agent-sdk</module>
 
-        <!-- <module>agent-testweb</module> -->
         <module>agent-plugins</module>
         <module>bootstraps</module>
         <module>collector</module>
@@ -94,7 +93,6 @@
         <module>commons-server</module>
         <module>tools</module>
         <module>plugins</module>
-        <module>plugins-it</module>
         <module>plugins-loader</module>
         <module>profiler</module>
         <module>profiler-logging</module>
@@ -111,6 +109,9 @@
         <module>batch</module>
 
         <module>hbase2-module</module>
+
+        <!-- <module>agent-testweb</module> -->
+        <!-- <module>plugins-it</module> -->
     </modules>
 
     <properties>
@@ -194,7 +195,7 @@
         <plugin.spotbugs.version>4.1.4</plugin.spotbugs.version>
         <plugin.pmd.version>3.14.0</plugin.pmd.version>
 
-        <plugin.enforcer.version>3.0.0-M3</plugin.enforcer.version>
+        <plugin.enforcer.version>3.0.0</plugin.enforcer.version>
         <plugin.animal-sniffer.version>1.19</plugin.animal-sniffer.version>
 
         <sniffer.artifactid>java17</sniffer.artifactid>
@@ -1338,14 +1339,6 @@
     </reporting>
 
     <profiles>
-        <!-- for Hbase2 -->
-        <profile>
-            <id>hbase2</id>
-            <properties>
-                <hbase.shaded.client.version>2.1.1</hbase.shaded.client.version>
-            </properties>
-        </profile>
-
         <!-- for Local (Development) -->
         <profile>
             <id>local</id>
@@ -1367,6 +1360,7 @@
                 <spring.profiles.active>release</spring.profiles.active>
             </properties>
         </profile>
+
         <!-- for maven.central.release -->
         <profile>
             <id>maven.central.release</id>
@@ -1443,27 +1437,12 @@
         </profile>
 
         <profile>
-            <id>klocwork</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.klocwork.ps</groupId>
-                        <artifactId>kwmaven</artifactId>
-                        <version>2.1.1</version>
-                        <configuration>
-                            <buildspec_filename>${KWINJECT_OUT_PATH}</buildspec_filename>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
+            <id>it-module</id>
+            <modules>
+                <module>agent-testweb</module>
+                <module>plugins-it</module>
+            </modules>
         </profile>
+
     </profiles>
 </project>
