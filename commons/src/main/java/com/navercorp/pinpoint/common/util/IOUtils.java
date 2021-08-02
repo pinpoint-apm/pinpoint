@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.DatagramSocket;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -34,6 +35,7 @@ public final class IOUtils {
     private static final int MAX_BUFFER_SIZE = 1024 * 1024;
 
     public static final int EOF = -1;
+    private static final byte[] EMPTY_BUFFER = new byte[0];
 
     private IOUtils() {
     }
@@ -48,21 +50,25 @@ public final class IOUtils {
 
     public static byte[] toByteArray(final InputStream inputStream, int bufferSize, boolean close) throws IOException {
         Objects.requireNonNull(inputStream, "inputStream");
-
         if (bufferSize < 0) {
             throw new IllegalArgumentException("negative bufferSize");
         }
-        // https://gitlab.ow2.org/asm/asm/-/blob/master/asm/src/main/java/org/objectweb/asm/ClassReader.java#L316
-        // memory allocation optimization
+
         bufferSize = calculateBufferSize(inputStream, bufferSize);
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        final byte[] buffer = new byte[bufferSize];
+
+        final byte[] readBuffer = bufferRead(inputStream, buffer);
+        if (readBuffer != null) {
+            return readBuffer;
+        }
+
+        ByteArrayOutputStream outputStream;
         try {
-            final byte[] buffer = new byte[bufferSize];
-//            copy(inputStream, outputStream, buffer);
-            final int readCount = copy0(inputStream, outputStream, buffer);
-            if (readCount == 1 && outputStream.size() == buffer.length) {
-                return buffer;
-            }
+            outputStream = new ByteArrayOutputStream(buffer.length * 2);
+            outputStream.write(buffer, 0, buffer.length);
+
+            copy(inputStream, outputStream, buffer);
+
             outputStream.flush();
             return outputStream.toByteArray();
         } finally {
@@ -70,6 +76,29 @@ public final class IOUtils {
                 closeQuietly(inputStream);
             }
         }
+    }
+
+    private static byte[] bufferRead(InputStream inputStream, byte[] buffer) throws IOException {
+        int bufferWriteIdx = 0;
+        int bufferReadBytes;
+        final int bufferLength = buffer.length;
+        while (bufferLength >= bufferWriteIdx) {
+            // OS buffer optimization
+            bufferReadBytes = inputStream.read(buffer, bufferWriteIdx, bufferLength - bufferWriteIdx);
+            if (bufferReadBytes == EOF) {
+                if (bufferLength == bufferWriteIdx) {
+                    return buffer;
+                } else {
+                    return Arrays.copyOf(buffer, bufferWriteIdx);
+                }
+            }
+            if (bufferReadBytes == 0) {
+                // buffer is full
+                break;
+            }
+            bufferWriteIdx += bufferReadBytes;
+        }
+        return null;
     }
 
     private static int calculateBufferSize(final InputStream inputStream, int defaultBufferSize) throws IOException {
@@ -85,16 +114,6 @@ public final class IOUtils {
         while ((bytesRead = inputStream.read(buffer, 0, buffer.length)) != EOF) {
             outputStream.write(buffer, 0, bytesRead);
         }
-    }
-
-    private static int copy0(InputStream inputStream, OutputStream outputStream, byte[] buffer) throws IOException {
-        int readCount = 0;
-        int bytesRead;
-        while ((bytesRead  = inputStream.read(buffer, 0, buffer.length)) != EOF) {
-            outputStream.write(buffer, 0, bytesRead);
-            readCount++;
-        }
-        return readCount;
     }
 
 
