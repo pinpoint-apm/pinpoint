@@ -60,7 +60,7 @@ public final class IOUtils {
             final byte[] buffer = new byte[bufferSize];
 //            copy(inputStream, outputStream, buffer);
             final int readCount = copy0(inputStream, outputStream, buffer);
-            if (readCount == 1) {
+            if (readCount == 1 && outputStream.size() == buffer.length) {
                 return buffer;
             }
             outputStream.flush();
