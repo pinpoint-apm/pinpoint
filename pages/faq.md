@@ -72,9 +72,6 @@ config.sendUsage=false
 ```
 
 ### I'd like to use Hbase 2.x for Pinpoint.
-If you'd like to use Hbase 2.x for Pinpoint database, check out [Hbase upgrade guide](https://pinpoint-apm.github.io/pinpoint/plugindevguide.html).
+If you'd like to use Hbase 2.x for Pinpoint database, check out [Hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/master/hbase2-module).
 
-
-### What can I do if I don't wan't to use gojs
-Since version [v2.0.0-RC3](https://github.com/pinpoint-apm/pinpoint/releases/tag/v2.0.0-RC3), We have removed all commercial dependencies(amchart, go.js). upgrade your web server part to the version after v2.0.0-RC3, and the lastest stable version is recommended.
 
