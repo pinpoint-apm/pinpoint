@@ -4,6 +4,8 @@ import com.navercorp.pinpoint.bootstrap.config.ConfigurationException;
 import com.navercorp.pinpoint.bootstrap.config.Value;
 import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
 import com.navercorp.pinpoint.common.util.ModifierUtils;
+import com.navercorp.pinpoint.common.util.logger.CommonLogger;
+import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -196,14 +198,20 @@ public class ValueAnnotationProcessor {
     private void injectField(Field field, Object target, String value) {
         final Class<?> fieldType = field.getType();
 
-        final Object parsedValue = parse(fieldType, value);
-        if (parsedValue != null) {
-            try {
-                setAccessible(field);
-                field.set(target, parsedValue);
-            } catch (ReflectiveOperationException e) {
-                throw new ConfigurationException(getFieldName(target, field) + " access error", e);
+        try {
+            final Object parsedValue = parse(fieldType, value);
+            if (parsedValue != null) {
+                try {
+                    setAccessible(field);
+                    field.set(target, parsedValue);
+                } catch (ReflectiveOperationException e) {
+                    throw new ConfigurationException(getFieldName(target, field) + " access error", e);
+                }
             }
+        } catch (Exception ex) {
+            CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE.getLogger(this.getClass().getName());
+            logger.warn("injectField error field:" + field + " value:" + value);
+            throw new RuntimeException("injectField error", ex);
         }
     }
 

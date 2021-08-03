@@ -165,4 +165,28 @@ public class ValueAnnotationProcessorTest {
         }
     }
 
+    public static class DefaultValueConfig {
+        @Value("${int:-1}")
+        private int intValue;
+
+        @Value("${long:-2}")
+        private long longValue;
+    }
+
+    @Test
+    public void defaultValue() throws Exception {
+        DefaultValueConfig config = new DefaultValueConfig();
+        Properties properties = new Properties();
+//        properties.put("int", "");
+//        properties.put("long", "");
+
+
+        ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
+        reader.process(config, properties);
+
+        Assert.assertEquals(-1, config.intValue);
+        Assert.assertEquals(-2, config.longValue);
+
+    }
+
 }
