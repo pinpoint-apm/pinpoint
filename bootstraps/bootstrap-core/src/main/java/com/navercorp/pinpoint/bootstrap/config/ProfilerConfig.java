@@ -63,12 +63,6 @@ public interface ProfilerConfig {
 
     int getMaxSqlBindValueSize();
 
-    @Deprecated
-    boolean isSamplingEnable();
-
-    @Deprecated
-    int getSamplingRate();
-
     int getSamplingNewThroughput();
 
     int getSamplingContinueThroughput();

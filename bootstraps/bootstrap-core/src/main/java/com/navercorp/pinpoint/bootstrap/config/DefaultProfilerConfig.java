@@ -132,11 +132,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Value("${profiler.jdbc.maxsqlbindvaluesize}")
     private int maxSqlBindValueSize = 1024;
 
-    // Sampling
-    @Value("${profiler.sampling.enable}")
-    private boolean samplingEnable = true;
-    @Value("${profiler.sampling.rate}")
-    private int samplingRate = 1;
     @Value("${profiler.sampling.new.throughput}")
     // Throughput sampling
     private int samplingNewThroughput = 0;
@@ -303,16 +298,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public int getMaxSqlBindValueSize() {
         return maxSqlBindValueSize;
-    }
-
-    @Override
-    public boolean isSamplingEnable() {
-        return samplingEnable;
-    }
-
-    @Override
-    public int getSamplingRate() {
-        return samplingRate;
     }
 
     @Override
@@ -643,8 +628,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", jdbcSqlCacheSize=").append(jdbcSqlCacheSize);
         sb.append(", traceSqlBindValue=").append(traceSqlBindValue);
         sb.append(", maxSqlBindValueSize=").append(maxSqlBindValueSize);
-        sb.append(", samplingEnable=").append(samplingEnable);
-        sb.append(", samplingRate=").append(samplingRate);
         sb.append(", samplingNewThroughput=").append(samplingNewThroughput);
         sb.append(", samplingContinueThroughput=").append(samplingContinueThroughput);
         sb.append(", ioBufferingEnable=").append(ioBufferingEnable);
