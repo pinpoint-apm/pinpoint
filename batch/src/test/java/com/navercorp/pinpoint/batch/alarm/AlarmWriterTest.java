@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.batch.alarm;
 
-import com.navercorp.pinpoint.batch.alarm.AlarmWriter;
-import com.navercorp.pinpoint.batch.alarm.CheckerCategory;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.SlowCountChecker;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;

@@ -33,6 +33,7 @@ import java.util.Objects;
  * @author HyunGil Jeong
  * @deprecated Only AgentEventBo.version is 0
  */
+@Deprecated
 public class AgentEventMessageDeserializer {
 
     private final List<DeserializerFactory<HeaderTBaseDeserializer>> deserializerFactoryList;

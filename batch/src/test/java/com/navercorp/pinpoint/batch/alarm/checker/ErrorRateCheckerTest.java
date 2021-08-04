@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
+import com.navercorp.pinpoint.batch.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.batch.alarm.CheckerCategory;
-import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.navercorp.pinpoint.batch.alarm.checker.ErrorRateChecker;
 import com.navercorp.pinpoint.batch.alarm.collector.ResponseTimeDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;

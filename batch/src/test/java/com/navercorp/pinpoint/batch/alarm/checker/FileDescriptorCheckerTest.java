@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.batch.alarm.checker;
 
 
-import com.navercorp.pinpoint.batch.alarm.checker.FileDescriptorChecker;
 import com.navercorp.pinpoint.batch.alarm.collector.FileDescriptorDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import org.junit.Test;

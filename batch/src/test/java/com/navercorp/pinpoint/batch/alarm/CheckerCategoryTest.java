@@ -16,23 +16,27 @@
 
 package com.navercorp.pinpoint.batch.alarm;
 
-import com.navercorp.pinpoint.batch.alarm.CheckerCategory;
 import com.navercorp.pinpoint.batch.alarm.checker.SlowCountChecker;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
 public class CheckerCategoryTest {
+    private final CheckerRegistry registry = CheckerRegistry.newCheckerRegistry();
 
     @Test
     public void createCheckerTest() {
+
         CheckerCategory slowCount = CheckerCategory.getValue("slow count");
-        
+        AlarmCheckerFactory checkerFactory = registry.getCheckerFactory(slowCount);
+
         Rule rule = new Rule(null, "", CheckerCategory.SLOW_COUNT.getName(), 75, "testGroup", false, false, false, "");
-        SlowCountChecker checker = (SlowCountChecker) slowCount.createChecker(null, rule);
+        SlowCountChecker checker = (SlowCountChecker) checkerFactory.createChecker(null, rule);
         rule = new Rule(null, "", CheckerCategory.SLOW_COUNT.getName(), 63, "testGroup", false, false, false, "");
-        SlowCountChecker checker2 = (SlowCountChecker) slowCount.createChecker(null, rule);
+        SlowCountChecker checker2 = (SlowCountChecker) checkerFactory.createChecker(null, rule);
         
         assertNotSame(checker, checker2);
         

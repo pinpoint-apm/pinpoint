@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
+import com.navercorp.pinpoint.batch.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.batch.alarm.CheckerCategory;
-import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
-import com.navercorp.pinpoint.batch.alarm.checker.DataSourceConnectionUsageRateChecker;
 import com.navercorp.pinpoint.batch.alarm.collector.DataSourceDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
@@ -87,7 +86,7 @@ public class DataSourceConnectionUsageRateCheckerTest {
         Rule rule = new Rule(APPLICATION_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 50, "testGroup", false, false, false, "");
         Application application = new Application(APPLICATION_NAME, ServiceType.STAND_ALONE);
 
-        DataSourceDataCollector collector = new DataSourceDataCollector(DataCollectorFactory.DataCollectorCategory.DATA_SOURCE_STAT, application, mockDataSourceDao, mockApplicationIndexDao, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
+        DataSourceDataCollector collector = new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, application, mockDataSourceDao, mockApplicationIndexDao, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
         DataSourceConnectionUsageRateChecker checker = new DataSourceConnectionUsageRateChecker(collector, rule);
         checker.check();
         Assert.assertTrue(checker.isDetected());
@@ -96,7 +95,7 @@ public class DataSourceConnectionUsageRateCheckerTest {
         Assert.assertTrue(StringUtils.hasLength(emailMessage));
 
         List<String> smsMessage = checker.getSmsMessage();
-        Assert.assertTrue(smsMessage.size() == 2);
+        Assert.assertEquals(2, smsMessage.size());
     }
 
     @Test
@@ -104,7 +103,7 @@ public class DataSourceConnectionUsageRateCheckerTest {
         Rule rule = new Rule(APPLICATION_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 80, "testGroup", false, false, false, "");
         Application application = new Application(APPLICATION_NAME, ServiceType.STAND_ALONE);
 
-        DataSourceDataCollector collector = new DataSourceDataCollector(DataCollectorFactory.DataCollectorCategory.DATA_SOURCE_STAT, application, mockDataSourceDao, mockApplicationIndexDao, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
+        DataSourceDataCollector collector = new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, application, mockDataSourceDao, mockApplicationIndexDao, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
         DataSourceConnectionUsageRateChecker checker = new DataSourceConnectionUsageRateChecker(collector, rule);
         checker.check();
         Assert.assertFalse(checker.isDetected());

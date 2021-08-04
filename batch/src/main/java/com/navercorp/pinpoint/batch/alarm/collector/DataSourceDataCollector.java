@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.alarm.collector;
 
+import com.navercorp.pinpoint.batch.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
 import com.navercorp.pinpoint.batch.alarm.vo.DataSourceAlarmVO;
 import com.navercorp.pinpoint.batch.util.ListUtils;
@@ -51,7 +52,7 @@ public class DataSourceDataCollector extends DataCollector {
 
     private final AtomicBoolean init = new AtomicBoolean(false); // need to consider a race condition when checkers start simultaneously.
 
-    public DataSourceDataCollector(DataCollectorFactory.DataCollectorCategory dataCollectorCategory, Application application, AgentStatDao<DataSourceListBo> dataSourceDao, ApplicationIndexDao applicationIndexDao, long timeSlotEndTime, long slotInterval) {
+    public DataSourceDataCollector(DataCollectorCategory dataCollectorCategory, Application application, AgentStatDao<DataSourceListBo> dataSourceDao, ApplicationIndexDao applicationIndexDao, long timeSlotEndTime, long slotInterval) {
         super(dataCollectorCategory);
         this.application = application;
 
@@ -123,7 +124,7 @@ public class DataSourceDataCollector extends DataCollector {
     }
 
     @Override
-    public DataCollectorFactory.DataCollectorCategory getDataCollectorCategory() {
+    public DataCollectorCategory getDataCollectorCategory() {
         return super.getDataCollectorCategory();
     }
 

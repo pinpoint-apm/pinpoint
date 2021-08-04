@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
+import com.navercorp.pinpoint.batch.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.batch.alarm.CheckerCategory;
-import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
-import com.navercorp.pinpoint.batch.alarm.checker.DeadlockChecker;
 import com.navercorp.pinpoint.batch.alarm.collector.AgentEventDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
@@ -88,7 +87,7 @@ public class DeadlockCheckerTest {
         when(mockAgentEventDao.getAgentEvents(AGENT_ID_2, range, Collections.emptySet())).thenReturn(Arrays.asList(createAgentEvent(AGENT_ID_2, createEventTimestamp(), AgentEventType.AGENT_DEADLOCK_DETECTED)));
         when(mockAgentEventDao.getAgentEvents(AGENT_ID_3, range, Collections.emptySet())).thenReturn(Arrays.asList(createAgentEvent(AGENT_ID_3, createEventTimestamp(), AgentEventType.AGENT_PING)));
 
-        AgentEventDataCollector dataCollector = new AgentEventDataCollector(DataCollectorFactory.DataCollectorCategory.AGENT_EVENT, application, mockAgentEventDao, mockApplicationIndexDao, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
+        AgentEventDataCollector dataCollector = new AgentEventDataCollector(DataCollectorCategory.AGENT_EVENT, application, mockAgentEventDao, mockApplicationIndexDao, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
         DeadlockChecker checker = new DeadlockChecker(dataCollector, rule);
         checker.check();
         Assert.assertTrue(checker.isDetected());
@@ -110,7 +109,7 @@ public class DeadlockCheckerTest {
         when(mockAgentEventDao.getAgentEvents(AGENT_ID_2, range, Collections.emptySet())).thenReturn(Arrays.asList(createAgentEvent(AGENT_ID_2, createEventTimestamp(), AgentEventType.AGENT_SHUTDOWN)));
         when(mockAgentEventDao.getAgentEvents(AGENT_ID_3, range, Collections.emptySet())).thenReturn(Arrays.asList(createAgentEvent(AGENT_ID_3, createEventTimestamp(), AgentEventType.AGENT_PING)));
 
-        AgentEventDataCollector dataCollector = new AgentEventDataCollector(DataCollectorFactory.DataCollectorCategory.AGENT_EVENT, application, mockAgentEventDao, mockApplicationIndexDao, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
+        AgentEventDataCollector dataCollector = new AgentEventDataCollector(DataCollectorCategory.AGENT_EVENT, application, mockAgentEventDao, mockApplicationIndexDao, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
         DeadlockChecker checker = new DeadlockChecker(dataCollector, rule);
         checker.check();
         Assert.assertFalse(checker.isDetected());

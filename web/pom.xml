@@ -329,19 +329,6 @@
             <artifactId>aspectjweaver</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.batch</groupId>
-            <artifactId>spring-batch-core</artifactId>
-            <version>${spring.batch.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.batch</groupId>
-            <artifactId>spring-batch-test</artifactId>
-            <version>${spring.batch.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-
         <!-- for zookeeper test -->
         <dependency>
             <groupId>org.apache.curator</groupId>
