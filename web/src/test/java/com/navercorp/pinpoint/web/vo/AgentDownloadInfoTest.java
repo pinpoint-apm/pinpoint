@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch.alarm.collector;
 
-import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory.DataCollectorCategory;
+import com.navercorp.pinpoint.batch.alarm.DataCollectorCategory;
 
 /**
  * @author minwoo.jung

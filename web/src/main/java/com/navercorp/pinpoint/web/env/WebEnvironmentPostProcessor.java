@@ -23,12 +23,10 @@ public class WebEnvironmentPostProcessor implements EnvironmentPostProcessor {
             "classpath:hbase-root.properties",
             "classpath:jdbc-root.properties",
             "classpath:pinpoint-web-root.properties",
-            "classpath:batch-root.properties",
 //            <!-- override configuration -->
             "classpath:profiles/${pinpoint.profiles.active}/hbase.properties",
             "classpath:profiles/${pinpoint.profiles.active}/jdbc.properties",
             "classpath:profiles/${pinpoint.profiles.active}/pinpoint-web.properties",
-            "classpath:profiles/${pinpoint.profiles.active}/batch.properties",
     };
     private static final String EXTERNAL_CONFIGURATION_KEY = "pinpoint.web.config.location";
 

@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.batch.alarm;
 
-import com.navercorp.pinpoint.batch.alarm.AlarmPartitioner;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import org.junit.Assert;
 import org.junit.Test;

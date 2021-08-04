@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.batch.job;
 
-import com.navercorp.pinpoint.batch.job.AgentCountPartitioner;
 import org.junit.Test;
 import org.springframework.batch.item.ExecutionContext;
 

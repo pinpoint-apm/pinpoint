@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch.alarm.collector;
 
-import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory.DataCollectorCategory;
+import com.navercorp.pinpoint.batch.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
@@ -94,7 +94,7 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
                 }
                 break;
             default:
-                throw new IllegalArgumentException("Can't count for " + dataCategory.toString());
+                throw new IllegalArgumentException("Can't count for " + dataCategory);
         }
 
         return count;
@@ -125,7 +125,7 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
                 }
                 break;
             default:
-                throw new IllegalArgumentException("Can't calculate rate for " + dataCategory.toString());
+                throw new IllegalArgumentException("Can't calculate rate for " + dataCategory);
         }
 
         return calculatePercent(count, totalCount);

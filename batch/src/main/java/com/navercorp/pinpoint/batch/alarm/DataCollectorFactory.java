@@ -16,7 +16,13 @@
 
 package com.navercorp.pinpoint.batch.alarm;
 
-import com.navercorp.pinpoint.batch.alarm.collector.*;
+import com.navercorp.pinpoint.batch.alarm.collector.AgentEventDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.AgentStatDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.DataSourceDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.FileDescriptorDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.MapStatisticsCallerDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.ResponseTimeDataCollector;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
@@ -86,15 +92,6 @@ public class DataCollectorFactory {
         }
 
         throw new IllegalArgumentException("unable to create DataCollector : " + checker.getName());
-    }
-
-    public enum DataCollectorCategory {
-        RESPONSE_TIME,
-        AGENT_STAT,
-        AGENT_EVENT,
-        DATA_SOURCE_STAT,
-        CALLER_STAT,
-        FILE_DESCRIPTOR
     }
 
 }

@@ -15,16 +15,12 @@
  */
 package com.navercorp.pinpoint.web.service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
-import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
 import com.navercorp.pinpoint.web.vo.UserGroup;
@@ -84,36 +80,7 @@ public class AlarmServiceImpl implements AlarmService {
         alarmDao.deleteCheckerResult(rule.getRuleId());
     }
     
-    @Override
-    @Transactional(readOnly = true)
-    public Map<String, CheckerResult> selectBeforeCheckerResults(String applicationId) {
-        Map<String, CheckerResult> checkerResults = new HashMap<>();
-        List<CheckerResult> CheckerResultList = alarmDao.selectBeforeCheckerResultList(applicationId);
-        
-        if (!CheckerResultList.isEmpty()) {
-            for (CheckerResult checkerResult : CheckerResultList) {
-                checkerResults.put(checkerResult.getRuleId(), checkerResult);
-            }
-        }
-        
-        return checkerResults;
-    }
-    
-    @Override
-    public void updateBeforeCheckerResult(CheckerResult beforeCheckerResult, AlarmChecker checker) {
-        alarmDao.deleteCheckerResult(beforeCheckerResult.getRuleId());
-        
-        if (checker.isDetected()) {
-            beforeCheckerResult.setDetected(true);
-            beforeCheckerResult.increseCount();
-            alarmDao.insertCheckerResult(beforeCheckerResult);
-        } else {
-            alarmDao.insertCheckerResult(new CheckerResult(checker.getRule().getRuleId(), checker.getRule().getApplicationId(), checker.getRule().getCheckerName(), false, 0, 1));
-        }
-        
-        
-    }
-    
+
     @Override
     public void deleteRuleByUserGroupId(String groupId) {
         alarmDao.deleteRuleByUserGroupId(groupId);
