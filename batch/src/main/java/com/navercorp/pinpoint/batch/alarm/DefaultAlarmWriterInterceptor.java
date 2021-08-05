@@ -26,10 +26,10 @@ import java.util.List;
 public class DefaultAlarmWriterInterceptor implements AlarmWriterInterceptor {
 
     @Override
-    public void before(List<? extends AlarmChecker> checkers) {
+    public void before(List<? extends AlarmChecker<?>> checkers) {
     }
 
     @Override
-    public void after(List<? extends AlarmChecker> checkers) {
+    public void after(List<? extends AlarmChecker<?>> checkers) {
     }
 }

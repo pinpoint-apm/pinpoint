@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.batch.alarm.collector.ResponseTimeDataCollector;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import com.navercorp.pinpoint.web.alarm.CheckerCategory;
+import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
 import com.navercorp.pinpoint.web.dao.hbase.HbaseApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.hbase.HbaseMapResponseTimeDao;

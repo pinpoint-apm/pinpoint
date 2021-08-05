@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -33,7 +32,6 @@ public class DefaultAlarmMessageSender implements AlarmMessageSender {
     
     private final WebhookSender webhookSender;
     
-    @Autowired
     public DefaultAlarmMessageSender(MailSender mailSender,
                                      WebhookSender webhookSender,
                                      Optional<SmsSender> smsSender) {
@@ -43,17 +41,17 @@ public class DefaultAlarmMessageSender implements AlarmMessageSender {
     }
 
     @Override
-    public void sendSms(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
+    public void sendSms(AlarmChecker<?> checker, int sequenceCount, StepExecution stepExecution) {
         this.smsSender.sendSms(checker, sequenceCount, stepExecution);
     }
 
     @Override
-    public void sendEmail(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
+    public void sendEmail(AlarmChecker<?> checker, int sequenceCount, StepExecution stepExecution) {
         this.mailSender.sendEmail(checker, sequenceCount, stepExecution);
     }
     
     @Override
-    public void sendWebhook(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
+    public void sendWebhook(AlarmChecker<?> checker, int sequenceCount, StepExecution stepExecution) {
         webhookSender.sendWebhook(checker, sequenceCount, stepExecution);
     }
 }

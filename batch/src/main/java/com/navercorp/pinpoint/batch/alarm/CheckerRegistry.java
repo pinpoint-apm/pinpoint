@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.batch.alarm.collector.FileDescriptorDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.MapStatisticsCallerDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.ResponseTimeDataCollector;
 
+import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 import java.util.HashMap;

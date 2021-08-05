@@ -60,10 +60,10 @@ public class SpringSmtpMailSender implements MailSender {
     }
 
     @Override
-    public void sendEmail(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
+    public void sendEmail(AlarmChecker<?> checker, int sequenceCount, StepExecution stepExecution) {
         List<String> receivers = userGroupService.selectEmailOfMember(checker.getUserGroupId());
 
-        if (receivers.size() == 0) {
+        if (receivers.isEmpty()) {
             return;
         }
 
@@ -78,7 +78,7 @@ public class SpringSmtpMailSender implements MailSender {
             message.setContent(mailTemplate.createBody(), "text/html");
             springMailSender.send(message);
             logger.info("send email : {}", subject);
-        }catch(Exception e){
+        } catch(Exception e) {
             logger.error("can't send alarm email. {}", checker.getRule(), e);
         }
     }

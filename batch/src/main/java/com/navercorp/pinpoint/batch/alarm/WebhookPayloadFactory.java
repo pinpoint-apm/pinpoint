@@ -15,7 +15,7 @@ public class WebhookPayloadFactory {
         this.batchEnv = Objects.requireNonNull(batchEnv, "batchEnv");
     }
 
-    public WebhookPayload newPayload(AlarmChecker checker, int sequenceCount, UserGroup userGroup) {
+    public WebhookPayload newPayload(AlarmChecker<?> checker, int sequenceCount, UserGroup userGroup) {
         return new WebhookPayload(pinpointUrl, batchEnv, checker, sequenceCount, userGroup);
     }
 }

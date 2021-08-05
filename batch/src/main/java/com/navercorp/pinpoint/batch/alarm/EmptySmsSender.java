@@ -28,7 +28,7 @@ public class EmptySmsSender implements SmsSender {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void sendSms(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
+    public void sendSms(AlarmChecker<?> checker, int sequenceCount, StepExecution stepExecution) {
         logger.info("can not send sms message.");
     }
 }

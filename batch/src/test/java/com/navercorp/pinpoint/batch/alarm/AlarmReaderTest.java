@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.batch.alarm;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.ResponseTimeDataCollector;
+import com.navercorp.pinpoint.web.alarm.CheckerCategory;
+import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;

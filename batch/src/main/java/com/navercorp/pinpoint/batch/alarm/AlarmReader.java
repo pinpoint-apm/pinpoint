@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.web.alarm.CheckerCategory;
+import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.AlarmService;
@@ -33,7 +35,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 /**
  * @author minwoo.jung
  */
-public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListener {
+public class AlarmReader implements ItemReader<AlarmChecker<?>>, StepExecutionListener {
     
     private final DataCollectorFactory dataCollectorFactory;
     
@@ -41,7 +43,7 @@ public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListe
     
     private final AlarmService alarmService;
     
-    private final Queue<AlarmChecker> checkers = new ConcurrentLinkedDeque<>();
+    private final Queue<AlarmChecker<?>> checkers = new ConcurrentLinkedDeque<>();
 
     private final CheckerRegistry checkerRegistry = CheckerRegistry.newCheckerRegistry();
 
@@ -51,7 +53,7 @@ public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListe
         this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
     }
     
-    public AlarmChecker read() {
+    public AlarmChecker<?> read() {
         return checkers.poll();
     }
 

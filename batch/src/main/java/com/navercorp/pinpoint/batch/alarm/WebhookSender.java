@@ -22,5 +22,5 @@ import org.springframework.batch.core.StepExecution;
  * @author hyeran.lee
  */
 public interface WebhookSender {
-    void sendWebhook(AlarmChecker checker, int sequenceCount, StepExecution stepExecution);
+    void sendWebhook(AlarmChecker<?> checker, int sequenceCount, StepExecution stepExecution);
 }

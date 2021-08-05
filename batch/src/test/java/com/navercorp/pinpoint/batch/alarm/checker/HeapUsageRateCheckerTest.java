@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
-import com.navercorp.pinpoint.batch.alarm.CheckerCategory;
-import com.navercorp.pinpoint.batch.alarm.DataCollectorCategory;
+import com.navercorp.pinpoint.web.alarm.CheckerCategory;
+import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
 import com.navercorp.pinpoint.batch.alarm.collector.AgentStatDataCollector;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;

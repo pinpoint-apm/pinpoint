@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.batch.alarm.collector;
 
-import com.navercorp.pinpoint.batch.alarm.DataCollectorCategory;
-import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
+import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.batch.alarm.vo.DataSourceAlarmVO;
 import com.navercorp.pinpoint.batch.util.ListUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;

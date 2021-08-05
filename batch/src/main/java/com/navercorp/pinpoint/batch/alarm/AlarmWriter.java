@@ -32,7 +32,7 @@ import java.util.Optional;
 /**
  * @author minwoo.jung
  */
-public class AlarmWriter implements ItemWriter<AlarmChecker> {
+public class AlarmWriter implements ItemWriter<AlarmChecker<?>> {
 
     private final AlarmMessageSender alarmMessageSender;
     private final AlarmService alarmService;
@@ -52,7 +52,7 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
     }
 
     @Override
-    public void write(List<? extends AlarmChecker> checkers) throws Exception {
+    public void write(List<? extends AlarmChecker<?>> checkers) throws Exception {
         interceptor.before(checkers);
 
         try {
@@ -64,10 +64,10 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
         }
     }
 
-    private void execute(List<? extends AlarmChecker> checkers) {
+    private void execute(List<? extends AlarmChecker<?>> checkers) {
         Map<String, CheckerResult> beforeCheckerResults = alarmService.selectBeforeCheckerResults(checkers.get(0).getRule().getApplicationId());
 
-        for (AlarmChecker checker : checkers) {
+        for (AlarmChecker<?> checker : checkers) {
             CheckerResult beforeCheckerResult = beforeCheckerResults.get(checker.getRule().getRuleId());
 
             if (beforeCheckerResult == null) {
@@ -82,7 +82,7 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
         }
     }
 
-    private void sendAlarmMessage(CheckerResult beforeCheckerResult, AlarmChecker checker) {
+    private void sendAlarmMessage(CheckerResult beforeCheckerResult, AlarmChecker<?> checker) {
         if (isTurnToSendAlarm(beforeCheckerResult)) {
             if (checker.isSMSSend()) {
                 alarmMessageSender.sendSms(checker, beforeCheckerResult.getSequenceCount() + 1, stepExecution);

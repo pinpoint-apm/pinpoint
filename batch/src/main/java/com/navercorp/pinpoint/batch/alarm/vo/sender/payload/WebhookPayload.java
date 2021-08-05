@@ -38,7 +38,7 @@ public class WebhookPayload {
     private final String notes;
     private final Integer sequenceCount;
     
-    public WebhookPayload(String pinpointUrl, String batchEnv, AlarmChecker checker, int sequenceCount, UserGroup userGroup) {
+    public WebhookPayload(String pinpointUrl, String batchEnv, AlarmChecker<?> checker, int sequenceCount, UserGroup userGroup) {
         this.pinpointUrl = pinpointUrl;
         this.batchEnv = batchEnv;
 
