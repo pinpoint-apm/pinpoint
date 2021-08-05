@@ -32,9 +32,13 @@ public class PercentRateSampler implements Sampler {
 
     private final AtomicLong counter = new AtomicLong(0);
 
-    private final long samplingRate;
+    private volatile long samplingRate;
 
     public PercentRateSampler(long samplingRate) {
+        updateSamplingRate(samplingRate);
+    }
+
+    public void updateSamplingRate(long samplingRate) {
         if (samplingRate <= 0 || samplingRate >= MAX) {
             // Use TrueSampler for 100%
             throw new IllegalArgumentException("Invalid samplingRate " + samplingRate);
