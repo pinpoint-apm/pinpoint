@@ -22,9 +22,9 @@ import org.springframework.batch.item.ItemProcessor;
 /**
  * @author minwoo.jung
  */
-public class AlarmProcessor implements ItemProcessor<AlarmChecker, AlarmChecker> {
+public class AlarmProcessor implements ItemProcessor<AlarmChecker<?>, AlarmChecker<?>> {
     
-    public AlarmChecker process(AlarmChecker checker) {
+    public AlarmChecker<?> process(AlarmChecker<?> checker) {
         checker.check();
         return checker;
     }

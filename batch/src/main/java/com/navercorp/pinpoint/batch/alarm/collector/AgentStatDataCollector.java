@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch.alarm.collector;
 
-import com.navercorp.pinpoint.batch.alarm.DataCollectorCategory;
+import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;

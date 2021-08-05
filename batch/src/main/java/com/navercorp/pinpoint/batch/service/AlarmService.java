@@ -27,6 +27,6 @@ public interface AlarmService {
 
     Map<String, CheckerResult> selectBeforeCheckerResults(String applicationId);
 
-    void updateBeforeCheckerResult(CheckerResult beforeCheckerResult, AlarmChecker checker);
+    void updateBeforeCheckerResult(CheckerResult beforeCheckerResult, AlarmChecker<?> checker);
 
 }

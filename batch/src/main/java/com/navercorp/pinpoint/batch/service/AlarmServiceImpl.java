@@ -43,10 +43,10 @@ public class AlarmServiceImpl implements AlarmService {
     @Transactional(readOnly = true)
     public Map<String, CheckerResult> selectBeforeCheckerResults(String applicationId) {
         Map<String, CheckerResult> checkerResults = new HashMap<>();
-        List<CheckerResult> CheckerResultList = alarmDao.selectBeforeCheckerResultList(applicationId);
+        List<CheckerResult> checkerResultList = alarmDao.selectBeforeCheckerResultList(applicationId);
         
-        if (!CheckerResultList.isEmpty()) {
-            for (CheckerResult checkerResult : CheckerResultList) {
+        if (!checkerResultList.isEmpty()) {
+            for (CheckerResult checkerResult : checkerResultList) {
                 checkerResults.put(checkerResult.getRuleId(), checkerResult);
             }
         }
@@ -55,7 +55,7 @@ public class AlarmServiceImpl implements AlarmService {
     }
 
     @Override
-    public void updateBeforeCheckerResult(CheckerResult beforeCheckerResult, AlarmChecker checker) {
+    public void updateBeforeCheckerResult(CheckerResult beforeCheckerResult, AlarmChecker<?> checker) {
         alarmDao.deleteCheckerResult(beforeCheckerResult.getRuleId());
         
         if (checker.isDetected()) {

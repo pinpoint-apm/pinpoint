@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.SlowCountChecker;
+import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -52,7 +53,7 @@ public class AlarmWriterTest {
             }
         };
         
-        List<AlarmChecker> checkers = new LinkedList<>();
+        List<AlarmChecker<?>> checkers = new LinkedList<>();
         checkers.add(checker);
         writer.write(checkers);
     }
@@ -73,7 +74,7 @@ public class AlarmWriterTest {
             }
         };
         
-        List<AlarmChecker> checkers = new LinkedList<>();
+        List<AlarmChecker<?>> checkers = new LinkedList<>();
         checkers.add(checker);
         writer.write(checkers);
     }

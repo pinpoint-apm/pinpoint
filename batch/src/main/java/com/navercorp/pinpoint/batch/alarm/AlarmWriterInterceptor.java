@@ -25,7 +25,7 @@ import java.util.List;
  */
 public interface AlarmWriterInterceptor {
 
-    void before(List<? extends AlarmChecker> checkers);
+    void before(List<? extends AlarmChecker<?>> checkers);
 
-    void after(List<? extends AlarmChecker> checkers);
+    void after(List<? extends AlarmChecker<?>> checkers);
 }

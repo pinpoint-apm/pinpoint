@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
-import com.navercorp.pinpoint.batch.alarm.DataCollectorCategory;
+import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.batch.alarm.CheckerCategory;
+import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.batch.alarm.collector.DataSourceDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;

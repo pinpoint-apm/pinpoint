@@ -58,12 +58,6 @@
         WHERE user_group_id = (SELECT id FROM user_group WHERE number = #{number})
     </update>
     
-    <select id="selectBeforeCheckerResultList" resultType="CheckerResult">
-        SELECT *
-        FROM alarm_history
-        WHERE application_id = #{applicationId}
-    </select>
-
     <delete id="deleteCheckerResult" parameterType="string">
         DELETE
         FROM alarm_history

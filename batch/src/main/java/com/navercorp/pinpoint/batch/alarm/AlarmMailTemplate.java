@@ -38,11 +38,11 @@ public class AlarmMailTemplate {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH:mm:ss");
 
     private final String pinpointUrl;
-    private final AlarmChecker checker;
+    private final AlarmChecker<?> checker;
     private final String batchEnv;
     private final int sequenceCount;
 
-    public AlarmMailTemplate(AlarmChecker checker, String pinpointUrl, String batchEnv, int sequenceCount) {
+    public AlarmMailTemplate(AlarmChecker<?> checker, String pinpointUrl, String batchEnv, int sequenceCount) {
         this.checker = Objects.requireNonNull(checker, "checker");
         this.pinpointUrl = Objects.requireNonNull(pinpointUrl, "pinpointUrl");
         this.batchEnv = Objects.requireNonNull(batchEnv, "batchEnv");
@@ -72,7 +72,7 @@ public class AlarmMailTemplate {
         body.append(String.format("Rule : %s", rule));
         body.append(LINE_FEED);
         if (checker instanceof AgentChecker) {
-            AgentChecker agentChecker = (AgentChecker) checker;
+            AgentChecker<?> agentChecker = (AgentChecker<?>) checker;
             Set<String> agentIds = agentChecker.getDetectedAgents().keySet();
 
             for (String agentId : agentIds) {

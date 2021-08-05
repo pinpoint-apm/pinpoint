@@ -62,7 +62,7 @@ public class WebhookSenderImpl implements WebhookSender {
 
 
     @Override
-    public void sendWebhook(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
+    public void sendWebhook(AlarmChecker<?> checker, int sequenceCount, StepExecution stepExecution) {
         try {
             String userGroupId = checker.getRule().getUserGroupId();
             

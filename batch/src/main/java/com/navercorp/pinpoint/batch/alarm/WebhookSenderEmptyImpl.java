@@ -5,7 +5,7 @@ import org.springframework.batch.core.StepExecution;
 
 public class WebhookSenderEmptyImpl implements WebhookSender {
     @Override
-    public void sendWebhook(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
+    public void sendWebhook(AlarmChecker<?> checker, int sequenceCount, StepExecution stepExecution) {
         // empty
     }
 }

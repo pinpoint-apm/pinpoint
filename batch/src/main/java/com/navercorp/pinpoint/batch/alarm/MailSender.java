@@ -22,5 +22,5 @@ import org.springframework.batch.core.StepExecution;
  * @author minwoo.jung
  */
 public interface MailSender {
-    void sendEmail(AlarmChecker checker, int sequenceCount, StepExecution stepExecution);
+    void sendEmail(AlarmChecker<?> checker, int sequenceCount, StepExecution stepExecution);
 }
