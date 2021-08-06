@@ -63,11 +63,5 @@
         FROM alarm_history
         WHERE rule_id = #{ruleId}
     </delete>
-    
-    <insert id="insertCheckerResult" parameterType="CheckerResult">
-        INSERT INTO alarm_history (rule_id, application_id, checker_name, detected, sequence_count, timing_count)
-        VALUES
-            (#{ruleId}, #{applicationId}, #{checkerName}, #{detected}, #{sequenceCount}, #{timingCount})
-    </insert>
-    
+
 </mapper>
