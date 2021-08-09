@@ -3,10 +3,10 @@
 server:
   port: 18080
 
-#logging:
-#  level:
-#    root: info
+logging:
+  level:
+    root: info
 
-#springdoc:
-#  swagger-ui:
-#    path: /
+springdoc:
+  swagger-ui:
+    path: /

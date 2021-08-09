@@ -9,3 +9,14 @@ mqtt:
     broker:
       url: tcp://localhost:1883
     topic: pinpoint_mqttv5
+
+server:
+  port: 18080
+
+logging:
+  level:
+    root: info
+
+springdoc:
+  swagger-ui:
+    path: /
