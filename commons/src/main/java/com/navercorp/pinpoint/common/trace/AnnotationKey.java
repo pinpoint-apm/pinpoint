@@ -123,6 +123,7 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_
  * <tr><td>300</td><td>PROXY_HTTP_HEADER</td></tr>
  * <tr><td>310</td><td>REDIS.IO</td></tr>
  * <tr><td>320</td><td>hbase.client.params</td></tr>
+ * <tr><td>321</td><td>hbase.table.name</td></tr>
  * <tr><td>330</td><td>memory.usage</td></tr>
  * <tr><td>923</td><td>marker.message</td></tr>
  * <tr><td>9000</td><td>gson.json.length</td></tr>
