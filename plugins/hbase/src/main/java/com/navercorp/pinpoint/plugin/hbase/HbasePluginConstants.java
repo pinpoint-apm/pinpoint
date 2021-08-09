@@ -63,7 +63,7 @@ public final class HbasePluginConstants {
     /**
      * The constant HBASE_TABLE_NAME.
      */
-    public static final AnnotationKey HBASE_TABLE_NAME = AnnotationKeyFactory.of(110999, "hbase.table.name", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey HBASE_TABLE_NAME = AnnotationKeyFactory.of(321, "hbase.table.name", VIEW_IN_RECORD_SET);
 
     /**
      * The constant HBASE_DESTINATION_ID.

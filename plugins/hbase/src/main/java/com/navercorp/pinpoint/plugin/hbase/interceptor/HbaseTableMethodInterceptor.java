@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.plugin.hbase.HbasePluginConstants;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
@@ -37,8 +38,8 @@ import java.util.List;
  */
 public class HbaseTableMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    private boolean paramsProfile;
-    private boolean tableNameProfile;
+    private final boolean paramsProfile;
+    private final boolean tableNameProfile;
 
     /**
      * Instantiates a new Hbase table method interceptor.
@@ -76,11 +77,10 @@ public class HbaseTableMethodInterceptor extends SpanEventSimpleAroundIntercepto
     }
 
     protected String getTableName(Object target) {
-        String table = "Unknown";
         try {
             if (target instanceof org.apache.hadoop.hbase.client.HTable) {
                 byte[] tableName = ((HTable) target).getTableName();
-                table = new String(tableName);
+                return BytesUtils.toString(tableName);
             } else {
                 if (isDebug) {
                     logger.debug("invalid instanceof HTable:{}", target);
@@ -91,7 +91,7 @@ public class HbaseTableMethodInterceptor extends SpanEventSimpleAroundIntercepto
                 logger.debug("failed to getTableName method. caused:{}", e.getMessage(), e);
             }
         }
-        return table;
+        return "Unknown";
     }
 
     /**
