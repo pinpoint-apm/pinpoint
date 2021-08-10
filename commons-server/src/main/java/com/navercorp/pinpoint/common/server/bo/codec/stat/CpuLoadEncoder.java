@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class CpuLoadEncoder extends AgentStatEncoder<CpuLoadBo> {
 
-    @Autowired
     private CpuLoadEncoder(@Qualifier("cpuLoadCodecV2") AgentStatCodec<CpuLoadBo> cpuLoadCodec) {
         super(cpuLoadCodec);
     }

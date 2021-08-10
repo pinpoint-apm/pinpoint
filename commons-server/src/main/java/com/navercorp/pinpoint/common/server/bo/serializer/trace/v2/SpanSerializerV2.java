@@ -6,10 +6,10 @@ import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.SerializationContext;
 
 import org.apache.hadoop.hbase.client.Put;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -18,10 +18,10 @@ import java.nio.ByteBuffer;
 public class SpanSerializerV2 implements HbaseSerializer<SpanBo, Put> {
 
 
-    @Autowired
-    private SpanEncoder spanEncoder;
+    private final SpanEncoder spanEncoder;
 
-    public SpanSerializerV2() {
+    public SpanSerializerV2(SpanEncoder spanEncoder) {
+        this.spanEncoder = Objects.requireNonNull(spanEncoder, "spanEncoder");
     }
 
 

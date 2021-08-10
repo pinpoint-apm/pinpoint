@@ -18,11 +18,9 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 public class TotalThreadCountEncoder extends ApplicationStatEncoder {
-    @Autowired
     public TotalThreadCountEncoder(@Qualifier("joinTotalThreadCountCodec") ApplicationStatCodec codec) {
         super(codec);
     }

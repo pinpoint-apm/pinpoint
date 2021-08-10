@@ -1,7 +1,9 @@
 package com.navercorp.pinpoint.web.dao.memory;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
+import com.navercorp.pinpoint.web.dao.UserDao;
 import org.junit.Test;
 
 import com.navercorp.pinpoint.web.vo.UserGroup;
@@ -11,7 +13,7 @@ public class MemoryUserGroupDaoTest {
 
     @Test
     public void selectUserGroupByUserId() {
-        MemoryUserGroupDao userGroupDao = new MemoryUserGroupDao();
+        MemoryUserGroupDao userGroupDao = new MemoryUserGroupDao(mock(UserDao.class));
         userGroupDao.createUserGroup(new UserGroup("1", "userGroup1"));
         userGroupDao.createUserGroup(new UserGroup("2", "userGroup2"));
         userGroupDao.insertMember(new UserGroupMember("userGroup1", "user1"));
@@ -22,7 +24,7 @@ public class MemoryUserGroupDaoTest {
     
     @Test
     public void selectUserGroupByUserGroupId() {
-        MemoryUserGroupDao userGroupDao = new MemoryUserGroupDao();
+        MemoryUserGroupDao userGroupDao = new MemoryUserGroupDao(mock(UserDao.class));
         userGroupDao.createUserGroup(new UserGroup("1", "userGroup1"));
         userGroupDao.createUserGroup(new UserGroup("2", "userGroup2"));
         userGroupDao.insertMember(new UserGroupMember("userGroup1", "user1"));

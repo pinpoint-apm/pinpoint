@@ -18,11 +18,9 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 public class LoadedClassEncoder extends ApplicationStatEncoder {
-    @Autowired
     public LoadedClassEncoder(@Qualifier("joinLoadedClassCodec")ApplicationStatCodec codec) {
         super(codec);
     }

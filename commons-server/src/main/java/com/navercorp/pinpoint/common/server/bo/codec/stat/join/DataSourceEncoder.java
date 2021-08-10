@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
@@ -25,7 +24,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
  */
 public class DataSourceEncoder extends ApplicationStatEncoder {
 
-    @Autowired
     private DataSourceEncoder(@Qualifier("joinDataSourceCodec") ApplicationStatCodec dataSourceCodec) {
         super(dataSourceCodec);
     }

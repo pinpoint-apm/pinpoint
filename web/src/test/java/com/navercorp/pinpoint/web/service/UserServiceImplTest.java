@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.UserDao;
+import com.navercorp.pinpoint.web.dao.UserGroupDao;
 import com.navercorp.pinpoint.web.dao.memory.MemoryUserDao;
 import com.navercorp.pinpoint.web.util.UserInfoDecoder;
 import com.navercorp.pinpoint.web.util.UserInfoEncoder;
@@ -10,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -43,7 +46,7 @@ public class UserServiceImplTest {
 
     @Test
     public void insertUserTest() {
-        UserDao userDao = new MemoryUserDao();
+        UserDao userDao = new MemoryUserDao(mock(UserGroupDao.class));
         UserService userService = new UserServiceImpl(userDao, Optional.of(userInfoDecoder), Optional.of(userInfoEncoder));
 
         String userId = "userId01";
@@ -63,7 +66,7 @@ public class UserServiceImplTest {
 
     @Test
     public void insertUserList() {
-        UserDao userDao = new MemoryUserDao();
+        UserDao userDao = new MemoryUserDao(mock(UserGroupDao.class));
         UserService userService = new UserServiceImpl(userDao, Optional.of(userInfoDecoder), Optional.of(userInfoEncoder));
 
         List<User> userList = new ArrayList<>(5);
@@ -89,7 +92,7 @@ public class UserServiceImplTest {
 
     @Test
     public void updateUserTest() {
-        UserDao userDao = new MemoryUserDao();
+        UserDao userDao = new MemoryUserDao(mock(UserGroupDao.class));
         UserService userService = new UserServiceImpl(userDao, Optional.of(userInfoDecoder), Optional.of(userInfoEncoder));
 
         String userId = "userId01";

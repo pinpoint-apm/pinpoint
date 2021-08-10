@@ -16,14 +16,12 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.join.ActiveTraceEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author minwoo.jung
  */
 public class ActiveTraceSerializer extends ApplicationStatSerializer {
 
-    @Autowired
     protected ActiveTraceSerializer(ActiveTraceEncoder encoder) {
         super(encoder);
     }

@@ -41,8 +41,6 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    // @Autowired
-    // private AbstractRowKeyDistributor rowKeyDistributor;
 
     @Override
     public List<TransactionId> mapRow(Result result, int rowNum) throws Exception {

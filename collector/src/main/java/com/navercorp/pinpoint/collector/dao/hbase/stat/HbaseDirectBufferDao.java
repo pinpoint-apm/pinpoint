@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -43,18 +42,23 @@ import java.util.Objects;
 @Repository
 public class HbaseDirectBufferDao implements AgentStatDaoV2<DirectBufferBo> {
 
-    @Qualifier("asyncPutHbaseTemplate")
-    @Autowired
-    private HbaseOperations2 hbaseTemplate;
+    private final HbaseOperations2 hbaseTemplate;
 
-    @Autowired
-    private TableNameProvider tableNameProvider;
+    private final TableNameProvider tableNameProvider;
 
-    @Autowired
-    private AgentStatHbaseOperationFactory agentStatHbaseOperationFactory;
+    private final AgentStatHbaseOperationFactory agentStatHbaseOperationFactory;
 
-    @Autowired
-    private DirectBufferSerializer directBufferSerializer;
+    private final DirectBufferSerializer directBufferSerializer;
+
+    public HbaseDirectBufferDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate,
+                                TableNameProvider tableNameProvider,
+                                AgentStatHbaseOperationFactory agentStatHbaseOperationFactory,
+                                DirectBufferSerializer directBufferSerializer) {
+        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
+        this.agentStatHbaseOperationFactory = Objects.requireNonNull(agentStatHbaseOperationFactory, "agentStatHbaseOperationFactory");
+        this.directBufferSerializer = Objects.requireNonNull(directBufferSerializer, "directBufferSerializer");
+    }
 
     @Override
     public void insert(String agentId, List<DirectBufferBo> directBufferBos) {

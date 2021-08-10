@@ -26,9 +26,9 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
 
 /**
@@ -36,10 +36,13 @@ import java.util.Queue;
  */
 public class AgentCountReader implements ItemReader<ApplicationAgentsList>, StepExecutionListener {
 
-    @Autowired
-    private AgentInfoService agentInfoService;
+    private final AgentInfoService agentInfoService;
 
     private final Queue<ApplicationAgentsList> queue = new LinkedList<>();
+
+    public AgentCountReader(AgentInfoService agentInfoService) {
+        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+    }
 
     @Override
     public void beforeStep(StepExecution stepExecution) {

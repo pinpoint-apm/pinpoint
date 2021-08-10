@@ -19,13 +19,13 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.navercorp.pinpoint.web.dao.UserDao;
@@ -40,9 +40,12 @@ public class MemoryUserDao implements UserDao {
     private final Map<String, User> users = new ConcurrentHashMap<>();
     private final AtomicInteger userNumGenerator  = new AtomicInteger(); 
     
-    @Autowired
-    UserGroupDao userGroupDao;
-    
+    private final UserGroupDao userGroupDao;
+
+    public MemoryUserDao(UserGroupDao userGroupDao) {
+        this.userGroupDao = Objects.requireNonNull(userGroupDao, "userGroupDao");
+    }
+
     @Override
     public void insertUser(User user) {
         String userNumber = String.valueOf(userNumGenerator.getAndIncrement());

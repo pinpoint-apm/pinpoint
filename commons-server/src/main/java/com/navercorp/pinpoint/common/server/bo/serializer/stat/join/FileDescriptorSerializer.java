@@ -16,14 +16,12 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.join.FileDescriptorEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Roy Kim
  */
 public class FileDescriptorSerializer extends ApplicationStatSerializer {
 
-    @Autowired
     public FileDescriptorSerializer(FileDescriptorEncoder fileDescriptorEncoder) {
         super(fileDescriptorEncoder);
     }

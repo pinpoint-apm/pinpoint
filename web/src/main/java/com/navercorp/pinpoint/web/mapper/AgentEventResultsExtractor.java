@@ -21,12 +21,12 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -34,9 +34,11 @@ import java.util.List;
 @Component
 public class AgentEventResultsExtractor implements ResultsExtractor<List<AgentEventBo>> {
 
-    @Autowired
-    @Qualifier("agentEventMapper")
-    private RowMapper<List<AgentEventBo>> agentEventMapper;
+    private final RowMapper<List<AgentEventBo>> agentEventMapper;
+
+    public AgentEventResultsExtractor(@Qualifier("agentEventMapper") RowMapper<List<AgentEventBo>> agentEventMapper) {
+        this.agentEventMapper = Objects.requireNonNull(agentEventMapper, "agentEventMapper");
+    }
 
     @Override
     public List<AgentEventBo> extractData(ResultScanner results) throws Exception {

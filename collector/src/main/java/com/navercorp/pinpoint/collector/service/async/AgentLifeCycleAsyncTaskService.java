@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -40,14 +39,18 @@ public class AgentLifeCycleAsyncTaskService {
     private static final int INTEGER_BIT_COUNT = BytesUtils.INT_BYTE_LENGTH * 8;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    @Autowired
-    private AgentLifeCycleService agentLifeCycleService;
-    @Autowired
-    private StatisticsService statisticsService;
-    @Autowired
-    private ServiceTypeRegistryService registry;
-    @Autowired
-    private CollectorConfiguration configuration;
+
+    private final AgentLifeCycleService agentLifeCycleService;
+    private final StatisticsService statisticsService;
+    private final ServiceTypeRegistryService registry;
+    private final CollectorConfiguration configuration;
+
+    public AgentLifeCycleAsyncTaskService(AgentLifeCycleService agentLifeCycleService, StatisticsService statisticsService, ServiceTypeRegistryService registry, CollectorConfiguration configuration) {
+        this.agentLifeCycleService = agentLifeCycleService;
+        this.statisticsService = statisticsService;
+        this.registry = registry;
+        this.configuration = configuration;
+    }
 
     @Async("agentEventWorker")
     public void handleLifeCycleEvent(AgentProperty agentProperty, long eventTimestamp, AgentLifeCycleState agentLifeCycleState, long eventIdentifier) {

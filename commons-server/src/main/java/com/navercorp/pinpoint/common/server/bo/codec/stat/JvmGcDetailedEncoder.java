@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class JvmGcDetailedEncoder extends AgentStatEncoder<JvmGcDetailedBo> {
 
-    @Autowired
     public JvmGcDetailedEncoder(@Qualifier("jvmGcDetailedCodecV2") AgentStatCodec<JvmGcDetailedBo> jvmGcDetailedCodec) {
         super(jvmGcDetailedCodec);
     }

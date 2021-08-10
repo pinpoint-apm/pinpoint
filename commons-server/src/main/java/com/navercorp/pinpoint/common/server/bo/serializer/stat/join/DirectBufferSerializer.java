@@ -17,14 +17,12 @@ package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.join.DirectBufferEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Roy Kim
  */
 public class DirectBufferSerializer extends ApplicationStatSerializer {
 
-    @Autowired
     public DirectBufferSerializer(DirectBufferEncoder directBufferEncoder) {
         super(directBufferEncoder);
     }

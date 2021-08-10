@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -28,7 +27,6 @@ import java.util.List;
 @Component
 public class FileDescriptorDecoder extends AgentStatDecoder<FileDescriptorBo> {
 
-    @Autowired
     public FileDescriptorDecoder(List<AgentStatCodec<FileDescriptorBo>> fileDescriptorCodecs) {
         super(fileDescriptorCodecs);
     }

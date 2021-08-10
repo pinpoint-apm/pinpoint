@@ -17,14 +17,12 @@
 package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TotalThreadCountEncoder extends AgentStatEncoder<TotalThreadCountBo> {
 
-    @Autowired
     public TotalThreadCountEncoder(@Qualifier("totalThreadCountCodecV2") AgentStatCodec<TotalThreadCountBo> codec) {
         super(codec);
     }

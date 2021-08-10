@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCode
 import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecFactory;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v2.CpuLoadCodecV2;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -31,7 +30,6 @@ import java.util.Objects;
 @Component("cpuLoadCodecV1")
 public class CpuLoadCodecV1 extends AgentStatCodecV1<CpuLoadBo> {
 
-    @Autowired
     public CpuLoadCodecV1(AgentStatDataPointCodec codec) {
         super(new CpuLoadCodecFactory(codec));
     }

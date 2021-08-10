@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.collector.manage.jmx;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.navercorp.pinpoint.collector.manage.ClusterManager;
@@ -38,17 +38,24 @@ public class JMXCollectorManagerList {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("${collector.admin.api.jmx.active:false}")
+
     private boolean isActive;
 
-    @Autowired
-    private HandlerManager handlerManager;
+    private final HandlerManager handlerManager;
 
-    @Autowired
-    private ClusterManager clusterManager;
+    private final ClusterManager clusterManager;
 
-    @Autowired
-    private HBaseManager hBaseManager;
+    private final HBaseManager hBaseManager;
+
+    public JMXCollectorManagerList(@Value("${collector.admin.api.jmx.active:false}") boolean isActive,
+                                   HandlerManager handlerManager,
+                                   ClusterManager clusterManager,
+                                   HBaseManager hBaseManager) {
+        this.isActive = isActive;
+        this.handlerManager = Objects.requireNonNull(handlerManager, "handlerManager");
+        this.clusterManager = Objects.requireNonNull(clusterManager, "clusterManager");
+        this.hBaseManager = Objects.requireNonNull(hBaseManager, "hBaseManager");
+    }
 
     public List<CollectorManager> getSupportList() {
         if (!isActive) {

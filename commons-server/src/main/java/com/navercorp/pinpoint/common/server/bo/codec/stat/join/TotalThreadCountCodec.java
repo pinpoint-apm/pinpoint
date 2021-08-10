@@ -31,7 +31,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -43,8 +42,9 @@ public class TotalThreadCountCodec implements ApplicationStatCodec {
 
     private final AgentStatDataPointCodec codec;
 
-    @Autowired
-    public TotalThreadCountCodec(AgentStatDataPointCodec codec) { this.codec = codec; }
+    public TotalThreadCountCodec(AgentStatDataPointCodec codec) {
+        this.codec = codec;
+    }
 
     @Override
     public byte getVersion() { return VERSION; }

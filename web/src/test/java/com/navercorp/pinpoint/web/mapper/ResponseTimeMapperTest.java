@@ -20,9 +20,11 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HConstants;
@@ -30,6 +32,8 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.junit.Assert;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * @author emeroad
@@ -49,7 +53,7 @@ public class ResponseTimeMapperTest {
 
         Cell mockCell = CellUtil.createCell(HConstants.EMPTY_BYTE_ARRAY, HConstants.EMPTY_BYTE_ARRAY, bufferArray, HConstants.LATEST_TIMESTAMP, KeyValue.Type.Maximum.getCode(), valueArray);
 
-        ResponseTimeMapper responseTimeMapper = new ResponseTimeMapper();
+        ResponseTimeMapper responseTimeMapper = new ResponseTimeMapper(mock(ServiceTypeRegistryService.class), mock(RowKeyDistributorByHashPrefix.class));
         ResponseTime responseTime = new ResponseTime("applicationName", ServiceType.STAND_ALONE, System.currentTimeMillis());
         responseTimeMapper.recordColumn(responseTime, mockCell);
 

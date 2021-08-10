@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Put;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.nio.ByteBuffer;
@@ -40,7 +39,6 @@ public class AgentUriStatSerializer implements HbaseSerializer<List<AgentUriStat
 
     private final AgentUriStatEncoder agentUriStatEncoder;
 
-    @Autowired
     public AgentUriStatSerializer(AgentUriStatEncoder agentUriStatEncoder) {
         this.agentUriStatEncoder = Objects.requireNonNull(agentUriStatEncoder, "agentUriStatEncoder");
     }

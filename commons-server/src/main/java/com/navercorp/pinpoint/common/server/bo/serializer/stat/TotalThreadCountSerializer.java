@@ -18,13 +18,11 @@ package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TotalThreadCountEncoder;
 import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TotalThreadCountSerializer extends AgentStatSerializer<TotalThreadCountBo> {
 
-    @Autowired
     public TotalThreadCountSerializer(TotalThreadCountEncoder totalThreadCountEncoder) {
         super(totalThreadCountEncoder);
     }

@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ActiveTraceEncoder;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ActiveTraceSerializer extends AgentStatSerializer<ActiveTraceBo> {
 
-    @Autowired
     public ActiveTraceSerializer(ActiveTraceEncoder activeTraceEncoder) {
         super(activeTraceEncoder);
     }

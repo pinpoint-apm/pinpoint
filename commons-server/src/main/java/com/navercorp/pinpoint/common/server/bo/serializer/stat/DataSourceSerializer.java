@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.DataSourceEncoder;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataSourceSerializer extends AgentStatSerializer<DataSourceListBo> {
 
-    @Autowired
     public DataSourceSerializer(DataSourceEncoder dataSourceEncoder) {
         super(dataSourceEncoder);
     }

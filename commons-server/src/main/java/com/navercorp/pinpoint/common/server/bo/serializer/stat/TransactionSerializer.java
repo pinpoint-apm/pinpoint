@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TransactionEncoder;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class TransactionSerializer extends AgentStatSerializer<TransactionBo> {
 
-    @Autowired
     public TransactionSerializer(TransactionEncoder transactionEncoder) {
         super(transactionEncoder);
     }

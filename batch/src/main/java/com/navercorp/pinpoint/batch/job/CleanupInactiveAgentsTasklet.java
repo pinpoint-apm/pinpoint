@@ -24,9 +24,8 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.PostConstruct;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -35,19 +34,14 @@ public class CleanupInactiveAgentsTasklet implements Tasklet {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private BatchConfiguration batchConfiguration;
+    private final int durationDays;
 
-    private int durationDays;
+    private final AdminService adminService;
 
-    @Autowired
-    private AdminService adminService;
-
-
-    @PostConstruct
-    public void setup() {
-        int cleanupInactiveAgentsDurationDays = batchConfiguration.getCleanupInactiveAgentsDurationDays();
-        this.durationDays = cleanupInactiveAgentsDurationDays;
+    public CleanupInactiveAgentsTasklet(BatchConfiguration batchConfiguration, AdminService adminService) {
+        Objects.requireNonNull(batchConfiguration, "batchConfiguration");
+        this.durationDays = batchConfiguration.getCleanupInactiveAgentsDurationDays();
+        this.adminService = Objects.requireNonNull(adminService, "adminService");
     }
 
     @Override

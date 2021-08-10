@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StrategyAnaly
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -39,7 +38,6 @@ import java.util.Objects;
 @Component("transactionCodecV2")
 public class TransactionCodecV2 extends AgentStatCodecV2<TransactionBo> {
 
-    @Autowired
     public TransactionCodecV2(AgentStatDataPointCodec codec) {
         super(new TransactionFactory(codec));
     }

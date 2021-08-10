@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -38,8 +37,6 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
 
     private final AbstractRowKeyDistributor rowKeyDistributor;
 
-
-    @Autowired
     public TraceRowKeyEncoderV2(@Qualifier("traceV2Distributor") AbstractRowKeyDistributor rowKeyDistributor) {
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
     }
