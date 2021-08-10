@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecFactory;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v2.TransactionCodecV2;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -32,7 +31,6 @@ import java.util.Objects;
 @Component("transactionCodecV1")
 public class TransactionCodecV1 extends AgentStatCodecV1<TransactionBo> {
 
-    @Autowired
     public TransactionCodecV1(AgentStatDataPointCodec codec) {
         super(new TransactionCodecFactory(codec));
     }

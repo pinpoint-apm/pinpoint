@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.web.security.login.JwtRequestFilter;
 import com.navercorp.pinpoint.web.security.login.PreAuthenticationCheckFilter;
 import com.navercorp.pinpoint.web.security.login.SaveJwtTokenAuthenticationSuccessHandler;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -37,6 +36,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -45,8 +46,11 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
 @Profile("basicLogin")
 public class PinpointBasicLoginConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private BasicLoginService basicLoginService;
+    private final BasicLoginService basicLoginService;
+
+    public PinpointBasicLoginConfig(BasicLoginService basicLoginService) {
+        this.basicLoginService = Objects.requireNonNull(basicLoginService, "basicLoginService");
+    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {

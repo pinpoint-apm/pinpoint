@@ -24,7 +24,6 @@ import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -47,7 +46,6 @@ public class AgentStatHbaseOperationFactory {
 
     private final AbstractRowKeyDistributor rowKeyDistributor;
 
-    @Autowired
     public AgentStatHbaseOperationFactory(
             AgentStatRowKeyEncoder rowKeyEncoder,
             AgentStatRowKeyDecoder rowKeyDecoder,

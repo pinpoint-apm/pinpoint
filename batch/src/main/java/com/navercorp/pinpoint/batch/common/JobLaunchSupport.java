@@ -22,7 +22,6 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.configuration.JobLocator;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Objects;
 
@@ -32,12 +31,13 @@ import java.util.Objects;
  */
 public class JobLaunchSupport implements InitializingBean {
 
-    @Autowired
-    private BatchConfiguration batchConfiguration;
-    @Autowired
-    private JobLocator locator;
-    @Autowired
-    private JobLauncher launcher;
+    private final JobLocator locator;
+    private final JobLauncher launcher;
+
+    public JobLaunchSupport(JobLocator locator, JobLauncher launcher) {
+        this.locator = Objects.requireNonNull(locator, "locator");
+        this.launcher = Objects.requireNonNull(launcher, "launcher");
+    }
 
     public JobExecution run(String jobName, JobParameters params) {
         try {

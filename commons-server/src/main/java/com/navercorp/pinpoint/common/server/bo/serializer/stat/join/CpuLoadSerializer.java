@@ -16,14 +16,12 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.join.CpuLoadEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author minwoo.jung
  */
 public class CpuLoadSerializer extends ApplicationStatSerializer {
 
-    @Autowired
     public CpuLoadSerializer(CpuLoadEncoder cpuLoadEncoder) {
         super(cpuLoadEncoder);
     }

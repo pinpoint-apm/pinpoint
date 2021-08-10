@@ -23,19 +23,22 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 public class ApplicationAgentHostListSerializer extends JsonSerializer<ApplicationAgentHostList> {
 
-    @Autowired
-    private ServiceTypeRegistryService serviceTypeRegistryService;
+    private final ServiceTypeRegistryService serviceTypeRegistryService;
+
+    public ApplicationAgentHostListSerializer(ServiceTypeRegistryService serviceTypeRegistryService) {
+        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
+    }
 
     @Override
     public void serialize(ApplicationAgentHostList applicationAgentHostList, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {

@@ -18,16 +18,17 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Objects;
 
 /**
  * @author emeroad
  */
 public class RangeFactory {
-    @Autowired
-    private TimeSlot timeSlot;
+    private final TimeSlot timeSlot;
+
+    public RangeFactory(TimeSlot timeSlot) {
+        this.timeSlot = timeSlot;
+    }
 
     /**
      * Create minute-based reversed Range for statistics

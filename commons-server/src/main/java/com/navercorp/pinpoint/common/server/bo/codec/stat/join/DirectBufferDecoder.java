@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -27,7 +26,6 @@ import java.util.List;
 @Component("joinDirectBufferDecoder")
 public class DirectBufferDecoder extends ApplicationStatDecoder {
 
-    @Autowired
     public DirectBufferDecoder(List<DirectBufferCodec> directBufferCodecList) {
         super(directBufferCodecList);
     }

@@ -20,17 +20,20 @@ import com.navercorp.pinpoint.web.dao.AgentStatisticsDao;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
 import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 public class AgentCountWriter implements ItemWriter<AgentCountStatistics> {
 
-    @Autowired
-    AgentStatisticsDao agentStatisticsDao;
+    private final AgentStatisticsDao agentStatisticsDao;
+
+    public AgentCountWriter(AgentStatisticsDao agentStatisticsDao) {
+        this.agentStatisticsDao = Objects.requireNonNull(agentStatisticsDao, "agentStatisticsDao");
+    }
 
     @Override
     public void write(List<? extends AgentCountStatistics> items) throws Exception {

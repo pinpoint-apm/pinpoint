@@ -33,7 +33,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecoding
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -50,7 +49,6 @@ public class DataSourceCodecV2 implements AgentStatCodec<DataSourceListBo> {
 
     private final AgentStatDataPointCodec codec;
 
-    @Autowired
     public DataSourceCodecV2(AgentStatDataPointCodec codec) {
         this.codec = Objects.requireNonNull(codec, "agentStatDataPointCodec");
     }

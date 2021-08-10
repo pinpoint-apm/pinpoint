@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.JvmGcDetailedEncoder;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class JvmGcDetailedSerializer extends AgentStatSerializer<JvmGcDetailedBo> {
 
-    @Autowired
     public JvmGcDetailedSerializer(JvmGcDetailedEncoder jvmGcDetailedEncoder) {
         super(jvmGcDetailedEncoder);
     }

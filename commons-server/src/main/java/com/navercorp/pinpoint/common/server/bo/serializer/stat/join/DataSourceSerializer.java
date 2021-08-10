@@ -16,13 +16,11 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.join.DataSourceEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author minwoo.jung
  */
 public class DataSourceSerializer extends ApplicationStatSerializer {
-    @Autowired
     public DataSourceSerializer(DataSourceEncoder dataSourceEncoder) {
         super(dataSourceEncoder);
     }

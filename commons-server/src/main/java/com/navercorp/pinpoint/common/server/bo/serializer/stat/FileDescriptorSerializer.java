@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.FileDescriptorEncoder;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class FileDescriptorSerializer extends AgentStatSerializer<FileDescriptorBo> {
 
-    @Autowired
     public FileDescriptorSerializer(FileDescriptorEncoder fileDescriptorEncoder) {
         super(fileDescriptorEncoder);
     }

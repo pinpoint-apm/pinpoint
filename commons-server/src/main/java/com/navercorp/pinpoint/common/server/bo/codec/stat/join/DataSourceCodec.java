@@ -35,7 +35,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -52,7 +51,6 @@ public class DataSourceCodec implements ApplicationStatCodec {
 
     private final AgentStatDataPointCodec codec;
 
-    @Autowired
     public DataSourceCodec(AgentStatDataPointCodec codec) {
         this.codec = Objects.requireNonNull(codec, "agentStatDataPointCodec");
     }

@@ -25,8 +25,9 @@ import com.navercorp.pinpoint.hbase.manager.task.ResetTask;
 import com.navercorp.pinpoint.hbase.manager.task.UpdateTask;
 import com.navercorp.pinpoint.hbase.schema.reader.HbaseSchemaReader;
 import com.navercorp.pinpoint.hbase.schema.service.HbaseSchemaService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -34,14 +35,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class HbaseSchemaManagerTaskFactory {
 
-    @Autowired
-    private HbaseSchemaReader hbaseSchemaReader;
+    private final HbaseSchemaReader hbaseSchemaReader;
 
-    @Autowired
-    private HbaseSchemaService hbaseSchemaService;
+    private final HbaseSchemaService hbaseSchemaService;
 
-    @Autowired
-    private XmlFormatter xmlFormatter;
+    private final XmlFormatter xmlFormatter;
+
+    public HbaseSchemaManagerTaskFactory(HbaseSchemaReader hbaseSchemaReader, HbaseSchemaService hbaseSchemaService, XmlFormatter xmlFormatter) {
+        this.hbaseSchemaReader = Objects.requireNonNull(hbaseSchemaReader, "hbaseSchemaReader");
+        this.hbaseSchemaService = Objects.requireNonNull(hbaseSchemaService, "hbaseSchemaService");
+        this.xmlFormatter = Objects.requireNonNull(xmlFormatter, "xmlFormatter");
+    }
 
     public HbaseSchemaManagerTask create(ProgramCommand programCommand, ProgramOptions programOptions) {
         if (programCommand == ProgramCommand.EMPTY) {

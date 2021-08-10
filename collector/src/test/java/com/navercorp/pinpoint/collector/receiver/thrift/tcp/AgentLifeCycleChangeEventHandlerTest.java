@@ -58,7 +58,7 @@ public class AgentLifeCycleChangeEventHandlerTest {
     private ChannelPropertiesFactory channelPropertiesFactory;
 
     @InjectMocks
-    private AgentLifeCycleChangeEventHandler lifeCycleChangeEventHandler = new AgentLifeCycleChangeEventHandler();
+    private AgentLifeCycleChangeEventHandler lifeCycleChangeEventHandler;
 
     @Before
     public void setUp() throws Exception {

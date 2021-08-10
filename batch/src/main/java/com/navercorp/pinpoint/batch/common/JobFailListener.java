@@ -19,17 +19,18 @@ package com.navercorp.pinpoint.batch.common;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Optional;
 
 /**
  * @author minwoo.jung<minwoo.jung@navercorp.com>
  */
 public class JobFailListener implements JobExecutionListener {
 
-    @Autowired(required = false)
-    private JobFailMessageSender jobFailMessageSender = new EmptyJobFailMessageSender();
+    private final JobFailMessageSender jobFailMessageSender;
 
-    public JobFailListener() {
+    public JobFailListener(Optional<JobFailMessageSender> jobFailMessageSender) {
+        this.jobFailMessageSender = jobFailMessageSender.orElseGet(EmptyJobFailMessageSender::new);
     }
 
     @Override

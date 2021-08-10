@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.springframework.batch.item.ExecutionContext;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
@@ -30,7 +31,7 @@ public class AgentCountPartitionerTest {
 
     @Test
     public void partition() throws Exception {
-        AgentCountPartitioner partitioner = new AgentCountPartitioner();
+        AgentCountPartitioner partitioner = new AgentCountPartitioner(Optional.empty());
         Map<String, ExecutionContext> partition = partitioner.partition(0);
         assertEquals(1, partition.size());
     }

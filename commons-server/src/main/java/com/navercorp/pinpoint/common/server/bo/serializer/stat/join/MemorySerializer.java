@@ -16,14 +16,12 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.join.MemoryEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author minwoo.jung
  */
 public class MemorySerializer extends ApplicationStatSerializer {
 
-    @Autowired
     public MemorySerializer(MemoryEncoder memoryEncoder) {
         super(memoryEncoder);
     }

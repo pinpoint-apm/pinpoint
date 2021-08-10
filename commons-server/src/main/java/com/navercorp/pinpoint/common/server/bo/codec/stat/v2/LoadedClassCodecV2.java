@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StrategyAnaly
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -34,7 +33,6 @@ import java.util.Objects;
 
 @Component("loadedClassCodecV2")
 public class LoadedClassCodecV2 extends AgentStatCodecV2<LoadedClassBo> {
-    @Autowired
     public LoadedClassCodecV2(AgentStatDataPointCodec codec) {
         super(new LoadedClassCodecV2.LoadedClassCodecFactory(codec));
     }

@@ -27,12 +27,12 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 
@@ -44,8 +44,11 @@ public class HostApplicationMapperVer2 implements RowMapper<List<AcceptApplicati
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private ApplicationFactory applicationFactory;
+    private final ApplicationFactory applicationFactory;
+
+    public HostApplicationMapperVer2(ApplicationFactory applicationFactory) {
+        this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
+    }
 
     @Override
     public List<AcceptApplication> mapRow(Result result, int rowNum) throws Exception {

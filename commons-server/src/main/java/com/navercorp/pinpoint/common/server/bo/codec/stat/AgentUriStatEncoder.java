@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +27,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class AgentUriStatEncoder extends AgentStatEncoder<AgentUriStatBo> {
 
-    @Autowired
     private AgentUriStatEncoder(@Qualifier("agentUriStatCodecV2") AgentStatCodec<AgentUriStatBo> codec) {
         super(codec);
     }

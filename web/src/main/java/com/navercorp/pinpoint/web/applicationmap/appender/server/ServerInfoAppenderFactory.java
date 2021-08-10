@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +30,6 @@ public class ServerInfoAppenderFactory {
 
     private final Executor executor;
 
-    @Autowired
     public ServerInfoAppenderFactory(@Qualifier("serverInfoAppendExecutor") Executor executor) {
         this.executor = Objects.requireNonNull(executor, "executor");
     }

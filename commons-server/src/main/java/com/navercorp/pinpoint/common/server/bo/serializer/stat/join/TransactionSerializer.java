@@ -16,14 +16,12 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.join.TransactionEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author minwoo.jung
  */
 public class TransactionSerializer extends ApplicationStatSerializer {
 
-    @Autowired
     protected TransactionSerializer(TransactionEncoder encoder) {
         super(encoder);
     }

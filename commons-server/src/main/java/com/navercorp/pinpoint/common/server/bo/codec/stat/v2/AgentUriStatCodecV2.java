@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.EachUriStatBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -41,7 +40,6 @@ public class AgentUriStatCodecV2 implements AgentStatCodec<AgentUriStatBo> {
 
     private final AgentStatDataPointCodec codec;
 
-    @Autowired
     public AgentUriStatCodecV2(AgentStatDataPointCodec codec) {
         this.codec = Objects.requireNonNull(codec, "codec");
     }

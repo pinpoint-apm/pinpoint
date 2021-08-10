@@ -19,10 +19,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
@@ -40,9 +40,12 @@ public class MemoryAlarmDao implements AlarmDao {
     private final Map<String, Rule> alarmRule = new ConcurrentHashMap<>();
     private final AtomicInteger ruleIdGenerator  = new AtomicInteger(); 
     
-    @Autowired
-    UserGroupDao userGroupDao;
-    
+    private final UserGroupDao userGroupDao;
+
+    public MemoryAlarmDao(UserGroupDao userGroupDao) {
+        this.userGroupDao = Objects.requireNonNull(userGroupDao, "userGroupDao");
+    }
+
     @Override
     public String insertRule(Rule rule) {
         String ruleId = String.valueOf(ruleIdGenerator.getAndIncrement());

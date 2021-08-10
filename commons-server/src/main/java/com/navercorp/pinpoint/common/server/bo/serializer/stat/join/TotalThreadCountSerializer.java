@@ -17,11 +17,9 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.join.TotalThreadCountEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class TotalThreadCountSerializer extends ApplicationStatSerializer{
 
-    @Autowired
     public TotalThreadCountSerializer(TotalThreadCountEncoder encoder) {
         super(encoder);
     }

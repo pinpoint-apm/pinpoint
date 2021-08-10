@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.batch.alarm.collector;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.batch.alarm.vo.DataSourceAlarmVO;
-import com.navercorp.pinpoint.batch.util.ListUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -86,8 +85,7 @@ public class DataSourceDataCollector extends DataCollector {
                             .mapToInt(DataSourceBo::getMaxConnectionSize)
                             .average()
                             .orElse(-1);
-
-                    DataSourceBo dataSourceBo = ListUtils.getFirst(dataSourceBoList);
+                    DataSourceBo dataSourceBo = org.springframework.util.CollectionUtils.firstElement(dataSourceBoList);
                     DataSourceAlarmVO dataSourceAlarmVO = new DataSourceAlarmVO(dataSourceBo.getId(), dataSourceBo.getDatabaseName(),
                             (int) Math.floor(activeConnectionAvg), new Double(Math.floor(maxConnectionAvg)).intValue());
 

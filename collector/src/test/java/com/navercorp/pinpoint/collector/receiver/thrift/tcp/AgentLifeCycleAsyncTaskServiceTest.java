@@ -72,7 +72,7 @@ public class AgentLifeCycleAsyncTaskServiceTest {
     private CollectorConfiguration collectorConfiguration;
 
     @InjectMocks
-    private AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService = new AgentLifeCycleAsyncTaskService();
+    private AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService;
 
     private static final String TEST_APP_ID = "TEST_APP_ID";
     private static final String TEST_AGENT_ID = "TEST_AGENT";

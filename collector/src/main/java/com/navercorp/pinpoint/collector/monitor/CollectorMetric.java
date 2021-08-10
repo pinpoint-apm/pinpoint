@@ -31,7 +31,6 @@ import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -41,6 +40,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -54,6 +54,8 @@ public class CollectorMetric {
 
     private final Logger reporterLogger = LoggerFactory.getLogger(REPORTER_LOGGER_NAME);
 
+    private final CollectorConfiguration collectorConfiguration;
+
     private final MetricRegistry metricRegistry;
 
     private final HBaseAsyncOperationMetrics hBaseAsyncOperationMetrics;
@@ -63,11 +65,12 @@ public class CollectorMetric {
 
     private final boolean isEnable = isEnable0(REPORTER_LOGGER_NAME);
 
-    @Autowired
-    private CollectorConfiguration collectorConfiguration;
-
-    public CollectorMetric(MetricRegistry metricRegistry, Optional<HBaseAsyncOperationMetrics> hBaseAsyncOperationMetrics, Optional<BulkOperationMetrics> cachedStatisticsDaoMetrics) {
-        this.metricRegistry = metricRegistry;
+    public CollectorMetric(CollectorConfiguration collectorConfiguration,
+                           MetricRegistry metricRegistry,
+                           Optional<HBaseAsyncOperationMetrics> hBaseAsyncOperationMetrics,
+                           Optional<BulkOperationMetrics> cachedStatisticsDaoMetrics) {
+        this.collectorConfiguration = Objects.requireNonNull(collectorConfiguration, "collectorConfiguration");
+        this.metricRegistry = Objects.requireNonNull(metricRegistry, "metricRegistry");
         this.hBaseAsyncOperationMetrics = hBaseAsyncOperationMetrics.orElse(null);
         this.bulkOperationMetrics = cachedStatisticsDaoMetrics.orElse(null);
     }

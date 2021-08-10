@@ -18,7 +18,6 @@ package com.pinpoint.test.plugin;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +35,6 @@ public class Subscriber {
     private org.eclipse.paho.mqttv5.client.MqttAsyncClient v5Client;
     private org.eclipse.paho.client.mqttv3.MqttAsyncClient v3Client;
 
-    @Autowired
     public Subscriber(@Value("${mqtt.v3.broker.url}") String v3BrokerUrl, @Value("${mqtt.v3.topic}") String v3Topic,
                       @Value("${mqtt.v5.broker.url}") String v5BrokerUrl, @Value("${mqtt.v5.topic}") String v5Topic)
             throws org.eclipse.paho.mqttv5.common.MqttException, org.eclipse.paho.client.mqttv3.MqttException {

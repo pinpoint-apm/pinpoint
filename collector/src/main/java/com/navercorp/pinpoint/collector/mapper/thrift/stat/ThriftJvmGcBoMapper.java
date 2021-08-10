@@ -20,8 +20,9 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -29,8 +30,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class ThriftJvmGcBoMapper implements ThriftStatMapper<JvmGcBo, TJvmGc> {
 
-    @Autowired
-    private ThriftJvmGcTypeMapper jvmGcTypeMapper;
+    private final ThriftJvmGcTypeMapper jvmGcTypeMapper;
+
+    public ThriftJvmGcBoMapper(ThriftJvmGcTypeMapper jvmGcTypeMapper) {
+        this.jvmGcTypeMapper = Objects.requireNonNull(jvmGcTypeMapper, "jvmGcTypeMapper");
+    }
 
     @Override
     public JvmGcBo map(TJvmGc jvmGc) {

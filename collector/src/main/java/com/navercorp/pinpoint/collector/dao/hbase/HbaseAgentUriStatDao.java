@@ -31,11 +31,11 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -46,21 +46,25 @@ import java.util.Objects;
 public class HbaseAgentUriStatDao implements AgentUriStatDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
 
 
-    @Qualifier("asyncPutHbaseTemplate")
-    @Autowired
-    private HbaseOperations2 hbaseTemplate;
+    private final HbaseOperations2 hbaseTemplate;
 
-    @Autowired
-    private TableNameProvider tableNameProvider;
+    private final TableNameProvider tableNameProvider;
 
-    @Autowired
-    private AgentStatHbaseOperationFactory agentStatHbaseOperationFactory;
+    private final AgentStatHbaseOperationFactory agentStatHbaseOperationFactory;
 
-    @Autowired
-    private AgentUriStatSerializer agentUriStatSerializer;
+    private final AgentUriStatSerializer agentUriStatSerializer;
+
+    public HbaseAgentUriStatDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate,
+                                TableNameProvider tableNameProvider,
+                                AgentStatHbaseOperationFactory agentStatHbaseOperationFactory,
+                                AgentUriStatSerializer agentUriStatSerializer) {
+        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
+        this.agentStatHbaseOperationFactory = Objects.requireNonNull(agentStatHbaseOperationFactory, "agentStatHbaseOperationFactory");
+        this.agentUriStatSerializer = Objects.requireNonNull(agentUriStatSerializer, "agentUriStatSerializer");
+    }
 
     @Override
     public void insert(AgentUriStatBo agentUriStatBo) {
@@ -77,7 +81,7 @@ public class HbaseAgentUriStatDao implements AgentUriStatDao {
             logger.debug("insert() agentUriStatBo:{}", agentUriStatBo);
         }
 
-        List<Put> agentUriStatPuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.URI, Arrays.asList(agentUriStatBo), this.agentUriStatSerializer);
+        List<Put> agentUriStatPuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.URI, Collections.singletonList(agentUriStatBo), this.agentUriStatSerializer);
         if (!agentUriStatPuts.isEmpty()) {
             TableName agentStatTableName = tableNameProvider.getTableName(HbaseTable.AGENT_URI_STAT);
             this.hbaseTemplate.asyncPut(agentStatTableName, agentUriStatPuts);

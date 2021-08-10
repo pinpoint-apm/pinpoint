@@ -30,9 +30,9 @@ import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -43,14 +43,19 @@ public class AgentLifeCycleChangeEventHandler extends ServerStateChangeEventHand
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
     private AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService;
 
-    @Autowired
     private AgentEventAsyncTaskService agentEventAsyncTaskService;
 
-    @Autowired
     private ChannelPropertiesFactory channelPropertiesFactory;
+
+    public AgentLifeCycleChangeEventHandler(AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService,
+                                            AgentEventAsyncTaskService agentEventAsyncTaskService,
+                                            ChannelPropertiesFactory channelPropertiesFactory) {
+        this.agentLifeCycleAsyncTaskService = Objects.requireNonNull(agentLifeCycleAsyncTaskService, "agentLifeCycleAsyncTaskService");
+        this.agentEventAsyncTaskService = Objects.requireNonNull(agentEventAsyncTaskService, "agentEventAsyncTaskService");
+        this.channelPropertiesFactory = Objects.requireNonNull(channelPropertiesFactory, "channelPropertiesFactory");
+    }
 
     @Override
     public void stateUpdated(PinpointServer pinpointServer, SocketStateCode updatedStateCode) {

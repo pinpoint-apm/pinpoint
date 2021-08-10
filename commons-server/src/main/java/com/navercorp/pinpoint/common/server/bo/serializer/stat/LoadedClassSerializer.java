@@ -18,13 +18,11 @@ package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.LoadedClassCountEncoder;
 import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class LoadedClassSerializer extends AgentStatSerializer<LoadedClassBo> {
 
-    @Autowired
     public LoadedClassSerializer(LoadedClassCountEncoder encoder) {
         super(encoder);
     }

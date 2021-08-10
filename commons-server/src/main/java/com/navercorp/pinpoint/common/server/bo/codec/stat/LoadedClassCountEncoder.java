@@ -17,13 +17,11 @@
 package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
 public class LoadedClassCountEncoder extends AgentStatEncoder<LoadedClassBo> {
-    @Autowired
     public LoadedClassCountEncoder(@Qualifier("loadedClassCodecV2") AgentStatCodec<LoadedClassBo> codec) {
         super(codec);
     }

@@ -41,7 +41,6 @@ public class SqlMetaDataMapper implements RowMapper<List<SqlMetaDataBo>> {
 
     private final static String SQL_METADATA_CF_SQL_QUALI_SQLSTATEMENT = Bytes.toString(HbaseColumnFamily.SQL_METADATA_VER2_SQL.QUALIFIER_SQLSTATEMENT);
 
-    //    @Autowired
     //    @Qualifier("metadataRowKeyDistributor")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 

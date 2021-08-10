@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.web.config.BasicLoginConfig;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -44,7 +43,6 @@ public class BasicLoginService {
 
     private final JwtService jwtService;
 
-    @Autowired
     public BasicLoginService(BasicLoginConfig basicLoginConfig) {
         PinpointMemoryUserDetailsService pinpointMemoryUserDetailsService = new PinpointMemoryUserDetailsService(basicLoginConfig);
         this.pinpointMemoryUserDetailsService = pinpointMemoryUserDetailsService;

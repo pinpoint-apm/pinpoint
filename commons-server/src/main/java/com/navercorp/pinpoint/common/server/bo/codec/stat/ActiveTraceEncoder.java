@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ActiveTraceEncoder extends AgentStatEncoder<ActiveTraceBo> {
 
-    @Autowired
     public ActiveTraceEncoder(@Qualifier("activeTraceCodecV2") AgentStatCodec<ActiveTraceBo> activeTraceCodec) {
         super(activeTraceCodec);
     }

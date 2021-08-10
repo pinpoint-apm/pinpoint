@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCode
 import com.navercorp.pinpoint.common.server.bo.codec.stat.CodecFactory;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.v2.JvmGcDetailedCodecV2;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -31,7 +30,6 @@ import java.util.Objects;
 @Component("jvmGcDetailedCodecV1")
 public class JvmGcDetailedCodecV1 extends AgentStatCodecV1<JvmGcDetailedBo> {
 
-    @Autowired
     public JvmGcDetailedCodecV1(AgentStatDataPointCodec codec) {
         super(new JvmGcDetailedCodecFactory(codec));
     }

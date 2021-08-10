@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.web.vo.Range;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -26,7 +28,7 @@ public class RangeTimestampFilter implements TimestampFilter {
     private final Range range;
 
     public RangeTimestampFilter(Range range) {
-        this.range = range;
+        this.range = Objects.requireNonNull(range, "range");
     }
 
     @Override

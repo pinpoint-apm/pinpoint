@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StrategyAnaly
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -38,7 +37,6 @@ import java.util.Objects;
 @Component("fileDescriptorCodecV2")
 public class FileDescriptorCodecV2 extends AgentStatCodecV2<FileDescriptorBo> {
 
-    @Autowired
     public FileDescriptorCodecV2(AgentStatDataPointCodec codec) {
         super(new FileDescriptorCodecFactory(codec));
     }
