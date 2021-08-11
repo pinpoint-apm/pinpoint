@@ -162,6 +162,8 @@
         <constructor-arg ref="targetClusterPointRepository"/>
         <constructor-arg ref="defaultRouteHandler"/>
         <constructor-arg ref="streamRouteHandler"/>
+        <constructor-arg ref="commandHeaderTBaseSerializerFactory"/>
+        <constructor-arg ref="commandHeaderTBaseDeserializerFactory"/>
     </bean>
 
     <bean id="clusterService" class="com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService">

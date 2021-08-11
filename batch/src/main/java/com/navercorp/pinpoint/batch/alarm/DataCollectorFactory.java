@@ -35,9 +35,10 @@ import com.navercorp.pinpoint.web.dao.hbase.HbaseMapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.dao.stat.FileDescriptorDao;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -49,33 +50,39 @@ public class DataCollectorFactory {
 
     public final static long SLOT_INTERVAL_THREE_MIN = 180000;
 
-    @Autowired
-    private HbaseMapResponseTimeDao hbaseMapResponseTimeDao;
+    private final HbaseMapResponseTimeDao hbaseMapResponseTimeDao;
 
-    @Autowired
-    @Qualifier("jvmGcDaoFactory")
-    private AgentStatDao<JvmGcBo> jvmGcDao;
+    private final AgentStatDao<JvmGcBo> jvmGcDao;
 
-    @Autowired
-    @Qualifier("cpuLoadDaoFactory")
-    private AgentStatDao<CpuLoadBo> cpuLoadDao;
+    private final AgentStatDao<CpuLoadBo> cpuLoadDao;
 
-    @Autowired
-    @Qualifier("dataSourceDaoFactory")
-    private AgentStatDao<DataSourceListBo> dataSourceDao;
+    private final AgentStatDao<DataSourceListBo> dataSourceDao;
 
-    @Autowired
-    @Qualifier("fileDescriptorDaoFactory")
-    FileDescriptorDao fileDescriptorDao;
+    private final FileDescriptorDao fileDescriptorDao;
 
-    @Autowired
-    private AgentEventDao agentEventDao;
+    private final AgentEventDao agentEventDao;
 
-    @Autowired
-    private HbaseApplicationIndexDao hbaseApplicationIndexDao;
+    private final HbaseApplicationIndexDao hbaseApplicationIndexDao;
 
-    @Autowired
-    private HbaseMapStatisticsCallerDao mapStatisticsCallerDao;
+    private final HbaseMapStatisticsCallerDao mapStatisticsCallerDao;
+
+    public DataCollectorFactory(HbaseMapResponseTimeDao hbaseMapResponseTimeDao,
+                                @Qualifier("jvmGcDaoFactory") AgentStatDao<JvmGcBo> jvmGcDao,
+                                @Qualifier("cpuLoadDaoFactory") AgentStatDao<CpuLoadBo> cpuLoadDao,
+                                @Qualifier("dataSourceDaoFactory") AgentStatDao<DataSourceListBo> dataSourceDao,
+                                @Qualifier("fileDescriptorDaoFactory") FileDescriptorDao fileDescriptorDao,
+                                AgentEventDao agentEventDao,
+                                HbaseApplicationIndexDao hbaseApplicationIndexDao,
+                                HbaseMapStatisticsCallerDao mapStatisticsCallerDao) {
+        this.hbaseMapResponseTimeDao = Objects.requireNonNull(hbaseMapResponseTimeDao, "hbaseMapResponseTimeDao");
+        this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
+        this.cpuLoadDao = Objects.requireNonNull(cpuLoadDao, "cpuLoadDao");
+        this.dataSourceDao = Objects.requireNonNull(dataSourceDao, "dataSourceDao");
+        this.fileDescriptorDao = Objects.requireNonNull(fileDescriptorDao, "fileDescriptorDao");
+        this.agentEventDao = Objects.requireNonNull(agentEventDao, "agentEventDao");
+        this.hbaseApplicationIndexDao = Objects.requireNonNull(hbaseApplicationIndexDao, "hbaseApplicationIndexDao");
+        this.mapStatisticsCallerDao = Objects.requireNonNull(mapStatisticsCallerDao, "mapStatisticsCallerDao");
+    }
 
     public DataCollector createDataCollector(CheckerCategory checker, Application application, long timeSlotEndTime) {
         switch (checker.getDataCollectorCategory()) {

@@ -18,6 +18,7 @@ package com.navercorp.test.pinpoint.plugin.rabbitmq.spring.handler;
 
 import com.navercorp.test.pinpoint.plugin.rabbitmq.PropagationMarker;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.TestMessageHolder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -31,6 +32,7 @@ public class TestMessageHandler {
     private final PropagationMarker marker = new PropagationMarker();
     private final TestMessageHolder testMessageHolder;
 
+    @Autowired
     public TestMessageHandler(TestMessageHolder testMessageHolder) {
         this.testMessageHolder = Objects.requireNonNull(testMessageHolder, "testMessageHolder");
     }
