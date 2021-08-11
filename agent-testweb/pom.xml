@@ -48,6 +48,7 @@
             -Dprofiler.sampling.rate=${pinpoint.agent.sampling-rate}
         </pinpoint.agent.default.jvmargument>
         <pinpoint.agent.jvmargument>${pinpoint.agent.default.jvmargument}</pinpoint.agent.jvmargument>
+        <pinpoint.server.port>18080</pinpoint.server.port>
     </properties>
 
     <modules>
@@ -59,6 +60,7 @@
         <module>dubbo-plugin-testweb</module>
 <!--        <module>spring-cloud-gateway-plugin-testweb</module>-->
 <!--        <module>spring-webflux-plugin-testweb</module>-->
+        <module>jdk-http-plugin-testweb</module>
     </modules>
 
 
@@ -131,7 +133,7 @@
                     <jvmArguments>${pinpoint.agent.jvmargument}</jvmArguments>
                     <agents>${maven.multiModuleProjectDirectory}/agent/target/pinpoint-agent-${project.version}/pinpoint-bootstrap.jar</agents>
                     <commandlineArguments>
-                        --server.port=18080
+                        --server.port=${pinpoint.server.port}
                         --logging.level.root=info
                         --springdoc.swagger-ui.path=/
                     </commandlineArguments>

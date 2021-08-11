@@ -1,0 +1,21 @@
+# Defined in commandlineArgument of agent-test pom.xml
+
+server:
+  port: 18443
+  http:
+    port: 18080
+  http2:
+    enabled: true
+  ssl:
+    key-alias: pinpoint-keystore
+    key-store: classpath:pinpoint-keystore.jks
+    key-store-type: JKS
+    key-store-password: 123456
+
+logging:
+  level:
+    root: info
+
+springdoc:
+  swagger-ui:
+    path: /
