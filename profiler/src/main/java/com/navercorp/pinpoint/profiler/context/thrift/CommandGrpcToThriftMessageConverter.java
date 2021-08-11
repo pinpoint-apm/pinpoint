@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
+import com.navercorp.pinpoint.grpc.trace.PCmdSamplingRateResponse;
 import com.navercorp.pinpoint.grpc.trace.PMonitorInfo;
 import com.navercorp.pinpoint.grpc.trace.PThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PThreadLightDump;
@@ -30,6 +31,7 @@ import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDumpRes;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDumpRes;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdSamplingRate;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
@@ -41,6 +43,7 @@ import java.util.List;
 
 /**
  * @author Taejin Koo
+ * @author yjqg6666
  */
 public class CommandGrpcToThriftMessageConverter implements MessageConverter<Object, TBase<?, ?>> {
 
@@ -54,6 +57,8 @@ public class CommandGrpcToThriftMessageConverter implements MessageConverter<Obj
             return buildTCmdActiveThreadDumpRes((PCmdActiveThreadDumpRes) message);
         } else if (message instanceof PCmdActiveThreadLightDumpRes) {
             return buildTCmdActiveThreadLightDumpRes((PCmdActiveThreadLightDumpRes) message);
+        } else if (message instanceof PCmdSamplingRateResponse) {
+            return buildTCmdSamplingRate((PCmdSamplingRateResponse) message);
         }
         return null;
     }
@@ -61,6 +66,10 @@ public class CommandGrpcToThriftMessageConverter implements MessageConverter<Obj
     private TCommandEcho buildTCommandEcho(PCmdEchoResponse echoMessage) {
         String message = echoMessage.getMessage();
         return new TCommandEcho(message);
+    }
+
+    private TCmdSamplingRate buildTCmdSamplingRate(PCmdSamplingRateResponse response) {
+        return new TCmdSamplingRate(response.getSamplingRate());
     }
 
     private TCmdActiveThreadCountRes buildTCmdActiveThreadCountRes(PCmdActiveThreadCountRes activeThreadCountRes) {

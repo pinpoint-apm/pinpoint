@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider.grpc;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
@@ -38,6 +39,7 @@ import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcActiveThreadCountServic
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcActiveThreadDumpService;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcActiveThreadLightDumpService;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcEchoService;
+import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcSamplingRateService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.AgentGrpcDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
@@ -69,6 +71,7 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
     private final ActiveTraceRepository activeTraceRepository;
 
     private List<ClientInterceptor> clientInterceptorList;
+    private final Sampler sampler;
 
     @Inject
     public AgentGrpcDataSenderProvider(GrpcTransportConfig grpcTransportConfig,
@@ -77,7 +80,8 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
                                        Provider<ReconnectExecutor> reconnectExecutor,
                                        ScheduledExecutorService retransmissionExecutor,
                                        NameResolverProvider nameResolverProvider,
-                                       ActiveTraceRepository activeTraceRepository) {
+                                       ActiveTraceRepository activeTraceRepository,
+                                       Provider<Sampler> samplerProvider) {
         this.grpcTransportConfig = Objects.requireNonNull(grpcTransportConfig, "grpcTransportConfig");
         this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
         this.headerFactory = Objects.requireNonNull(headerFactory, "headerFactory");
@@ -88,6 +92,8 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
 
         this.nameResolverProvider = Objects.requireNonNull(nameResolverProvider, "nameResolverProvider");
         this.activeTraceRepository = Objects.requireNonNull(activeTraceRepository, "activeTraceRepository");
+        Objects.requireNonNull(samplerProvider, "samplerProvider");
+        this.sampler = samplerProvider.get();
     }
 
     @Inject(optional = true)
@@ -152,6 +158,7 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
         ProfilerCommandLocatorBuilder profilerCommandLocatorBuilder = new ProfilerCommandLocatorBuilder();
 
         profilerCommandLocatorBuilder.addService(new GrpcEchoService());
+        profilerCommandLocatorBuilder.addService(new GrpcSamplingRateService(sampler));
         if (activeTraceRepository != null) {
             profilerCommandLocatorBuilder.addService(new GrpcActiveThreadCountService(activeTraceRepository));
             profilerCommandLocatorBuilder.addService(new GrpcActiveThreadDumpService(activeTraceRepository));
