@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pinpoint-agent-testweb</artifactId>
+        <version>2.3.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pinpoint-jdk-http-plugin-testweb</artifactId>
+
+    <packaging>jar</packaging>
+
+    <properties>
+        <pinpoint.agent.jvmargument>
+            ${pinpoint.agent.default.jvmargument}
+        </pinpoint.agent.jvmargument>
+
+        <pinpoint.server.port>18443</pinpoint.server.port>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
