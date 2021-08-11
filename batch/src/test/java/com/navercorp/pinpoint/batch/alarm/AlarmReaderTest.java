@@ -29,6 +29,8 @@ import com.navercorp.pinpoint.web.service.AlarmServiceImpl;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.item.ExecutionContext;
 
@@ -39,7 +41,10 @@ import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AlarmReaderTest {
 
@@ -134,11 +139,12 @@ public class AlarmReaderTest {
             }
         };
         
-        dataCollectorFactory = new DataCollectorFactory() {
+        dataCollectorFactory = mock(DataCollectorFactory.class);
+        when(dataCollectorFactory.createDataCollector(any(), any(), anyLong())).thenAnswer(new Answer<DataCollector>() {
             @Override
-            public DataCollector createDataCollector(CheckerCategory checker, Application application, long timeSlotEndTime) {
+            public DataCollector answer(InvocationOnMock invocation) throws Throwable {
                 return new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, null, null, 0, 0);
             }
-        };
+        });
     }
 }

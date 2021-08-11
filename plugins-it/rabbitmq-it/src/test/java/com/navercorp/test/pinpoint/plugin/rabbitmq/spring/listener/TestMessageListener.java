@@ -20,6 +20,7 @@ import com.navercorp.test.pinpoint.plugin.rabbitmq.PropagationMarker;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.TestMessageHolder;
 import com.navercorp.pinpoint.plugin.rabbitmq.util.RabbitMQTestConstants;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -33,6 +34,7 @@ public class TestMessageListener {
     private final PropagationMarker marker = new PropagationMarker();
     private final TestMessageHolder testMessageHolder;
 
+    @Autowired
     public TestMessageListener(TestMessageHolder testMessageHolder) {
         this.testMessageHolder = Objects.requireNonNull(testMessageHolder, "testMessageHolder");
     }
