@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 
 /**
  * @author emeroad
+ * @author yjqg6666
  */
 public class FalseSampler implements Sampler {
 
@@ -31,6 +32,16 @@ public class FalseSampler implements Sampler {
     @Override
     public boolean isSampling() {
         return false;
+    }
+
+    @Override
+    public int getSamplingRate() {
+        return 0;
+    }
+
+    @Override
+    public void updateSamplingRate(int rate) {
+        //do nothing
     }
 
     @Override

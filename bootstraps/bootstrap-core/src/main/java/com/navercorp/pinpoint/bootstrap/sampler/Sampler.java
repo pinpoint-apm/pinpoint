@@ -18,7 +18,14 @@ package com.navercorp.pinpoint.bootstrap.sampler;
 
 /**
  * @author emeroad
+ * @author yjqg6666
  */
 public interface Sampler {
+
     boolean isSampling();
+
+    int getSamplingRate();
+
+    void updateSamplingRate(int rate);
+
 }

@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author emeroad
+ * @author yjqg6666
  */
 public class CountingSampler implements Sampler {
 
@@ -38,6 +39,11 @@ public class CountingSampler implements Sampler {
             throw new IllegalArgumentException("Invalid samplingRate " + samplingRate);
         }
         this.samplingRate = samplingRate;
+    }
+
+    @Override
+    public int getSamplingRate() {
+        return samplingRate;
     }
 
     @Override

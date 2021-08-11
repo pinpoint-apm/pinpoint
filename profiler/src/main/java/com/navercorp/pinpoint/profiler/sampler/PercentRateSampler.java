@@ -57,6 +57,16 @@ public class PercentRateSampler implements Sampler {
     }
 
     @Override
+    public int getSamplingRate() {
+        return (int) samplingRate;
+    }
+
+    @Override
+    public void updateSamplingRate(int rate) {
+        updateSamplingRate((long) rate);
+    }
+
+    @Override
     public String toString() {
         return "PercentRateSampler{" +
                 "seedGen=" + counter +
