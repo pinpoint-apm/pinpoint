@@ -28,6 +28,7 @@ import javax.annotation.PostConstruct;
 /**
  * @author HyunGil Jeong
  * @author Jongjin.Bae
+ * @author yjqg6666
  */
 @Configuration
 public class ConfigProperties {
@@ -48,6 +49,9 @@ public class ConfigProperties {
 
     @Value("${config.enable.activeThreadDump:false}")
     private boolean enableActiveThreadDump;
+
+    @Value("${config.enable.samplingRate:false}")
+    private boolean enableSamplingRate;
 
     @Value("${config.enable.serverMapRealTime:false}")
     private boolean enableServerMapRealTime;
@@ -94,6 +98,10 @@ public class ConfigProperties {
         return enableActiveThreadDump;
     }
 
+    public boolean isEnableSamplingRate() {
+        return enableSamplingRate;
+    }
+
     public boolean isEnableServerMapRealTime() {
         return enableServerMapRealTime;
     }
@@ -133,6 +141,7 @@ public class ConfigProperties {
         sb.append(", showActiveThread=").append(showActiveThread);
         sb.append(", showActiveThreadDump=").append(showActiveThreadDump);
         sb.append(", enableActiveThreadDump=").append(enableActiveThreadDump);
+        sb.append(", enableSamplingRate=").append(enableSamplingRate);
         sb.append(", enableServerMapRealTime=").append(enableServerMapRealTime);
         sb.append(", openSource=").append(openSource);
         sb.append(", securityGuideUrl='").append(securityGuideUrl).append('\'');

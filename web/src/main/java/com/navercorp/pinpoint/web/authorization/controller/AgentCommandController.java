@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDumpRes;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDumpRes;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdSamplingRate;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
@@ -47,6 +48,7 @@ import java.util.Objects;
 
 /**
  * @author Taejin Koo
+ * @author yjqg6666
  */
 @RestController
 @RequestMapping("/agent")
@@ -102,6 +104,40 @@ public class AgentCommandController {
                     AgentActiveThreadDumpList activeThreadDumpList = factory.create1(activeThreadDumps);
 
                     Map<String, Object> responseData = createResponseData(activeThreadDumpList, activeThreadDumpResponse.getType(), activeThreadDumpResponse.getSubType(), activeThreadDumpResponse.getVersion());
+                    return new CodeResult(CODE_SUCCESS, responseData);
+                }
+            }
+            return handleFailedResponse(pinpointRouteResponse);
+        } catch (TException e) {
+            return new CodeResult(CODE_FAIL, e.getMessage());
+        }
+    }
+
+    @GetMapping(value = "/samplingRate")
+    public CodeResult agentSamplingRate(
+        @RequestParam(value = "applicationName") String applicationName,
+        @RequestParam(value = "agentId") String agentId,
+        @RequestParam(value = "samplingRate", required = false, defaultValue = "-1") int samplingRate
+    ) {
+        if (!webProperties.isEnableSamplingRate()) {
+            return new CodeResult(CODE_FAIL, "Disable samplingRate option. 'config.enable.samplingRate=false'");
+        }
+
+        AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId);
+        if (agentInfo == null) {
+            return new CodeResult(CODE_FAIL, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
+        }
+
+        TCmdSamplingRate cmdSamplingRate = new TCmdSamplingRate();
+        cmdSamplingRate.setSamplingRate(samplingRate);
+
+        try {
+            PinpointRouteResponse pinpointRouteResponse = agentService.invoke(agentInfo, cmdSamplingRate, 30000);
+            if (isSuccessResponse(pinpointRouteResponse)) {
+                TBase<?, ?> result = pinpointRouteResponse.getResponse();
+                if (result instanceof TCmdSamplingRate) {
+                    Map<String, Object> responseData = new HashMap<>(1);
+                    responseData.put("samplingRate", ((TCmdSamplingRate) result).getSamplingRate());
                     return new CodeResult(CODE_SUCCESS, responseData);
                 }
             }
