@@ -36,7 +36,9 @@ import java.util.List;
  * @author Taejin Koo
  */
 public class AgentDownloadInfoTest {
+
     private RestTemplate restTemplate = new RestTemplate();
+
     @Test
     public void factoryTest() {
         String version = "1.6.0";
@@ -66,14 +68,14 @@ public class AgentDownloadInfoTest {
     }
 
     private String getMockJsonString() throws IOException {
-        InputStream resourceAsStream = null;
-        try {
-            resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("mock/github_pinpoint_release_response.json");
+        try (InputStream resourceAsStream = getResourceAsStream("mock/github_pinpoint_release_response.json"))  {
             byte[] bytes = IOUtils.toByteArray(resourceAsStream);
             return BytesUtils.toString(bytes);
-        } finally {
-            IOUtils.closeQuietly(resourceAsStream);
         }
+    }
+
+    private InputStream getResourceAsStream(String name) {
+        return this.getClass().getClassLoader().getResourceAsStream(name);
     }
 
 }

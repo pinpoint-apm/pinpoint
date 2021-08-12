@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.bootstrap;
 
 import com.navercorp.pinpoint.common.Version;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,20 +96,15 @@ public class AgentDirGenerator {
         boolean newFile = file.createNewFile();
         Assert.assertTrue(filepath + " create fail", newFile);
 
-
     }
 
     private void createJarFile(File parentDir, String filepath) throws IOException {
         final String jarPath = parentDir.getPath() + File.separator + filepath;
         logger.debug("create jar:{}", jarPath);
 
-        JarOutputStream jos = null;
-        try {
-            Manifest manifest = new Manifest();
-            FileOutputStream out = new FileOutputStream(jarPath);
-            jos = new JarOutputStream(out, manifest);
-        } finally {
-            IOUtils.closeQuietly(jos);
+        Manifest manifest = new Manifest();
+        try (FileOutputStream out = new FileOutputStream(jarPath);
+             JarOutputStream jos = new JarOutputStream(out, manifest)){
         }
 
     }
