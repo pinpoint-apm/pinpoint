@@ -26,23 +26,17 @@ public class TCPChecker extends AbstractNetworkChecker {
 
     @Override
     protected boolean check(InetSocketAddress address) throws IOException {
-        Socket socket = null;
-        try {
-            socket = createSocket(address);
+        try (Socket socket = createSocket(address)) {
             return socket.isConnected();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            IOUtils.closeQuietly(socket);
         }
         return false;
     }
 
     @Override
     protected boolean check(InetSocketAddress address, byte[] requestData, byte[] expectedResponseData) throws IOException {
-        Socket socket = null;
-        try {
-            socket = createSocket(address);
+        try (Socket socket = createSocket(address)) {
 
             write(socket, requestData);
             byte[] responseData = read(socket, 100);
@@ -50,23 +44,16 @@ public class TCPChecker extends AbstractNetworkChecker {
             return Arrays.equals(expectedResponseData, responseData);
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            IOUtils.closeQuietly(socket);
         }
         return false;
     }
 
     private Socket createSocket(InetSocketAddress socketAddress) throws IOException {
-        Socket socket = null;
-        try {
-            socket = new Socket();
+        try (Socket socket = new Socket()) {
             socket.setSoTimeout(3000);
             socket.connect(socketAddress);
-        } catch (IOException ioe){
-            IOUtils.closeQuietly(socket);
-            throw ioe;
+            return socket;
         }
-        return socket;
     }
 
     private void write(Socket socket, byte[] requestData) throws IOException {
