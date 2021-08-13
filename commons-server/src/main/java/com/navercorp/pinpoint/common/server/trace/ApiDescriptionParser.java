@@ -53,12 +53,12 @@ public class ApiDescriptionParser {
     public ApiDescription parse(String apiDescription, int lineNumber) {
         Objects.requireNonNull(apiDescription, "apiDescriptionString");
 
-        final int methodStart = apiDescription.lastIndexOf(METHOD_PARAM_START);
+        final int methodStart = apiDescription.indexOf(METHOD_PARAM_START);
         if (methodStart == -1) {
             throw new IllegalArgumentException("'(' not found. invalid apiDescriptionString:" + apiDescription);
         }
 
-        final int methodEnd = apiDescription.lastIndexOf(METHOD_PARAM_END);
+        final int methodEnd = apiDescription.indexOf(METHOD_PARAM_END, methodStart);
         if (methodEnd == -1) {
             throw new IllegalArgumentException("')' not found. invalid apiDescriptionString:" + apiDescription);
         }
@@ -71,7 +71,22 @@ public class ApiDescriptionParser {
         String[] parameterList = parseParameter(parameterDescriptor);
         String[] simpleParameterList = parseSimpleParameter(parameterList);
 
-        return new DefaultApiDescription(apiDescription, className, methodName, simpleParameterList, lineNumber);
+        String trailing = parseTailingInfo(apiDescription, methodEnd);
+//            int trailingLineNumber = trailing.lastIndexOf(':');
+//            if (trailingLineNumber != -1) {
+//                if (LineNumber.isNoLineNumber(lineNumber)) {
+//                    lineNumber = NumberUtils.parseInteger(trailing.substring(trailingLineNumber), LineNumber.NO_LINE_NUMBER);
+//                }
+//            }
+
+        return new DefaultApiDescription(apiDescription, className, methodName, simpleParameterList, trailing, lineNumber);
+    }
+
+    private String parseTailingInfo(String apiDescription, int methodEnd) {
+        if (apiDescription.length() > methodEnd) {
+            return apiDescription.substring(methodEnd + 1);
+        }
+        return "";
     }
 
     private String getClassName(String apiDescription, int classIndex) {
