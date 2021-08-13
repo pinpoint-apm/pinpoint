@@ -45,7 +45,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@JvmVersion({6, 7, 8})
+@JvmVersion({7, 8})
 @Dependency({ WebServer.VERSION, PluginITConstants.VERSION})
 public class HttpURLConnectionIT {
 
@@ -68,17 +68,17 @@ public class HttpURLConnectionIT {
         connection.getHeaderFields();
         
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache();
+        verifier.printMethod();
         
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method getInputStream = targetClass.getMethod("getInputStream");
         
         String destinationId = webServer.getHostAndPort();
         String httpUrl = webServer.getCallHttpUrl();
-        verifier.verifyTraceCount(1);
+        verifier.verifyTraceCount(2);
         verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, destinationId, annotation("http.url", httpUrl)));
     }
-    
+
     @Test
     public void testConnectTwice() throws Exception {
         URL url = new URL(webServer.getCallHttpUrl());
@@ -88,56 +88,51 @@ public class HttpURLConnectionIT {
         connection.getInputStream();
         
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache();
+        verifier.printMethod();
         
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method connect = targetClass.getMethod("connect");
 
         String destinationId = webServer.getHostAndPort();
         String httpUrl = webServer.getCallHttpUrl();
-        verifier.verifyTraceCount(1);
+        verifier.verifyTraceCount(2);
         verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", connect, null, null, destinationId, annotation("http.url", httpUrl)));
     }
-    
+
     @Test
     public void testConnecting() throws Exception {
-        Exception expected = null;
+
         URL url = new URL("http://no.such.url");
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-        
+
+        Exception expected1 = null;
         try {
             connection.connect();
         } catch (UnknownHostException e) {
-            expected = e;
+            expected1 = e;
+        } finally {
+            connection.disconnect();
         }
-        
+
+        Exception expected2 = null;
+        HttpURLConnection connection2 = (HttpURLConnection)url.openConnection();
         try {
-            connection.connect();
+            connection2.connect();
         } catch (UnknownHostException e) {
-            expected = e;
+            expected2 = e;
+        } finally {
+            connection2.disconnect();
         }
-        
-        Field field = null;
-        try {
-            field = connection.getClass().getDeclaredField("connecting");
-        } catch (NoSuchFieldException ignored) {
-            
-        }
-        
-         
-        
+
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache();
+        verifier.printMethod();
         
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method getInputStream = targetClass.getMethod("connect");
         
-        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, expected, null, null, "no.such.url", annotation("http.url", "http://no.such.url")));
+        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, expected1, null, null, "no.such.url", annotation("http.url", "http://no.such.url")));
         
-        if (field == null) {
-            // JDK 6, 7
-            verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, expected, null, null, "no.such.url", annotation("http.url", "http://no.such.url")));
-        }
+        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, expected2, null, null, "no.such.url", annotation("http.url", "http://no.such.url")));
         
         verifier.verifyTraceCount(0);
     }
