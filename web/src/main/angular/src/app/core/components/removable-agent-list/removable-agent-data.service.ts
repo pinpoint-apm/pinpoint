@@ -8,6 +8,7 @@ export class RemovableAgentDataService {
     private listUrl = 'getAgentList.pinpoint';
     private removeApplicationUrl = 'admin/removeApplicationName.pinpoint';
     private removeAgentUrl = 'admin/removeAgentId.pinpoint';
+    private samplingRateUrl = 'agent/samplingRate.pinpoint';
     // private removeInactiveUrl = 'admin/removeInactiveAgents.pinpoint';
 
     constructor(
@@ -38,4 +39,23 @@ export class RemovableAgentDataService {
             responseType: 'text',
         });
     }
+
+    getSamplingRate({applicationName, agentId}: {applicationName: string, agentId: string}): Observable<any> {
+        return this.http.get<string>(this.samplingRateUrl, {
+            params: new HttpParams()
+                .set('applicationName', applicationName)
+                .set('agentId', agentId)
+                .set('samplingRate', "-1")
+        });
+    }
+
+    setSamplingRate({applicationName, agentId, samplingRate}: {applicationName: string, agentId: string, samplingRate: string}): Observable<any> {
+        return this.http.get<string>(this.samplingRateUrl, {
+            params: new HttpParams()
+                .set('applicationName', applicationName)
+                .set('agentId', agentId)
+                .set('samplingRate', samplingRate)
+        });
+    }
+
 }

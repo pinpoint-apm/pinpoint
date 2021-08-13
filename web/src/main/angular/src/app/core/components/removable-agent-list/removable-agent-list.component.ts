@@ -1,5 +1,7 @@
-import { Component, OnInit, ViewEncapsulation, EventEmitter, Input, Output } from '@angular/core';
-import { GridOptions } from 'ag-grid-community';
+import {Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
+import {GridOptions, ValueFormatterParams, ValueSetterParams} from 'ag-grid-community';
+import {RemovableAgentDataService} from "./removable-agent-data.service";
+import {take} from "rxjs/operators";
 
 @Component({
     selector: 'pp-removable-agent-list',
@@ -13,7 +15,9 @@ export class RemovableAgentListComponent implements OnInit {
 
     gridOptions: GridOptions;
 
-    constructor() {}
+    constructor(
+        private removableAgentDataService: RemovableAgentDataService,
+    ) {}
     ngOnInit() {
         this.initGridOptions();
     }
@@ -24,6 +28,7 @@ export class RemovableAgentListComponent implements OnInit {
                 resizable: true,
                 sortable: false
             },
+            enableCellChangeFlash: true,
             columnDefs : this.makeColumnDefs(),
             headerHeight: 32,
             animateRows: true,
@@ -52,25 +57,44 @@ export class RemovableAgentListComponent implements OnInit {
                     {
                         headerName: 'Host Name',
                         field: 'hostName',
-                        width: 400,
+                        width: 200,
                         cellStyle: this.alignCenterCellStyle
                     },
                     {
                         headerName: 'Agent Id',
                         field: 'agentId',
                         width: 250,
+                        resizable: true,
                         cellStyle: this.alignCenterCellStyle
                     },
                     {
                         headerName: 'Agent Name',
                         field: 'agentNameText',
                         width: 250,
+                        resizable: true,
+                        cellStyle: this.alignCenterCellStyle
+                    },
+                    {
+                        headerName: 'Rate',
+                        field: 'samplingRate',
+                        width: 150,
+                        resizable: true,
+                        valueSetter: (param: ValueSetterParams) => {
+                            return this.updateSamplingRate(param);
+                        },
+                        valueFormatter: (param: ValueFormatterParams) => {
+                            return this.getSamplingRate(param);
+                        },
+                        editable: true,
+                        singleClickEdit: true,
+                        headerTooltip: 'Click cell to update rate',
                         cellStyle: this.alignCenterCellStyle
                     },
                     {
                         headerName: 'Agent Version',
                         field: 'agentVersion',
                         width: 160,
+                        resizable: true,
                         cellStyle: this.alignCenterCellStyle
                     },
                     {
@@ -107,6 +131,33 @@ export class RemovableAgentListComponent implements OnInit {
 
     onGridReady(params: any): void {
         params.api.sizeColumnsToFit();
+    }
+
+    getSamplingRate(param: any): any {
+        if (param.value !== undefined) {
+            return;
+        }
+        this.removableAgentDataService.getSamplingRate(param.data).pipe(take(1)).subscribe(res => {
+            const samplingRate = res.code == 0 ? res.message.samplingRate : 'N/A';
+            param.data.samplingRate = samplingRate;
+            param.node.setDataValue('samplingRate', samplingRate);
+        });
+    }
+
+    updateSamplingRate(param: any): any {
+        if (param.oldValue == undefined || param.oldValue == param.newValue || isNaN(Number(param.newValue))) {
+            return false;
+        }
+        const updateData = {
+            applicationName: param.data.applicationName,
+            agentId: param.data.agentId,
+            samplingRate: param.newValue
+        }
+        this.removableAgentDataService.setSamplingRate(updateData).pipe(take(1)).subscribe(res => {
+            const samplingRate = res.code == 0 ? res.message.samplingRate : 'N/A';
+            param.data.samplingRate = samplingRate;
+            param.node.setDataValue('samplingRate', samplingRate);
+        });
     }
 
     onGridSizeChanged(): void {

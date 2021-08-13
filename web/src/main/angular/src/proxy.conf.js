@@ -38,6 +38,7 @@ const PROXY_CONFIG = [
             "/getScatterData.pinpoint",
             "/agent/activeThreadLightDump.pinpoint",
             "/agent/activeThreadDump.pinpoint",
+            "/agent/samplingRate.pinpoint",
             "/getAgentInstallationInfo.pinpoint",
             "/isAvailableApplicationName.pinpoint",
             "/isAvailableAgentId.pinpoint",
