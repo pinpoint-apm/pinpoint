@@ -45,11 +45,11 @@ public class SamplingRateService implements ProfilerRequestCommandService<TBase<
         }
 
         final TCmdSamplingRate tCmdSamplingRate = (TCmdSamplingRate) tbase;
-        final int requestSamplingRate = tCmdSamplingRate.getSamplingRate();
+        final double requestSamplingRate = tCmdSamplingRate.getSamplingRate();
         if (requestSamplingRate >= 0) {
             sampler.updateSamplingRate(requestSamplingRate);
         }
-        final int currentSamplingRate = sampler.getSamplingRate();
+        final double currentSamplingRate = sampler.getSamplingRate();
         tCmdSamplingRate.setSamplingRate(currentSamplingRate);
         return tCmdSamplingRate;
     }

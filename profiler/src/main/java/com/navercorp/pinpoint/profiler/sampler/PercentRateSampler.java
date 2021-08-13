@@ -57,13 +57,13 @@ public class PercentRateSampler implements Sampler {
     }
 
     @Override
-    public int getSamplingRate() {
-        return (int) (samplingRate / MULTIPLIER);
+    public double getSamplingRate() {
+        return (double)(samplingRate) / MULTIPLIER;
     }
 
     @Override
-    public void updateSamplingRate(int rate) {
-        updateSamplingRate(rate * MULTIPLIER);
+    public void updateSamplingRate(double rate) {
+        updateSamplingRate((long) (rate * MULTIPLIER));
     }
 
     @Override

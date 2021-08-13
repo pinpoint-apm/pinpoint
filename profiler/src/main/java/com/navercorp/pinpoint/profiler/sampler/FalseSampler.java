@@ -35,12 +35,12 @@ public class FalseSampler implements Sampler {
     }
 
     @Override
-    public int getSamplingRate() {
-        return 0;
+    public double getSamplingRate() {
+        return 0.00;
     }
 
     @Override
-    public void updateSamplingRate(int rate) {
+    public void updateSamplingRate(double rate) {
         //do nothing
     }
 

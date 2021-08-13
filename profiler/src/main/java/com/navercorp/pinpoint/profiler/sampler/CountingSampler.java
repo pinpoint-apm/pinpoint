@@ -34,15 +34,15 @@ public class CountingSampler implements Sampler {
         updateSamplingRate(samplingRate);
     }
 
-    public void updateSamplingRate(int samplingRate) {
+    public void updateSamplingRate(double samplingRate) {
         if (samplingRate <= 0) {
             throw new IllegalArgumentException("Invalid samplingRate " + samplingRate);
         }
-        this.samplingRate = samplingRate;
+        this.samplingRate = (int) samplingRate;
     }
 
     @Override
-    public int getSamplingRate() {
+    public double getSamplingRate() {
         return samplingRate;
     }
 

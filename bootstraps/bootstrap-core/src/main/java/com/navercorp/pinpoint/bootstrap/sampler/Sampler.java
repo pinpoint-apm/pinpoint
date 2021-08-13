@@ -24,8 +24,8 @@ public interface Sampler {
 
     boolean isSampling();
 
-    int getSamplingRate();
+    double getSamplingRate();
 
-    void updateSamplingRate(int rate);
+    void updateSamplingRate(double rate);
 
 }

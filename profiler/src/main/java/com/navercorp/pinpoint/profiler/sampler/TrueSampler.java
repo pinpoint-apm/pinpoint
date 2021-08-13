@@ -34,12 +34,12 @@ public class TrueSampler implements Sampler {
     }
 
     @Override
-    public int getSamplingRate() {
-        return 100;
+    public double getSamplingRate() {
+        return 100.00;
     }
 
     @Override
-    public void updateSamplingRate(int rate) {
+    public void updateSamplingRate(double rate) {
         //do nothing
     }
 

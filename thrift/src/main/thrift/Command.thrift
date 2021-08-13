@@ -113,7 +113,7 @@ struct TCommandEcho {
 }
 
 struct TCmdSamplingRate {
-    1: i32	samplingRate
+    1: double	samplingRate
 }
 
 enum TRouteResult {

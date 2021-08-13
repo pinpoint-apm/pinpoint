@@ -44,7 +44,7 @@ public class GrpcSamplingRateService implements ProfilerGrpcCommandService {
         logger.info("simpleCommandService:{}", request);
 
         PCmdSamplingRate commandSamplingRate = request.getCommandSamplingRate();
-        final int requestSamplingRate = commandSamplingRate.getSamplingRate();
+        final double requestSamplingRate = commandSamplingRate.getSamplingRate();
         if (requestSamplingRate >= 0) {
             sampler.updateSamplingRate(requestSamplingRate);
         }

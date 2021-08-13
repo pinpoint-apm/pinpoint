@@ -117,7 +117,7 @@ public class AgentCommandController {
     public CodeResult agentSamplingRate(
         @RequestParam(value = "applicationName") String applicationName,
         @RequestParam(value = "agentId") String agentId,
-        @RequestParam(value = "samplingRate", required = false, defaultValue = "-1") int samplingRate
+        @RequestParam(value = "samplingRate", required = false, defaultValue = "-1") double samplingRate
     ) {
         if (!webProperties.isEnableSamplingRate()) {
             return new CodeResult(CODE_FAIL, "Disable samplingRate option. 'config.enable.samplingRate=false'");
