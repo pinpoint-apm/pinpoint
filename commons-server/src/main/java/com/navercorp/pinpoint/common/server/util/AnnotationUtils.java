@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import java.util.List;
-
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import org.apache.commons.collections4.CollectionUtils;
+
+import java.util.List;
 
 /**
  * @author emeroad
@@ -30,31 +30,31 @@ public final class AnnotationUtils {
     }
 
     public static String findApiAnnotation(List<AnnotationBo> list) {
-        if (CollectionUtils.isEmpty(list)) {
-            return null;
-        }
-        AnnotationBo annotationBo = findAnnotationBo(list, AnnotationKey.API);
-        if (annotationBo != null) {
-            return (String) annotationBo.getValue();
-        }
-        return null;
+        return findAnnotationValue(list, AnnotationKey.API, String.class);
     }
     
     public static String findApiTagAnnotation(List<AnnotationBo> list) {
+        return findAnnotationValue(list, AnnotationKey.API_TAG, String.class);
+    }
+
+    private static <T> T findAnnotationValue(List<AnnotationBo> list, AnnotationKey annotationKey, Class<T> type) {
         if (CollectionUtils.isEmpty(list)) {
             return null;
         }
-        AnnotationBo annotationBo = findAnnotationBo(list, AnnotationKey.API_TAG);
+        final AnnotationBo annotationBo = findAnnotationBo(list, annotationKey);
         if (annotationBo != null) {
-            return (String) annotationBo.getValue();
+            final Object value = annotationBo.getValue();
+            if (type.isInstance(value)) {
+                return type.cast(value);
+            }
         }
         return null;
     }
-    
+
 
     public static AnnotationBo findAnnotationBo(List<AnnotationBo> annotationBoList, AnnotationKey annotationKey) {
         for (AnnotationBo annotation : annotationBoList) {
-            int key = annotation.getKey();
+            final int key = annotation.getKey();
             if (annotationKey.getCode() == key) {
                 return annotation;
             }
