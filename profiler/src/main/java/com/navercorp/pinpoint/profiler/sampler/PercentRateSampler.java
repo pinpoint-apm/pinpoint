@@ -39,8 +39,7 @@ public class PercentRateSampler implements Sampler {
     }
 
     public void updateSamplingRate(long samplingRate) {
-        if (samplingRate <= 0 || samplingRate >= MAX) {
-            // Use TrueSampler for 100%
+        if (samplingRate < 0) {
             throw new IllegalArgumentException("Invalid samplingRate " + samplingRate);
         }
         this.samplingRate = samplingRate;
@@ -48,6 +47,12 @@ public class PercentRateSampler implements Sampler {
 
     @Override
     public boolean isSampling() {
+        if (samplingRate == 0) {
+            return false;
+        }
+        if (samplingRate >= MAX) {
+            return true;
+        }
         final long seed = counter.addAndGet(samplingRate);
         final long remainder = MathUtils.floorMod(seed, MAX);
         if (remainder > 0 && remainder <= samplingRate) {

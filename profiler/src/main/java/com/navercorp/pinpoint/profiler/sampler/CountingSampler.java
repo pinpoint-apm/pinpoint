@@ -35,7 +35,7 @@ public class CountingSampler implements Sampler {
     }
 
     public void updateSamplingRate(double samplingRate) {
-        if (samplingRate <= 0) {
+        if (samplingRate < 0) {
             throw new IllegalArgumentException("Invalid samplingRate " + samplingRate);
         }
         this.samplingRate = (int) samplingRate;
@@ -48,6 +48,12 @@ public class CountingSampler implements Sampler {
 
     @Override
     public boolean isSampling() {
+        if (samplingRate == 0) {
+            return false;
+        }
+        if (samplingRate == 1) {
+            return true;
+        }
         int samplingCount = counter.getAndIncrement();
         int isSampling = MathUtils.floorMod(samplingCount, samplingRate);
         return isSampling == 0;

@@ -43,9 +43,6 @@ public class CountingSamplerFactory implements SamplerFactory {
         if (samplingRate <= 0) {
             return FalseSampler.INSTANCE;
         }
-        if (samplingRate == 1) {
-            return TrueSampler.INSTANCE;
-        }
         return new CountingSampler(samplingRate);
     }
 
