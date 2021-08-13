@@ -31,13 +31,16 @@ public class DefaultApiDescription implements ApiDescription {
 
     private final String[] simpleParameter;
 
+    private final String trailingInfo;
+
     private final int line;
 
-    public DefaultApiDescription(String apiDescription, String className, String methodName, String[] simpleParameter, int line) {
+    public DefaultApiDescription(String apiDescription, String className, String methodName, String[] simpleParameter, String trailingInfo, int line) {
         this.apiDescription = Objects.requireNonNull(apiDescription, "apiDescription");
         this.className = Objects.requireNonNull(className, "className");
         this.methodName = Objects.requireNonNull(methodName, "methodName");
         this.simpleParameter = simpleParameter;
+        this.trailingInfo = Objects.requireNonNull(trailingInfo, "trailingInfo");
         this.line = line;
     }
 
@@ -74,7 +77,7 @@ public class DefaultApiDescription implements ApiDescription {
     @Override
     public String getMethodDescription() {
         String simpleParameterDescription = ParameterUtils.join(simpleParameter, ", ");
-        return methodName + simpleParameterDescription;
+        return methodName + simpleParameterDescription + this.trailingInfo;
     }
 
 
