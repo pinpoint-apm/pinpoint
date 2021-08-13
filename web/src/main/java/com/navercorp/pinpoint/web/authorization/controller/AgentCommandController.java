@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.CodeResult;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -114,6 +115,7 @@ public class AgentCommandController {
     }
 
     @GetMapping(value = "/samplingRate")
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'samplingRate')")
     public CodeResult agentSamplingRate(
         @RequestParam(value = "applicationName") String applicationName,
         @RequestParam(value = "agentId") String agentId,
