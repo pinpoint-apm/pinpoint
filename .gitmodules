@@ -1,3 +1,4 @@
 [submodule "grpc/grpc-idl"]
 	path = grpc/grpc-idl
-	url = https://github.com/pinpoint-apm/pinpoint-grpc-idl
+	url = https://github.com/yjqg6666/pinpoint-grpc-idl
+	branch = master
