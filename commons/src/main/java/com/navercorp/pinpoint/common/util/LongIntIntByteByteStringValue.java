@@ -60,4 +60,16 @@ public class LongIntIntByteByteStringValue implements DataType {
     public String getStringValue() {
         return stringValue;
     }
+
+    @Override
+    public String toString() {
+        return "LongIntIntByteByteStringValue{" +
+                "longValue=" + longValue +
+                ", intValue1=" + intValue1 +
+                ", intValue2=" + intValue2 +
+                ", byteValue1=" + byteValue1 +
+                ", byteValue2=" + byteValue2 +
+                ", stringValue='" + stringValue + '\'' +
+                '}';
+    }
 }

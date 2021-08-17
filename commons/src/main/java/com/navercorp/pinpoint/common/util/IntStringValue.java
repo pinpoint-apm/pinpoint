@@ -35,4 +35,12 @@ public class IntStringValue implements DataType {
     public int getIntValue() {
         return intValue;
     }
+
+    @Override
+    public String toString() {
+        return "IntStringValue{" +
+                "intValue=" + intValue +
+                ", stringValue='" + stringValue + '\'' +
+                '}';
+    }
 }
