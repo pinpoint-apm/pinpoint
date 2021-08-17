@@ -47,4 +47,14 @@ public class IntBooleanIntBooleanValue implements DataType {
     public boolean isBooleanValue2() {
         return booleanValue2;
     }
+
+    @Override
+    public String toString() {
+        return "IntBooleanIntBooleanValue{" +
+                "intValue1=" + intValue1 +
+                ", booleanValue1=" + booleanValue1 +
+                ", intValue2=" + intValue2 +
+                ", booleanValue2=" + booleanValue2 +
+                '}';
+    }
 }
