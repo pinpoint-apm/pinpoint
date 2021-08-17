@@ -110,30 +110,26 @@ public class HttpURLConnectionIT {
             connection.connect();
         } catch (UnknownHostException e) {
             expected1 = e;
-        } finally {
-            connection.disconnect();
         }
 
         Exception expected2 = null;
-        HttpURLConnection connection2 = (HttpURLConnection)url.openConnection();
         try {
-            connection2.connect();
+            connection.connect();
         } catch (UnknownHostException e) {
             expected2 = e;
-        } finally {
-            connection2.disconnect();
         }
+
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printMethod();
-        
+
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method getInputStream = targetClass.getMethod("connect");
-        
+
         verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, expected1, null, null, "no.such.url", annotation("http.url", "http://no.such.url")));
-        
         verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, expected2, null, null, "no.such.url", annotation("http.url", "http://no.such.url")));
-        
+
+        verifier.printMethod();
         verifier.verifyTraceCount(0);
     }
 }
