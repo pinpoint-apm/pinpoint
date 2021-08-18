@@ -135,7 +135,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
         synchronized (lock) {
             if (started) {
                 if (streamChannel != null) {
-                    active0(streamChannel, waitTimeout);
+                    this.active = active0(streamChannel, waitTimeout);
                 } else {
                     workerActiveManager.addReactiveWorker(applicationName, agentId);
                 }
