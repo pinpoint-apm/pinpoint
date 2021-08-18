@@ -65,19 +65,21 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
         RequestAdaptor<HttpServerRequest> requestAdaptor = new HttpRequestAdaptor();
         ParameterRecorder<HttpServerRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
 
-        ServletRequestListenerBuilder<HttpServerRequest> builder = new ServletRequestListenerBuilder<>(ReactorNettyConstants.REACTOR_NETTY, traceContext, requestAdaptor);
-        builder.setExcludeURLFilter(config.getExcludeUrlFilter());
-        builder.setParameterRecorder(parameterRecorder);
-        builder.setRequestRecorderFactory(requestRecorderFactory);
+        ServletRequestListenerBuilder<HttpServerRequest> reqBuilder = new ServletRequestListenerBuilder<>(ReactorNettyConstants.REACTOR_NETTY, traceContext, requestAdaptor);
+        reqBuilder.setExcludeURLFilter(config.getExcludeUrlFilter());
+        reqBuilder.setParameterRecorder(parameterRecorder);
+        reqBuilder.setRequestRecorderFactory(requestRecorderFactory);
 
         final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
-        builder.setRealIpSupport(config.getRealIpHeader(), config.getRealIpEmptyValue());
-        builder.setHttpStatusCodeRecorder(profilerConfig.getHttpStatusCodeErrors());
-        builder.setServerHeaderRecorder(profilerConfig.readList(ServerHeaderRecorder.CONFIG_KEY_RECORD_REQ_HEADERS));
-        builder.setServerCookieRecorder(profilerConfig.readList(ServerCookieRecorder.CONFIG_KEY_RECORD_REQ_COOKIES));
-        this.servletRequestListener = builder.build();
+        reqBuilder.setRealIpSupport(config.getRealIpHeader(), config.getRealIpEmptyValue());
+        reqBuilder.setHttpStatusCodeRecorder(profilerConfig.getHttpStatusCodeErrors());
+        reqBuilder.setServerHeaderRecorder(profilerConfig.readList(ServerHeaderRecorder.CONFIG_KEY_RECORD_REQ_HEADERS));
+        reqBuilder.setServerCookieRecorder(profilerConfig.readList(ServerCookieRecorder.CONFIG_KEY_RECORD_REQ_COOKIES));
+        reqBuilder.setRecordStatusCode(false);
 
-        this.servletResponseListener = new ServletResponseListenerBuilder<HttpServerResponse>(traceContext, new HttpResponseAdaptor()).build();
+        this.servletRequestListener = reqBuilder.build();
+
+        this.servletResponseListener = new ServletResponseListenerBuilder<>(traceContext, new HttpResponseAdaptor()).build();
 
         this.enableAsyncEndPoint = config.isEnableAsyncEndPoint();
     }
@@ -158,7 +160,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
             final HttpServerResponse response = (HttpServerResponse) args[0];
             final int statusCode = getStatusCode(response);
             this.servletResponseListener.destroyed(response, throwable, statusCode); //must before request listener due to trace block ending
-            this.servletRequestListener.destroyed(request, throwable, statusCode, false);
+            this.servletRequestListener.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle.", t);

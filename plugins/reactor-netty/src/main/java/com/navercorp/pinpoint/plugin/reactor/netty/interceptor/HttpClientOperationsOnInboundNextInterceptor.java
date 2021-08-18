@@ -40,7 +40,7 @@ public class HttpClientOperationsOnInboundNextInterceptor extends AsyncContextSp
 
     public HttpClientOperationsOnInboundNextInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
-        this.responseHeaderRecorder = ResponseHeaderRecorderFactory.<HttpResponse>newResponseHeaderRecorder(traceContext.getProfilerConfig(), new ReactorNettyResponseHeaderAdaptor());
+        this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new ReactorNettyResponseHeaderAdaptor());
     }
 
     // BEFORE

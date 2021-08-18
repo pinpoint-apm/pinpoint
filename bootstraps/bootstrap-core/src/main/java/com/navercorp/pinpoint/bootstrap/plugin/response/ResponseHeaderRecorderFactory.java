@@ -29,9 +29,9 @@ public class ResponseHeaderRecorderFactory {
     public static <RESP> ServerResponseHeaderRecorder<RESP> newResponseHeaderRecorder(ProfilerConfig profilerConfig, ResponseAdaptor<RESP> adaptor) {
         final List<String> recordResponseHeaders = profilerConfig.readList(ServerResponseHeaderRecorder.CONFIG_KEY_RECORD_RESP_HEADERS);
         if (CollectionUtils.isEmpty(recordResponseHeaders)) {
-            return new BypassServerResponseHeaderRecorder<RESP>();
+            return new BypassServerResponseHeaderRecorder<>();
         }
-        return new DefaultServerResponseHeaderRecorder<RESP>(adaptor, recordResponseHeaders);
+        return new DefaultServerResponseHeaderRecorder<>(adaptor, recordResponseHeaders);
     }
 
 }

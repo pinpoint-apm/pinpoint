@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.AttributeRecorder;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
@@ -45,19 +46,23 @@ public class DefaultServerResponseHeaderRecorder<RESP> implements ServerResponse
     public DefaultServerResponseHeaderRecorder(ResponseAdaptor<RESP> responseAdaptor, List<String> recordHeaders) {
         this.responseAdaptor = Objects.requireNonNull(responseAdaptor, "responseAdaptor");
         Objects.requireNonNull(recordHeaders, "recordHeaders");
-        this.recordAllHeaders = recordHeaders.size() == 1 && "HEADERS-ALL".contentEquals(recordHeaders.get(0));
+        this.recordAllHeaders = isRecordAllHeaders(recordHeaders);
         this.recordHeaders = recordHeaders;
+    }
+
+    private boolean isRecordAllHeaders(List<String> recordHeaders) {
+        return recordHeaders.contains("HEADERS-ALL");
     }
 
     @Override
     public void recordHeader(final AttributeRecorder recorder, final RESP response) {
         Collection<String> headerNames = recordAllHeaders ? getHeaderNames(response) : this.recordHeaders;
         for (String headerName : headerNames) {
-            if (!StringUtils.hasText(headerName)) {
+            if (StringUtils.isEmpty(headerName)) {
                 continue;
             }
             final Collection<String> headers = getHeaders(response, headerName);
-            if (headers == null || headers.isEmpty()) {
+            if (CollectionUtils.isEmpty(headers)) {
                 continue;
             }
             StringStringValue header = new StringStringValue(headerName, formatHeaderValues(headers));
@@ -68,7 +73,7 @@ public class DefaultServerResponseHeaderRecorder<RESP> implements ServerResponse
     private Set<String> getHeaderNames(final RESP response) {
         try {
             final Collection<String> headerNames = responseAdaptor.getHeaderNames(response);
-            if (headerNames == null || headerNames.isEmpty()) {
+            if (CollectionUtils.isEmpty(headerNames)) {
                 return Collections.emptySet();
             }
             //deduplicate
@@ -91,13 +96,10 @@ public class DefaultServerResponseHeaderRecorder<RESP> implements ServerResponse
     }
 
     private String formatHeaderValues(Collection<String> headers) {
-        final String val;
         if (headers.size() == 1) {
-            final String[] stringArray = headers.toArray(new String[0]);
-            val = stringArray[0];
+            return headers.iterator().next();
         } else {
-            val = headers.toString();
+            return headers.toString();
         }
-        return val;
     }
 }

@@ -92,9 +92,9 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         this.statusCode = profilerConfig.isStatusCode();
         this.io = profilerConfig.isIo();
         ClientHeaderAdaptor<HttpRequest> clientHeaderAdaptor = new HttpRequest4ClientHeaderAdaptor();
-        this.requestTraceWriter = new DefaultRequestTraceWriter<HttpRequest>(clientHeaderAdaptor, traceContext);
+        this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
 
-        this.responseHeaderRecorder = ResponseHeaderRecorderFactory.<HttpResponse>newResponseHeaderRecorder(traceContext.getProfilerConfig(), new HttpResponse4ClientHeaderAdaptor());
+        this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new HttpResponse4ClientHeaderAdaptor());
     }
 
     @Override

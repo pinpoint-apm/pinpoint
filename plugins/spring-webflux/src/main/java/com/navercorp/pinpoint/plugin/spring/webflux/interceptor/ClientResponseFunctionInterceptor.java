@@ -37,7 +37,7 @@ public class ClientResponseFunctionInterceptor extends SpanEventSimpleAroundInte
 
     public ClientResponseFunctionInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
-        this.responseHeaderRecorder = ResponseHeaderRecorderFactory.<ClientHttpResponse>newResponseHeaderRecorder(traceContext.getProfilerConfig(), new SpringWebFluxResponseHeaderAdaptor());
+        this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new SpringWebFluxResponseHeaderAdaptor());
     }
 
     @Override

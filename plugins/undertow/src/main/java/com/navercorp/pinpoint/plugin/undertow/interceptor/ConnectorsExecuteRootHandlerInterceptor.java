@@ -61,19 +61,21 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
         RequestAdaptor<HttpServerExchange> requestAdaptor = new HttpServerExchangeAdaptor();
         ParameterRecorder<HttpServerExchange> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
 
-        ServletRequestListenerBuilder<HttpServerExchange> builder = new ServletRequestListenerBuilder<>(UndertowConstants.UNDERTOW, traceContext, requestAdaptor);
-        builder.setExcludeURLFilter(config.getExcludeUrlFilter());
-        builder.setParameterRecorder(parameterRecorder);
-        builder.setRequestRecorderFactory(requestRecorderFactory);
+        ServletRequestListenerBuilder<HttpServerExchange> reqBuilder = new ServletRequestListenerBuilder<>(UndertowConstants.UNDERTOW, traceContext, requestAdaptor);
+        reqBuilder.setExcludeURLFilter(config.getExcludeUrlFilter());
+        reqBuilder.setParameterRecorder(parameterRecorder);
+        reqBuilder.setRequestRecorderFactory(requestRecorderFactory);
 
         final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
-        builder.setRealIpSupport(config.getRealIpHeader(), config.getRealIpEmptyValue());
-        builder.setHttpStatusCodeRecorder(profilerConfig.getHttpStatusCodeErrors());
-        builder.setServerHeaderRecorder(profilerConfig.readList(ServerHeaderRecorder.CONFIG_KEY_RECORD_REQ_HEADERS));
-        builder.setServerCookieRecorder(profilerConfig.readList(ServerCookieRecorder.CONFIG_KEY_RECORD_REQ_COOKIES));
-        this.servletRequestListener = builder.build();
+        reqBuilder.setRealIpSupport(config.getRealIpHeader(), config.getRealIpEmptyValue());
+        reqBuilder.setHttpStatusCodeRecorder(profilerConfig.getHttpStatusCodeErrors());
+        reqBuilder.setServerHeaderRecorder(profilerConfig.readList(ServerHeaderRecorder.CONFIG_KEY_RECORD_REQ_HEADERS));
+        reqBuilder.setServerCookieRecorder(profilerConfig.readList(ServerCookieRecorder.CONFIG_KEY_RECORD_REQ_COOKIES));
+        reqBuilder.setRecordStatusCode(false);
 
-        this.servletResponseListener = new ServletResponseListenerBuilder<HttpServerExchange>(traceContext, new HttpServerExchangeResponseAdaptor()).build();
+        this.servletRequestListener = reqBuilder.build();
+
+        this.servletResponseListener = new ServletResponseListenerBuilder<>(traceContext, new HttpServerExchangeResponseAdaptor()).build();
 
         this.httpHeaderFilter = new UndertowHttpHeaderFilter(config.isHidePinpointHeader());
     }
@@ -115,7 +117,7 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
             final int statusCode = getStatusCode(request);
             this.servletResponseListener.destroyed(request, throwable, statusCode); //must before request listener due to trace block ending
             // TODO Get exception. e.g. request.getAttachment(DefaultResponseListener.EXCEPTION)
-            this.servletRequestListener.destroyed(request, throwable, statusCode, false);
+            this.servletRequestListener.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle.", t);

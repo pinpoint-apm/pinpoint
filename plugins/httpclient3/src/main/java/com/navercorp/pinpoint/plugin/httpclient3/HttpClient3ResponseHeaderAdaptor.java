@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.httpclient3;
 
 import com.navercorp.pinpoint.bootstrap.plugin.response.ResponseAdaptor;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
 
@@ -69,7 +70,7 @@ public class HttpClient3ResponseHeaderAdaptor implements ResponseAdaptor<HttpMet
     @Override
     public Collection<String> getHeaderNames(HttpMethod response) {
         final Header[] headers = response.getResponseHeaders();
-        if (headers == null || headers.length == 0) {
+        if (ArrayUtils.isEmpty(headers)) {
             return Collections.emptyList();
         }
         Set<String> values = new HashSet<>(headers.length);

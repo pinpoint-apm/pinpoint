@@ -98,7 +98,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         EntityExtractor<HttpMethod> entityExtractor = HttpClient3EntityExtractor.INSTANCE;
         this.entityRecorder = EntityRecorderFactory.newEntityRecorder(httpDumpConfig, entityExtractor);
 
-        this.responseHeaderRecorder = ResponseHeaderRecorderFactory.<HttpMethod>newResponseHeaderRecorder(traceContext.getProfilerConfig(), new HttpClient3ResponseHeaderAdaptor());
+        this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new HttpClient3ResponseHeaderAdaptor());
 
         ClientHeaderAdaptor<HttpMethod> clientHeaderAdaptor = new HttpMethodClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
