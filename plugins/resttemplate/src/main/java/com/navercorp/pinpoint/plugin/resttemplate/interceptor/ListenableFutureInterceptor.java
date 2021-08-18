@@ -42,7 +42,7 @@ public class ListenableFutureInterceptor extends AsyncContextSpanEventSimpleArou
 
     public ListenableFutureInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
         super(traceContext, methodDescriptor);
-        this.responseHeaderRecorder = ResponseHeaderRecorderFactory.<ClientHttpResponse>newResponseHeaderRecorder(traceContext.getProfilerConfig(), new RestTemplateResponseHeaderAdaptor());
+        this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new RestTemplateResponseHeaderAdaptor());
     }
 
     @Override

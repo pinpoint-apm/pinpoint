@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.context;
 
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public interface SpanEventRecorder extends AttributeRecorder, FrameAttachment {

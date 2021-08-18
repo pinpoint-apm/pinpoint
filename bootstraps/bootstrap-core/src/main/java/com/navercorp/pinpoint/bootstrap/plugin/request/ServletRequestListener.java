@@ -58,6 +58,8 @@ public class ServletRequestListener<REQ> {
 
     private final UriStatRecorder<REQ> uriStatRecorder;
 
+    private final boolean recordStatusCode;
+
     public ServletRequestListener(final ServiceType serviceType,
                                   final TraceContext traceContext,
                                   final RequestAdaptor<REQ> requestAdaptor,
@@ -67,7 +69,8 @@ public class ServletRequestListener<REQ> {
                                   final ProxyRequestRecorder<REQ> proxyRequestRecorder,
                                   final ServerRequestRecorder<REQ> serverRequestRecorder,
                                   final HttpStatusCodeRecorder httpStatusCodeRecorder,
-                                  final UriStatRecorder<REQ> uriStatRecorder) {
+                                  final UriStatRecorder<REQ> uriStatRecorder,
+                                  final boolean  recordStatusCode) {
         this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
         this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
         this.requestAdaptor = Objects.requireNonNull(requestAdaptor, "requestAdaptor");
@@ -85,6 +88,8 @@ public class ServletRequestListener<REQ> {
         this.httpStatusCodeRecorder = Objects.requireNonNull(httpStatusCodeRecorder, "httpStatusCodeRecorder");
 
         this.uriStatRecorder = Objects.requireNonNull(uriStatRecorder, "uriStatRecorder");
+
+        this.recordStatusCode = recordStatusCode;
 
         this.traceContext.cacheApi(SERVLET_SYNC_METHOD_DESCRIPTOR);
     }
@@ -136,16 +141,11 @@ public class ServletRequestListener<REQ> {
     }
 
     /**
-     * kept for bc, since response listener for weblogic & websphere has not been implemented yet.
      * @param request request
      * @param throwable error
      * @param statusCode status code
      */
     public void destroyed(REQ request, final Throwable throwable, final int statusCode) {
-        destroyed(request, throwable, statusCode, true);
-    }
-
-    public void destroyed(REQ request, final Throwable throwable, final int statusCode, final boolean recordStatusCode) {
         if (isDebug) {
             logger.debug("Destroyed requestEvent. request={}, throwable={}, statusCode={}", request, throwable, statusCode);
         }
@@ -169,7 +169,7 @@ public class ServletRequestListener<REQ> {
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordException(throwable);
-            if (recordStatusCode) {
+            if (this.recordStatusCode) {
                 this.httpStatusCodeRecorder.record(trace.getSpanRecorder(), statusCode);
             }
             // Must be executed in destroyed()

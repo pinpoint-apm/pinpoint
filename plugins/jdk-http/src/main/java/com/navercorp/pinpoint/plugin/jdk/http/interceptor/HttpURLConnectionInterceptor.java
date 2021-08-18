@@ -60,11 +60,11 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
         final JdkHttpPluginConfig config = new JdkHttpPluginConfig(traceContext.getProfilerConfig());
 
         ClientRequestAdaptor<HttpURLConnection> clientRequestAdaptor = new JdkHttpClientRequestAdaptor();
-        this.clientRequestRecorder = new ClientRequestRecorder<HttpURLConnection>(config.isParam(), clientRequestAdaptor);
-        this.responseHeaderRecorder = ResponseHeaderRecorderFactory.<HttpURLConnection>newResponseHeaderRecorder(traceContext.getProfilerConfig(), new JdkHttpClientResponseAdaptor());
+        this.clientRequestRecorder = new ClientRequestRecorder<>(config.isParam(), clientRequestAdaptor);
+        this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new JdkHttpClientResponseAdaptor());
 
         ClientHeaderAdaptor<HttpURLConnection> clientHeaderAdaptor = new HttpURLConnectionClientHeaderAdaptor();
-        this.requestTraceWriter = new DefaultRequestTraceWriter<HttpURLConnection>(clientHeaderAdaptor, traceContext);
+        this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override

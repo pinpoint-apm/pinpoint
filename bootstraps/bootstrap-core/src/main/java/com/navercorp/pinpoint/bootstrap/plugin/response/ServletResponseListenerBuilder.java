@@ -64,14 +64,14 @@ public class ServletResponseListenerBuilder<RESP> {
         } else {
             httpStatusCodeRecorder = new HttpStatusCodeRecorder(httpStatusCodeErrors);
         }
-        return new ServletResponseListener<RESP>(traceContext, newServerResponseHeaderRecorder(), httpStatusCodeRecorder);
+        return new ServletResponseListener<>(traceContext, newServerResponseHeaderRecorder(), httpStatusCodeRecorder);
     }
 
     private ServerResponseHeaderRecorder<RESP> newServerResponseHeaderRecorder() {
         if (CollectionUtils.isEmpty(recordResponseHeaders)) {
-            return new BypassServerResponseHeaderRecorder<RESP>();
+            return new BypassServerResponseHeaderRecorder<>();
         }
-        return new DefaultServerResponseHeaderRecorder<RESP>(responseAdaptor, recordResponseHeaders);
+        return new DefaultServerResponseHeaderRecorder<>(responseAdaptor, recordResponseHeaders);
     }
 
 }

@@ -45,7 +45,7 @@ public class HttpEngineReadResponseMethodInterceptor implements AroundIntercepto
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
         this.statusCode = statusCode;
-        this.responseHeaderRecorder = ResponseHeaderRecorderFactory.<Response>newResponseHeaderRecorder(traceContext.getProfilerConfig(), new OkHttpResponseAdaptor());
+        this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new OkHttpResponseAdaptor());
     }
 
     @Override

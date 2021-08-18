@@ -34,7 +34,6 @@ public interface ResponseAdaptor<RESP> {
      * has already been set;
      * <code>false</code> otherwise
      */
-
     boolean containsHeader(RESP response, String name);
 
     /**
@@ -51,7 +50,6 @@ public interface ResponseAdaptor<RESP> {
      * (http://www.ietf.org/rfc/rfc2047.txt)
      * @see #containsHeader
      */
-
     void setHeader(RESP response, String name, String value);
 
     /**
@@ -66,7 +64,6 @@ public interface ResponseAdaptor<RESP> {
      * (http://www.ietf.org/rfc/rfc2047.txt)
      * @see #setHeader
      */
-
     void addHeader(RESP response, String name, String value);
 
     /**
