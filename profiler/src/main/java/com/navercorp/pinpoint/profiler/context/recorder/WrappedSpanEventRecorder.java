@@ -22,11 +22,14 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import java.util.Objects;
+
+import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.AsyncId;
+import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
@@ -107,7 +110,7 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     }
 
     private void recordSqlParam(IntStringStringValue intStringStringValue) {
-        Annotation annotation = new Annotation(AnnotationKey.SQL_ID.getCode(), intStringStringValue);
+        Annotation<DataType> annotation = Annotations.of(AnnotationKey.SQL_ID.getCode(), intStringStringValue);
         spanEvent.addAnnotation(annotation);
     }
 
@@ -157,7 +160,7 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         spanEvent.setApiId(apiId);
     }
 
-    void addAnnotation(Annotation annotation) {
+    void addAnnotation(Annotation<?> annotation) {
         spanEvent.addAnnotation(annotation);
     }
 

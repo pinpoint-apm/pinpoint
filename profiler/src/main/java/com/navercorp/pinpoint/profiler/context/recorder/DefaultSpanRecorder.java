@@ -80,7 +80,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     }
 
     @Override
-    void addAnnotation(Annotation annotation) {
+    void addAnnotation(Annotation<?> annotation) {
         span.addAnnotation(annotation);
     }
 

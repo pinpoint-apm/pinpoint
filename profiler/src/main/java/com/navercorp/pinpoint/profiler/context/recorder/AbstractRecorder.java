@@ -15,12 +15,16 @@
  */
 package com.navercorp.pinpoint.profiler.context.recorder;
 
+import com.navercorp.pinpoint.bootstrap.context.AttributeRecorder;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import java.util.Objects;
+
+import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -28,7 +32,7 @@ import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 /**
  * @author jaehong.kim
  */
-public abstract class AbstractRecorder {
+public abstract class AbstractRecorder implements AttributeRecorder {
 
     protected final StringMetaDataService stringMetaDataService;
     protected final SqlMetaDataService sqlMetaDataService;
@@ -133,20 +137,65 @@ public abstract class AbstractRecorder {
         }
     }
 
+    @Override
     public void recordAttribute(AnnotationKey key, String value) {
-        Annotation annotation = new Annotation(key.getCode(), value);
+        Annotation<String> annotation = Annotations.of(key.getCode(), value);
         addAnnotation(annotation);
     }
 
+    @Override
     public void recordAttribute(AnnotationKey key, int value) {
-        Annotation annotation = new Annotation(key.getCode(), value);
+        Annotation<Integer> annotation = Annotations.of(key.getCode(), value);
         addAnnotation(annotation);
     }
 
+    @Override
+    public void recordAttribute(AnnotationKey key, Integer value) {
+        Annotation<Integer> annotation = Annotations.of(key.getCode(), value);
+        addAnnotation(annotation);
+    }
+
+    @Override
+    public void recordAttribute(AnnotationKey key, long value) {
+        Annotation<Long> annotation = Annotations.of(key.getCode(), value);
+        addAnnotation(annotation);
+    }
+
+    @Override
+    public void recordAttribute(AnnotationKey key, Long value) {
+        Annotation<Long> annotation = Annotations.of(key.getCode(), value);
+        addAnnotation(annotation);
+    }
+
+    @Override
+    public void recordAttribute(AnnotationKey key, boolean value) {
+        Annotation<Boolean> annotation = Annotations.of(key.getCode(), value);
+        addAnnotation(annotation);
+    }
+
+    @Override
+    public void recordAttribute(AnnotationKey key, double value) {
+        Annotation<Double> annotation = Annotations.of(key.getCode(), value);
+        addAnnotation(annotation);
+    }
+
+    @Override
+    public void recordAttribute(AnnotationKey key, byte[] value) {
+        Annotation<byte[]> annotation = Annotations.of(key.getCode(), value);
+        addAnnotation(annotation);
+    }
+
+    @Override
+    public void recordAttribute(AnnotationKey key, DataType value) {
+        Annotation<DataType> annotation = Annotations.of(key.getCode(), value);
+        addAnnotation(annotation);
+    }
+
+    @Override
     public void recordAttribute(AnnotationKey key, Object value) {
-        Annotation annotation = new Annotation(key.getCode(), value);
+        Annotation<?> annotation = Annotations.of(key.getCode(), value);
         addAnnotation(annotation);
     }
 
-    abstract void addAnnotation(Annotation annotation);
+    abstract void addAnnotation(Annotation<?> annotation);
 }

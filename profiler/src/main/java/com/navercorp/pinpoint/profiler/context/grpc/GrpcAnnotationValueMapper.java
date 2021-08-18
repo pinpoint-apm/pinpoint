@@ -31,7 +31,21 @@ import com.navercorp.pinpoint.grpc.trace.PIntStringStringValue;
 import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
 import com.navercorp.pinpoint.grpc.trace.PLongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.grpc.trace.PStringStringValue;
+import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.annotation.BooleanAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.ByteAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.BytesAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.DataTypeAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.DoubleAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.IntAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.LongAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.NullAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.ShortAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.StringAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.ObjectAnnotation;
 import org.apache.thrift.TBase;
+
+import java.util.Objects;
 
 /**
  * WARNING Not thread safe
@@ -42,96 +56,104 @@ public class GrpcAnnotationValueMapper {
     private final PAnnotationValue.Builder annotationBuilder = PAnnotationValue.newBuilder();
     private final StringValue.Builder stringValueBuilder = StringValue.newBuilder();
 
-    public PAnnotationValue buildPAnnotationValue(Object value) {
-        if (value == null) {
+    public PAnnotationValue buildPAnnotationValue(Annotation<?> ano) {
+        if (ano == null) {
+            throw new NullPointerException("annotation");
+        }
+
+        if (ano instanceof NullAnnotation) {
             return null;
         }
-        if (value instanceof Number) {
-            if (value instanceof Integer) {
-                PAnnotationValue.Builder builder = getAnnotationBuilder();
-                builder.setIntValue((Integer) value);
-                return builder.build();
-            } else if (value instanceof Long) {
-                PAnnotationValue.Builder builder = getAnnotationBuilder();
-                builder.setLongValue((Long) value);
-                return builder.build();
-            } else if (value instanceof Float) {
-                PAnnotationValue.Builder builder = getAnnotationBuilder();
-                // thrift does not contain "float" type
-                builder.setDoubleValue((Float) value);
-                return builder.build();
-            } else if (value instanceof Double) {
-                PAnnotationValue.Builder builder = getAnnotationBuilder();
-                builder.setDoubleValue((Double) value);
-                return builder.build();
-            } else if (value instanceof Short) {
-                PAnnotationValue.Builder builder = getAnnotationBuilder();
-                builder.setShortValue((Short) value);
-                return builder.build();
-            } else if (value instanceof Byte) {
-                PAnnotationValue.Builder builder = getAnnotationBuilder();
-                builder.setByteValue((Byte) value);
-                return builder.build();
-            }
-        }
-        if (value instanceof String) {
+        if (ano instanceof StringAnnotation) {
             PAnnotationValue.Builder builder = getAnnotationBuilder();
-            builder.setStringValue((String) value);
-            return builder.build();
-        }
-        if (value instanceof Boolean) {
-            PAnnotationValue.Builder builder = getAnnotationBuilder();
-            builder.setBoolValue((Boolean) value);
-            return builder.build();
-        }
-        if (value instanceof byte[]) {
-            PAnnotationValue.Builder builder = getAnnotationBuilder();
-            builder.setBinaryValue(ByteString.copyFrom((byte[]) value));
+            builder.setStringValue(((StringAnnotation) ano).stringValue());
             return builder.build();
         }
 
-        if (value instanceof DataType) {
-            if (value instanceof IntStringValue) {
-                final IntStringValue v = (IntStringValue) value;
+        if (ano instanceof IntAnnotation) {
+            PAnnotationValue.Builder builder = getAnnotationBuilder();
+            builder.setIntValue(((IntAnnotation) ano).intValue());
+            return builder.build();
+        } else if (ano instanceof LongAnnotation) {
+            PAnnotationValue.Builder builder = getAnnotationBuilder();
+            builder.setLongValue(((LongAnnotation) ano).longValue());
+            return builder.build();
+        } else if (ano instanceof DoubleAnnotation) {
+            PAnnotationValue.Builder builder = getAnnotationBuilder();
+            builder.setDoubleValue(((DoubleAnnotation) ano).doubleValue());
+            return builder.build();
+        } else if (ano instanceof ShortAnnotation) {
+            PAnnotationValue.Builder builder = getAnnotationBuilder();
+            builder.setShortValue(((ShortAnnotation) ano).shortValue());
+            return builder.build();
+        } else if (ano instanceof ByteAnnotation) {
+            PAnnotationValue.Builder builder = getAnnotationBuilder();
+            builder.setByteValue(((ByteAnnotation) ano).byteValue());
+            return builder.build();
+        }
+
+        if (ano instanceof BooleanAnnotation) {
+            PAnnotationValue.Builder builder = getAnnotationBuilder();
+            builder.setBoolValue(((BooleanAnnotation) ano).booleanValue());
+            return builder.build();
+        }
+        if (ano instanceof BytesAnnotation) {
+            PAnnotationValue.Builder builder = getAnnotationBuilder();
+            byte[] bytes = ((BytesAnnotation) ano).bytesValue();
+            builder.setBinaryValue(ByteString.copyFrom(bytes));
+            return builder.build();
+        }
+
+        if (ano instanceof DataTypeAnnotation) {
+            DataType dataType = ((DataTypeAnnotation) ano).dataTypeValue();
+            if (dataType instanceof IntStringValue) {
+                final IntStringValue v = (IntStringValue) dataType;
                 PIntStringValue pIntStringValue = newIntStringValue(v);
 
                 PAnnotationValue.Builder builder = getAnnotationBuilder();
                 builder.setIntStringValue(pIntStringValue);
 
                 return builder.build();
-            } else if (value instanceof StringStringValue) {
-                final StringStringValue v = (StringStringValue) value;
+            } else if (dataType instanceof StringStringValue) {
+                final StringStringValue v = (StringStringValue) dataType;
                 PStringStringValue pStringStringValue = newStringStringValue(v);
 
                 PAnnotationValue.Builder builder = getAnnotationBuilder();
                 builder.setStringStringValue(pStringStringValue);
                 return builder.build();
-            } else if (value instanceof IntStringStringValue) {
-                final IntStringStringValue v = (IntStringStringValue) value;
+            } else if (dataType instanceof IntStringStringValue) {
+                final IntStringStringValue v = (IntStringStringValue) dataType;
                 final PIntStringStringValue pIntStringStringValue = newIntStringStringValue(v);
                 PAnnotationValue.Builder builder = getAnnotationBuilder();
                 builder.setIntStringStringValue(pIntStringStringValue);
                 return builder.build();
-            } else if (value instanceof LongIntIntByteByteStringValue) {
-                final LongIntIntByteByteStringValue v = (LongIntIntByteByteStringValue) value;
+            } else if (dataType instanceof LongIntIntByteByteStringValue) {
+                final LongIntIntByteByteStringValue v = (LongIntIntByteByteStringValue) dataType;
                 final PLongIntIntByteByteStringValue pValue = newLongIntIntByteByteStringValue(v);
 
                 PAnnotationValue.Builder builder = getAnnotationBuilder();
                 builder.setLongIntIntByteByteStringValue(pValue);
                 return builder.build();
-            } else if (value instanceof IntBooleanIntBooleanValue) {
-                final IntBooleanIntBooleanValue v = (IntBooleanIntBooleanValue) value;
+            } else if (dataType instanceof IntBooleanIntBooleanValue) {
+                final IntBooleanIntBooleanValue v = (IntBooleanIntBooleanValue) dataType;
                 final PIntBooleanIntBooleanValue pValue = newIntBooleanIntBooleanValue(v);
                 PAnnotationValue.Builder builder = getAnnotationBuilder();
                 builder.setIntBooleanIntBooleanValue(pValue);
                 return builder.build();
             }
         }
-
-        if (value instanceof TBase) {
-            throw new IllegalArgumentException("TBase not supported. Class:" + value.getClass());
+        if (ano instanceof ObjectAnnotation) {
+            String str = ((ObjectAnnotation)ano).unknownValue();
+            PAnnotationValue.Builder builder = getAnnotationBuilder();
+            builder.setStringValue(str);
+            return builder.build();
         }
-        String str = StringUtils.abbreviate(value.toString());
+
+        if (ano instanceof TBase) {
+            throw new IllegalArgumentException("TBase not supported. Class:" + ano.getClass());
+        }
+
+        String str = StringUtils.abbreviate(Objects.toString(ano.getValue()));
         PAnnotationValue.Builder builder = getAnnotationBuilder();
         builder.setStringValue(str);
         return builder.build();

@@ -129,7 +129,7 @@ public class GrpcSpanMessageConverter implements MessageConverter<GeneratedMessa
 
         pSpan.setLoggingTransactionInfo(shared.getLoggingInfo());
 
-        final List<Annotation> annotations = span.getAnnotations();
+        final List<Annotation<?>> annotations = span.getAnnotations();
         if (CollectionUtils.hasLength(annotations)) {
             final List<PAnnotation> tAnnotations = buildPAnnotation(annotations);
             pSpan.addAllAnnotation(tAnnotations);
@@ -210,7 +210,7 @@ public class GrpcSpanMessageConverter implements MessageConverter<GeneratedMessa
 
     private List<PSpanEvent> buildPSpanEventList(List<SpanEvent> spanEventList) {
         final int eventSize = spanEventList.size();
-        final List<PSpanEvent> pSpanEventList = new ArrayList<PSpanEvent>(eventSize);
+        final List<PSpanEvent> pSpanEventList = new ArrayList<>(eventSize);
         for (SpanEvent spanEvent : spanEventList) {
             final PSpanEvent.Builder pSpanEvent = buildPSpanEvent(spanEvent);
             pSpanEventList.add(pSpanEvent.build());
@@ -301,7 +301,7 @@ public class GrpcSpanMessageConverter implements MessageConverter<GeneratedMessa
         }
 
 
-        final List<Annotation> annotations = spanEvent.getAnnotations();
+        final List<Annotation<?>> annotations = spanEvent.getAnnotations();
         if (CollectionUtils.hasLength(annotations)) {
             final List<PAnnotation> pAnnotations = buildPAnnotation(annotations);
             pSpanEvent.addAllAnnotation(pAnnotations);
@@ -356,12 +356,12 @@ public class GrpcSpanMessageConverter implements MessageConverter<GeneratedMessa
     }
 
     @VisibleForTesting
-    List<PAnnotation> buildPAnnotation(List<Annotation> annotations) {
-        final List<PAnnotation> tAnnotationList = new ArrayList<PAnnotation>(annotations.size());
-        for (Annotation annotation : annotations) {
+    List<PAnnotation> buildPAnnotation(List<Annotation<?>> annotations) {
+        final List<PAnnotation> tAnnotationList = new ArrayList<>(annotations.size());
+        for (Annotation<?> annotation : annotations) {
             final PAnnotation.Builder builder = getAnnotationBuilder();
-            builder.setKey(annotation.getAnnotationKey());
-            final PAnnotationValue pAnnotationValue = grpcAnnotationValueMapper.buildPAnnotationValue(annotation.getValue());
+            builder.setKey(annotation.getKey());
+            final PAnnotationValue pAnnotationValue = grpcAnnotationValueMapper.buildPAnnotationValue(annotation);
             if (pAnnotationValue != null) {
                 builder.setValue(pAnnotationValue);
             }
