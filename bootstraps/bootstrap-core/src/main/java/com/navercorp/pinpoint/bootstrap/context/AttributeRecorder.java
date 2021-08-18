@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.context;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.DataType;
 
 /**
  * @author yjqg6666
@@ -25,7 +26,24 @@ public interface AttributeRecorder {
 
     void recordAttribute(AnnotationKey key, String value);
 
+
     void recordAttribute(AnnotationKey key, int value);
+
+    void recordAttribute(AnnotationKey key, Integer value);
+
+
+    void recordAttribute(AnnotationKey key, long value);
+
+    void recordAttribute(AnnotationKey key, Long value);
+
+
+    void recordAttribute(AnnotationKey key, boolean value);
+
+    void recordAttribute(AnnotationKey key, double value);
+
+    void recordAttribute(AnnotationKey key, byte[] value);
+
+    void recordAttribute(AnnotationKey key, DataType value);
 
     void recordAttribute(AnnotationKey key, Object value);
 

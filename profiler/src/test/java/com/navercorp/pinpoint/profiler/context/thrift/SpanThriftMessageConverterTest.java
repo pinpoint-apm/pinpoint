@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.DefaultAsyncId;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanChunk;
 import com.navercorp.pinpoint.profiler.context.Span;
@@ -95,7 +96,7 @@ public class SpanThriftMessageConverterTest {
         shared.maskErrorCode(RandomExUtils.nextInt(0, 100));
         shared.setStatusCode(RandomExUtils.nextInt(0, 100));
 
-        span.addAnnotation(new Annotation(1));
+        span.addAnnotation(Annotations.of(1));
         span.setSpanEventList(Collections.singletonList(new SpanEvent()));
 
         final TSpan tSpan = messageConverter.buildTSpan(span);
@@ -159,7 +160,7 @@ public class SpanThriftMessageConverterTest {
         spanEvent.setAsyncIdObject(new DefaultAsyncId(RandomExUtils.nextInt(0, 100)));
 
 
-        spanEvent.addAnnotation(new Annotation(1));
+        spanEvent.addAnnotation(Annotations.of(1));
 
         TSpanEvent tSpanEvent = messageConverter.buildTSpanEvent(spanEvent);
         spanPostProcessor.postEventProcess(Collections.singletonList(spanEvent), Collections.singletonList(tSpanEvent), startTime);
@@ -179,12 +180,12 @@ public class SpanThriftMessageConverterTest {
 
     @Test
     public void buildTAnnotation() {
-        Annotation annotation = new Annotation(RandomExUtils.nextInt(0, 100), "value");
-        List<Annotation> annotations = Collections.singletonList(annotation);
+        Annotation<?> annotation = Annotations.of(RandomExUtils.nextInt(0, 100), "value");
+        List<? extends Annotation<?>> annotations = Collections.singletonList(annotation);
         List<TAnnotation> tAnnotations = messageConverter.buildTAnnotation(annotations);
 
         TAnnotation tAnnotation = tAnnotations.get(0);
-        Assert.assertEquals(annotation.getAnnotationKey(), tAnnotation.getKey());
+        Assert.assertEquals(annotation.getKey(), tAnnotation.getKey());
         Assert.assertEquals(annotation.getValue(), tAnnotation.getValue().getStringValue());
     }
 

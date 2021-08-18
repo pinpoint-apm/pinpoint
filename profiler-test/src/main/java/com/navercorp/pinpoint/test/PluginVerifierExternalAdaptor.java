@@ -314,11 +314,11 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         }
     }
 
-    private static void appendAnnotations(StringBuilder builder, List<Annotation> annotations) {
+    private static void appendAnnotations(StringBuilder builder, List<Annotation<?>> annotations) {
         boolean first = true;
 
         if (annotations != null) {
-            for (Annotation annotation : annotations) {
+            for (Annotation<?> annotation : annotations) {
                 if (first) {
                     first = false;
                 } else {
@@ -330,8 +330,8 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         }
     }
 
-    private static String toString(Annotation a) {
-        return a.getAnnotationKey() + "=" + a.getValue();
+    private static String toString(Annotation<?> ann) {
+        return ann.getKey() + "=" + ann.getValue();
     }
 
     private interface ActualTrace {
@@ -353,7 +353,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
         String getDestinationId();
 
-        List<Annotation> getAnnotations();
+        List<Annotation<?>> getAnnotations();
 
         Class<?> getType();
     }
@@ -419,7 +419,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         }
 
         @Override
-        public List<Annotation> getAnnotations() {
+        public List<Annotation<?>> getAnnotations() {
             return span.getAnnotations();
         }
 
@@ -515,7 +515,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         }
 
         @Override
-        public List<Annotation> getAnnotations() {
+        public List<Annotation<?>> getAnnotations() {
             return spanEvent.getAnnotations();
         }
 
@@ -683,7 +683,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
             }
         }
 
-        List<Annotation> actualAnnotations = actual.getAnnotations();
+        List<Annotation<?>> actualAnnotations = actual.getAnnotations();
 
         int len = expected.annotations == null ? 0 : expected.annotations.length;
         int actualLen = actualAnnotations == null ? 0 : actualAnnotations.size();
@@ -695,15 +695,15 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         for (int i = 0; i < len; i++) {
             ExpectedAnnotation expect = expected.annotations[i];
             AnnotationKey expectedAnnotationKey = this.handler.getAnnotationKeyRegistryService().findAnnotationKeyByName(expect.getKeyName());
-            Annotation actualAnnotation = actualAnnotations.get(i);
+            Annotation<?> actualAnnotation = actualAnnotations.get(i);
 
-            if (expectedAnnotationKey.getCode() != actualAnnotation.getAnnotationKey()) {
+            if (expectedAnnotationKey.getCode() != actualAnnotation.getKey()) {
                 throw new AssertionError("Code Different, Expected " + i + "th annotation [" + expectedAnnotationKey.getCode() + "=" + expect.getValue() + "] but was [" + toString(actualAnnotation) + "], expected: " + expected + ", was: " + actual);
             }
 
             if (expectedAnnotationKey == AnnotationKey.SQL_ID && expect instanceof ExpectedSql) {
                 verifySql((ExpectedSql) expect, actualAnnotation);
-            } else if (expect.getValue() instanceof StringStringValue){
+            } else if (expect.getValue() instanceof StringStringValue) {
                 verifyStringStringValue(((StringStringValue)expect.getValue()), actualAnnotation);
             } else {
                 Object expectedValue = expect.getValue();
@@ -724,7 +724,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         }
     }
 
-    private void verifyStringStringValue(StringStringValue value, Annotation actualAnnotation) {
+    private void verifyStringStringValue(StringStringValue value, Annotation<?> actualAnnotation) {
         StringStringValue annotationValue = (StringStringValue) actualAnnotation.getValue();
         if (!ObjectUtils.equals(value.getStringValue1(), annotationValue.getStringValue1())) {
             throw new AssertionError("Expected [" + value.getStringValue1() + "] but was [" + annotationValue.getStringValue1() + "]");
@@ -754,7 +754,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         }
     }
 
-    private void verifySql(ExpectedSql expected, Annotation actual) {
+    private void verifySql(ExpectedSql expected, Annotation<?> actual) {
         int id = this.handler.getTcpDataSender().getSqlId(expected.getQuery());
         IntStringStringValue value = (IntStringStringValue) actual.getValue();
 
@@ -926,12 +926,12 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
                 if (hasTrace(expectedTrace)) {
                     return;
                 }
-            } catch (Exception e) {
+            } catch (Exception ignore) {
             }
 
             try {
                 Thread.sleep(waitUnitTime);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignore) {
             }
 
             if (stopWatch.stop() > maxWaitTime) {
@@ -964,7 +964,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
                 verifySpan(resolvedExpectedTrace, actualTrace);
                 return true;
-            } catch (Throwable e) {
+            } catch (Throwable ignore) {
             }
         }
 
@@ -984,12 +984,12 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
             try {
                 verifyTraceCount(expectedTraceCount);
                 return;
-            } catch (Throwable e) {
+            } catch (Throwable ignore) {
             }
 
             try {
                 Thread.sleep(waitUnitTime);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignore) {
             }
 
             if (stopWatch.stop() > maxWaitTime) {

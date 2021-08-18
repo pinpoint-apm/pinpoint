@@ -23,6 +23,16 @@ import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.annotation.BooleanAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.ByteAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.BytesAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.DataTypeAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.DoubleAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.IntAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.LongAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.ShortAnnotation;
+import com.navercorp.pinpoint.profiler.context.annotation.StringAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
 import com.navercorp.pinpoint.thrift.dto.TIntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
@@ -35,52 +45,50 @@ import org.apache.thrift.TBase;
  * @author Woonduk Kang(emeroad)
  */
 public class AnnotationValueThriftMapper {
-    public static TAnnotationValue buildTAnnotationValue(Object value) {
-        if (value == null) {
+    public static TAnnotationValue buildTAnnotationValue(Annotation<?> ano) {
+        if (ano == null) {
             return null;
         }
-        if (value instanceof Number) {
-            if (value instanceof Integer) {
-                return TAnnotationValue.intValue((Integer) value);
-            } else if (value instanceof Long) {
-                return TAnnotationValue.longValue((Long) value);
-            } else if (value instanceof Float) {
-                // thrift does not contain "float" type
-                return TAnnotationValue.doubleValue((Float) value);
-            } else if (value instanceof Double) {
-                return TAnnotationValue.doubleValue((Double) value);
-            } else if (value instanceof Short) {
-                return TAnnotationValue.shortValue((Short) value);
-            } else if (value instanceof Byte) {
-                return TAnnotationValue.byteValue((Byte) value);
-            }
+
+        if (ano instanceof IntAnnotation) {
+            return TAnnotationValue.intValue(((IntAnnotation) ano).intValue());
+        } else if (ano instanceof LongAnnotation) {
+            return TAnnotationValue.longValue(((LongAnnotation) ano).longValue());
+        } else if (ano instanceof DoubleAnnotation) {
+            return TAnnotationValue.doubleValue(((DoubleAnnotation) ano).doubleValue());
+        } else if (ano instanceof ShortAnnotation) {
+            return TAnnotationValue.shortValue(((ShortAnnotation) ano).shortValue());
+        } else if (ano instanceof ByteAnnotation) {
+            return TAnnotationValue.byteValue(((ByteAnnotation) ano).byteValue());
         }
-        if (value instanceof String) {
-            return TAnnotationValue.stringValue((String) value);
+
+        if (ano instanceof StringAnnotation) {
+            return TAnnotationValue.stringValue(((StringAnnotation) ano).stringValue());
         }
-        if (value instanceof Boolean) {
-            return TAnnotationValue.boolValue((Boolean) value);
+        if (ano instanceof BooleanAnnotation) {
+            return TAnnotationValue.boolValue(((BooleanAnnotation) ano).booleanValue());
         }
-        if (value instanceof byte[]) {
-            return TAnnotationValue.binaryValue((byte[]) value);
+        if (ano instanceof BytesAnnotation) {
+            return TAnnotationValue.binaryValue(((BytesAnnotation) ano).bytesValue());
         }
-        if (value instanceof DataType) {
-            if (value instanceof IntStringValue) {
-                final IntStringValue v = (IntStringValue) value;
+        if (ano instanceof DataTypeAnnotation) {
+            final DataType dataType = ((DataTypeAnnotation) ano).dataTypeValue();
+            if (dataType instanceof IntStringValue) {
+                final IntStringValue v = (IntStringValue) dataType;
                 final TIntStringValue tIntStringValue = new TIntStringValue(v.getIntValue());
                 if (v.getStringValue() != null) {
                     tIntStringValue.setStringValue(v.getStringValue());
                 }
                 return TAnnotationValue.intStringValue(tIntStringValue);
-            } else if (value instanceof StringStringValue) {
-                final StringStringValue v = (StringStringValue) value;
+            } else if (dataType instanceof StringStringValue) {
+                final StringStringValue v = (StringStringValue) dataType;
                 final TStringStringValue tStringStringValue = new TStringStringValue(v.getStringValue1());
                 if (v.getStringValue2() != null) {
                     tStringStringValue.setStringValue2(v.getStringValue2());
                 }
                 return TAnnotationValue.stringStringValue(tStringStringValue);
-            } else if (value instanceof IntStringStringValue) {
-                final IntStringStringValue v = (IntStringStringValue) value;
+            } else if (dataType instanceof IntStringStringValue) {
+                final IntStringStringValue v = (IntStringStringValue) dataType;
                 final TIntStringStringValue tIntStringStringValue = new TIntStringStringValue(v.getIntValue());
                 if (v.getStringValue1() != null) {
                     tIntStringStringValue.setStringValue1(v.getStringValue1());
@@ -89,8 +97,8 @@ public class AnnotationValueThriftMapper {
                     tIntStringStringValue.setStringValue2(v.getStringValue2());
                 }
                 return TAnnotationValue.intStringStringValue(tIntStringStringValue);
-            } else if (value instanceof LongIntIntByteByteStringValue) {
-                final LongIntIntByteByteStringValue v = (LongIntIntByteByteStringValue) value;
+            } else if (dataType instanceof LongIntIntByteByteStringValue) {
+                final LongIntIntByteByteStringValue v = (LongIntIntByteByteStringValue) dataType;
                 final TLongIntIntByteByteStringValue tvalue = new TLongIntIntByteByteStringValue(v.getLongValue(), v.getIntValue1());
                 if (v.getIntValue2() != -1) {
                     tvalue.setIntValue2(v.getIntValue2());
@@ -105,17 +113,17 @@ public class AnnotationValueThriftMapper {
                     tvalue.setStringValue(v.getStringValue());
                 }
                 return TAnnotationValue.longIntIntByteByteStringValue(tvalue);
-            } else if (value instanceof IntBooleanIntBooleanValue) {
-                final IntBooleanIntBooleanValue v = (IntBooleanIntBooleanValue) value;
+            } else if (dataType instanceof IntBooleanIntBooleanValue) {
+                final IntBooleanIntBooleanValue v = (IntBooleanIntBooleanValue) dataType;
                 final TIntBooleanIntBooleanValue tvalue = new TIntBooleanIntBooleanValue(v.getIntValue1(), v.isBooleanValue1(), v.getIntValue2(), v.isBooleanValue2());
                 return TAnnotationValue.intBooleanIntBooleanValue(tvalue);
             }
         }
 
-        if (value instanceof TBase) {
-            throw new IllegalArgumentException("TBase not supported. Class:" + value.getClass());
+        if (ano instanceof TBase) {
+            throw new IllegalArgumentException("TBase not supported. Class:" + ano.getClass());
         }
-        String str = StringUtils.abbreviate(value.toString());
+        String str = StringUtils.abbreviate(ano.toString());
         return TAnnotationValue.stringValue(str);
     }
 }

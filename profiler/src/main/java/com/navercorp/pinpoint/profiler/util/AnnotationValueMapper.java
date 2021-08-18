@@ -44,7 +44,7 @@ public final class AnnotationValueMapper {
             } else if (value instanceof Long) {
                 return value;
             } else if (value instanceof Float) {
-                // thrift does not contain "float" typet
+                // thrift does not contain "float" type
                 return value;
             } else if (value instanceof Double) {
                 return value;

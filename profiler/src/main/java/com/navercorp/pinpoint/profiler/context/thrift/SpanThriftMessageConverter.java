@@ -127,7 +127,7 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
 
         tSpan.setLoggingTransactionInfo(shared.getLoggingInfo());
 
-        final List<Annotation> annotations = span.getAnnotations();
+        final List<Annotation<?>> annotations = span.getAnnotations();
         if (CollectionUtils.hasLength(annotations)) {
             final List<TAnnotation> tAnnotations = buildTAnnotation(annotations);
             tSpan.setAnnotations(tAnnotations);
@@ -145,7 +145,7 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
 
     private List<TSpanEvent> buildTSpanEventList(List<SpanEvent> spanEventList) {
         final int eventSize = spanEventList.size();
-        final List<TSpanEvent> tSpanEventList = new ArrayList<TSpanEvent>(eventSize);
+        final List<TSpanEvent> tSpanEventList = new ArrayList<>(eventSize);
         for (SpanEvent spanEvent : spanEventList) {
             final TSpanEvent tSpanEvent = buildTSpanEvent(spanEvent);
             tSpanEventList.add(tSpanEvent);
@@ -229,7 +229,7 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
             tSpanEvent.setNextAsyncId(asyncIdObject.getAsyncId());
         }
 
-        final List<Annotation> annotations = spanEvent.getAnnotations();
+        final List<Annotation<?>> annotations = spanEvent.getAnnotations();
         if (CollectionUtils.hasLength(annotations)) {
             final List<TAnnotation> tAnnotations = buildTAnnotation(annotations);
             tSpanEvent.setAnnotations(tAnnotations);
@@ -248,11 +248,11 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
     }
 
     @VisibleForTesting
-    List<TAnnotation> buildTAnnotation(List<Annotation> annotations) {
-        final List<TAnnotation> tAnnotationList = new ArrayList<TAnnotation>(annotations.size());
-        for (Annotation annotation : annotations) {
-            final TAnnotation tAnnotation = new TAnnotation(annotation.getAnnotationKey());
-            final TAnnotationValue tAnnotationValue = AnnotationValueThriftMapper.buildTAnnotationValue(annotation.getValue());
+    List<TAnnotation> buildTAnnotation(List<? extends Annotation<?>> annotations) {
+        final List<TAnnotation> tAnnotationList = new ArrayList<>(annotations.size());
+        for (Annotation<?> annotation : annotations) {
+            final TAnnotation tAnnotation = new TAnnotation(annotation.getKey());
+            final TAnnotationValue tAnnotationValue = AnnotationValueThriftMapper.buildTAnnotationValue(annotation);
             if (tAnnotationValue != null) {
                 tAnnotation.setValue(tAnnotationValue);
             }
