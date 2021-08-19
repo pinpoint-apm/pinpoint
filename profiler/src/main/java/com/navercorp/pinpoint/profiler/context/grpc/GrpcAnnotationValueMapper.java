@@ -40,6 +40,16 @@ public class GrpcAnnotationValueMapper {
 
     private final StringValue.Builder stringValueBuilder = StringValue.newBuilder();
 
+    private final PIntBooleanIntBooleanValue.Builder intBoolBoolBuilder = PIntBooleanIntBooleanValue.newBuilder();
+
+    private final PLongIntIntByteByteStringValue.Builder longIntIntByteByteStringBuilder = PLongIntIntByteByteStringValue.newBuilder();
+
+    private final PIntStringStringValue.Builder intStringStringBuilder = PIntStringStringValue.newBuilder();
+
+    private final PIntStringValue.Builder intStringBuilder = PIntStringValue.newBuilder();
+
+    private final PStringStringValue.Builder stringStringBuilder = PStringStringValue.newBuilder();
+
     public PAnnotationValue buildPAnnotationValue(Annotation<?> annotation) {
         if (annotation == null) {
             throw new NullPointerException("annotation");
@@ -53,16 +63,21 @@ public class GrpcAnnotationValueMapper {
     }
 
     public PIntBooleanIntBooleanValue newIntBooleanIntBooleanValue(IntBooleanIntBooleanValue v) {
-        PIntBooleanIntBooleanValue.Builder builder = PIntBooleanIntBooleanValue.newBuilder();
+        final PIntBooleanIntBooleanValue.Builder builder = this.intBoolBoolBuilder;
+
         builder.setIntValue1(v.getIntValue1());
         builder.setBoolValue1(v.isBooleanValue1());
         builder.setIntValue2(v.getIntValue2());
         builder.setBoolValue2(v.isBooleanValue2());
-        return builder.build();
+
+        PIntBooleanIntBooleanValue value = builder.build();
+        builder.clear();
+        return value;
     }
 
     public PLongIntIntByteByteStringValue newLongIntIntByteByteStringValue(LongIntIntByteByteStringValue v) {
-        final PLongIntIntByteByteStringValue.Builder builder = PLongIntIntByteByteStringValue.newBuilder();
+        final PLongIntIntByteByteStringValue.Builder builder = this.longIntIntByteByteStringBuilder;
+
         builder.setLongValue(v.getLongValue());
         builder.setIntValue1(v.getIntValue1());
         if (v.getIntValue2() != -1) {
@@ -78,12 +93,16 @@ public class GrpcAnnotationValueMapper {
             StringValue stringValue = newStringValue(v.getStringValue());
             builder.setStringValue(stringValue);
         }
-        return builder.build();
+
+        PLongIntIntByteByteStringValue value = builder.build();
+        builder.clear();
+        return value;
     }
 
 
     public PIntStringStringValue newIntStringStringValue(IntStringStringValue v) {
-        final PIntStringStringValue.Builder builder = PIntStringStringValue.newBuilder();
+        final PIntStringStringValue.Builder builder = this.intStringStringBuilder;
+
         builder.setIntValue(v.getIntValue());
         if (v.getStringValue1() != null) {
             StringValue stringValue1 = newStringValue(v.getStringValue1());
@@ -93,21 +112,27 @@ public class GrpcAnnotationValueMapper {
             StringValue stringValue2 = newStringValue(v.getStringValue2());
             builder.setStringValue2(stringValue2);
         }
-        return builder.build();
+        PIntStringStringValue value = builder.build();
+        builder.clear();
+        return value;
     }
 
     public PIntStringValue newIntStringValue(IntStringValue v) {
-        PIntStringValue.Builder valueBuilder = PIntStringValue.newBuilder();
-        valueBuilder.setIntValue(v.getIntValue());
+        final PIntStringValue.Builder builder = this.intStringBuilder;
+
+        builder.setIntValue(v.getIntValue());
         if (v.getStringValue() != null) {
             StringValue stringValue = newStringValue(v.getStringValue());
-            valueBuilder.setStringValue(stringValue);
+            builder.setStringValue(stringValue);
         }
-        return valueBuilder.build();
+        PIntStringValue value = builder.build();
+        builder.clear();
+        return value;
     }
 
     public PStringStringValue newStringStringValue(StringStringValue v) {
-        PStringStringValue.Builder builder = PStringStringValue.newBuilder();
+        final PStringStringValue.Builder builder = this.stringStringBuilder;
+
         if (v.getStringValue1() != null) {
             StringValue stringValue1 = newStringValue(v.getStringValue1());
             builder.setStringValue1(stringValue1);
@@ -117,14 +142,18 @@ public class GrpcAnnotationValueMapper {
             StringValue stringValue2 = newStringValue(v.getStringValue2());
             builder.setStringValue2(stringValue2);
         }
-        return builder.build();
+        PStringStringValue value = builder.build();
+        builder.clear();
+        return value;
     }
 
     public StringValue newStringValue(String stringValue) {
         final StringValue.Builder builder = this.stringValueBuilder;
-        builder.clear();
+
         builder.setValue(stringValue);
-        return builder.build();
+        StringValue value = builder.build();
+        builder.clear();
+        return value;
     }
 
     public PAnnotationValue.Builder getAnnotationBuilder() {
