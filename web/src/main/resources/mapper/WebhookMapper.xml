@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.web.dao.WebhookDao">
+
+    <insert id="insertWebhook" parameterType="Webhook" useGeneratedKeys="true" keyProperty="webhookId">
+        INSERT INTO webhook (alias, url, application_id, service_name)
+        VALUES
+            (#{alias}, #{url}, #{applicationId}, #{serviceName})
+    </insert>
+
+    <delete id="deleteWebhook" parameterType="Webhook">
+        DELETE
+        FROM webhook
+        WHERE webhook_id = #{webhookId}
+    </delete>
+
+    <update id="updateWebhook">
+        UPDATE webhook
+        SET alias = #{alias}, url = #{url}, application_id = #{applicationId}, service_name = #{serviceName}
+        WHERE webhook_id = #{webhookId}
+    </update>
+
+    <delete id="deleteWebhookByApplicationId" parameterType="string">
+        DELETE
+        FROM webhook
+        WHERE application_id = #{applicationId}
+
+    </delete>
+
+    <delete id="deleteWebhookByServiceName" parameterType="string">
+        DELETE
+        FROM webhook
+        WHERE service_name = #{serviceName}
+    </delete>
+
+    <select id="selectWebhookByApplicationId" resultType="Webhook">
+        SELECT *
+        FROM webhook
+        WHERE application_id = #{applicationId}
+    </select>
+
+    <select id="selectWebhookByServiceName" resultType="Webhook">
+        SELECT *
+        FROM webhook
+        WHERE service_name = #{serviceName}
+    </select>
+
+    <select id="selectWebhookByRuleId" resultType="Webhook">
+        SELECT webhook.* FROM webhook
+        JOIN webhook_send ON webhook.webhook_id = webhook_send.webhook_id
+        WHERE rule_id = #{ruleId};
+    </select>
+
+    <select id="selectWebhook" resultType="Webhook">
+        SELECT * FROM webhook
+        WHERE webhook_id = #{webhookId};
+    </select>
+
+</mapper>

@@ -19,8 +19,11 @@ import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.UserGroup;
 import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.UserMember;
 import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.WebhookPayload;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.service.UserService;
+import com.navercorp.pinpoint.web.service.WebhookService;
 import com.navercorp.pinpoint.web.vo.User;
+import com.navercorp.pinpoint.web.vo.Webhook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepExecution;
@@ -45,26 +48,26 @@ public class WebhookSenderImpl implements WebhookSender {
     private final RestTemplate restTemplate;
 
     private final WebhookPayloadFactory webhookPayloadFactory;
-    private final String webhookReceiverUrl;
-
+    private final WebhookService webhookService;
 
     public WebhookSenderImpl(WebhookPayloadFactory webhookPayloadFactory,
                              UserService userService,
                              RestTemplate restTemplate,
-                             String webhookReceiverUrl) {
+                             WebhookService webhookService) {
         this.webhookPayloadFactory = Objects.requireNonNull(webhookPayloadFactory, "webhookPayloadFactory");
 
         this.restTemplate = Objects.requireNonNull(restTemplate, "restTemplate");
         this.userService = Objects.requireNonNull(userService, "userService");
-        // TODO Target address must be changed as a user configuration.
-        this.webhookReceiverUrl = webhookReceiverUrl;
+        this.webhookService = Objects.requireNonNull(webhookService, "webhookService");
     }
 
 
     @Override
     public void sendWebhook(AlarmChecker<?> checker, int sequenceCount, StepExecution stepExecution) {
+        Rule rule = checker.getRule();
+
         try {
-            String userGroupId = checker.getRule().getUserGroupId();
+            String userGroupId = rule.getUserGroupId();
             
             List<UserMember> userMembers = userService.selectUserByUserGroupId(userGroupId)
                     .stream()
@@ -77,12 +80,16 @@ public class WebhookSenderImpl implements WebhookSender {
 
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-            
-            HttpEntity<WebhookPayload> httpEntity = new HttpEntity<>(webhookPayload, httpHeaders);
-            restTemplate.exchange(new URI(webhookReceiverUrl), HttpMethod.POST, httpEntity, String.class);
-            logger.info("send webhook : {}", checker.getRule());
+
+            List<Webhook> webhookSendInfoList = webhookService.selectWebhookByRuleId(rule.getRuleId());
+            for (Webhook webhook : webhookSendInfoList) {
+                HttpEntity<WebhookPayload> httpEntity = new HttpEntity<>(webhookPayload, httpHeaders);
+                restTemplate.exchange(new URI(webhook.getUrl()), HttpMethod.POST, httpEntity, String.class);
+                logger.info("send webhook : {}", webhook);
+            }
+            logger.info("sent webhooks for rule : {}", rule);
         } catch (Exception e) {
-            logger.error("can't send webhook. {}", checker.getRule(), e);
+            logger.error("can't send webhook. {}", rule, e);
         }
     }
 

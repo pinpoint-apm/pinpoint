@@ -48,6 +48,7 @@ public class MysqlAlarmDao implements AlarmDao {
     }
     
     @Override
+    @Deprecated
     public String insertRuleExceptWebhookSend(Rule rule) {
         sqlSessionTemplate.insert(NAMESPACE + "insertRuleExceptWebhookSend", rule);
         return rule.getRuleId();
@@ -79,6 +80,7 @@ public class MysqlAlarmDao implements AlarmDao {
     }
     
     @Override
+    @Deprecated
     public void updateRuleExceptWebhookSend(Rule rule) {
         sqlSessionTemplate.update(NAMESPACE + "updateRuleExceptWebhookSend", rule);
     }

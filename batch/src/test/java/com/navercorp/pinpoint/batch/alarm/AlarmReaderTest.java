@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.dao.WebhookSendInfoDao;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.service.AlarmServiceImpl;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -77,7 +78,7 @@ public class AlarmReaderTest {
         ExecutionContext executionContext = new ExecutionContext();
         stepExecution.setExecutionContext(executionContext);
         
-        AlarmServiceImpl alarmService = new AlarmServiceImpl(mock(AlarmDao.class)) {
+        AlarmServiceImpl alarmService = new AlarmServiceImpl(mock(AlarmDao.class), mock(WebhookSendInfoDao.class)) {
             @Override
             public List<Rule> selectRuleByApplicationId(String applicationId) {
                 return new LinkedList<>();
@@ -120,7 +121,7 @@ public class AlarmReaderTest {
             
         };
 
-        alarmService = new AlarmServiceImpl(mock(AlarmDao.class)) {
+        alarmService = new AlarmServiceImpl(mock(AlarmDao.class), mock(WebhookSendInfoDao.class)) {
             private final Map<String, Rule> ruleMap ;
 
             {
