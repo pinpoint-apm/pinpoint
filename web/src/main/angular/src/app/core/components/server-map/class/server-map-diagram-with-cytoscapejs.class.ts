@@ -275,6 +275,8 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                 map(([nodes, _]: {[key: string]: any}[][]) => {
                     const edges = addedEdgeList.map((edge: {[key: string]: any}) => {
                         const {from, to, key, totalCount, hasAlert, isMerged} = edge;
+                        const originalLinkData = serverMapData.getLinkData(key);
+                        const responseInfo = this.getResponseInfo(originalLinkData);
 
                         return {
                             data: {
@@ -282,7 +284,7 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                                 source: from,
                                 target: to,
                                 isMerged,
-                                label: totalCount.toLocaleString(),
+                                label: `${totalCount.toLocaleString()}${responseInfo}`,
                                 hasAlert,
                                 alive: true
                             }
@@ -313,6 +315,8 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
             const edgeList = serverMapData.getLinkList();
             const edges = edgeList.map((link: ILinkInfo) => {
                 const {from, to, key, totalCount, isFiltered, isMerged, hasAlert} = link;
+                const originalLinkData = serverMapData.getLinkData(key);
+                const responseInfo = this.getResponseInfo(originalLinkData);
 
                 return {
                     data: {
@@ -323,7 +327,7 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                         // [임시]label에서 이미지를 지원하지않아서, filteredMap페이지에서 필터아이콘을 "Filtered" 텍스트로 대체.
                         // label: isFiltered ? ` [Filtered]\n${totalCount.toLocaleString()} ` : ` ${totalCount.toLocaleString()} `,
                         // TODO: Filter Icon 처리
-                        label: totalCount.toLocaleString(),
+                        label: `${totalCount.toLocaleString()}${responseInfo}`,
                         hasAlert,
                         alive: true
                     }
@@ -344,6 +348,22 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
 
         this.serverMapData = serverMapData;
         this.baseApplicationKey = baseApplicationKey;
+    }
+
+    getResponseInfo(linkData: ILinkInfo|any): any {
+        if (typeof linkData === 'undefined' || !linkData) {
+            return '';
+        }
+
+        const histogram_avg = linkData.responseStatistics ? linkData.responseStatistics.Avg : 0;
+
+        return histogram_avg > 0 ? ` (${this.formatTime(histogram_avg)})` : '';
+    }
+
+    private formatTime(val: number): string {
+        return val < 1000 ? `${val} ms`
+            : val % 60000 === 0 ? `${(val / 60000)} min`
+            : `${(val / 1000.0).toFixed(2).replace('.00', '').replace(/(\.\d)0$/, '$1')} sec`;
     }
 
     private getMergedNodeLabel(topCountNodes: {[key: string]: any}[]): string {
