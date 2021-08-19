@@ -27,6 +27,8 @@ public interface AlarmService {
 
     String insertRule(Rule rule);
 
+    String insertRuleWithWebhooks(Rule rule, List<String> webhookIds);
+
     void deleteRule(Rule rule);
 
     List<Rule> selectRuleByUserGroupId(String userGroupId);

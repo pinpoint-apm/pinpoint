@@ -55,6 +55,7 @@ public class MemoryAlarmDao implements AlarmDao {
     }
     
     @Override
+    @Deprecated
     public String insertRuleExceptWebhookSend(Rule rule) {
         String ruleId = String.valueOf(ruleIdGenerator.getAndIncrement());
         rule.setRuleId(ruleId);
@@ -108,6 +109,7 @@ public class MemoryAlarmDao implements AlarmDao {
     }
     
     @Override
+    @Deprecated
     public void updateRuleExceptWebhookSend(Rule rule) {
         alarmRule.put(rule.getRuleId(), rule);
     }

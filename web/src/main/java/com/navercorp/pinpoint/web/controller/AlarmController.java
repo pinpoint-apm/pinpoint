@@ -20,8 +20,11 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.service.AlarmService;
+import com.navercorp.pinpoint.web.service.WebhookSendInfoService;
+import com.navercorp.pinpoint.web.vo.WebhookSendInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -42,7 +45,7 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @RestController
-@RequestMapping(value={"/alarmRule", "/application/alarmRule"})
+@RequestMapping
 public class AlarmController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -51,53 +54,84 @@ public class AlarmController {
     public final static String APPLICATION_ID = "applicationId";
 
     private final AlarmService alarmService;
+    private final WebhookSendInfoService webhookSendInfoService;
 
-    public AlarmController(AlarmService alarmService) {
+    @Value("${webhook.enable:false}")
+    private boolean webhookEnable;
+
+    public AlarmController(AlarmService alarmService, WebhookSendInfoService webhookSendInfoService) {
         this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
+        this.webhookSendInfoService = Objects.requireNonNull(webhookSendInfoService, "webhookSendInfoService");
     }
 
-    @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
-    @PostMapping()
-    public Map<String, String> insertRule(@RequestBody Rule rule) {
-        Map<String, String> result = new HashMap<>();
+    private Map<String, String> getErrorStringMap(String errorCode, String errorMessage) {
+        Map<String, String> returnMap = new HashMap<>();
+        returnMap.put("errorCode", errorCode);
+        returnMap.put("errorMessage", errorMessage);
+        return returnMap;
+    }
 
+    private Map<String, String> getResultStringMap(String result, String ruleId) {
+        Map<String, String> returnMap = new HashMap<>();
+        returnMap.put("result", result);
+        returnMap.put("ruleId", ruleId);
+        return returnMap;
+    }
+
+    private Map<String, String> getResultStringMap(String result) {
+        Map<String, String> returnMap = new HashMap<>();
+        returnMap.put("result", result);
+        return returnMap;
+    }
+
+    private boolean isRuleDataValidForPost(Rule rule) {
         if (StringUtils.isEmpty(rule.getApplicationId()) || StringUtils.isEmpty(rule.getCheckerName()) || StringUtils.isEmpty(rule.getUserGroupId()) || Objects.isNull(rule.getThreshold())) {
-            result.put("errorCode", "500");
-            result.put("errorMessage", "there is not applicationId/checkerName/userGroupId/threashold to insert alarm rule");
-            return result;
+            return false;
         }
-        
-        String ruleId = alarmService.insertRule(rule);
-
-        result.put("result", "SUCCESS");
-        result.put("ruleId", ruleId);
-        return result;
+        return true;
     }
 
     @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
-    @DeleteMapping()
+    @PostMapping(value={"/alarmRule", "/application/alarmRule"})
+    public Map<String, String> insertRule(@RequestBody Rule rule) {
+        if (!isRuleDataValidForPost(rule)) {
+            return getErrorStringMap("500", "there is not applicationId/checkerName/userGroupId/threashold to insert alarm rule");
+        }
+        String ruleId = alarmService.insertRule(rule);
+        return getResultStringMap("SUCCESS", ruleId);
+    }
+
+    @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
+    @PostMapping(value={"/alarmRuleWithWebhooks", "/application/alarmRuleWithWebhooks"})
+    public Map<String, String> insertRuleWithWebhooks(@RequestBody RuleWithWebhooks ruleWithWebhooks) {
+        Rule rule = ruleWithWebhooks.getRule();
+        if (!isRuleDataValidForPost(rule)) {
+            return getErrorStringMap("500", "there is not applicationId/checkerName/userGroupId/threashold to insert alarm rule");
+        }
+
+        if (!webhookEnable) {
+            return getErrorStringMap("500", "webhook should be enabled to bind webhook to an alarm");
+        }
+
+        String ruleId = alarmService.insertRuleWithWebhooks(rule, ruleWithWebhooks.getWebhookIds());
+
+        return getResultStringMap("SUCCESS", ruleId);
+    }
+
+    @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
+    @DeleteMapping(value={"/alarmRule", "/application/alarmRule"})
     public Map<String, String> deleteRule(@RequestBody Rule rule) {
         if (StringUtils.isEmpty(rule.getRuleId())) {
-            Map<String, String> result = new HashMap<>();
-            result.put("errorCode", "500");
-            result.put("errorMessage", "there is not ruleId to delete alarm rule");
-            return result;
+            return getErrorStringMap("500", "there is not ruleId to delete alarm rule");
         }
-        
         alarmService.deleteRule(rule);
-
-        Map<String, String> result = new HashMap<>();
-        result.put("result", "SUCCESS");
-        return result;
+        return getResultStringMap("SUCCESS");
     }
     
-    @GetMapping()
+    @GetMapping(value={"/alarmRule", "/application/alarmRule"})
     public Object getRule(@RequestParam(value=USER_GROUP_ID, required=false) String userGroupId, @RequestParam(value=APPLICATION_ID, required=false) String applicationId) {
         if (StringUtils.isEmpty(userGroupId) && StringUtils.isEmpty(applicationId)) {
-            Map<String, String> result = new HashMap<>();
-            result.put("errorCode", "500");
-            result.put("errorMessage", "there is not userGroupId or applicationID to get alarm rule");
-            return result;
+            return getErrorStringMap("500", "there is not userGroupId or applicationID to get alarm rule");
         }
         
         if (StringUtils.hasLength(userGroupId)) {
@@ -108,20 +142,13 @@ public class AlarmController {
     }
 
     @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
-    @PutMapping()
+    @PutMapping(value={"/alarmRule", "/application/alarmRule"})
     public Map<String, String> updateRule(@RequestBody Rule rule) {
-        Map<String, String> result = new HashMap<>();
-
         if (StringUtils.isEmpty(rule.getRuleId()) || StringUtils.isEmpty(rule.getApplicationId()) || StringUtils.isEmpty(rule.getCheckerName()) || StringUtils.isEmpty(rule.getUserGroupId())) {
-            result.put("errorCode", "500");
-            result.put("errorMessage", "there is not ruleId/userGroupId/applicationid/checkerName to get alarm rule");
-            return result;
+            return getErrorStringMap("500", "there is not ruleId/userGroupId/applicationid/checkerName to get alarm rule");
         }
-        
         alarmService.updateRule(rule);
-        
-        result.put("result", "SUCCESS");
-        return result;
+        return getResultStringMap("SUCCESS");
     }
     
     @GetMapping(value = "/checker")
@@ -132,11 +159,16 @@ public class AlarmController {
     @ExceptionHandler(Exception.class)
     public Map<String, String> handleException(Exception e) {
         logger.error(" Exception occurred while trying to CRUD Alarm Rule information", e);
-        
-        Map<String, String> result = new HashMap<>();
-        result.put("errorCode", "500");
-        result.put("errorMessage", "Exception occurred while trying to Alarm Rule information");
-        return result;
+        return getErrorStringMap("500", "Exception occurred while trying to Alarm Rule information");
     }
-    
+
+    static private class RuleWithWebhooks {
+        private Rule rule;
+        private List<String> webhookIds;
+
+        public void setRule(Rule rule) { this.rule = rule; }
+        public Rule getRule() { return rule; }
+        public void setWebhookIds(List<String> webhookIds) { this.webhookIds = webhookIds; }
+        public List<String> getWebhookIds() { return webhookIds; }
+    }
 }

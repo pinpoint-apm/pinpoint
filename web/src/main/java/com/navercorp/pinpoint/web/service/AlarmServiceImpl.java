@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.service;
 import java.util.List;
 import java.util.Objects;
 
+import com.navercorp.pinpoint.web.dao.WebhookSendInfoDao;
+import com.navercorp.pinpoint.web.vo.WebhookSendInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -33,29 +35,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(rollbackFor = {Exception.class})
 public class AlarmServiceImpl implements AlarmService {
-    
     private final AlarmDao alarmDao;
-    
-    @Value("${webhook.enable:false}")
-    private boolean webhookEnable;
-    
-    public AlarmServiceImpl(AlarmDao alarmDao) {
+    private final WebhookSendInfoDao webhookSendInfoDao;
+
+    public AlarmServiceImpl(AlarmDao alarmDao, WebhookSendInfoDao webhookSendInfoDao) {
         this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
+        this.webhookSendInfoDao = Objects.requireNonNull(webhookSendInfoDao, "webhookSendInfoDao");
     }
     
     @Override
     public String insertRule(Rule rule) {
-        if (webhookEnable) {
-            return alarmDao.insertRule(rule);
-        } else {
-            return alarmDao.insertRuleExceptWebhookSend(rule);
+        return alarmDao.insertRule(rule);
+    }
+
+    @Override
+    public String insertRuleWithWebhooks(Rule rule, List<String> webhookIds) {
+        String ruleId = alarmDao.insertRule(rule);
+
+        for (String webhookId : webhookIds) {
+            webhookSendInfoDao.insertWebhookSendInfo(new WebhookSendInfo("", webhookId, ruleId));
         }
+
+        return ruleId;
     }
     
     @Override
     public void deleteRule(Rule rule) {
         alarmDao.deleteRule(rule);
         alarmDao.deleteCheckerResult(rule.getRuleId());
+        webhookSendInfoDao.deleteWebhookSendInfoByRuleId(rule.getRuleId());
     }
     
     @Override
@@ -72,11 +80,7 @@ public class AlarmServiceImpl implements AlarmService {
     
     @Override
     public void updateRule(Rule rule) {
-        if (webhookEnable) {
-            alarmDao.updateRule(rule);
-        } else {
-            alarmDao.updateRuleExceptWebhookSend(rule);
-        }
+        alarmDao.updateRule(rule);
         alarmDao.deleteCheckerResult(rule.getRuleId());
     }
     

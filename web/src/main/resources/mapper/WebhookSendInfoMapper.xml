@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.web.dao.WebhookSendInfoDao">
+
+    <insert id="insertWebhookSendInfo" parameterType="WebhookSendInfo" useGeneratedKeys="true" keyProperty="webhookSendInfoId">
+        INSERT INTO webhook_send (webhook_id, rule_id)
+        VALUES
+            (#{webhookId}, #{ruleId})
+    </insert>
+
+    <delete id="deleteWebhookSendInfo" parameterType="WebhookSendInfo">
+        DELETE
+        FROM webhook_send
+        WHERE webhook_send_info_id = #{webhookSendInfoId}
+    </delete>
+
+    <delete id="deleteWebhookSendInfoByWebhookId" parameterType="string">
+        DELETE
+        FROM webhook_send
+        WHERE webhook_id = #{webhookId}
+    </delete>
+
+    <delete id="deleteWebhookSendInfoByRuleId" parameterType="string">
+        DELETE
+        FROM webhook_send
+        WHERE rule_id = #{ruleId}
+    </delete>
+
+    <update id="updateWebhookSendInfo">
+        UPDATE webhook_send
+        SET webhook_id = #{webhookId}, rule_id = #{ruleId}
+        WHERE webhook_send_info_id = #{webhookSendInfoId}
+    </update>
+
+    <select id="selectWebhookSendInfoByApplicationId" resultType="map">
+        SELECT webhook_send.webhook_send_info_id, webhook_send.webhook_id, webhook_send.rule_id
+        FROM webhook_send JOIN webhook
+        ON webhook_send.webhook_id = webhook.webhook_id
+        WHERE webhook.application_id=#{applicationId}
+    </select>
+
+    <select id="selectWebhookSendInfoByServiceName" resultType="map">
+        SELECT webhook_send.webhook_send_info_id, webhook_send.webhook_id, webhook_send.rule_id
+        FROM webhook_send JOIN webhook
+        ON webhook_send.webhook_id = webhook.webhook_id
+        WHERE webhook.service_name=#{serviceName}
+    </select>
+
+    <select id="selectWebhookSendInfoByWebhookId" resultType="WebhookSendInfo">
+        SELECT * FROM webhook_send
+        WHERE webhook_id=#{webhookId}
+    </select>
+
+    <select id="selectWebhookSendInfoByRuleId" resultType="WebhookSendInfo">
+        SELECT * FROM webhook_send
+        WHERE rule_id=#{ruleId}
+    </select>
+
+    <select id="selectWebhookSendInfo" resultType="WebhookSendInfo">
+        SELECT * FROM webhook_send
+        WHERE webhook_send_info_id = #{webhookSendInfoId}
+    </select></mapper>

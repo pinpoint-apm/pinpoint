@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.common.BatchConfiguration;
 import com.navercorp.pinpoint.web.service.UserService;
+import com.navercorp.pinpoint.web.service.WebhookService;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.web.client.RestTemplate;
 
@@ -11,13 +12,16 @@ public class WebhookSenderFactoryBean implements FactoryBean<WebhookSender> {
     private final BatchConfiguration batchConfiguration;
     private final UserService userService;
     private final RestTemplate restTemplate;
+    private WebhookService webhookService;
 
     public WebhookSenderFactoryBean(BatchConfiguration batchConfiguration,
                                     UserService userService,
-                                    RestTemplate restTemplate) {
+                                    RestTemplate restTemplate,
+                                    WebhookService webhookService) {
         this.batchConfiguration = Objects.requireNonNull(batchConfiguration, "batchConfiguration");
         this.userService = Objects.requireNonNull(userService, "userService");
         this.restTemplate = Objects.requireNonNull(restTemplate, "springRestTemplate");
+        this.webhookService = Objects.requireNonNull(webhookService, "webhookService");
     }
 
     @Override
@@ -25,15 +29,11 @@ public class WebhookSenderFactoryBean implements FactoryBean<WebhookSender> {
         if (!batchConfiguration.isWebhookEnable()) {
             return new WebhookSenderEmptyImpl();
         }
-        final String webhookReceiverUrl = batchConfiguration.getWebhookReceiverUrl();
-        if (webhookReceiverUrl.isEmpty()) {
-            return new WebhookSenderEmptyImpl();
-        }
         String pinpointUrl = batchConfiguration.getPinpointUrl();
         String batchEnv = batchConfiguration.getBatchEnv();
 
         WebhookPayloadFactory webhookPayloadFactory = new WebhookPayloadFactory(pinpointUrl, batchEnv);
-        return new WebhookSenderImpl(webhookPayloadFactory, userService, restTemplate, webhookReceiverUrl);
+        return new WebhookSenderImpl(webhookPayloadFactory, userService, restTemplate, webhookService);
     }
 
     @Override
