@@ -70,7 +70,7 @@ public class BytesAnnotation implements Annotation<byte[]>,
     @Override
     public String toString() {
         return "BytesAnnotation{" +
-                key + "=" + value +
+                key + "=length:" + value.length +
                 '}';
     }
 }
