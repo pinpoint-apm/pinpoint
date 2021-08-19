@@ -61,8 +61,8 @@ public class AttachEndPointInterceptor implements AroundInterceptor {
             }
 
             final String endPoint = ((EndPointAccessor) target)._$PINPOINT$_getEndPoint();
-            if(result instanceof CompletableFuture){
-                StatefulRedisClusterConnectionImpl statefulRedisClusterConnection = (StatefulRedisClusterConnectionImpl)((CompletableFuture)result).get();
+            if (result instanceof CompletableFuture) {
+                StatefulRedisClusterConnectionImpl statefulRedisClusterConnection = (StatefulRedisClusterConnectionImpl) ((CompletableFuture) result).get();
                 ((EndPointAccessor) statefulRedisClusterConnection)._$PINPOINT$_setEndPoint(endPoint);
                 return;
             }
