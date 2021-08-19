@@ -16,12 +16,19 @@
 
 package com.navercorp.pinpoint.profiler.context.annotation;
 
+import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationSerializable;
+import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
+import com.navercorp.pinpoint.profiler.context.thrift.AnnotationValueThriftMapper;
+import com.navercorp.pinpoint.profiler.context.thrift.ThriftAnnotationSerializable;
+import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
 
 /**
  * @author emeroad
  */
-public class ByteAnnotation implements Annotation<Byte> {
+public class ByteAnnotation implements Annotation<Byte>,
+        GrpcAnnotationSerializable, ThriftAnnotationSerializable {
     private final int key;
     private final byte value;
 
@@ -45,15 +52,22 @@ public class ByteAnnotation implements Annotation<Byte> {
         return value;
     }
 
-    public byte byteValue() {
-        return value;
+    @Override
+    public PAnnotationValue apply(GrpcAnnotationValueMapper context) {
+        PAnnotationValue.Builder builder = context.getAnnotationBuilder();
+        builder.setByteValue(this.value);
+        return builder.build();
+    }
+
+    @Override
+    public TAnnotationValue apply(AnnotationValueThriftMapper context) {
+        return TAnnotationValue.byteValue(this.value);
     }
 
     @Override
     public String toString() {
-        return "ShortAnnotation{" +
-                "key=" + key +
-                ", value=" + value +
+        return "ByteAnnotation{" +
+                key + "=" + value +
                 '}';
     }
 }

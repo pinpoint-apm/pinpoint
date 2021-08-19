@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2021 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.context.thrift;
 
-import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.thrift.AnnotationValueThriftMapper;
 import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class AnnotationValueThriftMapper {
-    public TAnnotationValue buildTAnnotationValue(Annotation<?> annotation) {
-        if (annotation == null) {
-            throw new NullPointerException("annotation");
-        }
+public interface ThriftAnnotationSerializable {
 
-        if (annotation instanceof ThriftAnnotationSerializable) {
-            ThriftAnnotationSerializable serializable = (ThriftAnnotationSerializable) annotation;
-            return serializable.apply(this);
-        }
-        throw new UnsupportedOperationException("unsupported annotation:" + annotation);
-        
-    }
+    TAnnotationValue apply(AnnotationValueThriftMapper context);
+
 }

@@ -56,6 +56,7 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
     private final short applicationServiceType;
     private final TransactionIdEncoder transactionIdEncoder;
     private final SpanProcessor<TSpan, TSpanChunk> spanPostProcessor;
+    private final AnnotationValueThriftMapper annotationMapper = new AnnotationValueThriftMapper();
 
     public SpanThriftMessageConverter(String applicationName, String agentId, long agentStartTime, short applicationServiceType,
                                       TransactionIdEncoder transactionIdEncoder, SpanProcessor<TSpan, TSpanChunk> spanPostProcessor) {
@@ -252,7 +253,7 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
         final List<TAnnotation> tAnnotationList = new ArrayList<>(annotations.size());
         for (Annotation<?> annotation : annotations) {
             final TAnnotation tAnnotation = new TAnnotation(annotation.getKey());
-            final TAnnotationValue tAnnotationValue = AnnotationValueThriftMapper.buildTAnnotationValue(annotation);
+            final TAnnotationValue tAnnotationValue = annotationMapper.buildTAnnotationValue(annotation);
             if (tAnnotationValue != null) {
                 tAnnotation.setValue(tAnnotationValue);
             }

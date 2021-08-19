@@ -16,12 +16,19 @@
 
 package com.navercorp.pinpoint.profiler.context.annotation;
 
+import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationSerializable;
+import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
+import com.navercorp.pinpoint.profiler.context.thrift.AnnotationValueThriftMapper;
+import com.navercorp.pinpoint.profiler.context.thrift.ThriftAnnotationSerializable;
+import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
 
 /**
  * @author emeroad
  */
-public class LongAnnotation implements Annotation<Long> {
+public class LongAnnotation implements Annotation<Long>,
+        GrpcAnnotationSerializable, ThriftAnnotationSerializable {
     private final int key;
     private final long value;
 
@@ -45,15 +52,23 @@ public class LongAnnotation implements Annotation<Long> {
         return value;
     }
 
-    public long longValue() {
-        return value;
+
+    @Override
+    public PAnnotationValue apply(GrpcAnnotationValueMapper context) {
+        PAnnotationValue.Builder builder = context.getAnnotationBuilder();
+        builder.setLongValue(this.value);
+        return builder.build();
+    }
+
+    @Override
+    public TAnnotationValue apply(AnnotationValueThriftMapper context) {
+        return TAnnotationValue.longValue(this.value);
     }
 
     @Override
     public String toString() {
         return "LongAnnotation{" +
-                "key=" + key +
-                ", value=" + value +
+                key + "=" + value +
                 '}';
     }
 }

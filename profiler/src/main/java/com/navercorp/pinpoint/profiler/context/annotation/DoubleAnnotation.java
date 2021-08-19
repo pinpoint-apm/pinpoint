@@ -16,12 +16,19 @@
 
 package com.navercorp.pinpoint.profiler.context.annotation;
 
+import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
+import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationSerializable;
+import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
+import com.navercorp.pinpoint.profiler.context.thrift.AnnotationValueThriftMapper;
+import com.navercorp.pinpoint.profiler.context.thrift.ThriftAnnotationSerializable;
+import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
 
 /**
  * @author emeroad
  */
-public class DoubleAnnotation implements Annotation<Double> {
+public class DoubleAnnotation implements Annotation<Double>,
+        GrpcAnnotationSerializable, ThriftAnnotationSerializable {
     private final int key;
     private final double value;
 
@@ -45,15 +52,22 @@ public class DoubleAnnotation implements Annotation<Double> {
         return value;
     }
 
-    public double doubleValue() {
-        return value;
+    @Override
+    public PAnnotationValue apply(GrpcAnnotationValueMapper context) {
+        PAnnotationValue.Builder builder = context.getAnnotationBuilder();
+        builder.setDoubleValue(this.value);
+        return builder.build();
+    }
+
+    @Override
+    public TAnnotationValue apply(AnnotationValueThriftMapper context) {
+        return TAnnotationValue.doubleValue(this.value);
     }
 
     @Override
     public String toString() {
         return "DoubleAnnotation{" +
-                "key=" + key +
-                ", value=" + value +
+                key + "=" + value +
                 '}';
     }
 }
