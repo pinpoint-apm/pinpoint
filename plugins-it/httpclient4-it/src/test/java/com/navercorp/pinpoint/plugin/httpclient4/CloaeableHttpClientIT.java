@@ -17,9 +17,6 @@ package com.navercorp.pinpoint.plugin.httpclient4;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.pluginit.utils.WebServer;
@@ -37,6 +34,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestExecutor;
+import org.apache.http.util.EntityUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -53,7 +51,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-httpclient4-plugin")
-@Dependency({ "org.apache.httpcomponents:httpclient:[4.3],[4.3.1],[4.3.2],[4.3.3],[4.3.4],[4.3.6],[4.4],[4.4.1],[4.5],[4.5.1],[4.5.2],[4.5.3],[4.5.4],[4.3.5]",
+@Dependency({"org.apache.httpcomponents:httpclient:[4.3],[4.3.1],[4.3.2],[4.3.3],[4.3.4],[4.3.6],[4.4],[4.4.1],[4.5],[4.5.1],[4.5.2],[4.5.3],[4.5.4],[4.3.5]",
         WebServer.VERSION, PluginITConstants.VERSION})
 public class CloaeableHttpClientIT {
 
@@ -71,32 +69,18 @@ public class CloaeableHttpClientIT {
 
     @Test
     public void test() throws Exception {
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-        try {
-            HttpGet httpget = new HttpGet(webServer.getCallHttpUrl());
-            CloseableHttpResponse response = httpclient.execute(httpget);
-            try {
-                HttpEntity entity = response.getEntity();
-                if (entity != null) {
-                    InputStream instream = entity.getContent();
-                    try {
-                        instream.read();
-                    } catch (IOException ex) {
-                        throw ex;
-                    } finally {
-                        instream.close();
-                    }
-                }
-            } finally {
-                response.close();
-            }
-        } finally {
-            httpclient.close();
+        HttpGet httpget = new HttpGet(webServer.getCallHttpUrl());
+
+        try (CloseableHttpClient httpclient = HttpClients.createDefault();
+             CloseableHttpResponse response = httpclient.execute(httpget)) {
+
+            HttpEntity entity = response.getEntity();
+            EntityUtils.consume(entity);
         }
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
-        
+
         verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", CloseableHttpClient.class.getMethod("execute", HttpUriRequest.class)));
         final String display = webServer.getHostAndPort();
         verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", PoolingHttpClientConnectionManager.class.getMethod("connect", HttpClientConnection.class, HttpRoute.class, int.class, HttpContext.class),
