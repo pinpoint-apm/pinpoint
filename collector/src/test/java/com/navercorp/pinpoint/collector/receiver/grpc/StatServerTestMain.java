@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.collector.grpc.config.GrpcStreamConfiguration;
+import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StatService;
@@ -45,7 +47,10 @@ public class StatServerTestMain {
     public void run() throws Exception {
         GrpcReceiver grpcReceiver = new GrpcReceiver();
         grpcReceiver.setBeanName("StatServer");
-        grpcReceiver.setBindPort(PORT);
+
+        BindAddress.Builder builder = BindAddress.newBuilder();
+        builder.setPort(PORT);
+        grpcReceiver.setBindAddress(builder.build());
 
         ExecutorService executorService = Executors.newFixedThreadPool(8);
         ServerServiceDefinition bindableService = newStatBindableService(executorService);
@@ -53,7 +58,7 @@ public class StatServerTestMain {
         grpcReceiver.setAddressFilter(new MockAddressFilter());
         grpcReceiver.setExecutor(Executors.newFixedThreadPool(8));
         grpcReceiver.setEnable(true);
-        grpcReceiver.setServerOption(new ServerOption.Builder().build());
+        grpcReceiver.setServerOption(ServerOption.newBuilder().build());
 
         grpcReceiver.afterPropertiesSet();
 
@@ -62,13 +67,23 @@ public class StatServerTestMain {
     }
 
     private ServerServiceDefinition newStatBindableService(Executor executor) throws Exception {
+        GrpcStreamConfiguration streamConfiguration = newStreamConfiguration();
+
+
         FactoryBean<ServerInterceptor> interceptorFactory = new StreamExecutorServerInterceptorFactory(executor,
-                100, Executors.newSingleThreadScheduledExecutor(),
-                1000, 10,
-                 -1);
+                Executors.newSingleThreadScheduledExecutor(),
+                streamConfiguration);
         ServerInterceptor interceptor = interceptorFactory.getObject();
         StatService statService = new StatService(new MockDispatchHandler(), new DefaultServerRequestFactory());
         return ServerInterceptors.intercept(statService, interceptor);
+    }
+
+    private GrpcStreamConfiguration newStreamConfiguration() {
+        GrpcStreamConfiguration.Builder builder = GrpcStreamConfiguration.newBuilder();
+        builder.setCallInitRequestCount(100);
+        builder.setSchedulerPeriodMillis(1000);
+        builder.setSchedulerRecoveryMessageCount(100);
+        return builder.build();
     }
 
     public static void main(String[] args) throws Exception {
