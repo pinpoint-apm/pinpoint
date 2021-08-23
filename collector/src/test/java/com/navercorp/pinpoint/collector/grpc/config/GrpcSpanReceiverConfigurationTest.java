@@ -27,9 +27,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -45,7 +44,7 @@ public class GrpcSpanReceiverConfigurationTest {
     private GrpcStreamReceiverConfiguration configuration;
 
     @Test
-    public void properties() throws IOException {
+    public void properties() {
 
         assertEquals(Boolean.FALSE, configuration.isEnable());
         assertEquals("3.3.3.3", configuration.getBindAddress().getIp());
@@ -60,7 +59,7 @@ public class GrpcSpanReceiverConfigurationTest {
     }
 
     @Test
-    public void serverOption() throws IOException {
+    public void serverOption() {
 
         ServerOption serverOption = configuration.getServerOption();
 

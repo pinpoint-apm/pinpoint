@@ -127,7 +127,7 @@
         <property name="bindableServiceList" ref="agentServiceList"/>
         <property name="serverInterceptorList" ref="agentInterceptorList"/>
         <property name="enable" value="#{grpcAgentReceiverConfig.enable}"/>
-        <property name="serverOption" value="#{grpcAgentReceiverConfig.serverOption()}"/>
+        <property name="serverOption" value="#{grpcAgentReceiverConfig.serverOption}"/>
     </bean>
 
     <bean id="grpcSpanStreamScheduler" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
@@ -175,7 +175,7 @@
         <property name="channelzRegistry" ref="channelzRegistry"/>
         <property name="executor" ref="grpcSpanServerExecutor"/>
         <property name="enable" value="#{grpcSpanReceiverConfig.enable}"/>
-        <property name="serverOption" value="#{grpcSpanReceiverConfig.serverOption()}"/>
+        <property name="serverOption" value="#{grpcSpanReceiverConfig.serverOption}"/>
     </bean>
 
     <bean id="grpcStatStreamScheduler" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
@@ -223,7 +223,7 @@
         <property name="channelzRegistry" ref="channelzRegistry"/>
         <property name="executor" ref="grpcStatServerExecutor"/>
         <property name="enable" value="#{grpcStatReceiverConfig.enable}"/>
-        <property name="serverOption" value="#{grpcStatReceiverConfig.serverOption()}"/>
+        <property name="serverOption" value="#{grpcStatReceiverConfig.serverOption}"/>
     </bean>
 
     <!-- end receiver configuration -->

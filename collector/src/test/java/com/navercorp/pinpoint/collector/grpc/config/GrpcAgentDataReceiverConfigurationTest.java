@@ -39,7 +39,7 @@ public class GrpcAgentDataReceiverConfigurationTest {
     private GrpcAgentDataReceiverConfiguration configuration;
 
     @Test
-    public void properties() throws Exception {
+    public void properties() {
 
         assertEquals(Boolean.FALSE, configuration.isEnable());
         BindAddress bindAddress = configuration.getBindAddress();
@@ -58,7 +58,7 @@ public class GrpcAgentDataReceiverConfigurationTest {
     }
 
     @Test
-    public void serverOption() throws Exception {
+    public void serverOption() {
 
         ServerOption serverOption = configuration.getServerOption();
 

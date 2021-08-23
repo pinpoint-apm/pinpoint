@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -24,7 +26,7 @@ public class BindAddress {
     private final int port;
 
     public BindAddress(String ip, int port) {
-        this.ip = ip;
+        this.ip = Objects.requireNonNull(ip, "ip");
         this.port = port;
     }
 
@@ -48,7 +50,7 @@ public class BindAddress {
         }
 
         public Builder setIp(String ip) {
-            this.ip = ip;
+            this.ip = Objects.requireNonNull(ip, "ip");
             return this;
         }
 
