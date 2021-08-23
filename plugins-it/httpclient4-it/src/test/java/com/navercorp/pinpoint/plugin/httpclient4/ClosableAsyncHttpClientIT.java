@@ -21,6 +21,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
@@ -83,7 +84,7 @@ public class ClosableAsyncHttpClientIT {
             httpRequest.setEntity(new UrlEncodedFormEntity(params, Consts.UTF_8.name()));
             
             Future<HttpResponse> responseFuture = httpClient.execute(httpRequest, null);
-            HttpResponse response = (HttpResponse) responseFuture.get();
+            HttpResponse response = responseFuture.get(3000, TimeUnit.MILLISECONDS);
             
             if ((response != null) && (response.getEntity() != null)) {
                 EntityUtils.consume(response.getEntity());
