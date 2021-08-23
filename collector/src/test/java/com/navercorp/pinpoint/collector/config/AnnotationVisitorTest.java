@@ -34,34 +34,40 @@ import java.lang.reflect.Field;
 /**
  * @author Woonduk Kang(emeroad)
  */
-@TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = GrpcSpanReceiverConfiguration.class)
+@TestPropertySource(properties = "test.port=111")
+@ContextConfiguration(classes = AnnotationVisitorTest.TestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class AnnotationVisitorTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final AnnotationVisitor annotationVisitor = new AnnotationVisitor(Value.class);
+    private final AnnotationVisitor<Value> annotationVisitor = new AnnotationVisitor<>(Value.class);
 
     @Autowired
-    GrpcSpanReceiverConfiguration configuration;
+    private TestConfig config;
 
     boolean touch;
+
     @Test
     public void test() {
-//        GrpcSpanReceiverConfiguration configuration = new GrpcSpanReceiverConfiguration();
-        final int grpcBindPort = configuration.getGrpcBindPort();
 
-        this.annotationVisitor.visit(configuration, new AnnotationVisitor.FieldVisitor() {
+        final int port = config.port;
+
+        this.annotationVisitor.visit(config, new AnnotationVisitor.FieldVisitor() {
             @Override
             public void visit(Field field, Object value) {
-                if (field.getName().equals("grpcBindPort")) {
-                    Assert.assertEquals(grpcBindPort , value);
+                if (field.getName().equals("port")) {
+                    Assert.assertEquals(port , value);
                     touch = true;
                 }
             }
         });
         Assert.assertTrue(touch);
+    }
+
+    public static class TestConfig {
+        @Value("${test.port}")
+        private int port;
     }
 
 }

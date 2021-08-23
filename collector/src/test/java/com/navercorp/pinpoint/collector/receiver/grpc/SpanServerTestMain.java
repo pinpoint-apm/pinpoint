@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.collector.grpc.config.GrpcStreamConfiguration;
+import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService;
@@ -32,8 +34,6 @@ import com.navercorp.pinpoint.io.request.ServerResponse;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
-import io.netty.util.internal.logging.InternalLoggerFactory;
-import io.netty.util.internal.logging.Log4J2LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 
 import java.net.InetAddress;
@@ -67,8 +67,10 @@ public class SpanServerTestMain {
 
         GrpcReceiver grpcReceiver = new GrpcReceiver();
         grpcReceiver.setBeanName("TraceServer");
-        grpcReceiver.setBindIp(IP);
-        grpcReceiver.setBindPort(PORT);
+        BindAddress.Builder builder = BindAddress.newBuilder();
+        builder.setIp(IP);
+        builder.setPort(PORT);
+        grpcReceiver.setBindAddress(builder.build());
 
         Executor executor = newWorkerExecutor(8);
         ServerServiceDefinition bindableService = newSpanBindableService(executor);
@@ -76,7 +78,7 @@ public class SpanServerTestMain {
         grpcReceiver.setAddressFilter(new MockAddressFilter());
         grpcReceiver.setExecutor(Executors.newFixedThreadPool(8));
         grpcReceiver.setEnable(true);
-        grpcReceiver.setServerOption(new ServerOption.Builder().build());
+        grpcReceiver.setServerOption(ServerOption.newBuilder().build());
 
         AgentHeaderReader agentHeaderReader = new AgentHeaderReader("test");
         HeaderPropagationInterceptor interceptor = new HeaderPropagationInterceptor(agentHeaderReader);
@@ -96,13 +98,23 @@ public class SpanServerTestMain {
     }
 
     private ServerServiceDefinition newSpanBindableService(Executor executor) throws Exception {
-        FactoryBean<ServerInterceptor> interceptorFactory = new StreamExecutorServerInterceptorFactory(executor, 100,
-                Executors.newSingleThreadScheduledExecutor(), 1000, 100, -1);
+        GrpcStreamConfiguration streamConfiguration = newStreamConfiguration();
+
+        FactoryBean<ServerInterceptor> interceptorFactory = new StreamExecutorServerInterceptorFactory(executor,
+                Executors.newSingleThreadScheduledExecutor(), streamConfiguration);
         ((StreamExecutorServerInterceptorFactory) interceptorFactory).setBeanName("SpanService");
 
         ServerInterceptor interceptor = interceptorFactory.getObject();
         SpanService spanService = new SpanService(new MockDispatchHandler(), new DefaultServerRequestFactory());
         return ServerInterceptors.intercept(spanService, interceptor);
+    }
+
+    private GrpcStreamConfiguration newStreamConfiguration() {
+        GrpcStreamConfiguration.Builder builder = GrpcStreamConfiguration.newBuilder();
+        builder.setCallInitRequestCount(100);
+        builder.setSchedulerPeriodMillis(1000);
+        builder.setSchedulerRecoveryMessageCount(100);
+        return builder.build();
     }
 
     private ExecutorService newWorkerExecutor(int thread) {

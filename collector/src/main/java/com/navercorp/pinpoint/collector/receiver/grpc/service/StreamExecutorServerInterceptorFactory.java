@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
+import com.navercorp.pinpoint.collector.grpc.config.GrpcStreamConfiguration;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.server.flowcontrol.IdleTimeoutFactory;
 import com.navercorp.pinpoint.grpc.server.flowcontrol.RejectedExecutionListenerFactory;
@@ -44,20 +45,18 @@ public class StreamExecutorServerInterceptorFactory implements FactoryBean<Serve
     private final long idleTimeout;
 
     public StreamExecutorServerInterceptorFactory(Executor executor,
-                                                  int initRequestCount,
                                                   ScheduledExecutorService scheduledExecutorService,
-                                                  int periodMillis,
-                                                  int recoveryMessagesCount,
-                                                  long idleTimeout) {
+                                                  GrpcStreamConfiguration streamConfiguration) {
         this.executor = Objects.requireNonNull(executor, "executor");
-        this.initRequestCount = initRequestCount;
         this.scheduledExecutorService = Objects.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
 
-        Assert.isTrue(periodMillis > 0, "periodMillis must be positive");
-        this.periodMillis = periodMillis;
+        Objects.requireNonNull(streamConfiguration, "streamConfiguration");
+        this.initRequestCount = streamConfiguration.getCallInitRequestCount();
 
-        this.recoveryMessagesCount = recoveryMessagesCount;
-        this.idleTimeout = idleTimeout;
+        this.periodMillis = streamConfiguration.getSchedulerPeriodMillis();
+        Assert.isTrue(periodMillis > 0, "periodMillis must be positive");
+        this.recoveryMessagesCount = streamConfiguration.getSchedulerRecoveryMessageCount();
+        this.idleTimeout = streamConfiguration.getIdleTimeout();
     }
 
     @Override

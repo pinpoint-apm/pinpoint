@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
+import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
@@ -54,8 +55,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     private String beanName;
     private boolean enable;
 
-    private String bindIp;
-    private int bindPort;
+    private BindAddress bindAddress;
 
     private ServerFactory serverFactory;
     private Executor executor;
@@ -81,12 +81,12 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         }
 
         Objects.requireNonNull(this.beanName, "beanName");
-        Objects.requireNonNull(this.bindIp, "bindIp");
+        Objects.requireNonNull(this.bindAddress, "bindAddress");
         Objects.requireNonNull(this.addressFilter, "addressFilter");
         Assert.isTrue(CollectionUtils.hasLength(this.serviceList), "serviceList must not be empty");
         Objects.requireNonNull(this.serverOption, "serverOption");
 
-        this.serverFactory = new ServerFactory(beanName, this.bindIp, this.bindPort, this.executor, serverOption);
+        this.serverFactory = new ServerFactory(beanName, this.bindAddress.getIp(), this.bindAddress.getPort(), this.executor, serverOption);
         ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(this.beanName, addressFilter);
         this.serverFactory.addTransportFilter(permissionServerTransportFilter);
 
@@ -126,9 +126,9 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         } catch (Throwable th) {
             final Throwable rootCause = NestedExceptionUtils.getRootCause(th);
             if (rootCause instanceof BindException) {
-                logger.error("Server bind failed. {} address:{}/{}", this.beanName, this.bindIp, this.bindPort, rootCause);
+                logger.error("Server bind failed. {} address:{}", this.beanName, this.bindAddress, rootCause);
             } else {
-                logger.error("Server start failed. {} address:{}/{}", this.beanName, this.bindIp, this.bindPort);
+                logger.error("Server start failed. {} address:{}", this.beanName, this.bindAddress);
             }
             throw th;
         }
@@ -184,12 +184,8 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         this.enable = enable;
     }
 
-    public void setBindIp(String bindIp) {
-        this.bindIp = bindIp;
-    }
-
-    public void setBindPort(int bindPort) {
-        this.bindPort = bindPort;
+    public void setBindAddress(BindAddress bindAddress) {
+        this.bindAddress = Objects.requireNonNull(bindAddress, "bindAddress");
     }
 
     public void setAddressFilter(AddressFilter addressFilter) {

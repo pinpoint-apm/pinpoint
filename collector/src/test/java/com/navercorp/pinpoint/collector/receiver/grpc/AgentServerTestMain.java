@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
@@ -51,15 +52,18 @@ public class AgentServerTestMain {
         GrpcReceiver grpcReceiver = new GrpcReceiver();
         grpcReceiver.setEnable(true);
         grpcReceiver.setBeanName("AgentServer");
-        grpcReceiver.setBindIp(IP);
-        grpcReceiver.setBindPort(PORT);
+
+        BindAddress.Builder builder = BindAddress.newBuilder();
+        builder.setPort(PORT);
+        builder.setIp(IP);
+        grpcReceiver.setBindAddress(builder.build());
 
         PingEventHandler pingEventHandler = mock(PingEventHandler.class);
         BindableService agentService = new AgentService(new MockDispatchHandler(), pingEventHandler, Executors.newFixedThreadPool(8), serverRequestFactory);
         grpcReceiver.setBindableServiceList(Arrays.asList(agentService, new MetadataService(new MockDispatchHandler(), Executors.newFixedThreadPool(8), serverRequestFactory)));
         grpcReceiver.setAddressFilter(new MockAddressFilter());
         grpcReceiver.setExecutor(Executors.newFixedThreadPool(8));
-        grpcReceiver.setServerOption(new ServerOption.Builder().build());
+        grpcReceiver.setServerOption(ServerOption.newBuilder().build());
 
 
         grpcReceiver.afterPropertiesSet();
