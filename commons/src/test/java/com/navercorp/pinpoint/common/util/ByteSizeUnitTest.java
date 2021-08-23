@@ -19,15 +19,12 @@ package com.navercorp.pinpoint.common.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.EnumSet;
 import java.util.Random;
 
 /**
  * @author Taejin Koo
  */
 public class ByteSizeUnitTest {
-
-    private final ByteSizeUnit[] byteSizeUnitSet = EnumSet.allOf(ByteSizeUnit.class).toArray(new ByteSizeUnit[0]);
 
     @Test
     public void sizeTest() {

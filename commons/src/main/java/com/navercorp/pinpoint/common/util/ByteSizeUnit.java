@@ -17,16 +17,21 @@
 package com.navercorp.pinpoint.common.util;
 
 
+import java.util.EnumSet;
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
 public enum ByteSizeUnit {
 
-    BYTES('B', 'b', ByteSizeUnit.BYTES_SIZE),
-    KILO_BYTES('K', 'k', ByteSizeUnit.KILO_SIZE),
-    MEGA_BYTES('M', 'm', ByteSizeUnit.MEGA_SIZE),
-    GIGA_BYTES('G', 'g', ByteSizeUnit.GIGA_SIZE),
-    TERA_BYTES('T', 't', ByteSizeUnit.TERA_SIZE);
+    BYTES(new String[]{"B", "b"}, ByteSizeUnit.BYTES_SIZE),
+    KILO_BYTES(new String[]{"K", "k", "KB"}, ByteSizeUnit.KILO_SIZE),
+    MEGA_BYTES(new String[]{"M", "m", "MB"}, ByteSizeUnit.MEGA_SIZE),
+    GIGA_BYTES(new String[]{"G", "g", "GB"}, ByteSizeUnit.GIGA_SIZE),
+    TERA_BYTES(new String[]{"T", "t", "TB"}, ByteSizeUnit.TERA_SIZE);
+
+    private static final EnumSet<ByteSizeUnit> ALL = EnumSet.allOf(ByteSizeUnit.class);
 
     private static final long BYTES_SIZE = 1;
     private static final long KILO_SIZE = 1024;
@@ -35,15 +40,13 @@ public enum ByteSizeUnit {
     private static final long TERA_SIZE = GIGA_SIZE * KILO_SIZE;
 
 
-    private final char unitChar1;
-    private final char unitChar2;
+    private final String[] units;
     private final long unitSize;
     private final long maxSize;
     private final long intMaxSize;
 
-    ByteSizeUnit(char unitChar1, char unitChar2, long unitSize) {
-        this.unitChar1 = unitChar1;
-        this.unitChar2 = unitChar2;
+    ByteSizeUnit(String[] units, long unitSize) {
+        this.units = Objects.requireNonNull(units, "units");
         this.unitSize = unitSize;
         this.maxSize = Long.MAX_VALUE / unitSize;
         this.intMaxSize = Integer.MAX_VALUE / unitSize;
@@ -71,12 +74,12 @@ public enum ByteSizeUnit {
         return (int) (value * unitSize);
     }
 
-    char getUnitChar1() {
-        return unitChar1;
+    String getUnitChar1() {
+        return units[0];
     }
 
-    char getUnitChar2() {
-        return unitChar2;
+    String getUnitChar2() {
+        return units[1];
     }
 
     public long getUnitSize() {
@@ -91,7 +94,7 @@ public enum ByteSizeUnit {
     public static long getByteSize(String value, long defaultValue) {
         try {
             return getByteSize(value);
-        } catch (Exception e) {
+        } catch (Exception ignore) {
         }
         return defaultValue;
     }
@@ -101,12 +104,20 @@ public enum ByteSizeUnit {
             throw new IllegalArgumentException("size must not be empty");
         }
 
-        final char sizeUnitChar = value.charAt(value.length() - 1);
-        if (sizeUnitChar == BYTES.unitChar1 || sizeUnitChar == BYTES.unitChar2) {
+        if (endWithDataUnit(BYTES.units, value)) {
             return getByteSize0(value.substring(0, value.length() - 1));
         } else {
             return getByteSize0(value);
         }
+    }
+
+    private static boolean endWithDataUnit(String[] units, String value) {
+        for (String unit : units) {
+            if (value.endsWith(unit)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static long getByteSize0(String value) {
@@ -114,13 +125,12 @@ public enum ByteSizeUnit {
             throw new IllegalArgumentException("size must not be empty");
         }
 
-        final char sizeUnitChar = value.charAt(value.length() - 1);
-        for (ByteSizeUnit byteSizeUnit : values()) {
+        for (ByteSizeUnit byteSizeUnit : ALL) {
             if (byteSizeUnit == ByteSizeUnit.BYTES) {
                 continue;
             }
 
-            if (sizeUnitChar == byteSizeUnit.unitChar1 || sizeUnitChar == byteSizeUnit.unitChar2) {
+            if (endWithDataUnit(byteSizeUnit.units, value)) {
                 long numberValue = getLong(value.substring(0, value.length() - 1));
                 return byteSizeUnit.toBytesSize(numberValue);
             }
