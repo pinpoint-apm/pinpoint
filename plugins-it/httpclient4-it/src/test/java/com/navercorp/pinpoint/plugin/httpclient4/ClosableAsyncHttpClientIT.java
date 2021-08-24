@@ -56,7 +56,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-httpclient4-plugin")
-@Dependency({ "org.apache.httpcomponents:httpasyncclient:[4.0],[4.0.1],[4.0.2],[4.1],[4.1.1],[4.1.2],[4.1.3]",
+@Dependency({"org.apache.httpcomponents:httpasyncclient:[4.0],[4.0.1],[4.0.2],[4.1],[4.1.1],[4.1.2],[4.1.3]",
         WebServer.VERSION, PluginITConstants.VERSION})
 public class ClosableAsyncHttpClientIT {
     private static WebServer webServer;
@@ -75,38 +75,40 @@ public class ClosableAsyncHttpClientIT {
     public void test() throws Exception {
         CloseableHttpAsyncClient httpClient = HttpAsyncClients.custom().useSystemProperties().build();
         httpClient.start();
-        
+
         try {
             HttpPost httpRequest = new HttpPost(webServer.getCallHttpUrl());
-            
+
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("param1", "value1"));
             httpRequest.setEntity(new UrlEncodedFormEntity(params, Consts.UTF_8.name()));
-            
+
             Future<HttpResponse> responseFuture = httpClient.execute(httpRequest, null);
-            HttpResponse response = responseFuture.get(3000, TimeUnit.MILLISECONDS);
-            
+            HttpResponse response = responseFuture.get();
+
             if ((response != null) && (response.getEntity() != null)) {
                 EntityUtils.consume(response.getEntity());
             }
         } finally {
             httpClient.close();
         }
-        
+
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache();
-        
+        verifier.printMethod();
+
         verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", CloseableHttpAsyncClient.class.getMethod("execute", HttpUriRequest.class, FutureCallback.class)));
         final String destinationId = webServer.getHostAndPort();
         final String httpUrl = webServer.getCallHttpUrl();
         verifier.verifyTrace(async(
-                    event("HTTP_CLIENT_4", Class.forName("org.apache.http.impl.nio.client.DefaultClientExchangeHandlerImpl").getMethod("start"), null, null, destinationId,
-                            annotation("http.url", httpUrl), annotation("http.entity", "param1=value1")),
-                    event("ASYNC","Asynchronous Invocation"),
-                    event("HTTP_CLIENT_4_INTERNAL", BasicFuture.class.getMethod("completed", Object.class))
-        ));
+                event("HTTP_CLIENT_4", Class.forName("org.apache.http.impl.nio.client.DefaultClientExchangeHandlerImpl").getMethod("start"), null, null, destinationId,
+                        annotation("http.url", httpUrl),
+                        annotation("http.entity", "param1=value1")),
+                event("ASYNC", "Asynchronous Invocation"),
+                event("HTTP_CLIENT_4_INTERNAL", BasicFuture.class.getMethod("completed", Object.class))
+                )
+        );
         verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", BasicFuture.class.getMethod("get")));
-        
+
         verifier.verifyTraceCount(0);
-   }
+    }
 }
