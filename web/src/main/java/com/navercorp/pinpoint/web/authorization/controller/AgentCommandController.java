@@ -71,7 +71,7 @@ public class AgentCommandController {
                                           @RequestParam(value = "agentId") String agentId,
                                           @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
                                           @RequestParam(value = "threadName", required = false) String[] threadNameList,
-                                          @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) throws TException {
+                                          @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) {
         if (!webProperties.isEnableActiveThreadDump()) {
             return new CodeResult(CODE_FAIL, "Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
         }
@@ -185,11 +185,7 @@ public class AgentCommandController {
         }
 
         TRouteResult routeResult = pinpointRouteResponse.getRouteResult();
-        if (routeResult != TRouteResult.OK) {
-            return false;
-        }
-
-        return true;
+        return routeResult == TRouteResult.OK;
     }
 
     private Map<String, Object> createResponseData(AgentActiveThreadDumpList activeThreadDumpList, String type, String subType, String version) {
@@ -207,7 +203,7 @@ public class AgentCommandController {
                                                  @RequestParam(value = "agentId") String agentId,
                                                  @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
                                                  @RequestParam(value = "threadName", required = false) String[] threadNameList,
-                                                 @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) throws TException {
+                                                 @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) {
         if (!webProperties.isEnableActiveThreadDump()) {
             return new CodeResult(CODE_FAIL, "Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
         }
