@@ -45,6 +45,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
+import java.lang.reflect.Method;
+
 /**
  * @author jaehong.kim
  */
@@ -83,15 +85,19 @@ public class CloaeableHttpClientIT {
 
         verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", CloseableHttpClient.class.getMethod("execute", HttpUriRequest.class)));
         final String display = webServer.getHostAndPort();
-        verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", PoolingHttpClientConnectionManager.class.getMethod("connect", HttpClientConnection.class, HttpRoute.class, int.class, HttpContext.class),
-                annotation("http.internal.display", display)));
+        Method connect = PoolingHttpClientConnectionManager.class.getMethod("connect", HttpClientConnection.class, HttpRoute.class, int.class, HttpContext.class);
+        verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", connect,
+                annotation("http.internal.display", display)
+        ));
 
         final String destinationId = webServer.getHostAndPort();
         verifier.verifyTrace(event("HTTP_CLIENT_4",
                 HttpRequestExecutor.class.getMethod("execute", HttpRequest.class, HttpClientConnection.class, HttpContext.class), null, null, destinationId,
                 annotation("http.url", "/"),
                 annotation("http.status.code", 200),
-                annotation("http.io", anyAnnotationValue())));
+                annotation("http.resp.header", anyAnnotationValue()),
+                annotation("http.io", anyAnnotationValue())
+        ));
 
         verifier.verifyTraceCount(0);
     }

@@ -46,13 +46,15 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
+import java.lang.reflect.Method;
+
 /**
  * @author jaehong.kim
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-httpclient4-plugin")
-@Dependency({ "org.apache.httpcomponents:httpclient:[4.0],[4.0.1],[4.0.2],[4.0.3],[4.1],[4.1.1],[4.1.2],[4.1.3],[4.2],[4.2.1],[4.2.2],[4.2.3],[4.2.4],[4.2.4],[4.2.6],[4.3.3]",
+@Dependency({"org.apache.httpcomponents:httpclient:[4.0],[4.0.1],[4.0.2],[4.0.3],[4.1],[4.1.1],[4.1.2],[4.1.3],[4.2],[4.2.1],[4.2.2],[4.2.3],[4.2.4],[4.2.4],[4.2.6],[4.3.3]",
         WebServer.VERSION, PluginITConstants.VERSION})
 public class HttpClientIT {
 
@@ -88,17 +90,29 @@ public class HttpClientIT {
         verifier.printCache();
 
         Class<?> connectorClass;
-        
+
         try {
             connectorClass = Class.forName("org.apache.http.impl.conn.ManagedClientConnectionImpl");
         } catch (ClassNotFoundException e) {
             connectorClass = Class.forName("org.apache.http.impl.conn.AbstractPooledConnAdapter");
         }
-        
+
         verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", AbstractHttpClient.class.getMethod("execute", HttpUriRequest.class, ResponseHandler.class)));
         final String hostname = webServer.getHostAndPort();
-        verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", connectorClass.getMethod("open", HttpRoute.class, HttpContext.class, HttpParams.class), annotation("http.internal.display", hostname)));
-        verifier.verifyTrace(event("HTTP_CLIENT_4", HttpRequestExecutor.class.getMethod("execute", HttpRequest.class, HttpClientConnection.class, HttpContext.class), null, null, hostname, annotation("http.url", "/"),  annotation("http.status.code", 200), annotation("http.resp.header", anyAnnotationValue()), annotation("http.io", anyAnnotationValue())));
+
+        verifier.verifyTrace(
+                event("HTTP_CLIENT_4_INTERNAL", connectorClass.getMethod("open", HttpRoute.class, HttpContext.class, HttpParams.class),
+                        annotation("http.internal.display", hostname)
+                ));
+
+        Method execute = HttpRequestExecutor.class.getMethod("execute", HttpRequest.class, HttpClientConnection.class, HttpContext.class);
+        verifier.verifyTrace(
+                event("HTTP_CLIENT_4", execute, null, null, hostname,
+                        annotation("http.url", "/"),
+                        annotation("http.status.code", 200),
+                        annotation("http.resp.header", anyAnnotationValue()),
+                        annotation("http.io", anyAnnotationValue())
+                ));
         verifier.verifyTraceCount(0);
     }
 }
