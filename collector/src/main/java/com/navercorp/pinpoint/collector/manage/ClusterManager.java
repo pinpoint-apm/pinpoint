@@ -20,7 +20,7 @@ package com.navercorp.pinpoint.collector.manage;
 import com.navercorp.pinpoint.collector.cluster.AgentInfo;
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
-import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
+import com.navercorp.pinpoint.collector.config.ClusterConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +32,11 @@ import java.util.Objects;
 public class ClusterManager extends AbstractCollectorManager implements ClusterManagerMBean {
 
     private final boolean enableCluster;
-    private final ClusterPointLocator clusterPointLocator;
+    private final ClusterPointLocator<?> clusterPointLocator;
 
-    public ClusterManager(CollectorConfiguration configuration, ClusterPointLocator clusterPointLocator) {
-        Objects.requireNonNull(configuration, "configuration");
-        this.enableCluster = configuration.isClusterEnable();
+    public ClusterManager(ClusterConfig clusterConfig, ClusterPointLocator<?> clusterPointLocator) {
+        Objects.requireNonNull(clusterConfig, "configuration");
+        this.enableCluster = clusterConfig.isClusterEnable();
         this.clusterPointLocator = Objects.requireNonNull(clusterPointLocator, "clusterPointLocator");
     }
 
@@ -49,8 +49,8 @@ public class ClusterManager extends AbstractCollectorManager implements ClusterM
     public List<String> getConnectedAgentList() {
         List<String> result = new ArrayList<>();
 
-        List<ClusterPoint> clusterPointList = clusterPointLocator.getClusterPointList();
-        for (ClusterPoint clusterPoint : clusterPointList) {
+        List<? extends ClusterPoint<?>> clusterPointList = clusterPointLocator.getClusterPointList();
+        for (ClusterPoint<?> clusterPoint : clusterPointList) {
             AgentInfo destAgentInfo = clusterPoint.getDestAgentInfo();
             result.add(destAgentInfo.getAgentKey());
         }

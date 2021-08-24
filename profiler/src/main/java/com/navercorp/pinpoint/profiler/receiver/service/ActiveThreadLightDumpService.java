@@ -47,7 +47,7 @@ public class ActiveThreadLightDumpService implements ProfilerRequestCommandServi
     }
 
     @Override
-    public TBase<?, ?> requestCommandService(TBase tBase) {
+    public TBase<?, ?> requestCommandService(TBase<?, ?> tBase) {
         TCmdActiveThreadLightDump request = (TCmdActiveThreadLightDump) tBase;
 
         List<TActiveThreadLightDump> activeThreadDumpList = getActiveThreadDumpList(request);

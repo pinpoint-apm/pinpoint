@@ -34,20 +34,20 @@ public final class SerializationUtils {
     private SerializationUtils() {
     }
 
-    public static byte[] serialize(TBase object, SerializerFactory<HeaderTBaseSerializer> factory) throws TException {
+    public static byte[] serialize(TBase<?, ?> object, SerializerFactory<HeaderTBaseSerializer> factory) throws TException {
         assertNotNull(factory, "SerializerFactory may note be null.");
 
         return serialize(object, factory.createSerializer());
     }
 
-    public static byte[] serialize(TBase object, HeaderTBaseSerializer serializer) throws TException {
+    public static byte[] serialize(TBase<?, ?> object, HeaderTBaseSerializer serializer) throws TException {
         assertNotNull(object, "TBase may note be null.");
         assertNotNull(serializer, "Serializer may note be null.");
 
         return serializer.serialize(object);
     }
 
-    public static byte[] serialize(TBase object, SerializerFactory<HeaderTBaseSerializer> factory, byte[] defaultValue) {
+    public static byte[] serialize(TBase<?, ?> object, SerializerFactory<HeaderTBaseSerializer> factory, byte[] defaultValue) {
         try {
             return serialize(object, factory);
         } catch (Exception e) {
@@ -59,7 +59,7 @@ public final class SerializationUtils {
         return defaultValue;
     }
 
-    public static byte[] serialize(TBase object, HeaderTBaseSerializer serializer, byte[] defaultValue) {
+    public static byte[] serialize(TBase<?, ?> object, HeaderTBaseSerializer serializer, byte[] defaultValue) {
         try {
             return serialize(object, serializer);
         } catch (Exception e) {

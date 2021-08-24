@@ -23,6 +23,7 @@
                         com.navercorp.pinpoint.common.server.bo"/>
 
     <bean id="collectorConfiguration" class="com.navercorp.pinpoint.collector.config.CollectorConfiguration"/>
+    <bean id="clusterConfig" class="com.navercorp.pinpoint.collector.config.ClusterConfig"/>
 
 
     <import resource="classpath:applicationContext-collector-profile.xml"/>
@@ -50,7 +51,7 @@
     </bean>
 
     <bean id="clusterManager" class="com.navercorp.pinpoint.collector.manage.ClusterManager">
-        <constructor-arg ref="collectorConfiguration"/>
+        <constructor-arg ref="clusterConfig"/>
         <constructor-arg ref="targetClusterPointRepository"/>
     </bean>
 
@@ -167,7 +168,7 @@
     </bean>
 
     <bean id="clusterService" class="com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService">
-        <constructor-arg ref="collectorConfiguration"/>
+        <constructor-arg ref="clusterConfig"/>
         <constructor-arg ref="clusterPointRouter"/>
     </bean>
 

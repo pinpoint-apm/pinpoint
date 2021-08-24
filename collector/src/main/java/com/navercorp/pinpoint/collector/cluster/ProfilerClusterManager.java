@@ -25,9 +25,9 @@ import java.util.List;
  */
 public interface ProfilerClusterManager extends Lifecycle {
 
-    void register(ClusterPoint targetClusterPoint);
+    void register(ClusterPoint<?> targetClusterPoint);
 
-    void unregister(ClusterPoint targetClusterPoint);
+    void unregister(ClusterPoint<?> targetClusterPoint);
 
     void refresh();
 

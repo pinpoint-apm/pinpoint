@@ -70,7 +70,7 @@ public class CommandDispatcher extends ServerStreamChannelMessageHandler impleme
             logger.debug("handleRequest request:{}, remote:{}", message, pinpointSocket.getRemoteAddress());
         }
 
-        final TBase response = processRequest(message);
+        final TBase<?, ?> response = processRequest(message);
 
         final byte[] payload = SerializationUtils.serialize(response, commandHeaderTBaseSerializerFactory, null);
         if (payload != null) {

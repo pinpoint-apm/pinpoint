@@ -63,7 +63,7 @@ public class ThriftMessageSerializer implements MessageSerializer<byte[]> {
         return null;
     }
 
-    private byte[] serialize(TBaseSerializer serializer, TBase tBase) {
+    private byte[] serialize(TBaseSerializer serializer, TBase<?, ?> tBase) {
         try {
             return serializer.serialize(tBase);
         } catch (TException e) {

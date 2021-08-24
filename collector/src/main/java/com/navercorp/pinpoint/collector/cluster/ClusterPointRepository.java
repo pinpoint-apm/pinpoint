@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ClusterPointRepository<T extends ClusterPoint> implements ClusterPointLocator<T> {
+public class ClusterPointRepository<T extends ClusterPoint<?>> implements ClusterPointLocator<T> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

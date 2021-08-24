@@ -31,7 +31,7 @@ public class EchoService implements ProfilerRequestCommandService<TBase<?, ?>, T
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public TBase<?, ?> requestCommandService(TBase tbase) {
+    public TBase<?, ?> requestCommandService(TBase<?, ?> tbase) {
         logger.info("{} execute {}.", this, tbase);
 
         TCommandEcho param = (TCommandEcho) tbase;

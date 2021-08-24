@@ -77,7 +77,7 @@ public class TCommandRegistryTest {
     public void registryTest6() throws TException {
         TypeLocator<TBase<?, ?>> registry = TCommandRegistry.build(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
 
-        TBase tBase = registry.bodyLookup(TCommandType.RESULT.getCode());
+        TBase<?, ?> tBase = registry.bodyLookup(TCommandType.RESULT.getCode());
         Assert.assertEquals(tBase.getClass(), TResult.class);
 
         tBase = registry.bodyLookup(TCommandType.THREAD_DUMP.getCode());

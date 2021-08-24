@@ -38,7 +38,7 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
     private final RouteFilterChain<RequestEvent> requestFilterChain;
     private final RouteFilterChain<ResponseEvent> responseFilterChain;
 
-    public DefaultRouteHandler(ClusterPointLocator<ClusterPoint> targetClusterPointLocator,
+    public DefaultRouteHandler(ClusterPointLocator<ClusterPoint<?>> targetClusterPointLocator,
             RouteFilterChain<RequestEvent> requestFilterChain,
             RouteFilterChain<ResponseEvent> responseFilterChain) {
         super(targetClusterPointLocator);
@@ -69,12 +69,12 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
     }
 
     private TCommandTransferResponse onRoute0(RequestEvent event) {
-        TBase<?,?> requestObject = event.getRequestObject();
+        TBase<?, ?> requestObject = event.getRequestObject();
         if (requestObject == null) {
             return createResponse(TRouteResult.EMPTY_REQUEST);
         }
 
-        ClusterPoint clusterPoint = findClusterPoint(event.getDeliveryCommand());
+        ClusterPoint<?> clusterPoint = findClusterPoint(event.getDeliveryCommand());
         if (clusterPoint == null) {
             return createResponse(TRouteResult.NOT_FOUND);
         }

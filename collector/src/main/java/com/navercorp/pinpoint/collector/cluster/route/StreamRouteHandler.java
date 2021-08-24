@@ -58,7 +58,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
 
     private final SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
-    public StreamRouteHandler(ClusterPointLocator<ClusterPoint> targetClusterPointLocator,
+    public StreamRouteHandler(ClusterPointLocator<ClusterPoint<?>> targetClusterPointLocator,
                               RouteFilterChain<StreamEvent> streamCreateFilterChain,
                               RouteFilterChain<ResponseEvent> responseFilterChain,
                               RouteFilterChain<StreamRouteCloseEvent> streamCloseFilterChain,
@@ -99,7 +99,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
             return createResponse(TRouteResult.EMPTY_REQUEST);
         }
 
-        ClusterPoint clusterPoint = findClusterPoint(event.getDeliveryCommand());
+        ClusterPoint<?> clusterPoint = findClusterPoint(event.getDeliveryCommand());
         if (clusterPoint == null) {
             return createResponse(TRouteResult.NOT_FOUND);
         }

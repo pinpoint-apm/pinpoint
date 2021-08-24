@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.cluster;
 
 import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
@@ -62,7 +63,7 @@ public class ThriftAgentConnection implements ClusterPoint<byte[]> {
     }
 
     @Override
-    public Future request(byte[] payload) {
+    public Future<ResponseMessage> request(byte[] payload) {
         return pinpointServer.request(payload);
     }
 
@@ -72,7 +73,7 @@ public class ThriftAgentConnection implements ClusterPoint<byte[]> {
     }
 
     @Override
-    public boolean isSupportCommand(TBase command) {
+    public boolean isSupportCommand(TBase<?, ?> command) {
         for (TCommandType supportCommand : supportCommandList) {
             if (supportCommand.getClazz() == command.getClass()) {
                 return true;
@@ -96,7 +97,7 @@ public class ThriftAgentConnection implements ClusterPoint<byte[]> {
         StringBuilder log = new StringBuilder(32);
         log.append(this.getClass().getSimpleName());
         log.append("(");
-        log.append(agentInfo.toString());
+        log.append(agentInfo);
         log.append(", supportCommandList:");
         log.append(supportCommandList);
         log.append(", pinpointServer:");

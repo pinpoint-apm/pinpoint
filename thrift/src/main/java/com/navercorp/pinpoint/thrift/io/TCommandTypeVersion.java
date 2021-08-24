@@ -106,7 +106,7 @@ public enum TCommandTypeVersion {
         return supportCommandList;
     }
 
-    public boolean isSupportCommand(TBase command) {
+    public boolean isSupportCommand(TBase<?, ?> command) {
         if (command == null) {
             return false;
         }

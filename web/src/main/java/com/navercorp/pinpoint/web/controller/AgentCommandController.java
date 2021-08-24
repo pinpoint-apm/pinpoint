@@ -189,7 +189,7 @@ public class AgentCommandController {
         if (routeResult != TRouteResult.OK) {
             return new CodeResult(CODE_FAIL, routeResult.name());
         } else {
-            TBase tBase = response.getResponse();
+            TBase<?, ?> tBase = response.getResponse();
             if (tBase instanceof TResult) {
                 return new CodeResult(CODE_FAIL, ((TResult) tBase).getMessage());
             } else {

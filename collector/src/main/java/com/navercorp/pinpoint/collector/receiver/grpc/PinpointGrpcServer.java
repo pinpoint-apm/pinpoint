@@ -211,7 +211,7 @@ public class PinpointGrpcServer {
         if (isInfo) {
             logger.info("{} handleMessage:{}", agentInfo, MessageFormatUtils.debugLog(message));
         }
-        TBase tMessage = messageConverter.toMessage(message);
+        TBase<?, ?> tMessage = messageConverter.toMessage(message);
 
         try {
             byte[] serialize = SerializationUtils.serialize(tMessage, commandHeaderTBaseSerializerFactory);
@@ -258,7 +258,7 @@ public class PinpointGrpcServer {
             throw new StreamException(StreamCode.ID_NOT_FOUND, "Can't find suitable streamChannel.(streamId:" + streamId + ")");
         }
 
-        TBase tBase = messageConverter.toMessage(message);
+        TBase<?, ?> tBase = messageConverter.toMessage(message);
         if (tBase == null) {
             throw new StreamException(StreamCode.TYPE_ERROR, "Failed to convert message.(message:" + MessageFormatUtils.debugLog(message).toString() + ")");
         }

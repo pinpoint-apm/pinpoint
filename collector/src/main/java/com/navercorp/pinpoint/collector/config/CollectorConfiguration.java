@@ -45,16 +45,7 @@ public class CollectorConfiguration {
     private boolean metricJmxEnable;
     @Value("${collector.metric.jmx.domain:pinpoint.collector.metrics}")
     private String metricJmxDomainName;
-    @Value("${cluster.enable}")
-    private boolean clusterEnable;
-    @Value("${cluster.zookeeper.address:}")
-    private String clusterAddress;
-    @Value("${cluster.zookeeper.sessiontimeout:-1}")
-    private int clusterSessionTimeout;
-    @Value("${cluster.listen.ip:}")
-    private String clusterListenIp;
-    @Value("${cluster.listen.port:-1}")
-    private int clusterListenPort;
+
     @Value("${collector.stat.uri:false}")
     private boolean uriStatEnable;
     @Value("${collector.statistics.agent-state.enable:false}")
@@ -101,46 +92,6 @@ public class CollectorConfiguration {
         this.metricJmxDomainName = metricJmxDomainName;
     }
 
-    public boolean isClusterEnable() {
-        return clusterEnable;
-    }
-
-    public void setClusterEnable(boolean clusterEnable) {
-        this.clusterEnable = clusterEnable;
-    }
-
-    public String getClusterAddress() {
-        return clusterAddress;
-    }
-
-    public void setClusterAddress(String clusterAddress) {
-        this.clusterAddress = clusterAddress;
-    }
-
-    public int getClusterSessionTimeout() {
-        return clusterSessionTimeout;
-    }
-
-    public void setClusterSessionTimeout(int clusterSessionTimeout) {
-        this.clusterSessionTimeout = clusterSessionTimeout;
-    }
-
-    public String getClusterListenIp() {
-        return clusterListenIp;
-    }
-
-    public void setClusterListenIp(String clusterListenIp) {
-        this.clusterListenIp = clusterListenIp;
-    }
-
-    public int getClusterListenPort() {
-        return clusterListenPort;
-    }
-
-    public void setClusterListenPort(int clusterListenPort) {
-        this.clusterListenPort = clusterListenPort;
-    }
-
     public boolean isUriStatEnable() {
         return uriStatEnable;
     }
@@ -172,11 +123,6 @@ public class CollectorConfiguration {
         sb.append(", l4IpList=").append(Arrays.toString(l4IpList));
         sb.append(", metricJmxEnable=").append(metricJmxEnable);
         sb.append(", metricJmxDomainName='").append(metricJmxDomainName).append('\'');
-        sb.append(", clusterEnable=").append(clusterEnable);
-        sb.append(", clusterAddress='").append(clusterAddress).append('\'');
-        sb.append(", clusterSessionTimeout=").append(clusterSessionTimeout);
-        sb.append(", clusterListenIp='").append(clusterListenIp).append('\'');
-        sb.append(", clusterListenPort=").append(clusterListenPort);
         sb.append(", uriStatEnable=").append(uriStatEnable);
         sb.append(", statisticsAgentStateEnable=").append(statisticsAgentStateEnable);
         sb.append('}');
