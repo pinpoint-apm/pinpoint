@@ -109,7 +109,7 @@ public class AgentEventHandlingFilter implements RouteFilter<ResponseEvent> {
 
         try {
             final Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(payload, commandDeserializerFactory);
-            final TBase tBase = deserialize.getData();
+            final TBase<?, ?> tBase = deserialize.getData();
             return tBase.getClass();
         } catch (TException e) {
             logger.warn("Error deserializing ResponseEvent payload", e);

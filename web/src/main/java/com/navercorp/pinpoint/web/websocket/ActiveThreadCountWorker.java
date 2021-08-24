@@ -260,7 +260,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
                 logger.debug("handleStreamResponsePacket() streamChannel:{}, packet:{}", streamChannel, packet);
             }
 
-            TBase response = agentService.deserializeResponse(packet.getPayload(), null);
+            TBase<?, ?> response = agentService.deserializeResponse(packet.getPayload(), null);
             AgentActiveThreadCount activeThreadCount = getAgentActiveThreadCount(response);
             responseAggregator.response(activeThreadCount);
         }
@@ -292,7 +292,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
             }
         }
 
-        private AgentActiveThreadCount getAgentActiveThreadCount(TBase routeResponse) {
+        private AgentActiveThreadCount getAgentActiveThreadCount(TBase<?, ?> routeResponse) {
             if (routeResponse instanceof TCommandTransferResponse) {
                 byte[] payload = ((TCommandTransferResponse) routeResponse).getPayload();
                 TBase<?, ?> activeThreadCountResponse = agentService.deserializeResponse(payload, null);

@@ -108,7 +108,7 @@ public class UdpDataSenderTest {
     }
 
     
-    private boolean sendMessage_getLimit(TBase tbase, long waitTimeMillis) throws InterruptedException {
+    private boolean sendMessage_getLimit(TBase<?, ?> tbase, long waitTimeMillis) throws InterruptedException {
         final AtomicBoolean limitCounter = new AtomicBoolean(false);
         final CountDownLatch latch = new CountDownLatch(1);
         final MessageConverter<TBase<?, ?>> messageConverter = new BypassMessageConverter<TBase<?, ?>>();

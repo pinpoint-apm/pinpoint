@@ -42,10 +42,10 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
-public class CommandGrpcToThriftMessageConverter implements MessageConverter<TBase> {
+public class CommandGrpcToThriftMessageConverter implements MessageConverter<TBase<?, ?>> {
 
     @Override
-    public TBase toMessage(Object message) {
+    public TBase<?, ?> toMessage(Object message) {
         if (message instanceof PCmdEchoResponse) {
             return buildTCommandEcho((PCmdEchoResponse) message);
         } else if (message instanceof PCmdActiveThreadCountRes) {

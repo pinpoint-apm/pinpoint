@@ -28,13 +28,13 @@ public class RequestEvent extends DefaultRouteEvent {
 
     private final int requestId;
 
-    private final TBase requestObject;
+    private final TBase<?, ?> requestObject;
 
-    public RequestEvent(RouteEvent routeEvent, int requestId, TBase requestObject) {
+    public RequestEvent(RouteEvent routeEvent, int requestId, TBase<?, ?> requestObject) {
         this(routeEvent.getDeliveryCommand(), routeEvent.getRemoteAddress(), requestId, requestObject);
     }
 
-    public RequestEvent(TCommandTransfer deliveryCommand, SocketAddress remoteAddress, int requestId, TBase requestObject) {
+    public RequestEvent(TCommandTransfer deliveryCommand, SocketAddress remoteAddress, int requestId, TBase<?, ?> requestObject) {
         super(deliveryCommand, remoteAddress);
 
         this.requestId = requestId;
@@ -45,7 +45,7 @@ public class RequestEvent extends DefaultRouteEvent {
         return requestId;
     }
 
-    public TBase getRequestObject() {
+    public TBase<?, ?> getRequestObject() {
         return requestObject;
     }
 

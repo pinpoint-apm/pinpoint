@@ -86,7 +86,7 @@ public class ThriftUdpMessageSerializer implements MessageSerializer<ByteMessage
         return new ByteMessage(internalBufferData, messageSize);
     }
 
-    private byte[] serialize(HeaderTBaseSerializer serializer, TBase tBase) {
+    private byte[] serialize(HeaderTBaseSerializer serializer, TBase<?, ?> tBase) {
         try {
             return serializer.serialize(tBase);
         } catch (TException e) {

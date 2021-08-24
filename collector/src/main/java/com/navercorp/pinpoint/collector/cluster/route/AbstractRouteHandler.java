@@ -36,20 +36,20 @@ public abstract class AbstractRouteHandler<T extends RouteEvent> implements Rout
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ClusterPointLocator<ClusterPoint> targetClusterPointLocator;
+    private final ClusterPointLocator<ClusterPoint<?>> targetClusterPointLocator;
 
-    public AbstractRouteHandler(ClusterPointLocator<ClusterPoint> targetClusterPointLocator) {
+    public AbstractRouteHandler(ClusterPointLocator<ClusterPoint<?>> targetClusterPointLocator) {
         this.targetClusterPointLocator = targetClusterPointLocator;
     }
 
-    protected ClusterPoint findClusterPoint(TCommandTransfer deliveryCommand) {
+    protected ClusterPoint<?> findClusterPoint(TCommandTransfer deliveryCommand) {
         String applicationName = deliveryCommand.getApplicationName();
         String agentId = deliveryCommand.getAgentId();
         long startTimeStamp = deliveryCommand.getStartTime();
 
-        List<ClusterPoint> result = new ArrayList<>();
+        List<ClusterPoint<?>> result = new ArrayList<>();
 
-        for (ClusterPoint targetClusterPoint : targetClusterPointLocator.getClusterPointList()) {
+        for (ClusterPoint<?> targetClusterPoint : targetClusterPointLocator.getClusterPointList()) {
             AgentInfo destAgentInfo = targetClusterPoint.getDestAgentInfo();
             if (destAgentInfo.equals(applicationName, agentId, startTimeStamp)) {
                 result.add(targetClusterPoint);

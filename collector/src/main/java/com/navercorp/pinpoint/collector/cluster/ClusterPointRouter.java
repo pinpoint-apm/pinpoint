@@ -55,7 +55,7 @@ public class ClusterPointRouter extends ServerStreamChannelMessageHandler implem
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ClusterPointRepository<ClusterPoint> targetClusterPointRepository;
+    private final ClusterPointRepository<ClusterPoint<?>> targetClusterPointRepository;
 
     private final DefaultRouteHandler routeHandler;
     private final StreamRouteHandler streamRouteHandler;
@@ -64,7 +64,7 @@ public class ClusterPointRouter extends ServerStreamChannelMessageHandler implem
 
     private final DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
-    public ClusterPointRouter(ClusterPointRepository<ClusterPoint> targetClusterPointRepository,
+    public ClusterPointRouter(ClusterPointRepository<ClusterPoint<?>> targetClusterPointRepository,
                               DefaultRouteHandler defaultRouteHandler,
                               StreamRouteHandler streamRouteHandler,
                               SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory,
@@ -155,7 +155,7 @@ public class ClusterPointRouter extends ServerStreamChannelMessageHandler implem
         return StreamCode.OK;
     }
 
-    public ClusterPointRepository<ClusterPoint> getTargetClusterPointRepository() {
+    public ClusterPointRepository<ClusterPoint<?>> getTargetClusterPointRepository() {
         return targetClusterPointRepository;
     }
 

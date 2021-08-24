@@ -33,7 +33,7 @@ public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
     private final byte[] payload;
 
     private TRouteResult routeResult;
-    private TBase response;
+    private TBase<?, ?> response;
     private String message;
 
     private boolean isParsed;
@@ -79,7 +79,7 @@ public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
     }
 
     @Override
-    public TBase getResponse() {
+    public TBase<?, ?> getResponse() {
         assertParsed();
         return response;
     }
@@ -90,8 +90,8 @@ public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
     }
 
     @Override
-    public <R extends TBase> R getResponse(Class<R> clazz) {
-        TBase response = getResponse();
+    public <R extends TBase<?, ?>> R getResponse(Class<R> clazz) {
+        TBase<?, ?> response = getResponse();
 
         if (clazz.isInstance(response)) {
             return (R) response;
@@ -101,8 +101,8 @@ public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
     }
 
     @Override
-    public <R extends TBase> R getResponse(Class<R> clazz, R defaultValue) {
-        TBase response = getResponse();
+    public <R extends TBase<?, ?>> R getResponse(Class<R> clazz, R defaultValue) {
+        TBase<?, ?> response = getResponse();
 
         if (clazz.isInstance(response)) {
             return (R) response;

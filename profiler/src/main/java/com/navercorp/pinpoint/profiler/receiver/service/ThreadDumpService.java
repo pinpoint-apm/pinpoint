@@ -50,7 +50,7 @@ public class ThreadDumpService implements ProfilerRequestCommandService<TBase<?,
 
 
     @Override
-    public TBase<?, ?> requestCommandService(TBase tbase) {
+    public TBase<?, ?> requestCommandService(TBase<?, ?> tbase) {
         logger.info("{} execute {}.", this, tbase);
 
         TCommandThreadDump param = (TCommandThreadDump) tbase;

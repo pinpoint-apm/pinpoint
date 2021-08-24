@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
-import com.navercorp.pinpoint.collector.cluster.AbstractClusterService;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRouter;
+import com.navercorp.pinpoint.collector.cluster.ClusterService;
 import com.navercorp.pinpoint.collector.cluster.DisabledProfilerClusterManager;
 import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
 import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterAcceptor;
@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConne
 import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionManager;
 import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionRepository;
 import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnector;
-import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
+import com.navercorp.pinpoint.collector.config.ClusterConfig;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
@@ -45,13 +45,17 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Objects;
 
 /**
  * @author koo.taejin
  */
-public class ZookeeperClusterService extends AbstractClusterService {
+public class ZookeeperClusterService implements ClusterService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final ClusterConfig config;
+    private final ClusterPointRouter clusterPointRouter;
 
     // represented as pid@hostname (identifiers may overlap for services hosted on localhost if pids are identical)
     // shouldn't be too big of a problem, but will change to MAC or IP if it becomes problematic.
@@ -69,8 +73,9 @@ public class ZookeeperClusterService extends AbstractClusterService {
     // ProfilerClusterManager detects/manages profiler -> collector connections, and saves their information in Zookeeper.
     private ProfilerClusterManager profilerClusterManager;
 
-    public ZookeeperClusterService(CollectorConfiguration config, ClusterPointRouter clusterPointRouter) {
-        super(config, clusterPointRouter);
+    public ZookeeperClusterService(ClusterConfig config, ClusterPointRouter clusterPointRouter) {
+        this.config = Objects.requireNonNull(config, "config");
+        this.clusterPointRouter = Objects.requireNonNull(clusterPointRouter, "clusterPointRouter");
 
         if (config.isClusterEnable()) {
             CollectorClusterConnectionRepository clusterRepository = new CollectorClusterConnectionRepository();
@@ -177,6 +182,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
         return config.isClusterEnable();
     }
 
+    @Override
     public ProfilerClusterManager getProfilerClusterManager() {
         return profilerClusterManager;
     }

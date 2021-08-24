@@ -61,7 +61,7 @@ public class ClusterPointController {
 
     private final HeaderTBaseDeserializer tBaseDeserializer = CommandHeaderTBaseDeserializerFactory.getDefaultInstance().createDeserializer();
 
-    private final ClusterPointLocator clusterPointLocator;
+    private final ClusterPointLocator<ClusterPoint<?>> clusterPointLocator;
 
     private final ObjectMapper mapper;
 
@@ -130,8 +130,8 @@ public class ClusterPointController {
         Objects.requireNonNull(applicationName, "applicationName");
 
         List<GrpcAgentConnection> result = new ArrayList<>();
-        List<ClusterPoint> clusterPointList = clusterPointLocator.getClusterPointList();
-        for (ClusterPoint clusterPoint : clusterPointList) {
+        List<ClusterPoint<?>> clusterPointList = clusterPointLocator.getClusterPointList();
+        for (ClusterPoint<?> clusterPoint : clusterPointList) {
             if (!(clusterPoint instanceof GrpcAgentConnection)) {
                 continue;
             }

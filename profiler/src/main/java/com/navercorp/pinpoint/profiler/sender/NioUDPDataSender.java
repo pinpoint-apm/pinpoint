@@ -151,7 +151,7 @@ public class NioUDPDataSender implements DataSender {
         }
 
         if (message instanceof TBase) {
-            final TBase tBase = (TBase) message;
+            final TBase<?, ?> tBase = (TBase<?, ?>) message;
             sendPacket(tBase);
             return;
         }
@@ -166,7 +166,7 @@ public class NioUDPDataSender implements DataSender {
         }
     }
 
-    private void sendPacket(TBase tBase) {
+    private void sendPacket(TBase<?, ?> tBase) {
         byteBufferOutputStream.clear();
         // do not copy bytes because it's single threaded
         try {
