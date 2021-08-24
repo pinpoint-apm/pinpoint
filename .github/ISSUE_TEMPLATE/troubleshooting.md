@@ -5,9 +5,9 @@ about: For when something doesn't work
 ---
 
 #### Prerequisites
-Please check the [FAQ](http://pinpoint-apm.github.io/pinpoint/faq.html), and search existing [issues](https://github.com/pinpoint-apm/pinpoint/issues) for similar questions before creating a new issue.**YOU MAY DELETE THIS PREREQUISITES SECTION.**
+Please check the [FAQ](https://pinpoint-apm.gitbook.io/pinpoint/faq), and search existing [issues](https://github.com/pinpoint-apm/pinpoint/issues) for similar questions before creating a new issue.**YOU MAY DELETE THIS PREREQUISITES SECTION.**
 
-- [ ] I have checked the [FAQ](http://pinpoint-apm.github.io/pinpoint/faq.html), and [issues](https://github.com/pinpoint-apm/pinpoint/issues) and found no answer.
+- [ ] I have checked the [FAQ](https://pinpoint-apm.gitbook.io/pinpoint/faq), and [issues](https://github.com/pinpoint-apm/pinpoint/issues) and found no answer.
 
 #### What version of pinpoint are you using?
 master/v1.7.3/v1.7.2 etc.

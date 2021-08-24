@@ -10,7 +10,7 @@ Visit [Official Pinpoint-Docker repository](https://github.com/pinpoint-apm/pinp
 To set up your very own Pinpoint instance you can either **download the build results** from our [**latest release**](https://github.com/pinpoint-apm/pinpoint/releases/latest).
 
 ### HBase
-Download, Configure, and Start HBase - [1. Hbase](https://pinpoint-apm.github.io/pinpoint/installation.html#1-hbase).
+Download, Configure, and Start HBase - [1. Hbase](https://pinpoint-apm.gitbook.io/pinpoint/getting-started/installation#1-hbase).
 
 ~~~
 $ tar xzvf hbase-x.x.x-bin.tar.gz
@@ -25,14 +25,14 @@ $ ./bin/hbase shell hbase-create.hbase
 ~~~
 
 ### Pinpoint Collector
-Download, and Start Collector - [3. Pinpoint Collector](https://pinpoint-apm.github.io/pinpoint/installation.html#3-pinpoint-collector)
+Download, and Start Collector - [3. Pinpoint Collector](https://pinpoint-apm.gitbook.io/pinpoint/getting-started/installation#3-pinpoint-collector)
 
 ~~~
 $ java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-collector-boot-2.2.1.jar
 ~~~
 
 ### Pinpoint Web
-Download, and Start Web - [4. Pinpoint Web](https://pinpoint-apm.github.io/pinpoint/installation.html#4-pinpoint-web)
+Download, and Start Web - [4. Pinpoint Web](https://pinpoint-apm.gitbook.io/pinpoint/getting-started/installation#4-pinpoint-web)
 
 ~~~
 $ java -jar -Dpinpoint.zookeeper.address=localhost pinpoint-web-boot-2.2.1.jar
