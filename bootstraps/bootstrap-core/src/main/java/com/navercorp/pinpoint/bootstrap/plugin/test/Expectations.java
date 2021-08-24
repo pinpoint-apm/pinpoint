@@ -23,7 +23,7 @@ import java.lang.reflect.Member;
  */
 public final class Expectations {
 
-    private static final Object ANY_ANNOTATION_VALUE = new Object();
+    private static final AnyAnnotationValue ANY_ANNOTATION_VALUE = new AnyAnnotationValue();
 
     private Expectations() {
     }
