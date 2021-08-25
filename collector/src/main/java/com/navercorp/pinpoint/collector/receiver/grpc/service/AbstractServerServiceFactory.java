@@ -29,9 +29,9 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public abstract class AbstractServerServiceFactory implements FactoryBean<ServerServiceDefinition>, InitializingBean {
+public abstract class AbstractServerServiceFactory<REQ, RES> implements FactoryBean<ServerServiceDefinition>, InitializingBean {
 
-    protected DispatchHandler dispatchHandler;
+    protected DispatchHandler<REQ, RES> dispatchHandler;
     // @Nullable for test
     protected ServerInterceptor serverInterceptor;
 
@@ -43,7 +43,7 @@ public abstract class AbstractServerServiceFactory implements FactoryBean<Server
 //        this.serverInterceptor = serverInterceptor;
     }
 
-    public void setDispatchHandler(DispatchHandler dispatchHandler) {
+    public void setDispatchHandler(DispatchHandler<REQ, RES> dispatchHandler) {
         this.dispatchHandler = dispatchHandler;
     }
 

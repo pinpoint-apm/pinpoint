@@ -20,14 +20,22 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.thrift.tcp.DefaultTCPPacketHandler;
 import com.navercorp.pinpoint.collector.receiver.thrift.tcp.TCPPacketHandler;
 import com.navercorp.pinpoint.collector.receiver.thrift.tcp.TCPPacketHandlerFactory;
-import com.navercorp.pinpoint.thrift.io.*;
+import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.io.SerializerFactory;
+import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
+import org.apache.thrift.TBase;
 
 import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class FlinkPacketHandlerFactory implements TCPPacketHandlerFactory {
+public class FlinkPacketHandlerFactory implements TCPPacketHandlerFactory<TBase<?, ?>, TBase<?, ?>> {
 
     private final SerializerFactory<HeaderTBaseSerializer> cachedSerializer;
     private final DeserializerFactory<HeaderTBaseDeserializer> cachedDeserializer;
@@ -36,15 +44,13 @@ public class FlinkPacketHandlerFactory implements TCPPacketHandlerFactory {
         Objects.requireNonNull(flinkHeaderTBaseSerializerFactory, "flinkHeaderTBaseSerializerFactory");
         Objects.requireNonNull(flinkHeaderTBaseDeserializerFactory, "flinkHeaderTBaseDeserializerFactory");
 
-        SerializerFactory<HeaderTBaseSerializer> cachedSerializer = new ThreadLocalHeaderTBaseSerializerFactory<>(flinkHeaderTBaseSerializerFactory);
-        this.cachedSerializer = cachedSerializer;
+        this.cachedSerializer = new ThreadLocalHeaderTBaseSerializerFactory<>(flinkHeaderTBaseSerializerFactory);;
 
-        DeserializerFactory<HeaderTBaseDeserializer> cachedDeserializer = new ThreadLocalHeaderTBaseDeserializerFactory<>(flinkHeaderTBaseDeserializerFactory);
-        this.cachedDeserializer = cachedDeserializer;
+        this.cachedDeserializer = new ThreadLocalHeaderTBaseDeserializerFactory<>(flinkHeaderTBaseDeserializerFactory);
     }
 
     @Override
-    public TCPPacketHandler build(DispatchHandler dispatchHandler) {
+    public TCPPacketHandler build(DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler) {
         Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         return new DefaultTCPPacketHandler(dispatchHandler, cachedSerializer, cachedDeserializer);
     }
