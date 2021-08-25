@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 
+import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +57,7 @@ public class AgentBaseDataReceiver {
 
     private final Executor executor;
 
-    private final TCPPacketHandlerFactory tcpPacketHandlerFactory;
+    private final TCPPacketHandlerFactory<TBase<?, ?>, TBase<?, ?>> tcpPacketHandlerFactory;
 
     private final TCPPacketHandler tcpPacketHandler;
 
@@ -72,15 +73,18 @@ public class AgentBaseDataReceiver {
     @Resource(name = "channelStateChangeEventHandlers")
     private List<ServerStateChangeEventHandler> channelStateChangeEventHandlers = Collections.emptyList();
 
-    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor, DispatchHandler dispatchHandler) {
+    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor,
+                                 DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler) {
         this(configuration, executor, acceptor, dispatchHandler, null);
     }
 
-    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor, DispatchHandler dispatchHandler, ZookeeperClusterService service) {
+    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor,
+                                 DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler, ZookeeperClusterService service) {
         this(configuration, executor, acceptor, new DefaultTCPPacketHandlerFactory(), dispatchHandler, service);
     }
 
-    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor, TCPPacketHandlerFactory tcpPacketHandlerFactory, DispatchHandler dispatchHandler, ZookeeperClusterService service) {
+    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor,
+                                 TCPPacketHandlerFactory<TBase<?, ?>, TBase<?, ?>> tcpPacketHandlerFactory, DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler, ZookeeperClusterService service) {
         this.configuration = Objects.requireNonNull(configuration, "config");
         this.executor = Objects.requireNonNull(executor, "executor");
         this.acceptor = Objects.requireNonNull(acceptor, "acceptor");
@@ -90,7 +94,7 @@ public class AgentBaseDataReceiver {
         this.clusterService = service;
     }
 
-    private TCPPacketHandler wrapDispatchHandler(DispatchHandler dispatchHandler) {
+    private TCPPacketHandler wrapDispatchHandler(DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler) {
         Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         return tcpPacketHandlerFactory.build(dispatchHandler);
     }

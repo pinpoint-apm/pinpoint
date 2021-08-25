@@ -25,23 +25,22 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
+import org.apache.thrift.TBase;
 
 import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class DefaultTCPPacketHandlerFactory implements TCPPacketHandlerFactory {
+public class DefaultTCPPacketHandlerFactory implements TCPPacketHandlerFactory<TBase<?, ?>, TBase<?, ?>> {
 
     private static final int DEFAULT_UDP_STREAM_MAX_SIZE = HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE;
 
     private SerializerFactory<HeaderTBaseSerializer> serializerFactory;
     private DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory;
 
-
     public DefaultTCPPacketHandlerFactory() {
     }
-
 
     public void setSerializerFactory(SerializerFactory<HeaderTBaseSerializer> serializerFactory) {
         this.serializerFactory = serializerFactory;
@@ -63,7 +62,7 @@ public class DefaultTCPPacketHandlerFactory implements TCPPacketHandlerFactory {
 
 
     @Override
-    public TCPPacketHandler build(DispatchHandler dispatchHandler) {
+    public TCPPacketHandler build(DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler) {
 
         Objects.requireNonNull(dispatchHandler, "dispatchHandler");
 

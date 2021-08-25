@@ -21,6 +21,6 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface TCPPacketHandlerFactory {
-    TCPPacketHandler build(DispatchHandler dispatchHandler);
+public interface TCPPacketHandlerFactory<REQ, RES> {
+    TCPPacketHandler build(DispatchHandler<REQ, RES> dispatchHandler);
 }

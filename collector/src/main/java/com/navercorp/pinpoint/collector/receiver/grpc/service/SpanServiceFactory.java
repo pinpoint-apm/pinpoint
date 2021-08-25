@@ -16,13 +16,14 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
+import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.BindableService;
 import io.grpc.ServerServiceDefinition;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanServiceFactory extends AbstractServerServiceFactory {
+public class SpanServiceFactory extends AbstractServerServiceFactory<GeneratedMessageV3, GeneratedMessageV3> {
 
     @Override
     protected ServerServiceDefinition newServerServiceDefinition() {

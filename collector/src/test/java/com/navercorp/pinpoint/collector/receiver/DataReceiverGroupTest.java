@@ -110,7 +110,7 @@ public class DataReceiverGroupTest {
         return new PinpointServerAcceptorProvider();
     }
 
-    private <REQ, RES> TCPReceiverBean createTcpReceiverBean(DataReceiverGroupConfiguration mockConfig, DispatchHandler<REQ, RES> dispatchHandler) {
+    private TCPReceiverBean createTcpReceiverBean(DataReceiverGroupConfiguration mockConfig, DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler) {
         TCPReceiverBean tcpReceiverBean = new TCPReceiverBean();
         tcpReceiverBean.setBeanName("tcpReceiver");
         tcpReceiverBean.setBindIp(mockConfig.getTcpBindIp());
@@ -122,7 +122,7 @@ public class DataReceiverGroupTest {
         return tcpReceiverBean;
     }
 
-    private <REQ, RES> UDPReceiverBean createUdpReceiverBean(DataReceiverGroupConfiguration mockConfig, DispatchHandler<REQ, RES> dispatchHandler) {
+    private UDPReceiverBean createUdpReceiverBean(DataReceiverGroupConfiguration mockConfig, DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler) {
         UDPReceiverBean udpReceiverBean = new UDPReceiverBean();
         udpReceiverBean.setBeanName("udpReceiver");
         udpReceiverBean.setBindIp(mockConfig.getUdpBindIp());
