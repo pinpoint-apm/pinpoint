@@ -27,7 +27,9 @@ import com.navercorp.pinpoint.metric.web.model.basic.metric.group.MatchingRule;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -36,9 +38,11 @@ import java.util.List;
 public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoService {
 
     private final SystemMetricHostInfoDao systemMetricHostInfoDao;
+    private final SystemMetricBasicGroupManager systemMetricBasicGroupManager;
 
-    public SystemMetricHostInfoServiceImpl(SystemMetricHostInfoDao systemMetricHostInfoDao) {
+    public SystemMetricHostInfoServiceImpl(SystemMetricHostInfoDao systemMetricHostInfoDao, SystemMetricBasicGroupManager systemMetricBasicGroupManager) {
         this.systemMetricHostInfoDao = systemMetricHostInfoDao;
+        this.systemMetricBasicGroupManager = Objects.requireNonNull(systemMetricBasicGroupManager, "systemMetricBasicGroupManager");
     }
 
     @Override
@@ -53,7 +57,14 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
 
     @Override
     public List<String> getCollectedMetricInfo(String hostGroupId, String hostName) {
-        return systemMetricHostInfoDao.getCollectedMetricInfo(hostGroupId, hostName);
+        List<String> metricNameList = systemMetricHostInfoDao.getCollectedMetricInfo(hostGroupId, hostName);
+
+        List<String> metricDefinitionIdList = new LinkedList<String>();
+        for (String metricName : metricNameList) {
+            metricDefinitionIdList.addAll(systemMetricBasicGroupManager.findMetricDefinitionIdList(metricName));
+        }
+
+        return metricDefinitionIdList;
     }
 
     @Override

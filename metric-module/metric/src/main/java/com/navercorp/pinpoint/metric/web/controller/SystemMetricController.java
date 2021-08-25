@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.metric.web.controller;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
+import com.navercorp.pinpoint.metric.web.service.SystemMetricBasicGroupManager;
 import com.navercorp.pinpoint.metric.web.service.SystemMetricDataService;
 import com.navercorp.pinpoint.metric.web.service.SystemMetricHostInfoService;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
@@ -46,14 +47,16 @@ import java.util.concurrent.TimeUnit;
 public class SystemMetricController {
     private final SystemMetricDataService systemMetricDataService;
     private final SystemMetricHostInfoService systemMetricHostInfoService;
+    private final SystemMetricBasicGroupManager systemMetricBasicGroupManager;
 
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new DefaultTimeWindowSampler(10000L);
 
     private final TagParser tagParser = new TagParser();
 
-    public SystemMetricController(SystemMetricDataService systemMetricDataService, SystemMetricHostInfoService systemMetricHostInfoService) {
+    public SystemMetricController(SystemMetricDataService systemMetricDataService, SystemMetricHostInfoService systemMetricHostInfoService, SystemMetricBasicGroupManager systemMetricBasicGroupManager) {
         this.systemMetricDataService = Objects.requireNonNull(systemMetricDataService, "systemMetricService");
         this.systemMetricHostInfoService = Objects.requireNonNull(systemMetricHostInfoService, "systemMetricHostInfoService");
+        this.systemMetricBasicGroupManager = Objects.requireNonNull(systemMetricBasicGroupManager, "systemMetricBasicGroupManager");
     }
 
     @Deprecated
@@ -156,14 +159,13 @@ public class SystemMetricController {
     @GetMapping(value = "/hostGroup/host/collectedMetricData")
     public SystemMetricView getCollectedMetricData(@RequestParam("hostGroupId") String hostGroupId,
                                                    @RequestParam("hostName") String hostName,
-                                                   @RequestParam("metricName") String metricName,
                                                    @RequestParam("metricDefinitionId") String metricDefinitionId,
                                                    @RequestParam("from") long from,
                                                    @RequestParam("to") long to) {
         //TODO : (minwoo) sampler 를 range 값에 따라서 다르게 설정해주는 로직이 들어가는게 필요함
         Range range = Range.newRange(from, to);
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(hostGroupId, hostName, metricName, metricDefinitionId, range);
+        MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(hostGroupId, hostName, systemMetricBasicGroupManager.findMetricName(metricDefinitionId), metricDefinitionId, range);
         SystemMetricData systemMetricData = systemMetricDataService.getCollectedMetricData(metricDataSearchKey, timeWindow);
 
         return new SystemMetricView(systemMetricData);
