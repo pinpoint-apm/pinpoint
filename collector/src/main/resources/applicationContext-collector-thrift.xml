@@ -11,14 +11,8 @@
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
     <context:component-scan
-            base-package="com.navercorp.pinpoint.collector.receiver.thrift.tcp"/>
-
-    <bean id="statReceiverConfig" class="com.navercorp.pinpoint.collector.config.StatReceiverConfiguration"/>
-
-    <bean id="spanReceiverConfig" class="com.navercorp.pinpoint.collector.config.SpanReceiverConfiguration"/>
-
-    <bean id="baseDataReceiverConfig"
-          class="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration"/>
+            base-package="com.navercorp.pinpoint.collector.thrift.config,
+                          com.navercorp.pinpoint.collector.receiver.thrift.tcp"/>
 
 
     <bean id="channelFilter" class="com.navercorp.pinpoint.collector.receiver.thrift.AddressFilterAdaptor">

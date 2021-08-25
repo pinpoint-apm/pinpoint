@@ -20,7 +20,7 @@
 
     <bean id="flinkConfiguration" class="com.navercorp.pinpoint.flink.config.FlinkConfiguration"/>
 
-    <bean id="tcpReceiverConfig" class="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration"/>
+    <bean id="tcpReceiverConfig" class="com.navercorp.pinpoint.collector.thrift.config.AgentBaseDataReceiverConfiguration"/>
 
     <bean id="tbaseFlatMapper" class="com.navercorp.pinpoint.flink.process.TBaseFlatMapper"/>
 

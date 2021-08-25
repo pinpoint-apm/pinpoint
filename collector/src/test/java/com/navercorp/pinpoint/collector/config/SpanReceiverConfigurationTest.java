@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.config;
 
+import com.navercorp.pinpoint.collector.thrift.config.SpanReceiverConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
