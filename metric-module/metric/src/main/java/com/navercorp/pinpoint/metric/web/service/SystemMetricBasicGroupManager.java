@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -30,18 +31,21 @@ import java.util.List;
  */
 @Service
 public class SystemMetricBasicGroupManager {
-    private static final String CPU_DEFINITION_ID = "cpu";
+
     private static final String CPU_METRIC_NAME = "cpu";
+    private static final String CPU_DEFINITION_ID = "cpu";
     private static final String CPU_TITLE = "cpu";
     private static final List<ElementOfBasicGroup> CPU_METRIC;
 
+    private static final String MEMORY_METRIC_NAME = "mem";
+
+    private static final String MEMORY_PERCENT_METRIC_NAME = MEMORY_METRIC_NAME;
     private static final String MEMORY_PERCENT_DEFINITION_ID = "memoryPercent";
-    private static final String MEMORY_PERCENT_METRIC_NAME = "mem";
     private static final String MEMORY_PERCENT_TITLE = "memory usage percent";
     private static final List<ElementOfBasicGroup> MEMORY_PERCENT_METRIC;
 
+    private static final String MEMORY_USAGE_METRIC_NAME = MEMORY_METRIC_NAME;
     private static final String MEMORY_USAGE_DEFINITION_ID = "memoryUsage";
-    private static final String MEMORY_USAGE_METRIC_NAME = "mem";
     private static final String MEMORY_USAGE_TITLE = "memory usage";
     private static final List<ElementOfBasicGroup> MEMORY_USAGE_METRIC;
 
@@ -99,6 +103,18 @@ public class SystemMetricBasicGroupManager {
         throw new UnsupportedOperationException("unsupported metric :" + metricDefinitionId);
     }
 
+    public String findMetricName(String metricDefinitionId) {
+        if (CPU_DEFINITION_ID.equals(metricDefinitionId)) {
+            return CPU_METRIC_NAME;
+        } else if (MEMORY_PERCENT_DEFINITION_ID.equals(metricDefinitionId)) {
+            return MEMORY_PERCENT_METRIC_NAME;
+        } else if (MEMORY_USAGE_DEFINITION_ID.equals(metricDefinitionId)) {
+            return MEMORY_USAGE_METRIC_NAME;
+        }
+
+        throw new UnsupportedOperationException("unsupported metric :" + metricDefinitionId);
+    }
+
     public String findMetricTitle(String metricDefinitionId) {
         if (CPU_DEFINITION_ID.equals(metricDefinitionId)) {
             return CPU_TITLE;
@@ -109,6 +125,17 @@ public class SystemMetricBasicGroupManager {
         }
 
         throw new UnsupportedOperationException("unsupported metric :" + metricDefinitionId);
+    }
 
+    public List<String> findMetricDefinitionIdList(String metricName) {
+        List<String> definitionIdList = new LinkedList<String>();
+        if (CPU_METRIC_NAME.equals(metricName)) {
+            definitionIdList.add(CPU_DEFINITION_ID);
+        } else if (MEMORY_METRIC_NAME.equals(metricName)) {
+            definitionIdList.add(MEMORY_PERCENT_DEFINITION_ID);
+            definitionIdList.add(MEMORY_USAGE_DEFINITION_ID);
+        }
+
+        return definitionIdList;
     }
 }
