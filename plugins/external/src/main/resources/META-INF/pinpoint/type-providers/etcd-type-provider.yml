@@ -1,0 +1,6 @@
+serviceTypes:
+    # Etcd
+    - code: 8280
+      name: 'ETCD'
+      property:
+        recordStatistics: true
