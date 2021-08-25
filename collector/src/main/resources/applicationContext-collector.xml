@@ -163,9 +163,9 @@
         <constructor-arg ref="commandHeaderTBaseDeserializerFactory"/>
     </bean>
 
-    <bean id="clusterService" class="com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService">
-        <constructor-arg ref="clusterConfig"/>
-        <constructor-arg ref="clusterPointRouter"/>
+    <bean id="clusterService" class="com.navercorp.pinpoint.collector.cluster.ClusterServiceFactory">
+        <property name="clusterConfig" ref="clusterConfig"/>
+        <property name="clusterPointRouter" ref="clusterPointRouter"/>
     </bean>
 
     <util:list id="channelStateChangeEventHandlers"
