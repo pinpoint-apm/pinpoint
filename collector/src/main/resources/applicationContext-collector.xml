@@ -12,19 +12,15 @@
 
     <context:annotation-config/>
 
-    <context:component-scan
-            base-package="com.navercorp.pinpoint.collector.handler,
-                        com.navercorp.pinpoint.collector.manage,
-                        com.navercorp.pinpoint.collector.mapper,
-                        com.navercorp.pinpoint.collector.util,
-                        com.navercorp.pinpoint.collector.service,
-                        com.navercorp.pinpoint.common.server.bo.codec,
-                        com.navercorp.pinpoint.common.server.util,
-                        com.navercorp.pinpoint.common.server.bo"/>
-
-    <bean id="collectorConfiguration" class="com.navercorp.pinpoint.collector.config.CollectorConfiguration"/>
-    <bean id="clusterConfig" class="com.navercorp.pinpoint.collector.config.ClusterConfig"/>
-
+    <context:component-scan base-package="com.navercorp.pinpoint.collector.config,
+                                          com.navercorp.pinpoint.collector.handler,
+                                          com.navercorp.pinpoint.collector.manage,
+                                          com.navercorp.pinpoint.collector.mapper,
+                                          com.navercorp.pinpoint.collector.util,
+                                          com.navercorp.pinpoint.collector.service,
+                                          com.navercorp.pinpoint.common.server.bo.codec,
+                                          com.navercorp.pinpoint.common.server.util,
+                                          com.navercorp.pinpoint.common.server.bo"/>
 
     <import resource="classpath:applicationContext-collector-profile.xml"/>
     <import resource="classpath:applicationContext-collector-grpc.xml"/>
