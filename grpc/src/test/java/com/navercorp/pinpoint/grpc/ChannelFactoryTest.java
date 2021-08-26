@@ -53,6 +53,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -161,7 +162,7 @@ public class ChannelFactoryTest {
     }
 
 
-    private static Server serverStart(ExecutorService executorService) {
+    private static Server serverStart(ExecutorService executorService) throws SSLException {
         logger.debug("server start");
 
         serverFactory = new ServerFactory(ChannelFactoryTest.class.getSimpleName() + "-server", "127.0.0.1", PORT, executorService, ServerOption.newBuilder().build());

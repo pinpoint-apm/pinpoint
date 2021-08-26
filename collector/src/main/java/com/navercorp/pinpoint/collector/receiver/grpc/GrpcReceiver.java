@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
+import com.navercorp.pinpoint.collector.grpc.config.GrpcSslConfiguration;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
+import com.navercorp.pinpoint.grpc.security.SslServerConfig;
 import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
@@ -68,6 +70,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     private List<ServerTransportFilter> transportFilterList;
 
     private ServerOption serverOption;
+    private GrpcSslConfiguration grpcSslConfiguration;
 
     private Server server;
     private ChannelzRegistry channelzRegistry;
@@ -86,7 +89,13 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         Assert.isTrue(CollectionUtils.hasLength(this.serviceList), "serviceList must not be empty");
         Objects.requireNonNull(this.serverOption, "serverOption");
 
-        this.serverFactory = new ServerFactory(beanName, this.bindAddress.getIp(), this.bindAddress.getPort(), this.executor, serverOption);
+        if (grpcSslConfiguration != null) {
+            final SslServerConfig sslServerConfig = grpcSslConfiguration.toSslServerConfig();
+            this.serverFactory = new ServerFactory(beanName, this.bindAddress.getIp(), this.bindAddress.getPort(), this.executor, serverOption, sslServerConfig);
+        } else {
+            this.serverFactory = new ServerFactory(beanName, this.bindAddress.getIp(), this.bindAddress.getPort(), this.executor, serverOption);
+        }
+
         ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(this.beanName, addressFilter);
         this.serverFactory.addTransportFilter(permissionServerTransportFilter);
 
@@ -198,6 +207,10 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
 
     public void setServerOption(ServerOption serverOption) {
         this.serverOption = serverOption;
+    }
+
+    public void setGrpcSslConfiguration(GrpcSslConfiguration grpcSslConfiguration) {
+        this.grpcSslConfiguration = grpcSslConfiguration;
     }
 
     private static final Class<?>[] BINDABLESERVICE_TYPE = {BindableService.class, ServerServiceDefinition.class};

@@ -20,6 +20,9 @@ import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
+import com.navercorp.pinpoint.grpc.security.SslContextFactory;
+import com.navercorp.pinpoint.grpc.security.SslServerConfig;
+
 import io.grpc.BindableService;
 import io.grpc.InternalWithLogId;
 import io.grpc.Server;
@@ -32,10 +35,12 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.channel.WriteBufferWaterMark;
+import io.netty.handler.ssl.SslContext;
 import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,12 +76,18 @@ public class ServerFactory {
     private final List<ServerInterceptor> serverInterceptors = new ArrayList<>();
 
     private ServerOption serverOption;
+    private SslServerConfig sslServerConfig;
     private ChannelzRegistry channelzRegistry;
 
     public ServerFactory(String name, String hostname, int port, Executor serverExecutor, ServerOption serverOption) {
+        this(name, hostname, port, serverExecutor, serverOption, SslServerConfig.DISABLED_CONFIG);
+    }
+
+    public ServerFactory(String name, String hostname, int port, Executor serverExecutor, ServerOption serverOption, SslServerConfig sslServerConfig) {
         this.name = Objects.requireNonNull(name, "name");
         this.hostname = Objects.requireNonNull(hostname, "hostname");
         this.serverOption = Objects.requireNonNull(serverOption, "serverOption");
+        this.sslServerConfig = Objects.requireNonNull(sslServerConfig, "sslServerConfig");
         this.port = port;
 
         final ServerChannelType serverChannelType = getChannelType();
@@ -125,7 +136,7 @@ public class ServerFactory {
         this.serverInterceptors.add(serverInterceptor);
     }
 
-    public Server build() {
+    public Server build() throws SSLException {
         InetSocketAddress bindAddress = new InetSocketAddress(this.hostname, this.port);
         PinpointNettyServerBuilder serverBuilder = PinpointNettyServerBuilder.forAddress(bindAddress);
         serverBuilder.serverListenerDelegator(new LogIdServerListenerDelegator());
@@ -159,6 +170,13 @@ public class ServerFactory {
 
         serverBuilder.executor(serverExecutor);
         setupServerOption(serverBuilder);
+
+        if (sslServerConfig.isEnable()) {
+            logger.debug("Enable sslConfig.({})", sslServerConfig);
+
+            SslContext sslContext = SslContextFactory.create(sslServerConfig);
+            serverBuilder.sslContext(sslContext);
+        }
 
         Server server = serverBuilder.build();
         if (server instanceof InternalWithLogId) {
