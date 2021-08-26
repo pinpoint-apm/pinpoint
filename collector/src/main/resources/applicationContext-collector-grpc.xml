@@ -130,6 +130,18 @@
         <property name="serverOption" value="#{grpcAgentReceiverConfig.serverOption}"/>
     </bean>
 
+    <bean id="grpcAgentSslReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
+        <property name="bindAddress" value="#{grpcAgentSslReceiverConfig.bindAddress}"/>
+        <property name="executor" ref="grpcAgentServerExecutor"/>
+        <property name="addressFilter" ref="addressFilter"/>
+        <property name="bindableServiceList" ref="agentServiceList"/>
+        <property name="serverInterceptorList" ref="agentInterceptorList"/>
+        <property name="enable" value="#{grpcAgentSslReceiverConfig.enable}"/>
+        <!-- grpcAgentSslReceiver shares grpcAgentReceiver resources -->
+        <property name="serverOption" value="#{grpcAgentReceiverConfig.serverOption}"/>
+        <property name="grpcSslConfiguration" value="#{grpcAgentSslReceiverConfig.grpcSslConfiguration}"/>
+    </bean>
+
     <bean id="grpcSpanStreamScheduler" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
         <property name="poolSize" value="#{grpcSpanReceiverConfig.streamConfiguration.schedulerThreadSize}"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcSpan-StreamExecutor-Scheduler-"/>
@@ -178,6 +190,20 @@
         <property name="serverOption" value="#{grpcSpanReceiverConfig.serverOption}"/>
     </bean>
 
+    <bean id="grpcSpanSslReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
+        <property name="bindAddress" value="#{grpcSpanSslReceiverConfig.bindAddress}"/>
+        <property name="addressFilter" ref="addressFilter"/>
+        <property name="bindableServiceList" ref="spanServiceList"/>
+        <property name="serverInterceptorList" ref="spanInterceptorList"/>
+        <property name="transportFilterList" ref="serverTransportFilterList"/>
+        <property name="channelzRegistry" ref="channelzRegistry"/>
+        <property name="executor" ref="grpcSpanServerExecutor"/>
+        <property name="enable" value="#{grpcSpanSslReceiverConfig.enable}"/>
+        <!-- grpcSpanSslReceiver shares grpcSpanReceiver resources -->
+        <property name="serverOption" value="#{grpcSpanReceiverConfig.serverOption}"/>
+        <property name="grpcSslConfiguration" value="#{grpcSpanSslReceiverConfig.grpcSslConfiguration}"/>
+    </bean>
+
     <bean id="grpcStatStreamScheduler" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
         <property name="poolSize" value="#{grpcStatReceiverConfig.streamConfiguration.schedulerThreadSize}"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcStat-StreamExecutor-Scheduler-"/>
@@ -224,6 +250,20 @@
         <property name="executor" ref="grpcStatServerExecutor"/>
         <property name="enable" value="#{grpcStatReceiverConfig.enable}"/>
         <property name="serverOption" value="#{grpcStatReceiverConfig.serverOption}"/>
+    </bean>
+
+    <bean id="grpcStatSslReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
+        <property name="bindAddress" value="#{grpcStatSslReceiverConfig.bindAddress}"/>
+        <property name="addressFilter" ref="addressFilter"/>
+        <property name="bindableServiceList" ref="statServiceList"/>
+        <property name="serverInterceptorList" ref="statInterceptorList"/>
+        <property name="transportFilterList" ref="serverTransportFilterList"/>
+        <property name="channelzRegistry" ref="channelzRegistry"/>
+        <property name="executor" ref="grpcStatServerExecutor"/>
+        <property name="enable" value="#{grpcStatSslReceiverConfig.enable}"/>
+        <!-- grpcStatSslReceiver shares grpcStatReceiver resources -->
+        <property name="serverOption" value="#{grpcStatReceiverConfig.serverOption}"/>
+        <property name="grpcSslConfiguration" value="#{grpcStatSslReceiverConfig.grpcSslConfiguration}"/>
     </bean>
 
     <!-- end receiver configuration -->
