@@ -238,17 +238,11 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
 
         if (open) {
             const isAppListEmpty = isEmpty(this.applicationList);
-            const isFavAppListEmpty = isEmpty(this.favoriteApplicationList);
 
-            if (isAppListEmpty || isFavAppListEmpty) {
+            if (isAppListEmpty) {
                 this.showProcessing();
-                if (isAppListEmpty) {
-                    this.storeHelperService.dispatch(getApplicationList());
-                }
-
-                if (isFavAppListEmpty) {
-                    this.storeHelperService.dispatch(getFavApplicationList());
-                }
+                this.storeHelperService.dispatch(getApplicationList());
+                this.storeHelperService.dispatch(getFavApplicationList());
             }
         }
     }
