@@ -25,7 +25,6 @@ export class FavoriteApplicationListEffect {
             ofType(getFavApplicationList),
             withLatestFrom(this.storeHelperService.getFavoriteApplicationList()),
             filter(([_, favAppList]: [null, IApplication[]]) => isEmpty(favAppList)),
-            // switchMap(() => of(this.webAppSettingDataService.getFavoriteApplicationList()).pipe(
             switchMap(() => this.favoriteApplicationListDataService.getFavoriteApplicationList().pipe(
                 map((favAppList: IApplication[]) => getFavApplicationListSuccess(favAppList)),
                 catchError((error: IServerErrorFormat) => of(getFavApplicationListFail(error)))
