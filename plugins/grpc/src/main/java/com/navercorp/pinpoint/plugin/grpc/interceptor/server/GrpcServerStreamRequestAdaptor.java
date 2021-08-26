@@ -19,6 +19,9 @@ package com.navercorp.pinpoint.plugin.grpc.interceptor.server;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * @author Taejin Koo
  */
@@ -27,6 +30,14 @@ public class GrpcServerStreamRequestAdaptor implements RequestAdaptor<GrpcServer
     @Override
     public String getHeader(GrpcServerStreamRequest request, String name) {
         return request.getHeader(name);
+    }
+
+    @Override
+    public Collection<String> getHeaderNames(GrpcServerStreamRequest request) {
+        //todo to be replaced with GrpcServerStreamRequest request
+        //throw new UnsupportedOperationException("not implemented yet!");
+        //inside the impl. of getHeader, why metadata.removeAll(key) get called?
+        return Collections.emptyList();
     }
 
     @Override

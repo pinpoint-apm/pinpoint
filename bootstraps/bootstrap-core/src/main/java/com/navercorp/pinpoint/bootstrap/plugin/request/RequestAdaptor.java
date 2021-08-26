@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.request;
 
-import java.io.IOException;
 import java.util.Collection;
 
 /**
@@ -31,7 +30,7 @@ public interface RequestAdaptor<REQ> {
      * @param request request
      * @return list of request header names (may duplicated)
      */
-    Collection<String> getHeaderNames(REQ request) throws IOException;
+    Collection<String> getHeaderNames(REQ request);
 
     /**
      * Procedure name(optional)

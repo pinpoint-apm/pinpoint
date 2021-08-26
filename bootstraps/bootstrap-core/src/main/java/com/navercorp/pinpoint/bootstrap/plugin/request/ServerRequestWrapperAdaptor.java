@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.request;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -24,6 +27,11 @@ public class ServerRequestWrapperAdaptor implements RequestAdaptor<ServerRequest
     @Override
     public String getHeader(ServerRequestWrapper request, String name) {
         return request.getHeader(name);
+    }
+
+    @Override
+    public Collection<String> getHeaderNames(ServerRequestWrapper request) {
+        return Collections.emptyList();
     }
 
     @Override

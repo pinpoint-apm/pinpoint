@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.request.util;
 import com.navercorp.pinpoint.bootstrap.context.RemoteAddressResolver;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -38,6 +39,11 @@ public class HeaderResolveRequestAdaptor<T> implements RequestAdaptor<T> {
     @Override
     public String getHeader(T request, String name) {
         return delegate.getHeader(request, name);
+    }
+
+    @Override
+    public Collection<String> getHeaderNames(T request) {
+        return delegate.getHeaderNames(request);
     }
 
     @Override
