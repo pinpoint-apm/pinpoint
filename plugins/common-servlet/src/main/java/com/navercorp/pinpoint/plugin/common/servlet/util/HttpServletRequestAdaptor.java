@@ -25,6 +25,10 @@ import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 
 /**
@@ -50,6 +54,19 @@ public class HttpServletRequestAdaptor implements RequestAdaptor<HttpServletRequ
     @Override
     public String getHeader(HttpServletRequest request, String name) {
         return request.getHeader(name);
+    }
+
+    @Override
+    public Collection<String> getHeaderNames(HttpServletRequest request) {
+        final Enumeration<String> headerNames = request.getHeaderNames();
+        if (headerNames == null) {
+            return Collections.emptySet();
+        }
+        List<String> names = new ArrayList<>();
+        while (headerNames.hasMoreElements()) {
+            names.add(headerNames.nextElement());
+        }
+        return names;
     }
 
     @Override
