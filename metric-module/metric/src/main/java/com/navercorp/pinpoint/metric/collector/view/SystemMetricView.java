@@ -6,16 +6,16 @@ import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import java.util.Objects;
 
 public class SystemMetricView {
-    private final String applicationName;
+    private final String hostGroupId;
     private final SystemMetric metric;
 
-    public SystemMetricView(String applicationName, SystemMetric metric) {
-        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+    public SystemMetricView(String hostGroupId, SystemMetric metric) {
+        this.hostGroupId = Objects.requireNonNull(hostGroupId, "hostGroupId");
         this.metric = Objects.requireNonNull(metric, "metric");
     }
 
-    public String getApplicationName() {
-        return applicationName;
+    public String getHostGroupId() {
+        return hostGroupId;
     }
 
     @JsonUnwrapped

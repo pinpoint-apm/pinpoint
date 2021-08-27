@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.metric.collector.service.SystemMetricDataTypeServi
 import com.navercorp.pinpoint.metric.collector.service.SystemMetricService;
 import com.navercorp.pinpoint.metric.collector.service.SystemMetricTagService;
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
-import com.navercorp.pinpoint.metric.common.model.LongMetric;
 import com.navercorp.pinpoint.metric.common.model.Metrics;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import com.navercorp.pinpoint.metric.common.model.Tag;
@@ -70,22 +69,22 @@ public class TelegrafMetricController {
 
     @PostMapping(value = "/telegraf")
     public ResponseEntity<Void> saveSystemMetric(
-            @RequestHeader(value = "Application-Name") String applicationName,
+            @RequestHeader(value = "hostGroupId") String hostGroupId,
             @RequestBody TelegrafMetrics telegrafMetrics, BindingResult bindingResult
     ) throws BindException {
         if (bindingResult.hasErrors()) {
             SimpleErrorMessage simpleErrorMessage = new SimpleErrorMessage(bindingResult);
-            logger.warn("metric binding error. header=Application-Name:{} errorCount:{} {}", applicationName, bindingResult.getErrorCount(), simpleErrorMessage);
+            logger.warn("metric binding error. header=hostGroupId:{} errorCount:{} {}", hostGroupId, bindingResult.getErrorCount(), simpleErrorMessage);
             throw new BindException(bindingResult);
         }
 
         if (logger.isInfoEnabled()) {
             String host = getHost(telegrafMetrics);
-            logger.info("Application-Name:{} host:{} size:{}", applicationName, host, telegrafMetrics.size());
+            logger.info("hostGroupId:{} host:{} size:{}", hostGroupId, host, telegrafMetrics.size());
         }
         logger.info("telegrafMetrics:{}", telegrafMetrics);
 
-        Metrics systemMetric = toMetrics(applicationName, telegrafMetrics);
+        Metrics systemMetric = toMetrics(hostGroupId, telegrafMetrics);
 
         updateMetadata(systemMetric);
         systemMetricService.insert(systemMetric);
