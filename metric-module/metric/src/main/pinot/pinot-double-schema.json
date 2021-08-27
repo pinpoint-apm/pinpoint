@@ -2,7 +2,12 @@
   "schemaName": "systemMetricDouble",
   "dimensionFieldSpecs": [
     {
-      "name": "applicationName",
+      "name": "serviceId",
+      "dataType": "STRING",
+      "defaultNullValue": ""
+    },
+    {
+      "name": "hostGroupId",
       "dataType": "STRING"
     },
     {

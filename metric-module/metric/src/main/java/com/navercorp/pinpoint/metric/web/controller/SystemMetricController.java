@@ -62,7 +62,7 @@ public class SystemMetricController {
     @Deprecated
     @GetMapping(value = "/list")
     public List<SystemMetric> getSystemMetricBoList(
-            @RequestParam("applicationName") String applicationName,
+            @RequestParam("hostGroupId") String hostGroupId,
             @RequestParam("hostName") String hostName,
             @RequestParam("metricName") String metricName,
             @RequestParam("fieldName") String fieldName,
@@ -71,7 +71,7 @@ public class SystemMetricController {
             @RequestParam("to") long to) {
 
         QueryParameter.Builder builder = new QueryParameter.Builder();
-        builder.setApplicationName(applicationName);
+        builder.setHostGroupId(hostGroupId);
         builder.setHostName(hostName);
         builder.setMetricName(metricName);
         builder.setFieldName(fieldName);
@@ -85,7 +85,7 @@ public class SystemMetricController {
     @Deprecated
     @GetMapping(value = "/chart")
     public SystemMetricChart getSystemMetricChart(
-            @RequestParam("applicationName") String applicationName,
+            @RequestParam("hostGroupId") String hostGroupId,
             @RequestParam("hostName") String hostName,
             @RequestParam("metricName") String metricName,
             @RequestParam("fieldName") String fieldName,
@@ -93,7 +93,7 @@ public class SystemMetricController {
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         QueryParameter.Builder builder = new QueryParameter.Builder();
-        builder.setApplicationName(applicationName);
+        builder.setHostGroupId(hostGroupId);
         builder.setHostName(hostName);
         builder.setMetricName(metricName);
         builder.setFieldName(fieldName);
@@ -111,7 +111,7 @@ public class SystemMetricController {
     @Deprecated
     @GetMapping(value = "/chart", params = {"timeUnit", "timeSize"})
     public SystemMetricChart getSystemMetricChart(
-            @RequestParam("applicationName") String applicationName,
+            @RequestParam("hostGroupId") String hostGroupId,
             @RequestParam("hostName") String hostName,
             @RequestParam("metricName") String metricName,
             @RequestParam("fieldName") String fieldName,
@@ -123,7 +123,7 @@ public class SystemMetricController {
         TimePrecision timePrecision = TimePrecision.newTimePrecision(TimeUnit.valueOf(timeUnit.toUpperCase()), timeSize);
 
         QueryParameter.Builder builder = new QueryParameter.Builder();
-        builder.setApplicationName(applicationName);
+        builder.setHostGroupId(hostGroupId);
         builder.setHostName(hostName);
         builder.setMetricName(metricName);
         builder.setFieldName(fieldName);

@@ -12,7 +12,7 @@
   "tenants": {},
   "tableIndexConfig": {
     "invertedIndexColumns": ["tags"],
-    "sortedColumn": ["applicationName"],
+    "sortedColumn": ["hostGroupId"],
     "rangeIndexColumns": ["timestampInEpoch"],
     "loadMode": "MMAP",
     "nullHandlingEnabled": true,
