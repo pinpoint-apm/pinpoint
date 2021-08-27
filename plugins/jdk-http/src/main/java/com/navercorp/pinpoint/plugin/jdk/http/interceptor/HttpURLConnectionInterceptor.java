@@ -50,8 +50,6 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
 
     private final RequestTraceWriter<HttpURLConnection> requestTraceWriter;
 
-    private static final String CONNECTION_INPUT_STREAM_CLASS_NAME = "HttpURLConnection$HttpInputStream";
-
     public HttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
@@ -161,17 +159,10 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
                     this.responseHeaderRecorder.recordHeader(recorder, request);
                 }
             }
-            if (isInterceptingGetInputStream(result)) {
-                this.responseHeaderRecorder.recordHeader(recorder, request);
-            }
         } finally {
             currentInvocation.removeAttachment();
             trace.traceBlockEnd();
         }
-    }
-
-    private boolean isInterceptingGetInputStream(Object result) {
-        return result != null && result.getClass().getName().endsWith(CONNECTION_INPUT_STREAM_CLASS_NAME);
     }
 
     private String getHost(HttpURLConnection httpURLConnection) {
