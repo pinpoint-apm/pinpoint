@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.httpclient4;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ResponseAdaptor;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 
@@ -67,10 +68,13 @@ public class HttpResponse4ClientHeaderAdaptor implements ResponseAdaptor<HttpRes
     @Override
     public Collection<String> getHeaders(HttpResponse response, String name) {
         final Header[] headers = response.getHeaders(name);
-        if (headers == null || headers.length == 0) {
+        if (ArrayUtils.isEmpty(headers)) {
             return Collections.emptyList();
         }
-        List<String> values = new ArrayList<>(headers.length);
+        if (headers.length == 1) {
+            return Collections.singletonList(headers[0].getValue());
+        }
+        Set<String> values = new HashSet<>(headers.length);
         for (Header header : headers) {
             values.add(header.getValue());
         }
@@ -80,8 +84,11 @@ public class HttpResponse4ClientHeaderAdaptor implements ResponseAdaptor<HttpRes
     @Override
     public Collection<String> getHeaderNames(HttpResponse response) {
         final Header[] headers = response.getAllHeaders();
-        if (headers == null || headers.length == 0) {
+        if (ArrayUtils.isEmpty(headers)) {
             return Collections.emptyList();
+        }
+        if (headers.length == 1) {
+            return Collections.singletonList(headers[0].getName());
         }
         Set<String> values = new HashSet<>(headers.length);
         for (Header header : headers) {

@@ -31,6 +31,9 @@ public class ResponseHeaderRecorderFactory {
         if (CollectionUtils.isEmpty(recordResponseHeaders)) {
             return new BypassServerResponseHeaderRecorder<>();
         }
+        if (AllServerResponseHeaderRecorder.isRecordAllHeaders(recordResponseHeaders)) {
+            return new AllServerResponseHeaderRecorder(adaptor);
+        }
         return new DefaultServerResponseHeaderRecorder<>(adaptor, recordResponseHeaders);
     }
 

@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -35,32 +34,47 @@ import java.util.Set;
 /**
  * @author yjqg6666
  */
-public class DefaultServerResponseHeaderRecorder<RESP> implements ServerResponseHeaderRecorder<RESP> {
+public class AllServerResponseHeaderRecorder<RESP> implements ServerResponseHeaderRecorder<RESP> {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private final ResponseAdaptor<RESP> responseAdaptor;
-    private final String[] recordHeaders;
+    public static final String HEADERS_ALL = "HEADERS-ALL";
 
-    public DefaultServerResponseHeaderRecorder(ResponseAdaptor<RESP> responseAdaptor, List<String> recordHeaders) {
+    private final ResponseAdaptor<RESP> responseAdaptor;
+
+    public AllServerResponseHeaderRecorder(ResponseAdaptor<RESP> responseAdaptor) {
         this.responseAdaptor = Objects.requireNonNull(responseAdaptor, "responseAdaptor");
-        this.recordHeaders = recordHeaders.toArray(new String[0]);
     }
 
+    public static boolean isRecordAllHeaders(List<String> recordHeaders) {
+        return recordHeaders.contains(HEADERS_ALL);
+    }
 
     @Override
     public void recordHeader(final AttributeRecorder recorder, final RESP response) {
-        for (String headerName : recordHeaders) {
+        for (String headerName : getHeaderNames(response)) {
             if (StringUtils.isEmpty(headerName)) {
                 continue;
             }
-            final Collection<String> headers = responseAdaptor.getHeaders(response, headerName);
+            final Collection<String> headers = responseAdaptor.getHeaderNames(response);
             if (CollectionUtils.isEmpty(headers)) {
                 continue;
             }
             StringStringValue header = new StringStringValue(headerName, formatHeaderValues(headers));
             recorder.recordAttribute(AnnotationKey.HTTP_RESPONSE_HEADER, header);
         }
+    }
+
+    private Set<String> getHeaderNames(final RESP response) {
+        final Collection<String> headerNames = responseAdaptor.getHeaderNames(response);
+        if (CollectionUtils.isEmpty(headerNames)) {
+            return Collections.emptySet();
+        }
+        //deduplicate
+        Set<String> names = new HashSet<>(headerNames.size());
+        names.addAll(headerNames);
+        return names;
+
     }
 
     private String formatHeaderValues(Collection<String> headers) {

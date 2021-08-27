@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.jdk.http;
 
 import com.navercorp.pinpoint.bootstrap.plugin.response.ResponseAdaptor;
+import com.navercorp.pinpoint.common.util.MapUtils;
 
 import java.net.HttpURLConnection;
 import java.util.Collection;
@@ -35,12 +36,12 @@ public class JdkHttpClientResponseAdaptor implements ResponseAdaptor<HttpURLConn
 
     @Override
     public void setHeader(HttpURLConnection response, String name, String value) {
-        throw new UnsupportedOperationException("not supported to set header for jdk http client");
+
     }
 
     @Override
     public void addHeader(HttpURLConnection response, String name, String value) {
-        throw new UnsupportedOperationException("not supported to add header for jdk http client");
+
     }
 
     @Override
@@ -53,13 +54,19 @@ public class JdkHttpClientResponseAdaptor implements ResponseAdaptor<HttpURLConn
      */
     @Override
     public Collection<String> getHeaders(HttpURLConnection response, String name) {
-        final String val = response.getHeaderField(name);
-        return val != null ? Collections.singletonList(val) : Collections.<String>emptyList();
+        final Map<String, List<String>> headerFields = response.getHeaderFields();
+        if (MapUtils.isEmpty(headerFields)) {
+            return Collections.emptyList();
+        }
+        return headerFields.get(name);
     }
 
     @Override
     public Collection<String> getHeaderNames(HttpURLConnection response) {
         final Map<String, List<String>> headerFields = response.getHeaderFields();
-        return headerFields == null ? Collections.<String>emptySet() : headerFields.keySet();
+        if (MapUtils.isEmpty(headerFields)) {
+            return Collections.emptyList();
+        }
+        return headerFields.keySet();
     }
 }

@@ -1,0 +1,13 @@
+### Request Header duplicate test
+GET http://{{host}}/reqHeader
+TEST_HEADER: 1
+TEST_HEADER: 2
+TEST_HEADER: 3
+
+### Response Header duplicate test
+GET http://{{host}}/resHeader
+
+
+###
+
+

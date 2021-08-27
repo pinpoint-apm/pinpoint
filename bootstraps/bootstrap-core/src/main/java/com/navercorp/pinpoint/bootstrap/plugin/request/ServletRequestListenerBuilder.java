@@ -40,9 +40,6 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class ServletRequestListenerBuilder<REQ> {
-
-    public static final String HEADERS_ALL = "HEADERS-ALL";
-
     private final ServiceType serviceType;
     private final TraceContext traceContext;
     private final RequestAdaptor<REQ> requestAdaptor;
@@ -168,7 +165,7 @@ public class ServletRequestListenerBuilder<REQ> {
             return new BypassServerHeaderRecorder<>();
         }
 
-        if (recordRequestHeaders.contains("HEADERS-ALL")) {
+        if (AllServerHeaderRecorder.isRecordAllHeaders(recordRequestHeaders)) {
             return new AllServerHeaderRecorder<>(requestAdaptor);
         }
 

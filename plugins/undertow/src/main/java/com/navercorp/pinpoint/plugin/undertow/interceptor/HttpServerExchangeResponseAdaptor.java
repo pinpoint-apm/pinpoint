@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.undertow.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.plugin.response.ResponseAdaptor;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.HttpString;
@@ -63,7 +64,7 @@ public class HttpServerExchangeResponseAdaptor implements ResponseAdaptor<HttpSe
     @Override
     public Collection<String> getHeaderNames(HttpServerExchange response) {
         final Collection<HttpString> headerNames = response.getResponseHeaders().getHeaderNames();
-        if (headerNames == null) {
+        if (CollectionUtils.isEmpty(headerNames)) {
             return Collections.emptyList();
         }
         Set<String> values = new HashSet<>(headerNames.size());

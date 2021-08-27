@@ -34,12 +34,12 @@ public class OkHttpResponseAdaptor implements ResponseAdaptor<Response> {
 
     @Override
     public void setHeader(Response response, String name, String value) {
-        throw new UnsupportedOperationException("set header not supported in okhttp3");
+
     }
 
     @Override
     public void addHeader(Response response, String name, String value) {
-        throw new UnsupportedOperationException("set header not supported in okhttp3");
+
     }
 
     @Override
