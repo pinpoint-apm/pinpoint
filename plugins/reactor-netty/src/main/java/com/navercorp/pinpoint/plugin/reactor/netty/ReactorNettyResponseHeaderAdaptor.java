@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.plugin.reactor.netty;
 
 import com.navercorp.pinpoint.bootstrap.plugin.response.ResponseAdaptor;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponse;
 
 import java.util.Collection;
@@ -47,7 +48,7 @@ public class ReactorNettyResponseHeaderAdaptor implements ResponseAdaptor<HttpRe
 
     @Override
     public Collection<String> getHeaders(HttpResponse response, String name) {
-        return response.headers().getAllAsString(name);
+        return response.headers().getAll(name);
     }
 
     @Override

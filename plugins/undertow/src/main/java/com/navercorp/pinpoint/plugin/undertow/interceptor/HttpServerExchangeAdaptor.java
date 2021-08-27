@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.HeaderValues;
@@ -56,7 +57,7 @@ public class HttpServerExchangeAdaptor implements RequestAdaptor<HttpServerExcha
             return Collections.emptyList();
         }
         final Collection<HttpString> headerNames = requestHeaders.getHeaderNames();
-        if (headerNames == null) {
+        if (CollectionUtils.isEmpty(headerNames)) {
             return Collections.emptyList();
         }
         Set<String> values = new HashSet<>(headerNames.size());

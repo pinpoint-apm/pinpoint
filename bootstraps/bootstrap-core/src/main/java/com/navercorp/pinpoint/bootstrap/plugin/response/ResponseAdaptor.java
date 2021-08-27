@@ -88,7 +88,7 @@ public interface ResponseAdaptor<RESP> {
      * @return a (possibly empty) <code>Collection</code> of the values
      * of the response header with the given name
      */
-    Collection<String> getHeaders(RESP response, String name) throws IOException;
+    Collection<String> getHeaders(RESP response, String name);
 
     /**
      * Gets all of the response header names
@@ -96,6 +96,6 @@ public interface ResponseAdaptor<RESP> {
      * @param response response
      * @return a (possibly empty) <code>Collection</code> of response header names
      */
-    Collection<String> getHeaderNames(RESP response) throws IOException;
+    Collection<String> getHeaderNames(RESP response);
 
 }

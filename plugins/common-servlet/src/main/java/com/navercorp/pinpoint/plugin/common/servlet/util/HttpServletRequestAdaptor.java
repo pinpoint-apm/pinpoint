@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -62,11 +61,7 @@ public class HttpServletRequestAdaptor implements RequestAdaptor<HttpServletRequ
         if (headerNames == null) {
             return Collections.emptySet();
         }
-        List<String> names = new ArrayList<>();
-        while (headerNames.hasMoreElements()) {
-            names.add(headerNames.nextElement());
-        }
-        return names;
+        return Collections.list(headerNames);
     }
 
     @Override

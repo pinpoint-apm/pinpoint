@@ -40,12 +40,12 @@ public class HttpClient3ResponseHeaderAdaptor implements ResponseAdaptor<HttpMet
 
     @Override
     public void setHeader(HttpMethod response, String name, String value) {
-        throw new UnsupportedOperationException("not supported for http client3");
+
     }
 
     @Override
     public void addHeader(HttpMethod response, String name, String value) {
-        throw new UnsupportedOperationException("not supported for http client3");
+
     }
 
     @Override
@@ -57,10 +57,13 @@ public class HttpClient3ResponseHeaderAdaptor implements ResponseAdaptor<HttpMet
     @Override
     public Collection<String> getHeaders(HttpMethod response, String name) {
         final Header[] headers = response.getResponseHeaders(name);
-        if (headers == null || headers.length == 0) {
+        if (ArrayUtils.isEmpty(headers)) {
             return Collections.emptyList();
         }
-        List<String> values = new ArrayList<>(headers.length);
+        if (headers.length == 1) {
+            return Collections.singletonList(headers[0].getValue());
+        }
+        Set<String> values = new HashSet<>(headers.length);
         for (Header header : headers) {
             values.add(header.getValue());
         }
@@ -72,6 +75,9 @@ public class HttpClient3ResponseHeaderAdaptor implements ResponseAdaptor<HttpMet
         final Header[] headers = response.getResponseHeaders();
         if (ArrayUtils.isEmpty(headers)) {
             return Collections.emptyList();
+        }
+        if (headers.length == 1) {
+            return Collections.singletonList(headers[0].getName());
         }
         Set<String> values = new HashSet<>(headers.length);
         for (Header header : headers) {
