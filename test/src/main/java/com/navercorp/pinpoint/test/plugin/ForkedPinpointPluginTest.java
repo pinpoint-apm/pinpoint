@@ -16,17 +16,15 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.test.plugin.util.ChildFirstClassLoader;
+import com.navercorp.pinpoint.test.plugin.shared.PrintListener;
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
+import com.navercorp.pinpoint.test.plugin.util.ChildFirstClassLoader;
 import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import com.navercorp.pinpoint.test.plugin.util.ThreadContextCallable;
-import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.Runner;
-import org.junit.runner.notification.Failure;
-import org.junit.runner.notification.RunListener;
 import org.junit.runners.model.InitializationError;
 import org.tinylog.TaggedLogger;
 
@@ -36,7 +34,6 @@ import java.net.URL;
 import java.util.concurrent.Callable;
 
 import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.CHILD_CLASS_PATH_PREFIX;
-import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.JUNIT_OUTPUT_DELIMITER;
 import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.PINPOINT_TEST_ID;
 
 public class ForkedPinpointPluginTest {
@@ -142,49 +139,6 @@ public class ForkedPinpointPluginTest {
         }
 
         return FileUtils.toURLs(tokens);
-    }
-
-    private static class PrintListener extends RunListener {
-        private final ExceptionWriter writer = new ExceptionWriter();
-
-        @Override
-        public void testRunStarted(Description description) throws Exception {
-            System.out.println(JUNIT_OUTPUT_DELIMITER + "testRunStarted");
-        }
-
-        @Override
-        public void testRunFinished(Result result) throws Exception {
-            System.out.println(JUNIT_OUTPUT_DELIMITER + "testRunFinished");
-        }
-
-        @Override
-        public void testStarted(Description description) throws Exception {
-            System.out.println(JUNIT_OUTPUT_DELIMITER + "testStarted" + JUNIT_OUTPUT_DELIMITER + description.getDisplayName());
-        }
-
-        @Override
-        public void testFinished(Description description) throws Exception {
-            System.out.println(JUNIT_OUTPUT_DELIMITER + "testFinished" + JUNIT_OUTPUT_DELIMITER + description.getDisplayName());
-        }
-
-        @Override
-        public void testFailure(Failure failure) throws Exception {
-            System.out.println(JUNIT_OUTPUT_DELIMITER + "testFailure" + JUNIT_OUTPUT_DELIMITER + failureToString(failure));
-        }
-
-        @Override
-        public void testAssumptionFailure(Failure failure) {
-            System.out.println(JUNIT_OUTPUT_DELIMITER + "testAssumptionFailure" + JUNIT_OUTPUT_DELIMITER + failureToString(failure));
-        }
-
-        @Override
-        public void testIgnored(Description description) throws Exception {
-            System.out.println(JUNIT_OUTPUT_DELIMITER + "testIgnored" + JUNIT_OUTPUT_DELIMITER + description.getDisplayName());
-        }
-
-        private String failureToString(Failure failure) {
-            return writer.write(failure.getTestHeader(), failure.getException());
-        }
     }
 
 }
