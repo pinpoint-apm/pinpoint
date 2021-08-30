@@ -1,4 +1,7 @@
+import { isEmpty } from 'app/core/utils/util';
+import { ScatterChartSizeCoordinateManager } from './scatter-chart-size-coordinate-manager.class';
 import { ScatterChartTransactionTypeManager } from './scatter-chart-transaction-type-manager.class';
+import { ScatterChartVirtualGridManager } from './scatter-chart-virtual-grid-manager.class';
 
 export enum DataIndex {
     X,
@@ -21,6 +24,8 @@ export class ScatterChartDataBlock {
 
     private agentList: string[] = [];
     private transactionDataByAgent: {[key: string]: any} = {};
+    private dataByGrid: {[key: string]: any} = {};
+    private sampledData: {[key: string]: any} = {}; // Could be formatted like number[][] but for now, keep the old format.
     private countByType: {[key: string]: {[key: string]: number}} = {};
 
     private fromX: number;
@@ -35,10 +40,72 @@ export class ScatterChartDataBlock {
             groupCount: 5
         }
     */
-    constructor(private originalData: IScatterData, private typeManager: ScatterChartTransactionTypeManager) {
+    constructor(
+        private originalData: IScatterData,
+        private typeManager: ScatterChartTransactionTypeManager,
+        private virtualGridManager: ScatterChartVirtualGridManager,
+        private coordinateManager: ScatterChartSizeCoordinateManager
+    ) {
         this.initVariable();
         this.initInnerDataStructure();
         this.classifyDataByAgent();
+        this.sampleData();
+    }
+
+    private sampleData(): void {
+        // Determine which grid each dot is belonged to in the virtual-grid
+        this.dataByGrid = Object.entries(this.transactionDataByAgent).reduce((acc: any, [agent, data]: [string, number[][]]) => {
+            const drawableData = data.filter((dot: number[]) => dot[DataIndex.GROUP_COUNT] !== 0);
+
+            return {...acc, [agent]: drawableData.reduce((dataByAgent: any, dot: number[]) => {
+                const type = this.typeManager.getNameByIndex(dot[DataIndex.TYPE]);
+                const {x0, y0, x1, y1} = this.virtualGridManager.getGrid(dot); // {x0: 1, y0: 2, x1: 3, y1: 4}
+
+                const gridKey = `${x0}-${y0}-${x1}-${y1}`;
+
+                if (dataByAgent[gridKey]) {
+                    dataByAgent[gridKey][type] ? dataByAgent[gridKey][type].push(dot) : dataByAgent[gridKey][type] = [dot];
+                } else {
+                    dataByAgent[gridKey] = {};
+                    dataByAgent[gridKey][type] = [dot];
+                }
+
+                return dataByAgent;
+            }, {})};
+        }, {} as any);
+
+        // console.log(this.dataByGrid);
+        // this.sampledData = {agent1: {success: [{x, y, count}, {x, y, count}...], fail: [{x, y, count}, {x, y, count}...]}, agent2: [{x, y, count}, {x, y, count}], ...}
+        // TODO: 점의 가중치를 고려하기 later
+        this.sampledData = Object.entries(this.dataByGrid).reduce((dataByAgent: any, [agent, dataByGrid]: [string, any]) => {
+            // dataByGrid: {[`${x1}-${x2}-${y1}-${y2}`]: {success: [dot1, dot2, ...], fail: [dot3, dot4, ...]}, ... }
+            return {...dataByAgent, [agent]: Object.values(dataByGrid).reduce((dataByType: any, dotData: any) => {
+                // dotData: {success: [dot1, dot2, ...], fail: [dot3, dot4, ...]}
+                const sampledData = Object.entries(dotData).reduce((sampled: {[key: string]: any}, [type, dotList]: [string, number[][]]) => {
+                    const d = dotList.reduce((a: any, dot: number[], i: number) => {
+                        const {x, y} = this.coordinateManager.getCoord(dot);
+                        const count = dot[DataIndex.GROUP_COUNT];
+
+                        return {
+                            x: (x + a.x * i) / (i + 1),
+                            y: (y + a.y * i) / (i + 1),
+                            count: count + a.count
+                        };
+                    }, {x: 0, y: 0, count: 0});
+
+                    return {...sampled, [type]: d};
+                }, {});
+
+                // sampledData : {success: {x: 0, y: 0, count: 0}, fail: {x: 1, y: 1, count: 1}}
+                Object.keys(sampledData).forEach((type: string) => {
+                    (isEmpty(dataByType) || !dataByType[type]) ? dataByType[type] = [sampledData[type]] : dataByType[type].push(sampledData[type]);
+                });
+
+                return dataByType;
+            }, {})};
+        }, {} as any);
+
+        // console.log(this.sampledData);
     }
     private initVariable() {
         this.from = this.originalData.from;
@@ -79,8 +146,19 @@ export class ScatterChartDataBlock {
             this.transactionData.push(tNewData);
             this.transactionDataByAgent[agentName].push(tNewData);
             this.countByType[agentName][typeName]++;
+
+            /**
+             * this.transactionData = [dot1, dot2, dot3, ...]
+             * this.transactionDataByAgent = {agent1: [dot1, dot2, ...], agent2: [dot3, dot4, ...]} <- 실제로 요거가지고 그림.
+             * this.countByType = {agent1: {success: 103, fail: 100}, agent2: {success: 102, fail: 100}}
+             * 샘플링 결과의 새로운 프로퍼티 newProp이 this.transactionDataByAgent 를 대체하도록 해보자. 그래서 밑에 getDataByAgentAndIndex, countByAgent에서도 다 대체.
+             */
         });
     }
+    getSampledData(): any {
+        return this.sampledData;
+    }
+
     getAgentName(data: number[] | string): string {
         if (typeof data === 'string') {
             return this.agentMetadata[data][MetadataIndex.AGENT_NAME];
@@ -174,5 +252,5 @@ export class ScatterChartDataBlock {
     getAgentList(): string[] {
         return this.agentList;
     }
-
 }
+

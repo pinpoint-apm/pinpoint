@@ -8,6 +8,7 @@ import { ScatterChartAxisRenderer } from './scatter-chart-axis-renderer.class';
 import { ScatterChartTransactionTypeManager } from './scatter-chart-transaction-type-manager.class';
 import { ScatterChartMouseManager } from './scatter-chart-mouse-manager.class';
 import { sumObjByKey } from 'app/core/utils/util';
+import { ScatterChartVirtualGridManager } from './scatter-chart-virtual-grid-manager.class';
 
 export interface IOptions {
     mode: string;
@@ -67,6 +68,7 @@ export class ScatterChart {
         STATIC: 'static'
     };
     private options: IOptions;
+    private virtualGridManager: ScatterChartVirtualGridManager;
     private typeManager: ScatterChartTransactionTypeManager;
     private gridRenderer: ScatterChartGridRenderer;
     private axisRenderer: ScatterChartAxisRenderer;
@@ -89,6 +91,7 @@ export class ScatterChart {
     onError$: Observable<any>;
     onChangeRangeX$: Observable<{from: number, to: number}>;
     onChangeTransactionCount$: Observable<{[key: string]: number}>;
+    i = 0;
 
     constructor(
         private mode: string,
@@ -140,7 +143,7 @@ export class ScatterChart {
             text: computedStyle.getPropertyValue('--chart-text'),
             line: computedStyle.getPropertyValue('--chart-line'),
             guideLine: computedStyle.getPropertyValue('--chart-guide-line'),
-        }
+        };
         this.options = {
             mode: this.mode,
             prefix: 'scatter-chart-' + (Math.random() * 10000),
@@ -196,6 +199,7 @@ export class ScatterChart {
     private initManagers(): void {
         this.typeManager = new ScatterChartTransactionTypeManager(ScatterChartTransactionTypeManager.getDefaultTransactionTypeInfo());
         this.coordinateManager = new ScatterChartSizeCoordinateManager(this.options);
+        this.virtualGridManager = new ScatterChartVirtualGridManager(this.coordinateManager);
         this.gridRenderer = new ScatterChartGridRenderer(this.options, this.coordinateManager, this.element);
         this.axisRenderer = new ScatterChartAxisRenderer(this.options, this.coordinateManager, this.element);
         this.rendererManager = new ScatterChartRendererManager(this.options, this.coordinateManager, this.element, this.typeManager);
@@ -289,18 +293,32 @@ export class ScatterChart {
     private drawDataBlock(dataBlock: ScatterChartDataBlock): void {
         const prefix = this.options.prefix;
         this.rendererManager.makeDataCanvas(dataBlock, dataBlock.getAgentList());
-        this.agentList.forEach((agentName: string) => {
-            for (let i = 0, nLen = dataBlock.countByAgent(agentName) ; i < nLen ; i++) {
-                const data = dataBlock.getDataByAgentAndIndex(agentName, i);
-                const groupCount = dataBlock.getGroupCount(data);
-                if (groupCount !== 0) {
-                    const typeIndex = dataBlock.getTypeIndex(data);
-                    const typeName = this.typeManager.getNameByIndex(typeIndex);
-                    const typeColor = this.typeManager.getColorByIndex(typeIndex);
-                    this.rendererManager.drawTransaction(`${agentName}-${prefix}-${typeName}`, typeColor, data);
-                }
-            }
+        this.agentList.forEach((agent: string) => {
+            Object.entries(dataBlock.getSampledData()[agent]).forEach(([type, data]: [string, {x: number, y: number, count: number}[]]) => {
+                // const typeIndex = dataBlock.getTypeIndex(data);
+                // const type = this.typeManager.getNameByIndex(typeIndex);
+                const typeColor = this.typeManager.getColorByName(type);
+                // console.log(type, data);
+
+                data.forEach((d: any) => {
+                    // console.log(d);
+                    this.i++;
+                    this.rendererManager.drawTransaction(`${agent}-${prefix}-${type}`, typeColor, d);
+                });
+            });
+            // for (let i = 0, nLen = dataBlock.countByAgent(agent); i < nLen; i++) {
+            //     const data = dataBlock.getDataByAgentAndIndex(agent, i);
+            //     const groupCount = dataBlock.getGroupCount(data);
+            //     if (groupCount !== 0) {
+            //         this.i++;
+            //         const typeIndex = dataBlock.getTypeIndex(data);
+            //         const typeName = this.typeManager.getNameByIndex(typeIndex);
+            //         const typeColor = this.typeManager.getColorByIndex(typeIndex);
+            //         this.rendererManager.drawTransaction(`${agent}-${prefix}-${typeName}`, typeColor, data);
+            //     }
+            // }
         });
+        // console.log(this.i);
     }
     private moveChart(dataBlock: ScatterChartDataBlock, nextRequestTime: number): void {
         const xRange = this.coordinateManager.getX();
@@ -485,6 +503,12 @@ export class ScatterChart {
     }
     getTypeManager(): ScatterChartTransactionTypeManager {
         return this.typeManager;
+    }
+    getVirtualGridManager(): ScatterChartVirtualGridManager {
+        return this.virtualGridManager;
+    }
+    getCoordManager(): ScatterChartSizeCoordinateManager {
+        return this.coordinateManager;
     }
     setTimezone(timezone: string): void {
         this.options.timezone = this.timezone = timezone;

@@ -109,8 +109,15 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
             })
         ).subscribe((dataWrapper: {instanceKey: string, data: IScatterData}) => {
             const typeManager = this.scatterChartInstance.getTypeManager();
+            const virtualGridManager = this.scatterChartInstance.getVirtualGridManager();
+            const coordManager = this.scatterChartInstance.getCoordManager();
 
-            this.scatterChartInstance.addData(new ScatterChartDataBlock(dataWrapper.data, typeManager));
+            this.scatterChartInstance.addData(new ScatterChartDataBlock(
+                dataWrapper.data,
+                typeManager,
+                virtualGridManager,
+                coordManager
+            ));
             this.dataLoaded = true;
             this.hasError = false;
         });
