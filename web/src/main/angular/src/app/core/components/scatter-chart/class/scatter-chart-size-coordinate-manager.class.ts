@@ -1,3 +1,4 @@
+import { DataIndex } from './scatter-chart-data-block.class';
 import { IOptions } from './scatter-chart.class';
 
 export class ScatterChartSizeCoordinateManager {
@@ -30,9 +31,6 @@ export class ScatterChartSizeCoordinateManager {
     }
     getTopPadding(): number {
         return this.options.padding.top;
-    }
-    getCanvasWidth(): number {
-        return this.widthOfChartSpace;
     }
     getWidth(): number {
         return this.options.width;
@@ -119,5 +117,13 @@ export class ScatterChartSizeCoordinateManager {
     }
     getGapZ(): number {
         return this.options.z.to - this.options.z.from;
+    }
+    getCoord(data: number[]): {x: number, y: number} {
+        const rangeY = this.getY();
+
+        return {
+            x: (data[DataIndex.X] - this.getInitFromX()) * this.getPixelPerTime(),
+            y: this.parseYDataToYChart(Math.min(rangeY.to, Math.max(rangeY.from, data[DataIndex.Y])))
+        };
     }
 }

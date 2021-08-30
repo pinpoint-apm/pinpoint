@@ -194,7 +194,7 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
 
     private setScatterY() {
         const {min, max} = this.webAppSettingDataService.getScatterY(this.instanceKey);
-
+        // 0, 8000
         this.fromY = min;
         this.toY = max;
     }
