@@ -27,8 +27,10 @@ import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLException;
 import java.io.File;
+import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,13 +46,13 @@ public final class SslContextFactory {
 
         SslContextBuilder sslContextBuilder = null;
         try {
-            File keyCertChainFile = serverConfig.getKeyCertChainFile();
-            File keyFile = serverConfig.getKeyFile();
+            URL keyCertChainFileUrl = serverConfig.getKeyCertChainFileUrl();
+            URL keyFileUrl = serverConfig.getKeyFileUrl();
 
 
             SslProvider sslProvider = getSslProvider(serverConfig.getSslProviderType());
 
-            sslContextBuilder = SslContextBuilder.forServer(keyCertChainFile, keyFile);
+            sslContextBuilder = SslContextBuilder.forServer(keyCertChainFileUrl.openStream(), keyFileUrl.openStream());
             sslContextBuilder.protocols(SecurityConstants.DEFAULT_SUPPORT_PROTOCOLS.toArray(new String[0]));
             sslContextBuilder.ciphers(SecurityConstants.DEFAULT_SUPPORT_CIPHER_SUITE, SupportedCipherSuiteFilter.INSTANCE);
 

@@ -27,6 +27,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 import static org.junit.Assert.assertEquals;
 
@@ -48,17 +50,19 @@ public class GrpcAgentDataSslReceiverConfigurationTest {
     }
 
     @Test
-    public void grpcSslConfiguration() {
+    public void grpcSslConfiguration() throws URISyntaxException {
         GrpcSslConfiguration sslConfiguration = configuration.getGrpcSslConfiguration();
 
         assertEquals(Boolean.TRUE, sslConfiguration.isEnable());
         assertEquals("jdk", sslConfiguration.getProviderType());
 
-        File keyFile = sslConfiguration.getKeyFile();
+        URL keyFileUrl = sslConfiguration.getKeyFileUrl();
+        File keyFile = new File(keyFileUrl.toURI());
         assertEquals("server0.pem", keyFile.getName());
         assertEquals(Boolean.TRUE, keyFile.exists());
 
-        File keyCertFile = sslConfiguration.getKeyCertFile();
+        URL keyCertFileUrl = sslConfiguration.getKeyCertFileUrl();
+        File keyCertFile = new File(keyCertFileUrl.toURI());
         assertEquals("server0.key", keyCertFile.getName());
         assertEquals(Boolean.TRUE, keyCertFile.exists());
     }
