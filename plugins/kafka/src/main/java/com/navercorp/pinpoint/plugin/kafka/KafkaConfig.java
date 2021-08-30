@@ -22,6 +22,8 @@ public class KafkaConfig {
 
     public static final String HEADER_ENABLE = "profiler.kafka.header.enable";
 
+    static final String SEND_APP_INFO_ENABLE = "profiler.kafka.sendAppInfo.enable";
+
     static final String PRODUCER_ENABLE = "profiler.kafka.producer.enable";
 
     static final String CONSUMER_ENABLE = "profiler.kafka.consumer.enable";
@@ -33,6 +35,7 @@ public class KafkaConfig {
     private final boolean consumerEnable;
     private final boolean springConsumerEnable;
     private final boolean headerEnable;
+    private final boolean sendAppInfo;
     private final String kafkaEntryPoint;
 
     public KafkaConfig(ProfilerConfig config) {
@@ -40,6 +43,7 @@ public class KafkaConfig {
         this.consumerEnable = config.readBoolean(CONSUMER_ENABLE, false);
         this.springConsumerEnable = config.readBoolean(SPRING_CONSUMER_ENABLE, false);
         this.headerEnable = config.readBoolean(KafkaConfig.HEADER_ENABLE, true);
+        this.sendAppInfo = config.readBoolean(KafkaConfig.SEND_APP_INFO_ENABLE, false);
         this.kafkaEntryPoint = config.readString(CONSUMER_ENTRY_POINT, "");
     }
 
@@ -59,6 +63,10 @@ public class KafkaConfig {
         return headerEnable;
     }
 
+    public boolean isSendAppInfo() {
+        return sendAppInfo;
+    }
+
     public String getKafkaEntryPoint() {
         return kafkaEntryPoint;
     }
@@ -70,6 +78,7 @@ public class KafkaConfig {
                 ", consumerEnable=" + consumerEnable +
                 ", springConsumerEnable=" + springConsumerEnable +
                 ", headerEnable=" + headerEnable +
+                ", sendAppInfo=" + sendAppInfo +
                 ", kafkaEntryPoint='" + kafkaEntryPoint + '\'' +
                 '}';
     }

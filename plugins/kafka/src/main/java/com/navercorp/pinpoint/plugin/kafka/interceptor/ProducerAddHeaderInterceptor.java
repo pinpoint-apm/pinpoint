@@ -38,7 +38,7 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
 
-    private final DefaultHeaderSetter headerSetter = new DefaultHeaderSetter();
+    private final DefaultHeaderSetter headerSetter;
 
     private final TraceContext traceContext;
 
@@ -48,6 +48,7 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
         this.traceContext = traceContext;
         KafkaConfig config = new KafkaConfig(traceContext.getProfilerConfig());
         this.headerEnable = config.isHeaderEnable();
+        this.headerSetter = new DefaultHeaderSetter(config);
     }
 
     @Override
@@ -94,6 +95,12 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
 
     private static class DefaultHeaderSetter {
 
+       private final boolean sendAppInfo;
+
+        public DefaultHeaderSetter(KafkaConfig kafkaConfig) {
+            this.sendAppInfo = kafkaConfig.isSendAppInfo();
+        }
+
         public void setPinpointHeaders(SpanEventRecorder recorder, Trace trace, org.apache.kafka.common.header.Headers headers, boolean sample, String applicationName, short serverTypeCode) {
             if (headers == null) {
                 return;
@@ -112,6 +119,10 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
                 headers.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(serverTypeCode).getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
             } else {
                 headers.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE.getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
+                if (sendAppInfo) {
+                    headers.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), String.valueOf(applicationName).getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
+                    headers.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(serverTypeCode).getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
+                }
             }
         }
 

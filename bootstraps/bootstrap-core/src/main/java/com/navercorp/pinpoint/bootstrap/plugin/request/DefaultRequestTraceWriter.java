@@ -39,9 +39,11 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
     private final String applicationName;
     private final short serverTypeCode;
     private final String applicationNamespace;
+    private boolean sendAppInfoEnable = false;
 
     public DefaultRequestTraceWriter(ClientHeaderAdaptor<T> clientHeaderAdaptor, TraceContext traceContext) {
         this(clientHeaderAdaptor, traceContext.getApplicationName(), traceContext.getServerTypeCode(), traceContext.getProfilerConfig().getApplicationNamespace());
+        this.sendAppInfoEnable = traceContext.getProfilerConfig().readBoolean("profiler.sendAppInfo.enable", false);
     }
 
     public DefaultRequestTraceWriter(ClientHeaderAdaptor<T> clientHeaderAdaptor, String applicationName, short serverTypeCode, String applicationNamespace) {
@@ -62,6 +64,9 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
             logger.debug("Set request header that is not to be sampled.");
         }
         clientHeaderAdaptor.setHeader(header, Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+        if (sendAppInfoEnable) {
+            writeApplicationInfo(header);
+        }
     }
 
     // Set transaction information in the request.
@@ -76,15 +81,20 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
         clientHeaderAdaptor.setHeader(header, Header.HTTP_SPAN_ID.toString(), String.valueOf(traceId.getSpanId()));
         clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(traceId.getParentSpanId()));
         clientHeaderAdaptor.setHeader(header, Header.HTTP_FLAGS.toString(), String.valueOf(traceId.getFlags()));
+
+        writeApplicationInfo(header);
+
+        if (host != null) {
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_HOST.toString(), host);
+        }
+    }
+
+    private void writeApplicationInfo(T header) {
         clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_NAME.toString(), applicationName);
         clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(serverTypeCode));
 
         if (applicationNamespace != NOT_SET) {
             clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_NAMESPACE.toString(), applicationNamespace);
-        }
-
-        if (host != null) {
-            clientHeaderAdaptor.setHeader(header, Header.HTTP_HOST.toString(), host);
         }
     }
 }
