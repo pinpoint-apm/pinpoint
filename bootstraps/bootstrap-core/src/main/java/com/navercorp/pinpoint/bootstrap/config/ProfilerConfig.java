@@ -142,4 +142,7 @@ public interface ProfilerConfig {
 
     int getLogDirMaxBackupSize();
 
+    boolean getExceptionStackTraceEnable();
+
+    int getExceptionStackTraceLine();
 }
