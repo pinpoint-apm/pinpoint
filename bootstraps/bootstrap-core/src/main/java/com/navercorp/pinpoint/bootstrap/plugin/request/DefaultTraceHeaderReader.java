@@ -33,10 +33,12 @@ public class DefaultTraceHeaderReader<T> implements TraceHeaderReader<T> {
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final RequestAdaptor<T> requestAdaptor;
+    private final boolean ignoreDisableSamplingFlag;
 
 
-    public DefaultTraceHeaderReader(RequestAdaptor<T> requestAdaptor) {
+    public DefaultTraceHeaderReader(RequestAdaptor<T> requestAdaptor, boolean ignoreDisableSamplingFlag) {
         this.requestAdaptor = Objects.requireNonNull(requestAdaptor, "requestAdaptor");
+        this.ignoreDisableSamplingFlag = ignoreDisableSamplingFlag;
     }
 
     // Read the transaction information from the request.
@@ -46,7 +48,7 @@ public class DefaultTraceHeaderReader<T> implements TraceHeaderReader<T> {
 
         // Check sampling flag from client. If the flag is false, do not sample this request.
         final boolean sampling = samplingEnable(request);
-        if (!sampling) {
+        if (!sampling && !ignoreDisableSamplingFlag) {
             return DisableTraceHeader.INSTANCE;
         }
 
