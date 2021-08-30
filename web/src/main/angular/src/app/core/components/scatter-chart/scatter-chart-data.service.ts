@@ -4,6 +4,7 @@ import { Observable, of, Subject, ReplaySubject, throwError, EMPTY } from 'rxjs'
 import { switchMap, delay, filter, catchError } from 'rxjs/operators';
 
 import { isThatType } from 'app/core/utils/util';
+import { NewUrlStateNotificationService } from 'app/shared/services';
 
 interface IScatterRequest {
     application: string;
@@ -43,7 +44,8 @@ export class ScatterChartDataService {
     onReset$: Observable<void>;
 
     constructor(
-        private http: HttpClient
+        private http: HttpClient,
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
     ) {
         this.outScatterData$ = this.outScatterData.asObservable();
         this.outScatterErrorData$ = this.outScatterErrorData.asObservable();
@@ -72,7 +74,7 @@ export class ScatterChartDataService {
         this.innerRealTimeDataRequest.pipe(
             switchMap((params: IScatterRequest) => {
                 return this.requestHttp(params).pipe(
-                    filter(() => this.loadStart),
+                    filter(() => this.loadStart && this.newUrlStateNotificationService.isRealTimeMode()),
                     catchError((error: IServerErrorFormat) => of(error)),
                     filter((res: IScatterData | IServerErrorFormat) => {
                         if (isThatType(res, 'exception')) {
@@ -142,13 +144,6 @@ export class ScatterChartDataService {
     }
     getSavedData(): Observable<IScatterData> {
         return this.savedScatterData$;
-    }
-    loadRealTimeData(application: string, fromX: number, toX: number, groupUnitX: number, groupUnitY: number): void {
-        this.loadStart = true;
-        this.application = application;
-        this.groupUnitX = groupUnitX;
-        this.groupUnitY = groupUnitY;
-        // this.getData(fromX, toX, false, true);
     }
     loadRealTimeDataV2(toX: number): void {
         this.loadStart = true;
