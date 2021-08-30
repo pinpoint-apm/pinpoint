@@ -25,9 +25,9 @@ import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Objects;
 
 /**
@@ -37,15 +37,15 @@ public class GrpcSslConfiguration {
 
     private final boolean enable;
     private final String providerType;
-    private final File keyFile;
-    private final File keyCertFile;
+    private final URL keyFileUrl;
+    private final URL keyCertFileUrl;
 
     private GrpcSslConfiguration(boolean enable, String providerType,
-                                 File keyFile, File keyCertFile) {
+                                 URL keyFileUrl, URL keyCertFileUrl) {
         this.enable = enable;
         this.providerType = providerType;
-        this.keyFile = keyFile;
-        this.keyCertFile = keyCertFile;
+        this.keyFileUrl = keyFileUrl;
+        this.keyCertFileUrl = keyCertFileUrl;
     }
 
     public boolean isEnable() {
@@ -56,17 +56,17 @@ public class GrpcSslConfiguration {
         return providerType;
     }
 
-    public File getKeyFile() {
-        return keyFile;
+    public URL getKeyFileUrl() {
+        return keyFileUrl;
     }
 
-    public File getKeyCertFile() {
-        return keyCertFile;
+    public URL getKeyCertFileUrl() {
+        return keyCertFileUrl;
     }
 
     public SslServerConfig toSslServerConfig() {
         if (enable) {
-            SslServerConfig sslServerConfig = new SslServerConfig(enable, providerType, keyFile, keyCertFile);
+            SslServerConfig sslServerConfig = new SslServerConfig(enable, providerType, keyFileUrl, keyCertFileUrl);
             return sslServerConfig;
         } else {
             return SslServerConfig.DISABLED_CONFIG;
@@ -121,15 +121,15 @@ public class GrpcSslConfiguration {
         public GrpcSslConfiguration build() throws IOException, URISyntaxException {
             if (enable) {
                 Objects.requireNonNull(providerType);
-                File keyFile = getFile(keyFilePath);
-                File keyCertFile = getFile(keyCertFilePath);
-                return new GrpcSslConfiguration(this.enable, this.providerType, keyFile, keyCertFile);
+                URL keyFileUrl = toURL(keyFilePath);
+                URL keyCertFileUrl = toURL(keyCertFilePath);
+                return new GrpcSslConfiguration(this.enable, this.providerType, keyFileUrl, keyCertFileUrl);
             } else {
                 return new GrpcSslConfiguration(this.enable, this.providerType, null, null);
             }
         }
 
-        private File getFile(String filePath) {
+        private URL toURL(String filePath) {
             if (!StringUtils.hasText(filePath)) {
                 return null;
             }
@@ -137,10 +137,8 @@ public class GrpcSslConfiguration {
             // Find file in classLoader's path
             try {
                 ClassPathResource classPathResource = new ClassPathResource(filePath);
-                File file = classPathResource.getFile();
-                if (file.exists()) {
-                    return file;
-                }
+                URL url = classPathResource.getURL();
+                return url;
             } catch (IOException e) {
             }
 
@@ -148,9 +146,9 @@ public class GrpcSslConfiguration {
             try {
                 File file = ResourceUtils.getFile(filePath);
                 if (file.exists()) {
-                    return file;
+                    return file.toURI().toURL();
                 }
-            } catch (FileNotFoundException e) {
+            } catch (Exception e) {
             }
 
             logger.warn("Could not find file.(path:{}", filePath);
@@ -163,8 +161,8 @@ public class GrpcSslConfiguration {
         return "GrpcSslConfiguration{" +
                 "enable=" + enable +
                 ", providerType='" + providerType + '\'' +
-                ", keyFile='" + keyFile + '\'' +
-                ", keyCertFile='" + keyCertFile + '\'' +
+                ", keyFileUrl='" + keyFileUrl + '\'' +
+                ", keyCertFileUrl='" + keyCertFileUrl + '\'' +
                 '}';
     }
 }
