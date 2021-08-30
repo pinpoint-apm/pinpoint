@@ -26,28 +26,23 @@ import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
+ * @author yjqg6666
  */
 public final class BootLogger {
 
     private static final String FORMAT = "%tm-%<td %<tT.%<tL %-5s %-35.35s : %s";
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
     
-//    private static final int LOG_LEVEL;
+    private static final BootLogLevel LOG_LEVEL;
     private final String loggerName;
     private final PrintStream out;
     private final PrintStream err;
 
     static {
-        setup();
+        String logLevel = System.getProperty("pinpoint.agent.bootlogger.loglevel");
+        final BootLogLevel level = BootLogLevel.of(logLevel);
+        LOG_LEVEL = level != null ? level : BootLogLevel.INFO;
     }
-
-    private static void setup() {
-        // TODO setup BootLogger LogLevel
-        // low priority
-//        String logLevel = System.getProperty("pinpoint.agent.bootlogger.loglevel");
-//        logLevel = ???
-    }
-
 
     public BootLogger(String loggerName) {
         this(loggerName, System.out, System.err);
@@ -60,6 +55,7 @@ public final class BootLogger {
         this.err = err;
     }
 
+    @SuppressWarnings("rawtypes")
     public static BootLogger getLogger(Class clazz) {
         return new BootLogger(clazz.getSimpleName());
     }
@@ -83,18 +79,30 @@ public final class BootLogger {
         return formatter.toString();
     }
 
+    public boolean isDebugEnabled() {
+        return LOG_LEVEL.logDebug();
+    }
+
+    public void debug(String msg) {
+        if (isDebugEnabled()) {
+            String formatMessage = format("DEBUG", msg, null);
+            this.out.print(formatMessage);
+        }
+    }
+
     public boolean isInfoEnabled() {
-        return true;
+        return LOG_LEVEL.logInfo();
     }
 
     public void info(String msg) {
-        String formatMessage = format("INFO", msg, null);
-        this.out.print(formatMessage);
+        if (isInfoEnabled()) {
+            String formatMessage = format("INFO", msg, null);
+            this.out.print(formatMessage);
+        }
     }
 
-
     public boolean isWarnEnabled() {
-        return true;
+        return LOG_LEVEL.logWarn();
     }
 
     public void warn(String msg) {
@@ -102,8 +110,17 @@ public final class BootLogger {
     }
 
     public void warn(String msg, Throwable throwable) {
-        String formatMessage = format("WARN", msg, throwable);
-        this.err.print(formatMessage);
+        if (isWarnEnabled()) {
+            String formatMessage = format("WARN", msg, throwable);
+            this.err.print(formatMessage);
+        }
+    }
+
+    public void error(String msg) {
+        if (LOG_LEVEL.logError()) {
+            String formatMessage = format("ERROR", msg, null);
+            this.err.print(formatMessage);
+        }
     }
 
     private static String toString(Throwable throwable) {
