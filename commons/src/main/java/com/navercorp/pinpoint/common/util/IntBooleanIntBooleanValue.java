@@ -49,6 +49,28 @@ public class IntBooleanIntBooleanValue implements DataType {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        IntBooleanIntBooleanValue that = (IntBooleanIntBooleanValue) o;
+
+        if (intValue1 != that.intValue1) return false;
+        if (booleanValue1 != that.booleanValue1) return false;
+        if (intValue2 != that.intValue2) return false;
+        return booleanValue2 == that.booleanValue2;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = intValue1;
+        result = 31 * result + (booleanValue1 ? 1 : 0);
+        result = 31 * result + intValue2;
+        result = 31 * result + (booleanValue2 ? 1 : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "IntBooleanIntBooleanValue{" +
                 "intValue1=" + intValue1 +
