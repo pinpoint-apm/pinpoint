@@ -81,6 +81,7 @@ export class UrlPathId {
     static FAVORITE = 'favorite';
     static USER_GROUP = 'userGroup';
     static ALARM = 'alarm';
+    static WEBHOOK = 'webhook';
     static INSTALLATION = 'installation';
     static HELP = 'help';
     static EXPERIMENTAL = 'experimental';

@@ -11,11 +11,11 @@ import { getApplicationList, initApplicationList } from 'app/shared/store/action
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Component({
-    selector: 'pp-application-list-for-configuration-alarm-container',
-    templateUrl: './application-list-for-configuration-alarm-container.component.html',
-    styleUrls: ['./application-list-for-configuration-alarm-container.component.css'],
+    selector: 'pp-application-list-for-configuration-webhook-container',
+    templateUrl: './application-list-for-configuration-webhook-container.component.html',
+    styleUrls: ['./application-list-for-configuration-webhook-container.component.css'],
 })
-export class ApplicationListForConfigurationAlarmContainerComponent implements OnInit, OnDestroy {
+export class ApplicationListForConfigurationWebhookContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
     private _query = '';
     private originalAppList: IApplication[] = [];
@@ -142,10 +142,10 @@ export class ApplicationListForConfigurationAlarmContainerComponent implements O
         if (app.equals(this.selectedApp)) {
             return;
         }
-        console.log(app)
+
         this.selectedApp = app;
         this.applicationListInteractionForConfigurationService.setSelectedApplication(app);
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_APPLICATION_FOR_ALARM);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_APPLICATION_FOR_WEBHOOK);
     }
 
     onFocused(index: number): void {

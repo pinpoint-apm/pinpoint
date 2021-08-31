@@ -99,6 +99,7 @@ export enum TRACKED_EVENT_LIST {
     SHOW_USER_CREATION_POPUP = 'Show User Creation Popup',
     SHOW_USER_UPDATE_POPUP = 'Show User Update Popup',
     SELECT_APPLICATION_FOR_ALARM = 'Select Application For Alarm',
+    SELECT_APPLICATION_FOR_WEBHOOK = 'Select Application For Webhook',
     CREATE_ALARM = 'Create Alarm',
     UPDATE_ALARM = 'Update Alarm',
     SHOW_ALARM_CREATION_POPUP = 'Show Alarm Creation Popup',
