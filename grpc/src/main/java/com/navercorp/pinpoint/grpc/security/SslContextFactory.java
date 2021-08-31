@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.grpc.security;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
-
 import com.navercorp.pinpoint.grpc.util.Resource;
+
 import io.grpc.netty.GrpcSslContexts;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -29,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLException;
+import javax.net.ssl.TrustManagerFactory;
+import java.security.KeyStore;
 import java.util.List;
 import java.util.Objects;
 
@@ -50,20 +52,9 @@ public final class SslContextFactory {
             Resource keyResource = serverConfig.getKeyResource();
 
             sslContextBuilder = SslContextBuilder.forServer(keyCertChainFileResource.getInputStream(), keyResource.getInputStream());
-            sslContextBuilder.protocols(SecurityConstants.DEFAULT_SUPPORT_PROTOCOLS.toArray(new String[0]));
-            sslContextBuilder.ciphers(SecurityConstants.DEFAULT_SUPPORT_CIPHER_SUITE, SupportedCipherSuiteFilter.INSTANCE);
+            SslContext sslContext = createSslContext(sslContextBuilder, sslProvider);
 
-            SslContextBuilder configure = GrpcSslContexts.configure(sslContextBuilder, sslProvider);
-            SslContext sslContext = configure.build();
-
-            List<String> supportedCipherSuiteList = sslContext.cipherSuites();
-            if (CollectionUtils.isEmpty(supportedCipherSuiteList)) {
-                throw new SSLException("cipherSuites must not be empty");
-            }
-
-            assertValidCipherSuite(supportedCipherSuiteList);
-
-            LOGGER.info("Support cipher list : {} {}", sslContext, supportedCipherSuiteList);
+            assertValidCipherSuite(sslContext);
 
             return sslContext;
         } catch (SSLException e) {
@@ -73,12 +64,66 @@ public final class SslContextFactory {
         }
     }
 
-    private static void assertValidCipherSuite(List<String> supportedCipherSuiteList) throws SSLException {
+    public static SslContext create(SslClientConfig clientConfig) throws SSLException {
+        Objects.requireNonNull(clientConfig, "clientConfig");
+
+        if (!clientConfig.isEnable()) {
+            throw new IllegalArgumentException("sslConfig is disabled.");
+        }
+
+        SslProvider sslProvider = getSslProvider(clientConfig.getSslProviderType());
+
+        SslContextBuilder sslContextBuilder = null;
+        try {
+            sslContextBuilder = SslContextBuilder.forClient();
+
+            Resource trustCertResource = clientConfig.getTrustCertResource();
+            if (trustCertResource != null) {
+                sslContextBuilder.trustManager(trustCertResource.getInputStream());
+            } else {
+                // Loads default Root CA certificates (generally, from JAVA_HOME/lib/cacerts)
+                TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                trustManagerFactory.init((KeyStore)null);
+                sslContextBuilder.trustManager(trustManagerFactory);
+            }
+
+            SslContext sslContext = createSslContext(sslContextBuilder, sslProvider);
+
+            assertValidCipherSuite(sslContext);
+
+            return sslContext;
+        } catch (SSLException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SSLException(e);
+        }
+    }
+
+    private static SslContext createSslContext(SslContextBuilder sslContextBuilder, SslProvider sslProvider) throws SSLException {
+        sslContextBuilder.sslProvider(sslProvider);
+
+        sslContextBuilder.protocols(SecurityConstants.DEFAULT_SUPPORT_PROTOCOLS.toArray(new String[0]));
+        sslContextBuilder.ciphers(SecurityConstants.DEFAULT_SUPPORT_CIPHER_SUITE, SupportedCipherSuiteFilter.INSTANCE);
+
+        SslContextBuilder configure = GrpcSslContexts.configure(sslContextBuilder, sslProvider);
+        return configure.build();
+    }
+
+    private static void assertValidCipherSuite(SslContext sslContext) throws SSLException {
+        Objects.requireNonNull(sslContext, "sslContext must not be null");
+
+        List<String> supportedCipherSuiteList = sslContext.cipherSuites();
+        if (CollectionUtils.isEmpty(supportedCipherSuiteList)) {
+            throw new SSLException("cipherSuites must not be empty");
+        }
+
         for (String cipherSuite : supportedCipherSuiteList) {
             if (SecurityConstants.BAD_CIPHER_SUITE_LIST.contains(cipherSuite)) {
                 throw new SSLException(cipherSuite + " is not safe. Please check this url.(https://httpwg.org/specs/rfc7540.html#BadCipherSuites)");
             }
         }
+
+        LOGGER.info("Support cipher list : {} {}", sslContext, supportedCipherSuiteList);
     }
 
     static SslProvider getSslProvider(String providerType) throws SSLException {

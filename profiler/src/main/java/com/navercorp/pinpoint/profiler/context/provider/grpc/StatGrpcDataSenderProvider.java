@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
+import com.navercorp.pinpoint.grpc.client.config.SslOption;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -76,8 +77,10 @@ public class StatGrpcDataSenderProvider implements Provider<DataSender<Object>> 
     public DataSender<Object> get() {
         final String collectorIp = grpcTransportConfig.getStatCollectorIp();
         final int collectorPort = grpcTransportConfig.getStatCollectorPort();
+        final boolean sslEnable = grpcTransportConfig.isStatSslEnable();
         final int senderExecutorQueueSize = grpcTransportConfig.getStatSenderExecutorQueueSize();
-        final ChannelFactoryBuilder channelFactoryBuilder = newChannelFactoryBuilder();
+
+        final ChannelFactoryBuilder channelFactoryBuilder = newChannelFactoryBuilder(sslEnable);
         final ChannelFactory channelFactory = channelFactoryBuilder.build();
 
         // not singleton
@@ -85,7 +88,7 @@ public class StatGrpcDataSenderProvider implements Provider<DataSender<Object>> 
         return new StatGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, channelFactory);
     }
 
-    private ChannelFactoryBuilder newChannelFactoryBuilder() {
+    private ChannelFactoryBuilder newChannelFactoryBuilder(boolean sslEnable) {
         final int channelExecutorQueueSize = grpcTransportConfig.getStatChannelExecutorQueueSize();
         final UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getStatRequestTimeout());
         final ClientOption clientOption = grpcTransportConfig.getStatClientOption();
@@ -103,6 +106,12 @@ public class StatGrpcDataSenderProvider implements Provider<DataSender<Object>> 
 
         channelFactoryBuilder.setExecutorQueueSize(channelExecutorQueueSize);
         channelFactoryBuilder.setClientOption(clientOption);
+
+        if (sslEnable) {
+            SslOption sslOption = grpcTransportConfig.getSslOption();
+            channelFactoryBuilder.setSslOption(sslOption);
+        }
+
         return channelFactoryBuilder;
     }
 }

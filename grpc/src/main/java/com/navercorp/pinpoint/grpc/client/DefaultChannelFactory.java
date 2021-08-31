@@ -20,22 +20,28 @@ import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.ChannelTypeEnum;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
+import com.navercorp.pinpoint.grpc.security.SslClientConfig;
+import com.navercorp.pinpoint.grpc.security.SslContextFactory;
+
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.NameResolverProvider;
 import io.grpc.internal.GrpcUtil;
 import io.grpc.netty.InternalNettyChannelBuilder;
+import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.WriteBufferWaterMark;
+import io.netty.handler.ssl.SslContext;
 import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -59,6 +65,7 @@ public class DefaultChannelFactory implements ChannelFactory {
     private final HeaderFactory headerFactory;
 
     private final ClientOption clientOption;
+    private final SslClientConfig sslClientConfig;
 
     private final List<ClientInterceptor> clientInterceptorList;
     private final NameResolverProvider nameResolverProvider;
@@ -69,12 +76,12 @@ public class DefaultChannelFactory implements ChannelFactory {
     private final ExecutorService executorService;
     private final Class<? extends Channel> channelType;
 
-
     DefaultChannelFactory(String factoryName,
                           int executorQueueSize,
                           HeaderFactory headerFactory,
                           NameResolverProvider nameResolverProvider,
                           ClientOption clientOption,
+                          SslClientConfig sslClientConfig,
                           List<ClientInterceptor> clientInterceptorList) {
         this.factoryName = Objects.requireNonNull(factoryName, "factoryName");
         this.executorQueueSize = executorQueueSize;
@@ -82,6 +89,7 @@ public class DefaultChannelFactory implements ChannelFactory {
         // @Nullable
         this.nameResolverProvider = nameResolverProvider;
         this.clientOption = Objects.requireNonNull(clientOption, "clientOption");
+        this.sslClientConfig = Objects.requireNonNull(sslClientConfig, "sslClientConfig");
 
         Objects.requireNonNull(clientInterceptorList, "clientInterceptorList");
         this.clientInterceptorList = new ArrayList<>(clientInterceptorList);
@@ -145,6 +153,17 @@ public class DefaultChannelFactory implements ChannelFactory {
             setNameResolverFactory(channelBuilder, this.nameResolverProvider);
         }
         setupClientOption(channelBuilder);
+
+        if (sslClientConfig.isEnable()) {
+            SslContext sslContext = null;
+            try {
+                sslContext = SslContextFactory.create(sslClientConfig);
+            } catch (SSLException e) {
+                throw new SecurityException(e);
+            }
+            channelBuilder.sslContext(sslContext);
+            channelBuilder.negotiationType(NegotiationType.TLS);
+        }
 
         channelBuilder.maxTraceEvents(clientOption.getMaxTraceEvent());
 

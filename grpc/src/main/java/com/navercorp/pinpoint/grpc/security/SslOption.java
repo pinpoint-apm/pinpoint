@@ -28,9 +28,10 @@ public enum SslOption {
 
     //// for server
     KEY_FILE_PATH("ssl.key.file.path", ""),
+    KEY_CERT_CHAIN_FILE_PATH("ssl.key.cert.file.path", ""),
 
-    KEY_CERT_CHAIN_FILE_PATH("ssl.key.cert.file.path", "");
-
+    //// for client
+    TRUST_CERT_FILE_PATH("ssl.trust.cert.file.path", "");
 
     private final String key;
     private final String defaultValue;
