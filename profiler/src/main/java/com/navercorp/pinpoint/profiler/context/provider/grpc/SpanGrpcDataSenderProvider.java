@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
+import com.navercorp.pinpoint.grpc.client.config.SslOption;
 import com.navercorp.pinpoint.grpc.client.interceptor.DiscardClientInterceptor;
 import com.navercorp.pinpoint.grpc.client.interceptor.DiscardEventListener;
 import com.navercorp.pinpoint.grpc.client.interceptor.LoggingDiscardEventListener;
@@ -90,8 +91,10 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
     public DataSender<Object> get() {
         final String collectorIp = grpcTransportConfig.getSpanCollectorIp();
         final int collectorPort = grpcTransportConfig.getSpanCollectorPort();
+        final boolean sslEnable = grpcTransportConfig.isSpanSslEnable();
         final int senderExecutorQueueSize = grpcTransportConfig.getSpanSenderExecutorQueueSize();
-        final ChannelFactoryBuilder channelFactoryBuilder = newChannelFactoryBuilder();
+
+        final ChannelFactoryBuilder channelFactoryBuilder = newChannelFactoryBuilder(sslEnable);
         final ChannelFactory channelFactory = channelFactoryBuilder.build();
 
         final ReconnectExecutor reconnectExecutor = this.reconnectExecutor.get();
@@ -115,7 +118,7 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
         reporter.registerRootChannel(spanGrpcDataSender.getLogId(), statReporter);
     }
 
-    private ChannelFactoryBuilder newChannelFactoryBuilder() {
+    private ChannelFactoryBuilder newChannelFactoryBuilder(boolean sslEnable) {
         final int channelExecutorQueueSize = grpcTransportConfig.getSpanChannelExecutorQueueSize();
         final ClientOption clientOption = grpcTransportConfig.getSpanClientOption();
 
@@ -136,6 +139,12 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
 
         channelFactoryBuilder.setExecutorQueueSize(channelExecutorQueueSize);
         channelFactoryBuilder.setClientOption(clientOption);
+
+        if (sslEnable) {
+            SslOption sslOption = grpcTransportConfig.getSslOption();
+            channelFactoryBuilder.setSslOption(sslOption);
+        }
+
         return channelFactoryBuilder;
     }
 

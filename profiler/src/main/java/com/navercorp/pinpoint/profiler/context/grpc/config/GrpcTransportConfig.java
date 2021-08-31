@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.context.grpc.config;
 
+import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
 import com.navercorp.pinpoint.bootstrap.config.Value;
 import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
 import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
+import com.navercorp.pinpoint.grpc.client.config.SslOption;
 
 import java.util.Properties;
 
@@ -52,6 +54,8 @@ public class GrpcTransportConfig {
     private static final int DEFAULT_STAT_CHANNEL_EXECUTOR_QUEUE_SIZE = 1000;
     private static final int DEFAULT_SPAN_CHANNEL_EXECUTOR_QUEUE_SIZE = 1000;
 
+    private static final boolean DEFAULT_SSL = false;
+
     private static final int DEFAULT_DISCARD_LOG_RATE_LIMIT = 100;
     private static final long DEFAULT_DISCARD_MAX_PENDING_THRESHOLD = 1024;
     private static final long DEFAULT_DISCARD_COUNT_FOR_RECONNECT = 1000;
@@ -66,10 +70,14 @@ public class GrpcTransportConfig {
     private ClientOption statClientOption = new ClientOption();
     private ClientOption spanClientOption = new ClientOption();
 
+    private SslOption sslOption = null;
+
     @Value("${profiler.transport.grpc.agent.collector.ip}")
     private String agentCollectorIp = DEFAULT_IP;
     @Value("${profiler.transport.grpc.agent.collector.port}")
     private int agentCollectorPort = DEFAULT_AGENT_COLLECTOR_PORT;
+    @Value("${profiler.transport.grpc.agent.ssl.enable}")
+    private boolean agentSslEnable = DEFAULT_SSL;
     @Value("${profiler.transport.grpc.agent.sender.request.timeout.millis}")
     private long agentRequestTimeout = DEFAULT_CLIENT_REQUEST_TIMEOUT;
     @Value("${profiler.transport.grpc.agent.sender.executor.queue.size}")
@@ -83,6 +91,8 @@ public class GrpcTransportConfig {
     private String metadataCollectorIp = DEFAULT_IP;
     @Value("${profiler.transport.grpc.metadata.collector.port}")
     private int metadataCollectorPort = DEFAULT_AGENT_COLLECTOR_PORT;
+    @Value("${profiler.transport.grpc.metadata.ssl.enable}")
+    private boolean metadataSslEnable = DEFAULT_SSL;
     @Value("${profiler.transport.grpc.metadata.sender.request.timeout.millis}")
     private long metadataRequestTimeout = DEFAULT_CLIENT_REQUEST_TIMEOUT;
     @Value("${profiler.transport.grpc.metadata.sender.executor.queue.size}")
@@ -99,6 +109,8 @@ public class GrpcTransportConfig {
     private String statCollectorIp = DEFAULT_IP;
     @Value("${profiler.transport.grpc.stat.collector.port}")
     private int statCollectorPort = DEFAULT_STAT_COLLECTOR_PORT;
+    @Value("${profiler.transport.grpc.stat.ssl.enable}")
+    private boolean statSslEnable = DEFAULT_SSL;
     @Value("${profiler.transport.grpc.stat.sender.request.timeout.millis}")
     private long statRequestTimeout = DEFAULT_CLIENT_REQUEST_TIMEOUT;
     @Value("${profiler.transport.grpc.stat.sender.executor.queue.size}")
@@ -110,6 +122,8 @@ public class GrpcTransportConfig {
     private String spanCollectorIp = DEFAULT_IP;
     @Value("${profiler.transport.grpc.span.collector.port}")
     private int spanCollectorPort = DEFAULT_SPAN_COLLECTOR_PORT;
+    @Value("${profiler.transport.grpc.span.ssl.enable}")
+    private boolean spanSslEnable = DEFAULT_SSL;
     @Value("${profiler.transport.grpc.span.sender.request.timeout.millis}")
     private long spanRequestTimeout = DEFAULT_CLIENT_REQUEST_TIMEOUT;
     @Value("${profiler.transport.grpc.span.sender.executor.queue.size}")
@@ -145,6 +159,10 @@ public class GrpcTransportConfig {
 
         // Span
         this.spanClientOption = readSpanClientOption(properties);
+
+        // Ssl
+        SslOption sslOption = readSslOption(properties);
+        this.sslOption = sslOption;
     }
 
     private ClientOption readAgentClientOption(final Properties properties) {
@@ -177,12 +195,34 @@ public class GrpcTransportConfig {
         return clientOption;
     }
 
+    public SslOption readSslOption(final Properties properties) {
+        final String sslPrefix = "profiler.transport.grpc.ssl.";
+
+        String agentRootPath = properties.getProperty(AgentDirectory.AGENT_ROOT_PATH_KEY);
+
+        final SslOption.Builder builder = new SslOption.Builder(agentRootPath);
+
+        ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
+        reader.process(builder, new PropertyPlaceholderHelper.PlaceholderResolver() {
+            @Override
+            public String resolvePlaceholder(String placeholderName) {
+                String prefix = sslPrefix + placeholderName;
+                return properties.getProperty(prefix);
+            }
+        });
+        return builder.build();
+    }
+
     public String getAgentCollectorIp() {
         return agentCollectorIp;
     }
 
     public int getAgentCollectorPort() {
         return agentCollectorPort;
+    }
+
+    public boolean isAgentSslEnable() {
+        return agentSslEnable;
     }
 
     public String getMetadataCollectorIp() {
@@ -193,6 +233,10 @@ public class GrpcTransportConfig {
         return metadataCollectorPort;
     }
 
+    public boolean isMetadataSslEnable() {
+        return metadataSslEnable;
+    }
+
     public String getStatCollectorIp() {
         return statCollectorIp;
     }
@@ -201,12 +245,20 @@ public class GrpcTransportConfig {
         return statCollectorPort;
     }
 
+    public boolean isStatSslEnable() {
+        return statSslEnable;
+    }
+
     public String getSpanCollectorIp() {
         return spanCollectorIp;
     }
 
     public int getSpanCollectorPort() {
         return spanCollectorPort;
+    }
+
+    public boolean isSpanSslEnable() {
+        return spanSslEnable;
     }
 
     public int getAgentSenderExecutorQueueSize() {
@@ -273,6 +325,10 @@ public class GrpcTransportConfig {
         return spanClientOption;
     }
 
+    public SslOption getSslOption() {
+        return sslOption;
+    }
+
     public int getAgentChannelExecutorQueueSize() {
         return agentChannelExecutorQueueSize;
     }
@@ -306,16 +362,21 @@ public class GrpcTransportConfig {
         final StringBuilder sb = new StringBuilder("GrpcTransportConfig{");
         sb.append("agentCollectorIp='").append(agentCollectorIp).append('\'');
         sb.append(", agentCollectorPort=").append(agentCollectorPort);
+        sb.append(", agentSslEnable=").append(agentSslEnable);
         sb.append(", metadataCollectorIp='").append(metadataCollectorIp).append('\'');
         sb.append(", metadataCollectorPort=").append(metadataCollectorPort);
+        sb.append(", metadataSslEnable=").append(metadataSslEnable);
         sb.append(", statCollectorIp='").append(statCollectorIp).append('\'');
         sb.append(", statCollectorPort=").append(statCollectorPort);
+        sb.append(", statSslEnable=").append(statSslEnable);
         sb.append(", spanCollectorIp='").append(spanCollectorIp).append('\'');
         sb.append(", spanCollectorPort=").append(spanCollectorPort);
+        sb.append(", spanSslEnable=").append(spanSslEnable);
         sb.append(", agentClientOption=").append(agentClientOption);
         sb.append(", metadataClientOption=").append(metadataClientOption);
         sb.append(", statClientOption=").append(statClientOption);
         sb.append(", spanClientOption=").append(spanClientOption);
+        sb.append(", sslOption=").append(sslOption);
         sb.append(", agentSenderExecutorQueueSize=").append(agentSenderExecutorQueueSize);
         sb.append(", metadataSenderExecutorQueueSize=").append(metadataSenderExecutorQueueSize);
         sb.append(", spanSenderExecutorQueueSize=").append(spanSenderExecutorQueueSize);

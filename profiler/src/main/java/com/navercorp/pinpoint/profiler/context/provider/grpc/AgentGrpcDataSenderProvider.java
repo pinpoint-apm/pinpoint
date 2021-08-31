@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
+import com.navercorp.pinpoint.grpc.client.config.SslOption;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.AgentDataSender;
@@ -97,9 +98,10 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
     public EnhancedDataSender<Object> get() {
         final String collectorIp = grpcTransportConfig.getAgentCollectorIp();
         final int collectorPort = grpcTransportConfig.getAgentCollectorPort();
+        final boolean sslEnable = grpcTransportConfig.isAgentSslEnable();
         final int senderExecutorQueueSize = grpcTransportConfig.getAgentSenderExecutorQueueSize();
 
-        final ChannelFactoryBuilder channelFactoryBuilder = newChannelFactoryBuilder();
+        final ChannelFactoryBuilder channelFactoryBuilder = newChannelFactoryBuilder(sslEnable);
         ChannelFactory channelFactory = channelFactoryBuilder.build();
 
         final ReconnectExecutor reconnectExecutor = reconnectExecutorProvider.get();
@@ -117,7 +119,7 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
         return new AgentGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, retransmissionExecutor, channelFactory, profilerCommandServiceLocator);
     }
 
-    ChannelFactoryBuilder newChannelFactoryBuilder() {
+    ChannelFactoryBuilder newChannelFactoryBuilder(boolean sslEnable) {
         final int channelExecutorQueueSize = grpcTransportConfig.getAgentChannelExecutorQueueSize();
         final UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getAgentRequestTimeout());
         final ClientOption clientOption = grpcTransportConfig.getAgentClientOption();
@@ -134,6 +136,12 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
         }
         channelFactoryBuilder.setExecutorQueueSize(channelExecutorQueueSize);
         channelFactoryBuilder.setClientOption(clientOption);
+
+        if (sslEnable) {
+            SslOption sslOption = grpcTransportConfig.getSslOption();
+            channelFactoryBuilder.setSslOption(sslOption);
+        }
+
         return channelFactoryBuilder;
     }
 

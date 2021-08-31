@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
+import com.navercorp.pinpoint.grpc.client.config.SslOption;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -72,9 +73,10 @@ public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSend
     public EnhancedDataSender<Object> get() {
         final String collectorIp = grpcTransportConfig.getMetadataCollectorIp();
         final int collectorPort = grpcTransportConfig.getMetadataCollectorPort();
+        final boolean sslEnable = grpcTransportConfig.isMetadataSslEnable();
         final int senderExecutorQueueSize = grpcTransportConfig.getMetadataSenderExecutorQueueSize();
 
-        final ChannelFactoryBuilder channelFactoryBuilder = newChannelFactoryBuilder();
+        final ChannelFactoryBuilder channelFactoryBuilder = newChannelFactoryBuilder(sslEnable);
         final ChannelFactory channelFactory = channelFactoryBuilder.build();
 
         final int retryMaxCount = grpcTransportConfig.getMetadataRetryMaxCount();
@@ -83,7 +85,7 @@ public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSend
         return new MetadataGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, channelFactory, retryMaxCount, retryDelayMillis);
     }
 
-    protected ChannelFactoryBuilder newChannelFactoryBuilder() {
+    protected ChannelFactoryBuilder newChannelFactoryBuilder(boolean sslEnable) {
         final int channelExecutorQueueSize = grpcTransportConfig.getMetadataChannelExecutorQueueSize();
         final UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getMetadataRequestTimeout());
         final ClientOption clientOption = grpcTransportConfig.getMetadataClientOption();
@@ -100,6 +102,12 @@ public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSend
         }
         channelFactoryBuilder.setExecutorQueueSize(channelExecutorQueueSize);
         channelFactoryBuilder.setClientOption(clientOption);
+
+        if (sslEnable) {
+            SslOption sslOption = grpcTransportConfig.getSslOption();
+            channelFactoryBuilder.setSslOption(sslOption);
+        }
+
         return channelFactoryBuilder;
     }
 }
