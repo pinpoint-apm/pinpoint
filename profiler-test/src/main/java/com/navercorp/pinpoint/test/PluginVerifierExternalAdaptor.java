@@ -31,10 +31,11 @@ import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.StopWatch;
-import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.context.Annotation;
@@ -50,7 +51,6 @@ import com.navercorp.pinpoint.test.util.ObjectUtils;
 import com.navercorp.pinpoint.test.util.ThreadUtils;
 import com.navercorp.pinpoint.test.wrapper.ActualTrace;
 import com.navercorp.pinpoint.test.wrapper.ActualTraceFactory;
-import com.navercorp.pinpoint.test.wrapper.SpanFacade;
 
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
@@ -416,63 +416,61 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
         List<Annotation<?>> actualAnnotations = actual.getAnnotations();
 
-        int len = expected.annotations == null ? 0 : expected.annotations.length;
-        int actualLen = actualAnnotations == null ? 0 : actualAnnotations.size();
+        final int expectedLen = ArrayUtils.getLength(expected.annotations);
+        final int actualLen = CollectionUtils.nullSafeSize(actualAnnotations);
 
-        if (actualLen != len) {
-            AssertionErrorBuilder builder = new AssertionErrorBuilder("Annotation.length", len, actualLen);
+        if (actualLen != expectedLen) {
+            AssertionErrorBuilder builder = new AssertionErrorBuilder("Annotation.length", expectedLen, actualLen);
             builder.setComparison(expected, actual);
             builder.throwAssertionError();
         }
 
-        for (int i = 0; i < len; i++) {
-            ExpectedAnnotation expect = expected.annotations[i];
-            AnnotationKey expectedAnnotationKey = this.handler.getAnnotationKeyRegistryService().findAnnotationKeyByName(expect.getKeyName());
-            Annotation<?> actualAnnotation = actualAnnotations.get(i);
+        for (int i = 0; i < expectedLen; i++) {
+            annotationCompare(i, expected, actual, actualAnnotations.get(i));
+        }
+    }
 
-            if (expectedAnnotationKey.getCode() != actualAnnotation.getKey()) {
-                AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].key", i),
-                        AnnotationUtils.toString(expectedAnnotationKey, expect), AnnotationUtils.toString(actualAnnotation));
-                builder.setComparison(expected, actual);
-                builder.throwAssertionError();
+    private void annotationCompare(int index, ResolvedExpectedTrace expected, ActualTrace actual, Annotation<?> actualAnnotation) {
+        final ExpectedAnnotation expect = expected.annotations[index];
+        final AnnotationKey expectedAnnotationKey = this.handler.getAnnotationKeyRegistryService().findAnnotationKeyByName(expect.getKeyName());
+
+        if (expectedAnnotationKey.getCode() != actualAnnotation.getKey()) {
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].key", index),
+                    AnnotationUtils.toString(expectedAnnotationKey, expect), AnnotationUtils.toString(actualAnnotation));
+            builder.setComparison(expected, actual);
+            builder.throwAssertionError();
+        }
+
+        if (expectedAnnotationKey == AnnotationKey.SQL_ID && expect instanceof ExpectedSql) {
+            verifySql(index, (ExpectedSql) expect, actualAnnotation);
+        } else if (expect.getValue() instanceof DataType) {
+            verifyDataType(index, ((DataType) expect.getValue()), actualAnnotation);
+        } else {
+            Object expectedValue = expect.getValue();
+
+            if (expectedValue == Expectations.anyAnnotationValue()) {
+                return;
             }
 
-            if (expectedAnnotationKey == AnnotationKey.SQL_ID && expect instanceof ExpectedSql) {
-                verifySql((ExpectedSql) expect, actualAnnotation);
-            } else if (expect.getValue() instanceof StringStringValue) {
-                verifyStringStringValue(((StringStringValue) expect.getValue()), actualAnnotation);
-            } else {
-                Object expectedValue = expect.getValue();
+            if (AnnotationKeyUtils.isCachedArgsKey(expectedAnnotationKey.getCode())) {
+                expectedValue = this.handler.getTcpDataSender().getStringId(expectedValue.toString());
+            }
 
-                if (expectedValue == Expectations.anyAnnotationValue()) {
-                    continue;
-                }
-
-                if (AnnotationKeyUtils.isCachedArgsKey(expectedAnnotationKey.getCode())) {
-                    expectedValue = this.handler.getTcpDataSender().getStringId(expectedValue.toString());
-                }
-
-                if (!ObjectUtils.equals(expectedValue, actualAnnotation.getValue())) {
-                    AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].value", i),
-                            expectedAnnotationKey.getCode(), AnnotationUtils.toString(actualAnnotation));
-                    builder.setComparison(expected, actual);
-                    builder.throwAssertionError();
-                }
+            if (!ObjectUtils.equals(expectedValue, actualAnnotation.getValue())) {
+                AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].value", index),
+                        expectedAnnotationKey.getCode(), AnnotationUtils.toString(actualAnnotation));
+                builder.setComparison(expected, actual);
+                builder.throwAssertionError();
             }
         }
     }
 
-    private void verifyStringStringValue(StringStringValue value, Annotation<?> actualAnnotation) {
-        StringStringValue annotationValue = (StringStringValue) actualAnnotation.getValue();
-        if (!ObjectUtils.equals(value.getStringValue1(), annotationValue.getStringValue1())) {
-            AssertionErrorBuilder builder = new AssertionErrorBuilder("Annotation.StringStringValue.getStringValue1",
-                    value.getStringValue1(), annotationValue.getStringValue1());
-            builder.throwAssertionError();
-        }
+    private void verifyDataType(int index, DataType expectedValue, Annotation<?> actualAnnotation) {
+        DataType annotationValue = (DataType) actualAnnotation.getValue();
 
-        if (!ObjectUtils.equals(value.getStringValue2(), annotationValue.getStringValue2())) {
-            AssertionErrorBuilder builder = new AssertionErrorBuilder("Annotation.StringStringValue.getStringValue2",
-                    value.getStringValue2(), annotationValue.getStringValue2());
+        if (!ObjectUtils.equals(expectedValue, annotationValue)) {
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].value", index),
+                    expectedValue, annotationValue);
             builder.throwAssertionError();
         }
 
@@ -500,29 +498,29 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         }
     }
 
-    private void verifySql(ExpectedSql expected, Annotation<?> actual) {
+    private void verifySql(int index, ExpectedSql expected, Annotation<?> actual) {
         int id = this.handler.getTcpDataSender().getSqlId(expected.getQuery());
-        IntStringStringValue value = (IntStringStringValue) actual.getValue();
+        IntStringStringValue actualSql = (IntStringStringValue) actual.getValue();
 
-        if (value.getIntValue() != id) {
-            String actualQuery = this.handler.getTcpDataSender().getSql(value.getIntValue());
+        if (actualSql.getIntValue() != id) {
+            String actualQuery = this.handler.getTcpDataSender().getSql(actualSql.getIntValue());
 
-            AssertionErrorBuilder builder = new AssertionErrorBuilder("sqlId",
-                    id + ":" + expected.getQuery(), value.getIntValue() + ": " + actualQuery);
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].sqlId", index),
+                    id + ":" + expected.getQuery(), actualSql.getIntValue() + ": " + actualQuery);
             builder.setComparison(expected, actual);
             builder.throwAssertionError();
         }
 
-        if (!ObjectUtils.equals(value.getStringValue1(), expected.getOutput())) {
-            AssertionErrorBuilder builder = new AssertionErrorBuilder("sql.output",
-                    expected.getOutput(), value.getStringValue1());
+        if (!ObjectUtils.equals(actualSql.getStringValue1(), expected.getOutput())) {
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].sql.output", index),
+                    expected.getOutput(), actualSql.getStringValue1());
             builder.setComparison(expected, actual);
             builder.throwAssertionError();
         }
 
-        if (!ObjectUtils.equals(value.getStringValue2(), expected.getBindValuesAsString())) {
-            AssertionErrorBuilder builder = new AssertionErrorBuilder("sql.bindValues",
-                    expected.getBindValuesAsString(), value.getStringValue2());
+        if (!ObjectUtils.equals(actualSql.getStringValue2(), expected.getBindValuesAsString())) {
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].sql.bindValues", index),
+                    expected.getBindValuesAsString(), actualSql.getStringValue2());
             builder.setComparison(expected, actual);
             builder.throwAssertionError();
         }
