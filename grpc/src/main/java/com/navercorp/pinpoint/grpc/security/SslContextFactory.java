@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.grpc.security;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
+import com.navercorp.pinpoint.grpc.util.Resource;
 import io.grpc.netty.GrpcSslContexts;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -27,10 +28,7 @@ import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLException;
-import java.io.File;
-import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,15 +42,14 @@ public final class SslContextFactory {
     public static SslContext create(SslServerConfig serverConfig) throws SSLException {
         Objects.requireNonNull(serverConfig, "serverConfig");
 
-        SslContextBuilder sslContextBuilder = null;
+        SslProvider sslProvider = getSslProvider(serverConfig.getSslProviderType());
+
+        SslContextBuilder sslContextBuilder;
         try {
-            URL keyCertChainFileUrl = serverConfig.getKeyCertChainFileUrl();
-            URL keyFileUrl = serverConfig.getKeyFileUrl();
+            Resource keyCertChainFileResource = serverConfig.getKeyCertChainResource();
+            Resource keyResource = serverConfig.getKeyResource();
 
-
-            SslProvider sslProvider = getSslProvider(serverConfig.getSslProviderType());
-
-            sslContextBuilder = SslContextBuilder.forServer(keyCertChainFileUrl.openStream(), keyFileUrl.openStream());
+            sslContextBuilder = SslContextBuilder.forServer(keyCertChainFileResource.getInputStream(), keyResource.getInputStream());
             sslContextBuilder.protocols(SecurityConstants.DEFAULT_SUPPORT_PROTOCOLS.toArray(new String[0]));
             sslContextBuilder.ciphers(SecurityConstants.DEFAULT_SUPPORT_CIPHER_SUITE, SupportedCipherSuiteFilter.INSTANCE);
 

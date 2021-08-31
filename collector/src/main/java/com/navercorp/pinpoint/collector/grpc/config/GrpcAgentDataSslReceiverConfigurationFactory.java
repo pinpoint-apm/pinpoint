@@ -50,7 +50,7 @@ public class GrpcAgentDataSslReceiverConfigurationFactory {
     @Bean(SSL)
     @ConfigurationProperties(SSL)
     public GrpcSslConfiguration.Builder newGrpcSslConfigurationBuilder() {
-        return new GrpcSslConfiguration.Builder();
+        return GrpcSslConfiguration.newBuilder();
     }
 
     @Bean(AGENT_SSL_CONFIG)

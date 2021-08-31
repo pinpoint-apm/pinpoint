@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.grpc.security;
 
-import java.net.URL;
+
+import com.navercorp.pinpoint.grpc.util.Resource;
+
 import java.util.Objects;
 
 /**
@@ -32,14 +34,14 @@ public final class SslServerConfig {
     private final boolean enable;
 
     private final String sslProviderType;
-    private final URL keyFileUrl;
-    private final URL keyCertFileUrl;
+    private final Resource keyResource;
+    private final Resource keyCertChainResource;
 
-    public SslServerConfig(boolean enable, String sslProviderType, URL keyFileUrl, URL keyCertFileUrl) {
+    public SslServerConfig(boolean enable, String sslProviderType, Resource keyResource, Resource keyCertChainResource) {
         this.enable = enable;
         this.sslProviderType = Objects.requireNonNull(sslProviderType, "sslProviderType");
-        this.keyFileUrl = keyFileUrl;
-        this.keyCertFileUrl = keyCertFileUrl;
+        this.keyResource = keyResource;
+        this.keyCertChainResource = keyCertChainResource;
     }
 
     public boolean isEnable() {
@@ -50,12 +52,12 @@ public final class SslServerConfig {
         return sslProviderType;
     }
 
-    public URL getKeyFileUrl() {
-        return keyFileUrl;
+    public Resource getKeyResource() {
+        return keyResource;
     }
 
-    public URL getKeyCertChainFileUrl() {
-        return keyCertFileUrl;
+    public Resource getKeyCertChainResource() {
+        return keyCertChainResource;
     }
 
     @Override
@@ -63,8 +65,8 @@ public final class SslServerConfig {
         return "SslServerConfig{" +
                 "enable=" + enable +
                 ", sslProviderType='" + sslProviderType + '\'' +
-                ", keyFileUrl='" + keyFileUrl + '\'' +
-                ", keyCertChainFileUrl='" + keyCertFileUrl + '\'' +
+                ", keyFileUrl='" + keyResource + '\'' +
+                ", keyCertChainFileUrl='" + keyCertChainResource + '\'' +
                 '}';
     }
 }
