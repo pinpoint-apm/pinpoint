@@ -10,6 +10,7 @@ interface IAppData {
     applicationName: string;
     serviceType: string;
     agentList?: string[];
+    agentIdNameMap?: { [key: string]: string };
 }
 
 @Component({
@@ -114,13 +115,15 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
                 return {
                     applicationName: `[ ${this.selectedTarget.node.length} ] ${node.serviceType} GROUP`,
                     serviceType: node.serviceType,
-                    agentList: []
+                    agentList: [],
+                    agentIdNameMap: node.agentIdNameMap
                 };
             } else {
                 return {
                     applicationName: node.applicationName,
                     serviceType: node.serviceType,
-                    agentList: [SideBarTitleContainerComponent.AGENT_ALL].concat(node.agentIds.sort())
+                    agentList: [SideBarTitleContainerComponent.AGENT_ALL].concat(node.agentIds.sort()),
+                    agentIdNameMap: node.agentIdNameMap
                 };
             }
         } else {

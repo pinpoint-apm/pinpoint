@@ -34,4 +34,9 @@ export class SideBarTitleComponent implements OnInit {
     onLoadError(img: HTMLImageElement): void {
         img.src = this.funcImagePath('NO_IMAGE_FOUND');
     }
+
+    getAgentName(agentId: string, appData: any): string {
+        return appData && appData['agentIdNameMap'] && appData['agentIdNameMap'][agentId] ? appData['agentIdNameMap'][agentId] : 'N/A';
+    }
+
 }
