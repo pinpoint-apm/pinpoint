@@ -1,0 +1,58 @@
+:host {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.l-application-wrapper {
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  height: 100%;
+  display: grid;
+  position: relative;
+  font-size: 13px;
+  font-family: 'Open Sans', sans-serif;
+  background-color: var(--background-default);
+  grid-template-columns: auto;
+  grid-template-rows: 48px 53px calc(100% - 101px);
+}
+
+.l-application-title {
+  display: flex;
+  padding: 0px 15px;
+  align-items: center;
+  font-weight: bold;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border-primary);
+  justify-content: space-between;
+}
+
+.l-application-search {
+  padding: 11px;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.l-application-list {
+  overflow-y: auto;
+}
+
+.l-search-input {
+  width: 100%;
+  height: 100%;
+  color: var(--text-primary-lightest);
+  border: 1px solid var(--form-input-border);
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.l-search-input:focus {
+  border: 1px solid var(--primary);
+  box-shadow: 0 0 1px 1px var(--primary);
+  outline: none;
+}
+
+.l-empty-text {
+  padding: 12px 15px;
+  font-size: 14px;
+}

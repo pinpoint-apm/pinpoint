@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, forkJoin } from 'rxjs';
-import { filter, skipWhile, takeUntil } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
 
 import { WebAppSettingDataService, StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
 import { ApplicationListInteractionForConfigurationService } from './application-list-interaction-for-configuration.service';
@@ -11,11 +11,11 @@ import { getApplicationList, initApplicationList } from 'app/shared/store/action
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Component({
-    selector: 'pp-application-list-for-configuration-alarm-container',
-    templateUrl: './application-list-for-configuration-alarm-container.component.html',
-    styleUrls: ['./application-list-for-configuration-alarm-container.component.css'],
+    selector: 'pp-application-list-for-configuration-webhook-container',
+    templateUrl: './application-list-for-configuration-webhook-container.component.html',
+    styleUrls: ['./application-list-for-configuration-webhook-container.component.css'],
 })
-export class ApplicationListForConfigurationAlarmContainerComponent implements OnInit, OnDestroy {
+export class ApplicationListForConfigurationWebhookContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
     private _query = '';
     private originalAppList: IApplication[] = [];
@@ -77,7 +77,7 @@ export class ApplicationListForConfigurationAlarmContainerComponent implements O
 
     private connectStore(): void {
         this.storeHelperService.getApplicationList(this.unsubscribe).pipe(
-            skipWhile((list: IApplication[]) => list === null),
+            filter((appList: IApplication[]) => !isEmpty(appList)),
             takeUntil(this.unsubscribe)
         ).subscribe((appList: IApplication[]) => {
             this.hideProcessing();
@@ -142,10 +142,10 @@ export class ApplicationListForConfigurationAlarmContainerComponent implements O
         if (app.equals(this.selectedApp)) {
             return;
         }
-        console.log(app)
+
         this.selectedApp = app;
         this.applicationListInteractionForConfigurationService.setSelectedApplication(app);
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_APPLICATION_FOR_ALARM);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_APPLICATION_FOR_WEBHOOK);
     }
 
     onFocused(index: number): void {

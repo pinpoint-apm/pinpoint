@@ -7,6 +7,7 @@ import { ConfigurationGeneralModule } from 'app/core/components/configuration-ge
 import { ConfigurationFavoriteModule } from 'app/core/components/configuration-favorite';
 import { ConfigurationInspectorChartManagerModule } from 'app/core/components/configuration-inspector-chart-manager';
 import { ConfigurationUserGroupModule } from 'app/core/components/configuration-user-group';
+import { ConfigurationWebhookModule } from 'app/core/components/configuration-webhook';
 import { ConfigurationInstallationModule } from 'app/core/components/configuration-installation';
 import { ConfigurationHelpModule } from 'app/core/components/configuration-help';
 import { ConfigurationExperimentalModule } from 'app/core/components/configuration-experimental';
@@ -26,6 +27,7 @@ import { ConfigurationAgentManagementModule } from 'app/core/components/configur
         ConfigurationInspectorChartManagerModule,
         ConfigurationUserGroupModule,
         ConfigurationAlarmModule,
+        ConfigurationWebhookModule,
         ConfigurationInstallationModule,
         ConfigurationHelpModule,
         ConfigurationExperimentalModule,
