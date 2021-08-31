@@ -420,7 +420,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         int actualLen = actualAnnotations == null ? 0 : actualAnnotations.size();
 
         if (actualLen != len) {
-            AssertionErrorBuilder builder = new AssertionErrorBuilder("Annotation.length", len, actualAnnotations);
+            AssertionErrorBuilder builder = new AssertionErrorBuilder("Annotation.length", len, actualLen);
             builder.setComparison(expected, actual);
             builder.throwAssertionError();
         }
