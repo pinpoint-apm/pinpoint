@@ -23,13 +23,13 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -52,19 +52,19 @@ public class GrpcStatSslReceiverConfigurationTest {
     }
 
     @Test
-    public void grpcSslConfiguration() throws URISyntaxException {
+    public void grpcSslConfiguration() throws IOException {
         GrpcSslConfiguration sslConfiguration = configuration.getGrpcSslConfiguration();
 
         assertEquals(Boolean.TRUE, sslConfiguration.isEnable());
         assertEquals("jdk", sslConfiguration.getProviderType());
 
-        URL keyFileUrl = sslConfiguration.getKeyFileUrl();
-        File keyFile = new File(keyFileUrl.toURI());
+        Resource keyFileUrl = sslConfiguration.getKeyResource();
+        File keyFile = keyFileUrl.getFile();
         assertEquals("server0.pem", keyFile.getName());
         assertEquals(Boolean.TRUE, keyFile.exists());
 
-        URL keyCertFileUrl = sslConfiguration.getKeyCertFileUrl();
-        File keyCertFile = new File(keyCertFileUrl.toURI());
+        Resource keyCertFileUrl = sslConfiguration.getKeyCertChainResource();
+        File keyCertFile = keyCertFileUrl.getFile();
         assertEquals("server0.key", keyCertFile.getName());
         assertEquals(Boolean.TRUE, keyCertFile.exists());
     }

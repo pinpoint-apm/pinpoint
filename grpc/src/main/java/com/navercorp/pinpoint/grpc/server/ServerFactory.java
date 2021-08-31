@@ -75,8 +75,8 @@ public class ServerFactory {
     private final List<ServerTransportFilter> serverTransportFilters = new ArrayList<>();
     private final List<ServerInterceptor> serverInterceptors = new ArrayList<>();
 
-    private ServerOption serverOption;
-    private SslServerConfig sslServerConfig;
+    private final ServerOption serverOption;
+    private final SslServerConfig sslServerConfig;
     private ChannelzRegistry channelzRegistry;
 
     public ServerFactory(String name, String hostname, int port, Executor serverExecutor, ServerOption serverOption) {

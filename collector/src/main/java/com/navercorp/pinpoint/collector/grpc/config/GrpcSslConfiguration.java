@@ -17,17 +17,9 @@
 package com.navercorp.pinpoint.collector.grpc.config;
 
 import com.navercorp.pinpoint.grpc.security.SslServerConfig;
+import org.springframework.core.io.Resource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.ResourceUtils;
-import org.springframework.util.StringUtils;
-
-import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Objects;
 
 /**
@@ -37,15 +29,15 @@ public class GrpcSslConfiguration {
 
     private final boolean enable;
     private final String providerType;
-    private final URL keyFileUrl;
-    private final URL keyCertFileUrl;
+    private final Resource keyResource;
+    private final Resource keyCertChainResource;
 
     private GrpcSslConfiguration(boolean enable, String providerType,
-                                 URL keyFileUrl, URL keyCertFileUrl) {
+                                 Resource keyResource, Resource keyCertChainResource) {
         this.enable = enable;
         this.providerType = providerType;
-        this.keyFileUrl = keyFileUrl;
-        this.keyCertFileUrl = keyCertFileUrl;
+        this.keyResource = keyResource;
+        this.keyCertChainResource = keyCertChainResource;
     }
 
     public boolean isEnable() {
@@ -56,17 +48,18 @@ public class GrpcSslConfiguration {
         return providerType;
     }
 
-    public URL getKeyFileUrl() {
-        return keyFileUrl;
+    public Resource getKeyResource() {
+        return keyResource;
     }
 
-    public URL getKeyCertFileUrl() {
-        return keyCertFileUrl;
+    public Resource getKeyCertChainResource() {
+        return keyCertChainResource;
     }
 
     public SslServerConfig toSslServerConfig() {
         if (enable) {
-            SslServerConfig sslServerConfig = new SslServerConfig(enable, providerType, keyFileUrl, keyCertFileUrl);
+            SslServerConfig sslServerConfig = new SslServerConfig(enable, providerType,
+                    new SpringResource(keyResource), new SpringResource(keyCertChainResource));
             return sslServerConfig;
         } else {
             return SslServerConfig.DISABLED_CONFIG;
@@ -79,12 +72,13 @@ public class GrpcSslConfiguration {
 
     public static class Builder {
 
-        private final Logger logger = LoggerFactory.getLogger(getClass());
-
         private boolean enable;
         private String providerType;
-        private String keyFilePath;
-        private String keyCertFilePath;
+        private Resource keyFilePath;
+        private Resource keyCertFilePath;
+
+        private Builder() {
+        }
 
         public boolean isEnable() {
             return enable;
@@ -102,57 +96,29 @@ public class GrpcSslConfiguration {
             this.providerType = providerType;
         }
 
-        public String getKeyFilePath() {
+        public Resource getKeyFilePath() {
             return keyFilePath;
         }
 
-        public void setKeyFilePath(String keyFilePath) {
+        public void setKeyFilePath(Resource keyFilePath) {
             this.keyFilePath = keyFilePath;
         }
 
-        public String getKeyCertFilePath() {
+        public Resource getKeyCertFilePath() {
             return keyCertFilePath;
         }
 
-        public void setKeyCertFilePath(String keyCertFilePath) {
+        public void setKeyCertFilePath(Resource keyCertFilePath) {
             this.keyCertFilePath = keyCertFilePath;
         }
 
-        public GrpcSslConfiguration build() throws IOException, URISyntaxException {
+        public GrpcSslConfiguration build() throws IOException {
             if (enable) {
                 Objects.requireNonNull(providerType);
-                URL keyFileUrl = toURL(keyFilePath);
-                URL keyCertFileUrl = toURL(keyCertFilePath);
-                return new GrpcSslConfiguration(this.enable, this.providerType, keyFileUrl, keyCertFileUrl);
+                return new GrpcSslConfiguration(this.enable, this.providerType, this.keyFilePath, this.keyCertFilePath);
             } else {
                 return new GrpcSslConfiguration(this.enable, this.providerType, null, null);
             }
-        }
-
-        private URL toURL(String filePath) {
-            if (!StringUtils.hasText(filePath)) {
-                return null;
-            }
-
-            // Find file in classLoader's path
-            try {
-                ClassPathResource classPathResource = new ClassPathResource(filePath);
-                URL url = classPathResource.getURL();
-                return url;
-            } catch (IOException e) {
-            }
-
-            // Find file in absolute path
-            try {
-                File file = ResourceUtils.getFile(filePath);
-                if (file.exists()) {
-                    return file.toURI().toURL();
-                }
-            } catch (Exception e) {
-            }
-
-            logger.warn("Could not find file.(path:{}", filePath);
-            return null;
         }
     }
 
@@ -161,8 +127,8 @@ public class GrpcSslConfiguration {
         return "GrpcSslConfiguration{" +
                 "enable=" + enable +
                 ", providerType='" + providerType + '\'' +
-                ", keyFileUrl='" + keyFileUrl + '\'' +
-                ", keyCertFileUrl='" + keyCertFileUrl + '\'' +
+                ", keyResource='" + keyResource + '\'' +
+                ", keyCertChainResource='" + keyCertChainResource + '\'' +
                 '}';
     }
 }
