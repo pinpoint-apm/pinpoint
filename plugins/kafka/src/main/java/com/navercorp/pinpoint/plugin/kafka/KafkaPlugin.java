@@ -206,6 +206,11 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             // Version 2.0.0+ is supported.
             if (pollMethod == null) {
+                pollMethod = target.getDeclaredMethod("poll", "java.time.Duration");
+            }
+
+            // Version 2.0.0+ is supported.
+            if (pollMethod == null) {
                 pollMethod = target.getDeclaredMethod("poll", "long", "boolean");
             }
 
