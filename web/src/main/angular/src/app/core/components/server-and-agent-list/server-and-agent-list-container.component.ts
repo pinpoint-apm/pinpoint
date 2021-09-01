@@ -127,7 +127,9 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
             ),
             this.storeHelperService.getServerAndAgentQuery<string>(this.unsubscribe)
         ).subscribe(([data, query]: [{[key: string]: IServerAndAgentData[]}, string]) => {
-            this.filteredServerList = this.filterServerList(data, query, ({ agentId }: IServerAndAgentData) => agentId.toLowerCase().includes(query.toLowerCase()));
+            this.filteredServerList = this.filterServerList(data, query, ({ agentId, agentName }: IServerAndAgentData) =>
+                agentId.toLowerCase().includes(query.toLowerCase()) || ( agentName && agentName.toLowerCase().includes(query.toLowerCase()) )
+            );
             this.filteredServerKeyList = Object.keys(this.filteredServerList).sort();
             this.isEmpty = isEmpty(this.filteredServerList);
         });
