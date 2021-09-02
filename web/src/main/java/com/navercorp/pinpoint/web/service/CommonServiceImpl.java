@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.service;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
@@ -26,6 +27,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 
 /**
  * @author netspider
+ * @author yjqg6666
  */
 @Service
 public class CommonServiceImpl implements CommonService {
@@ -37,7 +39,9 @@ public class CommonServiceImpl implements CommonService {
     }
 
     @Override
+    @Cacheable(value=CacheService.APPLICATION_LIST_CACHE_NAME)
     public List<Application> selectAllApplicationNames() {
         return applicationIndexDao.selectAllApplicationNames();
     }
+
 }
