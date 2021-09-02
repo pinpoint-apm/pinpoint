@@ -17,11 +17,11 @@ public class BootLogLevelTest {
 
     @Test
     public void of() {
-        assertEquals("trace", TRACE, BootLogLevel.of("trace"));
-        assertEquals("debug", DEBUG, BootLogLevel.of("debug"));
-        assertEquals("info", INFO, BootLogLevel.of("info"));
-        assertEquals("warn", WARN, BootLogLevel.of("warn"));
-        assertEquals("error", ERROR, BootLogLevel.of("error"));
+        assertEquals("trace", TRACE, BootLogLevel.of(TRACE.name()));
+        assertEquals("debug", DEBUG, BootLogLevel.of(DEBUG.name()));
+        assertEquals("info", INFO, BootLogLevel.of(INFO.name()));
+        assertEquals("warn", WARN, BootLogLevel.of(WARN.name()));
+        assertEquals("error", ERROR, BootLogLevel.of(ERROR.name()));
         assertNull("invalid", BootLogLevel.of("notExist"));
     }
 
