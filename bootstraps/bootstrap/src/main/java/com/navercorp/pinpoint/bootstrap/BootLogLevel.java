@@ -17,43 +17,48 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author yjqg6666
  */
 enum BootLogLevel {
 
-    ERROR(40, "ERROR"),
-    WARN(30, "WARN"),
-    INFO(20, "INFO"),
-    DEBUG(10, "DEBUG"),
-    TRACE(0, "TRACE");
-
-    private static final Map<String, BootLogLevel> labelMap = new HashMap<>(5);
-
-    private static final Map<Integer, BootLogLevel> valueMap = new HashMap<>(5);
-
-    static {
-        setup();
-    }
+    ERROR(40),
+    WARN(30),
+    INFO(20),
+    DEBUG(10),
+    TRACE(0);
 
     private final int value;
 
-    private final String label;
-
-    BootLogLevel(int value, String label) {
-        this.label = label;
+    BootLogLevel(int value) {
         this.value = value;
     }
 
     public static BootLogLevel of(String label) {
-        return label != null ? labelMap.get(label.toUpperCase()) : null;
+        if (label == null) {
+            return null;
+        }
+        try {
+            return BootLogLevel.valueOf(label);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     public static BootLogLevel of(int value) {
-        return valueMap.get(value);
+        switch (value) {
+            case 40:
+                return ERROR;
+            case 30:
+                return WARN;
+            case 20:
+                return INFO;
+            case 10:
+                return DEBUG;
+            case 0:
+                return TRACE;
+        }
+        return null;
     }
 
     public boolean logTrace() {
@@ -80,11 +85,5 @@ enum BootLogLevel {
         return check.value >= this.value;
     }
 
-    private static void setup() {
-        for (BootLogLevel i : values()) {
-            labelMap.put(i.label, i);
-            valueMap.put(i.value, i);
-        }
-    }
 
 }

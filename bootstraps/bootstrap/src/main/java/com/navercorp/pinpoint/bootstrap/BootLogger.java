@@ -20,7 +20,6 @@ package com.navercorp.pinpoint.bootstrap;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.Formatter;
 import java.util.Objects;
 
@@ -33,15 +32,18 @@ public final class BootLogger {
     private static final String FORMAT = "%tm-%<td %<tT.%<tL %-5s %-35.35s : %s";
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
     
-    private static final BootLogLevel LOG_LEVEL;
+    private static final BootLogLevel LOG_LEVEL = getLogLevel();
     private final String loggerName;
     private final PrintStream out;
     private final PrintStream err;
 
-    static {
-        String logLevel = System.getProperty("pinpoint.agent.bootlogger.loglevel");
+    private static BootLogLevel getLogLevel() {
+        String logLevel = System.getProperty("pinpoint.agent.bootlogger.loglevel", BootLogLevel.INFO.name());
+        logLevel = logLevel.toUpperCase();
+
         final BootLogLevel level = BootLogLevel.of(logLevel);
-        LOG_LEVEL = level != null ? level : BootLogLevel.INFO;
+
+        return level != null ? level : BootLogLevel.INFO;
     }
 
     public BootLogger(String loggerName) {
@@ -71,7 +73,7 @@ public final class BootLogger {
         Formatter formatter = new Formatter(buffer);
         formatter.format(FORMAT, now, logLevel, loggerName, msg);
         if (throwable != null) {
-            String exceptionMessage = toString(throwable);
+            StringBuffer exceptionMessage = getStackTrace(throwable);
             buffer.append(exceptionMessage);
         } else {
             buffer.append(LINE_SEPARATOR);
@@ -123,16 +125,16 @@ public final class BootLogger {
         }
     }
 
-    private static String toString(Throwable throwable) {
+    private StringBuffer getStackTrace(Throwable throwable) {
         if (throwable == null) {
             return null;
         }
-        Writer sw = new StringWriter(512);
+        StringWriter sw = new StringWriter(512);
         PrintWriter pw = new PrintWriter(sw);
         pw.println();
         throwable.printStackTrace(pw);
         pw.close();
-        return sw.toString();
+        return sw.getBuffer();
     }
 
 }
