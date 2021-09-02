@@ -30,6 +30,11 @@
     <mvc:interceptors>
         <bean id="webContentInterceptor" class="org.springframework.web.servlet.mvc.WebContentInterceptor">
             <property name="cacheSeconds" value="0"/>
+            <property name="cacheMappings">
+                <props>
+                    <prop key="/applications.pinpoint">${web.applicationList.cacheTime:60}</prop>
+                </props>
+            </property>
         </bean>
         <mvc:interceptor>
             <mvc:mapping path="/admin/**"/>
