@@ -40,19 +40,14 @@ public class CacheServiceImpl implements CacheService {
 
     @Override
     public TagApplications get(String key) {
-        final Cache.ValueWrapper wrapper = cache.get(key);
-        if (wrapper == null) {
-            return null;
-        }
-        return (TagApplications) wrapper.get();
+        return this.cache.get(key, TagApplications.class);
     }
 
     @Override
     public void put(String key, TagApplications tagApplications) {
         Objects.requireNonNull(key, "key");
 
-        Cache.ValueWrapper wrapper = new SimpleValueWrapper(tagApplications);
-        cache.put(key, wrapper);
+        this.cache.put(key, tagApplications);
     }
 
 
