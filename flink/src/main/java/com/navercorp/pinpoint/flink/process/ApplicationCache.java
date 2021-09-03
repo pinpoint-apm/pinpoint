@@ -52,7 +52,7 @@ public class ApplicationCache {
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
     }
 
-    @Cacheable(value="applicationId", key=SPEL_KEY)
+    @Cacheable(cacheNames = "applicationId", key = SPEL_KEY, cacheManager = "applicationId")
     public String findApplicationId(ApplicationKey application) {
         final String agentId = application.getAgentId();
         final long agentStartTimestamp = application.getAgentStartTime();
@@ -119,9 +119,9 @@ public class ApplicationCache {
         @Override
         public String toString() {
             return "ApplicationKey{" +
-                "agentId='" + agentId + '\'' +
-                ", agentStartTime=" + agentStartTime +
-                '}';
+                    "agentId='" + agentId + '\'' +
+                    ", agentStartTime=" + agentStartTime +
+                    '}';
         }
     }
 }
