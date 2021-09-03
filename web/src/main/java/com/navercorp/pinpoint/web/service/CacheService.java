@@ -16,15 +16,21 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.web.view.TagApplications;
+
 /**
  * @author yjqg6666
  */
 public interface CacheService {
 
+    String DEFAULT_KEY = "DEFAULT";
+
     String APPLICATION_LIST_CACHE_NAME = "applicationNameList";
 
-    String getApplicationListETag();
+    TagApplications get(String key);
 
-    void clearApplicationListCache();
+    void put(String key, TagApplications tagApplications);
+
+    void remove(String key);
 
 }
