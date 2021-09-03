@@ -16,47 +16,50 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import org.springframework.cache.ehcache.EhCacheCacheManager;
+import com.navercorp.pinpoint.web.view.TagApplications;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.support.SimpleValueWrapper;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.util.Objects;
 
 /**
  * @author yjqg6666
+ * @author emeroad
  */
 @Service
 public class CacheServiceImpl implements CacheService {
 
-    private final EhCacheCacheManager cacheManager;
+    private final Cache cache;
 
-    public CacheServiceImpl(EhCacheCacheManager cacheManager) {
-        this.cacheManager = cacheManager;
+    public CacheServiceImpl(CacheManager cacheManager) {
+        Objects.requireNonNull(cacheManager, "cacheManager");
+        this.cache = Objects.requireNonNull(cacheManager.getCache(APPLICATION_LIST_CACHE_NAME));
     }
 
-    public String getApplicationListETag() {
-        final long cacheUpdateCount = this.getApplicationListUpdateCount();
-
-        return cacheUpdateCount > 0 ? APPLICATION_LIST_CACHE_NAME + "Ver" + cacheUpdateCount : UUID.randomUUID().toString();
-    }
-
-    public void clearApplicationListCache() {
-        getApplicationListCache().ifPresent(Ehcache::removeAll);
-    }
-
-    private long getApplicationListUpdateCount() {
-        return getApplicationListCache()
-                .map(ehcache -> ehcache.getStatistics().cachePutCount())
-                .orElse(0L);
-    }
-
-    private Optional<Ehcache> getApplicationListCache() {
-        final CacheManager cacheManager = this.cacheManager.getCacheManager();
-        if (cacheManager != null) {
-            return Optional.ofNullable(cacheManager.getEhcache(APPLICATION_LIST_CACHE_NAME));
+    @Override
+    public TagApplications get(String key) {
+        final Cache.ValueWrapper wrapper = cache.get(key);
+        if (wrapper == null) {
+            return null;
         }
-        return Optional.empty();
+        return (TagApplications) wrapper.get();
     }
+
+    @Override
+    public void put(String key, TagApplications tagApplications) {
+        Objects.requireNonNull(key, "key");
+
+        Cache.ValueWrapper wrapper = new SimpleValueWrapper(tagApplications);
+        cache.put(key, wrapper);
+    }
+
+
+    public void remove(String key) {
+        Objects.requireNonNull(key, "key");
+        this.cache.evict(key);
+    }
+
+
 }
