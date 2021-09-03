@@ -15,7 +15,7 @@ export class ApplicationListEffect {
             ofType(getApplicationList),
             withLatestFrom(this.storeHelperService.getApplicationList()),
             filter(([{force}, appList]: [{force: boolean}, IApplication[]]) => force || isEmpty(appList)),
-            switchMap(() => this.applicationListDataService.getApplicationList().pipe(
+            switchMap(([{force}]: [{force: boolean}, IApplication[]]) => this.applicationListDataService.getApplicationList(force).pipe(
                 map((appList: IApplication[]) => getApplicationListSuccess(appList)),
                 catchError((error: IServerErrorFormat) => of(getApplicationListFail(error)))
             )),
