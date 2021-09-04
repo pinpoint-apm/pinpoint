@@ -46,6 +46,8 @@ import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginJarsProvide
 import com.navercorp.pinpoint.profiler.instrument.classloading.BootstrapCore;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
+import com.navercorp.pinpoint.profiler.plugin.config.DefaultPluginLoadingConfig;
+import com.navercorp.pinpoint.profiler.plugin.config.PluginLoadingConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +80,9 @@ public class ConfigModule extends AbstractModule {
         bind(ProfilerConfig.class).toInstance(profilerConfig);
 
         Properties properties = profilerConfig.getProperties();
+
+        PluginLoadingConfig pluginLoadingConfig = loadPluginLoadingConfig(properties);
+        bind(PluginLoadingConfig.class).toInstance(pluginLoadingConfig);
 
         InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = loadInstrumentMatcherCacheConfig(properties);
         bind(InstrumentMatcherCacheConfig.class).toInstance(instrumentMatcherCacheConfig);
@@ -135,6 +140,15 @@ public class ConfigModule extends AbstractModule {
         bind(ServiceType.class).annotatedWith(ConfiguredApplicationType.class).toProvider(ConfiguredApplicationTypeProvider.class).in(Scopes.SINGLETON);
     }
 
+    private PluginLoadingConfig loadPluginLoadingConfig(Properties properties) {
+        DefaultPluginLoadingConfig pluginLoadingConfig = new DefaultPluginLoadingConfig();
+
+        ValueAnnotationProcessor process = new ValueAnnotationProcessor();
+        process.process(pluginLoadingConfig, properties);
+
+        logger.info("{}", pluginLoadingConfig);
+        return pluginLoadingConfig;
+    }
 
     private InstrumentMatcherCacheConfig loadInstrumentMatcherCacheConfig(Properties properties) {
         InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = new DefaultInstrumentMatcherCacheConfig();
