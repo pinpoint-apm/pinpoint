@@ -18,12 +18,10 @@ package com.navercorp.pinpoint.profiler.context.provider.plugin;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.module.PluginJarPaths;
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
+import com.navercorp.pinpoint.profiler.plugin.config.PluginLoadingConfig;
 import com.navercorp.pinpoint.profiler.plugin.filter.DefaultPluginFilterFactory;
 import com.navercorp.pinpoint.profiler.plugin.filter.ImportPluginFilterFactory;
 import com.navercorp.pinpoint.profiler.plugin.filter.PluginFilter;
@@ -46,12 +44,13 @@ public class PluginJarsProvider implements Provider<List<PluginJar>> {
     private final List<PluginJar> pluginJars;
 
     @Inject
-    public PluginJarsProvider(@PluginJarPaths List<String> pluginJarPaths, ProfilerConfig profilerConfig) {
+    public PluginJarsProvider(@PluginJarPaths List<String> pluginJarPaths, PluginLoadingConfig pluginLoadingCOnfig) {
         Objects.requireNonNull(pluginJarPaths, "pluginJarPaths");
-        Objects.requireNonNull(profilerConfig, "profilerConfig");
-        PluginFilter pluginFilter = createPluginJarFilter(profilerConfig);
+        Objects.requireNonNull(pluginLoadingCOnfig, "profilerConfig");
+
+        PluginFilter pluginFilter = createPluginJarFilter(pluginLoadingCOnfig);
         logger.info("pluginJarFilter:{}", pluginFilter);
-        List<PluginJar> pluginJars = createPluginJars(pluginJarPaths, pluginFilter, profilerConfig.getPluginLoadOrder());
+        List<PluginJar> pluginJars = createPluginJars(pluginJarPaths, pluginFilter, pluginLoadingCOnfig.getPluginLoadOrder());
         this.pluginJars = Collections.unmodifiableList(pluginJars);
     }
 
@@ -66,14 +65,14 @@ public class PluginJarsProvider implements Provider<List<PluginJar>> {
         if (CollectionUtils.isEmpty(pluginJarPaths)) {
             return Collections.emptyList();
         }
-        Map<String, PluginJar> orderedPlugins = new LinkedHashMap<String, PluginJar>();
+        Map<String, PluginJar> orderedPlugins = new LinkedHashMap<>();
         if (CollectionUtils.hasLength(orderedPluginIdList)) {
             for (String orderedPluginId : orderedPluginIdList) {
                 orderedPlugins.put(orderedPluginId, null);
             }
         }
 
-        List<PluginJar> unorderedPlugins = new ArrayList<PluginJar>(pluginJarPaths.size());
+        List<PluginJar> unorderedPlugins = new ArrayList<>(pluginJarPaths.size());
         for (String pluginJarPath : pluginJarPaths) {
             PluginJar pluginJar = PluginJar.fromFilePath(pluginJarPath);
             if (!pluginFilter.accept(pluginJar)) {
@@ -89,7 +88,7 @@ public class PluginJarsProvider implements Provider<List<PluginJar>> {
                 unorderedPlugins.add(pluginJar);
             }
         }
-        List<PluginJar> pluginJars = new ArrayList<PluginJar>();
+        List<PluginJar> pluginJars = new ArrayList<>();
         for (PluginJar orderedPlugin : orderedPlugins.values()) {
             if (orderedPlugin != null) {
                 pluginJars.add(orderedPlugin);
@@ -98,17 +97,16 @@ public class PluginJarsProvider implements Provider<List<PluginJar>> {
         pluginJars.addAll(unorderedPlugins);
         return pluginJars;
     }
-    // ArtifactIdUtils.ARTIFACT_SEPARATOR
-    private static final String ARTIFACT_SEPARATOR = ";";
-    private PluginFilter createPluginJarFilter(ProfilerConfig profilerConfig) {
-        final String importPluginIdString = profilerConfig.readString(DefaultProfilerConfig.IMPORT_PLUGIN, null);
-        if (StringUtils.hasLength(importPluginIdString)) {
-            List<String> importPluginIds = StringUtils.tokenizeToStringList(importPluginIdString, ARTIFACT_SEPARATOR);
+
+    private PluginFilter createPluginJarFilter(PluginLoadingConfig pluginLoadingConfig) {
+        List<String> importPluginIds = pluginLoadingConfig.getImportPluginIds();
+
+        if (CollectionUtils.hasLength(importPluginIds)) {
             PluginFilterFactory filterFactory = new ImportPluginFilterFactory(importPluginIds);
             return filterFactory.newPluginFilter();
         }
 
-        PluginFilterFactory filterFactory = new DefaultPluginFilterFactory(profilerConfig);
+        PluginFilterFactory filterFactory = new DefaultPluginFilterFactory(pluginLoadingConfig);
         return filterFactory.newPluginFilter();
     }
 

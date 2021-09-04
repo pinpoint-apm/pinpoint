@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContextLoader
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
 import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginContextLoader;
+import com.navercorp.pinpoint.profiler.plugin.config.PluginLoadingConfig;
 
 import java.util.List;
 import java.util.Objects;
@@ -39,6 +40,7 @@ import java.util.Objects;
 public class ProfilerPluginContextLoaderProvider implements Provider<ProfilerPluginContextLoader> {
 
     private final ProfilerConfig profilerConfig;
+    private final PluginLoadingConfig pluginLoadingConfig;
     private final ServiceType configuredApplicationType;
     private final PluginSetup pluginSetup;
     private final ClassInjectorFactory classInjectorFactory;
@@ -46,11 +48,14 @@ public class ProfilerPluginContextLoaderProvider implements Provider<ProfilerPlu
 
     @Inject
     public ProfilerPluginContextLoaderProvider(ProfilerConfig profilerConfig,
+                                               PluginLoadingConfig pluginLoadingConfig,
                                                @ConfiguredApplicationType ServiceType configuredApplicationType,
                                                PluginSetup pluginSetup,
                                                InstrumentEngine instrumentEngine, BootstrapCore bootstrapCore,
                                                @PluginJars List<PluginJar> pluginJars) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.pluginLoadingConfig = Objects.requireNonNull(pluginLoadingConfig, "pluginLoadingConfig");
+
         this.configuredApplicationType = Objects.requireNonNull(configuredApplicationType, "configuredApplicationType");
         this.pluginSetup = Objects.requireNonNull(pluginSetup, "pluginSetup");
         Objects.requireNonNull(instrumentEngine, "instrumentEngine");
@@ -61,6 +66,6 @@ public class ProfilerPluginContextLoaderProvider implements Provider<ProfilerPlu
 
     @Override
     public ProfilerPluginContextLoader get() {
-        return new DefaultProfilerPluginContextLoader(profilerConfig, configuredApplicationType, classInjectorFactory, pluginSetup, pluginJars);
+        return new DefaultProfilerPluginContextLoader(profilerConfig, pluginLoadingConfig, configuredApplicationType, classInjectorFactory, pluginSetup, pluginJars);
     }
 }

@@ -23,6 +23,7 @@ import java.util.Objects;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjectorFactory;
+import com.navercorp.pinpoint.profiler.plugin.config.PluginLoadingConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,15 +45,19 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
     private final ClassNameFilter profilerPackageFilter = new PinpointProfilerPackageSkipFilter();
 
     private final ProfilerConfig profilerConfig;
+    private final PluginLoadingConfig pluginLoadingConfig;
     private final ServiceType configuredApplicationType;
     private final ClassInjectorFactory classInjectorFactory;
     private final PluginSetup pluginSetup;
     private final List<PluginJar> pluginJars;
 
-    public DefaultProfilerPluginContextLoader(ProfilerConfig profilerConfig, ServiceType configuredApplicationType,
+    public DefaultProfilerPluginContextLoader(ProfilerConfig profilerConfig,
+                                              PluginLoadingConfig pluginLoadingConfig,
+                                              ServiceType configuredApplicationType,
                                               ClassInjectorFactory classInjectorFactory, PluginSetup pluginSetup,
                                               List<PluginJar> pluginJars) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.pluginLoadingConfig = Objects.requireNonNull(pluginLoadingConfig, "pluginLoadingConfig");
         this.configuredApplicationType = Objects.requireNonNull(configuredApplicationType, "configuredApplicationType");
         this.classInjectorFactory = Objects.requireNonNull(classInjectorFactory, "classInjectorFactory");
         this.pluginSetup = Objects.requireNonNull(pluginSetup, "pluginSetup");
@@ -82,7 +87,7 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
         List<String> pluginPackageList = plugin.getPackageList();
         final ClassNameFilter pluginFilterChain = createPluginFilterChain(pluginPackageList);
 
-        List<ProfilerPlugin> filterProfilerPlugin = filterProfilerPlugin(plugin.getInstanceList(), profilerConfig.getDisabledPlugins());
+        List<ProfilerPlugin> filterProfilerPlugin = filterProfilerPlugin(plugin.getInstanceList(), pluginLoadingConfig.getDisabledPlugins());
 
         List<PluginSetupResult> result = new ArrayList<>();
         for (ProfilerPlugin profilerPlugin : filterProfilerPlugin) {

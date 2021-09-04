@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.plugin.filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import java.util.Objects;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.profiler.plugin.config.PluginLoadingConfig;
 
 import java.util.List;
 
@@ -29,9 +30,10 @@ public class DefaultPluginFilterFactory implements PluginFilterFactory {
 
     private final List<String> disabledPlugins;
 
-    public DefaultPluginFilterFactory(ProfilerConfig profilerConfig) {
-        Objects.requireNonNull(profilerConfig, "profilerConfig");
-        this.disabledPlugins = profilerConfig.getDisabledPlugins();
+    public DefaultPluginFilterFactory(PluginLoadingConfig pluginLoadingConfig) {
+        Objects.requireNonNull(pluginLoadingConfig, "pluginLoadingConfig");
+
+        this.disabledPlugins = pluginLoadingConfig.getDisabledPlugins();
     }
 
     @Override

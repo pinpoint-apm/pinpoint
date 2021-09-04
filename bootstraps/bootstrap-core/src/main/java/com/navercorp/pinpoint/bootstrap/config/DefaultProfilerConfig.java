@@ -45,7 +45,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private static final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE.getLogger(DefaultProfilerConfig.class.getName());
 
-    public static final String PLUGIN_DISABLE = "profiler.plugin.disable";
     // TestAgent only
     public static final String IMPORT_PLUGIN = "profiler.plugin.import-plugin";
 
@@ -171,8 +170,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     @Deprecated // As of 1.9.0, set application type in plugins
     private List<String> applicationTypeDetectOrder = Collections.emptyList();
-    private List<String> pluginLoadOrder = Collections.emptyList();
-    private List<String> disabledPlugins = Collections.emptyList();
 
     @Value("${" + PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE + "}")
     private boolean propagateInterceptorException = false;
@@ -389,26 +386,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Deprecated
     void setApplicationTypeDetectOrder(String applicationTypeDetectOrder) {
         this.applicationTypeDetectOrder = StringUtils.tokenizeToStringList(applicationTypeDetectOrder, ",");
-    }
-
-    @Override
-    public List<String> getPluginLoadOrder() {
-        return pluginLoadOrder;
-    }
-
-    @Value("${profiler.plugin.load.order}")
-    void setPluginLoadOrder(String pluginLoadOrder) {
-        this.pluginLoadOrder = StringUtils.tokenizeToStringList(pluginLoadOrder, ",");
-    }
-
-    @Override
-    public List<String> getDisabledPlugins() {
-        return disabledPlugins;
-    }
-
-    @Value("${profiler.plugin.disable}")
-    void setDisabledPlugins(String disabledPlugins) {
-        this.disabledPlugins = StringUtils.tokenizeToStringList(disabledPlugins, ",");
     }
 
     @Override
@@ -636,8 +613,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", agentInfoSendRetryInterval=").append(agentInfoSendRetryInterval);
         sb.append(", applicationServerType='").append(applicationServerType).append('\'');
         sb.append(", applicationTypeDetectOrder=").append(applicationTypeDetectOrder);
-        sb.append(", pluginLoadOrder=").append(pluginLoadOrder);
-        sb.append(", disabledPlugins=").append(disabledPlugins);
         sb.append(", propagateInterceptorException=").append(propagateInterceptorException);
         sb.append(", supportLambdaExpressions=").append(supportLambdaExpressions);
         sb.append(", proxyHttpHeaderEnable=").append(proxyHttpHeaderEnable);
