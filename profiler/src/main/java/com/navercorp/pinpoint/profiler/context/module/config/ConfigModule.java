@@ -76,7 +76,9 @@ public class ConfigModule extends AbstractModule {
         ProfilerConfig profilerConfig = agentOption.getProfilerConfig();
         bind(ProfilerConfig.class).toInstance(profilerConfig);
 
-        InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = loadInstrumentMatcherCacheConfig(profilerConfig);
+        Properties properties = profilerConfig.getProperties();
+
+        InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = loadInstrumentMatcherCacheConfig(properties);
         bind(InstrumentMatcherCacheConfig.class).toInstance(instrumentMatcherCacheConfig);
 
         bind(TransportModule.class).toInstance(profilerConfig.getTransportModule());
@@ -133,12 +135,11 @@ public class ConfigModule extends AbstractModule {
     }
 
 
-    private InstrumentMatcherCacheConfig loadInstrumentMatcherCacheConfig(ProfilerConfig config) {
+    private InstrumentMatcherCacheConfig loadInstrumentMatcherCacheConfig(Properties properties) {
         InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = new InstrumentMatcherCacheConfig();
 
-        Properties properties = config.getProperties();
-        ValueAnnotationProcessor instrumentProcessor = new ValueAnnotationProcessor();
-        instrumentProcessor.process(instrumentProcessor, properties);
+        ValueAnnotationProcessor process = new ValueAnnotationProcessor();
+        process.process(instrumentMatcherCacheConfig, properties);
 
         logger.info("{}", instrumentMatcherCacheConfig);
         return instrumentMatcherCacheConfig;
