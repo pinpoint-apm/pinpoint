@@ -1,0 +1,138 @@
+:host {
+  /* display: block;
+  width: 100%;
+  height: 100%; */
+}
+
+.l-wrapper {
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 15;
+  display: flex;
+  padding: 0px 20px;
+  position: absolute;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  background-color: var(--background-blind);
+}
+
+.l-wrapper h1 {
+  margin-bottom: 15px;
+}
+
+form { 
+  width: 100%;
+}
+
+.l-form-grid {
+  display: grid;
+  position: relative;
+  grid-template-columns: 50% 50%;
+  grid-template-rows: auto;    
+}
+
+.l-form-grid > div {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.l-form-grid > div:nth-child(odd) {
+  margin-right: 10px;
+}
+
+.l-required-icon {
+  color: var(--form-require);
+  margin-left: 2px;
+}
+
+.l-input, .l-select {
+  width: 100%;
+  border-radius: 4px;
+  background-color: var(--background-default);
+  padding: 10px 14px;
+  border: 1px solid var(--border-primary-darker);
+  font-size: 13px;
+  color: var(--text-primary);
+  box-shadow: 0 0 1px 0 var(--border-primary-darker);
+  outline: 0;
+}
+
+.l-wrapper .l-create {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.l-wrapper .l-close {
+  top: 0px;
+  right: 0px;
+  position: absolute;
+}
+
+.l-select { 
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.l-textarea { 
+  width: 100%;
+  height: 120px;
+  border-radius: 4px;
+  background-color: var(--background-default);
+  padding: 10px 14px;
+  border: 1px solid var(--border-primary-darker);
+  font-size: 13px;
+  color: var(--text-primary);
+  box-shadow: 0 0 1px 0 var(--border-primary-darker);
+  outline: 0;
+}
+
+.l-input:focus,
+.l-select:focus,
+.l-textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0px 1px 1px var(--primary);
+}
+
+.fa-angle-down {
+  position: absolute;
+  top: 33px;
+  right: 10px;
+  font-size: 15px;
+}
+
+.l-form-label {
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.ng-valid[required] {
+  border-left: 5px solid; 
+  border-color: var(--status-success) !important; 
+}
+
+.ng-valid[required]:focus {
+  border-color: var(--status-success);
+  box-shadow: 0 0 1px 0px var(--status-success);
+}
+
+.ng-invalid:not(form).ng-touched {
+  border-left: 5px solid;
+  border-color: var(--form-require) !important;
+}
+
+.ng-invalid:not(form).ng-touched:focus {
+  border-color: var(--form-require);
+  box-shadow: 0 0 1px 0px var(--form-require);
+}
+
+.fa-question-circle {
+  font-size: 14px;
+  color: var(--icon-default);
+  margin-left: 5px;
+}

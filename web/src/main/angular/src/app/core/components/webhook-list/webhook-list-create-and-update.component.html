@@ -1,0 +1,25 @@
+<div class="l-wrapper">
+  <button class="btn btn-black l-close" (click)="onClose();"><i class="fas fa-times"></i></button>
+  <h1>Add Webhook</h1>
+  <form>
+      <div class="l-form-grid">
+          <div>
+              <div class="l-form-label">alias <span class="l-required-icon">*</span></div>
+              <input type="text" id="alias" class="l-input" required>
+              <!-- <pp-form-field-error-message
+                  [control]="alarmForm.get('alias')"
+                  [errorMessage]="i18nFormGuide['alias']">
+              </pp-form-field-error-message> -->
+          </div>
+          <div>
+              <div class="l-form-label">url <span class="l-required-icon">*</span></div>
+              <input type="text" id="alias" class="l-input" required>
+              <!-- <pp-form-field-error-message
+                  [control]="alarmForm.get('alias')"
+                  [errorMessage]="i18nFormGuide['alias']">
+              </pp-form-field-error-message> -->
+          </div>
+      </div>
+      <button type="submit" class="btn btn-blue l-create">OK</button>
+  </form>
+</div>

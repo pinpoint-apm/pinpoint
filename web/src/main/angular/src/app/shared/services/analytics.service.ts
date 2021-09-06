@@ -99,7 +99,6 @@ export enum TRACKED_EVENT_LIST {
     SHOW_USER_CREATION_POPUP = 'Show User Creation Popup',
     SHOW_USER_UPDATE_POPUP = 'Show User Update Popup',
     SELECT_APPLICATION_FOR_ALARM = 'Select Application For Alarm',
-    SELECT_APPLICATION_FOR_WEBHOOK = 'Select Application For Webhook',
     CREATE_ALARM = 'Create Alarm',
     UPDATE_ALARM = 'Update Alarm',
     SHOW_ALARM_CREATION_POPUP = 'Show Alarm Creation Popup',
@@ -142,7 +141,10 @@ export enum TRACKED_EVENT_LIST {
     MOVE_NODE_IN_SERVER_MAP = 'Move Node in Server Map',
     CHANGE_THEME = 'Change Theme',
     SET_EXPERIMENTAL_OPTION = 'Set Experimental Option',
-    SET_REAL_TIME_AREA_HEIGHT = 'Set RealTime Area Height'
+    SET_REAL_TIME_AREA_HEIGHT = 'Set RealTime Area Height',
+    SELECT_APPLICATION_FOR_WEBHOOK = 'Select Application For Webhook',
+    SHOW_WEBHOOK_UPDATE_POPUP = 'Show Webhook Update Popup',
+
 }
 
 @Injectable()
