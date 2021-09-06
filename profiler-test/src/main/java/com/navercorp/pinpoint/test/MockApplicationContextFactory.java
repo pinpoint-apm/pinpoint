@@ -21,8 +21,6 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
@@ -41,36 +39,22 @@ public class MockApplicationContextFactory {
     }
 
     public DefaultApplicationContext build(String configPath) {
-        ProfilerConfig profilerConfig = readProfilerConfig(configPath, this.getClass().getClassLoader());
+        ProfilerConfig profilerConfig = loadProfilerConfig(configPath);
         return build(profilerConfig);
     }
 
-    private ProfilerConfig readProfilerConfig(String configPath, ClassLoader classLoader) {
-        final String path = getFilePath(classLoader, configPath);
-        ProfilerConfig profilerConfig = loadProfilerConfig(path);
-
-        String applicationServerType = profilerConfig.getApplicationServerType();
-        if (StringUtils.isEmpty(applicationServerType)) {
-            applicationServerType = ServiceType.TEST_STAND_ALONE.getName();
-        }
-        ((DefaultProfilerConfig)profilerConfig).setApplicationServerType(applicationServerType);
-        return profilerConfig;
-    }
-
-    private ProfilerConfig loadProfilerConfig(String path) {
-        try {
-            return DefaultProfilerConfig.load(path);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
-        }
-    }
-
-    private String getFilePath(ClassLoader classLoader, String configPath) {
+    private ProfilerConfig loadProfilerConfig(String configPath) {
+        final ClassLoader classLoader = this.getClass().getClassLoader();
         final URL resource = classLoader.getResource(configPath);
         if (resource == null) {
             throw new RuntimeException("pinpoint.config not found. configPath:" + configPath);
         }
-        return resource.getPath();
+
+        try {
+            return DefaultProfilerConfig.load(resource.getPath());
+        } catch (IOException ex) {
+            throw new RuntimeException(ex.getMessage(), ex);
+        }
     }
 
     public DefaultApplicationContext build(ProfilerConfig config) {

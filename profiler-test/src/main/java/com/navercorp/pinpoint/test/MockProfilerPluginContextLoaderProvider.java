@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
+import com.navercorp.pinpoint.profiler.context.module.ConfiguredApplicationType;
 import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
 import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginContextLoader;
 
@@ -37,7 +37,7 @@ public class MockProfilerPluginContextLoaderProvider implements Provider<Profile
 
     @Inject
     public MockProfilerPluginContextLoaderProvider(ProfilerConfig profilerConfig,
-                                                   @ApplicationServerType ServiceType configuredApplicationType,
+                                                   @ConfiguredApplicationType ServiceType configuredApplicationType,
                                                    PluginSetup pluginSetup) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
         this.configuredApplicationType = Objects.requireNonNull(configuredApplicationType, "configuredApplicationType");
