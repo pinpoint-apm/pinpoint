@@ -17,6 +17,9 @@
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
+import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.JvmVersion;
+import com.navercorp.pinpoint.common.util.OsUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -51,9 +54,11 @@ public class Java9DefineClassTest {
 
         String className = JavaAssistUtils.javaClassNameToJvmResourceName(Logger.class.getName());
         InputStream classStream = Logger.class.getClassLoader().getResourceAsStream(className);
-        byte[] bytes = IOUtils.readFully(classStream, classStream.available());
+        Assert.assertNotNull("className not found", className);
 
-        DefineClass defineClass = new Java9DefineClass();
+        byte[] bytes = IOUtils.toByteArray(classStream);
+
+        DefineClass defineClass = getDefineClass();
         Class<?> defineClassSlf4jLogger = defineClass.defineClass(classLoader, Logger.class.getName(), bytes);
         Class<?> slf4jLogger = classLoader.loadClass(Logger.class.getName());
 
@@ -62,6 +67,13 @@ public class Java9DefineClassTest {
 
         Assert.assertNotSame(slf4jLogger.getClassLoader(), Logger.class.getClassLoader());
 
+    }
+
+    private DefineClass getDefineClass() {
+        if (JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_9)) {
+            return new Java9DefineClass();
+        }
+        return new ReflectionDefineClass();
     }
 
 }
