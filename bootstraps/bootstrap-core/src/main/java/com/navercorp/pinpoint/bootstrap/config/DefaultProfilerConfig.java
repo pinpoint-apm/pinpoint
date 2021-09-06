@@ -50,8 +50,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private final Properties properties;
 
-    public static final String INSTRUMENT_ENGINE_ASM = "ASM";
-
     private static final TransportModule DEFAULT_TRANSPORT_MODULE = TransportModule.THRIFT;
 
     public static final int DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS = 5 * 1000;
@@ -87,26 +85,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Value("${" + Profiles.ACTIVE_PROFILE_KEY + " }")
     private String activeProfile = Profiles.DEFAULT_ACTIVE_PROFILE;
 
-    @Value("${profiler.instrument.engine}")
-    private String profileInstrumentEngine = INSTRUMENT_ENGINE_ASM;
-    @Value("${profiler.instrument.matcher.enable}")
-    private boolean instrumentMatcherEnable = true;
-
-    @Value("${profiler.interceptorregistry.size}")
-    private int interceptorRegistrySize = 1024 * 8;
-
     @VisibleForTesting
     private boolean staticResourceCleanup = false;
 
     private TransportModule transportModule = DEFAULT_TRANSPORT_MODULE;
-
-
-    private List<String> allowJdkClassNames = Collections.emptyList();
-
-    @Value("${profiler.pinpoint.base-package}")
-    private String pinpointBasePackage;
-    @Value("${profiler.pinpoint.exclude-package}")
-    private String pinpointExcludePackage;
 
     @Value("${profiler.pinpoint.activethread}")
     private boolean traceAgentActiveThread = true;
@@ -121,8 +103,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private boolean deadlockMonitorEnable = true;
     @Value("${profiler.monitor.deadlock.interval}")
     private long deadlockMonitorInterval = 60000L;
-
-    private int callStackMaxDepth = 64;
 
     @Value("${profiler.jdbc.sqlcachesize}")
     private int jdbcSqlCacheSize = 1024;
@@ -157,24 +137,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Value("${profiler.jvm.stat.collect.detailed.metrics}")
     private boolean profilerJvmStatCollectDetailedMetrics = false;
 
-    private Filter<String> profilableClassFilter = new SkipFilter<>();
-
     private final long DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL = 5 * 60 * 1000L;
     @Value("${profiler.agentInfo.send.retry.interval}")
     private long agentInfoSendRetryInterval = DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL;
-
-    // service type
-    @Value("${profiler.applicationservertype}")
-    private String applicationServerType = null;
-
-
-    @Deprecated // As of 1.9.0, set application type in plugins
-    private List<String> applicationTypeDetectOrder = Collections.emptyList();
-
-    @Value("${" + PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE + "}")
-    private boolean propagateInterceptorException = false;
-    @Value("${profiler.lambda.expressions.support}")
-    private boolean supportLambdaExpressions = true;
 
     // proxy http header names
     @Value("${profiler.proxy.http.header.enable}")
@@ -226,31 +191,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.transportModule = TransportModule.parse(transportModule, DEFAULT_TRANSPORT_MODULE);
     }
 
-
-    @Override
-    public int getInterceptorRegistrySize() {
-        return interceptorRegistrySize;
-    }
-
-    @Override
-    public List<String> getAllowJdkClassName() {
-        return allowJdkClassNames;
-    }
-
-    @Value("${profiler.instrument.jdk.allow.classnames}")
-    void setAllowJdkClassNames(String allowJdkClassNames) {
-        this.allowJdkClassNames = StringUtils.tokenizeToStringList(allowJdkClassNames, ",");
-    }
-
-    @Override
-    public String getPinpointBasePackage() {
-        return pinpointBasePackage;
-    }
-
-    @Override
-    public String getPinpointExcludeSubPackage() {
-        return pinpointExcludePackage;
-    }
 
     @Override
     public boolean isTraceAgentActiveThread() {
@@ -350,80 +290,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public boolean getStaticResourceCleanup() {
         return staticResourceCleanup;
-    }
-
-
-    @Override
-    public Filter<String> getProfilableClassFilter() {
-        return profilableClassFilter;
-    }
-
-    @Value("${profiler.include}")
-    void setProfilableClassFilter(String profilableClass) {
-        // TODO have to remove
-        // profile package included in order to test "call stack view".
-        // this config must not be used in service environment because the size of  profiling information will get heavy.
-        // We may need to change this configuration to regular expression.
-        if (profilableClass != null && !profilableClass.isEmpty()) {
-            this.profilableClassFilter = new ProfilableClassFilter(profilableClass);
-        } else {
-            this.profilableClassFilter = new SkipFilter<>();
-        }
-    }
-
-
-    /**
-     * application type detector order
-     * @deprecated As of 1.9.0, set application type in plugins
-     */
-    @Deprecated
-    @Override
-    public List<String> getApplicationTypeDetectOrder() {
-        return applicationTypeDetectOrder;
-    }
-
-    @Value("${profiler.type.detect.order}")
-    @Deprecated
-    void setApplicationTypeDetectOrder(String applicationTypeDetectOrder) {
-        this.applicationTypeDetectOrder = StringUtils.tokenizeToStringList(applicationTypeDetectOrder, ",");
-    }
-
-    @Override
-    public String getApplicationServerType() {
-        return applicationServerType;
-    }
-
-    public void setApplicationServerType(String applicationServerType) {
-        this.applicationServerType = applicationServerType;
-    }
-
-    @Override
-    public int getCallStackMaxDepth() {
-        return callStackMaxDepth;
-    }
-
-    @Value("${profiler.callstack.max.depth}")
-    void setCallStackMaxDepth(int callStackMaxDepth) {
-        // CallStack
-        if (callStackMaxDepth != -1 && callStackMaxDepth < 2) {
-            callStackMaxDepth = 2;
-        }
-        this.callStackMaxDepth = callStackMaxDepth;
-    }
-
-    @Override
-    public boolean isPropagateInterceptorException() {
-        return propagateInterceptorException;
-    }
-
-    @Override
-    public String getProfileInstrumentEngine() {
-        return profileInstrumentEngine;
-    }
-
-    @Override
-    public boolean isSupportLambdaExpressions() {
-        return supportLambdaExpressions;
     }
 
     @Override
@@ -587,16 +453,12 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append("profileEnable='").append(profileEnable).append('\'');
         sb.append(", activeProfile=").append(activeProfile);
         sb.append(", logDirMaxBackupSize=").append(logDirMaxBackupSize);
-        sb.append(", profileInstrumentEngine='").append(profileInstrumentEngine).append('\'');
-        sb.append(", instrumentMatcherEnable=").append(instrumentMatcherEnable);
-        sb.append(", interceptorRegistrySize=").append(interceptorRegistrySize);
         sb.append(", staticResourceCleanup=").append(staticResourceCleanup);
         sb.append(", traceAgentActiveThread=").append(traceAgentActiveThread);
         sb.append(", traceAgentDataSource=").append(traceAgentDataSource);
         sb.append(", dataSourceTraceLimitSize=").append(dataSourceTraceLimitSize);
         sb.append(", deadlockMonitorEnable=").append(deadlockMonitorEnable);
         sb.append(", deadlockMonitorInterval=").append(deadlockMonitorInterval);
-        sb.append(", callStackMaxDepth=").append(callStackMaxDepth);
         sb.append(", jdbcSqlCacheSize=").append(jdbcSqlCacheSize);
         sb.append(", traceSqlBindValue=").append(traceSqlBindValue);
         sb.append(", maxSqlBindValueSize=").append(maxSqlBindValueSize);
@@ -609,12 +471,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", profileJvmStatCollectIntervalMs=").append(profileJvmStatCollectIntervalMs);
         sb.append(", profileJvmStatBatchSendCount=").append(profileJvmStatBatchSendCount);
         sb.append(", profilerJvmStatCollectDetailedMetrics=").append(profilerJvmStatCollectDetailedMetrics);
-        sb.append(", profilableClassFilter=").append(profilableClassFilter);
         sb.append(", agentInfoSendRetryInterval=").append(agentInfoSendRetryInterval);
-        sb.append(", applicationServerType='").append(applicationServerType).append('\'');
-        sb.append(", applicationTypeDetectOrder=").append(applicationTypeDetectOrder);
-        sb.append(", propagateInterceptorException=").append(propagateInterceptorException);
-        sb.append(", supportLambdaExpressions=").append(supportLambdaExpressions);
         sb.append(", proxyHttpHeaderEnable=").append(proxyHttpHeaderEnable);
         sb.append(", httpStatusCodeErrors=").append(httpStatusCodeErrors);
         sb.append(", injectionModuleFactoryClazzName='").append(injectionModuleFactoryClazzName).append('\'');

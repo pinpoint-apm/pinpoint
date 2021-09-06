@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.name.Named;
 import com.navercorp.pinpoint.profiler.context.CallStackFactory;
 import com.navercorp.pinpoint.profiler.context.CallStackFactoryV1;
 import com.navercorp.pinpoint.profiler.context.CallStackFactoryV2;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
+import com.navercorp.pinpoint.profiler.instrument.config.InstrumentConfig;
 
 import java.util.Objects;
 
@@ -37,10 +37,10 @@ public class CallStackFactoryProvider implements Provider<CallStackFactory<SpanE
 
 
     @Inject
-    public CallStackFactoryProvider(@Named("profiler.callstack.max.depth") int callStackMaxDepth,
+    public CallStackFactoryProvider(InstrumentConfig instrumentConfig,
                                     TraceDataFormatVersion version) {
         this.version = Objects.requireNonNull(version, "version");
-        this.callStackMaxDepth = callStackMaxDepth;
+        this.callStackMaxDepth = instrumentConfig.getCallStackMaxDepth();
     }
 
     @Override

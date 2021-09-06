@@ -24,4 +24,9 @@ public class SkipFilter<T> implements Filter<T> {
     public boolean filter(T value) {
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "SkipFilter{}";
+    }
 }

@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.profiler.context.module.config;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
-import com.google.inject.name.Named;
-import com.google.inject.name.Names;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.profiler.instrument.config.DefaultInstrumentMatcherCacheConfig;
 import com.navercorp.pinpoint.profiler.instrument.config.InstrumentMatcherCacheConfig;
@@ -44,6 +42,8 @@ import com.navercorp.pinpoint.profiler.context.provider.InterceptorRegistryBinde
 import com.navercorp.pinpoint.profiler.context.provider.TraceDataFormatVersionProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginJarsProvider;
 import com.navercorp.pinpoint.profiler.instrument.classloading.BootstrapCore;
+import com.navercorp.pinpoint.profiler.instrument.config.DefaultInstrumentConfig;
+import com.navercorp.pinpoint.profiler.instrument.config.InstrumentConfig;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.profiler.plugin.config.DefaultPluginLoadingConfig;
@@ -79,18 +79,27 @@ public class ConfigModule extends AbstractModule {
         ProfilerConfig profilerConfig = agentOption.getProfilerConfig();
         bind(ProfilerConfig.class).toInstance(profilerConfig);
 
-        Properties properties = profilerConfig.getProperties();
+        bindConstants(profilerConfig);
 
-        PluginLoadingConfig pluginLoadingConfig = loadPluginLoadingConfig(properties);
+        Properties properties = profilerConfig.getProperties();
+        ConfigurationLoader configurationLoader = new ConfigurationLoader(properties);
+
+        PluginLoadingConfig pluginLoadingConfig = new DefaultPluginLoadingConfig();
+        configurationLoader.load(pluginLoadingConfig);
+        logger.info("{}", pluginLoadingConfig);
         bind(PluginLoadingConfig.class).toInstance(pluginLoadingConfig);
 
-        InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = loadInstrumentMatcherCacheConfig(properties);
+        InstrumentConfig instrumentConfig = new DefaultInstrumentConfig();
+        configurationLoader.load(instrumentConfig);
+        logger.info("{}", instrumentConfig);
+        bind(InstrumentConfig.class).toInstance(instrumentConfig);
+
+        InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = new DefaultInstrumentMatcherCacheConfig();
+        configurationLoader.load(instrumentMatcherCacheConfig);
+        logger.info("{}", instrumentMatcherCacheConfig);
         bind(InstrumentMatcherCacheConfig.class).toInstance(instrumentMatcherCacheConfig);
 
         bind(TransportModule.class).toInstance(profilerConfig.getTransportModule());
-
-        bindConstants(profilerConfig);
-
 
         bind(Instrumentation.class).toInstance(agentOption.getInstrumentation());
 
@@ -121,11 +130,7 @@ public class ConfigModule extends AbstractModule {
 
         bind(TraceDataFormatVersion.class).toProvider(TraceDataFormatVersionProvider.class).in(Scopes.SINGLETON);
 
-        Named callstackMaxDepth = Names.named("profiler.callstack.max.depth");
-        bindConstant().annotatedWith(callstackMaxDepth).to(profilerConfig.getCallStackMaxDepth());
-
         bindConstant().annotatedWith(TraceAgentActiveThread.class).to(profilerConfig.isTraceAgentActiveThread());
-
         bindConstant().annotatedWith(DeadlockMonitorEnable.class).to(profilerConfig.isDeadlockMonitorEnable());
         bindConstant().annotatedWith(DeadlockMonitorInterval.class).to(profilerConfig.getDeadlockMonitorInterval());
     }
@@ -140,23 +145,16 @@ public class ConfigModule extends AbstractModule {
         bind(ServiceType.class).annotatedWith(ConfiguredApplicationType.class).toProvider(ConfiguredApplicationTypeProvider.class).in(Scopes.SINGLETON);
     }
 
-    private PluginLoadingConfig loadPluginLoadingConfig(Properties properties) {
-        DefaultPluginLoadingConfig pluginLoadingConfig = new DefaultPluginLoadingConfig();
+    private static class ConfigurationLoader {
+        private final ValueAnnotationProcessor process = new ValueAnnotationProcessor();
+        private final Properties properties;
 
-        ValueAnnotationProcessor process = new ValueAnnotationProcessor();
-        process.process(pluginLoadingConfig, properties);
+        public ConfigurationLoader(Properties properties) {
+            this.properties = Objects.requireNonNull(properties, "properties");
+        }
 
-        logger.info("{}", pluginLoadingConfig);
-        return pluginLoadingConfig;
-    }
-
-    private InstrumentMatcherCacheConfig loadInstrumentMatcherCacheConfig(Properties properties) {
-        InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = new DefaultInstrumentMatcherCacheConfig();
-
-        ValueAnnotationProcessor process = new ValueAnnotationProcessor();
-        process.process(instrumentMatcherCacheConfig, properties);
-
-        logger.info("{}", instrumentMatcherCacheConfig);
-        return instrumentMatcherCacheConfig;
+        public <T> void load(T config) {
+            process.process(config, properties);
+        }
     }
 }

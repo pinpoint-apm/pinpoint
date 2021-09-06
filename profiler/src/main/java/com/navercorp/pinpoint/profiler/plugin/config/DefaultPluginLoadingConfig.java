@@ -20,16 +20,17 @@ import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.Value;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
+import java.util.Collections;
 import java.util.List;
 
 public class DefaultPluginLoadingConfig implements PluginLoadingConfig {
     // ArtifactIdUtils.ARTIFACT_SEPARATOR
     private static final String ARTIFACT_SEPARATOR = ";";
 
-    private List<String> pluginLoadOrder;
-    private List<String> disabledPlugins;
+    private List<String> pluginLoadOrder = Collections.emptyList();
+    private List<String> disabledPlugins = Collections.emptyList();
 
-    private List<String> importPluginIds;
+    private List<String> importPluginIds = Collections.emptyList();
 
     public DefaultPluginLoadingConfig() {
     }
@@ -66,7 +67,7 @@ public class DefaultPluginLoadingConfig implements PluginLoadingConfig {
 
     @Override
     public String toString() {
-        return "PluginLoadingConfig{" +
+        return "DefaultPluginLoadingConfig{" +
                 "pluginLoadOrder=" + pluginLoadOrder +
                 ", disabledPlugins=" + disabledPlugins +
                 ", importPluginIds=" + importPluginIds +
