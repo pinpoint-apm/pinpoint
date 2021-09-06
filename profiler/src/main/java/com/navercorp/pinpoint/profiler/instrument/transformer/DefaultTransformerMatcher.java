@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
-import com.navercorp.pinpoint.bootstrap.config.InstrumentMatcherCacheConfig;
+import com.navercorp.pinpoint.profiler.instrument.config.InstrumentMatcherCacheConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.AnnotationInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.ClassInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInternalNameMatcherOperand;

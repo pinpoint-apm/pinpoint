@@ -22,7 +22,8 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
-import com.navercorp.pinpoint.bootstrap.config.InstrumentMatcherCacheConfig;
+import com.navercorp.pinpoint.profiler.instrument.config.DefaultInstrumentMatcherCacheConfig;
+import com.navercorp.pinpoint.profiler.instrument.config.InstrumentMatcherCacheConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.TransportModule;
 import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
@@ -136,7 +137,7 @@ public class ConfigModule extends AbstractModule {
 
 
     private InstrumentMatcherCacheConfig loadInstrumentMatcherCacheConfig(Properties properties) {
-        InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = new InstrumentMatcherCacheConfig();
+        InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = new DefaultInstrumentMatcherCacheConfig();
 
         ValueAnnotationProcessor process = new ValueAnnotationProcessor();
         process.process(instrumentMatcherCacheConfig, properties);

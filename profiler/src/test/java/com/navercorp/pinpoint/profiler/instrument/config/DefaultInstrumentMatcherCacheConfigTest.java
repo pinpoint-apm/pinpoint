@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2021 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.profiler.instrument.config;
 
 import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
 import org.junit.Test;
 
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-/**
- * @author jaehong.kim
- */
-public class InstrumentMatcherCacheConfigTest {
+public class DefaultInstrumentMatcherCacheConfigTest {
 
     @Test
     public void constructor() throws Exception {
-        InstrumentMatcherCacheConfig config = new InstrumentMatcherCacheConfig();
+        DefaultInstrumentMatcherCacheConfig config = new DefaultInstrumentMatcherCacheConfig();
         config.setInterfaceCacheSize(1);
         config.setInterfaceCacheEntrySize(2);
         config.setAnnotationCacheSize(3);
@@ -58,7 +55,7 @@ public class InstrumentMatcherCacheConfigTest {
         properties.put("profiler.instrument.matcher.super.cache.size", "5");
         properties.put("profiler.instrument.matcher.super.cache.entry.size", "6");
 
-        InstrumentMatcherCacheConfig config = new InstrumentMatcherCacheConfig();
+        InstrumentMatcherCacheConfig config = new DefaultInstrumentMatcherCacheConfig();
         ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
         reader.process(config, properties);
 

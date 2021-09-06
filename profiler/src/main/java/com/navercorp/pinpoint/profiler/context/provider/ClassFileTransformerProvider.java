@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
-import com.navercorp.pinpoint.bootstrap.config.InstrumentMatcherCacheConfig;
+import com.navercorp.pinpoint.profiler.instrument.config.InstrumentMatcherCacheConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
@@ -136,7 +136,7 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
     }
 
     private TransformerRegistry newDefaultTransformerRegistry(List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
-        if (this.profilerConfig.isInstrumentMatcherEnable()) {
+        if (this.instrumentMatcherCacheConfig.isInstrumentMatcherEnable()) {
             return new MatchableTransformerRegistry(this.instrumentMatcherCacheConfig, matchableClassFileTransformerList);
         }
         return new DefaultTransformerRegistry(matchableClassFileTransformerList);
@@ -145,7 +145,7 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
     private List<MatchableClassFileTransformer> getMatchableTransformers(PluginContextLoadResult pluginContexts) {
         Objects.requireNonNull(pluginContexts, "pluginContexts");
 
-        final List<MatchableClassFileTransformer> matcherList = new ArrayList<MatchableClassFileTransformer>();
+        final List<MatchableClassFileTransformer> matcherList = new ArrayList<>();
         for (ClassFileTransformer transformer : pluginContexts.getClassFileTransformer()) {
             if (transformer instanceof MatchableClassFileTransformer) {
                 final MatchableClassFileTransformer t = (MatchableClassFileTransformer) transformer;

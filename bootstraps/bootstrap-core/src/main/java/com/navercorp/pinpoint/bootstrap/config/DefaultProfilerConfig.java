@@ -450,11 +450,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
-    public boolean isInstrumentMatcherEnable() {
-        return instrumentMatcherEnable;
-    }
-
-    @Override
     public boolean isProxyHttpHeaderEnable() {
         return proxyHttpHeaderEnable;
     }

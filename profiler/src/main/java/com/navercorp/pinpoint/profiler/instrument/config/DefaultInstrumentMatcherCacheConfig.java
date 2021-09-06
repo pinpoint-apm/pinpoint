@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2021 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,12 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.profiler.instrument.config;
+
+import com.navercorp.pinpoint.bootstrap.config.Value;
 
 /**
  * @author jaehong.kim
  */
-public class InstrumentMatcherCacheConfig {
+public class DefaultInstrumentMatcherCacheConfig implements InstrumentMatcherCacheConfig {
+
+    @Value("${profiler.instrument.matcher.enable}")
+    private boolean instrumentMatcherEnable = true;
 
     @Value("${profiler.instrument.matcher.interface.cache.size}")
     private int interfaceCacheSize = 4;
@@ -35,6 +40,16 @@ public class InstrumentMatcherCacheConfig {
     @Value("${profiler.instrument.matcher.super.cache.entry.size}")
     private int superCacheEntrySize = 4;
 
+    @Override
+    public boolean isInstrumentMatcherEnable() {
+        return instrumentMatcherEnable;
+    }
+
+    public void setInstrumentMatcherEnable(boolean instrumentMatcherEnable) {
+        this.instrumentMatcherEnable = instrumentMatcherEnable;
+    }
+
+    @Override
     public int getInterfaceCacheSize() {
         return interfaceCacheSize;
     }
@@ -43,6 +58,7 @@ public class InstrumentMatcherCacheConfig {
         this.interfaceCacheSize = interfaceCacheSize;
     }
 
+    @Override
     public int getInterfaceCacheEntrySize() {
         return interfaceCacheEntrySize;
     }
@@ -51,6 +67,7 @@ public class InstrumentMatcherCacheConfig {
         this.interfaceCacheEntrySize = interfaceCacheEntrySize;
     }
 
+    @Override
     public int getAnnotationCacheSize() {
         return annotationCacheSize;
     }
@@ -59,6 +76,7 @@ public class InstrumentMatcherCacheConfig {
         this.annotationCacheSize = annotationCacheSize;
     }
 
+    @Override
     public int getAnnotationCacheEntrySize() {
         return annotationCacheEntrySize;
     }
@@ -67,6 +85,7 @@ public class InstrumentMatcherCacheConfig {
         this.annotationCacheEntrySize = annotationCacheEntrySize;
     }
 
+    @Override
     public int getSuperCacheSize() {
         return superCacheSize;
     }
@@ -75,6 +94,7 @@ public class InstrumentMatcherCacheConfig {
         this.superCacheSize = superCacheSize;
     }
 
+    @Override
     public int getSuperCacheEntrySize() {
         return superCacheEntrySize;
     }
