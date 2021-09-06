@@ -106,8 +106,6 @@ public interface ProfilerConfig {
 
     boolean isSupportLambdaExpressions();
 
-    boolean isInstrumentMatcherEnable();
-
     boolean isProxyHttpHeaderEnable();
 
     HttpStatusCodeErrors getHttpStatusCodeErrors();

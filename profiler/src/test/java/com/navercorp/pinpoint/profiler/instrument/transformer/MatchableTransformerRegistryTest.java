@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
-import com.navercorp.pinpoint.bootstrap.config.InstrumentMatcherCacheConfig;
+import com.navercorp.pinpoint.profiler.instrument.config.DefaultInstrumentMatcherCacheConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
@@ -53,7 +53,7 @@ public class MatchableTransformerRegistryTest {
         matchableClassFileTransformerList.add(mock1);
         matchableClassFileTransformerList.add(mock2);
 
-        MatchableTransformerRegistry registry = new MatchableTransformerRegistry(new InstrumentMatcherCacheConfig(), matchableClassFileTransformerList);
+        MatchableTransformerRegistry registry = new MatchableTransformerRegistry(new DefaultInstrumentMatcherCacheConfig(), matchableClassFileTransformerList);
 
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         Class<?> clazz = Foo.class;
