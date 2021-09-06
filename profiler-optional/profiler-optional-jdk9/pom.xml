@@ -32,8 +32,10 @@
     <description>pinpoint profiler optional package for jdk 9</description>
 
     <properties>
-        <jdk.version>9</jdk.version>
-        <jdk.home>${env.JAVA_9_HOME}</jdk.home>
+        <jdk.version>8</jdk.version>
+        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+<!--        <jdk.version>9</jdk.version>-->
+<!--        <jdk.home>${env.JAVA_9_HOME}</jdk.home>-->
 
         <plugin.animal-sniffer.skip>true</plugin.animal-sniffer.skip>
     </properties>
@@ -90,7 +92,7 @@
                         <goals><goal>add-source</goal></goals>
                         <configuration>
                             <sources>
-<!--                                <source>src/main/java9</source>-->
+                                <source>src/main/java9</source>
                                 <source>src/main/java11</source>
                             </sources>
                         </configuration>
@@ -101,10 +103,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>
-                        --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
-                        -Dfile.encoding=${encoding}
-                    </argLine>
+                    <!-- jdk9 -->
+<!--                    <argLine>-->
+<!--                        &#45;&#45;add-exports java.base/jdk.internal.misc=ALL-UNNAMED-->
+<!--                        -Dfile.encoding=${encoding}-->
+<!--                    </argLine>-->
+
+                    <!-- jdk11 -->
 <!--                    <argLine>-->
 <!--                        &#45;&#45;add-exports java.base/jdk.internal.access=ALL-UNNAMED-->
 <!--                        -Dfile.encoding=${encoding}-->
@@ -116,7 +121,9 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <compilerArgs>
-                        <arg>--add-exports</arg><arg>java.base/jdk.internal.misc=ALL-UNNAMED</arg>
+                        <!-- jdk9 -->
+<!--                        <arg>&#45;&#45;add-exports</arg><arg>java.base/jdk.internal.misc=ALL-UNNAMED</arg>-->
+                        <!-- jdk 11 -->
 <!--                        <arg>&#45;&#45;add-exports</arg><arg>java.base/jdk.internal.access=ALL-UNNAMED</arg>-->
                     </compilerArgs>
                 </configuration>
