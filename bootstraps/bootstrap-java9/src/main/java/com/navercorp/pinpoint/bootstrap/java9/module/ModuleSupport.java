@@ -80,6 +80,10 @@ public class ModuleSupport {
 
     private void addPermissionToValueAnnotation(JavaModule agentModule) {
         JavaModule bootstrapModule = getBootstrapModule();
+
+        agentModule.addOpens("com.navercorp.pinpoint.profiler.instrument.config", bootstrapModule);
+        agentModule.addOpens("com.navercorp.pinpoint.profiler.plugin.config", bootstrapModule);
+
         agentModule.addOpens("com.navercorp.pinpoint.profiler.context.thrift.config", bootstrapModule);
         agentModule.addOpens("com.navercorp.pinpoint.profiler.context.grpc.config", bootstrapModule);
         agentModule.addOpens("com.navercorp.pinpoint.grpc.client.config", bootstrapModule);
