@@ -1,0 +1,20 @@
+<div class="l-webhook-list">
+  <ul>
+    <li *ngFor="let webhook of webhookList">
+    <!-- [class.selected]="isSelected(webhook.id)" (click)="onSelect($event, webhook)" -->
+      <div class="l-item-wrapper">
+          <div>
+              <button [hidden]="hasRemoveTarget(webhook.webhookId)" class="far fa-trash-alt" (click)="onRemove(webhook.webhookId)"></button>
+              <button [hidden]="hasRemoveTarget(webhook.webhookId)" class="far fa-edit" (click)="onEdit(webhook.webhookId)"></button>
+              <button [hidden]="!hasRemoveTarget(webhook.webhookId)" class="fas fa-arrow-left" (click)="onCancelRemove()"></button>
+              <button [hidden]="!hasRemoveTarget(webhook.webhookId)" class="fas fa-check" (click)="onConfirmRemove()"></button>
+          </div> 
+          <span>{{webhook.url}}</span>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<ng-template #emptyText>
+  <p class="l-empty-text">{{i18nText.EMPTY}}</p>
+</ng-template>

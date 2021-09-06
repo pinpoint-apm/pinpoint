@@ -1,0 +1,36 @@
+li {
+  color: var(--text-primary);
+  /* height: 28px; */
+  margin: 0;
+  cursor: pointer;
+  padding: 12px 15px;
+  font-size: 13px;    
+}
+
+li:hover {
+  background: var(--background-hover-secondary);
+}
+
+li.selected {
+  background: var(--background-hover-secondary);
+}
+
+.l-item-wrapper {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.l-item-wrapper > div {
+  float: right;
+}
+
+.far.fa-edit {
+  padding-left: 10px;
+}
+
+.fa-check {
+  color: var(--status-danger-lighter);
+  margin-left: 10px;
+}
