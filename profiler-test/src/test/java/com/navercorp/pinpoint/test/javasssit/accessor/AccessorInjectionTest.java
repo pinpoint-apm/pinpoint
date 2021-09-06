@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.test.MockApplicationContextFactory;
@@ -54,7 +53,6 @@ public class AccessorInjectionTest {
         PLoggerFactory.initialize(new Slf4jLoggerBinder());
 
         DefaultProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
 
         MockApplicationContextFactory factory = new MockApplicationContextFactory();
         this.applicationContext = factory.build(profilerConfig);
@@ -66,7 +64,7 @@ public class AccessorInjectionTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         if (applicationContext != null) {
             applicationContext.close();
         }
