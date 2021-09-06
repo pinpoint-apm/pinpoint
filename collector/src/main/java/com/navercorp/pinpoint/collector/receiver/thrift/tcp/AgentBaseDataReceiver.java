@@ -17,12 +17,12 @@
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
 import com.navercorp.pinpoint.collector.cluster.ClusterPointStateChangedEventHandler;
+import com.navercorp.pinpoint.collector.cluster.ClusterService;
 import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
-import com.navercorp.pinpoint.collector.thrift.config.AgentBaseDataReceiverConfiguration;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
+import com.navercorp.pinpoint.collector.thrift.config.AgentBaseDataReceiverConfiguration;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
@@ -53,7 +53,7 @@ public class AgentBaseDataReceiver {
 
     private final AgentBaseDataReceiverConfiguration configuration;
 
-    private final ZookeeperClusterService clusterService;
+    private final ClusterService clusterService;
 
     private final Executor executor;
 
@@ -79,12 +79,12 @@ public class AgentBaseDataReceiver {
     }
 
     public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor,
-                                 DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler, ZookeeperClusterService service) {
+                                 DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler, ClusterService service) {
         this(configuration, executor, acceptor, new DefaultTCPPacketHandlerFactory(), dispatchHandler, service);
     }
 
     public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor,
-                                 TCPPacketHandlerFactory<TBase<?, ?>, TBase<?, ?>> tcpPacketHandlerFactory, DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler, ZookeeperClusterService service) {
+                                 TCPPacketHandlerFactory<TBase<?, ?>, TBase<?, ?>> tcpPacketHandlerFactory, DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler, ClusterService service) {
         this.configuration = Objects.requireNonNull(configuration, "config");
         this.executor = Objects.requireNonNull(executor, "executor");
         this.acceptor = Objects.requireNonNull(acceptor, "acceptor");
