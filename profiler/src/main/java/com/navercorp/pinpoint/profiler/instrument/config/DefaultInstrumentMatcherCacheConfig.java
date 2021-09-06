@@ -105,7 +105,7 @@ public class DefaultInstrumentMatcherCacheConfig implements InstrumentMatcherCac
 
     @Override
     public String toString() {
-        return "InstrumentMatcherCacheConfig{" +
+        return "DefaultInstrumentMatcherCacheConfig{" +
                 "interfaceCacheSize=" + interfaceCacheSize +
                 ", interfaceCacheEntrySize=" + interfaceCacheEntrySize +
                 ", annotationCacheSize=" + annotationCacheSize +

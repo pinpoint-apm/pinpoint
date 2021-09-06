@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.classloading.DebugTransformerClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.config.InstrumentConfig;
 import com.navercorp.pinpoint.profiler.instrument.transformer.BypassLambdaClassFileResolver;
 import com.navercorp.pinpoint.profiler.instrument.transformer.DebugTransformer;
 import com.navercorp.pinpoint.profiler.instrument.transformer.DebugTransformerRegistry;
@@ -62,6 +63,7 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ProfilerConfig profilerConfig;
+    private final InstrumentConfig instrumentConfig;
     private final InstrumentMatcherCacheConfig instrumentMatcherCacheConfig;
     private final PluginContextLoadResult pluginContextLoadResult;
     private final InstrumentEngine instrumentEngine;
@@ -70,12 +72,15 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
 
     @Inject
     public ClassFileTransformerProvider(ProfilerConfig profilerConfig,
+                                        InstrumentConfig instrumentConfig,
                                         InstrumentMatcherCacheConfig instrumentMatcherCacheConfig,
                                         InstrumentEngine instrumentEngine, PluginContextLoadResult pluginContextLoadResult,
                                         DynamicTransformTrigger dynamicTransformTrigger, DynamicTransformerRegistry dynamicTransformerRegistry) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.instrumentConfig = Objects.requireNonNull(instrumentConfig, "instrumentConfig");
         this.instrumentMatcherCacheConfig = Objects.requireNonNull(instrumentMatcherCacheConfig, "instrumentMatcherCacheConfig");
         this.instrumentEngine = Objects.requireNonNull(instrumentEngine, "instrumentEngine");
+
         this.pluginContextLoadResult = Objects.requireNonNull(pluginContextLoadResult, "pluginContextLoadResult");
         this.dynamicTransformTrigger = Objects.requireNonNull(dynamicTransformTrigger, "dynamicTransformTrigger");
         this.dynamicTransformerRegistry = Objects.requireNonNull(dynamicTransformerRegistry, "dynamicTransformerRegistry");
@@ -84,19 +89,19 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
     @Override
     public ClassFileTransformer get() {
 
-        final LambdaClassFileResolver lambdaClassFileResolver = newLambdaClassFileResolver(profilerConfig.isSupportLambdaExpressions());
+        final LambdaClassFileResolver lambdaClassFileResolver = newLambdaClassFileResolver(instrumentConfig.isSupportLambdaExpressions());
 
         final TransformerRegistry transformerRegistry = newTransformerRegistry();
 
-        final String classFilterBasePackage = StringUtils.defaultString(profilerConfig.getPinpointBasePackage(), PinpointClassFilter.DEFAULT_PACKAGE);
-        List<String> excludeSub = StringUtils.tokenizeToStringList(profilerConfig.getPinpointExcludeSubPackage(), ",");
+        final String classFilterBasePackage = StringUtils.defaultString(instrumentConfig.getPinpointBasePackage(), PinpointClassFilter.DEFAULT_PACKAGE);
+        List<String> excludeSub = StringUtils.tokenizeToStringList(instrumentConfig.getPinpointExcludeSubPackage(), ",");
         if (excludeSub.isEmpty()) {
             excludeSub = PinpointClassFilter.DEFAULT_EXCLUDES;
         }
 
         final ClassFileFilter pinpointClassFilter = new PinpointClassFilter(classFilterBasePackage, excludeSub);
 
-        final List<String> allowJdkClassName = profilerConfig.getAllowJdkClassName();
+        final List<String> allowJdkClassName = instrumentConfig.getAllowJdkClassName();
         final ClassFileFilter unmodifiableFilter = new UnmodifiableClassFilter(allowJdkClassName);
         return new DefaultClassFileTransformerDispatcher(pinpointClassFilter, unmodifiableFilter, transformerRegistry,
                 dynamicTransformerRegistry, lambdaClassFileResolver);
@@ -113,7 +118,7 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
 
     private TransformerRegistry newDebugTransformerRegistry() {
         final DebugTransformer debugTransformer = newDebugTransformer(profilerConfig, instrumentEngine, dynamicTransformTrigger);
-        final Filter<String> debugTargetFilter = profilerConfig.getProfilableClassFilter();
+        final Filter<String> debugTargetFilter = instrumentConfig.getProfilableClassFilter();
         return new DebugTransformerRegistry(debugTargetFilter, debugTransformer);
     }
 

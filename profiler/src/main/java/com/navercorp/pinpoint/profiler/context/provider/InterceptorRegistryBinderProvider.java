@@ -19,8 +19,9 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import java.util.Objects;
+
+import com.navercorp.pinpoint.profiler.instrument.config.InstrumentConfig;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 
@@ -32,13 +33,13 @@ public class InterceptorRegistryBinderProvider implements Provider<InterceptorRe
     private final InterceptorRegistryBinder interceptorRegistryBinder;
 
     @Inject
-    public InterceptorRegistryBinderProvider(ProfilerConfig profilerConfig) {
-        this(getInterceptorRegistrySize(profilerConfig));
+    public InterceptorRegistryBinderProvider(InstrumentConfig instrumentConfig) {
+        this(getInterceptorRegistrySize(instrumentConfig));
     }
 
-    private static int getInterceptorRegistrySize(ProfilerConfig profilerConfig) {
-        Objects.requireNonNull(profilerConfig, "profilerConfig");
-        return profilerConfig.getInterceptorRegistrySize();
+    private static int getInterceptorRegistrySize(InstrumentConfig instrumentConfig) {
+        Objects.requireNonNull(instrumentConfig, "instrumentConfig");
+        return instrumentConfig.getInterceptorRegistrySize();
     }
 
     public InterceptorRegistryBinderProvider(int interceptorSize) {

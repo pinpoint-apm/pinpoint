@@ -18,10 +18,11 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import java.util.Objects;
+
+import com.navercorp.pinpoint.profiler.instrument.config.InstrumentConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,10 +37,10 @@ public class ConfiguredApplicationTypeProvider implements Provider<ServiceType> 
     private final ServiceTypeRegistryService serviceTypeRegistryService;
 
     @Inject
-    public ConfiguredApplicationTypeProvider(ProfilerConfig profilerConfig, ServiceTypeRegistryService serviceTypeRegistryService) {
-        Objects.requireNonNull(profilerConfig, "profilerConfig");
+    public ConfiguredApplicationTypeProvider(InstrumentConfig instrumentConfig, ServiceTypeRegistryService serviceTypeRegistryService) {
+        Objects.requireNonNull(instrumentConfig, "instrumentConfig");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
-        this.applicationTypeString = profilerConfig.getApplicationServerType();
+        this.applicationTypeString = instrumentConfig.getApplicationServerType();
     }
 
     @Override

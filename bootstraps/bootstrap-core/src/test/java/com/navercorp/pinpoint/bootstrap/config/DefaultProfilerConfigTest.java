@@ -34,13 +34,6 @@ public class DefaultProfilerConfigTest {
 
 
     @Test
-    public void defaultProfilableClassFilter() throws IOException {
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
-        Filter<String> profilableClassFilter = profilerConfig.getProfilableClassFilter();
-        Assert.assertFalse(profilableClassFilter.filter("net/spider/king/wang/Jjang"));
-    }
-
-    @Test
     public void readProperty() throws IOException {
         String path = DefaultProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
         logger.debug("path:{}", path);
@@ -70,26 +63,6 @@ public class DefaultProfilerConfigTest {
 
         Assert.assertEquals(profilerConfig.isIoBufferingEnable(), true);
         Assert.assertEquals(profilerConfig.getIoBufferingBufferSize(), 10);
-    }
-
-
-    @Test
-    public void getCallStackMaxDepth() {
-        Properties properties = new Properties();
-        properties.setProperty("profiler.callstack.max.depth", "64");
-
-        // Read
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
-        Assert.assertEquals(profilerConfig.getCallStackMaxDepth(), 64);
-
-        // Unlimited
-        properties.setProperty("profiler.callstack.max.depth", "-1");
-        profilerConfig = new DefaultProfilerConfig(properties);
-        Assert.assertEquals(profilerConfig.getCallStackMaxDepth(), -1);
-        // Minimum calibration
-        properties.setProperty("profiler.callstack.max.depth", "0");
-        profilerConfig = new DefaultProfilerConfig(properties);
-        Assert.assertEquals(profilerConfig.getCallStackMaxDepth(), 2);
     }
 
 

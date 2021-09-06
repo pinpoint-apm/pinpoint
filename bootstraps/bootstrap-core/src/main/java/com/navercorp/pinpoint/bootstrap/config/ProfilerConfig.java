@@ -34,15 +34,8 @@ public interface ProfilerConfig {
 //    String[] getOptionalProfiles();
 
     Properties getProperties();
-    
-    int getInterceptorRegistrySize();
 
     TransportModule getTransportModule();
-
-    List<String> getAllowJdkClassName();
-
-    String getPinpointBasePackage();
-    String getPinpointExcludeSubPackage();
 
     boolean isTraceAgentActiveThread();
 
@@ -86,21 +79,6 @@ public interface ProfilerConfig {
     @InterfaceAudience.Private
     @VisibleForTesting
     boolean getStaticResourceCleanup();
-
-
-    Filter<String> getProfilableClassFilter();
-
-    List<String> getApplicationTypeDetectOrder();
-
-    String getApplicationServerType();
-
-    int getCallStackMaxDepth();
-
-    boolean isPropagateInterceptorException();
-
-    String getProfileInstrumentEngine();
-
-    boolean isSupportLambdaExpressions();
 
     boolean isProxyHttpHeaderEnable();
 
