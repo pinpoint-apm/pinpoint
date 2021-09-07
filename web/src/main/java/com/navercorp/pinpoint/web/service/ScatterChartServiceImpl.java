@@ -32,7 +32,6 @@ import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -57,7 +56,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     private final SpanService spanService;
 
     public ScatterChartServiceImpl(ApplicationTraceIndexDao applicationTraceIndexDao,
-                                   @Qualifier("hbaseTraceDaoFactory") TraceDao traceDao,
+                                   TraceDao traceDao,
                                    SpanService spanService
     ) {
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");

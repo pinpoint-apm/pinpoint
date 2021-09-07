@@ -38,7 +38,6 @@ import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -64,7 +63,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     private final RecorderFactoryProvider recordFactoryProvider;
 
-    public TransactionInfoServiceImpl(@Qualifier("hbaseTraceDaoFactory") TraceDao traceDao,
+    public TransactionInfoServiceImpl(TraceDao traceDao,
                                       AnnotationKeyMatcherService annotationKeyMatcherService,
                                       Optional<MetaDataFilter> metaDataFilter,
                                       RecorderFactoryProvider recordFactoryProvider) {
