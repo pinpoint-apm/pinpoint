@@ -52,7 +52,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,7 +69,7 @@ import java.util.stream.Collectors;
  * @author jaehong.kim
  * @author minwoo.jung
  */
-//@Service
+@Service
 public class SpanServiceImpl implements SpanService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -91,7 +91,7 @@ public class SpanServiceImpl implements SpanService {
     private final SqlParser sqlParser = new DefaultSqlParser();
     private final OutputParameterParser outputParameterParser = new OutputParameterParser();
 
-    public SpanServiceImpl(@Qualifier("hbaseTraceDaoFactory") TraceDao traceDao,
+    public SpanServiceImpl(TraceDao traceDao,
                            SqlMetaDataDao sqlMetaDataDao,
                            Optional<MetaDataFilter> metaDataFilter,
                            ApiMetaDataDao apiMetaDataDao,

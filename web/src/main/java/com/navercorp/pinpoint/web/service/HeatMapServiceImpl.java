@@ -16,7 +16,6 @@ import com.navercorp.pinpoint.web.vo.SpanHint;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -36,7 +35,7 @@ public class HeatMapServiceImpl implements HeatMapService {
 
     public HeatMapServiceImpl(ApplicationTraceIndexDao applicationTraceIndexDao,
                               SpanService spanService,
-                              @Qualifier("hbaseTraceDaoFactory") TraceDao traceDao) {
+                              TraceDao traceDao) {
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
         this.spanService = Objects.requireNonNull(spanService, "spanService");
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
