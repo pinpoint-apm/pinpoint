@@ -55,7 +55,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.root;
 @PinpointConfig("pinpoint-paho-mqttv5-plugin-test.config")
 @Dependency({"org.eclipse.paho:org.eclipse.paho.mqttv5.client:[1.2.5]",
         "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
-        "org.testcontainers:testcontainers:1.14.3"
+        "org.testcontainers:testcontainers:1.15.3"
 })
 
 public class PahoMqttV5ClientIT {
