@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
-public class AgentCustomMetricSnapshotBatch {
+public class AgentCustomMetricSnapshotBatch implements MetricType {
 
     private final List<AgentCustomMetricSnapshot> agentCustomMetricSnapshotList;
 

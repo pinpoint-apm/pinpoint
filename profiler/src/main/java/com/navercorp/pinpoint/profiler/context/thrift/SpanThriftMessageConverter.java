@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -48,7 +49,7 @@ import java.util.List;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>> {
+public class SpanThriftMessageConverter implements MessageConverter<SpanType, TBase<?, ?>> {
 
     private final String agentId;
     private final String applicationName;
@@ -71,7 +72,7 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
 
 
     @Override
-    public TBase<?, ?> toMessage(Object message) {
+    public TBase<?, ?> toMessage(SpanType message) {
         if (message instanceof SpanChunk) {
             final SpanChunk spanChunk = (SpanChunk) message;
             return buildTSpanChunk(spanChunk);

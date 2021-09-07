@@ -17,15 +17,19 @@
 package com.navercorp.pinpoint.test;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Key;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Providers;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
@@ -49,21 +53,25 @@ public class PluginApplicationContextModule extends AbstractModule {
     protected void configure() {
         logger.info("configure {}", this.getClass().getSimpleName());
 
-        final DataSender spanDataSender = newUdpSpanDataSender();
+        final DataSender<SpanType> spanDataSender = newUdpSpanDataSender();
         logger.debug("spanDataSender:{}", spanDataSender);
-        bind(DataSender.class).annotatedWith(SpanDataSender.class).toInstance(spanDataSender);
+        TypeLiteral<DataSender<SpanType>> spanDataSenderType = new TypeLiteral<DataSender<SpanType>>() {};
+        Key<DataSender<SpanType>> spanDataSenderKey = Key.get(spanDataSenderType, SpanDataSender.class);
+        bind(spanDataSenderKey).toInstance(spanDataSender);
 
-        final DataSender statDataSender = newUdpStatDataSender();
+        final DataSender<MetricType> statDataSender = newUdpStatDataSender();
         logger.debug("statDataSender:{}", statDataSender);
-        bind(DataSender.class).annotatedWith(StatDataSender.class).toInstance(statDataSender);
+        TypeLiteral<DataSender<MetricType>> statDataSenderType = new TypeLiteral<DataSender<MetricType>>() {};
+        Key<DataSender<MetricType>> statDataSenderKey = Key.get(statDataSenderType, StatDataSender.class);
+        bind(statDataSenderKey).toInstance(statDataSender);
 
         bind(StorageFactory.class).to(TestSpanStorageFactory.class);
 
         bind(PinpointClientFactory.class).toProvider(Providers.of((PinpointClientFactory)null));
 
-        EnhancedDataSender<Object> enhancedDataSender = newTcpDataSender();
+        EnhancedDataSender<MetaDataType> enhancedDataSender = newTcpDataSender();
         logger.debug("enhancedDataSender:{}", enhancedDataSender);
-        TypeLiteral<EnhancedDataSender<Object>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<Object>>() {};
+        TypeLiteral<EnhancedDataSender<MetaDataType>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {};
         bind(dataSenderTypeLiteral).toInstance(enhancedDataSender);
 
         ServerMetaDataRegistryService serverMetaDataRegistryService = newServerMetaDataRegistryService();
@@ -72,21 +80,20 @@ public class PluginApplicationContextModule extends AbstractModule {
     }
 
 
-    private DataSender newUdpStatDataSender() {
+    private DataSender<MetricType> newUdpStatDataSender() {
         return new ListenableDataSender<>("StatDataSender");
     }
 
-    private DataSender newUdpSpanDataSender() {
+    private DataSender<SpanType> newUdpSpanDataSender() {
 
-        ListenableDataSender<Object> sender = new ListenableDataSender<>("SpanDataSender");
-        OrderedSpanRecorder orderedSpanRecorder = new OrderedSpanRecorder();
+        ListenableDataSender<SpanType> sender = new ListenableDataSender<>("SpanDataSender");
+        ListenableDataSender.Listener<SpanType> orderedSpanRecorder = new OrderedSpanRecorder();
         sender.setListener(orderedSpanRecorder);
         return sender;
     }
 
-    private EnhancedDataSender<Object> newTcpDataSender() {
-        TestTcpDataSender tcpDataSender = new TestTcpDataSender();
-        return tcpDataSender;
+    private EnhancedDataSender<MetaDataType> newTcpDataSender() {
+        return new TestTcpDataSender();
     }
 
     private ServerMetaDataRegistryService newServerMetaDataRegistryService() {

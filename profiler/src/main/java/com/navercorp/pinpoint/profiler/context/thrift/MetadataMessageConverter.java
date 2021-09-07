@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaData;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaData;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaData;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
@@ -44,7 +45,7 @@ import java.util.List;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class MetadataMessageConverter implements MessageConverter<TBase<?, ?>> {
+public class MetadataMessageConverter implements MessageConverter<MetaDataType, TBase<?, ?>> {
 
     private final String applicationName;
     private final String agentId;
@@ -58,7 +59,7 @@ public class MetadataMessageConverter implements MessageConverter<TBase<?, ?>> {
     }
 
     @Override
-    public TBase<?, ?> toMessage(Object message) {
+    public TBase<?, ?> toMessage(MetaDataType message) {
         if (message instanceof AgentInfo) {
             final AgentInfo agentInfo = (AgentInfo) message;
             return convertAgentInfo(agentInfo);

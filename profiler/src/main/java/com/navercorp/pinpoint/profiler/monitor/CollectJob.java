@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.monitor;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshotBatch;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ public class CollectJob implements Runnable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final DataSender dataSender;
+    private final DataSender<MetricType> dataSender;
     private final String agentId;
     private final long agentStartTimestamp;
     private final AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector;
@@ -45,7 +46,7 @@ public class CollectJob implements Runnable {
     private long prevCollectionTimestamp = System.currentTimeMillis();
     private List<AgentStatMetricSnapshot> agentStats;
 
-    public CollectJob(DataSender dataSender,
+    public CollectJob(DataSender<MetricType> dataSender,
                        String agentId, long agentStartTimestamp,
                        AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
                        int numCollectionsPerBatch) {
@@ -54,7 +55,7 @@ public class CollectJob implements Runnable {
         this.agentStartTimestamp = agentStartTimestamp;
         this.agentStatCollector = agentStatCollector;
         this.numCollectionsPerBatch = numCollectionsPerBatch;
-        this.agentStats = new ArrayList<AgentStatMetricSnapshot>(numCollectionsPerBatch);
+        this.agentStats = new ArrayList<>(numCollectionsPerBatch);
     }
 
     @Override
@@ -88,7 +89,7 @@ public class CollectJob implements Runnable {
         // If we reuse agentStats list, there could be concurrency issue because data sender runs in a different
         // thread.
         // So create new list.
-        this.agentStats = new ArrayList<AgentStatMetricSnapshot>(numCollectionsPerBatch);
+        this.agentStats = new ArrayList<>(numCollectionsPerBatch);
         logger.trace("collect agentStat:{}", agentStatBatch);
         dataSender.send(agentStatBatch);
     }

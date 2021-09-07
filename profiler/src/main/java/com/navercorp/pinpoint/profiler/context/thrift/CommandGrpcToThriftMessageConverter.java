@@ -42,7 +42,7 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
-public class CommandGrpcToThriftMessageConverter implements MessageConverter<TBase<?, ?>> {
+public class CommandGrpcToThriftMessageConverter implements MessageConverter<Object, TBase<?, ?>> {
 
     @Override
     public TBase<?, ?> toMessage(Object message) {

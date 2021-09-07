@@ -42,10 +42,12 @@ import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +58,7 @@ import java.util.Objects;
  *
  * @author Woonduk Kang(emeroad)
  */
-public class GrpcSpanMessageConverter implements MessageConverter<GeneratedMessageV3> {
+public class GrpcSpanMessageConverter implements MessageConverter<SpanType, GeneratedMessageV3> {
 
     private final String agentId;
     private final short applicationServiceType;
@@ -78,7 +80,7 @@ public class GrpcSpanMessageConverter implements MessageConverter<GeneratedMessa
     }
 
     @Override
-    public GeneratedMessageV3 toMessage(Object message) {
+    public GeneratedMessageV3 toMessage(SpanType message) {
         if (message instanceof SpanChunk) {
             final SpanChunk spanChunk = (SpanChunk) message;
             final PSpanChunk pSpanChunk = buildPSpanChunk(spanChunk);

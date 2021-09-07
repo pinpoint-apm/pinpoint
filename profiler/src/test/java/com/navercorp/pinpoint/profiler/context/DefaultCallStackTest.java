@@ -25,12 +25,12 @@ public class DefaultCallStackTest extends CallStackTest {
 
     @Override
     public CallStack<SpanEvent> newCallStack() {
-        return new DefaultCallStack<SpanEvent>(factory);
+        return new DefaultCallStack<>(factory);
     }
 
     @Override
     public CallStack<SpanEvent> newCallStack(int depth) {
-        return new DefaultCallStack<SpanEvent>(factory, depth);
+        return new DefaultCallStack<>(factory, depth);
     }
 
 

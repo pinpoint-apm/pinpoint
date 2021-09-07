@@ -42,7 +42,7 @@ public abstract class CallStackTest {
     }
 
     @Test
-    public void testPush() throws Exception {
+    public void testPush() {
         CallStack<SpanEvent> callStack = newCallStack();
         int initialIndex = callStack.getIndex();
         assertEquals("initial index", initialIndex, 0);

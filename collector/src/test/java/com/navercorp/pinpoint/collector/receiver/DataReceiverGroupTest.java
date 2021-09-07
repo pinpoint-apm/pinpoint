@@ -68,7 +68,7 @@ public class DataReceiverGroupTest {
 
 
         DataSender<TBase<?, ?>> udpDataSender = null;
-        TcpDataSender tcpDataSender = null;
+        TcpDataSender<TBase<?, ?>> tcpDataSender = null;
         PinpointClientFactory pinpointClientFactory = null;
 
         try {
@@ -78,7 +78,7 @@ public class DataReceiverGroupTest {
             udpDataSender = newUdpDataSender(mockConfig);
 
             pinpointClientFactory = createPinpointClientFactory();
-            tcpDataSender = new TcpDataSender(this.getClass().getName(), "127.0.0.1", mockConfig.getTcpBindPort(), pinpointClientFactory);
+            tcpDataSender = new TcpDataSender<>(this.getClass().getName(), "127.0.0.1", mockConfig.getTcpBindPort(), pinpointClientFactory);
 
             udpDataSender.send(new TResult());
 
@@ -98,11 +98,11 @@ public class DataReceiverGroupTest {
         }
     }
 
-    public UdpDataSender newUdpDataSender(DataReceiverGroupConfiguration mockConfig) {
+    public UdpDataSender<TBase<?, ?>> newUdpDataSender(DataReceiverGroupConfiguration mockConfig) {
         String threadName = this.getClass().getName();
-        MessageConverter<TBase<?, ?>> messageConverter = new BypassMessageConverter<>();
-        final MessageSerializer<ByteMessage> thriftMessageSerializer = new ThriftUdpMessageSerializer(messageConverter, ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH);
-        return new UdpDataSender("127.0.0.1", mockConfig.getUdpBindPort(), threadName, 10, 1000, 1024 * 64 * 100,
+        MessageConverter<TBase<?, ?>, TBase<?, ?>> messageConverter = new BypassMessageConverter<>();
+        final MessageSerializer<TBase<?, ?>, ByteMessage> thriftMessageSerializer = new ThriftUdpMessageSerializer(messageConverter, ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH);
+        return new UdpDataSender<>("127.0.0.1", mockConfig.getUdpBindPort(), threadName, 10, 1000, 1024 * 64 * 100,
                 thriftMessageSerializer);
     }
 
@@ -143,7 +143,7 @@ public class DataReceiverGroupTest {
 
         TCPReceiverBean receiver = createTcpReceiverBean(mockConfig, testDispatchHandler);
         DataSender<TBase<?, ?>> udpDataSender = null;
-        TcpDataSender tcpDataSender = null;
+        TcpDataSender<TBase<?, ?>> tcpDataSender = null;
         PinpointClientFactory pinpointClientFactory = null;
 
         try {
@@ -155,7 +155,7 @@ public class DataReceiverGroupTest {
             Assert.assertFalse(testDispatchHandler.getSendLatch().await(1000, TimeUnit.MILLISECONDS));
 
             pinpointClientFactory = createPinpointClientFactory();
-            tcpDataSender = new TcpDataSender(this.getClass().getName(), "127.0.0.1", mockConfig.getTcpBindPort(), pinpointClientFactory);
+            tcpDataSender = new TcpDataSender<>(this.getClass().getName(), "127.0.0.1", mockConfig.getTcpBindPort(), pinpointClientFactory);
 
             Assert.assertTrue(tcpDataSender.isConnected());
 
@@ -179,8 +179,8 @@ public class DataReceiverGroupTest {
         TestDispatchHandler testDispatchHandler = new TestDispatchHandler(1, 1);
 
         UDPReceiverBean receiver = createUdpReceiverBean(mockConfig, testDispatchHandler);
-        DataSender udpDataSender = null;
-        TcpDataSender tcpDataSender = null;
+        DataSender<TBase<?, ?>> udpDataSender = null;
+        TcpDataSender<TBase<?, ?>> tcpDataSender = null;
         PinpointClientFactory pinpointClientFactory = null;
 
         try {
@@ -192,7 +192,7 @@ public class DataReceiverGroupTest {
             Assert.assertTrue(testDispatchHandler.getSendLatch().await(1000, TimeUnit.MILLISECONDS));
 
             pinpointClientFactory = createPinpointClientFactory();
-            tcpDataSender = new TcpDataSender(this.getClass().getName(), "127.0.0.1", mockConfig.getTcpBindPort(), pinpointClientFactory);
+            tcpDataSender = new TcpDataSender<>(this.getClass().getName(), "127.0.0.1", mockConfig.getTcpBindPort(), pinpointClientFactory);
 
             Assert.assertFalse(tcpDataSender.isConnected());
         } finally {
@@ -214,7 +214,7 @@ public class DataReceiverGroupTest {
         }
     }
 
-    private void closeDataSender(DataSender dataSender) {
+    private void closeDataSender(DataSender<?> dataSender) {
         try {
             if (dataSender != null) {
                 dataSender.stop();

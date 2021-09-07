@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.profiler.context.provider.grpc.DnsExecutorServiceP
 import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcNameResolverProvider;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.JvmGcType;
 import io.grpc.NameResolverProvider;
 
@@ -54,7 +55,7 @@ public class AgentGrpcDataSenderTestMain {
 
 
     public void request() throws Exception {
-        MessageConverter<GeneratedMessageV3> messageConverter = new GrpcMetadataMessageConverter();
+        MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter = new GrpcMetadataMessageConverter();
         HeaderFactory headerFactory = new AgentHeaderFactory(AGENT_ID, AGENT_NAME, APPLICATION_NAME, SERVICE_TYPE, START_TIME);
 
         DnsExecutorServiceProvider dnsExecutorServiceProvider = new DnsExecutorServiceProvider();
@@ -67,7 +68,7 @@ public class AgentGrpcDataSenderTestMain {
         channelFactoryBuilder.setClientOption(new ClientOption());
         ChannelFactory channelFactory = channelFactoryBuilder.build();
 
-        AgentGrpcDataSender sender = new AgentGrpcDataSender("localhost", 9997, 1, messageConverter,
+        AgentGrpcDataSender<MetaDataType> sender = new AgentGrpcDataSender<>("localhost", 9997, 1, messageConverter,
                 reconnectExecutor, scheduledExecutorService, channelFactory, null);
 
         AgentInfo agentInfo = newAgentInfo();

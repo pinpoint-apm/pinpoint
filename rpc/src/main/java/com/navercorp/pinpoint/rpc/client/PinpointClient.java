@@ -39,7 +39,7 @@ public interface PinpointClient extends PinpointSocket {
 
     void sendSync(byte[] bytes) ;
 
-    Future sendAsync(byte[] bytes);
+    Future<?> sendAsync(byte[] bytes);
 
     /**
      * write ping packet on tcp channel

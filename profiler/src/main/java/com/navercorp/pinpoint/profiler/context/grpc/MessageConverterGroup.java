@@ -18,30 +18,30 @@ package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class MessageConverterGroup<Message> implements MessageConverter<Message> {
+public class MessageConverterGroup<IN, OUT> implements MessageConverter<IN, OUT> {
 
-    private final MessageConverter<Message>[] group;
+    private final MessageConverter<IN, OUT>[] group;
 
-    public static <Message> MessageConverterGroup<Message> wrap(MessageConverter<Message>... group) {
-        return new MessageConverterGroup<Message>(group);
+    public static <IN, OUT> MessageConverterGroup<IN, OUT> wrap(List<MessageConverter<IN, OUT>> group) {
+        return new MessageConverterGroup<>(group);
     }
 
-    private MessageConverterGroup(MessageConverter<Message>[] group) {
+    private MessageConverterGroup(List<MessageConverter<IN, OUT>> group) {
         Objects.requireNonNull(group, "list");
-        this.group = Arrays.copyOf(group, group.length);
+        this.group = group.toArray(new MessageConverter[0]);
     }
 
 
     @Override
-    public Message toMessage(Object message) {
-        for (MessageConverter<Message> vMessageConverter : group) {
-            final Message convertedMessage = vMessageConverter.toMessage(message);
+    public OUT toMessage(IN message) {
+        for (MessageConverter<IN, OUT> vMessageConverter : group) {
+            final OUT convertedMessage = vMessageConverter.toMessage(message);
             if (convertedMessage != null) {
                 return convertedMessage;
             }

@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.profiler.JvmInformation;
 /**
  * @author jaehong.kim
  */
-public class AgentInfo {
+public class AgentInfo implements MetaDataType {
     private final AgentInformation agentInformation;
     private final ServerMetaData serverMetaData;
     private final JvmInformation jvmInformation;

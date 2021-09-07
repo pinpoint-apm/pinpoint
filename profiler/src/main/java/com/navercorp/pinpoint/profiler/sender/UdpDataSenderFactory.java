@@ -23,7 +23,7 @@ import org.apache.thrift.TBase;
 /**
  * @author Taejin Koo
  */
-public final class UdpDataSenderFactory {
+public final class UdpDataSenderFactory<T> {
 
     //    String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize
     private final String host;
@@ -32,9 +32,9 @@ public final class UdpDataSenderFactory {
     private final int queueSize;
     private final int timeout;
     private final int sendBufferSize;
-    private final MessageConverter<TBase<?, ?>> messageConverter;
+    private final MessageConverter<T, TBase<?, ?>> messageConverter;
 
-    public UdpDataSenderFactory(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize, MessageConverter<TBase<?, ?>> messageConverter) {
+    public UdpDataSenderFactory(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize, MessageConverter<T, TBase<?, ?>> messageConverter) {
         this.host = host;
         this.port = port;
         this.threadName = threadName;
@@ -45,16 +45,16 @@ public final class UdpDataSenderFactory {
         this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
     }
 
-    public DataSender create(String typeName) {
+    public DataSender<T> create(String typeName) {
         return create(UdpDataSenderType.valueOf(typeName));
     }
 
-    public DataSender create(UdpDataSenderType type) {
+    public DataSender<T> create(UdpDataSenderType type) {
         if (type == UdpDataSenderType.NIO) {
-            return new NioUDPDataSender(host, port, threadName, queueSize, timeout, sendBufferSize, messageConverter);
+            return new NioUDPDataSender<>(host, port, threadName, queueSize, timeout, sendBufferSize, messageConverter);
         } else if (type == UdpDataSenderType.OIO) {
-            final MessageSerializer<ByteMessage> thriftMessageSerializer = new ThriftUdpMessageSerializer(messageConverter, ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH);
-            return new UdpDataSender(host, port, threadName, queueSize, timeout, sendBufferSize, thriftMessageSerializer);
+            final MessageSerializer<T, ByteMessage> thriftMessageSerializer = new ThriftUdpMessageSerializer(messageConverter, ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH);
+            return new UdpDataSender<>(host, port, threadName, queueSize, timeout, sendBufferSize, thriftMessageSerializer);
         } else {
             throw new IllegalArgumentException("Unknown type.");
         }

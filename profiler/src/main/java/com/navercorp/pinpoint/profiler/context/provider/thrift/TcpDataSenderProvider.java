@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.profiler.context.module.DefaultClientFactory;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.config.ThriftTransportConfig;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.MessageSerializer;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
@@ -35,16 +36,17 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class TcpDataSenderProvider implements Provider<EnhancedDataSender<Object>> {
+public class TcpDataSenderProvider implements Provider<EnhancedDataSender<MetaDataType>> {
     private final ThriftTransportConfig thriftTransportConfig;
     private final Provider<PinpointClientFactory> clientFactoryProvider;
     private final Provider<HeaderTBaseSerializer> tBaseSerializerProvider;
-    private final MessageConverter<TBase<?, ?>> messageConverter;
+    private final MessageConverter<MetaDataType, TBase<?, ?>> messageConverter;
 
     @Inject
-    public TcpDataSenderProvider(ThriftTransportConfig thriftTransportConfig, @DefaultClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
+    public TcpDataSenderProvider(ThriftTransportConfig thriftTransportConfig,
+                                 @DefaultClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
                                  Provider<HeaderTBaseSerializer> tBaseSerializerProvider,
-                                 @MetadataDataSender MessageConverter<TBase<?, ?>> messageConverter) {
+                                 @MetadataDataSender MessageConverter<MetaDataType, TBase<?, ?>> messageConverter) {
         this.thriftTransportConfig = Objects.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
         this.clientFactoryProvider = Objects.requireNonNull(clientFactoryProvider, "clientFactoryProvider");
         this.tBaseSerializerProvider = Objects.requireNonNull(tBaseSerializerProvider, "tBaseSerializerProvider");
@@ -52,13 +54,13 @@ public class TcpDataSenderProvider implements Provider<EnhancedDataSender<Object
     }
 
     @Override
-    public EnhancedDataSender<Object> get() {
+    public EnhancedDataSender<MetaDataType> get() {
         PinpointClientFactory clientFactory = clientFactoryProvider.get();
 
         String collectorTcpServerIp = thriftTransportConfig.getCollectorTcpServerIp();
         int collectorTcpServerPort = thriftTransportConfig.getCollectorTcpServerPort();
         HeaderTBaseSerializer headerTBaseSerializer = tBaseSerializerProvider.get();
-        MessageSerializer<byte[]> messageSerializer = new ThriftMessageSerializer(messageConverter, headerTBaseSerializer);
-        return new TcpDataSender("Default", collectorTcpServerIp, collectorTcpServerPort, clientFactory, messageSerializer);
+        MessageSerializer<MetaDataType, byte[]> messageSerializer = new ThriftMessageSerializer<>(messageConverter, headerTBaseSerializer);
+        return new TcpDataSender<>("Default", collectorTcpServerIp, collectorTcpServerPort, clientFactory, messageSerializer);
     }
 }

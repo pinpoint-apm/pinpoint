@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PEachUriStat;
 import com.navercorp.pinpoint.grpc.trace.PUriHistogram;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.EachUriStatData;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatHistogram;
@@ -30,12 +31,12 @@ import java.util.Collection;
 /**
  * @author Taejin Koo
  */
-public class GrpcUriStatMessageConverter implements MessageConverter<PAgentUriStat> {
+public class GrpcUriStatMessageConverter implements MessageConverter<MetricType, PAgentUriStat> {
 
     private final static PUriHistogram EMPTY_DETAILED_DATA_INSTANCE = PUriHistogram.getDefaultInstance();
 
     @Override
-    public PAgentUriStat toMessage(Object message) {
+    public PAgentUriStat toMessage(MetricType message) {
         if (!(message instanceof AgentUriStatData)) {
             return null;
         }

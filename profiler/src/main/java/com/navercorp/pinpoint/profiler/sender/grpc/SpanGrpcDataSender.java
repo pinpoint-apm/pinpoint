@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.ClientStreamingProvider;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.DefaultStreamTask;
@@ -39,7 +40,7 @@ import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
 /**
  * @author jaehong.kim
  */
-public class SpanGrpcDataSender extends GrpcDataSender {
+public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
 
     private final ReconnectExecutor reconnectExecutor;
 
@@ -48,13 +49,13 @@ public class SpanGrpcDataSender extends GrpcDataSender {
     private final StreamExecutorFactory<PSpanMessage> streamExecutorFactory;
     private final String id = "SpanStream";
 
-    private volatile StreamTask<PSpanMessage> currentStreamTask;
+    private volatile StreamTask<SpanType, PSpanMessage> currentStreamTask;
 
     private final ClientStreamingService<PSpanMessage, Empty> clientStreamService;
 
-    public final MessageDispatcher<PSpanMessage> dispatcher = new MessageDispatcher<PSpanMessage>() {
+    public final MessageDispatcher<SpanType, PSpanMessage> dispatcher = new MessageDispatcher<SpanType, PSpanMessage>() {
         @Override
-        public void onDispatch(ClientCallStreamObserver<PSpanMessage> stream, Object data) {
+        public void onDispatch(ClientCallStreamObserver<PSpanMessage> stream, SpanType data) {
             final GeneratedMessageV3 message = messageConverter.toMessage(data);
             if (isDebug) {
                 logger.debug("Send message={}", debugLog(message));
@@ -78,7 +79,7 @@ public class SpanGrpcDataSender extends GrpcDataSender {
 
     public SpanGrpcDataSender(String host, int port,
                               int executorQueueSize,
-                              MessageConverter<GeneratedMessageV3> messageConverter,
+                              MessageConverter<SpanType, GeneratedMessageV3> messageConverter,
                               ReconnectExecutor reconnectExecutor,
                               ChannelFactory channelFactory,
                               StreamState failState) {
@@ -114,7 +115,7 @@ public class SpanGrpcDataSender extends GrpcDataSender {
 
     private void startStream() {
         try {
-            StreamTask<PSpanMessage> streamTask = new DefaultStreamTask<PSpanMessage, Empty>(id, clientStreamService,
+            StreamTask<SpanType, PSpanMessage> streamTask = new DefaultStreamTask<>(id, clientStreamService,
                     this.streamExecutorFactory, this.queue, this.dispatcher, failState);
             streamTask.start();
             this.currentStreamTask = streamTask;
@@ -137,7 +138,7 @@ public class SpanGrpcDataSender extends GrpcDataSender {
             reconnectExecutor.close();
         }
 
-        final StreamTask<PSpanMessage> currentStreamTask = this.currentStreamTask;
+        final StreamTask<SpanType, PSpanMessage> currentStreamTask = this.currentStreamTask;
         if (currentStreamTask != null) {
             currentStreamTask.stop();
         }

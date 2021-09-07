@@ -12,7 +12,7 @@ public class StreamExecutorFactory<ReqT> {
     }
 
     public StreamExecutor<ReqT> newStreamExecutor() {
-        return new StreamExecutor<ReqT>(executor);
+        return new StreamExecutor<>(executor);
     }
 
 }

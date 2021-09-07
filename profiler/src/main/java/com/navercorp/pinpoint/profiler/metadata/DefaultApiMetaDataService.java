@@ -27,9 +27,9 @@ public class DefaultApiMetaDataService implements ApiMetaDataService {
 
     private final SimpleCache<String> apiCache;
 
-    private final EnhancedDataSender<Object> enhancedDataSender;
+    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
 
-    public DefaultApiMetaDataService(EnhancedDataSender<Object> enhancedDataSender, SimpleCache<String> apiCache) {
+    public DefaultApiMetaDataService(EnhancedDataSender<MetaDataType> enhancedDataSender, SimpleCache<String> apiCache) {
         this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
         this.apiCache = Objects.requireNonNull(apiCache, "apiCache");
     }

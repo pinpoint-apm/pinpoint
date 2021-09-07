@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.grpc.trace.PCustomMetricMessage;
 import com.navercorp.pinpoint.grpc.trace.PStatMessage;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.ClientStreamingProvider;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.DefaultStreamTask;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.StreamExecutorFactory;
@@ -39,7 +40,7 @@ import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
 /**
  * @author jaehong.kim
  */
-public class StatGrpcDataSender extends GrpcDataSender {
+public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
 
     private final ReconnectExecutor reconnectExecutor;
 
@@ -48,13 +49,13 @@ public class StatGrpcDataSender extends GrpcDataSender {
     private final StreamExecutorFactory<PStatMessage> streamExecutorFactory;
     private final String id = "StatStream";
 
-    private volatile StreamTask<PStatMessage> currentStreamTask;
+    private volatile StreamTask<MetricType, PStatMessage> currentStreamTask;
 
     private final ClientStreamingService<PStatMessage, Empty> clientStreamService;
 
-    public MessageDispatcher<PStatMessage> dispatcher = new MessageDispatcher<PStatMessage>() {
+    public MessageDispatcher<MetricType, PStatMessage> dispatcher = new MessageDispatcher<MetricType, PStatMessage>() {
         @Override
-        public void onDispatch(ClientCallStreamObserver<PStatMessage> stream, Object data) {
+        public void onDispatch(ClientCallStreamObserver<PStatMessage> stream, MetricType data) {
             final GeneratedMessageV3 message = messageConverter.toMessage(data);
             if (isDebug) {
                 logger.debug("Send message={}", debugLog(message));
@@ -93,7 +94,7 @@ public class StatGrpcDataSender extends GrpcDataSender {
 
     public StatGrpcDataSender(String host, int port,
                               int executorQueueSize,
-                              MessageConverter<GeneratedMessageV3> messageConverter,
+                              MessageConverter<MetricType, GeneratedMessageV3> messageConverter,
                               ReconnectExecutor reconnectExecutor,
                               ChannelFactory channelFactory) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
@@ -126,7 +127,7 @@ public class StatGrpcDataSender extends GrpcDataSender {
     private void startStream() {
 //        streamTaskManager.closeAllStream();
         try {
-            StreamTask<PStatMessage> streamTask =  new DefaultStreamTask<PStatMessage, Empty>(id, clientStreamService,
+            StreamTask<MetricType, PStatMessage> streamTask =  new DefaultStreamTask<>(id, clientStreamService,
                     this.streamExecutorFactory, this.queue, this.dispatcher, failState);
             streamTask.start();
             this.currentStreamTask = streamTask;
@@ -148,7 +149,7 @@ public class StatGrpcDataSender extends GrpcDataSender {
             reconnectExecutor.close();
         }
 
-        final StreamTask<PStatMessage> currentStreamTask = this.currentStreamTask;
+        final StreamTask<MetricType, PStatMessage> currentStreamTask = this.currentStreamTask;
         if (currentStreamTask != null) {
             currentStreamTask.stop();
         }

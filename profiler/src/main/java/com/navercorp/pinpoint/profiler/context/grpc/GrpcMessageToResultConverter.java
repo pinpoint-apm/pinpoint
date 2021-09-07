@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.rpc.ResponseMessage;
 /**
  * @author jaehong.kim
  */
-public class GrpcMessageToResultConverter implements MessageConverter<ResultResponse> {
+public class GrpcMessageToResultConverter implements MessageConverter<Object, ResultResponse> {
     @Override
     public ResultResponse toMessage(Object object) {
         if (object instanceof ResponseMessage) {

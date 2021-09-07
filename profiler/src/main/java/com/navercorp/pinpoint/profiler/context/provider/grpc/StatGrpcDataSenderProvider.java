@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.grpc.client.config.SslOption;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import com.navercorp.pinpoint.profiler.sender.grpc.StatGrpcDataSender;
@@ -43,12 +44,12 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-public class StatGrpcDataSenderProvider implements Provider<DataSender<Object>> {
+public class StatGrpcDataSenderProvider implements Provider<DataSender<MetricType>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final GrpcTransportConfig grpcTransportConfig;
-    private final MessageConverter<GeneratedMessageV3> messageConverter;
+    private final MessageConverter<MetricType, GeneratedMessageV3> messageConverter;
     private final HeaderFactory headerFactory;
     private final Provider<ReconnectExecutor> reconnectExecutorProvider;
     private final NameResolverProvider nameResolverProvider;
@@ -57,7 +58,7 @@ public class StatGrpcDataSenderProvider implements Provider<DataSender<Object>> 
 
     @Inject
     public StatGrpcDataSenderProvider(GrpcTransportConfig grpcTransportConfig,
-                                      @StatDataSender MessageConverter<GeneratedMessageV3> messageConverter,
+                                      @StatDataSender MessageConverter<MetricType, GeneratedMessageV3> messageConverter,
                                       HeaderFactory headerFactory,
                                       Provider<ReconnectExecutor> reconnectExecutor,
                                       NameResolverProvider nameResolverProvider) {
@@ -74,7 +75,7 @@ public class StatGrpcDataSenderProvider implements Provider<DataSender<Object>> 
     }
 
     @Override
-    public DataSender<Object> get() {
+    public DataSender<MetricType> get() {
         final String collectorIp = grpcTransportConfig.getStatCollectorIp();
         final int collectorPort = grpcTransportConfig.getStatCollectorPort();
         final boolean sslEnable = grpcTransportConfig.isStatSslEnable();

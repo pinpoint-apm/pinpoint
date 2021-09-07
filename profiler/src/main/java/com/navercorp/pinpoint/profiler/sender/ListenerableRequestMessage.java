@@ -17,16 +17,17 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.rpc.FutureListener;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 class ListenerableRequestMessage<T> implements RequestMessage<T> {
     private final T message;
-    private final FutureListener futureListener;
+    private final FutureListener<ResponseMessage> futureListener;
 
 
-    ListenerableRequestMessage(T message, FutureListener futureListener) {
+    ListenerableRequestMessage(T message, FutureListener<ResponseMessage> futureListener) {
         this.message = message;
         this.futureListener = futureListener;
     }
@@ -43,7 +44,7 @@ class ListenerableRequestMessage<T> implements RequestMessage<T> {
     }
 
     @Override
-    public FutureListener getFutureListener() {
+    public FutureListener<ResponseMessage> getFutureListener() {
         return futureListener;
     }
 }

@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.gc.JvmGcType;
 /**
  * @author jaehong.kim
  */
-public class GrpcJvmGcTypeMessageConverter implements MessageConverter<PJvmGcType> {
+public class GrpcJvmGcTypeMessageConverter implements MessageConverter<Object, PJvmGcType> {
 
     @Override
     public PJvmGcType toMessage(Object message) {

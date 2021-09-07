@@ -25,25 +25,26 @@ import java.util.List;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 /**
  * @author Jongho Moon
  */
-public class OrderedSpanRecorder implements ListenableDataSender.Listener<Object>, Iterable<Object> {
+public class OrderedSpanRecorder implements ListenableDataSender.Listener<SpanType>, Iterable<SpanType> {
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
     public static final int ROOT_SEQUENCE = -1;
     public static final int ASYNC_ID_NOT_SET = -1;
     public static final int ASYNC_SEQUENCE_NOT_SET = -1;
 
-    private final List<Item> list = new ArrayList<>();
+    private final List<Item<SpanType>> list = new ArrayList<>();
 
     public OrderedSpanRecorder() {
     }
 
 
     @Override
-    public synchronized boolean handleSend(Object data) {
+    public synchronized boolean handleSend(SpanType data) {
 
         if (data instanceof Span) {
             insertSpan((Span) data);
@@ -62,11 +63,11 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener<Object
         long startTime = span.getStartTime();
         TraceRoot traceRoot = span.getTraceRoot();
 
-        Item item = new Item(span, startTime, traceRoot, ROOT_SEQUENCE);
+        Item<SpanType> item = new Item<SpanType>(span, startTime, traceRoot, ROOT_SEQUENCE);
         insertItem(item);
     }
 
-    private void insertItem(Item item) {
+    private void insertItem(Item<SpanType> item) {
         synchronized (this) {
             final int pos = Collections.binarySearch(list, item);
             if (pos >= 0) {
@@ -86,19 +87,19 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener<Object
 
         final SpanEvent event = spanEventList.get(0);
         long startTime = event.getStartTime();
-        Item item = new Item(spanChunk, startTime, spanChunk.getTraceRoot(), event.getSequence());
+        Item<SpanType> item = new Item<SpanType>(spanChunk, startTime, spanChunk.getTraceRoot(), event.getSequence());
         insertItem(item);
     }
 
-    public synchronized Object pop() {
-        final Item item = popItem();
+    public synchronized SpanType pop() {
+        final Item<SpanType> item = popItem();
         if (item == null) {
             return null;
         }
         return item.getValue();
     }
 
-    public synchronized Item popItem() {
+    public synchronized Item<SpanType> popItem() {
         if (list.isEmpty()) {
             return null;
         }
@@ -110,7 +111,7 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener<Object
         final StringBuilder buffer = new StringBuilder();
         synchronized (this) {
             appendln(buffer, "TRACES(" + list.size() + "):");
-            for (Item item : list) {
+            for (Item<SpanType> item : list) {
                 appendln(buffer, item);
             }
             for (Object obj : this) {
@@ -118,7 +119,7 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener<Object
             }
         }
 
-        out.print(buffer.toString());
+        out.print(buffer);
         out.flush();
     }
 
@@ -136,11 +137,11 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener<Object
     }
 
     @Override
-    public synchronized Iterator<Object> iterator() {
+    public synchronized Iterator<SpanType> iterator() {
         return new RecorderIterator();
     }
 
-    private final class RecorderIterator implements Iterator<Object> {
+    private final class RecorderIterator implements Iterator<SpanType> {
         private int current = -1;
         private int index = 0;
 
@@ -152,11 +153,11 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener<Object
         }
 
         @Override
-        public Object next() {
+        public SpanType next() {
             synchronized (OrderedSpanRecorder.this) {
                 current = index;
                 index++;
-                Item item = list.get(current);
+                Item<SpanType> item = list.get(current);
                 return item.getValue();
             }
         }

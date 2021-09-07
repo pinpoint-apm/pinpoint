@@ -41,11 +41,11 @@ public class BufferedStorage implements Storage {
 
     private final SpanChunkFactory spanChunkFactory;
     private List<SpanEvent> storage;
-    private final DataSender<Object> dataSender;
+    private final DataSender<SpanType> dataSender;
 
 
 
-    public BufferedStorage(SpanChunkFactory spanChunkFactory, DataSender<Object> dataSender, int bufferSize) {
+    public BufferedStorage(SpanChunkFactory spanChunkFactory, DataSender<SpanType> dataSender, int bufferSize) {
         this.spanChunkFactory = Objects.requireNonNull(spanChunkFactory, "spanChunkFactory");
         this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
         this.bufferSize = bufferSize;

@@ -30,7 +30,7 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-public class FlinkTcpDataSender extends TcpDataSender {
+public class FlinkTcpDataSender extends TcpDataSender<TBase<?, ?>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -49,13 +49,8 @@ public class FlinkTcpDataSender extends TcpDataSender {
     }
 
     @Override
-    public boolean send(Object data) {
-        if (!(data instanceof TBase<?, ?>)) {
-            logger.info("unknown message:{}", data);
-            return false;
-        }
-        TBase<?, ?> message = (TBase<?, ?>) data;
-        FlinkRequest flinkRequest = flinkRequestFactory.createFlinkRequest(message, new HashMap<String, String>(0));
+    public boolean send(TBase<?, ?> data) {
+        FlinkRequest flinkRequest = flinkRequestFactory.createFlinkRequest(data, new HashMap<>(0));
         return executor.execute(flinkRequest);
     }
 
@@ -70,7 +65,6 @@ public class FlinkTcpDataSender extends TcpDataSender {
                 doSend(copy);
             } else {
                 logger.error("sendPacket fail. invalid dto type:{}", flinkRequest.getClass());
-                return;
             }
         } catch (Exception e) {
             logger.warn("tcp send fail. Caused:{}", e.getMessage(), e);

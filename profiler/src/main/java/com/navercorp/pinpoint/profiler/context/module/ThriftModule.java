@@ -22,6 +22,7 @@ import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
@@ -44,6 +45,8 @@ import com.navercorp.pinpoint.profiler.context.thrift.StatThriftMessageConverter
 import com.navercorp.pinpoint.profiler.context.thrift.ThriftMessageToResultConverterProvider;
 import com.navercorp.pinpoint.profiler.context.thrift.config.DefaultThriftTransportConfig;
 import com.navercorp.pinpoint.profiler.context.thrift.config.ThriftTransportConfig;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -98,15 +101,15 @@ public class ThriftModule extends PrivateModule {
 
         bind(HeaderTBaseSerializer.class).toProvider(HeaderTBaseSerializerProvider.class).in(Scopes.SINGLETON);
         // EnhancedDataSender
-        TypeLiteral<EnhancedDataSender<Object>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<Object>>() {};
+        TypeLiteral<EnhancedDataSender<MetaDataType>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {};
         bind(dataSenderTypeLiteral).toProvider(TcpDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(dataSenderTypeLiteral);
         // Bind AgentDataSender to EnhancedDataSender
-        Key<EnhancedDataSender<Object>> agentDataSender = Key.get(dataSenderTypeLiteral, AgentDataSender.class);
+        Key<EnhancedDataSender<MetaDataType>> agentDataSender = Key.get(dataSenderTypeLiteral, AgentDataSender.class);
         bind(agentDataSender).to(dataSenderTypeLiteral).in(Scopes.SINGLETON);
         expose(agentDataSender);
         // Bind MetadataDataSender to EnhancedDataSender
-        Key<EnhancedDataSender<Object>> metadataDataSender = Key.get(dataSenderTypeLiteral, MetadataDataSender.class);
+        Key<EnhancedDataSender<MetaDataType>> metadataDataSender = Key.get(dataSenderTypeLiteral, MetadataDataSender.class);
         bind(metadataDataSender).to(dataSenderTypeLiteral).in(Scopes.SINGLETON);
         expose(metadataDataSender);
 
@@ -122,28 +125,30 @@ public class ThriftModule extends PrivateModule {
         Key<PinpointClientFactory> statClientFactory = Key.get(PinpointClientFactory.class, StatDataSender.class);
         bind(statClientFactory).toProvider(StatClientFactoryProvider.class).in(Scopes.SINGLETON);
 
-        TypeLiteral<MessageConverter<TBase<?, ?>>> thriftMessageConverter = new TypeLiteral<MessageConverter<TBase<?, ?>>>() {};
-        Key<MessageConverter<TBase<?, ?>>> spanMessageConverterKey = Key.get(thriftMessageConverter, SpanDataSender.class);
+        TypeLiteral<MessageConverter<SpanType, TBase<?, ?>>> thriftMessageConverter = new TypeLiteral<MessageConverter<SpanType, TBase<?, ?>>>() {};
+        Key<MessageConverter<SpanType, TBase<?, ?>>> spanMessageConverterKey = Key.get(thriftMessageConverter, SpanDataSender.class);
         bind(spanMessageConverterKey).toProvider(SpanThriftMessageConverterProvider.class).in(Scopes.SINGLETON);
 //        expose(spanMessageConverterKey);
 
-        Key<MessageConverter<TBase<?, ?>>> metadataMessageConverterKey = Key.get(thriftMessageConverter, MetadataDataSender.class);
+        TypeLiteral<MessageConverter<MetaDataType, TBase<?, ?>>> metadataMessageConverter = new TypeLiteral<MessageConverter<MetaDataType, TBase<?, ?>>>() {};
+        Key<MessageConverter<MetaDataType, TBase<?, ?>>> metadataMessageConverterKey = Key.get(metadataMessageConverter, MetadataDataSender.class);
         bind(metadataMessageConverterKey).toProvider(MetadataMessageConverterProvider.class).in(Scopes.SINGLETON);
 //        expose(metadataMessageConverterKey);
 
 
         // Stat Thrift Converter
-        TypeLiteral<MessageConverter<TBase<?, ?>>> statMessageConverter = new TypeLiteral<MessageConverter<TBase<?, ?>>>() {};
-        Key<MessageConverter<TBase<?, ?>>> statMessageConverterKey = Key.get(statMessageConverter, StatDataSender.class);
+        TypeLiteral<MessageConverter<MetricType, TBase<?, ?>>> statMessageConverter = new TypeLiteral<MessageConverter<MetricType, TBase<?, ?>>>() {};
+        Key<MessageConverter<MetricType, TBase<?, ?>>> statMessageConverterKey = Key.get(statMessageConverter, StatDataSender.class);
         bind(statMessageConverterKey).toProvider(StatThriftMessageConverterProvider.class).in(Scopes.SINGLETON);
 
-        Key<DataSender> spanDataSender = Key.get(DataSender.class, SpanDataSender.class);
+        TypeLiteral<DataSender<SpanType>> spanDataSenderType = new TypeLiteral<DataSender<SpanType>>() {};
+        Key<DataSender<SpanType>> spanDataSender = Key.get(spanDataSenderType, SpanDataSender.class);
         bind(spanDataSender).toProvider(SpanDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(spanDataSender);
 
-        Key<DataSender> statDataSender = Key.get(DataSender.class, StatDataSender.class);
-        bind(DataSender.class).annotatedWith(StatDataSender.class)
-                .toProvider(StatDataSenderProvider.class).in(Scopes.SINGLETON);
+        TypeLiteral<DataSender<MetricType>> statDataSenderType = new TypeLiteral<DataSender<MetricType>>() {};
+        Key<DataSender<MetricType>> statDataSender = Key.get(statDataSenderType, StatDataSender.class);
+        bind(statDataSender).toProvider(StatDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(statDataSender);
 
         // For AgentInfoSender
@@ -151,8 +156,8 @@ public class ThriftModule extends PrivateModule {
 //        bind(agentInfoFactoryTypeLiteral).toProvider(AgentInfoFactoryProvider.class).in(Scopes.SINGLETON);
 //        expose(agentInfoFactoryTypeLiteral);
 
-        TypeLiteral<MessageConverter<ResultResponse>> resultMessageConverter = new TypeLiteral<MessageConverter<ResultResponse>>() {};
-        Key<MessageConverter<ResultResponse>> resultMessageConverterKey = Key.get(resultMessageConverter, ResultConverter.class);
+        TypeLiteral<MessageConverter<Object, ResultResponse>> resultMessageConverter = new TypeLiteral<MessageConverter<Object, ResultResponse>>() {};
+        Key<MessageConverter<Object, ResultResponse>> resultMessageConverterKey = Key.get(resultMessageConverter, ResultConverter.class);
         bind(resultMessageConverterKey).toProvider(ThriftMessageToResultConverterProvider.class).in(Scopes.SINGLETON);
         expose(resultMessageConverterKey);
 

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.sender;
 
 
 import com.navercorp.pinpoint.rpc.FutureListener;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -44,7 +45,7 @@ public class RetryRequestMessage<T> implements RequestMessage<T> {
     }
 
     @Override
-    public FutureListener getFutureListener() {
+    public FutureListener<ResponseMessage> getFutureListener() {
         return null;
     }
 }

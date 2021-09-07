@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.context.thrift;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import java.util.Objects;
+
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
@@ -34,7 +36,7 @@ import javax.inject.Provider;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanThriftMessageConverterProvider implements Provider<MessageConverter<TBase<?, ?>>> {
+public class SpanThriftMessageConverterProvider implements Provider<MessageConverter<SpanType, TBase<?, ?>>> {
 
     private final String applicationName;
     private final String agentId;
@@ -56,7 +58,7 @@ public class SpanThriftMessageConverterProvider implements Provider<MessageConve
     }
 
     @Override
-    public MessageConverter<TBase<?, ?>> get() {
+    public MessageConverter<SpanType, TBase<?, ?>> get() {
         return new SpanThriftMessageConverter(applicationName, agentId, agentStartTime, applicationServiceType.getCode(), transactionIdEncoder, spanPostProcessor);
     }
 }

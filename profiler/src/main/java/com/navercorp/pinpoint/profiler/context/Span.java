@@ -32,7 +32,7 @@ import java.util.Objects;
  * @author netspider
  * @author emeroad
  */
-public class Span extends DefaultFrameAttachment {
+public class Span extends DefaultFrameAttachment implements SpanType {
     private boolean timeRecording = true;
 
     private final TraceRoot traceRoot;

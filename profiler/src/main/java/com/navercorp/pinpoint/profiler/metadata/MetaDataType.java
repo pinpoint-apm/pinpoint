@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2021 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.sender.grpc;
+package com.navercorp.pinpoint.profiler.metadata;
 
-import io.grpc.stub.StreamObserver;
-
-/**
- * @author Woonduk Kang(emeroad)
- */
-public final class StreamUtils {
-
-    private StreamUtils() {
-    }
-
-    public static void close(final StreamObserver<?> streamObserver) {
-        if (streamObserver != null) {
-            streamObserver.onCompleted();
-        }
-    }
+public interface MetaDataType {
 }

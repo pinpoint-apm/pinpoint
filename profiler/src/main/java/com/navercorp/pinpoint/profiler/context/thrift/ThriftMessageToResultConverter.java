@@ -27,7 +27,7 @@ import org.apache.thrift.TBase;
 /**
  * @author jaehong.kim
  */
-public class ThriftMessageToResultConverter implements MessageConverter<ResultResponse> {
+public class ThriftMessageToResultConverter implements MessageConverter<Object, ResultResponse> {
     @Override
     public ResultResponse toMessage(Object object) {
         if (object instanceof ResponseMessage) {

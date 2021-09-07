@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMet
 /**
  * @author jaehong.kim
  */
-public class AgentStatMetricSnapshot {
+public class AgentStatMetricSnapshot implements MetricType {
     private String agentId;
     private long startTimestamp;
     private long timestamp;

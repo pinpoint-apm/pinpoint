@@ -31,7 +31,7 @@ import java.util.Collections;
 public class TcpDataSenderTest {
 
     @Test
-    public void connectAndSend() throws InterruptedException {
+    public void connectAndSend() {
         TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX, true);
         TestServerMessageListenerFactory.TestServerMessageListener serverMessageListener = testServerMessageListenerFactory.create();
 
@@ -40,7 +40,7 @@ public class TcpDataSenderTest {
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
 
-        TcpDataSender sender = new TcpDataSender(this.getClass().getName(), TestPinpointServerAcceptor.LOCALHOST, bindPort, clientFactory);
+        TcpDataSender<Object> sender = new TcpDataSender<>(this.getClass().getName(), TestPinpointServerAcceptor.LOCALHOST, bindPort, clientFactory);
         try {
             sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
             sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));

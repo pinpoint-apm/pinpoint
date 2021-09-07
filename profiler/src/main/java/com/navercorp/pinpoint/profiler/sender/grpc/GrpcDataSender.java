@@ -41,7 +41,7 @@ import java.util.concurrent.ThreadFactory;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public abstract class GrpcDataSender implements DataSender<Object> {
+public abstract class GrpcDataSender<T> implements DataSender<T> {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
@@ -53,7 +53,7 @@ public abstract class GrpcDataSender implements DataSender<Object> {
     protected final long logId;
 
     // not thread safe
-    protected final MessageConverter<GeneratedMessageV3> messageConverter;
+    protected final MessageConverter<T, GeneratedMessageV3> messageConverter;
 
     protected final ExecutorService executor;
 
@@ -61,13 +61,13 @@ public abstract class GrpcDataSender implements DataSender<Object> {
 
     protected volatile boolean shutdown;
     
-    protected final BlockingQueue<Object> queue;
+    protected final BlockingQueue<T> queue;
     protected final ThrottledLogger tLogger;
 
 
     public GrpcDataSender(String host, int port,
                           int executorQueueSize,
-                          MessageConverter<GeneratedMessageV3> messageConverter,
+                          MessageConverter<T, GeneratedMessageV3> messageConverter,
                           ChannelFactory channelFactory) {
         this.channelFactory = Objects.requireNonNull(channelFactory, "channelFactory");
 
@@ -118,7 +118,7 @@ public abstract class GrpcDataSender implements DataSender<Object> {
     }
 
     @Override
-    public boolean send(final Object data) {
+    public boolean send(final T data) {
         if (this.queue.offer(data)) {
             return true;
         }

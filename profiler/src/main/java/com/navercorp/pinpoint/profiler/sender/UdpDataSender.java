@@ -37,7 +37,7 @@ import java.net.SocketException;
  * @author emeroad
  * @author koo.taejin
  */
-public class UdpDataSender implements DataSender {
+public class UdpDataSender<T> implements DataSender<T> {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
@@ -47,16 +47,16 @@ public class UdpDataSender implements DataSender {
 
     private final DatagramSocket udpSocket;
 
-    private final AsyncQueueingExecutor<Object> executor;
+    private final AsyncQueueingExecutor<T> executor;
 
     private final UdpSocketAddressProvider socketAddressProvider;
 
-    private final MessageSerializer<ByteMessage> messageSerializer;
+    private final MessageSerializer<T, ByteMessage> messageSerializer;
 
 
     public UdpDataSender(String host, int port, String threadName,
                          int queueSize, int timeout, int sendBufferSize,
-                         MessageSerializer<ByteMessage> messageSerializer) {
+                         MessageSerializer<T, ByteMessage> messageSerializer) {
         Objects.requireNonNull(host, "host");
         if (!HostAndPort.isValidPort(port)) {
             throw new IllegalArgumentException("port out of range:" + port);
@@ -80,18 +80,18 @@ public class UdpDataSender implements DataSender {
     }
 
     @Override
-    public boolean send(Object data) {
+    public boolean send(T data) {
         return executor.execute(data);
     }
 
-    private AsyncQueueingExecutor<Object> createAsyncQueueingExecutor(int queueSize, String executorName) {
-        AsyncQueueingExecutorListener<Object> listener = new DefaultAsyncQueueingExecutorListener() {
+    private AsyncQueueingExecutor<T> createAsyncQueueingExecutor(int queueSize, String executorName) {
+        AsyncQueueingExecutorListener<T> listener = new DefaultAsyncQueueingExecutorListener<T>() {
             @Override
-            public void execute(Object message) {
+            public void execute(T message) {
                 UdpDataSender.this.sendPacket(message);
             }
         };
-        final AsyncQueueingExecutor<Object> executor = new AsyncQueueingExecutor<>(queueSize, executorName, listener);
+        final AsyncQueueingExecutor<T> executor = new AsyncQueueingExecutor<>(queueSize, executorName, listener);
         return executor;
     }
 
@@ -119,7 +119,7 @@ public class UdpDataSender implements DataSender {
         }
     }
 
-    private void sendPacket(Object message) {
+    private void sendPacket(T message) {
 
         final InetSocketAddress inetSocketAddress = socketAddressProvider.resolve();
         if (inetSocketAddress.getAddress() == null) {

@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface SpanChunk {
+public interface SpanChunk extends SpanType {
     TraceRoot getTraceRoot();
 
     List<SpanEvent> getSpanEventList();

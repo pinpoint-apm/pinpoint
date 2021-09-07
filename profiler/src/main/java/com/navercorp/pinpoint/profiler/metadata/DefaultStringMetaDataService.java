@@ -26,9 +26,9 @@ public class DefaultStringMetaDataService implements StringMetaDataService {
 
     private final SimpleCache<String> stringCache;
 
-    private final EnhancedDataSender<Object> enhancedDataSender;
+    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
 
-    public DefaultStringMetaDataService(EnhancedDataSender<Object> enhancedDataSender, SimpleCache<String> stringCache) {
+    public DefaultStringMetaDataService(EnhancedDataSender<MetaDataType> enhancedDataSender, SimpleCache<String> stringCache) {
         this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
         this.stringCache = Objects.requireNonNull(stringCache, "stringCache");
 

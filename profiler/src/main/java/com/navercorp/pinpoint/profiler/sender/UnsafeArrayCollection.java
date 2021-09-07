@@ -58,7 +58,7 @@ class UnsafeArrayCollection<E> extends AbstractCollection<E> {
     }
 
     @Override
-    public Iterator iterator() {
+    public Iterator<E> iterator() {
         throw new UnsupportedOperationException();
     }
 

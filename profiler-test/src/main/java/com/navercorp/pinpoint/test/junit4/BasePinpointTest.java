@@ -21,6 +21,7 @@ import java.util.List;
 
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.test.ListenableDataSender;
@@ -38,12 +39,12 @@ import com.navercorp.pinpoint.test.TBaseRecorder;
 @RunWith(value = PinpointJUnit4ClassRunner.class)
 public abstract class BasePinpointTest {
 
-    private volatile TBaseRecorder<?> tBaseRecorder;
+    private volatile TBaseRecorder<SpanType> tBaseRecorder;
     private volatile ServerMetaDataRegistryService serverMetaDataRegistryService;
 
     protected List<SpanEvent> getCurrentSpanEvents() {
         List<SpanEvent> spanEvents = new ArrayList<>();
-        for (Object value : this.tBaseRecorder) {
+        for (SpanType value : this.tBaseRecorder) {
             if (value instanceof SpanChunk) {
                 final SpanChunk spanChunk = (SpanChunk) value;
                 for (SpanEvent tSpanEvent : spanChunk.getSpanEventList()) {
@@ -70,7 +71,7 @@ public abstract class BasePinpointTest {
         return this.serverMetaDataRegistryService.getServerMetaData();
     }
 
-    private void setTBaseRecorder(TBaseRecorder tBaseRecorder) {
+    private void setTBaseRecorder(TBaseRecorder<SpanType> tBaseRecorder) {
         this.tBaseRecorder = tBaseRecorder;
     }
 
@@ -81,15 +82,15 @@ public abstract class BasePinpointTest {
     public void setup(TestContext testContext) {
         DefaultApplicationContext mockApplicationContext = testContext.getDefaultApplicationContext();
 
-        DataSender spanDataSender = mockApplicationContext.getSpanDataSender();
+        DataSender<SpanType> spanDataSender = mockApplicationContext.getSpanDataSender();
         if (spanDataSender instanceof ListenableDataSender) {
-            ListenableDataSender listenableDataSender = (ListenableDataSender) spanDataSender;
+            ListenableDataSender<SpanType> listenableDataSender = (ListenableDataSender<SpanType>) spanDataSender;
 
-            final TBaseRecorder<Object> tBaseRecord = new TBaseRecorder<>();
+            final TBaseRecorder<SpanType> tBaseRecord = new TBaseRecorder<>();
 
-            listenableDataSender.setListener(new ListenableDataSender.Listener() {
+            listenableDataSender.setListener(new ListenableDataSender.Listener<SpanType>() {
                 @Override
-                public boolean handleSend(Object data) {
+                public boolean handleSend(SpanType data) {
                     return tBaseRecord.add(data);
                 }
             });

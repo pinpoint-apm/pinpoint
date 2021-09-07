@@ -28,6 +28,8 @@ import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataRegistrySe
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MetadataMessageConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.ThriftMessageToResultConverter;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
+import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.MessageSerializer;
 import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
@@ -53,6 +55,7 @@ import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import org.apache.commons.lang.math.RandomUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.junit.Assert;
@@ -64,12 +67,12 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
@@ -87,7 +90,7 @@ public class AgentInfoSenderTest {
     private ServerMetaDataRegistryService serverMetaDataRegistryService;
     private JvmInformation jvmInformation;
     private AgentInfoFactory agentInfoFactory;
-    private MessageConverter<ResultResponse> resultResponseMessageConverter;
+    private MessageConverter<Object, ResultResponse> resultResponseMessageConverter;
 
     @Before
     public void init() {
@@ -99,15 +102,16 @@ public class AgentInfoSenderTest {
 
     }
 
-    private TcpDataSender newTcpDataSender(PinpointClientFactory clientFactory, int port) {
-        MessageConverter<TBase<?, ?>> messageConverter = new MetadataMessageConverter(agentInformation.getApplicationName(), agentInformation.getAgentId(), agentInformation.getStartTime());
-        MessageSerializer<byte[]> messageSerializer = new ThriftMessageSerializer(messageConverter);
+    private EnhancedDataSender<MetaDataType> newTcpDataSender(PinpointClientFactory clientFactory, int port) {
+        MessageConverter<MetaDataType, TBase<?, ?>> messageConverter
+                = new MetadataMessageConverter(agentInformation.getApplicationName(), agentInformation.getAgentId(), agentInformation.getStartTime());
+        MessageSerializer<MetaDataType, byte[]> messageSerializer = new ThriftMessageSerializer<>(messageConverter);
 
-        return new TcpDataSender(this.getClass().getName(), HOST, port, clientFactory, messageSerializer);
+        return new TcpDataSender<>(this.getClass().getName(), HOST, port, clientFactory, messageSerializer);
     }
 
     @Test
-    public void agentInfoShouldBeSent() throws InterruptedException {
+    public void agentInfoShouldBeSent() {
         final long agentInfoSendRetryIntervalMs = 100L;
 
         final ResponseServerMessageListenerFactory messageListenerFactory = new ResponseServerMessageListenerFactory();
@@ -117,8 +121,11 @@ public class AgentInfoSenderTest {
         int bindPort = testPinpointServerAcceptor.bind();
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
-        TcpDataSender dataSender = newTcpDataSender(clientFactory, bindPort);
-        AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory).sendInterval(agentInfoSendRetryIntervalMs).setMessageConverter(resultResponseMessageConverter).build();
+        EnhancedDataSender<MetaDataType> dataSender = newTcpDataSender(clientFactory, bindPort);
+        AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory)
+                .sendInterval(agentInfoSendRetryIntervalMs)
+                .setMessageConverter(resultResponseMessageConverter)
+                .build();
 
         try {
             agentInfoSender.start();
@@ -132,7 +139,7 @@ public class AgentInfoSenderTest {
     }
 
     @Test
-    public void agentInfoShouldRetryUntilSuccess() throws InterruptedException {
+    public void agentInfoShouldRetryUntilSuccess() {
         final long agentInfoSendRetryIntervalMs = 100L;
         final int maxTryPerAttempt = 3;
         final int expectedTriesUntilSuccess = maxTryPerAttempt;
@@ -144,7 +151,7 @@ public class AgentInfoSenderTest {
         int bindPort = testPinpointServerAcceptor.bind();
 
         PinpointClientFactory socketFactory = createPinpointClientFactory();
-        TcpDataSender dataSender = newTcpDataSender(socketFactory, bindPort);
+        EnhancedDataSender<MetaDataType> dataSender = newTcpDataSender(socketFactory, bindPort);
         AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory)
                 .maxTryPerAttempt(maxTryPerAttempt)
                 .sendInterval(agentInfoSendRetryIntervalMs)
@@ -163,7 +170,7 @@ public class AgentInfoSenderTest {
     }
 
     @Test
-    public void agentInfoShouldInitiallyRetryIndefinitely() throws InterruptedException {
+    public void agentInfoShouldInitiallyRetryIndefinitely() {
         final long agentInfoSendRetryIntervalMs = 100L;
         final int maxTryPerAttempt = 3;
         final int expectedTriesUntilSuccess = maxTryPerAttempt * 5;
@@ -175,7 +182,7 @@ public class AgentInfoSenderTest {
         int bindPort = testPinpointServerAcceptor.bind();
 
         PinpointClientFactory socketFactory = createPinpointClientFactory();
-        TcpDataSender dataSender = newTcpDataSender(socketFactory, bindPort);
+        EnhancedDataSender<MetaDataType> dataSender = newTcpDataSender(socketFactory, bindPort);
         AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory)
                 .maxTryPerAttempt(maxTryPerAttempt)
                 .sendInterval(agentInfoSendRetryIntervalMs)
@@ -194,7 +201,7 @@ public class AgentInfoSenderTest {
     }
 
     @Test
-    public void agentInfoShouldRetryUntilAttemptsAreExhaustedWhenRefreshing() throws InterruptedException {
+    public void agentInfoShouldRetryUntilAttemptsAreExhaustedWhenRefreshing() {
 
         final long agentInfoSendRetryIntervalMs = 1000L;
         final long agentInfoSendRefreshIntervalMs = 5000L;
@@ -213,7 +220,7 @@ public class AgentInfoSenderTest {
 
         PinpointClientFactory socketFactory = createPinpointClientFactory();
 
-        TcpDataSender dataSender = newTcpDataSender(socketFactory, bindPort);
+        EnhancedDataSender<MetaDataType> dataSender = newTcpDataSender(socketFactory, bindPort);
         dataSender.addReconnectEventListener(new PinpointClientReconnectEventListener() {
             @Override
             public void reconnectPerformed(PinpointClient client) {
@@ -234,13 +241,13 @@ public class AgentInfoSenderTest {
             agentInfoSender.start();
             waitExpectedRequestCount(successMessageListener, expectedSuccessServerTries);
             testPinpointServerAcceptor.close();
-            Thread.sleep(agentInfoSendRetryIntervalMs * maxTryPerAttempt);
+            sleep(agentInfoSendRetryIntervalMs * maxTryPerAttempt);
 
             failTestPinpointServerAcceptor = new TestPinpointServerAcceptor(failMessageListenerFactory);
             failTestPinpointServerAcceptor.bind(bindPort);
 
             // wait till agent reconnects
-            agentReconnectLatch.await();
+            await(agentReconnectLatch, 3000);
             waitExpectedRequestCount(failMessageListener, expectedFailServerTries);
         } finally {
             closeAll(agentInfoSender, socketFactory);
@@ -250,6 +257,14 @@ public class AgentInfoSenderTest {
         assertEquals(1, successMessageListener.getSuccessCount() + failMessageListener.getSuccessCount());
         assertEquals(expectedSuccessServerTries, successMessageListener.getRequestCount());
         assertEquals(expectedFailServerTries, failMessageListener.getRequestCount());
+    }
+
+    private void await(CountDownLatch agentReconnectLatch, long timeout) {
+        try {
+            agentReconnectLatch.await(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Test
@@ -269,7 +284,7 @@ public class AgentInfoSenderTest {
         int bindPort = testPinpointServerAcceptor.bind();
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
-        TcpDataSender dataSender = newTcpDataSender(clientFactory, bindPort);
+        EnhancedDataSender<MetaDataType> dataSender = newTcpDataSender(clientFactory, bindPort);
         dataSender.addReconnectEventListener(new PinpointClientReconnectEventListener() {
             @Override
             public void reconnectPerformed(PinpointClient client) {
@@ -301,7 +316,7 @@ public class AgentInfoSenderTest {
                 // wait for agent to reconnect
                 reconnectEventBarrier.await();
                 // wait to see if AgentInfo is sent again (it shouldn't)
-                Thread.sleep(1000L);
+                sleep(1000L);
                 reconnectPinpointServerAcceptor.close();
                 reconnectEventBarrier.reset();
             }
@@ -314,7 +329,7 @@ public class AgentInfoSenderTest {
     }
 
     @Test
-    public void agentInfoShouldKeepRefreshing() throws InterruptedException {
+    public void agentInfoShouldKeepRefreshing() {
         final long agentInfoSendRetryIntervalMs = 100L;
         final long agentInfoSendRefreshIntervalMs = 100L;
         final int expectedRefreshCount = 5;
@@ -326,7 +341,7 @@ public class AgentInfoSenderTest {
         int bindPort = testPinpointServerAcceptor.bind();
 
         PinpointClientFactory socketFactory = createPinpointClientFactory();
-        TcpDataSender dataSender = newTcpDataSender(socketFactory, bindPort);
+        EnhancedDataSender<MetaDataType> dataSender = newTcpDataSender(socketFactory, bindPort);
         AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory)
                 .refreshInterval(agentInfoSendRefreshIntervalMs)
                 .sendInterval(agentInfoSendRetryIntervalMs)
@@ -336,7 +351,7 @@ public class AgentInfoSenderTest {
         try {
             agentInfoSender.start();
             while (messageListener.getRequestCount() < expectedRefreshCount) {
-                Thread.sleep(1000L);
+                sleep(1000L);
             }
         } finally {
             closeAll(agentInfoSender, socketFactory);
@@ -347,7 +362,7 @@ public class AgentInfoSenderTest {
     }
 
     @Test
-    public void agentInfoShouldBeRefreshedOnServerMetaDataChange() throws InterruptedException {
+    public void agentInfoShouldBeRefreshedOnServerMetaDataChange() {
         // Given
         final int expectedRequestCount = 5;
         final long agentInfoSendRetryIntervalMs = 1000L;
@@ -360,8 +375,9 @@ public class AgentInfoSenderTest {
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
 
-        TcpDataSender dataSender = newTcpDataSender(clientFactory, bindPort);
-        final AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory).sendInterval(agentInfoSendRetryIntervalMs).setMessageConverter(resultResponseMessageConverter).build();
+        EnhancedDataSender<MetaDataType> dataSender = newTcpDataSender(clientFactory, bindPort);
+        final AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory)
+                .sendInterval(agentInfoSendRetryIntervalMs).setMessageConverter(resultResponseMessageConverter).build();
         serverMetaDataRegistryService.addListener(new ServerMetaDataRegistryService.OnChangeListener() {
             @Override
             public void onServerMetaDataChange() {
@@ -386,7 +402,7 @@ public class AgentInfoSenderTest {
     }
 
     @Test
-    public void agentInfoShouldBeRefreshedOnServerMetaDataChangeFromMultipleThreads() throws InterruptedException {
+    public void agentInfoShouldBeRefreshedOnServerMetaDataChangeFromMultipleThreads() {
         // Given
         final long agentInfoSendRetryIntervalMs = 1000L;
         final int threadCount = 50;
@@ -394,7 +410,7 @@ public class AgentInfoSenderTest {
         final CountDownLatch startLatch = new CountDownLatch(1);
         final CountDownLatch endLatch = new CountDownLatch(threadCount);
         final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
-        final Queue<Throwable> exceptions = new ConcurrentLinkedQueue<Throwable>();
+        final Queue<Throwable> exceptions = new ConcurrentLinkedQueue<>();
 
         final ResponseServerMessageListenerFactory messageListenerFactory = new ResponseServerMessageListenerFactory();
         ResponseServerMessageListener messageListener = messageListenerFactory.create();
@@ -404,8 +420,9 @@ public class AgentInfoSenderTest {
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
 
-        TcpDataSender dataSender = newTcpDataSender(clientFactory, bindPort);
-        final AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory).sendInterval(agentInfoSendRetryIntervalMs).setMessageConverter(resultResponseMessageConverter).build();
+        EnhancedDataSender<MetaDataType> dataSender = newTcpDataSender(clientFactory, bindPort);
+        final AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory)
+                .sendInterval(agentInfoSendRetryIntervalMs).setMessageConverter(resultResponseMessageConverter).build();
         serverMetaDataRegistryService.addListener(new ServerMetaDataRegistryService.OnChangeListener() {
             @Override
             public void onServerMetaDataChange() {
@@ -433,9 +450,9 @@ public class AgentInfoSenderTest {
                 }
             });
         }
-        initLatch.await();
+        await(initLatch, 3000);
         startLatch.countDown();
-        endLatch.await();
+        await(endLatch, 3000);
         executorService.shutdown();
         try {
             waitExpectedRequestCount(messageListener, threadCount);
@@ -450,7 +467,7 @@ public class AgentInfoSenderTest {
         assertEquals(threadCount, messageListener.getSuccessCount());
     }
 
-    public void reconnectionStressTest() throws InterruptedException {
+    public void reconnectionStressTest() {
         final long stressTestTime = 60 * 1000L;
         final int randomMaxTime = 3000;
         final long agentInfoSendRetryIntervalMs = 1000L;
@@ -464,7 +481,7 @@ public class AgentInfoSenderTest {
 
         int availableTcpPort = SocketUtils.findAvailableTcpPort(47000);
 
-        TcpDataSender dataSender = newTcpDataSender(clientFactory, availableTcpPort);
+        EnhancedDataSender<MetaDataType> dataSender = newTcpDataSender(clientFactory, availableTcpPort);
         AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory)
                 .sendInterval(agentInfoSendRetryIntervalMs)
                 .maxTryPerAttempt(maxTryPerAttempt)
@@ -476,11 +493,9 @@ public class AgentInfoSenderTest {
         try {
             agentInfoSender.start();
 
-            Random random = new Random(System.currentTimeMillis());
-
             while (System.currentTimeMillis() < startTime + stressTestTime) {
-                createAndDeleteServer(messageListenerFactory, Math.abs(random.nextInt(randomMaxTime)));
-                Thread.sleep(Math.abs(random.nextInt(1000)));
+                createAndDeleteServer(messageListenerFactory, Math.abs(RandomUtils.nextInt(randomMaxTime)));
+                sleep(Math.abs(RandomUtils.nextInt(1000)));
             }
 
         } finally {
@@ -490,13 +505,13 @@ public class AgentInfoSenderTest {
         assertEquals(expectedTriesUntilSuccess, messageListener.getRequestCount());
     }
 
-    private void createAndDeleteServer(ServerMessageListenerFactory messageListenerFactory, long waitTimeMillis) throws InterruptedException {
+    private void createAndDeleteServer(ServerMessageListenerFactory messageListenerFactory, long waitTimeMillis) {
         int availableTcpPort = SocketUtils.findAvailableTcpPort(47000);
 
         TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(messageListenerFactory);
         try {
             testPinpointServerAcceptor.bind(availableTcpPort);
-            Thread.sleep(waitTimeMillis);
+            sleep(waitTimeMillis);
         } finally {
             TestPinpointServerAcceptor.staticClose(testPinpointServerAcceptor);
         }
@@ -513,7 +528,8 @@ public class AgentInfoSenderTest {
     }
 
     private AgentInformation createAgentInformation() {
-        AgentInformation agentInfo = new DefaultAgentInformation("agentId", "agentName", "appName", false, System.currentTimeMillis(), 1111, "hostname", "127.0.0.1", ServiceType.USER,
+        AgentInformation agentInfo = new DefaultAgentInformation("agentId", "agentName", "appName", false,
+                System.currentTimeMillis(), 1111, "hostname", "127.0.0.1", ServiceType.USER,
                 JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION), Version.VERSION);
         return agentInfo;
     }
@@ -638,5 +654,13 @@ public class AgentInfoSenderTest {
     private void awaitTask(TestAwaitTaskUtils awaitTaskUtils) {
         boolean pass = awaitUtils.await(awaitTaskUtils);
         Assert.assertTrue(pass);
+    }
+
+    private void sleep(long time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

@@ -25,9 +25,9 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class Item implements Comparable<Item> {
+public class Item<T> implements Comparable<Item<T>> {
 
-    private final Object value;
+    private final T value;
     private final long time;
     private final long spanId;
     private final int sequence;
@@ -40,7 +40,7 @@ public class Item implements Comparable<Item> {
 //        this(value, time, traceRoot, sequence, OrderedSpanRecorder.ASYNC_ID_NOT_SET, OrderedSpanRecorder.ASYNC_SEQUENCE_NOT_SET);
 //    }
 
-    public Item(Object value, long time, TraceRoot traceRoot, int sequence) {
+    public Item(T value, long time, TraceRoot traceRoot, int sequence) {
         this.value = value;
         this.time = time;
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
@@ -54,7 +54,7 @@ public class Item implements Comparable<Item> {
         }
     }
 
-    public Object getValue() {
+    public T getValue() {
         return value;
     }
 
@@ -67,7 +67,7 @@ public class Item implements Comparable<Item> {
     }
 
     @Override
-    public int compareTo(Item o) {
+    public int compareTo(Item<T> o) {
         if (this.localAsyncId == null && o.localAsyncId == null) {
             return compareItems(this, o);
         } else if (this.localAsyncId != null && o.localAsyncId != null) {
@@ -81,7 +81,7 @@ public class Item implements Comparable<Item> {
         }
     }
 
-    private static int compareItems(Item lhs, Item rhs) {
+    private static <T> int compareItems(Item<T> lhs, Item<T> rhs) {
         if (lhs.time < rhs.time) {
             return -1;
         } else if (lhs.time > rhs.time) {
@@ -103,7 +103,7 @@ public class Item implements Comparable<Item> {
         }
     }
 
-    private static int compareAsyncItems(Item lhs, Item rhs) {
+    private static <T> int compareAsyncItems(Item<T> lhs, Item<T> rhs) {
         final LocalAsyncId localAsyncId1 = lhs.localAsyncId;
         final LocalAsyncId localAsyncId2 = rhs.localAsyncId;
         if (localAsyncId1.getAsyncId() < localAsyncId2.getAsyncId()) {
@@ -127,11 +127,11 @@ public class Item implements Comparable<Item> {
         }
     }
 
-    private static int compareHashes(Item lhs, Item rhs) {
+    private static <T> int compareHashes(Item<T> lhs, Item<T> rhs) {
         int h1 = System.identityHashCode(lhs.value);
         int h2 = System.identityHashCode(rhs.value);
 
-        return h1 < h2 ? -1 : (h1 > h2 ? 1 : 0);
+        return Integer.compare(h1, h2);
     }
 
     @Override

@@ -20,11 +20,12 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 
 /**
  * @author jaehong.kim
  */
-public class GrpcStatMessageConverterProvider implements Provider<MessageConverter<GeneratedMessageV3>> {
+public class GrpcStatMessageConverterProvider implements Provider<MessageConverter<MetricType, GeneratedMessageV3>> {
 
     @Inject
     public GrpcStatMessageConverterProvider() {
@@ -32,7 +33,7 @@ public class GrpcStatMessageConverterProvider implements Provider<MessageConvert
 
 
     @Override
-    public MessageConverter<GeneratedMessageV3> get() {
+    public MessageConverter<MetricType, GeneratedMessageV3> get() {
         return new GrpcStatMessageConverter();
     }
 }

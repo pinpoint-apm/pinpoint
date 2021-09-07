@@ -32,9 +32,9 @@ public class DefaultSqlMetaDataService implements SqlMetaDataService {
 
     private final CachingSqlNormalizer cachingSqlNormalizer;
 
-    private final EnhancedDataSender<Object> enhancedDataSender;
+    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
 
-    public DefaultSqlMetaDataService(EnhancedDataSender<Object> enhancedDataSender, SimpleCache<String> sqlCache) {
+    public DefaultSqlMetaDataService(EnhancedDataSender<MetaDataType> enhancedDataSender, SimpleCache<String> sqlCache) {
         this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
 
         Objects.requireNonNull(sqlCache, "sqlCache");
