@@ -21,6 +21,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Stage;
+import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
@@ -33,6 +34,7 @@ import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.javamodule.ClassFileTransformerModuleHandler;
 import com.navercorp.pinpoint.profiler.context.javamodule.JavaModuleFactoryFinder;
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
@@ -180,8 +182,9 @@ public class DefaultApplicationContext implements ApplicationContext {
         return traceContext;
     }
 
-    public DataSender getSpanDataSender() {
-        Key<DataSender> spanDataSenderKey = Key.get(DataSender.class, SpanDataSender.class);
+    public DataSender<SpanType> getSpanDataSender() {
+        TypeLiteral<DataSender<SpanType>> spanDataSenderType = new TypeLiteral<DataSender<SpanType>>() {};
+        Key<DataSender<SpanType>> spanDataSenderKey = Key.get(spanDataSenderType, SpanDataSender.class);
         return injector.getInstance(spanDataSenderKey);
     }
 

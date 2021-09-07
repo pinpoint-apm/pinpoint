@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaData;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaData;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaData;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -37,7 +38,7 @@ import java.util.NoSuchElementException;
  * @author Jongho Moon
  * @author jaehong.kim
  */
-public class TestTcpDataSender implements EnhancedDataSender<Object> {
+public class TestTcpDataSender implements EnhancedDataSender<MetaDataType> {
 
     private final List<Object> datas = Collections.synchronizedList(new ArrayList<>());
 
@@ -61,12 +62,12 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
     }
 
     @Override
-    public boolean send(Object data) {
+    public boolean send(MetaDataType data) {
         addData(data);
         return false;
     }
 
-    private void addData(Object data) {
+    private void addData(MetaDataType data) {
         if (data instanceof ApiMetaData) {
             ApiMetaData md = (ApiMetaData)data;
 
@@ -134,19 +135,19 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
     }
 
     @Override
-    public boolean request(Object data) {
+    public boolean request(MetaDataType data) {
         addData(data);
         return true;
     }
 
     @Override
-    public boolean request(Object data, int retry) {
+    public boolean request(MetaDataType data, int retry) {
         addData(data);
         return true;
     }
 
     @Override
-    public boolean request(Object data, FutureListener<ResponseMessage> listener) {
+    public boolean request(MetaDataType data, FutureListener<ResponseMessage> listener) {
         addData(data);
         return true;
     }

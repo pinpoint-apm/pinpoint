@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,12 +37,12 @@ import java.util.List;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class GrpcAgentInfoMessageConverter implements MessageConverter<GeneratedMessageV3> {
+public class GrpcAgentInfoMessageConverter implements MessageConverter<MetaDataType, GeneratedMessageV3> {
 
     private final GrpcJvmGcTypeMessageConverter jvmGcTypeMessageConverter = new GrpcJvmGcTypeMessageConverter();
 
     @Override
-    public GeneratedMessageV3 toMessage(Object message) {
+    public GeneratedMessageV3 toMessage(MetaDataType message) {
         if (message instanceof AgentInfo) {
             final AgentInfo agentInfo = (AgentInfo) message;
             return convertAgentInfo(agentInfo);

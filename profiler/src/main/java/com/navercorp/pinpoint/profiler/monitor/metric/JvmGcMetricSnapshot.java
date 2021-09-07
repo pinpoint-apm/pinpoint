@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.gc.JvmGcType;
 /**
  * @author jaehong.kim
  */
-public class JvmGcMetricSnapshot {
+public class JvmGcMetricSnapshot implements MetricType {
     private JvmGcType type;
     private long jvmMemoryHeapUsed;
     private long jvmMemoryHeapMax;

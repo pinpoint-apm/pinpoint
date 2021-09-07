@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.monitor.metric.uri;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,7 +26,7 @@ import java.util.Map;
 /**
  * @author Taejin Koo
  */
-public class AgentUriStatData {
+public class AgentUriStatData implements MetricType {
 
     private final long baseTimestamp;
 

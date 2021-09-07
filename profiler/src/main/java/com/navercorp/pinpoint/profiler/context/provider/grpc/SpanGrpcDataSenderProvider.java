@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.grpc.client.config.SslOption;
 import com.navercorp.pinpoint.grpc.client.interceptor.DiscardClientInterceptor;
 import com.navercorp.pinpoint.grpc.client.interceptor.DiscardEventListener;
 import com.navercorp.pinpoint.grpc.client.interceptor.LoggingDiscardEventListener;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -51,12 +52,12 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> {
+public class SpanGrpcDataSenderProvider implements Provider<DataSender<SpanType>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final GrpcTransportConfig grpcTransportConfig;
-    private final MessageConverter<GeneratedMessageV3> messageConverter;
+    private final MessageConverter<SpanType, GeneratedMessageV3> messageConverter;
     private final HeaderFactory headerFactory;
     private final Provider<ReconnectExecutor> reconnectExecutor;
     private final NameResolverProvider nameResolverProvider;
@@ -68,7 +69,7 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
 
     @Inject
     public SpanGrpcDataSenderProvider(GrpcTransportConfig grpcTransportConfig,
-                                      @SpanDataSender MessageConverter<GeneratedMessageV3> messageConverter,
+                                      @SpanDataSender MessageConverter<SpanType, GeneratedMessageV3> messageConverter,
                                       HeaderFactory headerFactory,
                                       Provider<ReconnectExecutor> reconnectExecutor,
                                       NameResolverProvider nameResolverProvider, ChannelzScheduledReporter reporter) {
@@ -88,7 +89,7 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
     }
 
     @Override
-    public DataSender<Object> get() {
+    public DataSender<SpanType> get() {
         final String collectorIp = grpcTransportConfig.getSpanCollectorIp();
         final int collectorPort = grpcTransportConfig.getSpanCollectorPort();
         final boolean sslEnable = grpcTransportConfig.isSpanSslEnable();

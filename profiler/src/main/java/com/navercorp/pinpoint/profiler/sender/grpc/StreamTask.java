@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-public interface StreamTask<ReqT> {
+public interface StreamTask<M, ReqT> {
 
     void start();
 

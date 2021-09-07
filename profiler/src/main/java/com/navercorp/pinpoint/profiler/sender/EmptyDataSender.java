@@ -24,13 +24,17 @@ import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class EmptyDataSender implements EnhancedDataSender<Object> {
+public class EmptyDataSender<T> implements EnhancedDataSender<T> {
 
-    public static final DataSender INSTANCE = new EmptyDataSender();
+    private static final DataSender<?> INSTANCE = new EmptyDataSender<>();
 
+    @SuppressWarnings("unchecked")
+    public static <T> DataSender<T> instance() {
+        return (DataSender<T>) INSTANCE;
+    }
 
     @Override
-    public boolean send(Object data) {
+    public boolean send(T data) {
         return true;
     }
 
@@ -40,18 +44,18 @@ public class EmptyDataSender implements EnhancedDataSender<Object> {
     }
 
     @Override
-    public boolean request(Object data) {
+    public boolean request(T data) {
         return true;
     }
 
     @Override
-    public boolean request(Object data, int retry) {
+    public boolean request(T data, int retry) {
         return false;
     }
 
 
     @Override
-    public boolean request(Object data, FutureListener<ResponseMessage> listener) {
+    public boolean request(T data, FutureListener<ResponseMessage> listener) {
         return false;
     }
 

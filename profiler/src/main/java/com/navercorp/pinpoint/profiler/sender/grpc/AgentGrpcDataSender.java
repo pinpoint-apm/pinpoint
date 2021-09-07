@@ -40,7 +40,7 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * @author jaehong.kim
  */
-public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataSender<Object> {
+public class AgentGrpcDataSender<T> extends GrpcDataSender<T> implements EnhancedDataSender<T> {
 
     static {
         // preClassLoad
@@ -57,7 +57,7 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
     private final Reconnector reconnector;
 
     public AgentGrpcDataSender(String host, int port, int executorQueueSize,
-                               MessageConverter<GeneratedMessageV3> messageConverter,
+                               MessageConverter<T, GeneratedMessageV3> messageConverter,
                                ReconnectExecutor reconnectExecutor,
                                final ScheduledExecutorService retransmissionExecutor,
                                ChannelFactory channelFactory,
@@ -95,17 +95,17 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
     }
 
     @Override
-    public boolean request(Object data) {
+    public boolean request(T data) {
         throw new UnsupportedOperationException("unsupported operation request(data)");
     }
 
     @Override
-    public boolean request(Object data, int retryCount) {
+    public boolean request(T data, int retryCount) {
         throw new UnsupportedOperationException("unsupported operation request(data, retryCount)");
     }
 
     @Override
-    public boolean request(Object data, final FutureListener listener) {
+    public boolean request(T data, final FutureListener<ResponseMessage> listener) {
         final GeneratedMessageV3 message = this.messageConverter.toMessage(data);
         if (!(message instanceof PAgentInfo)) {
             throw new IllegalArgumentException("unsupported message " + data);
@@ -157,9 +157,9 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
     }
 
     private static class FutureListenerStreamObserver implements StreamObserver<PResult> {
-        private final FutureListener listener;
+        private final FutureListener<ResponseMessage> listener;
 
-        private FutureListenerStreamObserver(FutureListener listener) {
+        private FutureListenerStreamObserver(FutureListener<ResponseMessage> listener) {
             this.listener = listener;
         }
 

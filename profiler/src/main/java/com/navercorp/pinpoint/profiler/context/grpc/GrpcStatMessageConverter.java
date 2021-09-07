@@ -44,6 +44,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshotBatch;
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcDetailedMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSource;
@@ -64,15 +65,15 @@ import java.util.List;
 /**
  * @author jaehong.kim
  */
-public class GrpcStatMessageConverter implements MessageConverter<GeneratedMessageV3> {
-    private final GrpcThreadDumpMessageConverter threadDumpMessageConverter = new GrpcThreadDumpMessageConverter();
-    private final GrpcJvmGcTypeMessageConverter jvmGcTypeConverter = new GrpcJvmGcTypeMessageConverter();
-    private final GrpcCustomMetricMessageConverter customMetricMessageConverter = new GrpcCustomMetricMessageConverter();
-    private final GrpcUriStatMessageConverter uriStatMessageConverter = new GrpcUriStatMessageConverter();
+public class GrpcStatMessageConverter implements MessageConverter<MetricType, GeneratedMessageV3> {
+    private final MessageConverter<Object, PThreadDump> threadDumpMessageConverter = new GrpcThreadDumpMessageConverter();
+    private final MessageConverter<Object, PJvmGcType> jvmGcTypeConverter = new GrpcJvmGcTypeMessageConverter();
+    private final MessageConverter<MetricType, PCustomMetricMessage> customMetricMessageConverter = new GrpcCustomMetricMessageConverter();
+    private final MessageConverter<MetricType, PAgentUriStat> uriStatMessageConverter = new GrpcUriStatMessageConverter();
 
 
     @Override
-    public GeneratedMessageV3 toMessage(Object message) {
+    public GeneratedMessageV3 toMessage(MetricType message) {
         if (message instanceof AgentStatMetricSnapshotBatch) {
             final AgentStatMetricSnapshotBatch agentStatMetricSnapshotBatch = (AgentStatMetricSnapshotBatch) message;
             final PAgentStatBatch.Builder agentStatBatchBuilder = PAgentStatBatch.newBuilder();

@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.grpc.trace.PLongValue;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentCustomMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentCustomMetricSnapshotBatch;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.monitor.metric.custom.CustomMetricVo;
 import com.navercorp.pinpoint.profiler.monitor.metric.custom.DoubleGaugeMetricVo;
 import com.navercorp.pinpoint.profiler.monitor.metric.custom.IntCountMetricVo;
@@ -44,17 +45,17 @@ import java.util.Set;
 /**
  * @author Taejin Koo
  */
-public class GrpcCustomMetricMessageConverter implements MessageConverter<PCustomMetricMessage> {
+public class GrpcCustomMetricMessageConverter implements MessageConverter<MetricType, PCustomMetricMessage> {
 
     @Override
-    public PCustomMetricMessage toMessage(Object message) {
+    public PCustomMetricMessage toMessage(MetricType message) {
         Objects.requireNonNull(message, "message");
 
         if (message instanceof AgentCustomMetricSnapshotBatch) {
             AgentCustomMetricSnapshotBatch agentCustomMetricSnapshotBatch = (AgentCustomMetricSnapshotBatch) message;
             List<AgentCustomMetricSnapshot> agentCustomMetricSnapshotList = agentCustomMetricSnapshotBatch.getAgentCustomMetricSnapshotList();
 
-            Set<String> metricNameSet = new HashSet<String>();
+            Set<String> metricNameSet = new HashSet<>();
             for (AgentCustomMetricSnapshot agentCustomMetricSnapshot : agentCustomMetricSnapshotList) {
                 metricNameSet.addAll(agentCustomMetricSnapshot.getMetricNameSet());
             }

@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author koo.taejin
  * @author netspider
  */
-public class TcpDataSender implements EnhancedDataSender<Object> {
+public class TcpDataSender<T> implements EnhancedDataSender<T> {
 
     private static final int DEFAULT_QUEUE_SIZE = 1024 * 5;
 
@@ -72,7 +72,7 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
 
     private final WriteFailFutureListener writeFailFutureListener;
 
-    private final MessageSerializer<byte[]> messageSerializer;
+    private final MessageSerializer<T, byte[]> messageSerializer;
 
     private final RetryQueue retryQueue = new RetryQueue();
 
@@ -80,23 +80,26 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
 
 
     public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory) {
-        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), newDefaultMessageSerializer(), DEFAULT_QUEUE_SIZE);
+        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory),
+                (MessageSerializer<T, byte[]>) newDefaultMessageSerializer(), DEFAULT_QUEUE_SIZE);
     }
 
-    private static ThriftMessageSerializer newDefaultMessageSerializer() {
-        MessageConverter<TBase<?, ?>> messageConverter = new BypassMessageConverter<>();
-        return new ThriftMessageSerializer(messageConverter);
+
+    private static <V> MessageSerializer<V, byte[]> newDefaultMessageSerializer() {
+        MessageConverter<V, TBase<?, ?>> messageConverter = new BypassMessageConverter<>();
+        return new ThriftMessageSerializer<>(messageConverter);
     }
 
-    public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory, MessageSerializer<byte[]> messageSerializer) {
+
+    public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory, MessageSerializer<T, byte[]> messageSerializer) {
         this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), messageSerializer, DEFAULT_QUEUE_SIZE);
     }
 
-    public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory, MessageSerializer<byte[]> messageSerializer, int queueSize) {
+    public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory, MessageSerializer<T, byte[]> messageSerializer, int queueSize) {
         this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), messageSerializer, queueSize);
     }
 
-    private TcpDataSender(String name, ClientFactoryUtils.PinpointClientProvider clientProvider, MessageSerializer<byte[]> messageSerializer, int queueSize) {
+    private TcpDataSender(String name, ClientFactoryUtils.PinpointClientProvider clientProvider, MessageSerializer<T, byte[]> messageSerializer, int queueSize) {
         this.logger = newLogger(name);
 
         Objects.requireNonNull(clientProvider, "clientProvider");
@@ -114,7 +117,7 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
     }
 
     private AsyncQueueingExecutor<Object> createAsyncQueueingExecutor(int queueSize, String executorName) {
-        AsyncQueueingExecutorListener<Object> listener = new DefaultAsyncQueueingExecutorListener() {
+        AsyncQueueingExecutorListener<Object> listener = new DefaultAsyncQueueingExecutorListener<Object>() {
             @Override
             public void execute(Object message) {
                 TcpDataSender.this.sendPacket(message);
@@ -157,24 +160,24 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
     }
 
     @Override
-    public boolean send(Object data) {
+    public boolean send(T data) {
         return executor.execute(data);
     }
 
     @Override
-    public boolean request(Object data) {
+    public boolean request(T data) {
         return this.request(data, 3);
     }
 
     @Override
-    public boolean request(Object data, int retryCount) {
+    public boolean request(T data, int retryCount) {
         final RequestMessage<?> message = RequestMessageFactory.request(data, retryCount);
         return executor.execute(message);
     }
 
     @Override
-    public boolean request(Object data, FutureListener<ResponseMessage> listener) {
-        final RequestMessage<Object> message = RequestMessageFactory.request(data, listener);
+    public boolean request(T data, FutureListener<ResponseMessage> listener) {
+        final RequestMessage<T> message = RequestMessageFactory.request(data, listener);
         return executor.execute(message);
     }
 
@@ -209,13 +212,13 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
     protected void sendPacket(Object message) {
         try {
             if (message instanceof RequestMessage<?>) {
-                final RequestMessage<?> requestMessage = (RequestMessage<?>) message;
+                final RequestMessage<T> requestMessage = (RequestMessage<T>) message;
                 if (doRequest(requestMessage)) {
                     return;
                 }
             }
 
-            final byte[] copy = messageSerializer.serializer(message);
+            final byte[] copy = messageSerializer.serializer((T)message);
             if (copy == null) {
                 logger.error("sendPacket fail. invalid dto type:{}", message.getClass());
                 return;
@@ -226,15 +229,15 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
         }
     }
 
-    private boolean doRequest(RequestMessage<?> requestMessage) {
-        final Object message = requestMessage.getMessage();
+    private boolean doRequest(RequestMessage<T> requestMessage) {
+        final T message = requestMessage.getMessage();
 
         final byte[] copy = messageSerializer.serializer(message);
         if (copy == null) {
             return false;
         }
 
-        final FutureListener futureListener = requestMessage.getFutureListener();
+        final FutureListener<ResponseMessage> futureListener = requestMessage.getFutureListener();
         if (futureListener != null) {
             doRequest(copy, futureListener);
         } else {
@@ -246,13 +249,13 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
     }
 
     protected void doSend(byte[] copy) {
-        Future write = this.client.sendAsync(copy);
+        Future<?> write = this.client.sendAsync(copy);
         write.setListener(writeFailFutureListener);
     }
 
     // Separate doRequest method to avoid creating unnecessary objects. (Generally, sending message is successed when firt attempt.)
     private void doRequest(final byte[] requestPacket, final int maxRetryCount, final Object targetClass) {
-        FutureListener futureListener = (new FutureListener<ResponseMessage>() {
+        FutureListener<ResponseMessage> futureListener = (new FutureListener<ResponseMessage>() {
             @Override
             public void onComplete(Future<ResponseMessage> future) {
                 if (future.isSuccess()) {
@@ -288,7 +291,7 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
 
     // Separate doRequest method to avoid creating unnecessary objects. (Generally, sending message is successed when firt attempt.)
     private void doRequest(final RetryMessage retryMessage) {
-        FutureListener futureListener = (new FutureListener<ResponseMessage>() {
+        FutureListener<ResponseMessage> futureListener = (new FutureListener<ResponseMessage>() {
             @Override
             public void onComplete(Future<ResponseMessage> future) {
                 if (future.isSuccess()) {
@@ -349,7 +352,7 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
         }
     }
 
-    private void doRequest(final byte[] requestPacket, FutureListener futureListener) {
+    private void doRequest(final byte[] requestPacket, FutureListener<ResponseMessage> futureListener) {
         final Future<ResponseMessage> response = this.client.request(requestPacket);
         response.setListener(futureListener);
     }

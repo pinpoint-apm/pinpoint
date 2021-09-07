@@ -22,13 +22,14 @@ import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaData;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaData;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaData;
 
 /**
  * @author jaehong.kim
  */
-public class GrpcMetadataMessageConverter implements MessageConverter<GeneratedMessageV3> {
+public class GrpcMetadataMessageConverter implements MessageConverter<MetaDataType, GeneratedMessageV3> {
 
 
     public GrpcMetadataMessageConverter() {
@@ -36,7 +37,7 @@ public class GrpcMetadataMessageConverter implements MessageConverter<GeneratedM
     }
 
     @Override
-    public GeneratedMessageV3 toMessage(Object message) {
+    public GeneratedMessageV3 toMessage(MetaDataType message) {
         if (message instanceof SqlMetaData) {
             final SqlMetaData sqlMetaData = (SqlMetaData) message;
             return convertSqlMetaData(sqlMetaData);

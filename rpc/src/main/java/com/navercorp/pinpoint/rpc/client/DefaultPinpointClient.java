@@ -102,7 +102,7 @@ public class DefaultPinpointClient implements PinpointClient {
     }
 
     @Override
-    public Future sendAsync(byte[] bytes) {
+    public Future<?> sendAsync(byte[] bytes) {
         ensureOpen();
         return pinpointClientHandler.sendAsync(bytes);
     }

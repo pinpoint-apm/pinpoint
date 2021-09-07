@@ -18,26 +18,27 @@ package com.navercorp.pinpoint.test.wrapper;
 
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ActualTraceFactory {
 
-    public static ActualTrace wrap(Object obj) {
-        ActualTrace actualTrace = wrapOrNull(obj);
+    public static ActualTrace wrap(SpanType spanType) {
+        ActualTrace actualTrace = wrapOrNull(spanType);
         if (actualTrace == null) {
-            throw new IllegalArgumentException("Unexpected type: " + obj.getClass());
+            throw new IllegalArgumentException("Unexpected type: " + spanType.getClass());
         }
         return actualTrace;
     }
 
-    public static ActualTrace wrapOrNull(Object obj) {
-        if (obj instanceof Span) {
-            final Span span = (Span) obj;
+    public static ActualTrace wrapOrNull(SpanType spanType) {
+        if (spanType instanceof Span) {
+            final Span span = (Span) spanType;
             return new SpanFacade(span);
-        } else if (obj instanceof SpanChunk) {
-            final SpanChunk spanChunk = (SpanChunk) obj;
+        } else if (spanType instanceof SpanChunk) {
+            final SpanChunk spanChunk = (SpanChunk) spanType;
             return new SpanEventFacade(spanChunk);
         }
         return null;

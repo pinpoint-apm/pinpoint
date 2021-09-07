@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.test;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaData;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.metadata.Result;
 import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -32,9 +33,9 @@ public class MockApiMetaDataService implements ApiMetaDataService {
 
     private final SimpleCache<String> apiCache = new SimpleCache<>(new SimpleCache.ZigZagTransformer());
 
-    private final EnhancedDataSender<Object> enhancedDataSender;
+    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
 
-    public MockApiMetaDataService(EnhancedDataSender<Object> enhancedDataSender) {
+    public MockApiMetaDataService(EnhancedDataSender<MetaDataType> enhancedDataSender) {
         this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
     }
 

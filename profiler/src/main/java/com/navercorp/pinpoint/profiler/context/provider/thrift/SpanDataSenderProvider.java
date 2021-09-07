@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.config.ThriftTransportConfig;
@@ -36,7 +37,7 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-public class SpanDataSenderProvider  implements Provider<DataSender> {
+public class SpanDataSenderProvider  implements Provider<DataSender<SpanType>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -51,12 +52,12 @@ public class SpanDataSenderProvider  implements Provider<DataSender> {
     private final int sendBufferSize;
     private final String ioType;
     private final String transportType;
-    private final MessageConverter<TBase<?, ?>> messageConverter;
+    private final MessageConverter<SpanType, TBase<?, ?>> messageConverter;
 
     @Inject
     public SpanDataSenderProvider(ThriftTransportConfig thriftTransportConfig,
                                   @SpanDataSender Provider<PinpointClientFactory> clientFactoryProvider,
-                                  @SpanDataSender MessageConverter<TBase<?, ?>> messageConverter) {
+                                  @SpanDataSender MessageConverter<SpanType, TBase<?, ?>> messageConverter) {
         Objects.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
         this.clientFactoryProvider = Objects.requireNonNull(clientFactoryProvider, "clientFactoryProvider");
 
@@ -71,17 +72,17 @@ public class SpanDataSenderProvider  implements Provider<DataSender> {
     }
 
     @Override
-    public DataSender get() {
+    public DataSender<SpanType> get() {
         if ("TCP".equalsIgnoreCase(transportType)) {
             if ("OIO".equalsIgnoreCase(ioType)) {
                 logger.warn("TCP transport not support OIO type.(only support NIO)");
             }
 
             PinpointClientFactory pinpointClientFactory = clientFactoryProvider.get();
-            MessageSerializer<byte[]> messageSerializer = new ThriftMessageSerializer(messageConverter);
-            return new TcpDataSender("SpanDataSender", ip, port, pinpointClientFactory, messageSerializer, writeQueueSize);
+            MessageSerializer<SpanType, byte[]> messageSerializer = new ThriftMessageSerializer<>(messageConverter);
+            return new TcpDataSender<>("SpanDataSender", ip, port, pinpointClientFactory, messageSerializer, writeQueueSize);
         } else {
-            UdpDataSenderFactory factory = new UdpDataSenderFactory(ip, port, UDP_EXECUTOR_NAME, writeQueueSize, timeout, sendBufferSize, messageConverter);
+            UdpDataSenderFactory<SpanType> factory = new UdpDataSenderFactory<>(ip, port, UDP_EXECUTOR_NAME, writeQueueSize, timeout, sendBufferSize, messageConverter);
             return factory.create(ioType);
         }
     }

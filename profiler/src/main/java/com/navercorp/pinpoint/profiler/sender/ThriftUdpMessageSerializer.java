@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * not thread safe
  * @author Woonduk Kang(emeroad)
  */
-public class ThriftUdpMessageSerializer implements MessageSerializer<ByteMessage>{
+public class ThriftUdpMessageSerializer<T> implements MessageSerializer<T, ByteMessage>{
 
     public static final int UDP_MAX_PACKET_LENGTH = 65507;
 
@@ -41,10 +41,10 @@ public class ThriftUdpMessageSerializer implements MessageSerializer<ByteMessage
     // Caution. not thread safe
     private final HeaderTBaseSerializer serializer;
     private final int maxPacketLength;
-    private final MessageConverter<TBase<?, ?>> messageConverter;
+    private final MessageConverter<T, TBase<?, ?>> messageConverter;
 
 
-    public ThriftUdpMessageSerializer(MessageConverter<TBase<?, ?>> messageConverter, int maxPacketLength) {
+    public ThriftUdpMessageSerializer(MessageConverter<T, TBase<?, ?>> messageConverter, int maxPacketLength) {
         this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
         this.maxPacketLength = maxPacketLength;
         // Caution. not thread safe
@@ -54,7 +54,7 @@ public class ThriftUdpMessageSerializer implements MessageSerializer<ByteMessage
 
     // single thread only
     @Override
-    public ByteMessage serializer(Object message) {
+    public ByteMessage serializer(T message) {
         if (message instanceof TBase<?, ?>) {
             final TBase<?, ?> tBase = (TBase<?, ?>) message;
             return serialize(tBase);

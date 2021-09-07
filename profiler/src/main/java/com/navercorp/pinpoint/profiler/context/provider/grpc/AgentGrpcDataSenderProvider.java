@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.AgentDataSender;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandLocatorBuilder;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcActiveThreadCountService;
@@ -53,12 +54,12 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * @author jaehong.kim
  */
-public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<Object>> {
+public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<MetaDataType>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final GrpcTransportConfig grpcTransportConfig;
-    private final MessageConverter<GeneratedMessageV3> messageConverter;
+    private final MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter;
     private final HeaderFactory headerFactory;
 
     private final Provider<ReconnectExecutor> reconnectExecutorProvider;
@@ -71,7 +72,7 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
 
     @Inject
     public AgentGrpcDataSenderProvider(GrpcTransportConfig grpcTransportConfig,
-                                       @MetadataDataSender MessageConverter<GeneratedMessageV3> messageConverter,
+                                       @MetadataDataSender MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter,
                                        HeaderFactory headerFactory,
                                        Provider<ReconnectExecutor> reconnectExecutor,
                                        ScheduledExecutorService retransmissionExecutor,
@@ -95,7 +96,7 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
     }
 
     @Override
-    public EnhancedDataSender<Object> get() {
+    public EnhancedDataSender<MetaDataType> get() {
         final String collectorIp = grpcTransportConfig.getAgentCollectorIp();
         final int collectorPort = grpcTransportConfig.getAgentCollectorPort();
         final boolean sslEnable = grpcTransportConfig.isAgentSslEnable();
@@ -108,12 +109,14 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
 
         final ProfilerCommandServiceLocator profilerCommandServiceLocator = createProfilerCommandServiceLocator(activeTraceRepository);
 
+        MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter = this.messageConverter;
         return newAgentGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter,
                 channelFactory, reconnectExecutor, retransmissionExecutor, profilerCommandServiceLocator);
     }
 
-    protected EnhancedDataSender<Object> newAgentGrpcDataSender(String collectorIp, int collectorPort, int senderExecutorQueueSize,
-                                                                MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactory channelFactory, ReconnectExecutor reconnectExecutor,
+    protected EnhancedDataSender<MetaDataType> newAgentGrpcDataSender(String collectorIp, int collectorPort, int senderExecutorQueueSize,
+                                                                MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter,
+                                                                ChannelFactory channelFactory, ReconnectExecutor reconnectExecutor,
                                                                 ScheduledExecutorService retransmissionExecutor,
                                                                 ProfilerCommandServiceLocator profilerCommandServiceLocator) {
         return new AgentGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, retransmissionExecutor, channelFactory, profilerCommandServiceLocator);

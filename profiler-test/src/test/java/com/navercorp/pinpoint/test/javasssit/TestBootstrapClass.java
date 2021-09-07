@@ -16,11 +16,7 @@
 
 package com.navercorp.pinpoint.test.javasssit;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -38,20 +34,8 @@ public class TestBootstrapClass {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-    private class TestClassLoader extends URLClassLoader {
-        public TestClassLoader(URL[] urls, ClassLoader parent) {
-            super(urls, parent);
-        }
-
-
-        final Class<?> defineClass(String name, byte[] b) throws ClassFormatError {
-            return super.defineClass(name, b, 0, b.length);
-        }
-    }
-
-
     @Test
-    public void testJdkClassClassLoader() throws IOException {
+    public void testJdkClassClassLoader() {
 
         ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
         ClassLoader parent = systemClassLoader.getParent();
@@ -64,11 +48,11 @@ public class TestBootstrapClass {
     }
 
     @Test
-    public void testReflection() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void testReflection() throws Exception {
         ClassLoader contextClassLoader = java.lang.Thread.currentThread().getContextClassLoader();
         Class<?> interceptorRegistry = contextClassLoader.loadClass("com.navercorp.pinpoint.bootstrap.interceptor.registry.GlobalInterceptorRegistry");
         Method getInterceptorMethod = interceptorRegistry.getMethod("getInterceptor", int.class);
-        Object interceptor = getInterceptorMethod.invoke(interceptorRegistry, Integer.valueOf(1));
+        Object interceptor = getInterceptorMethod.invoke(interceptorRegistry, 1);
 
         Method beforeMethod = interceptor.getClass().getMethod("before", java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object[].class);
         beforeMethod.invoke(interceptor, null, null, null, null, null);

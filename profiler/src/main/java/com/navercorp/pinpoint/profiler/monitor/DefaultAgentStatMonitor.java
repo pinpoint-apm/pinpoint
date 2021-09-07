@@ -27,11 +27,13 @@ import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentCustomMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EmptyDataSender;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +65,7 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
     private final StatMonitorJob statMonitorJob;
 
     @Inject
-    public DefaultAgentStatMonitor(@StatDataSender DataSender dataSender,
+    public DefaultAgentStatMonitor(@StatDataSender DataSender<MetricType> dataSender,
                                    @AgentId String agentId, @AgentStartTime long agentStartTimestamp,
                                    @Named("AgentStatCollector") AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
                                    CustomMetricRegistryService customMetricRegistryService,
@@ -88,7 +90,7 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
         }
         this.collectionIntervalMs = collectionIntervalMs;
 
-        List<Runnable> runnableList = new ArrayList<Runnable>();
+        List<Runnable> runnableList = new ArrayList<>();
 
         Runnable statCollectingJob = new CollectJob(dataSender, agentId, agentStartTimestamp, agentStatCollector, numCollectionsPerBatch);
         runnableList.add(statCollectingJob);
@@ -115,7 +117,7 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
     // eg) executor.scheduleAtFixedRate(collectJob, 0(initialDelay is zero), this.collectionIntervalMs, TimeUnit.MILLISECONDS);
     private void preLoadClass(String agentId, long agentStartTimestamp, AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector) {
         logger.debug("pre-load class start");
-        CollectJob collectJob = new CollectJob(EmptyDataSender.INSTANCE, agentId, agentStartTimestamp, agentStatCollector, 1);
+        CollectJob collectJob = new CollectJob(EmptyDataSender.<MetricType>instance(), agentId, agentStartTimestamp, agentStatCollector, 1);
 
         // It is called twice to initialize some fields.
         collectJob.run();

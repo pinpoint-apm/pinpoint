@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -77,8 +78,8 @@ public class OrderedSpanRecorderTest {
         SpanChunk asyncEvent1_1 = wrapSpanChunk(traceRoot, createAsyncSpanEvent(traceRoot, 0, (short) 0), new DefaultLocalAsyncId(1, (short) 1));
         SpanChunk asyncEvent1_2 = wrapSpanChunk(traceRoot, createAsyncSpanEvent(traceRoot, 0, (short) 1), new DefaultLocalAsyncId(1, (short) 1));
         SpanChunk asyncEvent2 = wrapSpanChunk(traceRoot, createAsyncSpanEvent(traceRoot, 0, (short) 0), new DefaultLocalAsyncId(2, (short) 1));
-        @SuppressWarnings("unchecked")
-        final List<?> expectedOrder = Arrays.asList(
+
+        final List<SpanType> expectedOrder = Arrays.asList(
                 span,
                 event,
                 event1,
@@ -88,20 +89,19 @@ public class OrderedSpanRecorderTest {
                 asyncEvent2
         );
         // when
-        @SuppressWarnings("unchecked")
-        final List<?> listToBeHandled = Arrays.asList(
+        final List<SpanType> listToBeHandled = Arrays.asList(
                 span, event, event1, event2, asyncEvent1_1, asyncEvent1_2, asyncEvent2
         );
         Collections.shuffle(listToBeHandled);
-        for (Object base : listToBeHandled) {
+        for (SpanType base : listToBeHandled) {
             this.recorder.handleSend(base);
         }
         // then
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         this.recorder.print(new PrintStream(baos));
         this.logger.debug(baos.toString());
-        for (Object expectedBase : expectedOrder) {
-            Object actualBase = this.recorder.pop();
+        for (SpanType expectedBase : expectedOrder) {
+            SpanType actualBase = this.recorder.pop();
             assertSame(expectedBase, actualBase);
         }
         assertNull(this.recorder.pop());
@@ -131,8 +131,7 @@ public class OrderedSpanRecorderTest {
         SpanChunk event2 = wrapSpanChunk(traceRoot2, createSpanEvent(traceRoot2, 0, (short) 1));
         SpanChunk asyncEvent2_1 = wrapSpanChunk(traceRoot2, createAsyncSpanEvent(traceRoot2, 0, (short) 0), new DefaultLocalAsyncId(2, (short) 1));
         SpanChunk asyncEvent2_2 = wrapSpanChunk(traceRoot2, createAsyncSpanEvent(traceRoot2, 0, (short) 0), new DefaultLocalAsyncId(2, (short) 2));
-        @SuppressWarnings("unchecked")
-        final List<?> expectedOrder = Arrays.asList(
+        final List<SpanType> expectedOrder = Arrays.asList(
                 span,
                 event1,
                 event2,
@@ -143,21 +142,19 @@ public class OrderedSpanRecorderTest {
                 asyncEvent2_2
         );
         // when
-        @SuppressWarnings("unchecked")
-        final List<?> listToBeHandled = Arrays.asList(
+        final List<SpanType> listToBeHandled = Arrays.asList(
                 span, event1, asyncEvent1_1_1, asyncEvent1_1_2, asyncEvent1_2_1, event2, asyncEvent2_1, asyncEvent2_2
         );
         Collections.shuffle(listToBeHandled);
-        for (Object base : listToBeHandled) {
+        for (SpanType base : listToBeHandled) {
             this.recorder.handleSend(base);
         }
         // then
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         this.recorder.print(new PrintStream(baos));
         this.logger.debug(baos.toString());
-        for (Object expectedBase : expectedOrder) {
-
-            Object actualBase = this.recorder.pop();
+        for (SpanType expectedBase : expectedOrder) {
+            SpanType actualBase = this.recorder.pop();
             assertSame(expectedBase, actualBase);
         }
         assertNull(this.recorder.pop());
@@ -186,8 +183,7 @@ public class OrderedSpanRecorderTest {
         SpanChunk event2_0 = wrapSpanChunk(traceRoot2, createSpanEvent(traceRoot2, 0, (short) 0));
         SpanChunk event2_1 = wrapSpanChunk(traceRoot2, createSpanEvent(traceRoot2, 1, (short) 1));
         SpanChunk asyncEvent2_0 = wrapSpanChunk(traceRoot2, createAsyncSpanEvent(traceRoot2, 0, (short) 0), new DefaultLocalAsyncId(2, (short) 1));
-        @SuppressWarnings("unchecked")
-        final List<?> expectedOrder = Arrays.asList(
+        final List<SpanType> expectedOrder = Arrays.asList(
                 span1,
                 event1_0,
                 event1_1,
@@ -199,20 +195,19 @@ public class OrderedSpanRecorderTest {
                 asyncEvent2_0
         );
         // when
-        @SuppressWarnings("unchecked")
-        final List<?> listToBeHandled = Arrays.asList(
+        final List<SpanType> listToBeHandled = Arrays.asList(
                 span1, event1_0, event1_1, span2, event2_0, event2_1, asyncEvent1_0, asyncEvent1_1, asyncEvent2_0
         );
         Collections.shuffle(listToBeHandled);
-        for (Object base : listToBeHandled) {
+        for (SpanType base : listToBeHandled) {
             this.recorder.handleSend(base);
         }
         // then
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         this.recorder.print(new PrintStream(baos));
         this.logger.debug(baos.toString());
-        for (Object expectedBase : expectedOrder) {
-            Object actualBase = this.recorder.pop();
+        for (SpanType expectedBase : expectedOrder) {
+            SpanType actualBase = this.recorder.pop();
             assertSame(expectedBase, actualBase);
         }
         assertNull(this.recorder.pop());
@@ -238,15 +233,15 @@ public class OrderedSpanRecorderTest {
     }
 
 
-    private Object unwrapSpanChunk(Object tBase) {
-        if (tBase instanceof SpanChunk) {
-            List<SpanEvent> spanEventList = ((SpanChunk) tBase).getSpanEventList();
+    private Object unwrapSpanChunk(SpanType spanType) {
+        if (spanType instanceof SpanChunk) {
+            List<SpanEvent> spanEventList = ((SpanChunk) spanType).getSpanEventList();
             if (spanEventList.size() != 1) {
-                throw new IllegalStateException("spanEvent size must be 1 " + tBase);
+                throw new IllegalStateException("spanEvent size must be 1 " + spanType);
             }
             return spanEventList.get(0);
         }
-        return tBase;
+        return spanType;
     }
 
     private SpanChunk wrapSpanChunk(TraceRoot traceRoot, SpanEvent event) {

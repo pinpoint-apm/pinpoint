@@ -31,7 +31,7 @@ import com.google.protobuf.GeneratedMessageV3;
 /**
  * @author Taejin Koo
  */
-public class CommandThriftToGrpcMessageConverter implements MessageConverter<GeneratedMessageV3> {
+public class CommandThriftToGrpcMessageConverter implements MessageConverter<Object, GeneratedMessageV3> {
 
     @Override
     public GeneratedMessageV3 toMessage(Object message) {

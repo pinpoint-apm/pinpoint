@@ -28,8 +28,8 @@ import static org.mockito.Mockito.*;
 public class DefaultStringMetaDataServiceTest {
 
     @Test
-    public void cacheString() throws Exception {
-        EnhancedDataSender<Object> dataSender = mock(EnhancedDataSender.class);
+    public void cacheString() {
+        EnhancedDataSender<MetaDataType> dataSender = mock(EnhancedDataSender.class);
         SimpleCache<String> stringCache = new SimpleCache<String>(new SimpleCache.ZigZagTransformer());
         StringMetaDataService stringMetaDataService = new DefaultStringMetaDataService(dataSender, stringCache);
 

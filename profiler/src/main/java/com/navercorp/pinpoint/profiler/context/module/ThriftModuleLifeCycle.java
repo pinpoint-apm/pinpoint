@@ -20,6 +20,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.profiler.context.SpanType;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -40,7 +43,7 @@ public class ThriftModuleLifeCycle implements ModuleLifeCycle {
 
     private final Provider<CommandDispatcher> commandDispatcherProvider;
     private final Provider<PinpointClientFactory> clientFactoryProvider;
-    private final Provider<EnhancedDataSender<Object>> tcpDataSenderProvider;
+    private final Provider<EnhancedDataSender<MetaDataType>> tcpDataSenderProvider;
 
     private final Provider<Timer> spanStatConnectTimerProvider;
     private final Provider<ChannelFactory> spanStatChannelFactoryProvider;
@@ -48,13 +51,13 @@ public class ThriftModuleLifeCycle implements ModuleLifeCycle {
     private final Provider<PinpointClientFactory> spanClientFactoryProvider;
     private final Provider<PinpointClientFactory> statClientFactoryProvider;
 
-    private final Provider<DataSender> spanDataSenderProvider;
-    private final Provider<DataSender> statDataSenderProvider;
+    private final Provider<DataSender<SpanType>> spanDataSenderProvider;
+    private final Provider<DataSender<MetricType>> statDataSenderProvider;
 
     private CommandDispatcher commandDispatcher;
 
     private PinpointClientFactory clientFactory;
-    private EnhancedDataSender<Object> tcpDataSender;
+    private EnhancedDataSender<MetaDataType> tcpDataSender;
 
     private Timer spanStatConnectTimer;
     private ChannelFactory spanStatChannelFactory;
@@ -62,20 +65,20 @@ public class ThriftModuleLifeCycle implements ModuleLifeCycle {
     private PinpointClientFactory spanClientFactory;
     private PinpointClientFactory statClientFactory;
 
-    private DataSender spanDataSender;
-    private DataSender statDataSender;
+    private DataSender<SpanType> spanDataSender;
+    private DataSender<MetricType> statDataSender;
 
     @Inject
     public ThriftModuleLifeCycle(
             Provider<CommandDispatcher> commandDispatcherProvider,
             @DefaultClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
-            @AgentDataSender Provider<EnhancedDataSender<Object>> tcpDataSenderProvider,
+            @AgentDataSender Provider<EnhancedDataSender<MetaDataType>> tcpDataSenderProvider,
             @SpanStatChannelFactory Provider<Timer> spanStatConnectTimerProvider,
             @SpanStatChannelFactory Provider<ChannelFactory> spanStatChannelFactoryProvider,
             @SpanDataSender Provider<PinpointClientFactory> spanClientFactoryProvider,
             @StatDataSender Provider<PinpointClientFactory> statClientFactoryProvider,
-            @SpanDataSender Provider<DataSender> spanDataSenderProvider,
-            @StatDataSender Provider<DataSender> statDataSenderProvider
+            @SpanDataSender Provider<DataSender<SpanType>> spanDataSenderProvider,
+            @StatDataSender Provider<DataSender<MetricType>> statDataSenderProvider
             ) {
         this.commandDispatcherProvider = Objects.requireNonNull(commandDispatcherProvider, "commandDispatcherProvider");
         this.clientFactoryProvider = Objects.requireNonNull(clientFactoryProvider, "clientFactoryProvider");

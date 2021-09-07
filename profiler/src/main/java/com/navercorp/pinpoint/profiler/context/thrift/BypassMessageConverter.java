@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.profiler.context.thrift;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class BypassMessageConverter<T> implements MessageConverter<T> {
+public class BypassMessageConverter<M, E> implements MessageConverter<M, E> {
     @Override
-    public T toMessage(Object message) {
+    public E toMessage(M message) {
         return null;
     }
 }

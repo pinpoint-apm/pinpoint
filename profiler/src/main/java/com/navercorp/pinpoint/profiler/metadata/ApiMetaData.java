@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.metadata;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ApiMetaData {
+public class ApiMetaData implements MetaDataType {
 
     private final int apiId; // required
     private final String apiInfo; // required

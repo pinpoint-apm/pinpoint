@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
 import com.navercorp.pinpoint.rpc.DefaultFuture;
@@ -47,13 +48,13 @@ public class AgentInfoSender {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final EnhancedDataSender dataSender;
+    private final EnhancedDataSender<MetaDataType> dataSender;
     private final AgentInfoFactory agentInfoFactory;
     private final long refreshIntervalMs;
     private final long sendIntervalMs;
     private final int maxTryPerAttempt;
     private final Scheduler scheduler;
-    private final MessageConverter<ResultResponse> messageConverter;
+    private final MessageConverter<Object, ResultResponse> messageConverter;
 
     private AgentInfoSender(Builder builder) {
         this.dataSender = builder.dataSender;
@@ -205,14 +206,14 @@ public class AgentInfoSender {
     }
 
     public static class Builder {
-        private final EnhancedDataSender dataSender;
+        private final EnhancedDataSender<MetaDataType> dataSender;
         private final AgentInfoFactory agentInfoFactory;
         private long refreshIntervalMs = DEFAULT_AGENT_INFO_REFRESH_INTERVAL_MS;
         private long sendIntervalMs = DEFAULT_AGENT_INFO_SEND_INTERVAL_MS;
         private int maxTryPerAttempt = DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT;
-        private MessageConverter<ResultResponse> messageConverter;
+        private MessageConverter<Object, ResultResponse> messageConverter;
 
-        public Builder(EnhancedDataSender dataSender, AgentInfoFactory agentInfoFactory) {
+        public Builder(EnhancedDataSender<MetaDataType> dataSender, AgentInfoFactory agentInfoFactory) {
             this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
             this.agentInfoFactory = Objects.requireNonNull(agentInfoFactory, "agentInfoFactory");
         }
@@ -232,7 +233,7 @@ public class AgentInfoSender {
             return this;
         }
 
-        public Builder setMessageConverter(MessageConverter<ResultResponse> messageConverter) {
+        public Builder setMessageConverter(MessageConverter<Object, ResultResponse> messageConverter) {
             this.messageConverter = messageConverter;
             return this;
         }

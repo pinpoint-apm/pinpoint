@@ -42,6 +42,7 @@ import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
@@ -148,19 +149,19 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         builder.throwAssertionError();
     }
 
-    private boolean isIgnored(Object obj) {
-        final short serviceType = getServiceTypeCode(obj);
+    private boolean isIgnored(SpanType spanType) {
+        final short serviceType = getServiceTypeCode(spanType);
         return ignoredServiceTypes.contains(serviceType);
     }
 
-    private short getServiceTypeCode(Object obj) {
+    private short getServiceTypeCode(SpanType spanType) {
 
-        if (obj instanceof Span) {
-            final Span span = (Span) obj;
+        if (spanType instanceof Span) {
+            final Span span = (Span) spanType;
             return span.getServiceType();
         }
-        if (obj instanceof SpanChunk) {
-            final SpanChunk spanChunk = (SpanChunk) obj;
+        if (spanType instanceof SpanChunk) {
+            final SpanChunk spanChunk = (SpanChunk) spanType;
             List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
             if (spanEventList.size() != 1) {
                 throw new IllegalStateException("unexpected spanEventList.size() !=1");
@@ -184,7 +185,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
     @Override
     public int getTraceCount() {
         int actual = 0;
-        for (Object obj : this.handler.getOrderedSpanRecorder()) {
+        for (SpanType obj : this.handler.getOrderedSpanRecorder()) {
             if (!isIgnored(obj)) {
                 actual++;
             }
@@ -228,10 +229,10 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         ResolvedExpectedTrace resolved = resolveExpectedTrace(expected, asyncId);
 
         int i = 0;
-        Iterator<?> iterator = this.handler.getOrderedSpanRecorder().iterator();
+        Iterator<SpanType> iterator = this.handler.getOrderedSpanRecorder().iterator();
 
         while (iterator.hasNext()) {
-            final Object next = iterator.next();
+            final SpanType next = iterator.next();
             ActualTrace actual = ActualTraceFactory.wrap(next);
 
             try {
@@ -263,12 +264,12 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         for (ExpectedTrace expected : expectations) {
             ResolvedExpectedTrace resolved = resolveExpectedTrace(expected, null);
 
-            final Item actualItem = popItem();
+            final Item<SpanType> actualItem = popItem();
             if (actualItem == null) {
                 AssertionErrorBuilder builder = new AssertionErrorBuilder("actualItem is null", resolved, "null");
                 builder.throwAssertionError();
             }
-            final Object actual = actualItem.getValue();
+            final SpanType actual = actualItem.getValue();
 
             ActualTrace wrapped = ActualTraceFactory.wrap(actual);
 
@@ -569,10 +570,10 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
     }
 
 
-    private Item popItem() {
+    private Item<SpanType> popItem() {
         while (true) {
             OrderedSpanRecorder recorder = this.handler.getOrderedSpanRecorder();
-            Item item = recorder.popItem();
+            Item<SpanType> item = recorder.popItem();
             if (item == null) {
                 return null;
             }
@@ -640,7 +641,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
     @Override
     public void verifyIsLoggingTransactionInfo(LoggingInfo loggingInfo) {
-        final Item item = popItem();
+        final Item<SpanType> item = popItem();
         if (item == null) {
             throw new AssertionError("Expected a Span isLoggingTransactionInfo value with [" + loggingInfo.getName() + "]"
                     + " but loggingTransactionInfo value invalid.");
@@ -701,10 +702,10 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
         ResolvedExpectedTrace resolvedExpectedTrace = resolveExpectedTrace(expectedTrace, null);
 
-        Iterator<Object> iterator = this.handler.getOrderedSpanRecorder().iterator();
+        Iterator<SpanType> iterator = this.handler.getOrderedSpanRecorder().iterator();
         while (iterator.hasNext()) {
             try {
-                Object value = iterator.next();
+                SpanType value = iterator.next();
 
                 ActualTrace actualTrace = ActualTraceFactory.wrapOrNull(value);
                 if (actualTrace == null) {

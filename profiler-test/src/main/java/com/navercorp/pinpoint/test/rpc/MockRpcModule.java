@@ -21,6 +21,7 @@ import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.module.AgentDataSender;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.context.module.ModuleLifeCycle;
@@ -29,12 +30,13 @@ import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.ThriftMessageToResultConverterProvider;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.test.ListenableDataSender;
 import com.navercorp.pinpoint.test.TestTcpDataSender;
-import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,36 +55,38 @@ public class MockRpcModule extends PrivateModule {
     protected void configure() {
         logger.info("configure {}", this.getClass().getSimpleName());
 
-        Key<DataSender> spanDataSenderKey = Key.get(DataSender.class, SpanDataSender.class);
-        final DataSender<TBase<?, ?>> spanDataSender = new ListenableDataSender<>("SpanDataSender");
+        TypeLiteral<DataSender<SpanType>> spanDataSenderType = new TypeLiteral<DataSender<SpanType>>() {};
+        Key<DataSender<SpanType>> spanDataSenderKey = Key.get(spanDataSenderType, SpanDataSender.class);
+        final DataSender<SpanType> spanDataSender = new ListenableDataSender<>("SpanDataSender");
         logger.debug("spanDataSender:{}", spanDataSender);
         bind(spanDataSenderKey).toInstance(spanDataSender);
         expose(spanDataSenderKey);
 
-        Key<DataSender> statDataSenderKey = Key.get(DataSender.class, StatDataSender.class);
-        final DataSender<TBase<?, ?>> statDataSender = new ListenableDataSender<>("StatDataSender");
+        TypeLiteral<DataSender<MetricType>> statDataSenderType = new TypeLiteral<DataSender<MetricType>>() {};
+        Key<DataSender<MetricType>> statDataSenderKey = Key.get(statDataSenderType, StatDataSender.class);
+        final DataSender<MetricType> statDataSender = new ListenableDataSender<>("StatDataSender");
         logger.debug("statDataSender:{}", statDataSender);
         bind(statDataSenderKey).toInstance(statDataSender);
         expose(statDataSenderKey);
 
-        EnhancedDataSender<Object> enhancedDataSender = new TestTcpDataSender();
+        EnhancedDataSender<MetaDataType> enhancedDataSender = new TestTcpDataSender();
         logger.debug("enhancedDataSender:{}", enhancedDataSender);
-        TypeLiteral<EnhancedDataSender<Object>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<Object>>() {
+        TypeLiteral<EnhancedDataSender<MetaDataType>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {
         };
         bind(dataSenderTypeLiteral).toInstance(enhancedDataSender);
         expose(dataSenderTypeLiteral);
 
-        Key<EnhancedDataSender<Object>> agentDataSender = Key.get(dataSenderTypeLiteral, AgentDataSender.class);
+        Key<EnhancedDataSender<MetaDataType>> agentDataSender = Key.get(dataSenderTypeLiteral, AgentDataSender.class);
         bind(agentDataSender).to(dataSenderTypeLiteral).in(Scopes.SINGLETON);
         expose(agentDataSender);
 
-        Key<EnhancedDataSender<Object>> metadataDataSender = Key.get(dataSenderTypeLiteral, MetadataDataSender.class);
+        Key<EnhancedDataSender<MetaDataType>> metadataDataSender = Key.get(dataSenderTypeLiteral, MetadataDataSender.class);
         bind(metadataDataSender).to(dataSenderTypeLiteral).in(Scopes.SINGLETON);
         expose(metadataDataSender);
 
 
-        TypeLiteral<MessageConverter<ResultResponse>> resultMessageConverter = new TypeLiteral<MessageConverter<ResultResponse>>() {};
-        Key<MessageConverter<ResultResponse>> resultMessageConverterKey = Key.get(resultMessageConverter, ResultConverter.class);
+        TypeLiteral<MessageConverter<Object, ResultResponse>> resultMessageConverter = new TypeLiteral<MessageConverter<Object, ResultResponse>>() {};
+        Key<MessageConverter<Object, ResultResponse>> resultMessageConverterKey = Key.get(resultMessageConverter, ResultConverter.class);
         bind(resultMessageConverterKey).toProvider(ThriftMessageToResultConverterProvider.class ).in(Scopes.SINGLETON);
         expose(resultMessageConverterKey);
 

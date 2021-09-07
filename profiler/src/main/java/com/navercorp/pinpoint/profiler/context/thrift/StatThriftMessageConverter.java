@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshotBatch;
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcDetailedMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSource;
@@ -58,12 +59,12 @@ import java.util.List;
 /**
  * @author jaehong.kim
  */
-public class StatThriftMessageConverter implements MessageConverter<TBase<?, ?>> {
+public class StatThriftMessageConverter implements MessageConverter<MetricType, TBase<?, ?>> {
     private final ThreadDumpThriftMessageConverter threadDumpMessageConverter = new ThreadDumpThriftMessageConverter();
     private final JvmGcTypeThriftMessageConverter jvmGcTypeMessageConverter = new JvmGcTypeThriftMessageConverter();
 
     @Override
-    public TBase<?, ?> toMessage(Object message) {
+    public TBase<?, ?> toMessage(MetricType message) {
         if (message instanceof AgentStatMetricSnapshotBatch) {
             final AgentStatMetricSnapshotBatch agentStatMetricSnapshotBatch = (AgentStatMetricSnapshotBatch) message;
             final TAgentStatBatch agentStatBatch = new TAgentStatBatch();

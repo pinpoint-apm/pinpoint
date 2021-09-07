@@ -28,14 +28,12 @@ import org.slf4j.LoggerFactory;
  * @author emeroad
  * @author netspider
  */
-public class LoggingDataSender implements EnhancedDataSender<Object> {
-
-    public static final DataSender DEFAULT_LOGGING_DATA_SENDER = new LoggingDataSender();
+public class LoggingDataSender<T> implements EnhancedDataSender<T> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public boolean send(Object data) {
+    public boolean send(T data) {
         logger.info("send tBase:{}", data);
         return true;
     }
@@ -47,20 +45,20 @@ public class LoggingDataSender implements EnhancedDataSender<Object> {
     }
 
     @Override
-    public boolean request(Object data) {
+    public boolean request(T data) {
         logger.info("request tBase:{}", data);
         return true;
     }
 
     @Override
-    public boolean request(Object data, int retry) {
+    public boolean request(T data, int retry) {
         logger.info("request tBase:{} retry:{}", data, retry);
         return false;
     }
 
 
     @Override
-    public boolean request(Object data, FutureListener<ResponseMessage> listener) {
+    public boolean request(T data, FutureListener<ResponseMessage> listener) {
         logger.info("request tBase:{} FutureListener:{}", data, listener);
         return false;
     }

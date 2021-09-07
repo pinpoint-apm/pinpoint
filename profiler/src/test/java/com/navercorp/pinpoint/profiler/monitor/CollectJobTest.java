@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.monitor;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshotBatch;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -36,7 +37,7 @@ public class CollectJobTest {
         AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatMetricCollector = mockAgentStatMetricCollector();
         Mockito.when(agentStatMetricCollector.collect()).thenReturn(new AgentStatMetricSnapshot());
 
-        DataSender dataSender = mock(DataSender.class);
+        DataSender<MetricType> dataSender = mock(DataSender.class);
 
         CollectJob job = new CollectJob(dataSender, "agent", 0, agentStatMetricCollector, 1);
         job.run();

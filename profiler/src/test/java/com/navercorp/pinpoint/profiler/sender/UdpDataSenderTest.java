@@ -61,10 +61,10 @@ public class UdpDataSenderTest {
 
 
     @Test
-    public void sendAndFlushCheck() throws InterruptedException {
-        final MessageConverter<TBase<?, ?>> messageConverter = new BypassMessageConverter<TBase<?, ?>>();
-        final MessageSerializer<ByteMessage> thriftMessageSerializer = new ThriftUdpMessageSerializer(messageConverter, ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH);
-        UdpDataSender sender = new UdpDataSender("localhost", PORT, "test", 128, 1000, 1024*64*100,
+    public void sendAndFlushCheck() {
+        final MessageConverter<TBase<?, ?>, TBase<?, ?>> messageConverter = new BypassMessageConverter<>();
+        final MessageSerializer<TBase<?, ?>, ByteMessage> thriftMessageSerializer = new ThriftUdpMessageSerializer<>(messageConverter, ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH);
+        UdpDataSender<TBase<?, ?>> sender = new UdpDataSender<>("localhost", PORT, "test", 128, 1000, 1024*64*100,
                 thriftMessageSerializer);
 
         TAgentInfo agentInfo = new TAgentInfo();
@@ -111,8 +111,8 @@ public class UdpDataSenderTest {
     private boolean sendMessage_getLimit(TBase<?, ?> tbase, long waitTimeMillis) throws InterruptedException {
         final AtomicBoolean limitCounter = new AtomicBoolean(false);
         final CountDownLatch latch = new CountDownLatch(1);
-        final MessageConverter<TBase<?, ?>> messageConverter = new BypassMessageConverter<TBase<?, ?>>();
-        final MessageSerializer<ByteMessage> thriftMessageSerializer = new ThriftUdpMessageSerializer(messageConverter, ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH) {
+        final MessageConverter<TBase<?, ?>, TBase<?, ?>> messageConverter = new BypassMessageConverter<>();
+        final MessageSerializer<Object, ByteMessage> thriftMessageSerializer = new ThriftUdpMessageSerializer(messageConverter, ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH) {
             @Override
             protected boolean isLimit(int interBufferSize) {
                 final boolean limit =  super.isLimit(interBufferSize);
@@ -122,7 +122,7 @@ public class UdpDataSenderTest {
             }
         };
 
-        UdpDataSender sender = new UdpDataSender("localhost", PORT, "test", 128, 1000, 1024*64*100,
+        UdpDataSender<Object> sender = new UdpDataSender<>("localhost", PORT, "test", 128, 1000, 1024*64*100,
                 thriftMessageSerializer);
         try {
             sender.send(tbase);

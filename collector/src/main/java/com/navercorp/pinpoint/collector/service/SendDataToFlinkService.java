@@ -73,6 +73,6 @@ public abstract class SendDataToFlinkService {
     }
 
     public void replaceFlinkTcpDataSenderList(List<FlinkTcpDataSender> flinkTcpDataSenderList) {
-        this.flinkTcpDataSenderList = new CopyOnWriteArrayList<FlinkTcpDataSender>(flinkTcpDataSenderList);
+        this.flinkTcpDataSenderList = new CopyOnWriteArrayList<>(flinkTcpDataSenderList);
     }
 }

@@ -24,12 +24,12 @@ import java.util.Collection;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public abstract class DefaultAsyncQueueingExecutorListener implements AsyncQueueingExecutorListener<Object> {
+public abstract class DefaultAsyncQueueingExecutorListener<T> implements AsyncQueueingExecutorListener<T> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void execute(Collection<Object> messageList) {
+    public void execute(Collection<T> messageList) {
         // Cannot use toArray(T[] array) because passed messageList doesn't implement it properly.
         Object[] dataList = messageList.toArray();
 
@@ -39,7 +39,7 @@ public abstract class DefaultAsyncQueueingExecutorListener implements AsyncQueue
         final int size = messageList.size();
         for (int i = 0; i < size; i++) {
             try {
-                execute(dataList[i]);
+                execute((T) dataList[i]);
             } catch (Throwable th) {
                 logger.warn("Unexpected Error. Cause:{}", th.getMessage(), th);
             }
@@ -47,6 +47,6 @@ public abstract class DefaultAsyncQueueingExecutorListener implements AsyncQueue
     }
 
 
-    public abstract void execute(Object message);
+    public abstract void execute(T message);
 
 }

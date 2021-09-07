@@ -16,7 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-public class DefaultStreamTask<ReqT, ResT> implements StreamTask<ReqT> {
+public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -24,8 +24,8 @@ public class DefaultStreamTask<ReqT, ResT> implements StreamTask<ReqT> {
 
     private final ClientStreamingService<ReqT, ResT> clientStreamingService;
     private final StreamExecutorFactory<ReqT> streamExecutorFactory;
-    private final BlockingQueue<Object> queue;
-    private final MessageDispatcher<ReqT> dispatcher;
+    private final BlockingQueue<M> queue;
+    private final MessageDispatcher<M, ReqT> dispatcher;
     private final StreamState failState;
 
     private volatile ClientCallStreamObserver<ReqT> stream;
@@ -35,7 +35,7 @@ public class DefaultStreamTask<ReqT, ResT> implements StreamTask<ReqT> {
 
     public DefaultStreamTask(String id, ClientStreamingService<ReqT, ResT> clientStreamingService,
                              StreamExecutorFactory<ReqT> streamExecutorFactory,
-                             BlockingQueue<Object> queue, MessageDispatcher<ReqT> dispatcher, StreamState failState) {
+                             BlockingQueue<M> queue, MessageDispatcher<M, ReqT> dispatcher, StreamState failState) {
         this.streamId = StreamId.newStreamId(id);
         this.clientStreamingService = Objects.requireNonNull(clientStreamingService, "clientStreamingService");
         this.streamExecutorFactory = Objects.requireNonNull(streamExecutorFactory, "streamExecutorFactory");
@@ -86,7 +86,7 @@ public class DefaultStreamTask<ReqT, ResT> implements StreamTask<ReqT> {
 //            while (true) {
                     final Thread thread = Thread.currentThread();
                     while (!thread.isInterrupted()) {
-                        final Object message = queue.take();
+                        final M message = queue.take();
                         if (stream.isReady()) {
                             try {
                                 dispatcher.onDispatch(stream, message);

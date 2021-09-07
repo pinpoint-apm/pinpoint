@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
@@ -28,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author emeroad
  */
-public class CountingDataSender implements EnhancedDataSender<Object> {
+public class CountingDataSender implements EnhancedDataSender<SpanType> {
 
     private final AtomicInteger requestCounter = new AtomicInteger();
     private final AtomicInteger requestRetryCounter = new AtomicInteger();
@@ -40,19 +41,19 @@ public class CountingDataSender implements EnhancedDataSender<Object> {
 
 
     @Override
-    public boolean request(Object data) {
+    public boolean request(SpanType data) {
         requestCounter.incrementAndGet();
         return false;
     }
 
     @Override
-    public boolean request(Object data, int retry) {
+    public boolean request(SpanType data, int retry) {
         requestRetryCounter.incrementAndGet();
         return false;
     }
 
     @Override
-    public boolean request(Object data, FutureListener<ResponseMessage> listener) {
+    public boolean request(SpanType data, FutureListener<ResponseMessage> listener) {
         return false;
     }
 
@@ -67,7 +68,7 @@ public class CountingDataSender implements EnhancedDataSender<Object> {
     }
 
     @Override
-    public boolean send(Object data) {
+    public boolean send(SpanType data) {
         senderCounter.incrementAndGet();
         if (data instanceof Span) {
             this.spanCounter.incrementAndGet();

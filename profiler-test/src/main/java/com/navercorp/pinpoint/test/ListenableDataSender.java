@@ -24,13 +24,13 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 public class ListenableDataSender<T> implements DataSender<T> {
 
     private final String name;
-    private volatile Listener<T> listener = new EmptyListener<T>();
+    private volatile Listener<T> listener = new EmptyListener<>();
 
     public ListenableDataSender(String name) {
         this.name = name;
     }
 
-    public void setListener(Listener listener) {
+    public void setListener(Listener<T> listener) {
         this.listener = listener;
     }
 
@@ -39,7 +39,7 @@ public class ListenableDataSender<T> implements DataSender<T> {
         return listener.handleSend(data);
     }
 
-    public Listener getListener() {
+    public Listener<T> getListener() {
         return listener;
     }
 
