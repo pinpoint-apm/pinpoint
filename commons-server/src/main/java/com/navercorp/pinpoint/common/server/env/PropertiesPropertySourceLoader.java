@@ -1,7 +1,8 @@
 package com.navercorp.pinpoint.common.server.env;
 
-import com.navercorp.pinpoint.common.server.profile.ProfileEnvironment;
-import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
+import com.navercorp.pinpoint.common.server.profile.PinpointProfileEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
@@ -17,7 +18,7 @@ import java.util.Properties;
 import java.util.Set;
 
 public class PropertiesPropertySourceLoader {
-    private final ServerBootLogger logger = ServerBootLogger.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
 
     private final ResourceLoader resourceLoader;
@@ -73,7 +74,7 @@ public class PropertiesPropertySourceLoader {
 
 
     private String applyProfilePlaceHolder(String originalResourcePath, String profile) {
-        return originalResourcePath.replace(ProfileEnvironment.PROFILE_PLACE_HOLDER, profile);
+        return originalResourcePath.replace(PinpointProfileEnvironment.PROFILE_PLACE_HOLDER, profile);
     }
 
 }

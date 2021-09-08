@@ -1,7 +1,8 @@
 package com.navercorp.pinpoint.common.server.env;
 
-import com.navercorp.pinpoint.common.server.profile.ProfileEnvironment;
-import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
+import com.navercorp.pinpoint.common.server.profile.PinpointProfileEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -12,7 +13,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public class ExternalEnvironment {
-    private final ServerBootLogger logger = ServerBootLogger.getLogger(ExternalEnvironment.class);
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final String name;
     private final String externalConfigurationKey;
@@ -28,7 +30,7 @@ public class ExternalEnvironment {
     }
 
     public void processEnvironment(ConfigurableEnvironment environment) {
-        final String profile = environment.getProperty(ProfileEnvironment.PINPOINT_ACTIVE_PROFILE);
+        final String profile = environment.getProperty(PinpointProfileEnvironment.PINPOINT_ACTIVE_PROFILE);
         if (profile == null) {
             throw new IllegalStateException("profile is not set");
         }
@@ -40,15 +42,20 @@ public class ExternalEnvironment {
             logger.info(String.format("-D%s is not set", externalConfigurationKey));
             return;
         }
-        String resourcePath = String.format("file:%s", externalConfigLocation);
 
-        logger.info("load PropertySource name:" + getName());
-
+        logger.info("load PropertySource name:{}", getName());
         PropertiesPropertySourceLoader loader = new PropertiesPropertySourceLoader(profile, resourceLoader);
-        PropertiesPropertySource propertySource = loader.loadPropertySource(getName(), Collections.singletonList(resourcePath));
 
-        logger.info("Add PropertySource name:" + getName());
+        String sourceName = resolveSourceName(externalConfigurationKey, externalConfigLocation);
+        String resourcePath = String.format("file:%s", externalConfigLocation);
+        PropertiesPropertySource propertySource = loader.loadPropertySource(sourceName, Collections.singletonList(resourcePath));
+
+        logger.info("Add PropertySource name:{}", sourceName);
         environment.getPropertySources().addLast(propertySource);
+    }
+
+    private String resolveSourceName(String key, String resourcePath) {
+        return String.format("%s '%s=%s'", getName(), key, resourcePath);
     }
 
     private ResourceLoader defaultResourceLoader() {

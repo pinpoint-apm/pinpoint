@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.common.server.env;
 
-import com.navercorp.pinpoint.common.server.profile.ProfileEnvironment;
+import com.navercorp.pinpoint.common.server.profile.PinpointProfileEnvironment;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -28,7 +28,7 @@ public class BaseEnvironment {
     }
 
     public void processEnvironment(ConfigurableEnvironment environment) {
-        final String profile = environment.getProperty(ProfileEnvironment.PINPOINT_ACTIVE_PROFILE);
+        final String profile = environment.getProperty(PinpointProfileEnvironment.PINPOINT_ACTIVE_PROFILE);
         if (profile == null) {
             throw new IllegalStateException("profile is not set");
         }

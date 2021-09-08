@@ -1,7 +1,9 @@
 package com.navercorp.pinpoint.web;
 
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
-import com.navercorp.pinpoint.web.env.WebEnvironmentApplicationListener;
+import com.navercorp.pinpoint.web.env.EnvironmentLoggingListener;
+import com.navercorp.pinpoint.web.env.ExternalEnvironmentApplicationListener;
+import com.navercorp.pinpoint.web.env.ProfileResolveApplicationListener;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
@@ -24,7 +26,10 @@ public class WebStarter {
         builder.sources(sources);
         builder.web(WebApplicationType.SERVLET);
         builder.bannerMode(Banner.Mode.OFF);
-        builder.listeners(new WebEnvironmentApplicationListener());
+
+        builder.listeners(new ProfileResolveApplicationListener());
+        builder.listeners(new ExternalEnvironmentApplicationListener());
+        builder.listeners(new EnvironmentLoggingListener());
 
         SpringApplication springApplication = builder.build();
         springApplication.run(args);
