@@ -33,7 +33,7 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
     useDisable = true;
     showLoading = true;
     removeCallTree = false;
-    showSearch: boolean;
+    showSearch = true;
     message$: Observable<string>;
     isEmpty = true;
     isTransactionSelected = false;
