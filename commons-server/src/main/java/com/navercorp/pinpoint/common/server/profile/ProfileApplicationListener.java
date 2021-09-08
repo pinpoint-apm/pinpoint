@@ -34,12 +34,13 @@ public class ProfileApplicationListener implements ApplicationListener<Applicati
 
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
-        logger.info("onApplicationEvent(ApplicationEnvironmentPreparedEvent)");
-        ConfigurableEnvironment environment = event.getEnvironment();
-        ProfileEnvironment profileEnvironment = new ProfileEnvironment();
-        profileEnvironment.processEnvironment(environment);
+        logger.info(String.format("onApplicationEvent(%s)", event.getClass().getSimpleName()));
 
+        ConfigurableEnvironment environment = event.getEnvironment();
+        PinpointProfileEnvironment profileEnvironment = new PinpointProfileEnvironment();
+        profileEnvironment.processEnvironment(environment);
     }
+
     /**
      * @see org.springframework.boot.context.logging.LoggingApplicationListener#DEFAULT_ORDER
      * @see ConfigDataEnvironmentPostProcessor#ORDER

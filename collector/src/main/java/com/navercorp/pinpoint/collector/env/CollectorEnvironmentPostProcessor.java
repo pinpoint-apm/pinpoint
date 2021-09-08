@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.collector.env;
 
 import com.navercorp.pinpoint.common.server.env.BaseEnvironment;
 import com.navercorp.pinpoint.common.server.env.ExternalEnvironment;
-import com.navercorp.pinpoint.common.server.profile.ProfileEnvironment;
+import com.navercorp.pinpoint.common.server.profile.PinpointProfileEnvironment;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
@@ -46,7 +46,7 @@ public class CollectorEnvironmentPostProcessor implements EnvironmentPostProcess
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         logger.info("postProcessEnvironment");
 
-        ProfileEnvironment profileEnvironment = newProfileEnvironment();
+        PinpointProfileEnvironment profileEnvironment = newProfileEnvironment();
         profileEnvironment.processEnvironment(environment);
 
         ExternalEnvironment externalEnvironment
@@ -64,10 +64,10 @@ public class CollectorEnvironmentPostProcessor implements EnvironmentPostProcess
 
     }
 
-    private ProfileEnvironment newProfileEnvironment() {
+    private PinpointProfileEnvironment newProfileEnvironment() {
         if (defaultProfile == null) {
-            return new ProfileEnvironment();
+            return new PinpointProfileEnvironment();
         }
-        return new ProfileEnvironment(defaultProfile);
+        return new PinpointProfileEnvironment(defaultProfile);
     }
 }

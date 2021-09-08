@@ -36,7 +36,6 @@
     <bean id="webPropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
         <property name="locations">
             <list>
-                <value>test-hbase.properties</value>
                 <value>jdbc-root.properties</value>
             </list>
         </property>
@@ -45,7 +44,6 @@
     <import resource="classpath:applicationContext-web-hbase.xml"/>
     <import resource="classpath:applicationContext-web-datasource.xml" />
     <import resource="classpath:applicationContext-web-dao-config.xml" />
-    <import resource="classpath:batch/applicationContext-batch.xml" />
 
     <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
 
@@ -60,13 +58,8 @@
     <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory" factory-method="getDefaultInstance">
     </bean>
     
-    <bean id="pinpointSocketManager" class="com.navercorp.pinpoint.web.server.PinpointSocketManager">
-    	<constructor-arg ref="config" />
-    </bean>
 
-    <bean id="jobLauncherTestUtils" class="org.springframework.batch.test.JobLauncherTestUtils"/>
-    
-        <bean id="spanServiceImpl" class="com.navercorp.pinpoint.web.service.SpanServiceImpl">
+    <bean id="spanServiceImpl" class="com.navercorp.pinpoint.web.service.SpanServiceImpl">
         <property name="sqlMetaDataDao" ref="hbaseSqlMetaDataDao"/>
     </bean>
     

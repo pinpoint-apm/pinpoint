@@ -8,17 +8,18 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 
-public class WebEnvironmentApplicationListener implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
+public class ProfileResolveApplicationListener implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
 
     private final ServerBootLogger logger = ServerBootLogger.getLogger(getClass());
 
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
-        logger.info("onApplicationEvent(ApplicationEnvironmentPreparedEvent)");
+        logger.info(String.format("onApplicationEvent(%s)", event.getClass().getSimpleName()));
+
         ConfigurableEnvironment environment = event.getEnvironment();
         SpringApplication springApplication = event.getSpringApplication();
 
-        WebEnvironmentPostProcessor profileEnvironment = new WebEnvironmentPostProcessor();
+        ProfileEnvironmentPostProcessor profileEnvironment = new ProfileEnvironmentPostProcessor();
         profileEnvironment.postProcessEnvironment(environment, springApplication);
 
     }

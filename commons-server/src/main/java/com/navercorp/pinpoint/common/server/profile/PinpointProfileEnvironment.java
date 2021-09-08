@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
-public class ProfileEnvironment {
+public class PinpointProfileEnvironment {
     public static final String PINPOINT_ACTIVE_PROFILE = "pinpoint.profiles.active";
     public static final String PROFILE_PLACE_HOLDER = "${" + PINPOINT_ACTIVE_PROFILE + "}";
 
@@ -20,11 +20,11 @@ public class ProfileEnvironment {
 
     private final String defaultProfile;
 
-    public ProfileEnvironment() {
+    public PinpointProfileEnvironment() {
         this.defaultProfile = null;
     }
 
-    public ProfileEnvironment(String defaultProfile) {
+    public PinpointProfileEnvironment(String defaultProfile) {
         this.defaultProfile = Objects.requireNonNull(defaultProfile, "defaultProfile");
     }
 
@@ -34,7 +34,7 @@ public class ProfileEnvironment {
         logger.info(org.springframework.core.env.AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME + ":" + Arrays.toString(activeProfiles));
 
         final String pinpointProfile = getDefaultProfile(activeProfiles);
-        logger.info(PINPOINT_ACTIVE_PROFILE + ":" + pinpointProfile);
+        logger.info(String.format("%s=%s", PINPOINT_ACTIVE_PROFILE, pinpointProfile));
 
         Pair<String, String> profile = ImmutablePair.of(PINPOINT_ACTIVE_PROFILE, pinpointProfile);
         Pair<String, String> log4j2Path = log4j2Path(pinpointProfile);
@@ -43,9 +43,13 @@ public class ProfileEnvironment {
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             logger.info("PropertiesPropertySource " + entry);
         }
+
+        String sourceName = resolveSourceName(PINPOINT_ACTIVE_PROFILE, pinpointProfile);
+        logger.info("Add PropertySource name:" + sourceName);
+
+        PropertiesPropertySource log4j2PathSource = new PropertiesPropertySource(sourceName, properties);
+
         MutablePropertySources propertySources = environment.getPropertySources();
-        logger.info("Add PropertySource name:" + getName());
-        PropertiesPropertySource log4j2PathSource = new PropertiesPropertySource(getName(), properties);
         propertySources.addLast(log4j2PathSource);
     }
 
@@ -62,6 +66,9 @@ public class ProfileEnvironment {
         return properties;
     }
 
+    private String resolveSourceName(String key, String resourcePath) {
+        return String.format("%s '%s=%s'", getName(), key, resourcePath);
+    }
 
     private String getDefaultProfile(String[] activeProfiles) {
         if (defaultProfile != null) {
