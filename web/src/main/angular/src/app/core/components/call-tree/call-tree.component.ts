@@ -185,7 +185,16 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
                     innerRenderer: this.innerCellRenderer.bind(this),
                     suppressCount: true
                 },
-                tooltipField: 'method'
+                tooltipField: 'method',
+                cellStyle: (params: any) => {
+                    const { level } = params.node;
+                    const indent = 15;
+                    const isRootRow = params.node.rowIndex === 0;
+
+                    return {
+                        paddingLeft: isRootRow ? `4px` : `${(level + 1) * indent}px`
+                    };
+                }
             },
             {
                 headerName: 'Argument',

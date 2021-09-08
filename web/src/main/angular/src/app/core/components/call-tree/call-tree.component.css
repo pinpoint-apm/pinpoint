@@ -37,3 +37,8 @@
     background-color: var(--background-default);
     font-weight: bold;
 }
+
+::ng-deep .ag-cell-wrapper.ag-row-group[class*="ag-row-group-indent"],
+::ng-deep .ag-cell-wrapper.ag-row-group-leaf-indent[class*="ag-row-group-indent"] {
+    padding-left: 0;
+}
