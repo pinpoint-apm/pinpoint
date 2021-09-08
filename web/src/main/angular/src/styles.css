@@ -260,7 +260,7 @@ caption {
 }
 
 .ag-theme-balham .ag-ltr .ag-row-group-leaf-indent {
-    margin-left: 17px !important;
+    margin-left: 0px !important;
 }
 
 .l-calltree .ag-root {
@@ -321,7 +321,7 @@ caption {
 }
 
 .l-calltree .ag-group-expanded span {
-    margin-right: 4px;
+    margin-right: 2px;
 }
 
 .l-calltree .ag-row {
