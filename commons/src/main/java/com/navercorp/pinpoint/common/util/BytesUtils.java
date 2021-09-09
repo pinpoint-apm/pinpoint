@@ -54,8 +54,8 @@ public final class BytesUtils {
         }
         final byte[] buffer = new byte[LONG_LONG_BYTE_LENGTH + maxStringSize];
         writeBytes(buffer, 0, stringBytes);
-        writeFirstLong0(value1, buffer, maxStringSize);
-        writeSecondLong0(value2, buffer, maxStringSize);
+        writeLong(value1, buffer, maxStringSize);
+        writeLong(value2, buffer, maxStringSize + LONG_BYTE_LENGTH);
         return buffer;
     }
 
@@ -442,32 +442,6 @@ public final class BytesUtils {
         if ((value & (0xffffffffffffffffL << 56)) == 0) return 8;
         if ((value & (0xffffffffffffffffL << 63)) == 0) return 9;
         return 10;
-    }
-
-
-    private static int writeFirstLong0(final long value, final byte[] buf, int offset) {
-        buf[offset] = (byte) (value >> 56);
-        buf[1 + offset] = (byte) (value >> 48);
-        buf[2 + offset] = (byte) (value >> 40);
-        buf[3 + offset] = (byte) (value >> 32);
-        buf[4 + offset] = (byte) (value >> 24);
-        buf[5 + offset] = (byte) (value >> 16);
-        buf[6 + offset] = (byte) (value >> 8);
-        buf[7 + offset] = (byte) (value);
-        return offset;
-    }
-
-
-    private static int writeSecondLong0(final long value, final byte[] buf, int offset) {
-        buf[8 + offset] = (byte) (value >> 56);
-        buf[9 + offset] = (byte) (value >> 48);
-        buf[10 + offset] = (byte) (value >> 40);
-        buf[11 + offset] = (byte) (value >> 32);
-        buf[12 + offset] = (byte) (value >> 24);
-        buf[13 + offset] = (byte) (value >> 16);
-        buf[14 + offset] = (byte) (value >> 8);
-        buf[15 + offset] = (byte) (value);
-        return offset;
     }
 
     public static byte[] add(final String prefix, final long postfix) {
