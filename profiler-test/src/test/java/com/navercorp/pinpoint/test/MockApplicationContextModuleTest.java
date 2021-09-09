@@ -53,8 +53,8 @@ public class MockApplicationContextModuleTest {
         Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
 
         AgentOption agentOption = new DefaultAgentOption(instrumentation,
-                "mockAgentId", "mockAgentName", "mockApplicationName", false, profilerConfig, Collections.<String>emptyList(),
-                null);
+                "mockAgentId", "mockAgentName", "mockApplicationName", false,
+                profilerConfig, Collections.<String>emptyList(), Collections.<String>emptyList());
 
         PluginTestAgent pluginTestAgent = new PluginTestAgent(agentOption);
         try {
@@ -71,8 +71,8 @@ public class MockApplicationContextModuleTest {
         Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
 
         AgentOption agentOption = new DefaultAgentOption(instrumentation,
-                "mockAgentId", "mockAgentName", "mockApplicationName", false, profilerConfig, Collections.<String>emptyList(),
-                null);
+                "mockAgentId", "mockAgentName", "mockApplicationName", false,
+                profilerConfig, Collections.<String>emptyList(), Collections.<String>emptyList());
 
         Module pluginModule = new PluginApplicationContextModule();
         InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
