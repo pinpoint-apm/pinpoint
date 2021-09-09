@@ -90,7 +90,7 @@ public class DefaultApplicationContextTest {
 
         Instrumentation instrumentation = mock(Instrumentation.class);
         AgentOption agentOption = new DefaultAgentOption(instrumentation, "mockAgentId", "mockAgentName", "mockApplicationName", false,
-                profilerConfig, Collections.<String>emptyList(), null);
+                profilerConfig, Collections.<String>emptyList(), Collections.<String>emptyList());
 
         InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
         Module interceptorRegistryModule = InterceptorRegistryModule.wrap(interceptorRegistryBinder);

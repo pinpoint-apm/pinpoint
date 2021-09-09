@@ -39,7 +39,9 @@ public class DefaultAgentOption implements AgentOption {
     private final List<String> pluginJars;
     private final List<String> bootstrapJarPaths;
 
-    public DefaultAgentOption(final Instrumentation instrumentation, String agentId, String agentName, String applicationName, final boolean isContainer, final ProfilerConfig profilerConfig, final List<String> pluginJars, final List<String> bootstrapJarPaths) {
+    public DefaultAgentOption(final Instrumentation instrumentation,
+                              String agentId, String agentName, String applicationName, final boolean isContainer,
+                              final ProfilerConfig profilerConfig, final List<String> pluginJars, final List<String> bootstrapJarPaths) {
         this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentName = Objects.requireNonNull(agentName, "agentName");
@@ -47,11 +49,7 @@ public class DefaultAgentOption implements AgentOption {
         this.isContainer = isContainer;
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
         this.pluginJars = Objects.requireNonNull(pluginJars, "pluginJars");
-        if (bootstrapJarPaths == null) {
-            this.bootstrapJarPaths = Collections.emptyList();
-        } else {
-            this.bootstrapJarPaths = bootstrapJarPaths;
-        }
+        this.bootstrapJarPaths = Objects.requireNonNull(bootstrapJarPaths, "bootstrapJarPaths");
     }
 
     @Override
