@@ -20,13 +20,13 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
-import com.navercorp.pinpoint.profiler.instrument.config.DefaultInstrumentMatcherCacheConfig;
-import com.navercorp.pinpoint.profiler.instrument.config.InstrumentMatcherCacheConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.TransportModule;
 import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
+import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
+import com.navercorp.pinpoint.profiler.context.config.DefaultContextConfig;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentName;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
@@ -39,11 +39,14 @@ import com.navercorp.pinpoint.profiler.context.module.PluginJars;
 import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ConfiguredApplicationTypeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.InterceptorRegistryBinderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.ShutdownHookRegisterProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceDataFormatVersionProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginJarsProvider;
 import com.navercorp.pinpoint.profiler.instrument.classloading.BootstrapCore;
 import com.navercorp.pinpoint.profiler.instrument.config.DefaultInstrumentConfig;
+import com.navercorp.pinpoint.profiler.instrument.config.DefaultInstrumentMatcherCacheConfig;
 import com.navercorp.pinpoint.profiler.instrument.config.InstrumentConfig;
+import com.navercorp.pinpoint.profiler.instrument.config.InstrumentMatcherCacheConfig;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.profiler.plugin.config.DefaultPluginLoadingConfig;
@@ -79,10 +82,16 @@ public class ConfigModule extends AbstractModule {
         ProfilerConfig profilerConfig = agentOption.getProfilerConfig();
         bind(ProfilerConfig.class).toInstance(profilerConfig);
 
-        bindConstants(profilerConfig);
 
         Properties properties = profilerConfig.getProperties();
         ConfigurationLoader configurationLoader = new ConfigurationLoader(properties);
+
+        ContextConfig contextConfig = new DefaultContextConfig();
+        configurationLoader.load(contextConfig);
+        logger.info("{}", contextConfig);
+        bind(ContextConfig.class).toInstance(contextConfig);
+
+        bindConstants(contextConfig);
 
         PluginLoadingConfig pluginLoadingConfig = new DefaultPluginLoadingConfig();
         configurationLoader.load(pluginLoadingConfig);
@@ -114,6 +123,8 @@ public class ConfigModule extends AbstractModule {
         bindBootstrapCoreInformation();
 
         bindAgentInformation(agentOption.getAgentId(), agentOption.getAgentName(), agentOption.getApplicationName(), agentOption.isContainer());
+
+        bindShutdownHook(contextConfig);
     }
 
     private void bindBootstrapCoreInformation() {
@@ -126,13 +137,13 @@ public class ConfigModule extends AbstractModule {
         bind(BootstrapCore.class).toInstance(bootstrapCore);
     }
 
-    private void bindConstants(ProfilerConfig profilerConfig) {
+    private void bindConstants(ContextConfig contextConfig) {
 
         bind(TraceDataFormatVersion.class).toProvider(TraceDataFormatVersionProvider.class).in(Scopes.SINGLETON);
 
-        bindConstant().annotatedWith(TraceAgentActiveThread.class).to(profilerConfig.isTraceAgentActiveThread());
-        bindConstant().annotatedWith(DeadlockMonitorEnable.class).to(profilerConfig.isDeadlockMonitorEnable());
-        bindConstant().annotatedWith(DeadlockMonitorInterval.class).to(profilerConfig.getDeadlockMonitorInterval());
+        bindConstant().annotatedWith(TraceAgentActiveThread.class).to(contextConfig.isTraceAgentActiveThread());
+        bindConstant().annotatedWith(DeadlockMonitorEnable.class).to(contextConfig.isDeadlockMonitorEnable());
+        bindConstant().annotatedWith(DeadlockMonitorInterval.class).to(contextConfig.getDeadlockMonitorInterval());
     }
 
     private void bindAgentInformation(String agentId, String agentName, String applicationName, boolean isContainer) {
@@ -156,5 +167,12 @@ public class ConfigModule extends AbstractModule {
         public <T> void load(T config) {
             process.process(config, properties);
         }
+    }
+
+
+    private void bindShutdownHook(ContextConfig contextConfig) {
+        // for lazy init
+        ShutdownHookRegisterProvider instance = new ShutdownHookRegisterProvider(contextConfig);
+        bind(ShutdownHookRegisterProvider.class).toInstance(instance);
     }
 }

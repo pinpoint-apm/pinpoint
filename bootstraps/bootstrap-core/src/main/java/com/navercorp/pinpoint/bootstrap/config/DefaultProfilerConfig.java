@@ -90,20 +90,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private TransportModule transportModule = DEFAULT_TRANSPORT_MODULE;
 
-    @Value("${profiler.pinpoint.activethread}")
-    private boolean traceAgentActiveThread = true;
-
-    @Value("${profiler.pinpoint.datasource}")
-    private boolean traceAgentDataSource = false;
-
-    @Value("${profiler.pinpoint.datasource.tracelimitsize}")
-    private int dataSourceTraceLimitSize = 20;
-
-    @Value("${profiler.monitor.deadlock.enable}")
-    private boolean deadlockMonitorEnable = true;
-    @Value("${profiler.monitor.deadlock.interval}")
-    private long deadlockMonitorInterval = 60000L;
-
     @Value("${profiler.jdbc.sqlcachesize}")
     private int jdbcSqlCacheSize = 1024;
     @Value("${profiler.jdbc.tracesqlbindvalue}")
@@ -111,25 +97,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Value("${profiler.jdbc.maxsqlbindvaluesize}")
     private int maxSqlBindValueSize = 1024;
 
-    @Value("${profiler.sampling.new.throughput}")
-    // Throughput sampling
-    private int samplingNewThroughput = 0;
-    @Value("${profiler.sampling.continue.throughput}")
-    private int samplingContinueThroughput = 0;
 
-    // span buffering
-    // configuration for sampling and IO buffer
-    @Value("${profiler.io.buffering.enable}")
-    private boolean ioBufferingEnable = true;
-    // it may be a problem to be here.  need to modify(delete or move or .. )  this configuration.
-    @Value("${profiler.io.buffering.buffersize}")
-    private int ioBufferingBufferSize = 20;
-
-    @Value("profiler.jvm.vendor.name")
-    private String profileJvmVendorName;
-    // JVM
-    @Value("${profiler.os.name}")
-    private String profileOsName;
     @Value("${profiler.jvm.stat.collect.interval}")
     private int profileJvmStatCollectIntervalMs = DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;
     @Value("${profiler.jvm.stat.batch.send.count}")
@@ -137,13 +105,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Value("${profiler.jvm.stat.collect.detailed.metrics}")
     private boolean profilerJvmStatCollectDetailedMetrics = false;
 
-    private final long DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL = 5 * 60 * 1000L;
-    @Value("${profiler.agentInfo.send.retry.interval}")
-    private long agentInfoSendRetryInterval = DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL;
-
-    // proxy http header names
-    @Value("${profiler.proxy.http.header.enable}")
-    private boolean proxyHttpHeaderEnable = true;
 
     private HttpStatusCodeErrors httpStatusCodeErrors = new HttpStatusCodeErrors();
 
@@ -192,30 +153,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
 
-    @Override
-    public boolean isTraceAgentActiveThread() {
-        return traceAgentActiveThread;
-    }
-
-    @Override
-    public boolean isTraceAgentDataSource() {
-        return traceAgentDataSource;
-    }
-
-    @Override
-    public int getDataSourceTraceLimitSize() {
-        return dataSourceTraceLimitSize;
-    }
-
-    @Override
-    public boolean isDeadlockMonitorEnable() {
-        return deadlockMonitorEnable;
-    }
-
-    @Override
-    public long getDeadlockMonitorInterval() {
-        return deadlockMonitorInterval;
-    }
 
     @Override
     public boolean isProfileEnable() {
@@ -237,35 +174,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return maxSqlBindValueSize;
     }
 
-    @Override
-    public int getSamplingNewThroughput() {
-        return samplingNewThroughput;
-    }
 
-    @Override
-    public int getSamplingContinueThroughput() {
-        return samplingContinueThroughput;
-    }
-
-    @Override
-    public boolean isIoBufferingEnable() {
-        return ioBufferingEnable;
-    }
-
-    @Override
-    public int getIoBufferingBufferSize() {
-        return ioBufferingBufferSize;
-    }
-
-    @Override
-    public String getProfilerJvmVendorName() {
-        return profileJvmVendorName;
-    }
-
-    @Override
-    public String getProfilerOSName() {
-        return profileOsName;
-    }
 
     @Override
     public int getProfileJvmStatCollectIntervalMs() {
@@ -283,18 +192,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
-    public long getAgentInfoSendRetryInterval() {
-        return agentInfoSendRetryInterval;
-    }
-
-    @Override
     public boolean getStaticResourceCleanup() {
         return staticResourceCleanup;
-    }
-
-    @Override
-    public boolean isProxyHttpHeaderEnable() {
-        return proxyHttpHeaderEnable;
     }
 
     @Override
@@ -454,25 +353,12 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", activeProfile=").append(activeProfile);
         sb.append(", logDirMaxBackupSize=").append(logDirMaxBackupSize);
         sb.append(", staticResourceCleanup=").append(staticResourceCleanup);
-        sb.append(", traceAgentActiveThread=").append(traceAgentActiveThread);
-        sb.append(", traceAgentDataSource=").append(traceAgentDataSource);
-        sb.append(", dataSourceTraceLimitSize=").append(dataSourceTraceLimitSize);
-        sb.append(", deadlockMonitorEnable=").append(deadlockMonitorEnable);
-        sb.append(", deadlockMonitorInterval=").append(deadlockMonitorInterval);
         sb.append(", jdbcSqlCacheSize=").append(jdbcSqlCacheSize);
         sb.append(", traceSqlBindValue=").append(traceSqlBindValue);
         sb.append(", maxSqlBindValueSize=").append(maxSqlBindValueSize);
-        sb.append(", samplingNewThroughput=").append(samplingNewThroughput);
-        sb.append(", samplingContinueThroughput=").append(samplingContinueThroughput);
-        sb.append(", ioBufferingEnable=").append(ioBufferingEnable);
-        sb.append(", ioBufferingBufferSize=").append(ioBufferingBufferSize);
-        sb.append(", profileJvmVendorName='").append(profileJvmVendorName).append('\'');
-        sb.append(", profileOsName='").append(profileOsName).append('\'');
         sb.append(", profileJvmStatCollectIntervalMs=").append(profileJvmStatCollectIntervalMs);
         sb.append(", profileJvmStatBatchSendCount=").append(profileJvmStatBatchSendCount);
         sb.append(", profilerJvmStatCollectDetailedMetrics=").append(profilerJvmStatCollectDetailedMetrics);
-        sb.append(", agentInfoSendRetryInterval=").append(agentInfoSendRetryInterval);
-        sb.append(", proxyHttpHeaderEnable=").append(proxyHttpHeaderEnable);
         sb.append(", httpStatusCodeErrors=").append(httpStatusCodeErrors);
         sb.append(", injectionModuleFactoryClazzName='").append(injectionModuleFactoryClazzName).append('\'');
         sb.append(", applicationNamespace='").append(applicationNamespace).append('\'');

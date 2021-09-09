@@ -32,39 +32,13 @@ import java.util.Properties;
 public class DefaultProfilerConfigTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-
     @Test
     public void readProperty() throws IOException {
         String path = DefaultProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
         logger.debug("path:{}", path);
 
-        ProfilerConfig profilerConfig = DefaultProfilerConfig.load(path);
+        DefaultProfilerConfig.load(path);
     }
-
-
-
-    @Test
-    public void ioBuffering_test() throws IOException {
-        String path = DefaultProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
-        logger.debug("path:{}", path);
-
-        ProfilerConfig profilerConfig = DefaultProfilerConfig.load(path);
-
-        Assert.assertEquals(profilerConfig.isIoBufferingEnable(), false);
-        Assert.assertEquals(profilerConfig.getIoBufferingBufferSize(), 30);
-    }
-
-    @Test
-    public void ioBuffering_default() throws IOException {
-        String path = DefaultProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/default.property").getPath();
-        logger.debug("path:{}", path);
-
-        ProfilerConfig profilerConfig = DefaultProfilerConfig.load(path);
-
-        Assert.assertEquals(profilerConfig.isIoBufferingEnable(), true);
-        Assert.assertEquals(profilerConfig.getIoBufferingBufferSize(), 10);
-    }
-
 
     @Test
     public void readList() throws IOException {

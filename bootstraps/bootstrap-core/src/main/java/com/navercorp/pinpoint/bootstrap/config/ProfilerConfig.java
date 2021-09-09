@@ -31,21 +31,10 @@ public interface ProfilerConfig {
 
     String getActiveProfile();
 
-//    String[] getOptionalProfiles();
 
     Properties getProperties();
 
     TransportModule getTransportModule();
-
-    boolean isTraceAgentActiveThread();
-
-    boolean isTraceAgentDataSource();
-
-    int getDataSourceTraceLimitSize();
-
-    boolean isDeadlockMonitorEnable();
-
-    long getDeadlockMonitorInterval();
 
 
     boolean isProfileEnable();
@@ -56,17 +45,6 @@ public interface ProfilerConfig {
 
     int getMaxSqlBindValueSize();
 
-    int getSamplingNewThroughput();
-
-    int getSamplingContinueThroughput();
-
-    boolean isIoBufferingEnable();
-
-    int getIoBufferingBufferSize();
-
-    String getProfilerJvmVendorName();
-
-    String getProfilerOSName();
 
     int getProfileJvmStatCollectIntervalMs();
 
@@ -74,13 +52,10 @@ public interface ProfilerConfig {
 
     boolean isProfilerJvmStatCollectDetailedMetrics();
 
-    long getAgentInfoSendRetryInterval();
-
     @InterfaceAudience.Private
     @VisibleForTesting
     boolean getStaticResourceCleanup();
 
-    boolean isProxyHttpHeaderEnable();
 
     HttpStatusCodeErrors getHttpStatusCodeErrors();
 

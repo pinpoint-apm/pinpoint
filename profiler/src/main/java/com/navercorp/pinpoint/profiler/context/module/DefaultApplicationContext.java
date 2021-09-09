@@ -20,6 +20,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.Provider;
 import com.google.inject.Stage;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
@@ -33,10 +34,12 @@ import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.ShutdownHookRegister;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.javamodule.ClassFileTransformerModuleHandler;
 import com.navercorp.pinpoint.profiler.context.javamodule.JavaModuleFactoryFinder;
+import com.navercorp.pinpoint.profiler.context.provider.ShutdownHookRegisterProvider;
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
@@ -180,6 +183,11 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     public TraceContext getTraceContext() {
         return traceContext;
+    }
+
+    public ShutdownHookRegisterProvider getShutdownHookRegisterProvider() {
+        // lazy init
+        return injector.getInstance(ShutdownHookRegisterProvider.class);
     }
 
     public DataSender<SpanType> getSpanDataSender() {
