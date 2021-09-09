@@ -34,12 +34,17 @@ public class BytesUtilsTest {
 
     @Test
     public void testStringLongLongToBytes() {
-        BytesUtils.stringLongLongToBytes("123", 3, 1, 2);
-        try {
-            BytesUtils.stringLongLongToBytes("123", 2, 1, 2);
-            Assert.fail("fail");
-        } catch (IndexOutOfBoundsException ignore) {
-        }
+        final int strLength = 24;
+        byte[] bytes = BytesUtils.stringLongLongToBytes("123", strLength, 12345, 54321);
+
+        Assert.assertEquals("123", BytesUtils.toStringAndRightTrim(bytes, 0, strLength));
+        Assert.assertEquals(12345, BytesUtils.bytesToLong(bytes, strLength));
+        Assert.assertEquals(54321, BytesUtils.bytesToLong(bytes, strLength + BytesUtils.LONG_BYTE_LENGTH));
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testStringLongLongToBytes_error() {
+        BytesUtils.stringLongLongToBytes("123", 2, 1, 2);
     }
 
     @Test
@@ -96,13 +101,9 @@ public class BytesUtilsTest {
         Assert.assertArrayEquals(testAgents, buf);
     }
 
-    @Test
+    @Test(expected = NullPointerException.class)
     public void testAddStringLong_NullError() {
-        try {
-            BytesUtils.add((String) null, 11L);
-            Assert.fail();
-        } catch (NullPointerException ignore) {
-        }
+        BytesUtils.add((String) null, 11L);
     }
 
     @Test
@@ -111,21 +112,19 @@ public class BytesUtilsTest {
         Assert.assertEquals(testValue.length, 10);
         Assert.assertEquals(testValue[5], 0);
 
-        try {
-            BytesUtils.toFixedLengthBytes("test", 2);
-            Assert.fail();
-        } catch (IndexOutOfBoundsException ignore) {
-        }
-
-        try {
-            BytesUtils.toFixedLengthBytes("test", -1);
-            Assert.fail();
-        } catch (IndexOutOfBoundsException ignore) {
-        }
-
         byte[] testValue2 = BytesUtils.toFixedLengthBytes(null, 10);
         Assert.assertEquals(testValue2.length, 10);
 
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testToFixedLengthBytes_fail1() {
+        BytesUtils.toFixedLengthBytes("test", 2);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testToFixedLengthBytes_fail2() {
+        BytesUtils.toFixedLengthBytes("test", -1);
     }
 
     @Test
@@ -135,7 +134,7 @@ public class BytesUtilsTest {
 
         byte[] b3 = BytesUtils.merge(b1, b2);
 
-        Assert.assertTrue(Arrays.equals(new byte[] { 1, 2, 3, 4 }, b3));
+        Assert.assertArrayEquals(new byte[] { 1, 2, 3, 4 }, b3);
     }
 
     @Test
@@ -188,21 +187,17 @@ public class BytesUtilsTest {
         Assert.assertEquals(4, dst[2]);
     }
 
-    @Test
+    @Test(expected = ArrayIndexOutOfBoundsException.class)
     public void testOverflowDestinationWriteBytes() {
         byte[] dst = new byte[5];
         byte[] src = new byte[10];
         for (int i = 0; i < 10; i++) {
             src[i] = (byte) (i + 1);
         }
-        try {
-            // overflow!
-            BytesUtils.writeBytes(dst, 0, src);
-            // if it does not catch any errors, it means memory leak!
-            fail("invalid memory access");
-        } catch (Exception e) {
-            // nice
-        }
+
+        // overflow!
+        BytesUtils.writeBytes(dst, 0, src);
+        // if it does not catch any errors, it means memory leak!
     }
 
     @Test
@@ -215,44 +210,39 @@ public class BytesUtilsTest {
         Assert.assertEquals(0x33445566778899AAl, BytesUtils.bytesToLong(such_long, 3));
     }
 
-    @Test
+    @Test(expected = IndexOutOfBoundsException.class)
     public void testOverflowBytesToLong() {
         byte[] such_long = new byte[12];
         int i;
         for (i = 0; i < 12; i++) {
             such_long[i] = (byte) ((i << 4) + i);
         }
-        try {
-            // overflow!
-            BytesUtils.bytesToLong(such_long, 9);
-            // if it does not catch any errors, it means memory leak!
-            fail("invalid memory access");
-        } catch (Exception e) {
-            // nice
-        }
+        // overflow!
+        BytesUtils.bytesToLong(such_long, 9);
+        // if it does not catch any errors, it means memory leak!
     }
 
-    @Test
-    public void testWriteLong() {
-        try {
-            BytesUtils.writeLong(1234, null, 0);
-            fail("null pointer accessed");
-        } catch (Exception ignore) {
+    @Test(expected = NullPointerException.class)
+    public void testWriteLong_npe() {
+        BytesUtils.writeLong(1234, null, 0);
+    }
 
-        }
+    @Test()
+    public void testWriteLong_fail() {
+
         byte[] such_long = new byte[13];
         try {
             BytesUtils.writeLong(1234, such_long, -1);
             fail("negative offset did not catched");
         } catch (Exception ignore) {
-
         }
+
         try {
             BytesUtils.writeLong(2222, such_long, 9);
             fail("index out of range exception did not catched");
         } catch (Exception ignore) {
-
         }
+
         BytesUtils.writeLong(-1l, such_long, 2);
         for (int i = 2; i < 10; i++) {
             Assert.assertEquals((byte) 0xFF, such_long[i]);
@@ -477,10 +467,14 @@ public class BytesUtilsTest {
     @Test
     public void testCheckBound() {
         final int bufferSize = 10;
-
         BytesUtils.checkBound(bufferSize, 0);
         BytesUtils.checkBound(bufferSize, 2);
         BytesUtils.checkBound(bufferSize, bufferSize - 1);
+    }
+
+    @Test
+    public void testCheckBound_fail() {
+        final int bufferSize = 10;
 
         try {
             BytesUtils.checkBound(bufferSize, bufferSize);
