@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.context.provider.stat.filedescriptor;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.JvmType;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.common.util.OsType;
+import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ public class FileDescriptorMetricProviderTest {
 
     @Test
     public void testOracle_LINUX() {
-        ProfilerConfig config = mock(ProfilerConfig.class);
+        ContextConfig config = mock(ContextConfig.class);
         FileDescriptorMetricProvider fileDescriptorMetricProvider = new FileDescriptorMetricProvider(config);
 
         String metricClassName = fileDescriptorMetricProvider.getMetricClassName(OsType.LINUX, JvmVersion.JAVA_6, JvmType.ORACLE);
@@ -52,7 +52,7 @@ public class FileDescriptorMetricProviderTest {
 
     @Test
     public void testIBM_SOLARIS() {
-        ProfilerConfig config = mock(ProfilerConfig.class);
+        ContextConfig config = mock(ContextConfig.class);
         FileDescriptorMetricProvider fileDescriptorMetricProvider = new FileDescriptorMetricProvider(config);
 
         String metricClassName = fileDescriptorMetricProvider.getMetricClassName(OsType.SOLARIS, JvmVersion.JAVA_9, JvmType.IBM);

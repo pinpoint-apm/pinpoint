@@ -69,7 +69,6 @@ public class ActiveTraceRepositoryTest {
     public void setUp() {
 
         ProfilerConfig profilerConfig = Mockito.spy(new DefaultProfilerConfig());
-        Mockito.when(profilerConfig.isTraceAgentActiveThread()).thenReturn(true);
 
         Mockito.when((profilerConfig.readInt(CountingSamplerFactory.LEGACY_SAMPLING_RATE_NAME, -1))).thenReturn(SAMPLING_RATE);
         Mockito.when((profilerConfig.readBoolean(SamplerConfig.SAMPLER_ENABLE_NAME, true))).thenReturn(true);

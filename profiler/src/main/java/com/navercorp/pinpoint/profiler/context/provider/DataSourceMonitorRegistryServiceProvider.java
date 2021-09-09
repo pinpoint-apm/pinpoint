@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultDataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.DisabledDataSourceMonitorRegistryService;
@@ -40,11 +40,11 @@ public class DataSourceMonitorRegistryServiceProvider implements Provider<DataSo
     private final int dataSourceTraceLimitSize;
 
     @Inject
-    public DataSourceMonitorRegistryServiceProvider(ProfilerConfig profilerConfig) {
-        Objects.requireNonNull(profilerConfig, "profilerConfig");
+    public DataSourceMonitorRegistryServiceProvider(ContextConfig contextConfig) {
+        Objects.requireNonNull(contextConfig, "contextConfig");
 
-        this.traceAgentDataSource = profilerConfig.isTraceAgentDataSource();
-        this.dataSourceTraceLimitSize = profilerConfig.getDataSourceTraceLimitSize();
+        this.traceAgentDataSource = contextConfig.isTraceAgentDataSource();
+        this.dataSourceTraceLimitSize = contextConfig.getDataSourceTraceLimitSize();
 
     }
 

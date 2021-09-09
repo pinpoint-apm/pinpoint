@@ -168,20 +168,26 @@ public class DefaultAgent implements Agent {
 
     @Override
     public void registerStopHandler() {
-        logger.info("registerStopHandler");
-        ShutdownHookRegisterProvider shutdownHookRegisterProvider = new ShutdownHookRegisterProvider(profilerConfig);
-        ShutdownHookRegister shutdownHookRegister = shutdownHookRegisterProvider.get();
+        if (applicationContext instanceof DefaultApplicationContext) {
+            logger.info("registerStopHandler");
 
-        PinpointThreadFactory pinpointThreadFactory = new PinpointThreadFactory("Pinpoint-shutdown-hook", false);
-        Thread shutdownThread = pinpointThreadFactory.newThread(new Runnable() {
-            @Override
-            public void run() {
-                logger.info("stop() started. threadName:" + Thread.currentThread().getName());
-                DefaultAgent.this.stop();
-            }
-        });
+            DefaultApplicationContext context = (DefaultApplicationContext) applicationContext;
+            ShutdownHookRegisterProvider shutdownHookRegisterProvider = context.getShutdownHookRegisterProvider();
+            ShutdownHookRegister shutdownHookRegister = shutdownHookRegisterProvider.get();
 
-        shutdownHookRegister.register(shutdownThread);
+            PinpointThreadFactory pinpointThreadFactory = new PinpointThreadFactory("Pinpoint-shutdown-hook", false);
+            Thread shutdownThread = pinpointThreadFactory.newThread(new Runnable() {
+                @Override
+                public void run() {
+                    logger.info("stop() started. threadName:" + Thread.currentThread().getName());
+                    DefaultAgent.this.stop();
+                }
+            });
+
+            shutdownHookRegister.register(shutdownThread);
+
+        }
+
     }
 
     @Override

@@ -18,10 +18,8 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import java.util.Objects;
-
 import com.navercorp.pinpoint.profiler.context.SpanType;
+import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
@@ -31,17 +29,19 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class StorageFactoryProvider implements Provider<StorageFactory> {
 
-    private final ProfilerConfig profilerConfig;
+    private final ContextConfig contextConfig;
     private final DataSender<SpanType> spanDataSender;
 
     @Inject
-    public StorageFactoryProvider(ProfilerConfig profilerConfig, @SpanDataSender DataSender<SpanType> spanDataSender) {
-        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+    public StorageFactoryProvider(ContextConfig contextConfig, @SpanDataSender DataSender<SpanType> spanDataSender) {
+        this.contextConfig = Objects.requireNonNull(contextConfig, "profilerConfig");
         this.spanDataSender = Objects.requireNonNull(spanDataSender, "spanDataSender");
     }
 
@@ -55,8 +55,8 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
     }
 
     private StorageFactory newStorageFactory() {
-        if (profilerConfig.isIoBufferingEnable()) {
-            int ioBufferingBufferSize = this.profilerConfig.getIoBufferingBufferSize();
+        if (contextConfig.isIoBufferingEnable()) {
+            int ioBufferingBufferSize = this.contextConfig.getIoBufferingBufferSize();
             return new BufferedStorageFactory(ioBufferingBufferSize, this.spanDataSender);
         } else {
             return new BufferedStorageFactory(Integer.MAX_VALUE, this.spanDataSender);
@@ -66,7 +66,7 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
     @Override
     public String toString() {
         return "StorageFactoryProvider{" +
-                "profilerConfig=" + profilerConfig +
+                "contextConfig=" + contextConfig +
                 ", spanDataSender=" + spanDataSender +
                 '}';
     }

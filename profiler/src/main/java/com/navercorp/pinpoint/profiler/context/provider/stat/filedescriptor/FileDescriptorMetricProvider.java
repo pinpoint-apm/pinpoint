@@ -18,13 +18,13 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.filedescriptor;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.JvmType;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.common.util.OsType;
 import com.navercorp.pinpoint.common.util.OsUtils;
+import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,10 +49,10 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
     private final String osName;
 
     @Inject
-    public FileDescriptorMetricProvider(ProfilerConfig profilerConfig) {
-        Objects.requireNonNull(profilerConfig, "profilerConfig");
-        vendorName = profilerConfig.getProfilerJvmVendorName();
-        osName = profilerConfig.getProfilerOSName();
+    public FileDescriptorMetricProvider(ContextConfig contextConfig) {
+        Objects.requireNonNull(contextConfig, "contextConfig");
+        vendorName = contextConfig.getProfilerJvmVendorName();
+        osName = contextConfig.getProfilerOSName();
     }
 
     @Override

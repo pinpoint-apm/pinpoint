@@ -119,7 +119,6 @@ public class DefaultTraceContextTest {
         final int samplingRate = 5;
 
         final ProfilerConfig profilerConfig = getProfilerConfig();
-        Mockito.when(profilerConfig.isTraceAgentActiveThread()).thenReturn(true);
 
         Mockito.when((profilerConfig.readInt(CountingSamplerFactory.LEGACY_SAMPLING_RATE_NAME, -1))).thenReturn(samplingRate);
         Mockito.when((profilerConfig.readBoolean(SamplerConfig.SAMPLER_ENABLE_NAME, true))).thenReturn(true);

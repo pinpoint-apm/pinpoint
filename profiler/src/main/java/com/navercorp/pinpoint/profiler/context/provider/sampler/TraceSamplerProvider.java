@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.profiler.context.provider.sampler;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
+import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.sampler.BasicTraceSampler;
 import com.navercorp.pinpoint.profiler.sampler.RateLimitTraceSampler;
@@ -38,11 +38,11 @@ public class TraceSamplerProvider implements Provider<TraceSampler> {
 
     private final Sampler sampler;
     private final IdGenerator idGenerator;
-    private final ProfilerConfig profilerConfig;
+    private final ContextConfig contextConfig;
 
     @Inject
-    public TraceSamplerProvider(ProfilerConfig profilerConfig, Sampler sampler, IdGenerator idGenerator) {
-        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+    public TraceSamplerProvider(ContextConfig contextConfig, Sampler sampler, IdGenerator idGenerator) {
+        this.contextConfig = Objects.requireNonNull(contextConfig, "contextConfig");
         this.sampler = Objects.requireNonNull(sampler, "sampler");
         this.idGenerator = Objects.requireNonNull(idGenerator, "idGenerator");
     }
@@ -51,8 +51,8 @@ public class TraceSamplerProvider implements Provider<TraceSampler> {
     public TraceSampler get() {
         logger.info("new BasicTraceSampler()");
         TraceSampler traceSampler = new BasicTraceSampler(idGenerator, sampler);
-        final int samplingNewThroughput = profilerConfig.getSamplingNewThroughput();
-        final int samplingContinueThroughput = profilerConfig.getSamplingContinueThroughput();
+        final int samplingNewThroughput = contextConfig.getSamplingNewThroughput();
+        final int samplingContinueThroughput = contextConfig.getSamplingContinueThroughput();
         if (samplingNewThroughput > 0 || samplingContinueThroughput > 0) {
             traceSampler = new RateLimitTraceSampler(samplingNewThroughput, samplingContinueThroughput, idGenerator, traceSampler);
             logger.info("new RateLimitTraceSampler {}/{}", samplingNewThroughput, samplingContinueThroughput);
