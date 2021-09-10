@@ -33,7 +33,7 @@ public class ServerConfigTest {
         properties.setProperty(ServerConfig.HIDE_PINPOINT_HEADER_PROPERTY_NAME, "true");
         properties.setProperty(propertyName, "false");
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
         ServerConfig serverConfig = new ServerConfig(profilerConfig);
 
         Assert.assertFalse(serverConfig.isHidePinpointHeader(propertyName));
@@ -46,7 +46,7 @@ public class ServerConfigTest {
         properties.setProperty(ServerConfig.TRACE_REQUEST_PARAM_PROPERTY_NAME, "true");
         properties.setProperty(propertyName, "false");
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
         ServerConfig serverConfig = new ServerConfig(profilerConfig);
 
         Assert.assertFalse(serverConfig.isTraceRequestParam(propertyName));
@@ -59,7 +59,7 @@ public class ServerConfigTest {
         properties.setProperty(ServerConfig.EXCLUDE_URL_PROPERTY_NAME, "/l7check");
         properties.setProperty(propertyName, "/healthcheck");
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
         ServerConfig serverConfig = new ServerConfig(profilerConfig);
 
         Filter<String> filter = serverConfig.getExcludeUrlFilter(propertyName);
@@ -74,7 +74,7 @@ public class ServerConfigTest {
         properties.setProperty(ServerConfig.REAL_IP_HEADER_PROPERTY_NAME, "X-Forwarded-For");
         properties.setProperty(propertyName, "");
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
         ServerConfig serverConfig = new ServerConfig(profilerConfig);
 
         Assert.assertEquals("X-Forwarded-For", serverConfig.getRealIpHeader(propertyName));
@@ -87,7 +87,7 @@ public class ServerConfigTest {
         properties.setProperty(ServerConfig.REAL_IP_HEADER_PROPERTY_NAME, "");
         properties.setProperty(propertyName, "UNKNOWN");
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
         ServerConfig serverConfig = new ServerConfig(profilerConfig);
 
         Assert.assertEquals("UNKNOWN", serverConfig.getRealIpEmptyValue(propertyName));
@@ -100,7 +100,7 @@ public class ServerConfigTest {
         properties.setProperty(ServerConfig.EXCLUDE_METHOD_PROPERTY_NAME, "POST");
         properties.setProperty(propertyName, "HEAD");
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
         ServerConfig serverConfig = new ServerConfig(profilerConfig);
 
         Filter<String> filter = serverConfig.getExcludeMethodFilter(propertyName);

@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.netty;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -65,7 +65,7 @@ public class NettyConfigTest {
         properties.put(NettyConfig.PLUGIN_ENABLE, pluginEnable);
         properties.put(NettyConfig.HTTP_CODEC_ENABLE, httpEnable);
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
 
         return new NettyConfig(profilerConfig);
     }

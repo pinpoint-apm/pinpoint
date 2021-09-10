@@ -18,12 +18,11 @@ package com.navercorp.pinpoint.bootstrap.config;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -33,15 +32,14 @@ public class DefaultProfilerConfigTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
-    public void readProperty() throws IOException {
-        String path = DefaultProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
-        logger.debug("path:{}", path);
+    public void readProperty() {
+        InputStream inputStream = DefaultProfilerConfig.class.getResourceAsStream("/com/navercorp/pinpoint/bootstrap/config/test.property");
 
-        DefaultProfilerConfig.load(path);
+        ProfilerConfigLoader.load(inputStream);
     }
 
     @Test
-    public void readList() throws IOException {
+    public void readList() {
         Properties properties = new Properties();
         properties.setProperty("profiler.test.list1", "foo,bar");
         properties.setProperty("profiler.test.list2", "foo, bar");
@@ -49,7 +47,7 @@ public class DefaultProfilerConfigTest {
         properties.setProperty("profiler.test.list4", "foo,bar ");
         properties.setProperty("profiler.test.list5", "    foo,    bar   ");
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
 
         MatcherAssert.assertThat(profilerConfig.readList("profiler.test.list1"), CoreMatchers.hasItems("foo", "bar"));
         MatcherAssert.assertThat(profilerConfig.readList("profiler.test.list2"), CoreMatchers.hasItems("foo", "bar"));

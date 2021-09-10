@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -40,7 +40,7 @@ public class DescriptorParserTest {
         Properties properties = new Properties();
         properties.put(OptionKey.getClassName(errorHandlerId), "java.lang.RuntimeException");
         properties.put(OptionKey.getExceptionMessageContains(errorHandlerId), "test");
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
 
         Map<String, String> errorHandlerProperties = config.readPattern(OptionKey.PATTERN_REGEX);
 

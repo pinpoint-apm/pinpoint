@@ -17,17 +17,13 @@
 package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.config.util.BypassResolver;
-import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
 import com.navercorp.pinpoint.bootstrap.config.util.ValueResolver;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.util.PropertyUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -51,27 +47,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private final Properties properties;
 
     private static final TransportModule DEFAULT_TRANSPORT_MODULE = TransportModule.THRIFT;
-
-    public static ProfilerConfig load(String pinpointConfigFileName) throws IOException {
-        final Properties properties = loadProperties(pinpointConfigFileName);
-        return new DefaultProfilerConfig(properties);
-    }
-
-    private static Properties loadProperties(String pinpointConfigFileName) throws IOException {
-        try {
-            return PropertyUtils.loadProperty(pinpointConfigFileName);
-        } catch (FileNotFoundException fe) {
-            if (logger.isWarnEnabled()) {
-                logger.warn(pinpointConfigFileName + " file does not exist. Please check your configuration.");
-            }
-            throw fe;
-        } catch (IOException e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn(pinpointConfigFileName + " file I/O error. Error:" + e.getMessage(), e);
-            }
-            throw e;
-        }
-    }
 
     @Value("${profiler.enable:true}")
     private boolean profileEnable = false;
@@ -107,10 +82,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.properties = new Properties();
     }
 
-    public DefaultProfilerConfig(Properties properties) {
+    DefaultProfilerConfig(Properties properties) {
         this.properties = Objects.requireNonNull(properties, "properties");
-
-        readPropertyValues();
     }
 
     public Properties getProperties() {
@@ -186,15 +159,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public int getLogDirMaxBackupSize() {
         return logDirMaxBackupSize;
     }
-
-    // for test
-    void readPropertyValues() {
-        ValueAnnotationProcessor processor = new ValueAnnotationProcessor();
-        processor.process(this, properties);
-
-        logger.info("configuration loaded successfully.");
-    }
-
 
     @Override
     public String readString(String propertyName, String defaultValue) {
