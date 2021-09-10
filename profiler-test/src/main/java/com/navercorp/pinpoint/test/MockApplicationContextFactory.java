@@ -19,15 +19,14 @@ package com.navercorp.pinpoint.test;
 import com.google.inject.Module;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 
-import java.io.IOException;
+import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
-import java.net.URL;
 import java.util.Collections;
 
 /**
@@ -45,16 +44,12 @@ public class MockApplicationContextFactory {
 
     private ProfilerConfig loadProfilerConfig(String configPath) {
         final ClassLoader classLoader = this.getClass().getClassLoader();
-        final URL resource = classLoader.getResource(configPath);
+        final InputStream resource = classLoader.getResourceAsStream(configPath);
         if (resource == null) {
             throw new RuntimeException("pinpoint.config not found. configPath:" + configPath);
         }
 
-        try {
-            return DefaultProfilerConfig.load(resource.getPath());
-        } catch (IOException ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
-        }
+        return ProfilerConfigLoader.load(resource);
     }
 
     public DefaultApplicationContext build(ProfilerConfig config) {

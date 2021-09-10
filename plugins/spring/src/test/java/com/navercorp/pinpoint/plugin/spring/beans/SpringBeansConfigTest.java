@@ -14,8 +14,8 @@
  */
 package com.navercorp.pinpoint.plugin.spring.beans;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -34,7 +34,7 @@ public class SpringBeansConfigTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 3 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Repository");
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
 
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
         assertEquals(3, springBeansConfig.getTargets().size());
@@ -70,7 +70,7 @@ public class SpringBeansConfigTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 3 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Repository");
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
 
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
 
@@ -98,7 +98,7 @@ public class SpringBeansConfigTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 6 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 6 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
 
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
 
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
         assertEquals(2, springBeansConfig.getTargets().size());
@@ -117,7 +117,7 @@ public class SpringBeansConfigTest {
         // old
         properties.put(SpringBeansConfig.SPRING_BEANS_NAME_PATTERN, "com.navercorp.*");
 
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
         assertEquals(3, springBeansConfig.getTargets().size());
     }
@@ -143,7 +143,7 @@ public class SpringBeansConfigTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
 
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
         assertEquals(0, springBeansConfig.getTargets().size());
     }
@@ -166,7 +166,7 @@ public class SpringBeansConfigTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 4 + SpringBeansConfig.SPRING_BEANS_SCOPE_POSTFIX, "post-processor");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 4 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
 
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
         assertEquals(4, springBeansConfig.getTargets().size());
     }

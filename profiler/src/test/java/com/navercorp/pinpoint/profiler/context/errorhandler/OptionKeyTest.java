@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.profiler.context.DefaultAsyncContext;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,7 +15,7 @@ public class OptionKeyTest {
     private final Logger logger = LoggerFactory.getLogger(DefaultAsyncContext.class);
 
     @Test
-    public void getkey() {
+    public void getKey() {
         String abc = OptionKey.getKey("handlerId", OptionKey.CLASSNAME);
         Assert.assertEquals("profiler.ignore-error-handler.handlerId.class-name", abc);
     }
@@ -31,7 +31,7 @@ public class OptionKeyTest {
     public void readPattern() {
         Properties properties = new Properties();
         properties.put(OptionKey.getClassName("handler"), "java.lang.RuntimeException");
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
 
         Map<String, String> kv = config.readPattern(OptionKey.PATTERN_REGEX);
         Assert.assertEquals(1, kv.size());

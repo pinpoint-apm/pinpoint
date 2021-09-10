@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.kafka;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -74,7 +74,7 @@ public class KafkaConfigTest {
         properties.put(KafkaConfig.CONSUMER_ENABLE, consumerEnable);
         properties.put(KafkaConfig.CONSUMER_ENTRY_POINT, consumerEntryPoint);
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
 
         return new KafkaConfig(profilerConfig);
     }

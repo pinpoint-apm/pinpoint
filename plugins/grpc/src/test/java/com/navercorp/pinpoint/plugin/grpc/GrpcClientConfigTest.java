@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.grpc;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -60,7 +60,7 @@ public class GrpcClientConfigTest {
         Properties properties = new Properties();
         properties.put(GrpcClientConfig.CLIENT_ENABLE, clientEnable);
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
 
         return new GrpcClientConfig(profilerConfig);
     }

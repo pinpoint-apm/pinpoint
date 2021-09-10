@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.commons.dbcp;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -65,7 +65,7 @@ public class CommonsDbcpConfigTest {
         properties.put(CommonsDbcpConfig.DBCP_PLUGIN_ENABLE, pluginEnable);
         properties.put(CommonsDbcpConfig.DBCP_PROFILE_CONNECTIONCLOSE_ENABLE, profileConnectionCloseEnable);
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
 
         return new CommonsDbcpConfig(profilerConfig);
     }

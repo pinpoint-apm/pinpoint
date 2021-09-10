@@ -46,6 +46,18 @@ public final class PropertyUtils {
     private PropertyUtils() {
     }
 
+    public static Properties loadProperty(final InputStream inputStream) throws IOException {
+        Objects.requireNonNull(inputStream, "inputStream");
+
+        final InputStreamFactory inputStreamFactory = new InputStreamFactory() {
+            @Override
+            public InputStream openInputStream() throws IOException {
+                return inputStream;
+            }
+        };
+        return loadProperty(new Properties(), inputStreamFactory, DEFAULT_ENCODING);
+    }
+
     public static Properties loadProperty(final String filePath) throws IOException {
         Objects.requireNonNull(filePath, "filePath");
 

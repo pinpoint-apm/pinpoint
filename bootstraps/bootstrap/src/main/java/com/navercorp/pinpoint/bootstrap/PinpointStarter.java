@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.bootstrap.config.PropertyLoader;
 import com.navercorp.pinpoint.bootstrap.config.PropertyLoaderFactory;
 import com.navercorp.pinpoint.common.Version;
@@ -111,7 +112,7 @@ class PinpointStarter {
         try {
             final Properties properties = loadProperties();
 
-            ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+            ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
 
             // set the path of log file as a system property
             saveAgentIdForLog(agentIds);

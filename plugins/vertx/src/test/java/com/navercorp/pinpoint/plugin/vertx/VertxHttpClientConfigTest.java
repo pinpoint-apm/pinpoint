@@ -15,9 +15,9 @@
  */
 package com.navercorp.pinpoint.plugin.vertx;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -38,7 +38,7 @@ public class VertxHttpClientConfigTest {
         properties.setProperty("profiler.vertx.http.client.cookie.sampling.rate", "1");
         properties.setProperty("profiler.vertx.http.client.entity.statuscode", "true");
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
         VertxHttpClientConfig config = new VertxHttpClientConfig(profilerConfig);
 
         assertEquals(true, config.isParam());
@@ -51,7 +51,7 @@ public class VertxHttpClientConfigTest {
         properties.setProperty("profiler.vertx.http.client.cookie.sampling.rate", "99");
         properties.setProperty("profiler.vertx.http.client.entity.statuscode", "false");
 
-        profilerConfig = new DefaultProfilerConfig(properties);
+        profilerConfig = ProfilerConfigLoader.load(properties);
         config = new VertxHttpClientConfig(profilerConfig);
 
         assertEquals(false, config.isParam());

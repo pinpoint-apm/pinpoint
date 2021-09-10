@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.redis.jedis;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -29,7 +29,7 @@ public class JedisPluginConfigTest {
     @Test
     public void compatibility() {
         Properties properties = new Properties();
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
         JedisPluginConfig config = new JedisPluginConfig(profilerConfig);
 
         // Default
@@ -40,7 +40,7 @@ public class JedisPluginConfigTest {
         properties.setProperty("profiler.redis", "false");
         properties.setProperty("profiler.redis.pipeline", "false");
         properties.setProperty("profiler.redis.io", "false");
-        profilerConfig = new DefaultProfilerConfig(properties);
+        profilerConfig = ProfilerConfigLoader.load(properties);
         config = new JedisPluginConfig(profilerConfig);
 
         // Old
@@ -52,7 +52,7 @@ public class JedisPluginConfigTest {
         properties.setProperty("profiler.redis.jedis.enable", "true");
         properties.setProperty("profiler.redis.jedis.pipeline", "true");
         properties.setProperty("profiler.redis.jedis.io", "true");
-        profilerConfig = new DefaultProfilerConfig(properties);
+        profilerConfig = ProfilerConfigLoader.load(properties);
         config = new JedisPluginConfig(profilerConfig);
 
         // New

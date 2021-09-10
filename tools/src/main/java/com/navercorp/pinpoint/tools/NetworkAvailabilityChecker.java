@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.tools;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 
@@ -75,7 +75,7 @@ public class NetworkAvailabilityChecker {
             loadFileProperties(defaultProperties, activeProfileConfigFile.getAbsolutePath());
         }
 
-        final ProfilerConfig profilerConfig = new DefaultProfilerConfig(defaultProperties);
+        final ProfilerConfig profilerConfig = ProfilerConfigLoader.load(defaultProperties);
         if (profilerConfig.getTransportModule().toString().equals("GRPC")) {
 
             System.out.println("Transport Module set to GRPC");

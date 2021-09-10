@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.hikaricp;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -65,7 +65,7 @@ public class HikariCpConfigTest {
         properties.put(HikariCpConfig.HIKARICP_PLUGIN_ENABLE, pluginEnable);
         properties.put(HikariCpConfig.HIKARICP_PROFILE_CONNECTIONCLOSE_ENABLE, profileConnectionCloseEnable);
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
 
         return new HikariCpConfig(profilerConfig);
     }
