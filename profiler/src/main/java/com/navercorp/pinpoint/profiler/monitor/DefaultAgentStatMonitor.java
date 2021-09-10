@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.monitor;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
+import com.navercorp.pinpoint.profiler.context.monitor.config.DefaultMonitorConfig;
+import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentCustomMetricCollector;
@@ -54,8 +54,8 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
 
     private static final long MIN_COLLECTION_INTERVAL_MS = 1000;
     private static final long MAX_COLLECTION_INTERVAL_MS = 1000 * 5;
-    private static final long DEFAULT_COLLECTION_INTERVAL_MS = DefaultProfilerConfig.DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;
-    private static final int DEFAULT_NUM_COLLECTIONS_PER_SEND = DefaultProfilerConfig.DEFAULT_NUM_AGENT_STAT_BATCH_SEND;
+    private static final long DEFAULT_COLLECTION_INTERVAL_MS = DefaultMonitorConfig.DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;
+    private static final int DEFAULT_NUM_COLLECTIONS_PER_SEND = DefaultMonitorConfig.DEFAULT_NUM_AGENT_STAT_BATCH_SEND;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final long collectionIntervalMs;
@@ -66,18 +66,19 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
 
     @Inject
     public DefaultAgentStatMonitor(@StatDataSender DataSender<MetricType> dataSender,
-                                   @AgentId String agentId, @AgentStartTime long agentStartTimestamp,
+                                   @AgentId String agentId,
+                                   @AgentStartTime long agentStartTimestamp,
                                    @Named("AgentStatCollector") AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
                                    CustomMetricRegistryService customMetricRegistryService,
                                    UriStatStorage uriStatStorage,
-                                   ProfilerConfig profilerConfig) {
+                                   MonitorConfig monitorConfig) {
         Objects.requireNonNull(dataSender, "dataSender");
         Objects.requireNonNull(agentId, "agentId");
         Objects.requireNonNull(agentStatCollector, "agentStatCollector");
 
 
-        long collectionIntervalMs = profilerConfig.getProfileJvmStatCollectIntervalMs();
-        int numCollectionsPerBatch = profilerConfig.getProfileJvmStatBatchSendCount();
+        long collectionIntervalMs = monitorConfig.getProfileJvmStatCollectIntervalMs();
+        int numCollectionsPerBatch = monitorConfig.getProfileJvmStatBatchSendCount();
 
         if (collectionIntervalMs < MIN_COLLECTION_INTERVAL_MS) {
             collectionIntervalMs = DEFAULT_COLLECTION_INTERVAL_MS;
@@ -95,12 +96,12 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
         Runnable statCollectingJob = new CollectJob(dataSender, agentId, agentStartTimestamp, agentStatCollector, numCollectionsPerBatch);
         runnableList.add(statCollectingJob);
 
-        if (profilerConfig.isCustomMetricEnable() && customMetricRegistryService != null) {
+        if (monitorConfig.isCustomMetricEnable() && customMetricRegistryService != null) {
             Runnable customMetricCollectionJob = new CustomMetricCollectingJob(dataSender, new AgentCustomMetricCollector(customMetricRegistryService), numCollectionsPerBatch);
             runnableList.add(customMetricCollectionJob);
         }
 
-        if (profilerConfig.isUriStatEnable() && uriStatStorage != null) {
+        if (monitorConfig.isUriStatEnable() && uriStatStorage != null) {
             Runnable uriStatCollectingJob = new UriStatCollectingJob(dataSender, uriStatStorage);
             runnableList.add(uriStatCollectingJob);
         }

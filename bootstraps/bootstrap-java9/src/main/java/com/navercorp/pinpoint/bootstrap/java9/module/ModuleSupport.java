@@ -84,6 +84,7 @@ public class ModuleSupport {
         agentModule.addOpens("com.navercorp.pinpoint.profiler.context.config", bootstrapModule);
         agentModule.addOpens("com.navercorp.pinpoint.profiler.instrument.config", bootstrapModule);
         agentModule.addOpens("com.navercorp.pinpoint.profiler.plugin.config", bootstrapModule);
+        agentModule.addOpens("com.navercorp.pinpoint.profiler.context.monitor.config", bootstrapModule);
 
         agentModule.addOpens("com.navercorp.pinpoint.profiler.context.thrift.config", bootstrapModule);
         agentModule.addOpens("com.navercorp.pinpoint.profiler.context.grpc.config", bootstrapModule);

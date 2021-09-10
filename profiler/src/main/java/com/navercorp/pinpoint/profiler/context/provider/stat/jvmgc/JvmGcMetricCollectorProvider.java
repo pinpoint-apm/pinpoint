@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.DetailedJvmGcMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.BasicJvmGcMetricCollector;
@@ -44,13 +44,13 @@ public class JvmGcMetricCollectorProvider implements Provider<AgentStatMetricCol
 
     @Inject
     public JvmGcMetricCollectorProvider(
-            ProfilerConfig profilerConfig,
+            MonitorConfig monitorConfig,
             Provider<MemoryMetric> memoryMetricProivider,
             Provider<DetailedMemoryMetric> detailedMemoryMetricProvider,
             Provider<GarbageCollectorMetric> garbageCollectorMetricProvider,
             Provider<DetailedGarbageCollectorMetric> detailedGarbageCollectorMetricProvider) {
-        Objects.requireNonNull(profilerConfig, "profilerConfig");
-        this.collectDetailedMetrics = profilerConfig.isProfilerJvmStatCollectDetailedMetrics();
+        Objects.requireNonNull(monitorConfig, "profilerConfig");
+        this.collectDetailedMetrics = monitorConfig.isProfilerJvmStatCollectDetailedMetrics();
 
         this.memoryMetricProivider = Objects.requireNonNull(memoryMetricProivider, "memoryMetricProivider");
         this.detailedMemoryMetricProvider = Objects.requireNonNull(detailedMemoryMetricProvider, "detailedMemoryMetricProvider");
