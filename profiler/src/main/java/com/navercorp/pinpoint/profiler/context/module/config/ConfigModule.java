@@ -36,6 +36,8 @@ import com.navercorp.pinpoint.profiler.context.module.ConfiguredApplicationType;
 import com.navercorp.pinpoint.profiler.context.module.Container;
 import com.navercorp.pinpoint.profiler.context.module.PluginJarPaths;
 import com.navercorp.pinpoint.profiler.context.module.PluginJars;
+import com.navercorp.pinpoint.profiler.context.monitor.config.DefaultMonitorConfig;
+import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ConfiguredApplicationTypeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.InterceptorRegistryBinderProvider;
@@ -107,6 +109,13 @@ public class ConfigModule extends AbstractModule {
         configurationLoader.load(instrumentMatcherCacheConfig);
         logger.info("{}", instrumentMatcherCacheConfig);
         bind(InstrumentMatcherCacheConfig.class).toInstance(instrumentMatcherCacheConfig);
+
+
+        MonitorConfig monitorConfig = new DefaultMonitorConfig();
+        configurationLoader.load(monitorConfig);
+        logger.info("{}", monitorConfig);
+        bind(MonitorConfig.class).toInstance(monitorConfig);
+
 
         bind(TransportModule.class).toInstance(profilerConfig.getTransportModule());
 

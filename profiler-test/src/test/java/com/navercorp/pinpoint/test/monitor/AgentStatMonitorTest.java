@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.test.monitor;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DefaultAgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
@@ -76,7 +76,7 @@ public class AgentStatMonitorTest {
 
 //        profilerConfig.getProfileJvmStatCollectIntervalMs(), profilerConfig.getProfileJvmStatBatchSendCount()
 
-        ProfilerConfig mockProfilerConfig = Mockito.mock(ProfilerConfig.class);
+        MonitorConfig mockProfilerConfig = Mockito.mock(MonitorConfig.class);
         Mockito.when(mockProfilerConfig.getProfileJvmStatCollectIntervalMs()).thenReturn((int) collectionIntervalMs);
         Mockito.when(mockProfilerConfig.getProfileJvmStatBatchSendCount()).thenReturn(numCollectionsPerBatch);
 

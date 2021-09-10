@@ -45,31 +45,15 @@ public interface ProfilerConfig {
 
     int getMaxSqlBindValueSize();
 
-
-    int getProfileJvmStatCollectIntervalMs();
-
-    int getProfileJvmStatBatchSendCount();
-
-    boolean isProfilerJvmStatCollectDetailedMetrics();
-
     @InterfaceAudience.Private
     @VisibleForTesting
     boolean getStaticResourceCleanup();
-
 
     HttpStatusCodeErrors getHttpStatusCodeErrors();
 
     String getInjectionModuleFactoryClazzName();
 
     String getApplicationNamespace();
-
-    boolean isCustomMetricEnable();
-
-    int getCustomMetricLimitSize();
-
-    boolean isUriStatEnable();
-
-    int getCompletedUriStatDataLimitSize();
 
     String readString(String propertyName, String defaultValue);
 

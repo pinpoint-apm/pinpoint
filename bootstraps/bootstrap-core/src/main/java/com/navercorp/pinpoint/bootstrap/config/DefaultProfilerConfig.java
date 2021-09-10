@@ -52,9 +52,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private static final TransportModule DEFAULT_TRANSPORT_MODULE = TransportModule.THRIFT;
 
-    public static final int DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS = 5 * 1000;
-    public static final int DEFAULT_NUM_AGENT_STAT_BATCH_SEND = 6;
-
     public static ProfilerConfig load(String pinpointConfigFileName) throws IOException {
         final Properties properties = loadProperties(pinpointConfigFileName);
         return new DefaultProfilerConfig(properties);
@@ -98,14 +95,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private int maxSqlBindValueSize = 1024;
 
 
-    @Value("${profiler.jvm.stat.collect.interval}")
-    private int profileJvmStatCollectIntervalMs = DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;
-    @Value("${profiler.jvm.stat.batch.send.count}")
-    private int profileJvmStatBatchSendCount = DEFAULT_NUM_AGENT_STAT_BATCH_SEND;
-    @Value("${profiler.jvm.stat.collect.detailed.metrics}")
-    private boolean profilerJvmStatCollectDetailedMetrics = false;
-
-
     private HttpStatusCodeErrors httpStatusCodeErrors = new HttpStatusCodeErrors();
 
     @Value("${profiler.guice.module.factory}")
@@ -113,15 +102,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Value("${profiler.application.namespace}")
     private String applicationNamespace = "";
 
-    @Value("${profiler.custommetric.enable}")
-    private boolean customMetricEnable = false;
-    @Value("${profiler.custommetric.limit.size}")
-    private int customMetricLimitSize = 10;
-
-    @Value("${profiler.uri.stat.enable}")
-    private boolean uriStatEnable = false;
-    @Value("${profiler.uri.stat.completed.data.limit.size}")
-    private int completedUriStatDataLimitSize = 3;
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
@@ -175,22 +155,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
 
-
-    @Override
-    public int getProfileJvmStatCollectIntervalMs() {
-        return profileJvmStatCollectIntervalMs;
-    }
-
-    @Override
-    public int getProfileJvmStatBatchSendCount() {
-        return profileJvmStatBatchSendCount;
-    }
-
-    @Override
-    public boolean isProfilerJvmStatCollectDetailedMetrics() {
-        return profilerJvmStatCollectDetailedMetrics;
-    }
-
     @Override
     public boolean getStaticResourceCleanup() {
         return staticResourceCleanup;
@@ -217,25 +181,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return applicationNamespace;
     }
 
-    @Override
-    public boolean isCustomMetricEnable() {
-        return customMetricEnable;
-    }
-
-    @Override
-    public int getCustomMetricLimitSize() {
-        return customMetricLimitSize;
-    }
-
-    @Override
-    public boolean isUriStatEnable() {
-        return uriStatEnable;
-    }
-
-    @Override
-    public int getCompletedUriStatDataLimitSize() {
-        return completedUriStatDataLimitSize;
-    }
 
     @Override
     public int getLogDirMaxBackupSize() {
@@ -356,16 +301,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", jdbcSqlCacheSize=").append(jdbcSqlCacheSize);
         sb.append(", traceSqlBindValue=").append(traceSqlBindValue);
         sb.append(", maxSqlBindValueSize=").append(maxSqlBindValueSize);
-        sb.append(", profileJvmStatCollectIntervalMs=").append(profileJvmStatCollectIntervalMs);
-        sb.append(", profileJvmStatBatchSendCount=").append(profileJvmStatBatchSendCount);
-        sb.append(", profilerJvmStatCollectDetailedMetrics=").append(profilerJvmStatCollectDetailedMetrics);
         sb.append(", httpStatusCodeErrors=").append(httpStatusCodeErrors);
         sb.append(", injectionModuleFactoryClazzName='").append(injectionModuleFactoryClazzName).append('\'');
         sb.append(", applicationNamespace='").append(applicationNamespace).append('\'');
-        sb.append(", customMetricEnable=").append(customMetricEnable).append('\'');
-        sb.append(", customMetricLimitSize=").append(customMetricLimitSize).append('\'');
-        sb.append(", uriStatEnable=").append(uriStatEnable).append('\'');
-        sb.append(", getCompletedUriStatDataLimitSize=").append(completedUriStatDataLimitSize);
         sb.append('}');
         return sb.toString();
     }
