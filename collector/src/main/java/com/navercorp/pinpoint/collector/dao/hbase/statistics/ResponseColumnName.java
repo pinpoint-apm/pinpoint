@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
-import com.navercorp.pinpoint.common.profiler.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 
 import java.util.Objects;
 

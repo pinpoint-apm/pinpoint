@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2021 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.profiler.util;
+package com.navercorp.pinpoint.common.server.util;
 
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.junit.Assert;
