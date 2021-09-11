@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.common.profiler.util;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import org.junit.Assert;
 
 import org.junit.Test;
