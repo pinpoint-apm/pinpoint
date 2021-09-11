@@ -310,7 +310,7 @@ public class FixedBufferTest {
 
         byte[] length = intToByteArray(value.length());
         byte[] string = value.getBytes();
-        byte[] result = BytesUtils.merge(length, string);
+        byte[] result = BytesUtils.concat(length, string);
 
 
         Buffer buffer = new FixedBuffer(result);

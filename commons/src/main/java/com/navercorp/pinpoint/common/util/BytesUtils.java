@@ -46,11 +46,11 @@ public final class BytesUtils {
             throw new NullPointerException("string");
         }
         if (maxStringSize < 0) {
-            throw new IndexOutOfBoundsException("maxStringSize");
+            throw new StringIndexOutOfBoundsException(maxStringSize);
         }
         final byte[] stringBytes = toBytes(string);
         if (stringBytes.length > maxStringSize) {
-            throw new IndexOutOfBoundsException("string is max " + stringBytes.length + ", string='" + string + "'");
+            throw new StringIndexOutOfBoundsException("string is max " + stringBytes.length + ", string='" + string + "'");
         }
         final byte[] buffer = new byte[LONG_LONG_BYTE_LENGTH + maxStringSize];
         writeBytes(buffer, 0, stringBytes);
@@ -71,13 +71,13 @@ public final class BytesUtils {
             throw new NullPointerException("buffer");
         }
         if (srcBytes == null) {
-            throw new NullPointerException("stringBytes");
+            throw new NullPointerException("srcBytes");
         }
         if (bufferOffset < 0) {
-            throw new IndexOutOfBoundsException("negative bufferOffset:" + bufferOffset);
+            throw new ArrayIndexOutOfBoundsException(bufferOffset);
         }
         if (srcOffset < 0) {
-            throw new IndexOutOfBoundsException("negative srcOffset offset:" + srcOffset);
+            throw new ArrayIndexOutOfBoundsException(srcOffset);
         }
         System.arraycopy(srcBytes, srcOffset, buffer, bufferOffset, srcLength);
         return bufferOffset + srcLength;
@@ -87,12 +87,7 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf");
         }
-        if (offset < 0) {
-            throw new IndexOutOfBoundsException("negative offset:" + offset);
-        }
-        if (buf.length < offset + LONG_BYTE_LENGTH) {
-            throw new IndexOutOfBoundsException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 8));
-        }
+        checkBounds(buf, offset, LONG_BYTE_LENGTH);
 
         final long rv = (((long) buf[offset] & 0xff) << 56)
                 | (((long) buf[offset + 1] & 0xff) << 48)
@@ -109,12 +104,7 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf");
         }
-        if (offset < 0) {
-            throw new IndexOutOfBoundsException("negative offset:" + offset);
-        }
-        if (buf.length < offset + INT_BYTE_LENGTH) {
-            throw new IndexOutOfBoundsException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 4));
-        }
+        checkBounds(buf, offset, INT_BYTE_LENGTH);
 
         final int v = ((buf[offset] & 0xff) << 24)
                 | ((buf[offset + 1] & 0xff) << 16)
@@ -128,12 +118,7 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf");
         }
-        if (offset < 0) {
-            throw new IndexOutOfBoundsException("negative offset:" + offset);
-        }
-        if (buf.length < offset + SHORT_BYTE_LENGTH) {
-            throw new IndexOutOfBoundsException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 2));
-        }
+        checkBounds(buf, offset, SHORT_BYTE_LENGTH);
 
         final short v = (short) (((buf[offset] & 0xff) << 8) | ((buf[offset + 1] & 0xff)));
 
@@ -149,7 +134,7 @@ public final class BytesUtils {
         if (buffer == null) {
             throw new NullPointerException("buffer");
         }
-        checkBound(buffer.length, offset);
+        checkBounds(buffer, offset);
 
         // borrowing the protocol buffer's concept of variable-length encoding
         // copy https://github.com/google/protobuf 2.6.1
@@ -201,7 +186,7 @@ public final class BytesUtils {
         if (buffer == null) {
             throw new NullPointerException("buffer");
         }
-        checkBound(buffer.length, offset);
+        checkBounds(buffer, offset);
         // borrowing the protocol buffer's concept of variable-length encoding
         // copy https://github.com/google/protobuf 2.6.1
         // CodedInputStream.java -> int readRawVarint32()
@@ -272,7 +257,7 @@ public final class BytesUtils {
                 return result;
             }
         }
-        throw new IllegalArgumentException("invalid varLong. start offset:" +  offset + " readOffset:" + offset);
+        throw new ArrayIndexOutOfBoundsException("invalid varLong. start offset:" +  offset + " readOffset:" + offset);
     }
 
     public static short bytesToShort(final byte byte1, final byte byte2) {
@@ -284,12 +269,8 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf");
         }
-        if (offset < 0) {
-            throw new IndexOutOfBoundsException("negative offset:" + offset);
-        }
-        if (buf.length < offset + LONG_BYTE_LENGTH) {
-            throw new IndexOutOfBoundsException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 8));
-        }
+        checkBounds(buf, offset, LONG_BYTE_LENGTH);
+
         buf[offset++] = (byte) (value >> 56);
         buf[offset++] = (byte) (value >> 48);
         buf[offset++] = (byte) (value >> 40);
@@ -306,12 +287,8 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf");
         }
-        if (offset < 0) {
-            throw new IndexOutOfBoundsException("negative offset:" + offset);
-        }
-        if (buf.length < offset + SHORT_BYTE_LENGTH) {
-            throw new IndexOutOfBoundsException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 2));
-        }
+        checkBounds(buf, offset, SHORT_BYTE_LENGTH);
+
         buf[offset++] = (byte) (value >> 8);
         buf[offset++] = (byte) (value);
         return offset;
@@ -321,12 +298,8 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf");
         }
-        if (offset < 0) {
-            throw new IndexOutOfBoundsException("negative offset:" + offset);
-        }
-        if (buf.length < offset + INT_BYTE_LENGTH) {
-            throw new IndexOutOfBoundsException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 4));
-        }
+        checkBounds(buf, offset, INT_BYTE_LENGTH);
+
         buf[offset++] = (byte) (value >> 24);
         buf[offset++] = (byte) (value >> 16);
         buf[offset++] = (byte) (value >> 8);
@@ -342,7 +315,7 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf");
         }
-        checkBound(buf.length, offset);
+        checkBounds(buf, offset);
         while (true) {
             if ((value & ~0x7F) == 0) {
                 buf[offset++] = (byte)value;
@@ -394,7 +367,7 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf");
         }
-        checkBound(buf.length, offset);
+        checkBounds(buf, offset);
 
         while (true) {
             if ((value & ~0x7FL) == 0) {
@@ -407,12 +380,19 @@ public final class BytesUtils {
         }
     }
 
-    static void checkBound(final int bufferLength, final int offset) {
-        if (offset < 0) {
-            throw new IndexOutOfBoundsException("negative offset:" + offset);
+    static void checkBounds(byte[] bytes, final int offset) {
+        checkBounds(bytes, offset, bytes.length - offset);
+    }
+
+    static void checkBounds(byte[] bytes, int offset, int length) {
+        if (length < 0) {
+            throw new ArrayIndexOutOfBoundsException(length);
         }
-        if (offset >= bufferLength) {
-            throw new IndexOutOfBoundsException("invalid offset:" + offset + " bufferLength:" + bufferLength);
+        if (offset < 0) {
+            throw new ArrayIndexOutOfBoundsException(offset);
+        }
+        if (offset > bytes.length - length) {
+            throw new ArrayIndexOutOfBoundsException(offset + length);
         }
     }
 
@@ -452,45 +432,48 @@ public final class BytesUtils {
         return add(agentByte, postfix);
     }
 
-    public static byte[] add(final byte[] preFix, final long postfix) {
-        byte[] buf = new byte[preFix.length + LONG_BYTE_LENGTH];
-        System.arraycopy(preFix, 0, buf, 0, preFix.length);
-        writeLong(postfix, buf, preFix.length);
+    public static byte[] add(final byte[] prefix, final long postfix) {
+        if (prefix == null) {
+            throw new NullPointerException("prefix");
+        }
+        byte[] buf = new byte[prefix.length + LONG_BYTE_LENGTH];
+        System.arraycopy(prefix, 0, buf, 0, prefix.length);
+        writeLong(postfix, buf, prefix.length);
         return buf;
     }
 
-    public static byte[] add(final byte[] preFix, final short postfix) {
-        if (preFix == null) {
-            throw new NullPointerException("preFix");
+    public static byte[] add(final byte[] prefix, final short postfix) {
+        if (prefix == null) {
+            throw new NullPointerException("prefix");
         }
-        byte[] buf = new byte[preFix.length + SHORT_BYTE_LENGTH];
-        System.arraycopy(preFix, 0, buf, 0, preFix.length);
-        writeShort(postfix, buf, preFix.length);
+        byte[] buf = new byte[prefix.length + SHORT_BYTE_LENGTH];
+        System.arraycopy(prefix, 0, buf, 0, prefix.length);
+        writeShort(postfix, buf, prefix.length);
         return buf;
     }
     
-    public static byte[] add(final byte[] preFix, final int postfix) {
-        if (preFix == null) {
-            throw new NullPointerException("preFix");
+    public static byte[] add(final byte[] prefix, final int postfix) {
+        if (prefix == null) {
+            throw new NullPointerException("prefix");
         }
-        byte[] buf = new byte[preFix.length + INT_BYTE_LENGTH];
-        System.arraycopy(preFix, 0, buf, 0, preFix.length);
-        writeInt(postfix, buf, preFix.length);
+        byte[] buf = new byte[prefix.length + INT_BYTE_LENGTH];
+        System.arraycopy(prefix, 0, buf, 0, prefix.length);
+        writeInt(postfix, buf, prefix.length);
         return buf;
     }
 
-    public static byte[] add(final int preFix, final short postFix) {
+    public static byte[] add(final int prefix, final short postFix) {
         byte[] buf = new byte[INT_BYTE_LENGTH + SHORT_BYTE_LENGTH];
-        writeInt(preFix, buf, 0);
-        writeShort(postFix, buf, 4);
+        writeInt(prefix, buf, 0);
+        writeShort(postFix, buf, INT_BYTE_LENGTH);
         return buf;
     }
 
 
-    public static byte[] add(final long preFix, final short postFix) {
+    public static byte[] add(final long prefix, final short postFix) {
         byte[] buf = new byte[LONG_BYTE_LENGTH + SHORT_BYTE_LENGTH];
-        writeLong(preFix, buf, 0);
-        writeShort(postFix, buf, 8);
+        writeLong(prefix, buf, 0);
+        writeShort(postFix, buf, LONG_BYTE_LENGTH);
         return buf;
     }
 
@@ -506,24 +489,9 @@ public final class BytesUtils {
         }
     }
 
-    public static byte[] merge(final byte[] b1, final byte[] b2) {
-        if (b1 == null) {
-            throw new NullPointerException("b1");
-        }
-        if (b2 == null) {
-            throw new NullPointerException("b2");
-        }
-        final byte[] result = new byte[b1.length + b2.length];
-
-        System.arraycopy(b1, 0, result, 0, b1.length);
-        System.arraycopy(b2, 0, result, b1.length, b2.length);
-
-        return result;
-    }
-
     public static byte[] toFixedLengthBytes(final String str, final int length) {
         if (length < 0) {
-            throw new IndexOutOfBoundsException("negative length:" + length);
+            throw new ArrayIndexOutOfBoundsException(length);
         }
         final byte[] b1 = toBytes(str);
         if (b1 == null) {
@@ -531,7 +499,7 @@ public final class BytesUtils {
         }
 
         if (b1.length > length) {
-            throw new IndexOutOfBoundsException("String is longer then target length of bytes.");
+            throw new StringIndexOutOfBoundsException("String is longer then target length of bytes.");
         }
         byte[] b = new byte[length];
         System.arraycopy(b1, 0, b, 0, b1.length);
@@ -558,20 +526,37 @@ public final class BytesUtils {
     }
 
     public static byte[] concat(final byte[]... arrays) {
+        if (arrays == null) {
+            throw new NullPointerException("arrays");
+        }
         int totalLength = 0;
-
-        final int length = arrays.length;
-        for (int i = 0; i < length; i++) {
-            totalLength += arrays[i].length;
+        for (byte[] array : arrays) {
+            totalLength += array.length;
         }
 
         byte[] result = new byte[totalLength];
 
         int currentIndex = 0;
-        for (int i = 0; i < length; i++) {
-            System.arraycopy(arrays[i], 0, result, currentIndex, arrays[i].length);
-            currentIndex += arrays[i].length;
+        for (byte[] array : arrays) {
+            System.arraycopy(array, 0, result, currentIndex, array.length);
+            currentIndex += array.length;
         }
+
+        return result;
+    }
+
+
+    public static byte[] concat(final byte[] b1, final byte[] b2) {
+        if (b1 == null) {
+            throw new NullPointerException("b1");
+        }
+        if (b2 == null) {
+            throw new NullPointerException("b2");
+        }
+        final byte[] result = new byte[b1.length + b2.length];
+
+        System.arraycopy(b1, 0, result, 0, b1.length);
+        System.arraycopy(b2, 0, result, b1.length, b2.length);
 
         return result;
     }
@@ -590,13 +575,11 @@ public final class BytesUtils {
         return toString(bytes, 0, bytes.length);
     }
 
-    public static String toString(final byte [] bytes, final int offset, final int length) {
+    public static String toString(final byte[] bytes, final int offset, final int length) {
         if (bytes == null) {
             return null;
         }
-        if (offset < 0) {
-            throw new IndexOutOfBoundsException("negative offset:" + offset);
-        }
+        checkBounds(bytes, offset, length);
         if (length == 0) {
             return "";
         }
@@ -608,11 +591,27 @@ public final class BytesUtils {
     }
 
     public static String toStringAndRightTrim(final byte[] bytes, final int offset, final int length) {
-        String string = toString(bytes, offset, length);
-        return trimRight(string);
+        final int rTrimIndex = rightTrimIndex(bytes, offset, length);
+        if (rTrimIndex == -1) {
+            return null;
+        }
+        return toString(bytes, offset, rTrimIndex - offset);
     }
 
-    public static String trimRight(final String string) {
+    static int rightTrimIndex(final byte[] string, final int offset, final int length) {
+        if (string == null) {
+            return -1;
+        }
+        checkBounds(string, offset, length);
+
+        int index = offset + length - 1;
+        while (index >= offset && string[index] <= ' ') {
+            index--;
+        }
+        return index + 1;
+    }
+
+    public static String rightTrim(final String string) {
         if (string == null) {
             return null;
         }
@@ -620,15 +619,12 @@ public final class BytesUtils {
             return "";
         }
         final int length = string.length();
-        int index = length;
-
-        // need to use Character.isWhitespace()? may not needed.
-        while (string.charAt(index - 1) <= ' ') {
+        int index = length - 1;
+        while (index >= 0 && string.charAt(index) <= ' ') {
             index--;
-            if (index <= 0) {
-                break;
-            }
         }
+        index++;
+
         if (index == length) {
             return string;
         } else {

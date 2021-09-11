@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.util;
 import static org.junit.Assert.*;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
@@ -60,13 +61,13 @@ public class BytesUtilsTest {
 
     @Test
     public void testRightTrim() {
-        String trim = BytesUtils.trimRight("test  ");
+        String trim = BytesUtils.rightTrim("test  ");
         Assert.assertEquals("test", trim);
 
-        String trim1 = BytesUtils.trimRight("test");
+        String trim1 = BytesUtils.rightTrim("test");
         Assert.assertEquals("test", trim1);
 
-        String trim2 = BytesUtils.trimRight("  test");
+        String trim2 = BytesUtils.rightTrim("  test");
         Assert.assertEquals("  test", trim2);
 
     }
@@ -128,11 +129,11 @@ public class BytesUtilsTest {
     }
 
     @Test
-    public void testMerge() {
+    public void testConcat() {
         byte[] b1 = new byte[] { 1, 2 };
         byte[] b2 = new byte[] { 3, 4 };
 
-        byte[] b3 = BytesUtils.merge(b1, b2);
+        byte[] b3 = BytesUtils.concat(b1, b2);
 
         Assert.assertArrayEquals(new byte[] { 1, 2, 3, 4 }, b3);
     }
@@ -250,49 +251,80 @@ public class BytesUtilsTest {
     }
 
     @Test
-    public void testTrimRight() {
+    public void testRightTrim2() {
         // no space
-        String testStr = "Shout-out! EE!";
-        Assert.assertEquals("Shout-out! EE!", BytesUtils.trimRight(testStr));
+        String testStr = "0123456789 abc";
+        Assert.assertEquals("0123456789 abc", BytesUtils.rightTrim(testStr));
         // right spaced
-        testStr = "Shout-out! YeeYee!       ";
-        Assert.assertEquals("Shout-out! YeeYee!", BytesUtils.trimRight(testStr));
+        testStr = "0123456789 abcabc!       ";
+        Assert.assertEquals("0123456789 abcabc!", BytesUtils.rightTrim(testStr));
     }
 
     @Test
-    public void testByteTrimRight() {
+    public void testByteRightTrim1() {
+        byte[] bytes = writeBytes(3, "123", 0, 3);
+        Assert.assertEquals("123", BytesUtils.toStringAndRightTrim(bytes, 0, 3));
+
+        byte[] testByte2 = writeBytes(10, "123", 0, 3);
+        Assert.assertEquals("123", BytesUtils.toStringAndRightTrim(testByte2, 0, 10));
+
+        byte[] testByte3 = writeBytes(10, "", 0, 3);
+        Assert.assertEquals("", BytesUtils.toStringAndRightTrim(testByte3, 0, 10));
+    }
+
+    private byte[] writeBytes(int bufferSize, String s, int offset, int length) {
+        byte[] buffer = new byte[bufferSize];
+        byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
+        System.arraycopy(bytes, offset, buffer, offset, Math.min(bytes.length, length));
+        return buffer;
+    }
+
+    @Test
+    public void testByteRightTrim2() {
         // no space
-        String testStr = "Shout-out! EE!";
-        byte[] testByte1 = new byte[testStr.length()];
-        for (int i = 0; i < testByte1.length; i++) {
-            testByte1[i] = (byte) testStr.charAt(i);
-        }
-        Assert.assertEquals("out-out!", BytesUtils.toStringAndRightTrim(testByte1, 2, 9));
+        byte[] testByte1 = "0123456789 abc".getBytes(StandardCharsets.UTF_8);
+        Assert.assertEquals("23456789", BytesUtils.toStringAndRightTrim(testByte1, 2, 9));
         // right spaced
-        testStr = "Shout-out! YeeYee!       ";
-        byte[] testByte2 = new byte[testStr.length()];
-        for (int i = 0; i < testByte2.length; i++) {
-            testByte2[i] = (byte) testStr.charAt(i);
-        }
-        Assert.assertEquals(" YeeYee!", BytesUtils.toStringAndRightTrim(testByte2, 10, 10));
+        byte[] testByte2 = "0123456789 abcabc!       ".getBytes(StandardCharsets.UTF_8);
+        Assert.assertEquals(" abcabc!", BytesUtils.toStringAndRightTrim(testByte2, 10, 10));
+    }
+
+    @Test
+    public void testRightTrimIndex1() {
+        String testStr = "0123  ";
+        byte[] testBytes = testStr.getBytes(StandardCharsets.UTF_8);
+        Assert.assertEquals(testStr.trim().length(), BytesUtils.rightTrimIndex(testBytes, 0, testBytes.length));
+    }
+
+    @Test
+    public void testRightTrimIndex2() {
+        String testStr = "0123  ";
+        byte[] testBytes = testStr.getBytes(StandardCharsets.UTF_8);
+        Assert.assertEquals(testStr.trim().length(), BytesUtils.rightTrimIndex(testBytes, 1, testBytes.length - 1));
+    }
+
+    @Test
+    public void testRightTrimIndex3() {
+        byte[] testBytes = new byte[0];
+        Assert.assertEquals(0, BytesUtils.rightTrimIndex(testBytes, 0, testBytes.length));
     }
 
     @Test
     public void toStringAndRightTrim_empty() {
-        assertEquals(BytesUtils.trimRight(""), "");
-        assertEquals(BytesUtils.trimRight(" "), "");
-        assertEquals(BytesUtils.trimRight("  "), "");
-        assertEquals(BytesUtils.trimRight("     "), "");
+        assertEquals(BytesUtils.rightTrim(""), "");
+        assertEquals(BytesUtils.rightTrim(" "), "");
+        assertEquals(BytesUtils.rightTrim("  "), "");
+        assertEquals(BytesUtils.rightTrim("     "), "");
     }
 
     @Test
     public void toStringAndRightTrim() {
-        assertEquals(BytesUtils.trimRight("1"), "1");
-        assertEquals(BytesUtils.trimRight("2 "), "2");
-        assertEquals(BytesUtils.trimRight("3  "), "3");
-        assertEquals(BytesUtils.trimRight("4     "), "4");
+        assertEquals(BytesUtils.rightTrim("1"), "1");
+        assertEquals(BytesUtils.rightTrim("2 "), "2");
+        assertEquals(BytesUtils.rightTrim("3  "), "3");
+        assertEquals(BytesUtils.rightTrim("4     "), "4");
 
-        assertEquals(BytesUtils.trimRight("5 1 "), "5 1");
+        assertEquals(BytesUtils.rightTrim("5 1 "), "5 1");
     }
 
     /**
@@ -466,24 +498,30 @@ public class BytesUtilsTest {
 
     @Test
     public void testCheckBound() {
-        final int bufferSize = 10;
-        BytesUtils.checkBound(bufferSize, 0);
-        BytesUtils.checkBound(bufferSize, 2);
-        BytesUtils.checkBound(bufferSize, bufferSize - 1);
+        final byte[] buffer = new byte[10];
+        BytesUtils.checkBounds(buffer, 0, buffer.length);
+        BytesUtils.checkBounds(buffer, 2, buffer.length - 2);
+        BytesUtils.checkBounds(buffer, 0, buffer.length - 1);
     }
 
     @Test
     public void testCheckBound_fail() {
-        final int bufferSize = 10;
+        final byte[] buffer = new byte[10];
 
         try {
-            BytesUtils.checkBound(bufferSize, bufferSize);
+            BytesUtils.checkBounds(buffer, buffer.length, buffer.length);
             Assert.fail("bound check fail");
         } catch (Exception ignore) {
         }
 
         try {
-            BytesUtils.checkBound(bufferSize, -1);
+            BytesUtils.checkBounds(buffer, 2, buffer.length);
+            Assert.fail("bound check fail");
+        } catch (Exception ignore) {
+        }
+
+        try {
+            BytesUtils.checkBounds(buffer, -1, buffer.length);
             Assert.fail("bound check fail");
         } catch (Exception ignore) {
         }
