@@ -60,6 +60,7 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
     private final String agentJar;
     private final String profile;
     private final String configFile;
+    private final String logLocationConfig;
     private final String[] jvmArguments;
     private final int[] jvmVersions;
     private final boolean debug;
@@ -75,6 +76,9 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
 
         PinpointConfig config = testClass.getAnnotation(PinpointConfig.class);
         this.configFile = config == null ? null : resolveConfigFileLocation(config.value());
+
+        PinpointLogLocationConfig logLocationConfig = testClass.getAnnotation(PinpointLogLocationConfig.class);
+        this.logLocationConfig = logLocationConfig == null ? null : resolveConfigFileLocation(logLocationConfig.value());
 
         PinpointProfile profile = testClass.getAnnotation(PinpointProfile.class);
         this.profile = resolveProfile(profile);
@@ -360,7 +364,7 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
                 }
 
                 PluginTestContext context = new PluginTestContext(agentJar, profile,
-                        configFile, requiredLibraries, mavenDependencyLibraries, repositoryUrls,
+                        configFile, logLocationConfig, requiredLibraries, mavenDependencyLibraries, repositoryUrls,
                         getTestClass().getJavaClass(), testClassLocation,
                         jvmArguments, debug, ver, javaExe, importPluginIds);
 
