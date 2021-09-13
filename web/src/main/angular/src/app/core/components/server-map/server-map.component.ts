@@ -21,6 +21,7 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
     @Input() funcServerMapImagePath: Function;
     @Input() type: ServerMapType;
     @Input() shouldRefresh = true;
+    @Input() enableServerMapRealTime: boolean;
     @Output() outClickNode = new EventEmitter<any>();
     @Output() outContextClickNode = new EventEmitter<string>();
     @Output() outClickLink = new EventEmitter<any>();
@@ -45,7 +46,7 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
         if (mapDataChange && mapDataChange.currentValue) {
             this.hasDataUpdated = true;
             if (this.serverMapDiagram) {
-                if (this.shouldRefresh) {
+                if (this.enableServerMapRealTime) {
                     this.serverMapDiagram.setMapData(this.mapData, this.baseApplicationKey, this.shouldRefresh);
                 }
                 this.hasRenderData = false;
