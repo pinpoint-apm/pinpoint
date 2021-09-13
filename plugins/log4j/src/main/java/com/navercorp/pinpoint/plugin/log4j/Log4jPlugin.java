@@ -15,10 +15,11 @@
  */
 package com.navercorp.pinpoint.plugin.log4j;
 
-import java.security.ProtectionDomain;
-import java.util.Arrays;
-
-import com.navercorp.pinpoint.bootstrap.instrument.*;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -29,6 +30,10 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 import com.navercorp.pinpoint.plugin.log4j.interceptor.LoggingEventOfLog4jInterceptor;
+import com.navercorp.pinpoint.plugin.log4j.interceptor.PatternLayoutInterceptor;
+
+import java.security.ProtectionDomain;
+import java.util.Arrays;
 
 /**
  * This modifier support log4j 1.2.15 version, or greater.
@@ -53,6 +58,10 @@ public class Log4jPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
         transformTemplate.transform("org.apache.log4j.spi.LoggingEvent", LoggingEventTransform.class);
+
+        if (config.isPatternReplaceEnable()) {
+            transformTemplate.transform("org.apache.log4j.PatternLayout", LoggingPatternTransform.class);
+        }
     }
 
     public static class LoggingEventTransform implements TransformCallback {
@@ -110,6 +119,27 @@ public class Log4jPlugin implements ProfilerPlugin, TransformTemplateAware {
                 throw new NotFoundInstrumentException("Cannot find constructor with parameter types: " + Arrays.toString(parameterTypes));
             }
             constructor.addInterceptor(interceptorClassName);
+        }
+    }
+
+    public static class LoggingPatternTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            final InstrumentMethod constructor = target.getConstructor("java.lang.String");
+            boolean transformed = false;
+            if (constructor != null) {
+                transformed = true;
+                constructor.addScopedInterceptor(PatternLayoutInterceptor.class, "ModifyPattern");
+            }
+            InstrumentMethod setPattern = target.getDeclaredMethod("setConversionPattern", "java.lang.String");
+            if (setPattern != null) {
+                transformed = true;
+                setPattern.addScopedInterceptor(PatternLayoutInterceptor.class, "ModifyPattern");
+            }
+            return transformed ? target.toBytecode() : null;
         }
     }
 

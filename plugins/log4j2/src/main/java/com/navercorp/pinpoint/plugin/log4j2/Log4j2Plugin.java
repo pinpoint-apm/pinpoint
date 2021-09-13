@@ -30,11 +30,13 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.plugin.log4j2.interceptor.LogEventFactoryInterceptor;
+import com.navercorp.pinpoint.plugin.log4j2.interceptor.PatternLayoutInterceptor;
 
 import java.security.ProtectionDomain;
 
 /**
  * @author https://github.com/licoco/pinpoint
+ * @author yjqg6666
  */
 public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
 
@@ -60,6 +62,10 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
 
         //for case : Making All Loggers Asynchronous
         transformTemplate.transform("org.apache.logging.log4j.core.async.RingBufferLogEventTranslator", RingBufferLogEventTranslatorTransform.class);
+
+        if (config.isPatternReplaceEnable()) {
+            transformTemplate.transform("org.apache.logging.log4j.core.layout.PatternLayout$SerializerBuilder", LoggingPatternTransform.class);
+        }
 
     }
 
@@ -155,6 +161,20 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
             }
 
             return true;
+        }
+    }
+
+    public static class LoggingPatternTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            InstrumentMethod setPattern = target.getDeclaredMethod("setPattern", "java.lang.String");
+            if (setPattern == null) {
+                return null;
+            }
+            setPattern.addScopedInterceptor(PatternLayoutInterceptor.class, "ModifyPattern");
+            return target.toBytecode();
         }
     }
 

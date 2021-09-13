@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 import com.navercorp.pinpoint.plugin.logback.interceptor.LoggingEventOfLogbackInterceptor;
+import com.navercorp.pinpoint.plugin.logback.interceptor.PatternLayoutInterceptor;
 
 /**
  * This modifier support slf4j 1.4.1 version and logback 0.9.8 version, or greater.
@@ -38,6 +39,7 @@ import com.navercorp.pinpoint.plugin.logback.interceptor.LoggingEventOfLogbackIn
  * Refer to url http://mvnrepository.com/artifact/org.slf4j/slf4j-api for detail.
  * 
  * @author minwoo.jung
+ * @author yjqg6666
  */
 public class LogbackPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
@@ -55,6 +57,9 @@ public class LogbackPlugin implements ProfilerPlugin, TransformTemplateAware {
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
         
         transformTemplate.transform("ch.qos.logback.classic.spi.LoggingEvent", LoggingEventTransform.class);
+        if (config.isPatternReplaceEnable()) {
+            transformTemplate.transform("ch.qos.logback.core.pattern.PatternLayoutBase", LoggingPatternTransform.class);
+        }
     }
 
     public static class LoggingEventTransform implements TransformCallback {
@@ -103,6 +108,20 @@ public class LogbackPlugin implements ProfilerPlugin, TransformTemplateAware {
                 throw new NotFoundInstrumentException("Cannot find constructor with parameter types: " + Arrays.toString(parameterTypes));
             }
             constructor.addInterceptor(interceptorClassName);
+        }
+    }
+
+    public static class LoggingPatternTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            InstrumentMethod setPattern = target.getDeclaredMethod("setPattern", "java.lang.String");
+            if (setPattern == null) {
+                return null;
+            }
+            setPattern.addScopedInterceptor(PatternLayoutInterceptor.class, "ModifyPattern");
+            return target.toBytecode();
         }
     }
 
