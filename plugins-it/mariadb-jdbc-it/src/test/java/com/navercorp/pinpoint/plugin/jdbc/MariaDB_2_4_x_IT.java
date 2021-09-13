@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.PinpointLogLocationConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.junit.Assert;
 import org.junit.Test;
@@ -53,6 +54,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8) // 2.x+ requires Java 8
+@PinpointLogLocationConfig(".")
 @Dependency({ "org.mariadb.jdbc:mariadb-java-client:[2.4.0,2.max)",
         JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MARIADB})
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-mariadb-jdbc-driver-plugin")
