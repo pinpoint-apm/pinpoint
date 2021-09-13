@@ -14,6 +14,7 @@ export class ConfigurationExperimentalContainerComponent implements OnInit {
 
     enableServerSideScanForScatter: boolean;
     useStatisticsAgentState: boolean;
+    enableServerMapRealTime: boolean;
 
     constructor(
         private translateService: TranslateService,
@@ -32,6 +33,7 @@ export class ConfigurationExperimentalContainerComponent implements OnInit {
     private setOptions(): void {
         this.enableServerSideScanForScatter = this.webAppSettingDataService.getExperimentalOption('scatterScan');
         this.useStatisticsAgentState = this.webAppSettingDataService.getExperimentalOption('statisticsAgentState');
+        this.enableServerMapRealTime = this.webAppSettingDataService.getExperimentalOption('serverMapRealTime');
     }
 
     onChangeOption(optionKey: string): void {
@@ -43,6 +45,10 @@ export class ConfigurationExperimentalContainerComponent implements OnInit {
             case 'statisticsAgentState':
                 this.useStatisticsAgentState = !this.useStatisticsAgentState;
                 this.webAppSettingDataService.setExperimentalOption('statisticsAgentState', this.useStatisticsAgentState);
+                break;
+            case 'serverMapRealTime':
+                this.enableServerMapRealTime = !this.enableServerMapRealTime;
+                this.webAppSettingDataService.setExperimentalOption('serverMapRealTime', this.enableServerMapRealTime);
                 break;
         }
     }

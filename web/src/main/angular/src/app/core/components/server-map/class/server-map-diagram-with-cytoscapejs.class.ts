@@ -1,17 +1,18 @@
 import cytoscape from 'cytoscape';
 import dagre from 'cytoscape-dagre';
 import { from as fromOperator, fromEvent, iif, zip, merge, Observable, forkJoin } from 'rxjs';
-import { mergeMap, map, pluck, switchMap, take, reduce, tap } from 'rxjs/operators';
+import { mergeMap, map, pluck, switchMap, take, reduce, tap, filter } from 'rxjs/operators';
 
 import ServerMapTheme from './server-map-theme';
 import { ServerMapDiagram } from './server-map-diagram.class';
 import { ServerMapData } from './server-map-data.class';
 import { IServerMapOption } from './server-map-factory';
 import { ServerMapTemplate } from './server-map-template';
+import { isEmpty } from 'app/core/utils/util';
 
 export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
     private cy: any;
-    private addedElements: any[] = [];
+    private addedNodes: any[] = [];
     protected computedStyle = getComputedStyle(document.body);
     protected serverMapColor = {
         text: this.computedStyle.getPropertyValue('--text-primary'),
@@ -134,7 +135,7 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
         this.cy.on('layoutstop', () => {
             this.cy.nodes().unlock();
             // Check overlay and adjust the position
-            this.addedElements.forEach((addedNode: any) => {
+            this.addedNodes.forEach((addedNode: any) => {
                 const isOverlaid = this.cy.nodes().toArray().some((node: any) => addedNode.id() !== node.id() && this.areTheyOverlaid(addedNode, node));
 
                 if (!isOverlaid) {
@@ -245,7 +246,14 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                         });
 
                         updatedEdgeList.forEach(({key, totalCount, hasAlert}: {[key: string]: any}) => {
-                            this.cy.getElementById(key).data({label: totalCount.toLocaleString(), hasAlert, alive: true});
+                            const linkData = serverMapData.getLinkData(key);
+                            const responseInfo = this.getResponseInfo(linkData);
+
+                            this.cy.getElementById(key).data({
+                                label: `${totalCount.toLocaleString()}${responseInfo}`,
+                                hasAlert,
+                                alive: true}
+                            );
                         });
                     })
                 )
@@ -275,8 +283,8 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                 map(([nodes, _]: {[key: string]: any}[][]) => {
                     const edges = addedEdgeList.map((edge: {[key: string]: any}) => {
                         const {from, to, key, totalCount, hasAlert, isMerged} = edge;
-                        const originalLinkData = serverMapData.getLinkData(key);
-                        const responseInfo = this.getResponseInfo(originalLinkData);
+                        const linkData = serverMapData.getLinkData(key);
+                        const responseInfo = this.getResponseInfo(linkData);
 
                         return {
                             data: {
@@ -292,31 +300,23 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                     });
 
                     return {nodes, edges};
-                })
+                }),
+                tap((elements: {[key: string]: any}) => {
+                    this.addedNodes = this.cy.add(elements).nodes().toArray();
+                }),
+                filter(() => !isEmpty(this.addedNodes))
             ).subscribe((elements: {[key: string]: any}) => {
                 this.cy.nodes().lock();
-                this.addedElements = this.cy.add(elements).nodes().toArray();
-                this.adjustStyle(elements);
                 this.initLayout();
-                // const filteredElems = this.cy.elements().filter((ele: any) => {
-                //     return ele.isNode() ? !this.movedElement.has(ele.id()) : !ele.connectedNodes().map((node: any) => node.id()).some((id: string) => this.movedElement.has(id));
-                //     // return !this.movedElement.has(ele.id());
-                // });
-
-                // filteredElems.layout({
-                //     name: 'dagre',
-                //     rankDir: 'LR',
-                //     fit: false,
-                //     rankSep: 200,
-                // }).run();
+                this.adjustStyle(elements);
             });
         } else {
             // * Update Entirely
             const edgeList = serverMapData.getLinkList();
             const edges = edgeList.map((link: ILinkInfo) => {
                 const {from, to, key, totalCount, isFiltered, isMerged, hasAlert} = link;
-                const originalLinkData = serverMapData.getLinkData(key);
-                const responseInfo = this.getResponseInfo(originalLinkData);
+                const linkData = serverMapData.getLinkData(key);
+                const responseInfo = this.getResponseInfo(linkData);
 
                 return {
                     data: {
@@ -350,7 +350,7 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
         this.baseApplicationKey = baseApplicationKey;
     }
 
-    getResponseInfo(linkData: ILinkInfo|any): any {
+    private getResponseInfo(linkData: ILinkInfo|any): any {
         if (typeof linkData === 'undefined' || !linkData) {
             return '';
         }
@@ -536,7 +536,6 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
 
         // Use it after clarifying the select event.
         // const selectedElement = this.cy.elements(':selected');
-
         this.setStyle(this.selectedElement, this.selectedElement.isNode() ? 'node' : 'edge');
     }
 

@@ -43,6 +43,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
     isEmpty: boolean;
     interval = 2000;
     shouldRefresh: boolean;
+    enableServerMapRealTime: boolean;
 
     constructor(
         private router: Router,
@@ -62,6 +63,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
+        this.enableServerMapRealTime = this.webAppSettingDataService.getExperimentalOption('serverMapRealTime');
         this.funcServerMapImagePath = this.webAppSettingDataService.getServerMapIconPathMakeFunc();
         this.addPageLoadingHandler();
         this.getI18NText();
