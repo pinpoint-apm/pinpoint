@@ -23,5 +23,11 @@
             <artifactId>slf4j-api</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.2.5</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
