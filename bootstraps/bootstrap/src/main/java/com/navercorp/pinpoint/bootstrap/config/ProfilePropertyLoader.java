@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -116,10 +117,14 @@ class ProfilePropertyLoader implements PropertyLoader {
     }
 
     private void saveLogConfigLocation(String activeProfile, Properties properties) {
-        LogConfigResolver logConfigResolver = new ProfileLogConfigResolver(profilesPath, activeProfile);
-        final String log4jLocation = logConfigResolver.getLogPath();
+        String log4jLocation = properties.getProperty(Profiles.LOG_CONFIG_LOCATION_KEY);
+        if (StringUtils.isEmpty(log4jLocation)) {
+            LogConfigResolver logConfigResolver = new ProfileLogConfigResolver(profilesPath, activeProfile);
+            log4jLocation = logConfigResolver.getLogPath();
 
-        properties.put(Profiles.LOG_CONFIG_LOCATION_KEY, log4jLocation);
+            properties.put(Profiles.LOG_CONFIG_LOCATION_KEY, log4jLocation);
+        }
+
         logger.info(String.format("logConfig path:%s", log4jLocation));
     }
 
