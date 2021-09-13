@@ -25,6 +25,7 @@ public class PluginTestContext {
     private final String agentJar;
     private final String profile;
     private final String configFile;
+    private final String logLocationConfig;
 
     private final List<String> requiredLibraries;
     private final List<String> mavenDependencyLibraries;
@@ -40,7 +41,7 @@ public class PluginTestContext {
 
     private final List<String> importPluginIds;
 
-    public PluginTestContext(String agentJar, String profile, String configFile,
+    public PluginTestContext(String agentJar, String profile, String configFile, String logLocationConfig,
                              List<String> requiredLibraries, List<String> mavenDependencyLibraries, List<String> repositoryUrls,
                              Class<?> testClass, String testClassLocation, String[] jvmArguments,
                              boolean debug, int jvmVersion,
@@ -48,6 +49,7 @@ public class PluginTestContext {
         this.agentJar = agentJar;
         this.profile = profile;
         this.configFile = configFile;
+        this.logLocationConfig = logLocationConfig;
         this.requiredLibraries = requiredLibraries;
         this.mavenDependencyLibraries = mavenDependencyLibraries;
         this.repositoryUrls = repositoryUrls;
@@ -86,6 +88,10 @@ public class PluginTestContext {
         return configFile;
     }
 
+    public String getLogLocationConfig() {
+        return logLocationConfig;
+    }
+
     public String[] getJvmArguments() {
         return jvmArguments;
     }
@@ -116,6 +122,7 @@ public class PluginTestContext {
                 "agentJar='" + agentJar + '\'' +
                 ", profile='" + profile + '\'' +
                 ", configFile='" + configFile + '\'' +
+                ", logLocationConfig='" + logLocationConfig + '\'' +
                 ", requiredLibraries=" + requiredLibraries +
                 ", mavenDependencyLibraries=" + mavenDependencyLibraries +
                 ", repositoryUrls=" + repositoryUrls +

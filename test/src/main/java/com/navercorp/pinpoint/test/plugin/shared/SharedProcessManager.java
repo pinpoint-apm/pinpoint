@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
+import com.navercorp.pinpoint.bootstrap.config.Profiles;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestInstance;
 import com.navercorp.pinpoint.test.plugin.PluginTestConstants;
 import com.navercorp.pinpoint.test.plugin.PluginTestContext;
@@ -185,6 +186,15 @@ public class SharedProcessManager implements ProcessManager {
         if (context.getConfigFile() != null) {
             list.add(format("pinpoint.config", context.getConfigFile()));
             list.add(format("pinpoint.config.load.mode", "simple"));
+        }
+
+        String logLocationConfig = context.getLogLocationConfig();
+        if (logLocationConfig != null) {
+            if (logLocationConfig.endsWith("/")) {
+                list.add(format(Profiles.LOG_CONFIG_LOCATION_KEY, context.getLogLocationConfig()));
+            } else {
+                list.add(format(Profiles.LOG_CONFIG_LOCATION_KEY, context.getLogLocationConfig() + '/'));
+            }
         }
 
         for (String arg : getVmArgs()) {
