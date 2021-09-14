@@ -81,3 +81,11 @@
     background-color: var(--primary);
     font-weight: bold;
 }
+
+.l-experimental-menu-link {
+    font-style: italic;
+}
+
+.l-experimental-menu-link i {
+    font-size: 13px;
+}
