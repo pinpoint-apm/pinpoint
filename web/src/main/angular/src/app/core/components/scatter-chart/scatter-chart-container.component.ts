@@ -172,15 +172,15 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
         );
 
         // visible
-        visibility$.pipe(
-            filter(() => !document.hidden),
-            filter(() => !this.scatterChartDataService.isConnected()),
-            tap(() => this.reset()),
-            delay(1000)
-        ).subscribe(() => {
-            this.getScatterData();
-            this.cd.detectChanges();
-        });
+        // visibility$.pipe(
+        //     filter(() => !document.hidden),
+        //     filter(() => !this.scatterChartDataService.isConnected()),
+        //     tap(() => this.reset()),
+        //     delay(1000)
+        // ).subscribe(() => {
+        //     this.getScatterData();
+        //     this.cd.detectChanges();
+        // });
 
         // hidden
         visibility$.pipe(

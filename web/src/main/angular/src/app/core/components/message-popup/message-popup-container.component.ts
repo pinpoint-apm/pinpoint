@@ -8,7 +8,7 @@ import { DynamicPopup } from 'app/shared/services';
     styleUrls: ['./message-popup-container.component.css'],
 })
 export class MessagePopupContainerComponent implements OnInit, AfterViewInit, DynamicPopup {
-    @Input() data: ITransactionMessage;
+    @Input() data: IMessage;
     @Output() outClose = new EventEmitter<void>();
     @Output() outCreated = new EventEmitter<ICoordinate>();
 

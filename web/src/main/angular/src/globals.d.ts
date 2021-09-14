@@ -346,7 +346,7 @@ interface IServerMapMergeState {
 }
 
 // @store
-interface ITransactionMessage {
+interface IMessage {
     title: string;
     contents: string;
     type: string;
