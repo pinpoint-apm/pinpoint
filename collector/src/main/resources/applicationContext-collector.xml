@@ -27,7 +27,6 @@
     <import resource="classpath:applicationContext-collector-thrift.xml"/>
     <import resource="classpath:applicationContext-collector-hbase.xml"/>
     <import resource="classpath:applicationContext-collector-namespace.xml"/>
-    <import resource="classpath:applicationContext-collector-flink.xml"/>
 
 
     <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry">

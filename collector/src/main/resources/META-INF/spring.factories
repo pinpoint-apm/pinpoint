@@ -1,3 +1,0 @@
-#org.springframework.boot.env.EnvironmentPostProcessor=com.navercorp.pinpoint.collector.env.CollectorEnvironmentPostProcessor
-
-  
