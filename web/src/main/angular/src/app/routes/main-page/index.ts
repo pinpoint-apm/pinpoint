@@ -13,6 +13,7 @@ import { SideBarModule } from 'app/core/components/side-bar';
 import { MainPageComponent } from './main-page.component';
 import { routing } from './main-page.routing';
 import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
+import { MessagePopupModule } from 'app/core/components/message-popup';
 
 @NgModule({
     declarations: [
@@ -29,6 +30,7 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
         MainContentsModule,
         SideBarModule,
         HelpViewerPopupModule,
+        MessagePopupModule,
         RouterModule.forChild(routing)
     ],
     exports: [],

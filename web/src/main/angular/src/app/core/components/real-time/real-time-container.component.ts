@@ -149,12 +149,12 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
         const visibility$ = fromEvent(document, 'visibilitychange').pipe(takeUntil(this.unsubscribe));
 
         // visible
-        visibility$.pipe(
-            filter(() => !document.hidden),
-            filter(() => !this.realTimeWebSocketService.isOpened())
-        ).subscribe(() => {
-            this.onRetry();
-        });
+        // visibility$.pipe(
+        //     filter(() => !document.hidden),
+        //     filter(() => !this.realTimeWebSocketService.isOpened())
+        // ).subscribe(() => {
+        //     this.onRetry();
+        // });
 
         // hidden
         visibility$.pipe(

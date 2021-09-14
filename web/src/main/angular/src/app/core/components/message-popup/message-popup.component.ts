@@ -6,7 +6,7 @@ import { Component, OnInit, Input, Output, EventEmitter, HostBinding } from '@an
     styleUrls: ['./message-popup.component.css']
 })
 export class MessagePopupComponent implements OnInit {
-    @Input() data: ITransactionMessage;
+    @Input() data: IMessage;
     @Output() outClosePopup = new EventEmitter<void>();
     @HostBinding('class.font-opensans') fontFamily = true;
 

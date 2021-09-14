@@ -20,7 +20,8 @@
     },
     "MAIN": {
         "FAVORITE_APP_LIST": "Favorite List",
-        "APP_LIST": "Application List"
+        "APP_LIST": "Application List",
+        "VISIBILITY_HIDDEN": "The page has been deactivated. <br>You may want to refresh to back on it."
     },
     "INSPECTOR": {
         "APPLICATION_INSPECTOR_USAGE_GUIDE_MESSAGE": "[TEXT]:{value=Application Inspector is not enabled.<br> To enable Application Inspector, please refer to}|[LINK]:{href=https://github.com/naver/pinpoint/blob/master/doc/application-inspector.md\\target=blank\\style=color:#428bca\\linkText=this link}",

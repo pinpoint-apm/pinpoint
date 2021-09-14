@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Inject, ComponentFactoryResolver, Injector, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router, NavigationStart, RouterEvent } from '@angular/router';
-import { Subject, of, interval, EMPTY } from 'rxjs';
-import { takeUntil, filter, switchMap, tap, delayWhen, pluck, startWith, catchError } from 'rxjs/operators';
+import { Subject, of, interval, EMPTY, fromEvent } from 'rxjs';
+import { takeUntil, filter, switchMap, tap, delayWhen, pluck, startWith, catchError, delay } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import {
@@ -31,6 +31,7 @@ import { ServerMapRangeHandlerService } from './server-map-range-handler.service
 })
 export class ServerMapContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
+    private visibilityHidden = new Subject<void>();
 
     i18nText: { [key: string]: string } = {
         NO_AGENTS: ''
@@ -67,6 +68,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         this.funcServerMapImagePath = this.webAppSettingDataService.getServerMapIconPathMakeFunc();
         this.addPageLoadingHandler();
         this.getI18NText();
+        this.addEventListener();
 
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DISABLE).subscribe((disable: boolean) => {
             this.useDisable = disable;
@@ -97,6 +99,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
                     const range = [endTime - period.getMiliSeconds(), endTime];
 
                     return this.serverMapRangeHandlerService.onFetchCompleted$.pipe(
+                        takeUntil(this.visibilityHidden),
                         delayWhen(({delay: delayTime}: {delay: number}) => interval(delayTime)),
                         pluck('range'),
                         tap(() => this.shouldRefresh = false),
@@ -178,6 +181,18 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             this.showLoading = true;
             this.useDisable = true;
             this.cd.detectChanges();
+        });
+    }
+
+    private addEventListener(): void {
+        fromEvent(document, 'visibilitychange').pipe(
+            takeUntil(this.unsubscribe),
+            filter(() => document.hidden),
+            filter(() => this.newUrlStateNotificationService.isRealTimeMode()),
+            delay(10000),
+            filter(() => document.hidden),
+        ).subscribe(() => {
+            this.visibilityHidden.next();
         });
     }
 
