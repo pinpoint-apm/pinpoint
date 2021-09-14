@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.collector;
 
-import com.navercorp.pinpoint.collector.config.FlinkConfiguration;
+import com.navercorp.pinpoint.collector.config.FlinkContextConfiguration;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -12,7 +12,7 @@ import org.springframework.context.annotation.ImportResource;
 @SpringBootConfiguration
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, TransactionAutoConfiguration.class})
 @ImportResource({"classpath:applicationContext-collector.xml", "classpath:servlet-context-collector.xml"})
-@Import({CollectorAppPropertySources.class, FlinkConfiguration.class})
+@Import({CollectorAppPropertySources.class, FlinkContextConfiguration.class})
 public class CollectorApp {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(CollectorApp.class);
 

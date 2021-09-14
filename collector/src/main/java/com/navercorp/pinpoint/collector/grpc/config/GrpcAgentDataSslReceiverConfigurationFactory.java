@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.grpc.config;
 
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,16 +53,13 @@ public class GrpcAgentDataSslReceiverConfigurationFactory {
     }
 
     @Bean(AGENT_SSL_CONFIG)
-    public GrpcSslReceiverConfiguration newAgentReceiverConfig(
-            Environment environment,
-            @Qualifier(BIND_ADDRESS) BindAddress.Builder bindAddressBuilder,
-            @Qualifier(SSL) GrpcSslConfiguration.Builder sslConfigurationBuilder) throws Exception {
+    public GrpcSslReceiverConfiguration newAgentReceiverConfig(Environment environment) throws Exception {
 
         boolean enable = environment.getProperty("collector.receiver.grpc.agent.ssl.enable", boolean.class, false);
 
-        BindAddress bindAddress = bindAddressBuilder.build();
+        BindAddress bindAddress = newBindAddressBuilder().build();
 
-        GrpcSslConfiguration grpcSslConfiguration = sslConfigurationBuilder.build();
+        GrpcSslConfiguration grpcSslConfiguration = newGrpcSslConfigurationBuilder().build();
 
         return new GrpcSslReceiverConfiguration(enable, bindAddress, grpcSslConfiguration);
     }
