@@ -1,8 +1,10 @@
 :host {
     display: block;
     width: 100%;
-    padding: 8px 0;
+    padding: 5px 0;
     background-color: var(--background-layer);
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
 }
 
 .l-list-item {
@@ -12,14 +14,14 @@
 
 .l-separator {
     border-top: 1px solid var(--border-primary);
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 .l-depth-0 .l-link {
     display: inline-block;
     width: 100%;
-    padding: 12px 12px 12px 25px;
+    padding: 10px 12px 10px 17px;
     font-weight: 600;
     color: var(--text-primary);
 }
@@ -48,14 +50,14 @@
 
 .l-theme-title {
     display: inline-block;
-    padding: 12px 12px 12px 25px;
+    padding: 5px 12px 5px 17px;
     font-weight: 600;
     color: var(--text-primary);
 }
 
 .l-theme-conf-wrapper {
     display: inline-block;
-    margin: 14px;
+    margin: 8px;
     border: 1px solid var(--border-primary);
     border-radius: 4px;
 }
