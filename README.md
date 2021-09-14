@@ -5,8 +5,6 @@
 [![Maven](https://img.shields.io/github/workflow/status/pinpoint-apm/pinpoint/Maven/master?label=build&logo=github)](https://github.com/pinpoint-apm/pinpoint/actions?query=workflow%3AMaven)
 [![codecov](https://codecov.io/gh/pinpoint-apm/pinpoint/branch/master/graph/badge.svg)](https://codecov.io/gh/pinpoint-apm/pinpoint)
 
-**Visit [our official web site](https://pinpoint-apm.gitbook.io/pinpoint/) for more information**.
-
 ## Latest Release (2021/07/22)
 
 We're happy to announce the release of Pinpoint v2.3.0.
@@ -59,7 +57,7 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
   ![Inspector](doc/images/ss_inspector.png)
 
 ## Supported Modules
-* JDK 6+
+* JDK 7+
 * [Tomcat 6/7/8/9](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/tomcat), [Jetty 8/9](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/jetty), [JBoss EAP 6/7](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/jboss), [Resin 4](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/resin), [Websphere 6/7/8](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/websphere), [Vertx 3.3/3.4/3.5](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/vertx), [Weblogic 10/11g/12c](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/weblogic), [Undertow](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/undertow)
 * Spring, Spring Boot (Embedded Tomcat, Jetty, Undertow), Spring asynchronous communication
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient, Akka-http, Apache CXF
