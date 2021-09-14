@@ -20,16 +20,12 @@ import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 
 import javax.annotation.PostConstruct;
 
 /**
  * @author minwoo.jung
  */
-@Configuration
-@ImportResource(locations = {"classpath:applicationContext-collector-flink.xml"})
 public class FlinkConfiguration {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());

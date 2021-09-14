@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.collector.grpc.config;
 import com.navercorp.pinpoint.collector.config.ExecutorConfiguration;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -70,19 +69,13 @@ public class GrpcAgentDataReceiverConfigurationFactory {
     }
 
     @Bean("grpcAgentReceiverConfig")
-    public GrpcAgentDataReceiverConfiguration newAgentReceiverConfig(
-            Environment environment,
-            @Qualifier(BIND_ADDRESS) BindAddress.Builder bindAddressBuilder,
-            @Qualifier(SERVER_EXECUTOR) ExecutorConfiguration.Builder serverExecutorBuilder,
-            @Qualifier(WORKER_EXECUTOR) ExecutorConfiguration.Builder workerExecutorBuilder,
-            @Qualifier(SERVER_OPTION) GrpcPropertiesServerOptionBuilder serverOptionBuilder) {
-
+    public GrpcAgentDataReceiverConfiguration newAgentReceiverConfig(Environment environment) {
         boolean enable = environment.getProperty("collector.receiver.grpc.agent.enable", boolean.class, false);
 
-        ServerOption serverOption = serverOptionBuilder.build();
-        BindAddress bindAddress = bindAddressBuilder.build();
-        ExecutorConfiguration serverExecutor = serverExecutorBuilder.build();
-        ExecutorConfiguration workerExecutor = workerExecutorBuilder.build();
+        ServerOption serverOption = newServerOption().build();
+        BindAddress bindAddress = newBindAddressBuilder().build();
+        ExecutorConfiguration serverExecutor = newServerExecutorBuilder().build();
+        ExecutorConfiguration workerExecutor = newWorkerExecutorBuilder().build();
 
         return new GrpcAgentDataReceiverConfiguration(enable, bindAddress, serverExecutor, workerExecutor, serverOption);
     }

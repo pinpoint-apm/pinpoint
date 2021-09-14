@@ -48,12 +48,11 @@ public class GrpcSpanSslReceiverConfigurationFactory {
     @Bean(SPAN_SSL_CONFIG)
     public GrpcSslReceiverConfiguration newAgentReceiverConfig(
             Environment environment,
-            @Qualifier(BIND_ADDRESS) BindAddress.Builder bindAddressBuilder,
             @Qualifier(GrpcAgentDataSslReceiverConfigurationFactory.SSL) GrpcSslConfiguration.Builder sslConfigurationBuilder) throws Exception {
 
         boolean enable = environment.getProperty("collector.receiver.grpc.span.ssl.enable", boolean.class, false);
 
-        BindAddress bindAddress = bindAddressBuilder.build();
+        BindAddress bindAddress = newBindAddressBuilder().build();
 
         GrpcSslConfiguration grpcSslConfiguration = sslConfigurationBuilder.build();
 
