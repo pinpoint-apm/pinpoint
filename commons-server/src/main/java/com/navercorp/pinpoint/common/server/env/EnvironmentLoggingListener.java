@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.env;
+package com.navercorp.pinpoint.common.server.env;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
