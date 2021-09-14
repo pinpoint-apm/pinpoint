@@ -30,29 +30,93 @@ export class ScatterChartDataBlock {
 
     private fromX: number;
     private toX: number;
-    /*
-        oPropertyIndex : {
-            x: 0,
-            y: 1,
-            meta: 2,
-            transactionId: 3,
-            type: 4,
-            groupCount: 5
-        }
-    */
+
+    // private worker = new Worker('../scatter-chart.worker', { type: 'module' });
+
     constructor(
         private originalData: IScatterData,
         private typeManager: ScatterChartTransactionTypeManager,
         private virtualGridManager: ScatterChartVirtualGridManager,
         private coordinateManager: ScatterChartSizeCoordinateManager
     ) {
+
         this.initVariable();
         this.initInnerDataStructure();
         this.classifyDataByAgent();
         this.sampleData();
     }
 
+    private initVariable() {
+        this.from = this.originalData.from;
+        this.to = this.originalData.to;
+        if (this.originalData.complete) {
+            this.fromX = this.originalData.from;
+            this.toX = this.originalData.to;
+        } else {
+            this.fromX = this.originalData.resultFrom;
+            this.toX = this.originalData.resultTo;
+        }
+        this.agentMetadata = this.originalData.scatter.metadata;
+        this.transactionData = [];
+    }
+    private initInnerDataStructure(): void {
+        Object.keys(this.agentMetadata).forEach((key: string) => {
+            const metaInfo = this.agentMetadata[key];
+            const agentName = metaInfo[MetadataIndex.AGENT_NAME];
+            this.transactionDataByAgent[agentName] = [];
+
+            this.countByType[agentName] = {};
+            this.typeManager.getTypeNameList().forEach((typeName: string) => {
+                this.countByType[agentName][typeName] = 0;
+            });
+            if (this.agentList.indexOf(agentName) === -1) {
+                this.agentList.push(agentName);
+            }
+        });
+        this.agentList.sort();
+    }
+    private classifyDataByAgent(): void {
+        // TODO: 요거 한번 worker로 빼보자. 밑에 sampleData 도?
+        // this.worker.postMessage({typeManager: this.typeManager, data: this.originalData});
+        // this.worker.onmessage = ({data}) => {
+
+        // };
+        this.originalData.scatter.dotList.forEach((tData: number[]) => {
+            const agentName = this.getAgentName(tData);
+            const typeName = this.typeManager.getNameByIndex(tData[DataIndex.TYPE]);
+            const tNewData = tData.concat();
+
+            tNewData[DataIndex.X] += this.from;
+            this.transactionData.push(tNewData);
+            this.transactionDataByAgent[agentName].push(tNewData);
+            this.countByType[agentName][typeName]++;
+
+            /**
+             * this.transactionData = [dot1, dot2, dot3, ...]
+             * this.transactionDataByAgent = {agent1: [dot1, dot2, ...], agent2: [dot3, dot4, ...]} <- 실제로 요거가지고 그림.
+             * this.countByType = {agent1: {success: 103, fail: 100}, agent2: {success: 102, fail: 100}}
+             * 샘플링 결과의 새로운 프로퍼티 newProp이 this.transactionDataByAgent 를 대체하도록 해보자. 그래서 밑에 getDataByAgentAndIndex, countByAgent에서도 다 대체.
+             */
+
+            // TODO: 밑에 sampleData를 여기에 끼워넣을 수 있을거 같은데?
+        });
+    }
+
     private sampleData(): void {
+        // console.log(this.typeManager, this.coordinateManager);
+        // this.worker.postMessage({
+        //     // typeManager: JSON.stringify(this.typeManager),
+        //     coordinateManager: this.coordinateManager,
+        //     virtualGridManager: this.virtualGridManager,
+        //     data: this.transactionDataByAgent
+        // });
+        // const obj = {a: 1, b: 2, c: () => 1};
+        // this.worker.postMessage(JSON.stringify(obj));
+        // this.worker.onmessage = ({data}) => {
+        //     console.log(data);
+        //     this.sampledData = data;
+        // };
+
         // Determine which grid each dot is belonged to in the virtual-grid
         this.dataByGrid = Object.entries(this.transactionDataByAgent).reduce((acc: any, [agent, data]: [string, number[][]]) => {
             const drawableData = data.filter((dot: number[]) => dot[DataIndex.GROUP_COUNT] !== 0);
@@ -93,7 +157,8 @@ export class ScatterChartDataBlock {
                         };
                     }, {x: 0, y: 0, count: 0});
 
-                    return {...sampled, [type]: d};
+                    // return {...sampled, [type]: d};
+                    return {...sampled, [type]: {x: Math.round(d.x), y: Math.round(d.y), count: d.count}};
                 }, {});
 
                 // sampledData : {success: {x: 0, y: 0, count: 0}, fail: {x: 1, y: 1, count: 1}}
@@ -107,54 +172,7 @@ export class ScatterChartDataBlock {
 
         // console.log(this.sampledData);
     }
-    private initVariable() {
-        this.from = this.originalData.from;
-        this.to = this.originalData.to;
-        if (this.originalData.complete) {
-            this.fromX = this.originalData.from;
-            this.toX = this.originalData.to;
-        } else {
-            this.fromX = this.originalData.resultFrom;
-            this.toX = this.originalData.resultTo;
-        }
-        this.agentMetadata = this.originalData.scatter.metadata;
-        this.transactionData = [];
-    }
-    private initInnerDataStructure(): void {
-        Object.keys(this.agentMetadata).forEach((key: string) => {
-            const metaInfo = this.agentMetadata[key];
-            const agentName = metaInfo[MetadataIndex.AGENT_NAME];
-            this.transactionDataByAgent[agentName] = [];
 
-            this.countByType[agentName] = {};
-            this.typeManager.getTypeNameList().forEach((typeName: string) => {
-                this.countByType[agentName][typeName] = 0;
-            });
-            if (this.agentList.indexOf(agentName) === -1) {
-                this.agentList.push(agentName);
-            }
-        });
-        this.agentList.sort();
-    }
-    private classifyDataByAgent(): void {
-        this.originalData.scatter.dotList.forEach((tData: number[]) => {
-            const agentName = this.getAgentName(tData);
-            const typeName = this.typeManager.getNameByIndex(tData[DataIndex.TYPE]);
-            const tNewData = tData.concat();
-
-            tNewData[DataIndex.X] += this.from;
-            this.transactionData.push(tNewData);
-            this.transactionDataByAgent[agentName].push(tNewData);
-            this.countByType[agentName][typeName]++;
-
-            /**
-             * this.transactionData = [dot1, dot2, dot3, ...]
-             * this.transactionDataByAgent = {agent1: [dot1, dot2, ...], agent2: [dot3, dot4, ...]} <- 실제로 요거가지고 그림.
-             * this.countByType = {agent1: {success: 103, fail: 100}, agent2: {success: 102, fail: 100}}
-             * 샘플링 결과의 새로운 프로퍼티 newProp이 this.transactionDataByAgent 를 대체하도록 해보자. 그래서 밑에 getDataByAgentAndIndex, countByAgent에서도 다 대체.
-             */
-        });
-    }
     getSampledData(): any {
         return this.sampledData;
     }

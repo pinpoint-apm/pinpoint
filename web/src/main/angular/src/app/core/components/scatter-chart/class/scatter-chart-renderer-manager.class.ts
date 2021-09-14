@@ -16,6 +16,8 @@ export class ScatterChartRendererManager {
     private spareCanvasMap = new Map<string, CanvasRenderingContext2D[]>();
     private t0 = -1;
 
+    private offscreenCanvasMapPerColor: {[key: string]: Map<number, HTMLCanvasElement>};
+
     constructor(
         private options: IOptions,
         private coordinateManager: ScatterChartSizeCoordinateManager,
@@ -24,6 +26,7 @@ export class ScatterChartRendererManager {
     ) {
         this.initVariable();
         this.initCanvasWrapper();
+        this.preRenderDataPoint();
     }
     private initVariable(): void {
         this.canvasMap = {};
@@ -55,6 +58,37 @@ export class ScatterChartRendererManager {
         elementCanvasWrapper.appendChild(this.elementScroller);
         this.elementContainer.appendChild(elementCanvasWrapper);
     }
+    private preRenderDataPoint(): void {
+        const maxRadius = ScatterChartVirtualGridManager.gridUnit / 2;
+
+        this.offscreenCanvasMapPerColor = Object.values(this.typeManager.chartColor).reduce((acc: {[key: string]: Map<number, HTMLCanvasElement>}, color: string) => {
+            const offscreenCanvasMap = new Map<number, HTMLCanvasElement>();
+
+            for (let r = maxRadius; r > 0; r--) {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const size = r * 2;
+                const x = r;
+                const y = r;
+                const alpha = r === 5 || r === 1 ? 1 : r * 2 * 0.1;
+
+                canvas.width = size;
+                canvas.height = size;
+
+                ctx.beginPath();
+                ctx.fillStyle = color;
+                ctx.strokeStyle = color;
+                ctx.arc(x, y, r, 0, Math.PI * 2, true);
+                ctx.globalAlpha = alpha;
+                ctx.fill();
+
+                offscreenCanvasMap.set(r, canvas);
+            }
+
+            return {...acc, [color]: offscreenCanvasMap};
+        }, {});
+    }
+
     makeDataCanvas(dataBlock: ScatterChartDataBlock, agentList: string[]): void {
         let zIndex = 110;
         const bubbleSize = this.coordinateManager.getBubbleSize();
@@ -167,18 +201,21 @@ export class ScatterChartRendererManager {
     }
 
     private drawPoint(context: CanvasRenderingContext2D, {x, y, r}: any, {color, alpha}: any): void {
-        context.beginPath();
-        context.fillStyle = color;
-        context.strokeStyle = color;
-        context.arc(x, y, r, 0, Math.PI * 2, true);
-        context.globalAlpha = alpha;
-        context.fill();
+        // context.beginPath();
+        // context.fillStyle = color;
+        // context.strokeStyle = color;
+        // context.arc(x, y, r, 0, Math.PI * 2, true);
+        // context.globalAlpha = alpha;
+        // context.fill();
+        context.drawImage(this.offscreenCanvasMapPerColor[color].get(r), x - r, y - r);
     }
 
     // private drawPoint(context: CanvasRenderingContext2D, {x, y}: any, {color, alpha}: any): void {
+    //     console.log(x, y);
     //     const bubbleRadius = this.options.bubbleRadius;
     //     const r = this.coordinateManager.parseZDataToZChart(bubbleRadius); // 이거 지금은 무조건 2임.
 
+    //     // TODO: 이거 점을 매번 그리지말고, 원 미리 그려놓은거를 가져온다? alpha 변경가능한가
     //     context.beginPath();
     //     context.fillStyle = color;
     //     context.strokeStyle = color;
@@ -210,7 +247,9 @@ export class ScatterChartRendererManager {
         // const alpha = 0.3 + (0.1 * data[DataIndex.GROUP_COUNT]);
         const alpha = count >= 10 || count <= 2 ? 1 : count * 0.1;
         // const alpha = 1;
-        const r = count >= ScatterChartVirtualGridManager.gridUnit ? ScatterChartVirtualGridManager.gridUnit / 2 : count;
+        // const r = count >= ScatterChartVirtualGridManager.gridUnit ? ScatterChartVirtualGridManager.gridUnit / 2 : count;
+        const r = count * 2 >= ScatterChartVirtualGridManager.gridUnit ? ScatterChartVirtualGridManager.gridUnit / 2 : count;
+        // console.log(r);
 
         if (x > currentMaxX) {
             if ((x - currentMaxX) <= canvasWidth) {
@@ -244,6 +283,7 @@ export class ScatterChartRendererManager {
             renderedX = x - zeroLeft;
         }
 
+        // this.drawPoint(this.ctxMap[key][ctxIndex], {x: renderedX, y, r}, {color});
         this.drawPoint(this.ctxMap[key][ctxIndex], {x: renderedX, y, r}, {color, alpha});
         // this.drawPoint(this.ctxMap[key][ctxIndex], {x: renderedX, y}, {color, alpha});
     }
