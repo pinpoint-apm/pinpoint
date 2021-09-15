@@ -28,6 +28,10 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"log4j:log4j:[1.2.16,)"})
@@ -39,8 +43,58 @@ public class Log4jIT {
     public void test() {
         Logger logger = Logger.getLogger(getClass());
         logger.error("maru");
-        
-        Assert.assertNotNull(MDC.get("PtxId"));
-        Assert.assertNotNull(MDC.get("PspanId"));
+
+        checkVersion(logger);
+
+        Assert.assertNotNull("txId", MDC.get("PtxId"));
+        Assert.assertNotNull("spanId", MDC.get("PspanId"));
     }
+
+    @Test
+    public void patternUpdate() throws IOException {
+        final PrintStream originalOut = System.out;
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        final String msg = "pattern";
+        Logger logger;
+        try {
+            System.setOut(new PrintStream(outputStream));
+            logger = Logger.getLogger("patternUpdateLogback");
+            logger.error(msg);
+        } finally {
+            System.setOut(originalOut);
+        }
+
+        final String log = outputStream.toString();
+        outputStream.close();
+        System.out.println(log);
+        Assert.assertNotNull("log null", log);
+        Assert.assertTrue("contains msg", log.contains(msg));
+        Assert.assertTrue("contains TxId", log.contains("TxId"));
+
+        Assert.assertNotNull("logger null", logger);
+        checkVersion(logger);
+    }
+
+    private void checkVersion(Logger logger) {
+        final String location = getLoggerJarLocation(logger);
+        Assert.assertNotNull("location null", location);
+        System.out.println("Log4j jar location:" + location);
+
+        final String testVersion = getTestVersion();
+        Assert.assertTrue("test version is not " + getTestVersion(), location.contains("/" + testVersion + "/"));
+    }
+
+    private String getTestVersion() {
+        final String[] threadInfo = Thread.currentThread().getName()
+                .replace(getClass().getName(), "")
+                .replace(" Thread", "")
+                .replace(" ", "").replace("log4j-", "").split(":");
+        return threadInfo[0];
+    }
+
+    private String getLoggerJarLocation(Object object) {
+        return object.getClass().getProtectionDomain().getCodeSource().getLocation().toString();
+    }
+
 }
