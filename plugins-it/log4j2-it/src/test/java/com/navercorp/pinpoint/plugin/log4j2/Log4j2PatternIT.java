@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2021 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.logback;
+package com.navercorp.pinpoint.plugin.log4j2;
 
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmArgument;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -35,34 +34,24 @@ import java.io.PrintStream;
 
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"ch.qos.logback:logback-classic:[1.0.13],[1.1.0,1.1.11],[1.2.0,1.2.6]", "org.slf4j:slf4j-api:1.7.12"})
-@ImportPlugin({"com.navercorp.pinpoint:pinpoint-logback-plugin"})
 @PinpointConfig("pinpoint-spring-bean-test.config")
+@JvmVersion(7)
+@Dependency({"org.apache.logging.log4j:log4j-core:[2.8,2.13)"})
 @JvmArgument("-DtestLoggerEnable=false")
-public class LogbackIT {
-
-    @Test
-    public void test() {
-        Logger logger = LoggerFactory.getLogger(getClass());
-        logger.error("maru");
-
-        checkVersion(logger);
-        
-        Assert.assertNotNull("txId", MDC.get("PtxId"));
-        Assert.assertNotNull("spanId", MDC.get("PspanId"));
-    }
+public class Log4j2PatternIT extends Log4j2TestBase {
 
     @Test
     public void patternUpdate() throws IOException {
         final PrintStream originalOut = System.out;
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
         final String msg = "pattern";
-        Logger logger;
+
+        String location;
         try {
             System.setOut(new PrintStream(outputStream));
-            logger = LoggerFactory.getLogger("patternUpdateLogback");
+            Logger logger = LogManager.getLogger("patternUpdateLog4j2Jvm7");
             logger.error(msg);
+            location = getLoggerJarLocation(logger);
         } finally {
             System.setOut(originalOut);
         }
@@ -74,29 +63,10 @@ public class LogbackIT {
         Assert.assertTrue("contains msg", log.contains(msg));
         Assert.assertTrue("contains TxId", log.contains("TxId"));
 
-        Assert.assertNotNull("logger null", logger);
-        checkVersion(logger);
-    }
-
-    private void checkVersion(Logger logger) {
-        final String location = getLoggerJarLocation(logger);
         Assert.assertNotNull("location null", location);
-        System.out.println("Logback classic jar location:" + location);
-
+        System.out.println("Log4j2 jar location:" + location);
         final String testVersion = getTestVersion();
         Assert.assertTrue("test version is not " + getTestVersion(), location.contains("/" + testVersion + "/"));
-    }
-
-    private String getTestVersion() {
-        final String[] threadInfo = Thread.currentThread().getName()
-                .replace(getClass().getName(), "")
-                .replace(" Thread", "")
-                .replace(" ", "").replace("logback-classic-", "").split(":");
-        return threadInfo[0];
-    }
-
-    private String getLoggerJarLocation(Object object) {
-        return object.getClass().getProtectionDomain().getCodeSource().getLocation().toString();
     }
 
 }
