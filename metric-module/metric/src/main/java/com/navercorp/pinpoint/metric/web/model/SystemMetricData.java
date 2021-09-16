@@ -26,13 +26,19 @@ import java.util.Objects;
  */
 public class SystemMetricData<Y extends Number> {
     private final String title;
+    private final String unit;
     private final List<Long> timeStampList;
-    private final List<MetricValue<Y>> metricValueList;
+    private final List<MetricValueGroup<Y>> metricValueGroupList;
 
-    public SystemMetricData(String title, List<Long> timeStampList, List<MetricValue<Y>> metricValueList) {
+    public SystemMetricData(String title, String unit, List<Long> timeStampList, List<MetricValueGroup<Y>> metricValueGroupList) {
         this.title = StringPrecondition.requireHasLength(title, "title");
+        this.unit = StringPrecondition.requireHasLength(unit, "unit");
         this.timeStampList = Objects.requireNonNull(timeStampList, "timeStampList");
-        this.metricValueList = Objects.requireNonNull(metricValueList, "metricValueList");
+        this.metricValueGroupList = Objects.requireNonNull(metricValueGroupList, "metricValueGroupList");
+    }
+
+    public String getUnit() {
+        return unit;
     }
 
     public String getTitle() {
@@ -43,7 +49,8 @@ public class SystemMetricData<Y extends Number> {
         return timeStampList;
     }
 
-    public List<MetricValue<Y>> getMetricValueList() {
-        return metricValueList;
+    public List<MetricValueGroup<Y>> getMetricValueGroupList() {
+        return metricValueGroupList;
     }
+
 }

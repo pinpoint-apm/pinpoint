@@ -75,13 +75,19 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
 
         switch (matchingRule) {
             case EXACT :
-                return exactMatchingTag(metricTagCollection, metricDataSearchKey, elementOfBasicGroup);
+                return exactMatchingTag(metricTagCollection, elementOfBasicGroup);
+            case ALL :
+                return allMatchingTag(metricTagCollection, elementOfBasicGroup);
             default :
                 throw new UnsupportedOperationException("unsupported matchingRule:" + matchingRule);
         }
     }
 
-    private List<MetricTag> exactMatchingTag(MetricTagCollection metricTagCollection, MetricDataSearchKey metricDataSearchKey, ElementOfBasicGroup elementOfBasicGroup) {
+    private List<MetricTag> allMatchingTag(MetricTagCollection metricTagCollection, ElementOfBasicGroup elementOfBasicGroup) {
+        return metricTagCollection.getMetricTagList();
+    }
+
+    private List<MetricTag> exactMatchingTag(MetricTagCollection metricTagCollection, ElementOfBasicGroup elementOfBasicGroup) {
         List<MetricTag> metricTagList = metricTagCollection.getMetricTagList();
         List<Tag> tagList = elementOfBasicGroup.getTagList();
         List<MetricTag> exactMetricTagList = new ArrayList<>();
