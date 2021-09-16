@@ -8,7 +8,9 @@
                                             com.navercorp.pinpoint.web.service,
                                             com.navercorp.pinpoint.web.mapper,
                                             com.navercorp.pinpoint.web.applicationmap,
-                                            com.navercorp.pinpoint.common.server.bo" />
+                                            com.navercorp.pinpoint.common.server.bo">
+        <context:exclude-filter type="regex" expression="com.navercorp.pinpoint.web.service.CacheServiceImpl"/>
+    </context:component-scan>
 
     <bean id="hbaseConfiguration" class="com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean">
         <property name="properties">
