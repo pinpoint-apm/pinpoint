@@ -1,3 +1,4 @@
+
 ---
 title: Plugin Developer Guide
 keywords: plugin, plug-in, plug
@@ -16,8 +17,7 @@ In Pinpoint, a transaction consists of a group of `Spans`. Each `Span` represent
 
 To aid in visualization, let's suppose that there is a system like below. The *FrontEnd* server receives requests from users, then sends request to the *BackEnd* server, which queries a DB. Among these nodes, let's assume only the *FrontEnd* and *BackEnd* servers are profiled by the Pinpoint Agent.
 
-![trace](https://cloud.githubusercontent.com/assets/8037461/13870778/0073df06-ed22-11e5-97a3-ebe116186947.jpg)
-
+![trace](https://user-images.githubusercontent.com/10043788/133535491-adafcd89-c04e-49af-9ad7-f7746bb9c95c.PNG)
 
 When a request arrives at the *FrontEnd* server, Pinpoint Agent generates a new transaction id and creates a `Span` with it. To handle the request, the *FrontEnd* server then invokes the *BackEnd* server. At this point, Pinpoint Agent injects the transaction id (plus a few other values for propagation) into the invocation message. When the *BackEnd* server receives this message, it extracts the transaction id (and the other values) from the message and creates a new `Span` with them. Resulting, all `Spans` in a single transaction share the same transaction id.
 
