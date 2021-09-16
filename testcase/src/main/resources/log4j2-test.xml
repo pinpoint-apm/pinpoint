@@ -6,7 +6,7 @@
     </Properties>
 
     <Appenders>
-        <Console name="console" target="system_out">
+        <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern="${file_message_pattern}"/>
         </Console>
     </Appenders>
