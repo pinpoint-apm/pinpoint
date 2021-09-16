@@ -32,6 +32,7 @@ import java.util.List;
 /**
  * @author Hyunjoon Cho
  */
+@Deprecated
 public class SystemMetricChartSerializer extends JsonSerializer<SystemMetricChart> {
 
     @Override

@@ -30,6 +30,7 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class SystemMetricDataSerializer extends JsonSerializer<SystemMetricData> {
     @Override
     public void serialize(SystemMetricData systemMetricData, JsonGenerator jgen, SerializerProvider serializerProvider) throws IOException {
@@ -37,7 +38,7 @@ public class SystemMetricDataSerializer extends JsonSerializer<SystemMetricData>
 
         writeTitle(jgen, systemMetricData.getTitle());
         writeTimestampList(jgen, systemMetricData.getTimeStampList());
-        writeMetricValueList(jgen, systemMetricData.getMetricValueList());
+//        writeMetricValueList(jgen, systemMetricData.getMetricValueList());
 
 
         jgen.writeEndObject();
