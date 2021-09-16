@@ -8,6 +8,7 @@ import java.util.Objects;
 public enum MatchingRule {
     EXACT(1, "exact"),
     CONTAIN(2, "contain"),
+    ALL(3, "all"),
     UNKNOWN(100, "unknown");
 
     private final int code;

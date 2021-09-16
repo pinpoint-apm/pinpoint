@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.metric.web.view;
 
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.web.model.MetricValue;
+import com.navercorp.pinpoint.metric.web.model.MetricValueGroup;
 import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
 
 import java.util.List;
@@ -19,15 +20,38 @@ public class SystemMetricView {
         return systemMetricData.getTitle();
     }
 
+    public String getUnit() {
+        return systemMetricData.getUnit();
+    }
+
     public List<Long> getTimestamp() {
         return systemMetricData.getTimeStampList();
     }
 
-    public List<MetricValueView> getMetricValues() {
-        return systemMetricData.getMetricValueList()
+    public List<MetricValueGroupView> getMetricValueGroups() {
+        return systemMetricData.getMetricValueGroupList()
                 .stream()
-                .map(MetricValueView::new)
+                .map(MetricValueGroupView::new)
                 .collect(Collectors.toList());
+    }
+
+    public static class MetricValueGroupView {
+        private final MetricValueGroup<? extends Number> value;
+
+        public MetricValueGroupView(MetricValueGroup value) {
+            this.value = Objects.requireNonNull(value, "value");
+        }
+
+        public String getGroupName() {
+            return value.getGroupName();
+        }
+
+        public List<MetricValueView> getMetricValues() {
+            return value.getMetricValueList()
+                    .stream()
+                    .map(MetricValueView::new)
+                    .collect(Collectors.toList());
+        }
     }
 
     public static class MetricValueView {

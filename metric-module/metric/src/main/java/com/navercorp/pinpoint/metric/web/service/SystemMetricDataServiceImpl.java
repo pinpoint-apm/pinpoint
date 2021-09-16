@@ -21,11 +21,14 @@ import com.navercorp.pinpoint.metric.common.model.MetricDataName;
 import com.navercorp.pinpoint.metric.common.model.MetricDataType;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
+import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricDao;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.MetricValue;
+import com.navercorp.pinpoint.metric.web.model.MetricValueGroup;
 import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.ElementOfBasicGroup;
+import com.navercorp.pinpoint.metric.web.model.basic.metric.group.GroupingRule;
 import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
@@ -40,7 +43,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -109,14 +115,25 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
     @Override
     public SystemMetricData getCollectedMetricData(MetricDataSearchKey metricDataSearchKey, TimeWindow timeWindow) {
         String metricDefinitionId = metricDataSearchKey.getMetricDefinitionId();
-        List<ElementOfBasicGroup> elementOfBasicGroupList = systemMetricBasicGroupManager.findElementOfBasicGroup(metricDataSearchKey.getMetricDefinitionId());
+
+        List<MetricValue> metricValueList = getMetricValues(metricDataSearchKey, timeWindow);
+
+        GroupingRule groupingRule = systemMetricBasicGroupManager.findGroupingRule(metricDefinitionId);
+        List<MetricValueGroup> metricValueGroupList = groupingMetricValue(metricValueList, groupingRule);
+
+        List<Long> timeStampList = createTimeStampList(timeWindow);
         String title = systemMetricBasicGroupManager.findMetricTitle(metricDefinitionId);
+        String unit = systemMetricBasicGroupManager.findUnit(metricDefinitionId);
+        return new SystemMetricData(title, unit, timeStampList ,metricValueGroupList);
+    }
+
+    private List<MetricValue> getMetricValues(MetricDataSearchKey metricDataSearchKey, TimeWindow timeWindow) {
+        List<ElementOfBasicGroup> elementOfBasicGroupList = systemMetricBasicGroupManager.findElementOfBasicGroup(metricDataSearchKey.getMetricDefinitionId());
         List<MetricValue> metricValueList = new ArrayList<>(elementOfBasicGroupList.size());
 
         for (ElementOfBasicGroup elementOfBasicGroup : elementOfBasicGroupList) {
             MetricDataType metricDataType = systemMetricDataTypeService.getMetricDataType(new MetricDataName(metricDataSearchKey.getMetricName(), elementOfBasicGroup.getFieldName()));
             List<MetricTag> metricTagList = systemMetricHostInfoService.getTag(metricDataSearchKey, elementOfBasicGroup);
-
 
             for (MetricTag metricTag : metricTagList) {
                 switch (metricDataType) {
@@ -136,10 +153,93 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
                 }
             }
         }
-
-        List<Long> timeStampList = createTimeStampList(timeWindow);
-        return new SystemMetricData(title, timeStampList ,metricValueList);
+        return metricValueList;
     }
+
+    private List<MetricValueGroup> groupingMetricValue(List<MetricValue> metricValueList, GroupingRule groupingRule) {
+        switch(groupingRule) {
+            case TAG :
+                return groupingByTag(metricValueList);
+            default :
+                throw new UnsupportedOperationException("unsupported groupingRule :" + groupingRule);
+        }
+    }
+
+    private List<MetricValueGroup> groupingByTag(List<MetricValue> metricValueList) {
+        List<TagGroup> uniqueTagGroupList = new ArrayList<TagGroup>();
+
+        for (MetricValue metricValue : metricValueList) {
+            List<Tag> tagList = metricValue.getTagList();
+            addTagList(uniqueTagGroupList, tagList);
+        }
+
+        Map<TagGroup, List<MetricValue>> metricValueGroupMap = new HashMap<>();
+        for (MetricValue metricValue : metricValueList) {
+            int index = uniqueTagGroupList.indexOf(new TagGroup(metricValue.getTagList()));
+            TagGroup tagGroup = uniqueTagGroupList.get(index);
+
+            if (metricValueGroupMap.containsKey(tagGroup)) {
+                List<MetricValue> metricValues = metricValueGroupMap.get(tagGroup);
+                metricValues.add(metricValue);
+            } else {
+                List<MetricValue> metricValues = new ArrayList<>(1);
+                metricValues.add(metricValue);
+                metricValueGroupMap.put(tagGroup, metricValues);
+            }
+        }
+
+        Collection<List<MetricValue>> valueList = metricValueGroupMap.values();
+
+        List<MetricValueGroup> metricValueGroupList = new ArrayList<>(valueList.size());
+        for (Map.Entry<TagGroup, List<MetricValue>> entry : metricValueGroupMap.entrySet()) {
+            metricValueGroupList.add(new MetricValueGroup(entry.getValue(),entry.getKey().toString()));
+        }
+
+        return metricValueGroupList;
+    }
+
+    private void addTagList(List<TagGroup> uniqueTagList, List<Tag> tagList) {
+        TagGroup newTagGroup = new TagGroup(tagList);
+
+        for (TagGroup tagGroup : uniqueTagList) {
+            if (tagGroup.equals(newTagGroup)) {
+                return;
+            }
+        }
+
+        uniqueTagList.add(newTagGroup);
+    }
+
+    private class TagGroup {
+        private List<Tag> tagList;
+
+        public TagGroup(List<Tag> tagList) {
+            this.tagList = Objects.requireNonNull(tagList, "tagList");;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TagGroup tagGroup = (TagGroup) o;
+
+            if (tagList.size() == tagGroup.tagList.size()) {
+                if (tagList.containsAll(tagGroup.tagList)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        @Override
+        public String toString() {
+            return "TagGroup{" +
+                    "tagList=" + tagList +
+                    '}';
+        }
+    }
+
 
     private List<Long> createTimeStampList(TimeWindow timeWindow) {
         List<Long> timestampList = new ArrayList<>((int) timeWindow.getWindowRangeCount());
