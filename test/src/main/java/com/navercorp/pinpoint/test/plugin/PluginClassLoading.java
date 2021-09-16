@@ -11,6 +11,7 @@ public final class PluginClassLoading {
             "pinpoint-test", // pinpoint-test-{VERSION}.jar
             "/test/target/classes", // pinpoint-test build output directory
             "/testcase/target/classes",
+            "/pinpoint/plugins/", // required when using plugins in tests
 
             // logger for bootstrap classloader
             "tinylog-api",
