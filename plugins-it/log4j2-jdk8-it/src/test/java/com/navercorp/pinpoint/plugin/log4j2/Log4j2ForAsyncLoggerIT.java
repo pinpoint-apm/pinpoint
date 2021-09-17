@@ -28,18 +28,24 @@ import org.junit.runner.RunWith;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-spring-bean-test.config")
-@JvmArgument("-Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector")
 @JvmVersion(8)
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-log4j2-plugin"})
-@Dependency({"org.apache.logging.log4j:log4j-core:[2.0,2.13)", "com.lmax:disruptor:[3.4.2]"})
-public class Log4j2ForAsyncLoggerIT {
+@Dependency({"org.apache.logging.log4j:log4j-core:[2.0,2.14.1]", "com.lmax:disruptor:[3.4.2]"})
+@JvmArgument({"-Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector", "-DtestLoggerEnable=false"})
+public class Log4j2ForAsyncLoggerIT extends Log4j2TestBase {
 
     @Test
     public void test() {
         Logger logger = LogManager.getLogger();
-        logger.error("for log4j2 plugin async logger test");
 
-        Assert.assertNotNull(ThreadContext.get("PtxId"));
-        Assert.assertNotNull(ThreadContext.get("PspanId"));
+        final String location = getLoggerJarLocation(logger);
+        System.out.println("Log4j2 jar location:" + location);
+        final String testVersion = getTestVersion();
+        Assert.assertTrue("test version is not " + getTestVersion(), location.contains("/" + testVersion + "/"));
+
+        logger.error("for log4j2 plugin async logger test");
+        Assert.assertNotNull("txId", ThreadContext.get("PtxId"));
+        Assert.assertNotNull("spanId", ThreadContext.get("PspanId"));
     }
+
 }
