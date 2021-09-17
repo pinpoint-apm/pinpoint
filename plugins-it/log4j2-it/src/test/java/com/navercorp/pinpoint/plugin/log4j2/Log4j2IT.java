@@ -30,14 +30,20 @@ import org.junit.runner.RunWith;
 @JvmVersion(7)
 @Dependency({"org.apache.logging.log4j:log4j-core:[2.0,2.13)"})
 @JvmArgument("-DtestLoggerEnable=false")
-public class Log4j2IT {
+public class Log4j2IT extends Log4j2TestBase {
 
     @Test
     public void test() {
         Logger logger = LogManager.getLogger();
-        logger.error("for log4j2 plugin test");
 
-        Assert.assertNotNull(ThreadContext.get("PtxId"));
-        Assert.assertNotNull(ThreadContext.get("PspanId"));
+        final String location = getLoggerJarLocation(logger);
+        System.out.println("Log4j2 jar location:" + location);
+        final String testVersion = getTestVersion();
+        Assert.assertTrue("test version is not " + getTestVersion(), location.contains("/" + testVersion + "/"));
+
+        logger.error("for log4j2 plugin test");
+        Assert.assertNotNull("txId", ThreadContext.get("PtxId"));
+        Assert.assertNotNull("spanId", ThreadContext.get("PspanId"));
     }
+
 }
