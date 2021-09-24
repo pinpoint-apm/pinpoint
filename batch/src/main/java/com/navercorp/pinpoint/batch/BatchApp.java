@@ -31,7 +31,8 @@ import org.springframework.context.annotation.ImportResource;
  * @author minwoo.jung
  */
 @SpringBootConfiguration
-@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, SecurityAutoConfiguration.class, TransactionAutoConfiguration.class, BatchAutoConfiguration.class})
+@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, SecurityAutoConfiguration.class,
+        TransactionAutoConfiguration.class, BatchAutoConfiguration.class})
 @ImportResource({ "classpath:applicationContext-batch-schedule.xml"})
 @Import(BatchAppPropertySources.class)
 public class BatchApp {
