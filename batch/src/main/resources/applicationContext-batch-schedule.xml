@@ -6,26 +6,6 @@
        xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
 
-    <bean id="webPropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
-        <property name="locations">
-            <list>
-                <value>classpath:hbase-root.properties</value>
-                <value>classpath:jdbc-root.properties</value>
-                <value>classpath:batch-root.properties</value>
-                <!-- override configuration -->
-                <value>classpath:profiles/${pinpoint.profiles.active}/hbase.properties</value>
-                <value>classpath:profiles/${pinpoint.profiles.active}/jdbc.properties</value>
-                <value>classpath:profiles/${pinpoint.profiles.active}/batch.properties</value>
-                <!-- external property for override -->
-                <value>file:#{ systemProperties['pinpoint.batch.config.location'] ?: '-Dpinpoint.batch.config.location does not set' }</value>
-            </list>
-        </property>
-
-        <property name="fileEncoding" value="UTF-8"/>
-        <property name="ignoreUnresolvablePlaceholders" value="true"/>
-        <property name="ignoreResourceNotFound" value="true"/>
-    </bean>
-
     <bean id="batchConfiguration" class="com.navercorp.pinpoint.batch.common.BatchConfiguration"/>
 
     <task:scheduled-tasks scheduler="scheduler">
