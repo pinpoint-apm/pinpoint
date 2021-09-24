@@ -21,10 +21,12 @@ import com.navercorp.pinpoint.test.plugin.PluginClassLoading;
 import com.navercorp.pinpoint.test.plugin.ReflectPluginTestVerifier;
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.ChildFirstClassLoader;
+import com.navercorp.pinpoint.test.plugin.util.CollectionUtils;
 import com.navercorp.pinpoint.test.plugin.util.ProfilerClass;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import com.navercorp.pinpoint.test.plugin.util.ThreadContextCallable;
 import com.navercorp.pinpoint.test.plugin.util.URLUtils;
+
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Runner;
 import org.junit.runners.model.InitializationError;
@@ -37,10 +39,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 /**
@@ -165,7 +166,7 @@ public class SharedPinpointPluginTest {
             return Collections.emptyList();
         }
         List<String> dependencyLib = PluginClassLoading.LOGGER_DEPENDENCY;
-        List<File> libFiles = lookup(dependencyResolver, dependencyLib,  mavenDependencyResolverClassLoader);
+        List<File> libFiles = lookup(dependencyResolver, dependencyLib, mavenDependencyResolverClassLoader);
         if (logger.isDebugEnabled()) {
             logger.debug("LoggerDependency {}", dependencyLib);
             for (File libFile : libFiles) {
@@ -206,27 +207,63 @@ public class SharedPinpointPluginTest {
         ClassLoader mavenDependencyResolverClassLoader = new ChildFirstClassLoader(URLUtils.fileToUrls(mavenDependencyResolverClassPaths));
         File testClazzLocation = new File(testLocation);
         List<TestInfo> testInfos = newTestCaseInfo(testParameters, testClazzLocation, repositoryUrls, mavenDependencyResolverClassLoader);
-        for (TestInfo testInfo : testInfos) {
-            execute(testInfo);
-        }
+
+        executes(testInfos);
     }
 
-    private void execute(final TestInfo testInfo) {
-        try {
-            List<File> dependencyFileList = testInfo.getDependencyFileList();
-            if (logger.isDebugEnabled()) {
-                for (File dependency : dependencyFileList) {
-                    logger.debug("testcase cl lib :{}", dependency);
-                }
+    private void executes(List<TestInfo> testInfos) {
+        if (!CollectionUtils.hasLength(testInfos)) {
+            return;
+        }
+
+        TestInfo firstTestInfo = testInfos.get(0);
+        final ClassLoader testClassLoader = createTestClassLoader(firstTestInfo);
+        ExecuteSharedThread executeSharedThread = new ExecuteSharedThread(testClazzName, testClassLoader);
+
+        executeSharedThread.startBefore();
+        executeSharedThread.awaitBeforeCompleted(5, TimeUnit.MINUTES);
+        Properties properties = executeSharedThread.getProperties();
+        if (logger.isDebugEnabled()) {
+            logger.debug("sharedThread properties:{}", properties);
+        }
+
+        for (TestInfo testInfo : testInfos) {
+            execute(testInfo, properties);
+        }
+
+        executeSharedThread.startAfter();
+
+        executeSharedThread.join(TimeUnit.MINUTES.toMillis(5));
+    }
+
+    private ClassLoader createTestClassLoader(TestInfo testInfo) {
+        List<File> dependencyFileList = testInfo.getDependencyFileList();
+        if (logger.isDebugEnabled()) {
+            for (File dependency : dependencyFileList) {
+                logger.debug("testcase cl lib :{}", dependency);
             }
-            URL[] urls = URLUtils.fileToUrls(dependencyFileList);
-            final ClassLoader testClassLoader = new ChildFirstClassLoader(urls, ProfilerClass.PINPOINT_PROFILER_CLASS);
+        }
+        URL[] urls = URLUtils.fileToUrls(dependencyFileList);
+        final ClassLoader testClassLoader = new ChildFirstClassLoader(urls, ProfilerClass.PINPOINT_PROFILER_CLASS);
+        return testClassLoader;
+    }
+
+    private void execute(final TestInfo testInfo, final Properties properties) {
+        try {
+            final ClassLoader testClassLoader = createTestClassLoader(testInfo);
 
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
                     final Class<?> testClazz = loadClass();
                     logger.debug("testClazz:{} cl:{}", testClazz.getName(), testClazz.getClassLoader());
+
+                    try {
+                        MethodUtils.invokeSetMethod(testClazz, properties);
+                    } catch (Exception e) {
+                        logger.warn(e, "invoker setter method failed. testClazz:{} testId:{}", testClazzName, testInfo.getTestId());
+                    }
+
                     try {
                         JUnitCore junit = new JUnitCore();
                         junit.addListener(new PrintListener());
