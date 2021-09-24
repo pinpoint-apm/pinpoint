@@ -63,6 +63,8 @@
         <constructor-arg ref="hbaseAdminFactory"/>
     </bean>
 
+    <bean class="com.navercorp.pinpoint.common.hbase.HbaseVersionCheckBean"/>
+
     <bean class="org.apache.hadoop.util.ShutdownHookManagerProxy"/>
 
     <bean id="distributorConfiguration" class="com.navercorp.pinpoint.common.server.hbase.DistributorConfiguration"/>

@@ -94,6 +94,8 @@
         <constructor-arg ref="hbaseAdminFactory"/>
     </bean>
 
+    <bean class="com.navercorp.pinpoint.common.hbase.HbaseVersionCheckBean"/>
+
     <bean id="distributorConfiguration" class="com.navercorp.pinpoint.common.server.hbase.DistributorConfiguration"/>
 
     <bean id="cachedStatisticsDaoMetrics" class="com.navercorp.pinpoint.collector.monitor.BulkOperationMetrics">
