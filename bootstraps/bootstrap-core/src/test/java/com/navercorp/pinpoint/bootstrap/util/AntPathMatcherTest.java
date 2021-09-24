@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.util;
 
+import com.navercorp.pinpoint.common.Version;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -47,6 +49,21 @@ public class AntPathMatcherTest {
         Assert.assertFalse(matcher.isMatched(""));
         Assert.assertFalse(matcher.isMatched("test"));
     }
+
+    @Test
+    public void  asteriskTest() {
+        String linuxPath = "/home/.m2/repository/pinpoint-mssql-jdbc-driver-plugin/2.3.1-SNAPSHOT/pinpoint-mssql-jdbc-driver-plugin-2.3.1-SNAPSHOT.jar";
+        String windowsPath = "C:\\.m2\\repository\\pinpoint-mssql-jdbc-driver-plugin\\2.3.1-SNAPSHOT\\pinpoint-mssql-jdbc-driver-plugin-2.3.1-SNAPSHOT.jar";
+
+        AntPathMatcher linuxMatcher = new AntPathMatcher("/**/pinpoint-*-plugin-" + Version.VERSION + ".jar");
+        Assert.assertTrue(linuxMatcher.isMatched(linuxPath));
+        Assert.assertFalse(linuxMatcher.isMatched(windowsPath));
+
+        AntPathMatcher windowsMatcher = new AntPathMatcher("**\\pinpoint-*-plugin-" + Version.VERSION + ".jar");
+        Assert.assertFalse(windowsMatcher.isMatched(linuxPath));
+        Assert.assertTrue(windowsMatcher.isMatched(windowsPath));
+    }
+
 
     @Test
     public void isMatchedDotSeparator() {

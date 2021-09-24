@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.bootstrap.util.AntPathMatcher;
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.CodeSourceUtils;
 import com.navercorp.pinpoint.test.plugin.util.TLSOption;
@@ -248,6 +249,13 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
             for (String required : paths) {
                 if (filePath.contains(required)) {
                     return true;
+                }
+
+                if (AntPathMatcher.isAntStylePattern(required)) {
+                    AntPathMatcher antPathMatcher = new AntPathMatcher(required);
+                    if (antPathMatcher.isMatched(filePath)) {
+                        return true;
+                    }
                 }
             }
             return false;

@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.common.Version;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,7 +13,10 @@ public final class PluginClassLoading {
             "pinpoint-test", // pinpoint-test-{VERSION}.jar
             "/test/target/classes", // pinpoint-test build output directory
             "/testcase/target/classes",
-            "/pinpoint/plugins/", // required when using plugins in tests
+            "/pinpoint/plugins/", // required when executing test on IDE
+            "/**/pinpoint-*-plugin-" + Version.VERSION + ".jar", // required absolute path when executing test via mvn command on Linux
+            "**/pinpoint-*-plugin-" + Version.VERSION + ".jar", // required relative path when executing test via mvn command on Linux
+            "**\\pinpoint-*-plugin-" + Version.VERSION + ".jar", // required when executing test via mvn command on Windows
 
             // logger for bootstrap classloader
             "tinylog-api",
