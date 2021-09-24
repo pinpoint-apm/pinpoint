@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * @author minwoo.jung<minwoo.jung@navercorp.com>
  */
-@Configuration
+@Component
 public class BatchConfiguration {
 
     private final Logger logger = LoggerFactory.getLogger(BatchConfiguration.class);

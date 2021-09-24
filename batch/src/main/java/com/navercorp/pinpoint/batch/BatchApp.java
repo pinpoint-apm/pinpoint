@@ -17,20 +17,23 @@
 package com.navercorp.pinpoint.batch;
 
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
-import com.navercorp.pinpoint.web.WebStarter;
+
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
 /**
  * @author minwoo.jung
  */
 @SpringBootConfiguration
-@EnableAutoConfiguration(exclude = {SecurityAutoConfiguration.class, TransactionAutoConfiguration.class, BatchAutoConfiguration.class})
+@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, SecurityAutoConfiguration.class, TransactionAutoConfiguration.class, BatchAutoConfiguration.class})
 @ImportResource({ "classpath:applicationContext-batch-schedule.xml"})
+@Import(BatchAppPropertySources.class)
 public class BatchApp {
 
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(BatchApp.class);
@@ -38,7 +41,7 @@ public class BatchApp {
 
     public static void main(String[] args) {
         try {
-            WebStarter starter = new WebStarter(BatchApp.class);
+            BatchStarter starter = new BatchStarter(BatchApp.class);
             starter.start(args);
         } catch (Exception exception) {
             logger.error("[WebApp] could not launch app.", exception);
