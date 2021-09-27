@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -64,6 +66,14 @@ public final class PropertyUtils {
         final InputStreamFactory inputStreamFactory = new FileInputStreamFactory(filePath);
         return loadProperty(new Properties(), inputStreamFactory, DEFAULT_ENCODING);
     }
+
+    public static Properties loadProperty(Properties properties, final Path filePath) throws IOException {
+        Objects.requireNonNull(filePath, "filePath");
+
+        InputStreamFactory streamFactory = new PathFactory(filePath);
+        return loadProperty(properties, streamFactory, DEFAULT_ENCODING);
+    }
+
 
     public static Properties loadPropertyFromClassPath(final String classPath) throws IOException {
         Objects.requireNonNull(classPath, "classPath");
@@ -108,7 +118,7 @@ public final class PropertyUtils {
         return properties;
     }
 
-    public static class FileInputStreamFactory implements  InputStreamFactory {
+    public static class FileInputStreamFactory implements InputStreamFactory {
         private final String filePath;
 
         public FileInputStreamFactory(String filePath) {
@@ -121,4 +131,16 @@ public final class PropertyUtils {
         }
     }
 
+    public static class PathFactory implements InputStreamFactory {
+        private final Path filePath;
+
+        public PathFactory(Path filePath) {
+            this.filePath = Objects.requireNonNull(filePath, "filePath");
+        }
+
+        @Override
+        public InputStream openInputStream() throws IOException {
+            return Files.newInputStream(filePath);
+        }
+    }
 }

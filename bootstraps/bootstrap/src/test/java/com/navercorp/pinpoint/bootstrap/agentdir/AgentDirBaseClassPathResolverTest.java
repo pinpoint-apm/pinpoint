@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.bootstrap.agentdir;
 import com.navercorp.pinpoint.bootstrap.AgentDirGenerator;
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
-import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -27,9 +26,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.JarFile;
@@ -41,28 +41,28 @@ public class AgentDirBaseClassPathResolverTest {
 
     private static final Logger logger = LoggerFactory.getLogger(AgentDirBaseClassPathResolverTest.class);
 
-    private static final String BOOTSTRAP_JAR = "pinpoint-bootstrap-" + Version.VERSION + ".jar";
+    private static final Path BOOTSTRAP_JAR = Paths.get("pinpoint-bootstrap-" + Version.VERSION + ".jar");
     private static final String TEST_AGENT_DIR = "testagent";
-    private static final String SEPARATOR = File.separator;
 
     private static final AtomicInteger AGENT_ID_ALLOCATOR = new AtomicInteger();
 
-    private static String agentBuildDir;
-    private static String agentBootstrapPath;
+    private static Path agentBuildDir;
+    private static Path agentBootstrapPath;
 
     private static AgentDirGenerator agentDirGenerator;
 
     @BeforeClass
     public static void beforeClass() throws Exception {
 
-        String classLocation = getClassLocation(AgentDirBaseClassPathResolverTest.class);
+        Path classLocation = getClassLocation(AgentDirBaseClassPathResolverTest.class);
         logger.debug("buildDir:{}", classLocation);
 
-        agentBuildDir = classLocation + SEPARATOR + TEST_AGENT_DIR + '_' + AGENT_ID_ALLOCATOR.incrementAndGet();
+        String testDir = TEST_AGENT_DIR + '_' + AGENT_ID_ALLOCATOR.incrementAndGet();;
+        agentBuildDir = classLocation.resolve(testDir);
 
         logger.debug("agentBuildDir:{}", agentBuildDir);
 
-        agentBootstrapPath = agentBuildDir + SEPARATOR + BOOTSTRAP_JAR;
+        agentBootstrapPath = agentBuildDir.resolve(BOOTSTRAP_JAR);
 
         logger.debug("agentBootstrapPath:{}", agentBootstrapPath);
 
@@ -71,7 +71,7 @@ public class AgentDirBaseClassPathResolverTest {
 
     }
 
-    private static void createAgentDir(String tempAgentDir) throws IOException {
+    private static void createAgentDir(Path tempAgentDir) throws IOException {
 
         agentDirGenerator = new AgentDirGenerator(tempAgentDir);
         agentDirGenerator.create();
@@ -96,20 +96,20 @@ public class AgentDirBaseClassPathResolverTest {
         AgentDirectory agentDirectory = classPathResolver.resolve();
         Assert.assertNotNull("verify agent directory ", agentDirectory);
 
-        String findAgentJar = agentDirectory.getAgentJarName();
+        Path findAgentJar = agentDirectory.getAgentJarName();
         Assert.assertNotNull(findAgentJar);
 
-        String agentJar = agentDirectory.getAgentJarName();
+        Path agentJar = agentDirectory.getAgentJarName();
         Assert.assertEquals(BOOTSTRAP_JAR, agentJar);
 
-        String agentPath = agentDirectory.getAgentJarFullPath();
+        Path agentPath = agentDirectory.getAgentJarFullPath();
         Assert.assertEquals(agentBootstrapPath, agentPath);
 
-        String agentDirPath = agentDirectory.getAgentDirPath();
+        Path agentDirPath = agentDirectory.getAgentDirPath();
         Assert.assertEquals(agentBuildDir, agentDirPath);
 
-        String agentLibPath = agentDirectory.getAgentLibPath();
-        Assert.assertEquals(agentBuildDir + File.separator + "lib", agentLibPath);
+        Path agentLibPath = agentDirectory.getAgentLibPath();
+        Assert.assertEquals(agentBuildDir.resolve("lib"), agentLibPath);
 
         List<JarFile> bootstrapJarFile = agentDirectory.getBootDir().openJarFiles();
         closeJarFile(bootstrapJarFile);
@@ -126,11 +126,10 @@ public class AgentDirBaseClassPathResolverTest {
         }
     }
 
-    private static String getClassLocation(Class<?> clazz) {
+    private static Path getClassLocation(Class<?> clazz) throws Exception {
         URL location = CodeSourceUtils.getCodeLocation(clazz);
         logger.debug("codeSource.getCodeLocation:{}", location);
-        File file = FileUtils.toFile(location);
-        return file.getPath();
+        return Paths.get(location.toURI());
     }
 
 
@@ -142,18 +141,18 @@ public class AgentDirBaseClassPathResolverTest {
         findAgentJar(agentBootstrapPath);
 
 
-        findAgentJarAssertFail(agentBuildDir + File.separator + "pinpoint-bootstrap-unknown.jar");
+        findAgentJarAssertFail(Paths.get(agentBuildDir.toString(), "pinpoint-bootstrap-unknown.jar"));
     }
 
-    private void findAgentJar(String path) {
+    private void findAgentJar(Path path) {
         AgentDirBaseClassPathResolver classPathResolver = new AgentDirBaseClassPathResolver(path);
-        String agentJar = classPathResolver.findBootstrapJar(path);
+        Path agentJar = classPathResolver.findBootstrapJar(path);
         Assert.assertNotNull(agentJar);
     }
 
-    private void findAgentJarAssertFail(String path) {
+    private void findAgentJarAssertFail(Path path) {
         AgentDirBaseClassPathResolver classPathResolver = new AgentDirBaseClassPathResolver(path);
-        String agentJar = classPathResolver.findBootstrapJar(path);
+        Path agentJar = classPathResolver.findBootstrapJar(path);
         Assert.assertNull(agentJar);
     }
 

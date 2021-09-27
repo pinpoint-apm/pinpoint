@@ -16,23 +16,23 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ProfileLogConfigResolver implements LogConfigResolver {
-    private final String profilesPath;
+    private final Path profilesPath;
     private final String activeProfile;
 
-    public ProfileLogConfigResolver(String profilesPath, String activeProfile) {
+    public ProfileLogConfigResolver(Path profilesPath, String activeProfile) {
         this.profilesPath = Objects.requireNonNull(profilesPath, "profilesPath");
         this.activeProfile = Objects.requireNonNull(activeProfile, "activeProfile");
     }
 
     @Override
-    public String getLogPath() {
-        return profilesPath + File.separator + activeProfile + File.separator;
+    public Path getLogPath() {
+        return this.profilesPath.resolve(activeProfile);
     }
 }

@@ -26,8 +26,6 @@ import java.util.concurrent.Callable;
  */
 public class AgentBootLoader {
 
-    private static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
-
     private final ClassLoader classLoader;
 
     private final String bootClass;

@@ -21,7 +21,10 @@ import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.net.URI;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -46,12 +49,12 @@ public class JavaAgentPathResolver {
     private static AgentPathFinder[] newAgentPathFinder() {
         AgentPathFinder classAgentPath = new ClassAgentPathFinder();
         AgentPathFinder inputArgumentAgentPath = new InputArgumentAgentPathFinder();
-        return new AgentPathFinder[] {classAgentPath, inputArgumentAgentPath};
+        return new AgentPathFinder[]{classAgentPath, inputArgumentAgentPath};
     }
 
-    public String resolveJavaAgentPath() {
+    public Path resolveJavaAgentPath() {
         for (AgentPathFinder agentPath : agentPathFinders) {
-            final String path = agentPath.getPath();
+            final Path path = agentPath.getPath();
             if (path != null) {
                 return path;
             }
@@ -60,7 +63,7 @@ public class JavaAgentPathResolver {
     }
 
     interface AgentPathFinder {
-        String getPath();
+        Path getPath();
     }
 
     static class ClassAgentPathFinder implements AgentPathFinder {
@@ -77,9 +80,12 @@ public class JavaAgentPathResolver {
         }
 
         @Override
-        public String getPath() {
+        public Path getPath() {
             // get bootstrap.jar location
-            return getJarLocation(this.className);
+            String jarLocation = getJarLocation(this.className);
+            logger.info("agentPath:" + jarLocation);
+            // escape windows leading slash
+            return Paths.get(URI.create(jarLocation));
         }
 
         @VisibleForTesting
@@ -96,10 +102,9 @@ public class JavaAgentPathResolver {
                 if (jarIndex == -1) {
                     throw new IllegalArgumentException("!/ not found " + path);
                 }
-                final String agentPath = path.substring("file:".length(), jarIndex);
-                logger.info("agentPath:" + agentPath);
+                final String agentPath = path.substring(0, jarIndex);
                 return agentPath;
-           }
+            }
             // unknown
             return null;
         }
@@ -114,19 +119,19 @@ public class JavaAgentPathResolver {
     static class InputArgumentAgentPathFinder implements AgentPathFinder {
 
         private final BootLogger logger = BootLogger.getLogger(getClass());
-        
+
         static final String JAVA_AGENT_OPTION = "-javaagent:";
-        
+
         private final Pattern DEFAULT_AGENT_PATTERN = AgentDirBaseClassPathResolver.bootstrap.getVersionPattern();
 
         @Override
-        public String getPath() {
+        public Path getPath() {
             final List<String> inputArguments = getInputArguments();
             for (String inputArgument : inputArguments) {
                 if (isPinpointAgent(inputArgument, DEFAULT_AGENT_PATTERN)) {
                     String agentPath = removeJavaAgentPrefix(inputArgument);
                     logger.info("agentPath:" + agentPath);
-                    return agentPath;
+                    return Paths.get(agentPath);
                 }
             }
             return null;
@@ -148,7 +153,7 @@ public class JavaAgentPathResolver {
         }
 
         private String removeJavaAgentPrefix(String inputArgument) {
-            return inputArgument.substring(JAVA_AGENT_OPTION.length(), inputArgument.length());
+            return inputArgument.substring(JAVA_AGENT_OPTION.length());
         }
     }
 

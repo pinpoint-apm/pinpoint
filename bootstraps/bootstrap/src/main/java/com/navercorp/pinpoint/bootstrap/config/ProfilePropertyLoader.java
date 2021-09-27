@@ -23,8 +23,9 @@ import com.navercorp.pinpoint.common.util.PropertyUtils;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
@@ -35,21 +36,19 @@ import java.util.Set;
  */
 class ProfilePropertyLoader implements PropertyLoader {
 
-    private static final String SEPARATOR = File.separator;
-
     private final BootLogger logger = BootLogger.getLogger(getClass());
 
     private final SimpleProperty javaSystemProperty;
     private final SimpleProperty osEnvProperty;
 
-    private final String agentRootPath;
-    private final String profilesPath;
+    private final Path agentRootPath;
+    private final Path profilesPath;
 
     private final String[] supportedProfiles;
 
     public static final String[] ALLOWED_PROPERTY_PREFIX = new String[]{"bytecode.", "profiler.", "pinpoint."};
 
-    public ProfilePropertyLoader(SimpleProperty javaSystemProperty, SimpleProperty osEnvProperty, String agentRootPath, String profilesPath, String[] supportedProfiles) {
+    public ProfilePropertyLoader(SimpleProperty javaSystemProperty, SimpleProperty osEnvProperty, Path agentRootPath, Path profilesPath, String[] supportedProfiles) {
         this.javaSystemProperty = Objects.requireNonNull(javaSystemProperty, "javaSystemProperty");
         this.osEnvProperty = Objects.requireNonNull(osEnvProperty, "osEnvProperty");
 
@@ -73,7 +72,7 @@ class ProfilePropertyLoader implements PropertyLoader {
      */
     @Override
     public Properties load() {
-        final String defaultConfigPath = this.agentRootPath + SEPARATOR + Profiles.CONFIG_FILE_NAME;
+        final Path defaultConfigPath = this.agentRootPath.resolve(Profiles.CONFIG_FILE_NAME);
 
         final Properties defaultProperties = new Properties();
         // 1. load default Properties
@@ -84,7 +83,7 @@ class ProfilePropertyLoader implements PropertyLoader {
         final String activeProfile = getActiveProfile(defaultProperties);
         logger.info(String.format("active profile:%s", activeProfile));
 
-        final String profilePath = this.profilesPath + SEPARATOR + activeProfile + SEPARATOR + Profiles.PROFILE_CONFIG_FILE_NAME;
+        final Path profilePath = Paths.get(profilesPath.toString(), activeProfile, Profiles.PROFILE_CONFIG_FILE_NAME);
         logger.info(String.format("load profile:%s", profilePath));
         loadFileProperties(defaultProperties, profilePath);
 
@@ -94,7 +93,7 @@ class ProfilePropertyLoader implements PropertyLoader {
         final String externalConfig = this.javaSystemProperty.getProperty(Profiles.EXTERNAL_CONFIG_KEY);
         if (externalConfig != null) {
             logger.info(String.format("load external config:%s", externalConfig));
-            loadFileProperties(defaultProperties, externalConfig);
+            loadFileProperties(defaultProperties, Paths.get(externalConfig));
         }
 
         // 4 OS environment variables
@@ -111,7 +110,7 @@ class ProfilePropertyLoader implements PropertyLoader {
         return defaultProperties;
     }
 
-    private void saveAgentRootPath(String agentRootPath, Properties properties) {
+    private void saveAgentRootPath(Path agentRootPath, Properties properties) {
         properties.put(AgentDirectory.AGENT_ROOT_PATH_KEY, agentRootPath);
         logger.info(String.format("agent root path:%s", agentRootPath));
     }
@@ -120,7 +119,7 @@ class ProfilePropertyLoader implements PropertyLoader {
         String log4jLocation = properties.getProperty(Profiles.LOG_CONFIG_LOCATION_KEY);
         if (StringUtils.isEmpty(log4jLocation)) {
             LogConfigResolver logConfigResolver = new ProfileLogConfigResolver(profilesPath, activeProfile);
-            log4jLocation = logConfigResolver.getLogPath();
+            log4jLocation = logConfigResolver.getLogPath().toString();
 
             properties.put(Profiles.LOG_CONFIG_LOCATION_KEY, log4jLocation);
         }
@@ -149,10 +148,9 @@ class ProfilePropertyLoader implements PropertyLoader {
         throw new IllegalStateException("unsupported profile:" + profile);
     }
 
-    private void loadFileProperties(Properties properties, String filePath) {
+    private void loadFileProperties(Properties properties, Path filePath) {
         try {
-            PropertyUtils.FileInputStreamFactory fileInputStreamFactory = new PropertyUtils.FileInputStreamFactory(filePath);
-            PropertyUtils.loadProperty(properties, fileInputStreamFactory, PropertyUtils.DEFAULT_ENCODING);
+            PropertyUtils.loadProperty(properties, filePath);
         } catch (IOException e) {
             logger.info(String.format("%s load fail Caused by:%s", filePath, e.getMessage()));
             throw new IllegalStateException(String.format("%s load fail Caused by:%s", filePath, e.getMessage()));

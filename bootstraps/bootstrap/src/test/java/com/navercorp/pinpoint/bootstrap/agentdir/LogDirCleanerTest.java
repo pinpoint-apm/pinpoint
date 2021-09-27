@@ -8,6 +8,9 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,7 +25,7 @@ public class LogDirCleanerTest {
         return time += 10000;
     }
 
-    private static File getRootDir(Class clazz) {
+    private static File getRootDir(Class<?> clazz) {
         String classPath = clazz.getName().replace('.', '/') + ".class";
         URL resource = clazz.getClassLoader().getResource(classPath);
         int index = resource.getPath().indexOf(classPath);
@@ -38,8 +41,8 @@ public class LogDirCleanerTest {
     public void setUp() throws Exception {
         File agentDir1 = newFolder("agentDir1");
 
-        File temp = new File(agentDir1.getPath() + File.separator + "tempFile1.txt");
-        temp.createNewFile();
+        Path temp = Paths.get(agentDir1.getPath(), "tempFile1.txt");
+        Files.createFile(temp);
 
         File agentDir2 = newFolder("agentDir2");
         File agentDir3 = newFolder("agentDir3");
@@ -53,7 +56,7 @@ public class LogDirCleanerTest {
 
     @Test
     public void clean0() {
-        LogDirCleaner logDirCleaner = new LogDirCleaner(temp.getRoot().getPath(), 0);
+        LogDirCleaner logDirCleaner = new LogDirCleaner(temp.getRoot().toPath(), 0);
         logDirCleaner.clean();
 
         String[] files = temp.getRoot().list();
@@ -62,7 +65,7 @@ public class LogDirCleanerTest {
 
     @Test
     public void clean2() {
-        LogDirCleaner logDirCleaner = new LogDirCleaner(temp.getRoot().getPath(), 2);
+        LogDirCleaner logDirCleaner = new LogDirCleaner(temp.getRoot().toPath(), 2);
         logDirCleaner.clean();
 
         List<String> files = Arrays.asList(temp.getRoot().list());
@@ -73,7 +76,7 @@ public class LogDirCleanerTest {
 
     @Test
     public void clean5() {
-        LogDirCleaner logDirCleaner = new LogDirCleaner(temp.getRoot().getPath(), 5);
+        LogDirCleaner logDirCleaner = new LogDirCleaner(temp.getRoot().toPath(), 5);
         logDirCleaner.clean();
 
         String[] files = temp.getRoot().list();

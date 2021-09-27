@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -38,7 +39,7 @@ public class ProfilePropertyLoaderTest {
 
         properties.setProperty("pinpoint.test", "a");
         File root = folder.getRoot();
-        ProfilePropertyLoader loader = new ProfilePropertyLoader(properties, properties, root.getPath(), "test", new String[]{"test"});
+        ProfilePropertyLoader loader = new ProfilePropertyLoader(properties, properties, root.toPath(), Paths.get("test"), new String[]{"test"});
         Assert.assertTrue(loader.isAllowPinpointProperty("pinpoint.test"));
 
         Assert.assertFalse(loader.isAllowPinpointProperty("unknown.test"));

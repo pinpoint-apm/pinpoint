@@ -37,6 +37,10 @@ public final class JarFileUtils {
         }
 
         final Attributes attributes = manifest.getMainAttributes();
+        return getValue(attributes, key, defaultValue);
+    }
+
+    public static String getValue(Attributes attributes, String key, String defaultValue) {
         final String value = attributes.getValue(key);
         if (value == null) {
             return defaultValue;
