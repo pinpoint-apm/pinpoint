@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.rabbitmq.util.RabbitMQTestConstants;
-import com.navercorp.pinpoint.plugin.rabbitmq.util.TestBroker;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
@@ -30,6 +29,7 @@ import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+
 import com.navercorp.test.pinpoint.plugin.rabbitmq.PropagationMarker;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.CommonConfig;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.MessageListenerConfig_Post_1_4_0;
@@ -65,16 +65,14 @@ import java.lang.reflect.Method;
 @Dependency({"org.springframework.amqp:spring-rabbit:[2.0.3.RELEASE,2.1.0.RELEASE)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
 @JvmVersion(8)
 @JvmArgument("-DtestLoggerEnable=false")
-public class SpringAmqpRabbit_2_0_3_to_2_1_0_IT {
+public class SpringAmqpRabbit_2_0_3_to_2_1_0_IT extends SpringAmqpRabbitITBase {
 
-    private static final TestBroker BROKER = new TestBroker();
     private static final TestApplicationContext CONTEXT = new TestApplicationContext();
 
     private final SpringAmqpRabbitTestRunner testRunner = new SpringAmqpRabbitTestRunner(CONTEXT);
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        BROKER.start();
         CONTEXT.init(
                 CommonConfig.class,
                 MessageListenerConfig_Post_1_4_0.class,
@@ -84,7 +82,6 @@ public class SpringAmqpRabbit_2_0_3_to_2_1_0_IT {
     @AfterClass
     public static void tearDownAfterClass() {
         CONTEXT.close();
-        BROKER.shutdown();
     }
 
     @Test

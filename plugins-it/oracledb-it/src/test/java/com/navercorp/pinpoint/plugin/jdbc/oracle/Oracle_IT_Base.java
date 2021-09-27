@@ -16,7 +16,11 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.oracle;
 
-import com.navercorp.pinpoint.pluginit.jdbc.*;
+import com.navercorp.pinpoint.pluginit.jdbc.DriverManagerUtils;
+import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
+import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
+import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
+
 import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.Before;
@@ -34,7 +38,38 @@ public abstract class Oracle_IT_Base {
     protected static OracleItHelper helper;
     public static OracleContainerWithWait oracle;
 
-    public static void startOracleDB(String dockerImageVersion, WaitStrategy waitStrategy) {
+
+    // ---------- For @BeforeSharedClass, @AfterSharedClass   //
+    private static String JDBC_URL;
+    private static String USER_NAME;
+    private static String PASS_WORD;
+
+    public static String getJdbcUrl() {
+        return JDBC_URL;
+    }
+
+    public static void setJdbcUrl(String jdbcUrl) {
+        JDBC_URL = jdbcUrl;
+    }
+
+    public static String getUserName() {
+        return USER_NAME;
+    }
+
+    public static void setUserName(String userName) {
+        USER_NAME = userName;
+    }
+
+    public static String getPassWord() {
+        return PASS_WORD;
+    }
+
+    public static void setPassWord(String passWord) {
+        PASS_WORD = passWord;
+    }
+    // ---------- //
+
+    public static void startOracleDB(String dockerImageVersion, WaitStrategy waitStrategy) throws Exception {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
         oracle = new OracleContainerWithWait(dockerImageVersion);
 
@@ -47,11 +82,22 @@ public abstract class Oracle_IT_Base {
 
         oracle.start();
 
-        DriverProperties driverProperties = new DriverProperties(oracle.getJdbcUrl(), oracle.getUsername(), oracle.getPassword(), new Properties());
+        setJdbcUrl(oracle.getJdbcUrl());
+        setUserName(oracle.getUsername());
+        setPassWord(oracle.getPassword());
+
+        DriverProperties driverProperties = createDriverProperties();
         helper = new OracleItHelper(driverProperties);
+        helper.create(JDBC_API);
     }
-    
-    public static void stopOracleDB() {
+
+    protected static DriverProperties createDriverProperties() {
+        DriverProperties driverProperties = new DriverProperties(getJdbcUrl(), getUserName(), getPassWord(), new Properties());
+        return driverProperties;
+    }
+
+    @AfterSharedClass
+    public static void sharedTearDown() throws Exception {
         if (oracle != null) {
             oracle.stop();
         }
@@ -66,7 +112,6 @@ public abstract class Oracle_IT_Base {
     @AfterClass
     public static void tearDown() throws Exception {
         DriverManagerUtils.deregisterDriver();
-        stopOracleDB();
     }
 
 }

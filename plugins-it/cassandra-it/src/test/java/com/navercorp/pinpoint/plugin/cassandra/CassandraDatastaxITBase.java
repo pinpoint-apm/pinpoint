@@ -27,7 +27,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
 import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
-import org.junit.After;
+import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
+
 import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.Before;
@@ -69,6 +70,16 @@ public abstract class CassandraDatastaxITBase {
 
     private static Cluster cluster;
 
+    public static int getPORT() {
+        return PORT;
+    }
+
+    public static void setPORT(int port) {
+        CassandraDatastaxITBase.PORT = port;
+    }
+
+    private static int PORT;
+
     public static void startCassandra(String dockerImageVersion) {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
@@ -77,9 +88,30 @@ public abstract class CassandraDatastaxITBase {
 
 //        String containerIpAddress = cassandra.getContainerIpAddress();
         final int port = cassandra.getMappedPort(CassandraContainer.CQL_PORT);
-        CASSANDRA_ADDRESS = HOST + ":" + port;
-        cluster = newCluster(HOST, port);
+        setPORT(port);
+
+        cluster = newCluster(HOST, getPORT());
         init(cluster);
+    }
+
+    @AfterSharedClass
+    public static void sharedTearDown() {
+        if (cassandra != null) {
+            cassandra.stop();
+        }
+    }
+
+    @BeforeClass
+    public static void setup() {
+        CASSANDRA_ADDRESS = HOST + ":" + getPORT();
+        cluster = newCluster(HOST, getPORT());
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        if (cluster == null) {
+            cluster.close();
+        }
     }
 
     private static Cluster newCluster(String host, int port) {
@@ -111,16 +143,6 @@ public abstract class CassandraDatastaxITBase {
         verifier.ignoreServiceType("HTTP_CLIENT_4", "HTTP_CLIENT_4_INTERNAL");
     }
 
-    @After
-    public void tearDown() {
-    }
-
-    @AfterClass
-    public static void tearDownAfterClass() {
-        if (cassandra != null) {
-            cassandra.stop();
-        }
-    }
 
     @Test
     public void testBoundStatement() throws Exception {

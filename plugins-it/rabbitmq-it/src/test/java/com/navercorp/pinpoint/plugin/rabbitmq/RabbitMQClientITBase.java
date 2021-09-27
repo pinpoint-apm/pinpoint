@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.plugin.rabbitmq;
 
 import com.navercorp.pinpoint.plugin.rabbitmq.util.RabbitMQTestConstants;
 import com.navercorp.pinpoint.plugin.rabbitmq.util.TestBroker;
-import com.navercorp.pinpoint.test.plugin.JvmArgument;
+import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
+import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
+
 import com.rabbitmq.client.ConnectionFactory;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 
 /**
  * @author Jiaqi Feng
@@ -35,13 +35,13 @@ public abstract class RabbitMQClientITBase {
     private final ConnectionFactory connectionFactory = new ConnectionFactory();
     protected final RabbitMQTestRunner testRunner = new RabbitMQTestRunner(connectionFactory);
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
+    @BeforeSharedClass
+    public static void sharedSetUp() throws Exception {
         BROKER.start();
     }
 
-    @AfterClass
-    public static void tearDownAfterClass() {
+    @AfterSharedClass
+    public static void sharedTearDown() {
         BROKER.shutdown();
     }
 

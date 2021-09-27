@@ -15,6 +15,9 @@ package com.navercorp.pinpoint.plugin.elasticsearch;
  * limitations under the License.
  */
 
+import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
+import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
+
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -38,8 +41,8 @@ public abstract class ElasticsearchITBase {
 
     public static String ELASTICSEARCH_ADDRESS = "127.0.0.1:" + 9200;
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
+    @BeforeSharedClass
+    public static void sharedSetUp() throws Exception {
         embeddedElastic = EmbeddedElastic.builder()
                 .withElasticVersion("6.8.0")
                 .withSetting(PopularProperties.HTTP_PORT, 9200)
@@ -48,14 +51,24 @@ public abstract class ElasticsearchITBase {
                 .build()
                 .start();
 
+    }
+
+    @BeforeClass
+    public static void setup() throws IOException {
         restHighLevelClient = new RestHighLevelClient(
                 RestClient.builder(
                         new HttpHost("127.0.0.1", 9200, "http")));
     }
 
     @AfterClass
-    public static void tearDownAfterClass() throws IOException {
-        restHighLevelClient.close();
+    public static void tearDown() throws IOException {
+        if (restHighLevelClient == null) {
+            restHighLevelClient.close();
+        }
+    }
+
+    @AfterSharedClass
+    public static void sharedTearDown() throws IOException {
         if (embeddedElastic != null)
             embeddedElastic.stop();
     }

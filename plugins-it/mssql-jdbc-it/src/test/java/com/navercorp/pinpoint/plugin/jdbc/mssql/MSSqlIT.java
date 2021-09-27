@@ -16,7 +16,12 @@
 package com.navercorp.pinpoint.plugin.jdbc.mssql;
 
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
-import com.navercorp.pinpoint.pluginit.jdbc.*;
+import com.navercorp.pinpoint.pluginit.jdbc.DataBaseTestCase;
+import com.navercorp.pinpoint.pluginit.jdbc.DefaultJDBCApi;
+import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
+import com.navercorp.pinpoint.pluginit.jdbc.JDBCApi;
+import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
+import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
@@ -24,6 +29,9 @@ import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
+import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
+
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -62,12 +70,56 @@ public class MSSqlIT extends DataBaseTestCase {
     private static JdbcUrlParserV2 jdbcUrlParser;
     public static final MSSQLServerContainer mssqlserver = MSSQLServerContainerFactory.newMSSQLServerContainer(logger);
 
-    @BeforeClass
-    public static void setup() {
+    // ---------- For @BeforeSharedClass, @AfterSharedClass   //
+    private static String JDBC_URL;
+    private static String USER_NAME;
+    private static String PASS_WORD;
+
+    public static String getJdbcUrl() {
+        return JDBC_URL;
+    }
+
+    public static void setJdbcUrl(String jdbcUrl) {
+        JDBC_URL = jdbcUrl;
+    }
+
+    public static String getUserName() {
+        return USER_NAME;
+    }
+
+    public static void setUserName(String userName) {
+        USER_NAME = userName;
+    }
+
+    public static String getPassWord() {
+        return PASS_WORD;
+    }
+
+    public static void setPassWord(String passWord) {
+        PASS_WORD = passWord;
+    }
+    // ---------- //
+
+    @BeforeSharedClass
+    public static void sharedSetup() {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
         mssqlserver.start();
 
-        driverProperties = new DriverProperties(mssqlserver.getJdbcUrl(), mssqlserver.getUsername(), mssqlserver.getPassword(), new Properties());
+        setJdbcUrl(mssqlserver.getJdbcUrl());
+        setUserName(mssqlserver.getUsername());
+        setPassWord(mssqlserver.getPassword());
+    }
+
+    @AfterSharedClass
+    public static void sharedTearDown() {
+        if (mssqlserver != null) {
+            mssqlserver.stop();
+        }
+    }
+
+    @BeforeClass
+    public static void setup() {
+        driverProperties = new DriverProperties(getJdbcUrl(), getUserName(), getPassWord(), new Properties());
         driverClass = new MSSqlJDBCDriverClass();
         jdbcApi = new DefaultJDBCApi(driverClass);
 

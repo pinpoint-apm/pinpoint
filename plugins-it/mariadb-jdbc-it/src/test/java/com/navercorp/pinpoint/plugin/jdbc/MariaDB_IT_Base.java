@@ -19,6 +19,9 @@ package com.navercorp.pinpoint.plugin.jdbc;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
+import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
+import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assume;
@@ -49,12 +52,8 @@ import static org.junit.Assert.fail;
  */
 public abstract class MariaDB_IT_Base {
     public static Logger LOGGER = LoggerFactory.getLogger(MariaDB_IT_Base.class);
-    private static int PORT;
-    protected static String URL;
-    protected static final String DATABASE_NAME = "test";
 
-//    protected static final String JDBC_URL = "jdbc:mariadb://" + URL + "/" + DATABASE_NAME;
-    protected static String JDBC_URL;
+    protected static final String DATABASE_NAME = "test";
 
     // for Statement
     protected static final String STATEMENT_QUERY = "SELECT count(1) FROM playground";
@@ -73,31 +72,56 @@ public abstract class MariaDB_IT_Base {
 //    @Rule
     public static MariaDBContainer mariaDB = new MariaDBContainer();
 
+    protected static final String USERNAME = "root";
+    protected static final String PASSWORD = "";
 
     protected static final String DB_TYPE = "MARIADB";
     protected static final String DB_EXECUTE_QUERY = "MARIADB_EXECUTE_QUERY";
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
+    // ---------- For @BeforeSharedClass, @AfterSharedClass   //
+    // for shared test'
+    protected static String JDBC_URL;
+    protected static String URL;
+
+    public static String getJdbcUrl() {
+        return JDBC_URL;
+    }
+
+    public static void setJdbcUrl(String jdbcUrl) {
+        JDBC_URL = jdbcUrl;
+    }
+
+    public static String getURL() {
+        return URL;
+    }
+
+    public static void setURL(String URL) {
+        MariaDB_IT_Base.URL = URL;
+    }
+    // ---------- //
+
+    @BeforeSharedClass
+    public static void sharedSetUp() throws Exception {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
         mariaDB.withLogConsumer(new Slf4jLogConsumer(LOGGER));
         mariaDB.withDatabaseName(DATABASE_NAME);
-        mariaDB.withUsername("root");
-        mariaDB.withPassword("");
+        mariaDB.withUsername(USERNAME);
+        mariaDB.withPassword(PASSWORD);
         mariaDB.withInitScript("jdbc/mariadb/init.sql");
 //        mariaDB.withUrlParam("noAccessToProcedureBodies", "true");
         mariaDB.start();
 
-        JDBC_URL = mariaDB.getJdbcUrl();
-
-        PORT = mariaDB.getMappedPort(3306);
-        URL = mariaDB.getHost() + ":" + PORT;
+        setJdbcUrl(mariaDB.getJdbcUrl());
+        int port = mariaDB.getMappedPort(3306);
+        setURL(mariaDB.getHost() + ":" + port);
     }
 
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
-        mariaDB.stop();
+    @AfterSharedClass
+    public static void sharedTearDown() throws Exception {
+        if (mariaDB != null) {
+            mariaDB.stop();
+        }
     }
 
     abstract JDBCDriverClass getJDBCDriverClass();
@@ -113,8 +137,6 @@ public abstract class MariaDB_IT_Base {
     public void deregisterDriver() {
         DriverManagerUtils.deregisterDriver();
     }
-
-
 
     protected final void executeStatement() throws Exception {
         final int expectedResultSize = 1;
@@ -142,7 +164,7 @@ public abstract class MariaDB_IT_Base {
     }
 
     private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(JDBC_URL, mariaDB.getUsername(), mariaDB.getPassword());
+        return DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
     }
 
     protected final void executePreparedStatement() throws Exception {
