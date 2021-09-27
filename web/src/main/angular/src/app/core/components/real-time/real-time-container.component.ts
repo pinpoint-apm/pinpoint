@@ -41,7 +41,7 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
     activeOnly = false;
     isPinUp = true;
     lastHeight: number;
-    minHeight = 343;
+    minHeight = 35;
     maxHeightPadding = 50; // Header Height
     timezone$: Observable<string>;
     dateFormat$: Observable<string>;
