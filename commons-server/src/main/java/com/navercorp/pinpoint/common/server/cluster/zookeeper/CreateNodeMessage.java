@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.StringUtils;
+import org.springframework.util.Assert;
 
 import java.util.Objects;
 
@@ -36,7 +35,7 @@ public class CreateNodeMessage {
     }
 
     public CreateNodeMessage(String nodePath, byte[] data, boolean creatingParentPathsIfNeeded) {
-        Assert.isTrue(StringUtils.hasLength(nodePath), "nodePath must not be empty");
+        Assert.hasLength(nodePath, "nodePath must not be empty");
         this.nodePath = nodePath;
 
         this.data = Objects.requireNonNull(data, "data");

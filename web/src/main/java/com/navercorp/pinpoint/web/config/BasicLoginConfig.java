@@ -26,6 +26,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -82,9 +83,7 @@ public class BasicLoginConfig {
 
         this.adminList = createAdmin(adminIdAndPasswordPairList);
 
-        if (StringUtils.isEmpty(jwtSecretKey)) {
-            throw new IllegalArgumentException("'jwtSecretKey' may not be empty");
-        }
+        Assert.hasLength(jwtSecretKey, "jwtSecretKey must not be empty");
     }
 
     private List<UserDetails> createUser(List<String> idAndPasswordList) {

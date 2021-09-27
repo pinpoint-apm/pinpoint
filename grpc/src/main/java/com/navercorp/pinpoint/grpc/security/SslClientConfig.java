@@ -28,7 +28,7 @@ public class SslClientConfig {
     private static final boolean DISABLED = false;
     private static final String EMPTY_STRING = "";
 
-    public static SslClientConfig DISABLED_CONFIG = new SslClientConfig(false, EMPTY_STRING, null);
+    public static final SslClientConfig DISABLED_CONFIG = new SslClientConfig(false, EMPTY_STRING, null);
 
     private final boolean enable;
     private final String sslProviderType;

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.hbase.schema.reader.core;
 
-import org.springframework.util.StringUtils;
+import org.springframework.util.Assert;
 
 import java.util.Objects;
 
@@ -29,9 +29,7 @@ public abstract class ColumnFamilyChange implements Change {
     private final ColumnFamilyConfiguration columnFamilyConfiguration;
 
     protected ColumnFamilyChange(String name, ColumnFamilyConfiguration columnFamilyConfiguration) {
-        if (StringUtils.isEmpty(name)) {
-            throw new IllegalArgumentException("name must not be empty");
-        }
+        Assert.hasLength(name, "name must not be empty");
         this.name = name;
         this.columnFamilyConfiguration = Objects.requireNonNull(columnFamilyConfiguration, "columnFamilyConfiguration");
     }

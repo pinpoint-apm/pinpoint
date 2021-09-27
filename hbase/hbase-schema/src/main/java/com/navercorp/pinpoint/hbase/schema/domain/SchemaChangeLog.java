@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.hbase.schema.domain;
 
 import com.navercorp.pinpoint.hbase.schema.core.CheckSum;
-import org.springframework.util.StringUtils;
+import org.springframework.util.Assert;
 
 import java.util.Objects;
 
@@ -68,9 +68,7 @@ public class SchemaChangeLog {
         private String value;
 
         public Builder id(String id) {
-            if (StringUtils.isEmpty(id)) {
-                throw new IllegalArgumentException("id must not be empty");
-            }
+            Assert.hasLength(id, "id must not be empty");
             this.id = id;
             return this;
         }

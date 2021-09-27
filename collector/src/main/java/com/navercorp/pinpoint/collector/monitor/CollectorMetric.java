@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.monitor;
 
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.util.LoggerUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
 
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.JvmAttributeGaugeSet;
@@ -32,6 +31,7 @@ import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -125,9 +125,7 @@ public class CollectorMetric {
         if (collectorConfiguration.isMetricJmxEnable()) {
 
             final String metricJmxDomainName = collectorConfiguration.getMetricJmxDomainName();
-            if (StringUtils.isEmpty(metricJmxDomainName)) {
-                throw new IllegalArgumentException("metricJmxDomainName may not be empty");
-            }
+            Assert.hasLength(metricJmxDomainName, "metricJmxDomainName must not be empty");
 
             final JmxReporter jmxReporter = createJmxReporter(metricJmxDomainName);
             jmxReporter.start();
