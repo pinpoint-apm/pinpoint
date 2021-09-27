@@ -1,4 +1,4 @@
-import { Directive, ElementRef, OnInit, OnDestroy, Renderer2, Input, HostListener } from '@angular/core';
+import { Directive, ElementRef, OnInit, OnDestroy, Renderer2, Input, HostListener, Output, EventEmitter } from '@angular/core';
 
 import { WebAppSettingDataService } from 'app/shared/services';
 
@@ -8,6 +8,7 @@ import { WebAppSettingDataService } from 'app/shared/services';
 export class ResizeTopDirective implements OnInit, OnDestroy {
     @Input() minHeight: number;
     @Input() maxHeightPadding: number;
+    @Output() outResize = new EventEmitter<number>();
 
     private maxHeight: number;
     private dragging = false;
@@ -60,7 +61,7 @@ export class ResizeTopDirective implements OnInit, OnDestroy {
         this.dragging = false;
     }
 
-    resize(dy: number): void {
+    private resize(dy: number): void {
         if (dy === 0) {
             return;
         }
