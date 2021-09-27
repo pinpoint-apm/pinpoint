@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
+
 import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.BeforeClass;
@@ -33,11 +35,8 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.JdbcDatabaseContainer;
-
 
 import java.net.URL;
-import java.util.Properties;
 
 /**
  * @author HyunGil Jeong
@@ -58,17 +57,22 @@ public class PostgreSql_Post_9_4_1208_IT extends PostgreSqlBase {
 
     private static PostgreSqlJDBCApi jdbcApi;
 
-    private static JdbcDatabaseContainer container;
+    @BeforeSharedClass
+    public static void sharedSetup() throws Exception {
+        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+        container = PostgreSQLContainerFactory.newContainer(logger);
+
+        container.start();
+        setJdbcUrl(container.getJdbcUrl());
+        setUserName(container.getUsername());
+        setPassWord(container.getPassword());
+    }
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
         invalidJarCheck();
 
-        container = PostgreSQLContainerFactory.newContainer(logger);
-        container.start();
-
-        DriverProperties driverProperties = new DriverProperties(container.getJdbcUrl(), container.getUsername(), container.getPassword(), new Properties());
+        DriverProperties driverProperties = getDriverProperties();
         driverClass = new PostgreSql_Post_9_4_1208_JDBCDriverClass();
         jdbcApi = new PostgreSqlJDBCApi(driverClass);
 

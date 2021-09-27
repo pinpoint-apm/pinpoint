@@ -17,15 +17,18 @@ package com.navercorp.pinpoint.plugin.elasticsearchbboss;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
+import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
+
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.elasticsearch.client.ClientInterface;
 import org.frameworkset.elasticsearch.entity.ESDatas;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import pl.allegro.tech.embeddedelasticsearch.EmbeddedElastic;
 import pl.allegro.tech.embeddedelasticsearch.PopularProperties;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,8 +50,8 @@ public abstract class ElasticsearchExecutorIT {
     private static ClientInterface configRestClientInterface;
     private String serviceType = "ElasticsearchBBoss";
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
+    @BeforeSharedClass
+    public static void sharedSetup() throws IOException, InterruptedException {
         // BBoss support elasticsearch 1.x,2.x,5.x,6.x,7.x,+
         // and we use elasticsearch 6.3.0 to test the Elasticsearch BBoss client plugin.
 
@@ -66,7 +69,17 @@ public abstract class ElasticsearchExecutorIT {
                 .withStartTimeout(2, MINUTES)
                 .build()
                 .start();
+    }
 
+    @AfterSharedClass
+    public static void sharedTearDown() {
+        if (embeddedElastic != null) {
+            embeddedElastic.stop();
+        }
+    }
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
         //Build a elasticsearch client instance(Return a single instance but multithreaded security) with dsl config file elasticsearchbboss/car-mapping.xml.
         configRestClientInterface = ElasticSearchHelper.getConfigRestClientUtil("elasticsearchbboss/car-mapping.xml");
         // Create an elasticsearch client interface instance with a specific Elasticserch datasource name  and with dsl config file elasticsearchbboss/car-mapping.xml.
@@ -79,14 +92,6 @@ public abstract class ElasticsearchExecutorIT {
 
         // A multidatasource spring boot demo: https://github.com/bbossgroups/es_bboss_web/tree/multiesdatasource
     }
-
-    @AfterClass
-    public static void tearDownAfterClass() {
-        if (embeddedElastic != null) {
-            embeddedElastic.stop();
-        }
-    }
-
 
     @Test
     public void indiceCreate() throws Exception {

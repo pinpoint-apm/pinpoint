@@ -221,7 +221,7 @@ public class SharedPinpointPluginTest {
         ExecuteSharedThread executeSharedThread = new ExecuteSharedThread(testClazzName, testClassLoader);
 
         executeSharedThread.startBefore();
-        executeSharedThread.awaitBeforeCompleted(5, TimeUnit.MINUTES);
+        executeSharedThread.awaitBeforeCompleted(10, TimeUnit.MINUTES);
         Properties properties = executeSharedThread.getProperties();
         if (logger.isDebugEnabled()) {
             logger.debug("sharedThread properties:{}", properties);
