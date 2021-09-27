@@ -64,6 +64,7 @@ export class ScatterChartDataBlock {
             const metaInfo = this.agentMetadata[key];
             const agentName = metaInfo[MetadataIndex.AGENT_NAME];
             this.transactionDataByAgent[agentName] = [];
+            this.dataByGrid[agentName] = {};
 
             this.countByType[agentName] = {};
             this.typeManager.getTypeNameList().forEach((typeName: string) => {
@@ -76,11 +77,7 @@ export class ScatterChartDataBlock {
         this.agentList.sort();
     }
     private classifyDataByAgent(): void {
-        // TODO: 요거 한번 worker로 빼보자. 밑에 sampleData 도?
-        // this.worker.postMessage({typeManager: this.typeManager, data: this.originalData});
-        // this.worker.onmessage = ({data}) => {
-
-        // };
+        // TODO: 이거 웹워커로 다시한번 트라이해보자.
         this.originalData.scatter.dotList.forEach((tData: number[]) => {
             const agentName = this.getAgentName(tData);
             const typeName = this.typeManager.getNameByIndex(tData[DataIndex.TYPE]);
@@ -95,52 +92,27 @@ export class ScatterChartDataBlock {
              * this.transactionData = [dot1, dot2, dot3, ...]
              * this.transactionDataByAgent = {agent1: [dot1, dot2, ...], agent2: [dot3, dot4, ...]} <- 실제로 요거가지고 그림.
              * this.countByType = {agent1: {success: 103, fail: 100}, agent2: {success: 102, fail: 100}}
-             * 샘플링 결과의 새로운 프로퍼티 newProp이 this.transactionDataByAgent 를 대체하도록 해보자. 그래서 밑에 getDataByAgentAndIndex, countByAgent에서도 다 대체.
              */
+            if (tData[DataIndex.GROUP_COUNT] === 0) {
+                return;
+            }
 
-            // TODO: 밑에 sampleData를 여기에 끼워넣을 수 있을거 같은데?
+            // Determine which grid each dot is belonged to in the virtual-grid
+            const {x0, y0, x1, y1} = this.virtualGridManager.getGrid(tNewData); // {x0: 1, y0: 2, x1: 3, y1: 4}
+            const gridKey = `${x0}-${y0}-${x1}-${y1}`;
+
+            // {agent1: {[`${x1}-${x2}-${y1}-${y2}`]: {success: [dot1, dot2, ...], fail: [dot3, dot4, ...]}, ... }, agent2: ...}
+            if (this.dataByGrid[agentName][gridKey]) {
+                this.dataByGrid[agentName][gridKey][typeName] ? this.dataByGrid[agentName][gridKey][typeName].push(tNewData) : this.dataByGrid[agentName][gridKey][typeName] = [tNewData];
+            } else {
+                this.dataByGrid[agentName][gridKey] = {};
+                this.dataByGrid[agentName][gridKey][typeName] = [tNewData];
+            }
         });
     }
 
     private sampleData(): void {
-        // console.log(this.typeManager, this.coordinateManager);
-        // this.worker.postMessage({
-        //     // typeManager: JSON.stringify(this.typeManager),
-        //     coordinateManager: this.coordinateManager,
-        //     virtualGridManager: this.virtualGridManager,
-        //     data: this.transactionDataByAgent
-        // });
-        // const obj = {a: 1, b: 2, c: () => 1};
-        // this.worker.postMessage(JSON.stringify(obj));
-        // this.worker.onmessage = ({data}) => {
-        //     console.log(data);
-        //     this.sampledData = data;
-        // };
-
-        // Determine which grid each dot is belonged to in the virtual-grid
-        this.dataByGrid = Object.entries(this.transactionDataByAgent).reduce((acc: any, [agent, data]: [string, number[][]]) => {
-            const drawableData = data.filter((dot: number[]) => dot[DataIndex.GROUP_COUNT] !== 0);
-
-            return {...acc, [agent]: drawableData.reduce((dataByAgent: any, dot: number[]) => {
-                const type = this.typeManager.getNameByIndex(dot[DataIndex.TYPE]);
-                const {x0, y0, x1, y1} = this.virtualGridManager.getGrid(dot); // {x0: 1, y0: 2, x1: 3, y1: 4}
-
-                const gridKey = `${x0}-${y0}-${x1}-${y1}`;
-
-                if (dataByAgent[gridKey]) {
-                    dataByAgent[gridKey][type] ? dataByAgent[gridKey][type].push(dot) : dataByAgent[gridKey][type] = [dot];
-                } else {
-                    dataByAgent[gridKey] = {};
-                    dataByAgent[gridKey][type] = [dot];
-                }
-
-                return dataByAgent;
-            }, {})};
-        }, {} as any);
-
-        // console.log(this.dataByGrid);
         // this.sampledData = {agent1: {success: [{x, y, count}, {x, y, count}...], fail: [{x, y, count}, {x, y, count}...]}, agent2: [{x, y, count}, {x, y, count}], ...}
-        // TODO: 점의 가중치를 고려하기 later
         this.sampledData = Object.entries(this.dataByGrid).reduce((dataByAgent: any, [agent, dataByGrid]: [string, any]) => {
             // dataByGrid: {[`${x1}-${x2}-${y1}-${y2}`]: {success: [dot1, dot2, ...], fail: [dot3, dot4, ...]}, ... }
             return {...dataByAgent, [agent]: Object.values(dataByGrid).reduce((dataByType: any, dotData: any) => {
@@ -169,8 +141,6 @@ export class ScatterChartDataBlock {
                 return dataByType;
             }, {})};
         }, {} as any);
-
-        // console.log(this.sampledData);
     }
 
     getSampledData(): any {
