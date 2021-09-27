@@ -19,9 +19,12 @@ package com.navercorp.pinpoint.bootstrap.agentdir;
 
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.net.URL;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,26 +35,26 @@ public class AgentDirectory {
 
     public static final String AGENT_ROOT_PATH_KEY = "pinpoint.agent.root.path";
 
-    public static final String LIB_DIR = "lib";
-    public static final String PLUGIN_DIR = "plugin";
-    public static final String LOGS_DIR = "logs";
-    public static final String PROFILES_DIR = "profiles";
+    public static final Path LIB_DIR = Paths.get("lib");
+    public static final Path PLUGIN_DIR = Paths.get("plugin");
+    public static final Path LOGS_DIR = Paths.get("logs");
+    public static final Path PROFILES_DIR = Paths.get("profiles");
 
-    private final String agentJarName;
-    private final String agentJarFullPath;
-    private final String agentDirPath;
+    private final Path agentJarName;
+    private final Path agentJarFullPath;
+    private final Path agentDirPath;
 
     private final BootDir bootDir;
-    private final List<String> plugins;
-    private final List<URL> libs;
+    private final List<Path> plugins;
+    private final List<Path> libs;
 
 
-    public AgentDirectory(String agentJarName,
-                          String agentJarFullPath,
-                          String agentDirPath,
+    public AgentDirectory(Path agentJarName,
+                          Path agentJarFullPath,
+                          Path agentDirPath,
                           BootDir bootDir,
-                          List<URL> libs,
-                          List<String> plugins) {
+                          List<Path> libs,
+                          List<Path> plugins) {
 
         this.agentJarName = agentJarName;
         this.agentJarFullPath = agentJarFullPath;
@@ -66,69 +69,65 @@ public class AgentDirectory {
         return bootDir;
     }
 
-    public List<URL> getLibs() {
+    public List<Path> getLibs() {
         return libs;
     }
 
-    public List<String> getPlugins() {
+    public List<Path> getPlugins() {
         return plugins;
     }
 
-    public String getAgentJarName() {
+    public Path getAgentJarName() {
         return this.agentJarName;
     }
 
-    public String getAgentJarFullPath() {
+    public Path getAgentJarFullPath() {
         return agentJarFullPath;
     }
 
-    public String getAgentDirPath() {
+    public Path getAgentDirPath() {
         return agentDirPath;
     }
 
-    public String getAgentLibPath() {
+    public Path getAgentLibPath() {
         return appendAgentDirPath(LIB_DIR);
     }
 
-    public String getAgentLogFilePath() {
+    public Path getAgentLogFilePath() {
         return appendAgentDirPath(LOGS_DIR);
     }
 
-    public String getAgentPluginPath() {
+    public Path getAgentPluginPath() {
         return appendAgentDirPath(PLUGIN_DIR);
     }
 
-    public String getAgentConfigPath() {
-        return appendAgentDirPath(Profiles.CONFIG_FILE_NAME);
+    public Path getAgentConfigPath() {
+        return appendAgentDirPath(Paths.get(Profiles.CONFIG_FILE_NAME));
     }
 
-    public String getProfilesPath() {
+    public Path getProfilesPath() {
         return appendAgentDirPath(PROFILES_DIR);
     }
 
-    private String appendAgentDirPath(String fileName) {
-        return this.agentDirPath + File.separator + fileName;
+    private Path appendAgentDirPath(Path fileName) {
+        return this.agentDirPath.resolve(fileName);
     }
 
     public String[] getProfileDirs() {
-        final String profilesPath = getProfilesPath();
-        final File profilesDir = new File(profilesPath);
-        final String[] profileDirs = profilesDir.list(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                if (dir.isDirectory()) {
-                    return true;
+        List<String> fileList = new ArrayList<>();
+
+        final Path profilesPath = getProfilesPath();
+
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(profilesPath)) {
+            for (Path path : stream) {
+                if (path.toFile().isDirectory()) {
+                    fileList.add(path.getFileName().toString());
                 }
-                return false;
             }
-        });
-        return defaultStringArray(profileDirs);
+        } catch (IOException e) {
+            throw new RuntimeException("profileDirs traverse error " + profilesPath, e);
+        }
+        return fileList.toArray(new String[0]);
     }
 
-    private String[] defaultStringArray(String[] profileDirs) {
-        if (profileDirs == null) {
-            return new String[0];
-        }
-        return profileDirs;
-    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2021 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.profiler.plugin;
 
-import java.nio.file.Path;
+public class PluginException extends RuntimeException {
+    public PluginException() {
+    }
 
-/**
- * @author Woonduk Kang(emeroad)
- */
-public interface LogConfigResolver {
-    Path getLogPath();
+    public PluginException(String message) {
+        super(message);
+    }
+
+    public PluginException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public PluginException(Throwable cause) {
+        super(cause);
+    }
+
 }

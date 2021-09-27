@@ -25,12 +25,12 @@ import java.util.Objects;
  */
 public class PluginPackageFilter implements ClassNameFilter {
 
-    private final List<String> packageList;
+    private final String[] packageList;
 
     public PluginPackageFilter(List<String> packageList) {
         Objects.requireNonNull(packageList, "packageList");
 
-        this.packageList = new ArrayList<>(packageList);
+        this.packageList = packageList.toArray(new String[0]);
     }
 
     @Override

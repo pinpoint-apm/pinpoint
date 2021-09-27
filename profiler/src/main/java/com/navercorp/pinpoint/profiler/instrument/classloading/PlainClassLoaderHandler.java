@@ -49,7 +49,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
     private final JarReader pluginJarReader;
 
     // TODO remove static field
-    private static final ConcurrentMap<ClassLoader, ClassLoaderAttachment> classLoaderAttachment = new ConcurrentWeakHashMap<ClassLoader, ClassLoaderAttachment>();
+    private static final ConcurrentMap<ClassLoader, ClassLoaderAttachment> classLoaderAttachment = new ConcurrentWeakHashMap<>();
 
 
     private final PluginConfig pluginConfig;
@@ -199,7 +199,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
     private void defineJarClass(ClassLoader classLoader, ClassLoaderAttachment attachment) {
         if (isDebug) {
-            logger.debug("define Jar:{}", pluginConfig.getPluginUrl());
+            logger.debug("define Jar:{}", pluginConfig.getPluginJarURLExternalForm());
         }
 
         List<FileBinary> fileBinaryList = readJar();
@@ -308,9 +308,9 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
     private class ClassLoaderAttachment {
 
-        private final ConcurrentMap<String, PluginLock> pluginLock = new ConcurrentHashMap<String, PluginLock>();
+        private final ConcurrentMap<String, PluginLock> pluginLock = new ConcurrentHashMap<>();
 
-        private final ConcurrentMap<String, Class<?>> classCache = new ConcurrentHashMap<String, Class<?>>();
+        private final ConcurrentMap<String, Class<?>> classCache = new ConcurrentHashMap<>();
 
         public PluginLock getPluginLock(String jarFile) {
             final PluginLock exist = this.pluginLock.get(jarFile);

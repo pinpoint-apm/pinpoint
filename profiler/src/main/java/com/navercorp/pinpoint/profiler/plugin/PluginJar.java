@@ -16,14 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import com.navercorp.pinpoint.common.util.FileUtils;
-import com.navercorp.pinpoint.profiler.util.JarFileUtils;
-import java.util.Objects;
-import com.navercorp.pinpoint.common.util.StringUtils;
-
 import java.io.File;
-import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Objects;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.jar.JarFile;
 
@@ -39,62 +37,52 @@ public class PluginJar {
 
     private final URL url;
     private final JarFile jarFile;
+    private final PluginManifest manifest;
 
-    private final String pluginId;
-    private final String pluginCompilerVersion;
-    private final List<String> pluginPackages;
+    private PluginJar(File file) {
+        Objects.requireNonNull(file, "path");
 
-    public PluginJar(URL url, JarFile jarFile) {
-        this.url = Objects.requireNonNull(url, "url");
-        this.jarFile = Objects.requireNonNull(jarFile, "jarFile");
-        this.pluginId = JarFileUtils.getManifestValue(jarFile, PINPOINT_PLUGIN_ID, null);
-        this.pluginCompilerVersion = JarFileUtils.getManifestValue(jarFile, PINPOINT_PLUGIN_COMPILER_VERSION, null);
-        String pluginPackages = JarFileUtils.getManifestValue(jarFile, PINPOINT_PLUGIN_PACKAGE, DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME);
-        this.pluginPackages = StringUtils.tokenizeToStringList(pluginPackages, ",");
+        this.url = toURL(file);
+
+        this.jarFile = createJarFile(file);
+        this.manifest = PluginManifest.of(jarFile);
     }
 
-    public static PluginJar fromFilePath(String filePath) {
-        final File file = toFile(filePath);
-        return fromFile(file);
-    }
-
-    public static PluginJar fromFile(File file) {
-        final URL url = toURL(file);
-        final JarFile jarFile = createJarFile(file);
-        return new PluginJar(url, jarFile);
-    }
-
-    private static File toFile(String filePath) {
-        final File file = new File(filePath);
-        if (!file.exists()) {
-            throw new RuntimeException(file + " File does not exist");
-        }
-        if (!file.isFile()) {
-            throw new RuntimeException(file + " is not a file");
-        }
-        if (!file.canRead()) {
-            throw new RuntimeException(file + " File cannot be read");
-        }
-        return file;
-    }
-
-    private static URL toURL(File file) {
+    private URL toURL(File file) {
         try {
-            return FileUtils.toURL(file);
-        } catch (IOException e) {
-            throw new RuntimeException("Invalid URL:" + file);
+            return file.toURI().toURL();
+        } catch (MalformedURLException e) {
+            throw new PluginException(file.getName() + " toURL error", e);
         }
     }
 
     private static JarFile createJarFile(File pluginJar) {
         try {
+            verify(pluginJar);
             return new JarFile(pluginJar);
         } catch (IOException e) {
-            throw new RuntimeException("IO error. " + e.getCause(), e);
+            throw new PluginException(pluginJar.getName() + " JarFile create error " + e.getCause(), e);
         }
     }
 
-    public URL getUrl() {
+    public static PluginJar fromFilePath(String filePath) {
+        File file = new File(filePath);
+        return new PluginJar(file);
+    }
+
+    private static void verify(File file) {
+        if (!file.exists()) {
+            throw new PluginException(file + " File does not exist");
+        }
+        if (!file.isFile()) {
+            throw new PluginException(file + " is not a file");
+        }
+        if (!file.canRead()) {
+            throw new PluginException(file + " File cannot be read");
+        }
+    }
+
+    public URL getURL() {
         return url;
     }
 
@@ -103,26 +91,23 @@ public class PluginJar {
     }
 
     public String getPluginId() {
-        return pluginId;
+        return manifest.getPluginId();
     }
 
     public String getPluginCompilerVersion() {
-        return pluginCompilerVersion;
+        return manifest.getPluginCompilerVersion();
     }
 
     public List<String> getPluginPackages() {
-        return pluginPackages;
+        return manifest.getPluginPackages();
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PluginJar{");
-        sb.append("url=").append(url);
-        sb.append(", jarFile=").append(jarFile);
-        sb.append(", pluginId='").append(pluginId).append('\'');
-        sb.append(", pluginCompilerVersion='").append(pluginCompilerVersion).append('\'');
-        sb.append(", pluginPackages=").append(pluginPackages);
-        sb.append('}');
-        return sb.toString();
+        return "PluginJar{" +
+                "url=" + url +
+                ", jarFile=" + jarFile +
+                ", manifest=" + manifest +
+                '}';
     }
 }

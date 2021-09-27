@@ -93,7 +93,7 @@ public class URLClassLoaderHandler implements ClassInjector {
                 if (isDebug) {
                     logger.debug("add Jar:{}", pluginConfig.getPluginJarURLExternalForm());
                 }
-                ADD_URL.invoke(classLoader, pluginConfig.getPluginUrl());
+                ADD_URL.invoke(classLoader, pluginConfig.getPluginURL());
             }
         }
     }

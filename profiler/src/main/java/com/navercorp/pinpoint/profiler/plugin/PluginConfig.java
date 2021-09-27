@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
+import java.net.URL;
 import java.util.Objects;
 
 
-import java.net.URL;
 import java.util.jar.JarFile;
 
 /**
@@ -27,31 +27,31 @@ import java.util.jar.JarFile;
  */
 public class PluginConfig {
 
-    private final Plugin<?> plugin;
-    private final JarFile pluginJar;
+    private final JarPlugin<?> plugin;
     private final ClassNameFilter pluginPackageFilter;
 
     private String pluginJarURLExternalForm;
 
     public PluginConfig(Plugin<?> plugin, ClassNameFilter pluginPackageFilter) {
-        this.plugin = Objects.requireNonNull(plugin, "plugin");
+        this.plugin = cast(plugin);
         this.pluginPackageFilter = pluginPackageFilter;
-        this.pluginJar = getJarFile(plugin);
     }
 
-    private JarFile getJarFile(Plugin<?> plugin) {
+    private JarPlugin<?> cast(Plugin<?> plugin) {
+        Objects.requireNonNull(plugin, "plugin");
+
         if (plugin instanceof JarPlugin) {
-            return ((JarPlugin) plugin).getJarFile();
+            return (JarPlugin<?>) plugin;
         }
-        throw new IllegalArgumentException("unsupported plugin " + plugin);
+        throw new PluginException("unsupported plugin " + plugin);
     }
 
-    public URL getPluginUrl() {
+    public URL getPluginURL() {
         return plugin.getURL();
     }
 
     public JarFile getPluginJarFile() {
-        return pluginJar;
+        return plugin.getJarFile();
     }
 
     public String getPluginJarURLExternalForm() {
@@ -68,8 +68,7 @@ public class PluginConfig {
     @Override
     public String toString() {
         return "PluginConfig{" +
-                "pluginJar=" + plugin.getURL() +
-                ", pluginJarURLExternalForm='" + pluginJarURLExternalForm + '\'' +
+                "pluginJar=" + pluginJarURLExternalForm +
                 ", pluginPackageFilter=" + pluginPackageFilter +
                 '}';
     }

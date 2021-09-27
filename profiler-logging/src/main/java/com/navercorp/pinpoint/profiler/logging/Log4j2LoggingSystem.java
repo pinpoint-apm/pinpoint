@@ -9,8 +9,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 
-import java.io.File;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -23,19 +24,19 @@ public class Log4j2LoggingSystem implements LoggingSystem {
     private static final String[] LOOKUP = {"log4j2-test.xml", "log4j2.xml", "log4j2.properties"};
 
     private LoggerContext loggerContext;
-    private final String profilePath;
+    private final Path profilePath;
 
     private PLoggerBinder binder;
 
 
-    public Log4j2LoggingSystem(String profilePath) {
+    public Log4j2LoggingSystem(Path profilePath) {
         this.profilePath = Objects.requireNonNull(profilePath, "profilePath");
     }
 
     public void start() {
         // log4j init
-        String configLocation = getConfigPath(profilePath);
-        URI uri = newURI(configLocation);
+        Path configLocation = getConfigPath(profilePath);
+        URI uri = configLocation.toUri();
 
         BootLogger bootLogger = BootLogger.getLogger(this.getClass());
         bootLogger.info("logPath:" + uri);
@@ -82,16 +83,11 @@ public class Log4j2LoggingSystem implements LoggingSystem {
         return loggerContext.getLogger(getClass().getName());
     }
 
-    private URI newURI(String configLocation) {
-        File file = new File(configLocation);
-        return file.toURI();
-    }
 
-    private String getConfigPath(String profilePath) {
+    private Path getConfigPath(Path profilePath) {
         for (String configFile : LOOKUP) {
-            String configLocation = String.format("%s%s", profilePath, configFile);
-            final File file = new File(configLocation);
-            if (file.exists()) {
+            Path configLocation = profilePath.resolve(configFile);
+            if (configLocation.toFile().exists()) {
                 return configLocation;
             }
         }

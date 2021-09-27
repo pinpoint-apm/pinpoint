@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -139,8 +140,7 @@ public class NetworkAvailabilityChecker {
 
     private static void loadFileProperties(Properties properties, String filePath) {
         try {
-            PropertyUtils.FileInputStreamFactory fileInputStreamFactory = new PropertyUtils.FileInputStreamFactory(filePath);
-            PropertyUtils.loadProperty(properties, fileInputStreamFactory, PropertyUtils.DEFAULT_ENCODING);
+            PropertyUtils.loadProperty(properties, Paths.get(filePath));
         } catch (IOException e) {
             throw new IllegalStateException(String.format("%s load fail Caused by:%s", filePath, e.getMessage()), e);
         }

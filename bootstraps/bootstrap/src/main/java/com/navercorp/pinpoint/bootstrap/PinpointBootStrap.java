@@ -24,8 +24,10 @@ import com.navercorp.pinpoint.bootstrap.agentdir.ClassPathResolver;
 import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver;
 
 import java.lang.instrument.Instrumentation;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.jar.JarFile;
 
 /**
@@ -53,14 +55,35 @@ public class PinpointBootStrap {
             return;
         }
 
+        PinpointBootStrap bootStrap = new PinpointBootStrap(agentArgs, instrumentation);
+        bootStrap.start();
+
+    }
+
+    private static boolean disabled() {
+        final String env = System.getenv("PINPOINT_DISABLE");
+        final String prop = System.getProperty("pinpoint.disable");
+        return env != null || prop != null;
+    }
+
+    private final String agentArgs;
+    private final Instrumentation instrumentation;
+
+    private PinpointBootStrap(String agentArgs, Instrumentation instrumentation) {
+        this.agentArgs = agentArgs;
+        this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
+    }
+
+
+    private void start() {
         logger.info(ProductInfo.NAME + " agentArgs:" + agentArgs);
         logger.info("PinpointBootStrap.ClassLoader:" + PinpointBootStrap.class.getClassLoader());
         logger.info("ContextClassLoader:" + Thread.currentThread().getContextClassLoader());
 
         final JavaAgentPathResolver javaAgentPathResolver = JavaAgentPathResolver.newJavaAgentPathResolver();
-        final String agentPath = javaAgentPathResolver.resolveJavaAgentPath();
+        final Path agentPath = javaAgentPathResolver.resolveJavaAgentPath();
         logger.info("JavaAgentPath:" + agentPath);
-        if (agentPath == null) {
+        if (!agentPath.toFile().exists()) {
             logger.warn("AgentPath not found path:" + agentPath);
         }
 
@@ -89,16 +112,11 @@ public class PinpointBootStrap {
         if (!bootStrap.start()) {
             logPinpointAgentLoadFail();
         }
-
     }
 
-    private static boolean disabled() {
-        final String env = System.getenv("PINPOINT_DISABLE");
-        final String prop = System.getProperty("pinpoint.disable");
-        return env != null || prop != null;
-    }
 
-    private static ModuleBootLoader loadModuleBootLoader(Instrumentation instrumentation, ClassLoader parentClassLoader) {
+
+    private ModuleBootLoader loadModuleBootLoader(Instrumentation instrumentation, ClassLoader parentClassLoader) {
         if (!ModuleUtils.isModuleSupported()) {
             return null;
         }
@@ -109,7 +127,7 @@ public class PinpointBootStrap {
         return moduleBootLoader;
     }
 
-    private static AgentDirectory resolveAgentDir(ClassPathResolver classPathResolver) {
+    private AgentDirectory resolveAgentDir(ClassPathResolver classPathResolver) {
         try {
             AgentDirectory agentDir = classPathResolver.resolve();
             return agentDir;
@@ -120,7 +138,7 @@ public class PinpointBootStrap {
     }
 
 
-    private static ClassLoader getParentClassLoader() {
+    private ClassLoader getParentClassLoader() {
         final ClassLoader classLoader = getPinpointBootStrapClassLoader();
         if (classLoader == Object.class.getClassLoader()) {
             logger.info("parentClassLoader:BootStrapClassLoader:" + classLoader );
@@ -130,12 +148,12 @@ public class PinpointBootStrap {
         return classLoader;
     }
 
-    private static ClassLoader getPinpointBootStrapClassLoader() {
+    private ClassLoader getPinpointBootStrapClassLoader() {
         return PinpointBootStrap.class.getClassLoader();
     }
 
 
-    private static Map<String, String> argsToMap(String agentArgs) {
+    private Map<String, String> argsToMap(String agentArgs) {
         ArgsParser argsParser = new ArgsParser();
         Map<String, String> agentArgsMap = argsParser.parse(agentArgs);
         if (!agentArgsMap.isEmpty()) {
@@ -144,7 +162,7 @@ public class PinpointBootStrap {
         return agentArgsMap;
     }
 
-    private static void appendToBootstrapClassLoader(Instrumentation instrumentation, BootDir bootDir) {
+    private void appendToBootstrapClassLoader(Instrumentation instrumentation, BootDir bootDir) {
         List<JarFile> jarFiles = bootDir.openJarFiles();
         for (JarFile jarFile : jarFiles) {
             logger.info("appendToBootstrapClassLoader:" + jarFile.getName());

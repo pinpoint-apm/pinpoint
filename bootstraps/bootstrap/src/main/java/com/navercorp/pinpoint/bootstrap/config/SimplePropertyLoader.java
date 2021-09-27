@@ -20,8 +20,9 @@ import com.navercorp.pinpoint.bootstrap.BootLogger;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
@@ -31,16 +32,16 @@ import java.util.Set;
  */
 class SimplePropertyLoader implements PropertyLoader {
 
-    private static final String SEPARATOR = File.separator;
+//    private static final String SEPARATOR = File.separator;
 
     private final BootLogger logger = BootLogger.getLogger(this.getClass());
     private final SimpleProperty systemProperty;
 
-    private final String agentRootPath;
-    private final String profilesPath;
+    private final Path agentRootPath;
+    private final Path profilesPath;
 
 
-    public SimplePropertyLoader(SimpleProperty systemProperty, String agentRootPath, String profilesPath) {
+    public SimplePropertyLoader(SimpleProperty systemProperty, Path agentRootPath, Path profilesPath) {
         this.systemProperty = Objects.requireNonNull(systemProperty, "systemProperty");
         this.agentRootPath = Objects.requireNonNull(agentRootPath, "agentRootPath");
         this.profilesPath = profilesPath;
@@ -48,14 +49,14 @@ class SimplePropertyLoader implements PropertyLoader {
 
     @Override
     public Properties load() {
-        final String defaultConfigPath = this.agentRootPath + SEPARATOR + Profiles.CONFIG_FILE_NAME;
+        final Path defaultConfigPath = this.agentRootPath.resolve(Profiles.CONFIG_FILE_NAME);
 
         final Properties defaultProperties = new Properties();
 
         final String externalConfig = this.systemProperty.getProperty(Profiles.EXTERNAL_CONFIG_KEY);
         if (externalConfig != null) {
             logger.info(String.format("load external config:%s", externalConfig));
-            loadFileProperties(defaultProperties, externalConfig);
+            loadFileProperties(defaultProperties, Paths.get(externalConfig));
         } else {
             logger.info(String.format("load default config:%s", defaultConfigPath));
             loadFileProperties(defaultProperties, defaultConfigPath);
@@ -69,18 +70,17 @@ class SimplePropertyLoader implements PropertyLoader {
     private void saveLogConfigLocation(Properties properties) {
         String activeProfile = systemProperty.getProperty(Profiles.ACTIVE_PROFILE_KEY, Profiles.DEFAULT_ACTIVE_PROFILE);
         LogConfigResolver logConfigResolver = new ProfileLogConfigResolver(profilesPath, activeProfile);
-        final String log4jLocation = logConfigResolver.getLogPath();
+        final Path log4jLocation = logConfigResolver.getLogPath();
 
-        properties.put(Profiles.LOG_CONFIG_LOCATION_KEY, log4jLocation);
+        properties.put(Profiles.LOG_CONFIG_LOCATION_KEY, log4jLocation.toString());
         logger.info(String.format("logConfig path:%s", log4jLocation));
     }
 
 
 
-    private void loadFileProperties(Properties properties, String filePath) {
+    private void loadFileProperties(Properties properties, Path filePath) {
         try {
-            PropertyUtils.FileInputStreamFactory fileInputStreamFactory = new PropertyUtils.FileInputStreamFactory(filePath);
-            PropertyUtils.loadProperty(properties, fileInputStreamFactory, PropertyUtils.DEFAULT_ENCODING);
+            PropertyUtils.loadProperty(properties, filePath);
         } catch (IOException e) {
             logger.info(String.format("%s load fail Caused by:%s", filePath, e.getMessage()));
             throw new IllegalStateException(String.format("%s load fail Caused by:%s", filePath, e.getMessage()));

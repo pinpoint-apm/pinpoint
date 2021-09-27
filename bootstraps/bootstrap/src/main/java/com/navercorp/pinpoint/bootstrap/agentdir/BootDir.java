@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.bootstrap.agentdir;
 
 import com.navercorp.pinpoint.bootstrap.BootLogger;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -33,61 +33,60 @@ public class BootDir {
 
     private final BootLogger logger = BootLogger.getLogger(this.getClass());
 
-    private final List<String> jars;
+    private final List<Path> jars;
 
-    public BootDir(String baseDir, List<JarDescription> jarDescriptions) {
+    public BootDir(Path baseDir, List<JarDescription> jarDescriptions) {
         Objects.requireNonNull(baseDir, "baseDir");
         Objects.requireNonNull(jarDescriptions, "jarDescriptions");
-        final File baseDirFile = new File(baseDir);
-        this.jars = verify(baseDirFile, jarDescriptions);
+        this.jars = verify(baseDir, jarDescriptions);
     }
 
-    private List<String> verify(File baseDirFile, List<JarDescription> jarDescriptions) {
-        final String[] jarExtensions = {".jar"};
-        final File[] jarFiles = FileUtils.listFiles(baseDirFile, jarExtensions);
-        if (FileUtils.isEmpty(jarFiles)) {
-            logger.info(baseDirFile.getName() + " is empty");
+    private List<Path> verify(Path baseDir, List<JarDescription> jarDescriptions) {
+        final List<Path> jarFiles = FileUtils.listFiles(baseDir, "*.jar");
+        if (jarFiles.isEmpty()) {
+            logger.info(baseDir + " is empty");
             return null;
         }
 
-        List<String> resolvedJarList = new ArrayList<>(jarDescriptions.size());
+        List<Path> resolvedJarList = new ArrayList<>(jarDescriptions.size());
         for (JarDescription jarDescription : jarDescriptions) {
-            final String jarFileName = find(jarFiles, jarDescription);
+            final Path jarFileName = find(jarFiles, jarDescription);
             if (jarFileName == null) {
                 final String errorMessage = jarDescription.getSimplePattern() + " not found";
                 if (jarDescription.isRequired()) {
                     throw new IllegalStateException(errorMessage);
                 }
             } else {
-                resolvedJarList.add(jarFileName);
+                resolvedJarList.add(jarFileName.toAbsolutePath());
             }
         }
         return resolvedJarList;
     }
 
-    private String find(File[] jarFiles, final JarDescription jarDescription) {
+    private Path find(List<Path> jarFiles, final JarDescription jarDescription) {
         final String jarName = jarDescription.getJarName();
         final Pattern pattern = jarDescription.getVersionPattern();
 
-        final List<File> jarFIleList = findFileByPattern(jarFiles, pattern);
-        if (jarFIleList.isEmpty()) {
+        final List<Path> jarPathList = findFileByPattern(jarFiles, pattern);
+        if (jarPathList.isEmpty()) {
             logger.info(jarName + " not found.");
             return null;
         }
-        if (jarFIleList.size() == 1) {
-            final File file = jarFIleList.get(0);
+        if (jarPathList.size() == 1) {
+            final Path file = jarPathList.get(0);
             logger.info("found " + jarName + " path:" + file);
-            return FileUtils.toCanonicalPath(file);
+            return FileUtils.toRealPath(file);
         }
 
-        logger.warn("too many " + jarName + " found. " + jarFIleList);
+        logger.warn("too many " + jarName + " found. " + jarPathList);
         return null;
     }
 
-    private List<File> findFileByPattern(File[] jarFiles, Pattern pattern) {
-        List<File> findList = new ArrayList<>();
-        for (File jarFile : jarFiles) {
-            Matcher matcher = pattern.matcher(jarFile.getName());
+    private List<Path> findFileByPattern(List<Path> jarFiles, Pattern pattern) {
+        List<Path> findList = new ArrayList<>();
+        for (Path jarFile : jarFiles) {
+            String fileName = jarFile.getFileName().toString();
+            Matcher matcher = pattern.matcher(fileName);
             if (matcher.matches()) {
                 findList.add(jarFile);
             }
@@ -95,15 +94,15 @@ public class BootDir {
         return findList;
     }
 
-    public List<String> toList() {
-        return new ArrayList<>(jars);
+    public List<Path> getJarPath() {
+        return jars;
     }
 
 
     public List<JarFile> openJarFiles() {
         final List<JarFile> jarFileList = new ArrayList<>(jars.size());
-        for (String jarPath : jars) {
-            final JarFile jarFile = JarFileUtils.openJarFile(jarPath);
+        for (Path jarPath : jars) {
+            final JarFile jarFile = JarFileUtils.openJarFile(jarPath.toFile());
             jarFileList.add(jarFile);
         }
         return jarFileList;

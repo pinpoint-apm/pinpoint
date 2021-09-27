@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.Arrays;
@@ -68,28 +67,32 @@ public class JarProfilerPluginClassInjectorTest {
 
     }
 
-    private ClassLoader createContextTypeMatchClassLoader(URL[] urlArray) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
-        final ClassLoader classLoader = this.getClass().getClassLoader();
-        final Class<ClassLoader> aClass = (Class<ClassLoader>) classLoader.loadClass(CONTEXT_TYPE_MATCH_CLASS_LOADER);
-        final Constructor<ClassLoader> constructor = aClass.getConstructor(ClassLoader.class);
-        constructor.setAccessible(true);
+    private ClassLoader createContextTypeMatchClassLoader(URL[] urlArray) {
+        try {
+            final ClassLoader classLoader = this.getClass().getClassLoader();
+            final Class<ClassLoader> aClass = (Class<ClassLoader>) classLoader.loadClass(CONTEXT_TYPE_MATCH_CLASS_LOADER);
+            final Constructor<ClassLoader> constructor = aClass.getConstructor(ClassLoader.class);
+            constructor.setAccessible(true);
 
-        List<String> lib = LOG4_IMPL;
+            List<String> lib = LOG4_IMPL;
 
-        ClassLoader testClassLoader = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urlArray, ClassLoader.getSystemClassLoader(), lib);
-        final ClassLoader contextTypeMatchClassLoader = constructor.newInstance(testClassLoader);
+            ClassLoader testClassLoader = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urlArray, ClassLoader.getSystemClassLoader(), lib);
+            final ClassLoader contextTypeMatchClassLoader = constructor.newInstance(testClassLoader);
 
-        logger.debug("cl:{}", contextTypeMatchClassLoader);
+            logger.debug("cl:{}", contextTypeMatchClassLoader);
 
 //        final Method excludePackage = aClass.getMethod("excludePackage", String.class);
 //        ReflectionUtils.invokeMethod(excludePackage, contextTypeMatchClassLoader, "org.slf4j");
 
 
-        return contextTypeMatchClassLoader;
+            return contextTypeMatchClassLoader;
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
-    private Plugin<?> getMockPlugin(String className) throws IOException {
+    private Plugin<?> getMockPlugin(String className) throws Exception {
         ClassLoader cl = ClassLoaderUtils.getDefaultClassLoader();
         Class<?> clazz = null;
         try {
@@ -100,13 +103,13 @@ public class JarProfilerPluginClassInjectorTest {
         return getMockPlugin(clazz);
     }
 
-    private Plugin<?> getMockPlugin(Class<?> clazz) throws IOException {
+    private Plugin<?> getMockPlugin(Class<?> clazz) throws Exception {
 
         final URL location = CodeSourceUtils.getCodeLocation(clazz);
 
         logger.debug("url:{}", location);
-        PluginJar pluginJar = PluginJar.fromFilePath(location.getPath());
-        return new JarPlugin<Object>(pluginJar, Collections.emptyList(), Collections.<String>emptyList());
+        PluginJar pluginJar = PluginJar.fromFilePath(location.getFile());
+        return new JarPlugin<>(pluginJar, Collections.emptyList(), Collections.<String>emptyList());
     }
 
 }

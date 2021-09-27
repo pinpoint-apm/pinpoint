@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2021 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.profiler.plugin;
 
-import java.nio.file.Path;
+import java.util.List;
 
-/**
- * @author Woonduk Kang(emeroad)
- */
-public interface LogConfigResolver {
-    Path getLogPath();
+public interface PluginLoadingConfig {
+
+    List<String> getPluginLoadOrder();
+
+    List<String> getDisabledPlugins();
+
+    List<String> getImportPluginIds();
 }

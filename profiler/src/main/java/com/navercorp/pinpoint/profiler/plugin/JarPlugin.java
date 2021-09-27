@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
+import java.net.URL;
 import java.util.Objects;
 
-import java.net.URL;
 import java.util.List;
 import java.util.jar.JarFile;
 
@@ -40,7 +40,7 @@ public class JarPlugin<T> implements Plugin<T> {
 
     @Override
     public URL getURL() {
-        return pluginJar.getUrl();
+        return pluginJar.getURL();
     }
 
     @Override
@@ -52,7 +52,6 @@ public class JarPlugin<T> implements Plugin<T> {
     public List<String> getPackageList() {
         return packageList;
     }
-
 
     public JarFile getJarFile() {
         return pluginJar.getJarFile();

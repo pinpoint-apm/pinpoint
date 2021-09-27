@@ -26,10 +26,9 @@ import java.util.jar.JarFile;
  */
 final class JarFileUtils {
 
-    public static JarFile openJarFile(String filePath) {
-        Objects.requireNonNull(filePath, "filePath");
+    public static JarFile openJarFile(File file) {
+        Objects.requireNonNull(file, "file");
 
-        final File file = new File(filePath);
         if (!file.exists()) {
             throw new IllegalArgumentException(file + " not found");
         }

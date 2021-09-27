@@ -20,8 +20,7 @@ package com.navercorp.pinpoint.bootstrap.agentdir;
 import com.navercorp.pinpoint.bootstrap.BootLogger;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,150 +47,111 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
     private final JarDescription bootstrapJava9 = new JarDescription("pinpoint-bootstrap-java9", false);
     private final List<JarDescription> bootJarDescriptions = Arrays.asList(commons, bootstrapCore, annotations, bootstrapJava8, bootstrapJava9);
 
-    private final String classPath;
+    private final Path bootstrapJarPath;
 
-    private final String[] fileExtensions;
+    private final String extensions = "*.{jar,xml,properties}";
 
-
-    public AgentDirBaseClassPathResolver(String classPath) {
-        this.classPath = Objects.requireNonNull(classPath, "classPath");
-        this.fileExtensions = getFileExtensions();
-    }
-
-    private static String[] getFileExtensions() {
-        return new String[] {".jar", ".xml", ".properties"};
+    public AgentDirBaseClassPathResolver(Path bootstrapJarPath) {
+        this.bootstrapJarPath = Objects.requireNonNull(bootstrapJarPath, "classPath");
     }
 
 
     @Override
     public AgentDirectory resolve() {
+        if (!bootstrapJarPath.toFile().isFile()) {
+            throw new IllegalStateException(bootstrapJarPath + " not found");
+        }
 
-        // find boot-strap.jar
-        final String bootstrapJarName = this.findBootstrapJar(this.classPath);
+        // find bootstrap.jar
+        final Path bootstrapJarName = this.findBootstrapJar(this.bootstrapJarPath);
         if (bootstrapJarName == null) {
             throw new IllegalStateException(bootstrap.getSimplePattern() + " not found.");
         }
 
-        final String agentJarFullPath = parseAgentJarPath(classPath, bootstrapJarName);
-        if (agentJarFullPath == null) {
-            throw new IllegalStateException(bootstrap.getSimplePattern() + " not found. " + classPath);
-        }
-        final String agentDirPath = getAgentDirPath(agentJarFullPath);
+        final Path agentDirPath = getAgentDirPath(this.bootstrapJarPath);
 
         final BootDir bootDir = resolveBootDir(agentDirPath);
 
-        final String agentLibPath = getAgentLibPath(agentDirPath);
-        final List<URL> libs = resolveLib(agentLibPath);
+        final Path agentLibPath = getAgentLibPath(agentDirPath);
+        final List<Path> libs = resolveLib(agentLibPath);
 
-        String agentPluginPath = getAgentPluginPath(agentDirPath);
-        final List<String> plugins = resolvePlugins(agentPluginPath);
+        Path agentPluginPath = getAgentPluginPath(agentDirPath);
+        final List<Path> plugins = resolvePlugins(agentPluginPath);
 
-        final AgentDirectory agentDirectory = new AgentDirectory(bootstrapJarName, agentJarFullPath, agentDirPath, bootDir, libs, plugins);
+        final AgentDirectory agentDirectory =
+                new AgentDirectory(bootstrapJarName, this.bootstrapJarPath, agentDirPath, bootDir, libs, plugins);
 
         return agentDirectory;
     }
 
-    private String getAgentDirPath(String agentJarFullPath) {
-        String agentDirPath = parseAgentDirPath(agentJarFullPath);
-        if (agentDirPath == null) {
-            throw new IllegalStateException("agentDirPath is null " + classPath);
+    private Path getAgentDirPath(Path agentJarFullPath) {
+        Path agentDirPathStr = agentJarFullPath.getParent();
+        if (agentDirPathStr == null) {
+            throw new IllegalStateException("agentDirPath is null " + agentJarFullPath);
         }
 
-        logger.info("Agent original-path:" + agentDirPath);
+        logger.info("Agent original-path:" + agentDirPathStr);
         // defense alias change
-        agentDirPath = FileUtils.toCanonicalPath(new File(agentDirPath));
-        logger.info("Agent canonical-path:" + agentDirPath);
+
+        Path agentDirPath = FileUtils.toRealPath(agentDirPathStr);
+        logger.info("Agent real-path:" + agentDirPath);
         return agentDirPath;
     }
 
 
-    private BootDir resolveBootDir(String agentDirPath) {
-        String bootDirPath = agentDirPath + File.separator + "boot";
+    private BootDir resolveBootDir(Path agentDirPath) {
+        Path bootDirPath = agentDirPath.resolve("boot");
         return new BootDir(bootDirPath, bootJarDescriptions);
     }
 
 
-    String findBootstrapJar(String classPath) {
-        final Matcher matcher = bootstrap.getVersionPattern().matcher(classPath);
+    Path findBootstrapJar(Path bootstrapJarPath) {
+        final Path fileName = bootstrapJarPath.getFileName();
+        final Matcher matcher = bootstrap.getVersionPattern().matcher(fileName.toString());
         if (!matcher.find()) {
             return null;
         }
-        return parseAgentJar(matcher, classPath);
+        return fileName;
     }
 
-
-    private String parseAgentJar(Matcher matcher, String classpath) {
-
-        int start = matcher.start();
-        int end = matcher.end();
-        return classpath.substring(start, end);
+    private Path getAgentLibPath(Path agentDirPath) {
+        return agentDirPath.resolve("lib");
     }
 
-    private String parseAgentJarPath(String classPath, String agentJar) {
-        String[] classPathList = classPath.split(File.pathSeparator);
-        for (String findPath : classPathList) {
-            boolean find = findPath.contains(agentJar);
-            if (find) {
-                return findPath;
-            }
-        }
-        return null;
+    private Path getAgentPluginPath(Path agentDirPath) {
+        return agentDirPath.resolve("plugin");
     }
 
+    private List<Path> resolveLib(Path agentLibPath) {
 
-    private String getAgentLibPath(String agentDirPath) {
-        return agentDirPath + File.separator + "lib";
-    }
-
-    private String getAgentPluginPath(String agentDirPath) {
-        return agentDirPath + File.separator + "plugin";
-    }
-
-    private List<URL> resolveLib(String agentLibPath) {
-        final File libDir = new File(agentLibPath);
-        if (checkDirectory(libDir)) {
+        if (checkDirectory(agentLibPath.toFile())) {
             return Collections.emptyList();
         }
-        final File[] libFileList = listFiles(libDir, this.fileExtensions);
 
-        List<URL> libURLList = toURLs(libFileList);
+        final List<Path> libFileList = FileUtils.listFiles(agentLibPath, extensions);
+        if (libFileList.isEmpty()) {
+            throw new RuntimeException(agentLibPath + " lib dir is empty");
+        }
         // add directory
-        URL agentDirUri = toURL(new File(agentLibPath));
+        libFileList.add(agentLibPath);
 
-        List<URL> jarURLList = new ArrayList<>(libURLList);
-        jarURLList.add(agentDirUri);
-        return jarURLList;
+        return libFileList;
     }
 
-    private File[] listFiles(File libDir, String[] p) {
-        return FileUtils.listFiles(libDir, p);
-    }
+    private List<Path> resolvePlugins(Path agentPluginPath) {
 
-    private List<URL> toURLs(File[] jarFileList) {
-        try {
-            URL[] jarURLArray = FileUtils.toURLs(jarFileList);
-            return Arrays.asList(jarURLArray);
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    private List<String> resolvePlugins(String agentPluginPath) {
-        final File directory = new File(agentPluginPath);
-
-        if (checkDirectory(directory)) {
-            logger.warn(directory + " is not a directory");
+        if (checkDirectory(agentPluginPath.toFile())) {
+            logger.warn(agentPluginPath + " is not a directory");
             return Collections.emptyList();
         }
 
-        final String[] jarExtensions = {".jar"};
-        final File[] jars = listFiles(directory, jarExtensions);
-        if (FileUtils.isEmpty(jars)) {
+        final List<Path> jars = FileUtils.listFiles(agentPluginPath, "*.jar");
+        if (jars.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<String> pluginFileList = filterReadPermission(jars);
-        for (String pluginJar : pluginFileList) {
+        List<Path> pluginFileList = filterReadPermission(jars);
+        for (Path pluginJar : pluginFileList) {
             logger.info("Found plugins:" + pluginJar);
         }
         return pluginFileList;
@@ -209,38 +169,18 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
         return false;
     }
 
-    private List<String> filterReadPermission(File[] jars) {
-        List<String> result = new ArrayList<>();
-        for (File pluginJar : jars) {
-            if (!pluginJar.canRead()) {
+    private List<Path> filterReadPermission(List<Path> jars) {
+        List<Path> result = new ArrayList<>();
+        for (Path pluginJar : jars) {
+            if (!pluginJar.toFile().canRead()) {
                 logger.info("File '" + pluginJar + "' cannot be read");
                 continue;
             }
 
-            result.add(pluginJar.getPath());
+            result.add(pluginJar);
         }
         return result;
     }
 
-    private URL toURL(File file) {
-        try {
-            return FileUtils.toURL(file);
-        } catch (IOException e) {
-            logger.warn(file.getName() + ".toURL() failed.", e);
-            throw new RuntimeException(file.getName() + ".toURL() failed.", e);
-        }
-    }
-
-
-
-    private String parseAgentDirPath(String agentJarFullPath) {
-        int index1 = agentJarFullPath.lastIndexOf("/");
-        int index2 = agentJarFullPath.lastIndexOf("\\");
-        int max = Math.max(index1, index2);
-        if (max == -1) {
-            return null;
-        }
-        return agentJarFullPath.substring(0, max);
-    }
 
 }

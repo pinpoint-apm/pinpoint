@@ -138,7 +138,7 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
         private JarPluginComponents(List<PluginJar> pluginJars) {
             this.componentMap = new LinkedHashMap<>(pluginJars.size());
             for (PluginJar pluginJar : pluginJars) {
-                String key = generateKey(pluginJar.getUrl());
+                String key = generateKey(pluginJar.getURL());
                 componentMap.put(key, new JarPluginComponent(pluginJar));
             }
         }
@@ -186,7 +186,7 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
             }
 
             private JarPlugin<ProfilerPlugin> toJarPlugin() {
-                return new JarPlugin<ProfilerPlugin>(pluginJar, profilerPlugins, pluginJar.getPluginPackages());
+                return new JarPlugin<>(pluginJar, profilerPlugins, pluginJar.getPluginPackages());
             }
         }
     }

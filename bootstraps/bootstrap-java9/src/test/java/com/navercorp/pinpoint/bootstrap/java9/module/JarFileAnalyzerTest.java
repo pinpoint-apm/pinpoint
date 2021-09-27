@@ -23,9 +23,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
@@ -66,8 +67,9 @@ public class JarFileAnalyzerTest {
 
         JarFile jarFile = new JarFile(url.getFile());
         logger.debug("jarFile:{}", jarFile.getName());
-        File file = new File(jarFile.getName());
-        logger.debug("url1:{}", file.toURI());
+
+        Path file = Paths.get(jarFile.getName());
+        logger.debug("url1:{}", file.toUri());
     }
 
 

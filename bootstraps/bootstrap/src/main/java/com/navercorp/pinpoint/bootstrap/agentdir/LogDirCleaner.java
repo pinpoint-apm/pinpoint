@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.bootstrap.BootLogger;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
@@ -11,16 +12,16 @@ import java.util.Objects;
 public class LogDirCleaner {
     private final BootLogger logger = BootLogger.getLogger(this.getClass());
 
-    private final String logPath;
+    private final Path logPath;
     private final int maxSize;
 
-    public LogDirCleaner(String logPath, int maxSize) {
+    public LogDirCleaner(Path logPath, int maxSize) {
         this.logPath = Objects.requireNonNull(logPath, "logPath");
         this.maxSize = maxSize;
     }
 
     public void clean() {
-        File file = new File(logPath);
+        File file = logPath.toFile();
         if (!file.exists()) {
             return;
         }
