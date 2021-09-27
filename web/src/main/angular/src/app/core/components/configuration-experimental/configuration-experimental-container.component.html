@@ -10,6 +10,10 @@
     </div>
     <div class="l-checkbox-wrapper">
         <input type="checkbox" class="l-checkbox-input" id="server-map-realtime" [checked]="enableServerMapRealTime" (change)="onChangeOption('serverMapRealTime')">
-        <label class="l-item-label" for="server-map-realtime">Enable real-time update in server-map</label>
+        <label class="l-item-label" for="server-map-realtime">Enable real-time update in the server-map.</label>
+    </div>
+    <div class="l-checkbox-wrapper">
+        <input type="checkbox" class="l-checkbox-input" id="scatter-sampling" [checked]="sampleScatter" (change)="onChangeOption('scatterSampling')">
+        <label class="l-item-label" for="scatter-sampling">Sample data in the scatter chart.</label>
     </div>
 </section>
