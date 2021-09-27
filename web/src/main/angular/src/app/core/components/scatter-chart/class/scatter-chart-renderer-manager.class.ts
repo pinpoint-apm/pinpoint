@@ -200,29 +200,21 @@ export class ScatterChartRendererManager {
         };
     }
 
-    private drawPoint(context: CanvasRenderingContext2D, {x, y, r}: any, {color, alpha}: any): void {
-        // context.beginPath();
-        // context.fillStyle = color;
-        // context.strokeStyle = color;
-        // context.arc(x, y, r, 0, Math.PI * 2, true);
-        // context.globalAlpha = alpha;
-        // context.fill();
+    private drawPointWithSample(context: CanvasRenderingContext2D, {x, y, r}: any, {color, alpha}: any): void {
         context.drawImage(this.offscreenCanvasMapPerColor[color].get(r), x - r, y - r);
     }
 
-    // private drawPoint(context: CanvasRenderingContext2D, {x, y}: any, {color, alpha}: any): void {
-    //     console.log(x, y);
-    //     const bubbleRadius = this.options.bubbleRadius;
-    //     const r = this.coordinateManager.parseZDataToZChart(bubbleRadius); // 이거 지금은 무조건 2임.
+    private drawPoint(context: CanvasRenderingContext2D, {x, y}: any, {color, alpha}: any): void {
+        const bubbleRadius = this.options.bubbleRadius;
+        const r = this.coordinateManager.parseZDataToZChart(bubbleRadius); // it sets to 2
 
-    //     // TODO: 이거 점을 매번 그리지말고, 원 미리 그려놓은거를 가져온다? alpha 변경가능한가
-    //     context.beginPath();
-    //     context.fillStyle = color;
-    //     context.strokeStyle = color;
-    //     context.arc(x, y, r, 0, Math.PI * 2, true);
-    //     context.globalAlpha = alpha >= 1 ? 1 : alpha;
-    //     context.fill();
-    // }
+        context.beginPath();
+        context.fillStyle = color;
+        context.strokeStyle = color;
+        context.arc(x, y, r, 0, Math.PI * 2, true);
+        context.globalAlpha = alpha >= 1 ? 1 : alpha;
+        context.fill();
+    }
 
     private generateCanvas(order: number): CanvasRenderingContext2D {
         const canvas = document.createElement('canvas');
@@ -234,22 +226,15 @@ export class ScatterChartRendererManager {
         return canvas.getContext('2d');
     }
 
-    // drawTransaction(key: string, color: string, data: number[]): void {
-    //     const {x, y} = this.getCoord(data);
-
-    drawTransaction(key: string, color: string, {x, y, count}: {x: number, y: number, count: number}): void {
+    drawTransaction(key: string, color: string, data: number[]): void {
+        const {x, y} = this.getCoord(data);
         let renderedX;
 
         let ctxIndex = this.scrollOrder[0];
         const canvasWidth = this.coordinateManager.getWidthOfChartSpace();
         const zeroLeft = Math.round(parseInt(this.canvasMap[key][ctxIndex].style.left, 10));
         const currentMaxX = zeroLeft + canvasWidth;
-        // const alpha = 0.3 + (0.1 * data[DataIndex.GROUP_COUNT]);
-        const alpha = count >= 10 || count <= 2 ? 1 : count * 0.1;
-        // const alpha = 1;
-        // const r = count >= ScatterChartVirtualGridManager.gridUnit ? ScatterChartVirtualGridManager.gridUnit / 2 : count;
-        const r = count * 2 >= ScatterChartVirtualGridManager.gridUnit ? ScatterChartVirtualGridManager.gridUnit / 2 : count;
-        // console.log(r);
+        const alpha = 0.3 + (0.1 * data[DataIndex.GROUP_COUNT]);
 
         if (x > currentMaxX) {
             if ((x - currentMaxX) <= canvasWidth) {
@@ -283,10 +268,53 @@ export class ScatterChartRendererManager {
             renderedX = x - zeroLeft;
         }
 
-        // this.drawPoint(this.ctxMap[key][ctxIndex], {x: renderedX, y, r}, {color});
-        this.drawPoint(this.ctxMap[key][ctxIndex], {x: renderedX, y, r}, {color, alpha});
-        // this.drawPoint(this.ctxMap[key][ctxIndex], {x: renderedX, y}, {color, alpha});
+        this.drawPoint(this.ctxMap[key][ctxIndex], {x: renderedX, y}, {color, alpha});
     }
+
+    drawTransactionWithSample(key: string, color: string, {x, y, count}: {x: number, y: number, count: number}): void {
+        let renderedX;
+
+        let ctxIndex = this.scrollOrder[0];
+        const canvasWidth = this.coordinateManager.getWidthOfChartSpace();
+        const zeroLeft = Math.round(parseInt(this.canvasMap[key][ctxIndex].style.left, 10));
+        const currentMaxX = zeroLeft + canvasWidth;
+        const r = count * 2 >= ScatterChartVirtualGridManager.gridUnit ? ScatterChartVirtualGridManager.gridUnit / 2 : count;
+
+        if (x > currentMaxX) {
+            if ((x - currentMaxX) <= canvasWidth) {
+                // when it's drawable in the following canvas
+                ctxIndex = this.scrollOrder[1];
+                renderedX = x - currentMaxX;
+            } else {
+                // if not, draw it in a spare canvas and keep it there till the first canvas gets out of the area and moves to the tail.
+                const canvasCount = Math.floor(x / canvasWidth);
+                let context: CanvasRenderingContext2D;
+
+                renderedX = x - (canvasCount * canvasWidth);
+                if (!this.spareCanvasMap.has(key)) {
+                    context = this.generateCanvas(canvasCount + 1);
+                    this.spareCanvasMap.set(key, [context]);
+                } else {
+                    const c = this.spareCanvasMap.get(key).find((ctx: CanvasRenderingContext2D) => ctx.canvas.getAttribute('data-order') === `${canvasCount + 1}`);
+
+                    if (!!c) {
+                        context = c;
+                    } else {
+                        context = this.generateCanvas(canvasCount + 1);
+                        this.spareCanvasMap.set(key, [...this.spareCanvasMap.get(key), context]);
+                    }
+                }
+
+                this.drawPointWithSample(context, {x: renderedX, y}, {color});
+                return;
+            }
+        } else {
+            renderedX = x - zeroLeft;
+        }
+
+        this.drawPointWithSample(this.ctxMap[key][ctxIndex], {x: renderedX, y, r}, {color});
+    }
+
     moveChart(timestamp: number): void {
         if (this.t0 === -1) {
             this.t0 = timestamp;

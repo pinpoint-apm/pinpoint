@@ -91,7 +91,6 @@ export class ScatterChart {
     onError$: Observable<any>;
     onChangeRangeX$: Observable<{from: number, to: number}>;
     onChangeTransactionCount$: Observable<{[key: string]: number}>;
-    i = 0;
 
     constructor(
         private mode: string,
@@ -106,7 +105,8 @@ export class ScatterChart {
         private height: number,
         private timezone: string,
         private dateFormat: string[],
-        private enableServerSideScan: boolean
+        private enableServerSideScan: boolean,
+        private sampleScatter: boolean
     ) {
         this.downloadElement = document.createElement('a');
         this.selectedAgent = agent;
@@ -292,33 +292,29 @@ export class ScatterChart {
     }
     private drawDataBlock(dataBlock: ScatterChartDataBlock): void {
         const prefix = this.options.prefix;
+
         this.rendererManager.makeDataCanvas(dataBlock, dataBlock.getAgentList());
         this.agentList.forEach((agent: string) => {
-            Object.entries(dataBlock.getSampledData()[agent]).forEach(([type, data]: [string, {x: number, y: number, count: number}[]]) => {
-                // const typeIndex = dataBlock.getTypeIndex(data);
-                // const type = this.typeManager.getNameByIndex(typeIndex);
-                const typeColor = this.typeManager.getColorByName(type);
-                // console.log(type, data);
-
-                data.forEach((d: any) => {
-                    // console.log(d);
-                    this.i++;
-                    this.rendererManager.drawTransaction(`${agent}-${prefix}-${type}`, typeColor, d);
+            if (this.sampleScatter) {
+                Object.entries(dataBlock.getSampledData()[agent]).forEach(([type, data]: [string, {x: number, y: number, count: number}[]]) => {
+                    data.forEach((d: any) => {
+                        this.rendererManager.drawTransactionWithSample(`${agent}-${prefix}-${type}`, this.typeManager.getColorByName(type), d);
+                    });
                 });
-            });
-            // for (let i = 0, nLen = dataBlock.countByAgent(agent); i < nLen; i++) {
-            //     const data = dataBlock.getDataByAgentAndIndex(agent, i);
-            //     const groupCount = dataBlock.getGroupCount(data);
-            //     if (groupCount !== 0) {
-            //         this.i++;
-            //         const typeIndex = dataBlock.getTypeIndex(data);
-            //         const typeName = this.typeManager.getNameByIndex(typeIndex);
-            //         const typeColor = this.typeManager.getColorByIndex(typeIndex);
-            //         this.rendererManager.drawTransaction(`${agent}-${prefix}-${typeName}`, typeColor, data);
-            //     }
-            // }
+            } else {
+                for (let i = 0, nLen = dataBlock.countByAgent(agent); i < nLen; i++) {
+                    const data = dataBlock.getDataByAgentAndIndex(agent, i);
+                    const groupCount = dataBlock.getGroupCount(data);
+
+                    if (groupCount !== 0) {
+                        const typeIndex = dataBlock.getTypeIndex(data);
+                        const typeName = this.typeManager.getNameByIndex(typeIndex);
+                        const typeColor = this.typeManager.getColorByIndex(typeIndex);
+                        this.rendererManager.drawTransaction(`${agent}-${prefix}-${typeName}`, typeColor, data);
+                    }
+                }
+            }
         });
-        // console.log(this.i);
     }
     private moveChart(dataBlock: ScatterChartDataBlock, nextRequestTime: number): void {
         const xRange = this.coordinateManager.getX();
