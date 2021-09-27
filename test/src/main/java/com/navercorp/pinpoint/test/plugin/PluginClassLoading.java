@@ -2,26 +2,36 @@ package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.common.Version;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
 public final class PluginClassLoading {
 
-    public static final String[] REQUIRED_CLASS_PATHS = new String[]{
+    private static final String[] CLASS_PATHS_TO_CHECK_AS_CONTAINS = new String[]{
             "junit", // JUnit
             "hamcrest", // for JUnit
             "pinpoint-test", // pinpoint-test-{VERSION}.jar
             "/test/target/classes", // pinpoint-test build output directory
             "/testcase/target/classes",
             "/pinpoint/plugins/", // required when executing test on IDE
-            "/**/pinpoint-*-plugin-" + Version.VERSION + ".jar", // required absolute path when executing test via mvn command on Linux
-            "**/pinpoint-*-plugin-" + Version.VERSION + ".jar", // required relative path when executing test via mvn command on Linux
-            "**\\pinpoint-*-plugin-" + Version.VERSION + ".jar", // required when executing test via mvn command on Windows
 
             // logger for bootstrap classloader
             "tinylog-api",
             "tinylog-impl",
     };
+
+    public static final String[] getContainsCheckClassPath() {
+        return CLASS_PATHS_TO_CHECK_AS_CONTAINS;
+    }
+
+    private static final String[] CLASS_PATHS_TO_CHECK_AS_GLOB_MATCHES = new String[]{
+            "**" + File.separator + "pinpoint-*-plugin-" + Version.VERSION + ".jar", // required when executing test via mvn command
+    };
+
+    public static final String[] getGlobMatchesCheckClassPath() {
+        return CLASS_PATHS_TO_CHECK_AS_GLOB_MATCHES;
+    }
 
     public static final String[] MAVEN_DEPENDENCY_CLASS_PATHS = new String[]{
             "maven-resolver",

@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.bootstrap.util.AntPathMatcher;
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.CodeSourceUtils;
+import com.navercorp.pinpoint.test.plugin.util.StringUtils;
 import com.navercorp.pinpoint.test.plugin.util.TLSOption;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
-import com.navercorp.pinpoint.test.plugin.util.StringUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestPluginVersion;
+
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.junit.internal.runners.statements.RunAfters;
@@ -43,7 +43,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 public abstract class AbstractPinpointPluginTestSuite extends Suite {
@@ -106,13 +105,21 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
             }
         }
 
-        this.requiredLibraries = filterLib(classLoaderLibs, new LibraryFilter(PluginClassLoading.REQUIRED_CLASS_PATHS));
+        final LibraryFilter requiredLibraryFilter = new LibraryFilter(
+                LibraryFilter.createContainsMatcher(PluginClassLoading.getContainsCheckClassPath()),
+                LibraryFilter.createGlobMatcher(PluginClassLoading.getGlobMatchesCheckClassPath()));
+
+        this.requiredLibraries = filterLib(classLoaderLibs, requiredLibraryFilter);
         if (logger.isDebugEnabled()) {
             for (String requiredLibrary : requiredLibraries) {
                 logger.debug("requiredLibraries :{}", requiredLibrary);
             }
         }
-        this.mavenDependencyLibraries = filterLib(classLoaderLibs, new LibraryFilter(PluginClassLoading.MAVEN_DEPENDENCY_CLASS_PATHS));
+
+        final LibraryFilter mavenDependencyLibraryFilter = new LibraryFilter(
+                LibraryFilter.createContainsMatcher(PluginClassLoading.MAVEN_DEPENDENCY_CLASS_PATHS));
+
+        this.mavenDependencyLibraries = filterLib(classLoaderLibs, mavenDependencyLibraryFilter);
         if (logger.isDebugEnabled()) {
             for (String mavenDependencyLibrary : mavenDependencyLibraries) {
                 logger.debug("mavenDependencyLibraries :{}", mavenDependencyLibrary);
@@ -206,9 +213,11 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         for (ClassLoaderLib classLoaderLib : classLoaderLibs) {
             List<URL> libs = classLoaderLib.getLibs();
             for (URL lib : libs) {
-                final String filterLibs = classPathFilter.filter(lib);
-                if (filterLibs != null) {
-                    result.add(filterLibs);
+                if (classPathFilter.filter(lib)) {
+                    final String filterLibs = toPathString(lib);
+                    if (filterLibs != null) {
+                        result.add(filterLibs);
+                    }
                 }
             }
         }
@@ -229,37 +238,6 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
             cl = cl.getParent();
         }
         return libs;
-    }
-
-    public static class LibraryFilter {
-        private final String[] paths;
-
-        public LibraryFilter(String[] paths) {
-            this.paths = Objects.requireNonNull(paths, "paths");
-        }
-
-        public String filter(URL url) {
-            if (include(url.getFile())) {
-                return toPathString(url);
-            }
-            return null;
-        }
-
-        private boolean include(String filePath) {
-            for (String required : paths) {
-                if (filePath.contains(required)) {
-                    return true;
-                }
-
-                if (AntPathMatcher.isAntStylePattern(required)) {
-                    AntPathMatcher antPathMatcher = new AntPathMatcher(required);
-                    if (antPathMatcher.isMatched(filePath)) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
     }
 
     private static String toPathString(URL url) {
