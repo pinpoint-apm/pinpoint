@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperCl
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
 import com.navercorp.pinpoint.common.util.NetUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.flink.config.FlinkConfiguration;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
@@ -36,6 +35,7 @@ import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -67,9 +67,8 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
         this.sessionTimeout = flinkConfiguration.getFlinkClusterSessionTimeout();
 
         String zNodeName = getRepresentationLocalV4Ip() + ":" +  flinkConfiguration.getFlinkClusterTcpPort();
-        if (StringUtils.isEmpty(pinpointFlinkClusterPath)) {
-            throw new IllegalArgumentException("pinpointFlinkClusterPath must not be empty");
-        }
+        Assert.hasLength(pinpointFlinkClusterPath, "pinpointFlinkClusterPath must not be empty");
+
         String zNodeFullPath = ZKPaths.makePath(pinpointFlinkClusterPath, zNodeName);
 
         CreateNodeMessage createNodeMessage = new CreateNodeMessage(zNodeFullPath, new byte[0]);

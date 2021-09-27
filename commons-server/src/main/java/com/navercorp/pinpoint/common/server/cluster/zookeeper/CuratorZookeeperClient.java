@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.ConnectionException;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.StringUtils;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.CreateBuilder;
@@ -31,6 +29,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -262,7 +261,7 @@ public class CuratorZookeeperClient implements ZookeeperClient {
     }
 
     private void assertPathHasLength(String path) {
-        Assert.isTrue(StringUtils.hasLength(path), "path must not be empty");
+        Assert.hasLength(path, "path must not be empty");
     }
 
     public boolean isConnected() {

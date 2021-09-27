@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.web.security.login;
 
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.config.BasicLoginConfig;
 
 import io.jsonwebtoken.Claims;
@@ -28,6 +26,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.Assert;
 
 import java.util.Collection;
 import java.util.Date;
@@ -55,9 +54,8 @@ public class JwtService {
 
     public JwtService(BasicLoginConfig basicLoginConfig) {
         String secretKey = basicLoginConfig.getJwtSecretKey();
-        if (StringUtils.isEmpty(secretKey)) {
-            throw new IllegalArgumentException("secretKey may not be empty");
-        }
+        Assert.hasLength(secretKey, "secretKey must not be empty");
+
         this.secretKey = secretKey;
 
         Assert.isTrue(basicLoginConfig.getExpirationTimeSeconds() > 0, "expirationTimeSeconds must be '>= 0'");

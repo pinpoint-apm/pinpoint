@@ -28,6 +28,7 @@ import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -262,9 +263,7 @@ public class HbaseSchemaServiceImpl implements HbaseSchemaService {
 
     @Override
     public SchemaChangeLog getChangeLog(String namespace, String changeSetId) {
-        if (StringUtils.isEmpty(changeSetId)) {
-            throw new IllegalArgumentException("Change set id must not be empty");
-        }
+        Assert.hasLength(changeSetId, "Change set must not be empty");
         assertInitialization(namespace);
         return schemaChangeLogService.getSchemaChangeLog(namespace, changeSetId);
     }
