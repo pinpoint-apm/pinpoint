@@ -16,18 +16,16 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.pluginit.utils.WebServer;
+import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+
 import org.apache.http.Consts;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -40,15 +38,16 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Future;
+
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.async;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 /**
  * @author netspider
@@ -58,18 +57,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-httpclient4-plugin")
 @Dependency({"org.apache.httpcomponents:httpasyncclient:[4.0],[4.0.1],[4.0.2],[4.1],[4.1.1],[4.1.2],[4.1.3]",
         WebServer.VERSION, PluginITConstants.VERSION})
-public class ClosableAsyncHttpClientIT {
-    private static WebServer webServer;
-
-    @BeforeClass
-    public static void BeforeClass() throws Exception {
-        webServer = WebServer.newTestWebServer();
-    }
-
-    @AfterClass
-    public static void AfterClass() {
-        webServer = WebServer.cleanup(webServer);
-    }
+public class ClosableAsyncHttpClientIT extends HttpClientITBase {
 
     @Test
     public void test() throws Exception {
@@ -77,7 +65,7 @@ public class ClosableAsyncHttpClientIT {
         httpClient.start();
 
         try {
-            HttpPost httpRequest = new HttpPost(webServer.getCallHttpUrl());
+            HttpPost httpRequest = new HttpPost(getCallUrl());
 
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("param1", "value1"));
@@ -97,8 +85,8 @@ public class ClosableAsyncHttpClientIT {
         verifier.printMethod();
 
         verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", CloseableHttpAsyncClient.class.getMethod("execute", HttpUriRequest.class, FutureCallback.class)));
-        final String destinationId = webServer.getHostAndPort();
-        final String httpUrl = webServer.getCallHttpUrl();
+        final String destinationId = getHostPort();
+        final String httpUrl = getCallUrl();
         verifier.verifyTrace(async(
                 event("HTTP_CLIENT_4", Class.forName("org.apache.http.impl.nio.client.DefaultClientExchangeHandlerImpl").getMethod("start"), null, null, destinationId,
                         annotation("http.url", httpUrl),

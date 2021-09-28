@@ -15,14 +15,16 @@
  */
 package com.navercorp.pinpoint.plugin.httpclient4;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
-
-
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.pluginit.utils.WebServer;
+import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.HttpClient;
@@ -36,17 +38,14 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestExecutor;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-
 import java.lang.reflect.Method;
+
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.anyAnnotationValue;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 /**
  * @author jaehong.kim
@@ -56,25 +55,13 @@ import java.lang.reflect.Method;
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-httpclient4-plugin")
 @Dependency({"org.apache.httpcomponents:httpclient:[4.0],[4.0.1],[4.0.2],[4.0.3],[4.1],[4.1.1],[4.1.2],[4.1.3],[4.2],[4.2.1],[4.2.2],[4.2.3],[4.2.4],[4.2.4],[4.2.6],[4.3.3]",
         WebServer.VERSION, PluginITConstants.VERSION})
-public class HttpClientIT {
-
-    private static WebServer webServer;
-
-    @BeforeClass
-    public static void BeforeClass() throws Exception {
-        webServer = WebServer.newTestWebServer();
-    }
-
-    @AfterClass
-    public static void AfterClass() {
-        webServer = WebServer.cleanup(webServer);
-    }
+public class HttpClientIT extends HttpClientITBase {
 
     @Test
     public void test() throws Exception {
         HttpClient httpClient = new DefaultHttpClient();
         try {
-            HttpPost post = new HttpPost(webServer.getCallHttpUrl());
+            HttpPost post = new HttpPost(getCallUrl());
             post.addHeader("Content-Type", "application/json;charset=UTF-8");
 
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
@@ -98,7 +85,7 @@ public class HttpClientIT {
         }
 
         verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", AbstractHttpClient.class.getMethod("execute", HttpUriRequest.class, ResponseHandler.class)));
-        final String hostname = webServer.getHostAndPort();
+        final String hostname = getHostPort();
 
         verifier.verifyTrace(
                 event("HTTP_CLIENT_4_INTERNAL", connectorClass.getMethod("open", HttpRoute.class, HttpContext.class, HttpParams.class),

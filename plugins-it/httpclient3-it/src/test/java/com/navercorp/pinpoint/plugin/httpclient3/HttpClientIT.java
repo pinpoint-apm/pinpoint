@@ -35,6 +35,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
+import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
 
 /**
  * @author jaehong.kim
@@ -47,12 +49,25 @@ public class HttpClientIT {
 
     private static com.navercorp.pinpoint.pluginit.utils.WebServer webServer;
 
-    @BeforeClass
-    public static void BeforeClass() throws Exception {
-        webServer = WebServer.newTestWebServer();
+    // ---------- For @BeforeSharedClass, @AfterSharedClass   //
+    private static String CALL_URL;
+
+    public static String getCallUrl() {
+        return CALL_URL;
     }
 
-    @AfterClass
+    public static void setCallUrl(String callUrl) {
+        CALL_URL = callUrl;
+    }
+    // ---------- //
+
+    @BeforeSharedClass
+    public static void sharedSetUp() throws Exception {
+        webServer = WebServer.newTestWebServer();
+        setCallUrl(webServer.getCallHttpUrl());
+    }
+
+    @AfterSharedClass
     public static void AfterClass() {
         webServer = WebServer.cleanup(webServer);
     }
@@ -66,7 +81,7 @@ public class HttpClientIT {
         client.getParams().setConnectionManagerTimeout(CONNECTION_TIMEOUT);
         client.getParams().setSoTimeout(SO_TIMEOUT);
 
-        GetMethod method = new GetMethod(webServer.getCallHttpUrl());
+        GetMethod method = new GetMethod(getCallUrl());
 
         // Provide custom retry handler is necessary
         method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
