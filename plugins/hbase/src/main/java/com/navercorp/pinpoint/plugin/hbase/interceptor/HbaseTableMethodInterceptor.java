@@ -102,7 +102,7 @@ public class HbaseTableMethodInterceptor extends SpanEventSimpleAroundIntercepto
      */
     protected String parseAttributes(Object[] args) {
 
-        Object param = null;
+        Object param;
         final int argsLength = ArrayUtils.getLength(args);
         if (argsLength == 1) { // only one
             param = args[0];
@@ -129,7 +129,7 @@ public class HbaseTableMethodInterceptor extends SpanEventSimpleAroundIntercepto
         }
         // if param instanceof List.
         if (param instanceof List) {
-            List list = (List) param;
+            List<?> list = (List<?>) param;
             return "size: " + list.size();
         }
         return null;

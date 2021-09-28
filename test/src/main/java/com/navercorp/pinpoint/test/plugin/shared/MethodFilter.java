@@ -144,9 +144,6 @@ public interface MethodFilter {
 
         private int getParameterSize(Method method) {
             Class<?>[] parameterTypes = method.getParameterTypes();
-            if (parameterTypes == null) {
-                return 0;
-            }
             return parameterTypes.length;
         }
 

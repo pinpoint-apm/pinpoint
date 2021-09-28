@@ -46,7 +46,7 @@ public class GrpcPropertiesServerOptionBuilder {
     }
 
     public void setKeepAliveTimeMillis(long keepAliveTime) {
-        builder.setKeepAliveTime(keepAliveTime);;
+        builder.setKeepAliveTime(keepAliveTime);
     }
 
     public void setKeepAliveTimeoutMillis(long keepAliveTimeout) {

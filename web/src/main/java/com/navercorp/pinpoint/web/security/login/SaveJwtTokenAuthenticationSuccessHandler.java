@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.web.security.login;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -30,6 +28,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -41,7 +40,7 @@ public class SaveJwtTokenAuthenticationSuccessHandler implements AuthenticationS
     private final BasicLoginService basicLoginService;
 
     public SaveJwtTokenAuthenticationSuccessHandler(BasicLoginService basicLoginService) {
-        this.basicLoginService = Assert.requireNonNull(basicLoginService, "basicLoginService");
+        this.basicLoginService = Objects.requireNonNull(basicLoginService, "basicLoginService");
     }
 
     @Override
@@ -57,7 +56,6 @@ public class SaveJwtTokenAuthenticationSuccessHandler implements AuthenticationS
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         response.sendRedirect(BasicLoginConstants.URI_MAIN);
-        return;
     }
 
 }

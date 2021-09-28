@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
@@ -160,7 +161,7 @@ public class WebappLoaderStartInterceptor implements AroundInterceptor {
     
     private String extractLibJarName(URI uri) {
         String jarName = uri.toString();
-        if (jarName == null) {
+        if (StringUtils.isEmpty(jarName)) {
             return "";
         }
         int lastIndexOfSeparator = jarName.lastIndexOf("/");

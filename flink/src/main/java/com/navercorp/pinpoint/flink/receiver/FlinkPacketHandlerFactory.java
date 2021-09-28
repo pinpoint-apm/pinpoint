@@ -44,7 +44,7 @@ public class FlinkPacketHandlerFactory implements TCPPacketHandlerFactory<TBase<
         Objects.requireNonNull(flinkHeaderTBaseSerializerFactory, "flinkHeaderTBaseSerializerFactory");
         Objects.requireNonNull(flinkHeaderTBaseDeserializerFactory, "flinkHeaderTBaseDeserializerFactory");
 
-        this.cachedSerializer = new ThreadLocalHeaderTBaseSerializerFactory<>(flinkHeaderTBaseSerializerFactory);;
+        this.cachedSerializer = new ThreadLocalHeaderTBaseSerializerFactory<>(flinkHeaderTBaseSerializerFactory);
 
         this.cachedDeserializer = new ThreadLocalHeaderTBaseDeserializerFactory<>(flinkHeaderTBaseDeserializerFactory);
     }
