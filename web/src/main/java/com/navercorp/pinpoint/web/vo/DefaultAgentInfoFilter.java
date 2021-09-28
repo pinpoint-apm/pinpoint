@@ -23,4 +23,4 @@ public class DefaultAgentInfoFilter implements AgentInfoFilter {
         }
         return REJECT;
     }
-};
+}

@@ -20,7 +20,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
-import com.google.inject.Provider;
 import com.google.inject.Stage;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;

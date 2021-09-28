@@ -6,7 +6,7 @@ public final class CollectionUtils {
     private CollectionUtils() {
     }
 
-    public static <T> boolean hasLength(final Collection<T> collection) {
+    public static boolean hasLength(final Collection<?> collection) {
         return collection != null && !collection.isEmpty();
     }
 }

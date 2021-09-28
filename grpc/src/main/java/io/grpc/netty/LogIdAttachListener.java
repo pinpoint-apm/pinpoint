@@ -41,4 +41,4 @@ public class LogIdAttachListener implements ServerTransportListener {
     public void transportTerminated() {
         delegate.transportTerminated();
     }
-};
+}

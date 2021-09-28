@@ -148,7 +148,7 @@ public class JedisPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
 
         protected void handle(InstrumentClass target) throws InstrumentException {
-            ;
+
         }
     }
 
@@ -244,7 +244,7 @@ public class JedisPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
 
         protected void handle(InstrumentClass target) throws InstrumentException {
-            ;
+
         }
     }
 

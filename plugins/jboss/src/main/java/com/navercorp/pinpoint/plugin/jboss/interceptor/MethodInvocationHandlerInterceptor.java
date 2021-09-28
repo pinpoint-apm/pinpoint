@@ -109,10 +109,8 @@ public class MethodInvocationHandlerInterceptor implements AroundInterceptor {
         if (methodInvoked != null) {
             try {
                 final Class<?> declaringClass = methodInvoked.getDeclaringClass();
-                if (declaringClass != null) {
-                    methodNameBuilder.append(declaringClass.getCanonicalName());
-                    methodNameBuilder.append('.');
-                }
+                methodNameBuilder.append(declaringClass.getCanonicalName());
+                methodNameBuilder.append('.');
                 methodNameBuilder.append(methodInvoked.getName());
             } catch (final Exception exception) {
                 logger.error("An error occurred while fetching method details", exception);
