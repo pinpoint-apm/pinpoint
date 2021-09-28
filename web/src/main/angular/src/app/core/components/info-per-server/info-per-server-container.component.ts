@@ -108,12 +108,15 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
                         this.agentHistogramData = { isWas: node.isWas, ...histogramData };
                         this.selectedAgent = this.selectedAgent ? this.selectedAgent : this.getFirstAgent();
                         this.selectedAgentName = this.getAgentName(this.selectedAgent);
-                        this.storeHelperService.dispatch(new Actions.ChangeAgentForServerList({
-                            agent: this.selectedAgent,
-                            responseSummary: this.agentHistogramData['agentHistogram'][this.selectedAgent],
-                            load: this.agentHistogramData['agentTimeSeriesHistogram'][this.selectedAgent],
-                            responseStatistics: this.agentHistogramData['agentResponseStatistics'][this.selectedAgent]
-                        }));
+                        this.messageQueueService.sendMessage({
+                            to: MESSAGE_TO.AGENT_SELECT_FOR_SERVER_LIST,
+                            param: {
+                                agent: this.selectedAgent,
+                                responseSummary: this.agentHistogramData['agentHistogram'][this.selectedAgent],
+                                load: this.agentHistogramData['agentTimeSeriesHistogram'][this.selectedAgent],
+                                responseStatistics: this.agentHistogramData['agentResponseStatistics'][this.selectedAgent]
+                            }
+                        });
                     }),
                     catchError((error: IServerErrorFormat) => {
                         this.dynamicPopupService.openPopup({
@@ -171,12 +174,15 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
 
     onSelectAgent(agent: string): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_AGENT_ON_SERVER_LIST_VIEW);
-        this.storeHelperService.dispatch(new Actions.ChangeAgentForServerList({
-            agent,
-            responseSummary: this.agentHistogramData['agentHistogram'][agent],
-            load: this.agentHistogramData['agentTimeSeriesHistogram'][agent],
-            responseStatistics: this.agentHistogramData['agentResponseStatistics'][agent]
-        }));
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.AGENT_SELECT_FOR_SERVER_LIST,
+            param: {
+                agent,
+                responseSummary: this.agentHistogramData['agentHistogram'][agent],
+                load: this.agentHistogramData['agentTimeSeriesHistogram'][agent],
+                responseStatistics: this.agentHistogramData['agentResponseStatistics'][agent]
+            }
+        });
         this.selectedAgent = agent;
         this.selectedAgentName = this.getAgentName(agent);
     }
