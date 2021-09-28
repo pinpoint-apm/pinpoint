@@ -18,12 +18,17 @@ package com.navercorp.pinpoint.plugin.mongodb;
 
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
+
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+
+import com.mongodb.client.MongoCollection;
+import org.bson.Document;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -45,24 +50,28 @@ public class MongoDBIT_3_0_x_IT extends MongoDBITBase {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        version = 3.0;
         secondCollectionDefaultOption = "SAFE";
     }
 
-    @AfterClass
-    public static void tearDownAfterClass() {
+    @Override
+    Class<?> getMongoDatabaseClazz() throws ClassNotFoundException {
+        return Class.forName("com.mongodb.MongoCollectionImpl");
+    }
+
+    @Override
+    void insertComplex(PluginTestVerifier verifier, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl, String collectionInfo, String collectionOption) {
+        insertComlexBsonValueData30(verifier, collection, mongoDatabaseImpl, collectionInfo, collectionOption);
     }
 
     @Override
     public void setClient() {
-        mongoClient = new com.mongodb.MongoClient("localhost", 27018);
+        mongoClient = new com.mongodb.MongoClient(MongoDBITConstants.BIND_ADDRESS, MongoDBITConstants.PORT);
 
         database = mongoClient.getDatabase("myMongoDbFake").withReadPreference(ReadPreference.secondaryPreferred()).withWriteConcern(WriteConcern.MAJORITY);
     }
 
     @Override
     public void closeClient() {
-
         mongoClient.close();
     }
 }
