@@ -1,7 +1,6 @@
 import { ActionReducerMap, createSelector, createFeatureSelector } from '@ngrx/store';
 
 import * as admin from './admin.reducer';
-import * as agentSelectionForInfoPerServer from './agent-selection-for-info-per-server.reducer';
 import * as agentSelectionForSideBar from './agent-selection-for-side-bar.reducer';
 import * as applicationList from './application-list.reducer';
 import * as dateFormat from './date-format.reducer';
@@ -25,7 +24,6 @@ import { IFavoriteApplicationListState } from './favorite-application-list.reduc
 
 export interface AppState {
     agentSelection: string;
-    agentSelectionForServerList: IAgentSelection;
     applicationList: IApplicationListState;
     favoriteApplicationList: IFavoriteApplicationListState;
     dateFormat: number;
@@ -54,7 +52,6 @@ export interface AppState {
 
 export const STORE_KEY: {[key: string]: keyof AppState} = {
     AGENT_SELECTION: 'agentSelection',
-    AGENT_SELECTION_FOR_SERVER_LIST: 'agentSelectionForServerList',
     APPLICATION_LIST: 'applicationList',
     FAVORITE_APPLICATION_LIST: 'favoriteApplicationList',
     DATE_FORMAT: 'dateFormat',
@@ -82,7 +79,6 @@ export const STORE_KEY: {[key: string]: keyof AppState} = {
 export const reducers: ActionReducerMap<any> = {
     // [STORE_KEY.AGENT_INFo]: agentInfoReducer 방식은 빌드시 에러가 발생 함.
     agentSelection: agentSelectionForSideBar.Reducer,
-    agentSelectionForServerList: agentSelectionForInfoPerServer.Reducer,
     applicationList: applicationList.Reducer,
     favoriteApplicationList: favoriteApplicationList.Reducer,
     dateFormat: dateFormat.Reducer,
@@ -111,7 +107,6 @@ export const Actions = {
     'ChangeTimezone': timezone.ChangeTimezone,
     'ChangeDateFormat': dateFormat.ChangeDateFormat,
     'ChangeAgent': agentSelectionForSideBar.ChangeAgent,
-    'ChangeAgentForServerList': agentSelectionForInfoPerServer.ChangeAgentForServerList,
     'UpdateTransactionData': transactionData.UpdateTransactionData,
     'UpdateTransactionDetailData': transactionDetailData.UpdateTransactionDetailData,
     'UpdateTransactionTimelineData': transactionTimelineData.UpdateTransactionTimelineData,

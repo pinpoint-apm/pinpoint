@@ -137,9 +137,7 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
             this.dateFormat = format;
             this.cd.detectChanges();
         });
-        this.storeHelperService.getAgentSelectionForServerList(this.unsubscribe).pipe(
-            filter((data: IAgentSelection) => !!data),
-        ).subscribe(({agent}: IAgentSelection) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.AGENT_SELECT_FOR_SERVER_LIST).subscribe(({agent}: IAgentSelection) => {
             this.selectedAgent = agent;
             this.scatterChartInteractionService.changeAgent(this.instanceKey, agent);
             this.cd.detectChanges();

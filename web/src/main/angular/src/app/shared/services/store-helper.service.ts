@@ -108,9 +108,6 @@ export class StoreHelperService {
     getAgentSelection(unsubscribe: Subject<void>): Observable<string> {
         return this.getObservable(STORE_KEY.AGENT_SELECTION, unsubscribe);
     }
-    getAgentSelectionForServerList(unsubscribe: Subject<void>): Observable<IAgentSelection> {
-        return this.getObservable(STORE_KEY.AGENT_SELECTION_FOR_SERVER_LIST, unsubscribe);
-    }
     getScatterChartData<T>(unsubscribe: Subject<void>): Observable<T> {
         return this.getObservable(STORE_KEY.SCATTER_CHART, unsubscribe);
     }

@@ -223,9 +223,8 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
                 }),
                 map((target: any) => target.timeSeriesHistogram)
             ),
-            this.storeHelperService.getAgentSelectionForServerList(this.unsubscribe).pipe(
+            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.AGENT_SELECT_FOR_SERVER_LIST).pipe(
                 filter(() => this.sourceType === SourceType.INFO_PER_SERVER),
-                filter((data: IAgentSelection) => !!data),
                 tap(({agent}: IAgentSelection) => this.selectedAgent = agent),
                 pluck('load'),
             ),
