@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.bootstrap;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 import java.lang.instrument.Instrumentation;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 

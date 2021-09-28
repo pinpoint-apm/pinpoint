@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
-import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
@@ -41,8 +40,6 @@ import io.netty.util.TimerTask;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-
-import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
 
 /**
  * @author jaehong.kim
@@ -128,7 +125,7 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
                     // Convert message
                     final GeneratedMessageV3 message = messageConverter.toMessage(data);
                     if (isDebug) {
-                        logger.debug("Request metadata={}", debugLog(message));
+                        logger.debug("Request metadata={}", MessageFormatUtils.debugLog(message));
                     }
                     request0(message, maxAttempts);
                 } catch (Exception ex) {
@@ -160,7 +157,7 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
             final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
             this.metadataStub.requestStringMetaData(stringMetaData, responseObserver);
         } else {
-            logger.warn("Unsupported message {}", debugLog(message));
+            logger.warn("Unsupported message {}", MessageFormatUtils.debugLog(message));
         }
     }
 

@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.grpc.server;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.ByteSizeUnit;
 import com.navercorp.pinpoint.grpc.ChannelTypeEnum;
 
 import java.util.Objects;

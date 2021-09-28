@@ -20,25 +20,30 @@ import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Stack;
 
 public class TraceViewerDataViewModel {
-    private final int START_TIME_INDEX = 0;
-    private final int END_TIME_INDEX = 1;
+    private static final int START_TIME_INDEX = 0;
+    private static final int END_TIME_INDEX = 1;
 
     private final RecordSet recordSet;
-    private List<TraceEvent> traceEvents;
-    private List<Long[]> occupiedRange;
-    private Map<Integer, Integer> invisibleRecords;
+    private final List<TraceEvent> traceEvents;
+    private final List<Long[]> occupiedRange;
+    private final Map<Integer, Integer> invisibleRecords;
+    private final long minBlank;
     private int maxTid;
-    private long minBlank;
 
     public TraceViewerDataViewModel(RecordSet recordSet) {
         this.recordSet = recordSet;
         this.maxTid = 0;
-        this.traceEvents = new ArrayList<TraceEvent>();
-        this.occupiedRange = new ArrayList<Long[]>();
-        this.invisibleRecords = new HashMap<Integer, Integer>();
+        this.traceEvents = new ArrayList<>();
+        this.occupiedRange = new ArrayList<>();
+        this.invisibleRecords = new HashMap<>();
         this.minBlank = (recordSet.getEndTime() - recordSet.getStartTime()) / 100;
         initialize();
     }

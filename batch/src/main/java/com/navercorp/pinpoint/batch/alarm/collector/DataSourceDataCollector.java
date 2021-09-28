@@ -87,7 +87,7 @@ public class DataSourceDataCollector extends DataCollector {
                             .orElse(-1);
                     DataSourceBo dataSourceBo = org.springframework.util.CollectionUtils.firstElement(dataSourceBoList);
                     DataSourceAlarmVO dataSourceAlarmVO = new DataSourceAlarmVO(dataSourceBo.getId(), dataSourceBo.getDatabaseName(),
-                            (int) Math.floor(activeConnectionAvg), new Double(Math.floor(maxConnectionAvg)).intValue());
+                            (int) Math.floor(activeConnectionAvg), (int) Math.floor(maxConnectionAvg));
 
                     agentDataSourceConnectionUsageRateMap.add(agentId, dataSourceAlarmVO);
                 }

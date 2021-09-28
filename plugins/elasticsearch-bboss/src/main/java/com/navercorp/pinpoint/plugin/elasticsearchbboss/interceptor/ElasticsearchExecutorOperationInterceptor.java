@@ -102,8 +102,7 @@ public class ElasticsearchExecutorOperationInterceptor extends SpanEventSimpleAr
                     if (getClusterVersionInfo == null) {
                         try {
                             getClusterVersionInfo = target.getClass().getMethod("getClusterVersionInfo");
-                        } catch (Exception e) {
-
+                        } catch (Exception ignore) {
                         }
                     }
                 }
@@ -177,33 +176,41 @@ public class ElasticsearchExecutorOperationInterceptor extends SpanEventSimpleAr
         if (methodDescriptor.getMethodName().equals("execute")) {
 
             recorder.recordAttribute(ElasticsearchConstants.ARGS_URL_ANNOTATION_KEY, args[0]);
-            if (recordDsl)
+            if (recordDsl) {
                 recorder.recordAttribute(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY, chunkDsl((String) args[1]));
+            }
             recorder.recordAttribute(ElasticsearchConstants.ARGS_ACTION_ANNOTATION_KEY, "POST");
-            if (recordResponseHandler)
+            if (recordResponseHandler) {
                 recorder.recordAttribute(ElasticsearchConstants.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
+            }
         } else if (methodDescriptor.getMethodName().equals("executeHttp")) {
             recorder.recordAttribute(ElasticsearchConstants.ARGS_URL_ANNOTATION_KEY, args[0]);
-            if (recordDsl)
+            if (recordDsl) {
                 recorder.recordAttribute(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY, chunkDsl((String) args[1]));
+            }
             recorder.recordAttribute(ElasticsearchConstants.ARGS_ACTION_ANNOTATION_KEY, args[2]);
-            if (recordResponseHandler)
+            if (recordResponseHandler) {
                 recorder.recordAttribute(ElasticsearchConstants.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
+            }
         } else if (methodDescriptor.getMethodName().equals("executeSimpleRequest")) {
             recorder.recordAttribute(ElasticsearchConstants.ARGS_URL_ANNOTATION_KEY, args[0]);
-            if (recordDsl)
+            if (recordDsl) {
                 recorder.recordAttribute(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY, chunkDsl((String) args[1]));
+            }
             recorder.recordAttribute(ElasticsearchConstants.ARGS_ACTION_ANNOTATION_KEY, "POST");
-            if (recordResponseHandler)
+            if (recordResponseHandler) {
                 recorder.recordAttribute(ElasticsearchConstants.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
+            }
 
         } else if (methodDescriptor.getMethodName().equals("executeRequest")) {
             recorder.recordAttribute(ElasticsearchConstants.ARGS_URL_ANNOTATION_KEY, args[0]);
-            if (recordDsl)
+            if (recordDsl) {
                 recorder.recordAttribute(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY, chunkDsl((String) args[1]));
+            }
             recorder.recordAttribute(ElasticsearchConstants.ARGS_ACTION_ANNOTATION_KEY, args[2]);
-            if (recordResponseHandler)
+            if (recordResponseHandler) {
                 recorder.recordAttribute(ElasticsearchConstants.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
+            }
 
         }
     }

@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.response;
 
-import java.io.IOException;
 import java.util.Collection;
 
 /**

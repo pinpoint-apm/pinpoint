@@ -35,7 +35,6 @@ import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 
 import com.navercorp.pinpoint.common.util.Assert;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.slf4j.Logger;

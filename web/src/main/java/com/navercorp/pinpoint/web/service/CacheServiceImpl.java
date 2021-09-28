@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.web.view.TagApplications;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.support.SimpleValueWrapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
