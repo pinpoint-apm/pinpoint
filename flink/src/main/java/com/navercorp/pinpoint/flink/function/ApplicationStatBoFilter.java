@@ -19,14 +19,11 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinApplicationStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author minwoo.jung
  */
-public class ApplicationStatBoFliter implements FilterFunction<Tuple3<String, JoinStatBo, Long>> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+public class ApplicationStatBoFilter implements FilterFunction<Tuple3<String, JoinStatBo, Long>> {
 
     @Override
     public boolean filter(Tuple3<String, JoinStatBo, Long> value) throws Exception {

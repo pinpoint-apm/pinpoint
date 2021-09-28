@@ -62,7 +62,7 @@ public class HttpClientHandlerRequestWithBodyInterceptor extends AsyncContextSpa
                         recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, HostAndPort.toHostAndPortString(hostName, inetSocketAddress.getPort()));
                     }
                 }
-            } catch (Exception ignored) {
+            } catch (Exception ignore) {
             }
         }
     }

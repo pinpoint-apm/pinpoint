@@ -147,7 +147,6 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
 
         KeeperState state = event.getState();
         EventType eventType = event.getType();
-        String path = event.getPath();
 
         if (state == KeeperState.SyncConnected || state == KeeperState.NoSyncConnected) {
             // when this happens, ephemeral node disappears

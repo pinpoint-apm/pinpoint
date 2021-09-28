@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SocketOption implements Cloneable {
+public class SocketOption {
 
     private static final String CONNECT_TIMEOUT_MILLIS = "connectTimeoutMillis";
     static final int DEFAULT_CONNECT_TIMEOUT = 5000;

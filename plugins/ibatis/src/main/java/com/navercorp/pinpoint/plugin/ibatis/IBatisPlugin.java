@@ -78,8 +78,6 @@ public class IBatisPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private void addInterceptorsForClasses(ServiceType serviceType, String... targetClassNames) {
 
-        final MethodFilter methodFilter = MethodFilters.name("insert", "delete", "update", "queryForList",
-                "queryForMap", "queryForObject", "queryForPaginatedList");
         for (String targetClassName : targetClassNames) {
             addInterceptorsForClass(targetClassName, serviceType);
         }
