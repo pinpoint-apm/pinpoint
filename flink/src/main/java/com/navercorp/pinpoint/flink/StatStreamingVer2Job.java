@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.flink.dao.hbase.StatisticsDao;
 import com.navercorp.pinpoint.flink.function.ApplicationStatBoWindow;
 import com.navercorp.pinpoint.flink.function.Timestamp;
-import com.navercorp.pinpoint.flink.function.ApplicationStatBoFliter;
+import com.navercorp.pinpoint.flink.function.ApplicationStatBoFilter;
 import com.navercorp.pinpoint.flink.receiver.TcpSourceFunction;
 import com.navercorp.pinpoint.flink.vo.RawData;
 import org.apache.flink.api.java.tuple.Tuple3;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 
 public class StatStreamingVer2Job implements Serializable {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final transient Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static void main(String[] args) throws Exception {
         ParameterTool parameters = ParameterTool.fromArgs(args);
@@ -64,7 +64,7 @@ public class StatStreamingVer2Job implements Serializable {
 
         //1-1 save data processing application stat raw data
         final StatisticsDao statisticsDao = bootstrap.getStatisticsDao();
-        DataStream<Tuple3<String, JoinStatBo, Long>> applicationStatAggregationData = statOperator.filter(new ApplicationStatBoFliter())
+        DataStream<Tuple3<String, JoinStatBo, Long>> applicationStatAggregationData = statOperator.filter(new ApplicationStatBoFilter())
             .assignTimestampsAndWatermarks(new Timestamp())
             .keyBy(0)
             .window(TumblingEventTimeWindows.of(Time.milliseconds(ApplicationStatBoWindow.WINDOW_SIZE)))

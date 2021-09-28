@@ -30,7 +30,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  */
 public class TcpSourceFunction extends RichParallelSourceFunction<RawData> {
 
-    private final Logger logger = LoggerFactory.getLogger(TcpSourceFunction.class);
+    private final transient Logger logger = LoggerFactory.getLogger(TcpSourceFunction.class);
     private transient GlobalJobParameters globalJobParameters;
 
 
