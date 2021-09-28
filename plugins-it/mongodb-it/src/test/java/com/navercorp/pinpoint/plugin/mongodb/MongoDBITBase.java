@@ -16,11 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.mongodb;
 
-import com.mongodb.WriteConcern;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.result.DeleteResult;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
@@ -28,6 +23,12 @@ import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
 import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
 import com.navercorp.pinpoint.plugin.mongo.NormalizedBson;
+
+import com.mongodb.WriteConcern;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.result.DeleteResult;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
@@ -68,7 +69,10 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Date;
 
-import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.exists;
+import static com.mongodb.client.model.Filters.nin;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 /**
@@ -79,43 +83,56 @@ public abstract class MongoDBITBase {
     protected static final String MONGO_EXECUTE_QUERY = "MONGO_EXECUTE_QUERY";
     public static MongoDatabase database;
     public static String secondCollectionDefaultOption = "ACKNOWLEDGED";
-    public static double version = 0;
-    protected static String MONGODB_ADDRESS = "localhost:" + 27018;
     MongodProcess mongod;
 
     public abstract void setClient();
 
     public abstract void closeClient();
 
+    abstract Class<?> getMongoDatabaseClazz() throws ClassNotFoundException;
+
+    abstract void insertComplex(PluginTestVerifier verifier, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl, String collectionInfo, String collectionOption);
+
     public void startDB() throws Exception {
         MongodStarter starter = MongodStarter.getDefaultInstance();
-
-        String bindIp = "localhost";
-        int port = 27018;
-
         IMongodConfig mongodConfig = new MongodConfigBuilder()
                 .version(Version.Main.PRODUCTION)
-                .net(new Net(bindIp, port, Network.localhostIsIPv6()))
+                .net(new Net(MongoDBITConstants.BIND_ADDRESS, MongoDBITConstants.PORT, Network.localhostIsIPv6()))
                 .build();
 
-        MongodExecutable mongodExecutable = null;
+        MongodExecutable mongodExecutable = starter.prepare(mongodConfig);
 
-        mongodExecutable = starter.prepare(mongodConfig);
+//        replaced via awaitCompleted()
+//        //give time for previous DB close to finish and port to be released"
+//        Thread.sleep(200L);
 
-        //give time for previous DB close to finish and port to be released"
-        Thread.sleep(200L);
         mongod = mongodExecutable.start();
         setClient();
     }
 
-    public void stopDB() throws Exception {
+    public void stopDB(MongoCollection<Document> collection) throws Exception {
+        try {
+            collection.drop();
+        } catch (Exception e) {
+        }
 
-        //give time for the test to finish"
-        Thread.sleep(100L);
+//        replaced via awaitCompleted()
+//        //give time for the test to finish"
+//        Thread.sleep(100L);
 
         closeClient();
         mongod.stop();
 
+        awaitCompleted();
+    }
+
+    private void awaitCompleted() throws InterruptedException {
+        for (int i = 0; i < 50; i++) {
+            if (!mongod.isProcessRunning()) {
+                break;
+            }
+            Thread.sleep(10);
+        }
     }
 
     @Test
@@ -126,19 +143,10 @@ public abstract class MongoDBITBase {
 
         MongoCollection<Document> collection = database.getCollection("customers");
         MongoCollection<Document> collection2 = database.getCollection("customers2").withWriteConcern(WriteConcern.ACKNOWLEDGED);
-        Class<?> mongoDatabaseImpl;
 
-        if (version >= 3.7) {
-            mongoDatabaseImpl = Class.forName("com.mongodb.client.internal.MongoCollectionImpl");
-        } else {
-            mongoDatabaseImpl = Class.forName("com.mongodb.MongoCollectionImpl");
-        }
+        Class<?> mongoDatabaseImpl = getMongoDatabaseClazz();
 
-        if (version >= 3.4) {
-            insertComlexBsonValueData34(verifier, collection, mongoDatabaseImpl, "customers", "MAJORITY");
-        } else {
-            insertComlexBsonValueData30(verifier, collection, mongoDatabaseImpl, "customers", "MAJORITY");
-        }
+        insertComplex(verifier, collection, mongoDatabaseImpl, "customers", "MAJORITY");
         insertData(verifier, collection, mongoDatabaseImpl, "customers", "MAJORITY");
         insertData(verifier, collection2, mongoDatabaseImpl, "customers2", secondCollectionDefaultOption);
         updateData(verifier, collection, mongoDatabaseImpl);
@@ -147,10 +155,33 @@ public abstract class MongoDBITBase {
         filterData2(verifier, collection, mongoDatabaseImpl);
         deleteData(verifier, collection, mongoDatabaseImpl);
 
-        stopDB();
+        stopDB(collection);
     }
 
     public void insertComlexBsonValueData30(PluginTestVerifier verifier, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl, String collectionInfo, String collectionOption) {
+        //insert Data
+        Document document = createComplexDocument();
+
+        collection.insertOne(document);
+
+        Method insertOneMethod = getMethod(mongoDatabaseImpl, "insertOne", Object.class);
+        NormalizedBson parsedBson = parseBson(document);
+
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOneMethod, null, MongoDBITConstants.MONGODB_ADDRESS, null
+                , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), collectionInfo)
+                , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), collectionOption)
+                , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
+    }
+
+    public NormalizedBson parseBson(Object... documents) {
+        Object[] objects = new Object[documents.length];
+        for (int i = 0; i < documents.length; i++) {
+            objects[i] = documents[i];
+        }
+        return MongoUtil.parseBson(objects, true);
+    }
+
+    private Document createComplexDocument() {
         //insert Data
         BsonValue a = new BsonString("stest");
         BsonValue b = new BsonDouble(111);
@@ -176,70 +207,29 @@ public abstract class MongoDBITBase {
                 .append("document", new BsonDocument("a", new BsonInt32(77)))
                 .append("dbPointer", new BsonDbPointer("db.coll", new ObjectId()))
                 .append("null", new BsonNull());
+        return document;
+    }
 
-        collection.insertOne(document);
-
-        Object[] objects = new Object[1];
-        objects[0] = document;
-
-        NormalizedBson parsedBson = MongoUtil.parseBson(objects, true);
-
-        Method insertOne;
+    private Method getMethod(Class<?> mongoDatabaseImpl, String name, Class<?>... parameterTypes) {
+        Method method = null;
         try {
-            insertOne = mongoDatabaseImpl.getDeclaredMethod("insertOne", Object.class);
+            method = mongoDatabaseImpl.getDeclaredMethod(name, parameterTypes);
         } catch (NoSuchMethodException e) {
-            insertOne = null;
         }
-
-        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOne, null, MONGODB_ADDRESS, null
-                , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), collectionInfo)
-                , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), collectionOption)
-                , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
+        return method;
     }
 
     public void insertComlexBsonValueData34(PluginTestVerifier verifier, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl, String collectionInfo, String collectionOption) {
         //insert Data
-        BsonValue a = new BsonString("stest");
-        BsonValue b = new BsonDouble(111);
-        BsonValue c = new BsonBoolean(true);
-
-        Document document = new Document()
-                .append("int32", new BsonInt32(12))
-                .append("int64", new BsonInt64(77L))
-                .append("bo\"olean", new BsonBoolean(true))
-                .append("date", new BsonDateTime(new Date().getTime()))
-                .append("double", new BsonDouble(12.3))
-                .append("string", new BsonString("pinpoint"))
-                .append("objectId", new BsonObjectId(new ObjectId()))
-                .append("code", new BsonJavaScript("int i = 10;"))
-                .append("codeWithScope", new BsonJavaScriptWithScope("int x = y", new BsonDocument("y", new BsonInt32(1))))
-                .append("regex", new BsonRegularExpression("^test.*regex.*xyz$", "big"))
-                .append("symbol", new BsonSymbol("wow"))
-                .append("timestamp", new BsonTimestamp(0x12345678, 5))
-                .append("undefined", new BsonUndefined())
-                .append("binary1", new BsonBinary(new byte[]{(byte) 0xe0, 0x4f, (byte) 0xd0, 0x20}))
-                .append("oldBinary", new BsonBinary(BsonBinarySubType.OLD_BINARY, new byte[]{1, 1, 1, 1, 1}))
-                .append("arrayInt", new BsonArray(Arrays.asList(a, b, c, new BsonInt32(7))))
-                .append("document", new BsonDocument("a", new BsonInt32(77)))
-                .append("dbPointer", new BsonDbPointer("db.coll", new ObjectId()))
-                .append("null", new BsonNull())
-                .append("decimal128", new BsonDecimal128(new Decimal128(55)));
+        Document document = createComplexDocument();
+        document.append("decimal128", new BsonDecimal128(new Decimal128(55)));
 
         collection.insertOne(document);
 
-        Object[] objects = new Object[1];
-        objects[0] = document;
+        Method insertOneMethod = getMethod(mongoDatabaseImpl, "insertOne", Object.class);
+        NormalizedBson parsedBson = parseBson(document);
 
-        NormalizedBson parsedBson = MongoUtil.parseBson(objects, true);
-
-        Method insertOne;
-        try {
-            insertOne = mongoDatabaseImpl.getDeclaredMethod("insertOne", Object.class);
-        } catch (NoSuchMethodException e) {
-            insertOne = null;
-        }
-
-        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOne, null, MONGODB_ADDRESS, null
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOneMethod, null, MongoDBITConstants.MONGODB_ADDRESS, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), collectionInfo)
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), collectionOption)
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
@@ -250,45 +240,25 @@ public abstract class MongoDBITBase {
         Document doc = new Document("name", "Roy").append("company", "Naver");
         collection.insertOne(doc);
 
-        Object[] objects = new Object[1];
-        objects[0] = doc;
+        Method insertOneMethod = getMethod(mongoDatabaseImpl, "insertOne", Object.class);
+        NormalizedBson parsedBson = parseBson(doc);
 
-        NormalizedBson parsedBson = MongoUtil.parseBson(objects, true);
-
-        Method insertOne;
-        try {
-            insertOne = mongoDatabaseImpl.getDeclaredMethod("insertOne", Object.class);
-        } catch (NoSuchMethodException e) {
-            insertOne = null;
-        }
-
-        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOne, null, MONGODB_ADDRESS, null
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOneMethod, null, MongoDBITConstants.MONGODB_ADDRESS, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), collectionInfo)
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), collectionOption)
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
     }
 
     public void updateData(PluginTestVerifier verifier, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) {
-
         //update Data
         Document doc = new Document("name", "Roy").append("company", "Naver");
         Document doc2 = new Document("$set", new Document("name", "Roy3"));
         collection.updateOne(doc, doc2);
 
-        Object[] objects = new Object[2];
-        objects[0] = doc;
-        objects[1] = doc2;
+        Method updateOne = getMethod(mongoDatabaseImpl, "updateOne", Bson.class, Bson.class);
+        NormalizedBson parsedBson = parseBson(doc, doc2);
 
-        NormalizedBson parsedBson = MongoUtil.parseBson(objects, true);
-
-        Method updateOne;
-        try {
-            updateOne = mongoDatabaseImpl.getDeclaredMethod("updateOne", Bson.class, Bson.class);
-        } catch (NoSuchMethodException e) {
-            updateOne = null;
-        }
-
-        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, updateOne, null, MONGODB_ADDRESS, null
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, updateOne, null, MongoDBITConstants.MONGODB_ADDRESS, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "MAJORITY")
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
@@ -299,17 +269,16 @@ public abstract class MongoDBITBase {
         //read data
         MongoCursor<Document> cursor = collection.find().iterator();
 
-        Method find;
-        try {
-            find = mongoDatabaseImpl.getDeclaredMethod("find");
-        } catch (NoSuchMethodException e) {
-            find = null;
-        }
+        Method find = getMethod(mongoDatabaseImpl, "find");
 
-        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, MONGODB_ADDRESS, null
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, MongoDBITConstants.MONGODB_ADDRESS, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "secondaryPreferred")));
 
+        assertResultSize(2, cursor);
+    }
+
+    private void assertResultSize(int expected, MongoCursor<Document> cursor) {
         int resultCount = 0;
         try {
             while (cursor.hasNext()) {
@@ -319,27 +288,18 @@ public abstract class MongoDBITBase {
         } finally {
             cursor.close();
         }
-        Assert.assertEquals(2, resultCount);
+        Assert.assertEquals(expected, resultCount);
     }
 
     public void deleteData(PluginTestVerifier verifier, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) {
         //delete data
         Document doc = new Document("name", "Roy3");
-        Object[] objects = new Object[1];
-        objects[0] = doc;
-
-        NormalizedBson parsedBson = MongoUtil.parseBson(objects, true);
-
         DeleteResult deleteResult = collection.deleteMany(doc);
 
-        Method deleteMany;
-        try {
-            deleteMany = mongoDatabaseImpl.getDeclaredMethod("deleteMany", Bson.class);
-        } catch (NoSuchMethodException e) {
-            deleteMany = null;
-        }
+        Method deleteMany = getMethod(mongoDatabaseImpl, "deleteMany", Bson.class);
+        NormalizedBson parsedBson = parseBson(doc);
 
-        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, deleteMany, null, MONGODB_ADDRESS, null
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, deleteMany, null, MongoDBITConstants.MONGODB_ADDRESS, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "MAJORITY")
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
@@ -348,74 +308,32 @@ public abstract class MongoDBITBase {
     }
 
     public void filterData(PluginTestVerifier verifier, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) {
-
+        Method find = getMethod(mongoDatabaseImpl, "find", Bson.class);
         Bson bson = eq("name", "Roy3");
-        Object[] objects = new Object[1];
-        objects[0] = bson;
-
-        NormalizedBson parsedBson = MongoUtil.parseBson(objects, true);
+        NormalizedBson parsedBson = parseBson(bson);
 
         MongoCursor<Document> cursor = collection.find(bson).iterator();
 
-        Method find;
-        try {
-            find = mongoDatabaseImpl.getDeclaredMethod("find", Bson.class);
-        } catch (NoSuchMethodException e) {
-            find = null;
-        }
-
-        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, MONGODB_ADDRESS, null
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, MongoDBITConstants.MONGODB_ADDRESS, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "secondaryPreferred")
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
 
-        int resultCount = 0;
-        try {
-            while (cursor.hasNext()) {
-                resultCount++;
-                cursor.next();
-            }
-        } finally {
-            cursor.close();
-        }
-
-        Assert.assertEquals(1, resultCount);
+        assertResultSize(1, cursor);
     }
 
     public void filterData2(PluginTestVerifier verifier, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) {
-
-        Document doc = new Document("name", "Roy3");
-
+        Method find = getMethod(mongoDatabaseImpl, "find", Bson.class);
         Bson bson = and(exists("name"), nin("name", 5, 15));
-        Object[] objects = new Object[1];
-        objects[0] = bson;
-
-        NormalizedBson parsedBson = MongoUtil.parseBson(objects, true);
+        NormalizedBson parsedBson = parseBson(bson);
 
         MongoCursor<Document> cursor = collection.find(bson).iterator();
 
-        Method find;
-        try {
-            find = mongoDatabaseImpl.getDeclaredMethod("find", Bson.class);
-        } catch (NoSuchMethodException e) {
-            find = null;
-        }
-
-        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, MONGODB_ADDRESS, null
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, MongoDBITConstants.MONGODB_ADDRESS, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "secondaryPreferred")
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
 
-        int resultCount = 0;
-        try {
-            while (cursor.hasNext()) {
-                resultCount++;
-                cursor.next();
-            }
-        } finally {
-            cursor.close();
-        }
-
-        Assert.assertEquals(1, resultCount);
+        assertResultSize(1, cursor);
     }
 }
