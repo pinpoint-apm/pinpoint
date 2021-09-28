@@ -296,7 +296,13 @@ export class ScatterChart {
         this.rendererManager.makeDataCanvas(dataBlock, dataBlock.getAgentList());
         this.agentList.forEach((agent: string) => {
             if (this.sampleScatter) {
-                Object.entries(dataBlock.getSampledData()[agent]).forEach(([type, data]: [string, {x: number, y: number, count: number}[]]) => {
+                const dataByAgent = dataBlock.getSampledData()[agent];
+
+                if (!dataByAgent) {
+                    return;
+                }
+
+                Object.entries(dataByAgent).forEach(([type, data]: [string, {x: number, y: number, count: number}[]]) => {
                     data.forEach((d: any) => {
                         this.rendererManager.drawTransactionWithSample(`${agent}-${prefix}-${type}`, this.typeManager.getColorByName(type), d);
                     });

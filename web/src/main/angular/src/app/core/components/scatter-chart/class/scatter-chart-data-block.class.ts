@@ -77,7 +77,6 @@ export class ScatterChartDataBlock {
         this.agentList.sort();
     }
     private classifyDataByAgent(): void {
-        // TODO: 이거 웹워커로 다시한번 트라이해보자.
         this.originalData.scatter.dotList.forEach((tData: number[]) => {
             const agentName = this.getAgentName(tData);
             const typeName = this.typeManager.getNameByIndex(tData[DataIndex.TYPE]);
