@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class UriExtractorChain<T> implements UriExtractor<T> {
 
-    private List<UriExtractor<T>> uriExtractorList;
+    private final List<UriExtractor<T>> uriExtractorList;
 
     public UriExtractorChain(List<UriExtractor<T>> uriExtractorList) {
         if (CollectionUtils.isEmpty(uriExtractorList)) {

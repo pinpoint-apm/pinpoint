@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.plugin.reactor.netty;
 
 import com.navercorp.pinpoint.bootstrap.plugin.response.ResponseAdaptor;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponse;
 
 import java.util.Collection;

@@ -21,8 +21,6 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.config.LogConfiguration;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 
-import java.util.Objects;
-
 public class TransactionTimelineInfoViewModel {
     private final TransactionId transactionId;
     private final RecordSet recordSet;

@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcAnnotationValueMapper;
 
 /**
  * @author Woonduk Kang(emeroad)

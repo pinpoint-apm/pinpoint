@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context.thrift;
 
-import com.navercorp.pinpoint.profiler.context.thrift.AnnotationValueThriftMapper;
 import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
 
 /**

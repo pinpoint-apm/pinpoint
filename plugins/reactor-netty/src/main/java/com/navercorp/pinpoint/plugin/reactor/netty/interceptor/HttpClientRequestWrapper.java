@@ -59,18 +59,21 @@ public class HttpClientRequestWrapper implements ClientRequestWrapper {
     }
 
     private String toRemoteHost() {
-        try {
-            final ChannelOperations channelOperations = (ChannelOperations) request;
-            final InetSocketAddress inetSocketAddress = (InetSocketAddress) channelOperations.channel().remoteAddress();
-            if (inetSocketAddress != null) {
-                final StringBuilder sb = new StringBuilder();
-                final String hostName = SocketAddressUtils.getHostNameFirst(inetSocketAddress);
-                if (hostName != null) {
-                    sb.append(hostName).append(":").append(inetSocketAddress.getPort());
+        if (request instanceof ChannelOperations) {
+            try {
+                final ChannelOperations channelOperations = (ChannelOperations) request;
+                final InetSocketAddress inetSocketAddress = (InetSocketAddress) channelOperations.channel().remoteAddress();
+                if (inetSocketAddress != null) {
+                    final StringBuilder sb = new StringBuilder();
+                    final String hostName = SocketAddressUtils.getHostNameFirst(inetSocketAddress);
+                    if (hostName != null) {
+                        sb.append(hostName).append(":").append(inetSocketAddress.getPort());
+                    }
+                    return sb.toString();
                 }
-                return sb.toString();
+
+            } catch (Exception ignored) {
             }
-        } catch (Exception ignored) {
         }
 
         return null;

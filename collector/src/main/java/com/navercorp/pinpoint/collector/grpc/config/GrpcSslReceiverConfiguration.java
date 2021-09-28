@@ -16,9 +16,7 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-import com.navercorp.pinpoint.collector.config.ExecutorConfiguration;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
-import com.navercorp.pinpoint.grpc.server.ServerOption;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

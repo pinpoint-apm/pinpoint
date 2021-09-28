@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 

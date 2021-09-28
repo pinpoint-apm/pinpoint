@@ -36,19 +36,17 @@ public final class MethodUtils {
     private static final String PREFIX_IS = "is";
     private static final String PREFIX_SET = "set";
 
-    private static Map<String, Class> primitiveTypeMap = null;
+    private static final Map<String, Class<?>> primitiveTypeMap = getPrimitiveTypeMap();
 
-    private static Map<String, Class> getPrimitiveTypeMap() {
-        if (primitiveTypeMap == null) {
-            primitiveTypeMap = new HashMap<>();
-            primitiveTypeMap.put("int", Integer.class);
-            primitiveTypeMap.put("long", Long.class);
-            primitiveTypeMap.put("double", Double.class);
-            primitiveTypeMap.put("float", Float.class);
-            primitiveTypeMap.put("bool", Boolean.class);
-            primitiveTypeMap.put("boolean", Boolean.class);
-            primitiveTypeMap.put("short", Short.class);
-        }
+    private static Map<String, Class<?>> getPrimitiveTypeMap() {
+        Map<String, Class<?>> primitiveTypeMap = new HashMap<>();
+        primitiveTypeMap.put("int", Integer.class);
+        primitiveTypeMap.put("long", Long.class);
+        primitiveTypeMap.put("double", Double.class);
+        primitiveTypeMap.put("float", Float.class);
+        primitiveTypeMap.put("bool", Boolean.class);
+        primitiveTypeMap.put("boolean", Boolean.class);
+        primitiveTypeMap.put("short", Short.class);
         return primitiveTypeMap;
     }
 
@@ -114,7 +112,7 @@ public final class MethodUtils {
         return properties;
     }
 
-    static void invokeSetMethod(Class clazz, Properties properties) throws InvocationTargetException, IllegalAccessException {
+    static void invokeSetMethod(Class<?> clazz, Properties properties) throws InvocationTargetException, IllegalAccessException {
         Objects.requireNonNull(clazz, "clazz");
 
         MethodFilter setterMethodFilter = createSetterMethodFilter();
@@ -135,7 +133,7 @@ public final class MethodUtils {
                     setterMethod.invoke(null, propertyValue);
                 } else if (genericParameterType != null) {
                     String parameterTypeName = genericParameterType.toString();
-                    Class parameterTypeClazz = getPrimitiveTypeMap().get(parameterTypeName);
+                    Class<?> parameterTypeClazz = primitiveTypeMap.get(parameterTypeName);
 
                     if (parameterTypeClazz != null && parameterTypeClazz.isInstance(propertyValue)) {
                         setterMethod.invoke(null, propertyValue);

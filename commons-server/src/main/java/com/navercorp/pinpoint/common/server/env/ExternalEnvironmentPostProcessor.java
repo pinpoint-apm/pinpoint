@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.env;
 
-import com.navercorp.pinpoint.common.server.env.ExternalEnvironment;
-import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;

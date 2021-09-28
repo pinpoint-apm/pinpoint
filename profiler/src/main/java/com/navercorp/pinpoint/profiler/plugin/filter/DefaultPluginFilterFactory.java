@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.plugin.filter;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import java.util.Objects;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.plugin.config.PluginLoadingConfig;

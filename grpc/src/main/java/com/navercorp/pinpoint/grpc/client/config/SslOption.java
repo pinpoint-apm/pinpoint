@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.util.FileSystemResource;
 import com.navercorp.pinpoint.grpc.util.Resource;
 
-import java.net.URL;
 import java.util.Objects;
 
 /**

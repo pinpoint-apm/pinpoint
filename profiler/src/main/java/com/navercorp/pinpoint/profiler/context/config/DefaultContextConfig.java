@@ -55,7 +55,7 @@ public class DefaultContextConfig implements ContextConfig {
     @Value("${profiler.os.name}")
     private String profileOsName;
 
-    private final long DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL = 5 * 60 * 1000L;
+    private static final long DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL = 5 * 60 * 1000L;
     @Value("${profiler.agentInfo.send.retry.interval}")
     private long agentInfoSendRetryInterval = DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL;
 
