@@ -1,17 +1,30 @@
-import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil, filter } from 'rxjs/operators';
+import {
+    Component,
+    OnInit,
+    OnDestroy,
+    ViewChild,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    ComponentFactoryResolver, Injector
+} from '@angular/core';
+import {EMPTY, forkJoin, Subject} from 'rxjs';
+import {filter, switchMap, catchError, tap} from 'rxjs/operators';
 
 import {
     StoreHelperService,
     AnalyticsService,
     TRACKED_EVENT_LIST,
     MessageQueueService,
-    MESSAGE_TO
+    MESSAGE_TO,
+    NewUrlStateNotificationService,
+    TransactionDetailDataService,
+    DynamicPopupService,
+    UrlRouteManagerService
 } from 'app/shared/services';
-import { TransactionSearchInteractionService, ISearchParam } from 'app/core/components/transaction-search/transaction-search-interaction.service';
 import { TransactionTimelineV2Component } from './transaction-timeline-v2.component';
 import { Actions } from 'app/shared/store/reducers';
+import {UrlPath, UrlPathId, UrlQuery} from "../../../shared/models";
+import {ServerErrorPopupContainerComponent} from "../server-error-popup/server-error-popup-container.component";
 
 @Component({
     selector: 'pp-transaction-timeline-v2-container',
@@ -29,31 +42,64 @@ export class TransactionTimelineV2ContainerComponent implements OnInit, OnDestro
 
     constructor(
         private storeHelperService: StoreHelperService,
-        private transactionSearchInteractionService: TransactionSearchInteractionService,
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
+        private urlRouteManagerService: UrlRouteManagerService,
+        private transactionDetailDataService: TransactionDetailDataService, //todo change to new service
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector,
         private messageQueueService: MessageQueueService,
         private analyticsService: AnalyticsService,
         private cd: ChangeDetectorRef
     ) {}
 
     ngOnInit() {
-        this.connectStore();
+        this.storeHelperService.getTransactionData(this.unsubscribe).pipe(
+            filter((data: ITransactionMetaData) => !!data),
+            filter(({agentId, spanId, traceId, collectorAcceptTime}: ITransactionMetaData) => !!agentId && !!spanId && !!traceId && !!collectorAcceptTime),
+            switchMap(({agentId, spanId, traceId, collectorAcceptTime}: ITransactionMetaData) => {
+                return forkJoin(
+                    this.transactionDetailDataService.getTimelineData(agentId, spanId, traceId, collectorAcceptTime)
+                ).pipe(
+                    catchError((error: IServerErrorFormat) => {
+                        this.dynamicPopupService.openPopup({
+                            data: {
+                                title: 'Error',
+                                contents: error
+                            },
+                            component: ServerErrorPopupContainerComponent,
+                            onCloseCallback: () => {
+                                this.urlRouteManagerService.moveOnPage({
+                                    url: [
+                                        UrlPath.TRANSACTION_LIST,
+                                        this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                                        this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
+                                        this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
+                                    ],
+                                    queryParams: {
+                                        [UrlQuery.TRANSACTION_INFO]: null
+                                    }
+                                });
+                            }
+                        }, {
+                            resolver: this.componentFactoryResolver,
+                            injector: this.injector
+                        });
+                        this.cd.detectChanges();
+                        return EMPTY;
+                    }),
+                );
+            })
+        ).subscribe(([transactionTimelineInfo]: [ITransactionTimelineData]) => {
+            this.applicationName = transactionTimelineInfo.applicationId;
+            this.traceViewerDataURL = transactionTimelineInfo.traceViewerDataURL;
+            this.cd.detectChanges();
+        });
     }
 
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
-    }
-
-    private connectStore(): void {
-        this.storeHelperService.getTransactionTimelineData(this.unsubscribe).pipe(
-            filter((transactionTimelineInfo: any) => {
-                return transactionTimelineInfo && transactionTimelineInfo.transactionId ? true : false;
-            })
-        ).subscribe((transactionTimelineInfo: ITransactionTimelineData) => {
-            this.applicationName = transactionTimelineInfo.applicationId;
-            this.traceViewerDataURL = transactionTimelineInfo.traceViewerDataURL;
-            this.cd.detectChanges();
-        });
     }
 
     onSelectTransaction(id: string): void {

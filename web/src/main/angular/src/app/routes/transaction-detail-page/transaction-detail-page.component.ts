@@ -45,7 +45,6 @@ export class TransactionDetailPageComponent implements OnInit, OnDestroy {
 
                 return forkJoin(
                     this.transactionDetailDataService.getData(agentId, spanId, traceId, focusTimestamp),
-                    this.transactionDetailDataService.getTimelineData(agentId, spanId, traceId, focusTimestamp)
                 ).pipe(
                     catchError((error: IServerErrorFormat) => {
                         this.dynamicPopupService.openPopup({
@@ -66,9 +65,8 @@ export class TransactionDetailPageComponent implements OnInit, OnDestroy {
                     })
                 );
             })
-        ).subscribe(([transactionDetailInfo, transactionTimelineInfo]: [ITransactionDetailData, ITransactionTimelineData]) => {
+        ).subscribe(([transactionDetailInfo]: [ITransactionDetailData]) => {
             this.storeHelperService.dispatch(new Actions.UpdateTransactionDetailData(transactionDetailInfo));
-            this.storeHelperService.dispatch(new Actions.UpdateTransactionTimelineData(transactionTimelineInfo));
         });
     }
 

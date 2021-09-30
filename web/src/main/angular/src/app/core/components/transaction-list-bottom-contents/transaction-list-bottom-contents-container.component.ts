@@ -32,7 +32,6 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
     transactionInfo: ITransactionMetaData;
     useDisable = true;
     showLoading = true;
-    removeCallTree = false;
     showSearch = true;
     message$: Observable<string>;
     isEmpty = true;
@@ -97,7 +96,6 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
             switchMap(({agentId, spanId, traceId, collectorAcceptTime}: ITransactionMetaData) => {
                 return forkJoin(
                     this.transactionDetailDataService.getData(agentId, spanId, traceId, collectorAcceptTime),
-                    this.transactionDetailDataService.getTimelineData(agentId, spanId, traceId, collectorAcceptTime)
                 ).pipe(
                     catchError((error: IServerErrorFormat) => {
                         this.dynamicPopupService.openPopup({
@@ -136,9 +134,8 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
                 this.renderer.setStyle(this.callTreeComponent.nativeElement, 'display', 'block');
                 this.cd.detectChanges();
             })
-        ).subscribe(([transactionDetailInfo, transactionTimelineInfo]: [ITransactionDetailData, ITransactionTimelineData]) => {
+        ).subscribe(([transactionDetailInfo]: [ITransactionDetailData]) => {
             this.storeHelperService.dispatch(new Actions.UpdateTransactionDetailData(transactionDetailInfo));
-            this.storeHelperService.dispatch(new Actions.UpdateTransactionTimelineData(transactionTimelineInfo));
         });
     }
 
