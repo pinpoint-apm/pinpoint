@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
-import { Subject, forkJoin, EMPTY } from 'rxjs';
+import { Subject, EMPTY } from 'rxjs';
 import { takeUntil, filter, switchMap, catchError } from 'rxjs/operators';
 
 import {
@@ -43,10 +43,7 @@ export class TransactionDetailPageComponent implements OnInit, OnDestroy {
                 const traceId = urlService.getPathValue(UrlPathId.TRACE_ID);
                 const focusTimestamp = urlService.getPathValue(UrlPathId.FOCUS_TIMESTAMP);
 
-                return forkJoin(
-                    this.transactionDetailDataService.getData(agentId, spanId, traceId, focusTimestamp),
-                    this.transactionDetailDataService.getTimelineData(agentId, spanId, traceId, focusTimestamp)
-                ).pipe(
+                return this.transactionDetailDataService.getData(agentId, spanId, traceId, focusTimestamp).pipe(
                     catchError((error: IServerErrorFormat) => {
                         this.dynamicPopupService.openPopup({
                             data: {
@@ -66,9 +63,8 @@ export class TransactionDetailPageComponent implements OnInit, OnDestroy {
                     })
                 );
             })
-        ).subscribe(([transactionDetailInfo, transactionTimelineInfo]: [ITransactionDetailData, ITransactionTimelineData]) => {
+        ).subscribe((transactionDetailInfo: ITransactionDetailData) => {
             this.storeHelperService.dispatch(new Actions.UpdateTransactionDetailData(transactionDetailInfo));
-            this.storeHelperService.dispatch(new Actions.UpdateTransactionTimelineData(transactionTimelineInfo));
         });
     }
 

@@ -1,17 +1,25 @@
-import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil, filter } from 'rxjs/operators';
+import {
+    Component,
+    OnInit,
+    OnDestroy,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    ComponentFactoryResolver, Injector
+} from '@angular/core';
+import { EMPTY, Subject } from 'rxjs';
+import { filter, switchMap, catchError } from 'rxjs/operators';
 
 import {
     StoreHelperService,
     AnalyticsService,
     TRACKED_EVENT_LIST,
     MessageQueueService,
-    MESSAGE_TO
+    MESSAGE_TO,
+    TransactionDetailDataService,
+    DynamicPopupService,
 } from 'app/shared/services';
-import { TransactionSearchInteractionService, ISearchParam } from 'app/core/components/transaction-search/transaction-search-interaction.service';
-import { TransactionTimelineV2Component } from './transaction-timeline-v2.component';
 import { Actions } from 'app/shared/store/reducers';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Component({
     selector: 'pp-transaction-timeline-v2-container',
@@ -20,8 +28,6 @@ import { Actions } from 'app/shared/store/reducers';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TransactionTimelineV2ContainerComponent implements OnInit, OnDestroy {
-    @ViewChild(TransactionTimelineV2Component, { static: true }) transactionTimelineComponent: TransactionTimelineV2Component;
-
     private unsubscribe = new Subject<void>();
 
     applicationName: string;
@@ -29,31 +35,47 @@ export class TransactionTimelineV2ContainerComponent implements OnInit, OnDestro
 
     constructor(
         private storeHelperService: StoreHelperService,
-        private transactionSearchInteractionService: TransactionSearchInteractionService,
+        private transactionDetailDataService: TransactionDetailDataService, // todo change to new service
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector,
         private messageQueueService: MessageQueueService,
         private analyticsService: AnalyticsService,
         private cd: ChangeDetectorRef
     ) {}
 
     ngOnInit() {
-        this.connectStore();
-    }
-
-    ngOnDestroy() {
-        this.unsubscribe.next();
-        this.unsubscribe.complete();
-    }
-
-    private connectStore(): void {
-        this.storeHelperService.getTransactionTimelineData(this.unsubscribe).pipe(
-            filter((transactionTimelineInfo: any) => {
-                return transactionTimelineInfo && transactionTimelineInfo.transactionId ? true : false;
+        this.storeHelperService.getTransactionData(this.unsubscribe).pipe(
+            filter((data: ITransactionMetaData) => !!data),
+            filter(({agentId, spanId, traceId, collectorAcceptTime}: ITransactionMetaData) => !!agentId && !!spanId && !!traceId && !!collectorAcceptTime),
+            switchMap(({agentId, spanId, traceId, collectorAcceptTime}: ITransactionMetaData) => {
+                return this.transactionDetailDataService.getTimelineData(agentId, spanId, traceId, collectorAcceptTime).pipe(
+                    catchError((error: IServerErrorFormat) => {
+                        this.dynamicPopupService.openPopup({
+                            data: {
+                                title: 'Error',
+                                contents: error
+                            },
+                            component: ServerErrorPopupContainerComponent
+                        }, {
+                            resolver: this.componentFactoryResolver,
+                            injector: this.injector
+                        });
+                        this.cd.detectChanges();
+                        return EMPTY;
+                    }),
+                );
             })
         ).subscribe((transactionTimelineInfo: ITransactionTimelineData) => {
             this.applicationName = transactionTimelineInfo.applicationId;
             this.traceViewerDataURL = transactionTimelineInfo.traceViewerDataURL;
             this.cd.detectChanges();
         });
+    }
+
+    ngOnDestroy() {
+        this.unsubscribe.next();
+        this.unsubscribe.complete();
     }
 
     onSelectTransaction(id: string): void {
