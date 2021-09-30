@@ -1,4 +1,4 @@
-import {Component, OnInit, Input} from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 @Component({
     selector: 'pp-transaction-timeline-v2',
@@ -6,18 +6,23 @@ import {Component, OnInit, Input} from '@angular/core';
     styleUrls: ['./transaction-timeline-v2.component.css']
 })
 
-export class TransactionTimelineV2Component implements OnInit {
+export class TransactionTimelineV2Component implements OnInit, OnChanges {
     @Input() traceViewerDataURL: string;
 
     constructor() {}
-    ngOnInit() {
-        const script = document.createElement('script');
-        // ref: web/src/main/angular/angular.json
-        script.src = "../../../assets/perfetto-ui/frontend_bundle.js";
-        document.getElementById('timeline_main').append(script);
+    ngOnInit() {}
+    ngOnChanges(changes: SimpleChanges) {
+        const traceViewerDataUrlChange = changes['traceViewerDataURL'];
+
+        if (traceViewerDataUrlChange && traceViewerDataUrlChange.currentValue) {
+            this.loadPerfetto();
+        }
     }
 
-    public getTraceViewerDataURL() {
-        return this.traceViewerDataURL;
+    public loadPerfetto() {
+        const script = document.createElement('script');
+        // ref: web/src/main/angular/angular.json
+        script.src = '../../../assets/perfetto-ui/frontend_bundle.js';
+        document.getElementById('timeline_main').append(script);
     }
 }

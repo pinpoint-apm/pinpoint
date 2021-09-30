@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ViewChild, Renderer2, ElementRef, ChangeDetectorRef } from '@angular/core';
-import { EMPTY, forkJoin, Observable, Subject } from 'rxjs';
+import { EMPTY, Observable, Subject } from 'rxjs';
 import { filter, map, switchMap, takeUntil, tap, catchError } from 'rxjs/operators';
 
 import {
@@ -32,7 +32,6 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
     transactionInfo: ITransactionMetaData;
     useDisable = true;
     showLoading = true;
-    removeCallTree = false;
     showSearch = true;
     message$: Observable<string>;
     isEmpty = true;
@@ -95,10 +94,7 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
             }),
             tap((transactionInfo: ITransactionMetaData) => this.transactionInfo = transactionInfo),
             switchMap(({agentId, spanId, traceId, collectorAcceptTime}: ITransactionMetaData) => {
-                return forkJoin(
-                    this.transactionDetailDataService.getData(agentId, spanId, traceId, collectorAcceptTime),
-                    this.transactionDetailDataService.getTimelineData(agentId, spanId, traceId, collectorAcceptTime)
-                ).pipe(
+                return this.transactionDetailDataService.getData(agentId, spanId, traceId, collectorAcceptTime).pipe(
                     catchError((error: IServerErrorFormat) => {
                         this.dynamicPopupService.openPopup({
                             data: {
@@ -136,9 +132,8 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
                 this.renderer.setStyle(this.callTreeComponent.nativeElement, 'display', 'block');
                 this.cd.detectChanges();
             })
-        ).subscribe(([transactionDetailInfo, transactionTimelineInfo]: [ITransactionDetailData, ITransactionTimelineData]) => {
+        ).subscribe((transactionDetailInfo: ITransactionDetailData) => {
             this.storeHelperService.dispatch(new Actions.UpdateTransactionDetailData(transactionDetailInfo));
-            this.storeHelperService.dispatch(new Actions.UpdateTransactionTimelineData(transactionTimelineInfo));
         });
     }
 

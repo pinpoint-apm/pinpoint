@@ -46,9 +46,13 @@ export class TransactionDetailDataService {
             return this.cachedTimelineData[this.lastTimelineKey];
         } else {
             const httpRequest$ = this.http.get<ITransactionTimelineData>(this.requestTimelineURL, this.makeRequestOptionsArgs(agentId, spanId, traceId, focusTimestamp));
-            this.cachedTimelineData[this.lastTimelineKey] = httpRequest$.pipe(shareReplay(3));
+
+            this.cachedTimelineData[this.lastTimelineKey] = httpRequest$.pipe(
+                shareReplay(3)
+            );
+
+            return this.cachedTimelineData[this.lastTimelineKey];
         }
-        return this.cachedTimelineData[this.lastTimelineKey];
     }
 
     private hasTimelineData(): boolean {
