@@ -16,17 +16,23 @@
 
 package com.navercorp.pinpoint.plugin.grpc;
 
+import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.pluginit.utils.SocketUtils;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.examples.helloworld.GreeterGrpc;
 import io.grpc.examples.helloworld.HelloReply;
 import io.grpc.examples.helloworld.HelloRequest;
+import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
+import io.netty.channel.nio.NioEventLoopGroup;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 /**
@@ -48,7 +54,13 @@ public class HelloWorldSimpleServer implements HelloWorldServer {
         bindPort = SocketUtils.findAvailableTcpPort(27675);
 
         /* The port on which the server should run */
-        server = ServerBuilder.forPort(bindPort)
+        ServerBuilder<?> serverBuilder = ServerBuilder.forPort(bindPort);
+        if (serverBuilder instanceof NettyServerBuilder) {
+            ExecutorService workerExecutor = Executors.newCachedThreadPool();
+            NioEventLoopGroup eventExecutors = new NioEventLoopGroup(CpuUtils.cpuCount() + 5, workerExecutor);
+            ((NettyServerBuilder) serverBuilder).workerEventLoopGroup(eventExecutors);
+        }
+        this.server = serverBuilder
                 .addService(new GreeterImpl())
                 .build()
                 .start();
@@ -59,16 +71,19 @@ public class HelloWorldSimpleServer implements HelloWorldServer {
             public void run() {
                 // Use stderr here since the logger may have been reset by its JVM shutdown hook.
                 System.err.println("*** shutting down gRPC server since JVM is shutting down");
-                HelloWorldSimpleServer.this.stop();
+                try {
+                    HelloWorldSimpleServer.this.stop();
+                } catch (InterruptedException e) {
+                }
                 System.err.println("*** server shut down");
             }
         });
     }
 
     @PreDestroy
-    public void stop() {
+    public void stop() throws InterruptedException {
         if (server != null) {
-            server.shutdown();
+            server.shutdown().awaitTermination(5, TimeUnit.SECONDS);
         }
     }
 
