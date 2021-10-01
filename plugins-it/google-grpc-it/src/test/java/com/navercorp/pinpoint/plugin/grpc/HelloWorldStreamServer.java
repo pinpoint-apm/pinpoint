@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.grpc;
 
+import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.pluginit.utils.SocketUtils;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -23,12 +24,17 @@ import io.grpc.Status;
 import io.grpc.examples.manualflowcontrol.HelloReply;
 import io.grpc.examples.manualflowcontrol.HelloRequest;
 import io.grpc.examples.manualflowcontrol.StreamingGreeterGrpc;
+import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
+import io.netty.channel.nio.NioEventLoopGroup;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -143,12 +149,16 @@ public class HelloWorldStreamServer implements HelloWorldServer {
 
         bindPort = SocketUtils.findAvailableTcpPort(27675);
 
-        final Server server = ServerBuilder
-                .forPort(bindPort)
+        ServerBuilder<?> serverBuilder = ServerBuilder.forPort(bindPort);
+        if (serverBuilder instanceof NettyServerBuilder) {
+            ExecutorService workerExecutor = Executors.newCachedThreadPool();
+            NioEventLoopGroup eventExecutors = new NioEventLoopGroup(CpuUtils.cpuCount() + 5, workerExecutor);
+            ((NettyServerBuilder) serverBuilder).workerEventLoopGroup(eventExecutors);
+        }
+        this.server = serverBuilder
                 .addService(svc)
                 .build()
                 .start();
-        this.server = server;
     }
 
     @Override
@@ -166,9 +176,9 @@ public class HelloWorldStreamServer implements HelloWorldServer {
     }
 
     @PreDestroy
-    public void stop() {
+    public void stop() throws InterruptedException {
         if (server != null) {
-            server.shutdown();
+            server.shutdown().awaitTermination(5, TimeUnit.SECONDS);
         }
     }
 

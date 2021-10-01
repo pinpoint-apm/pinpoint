@@ -25,7 +25,7 @@ public interface HelloWorldServer {
 
     void start() throws IOException;
 
-    void stop();
+    void stop() throws InterruptedException;
 
     int getBindPort();
 

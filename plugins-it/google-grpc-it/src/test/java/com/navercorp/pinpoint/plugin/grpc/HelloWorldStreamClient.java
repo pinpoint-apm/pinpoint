@@ -16,19 +16,24 @@
 
 package com.navercorp.pinpoint.plugin.grpc;
 
+import com.navercorp.pinpoint.common.util.CpuUtils;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Metadata;
 import io.grpc.examples.manualflowcontrol.StreamingGreeterGrpc;
+import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
 import io.grpc.stub.MetadataUtils;
+import io.netty.channel.nio.NioEventLoopGroup;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
@@ -55,6 +60,13 @@ public class HelloWorldStreamClient implements HelloWorldClient {
     private static ManagedChannel newChannel(String host, int port) {
         ManagedChannelBuilder<?> builder = ManagedChannelBuilder.forAddress(host, port);
         BuilderUtils.usePlainText(builder);
+
+        if (builder instanceof NettyChannelBuilder) {
+            ExecutorService workerExecutor = Executors.newCachedThreadPool();
+            NioEventLoopGroup eventExecutors = new NioEventLoopGroup(CpuUtils.cpuCount() + 5, workerExecutor);
+            ((NettyChannelBuilder) builder).eventLoopGroup(eventExecutors);
+        }
+
         builder.intercept(MetadataUtils.newCaptureMetadataInterceptor(new AtomicReference<Metadata>(), new AtomicReference<Metadata>()));
         return builder.build();
     }
