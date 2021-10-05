@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricHostInfoDao;
+import com.navercorp.pinpoint.metric.web.mapping.Field;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
-import com.navercorp.pinpoint.metric.web.model.basic.metric.group.ElementOfBasicGroup;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.MatchingRule;
 import org.springframework.stereotype.Service;
 
@@ -68,28 +68,29 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
     }
 
     @Override
-    public List<MetricTag> getTag(MetricDataSearchKey metricDataSearchKey, ElementOfBasicGroup elementOfBasicGroup) {
-        MetricTagCollection metricTagCollection = systemMetricHostInfoDao.selectMetricTagCollection(new MetricTagKey(metricDataSearchKey.getHostGroupId(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName() , elementOfBasicGroup.getFieldName()));
+    public List<MetricTag> getTag(MetricDataSearchKey metricDataSearchKey, Field field) {
+        MetricTagKey metricTagKey = new MetricTagKey(metricDataSearchKey.getHostGroupId(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName());
+        MetricTagCollection metricTagCollection = systemMetricHostInfoDao.selectMetricTagCollection(metricTagKey);
 
-        MatchingRule matchingRule = elementOfBasicGroup.getMatchingRule();
+        MatchingRule matchingRule = field.getMatchingRule();
 
         switch (matchingRule) {
             case EXACT :
-                return exactMatchingTag(metricTagCollection, elementOfBasicGroup);
+                return exactMatchingTag(metricTagCollection, field);
             case ALL :
-                return allMatchingTag(metricTagCollection, elementOfBasicGroup);
+                return allMatchingTag(metricTagCollection, field);
             default :
                 throw new UnsupportedOperationException("unsupported matchingRule:" + matchingRule);
         }
     }
 
-    private List<MetricTag> allMatchingTag(MetricTagCollection metricTagCollection, ElementOfBasicGroup elementOfBasicGroup) {
+    private List<MetricTag> allMatchingTag(MetricTagCollection metricTagCollection, Field elementOfBasicGroup) {
         return metricTagCollection.getMetricTagList();
     }
 
-    private List<MetricTag> exactMatchingTag(MetricTagCollection metricTagCollection, ElementOfBasicGroup elementOfBasicGroup) {
+    private List<MetricTag> exactMatchingTag(MetricTagCollection metricTagCollection, Field elementOfBasicGroup) {
         List<MetricTag> metricTagList = metricTagCollection.getMetricTagList();
-        List<Tag> tagList = elementOfBasicGroup.getTagList();
+        List<Tag> tagList = elementOfBasicGroup.getTags();
         List<MetricTag> exactMetricTagList = new ArrayList<>();
 
         for (MetricTag metricTag : metricTagList) {
