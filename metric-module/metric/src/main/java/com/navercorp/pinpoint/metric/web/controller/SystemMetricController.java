@@ -166,7 +166,7 @@ public class SystemMetricController {
         Range range = Range.newRange(from, to);
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
         MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(hostGroupId, hostName, systemMetricBasicGroupManager.findMetricName(metricDefinitionId), metricDefinitionId, range);
-        SystemMetricData systemMetricData = systemMetricDataService.getCollectedMetricData(metricDataSearchKey, timeWindow);
+        SystemMetricData<? extends Number> systemMetricData = systemMetricDataService.getCollectedMetricData(metricDataSearchKey, timeWindow);
 
         return new SystemMetricView(systemMetricData);
     }
