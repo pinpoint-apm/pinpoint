@@ -86,7 +86,7 @@ public class SystemMetricBasicGroupManager {
 
     static {
         //CPU
-        List<Tag> tagList = new ArrayList<Tag>(1);
+        List<Tag> tagList = new ArrayList<>(1);
         Tag tag = new Tag("cpu", "cpu-total");
         tagList.add(tag);
 
@@ -103,7 +103,7 @@ public class SystemMetricBasicGroupManager {
 
     static {
         //memory usage percent
-        List<Tag> tagList = new ArrayList<Tag>(0);
+        List<Tag> tagList = new ArrayList<>(0);
 
         ElementOfBasicGroup  memoryUsedPercent = new ElementOfBasicGroup(MEMORY_PERCENT_METRIC_NAME, "used_percent", tagList, MatchingRule.EXACT);
         List<ElementOfBasicGroup> elementOfBasicGroupList = new ArrayList<>(1);
@@ -114,7 +114,7 @@ public class SystemMetricBasicGroupManager {
 
     static {
         //memory usage
-        List<Tag> tagList = new ArrayList<Tag>(0);
+        List<Tag> tagList = new ArrayList<>(0);
 
         ElementOfBasicGroup  memoryTotal = new ElementOfBasicGroup(MEMORY_USAGE_METRIC_NAME, "total", tagList, MatchingRule.EXACT);
         ElementOfBasicGroup  memoryUsed = new ElementOfBasicGroup(MEMORY_USAGE_METRIC_NAME, "used", tagList, MatchingRule.EXACT);
@@ -127,7 +127,7 @@ public class SystemMetricBasicGroupManager {
 
     static {
         //disk usage
-        List<Tag> tagList = new ArrayList<Tag>(0);
+        List<Tag> tagList = new ArrayList<>(0);
         ElementOfBasicGroup  diskTotal = new ElementOfBasicGroup(DISK_USAGE_METRIC_NAME, "total", tagList, MatchingRule.ALL);
         ElementOfBasicGroup  diskUsed = new ElementOfBasicGroup(DISK_USAGE_METRIC_NAME, "used", tagList, MatchingRule.ALL);
         List<ElementOfBasicGroup> elementOfBasicGroupList = new ArrayList<>(2);
@@ -139,7 +139,7 @@ public class SystemMetricBasicGroupManager {
 
     static {
         //disk usage percent
-        List<Tag> tagList = new ArrayList<Tag>(0);
+        List<Tag> tagList = new ArrayList<>(0);
         ElementOfBasicGroup  diskUsedPercent = new ElementOfBasicGroup(DISK_PERCENT_METRIC_NAME, "used_percent", tagList, MatchingRule.ALL);
         List<ElementOfBasicGroup> elementOfBasicGroupList = new ArrayList<>(1);
         elementOfBasicGroupList.add(diskUsedPercent);
@@ -149,7 +149,7 @@ public class SystemMetricBasicGroupManager {
 
     static {
         //disk usage
-        List<Tag> tagList = new ArrayList<Tag>(0);
+        List<Tag> tagList = new ArrayList<>(0);
         ElementOfBasicGroup  inodeTotal = new ElementOfBasicGroup(DISK_INODE_METRIC_NAME, "inodes_total", tagList, MatchingRule.ALL);
         ElementOfBasicGroup  inodeUsed = new ElementOfBasicGroup(DISK_INODE_METRIC_NAME, "inodes_used", tagList, MatchingRule.ALL);
         ElementOfBasicGroup  inodeFree = new ElementOfBasicGroup(DISK_INODE_METRIC_NAME, "inodes_free", tagList, MatchingRule.ALL);
@@ -253,7 +253,7 @@ public class SystemMetricBasicGroupManager {
     }
 
     public List<String> findMetricDefinitionIdList(String metricName) {
-        List<String> definitionIdList = new LinkedList<String>();
+        List<String> definitionIdList = new LinkedList<>();
         if (CPU_METRIC_NAME.equals(metricName)) {
             definitionIdList.add(CPU_DEFINITION_ID);
         } else if (MEMORY_METRIC_NAME.equals(metricName)) {

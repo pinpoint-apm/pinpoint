@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.metric.common.model;
 
-import org.springframework.util.StringUtils;
-
 import java.util.Objects;
 
 /**
@@ -31,22 +29,10 @@ public class MetricTagKey {
     private final String fieldName;
 
     public MetricTagKey(String hostGroupId, String hostName, String metricName, String fieldName) {
-        if (!StringUtils.hasLength(hostGroupId)) {
-            throw new IllegalArgumentException("hostGroupId must not be empty");
-        }
-        if (!StringUtils.hasLength(hostName)) {
-            throw new IllegalArgumentException("hostName must not be empty");
-        }
-        if (!StringUtils.hasLength(metricName)) {
-            throw new IllegalArgumentException("metricName must not be empty");
-        }
-        if (!StringUtils.hasLength(fieldName)) {
-            throw new IllegalArgumentException("fieldName must not be empty");
-        }
-        this.hostGroupId = hostGroupId;
-        this.hostName = hostName;
-        this.metricName = metricName;
-        this.fieldName = fieldName;
+        this.hostGroupId = StringPrecondition.requireHasLength(hostGroupId, "hostGroupId");
+        this.hostName = StringPrecondition.requireHasLength(hostName, "hostName");
+        this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
+        this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
     }
 
     public String getHostGroupId() {

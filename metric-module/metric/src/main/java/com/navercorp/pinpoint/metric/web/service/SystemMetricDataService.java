@@ -32,7 +32,7 @@ public interface SystemMetricDataService {
 
     List<SystemMetric> getSystemMetricBoList(QueryParameter queryParameter);
 
-    SystemMetricChart getSystemMetricChart(TimeWindow timeWindow, QueryParameter queryParameter);
+    SystemMetricChart<? extends Number> getSystemMetricChart(TimeWindow timeWindow, QueryParameter queryParameter);
 
-    SystemMetricData getCollectedMetricData(MetricDataSearchKey metricDataSearchKey, TimeWindow timeWindow);
+    SystemMetricData<? extends Number> getCollectedMetricData(MetricDataSearchKey metricDataSearchKey, TimeWindow timeWindow);
 }
