@@ -21,11 +21,11 @@ package com.navercorp.pinpoint.plugin.jdbc.oracle.parser;
  */
 public class Address {
 
-    private String protocol;
+    private final String protocol;
 
-    private String host;
+    private final String host;
 
-    private String port;
+    private final String port;
 
     public Address(String protocol, String host, String port) {
         this.protocol = protocol;
@@ -37,24 +37,12 @@ public class Address {
         return protocol;
     }
 
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
-    }
-
     public String getHost() {
         return host;
     }
 
-    public void setHost(String host) {
-        this.host = host;
-    }
-
     public String getPort() {
         return port;
-    }
-
-    public void setPort(String port) {
-        this.port = port;
     }
 
     @Override

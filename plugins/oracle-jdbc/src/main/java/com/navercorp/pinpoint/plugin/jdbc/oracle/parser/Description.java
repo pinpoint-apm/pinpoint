@@ -20,64 +20,74 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.navercorp.pinpoint.plugin.jdbc.oracle.parser.ParserUtils.compare;
+
 /**
  * @author emeroad
  */
-public class Description {
+public class Description implements DatabaseSpec {
+    public static final String DESCRIPTION = "description";
 
     private String serviceName;
     private String sid;
-    private ArrayList<Address> addressList = new ArrayList<>();
+    private final ArrayList<Address> addressList = new ArrayList<>();
 
     public Description() {
     }
 
-    public Description(KeyValue keyValue) {
+    public Description(KeyValue<?> keyValue) {
         Objects.requireNonNull(keyValue, "keyValue");
 
         mapping(keyValue);
     }
 
 
-
-    private void mapping(KeyValue keyValue) {
-        if (!compare("description", keyValue)) {
-            throw new OracleConnectionStringException("description node not found");
+    private void mapping(KeyValue<?> keyValue) {
+        if (!compare(DESCRIPTION, keyValue)) {
+            throw new OracleConnectionStringException(DESCRIPTION  + " node not found");
         }
-
-        for (KeyValue kv : keyValue.getKeyValueList()) {
+        if (!(keyValue instanceof KeyValue.KeyValueList)) {
+            return;
+        }
+        final KeyValue.KeyValueList keyValueList = (KeyValue.KeyValueList) keyValue;
+        for (KeyValue<?> kv : keyValueList.getValue()) {
             if (compare("address", kv)) {
-                String host = null;
-                String port = null;
-                String protocol = null;
-                for (KeyValue address : kv.getKeyValueList()) {
-                    if (compare("host", address)) {
-                        host = address.getValue();
-                    } else if (compare("port", address)) {
-                        port = address.getValue();
-                    }  else if(compare("protocol", address)) {
-                        protocol = address.getValue();
+                if (kv instanceof KeyValue.KeyValueList) {
+                    final KeyValue.KeyValueList addressList = (KeyValue.KeyValueList) kv;
+                    String host = null;
+                    String port = null;
+                    String protocol = null;
+                    for (KeyValue<?> addressKv : addressList.getValue()) {
+                        if (addressKv instanceof KeyValue.TerminalKeyValue) {
+                            final KeyValue.TerminalKeyValue terminal = (KeyValue.TerminalKeyValue) addressKv;
+                            if (compare("host", terminal)) {
+                                host = terminal.getValue();
+                            } else if (compare("port", terminal)) {
+                                port = terminal.getValue();
+                            } else if (compare("protocol", terminal)) {
+                                protocol = terminal.getValue();
+                            }
+                        }
                     }
+                    this.addAddress(protocol, host, port);
                 }
-                this.addAddress(protocol, host, port);
-            } else if(compare("connect_data", kv)) {
-                for (KeyValue connectData : kv.getKeyValueList()) {
-                    if (compare("service_name", connectData)) {
-                        this.serviceName = connectData.getValue();
-                    } else if(compare("sid", connectData)) {
-                        // sid also needed to check compatibility.
-                        this.sid = connectData.getValue();
+            } else if (compare("connect_data", kv)) {
+                if (kv instanceof KeyValue.KeyValueList) {
+                    final KeyValue.KeyValueList connectDataList = (KeyValue.KeyValueList) kv;
+                    for (KeyValue<?> connectData : connectDataList.getValue()) {
+                        if (connectData instanceof KeyValue.TerminalKeyValue) {
+                            final KeyValue.TerminalKeyValue terminal = (KeyValue.TerminalKeyValue) connectData;
+                            if (compare("service_name", terminal)) {
+                                this.serviceName = terminal.getValue();
+                            } else if (compare("sid", terminal)) {
+                                // sid also needed to check compatibility.
+                                this.sid = terminal.getValue();
+                            }
+                        }
                     }
                 }
             }
         }
-    }
-
-    private boolean compare(String value, KeyValue kv) {
-        if (kv == null) {
-            return false;
-        }
-        return value.equals(kv.getKey());
     }
 
     public String getServiceName() {
@@ -85,7 +95,7 @@ public class Description {
     }
 
 
-    public void setServiceName(String serviceName) {
+    void setServiceName(String serviceName) {
         this.serviceName = serviceName;
     }
 
@@ -93,16 +103,17 @@ public class Description {
         return sid;
     }
 
-    public void setSid(String sid) {
+    void setSid(String sid) {
         this.sid = sid;
     }
 
+    @Override
     public List<String> getJdbcHost() {
         List<String> hostList = new ArrayList<>();
         for(Address address : addressList) {
             String host = address.getHost();
             String port = address.getPort();
-            if(port == null) {
+            if (port == null) {
                 // set default port
                 port = "1521";
             }
@@ -111,6 +122,7 @@ public class Description {
         return hostList;
     }
 
+    @Override
     public String getDatabaseId() {
         // Find serviceName first
         String serviceName = getServiceName();
@@ -126,7 +138,7 @@ public class Description {
     }
 
 
-    public void addAddress(String protocol, String host, String port) {
+    void addAddress(String protocol, String host, String port) {
         this.addressList.add(new Address(protocol, host, port));
     }
 

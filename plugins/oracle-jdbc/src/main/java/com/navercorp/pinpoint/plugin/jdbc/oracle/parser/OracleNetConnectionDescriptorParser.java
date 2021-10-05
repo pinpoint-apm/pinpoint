@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.oracle.parser;
 
+import java.security.Key;
+
 /**
  * @author emeroad
  */
@@ -37,7 +39,7 @@ public class OracleNetConnectionDescriptorParser {
         this.tokenizer = new OracleNetConnectionDescriptorTokenizer(normalizedUrl);
     }
 
-    public KeyValue parse() {
+    public KeyValue<?> parse() {
         // You can find driver spec here: http://docs.oracle.com/cd/B14117_01/java.101/b10979/urls.htm
         // It's for 10g but maybe 11g would be same.
         
@@ -56,7 +58,7 @@ public class OracleNetConnectionDescriptorParser {
         this.tokenizer.setPosition(position);
 
         this.tokenizer.parse();
-        KeyValue keyValue = parseKeyValue();
+        KeyValue<?> keyValue = parseKeyValue();
 
         checkEof();
 
@@ -93,10 +95,10 @@ public class OracleNetConnectionDescriptorParser {
         // start
         this.tokenizer.checkStartToken();
 
-        KeyValue keyValue = new KeyValue();
+
         // key
         Token literalToken = this.tokenizer.getLiteralToken();
-        keyValue.setKey(literalToken.getToken());
+        KeyValue.Builder keyValue = new KeyValue.Builder(literalToken.getToken());
 
         // =
         this.tokenizer.checkEqualToken();
@@ -118,7 +120,7 @@ public class OracleNetConnectionDescriptorParser {
                 Token endCheck = this.tokenizer.lookAheadToken();
                 if (endCheck == OracleNetConnectionDescriptorTokenizer.TOKEN_KEY_END_OBJECT) {
                     this.tokenizer.nextPosition();
-                    return keyValue;
+                    return keyValue.build();
                 }
             } else if(token.getType() == OracleNetConnectionDescriptorTokenizer.TYPE_LITERAL) {
                 if (nonTerminalValue) {
@@ -129,12 +131,12 @@ public class OracleNetConnectionDescriptorParser {
 
                 keyValue.setValue(token.getToken());
                 this.tokenizer.checkEndToken();
-                return keyValue;
+                return keyValue.build();
             } else if(token.getType() == OracleNetConnectionDescriptorTokenizer.TYPE_KEY_END){
                 this.tokenizer.nextPosition();
                 // This could happen if value is empty.
                 // Does it allow empty value?
-                return keyValue;
+                return keyValue.build();
             } else {
                 // Cannot reach here because we checked all those possible cases, START, END and LITERAL.
                 // Adding new token type could cause error.

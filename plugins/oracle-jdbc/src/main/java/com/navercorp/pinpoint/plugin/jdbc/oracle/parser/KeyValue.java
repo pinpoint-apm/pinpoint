@@ -19,80 +19,103 @@ package com.navercorp.pinpoint.plugin.jdbc.oracle.parser;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
  */
-public class KeyValue {
+public interface KeyValue<V> {
 
-    public String key;
-    public String value;
-    public List<KeyValue> keyValueList;
+    String getKey();
 
-    public String getKey() {
-        return key;
-    }
+    V getValue();
 
-    public void setKey(String key) {
-        this.key = key;
-    }
+    class TerminalKeyValue implements KeyValue<String> {
 
-    public String getValue() {
-        return value;
-    }
+        public final String key;
+        public final String value;
 
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public List<KeyValue> getKeyValueList() {
-        if (keyValueList == null) {
-            return Collections.emptyList();
+        public TerminalKeyValue(String key, String value) {
+            this.key = key;
+            this.value = value;
         }
-        return keyValueList;
-    }
 
-    public void addKeyValueList(KeyValue keyValue) {
-        if (keyValueList == null) {
-            keyValueList = new ArrayList<>();
+        @Override
+        public String getKey() {
+            return key;
         }
-        this.keyValueList.add(keyValue);
-    }
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("{key='").append(key).append('\'');
-        if (value != null) {
-            sb.append(", value='").append(value).append('\'');
+        public String getValue() {
+            return value;
         }
-        if (keyValueList != null) {
-            sb.append(", keyValueList=").append(keyValueList);
+
+        @Override
+        public String toString() {
+            return "TerminalKeyValue{" +
+                    "key='" + key + '\'' +
+                    ", value='" + value + '\'' +
+                    '}';
         }
-        sb.append('}');
-        return sb.toString();
+    }
+
+    class KeyValueList implements KeyValue<List<KeyValue<?>>> {
+
+        public final String key;
+        public final List<KeyValue<?>> value;
+
+        public KeyValueList(String key, List<KeyValue<?>> value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        public List<KeyValue<?>> getValue() {
+            if (value == null) {
+                return Collections.emptyList();
+            }
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return "KeyValueList{" +
+                    "key='" + key + '\'' +
+                    ", value=" + value +
+                    '}';
+        }
     }
 
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    class Builder {
+        public final String key;
+        public String value;
+        public List<KeyValue<?>> keyValueList;
 
-        KeyValue keyValue = (KeyValue) o;
+        public Builder(String key) {
+            this.key = key;
+        }
 
-        if (key != null ? !key.equals(keyValue.key) : keyValue.key != null) return false;
-        if (keyValueList != null ? !keyValueList.equals(keyValue.keyValueList) : keyValue.keyValueList != null) return false;
-        if (value != null ? !value.equals(keyValue.value) : keyValue.value != null) return false;
+        public void setValue(String value) {
+            this.value = value;
+        }
 
-        return true;
+        public void addKeyValueList(KeyValue<?> keyValue) {
+            if (keyValueList == null) {
+                this.keyValueList = new ArrayList<>();
+            }
+            this.keyValueList.add(keyValue);
+        }
+
+        public KeyValue build() {
+            if (value != null) {
+                return new TerminalKeyValue(key, value);
+            }
+            return new KeyValueList(key, keyValueList);
+        }
     }
 
-    @Override
-    public int hashCode() {
-        int result = key != null ? key.hashCode() : 0;
-        result = 31 * result + (value != null ? value.hashCode() : 0);
-        result = 31 * result + (keyValueList != null ? keyValueList.hashCode() : 0);
-        return result;
-    }
 }

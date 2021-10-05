@@ -24,9 +24,12 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.DatabaseSpec;
 import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.Description;
+import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.DescriptionList;
 import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.KeyValue;
 import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.OracleNetConnectionDescriptorParser;
+import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.ParserUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +56,7 @@ public class OracleJdbcUrlParser implements JdbcUrlParserV2 {
 
         DatabaseInfo result = null;
         try {
-            result = parse0(jdbcUrl);
+            return parse0(jdbcUrl);
         } catch (Exception e) {
             logger.info("OracleJdbcUrl parse error. url: {}, Caused: {}", jdbcUrl, e.getMessage(), e);
             result = UnKnownDatabaseInfo.createUnknownDataBase(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, jdbcUrl);
@@ -100,7 +103,7 @@ public class OracleJdbcUrlParser implements JdbcUrlParserV2 {
     private DatabaseInfo parseNetConnectionUrl(String url) {
         // oracle new URL : for rac
         OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(url);
-        KeyValue keyValue = parser.parse();
+        KeyValue<?> keyValue = parser.parse();
         // TODO Need to handle oci driver. It's more popular.
 //                parser.getDriverType();
         return createOracleDatabaseInfo(keyValue, url);
@@ -120,11 +123,24 @@ public class OracleJdbcUrlParser implements JdbcUrlParserV2 {
         return new DefaultDatabaseInfo(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, url, url, hostList, databaseId);
     }
 
-    private DatabaseInfo createOracleDatabaseInfo(KeyValue keyValue, String url) {
-        Description description = new Description(keyValue);
-        List<String> jdbcHost = description.getJdbcHost();
+    private DatabaseInfo createOracleDatabaseInfo(KeyValue<?> keyValue, String url) {
+        final DatabaseSpec databaseSpec = newDatabaseSpec(keyValue);
+        if (databaseSpec == null) {
+            return UnKnownDatabaseInfo.createUnknownDataBase(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, url);
+        }
 
-        return new DefaultDatabaseInfo(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, url, url, jdbcHost, description.getDatabaseId());
+        String databaseId = databaseSpec.getDatabaseId();
+        List<String> jdbcHost = databaseSpec.getJdbcHost();
+        return new DefaultDatabaseInfo(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, url, url, jdbcHost, databaseId);
+    }
+
+    private DatabaseSpec newDatabaseSpec(KeyValue<?> keyValue) {
+        if (ParserUtils.compare(Description.DESCRIPTION, keyValue)) {
+            return new Description(keyValue);
+        } else if (ParserUtils.compare(DescriptionList.DESCRIPTION_LIST, keyValue)) {
+            return new DescriptionList(keyValue);
+        }
+        return null;
     }
 
     @Override
