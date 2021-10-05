@@ -99,6 +99,34 @@ public class JDBCUrlParserTest {
     }
 
     @Test
+    public void oracleDescriptionListParser1() {
+        String url = "jdbc:oracle:thin:@(DESCRIPTION_LIST=" +
+                "(LOAD_BALANCE=off)(FAILOVER=on)" +
+                "(DESCRIPTION=" +
+                "(LOAD_BALANCE=on)" +
+                "(ADDRESS=(PROTOCOL=tcp)(HOST=1.2.3.4)(PORT=1521))" +
+                "(ADDRESS=(PROTOCOL=tcp)(HOST=1.2.3.5)(PORT=1521))" +
+                "(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=service_test)))" +
+                "(DESCRIPTION=" +
+                "(LOAD_BALANCE=on)" +
+                "(ADDRESS=(PROTOCOL=tcp)(HOST=2.3.4.5)(PORT=1521))" +
+                "(ADDRESS=(PROTOCOL=tcp)(HOST=2.3.4.6)(PORT=1521))" +
+                "(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=service_test))))";
+        DatabaseInfo dbInfo = jdbcUrlParser.parse(url);
+        Assert.assertTrue(dbInfo.isParsingComplete());
+
+        Assert.assertEquals(OracleConstants.ORACLE, dbInfo.getType());
+        Assert.assertEquals("1.2.3.4:1521", dbInfo.getHost().get(0));
+        Assert.assertEquals("1.2.3.5:1521", dbInfo.getHost().get(1));
+        Assert.assertEquals("2.3.4.5:1521", dbInfo.getHost().get(2));
+        Assert.assertEquals("2.3.4.6:1521", dbInfo.getHost().get(3));
+
+        Assert.assertEquals("service_test", dbInfo.getDatabaseId());
+        Assert.assertEquals(url, dbInfo.getUrl());
+        logger.info(dbInfo.toString());
+    }
+
+    @Test
     public void parseFailTest1() {
         DatabaseInfo dbInfo = jdbcUrlParser.parse(null);
         Assert.assertFalse(dbInfo.isParsingComplete());
