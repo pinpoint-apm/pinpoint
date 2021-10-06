@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy, ComponentFactoryResolver, Injector } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 
 import {
     WebAppSettingDataService,
@@ -8,7 +9,6 @@ import {
     UrlRouteManagerService
 } from 'app/shared/services';
 import { UrlPathId, UrlPath, UrlQuery } from 'app/shared/models';
-import { TranslateService } from '@ngx-translate/core';
 import { MessagePopupContainerComponent } from 'app/core/components/message-popup/message-popup-container.component';
 
 @Component({

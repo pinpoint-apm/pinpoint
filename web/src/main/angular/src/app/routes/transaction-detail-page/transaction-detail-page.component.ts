@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject, EMPTY } from 'rxjs';
-import { takeUntil, filter, switchMap, catchError } from 'rxjs/operators';
+import { takeUntil, switchMap, catchError, filter } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 
 import {
     StoreHelperService,
@@ -10,8 +11,9 @@ import {
     TransactionDetailDataService
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store/reducers';
-import { UrlPathId } from 'app/shared/models';
+import { UrlPath, UrlQuery } from 'app/shared/models';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
+import { MessagePopupContainerComponent } from 'app/core/components/message-popup/message-popup-container.component';
 
 @Component({
     selector: 'pp-transaction-detail-page',
@@ -20,30 +22,56 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
 })
 export class TransactionDetailPageComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
+    private errorMessage: string;
 
     constructor(
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
         private transactionDetailDataService: TransactionDetailDataService,
+        private translateService: TranslateService,
         private dynamicPopupService: DynamicPopupService,
         private componentFactoryResolver: ComponentFactoryResolver,
         private injector: Injector
     ) {}
 
     ngOnInit() {
+        this.translateService.get('TRANSACTION_LIST.TRANSACTION_RETRIEVE_ERROR').subscribe((text: string) => {
+            this.errorMessage = text;
+        });
+
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
             filter((urlService: NewUrlStateNotificationService) => {
-                return urlService.hasValue(UrlPathId.AGENT_ID, UrlPathId.SPAN_ID, UrlPathId.TRACE_ID, UrlPathId.FOCUS_TIMESTAMP);
+                if (!urlService.hasValue(UrlQuery.TRANSACTION_INFO)) {
+                    this.dynamicPopupService.openPopup({
+                        data: {
+                            title: 'Notice',
+                            contents: this.errorMessage,
+                            type: 'html'
+                        },
+                        component: MessagePopupContainerComponent,
+                        onCloseCallback: () => {
+                            this.urlRouteManagerService.moveOnPage({
+                                url: [
+                                    UrlPath.MAIN,
+                                ]
+                            });
+                        }
+                    }, {
+                        resolver: this.componentFactoryResolver,
+                        injector: this.injector
+                    });
+
+                    return false;
+                }
+
+                return true;
             }),
             switchMap((urlService: NewUrlStateNotificationService) => {
-                const agentId = urlService.getPathValue(UrlPathId.AGENT_ID);
-                const spanId = urlService.getPathValue(UrlPathId.SPAN_ID);
-                const traceId = urlService.getPathValue(UrlPathId.TRACE_ID);
-                const focusTimestamp = urlService.getPathValue(UrlPathId.FOCUS_TIMESTAMP);
+                const {agentId, spanId, traceId, collectorAcceptTime} = JSON.parse(urlService.getQueryValue(UrlQuery.TRANSACTION_INFO));
 
-                return this.transactionDetailDataService.getData(agentId, spanId, traceId, focusTimestamp).pipe(
+                return this.transactionDetailDataService.getData(agentId, spanId, traceId, collectorAcceptTime).pipe(
                     catchError((error: IServerErrorFormat) => {
                         this.dynamicPopupService.openPopup({
                             data: {

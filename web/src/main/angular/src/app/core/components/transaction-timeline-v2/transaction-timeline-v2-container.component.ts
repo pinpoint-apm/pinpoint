@@ -7,7 +7,7 @@ import {
     ComponentFactoryResolver, Injector
 } from '@angular/core';
 import { EMPTY, Subject } from 'rxjs';
-import { filter, switchMap, catchError } from 'rxjs/operators';
+import { filter, switchMap, catchError, takeUntil } from 'rxjs/operators';
 
 import {
     StoreHelperService,
@@ -17,9 +17,11 @@ import {
     MESSAGE_TO,
     TransactionDetailDataService,
     DynamicPopupService,
+    NewUrlStateNotificationService,
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store/reducers';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
+import { UrlQuery } from 'app/shared/models';
 
 @Component({
     selector: 'pp-transaction-timeline-v2-container',
@@ -36,6 +38,7 @@ export class TransactionTimelineV2ContainerComponent implements OnInit, OnDestro
     constructor(
         private storeHelperService: StoreHelperService,
         private transactionDetailDataService: TransactionDetailDataService, // todo change to new service
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
         private dynamicPopupService: DynamicPopupService,
         private componentFactoryResolver: ComponentFactoryResolver,
         private injector: Injector,
@@ -45,10 +48,12 @@ export class TransactionTimelineV2ContainerComponent implements OnInit, OnDestro
     ) {}
 
     ngOnInit() {
-        this.storeHelperService.getTransactionData(this.unsubscribe).pipe(
-            filter((data: ITransactionMetaData) => !!data),
-            filter(({agentId, spanId, traceId, collectorAcceptTime}: ITransactionMetaData) => !!agentId && !!spanId && !!traceId && !!collectorAcceptTime),
-            switchMap(({agentId, spanId, traceId, collectorAcceptTime}: ITransactionMetaData) => {
+        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            takeUntil(this.unsubscribe),
+            filter((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlQuery.TRANSACTION_INFO)),
+            switchMap((urlService: NewUrlStateNotificationService) => {
+                const {agentId, spanId, traceId, collectorAcceptTime} = JSON.parse(urlService.getQueryValue(UrlQuery.TRANSACTION_INFO));
+
                 return this.transactionDetailDataService.getTimelineData(agentId, spanId, traceId, collectorAcceptTime).pipe(
                     catchError((error: IServerErrorFormat) => {
                         this.dynamicPopupService.openPopup({
