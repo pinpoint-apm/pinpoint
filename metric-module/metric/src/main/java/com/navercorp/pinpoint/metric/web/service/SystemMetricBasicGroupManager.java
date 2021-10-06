@@ -84,6 +84,20 @@ public class SystemMetricBasicGroupManager {
     private static final List<ElementOfBasicGroup> DISK_INODE_METRIC;
     private static final String DISK_INODE_UNIT = UNIT_COUNT;
 
+    private static final String SYSTEM_LOAD_METRIC_NAME = "system";
+    private static final String SYSTEM_LOAD_DEFINITION_ID = "systemLoad";
+    private static final String SYSTEM_LOAD_TITLE = "system load";
+    private static final GroupingRule SYSTEM_LOAD_GROUPING_RULE = GroupingRule.TAG;
+    private static final List<ElementOfBasicGroup> SYSTEM_LOAD_METRIC;
+    private static final String SYSTEM_LOAD_UNIT = UNIT_COUNT;
+
+    private static final String SWAP_METRIC_NAME = "swap";
+    private static final String SWAP_DEFINITION_ID = "swap";
+    private static final String SWAP_TITLE = "swap";
+    private static final GroupingRule SWAP_GROUPING_RULE = GroupingRule.TAG;
+    private static final List<ElementOfBasicGroup> SWAP_METRIC;
+    private static final String SWAP_UNIT = UNIT_COUNT;
+
     static {
         //CPU
         List<Tag> tagList = new ArrayList<>(1);
@@ -161,6 +175,31 @@ public class SystemMetricBasicGroupManager {
         DISK_INODE_METRIC = Collections.unmodifiableList(elementOfBasicGroupList);
     }
 
+    static {
+        //system load
+        List<Tag> tagList = new ArrayList<Tag>(0);
+        ElementOfBasicGroup  load1 = new ElementOfBasicGroup(SYSTEM_LOAD_METRIC_NAME, "load1", tagList, MatchingRule.EXACT);
+        ElementOfBasicGroup  load5 = new ElementOfBasicGroup(SYSTEM_LOAD_METRIC_NAME, "load5", tagList, MatchingRule.EXACT);
+        ElementOfBasicGroup  load15 = new ElementOfBasicGroup(SYSTEM_LOAD_METRIC_NAME, "load15", tagList, MatchingRule.EXACT);
+        List<ElementOfBasicGroup> elementOfBasicGroupList = new ArrayList<>(3);
+        elementOfBasicGroupList.add(load1);
+        elementOfBasicGroupList.add(load5);
+        elementOfBasicGroupList.add(load15);
+
+        SYSTEM_LOAD_METRIC = Collections.unmodifiableList(elementOfBasicGroupList);
+    }
+
+    static {
+        //swap
+        List<Tag> tagList = new ArrayList<Tag>(0);
+        ElementOfBasicGroup  total = new ElementOfBasicGroup(SWAP_METRIC_NAME, "total", tagList, MatchingRule.EXACT);
+        ElementOfBasicGroup  used = new ElementOfBasicGroup(SWAP_METRIC_NAME, "used", tagList, MatchingRule.EXACT);
+        List<ElementOfBasicGroup> elementOfBasicGroupList = new ArrayList<>(2);
+        elementOfBasicGroupList.add(total);
+        elementOfBasicGroupList.add(used);
+
+        SWAP_METRIC = Collections.unmodifiableList(elementOfBasicGroupList);
+    }
 
     public List<ElementOfBasicGroup> findElementOfBasicGroup(String metricDefinitionId) {
         if (CPU_DEFINITION_ID.equals(metricDefinitionId)) {
@@ -175,6 +214,10 @@ public class SystemMetricBasicGroupManager {
             return DISK_PERCENT_METRIC;
         } else if (DISK_INODE_DEFINITION_ID.equals(metricDefinitionId)) {
             return DISK_INODE_METRIC;
+        } else if (SYSTEM_LOAD_DEFINITION_ID.equals(metricDefinitionId)) {
+            return SYSTEM_LOAD_METRIC;
+        } else if (SWAP_DEFINITION_ID.equals(metricDefinitionId)) {
+            return SWAP_METRIC;
         }
 
         throw new UnsupportedOperationException("unsupported metric :" + metricDefinitionId);
@@ -193,6 +236,10 @@ public class SystemMetricBasicGroupManager {
             return DISK_PERCENT_METRIC_NAME;
         } else if (DISK_INODE_DEFINITION_ID.equals(metricDefinitionId)) {
             return DISK_INODE_METRIC_NAME;
+        } else if (SYSTEM_LOAD_DEFINITION_ID.equals(metricDefinitionId)) {
+            return SYSTEM_LOAD_METRIC_NAME;
+        } else if (SWAP_DEFINITION_ID.equals(metricDefinitionId)) {
+            return SWAP_METRIC_NAME;
         }
 
         throw new UnsupportedOperationException("unsupported metric :" + metricDefinitionId);
@@ -211,6 +258,10 @@ public class SystemMetricBasicGroupManager {
             return DISK_PERCENT_TITLE;
         } else if (DISK_INODE_DEFINITION_ID.equals(metricDefinitionId)) {
             return DISK_INODE_TITLE;
+        } else if (SYSTEM_LOAD_DEFINITION_ID.equals(metricDefinitionId)) {
+            return SYSTEM_LOAD_TITLE;
+        } else if (SWAP_DEFINITION_ID.equals(metricDefinitionId)) {
+            return SWAP_TITLE;
         }
 
         throw new UnsupportedOperationException("unsupported metric :" + metricDefinitionId);
@@ -229,6 +280,10 @@ public class SystemMetricBasicGroupManager {
             return DISK_PERCENT_GROUPING_RULE;
         } else if (DISK_INODE_DEFINITION_ID.equals(metricDefinitionId)) {
             return DISK_INODE_GROUPING_RULE;
+        } else if (SYSTEM_LOAD_DEFINITION_ID.equals(metricDefinitionId)) {
+            return SYSTEM_LOAD_GROUPING_RULE;
+        } else if (SWAP_DEFINITION_ID.equals(metricDefinitionId)) {
+            return SWAP_GROUPING_RULE;
         }
 
         throw new UnsupportedOperationException("unsupported metric :" + metricDefinitionId);
@@ -247,6 +302,10 @@ public class SystemMetricBasicGroupManager {
             return DISK_PERCENT_UNIT;
         } else if (DISK_INODE_DEFINITION_ID.equals(metricDefinitionId)) {
             return DISK_INODE_UNIT;
+        } else if (SYSTEM_LOAD_DEFINITION_ID.equals(metricDefinitionId)) {
+            return SYSTEM_LOAD_UNIT;
+        } else if (SWAP_DEFINITION_ID.equals(metricDefinitionId)) {
+            return SWAP_UNIT;
         }
 
         throw new UnsupportedOperationException("unsupported metric :" + metricDefinitionId);
@@ -263,6 +322,10 @@ public class SystemMetricBasicGroupManager {
             definitionIdList.add(DISK_USAGE_DEFINITION_ID);
             definitionIdList.add(DISK_PERCENT_DEFINITION_ID);
             definitionIdList.add((DISK_INODE_DEFINITION_ID));
+        } else if (SYSTEM_LOAD_METRIC_NAME.equals(metricName)) {
+            definitionIdList.add(SYSTEM_LOAD_DEFINITION_ID);
+        } else if (SWAP_METRIC_NAME.equals(metricName)) {
+            definitionIdList.add(SYSTEM_LOAD_DEFINITION_ID);
         }
 
         return definitionIdList;
