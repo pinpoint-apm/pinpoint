@@ -85,17 +85,17 @@ public class YMLSystemMetricBasicGroupManager {
     }
 
     public Metric findElementOfBasicGroup(String metricDefinitionId) {
-        Metric metrics = this.definitionIdMap.get(metricDefinitionId);
-        if (metrics != null) {
-            return metrics;
+        Metric metric = this.definitionIdMap.get(metricDefinitionId);
+        if (metric != null) {
+            return metric;
         }
         throw new UnsupportedOperationException("unsupported metric :" + metricDefinitionId);
     }
 
     public String findMetricName(String metricDefinitionId) {
-        Metric metrics = this.definitionIdMap.get(metricDefinitionId);
-        if (metrics != null) {
-            return metrics.getName();
+        Metric metric = this.definitionIdMap.get(metricDefinitionId);
+        if (metric != null) {
+            return metric.getName();
         }
 
 
@@ -103,26 +103,26 @@ public class YMLSystemMetricBasicGroupManager {
     }
 
     public String findMetricTitle(String metricDefinitionId) {
-        Metric metrics = this.definitionIdMap.get(metricDefinitionId);
-        if (metrics != null) {
-            return metrics.getTitle();
+        Metric metric = this.definitionIdMap.get(metricDefinitionId);
+        if (metric != null) {
+            return metric.getTitle();
         }
 
         throw new UnsupportedOperationException("unsupported metric :" + metricDefinitionId);
     }
 
     public GroupingRule findGroupingRule(String metricDefinitionId) {
-        Metric metrics = this.definitionIdMap.get(metricDefinitionId);
-        if (metrics != null) {
-            return metrics.getGrouping();
+        Metric metric = this.definitionIdMap.get(metricDefinitionId);
+        if (metric != null) {
+            return metric.getGrouping();
         }
         throw new UnsupportedOperationException("unsupported metric :" + metricDefinitionId);
     }
 
     public String findUnit(String metricDefinitionId) {
-        Metric metrics = this.definitionIdMap.get(metricDefinitionId);
-        if (metrics != null) {
-            return metrics.getUnit();
+        Metric metric = this.definitionIdMap.get(metricDefinitionId);
+        if (metric != null) {
+            return metric.getUnit();
         }
         throw new UnsupportedOperationException("unsupported metric :" + metricDefinitionId);
     }
