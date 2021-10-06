@@ -78,19 +78,19 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
             case EXACT :
                 return exactMatchingTag(metricTagCollection, field);
             case ALL :
-                return allMatchingTag(metricTagCollection, field);
+                return allMatchingTag(metricTagCollection);
             default :
                 throw new UnsupportedOperationException("unsupported matchingRule:" + matchingRule);
         }
     }
 
-    private List<MetricTag> allMatchingTag(MetricTagCollection metricTagCollection, Field elementOfBasicGroup) {
+    private List<MetricTag> allMatchingTag(MetricTagCollection metricTagCollection) {
         return metricTagCollection.getMetricTagList();
     }
 
-    private List<MetricTag> exactMatchingTag(MetricTagCollection metricTagCollection, Field elementOfBasicGroup) {
+    private List<MetricTag> exactMatchingTag(MetricTagCollection metricTagCollection, Field field) {
         List<MetricTag> metricTagList = metricTagCollection.getMetricTagList();
-        List<Tag> tagList = elementOfBasicGroup.getTags();
+        List<Tag> tagList = field.getTags();
         List<MetricTag> exactMetricTagList = new ArrayList<>();
 
         for (MetricTag metricTag : metricTagList) {
