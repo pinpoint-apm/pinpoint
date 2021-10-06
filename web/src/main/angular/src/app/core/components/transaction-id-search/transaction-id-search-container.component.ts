@@ -20,7 +20,7 @@ import {
     AnalyticsService,
     TRACKED_EVENT_LIST
 } from 'app/shared/services';
-import { UrlPath, UrlPathId } from 'app/shared/models';
+import { UrlPath, UrlPathId, UrlQuery } from 'app/shared/models';
 
 @Component({
     selector: 'pp-transaction-id-search-container',
@@ -95,11 +95,15 @@ export class TransactionIdSearchContainerComponent implements OnInit, AfterViewI
         this.urlRouteManagerService.openPage({
             path: [
                 UrlPath.TRANSACTION_DETAIL,
-                txId,
-                collectorAcceptTime,
-                agentId,
-                spanId
-            ]
+            ],
+            queryParams: {
+                [UrlQuery.TRANSACTION_INFO]: {
+                    agentId,
+                    spanId,
+                    traceId: txId,
+                    collectorAcceptTime
+                }
+            }
         });
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SEARCH_TRANSACTION_ID);
     }

@@ -147,11 +147,15 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
         this.urlRouteManagerService.openPage({
             path: [
                 UrlPath.TRANSACTION_DETAIL,
-                this.transactionInfo.traceId,
-                this.transactionInfo.collectorAcceptTime + '',
-                this.transactionInfo.agentId,
-                this.transactionInfo.spanId
-            ]
+            ],
+            queryParams: {
+                [UrlQuery.TRANSACTION_INFO]: {
+                    agentId: this.transactionInfo.agentId,
+                    spanId: this.transactionInfo.spanId,
+                    traceId: this.transactionInfo.traceId,
+                    collectorAcceptTime: this.transactionInfo.collectorAcceptTime
+                }
+            }
         });
     }
 
