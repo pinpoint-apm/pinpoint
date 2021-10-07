@@ -36,8 +36,4 @@ public class GrpcAgentDataReceiverConfiguration extends GrpcReceiverConfiguratio
         super(enable, bindAddress, serverExecutor, workerExecutor, serverOption);
     }
 
-    @Override
-    public String toString() {
-        return super.toString();
-    }
 }

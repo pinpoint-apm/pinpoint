@@ -35,9 +35,4 @@ public class GrpcStatReceiverConfiguration extends GrpcStreamReceiverConfigurati
         super(enable, bindAddress, serverExecutor, workerExecutor, serverOption, streamConfiguration);
     }
 
-
-    @Override
-    public String toString() {
-        return super.toString();
-    }
 }
