@@ -95,8 +95,7 @@ public class OkHttpClient_3_0_0_to_3_3_x_IT {
 
         Method readResponseMethod = Class.forName("okhttp3.internal.http.HttpEngine").getDeclaredMethod("readResponse");
         verifier.verifyTrace(event(OK_HTTP_CLIENT_INTERNAL.getName(), readResponseMethod,
-                annotation("http.status.code", response.code()),
-                annotation("http.resp.header", anyAnnotationValue())
+                annotation("http.status.code", response.code())
         ));
 
         verifier.verifyTraceCount(0);
@@ -150,8 +149,8 @@ public class OkHttpClient_3_0_0_to_3_3_x_IT {
         Response response = responseRef.get();
         Method readResponseMethod = Class.forName("okhttp3.internal.http.HttpEngine").getDeclaredMethod("readResponse");
         verifier.verifyTrace(event(OK_HTTP_CLIENT_INTERNAL.getName(), readResponseMethod,
-                annotation("http.status.code", response.code()),
-                annotation("http.resp.header", anyAnnotationValue())));
+                annotation("http.status.code", response.code()))
+        );
 
         verifier.verifyTraceCount(0);
     }
