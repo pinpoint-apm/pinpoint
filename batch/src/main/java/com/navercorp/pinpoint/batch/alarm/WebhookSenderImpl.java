@@ -31,9 +31,9 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -65,32 +65,32 @@ public class WebhookSenderImpl implements WebhookSender {
     @Override
     public void sendWebhook(AlarmChecker<?> checker, int sequenceCount, StepExecution stepExecution) {
         Rule rule = checker.getRule();
-
-        try {
-            String userGroupId = rule.getUserGroupId();
+        String userGroupId = rule.getUserGroupId();
             
-            List<UserMember> userMembers = userService.selectUserByUserGroupId(userGroupId)
-                    .stream()
-                    .map(WebhookSenderImpl::newUser)
-                    .collect(Collectors.toList());
+        List<UserMember> userMembers = userService.selectUserByUserGroupId(userGroupId)
+            .stream()
+            .map(WebhookSenderImpl::newUser)
+            .collect(Collectors.toList());
 
-            UserGroup userGroup = new UserGroup(userGroupId, userMembers);
+        UserGroup userGroup = new UserGroup(userGroupId, userMembers);
 
-            WebhookPayload webhookPayload = webhookPayloadFactory.newPayload(checker, sequenceCount, userGroup);
+        WebhookPayload webhookPayload = webhookPayloadFactory.newPayload(checker, sequenceCount, userGroup);
 
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 
-            List<Webhook> webhookSendInfoList = webhookService.selectWebhookByRuleId(rule.getRuleId());
-            for (Webhook webhook : webhookSendInfoList) {
+        List<Webhook> webhookSendInfoList = webhookService.selectWebhookByRuleId(rule.getRuleId());
+        for (Webhook webhook : webhookSendInfoList) {
+            try {
                 HttpEntity<WebhookPayload> httpEntity = new HttpEntity<>(webhookPayload, httpHeaders);
-                restTemplate.exchange(new URI(webhook.getUrl()), HttpMethod.POST, httpEntity, String.class);
-                logger.info("send webhook : {}", webhook);
+                restTemplate.exchange(webhook.getUrl(), HttpMethod.POST, httpEntity, String.class);
+                logger.info("Successfully sent webhook : {}", webhook);
+            } catch (RestClientException e) {
+                logger.warn("Failed at sending webhook. Failed Webhook : {} for Rule : {}", webhook, rule, e);
             }
-            logger.info("sent webhooks for rule : {}", rule);
-        } catch (Exception e) {
-            logger.error("can't send webhook. {}", rule, e);
         }
+        logger.info("Finished sending webhooks for rule : {}", rule);
+
     }
 
     private static UserMember newUser(User user) {
