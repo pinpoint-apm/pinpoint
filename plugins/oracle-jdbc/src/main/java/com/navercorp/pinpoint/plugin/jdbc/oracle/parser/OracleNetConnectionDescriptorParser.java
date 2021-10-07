@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.oracle.parser;
 
-import java.security.Key;
-
 /**
  * @author emeroad
  */

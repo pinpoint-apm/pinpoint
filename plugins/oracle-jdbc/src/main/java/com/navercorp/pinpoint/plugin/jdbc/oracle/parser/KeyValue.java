@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.plugin.jdbc.oracle.parser;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author emeroad

@@ -120,10 +120,6 @@ public class DataSourceDataCollector extends DataCollector {
         return result;
     }
 
-    @Override
-    public DataCollectorCategory getDataCollectorCategory() {
-        return super.getDataCollectorCategory();
-    }
 
     public Map<String, List<DataSourceAlarmVO>> getDataSourceConnectionUsageRate() {
         return agentDataSourceConnectionUsageRateMap;
