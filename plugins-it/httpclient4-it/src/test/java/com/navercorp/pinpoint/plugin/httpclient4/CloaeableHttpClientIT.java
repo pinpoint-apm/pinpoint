@@ -83,7 +83,6 @@ public class CloaeableHttpClientIT extends HttpClientITBase {
                 HttpRequestExecutor.class.getMethod("execute", HttpRequest.class, HttpClientConnection.class, HttpContext.class), null, null, destinationId,
                 annotation("http.url", "/"),
                 annotation("http.status.code", 200),
-                annotation("http.resp.header", anyAnnotationValue()),
                 annotation("http.io", anyAnnotationValue())
         ));
 

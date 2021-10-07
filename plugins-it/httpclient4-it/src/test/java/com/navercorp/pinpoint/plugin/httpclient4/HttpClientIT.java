@@ -97,7 +97,6 @@ public class HttpClientIT extends HttpClientITBase {
                 event("HTTP_CLIENT_4", execute, null, null, hostname,
                         annotation("http.url", "/"),
                         annotation("http.status.code", 200),
-                        annotation("http.resp.header", anyAnnotationValue()),
                         annotation("http.io", anyAnnotationValue())
                 ));
         verifier.verifyTraceCount(0);

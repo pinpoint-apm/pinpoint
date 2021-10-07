@@ -92,12 +92,13 @@ public class OkHttpClient_2_x_IT {
         String hostAndPort = HostAndPort.toHostAndPortString(url.getHost(), port);
         Method connectMethod = getConnectMethod();
         verifier.verifyTrace(event(OK_HTTP_CLIENT_INTERNAL.getName(), connectMethod,
-                annotation("http.internal.display", hostAndPort)));
+                annotation("http.internal.display", hostAndPort))
+        );
 
         Method readResponseMethod = HttpEngine.class.getDeclaredMethod("readResponse");
         verifier.verifyTrace(event(OK_HTTP_CLIENT_INTERNAL.getName(), readResponseMethod,
-                annotation("http.status.code", response.code()),
-                annotation("http.resp.header", anyAnnotationValue())));
+                    annotation("http.status.code", response.code()))
+        );
 
         verifier.verifyTraceCount(0);
     }
@@ -147,14 +148,15 @@ public class OkHttpClient_2_x_IT {
         String hostAndPort = HostAndPort.toHostAndPortString(url.getHost(), port);
         Method connectMethod = getConnectMethod();
         verifier.verifyTrace(event(OK_HTTP_CLIENT_INTERNAL.getName(), connectMethod,
-                annotation("http.internal.display", hostAndPort)));
+                annotation("http.internal.display", hostAndPort))
+        );
 
         Response response = responseRef.get();
         Assert.assertNotNull("response is null", response);
         Method readResponseMethod = HttpEngine.class.getDeclaredMethod("readResponse");
         verifier.verifyTrace(event(OK_HTTP_CLIENT_INTERNAL.getName(), readResponseMethod,
-                annotation("http.status.code", response.code()),
-                annotation("http.resp.header", anyAnnotationValue())));
+                    annotation("http.status.code", response.code()))
+        );
 
         verifier.verifyTraceCount(0);
     }

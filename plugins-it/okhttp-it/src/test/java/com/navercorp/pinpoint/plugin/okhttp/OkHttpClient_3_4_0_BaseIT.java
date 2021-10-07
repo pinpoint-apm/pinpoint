@@ -74,8 +74,8 @@ public abstract class OkHttpClient_3_4_0_BaseIT {
         verifier.verifyTrace(event(OK_HTTP_CLIENT.getName(), interceptMethod,
                 null, null, webServer.getHostAndPort(),
                 annotation("http.url", request.url().toString()),
-                annotation("http.status.code", response.code()),
-                annotation("http.resp.header", anyAnnotationValue())));
+                annotation("http.status.code", response.code()))
+        );
 
         String hostAndPort = HostAndPort.toHostAndPortString(request.url().host(), request.url().port());
         Method connectMethod = getConnectMethod(Class.forName("okhttp3.internal.connection.RealConnection"));
@@ -125,8 +125,8 @@ public abstract class OkHttpClient_3_4_0_BaseIT {
         verifier.verifyTrace(event(OK_HTTP_CLIENT.getName(), interceptMethod,
                 null, null, webServer.getHostAndPort(),
                 annotation("http.url", request.url().toString()),
-                annotation("http.status.code", response.code()),
-                annotation("http.resp.header", anyAnnotationValue())));
+                annotation("http.status.code", response.code()))
+        );
 
         String hostAndPort = HostAndPort.toHostAndPortString(request.url().host(), request.url().port());
         Method connectMethod = getConnectMethod(Class.forName("okhttp3.internal.connection.RealConnection"));
