@@ -71,8 +71,6 @@ export class UrlPathId {
     static APPLICATION = 'application';
     static PERIOD = 'period';
     static END_TIME = 'endTime';
-    // static FILTER = 'filter';
-    // static HINT = 'hint';
     static REAL_TIME = 'realtime';
     static AGENT_ID = 'agentId';
     static TRACE_ID = 'traceId';

@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
-import { filter } from 'rxjs/operators';
 
 import {
     StoreHelperService,
@@ -8,8 +7,9 @@ import {
     AnalyticsService,
     TRACKED_EVENT_LIST,
     DynamicPopupService,
+    NewUrlStateNotificationService,
 } from 'app/shared/services';
-import { UrlPath } from 'app/shared/models';
+import { UrlPath, UrlQuery } from 'app/shared/models';
 import { MessagePopupContainerComponent } from 'app/core/components/message-popup/message-popup-container.component';
 import { Actions } from 'app/shared/store/reducers';
 import { parseURL } from 'app/core/utils/url-utils';
@@ -22,12 +22,12 @@ import { parseURL } from 'app/core/utils/url-utils';
 })
 export class TransactionDetailMenuContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
-    private transactionInfo: ITransactionMetaData;
 
     activeTabKey: string;
     transactionDetailInfo: ITransactionDetailData;
 
     constructor(
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
         private storeHelperService: StoreHelperService,
         private urlRouteManagerService: UrlRouteManagerService,
         private analyticsService: AnalyticsService,
@@ -52,14 +52,6 @@ export class TransactionDetailMenuContainerComponent implements OnInit, OnDestro
             this.cd.detectChanges();
         });
 
-        this.storeHelperService.getTransactionData(this.unsubscribe).pipe(
-            filter((data: ITransactionMetaData) => !!data),
-            filter(({application, agentId, traceId}: ITransactionMetaData) => !!application && !!agentId && !!traceId)
-        ).subscribe((transactionInfo: ITransactionMetaData) => {
-            this.transactionInfo = transactionInfo;
-            this.cd.detectChanges();
-        });
-
         this.storeHelperService.getTransactionDetailData(this.unsubscribe).subscribe((transactionDetailInfo: ITransactionDetailData) => {
             this.transactionDetailInfo = transactionDetailInfo;
             this.cd.detectChanges();
@@ -73,14 +65,15 @@ export class TransactionDetailMenuContainerComponent implements OnInit, OnDestro
 
     onOpenDetailView(): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_VIEW_PAGE_THROUGH_TAB);
+        const {agentId, spanId, traceId, collectorAcceptTime} = JSON.parse(this.newUrlStateNotificationService.getQueryValue(UrlQuery.TRANSACTION_INFO));
+
         this.urlRouteManagerService.openPage({
             path: [
-                UrlPath.TRANSACTION_VIEW,
-                this.transactionInfo.agentId,
-                this.transactionInfo.traceId,
-                this.transactionInfo.collectorAcceptTime + '',
-                this.transactionInfo.spanId,
-            ]
+                UrlPath.TRANSACTION_VIEW
+            ],
+            queryParams: {
+                [UrlQuery.TRANSACTION_INFO]: {agentId, spanId, traceId, collectorAcceptTime}
+            }
         });
     }
 

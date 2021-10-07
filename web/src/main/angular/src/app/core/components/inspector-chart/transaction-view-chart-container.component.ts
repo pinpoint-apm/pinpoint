@@ -8,7 +8,7 @@ import { ChartType, InspectorChartContainerFactory, IInspectorChartContainer } f
 import { InspectorChartComponent } from './inspector-chart.component';
 import { StoreHelperService, NewUrlStateNotificationService } from 'app/shared/services';
 import { InspectorChartDataService, IInspectorChartData } from './inspector-chart-data.service';
-import { UrlPathId } from 'app/shared/models';
+import { UrlPathId, UrlQuery } from 'app/shared/models';
 import { catchError, filter } from 'rxjs/operators';
 
 export enum Layer {
@@ -116,10 +116,10 @@ export class TransactionViewChartContainerComponent implements OnInit, OnDestroy
     }
 
     private getTimeRange(): number[] {
-        const focusTime = Number(this.newUrlStateNotificationService.getPathValue(UrlPathId.FOCUS_TIMESTAMP));
+        const {collectorAcceptTime} = JSON.parse(this.newUrlStateNotificationService.getQueryValue(UrlQuery.TRANSACTION_INFO));
         const range = 600000;
 
-        return [focusTime - range, focusTime + range];
+        return [collectorAcceptTime - range, collectorAcceptTime + range];
     }
 
     onRetry(): void {
