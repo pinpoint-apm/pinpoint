@@ -17,25 +17,45 @@ public class Webhook {
         this.serviceName = serviceName;
     }
 
-    public String getWebhookId() { return webhookId; }
+    public String getWebhookId() {
+        return webhookId;
+    }
 
-    public void setWebhookId(String webhookId) { this.webhookId = webhookId; }
+    public void setWebhookId(String webhookId) {
+        this.webhookId = webhookId;
+    }
 
-    public String getAlias() { return alias; }
+    public String getAlias() {
+        return alias;
+    }
 
-    public void setAlias(String alias) { this.alias = alias; }
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
 
-    public String getUrl() { return url; }
+    public String getUrl() {
+        return url;
+    }
 
-    public void setUrl(String url) { this.url = url; }
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
-    public String getApplicationId() { return applicationId; }
+    public String getApplicationId() {
+        return applicationId;
+    }
 
-    public void setApplicationId(String applicationId) { this.applicationId = applicationId; }
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
 
-    public String getServiceName() { return serviceName; }
+    public String getServiceName() {
+        return serviceName;
+    }
 
-    public void setServiceName(String serviceName) { this.serviceName = serviceName; }
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
 
     @Override
     public String toString() {
