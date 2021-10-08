@@ -15,6 +15,7 @@ export class TransactionTimelineV2Component implements OnInit, OnChanges {
         const traceViewerDataUrlChange = changes['traceViewerDataURL'];
 
         if (traceViewerDataUrlChange && traceViewerDataUrlChange.currentValue) {
+            this.traceViewerDataURL = window.location.origin + "/" + traceViewerDataUrlChange.currentValue;
             this.loadPerfetto();
         }
     }

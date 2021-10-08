@@ -34,7 +34,7 @@
     "@ngui/datetime-picker": "^0.16.2",
     "@ngx-translate/core": "^11.0.1",
     "@ngx-translate/http-loader": "^4.0.0",
-    "@pinpoint-apm/perfetto-ui": "^1.0.2",
+    "@pinpoint-apm/perfetto-ui": "^1.0.4",
     "ag-grid-angular": "^22.0.0",
     "ag-grid-community": "^22.0.0",
     "angular-2-local-storage": "^3.0.2",
