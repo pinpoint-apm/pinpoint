@@ -143,8 +143,7 @@ public class BusinessTransactionController {
      * @return
      */
     @GetMapping(value = "/transactionTimelineInfo")
-    public TransactionTimelineInfoViewModel transactionTimelineInfo(HttpServletRequest request,
-                                                                    @RequestParam("traceId") String traceId,
+    public TransactionTimelineInfoViewModel transactionTimelineInfo(@RequestParam("traceId") String traceId,
                                                                     @RequestParam(value = "focusTimestamp", required = false, defaultValue = DEFAULT_FOCUS_TIMESTAMP) long focusTimestamp,
                                                                     @RequestParam(value = "agentId", required = false) String agentId,
                                                                     @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPANID) long spanId) {
@@ -160,8 +159,7 @@ public class BusinessTransactionController {
 
         String traceViewerDataURL = null;
         try {
-            traceViewerDataURL = ServletUriComponentsBuilder.fromRequestUri(request)
-                    .replacePath("traceViewerData.pinpoint")
+            traceViewerDataURL = ServletUriComponentsBuilder.fromPath("traceViewerData.pinpoint")
                     .queryParam("traceId", URLEncoder.encode(traceId,"UTF-8"))
                     .queryParam("focusTimestamp", focusTimestamp)
                     .queryParam("agentId", URLEncoder.encode(agentId,"UTF-8"))
