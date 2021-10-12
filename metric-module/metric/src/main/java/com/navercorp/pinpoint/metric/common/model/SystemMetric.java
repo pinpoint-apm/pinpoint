@@ -67,7 +67,7 @@ public class SystemMetric {
         return tags;
     }
 
-    @JsonProperty("timestampInEpoch")
+    @JsonProperty("timestamp")
     public long getTimestamp() {
         return timestamp;
     }
