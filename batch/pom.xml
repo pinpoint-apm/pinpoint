@@ -205,7 +205,8 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${plugin.surefire.version}</version>
                 <configuration>
-                    <argLine>-Dfile.encoding=${encoding} -disableassertions</argLine>
+                    <enableAssertions>false</enableAssertions>
+                    <encoding>${encoding}</encoding>
                 </configuration>
             </plugin>
         </plugins>
