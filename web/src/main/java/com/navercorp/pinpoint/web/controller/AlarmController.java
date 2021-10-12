@@ -150,7 +150,7 @@ public class AlarmController {
         return getResultStringMap("SUCCESS");
     }
     
-    @GetMapping(value = "/checker")
+    @GetMapping(value={"/application/alarmRule/checker", "/alarmRule/checker"})
     public List<String> getCheckerName() {
         return CheckerCategory.getNames();
     }
