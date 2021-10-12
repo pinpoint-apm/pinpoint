@@ -11,7 +11,7 @@ content-type: application/json
 
 ### LongMetric, w/o tags, w/o interval
 GET http://{{host}}/systemMetric/chart.pinpoint
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
     &metricName=mem&fieldName=used
     &from={{from}}&to={{to}}
 Accept: application/json
@@ -19,7 +19,7 @@ Accept: application/json
 
 ### LongMetric, w/o tags, w/o interval
 GET http://{{host}}/systemMetric/chart.pinpoint
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
     &metricName=mem&fieldName=used&tags=cpu:cpu1
     &from={{from}}&to={{to}}
 Accept: application/json
@@ -27,7 +27,7 @@ Accept: application/json
 
 ### LongMetric, w/o tags, with interval
 GET http://{{host}}/systemMetric/chart.pinpoint
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
     &metricName=mem&fieldName=free
     &from={{from}}&to={{to}}
     &timeUnit=SECONDS&timeSize=30
@@ -35,7 +35,7 @@ Accept: application/json
 
 ### DoubleMetric, w/o tags, with interval
 GET http://{{host}}/systemMetric/chart.pinpoint
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
     &metricName=cpu&fieldName=usage_user
     &from={{from}}&to={{to}}
     &timeUnit=MINUTES&timeSize=10
@@ -43,7 +43,7 @@ Accept: application/json
 
 ### DoubleMetric, with tags, with interval
 GET http://{{host}}/systemMetric/chart.pinpoint
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
     &metricName=cpu&fieldName=usage_user&tags=cpu:cpu1
     &from={{from}}&to={{to}}
     &timeUnit=MINUTES&timeSize=3
@@ -51,7 +51,7 @@ Accept: application/json
 
 ### with multiple tags > wrong behavior
 GET http://{{host}}/systemMetric/chart.pinpoint
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
     &metricName=disk&fieldName=used_percent&tags=device:disk1s4,fstype:apfs,mode:rw,path:/private/var/vm
     &from={{from}}&to={{to}}
     &timeUnit=SECONDS&timeSize=40
@@ -59,7 +59,7 @@ Accept: application/json
 
 ### Cpu tag for Mem query
 GET http://{{host}}/systemMetric/chart.pinpoint
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
     &metricName=disk&fieldName=used_percent&tags=cpu:cpu1
     &from={{from}}&to={{to}}
     &timeUnit=MINUTES&timeSize=5
@@ -67,14 +67,14 @@ Accept: application/json
 
 ### No Such Metric
 GET http://{{host}}/systemMetric/chart.pinpoint{{metric-host}}
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
     &metricName=mem&fieldName=freer
     &from={{from}}&to={{to}}
 Accept: application/json
 
 ### Lowercase timeUnit
 GET http://{{host}}/systemMetric/chart.pinpoint
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
     &metricName=cpu&fieldName=usage_user&tags=cpu:cpu1
     &from={{from}}&to={{to}}
     &timeUnit=minutes&timeSize=3
@@ -82,7 +82,7 @@ Accept: application/json
 
 ### Wrong timeUnit
 GET http://{{host}}/systemMetric/chart.pinpoint
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
     &metricName=disk&fieldName=used_percent&tags=cpu:cpu1
     &from={{from}}&to={{to}}
     &timeUnit=MINS&timeSize=5
@@ -90,7 +90,7 @@ Accept: application/json
 
 ### Invalid timeSize
 GET http://{{host}}/systemMetric/chart.pinpoint
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
     &metricName=disk&fieldName=used_percent&tags=cpu:cpu1
     &from={{from}}&to={{to}}
     &timeUnit=MINUTES&timeSize=0
@@ -104,13 +104,13 @@ Accept: application/json
 
 ###
 GET http://{{host}}/systemMetric/hostGroup/host/collectedMetricInfo.pinpoint
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
 Accept: application/json
 
 
 ###
 GET http://{{host}}/systemMetric/hostGroup/host/collectedMetricData.pinpoint
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}&metricDefinitionId=cpu
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}&metricDefinitionId=cpu
     &from={{from}}&to={{to}}
 Accept: application/json
 ###

@@ -25,7 +25,7 @@ import java.util.Objects;
  */
 public class MetricTag {
 
-    private String hostGroupId;
+    private String hostGroupName;
     private String hostName;
     private String metricName;
     private String fieldName;
@@ -34,20 +34,20 @@ public class MetricTag {
     public MetricTag() {
     }
 
-    public MetricTag(String hostGroupId, String hostName, String metricName, String fieldName, List<Tag> tags) {
-        this.hostGroupId = StringPrecondition.requireHasLength(hostGroupId, "hostGroupId");
+    public MetricTag(String hostGroupName, String hostName, String metricName, String fieldName, List<Tag> tags) {
+        this.hostGroupName = StringPrecondition.requireHasLength(hostGroupName, "hostGroupName");
         this.hostName = StringPrecondition.requireHasLength(hostName, "hostName");
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
         this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
         this.tags = Objects.requireNonNull(tags, "tags");
     }
 
-    public String getHostGroupId() {
-        return hostGroupId;
+    public String getHostGroupName() {
+        return hostGroupName;
     }
 
-    public void setHostGroupId(String hostGroupId) {
-        this.hostGroupId = hostGroupId;
+    public void setHostGroupName(String hostGroupName) {
+        this.hostGroupName = hostGroupName;
     }
 
     public String getMetricName() {
@@ -85,13 +85,13 @@ public class MetricTag {
     public MetricTag copy() {
         List<Tag> tagList = new ArrayList<>(this.tags);
 
-        return new MetricTag(hostGroupId, hostName, metricName, fieldName, tagList);
+        return new MetricTag(hostGroupName, hostName, metricName, fieldName, tagList);
     }
 
     @Override
     public String toString() {
         return "MetricTag{" +
-                "hostGroupId='" + hostGroupId + '\'' +
+                "hostGroupName='" + hostGroupName + '\'' +
                 ", hostName='" + hostName + '\'' +
                 ", metricName='" + metricName + '\'' +
                 ", fieldName='" + fieldName + '\'' +
@@ -106,7 +106,7 @@ public class MetricTag {
 
         MetricTag metricTag = (MetricTag) o;
 
-        if (hostGroupId != null ? !hostGroupId.equals(metricTag.hostGroupId) : metricTag.hostGroupId != null)
+        if (hostGroupName != null ? !hostGroupName.equals(metricTag.hostGroupName) : metricTag.hostGroupName != null)
             return false;
         if (hostName != null ? !hostName.equals(metricTag.hostName) : metricTag.hostName != null) return false;
         if (metricName != null ? !metricName.equals(metricTag.metricName) : metricTag.metricName != null) return false;
@@ -116,7 +116,7 @@ public class MetricTag {
 
     @Override
     public int hashCode() {
-        int result = hostGroupId != null ? hostGroupId.hashCode() : 0;
+        int result = hostGroupName != null ? hostGroupName.hashCode() : 0;
         result = 31 * result + (hostName != null ? hostName.hashCode() : 0);
         result = 31 * result + (metricName != null ? metricName.hashCode() : 0);
         result = 31 * result + (fieldName != null ? fieldName.hashCode() : 0);
