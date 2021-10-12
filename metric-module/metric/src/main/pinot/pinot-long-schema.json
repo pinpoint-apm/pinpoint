@@ -44,7 +44,7 @@
   ],
   "dateTimeFieldSpecs": [
     {
-      "name": "timestampInEpoch",
+      "name": "timestamp",
       "dataType": "LONG",
       "format" : "1:MILLISECONDS:EPOCH",
       "granularity": "1:MILLISECONDS"
