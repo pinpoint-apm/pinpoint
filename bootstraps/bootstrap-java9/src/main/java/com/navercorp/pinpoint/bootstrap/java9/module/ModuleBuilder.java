@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.java9.module;
 
 import com.navercorp.pinpoint.bootstrap.module.Providers;
-import jdk.internal.loader.BootLoader;
-import jdk.internal.module.Modules;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -48,7 +46,7 @@ class ModuleBuilder {
         if (urls.length == 0) {
             throw new IllegalArgumentException("urls.length is 0");
         }
-        logger.info("bootstrap unnamedModule:" +  BootLoader.getUnnamedModule());
+        logger.info("bootstrap unnamedModule:" +  InternalModules.getUnnamedModule());
         logger.info("platform unnamedModule:" + ClassLoader.getPlatformClassLoader().getUnnamedModule());
         logger.info("system unnamedModule:" + ClassLoader.getSystemClassLoader().getUnnamedModule());
 
@@ -72,7 +70,7 @@ class ModuleBuilder {
         ModuleDescriptor moduleDescriptor = builder.build();
         URI url = getInformationURI(urls);
 
-        Module module = Modules.defineModule(classLoader, moduleDescriptor , url);
+        Module module = InternalModules.defineModule(classLoader, moduleDescriptor , url);
         logger.info("defineModule module:" + module);
         return module;
     }

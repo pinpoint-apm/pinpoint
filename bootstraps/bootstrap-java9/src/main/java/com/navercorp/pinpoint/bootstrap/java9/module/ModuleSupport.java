@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.bootstrap.module.JavaModule;
 import com.navercorp.pinpoint.bootstrap.module.Providers;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
-import jdk.internal.module.Modules;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
@@ -254,7 +253,7 @@ public class ModuleSupport {
     private JavaModule loadModule(String moduleName) {
         // force base-module loading
         logger.info("loadModule:" + moduleName);
-        final Module module = Modules.loadModule(moduleName);
+        final Module module = InternalModules.loadModule(moduleName);
         return wrapJavaModule(module);
 
 //        final ModuleLayer boot = ModuleLayer.boot();

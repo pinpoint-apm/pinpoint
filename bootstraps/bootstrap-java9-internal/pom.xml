@@ -32,7 +32,7 @@
         <plugin.animal-sniffer.skip>true</plugin.animal-sniffer.skip>
     </properties>
 
-    <artifactId>pinpoint-bootstrap-java9</artifactId>
+    <artifactId>pinpoint-bootstrap-java9-internal</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -43,10 +43,6 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-bootstrap-java9-internal</artifactId>
         </dependency>
 
 
@@ -109,7 +105,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <release>${jdk.version}</release>
+                    <compilerArgs>
+                        <arg>--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED</arg>
+                        <arg>--add-exports=java.base/jdk.internal.module=ALL-UNNAMED</arg>
+                        <arg>--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
 
