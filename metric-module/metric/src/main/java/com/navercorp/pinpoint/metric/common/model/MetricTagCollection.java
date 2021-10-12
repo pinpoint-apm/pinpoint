@@ -24,15 +24,15 @@ import java.util.Objects;
  */
 public class MetricTagCollection {
 
-    private final String hostGroupId;
+    private final String hostGroupName;
     private final String hostName;
     private final String metricName;
     private final String fieldName;
 
     private final List<MetricTag> metricTagList;
 
-    public MetricTagCollection(String hostGroupId, String hostName, String metricName, String fieldName, List<MetricTag> metricTagList) {
-        this.hostGroupId = StringPrecondition.requireHasLength(hostGroupId, "hostGroupId");
+    public MetricTagCollection(String hostGroupName, String hostName, String metricName, String fieldName, List<MetricTag> metricTagList) {
+        this.hostGroupName = StringPrecondition.requireHasLength(hostGroupName, "hostGroupName");
         this.hostName = StringPrecondition.requireHasLength(hostName, "hostName");
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
         this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
@@ -43,8 +43,8 @@ public class MetricTagCollection {
         return metricTagList;
     }
 
-    public String getHostGroupId() {
-        return hostGroupId;
+    public String getHostGroupName() {
+        return hostGroupName;
     }
 
     public String getHostName() {
@@ -62,7 +62,7 @@ public class MetricTagCollection {
     @Override
     public String toString() {
         return "MetricTagCollection{" +
-                "hostGroupId='" + hostGroupId + '\'' +
+                "hostGroupName='" + hostGroupName + '\'' +
                 ", hostName='" + hostName + '\'' +
                 ", metricName='" + metricName + '\'' +
                 ", fieldName='" + fieldName + '\'' +
@@ -75,7 +75,7 @@ public class MetricTagCollection {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MetricTagCollection that = (MetricTagCollection) o;
-        return Objects.equals(hostGroupId, that.hostGroupId) &&
+        return Objects.equals(hostGroupName, that.hostGroupName) &&
                 Objects.equals(hostName, that.hostName) &&
                 Objects.equals(metricName, that.metricName) &&
                 Objects.equals(fieldName, that.fieldName) &&

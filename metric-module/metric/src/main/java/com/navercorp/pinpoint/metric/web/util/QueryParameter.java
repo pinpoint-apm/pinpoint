@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 public class QueryParameter {
     private static final int TAG_SET_COUNT = 10;
 
-    private final String hostGroupId;
+    private final String hostGroupName;
     private final String hostName;
     private final String metricName;
     private final String fieldName;
@@ -39,7 +39,7 @@ public class QueryParameter {
     private final long limit;
 
     public QueryParameter(Builder builder) {
-        this.hostGroupId = builder.hostGroupId;
+        this.hostGroupName = builder.hostGroupName;
         this.hostName = builder.hostName;
         this.metricName = builder.metricName;
         this.fieldName = builder.fieldName;
@@ -49,8 +49,8 @@ public class QueryParameter {
         this.limit = builder.limit;
     }
 
-    public String getHostGroupId() {
-        return hostGroupId;
+    public String getHostGroupName() {
+        return hostGroupName;
     }
 
     public String getHostName() {
@@ -82,7 +82,7 @@ public class QueryParameter {
     }
 
     public static class Builder {
-        private String hostGroupId;
+        private String hostGroupName;
         private String hostName;
         private String metricName;
         private String fieldName;
@@ -91,8 +91,8 @@ public class QueryParameter {
         private TimePrecision timePrecision;
         private long limit;
 
-        public void setHostGroupId(String hostGroupId) {
-            this.hostGroupId = Objects.requireNonNull(hostGroupId, "applicationName");
+        public void setHostGroupName(String hostGroupName) {
+            this.hostGroupName = Objects.requireNonNull(hostGroupName, "hostGroupName");
         }
 
         public void setHostName(String hostName) {

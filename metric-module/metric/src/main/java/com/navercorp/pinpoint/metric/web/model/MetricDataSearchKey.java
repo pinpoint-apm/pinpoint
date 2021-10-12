@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class MetricDataSearchKey {
 
-    private final String hostGroupId;
+    private final String hostGroupName;
     private final String hostName;
     private final String metricName;
     private final String metricDefinitionId;
@@ -36,8 +36,8 @@ public class MetricDataSearchKey {
     private final TimePrecision timePrecision;
     private final long limit;
 
-    public MetricDataSearchKey(String hostGroupId, String hostName, String metricName, String metricDefinitionId, Range range) {
-        this.hostGroupId = StringPrecondition.requireHasLength(hostGroupId, "hostGroupId");
+    public MetricDataSearchKey(String hostGroupName, String hostName, String metricName, String metricDefinitionId, Range range) {
+        this.hostGroupName = StringPrecondition.requireHasLength(hostGroupName, "hostGroupName");
         this.hostName = StringPrecondition.requireHasLength(hostName, "hostName");
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
         this.metricDefinitionId = StringPrecondition.requireHasLength(metricDefinitionId, "metricDefinitionId");
@@ -47,8 +47,8 @@ public class MetricDataSearchKey {
         this.limit = (range.getRange() / timePrecision.getInterval()) + 1;
     }
 
-    public String getHostGroupId() {
-        return hostGroupId;
+    public String getHostGroupName() {
+        return hostGroupName;
     }
 
     public String getHostName() {

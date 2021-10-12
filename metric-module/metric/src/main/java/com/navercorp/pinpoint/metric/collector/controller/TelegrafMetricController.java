@@ -69,22 +69,22 @@ public class TelegrafMetricController {
 
     @PostMapping(value = "/telegraf")
     public ResponseEntity<Void> saveSystemMetric(
-            @RequestHeader(value = "hostGroupId") String hostGroupId,
+            @RequestHeader(value = "hostGroupName") String hostGroupName,
             @RequestBody TelegrafMetrics telegrafMetrics, BindingResult bindingResult
     ) throws BindException {
         if (bindingResult.hasErrors()) {
             SimpleErrorMessage simpleErrorMessage = new SimpleErrorMessage(bindingResult);
-            logger.warn("metric binding error. header=hostGroupId:{} errorCount:{} {}", hostGroupId, bindingResult.getErrorCount(), simpleErrorMessage);
+            logger.warn("metric binding error. header=hostGroupName:{} errorCount:{} {}", hostGroupName, bindingResult.getErrorCount(), simpleErrorMessage);
             throw new BindException(bindingResult);
         }
 
         if (logger.isInfoEnabled()) {
             String host = getHost(telegrafMetrics);
-            logger.info("hostGroupId:{} host:{} size:{}", hostGroupId, host, telegrafMetrics.size());
+            logger.info("hostGroupName:{} host:{} size:{}", hostGroupName, host, telegrafMetrics.size());
         }
         logger.info("telegrafMetrics:{}", telegrafMetrics);
 
-        Metrics systemMetric = toMetrics(hostGroupId, telegrafMetrics);
+        Metrics systemMetric = toMetrics(hostGroupName, telegrafMetrics);
 
         updateMetadata(systemMetric);
         systemMetricService.insert(systemMetric);
