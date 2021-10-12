@@ -5,7 +5,7 @@
 
     <resultMap id="MetricTagResultMap" type="MetricTag">
         <constructor>
-            <arg column="host_group_id" javaType="string"/>
+            <arg column="host_group_name" javaType="string"/>
             <arg column="host_name" javaType="string"/>
             <arg column="metric_name" javaType="string"/>
             <arg column="field_name" javaType="string"/>
@@ -13,27 +13,27 @@
         </constructor>
     </resultMap>
 
-    <select id="selectHostGroupIdList" resultType="String">
-        SELECT DISTINCT host_group_id
+    <select id="selectHostGroupNameList" resultType="String">
+        SELECT DISTINCT host_group_name
         FROM system_metric_tag;
     </select>
 
     <select id="selectHostList" parameterType="String" resultType="String">
         SELECT DISTINCT host_name
         FROM system_metric_tag
-        WHERE host_group_id = #{hostGroupId};
+        WHERE host_group_name = #{hostGroupName};
     </select>
 
     <select id="selectCollectedMetricInfo" parameterType="metricInfoSearchKey" resultType="String">
         SELECT DISTINCT metric_name
         FROM system_metric_tag
-        WHERE host_group_id = #{hostGroupId} AND host_name = #{hostName};
+        WHERE host_group_name = #{hostGroupName} AND host_name = #{hostName};
     </select>
 
     <select id="selectMetricTagList" resultMap="MetricTagResultMap" parameterType="MetricTagKey">
         SELECT *
         FROM system_metric_tag
-        WHERE host_group_id = #{hostGroupId} AND host_name = #{hostName} AND metric_name = #{metricName} AND field_name = #{fieldName};
+        WHERE host_group_name = #{hostGroupName} AND host_name = #{hostName} AND metric_name = #{metricName} AND field_name = #{fieldName};
     </select>
 
 </mapper>

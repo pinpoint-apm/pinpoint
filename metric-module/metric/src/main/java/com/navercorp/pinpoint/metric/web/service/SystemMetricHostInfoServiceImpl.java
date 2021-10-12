@@ -46,18 +46,18 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
     }
 
     @Override
-    public List<String> getHostGroupIdList() {
-        return systemMetricHostInfoDao.selectHostGroupIdList();
+    public List<String> getHostGroupNameList() {
+        return systemMetricHostInfoDao.selectHostGroupNameList();
     }
 
     @Override
-    public List<String> getHostList(String hostGroupId) {
-        return systemMetricHostInfoDao.selectHostList(hostGroupId);
+    public List<String> getHostList(String hostGroupName) {
+        return systemMetricHostInfoDao.selectHostList(hostGroupName);
     }
 
     @Override
-    public List<String> getCollectedMetricInfo(String hostGroupId, String hostName) {
-        List<String> metricNameList = systemMetricHostInfoDao.getCollectedMetricInfo(hostGroupId, hostName);
+    public List<String> getCollectedMetricInfo(String hostGroupName, String hostName) {
+        List<String> metricNameList = systemMetricHostInfoDao.getCollectedMetricInfo(hostGroupName, hostName);
 
         List<String> metricDefinitionIdList = new LinkedList<String>();
         for (String metricName : metricNameList) {
@@ -69,7 +69,7 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
 
     @Override
     public List<MetricTag> getTag(MetricDataSearchKey metricDataSearchKey, Field field) {
-        MetricTagKey metricTagKey = new MetricTagKey(metricDataSearchKey.getHostGroupId(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName());
+        MetricTagKey metricTagKey = new MetricTagKey(metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName());
         MetricTagCollection metricTagCollection = systemMetricHostInfoDao.selectMetricTagCollection(metricTagKey);
 
         MatchingRule matchingRule = field.getMatchingRule();

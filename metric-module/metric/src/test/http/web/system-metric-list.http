@@ -11,14 +11,14 @@ content-type: application/json
 
 ### LongMetric, w/o tags
 GET http://{{host}}/systemMetric/list.pinpoint
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
     &metricName=mem&fieldName=used
     &from={{from}}&to={{to}}
 Accept: application/json
 
 ### LongMetric, w/o tags
 GET http://{{host}}/systemMetric/list.pinpoint
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
     &metricName=mem&fieldName=free
     &from={{from}}&to={{to}}
 Accept: application/json
@@ -26,21 +26,21 @@ Accept: application/json
 
 ### DoubleMetric, w/o tags
 GET http://{{host}}/systemMetric/list.pinpoint
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
     &metricName=cpu&fieldName=usage_user
     &from={{from}}&to={{to}}
 Accept: application/json
 
 ### DoubleMetric, with tags
 GET http://{{host}}/systemMetric/list.pinpoint
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
     &metricName=cpu&fieldName=usage_user&tags=cpu:cpu0
     &from={{from}}&to={{to}}
 Accept: application/json
 
 ### No Such Metric
 GET http://{{host}}/systemMetric/list.pinpoint
-    ?hostGroupId={{hostGroupId}}&hostName={{metric-host}}
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
     &metricName=mem&fieldName=freer
     &from={{from}}&to={{to}}
 Accept: application/json
