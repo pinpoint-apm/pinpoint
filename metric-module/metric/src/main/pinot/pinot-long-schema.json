@@ -2,12 +2,12 @@
   "schemaName": "systemMetricLong",
   "dimensionFieldSpecs": [
     {
-      "name": "serviceId",
+      "name": "serviceName",
       "dataType": "STRING",
       "defaultNullValue": ""
     },
     {
-      "name": "hostGroupId",
+      "name": "hostGroupName",
       "dataType": "STRING"
     },
     {

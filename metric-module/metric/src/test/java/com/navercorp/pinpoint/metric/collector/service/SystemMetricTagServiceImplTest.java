@@ -117,7 +117,7 @@ public class SystemMetricTagServiceImplTest {
         tagList.add(new Tag("key2", "value2"));
 
         MetricTagCollection metricTagCollection = systemMetricTagService.createMetricTagCollection(applicationName, hostName, metricName, fieldName, tagList);
-        Assert.assertEquals(metricTagCollection.getHostGroupId(), applicationName);
+        Assert.assertEquals(metricTagCollection.getHostGroupName(), applicationName);
         Assert.assertEquals(metricTagCollection.getHostName(), hostName);
         Assert.assertEquals(metricTagCollection.getMetricName(), metricName);
         Assert.assertEquals(metricTagCollection.getFieldName(), fieldName);
@@ -125,7 +125,7 @@ public class SystemMetricTagServiceImplTest {
         List<MetricTag> metricTagList = metricTagCollection.getMetricTagList();
         Assert.assertEquals(metricTagList.size(), 1);
         MetricTag metricTag = metricTagList.get(0);
-        Assert.assertEquals(metricTag.getHostGroupId(), applicationName);
+        Assert.assertEquals(metricTag.getHostGroupName(), applicationName);
         Assert.assertEquals(metricTag.getHostName(), hostName);
         Assert.assertEquals(metricTag.getMetricName(), metricName);
         Assert.assertEquals(metricTag.getFieldName(), fieldName);
@@ -170,7 +170,7 @@ public class SystemMetricTagServiceImplTest {
         MetricTagCollection mtc = new MetricTagCollection(applicationName, hostName, metricName, fieldName, metricTagList);
         MetricTagCollection metricTagCollection = systemMetricTagService.createMetricTagCollection(mtc, tagList4);
 
-        Assert.assertEquals(metricTagCollection.getHostGroupId(), applicationName);
+        Assert.assertEquals(metricTagCollection.getHostGroupName(), applicationName);
         Assert.assertEquals(metricTagCollection.getHostName(), hostName);
         Assert.assertEquals(metricTagCollection.getMetricName(), metricName);
         Assert.assertEquals(metricTagCollection.getFieldName(), fieldName);

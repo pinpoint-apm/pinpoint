@@ -23,16 +23,16 @@ import java.util.Objects;
  */
 public class MetricInfoSearchKey {
 
-    private final String hostGroupId;
+    private final String hostGroupName;
     private final String hostName;
 
-    public MetricInfoSearchKey(String hostGroupId, String hostName) {
-        this.hostGroupId = Objects.requireNonNull(hostGroupId, "hostGroupId");
+    public MetricInfoSearchKey(String hostGroupName, String hostName) {
+        this.hostGroupName = Objects.requireNonNull(hostGroupName, "hostGroupName");
         this.hostName = Objects.requireNonNull(hostName, "hostName");
     }
 
-    public String getHostGroupId() {
-        return hostGroupId;
+    public String getHostGroupName() {
+        return hostGroupName;
     }
 
     public String getHostName() {

@@ -43,24 +43,24 @@ public class MysqlSystemMetricHostInfoDao implements SystemMetricHostInfoDao {
     }
 
     @Override
-    public List<String> selectHostGroupIdList() {
-        return sqlSessionTemplate.selectList(NAMESPACE + "selectHostGroupIdList");
+    public List<String> selectHostGroupNameList() {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectHostGroupNameList");
     }
 
     @Override
-    public List<String> selectHostList(String hostGroupId) {
-        return sqlSessionTemplate.selectList(NAMESPACE + "selectHostList", hostGroupId);
+    public List<String> selectHostList(String hostGroupName) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectHostList", hostGroupName);
     }
 
     @Override
-    public List<String> getCollectedMetricInfo(String hostGroupId, String hostName) {
-        return sqlSessionTemplate.selectList(NAMESPACE + "selectCollectedMetricInfo", new MetricInfoSearchKey(hostGroupId, hostName));
+    public List<String> getCollectedMetricInfo(String hostGroupName, String hostName) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectCollectedMetricInfo", new MetricInfoSearchKey(hostGroupName, hostName));
     }
 
     @Override
     public MetricTagCollection selectMetricTagCollection(MetricTagKey metricTagKey) {
         List<MetricTag> metricTagList = sqlSessionTemplate.selectList(NAMESPACE + "selectMetricTagList", metricTagKey);
-        return new MetricTagCollection(metricTagKey.getHostGroupId(), metricTagKey.getHostName(), metricTagKey.getMetricName(), metricTagKey.getFieldName(), metricTagList);
+        return new MetricTagCollection(metricTagKey.getHostGroupName(), metricTagKey.getHostName(), metricTagKey.getMetricName(), metricTagKey.getFieldName(), metricTagList);
     }
 
 

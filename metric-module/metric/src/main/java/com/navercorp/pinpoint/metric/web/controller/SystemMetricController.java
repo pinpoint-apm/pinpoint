@@ -62,7 +62,7 @@ public class SystemMetricController {
     @Deprecated
     @GetMapping(value = "/list")
     public List<SystemMetric> getSystemMetricBoList(
-            @RequestParam("hostGroupId") String hostGroupId,
+            @RequestParam("hostGroupName") String hostGroupName,
             @RequestParam("hostName") String hostName,
             @RequestParam("metricName") String metricName,
             @RequestParam("fieldName") String fieldName,
@@ -71,7 +71,7 @@ public class SystemMetricController {
             @RequestParam("to") long to) {
 
         QueryParameter.Builder builder = new QueryParameter.Builder();
-        builder.setHostGroupId(hostGroupId);
+        builder.setHostGroupName(hostGroupName);
         builder.setHostName(hostName);
         builder.setMetricName(metricName);
         builder.setFieldName(fieldName);
@@ -85,7 +85,7 @@ public class SystemMetricController {
     @Deprecated
     @GetMapping(value = "/chart")
     public SystemMetricChart getSystemMetricChart(
-            @RequestParam("hostGroupId") String hostGroupId,
+            @RequestParam("hostGroupName") String hostGroupName,
             @RequestParam("hostName") String hostName,
             @RequestParam("metricName") String metricName,
             @RequestParam("fieldName") String fieldName,
@@ -93,7 +93,7 @@ public class SystemMetricController {
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         QueryParameter.Builder builder = new QueryParameter.Builder();
-        builder.setHostGroupId(hostGroupId);
+        builder.setHostGroupName(hostGroupName);
         builder.setHostName(hostName);
         builder.setMetricName(metricName);
         builder.setFieldName(fieldName);
@@ -111,7 +111,7 @@ public class SystemMetricController {
     @Deprecated
     @GetMapping(value = "/chart", params = {"timeUnit", "timeSize"})
     public SystemMetricChart getSystemMetricChart(
-            @RequestParam("hostGroupId") String hostGroupId,
+            @RequestParam("hostGroupName") String hostGroupName,
             @RequestParam("hostName") String hostName,
             @RequestParam("metricName") String metricName,
             @RequestParam("fieldName") String fieldName,
@@ -123,7 +123,7 @@ public class SystemMetricController {
         TimePrecision timePrecision = TimePrecision.newTimePrecision(TimeUnit.valueOf(timeUnit.toUpperCase()), timeSize);
 
         QueryParameter.Builder builder = new QueryParameter.Builder();
-        builder.setHostGroupId(hostGroupId);
+        builder.setHostGroupName(hostGroupName);
         builder.setHostName(hostName);
         builder.setMetricName(metricName);
         builder.setFieldName(fieldName);
@@ -143,21 +143,21 @@ public class SystemMetricController {
 
     @GetMapping(value = "/hostGroup")
     public List<String> getHostGroup() {
-        return systemMetricHostInfoService.getHostGroupIdList();
+        return systemMetricHostInfoService.getHostGroupNameList();
     }
 
     @GetMapping(value = "/hostGroup/host")
-    public List<String> getHostGroup(@RequestParam("hostGroupId") String hostGroupId) {
-        return systemMetricHostInfoService.getHostList(hostGroupId);
+    public List<String> getHostGroup(@RequestParam("hostGroupName") String hostGroupName) {
+        return systemMetricHostInfoService.getHostList(hostGroupName);
     }
 
     @GetMapping(value = "/hostGroup/host/collectedMetricInfo")
-    public List<String> getCollectedMetricInfo(@RequestParam("hostGroupId") String hostGroupId, @RequestParam("hostName") String hostName) {
-        return systemMetricHostInfoService.getCollectedMetricInfo(hostGroupId, hostName);
+    public List<String> getCollectedMetricInfo(@RequestParam("hostGroupName") String hostGroupName, @RequestParam("hostName") String hostName) {
+        return systemMetricHostInfoService.getCollectedMetricInfo(hostGroupName, hostName);
     }
 
     @GetMapping(value = "/hostGroup/host/collectedMetricData")
-    public SystemMetricView getCollectedMetricData(@RequestParam("hostGroupId") String hostGroupId,
+    public SystemMetricView getCollectedMetricData(@RequestParam("hostGroupName") String hostGroupName,
                                                    @RequestParam("hostName") String hostName,
                                                    @RequestParam("metricDefinitionId") String metricDefinitionId,
                                                    @RequestParam("from") long from,
@@ -165,7 +165,7 @@ public class SystemMetricController {
         //TODO : (minwoo) sampler 를 range 값에 따라서 다르게 설정해주는 로직이 들어가는게 필요함
         Range range = Range.newRange(from, to);
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(hostGroupId, hostName, systemMetricBasicGroupManager.findMetricName(metricDefinitionId), metricDefinitionId, range);
+        MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(hostGroupName, hostName, systemMetricBasicGroupManager.findMetricName(metricDefinitionId), metricDefinitionId, range);
         SystemMetricData<? extends Number> systemMetricData = systemMetricDataService.getCollectedMetricData(metricDataSearchKey, timeWindow);
 
         return new SystemMetricView(systemMetricData);

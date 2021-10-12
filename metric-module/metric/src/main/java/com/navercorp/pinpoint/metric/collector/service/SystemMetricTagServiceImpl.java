@@ -89,9 +89,9 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
             metricTagList.add(metricTag.copy());
         }
 
-        metricTagList.add(new MetricTag(metricTagCollection.getHostGroupId(), metricTagCollection.getHostName(), metricTagCollection.getMetricName(),metricTagCollection.getFieldName(), tagList));
+        metricTagList.add(new MetricTag(metricTagCollection.getHostGroupName(), metricTagCollection.getHostName(), metricTagCollection.getMetricName(),metricTagCollection.getFieldName(), tagList));
 
-        return new MetricTagCollection(metricTagCollection.getHostGroupId(), metricTagCollection.getHostName(), metricTagCollection.getMetricName(), metricTagCollection.getFieldName(), metricTagList);
+        return new MetricTagCollection(metricTagCollection.getHostGroupName(), metricTagCollection.getHostName(), metricTagCollection.getMetricName(), metricTagCollection.getFieldName(), metricTagList);
     }
 
     List<Tag> tagListCopy(List<Tag> tags) {

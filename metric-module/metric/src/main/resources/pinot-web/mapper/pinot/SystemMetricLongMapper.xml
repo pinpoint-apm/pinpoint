@@ -23,7 +23,7 @@
             tags,
             timestampInEpoch
         FROM systemMetricLong
-        WHERE hostGroupId = #{hostGroupId}
+        WHERE hostGroupName = #{hostGroupName}
             AND metricName = #{metricName}
             AND hostName = #{hostName}
             AND fieldName = #{fieldName}
@@ -54,7 +54,7 @@
             DATETIME_CONVERT(timestampInEpoch, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime,
             tags
         FROM systemMetricLong
-        WHERE hostGroupId = #{hostGroupId}
+        WHERE hostGroupName = #{hostGroupName}
             AND metricName = #{metricName}
             AND hostName = #{hostName}
             AND fieldName = #{fieldName}
@@ -72,7 +72,7 @@
         AVG(fieldValue) AS avgValue,
         DATETIME_CONVERT(timestampInEpoch, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
         FROM systemMetricLong
-        WHERE hostGroupId = #{hostGroupId}
+        WHERE hostGroupName = #{hostGroupName}
         AND metricName = #{metricName}
         AND hostName = #{hostName}
         AND fieldName = #{fieldName}
