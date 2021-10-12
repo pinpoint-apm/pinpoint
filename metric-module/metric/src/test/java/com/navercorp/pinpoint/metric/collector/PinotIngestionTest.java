@@ -38,7 +38,7 @@ public class PinotIngestionTest {
 
         long time = 0;
         for (int i = 0 ; i < 100000 ; i++) {
-            String systemMetric = "{\"applicationName\":\"hyunjoon\", \"tagName\":[\"host\", \"currentTime\"], \"tagValue\":[\"localhost\", \"" + new Date().toString() + "\"], \"timestampInEpoch\":" + time + "}";
+            String systemMetric = "{\"applicationName\":\"hyunjoon\", \"tagName\":[\"host\", \"currentTime\"], \"tagValue\":[\"localhost\", \"" + new Date().toString() + "\"], \"timestamp\":" + time + "}";
             producer.send(new ProducerRecord<>("test-topic", systemMetric));
             time += 1000;
         }
