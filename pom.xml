@@ -116,6 +116,8 @@
 
     <properties>
         <encoding>UTF-8</encoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
         <jdk.version>1.7</jdk.version>
         <jdk.home>${env.JAVA_7_HOME}</jdk.home>
         <test.jdk.home>${jdk.home}</test.jdk.home>
@@ -1197,7 +1199,8 @@
                         <exclude>**/*$*</exclude>
                     </excludes>
                     <!-- Add  @{argLine} for jacoco -->
-                    <argLine>@{argLine} -Dfile.encoding=${encoding}</argLine>
+                    <argLine>@{argLine}</argLine>
+                    <encoding>${encoding}</encoding>
                     <jvm>${test.jdk.home}/bin/java</jvm>
                     <forkMode>once</forkMode>
                 </configuration>

@@ -106,14 +106,13 @@
                     <!-- jdk9 -->
 <!--                    <argLine>-->
 <!--                        &#45;&#45;add-exports java.base/jdk.internal.misc=ALL-UNNAMED-->
-<!--                        -Dfile.encoding=${encoding}-->
 <!--                    </argLine>-->
 
                     <!-- jdk11 -->
 <!--                    <argLine>-->
 <!--                        &#45;&#45;add-exports java.base/jdk.internal.access=ALL-UNNAMED-->
-<!--                        -Dfile.encoding=${encoding}-->
 <!--                    </argLine>-->
+                    <encoding>${encoding}</encoding>
                 </configuration>
             </plugin>
             <plugin>

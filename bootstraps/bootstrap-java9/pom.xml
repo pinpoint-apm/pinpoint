@@ -121,8 +121,8 @@
                         --add-exports java.base/jdk.internal.loader=ALL-UNNAMED
                         --add-exports java.base/jdk.internal.module=ALL-UNNAMED
                         --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
-                        -Dfile.encoding=${encoding}
                     </argLine>
+                    <encoding>${encoding}</encoding>
                 </configuration>
             </plugin>
 
