@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.bootstrap.java9.module;
 
 import com.navercorp.pinpoint.bootstrap.java9.classloader.Java9ClassLoader;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
-import jdk.internal.module.Modules;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -61,7 +60,7 @@ public class ModuleBuilderTest {
         ModuleDescriptor descriptor = builder.build();
 
 
-        Module module = Modules.defineModule(classLoader, descriptor, testClassJar.toURI());
+        Module module = InternalModules.defineModule(classLoader, descriptor, testClassJar.toURI());
         logger.debug("module:{}", module);
 
         Class<?> slf4jModule = classLoader.loadClass(slf4jClass.getName());

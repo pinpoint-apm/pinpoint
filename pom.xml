@@ -324,6 +324,11 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-bootstrap-java9-internal</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-profiler</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -1270,7 +1275,7 @@
                                     <variableName>JAVA_8_HOME</variableName>
                                 </requireEnvironmentVariable>
                                 <requireEnvironmentVariable>
-                                    <variableName>JAVA_9_HOME</variableName>
+                                    <variableName>JAVA_11_HOME</variableName>
                                 </requireEnvironmentVariable>
                             </rules>
                             <fail>true</fail>
