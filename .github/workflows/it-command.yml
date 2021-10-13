@@ -1,0 +1,98 @@
+name: it-command
+on:
+  repository_dispatch:
+    types: [it-command]
+
+jobs:
+  pullrequest_IT:
+    runs-on: ubuntu-20.04
+    env:
+      PR_NUMBER: ${{ github.event.client_payload.github.payload.issue.number }}
+      PR_P: ${{ github.event.issue.number }}
+    steps:
+      - name: Create URL to the run output
+        id: vars
+        run: echo ::set-output name=run-url::https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+      - name: Update success comment
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+          body: |
+            > Action has been started. [Click here to see the action](${{ steps.vars.outputs.run-url }})
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: 'refs/pull/${{ env.PR_NUMBER }}/merge'
+      - name: Set up JDK 7
+        uses: actions/setup-java@v1
+        with:
+          java-version: 7
+      - name: Set up JDK 9
+        uses: actions/setup-java@v1
+        with:
+          java-version: 9
+      - name: Set JAVA_HOME
+        run: |
+          echo "JAVA_7_HOME=$JAVA_HOME_7_0_312_X64" >> $GITHUB_ENV
+          echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
+          echo "JAVA_9_HOME=$JAVA_HOME_9_0_7_X64" >> $GITHUB_ENV
+          echo "JAVA_11_HOME=$JAVA_HOME_11_X64" >> $GITHUB_ENV
+          echo "JAVA_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
+          df -h
+      - name: Java Environment
+        run: env | grep '^JAVA'
+      - name: Cache node modules
+        uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Cache node install
+        uses: actions/cache@v2
+        with:
+          path: 'node_install'
+          key: ${{ runner.os }}-node_install-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-node_install-
+      - name: Cleanup resources
+        run: |
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/share/dotnet
+          df -h
+      - name: Maven build
+        run: |
+          ./mvnw --batch-mode -Pit-module -DskipTests clean install
+      - name: Whole Integration Test
+        if: github.event.client_payload.slash_command.args.all == ''
+        working-directory: ./plugins-it
+        run: ../mvnw --batch-mode clean install -Pit-module  -Dmaven.test.failure.ignore=true
+      - name: Integration Test
+        if: github.event.client_payload.slash_command.args.all != ''
+        working-directory: ./plugins-it
+        run: ../mvnw --batch-mode clean install -Pit-module -pl ${{ github.event.client_payload.slash_command.args.all }} -Dmaven.test.failure.ignore=true
+      - name: Collect reports
+        working-directory: ./plugins-it
+        run: |
+          mkdir -p ./temp
+          find . -regex ".*/target/failsafe-reports/TEST.*\.xml" -exec cp "{}" ./temp \;
+          ls temp
+      - name: Publish Unit Test Results
+        id: test_reporter
+        uses: dorny/test-reporter@v1
+        with:
+          name: pinpoint-test-results
+          reporter: java-junit
+          path: './plugins-it/temp/TEST-*.xml'
+      - name: Update  comment
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+          body: |
+            > ![title](https://img.shields.io/static/v1?label=Tests&message=${{ steps.test_reporter.outputs.passed }}_passed&color=green)  ![title](https://img.shields.io/static/v1?label=Tests&message=${{ steps.test_reporter.outputs.failed }}_failed&color=red)
