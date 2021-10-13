@@ -22,7 +22,11 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.MatcherType;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.ClassInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.PackageInternalNameMatcherOperand;
+
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
 import java.util.Objects;
+
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadataReader;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
@@ -33,11 +37,11 @@ import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -51,9 +55,9 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
     private final DefaultTransformerRegistry defaultTransformerRegistry;
 
     // class matcher operand.
-    private final Map<String, IndexValue> classNameBasedIndex = new HashMap<String, IndexValue>(64);
+    private final Map<String, SortedSet<IndexValue>> classNameBasedIndex = new HashMap<String, SortedSet<IndexValue>>(64);
     // package matcher operand.
-    private final Map<String, Set<IndexValue>> packageNameBasedIndex;
+    private final Map<String, SortedSet<IndexValue>> packageNameBasedIndex;
 
     private final TransformerMatcherExecutionPlanner executionPlanner = new TransformerMatcherExecutionPlanner();
     private final TransformerMatcher transformerMatcher;
@@ -66,7 +70,7 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         this.defaultTransformerRegistry = new DefaultTransformerRegistry(defaultTransfomerList);
 
         // sorted by package name length.
-        this.packageNameBasedIndex = new TreeMap<String, Set<IndexValue>>(new Comparator<String>() {
+        this.packageNameBasedIndex = new TreeMap<String, SortedSet<IndexValue>>(new Comparator<String>() {
             @Override
             public int compare(String key1, String key2) {
                 return key1.compareTo(key2);
@@ -85,23 +89,22 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         }
 
         this.transformerMatcher = new DefaultTransformerMatcher(instrumentMatcherCacheConfig);
-
     }
 
     @Override
-    public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, byte[] classFileBuffer) {
-        return findTransformer(classLoader, classInternalName, classFileBuffer, null);
+    public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, ProtectionDomain protectionDomain, byte[] classFileBuffer) {
+        return findTransformer(classLoader, classInternalName, protectionDomain, classFileBuffer, null);
     }
 
     @Override
-    public ClassFileTransformer findTransformer(final ClassLoader classLoader, final String classInternalName, final byte[] classFileBuffer, final InternalClassMetadata classMetadata) {
+    public ClassFileTransformer findTransformer(final ClassLoader classLoader, final String classInternalName, final ProtectionDomain protectionDomain, final byte[] classFileBuffer, final InternalClassMetadata classMetadata) {
         // find default.
-        final ClassFileTransformer transformer = this.defaultTransformerRegistry.findTransformer(classLoader, classInternalName, classFileBuffer);
+        final ClassFileTransformer transformer = this.defaultTransformerRegistry.findTransformer(classLoader, classInternalName, protectionDomain, classFileBuffer);
         if (transformer != null) {
             return transformer;
         }
 
-        final ClassMetadataWrapper classMetadataWrapper = new ClassMetadataWrapper(classFileBuffer, classMetadata);
+        final ClassMetadataWrapper classMetadataWrapper = new ClassMetadataWrapper(protectionDomain, classFileBuffer, classMetadata);
         // find class name based.
         if (!this.classNameBasedIndex.isEmpty()) {
             final ClassFileTransformer classBaseTransformer = findClassBasedTransformer(classLoader, classInternalName, classMetadataWrapper);
@@ -123,13 +126,16 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
     }
 
     private ClassFileTransformer findClassBasedTransformer(final ClassLoader classLoader, final String classInternalName, final ClassMetadataWrapper classMetadataWrapper) {
-        IndexValue indexValue = this.classNameBasedIndex.get(classInternalName);
-        if (indexValue != null) {
+        SortedSet<IndexValue> indexValueSortedSet = this.classNameBasedIndex.get(classInternalName);
+        if (indexValueSortedSet == null) {
+            return null;
+        }
+
+        for (IndexValue indexValue : indexValueSortedSet) {
             if (indexValue.operand instanceof ClassInternalNameMatcherOperand) {
                 // single operand.
                 return indexValue.transformer;
             }
-
             ClassFileTransformer transformer = match(classLoader, indexValue, classMetadataWrapper);
             if (transformer != null) {
                 return transformer;
@@ -140,7 +146,7 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
     }
 
     private ClassFileTransformer findPackageBasedTransformer(final ClassLoader classLoader, final String classInternalName, final ClassMetadataWrapper classMetadataWrapper) {
-        for (Map.Entry<String, Set<IndexValue>> entry : this.packageNameBasedIndex.entrySet()) {
+        for (Map.Entry<String, SortedSet<IndexValue>> entry : this.packageNameBasedIndex.entrySet()) {
             final String packageInternalName = entry.getKey();
             if (classInternalName.startsWith(packageInternalName)) {
                 for (IndexValue value : entry.getValue()) {
@@ -176,7 +182,7 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         }
         // class or package based.
         MatcherOperand matcherOperand = ((BasedMatcher) matcher).getMatcherOperand();
-        addIndex(matcherOperand, transformer);
+        addIndex(matcher.getOrder(), matcherOperand, transformer);
     }
 
     private List<MatchableClassFileTransformer> filterBaseMatcher(List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
@@ -201,7 +207,7 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         return filter;
     }
 
-    private void addIndex(final MatcherOperand condition, final ClassFileTransformer transformer) {
+    private void addIndex(final int order, final MatcherOperand condition, final ClassFileTransformer transformer) {
         // find class or package matcher operand.
         final List<MatcherOperand> indexedMatcherOperands = executionPlanner.findIndex(condition);
         if (indexedMatcherOperands.isEmpty()) {
@@ -209,14 +215,11 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         }
 
         boolean indexed;
-        final IndexValue indexValue = new IndexValue(condition, transformer);
+        final IndexValue indexValue = new IndexValue(order, condition, transformer);
         for (MatcherOperand operand : indexedMatcherOperands) {
             if (operand instanceof ClassInternalNameMatcherOperand) {
                 ClassInternalNameMatcherOperand classInternalNameMatcherOperand = (ClassInternalNameMatcherOperand) operand;
-                final IndexValue prev = classNameBasedIndex.put(classInternalNameMatcherOperand.getClassInternalName(), indexValue);
-                if (prev != null) {
-                    throw new IllegalStateException("Transformer already exist. class=" + classInternalNameMatcherOperand.getClassInternalName() + ", new=" + indexValue + ", prev=" + prev);
-                }
+                addIndexData(classInternalNameMatcherOperand.getClassInternalName(), indexValue, this.classNameBasedIndex);
                 indexed = true;
             } else if (operand instanceof PackageInternalNameMatcherOperand) {
                 PackageInternalNameMatcherOperand packageInternalNameMatcherOperand = (PackageInternalNameMatcherOperand) operand;
@@ -232,10 +235,15 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         }
     }
 
-    private void addIndexData(final String key, final IndexValue indexValue, final Map<String, Set<IndexValue>> index) {
-        Set<IndexValue> indexValueSet = index.get(key);
+    private void addIndexData(final String key, final IndexValue indexValue, final Map<String, SortedSet<IndexValue>> index) {
+        SortedSet<IndexValue> indexValueSet = index.get(key);
         if (indexValueSet == null) {
-            indexValueSet = new HashSet<IndexValue>();
+            indexValueSet = new TreeSet<>(new Comparator<IndexValue>() {
+                @Override
+                public int compare(IndexValue o1, IndexValue o2) {
+                    return Integer.compare(o1.order, o2.order);
+                }
+            });
             index.put(key, indexValueSet);
         }
         indexValueSet.add(indexValue);
@@ -245,8 +253,10 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         private final MatcherOperand operand;
         private final ClassFileTransformer transformer;
         private final AtomicLong accumulatorTimeMillis = new AtomicLong(0);
+        private final int order;
 
-        public IndexValue(final MatcherOperand operand, final ClassFileTransformer transformer) {
+        public IndexValue(final int order, final MatcherOperand operand, final ClassFileTransformer transformer) {
+            this.order = order;
             this.operand = operand;
             this.transformer = transformer;
         }
@@ -259,10 +269,12 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
     }
 
     class ClassMetadataWrapper {
+        final ProtectionDomain protectionDomain;
         private final byte[] classFileBuffer;
         private InternalClassMetadata classMetadata;
 
-        ClassMetadataWrapper(final byte[] classFileBuffer, final InternalClassMetadata classMetadata) {
+        ClassMetadataWrapper(final ProtectionDomain protectionDomain, final byte[] classFileBuffer, final InternalClassMetadata classMetadata) {
+            this.protectionDomain = protectionDomain;
             this.classFileBuffer = classFileBuffer;
             this.classMetadata = classMetadata;
         }
@@ -271,6 +283,10 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
             if (this.classMetadata == null) {
                 try {
                     this.classMetadata = InternalClassMetadataReader.readInternalClassMetadata(this.classFileBuffer);
+                    final CodeSource codeSource = protectionDomain.getCodeSource();
+                    if (codeSource != null) {
+                        this.classMetadata.setCodeSourceLocation(codeSource.getLocation());
+                    }
                 } catch (Exception e) {
                     if (logger.isInfoEnabled()) {
                         logger.info("Failed to read metadata of class bytes.", e);

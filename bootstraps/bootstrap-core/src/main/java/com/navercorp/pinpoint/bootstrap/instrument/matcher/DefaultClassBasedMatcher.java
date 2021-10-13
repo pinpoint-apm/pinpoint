@@ -26,6 +26,7 @@ import java.util.Objects;
  */
 @InterfaceStability.Unstable
 public class DefaultClassBasedMatcher implements ClassBasedMatcher {
+    private final int order;
     private final String baseClassName;
     private final MatcherOperand matcherOperand;
 
@@ -33,9 +34,17 @@ public class DefaultClassBasedMatcher implements ClassBasedMatcher {
         this(baseClassName, null);
     }
 
-    DefaultClassBasedMatcher(final String baseClassName, final MatcherOperand additional) {
-        this.baseClassName = Objects.requireNonNull(baseClassName, "baseClassName");
+    DefaultClassBasedMatcher(int order, final String baseClassName) {
+        this(LOWEST_PRECEDENCE, baseClassName, null);
+    }
 
+    DefaultClassBasedMatcher(final String baseClassName, final MatcherOperand additional) {
+        this(LOWEST_PRECEDENCE, baseClassName, additional);
+    }
+
+    DefaultClassBasedMatcher(int order, final String baseClassName, final MatcherOperand additional) {
+        this.order = order;
+        this.baseClassName = Objects.requireNonNull(baseClassName, "baseClassName");
         this.matcherOperand = getMatcherOperand(baseClassName, additional);
     }
 
@@ -59,11 +68,16 @@ public class DefaultClassBasedMatcher implements ClassBasedMatcher {
     }
 
     @Override
+    public int getOrder() {
+        return this.order;
+    }
+
+    @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultClassBasedMatcher{");
-        sb.append("baseClassName='").append(baseClassName).append('\'');
-        sb.append(", matcherOperand=").append(matcherOperand);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultClassBasedMatcher{" +
+                "order=" + order +
+                ", baseClassName='" + baseClassName + '\'' +
+                ", matcherOperand=" + matcherOperand +
+                '}';
     }
 }

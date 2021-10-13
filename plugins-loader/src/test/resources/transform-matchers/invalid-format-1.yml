@@ -1,0 +1,12 @@
+# invalid field name
+versionMatchers:
+  - name: '4.1.2.RELEASE ~ 4.3.x.RELEASE'
+    enable: true
+    ranges: '[4.1.2.RELEASE]'
+    resolvers-list:
+      - 'classloader-package'
+
+jarFileMatchers:
+  - name: '3.x'
+    enable: true
+    patterns-list: 'antstyle:test-core-3.??'

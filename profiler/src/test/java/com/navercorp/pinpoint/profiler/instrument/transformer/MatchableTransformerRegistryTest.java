@@ -28,6 +28,10 @@ import org.junit.Test;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.CodeSigner;
+import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -44,7 +48,7 @@ import static org.junit.Assert.assertEquals;
 public class MatchableTransformerRegistryTest {
 
     @Test
-    public void findTransformer() {
+    public void findTransformer() throws MalformedURLException {
         List<MatchableClassFileTransformer> matchableClassFileTransformerList = new ArrayList<>();
         MockMatchableClassFileTransformer mock1 = new MockMatchableClassFileTransformer(Matchers.newPackageBasedMatcher("com.navercorp.pinpoint.profiler.plugin"));
         MockMatchableClassFileTransformer mock2 = new MockMatchableClassFileTransformer(Matchers.newPackageBasedMatcher("com.navercorp.pinpoint.profiler.sender"));
@@ -58,13 +62,14 @@ public class MatchableTransformerRegistryTest {
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         Class<?> clazz = Foo.class;
         byte[] classFileByteCodes = BytecodeUtils.getClassFile(classLoader, clazz.getName());
+        ProtectionDomain protectionDomain = new ProtectionDomain(new CodeSource(new URL("file://"), (CodeSigner[]) null), null);
 
-        ClassFileTransformer classFileTransformer = registry.findTransformer(classLoader, "com/navercorp/pinpoint/profiler/plugin/Foo", classFileByteCodes);
+        ClassFileTransformer classFileTransformer = registry.findTransformer(classLoader, "com/navercorp/pinpoint/profiler/plugin/Foo", protectionDomain, classFileByteCodes);
 
 
         clazz = Bar.class;
         classFileByteCodes = BytecodeUtils.getClassFile(classLoader, clazz.getName());
-        classFileTransformer = registry.findTransformer(classLoader, "com/navercorp/pinpoint/profiler/sender/Bar", classFileByteCodes);
+        classFileTransformer = registry.findTransformer(classLoader, "com/navercorp/pinpoint/profiler/sender/Bar", protectionDomain, classFileByteCodes);
         System.out.println(classFileTransformer.toString());
     }
 

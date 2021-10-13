@@ -20,12 +20,14 @@ import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.TransformMatcherMetadata;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginGlobalContext;
+import com.navercorp.pinpoint.loader.plugins.transform.TransformMatcherMetadataProvider;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
@@ -82,7 +84,9 @@ public class MockPluginSetup implements PluginSetup {
             final TransformTemplate transformTemplate = new TransformTemplate(context);
             ((TransformTemplateAware) plugin).setTransformTemplate(transformTemplate);
         } else if (plugin instanceof MatchableTransformTemplateAware) {
-            final MatchableTransformTemplate transformTemplate = new MatchableTransformTemplate(context);
+            final TransformMatcherMetadataProvider pluginTransformMatcherMetadataProvider = new TransformMatcherMetadataProvider();
+            final TransformMatcherMetadata transformMatcherMetadata = pluginTransformMatcherMetadataProvider.getTransformMatcherMetadata(plugin);
+            final MatchableTransformTemplate transformTemplate = new MatchableTransformTemplate(context, transformMatcherMetadata);
             ((MatchableTransformTemplateAware) plugin).setTransformTemplate(transformTemplate);
         }
     }

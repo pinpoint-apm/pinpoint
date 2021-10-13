@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
 import java.lang.instrument.ClassFileTransformer;
+import java.security.ProtectionDomain;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,12 +65,12 @@ public class DefaultTransformerRegistry implements TransformerRegistry {
     }
 
     @Override
-    public ClassFileTransformer findTransformer(final ClassLoader classLoader, final String classInternalName, final byte[] classFileBuffer) {
-        return findTransformer(classLoader, classInternalName, classFileBuffer, null);
+    public ClassFileTransformer findTransformer(final ClassLoader classLoader, final String classInternalName, final ProtectionDomain protectionDomain, final byte[] classFileBuffer) {
+        return findTransformer(classLoader, classInternalName, protectionDomain, classFileBuffer, null);
     }
 
     @Override
-    public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, byte[] classFileBuffer, InternalClassMetadata classMetadata) {
+    public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, ProtectionDomain protectionDomain, byte[] classFileBuffer, InternalClassMetadata classMetadata) {
         return registry.get(classInternalName);
     }
 

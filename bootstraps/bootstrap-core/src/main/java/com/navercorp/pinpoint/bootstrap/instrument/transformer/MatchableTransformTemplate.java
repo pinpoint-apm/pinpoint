@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.TransformMatcherMetadata;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 
 import java.util.Objects;
@@ -26,11 +27,12 @@ import java.util.Objects;
  */
 @InterfaceStability.Unstable
 public class MatchableTransformTemplate extends TransformTemplate {
+    private final TransformMatcherMetadata transformMatcherMetadata;
 
-    public MatchableTransformTemplate(InstrumentContext instrumentContext) {
+    public MatchableTransformTemplate(InstrumentContext instrumentContext, TransformMatcherMetadata transformMatcherMetadata) {
         super(instrumentContext);
+        this.transformMatcherMetadata = transformMatcherMetadata;
     }
-
 
     public void transform(final Matcher matcher, TransformCallback transformCallback) {
         Objects.requireNonNull(matcher, "matcher");
@@ -51,4 +53,7 @@ public class MatchableTransformTemplate extends TransformTemplate {
         instrumentContext.addClassFileTransformer(matcher, transformCallbackName);
     }
 
+    public TransformMatcherMetadata getTransformMatcherMetadata() {
+        return this.transformMatcherMetadata;
+    }
 }

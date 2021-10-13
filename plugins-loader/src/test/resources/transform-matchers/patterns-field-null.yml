@@ -1,0 +1,18 @@
+versionMatchers:
+  - name: '4.1.2.RELEASE ~ 4.3.x.RELEASE'
+    enable: true
+    ranges:
+      - '[4.1.2.RELEASE]'
+      - '[4.2.0.RELEASE,4.2.max]'
+      - '[4.3.0.RELEASE,4.3.max]'
+    resolvers:
+      - 'classloader-package'
+      - 'file-version'
+      - 'metainf=Implementation-Version'
+    forcedMatch: false
+
+jarFileMatchers:
+  - name: '3.x'
+    enable: true
+    patterns:
+    forcedMatch: false

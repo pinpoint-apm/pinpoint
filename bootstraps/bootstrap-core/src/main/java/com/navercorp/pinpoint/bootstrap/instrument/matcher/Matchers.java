@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 import java.util.List;
 
@@ -35,39 +36,79 @@ public final class Matchers {
         return new DefaultClassNameMatcher(classInternalName);
     }
 
+    public static Matcher newClassNameMatcher(int order, String classInternalName) {
+        return new DefaultClassNameMatcher(order, classInternalName);
+    }
+
     public static Matcher newMultiClassNameMatcher(List<String> classNameList) {
         return new DefaultMultiClassNameMatcher(classNameList);
+    }
+
+    public static Matcher newMultiClassNameMatcher(int order, List<String> classNameList) {
+        return new DefaultMultiClassNameMatcher(order, classNameList);
     }
 
     public static Matcher newPackageBasedMatcher(String basePackageName) {
         return new DefaultPackageBasedMatcher(basePackageName);
     }
 
+    public static Matcher newPackageBasedMatcher(int order, String basePackageName) {
+        return new DefaultPackageBasedMatcher(order, basePackageName);
+    }
+
     public static Matcher newPackageBasedMatcher(String basePackageName, MatcherOperand additional) {
         return new DefaultPackageBasedMatcher(basePackageName, additional);
+    }
+
+    public static Matcher newPackageBasedMatcher(int order, String basePackageName, MatcherOperand additional) {
+        return new DefaultPackageBasedMatcher(order, basePackageName, additional);
     }
 
     public static Matcher newPackageBasedMatcher(List<String> basePackageNames) {
         return new DefaultMultiPackageBasedMatcher(basePackageNames);
     }
 
+    public static Matcher newPackageBasedMatcher(int order, List<String> basePackageNames) {
+        return new DefaultMultiPackageBasedMatcher(order, basePackageNames);
+    }
+
     public static Matcher newPackageBasedMatcher(List<String> basePackageNames, MatcherOperand additional) {
         return new DefaultMultiPackageBasedMatcher(basePackageNames, additional);
+    }
+
+    public static Matcher newPackageBasedMatcher(int order, List<String> basePackageNames, MatcherOperand additional) {
+        return new DefaultMultiPackageBasedMatcher(order, basePackageNames, additional);
     }
 
     public static Matcher newClassBasedMatcher(String baseClassName) {
         return new DefaultClassBasedMatcher(baseClassName);
     }
 
+    public static Matcher newClassBasedMatcher(int order, String baseClassName) {
+        return new DefaultClassBasedMatcher(order, baseClassName);
+    }
+
     public static Matcher newClassBasedMatcher(String baseClassName, MatcherOperand additional) {
         return new DefaultClassBasedMatcher(baseClassName, additional);
+    }
+
+    public static Matcher newClassBasedMatcher(int order, String baseClassName, MatcherOperand additional) {
+        return new DefaultClassBasedMatcher(order, baseClassName, additional);
     }
 
     public static Matcher newMultiClassBasedMatcher(List<String> baseClassNames) {
         return new DefaultMultiClassBasedMatcher(baseClassNames);
     }
 
+    public static Matcher newMultiClassBasedMatcher(int order, List<String> baseClassNames) {
+        return new DefaultMultiClassBasedMatcher(order, baseClassNames);
+    }
+
     public static Matcher newMultiClassBasedMatcher(List<String> baseClassNames, MatcherOperand additional) {
         return new DefaultMultiClassBasedMatcher(baseClassNames, additional);
+    }
+
+    public static Matcher newMultiClassBasedMatcher(int order, List<String> baseClassNames, MatcherOperand additional) {
+        return new DefaultMultiClassBasedMatcher(order, baseClassNames, additional);
     }
 }

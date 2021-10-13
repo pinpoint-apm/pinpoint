@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.profiler.transformer;
 
+import java.security.ProtectionDomain;
 import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 import com.navercorp.pinpoint.profiler.instrument.transformer.TransformerRegistry;
@@ -17,14 +18,14 @@ public class DelegateTransformerRegistry implements TransformerRegistry {
     }
 
     @Override
-    public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, byte[] classFileBuffer) {
-        final ClassFileTransformer transformer = this.transformerRegistry.findTransformer(classLoader, classInternalName, classFileBuffer);
+    public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, ProtectionDomain protectionDomain, byte[] classFileBuffer) {
+        final ClassFileTransformer transformer = this.transformerRegistry.findTransformer(classLoader, classInternalName, protectionDomain, classFileBuffer);
         if (transformer != null) {
             return transformer;
         }
         // For debug
         // TODO What if a modifier is duplicated?
-        final ClassFileTransformer debugTransformer = this.debugTransformerRegistry.findTransformer(classLoader, classInternalName, classFileBuffer);
+        final ClassFileTransformer debugTransformer = this.debugTransformerRegistry.findTransformer(classLoader, classInternalName, protectionDomain, classFileBuffer);
         if (debugTransformer != null) {
             return debugTransformer;
         }
@@ -32,13 +33,13 @@ public class DelegateTransformerRegistry implements TransformerRegistry {
     }
 
     @Override
-    public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, byte[] classFileBuffer, InternalClassMetadata classMetadata) {
-        final ClassFileTransformer transformer = this.transformerRegistry.findTransformer(classLoader, classInternalName, classFileBuffer, classMetadata);
+    public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, ProtectionDomain protectionDomain, byte[] classFileBuffer, InternalClassMetadata classMetadata) {
+        final ClassFileTransformer transformer = this.transformerRegistry.findTransformer(classLoader, classInternalName, protectionDomain, classFileBuffer, classMetadata);
         if (transformer != null) {
             return transformer;
         }
 
-        final ClassFileTransformer debugTransformer = this.debugTransformerRegistry.findTransformer(classLoader, classInternalName, classFileBuffer, classMetadata);
+        final ClassFileTransformer debugTransformer = this.debugTransformerRegistry.findTransformer(classLoader, classInternalName, protectionDomain, classFileBuffer, classMetadata);
         if (debugTransformer != null) {
             return debugTransformer;
         }

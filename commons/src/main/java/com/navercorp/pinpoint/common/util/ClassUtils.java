@@ -71,4 +71,14 @@ public final class ClassUtils {
         }
         return className.replace('.', '/');
     }
+
+    /**
+     * convert "/" based internal name to "." based name.
+     */
+    public static String toName(final String classInternalName) {
+        if (classInternalName == null) {
+            throw new IllegalArgumentException("class name must not be null");
+        }
+        return classInternalName.replace('/', '.');
+    }
 }

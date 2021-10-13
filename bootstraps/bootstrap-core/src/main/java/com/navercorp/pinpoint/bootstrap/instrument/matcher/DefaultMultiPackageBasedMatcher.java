@@ -30,6 +30,7 @@ import java.util.List;
  */
 @InterfaceStability.Unstable
 public class DefaultMultiPackageBasedMatcher implements MultiPackageBasedMatcher {
+    private final int order;
     private final List<String> basePackageNames;
     private final MatcherOperand matcherOperand;
 
@@ -37,11 +38,19 @@ public class DefaultMultiPackageBasedMatcher implements MultiPackageBasedMatcher
         this(basePackageNames, null);
     }
 
+    DefaultMultiPackageBasedMatcher(int order, final List<String> basePackageNames) {
+        this(LOWEST_PRECEDENCE, basePackageNames, null);
+    }
+
     DefaultMultiPackageBasedMatcher(final List<String> basePackageNames, final MatcherOperand additional) {
+        this(LOWEST_PRECEDENCE, basePackageNames, additional);
+    }
+
+    DefaultMultiPackageBasedMatcher(int order, final List<String> basePackageNames, final MatcherOperand additional) {
         if (CollectionUtils.isEmpty(basePackageNames)) {
             throw new IllegalArgumentException("basePackageNames must not be empty");
         }
-
+        this.order = order;
         final List<String> buildBasePackageName = buildBasePackageNameList(basePackageNames);
         final MatcherOperand operand = joinOr(buildBasePackageName);
         if (operand == null) {
@@ -101,11 +110,16 @@ public class DefaultMultiPackageBasedMatcher implements MultiPackageBasedMatcher
     }
 
     @Override
+    public int getOrder() {
+        return this.order;
+    }
+
+    @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultMultiPackageBasedMatcher{");
-        sb.append("basePackageNames=").append(basePackageNames);
-        sb.append(", matcherOperand=").append(matcherOperand);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultMultiPackageBasedMatcher{" +
+                "order=" + order +
+                ", basePackageNames=" + basePackageNames +
+                ", matcherOperand=" + matcherOperand +
+                '}';
     }
 }

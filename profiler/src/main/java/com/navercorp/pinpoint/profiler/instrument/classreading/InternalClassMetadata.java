@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.classreading;
 
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -41,4 +42,8 @@ public interface InternalClassMetadata {
     boolean isSynthetic();
 
     boolean isInnerClass();
+
+    void setCodeSourceLocation(URL codeLocation);
+
+    URL getCodeSourceLocation();
 }

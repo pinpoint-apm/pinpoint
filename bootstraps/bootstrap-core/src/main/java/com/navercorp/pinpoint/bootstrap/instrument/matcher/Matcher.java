@@ -20,4 +20,8 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher;
  * @author emeroad
  */
 public interface Matcher {
+    static final int HIGHEST_PRECEDENCE = Integer.MIN_VALUE;
+    static final int LOWEST_PRECEDENCE = Integer.MAX_VALUE;
+
+    int getOrder();
 }

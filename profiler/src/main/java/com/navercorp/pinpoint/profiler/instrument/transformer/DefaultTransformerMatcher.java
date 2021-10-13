@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.JarFileMatcherOperand;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.VersionMatcherOperand;
 import com.navercorp.pinpoint.profiler.instrument.config.InstrumentMatcherCacheConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.AnnotationInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.ClassInternalNameMatcherOperand;
@@ -73,8 +75,61 @@ public class DefaultTransformerMatcher implements TransformerMatcher {
             return matchAnnotation(classLoader, (AnnotationInternalNameMatcherOperand) operand, classMetadata);
         } else if (operand instanceof SuperClassInternalNameMatcherOperand) {
             return matchSuper(classLoader, (SuperClassInternalNameMatcherOperand) operand, classMetadata);
+        } else if (operand instanceof VersionMatcherOperand) {
+            return matchVersion(classLoader, (VersionMatcherOperand) operand, classMetadata);
+        } else if(operand instanceof JarFileMatcherOperand) {
+            return matchJarFile((JarFileMatcherOperand) operand, classMetadata);
         } else {
             throw new IllegalArgumentException("unknown operand. operand=" + operand);
+        }
+    }
+
+    boolean traversal(ClassLoader classLoader, MatcherOperand operand, InternalClassMetadata classMetadata) {
+        if (operand instanceof NotMatcherOperator) {
+            NotMatcherOperator operator = (NotMatcherOperator) operand;
+            if (operator.getRightOperand() == null) {
+                throw new IllegalArgumentException("invalid operator - not found right operand. operator=" + operator);
+            }
+
+            final MatcherOperand rightOperand = operator.getRightOperand();
+            // NOT
+            return match(classLoader, rightOperand, classMetadata) == false;
+        }
+
+        MatcherOperator operator = (MatcherOperator) operand;
+        // for binary operator.
+        if (operator.getLeftOperand() == null) {
+            throw new IllegalArgumentException("invalid operator - not found left operand. operator=" + operator);
+        }
+        final MatcherOperand leftOperand = operator.getLeftOperand();
+
+        if (operator.getRightOperand() == null) {
+            throw new IllegalArgumentException("invalid operator - not found right operand. operator=" + operator);
+        }
+        final MatcherOperand rightOperand = operator.getRightOperand();
+
+        MatcherOperand firstOperand = leftOperand;
+        MatcherOperand secondOperand = rightOperand;
+        if (leftOperand.getExecutionCost() > rightOperand.getExecutionCost()) {
+            // cost-based execution plan.
+            firstOperand = rightOperand;
+            secondOperand = leftOperand;
+        }
+
+        if (operand instanceof OrMatcherOperator) {
+            // OR
+            if (match(classLoader, firstOperand, classMetadata)) {
+                return true;
+            }
+            return match(classLoader, secondOperand, classMetadata);
+        } else if (operand instanceof AndMatcherOperator) {
+            // AND
+            if (match(classLoader, firstOperand, classMetadata)) {
+                return match(classLoader, secondOperand, classMetadata);
+            }
+            return false;
+        } else {
+            throw new IllegalArgumentException("unknown operator. operator=" + operator);
         }
     }
 
@@ -246,52 +301,17 @@ public class DefaultTransformerMatcher implements TransformerMatcher {
         return null;
     }
 
-    boolean traversal(ClassLoader classLoader, MatcherOperand operand, InternalClassMetadata classMetadata) {
-        if (operand instanceof NotMatcherOperator) {
-            NotMatcherOperator operator = (NotMatcherOperator) operand;
-            if (operator.getRightOperand() == null) {
-                throw new IllegalArgumentException("invalid operator - not found right operand. operator=" + operator);
-            }
-
-            final MatcherOperand rightOperand = operator.getRightOperand();
-            // NOT
-            return match(classLoader, rightOperand, classMetadata) == false;
-        }
-
-        MatcherOperator operator = (MatcherOperator) operand;
-        // for binary operator.
-        if (operator.getLeftOperand() == null) {
-            throw new IllegalArgumentException("invalid operator - not found left operand. operator=" + operator);
-        }
-        final MatcherOperand leftOperand = operator.getLeftOperand();
-
-        if (operator.getRightOperand() == null) {
-            throw new IllegalArgumentException("invalid operator - not found right operand. operator=" + operator);
-        }
-        final MatcherOperand rightOperand = operator.getRightOperand();
-
-        MatcherOperand firstOperand = leftOperand;
-        MatcherOperand secondOperand = rightOperand;
-        if (leftOperand.getExecutionCost() > rightOperand.getExecutionCost()) {
-            // cost-based execution plan.
-            firstOperand = rightOperand;
-            secondOperand = leftOperand;
-        }
-
-        if (operand instanceof OrMatcherOperator) {
-            // OR
-            if (match(classLoader, firstOperand, classMetadata)) {
-                return true;
-            }
-            return match(classLoader, secondOperand, classMetadata);
-        } else if (operand instanceof AndMatcherOperator) {
-            // AND
-            if (match(classLoader, firstOperand, classMetadata)) {
-                return match(classLoader, secondOperand, classMetadata);
-            }
+    boolean matchVersion(final ClassLoader classLoader, final VersionMatcherOperand operand, final InternalClassMetadata classMetadata) {
+        if (classMetadata == null) {
             return false;
-        } else {
-            throw new IllegalArgumentException("unknown operator. operator=" + operator);
         }
+        return operand.match(classLoader, classMetadata.getClassInternalName(), classMetadata.getCodeSourceLocation());
+    }
+
+    boolean matchJarFile(final JarFileMatcherOperand operand, final InternalClassMetadata classMetadata) {
+        if (classMetadata == null) {
+            return false;
+        }
+        return operand.match(classMetadata.getCodeSourceLocation());
     }
 }

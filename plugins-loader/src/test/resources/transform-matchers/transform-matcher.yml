@@ -1,0 +1,36 @@
+versionMatchers:
+  - name: '4.1.2.RELEASE ~ 4.3.x.RELEASE'
+    enable: true
+    # Apache Maven Version Range Specification(https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html)
+    # 1.0            : x >= 1.0 * The default Maven meaning for 1.0 is everything (,) but with 1.0 recommended. Obviously this doesn't work for enforcing versions here, so it has been redefined as a minimum version.
+    # (,1.0]         : x <= 1.0
+    # (,1.0)         : x < 1.0
+    # [1.0]          : x == 1.0
+    # [1.0,)         : x >= 1.0
+    # (1.0,)         : x > 1.0
+    # (1.0,2.0)      : 1.0 < x < 2.0
+    # [1.0,2.0]      : 1.0 <= x <= 2.0
+    # (,1.0],[1.2,)  : x <= 1.0 or x >= 1.2. Multiple sets are comma-separated
+    # (,1.1),(1.1,)  : x != 1.1
+    ranges:
+      - '[4.1.2.RELEASE]'
+      - '[4.2.0.RELEASE,4.2.max]'
+      - '[4.3.0.RELEASE,4.3.max]'
+    # classloader-package: classloader package information.
+    # file-version: jar filename,
+    # metainf: META-INF file field
+    resolvers:
+      - 'classloader-package'
+      - 'file-version'
+      - 'metainf=Implementation-Version'
+    forcedMatch: false
+
+jarFileMatchers:
+  - name: '3.x'
+    enable: true
+    # antstyle: ANT Style pattern rules. ? - matches on character, * - matches zero or more characters, ** - matches zero or more 'directories' in a path
+    # regex: Regular Expression rules.
+    patterns:
+      - 'antstyle:test-core-3.??'
+      - 'regex:test-util-3\D?\d{2}'
+    forcedMatch: false

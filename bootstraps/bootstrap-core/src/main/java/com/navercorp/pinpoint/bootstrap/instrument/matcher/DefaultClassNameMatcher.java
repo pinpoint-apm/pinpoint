@@ -22,9 +22,15 @@ import java.util.Objects;
  * @author emeroad
  */
 public class DefaultClassNameMatcher implements ClassNameMatcher {
+    private final int order;
     private final String className;
 
     DefaultClassNameMatcher(String className) {
+        this(LOWEST_PRECEDENCE, className);
+    }
+
+    DefaultClassNameMatcher(int order, String className) {
+        this.order = order;
         this.className = Objects.requireNonNull(className, "className");
     }
 
@@ -50,10 +56,15 @@ public class DefaultClassNameMatcher implements ClassNameMatcher {
     }
 
     @Override
+    public int getOrder() {
+        return this.order;
+    }
+
+    @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultClassNameMatcher{");
-        sb.append(className);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultClassNameMatcher{" +
+                "order=" + order +
+                ", className='" + className + '\'' +
+                '}';
     }
 }

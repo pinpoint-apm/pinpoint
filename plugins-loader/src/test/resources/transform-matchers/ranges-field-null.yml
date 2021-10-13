@@ -1,0 +1,17 @@
+versionMatchers:
+  - name: '4.1.2.RELEASE ~ 4.3.x.RELEASE'
+    enable: true
+    ranges:
+    resolvers:
+      - 'classloader-package'
+      - 'file-version'
+      - 'metainf=Implementation-Version'
+    forcedMatch: false
+
+jarFileMatchers:
+  - name: '3.x'
+    enable: true
+    patterns:
+      - 'antstyle:test-core-3.??'
+      - 'regex:test-util-3\D?\d{2}'
+    forcedMatch: false
