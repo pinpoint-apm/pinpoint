@@ -90,6 +90,7 @@ jobs:
           name: pinpoint-test-results
           reporter: java-junit
           path: './plugins-it/temp/TEST-*.xml'
+          fail-on-error: 'false'
       - name: Update  comment
         uses: peter-evans/create-or-update-comment@v1
         with:
