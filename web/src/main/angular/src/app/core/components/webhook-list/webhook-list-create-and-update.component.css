@@ -30,7 +30,7 @@ form {
 .l-form-grid {
   display: grid;
   position: relative;
-  grid-template-columns: 50% 50%;
+  grid-template-columns: 33.3% 66.6%;
   grid-template-rows: auto;    
 }
 
