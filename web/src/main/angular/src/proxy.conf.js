@@ -55,7 +55,8 @@ const PROXY_CONFIG = [
             "/bind.pinpoint",
             "/getAgentStat/uriStat/chartList.pinpoint",
             "/heatmap/drag.pinpoint",
-            "/traceViewerData.pinpoint"
+            "/traceViewerData.pinpoint",
+            "/application/webhook.pinpoint"
         ],
         target: 'http://localhost:8080',
         secure: false

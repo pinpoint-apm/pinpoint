@@ -94,6 +94,11 @@
         },
         "EXPERIMENTAL": {
             "DESC": "* 실험 중인 기능을 적용해볼 수 있습니다."
+        },
+        "WEBHOOK": {
+            "URL": "url",
+            "URL_VALIDATION": "Url을 올바르게 입력해주세요.",
+            "ALIAS": "빈 값일 경우, 입력한  Url로 설정됩니다."
         }
     },
     "TRANSACTION": {
