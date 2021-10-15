@@ -14,11 +14,15 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.common.util.MapUtils;
+
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -29,11 +33,23 @@ public class DependencyResolverFactory {
     private final RepositorySystemSession session;
 
     public DependencyResolverFactory() {
-        this(true);
+        this(true, Collections.EMPTY_MAP);
     }
 
-    public DependencyResolverFactory(boolean supportRemote) {
+    public DependencyResolverFactory(Map<String, Object> sessionConfig) {
+        this(true, sessionConfig);
+    }
+
+    public DependencyResolverFactory(boolean supportRemote, Map<String, Object> sessionConfig) {
         this.system = DependencyResolver.newRepositorySystem(supportRemote);
+
+        // at org.apache.maven.repository.internal.MavenRepositorySystemUtils.newSession
+        // The session config can be changed only with the system property.
+        if (MapUtils.hasLength(sessionConfig)) {
+            for (Map.Entry<String, Object> entry : sessionConfig.entrySet()) {
+                System.setProperty(entry.getKey(), String.valueOf(entry.getValue()));
+            }
+        }
         this.session = DependencyResolver.newRepositorySystemSession(this.system);
     }
 
