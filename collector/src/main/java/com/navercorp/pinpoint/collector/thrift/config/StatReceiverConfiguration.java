@@ -16,12 +16,14 @@
 
 package com.navercorp.pinpoint.collector.thrift.config;
 
+import com.navercorp.pinpoint.collector.config.ExecutorConfiguration;
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import com.navercorp.pinpoint.common.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -158,6 +160,11 @@ public class StatReceiverConfiguration implements DataReceiverGroupConfiguration
     @Override
     public boolean isWorkerMonitorEnable() {
         return workerMonitorEnable;
+    }
+
+    @Bean("statExecutorConfiguration")
+    public ExecutorConfiguration newExecutorConfiguration() {
+        return new ExecutorConfiguration(workerThreadSize, workerQueueSize, workerMonitorEnable);
     }
 
     @Override
