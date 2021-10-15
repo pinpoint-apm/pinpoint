@@ -32,12 +32,9 @@
         <constructor-arg ref="channelFilter"/>
     </bean>
 
-
     <bean id="baseDataReceiverWorker" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean"
           parent="abstractReceiverExecutorFactoryBean">
-        <property name="corePoolSize" value="#{baseDataReceiverConfig.workerThreadSize}"/>
-        <property name="maxPoolSize" value="#{baseDataReceiverConfig.workerThreadSize}"/>
-        <property name="queueCapacity" value="#{baseDataReceiverConfig.workerQueueSize}"/>
+        <property name="executorConfiguration" ref="baseExecutorConfiguration"/>
         <property name="threadNamePrefix" value="Pinpoint-AgentBaseDataReceiver-Worker"/>
         <property name="registry" value="#{baseDataReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
     </bean>
@@ -104,9 +101,7 @@
     <!-- span receiver configuration start -->
     <bean id="spanReceiverExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean"
           parent="abstractReceiverExecutorFactoryBean">
-        <property name="corePoolSize" value="#{spanReceiverConfig.workerThreadSize}"/>
-        <property name="maxPoolSize" value="#{spanReceiverConfig.workerThreadSize}"/>
-        <property name="queueCapacity" value="#{spanReceiverConfig.workerQueueSize}"/>
+        <property name="executorConfiguration" ref="spanExecutorConfiguration"/>
         <property name="threadNamePrefix" value="Pinpoint-Span-Worker-"/>
         <property name="registry" value="#{spanReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
     </bean>
@@ -155,9 +150,7 @@
     <!-- stat receiver configuration -->
     <bean id="statReceiverExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean"
           parent="abstractReceiverExecutorFactoryBean">
-        <property name="corePoolSize" value="#{statReceiverConfig.workerThreadSize}"/>
-        <property name="maxPoolSize" value="#{statReceiverConfig.workerThreadSize}"/>
-        <property name="queueCapacity" value="#{statReceiverConfig.workerQueueSize}"/>
+        <property name="executorConfiguration" ref="statExecutorConfiguration"/>
         <property name="threadNamePrefix" value="Pinpoint-Stat-Worker-"/>
         <property name="registry" value="#{statReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
     </bean>
