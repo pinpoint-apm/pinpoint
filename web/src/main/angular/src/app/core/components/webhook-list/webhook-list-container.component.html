@@ -6,32 +6,40 @@
         class="btn btn-sm btn-blue"
         [hidden]="!allowedUserEdit" 
         [disabled]="!isApplicationSelected()"  
-        (click)="onShowPopup()"
+        (click)="onAddWebhook()"
       >
         <i class="fas fa-plus"></i>
       </button>
     </div>
   </div>
-  <pp-webhook-list 
-    [webhookList]="webhookList"
-    (outAdd)="onAddWebhook($event)"
-    (outEdit)="onEditWebhook($event)"
-    (outRemove)="onRemoveWebhook($event)">
-  </pp-webhook-list>
+  <ng-container *ngIf="showGuide(); else list">
+    <p class="l-guide">{{guideMessage}}</p>
+  </ng-container>
+  <ng-template #list>
+    <pp-webhook-list 
+      [webhookList]="webhookList"
+      (outAdd)="onAddWebhook($event)"
+      (outEdit)="onEditWebhook($event)"
+      (outRemove)="onRemoveWebhook($event)">
+    </pp-webhook-list>
+  </ng-template>
   <ng-container *ngIf="showPopup">
     <pp-webhook-list-create-and-update
+      [i18nText]="i18nText"
+      [i18nFormGuide]="i18nFormGuide"
+      [editWebhook]="editWebhook"
       (outClose)="onClosePopup()"
+      (outCreateWebhook)="onCreateWebhook($event)"
+      (outUpdateWebhook)="onUpdateWebhook($event)"
     >
     </pp-webhook-list-create-and-update>
-    <!-- <pp-pinpoint-user-create-and-update
-        [i18nLabel]="i18nLabel"
-        [i18nGuide]="i18nGuide"
-        [minLength]="minLength"
-        [userInfo]="userInfo"
-        [allowedUserEdit]="allowedUserEdit"
-        (outUpdatePinpointUser)="onUpdatePinpointUser($event)"
-        (outCreatePinpointUser)="onCreatePinpointUser($event)"
-        (outClose)="onCloseCreateUserPopup()">
-    </pp-pinpoint-user-create-and-update> -->
   </ng-container> 
+  <ng-container *ngIf="errorMessage">
+    <pp-server-error-message
+      [message]="errorMessage"
+      (outClose)="onCloseErrorMessage()">
+    </pp-server-error-message>
+  </ng-container>
+  <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
+  <pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>
 </div>

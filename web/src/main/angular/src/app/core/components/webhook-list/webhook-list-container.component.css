@@ -20,3 +20,14 @@
   border-bottom: 1px solid var(--border-primary);
   justify-content: space-between;
 }
+
+.l-guide {
+  padding-top: 30%;
+  text-align: center;
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+.l-empty-text {
+  color: var(--text-secondary);
+}

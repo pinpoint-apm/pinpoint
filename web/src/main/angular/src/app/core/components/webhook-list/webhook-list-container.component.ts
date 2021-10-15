@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
+import { Subject, forkJoin } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { WebhookListDataService } from './webhook-list-data.service';
-import { MessageQueueService, MESSAGE_TO, AnalyticsService, TRACKED_EVENT_LIST, WebAppSettingDataService } from 'app/shared/services';
+import { IWebhook, IWebhookCreate, IWebhookRule, WebhookListDataService } from './webhook-list-data.service';
+import { AnalyticsService, TRACKED_EVENT_LIST, WebAppSettingDataService, TranslateReplaceService } from 'app/shared/services';
 import { ApplicationListInteractionForConfigurationService } from 'app/core/components/application-list/application-list-interaction-for-configuration.service';
+import { TranslateService } from '@ngx-translate/core';
+import { isThatType } from 'app/core/utils/util';
 
 @Component({
   selector: 'pp-webhook-list-container',
@@ -14,20 +16,31 @@ export class WebhookListContainerComponent implements OnInit {
   private unsubscribe = new Subject<void>();
   private selectedApplication: IApplication = null;
 
-  webhookList: any[] = [];
+  webhookList: IWebhook[] = [];
+  editWebhook: IWebhook;
   allowedUserEdit = false;
   showPopup = false;
-  editWebhook: any;
+  useDisable = false;
+  showLoading = false;
+  i18nText = {
+    APP_NOT_SELECTED: '',
+    NO_WEBHOOK_RESGISTERED: '',
+    ALIAS_PLACEHOLDER: '',
+  };
+  i18nFormGuide: {[key: string]: IFormFieldErrorType};
+  errorMessage: string;
 
   constructor(
+    private translateService: TranslateService,
+    private translateReplaceService: TranslateReplaceService,
     private applicationListInteractionForConfigurationService: ApplicationListInteractionForConfigurationService,
     private webAppSettingDataService: WebAppSettingDataService,
     private webhookListDataService: WebhookListDataService,
-    private messageQueueService: MessageQueueService,
     private analyticsService: AnalyticsService,
   ) { }
 
   ngOnInit() {
+    this.initI18NText();
     this.checkUserEditable();
     this.bindToAppSelectionEvent();
   }
@@ -41,6 +54,14 @@ export class WebhookListContainerComponent implements OnInit {
     return this.selectedApplication !== null;
   }
 
+  showGuide(): boolean {
+    return !this.isApplicationSelected() || this.webhookList.length === 0;
+  }
+  
+  get guideMessage(): string {
+    return !this.isApplicationSelected() ? this.i18nText.APP_NOT_SELECTED : this.i18nText.NO_WEBHOOK_RESGISTERED;
+  }
+
   private checkUserEditable() {
     this.webAppSettingDataService.useUserEdit().subscribe((allowedUserEdit: boolean) => {
         this.allowedUserEdit = allowedUserEdit;
@@ -51,188 +72,142 @@ export class WebhookListContainerComponent implements OnInit {
     this.applicationListInteractionForConfigurationService.onSelectApplication$.pipe(
       takeUntil(this.unsubscribe)
     ).subscribe((selectedApplication: IApplication) => {
-      const { applicationName } = selectedApplication;
-
       this.selectedApplication = selectedApplication;
-      this.getWebhookList(applicationName);
-      // this.webhookListDataService.getWebhookList(applicationName).subscribe(result => {
-
-      // });
-
+      this.getWebhookList();
+      this.onClosePopup();
     });
   }
 
-  private onShowPopup(): void {
-    console.log('onShowPopup');
-    this.showPopup = true;
+  private initI18NText() {
+    forkJoin(
+        this.translateService.get('COMMON.REQUIRED'),
+        this.translateService.get('COMMON.SELECT_YOUR_APP'),
+        this.translateService.get('COMMON.EMPTY'),
+        this.translateService.get('CONFIGURATION.WEBHOOK.URL'),
+        this.translateService.get('CONFIGURATION.WEBHOOK.URL_VALIDATION'),
+        this.translateService.get('CONFIGURATION.WEBHOOK.ALIAS'),
+    ).subscribe(([requiredMessage, selectApp, empty, urlLabel, urlValidation, alias]: string[]) => {
+        this.i18nFormGuide = {
+            url: { 
+              required: this.translateReplaceService.replace(requiredMessage, urlLabel),
+              valueRule: urlValidation,
+            },
+        };
+        this.i18nText = {
+          APP_NOT_SELECTED: selectApp,
+          NO_WEBHOOK_RESGISTERED: empty,
+          ALIAS_PLACEHOLDER: alias,
+        }
+    });
+  }
+
+  onCreateWebhook({ url, alias }: IWebhookRule): void {
+    this.showProcessing();
+    const webhook: IWebhookCreate = {
+      url,
+      alias: alias || url,
+      serviceName: '',
+      applicationId: this.selectedApplication.applicationName,
+    }
+
+    this.webhookListDataService
+      .addWebhook(webhook)
+      .subscribe(result => {
+        if (isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')) {
+          this.errorMessage = result.errorMessage
+        } else {
+          this.getWebhookList();
+        }
+        this.hideProcessing();
+      }, error => {
+        this.errorMessage = error.exception.message;
+        this.hideProcessing();
+      });    
+  }
+
+  onUpdateWebhook({ url, alias }: IWebhookRule): void {
+    this.showProcessing();
+    const webhook: IWebhook = {
+      url,
+      alias: alias || url,
+      webhookId: this.editWebhook.webhookId,
+      serviceName: this.editWebhook.serviceName,
+      applicationId: this.selectedApplication.applicationName,
+    }
+
+    this.webhookListDataService
+      .editWebhook(webhook)
+      .subscribe(result => {
+        if (isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')) {
+          this.errorMessage = result.errorMessage
+        } else {
+          this.getWebhookList();
+        }
+        this.hideProcessing();
+      }, error => {
+        this.errorMessage = error.exception.message;
+        this.hideProcessing();
+      });   
+  }
+
+  private onRemoveWebhook(webhook: IWebhook): void {
+    this.showProcessing();
+
+    this.webhookListDataService
+      .removeWebhook(webhook)
+      .subscribe(result => {
+        if (isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')) {
+          this.errorMessage = result.errorMessage
+        } else {
+          this.getWebhookList();
+        }
+        this.hideProcessing();
+      }, error => {
+        this.errorMessage = error.exception.message;
+        this.hideProcessing();
+      });   
   }
 
   private onClosePopup(): void {
-    console.log('onClosePopup');
     this.showPopup = false;
+  }
+
+  private onAddWebhook(): void {
+    this.editWebhook = null;
+    this.showPopup = true;
   }
   
   private onEditWebhook(webhookId: string): void {
     this.editWebhook = this.webhookList.find(webhook => webhook.webhookId === webhookId);
-    console.log(this.editWebhook);
     this.showPopup = true;
     this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_WEBHOOK_UPDATE_POPUP);
   }
   
-  private onAddWebhook(): void {
-    console.log('onAddWebhook');
-  }
-  
-  private onRemoveWebhook(): void {
-    console.log('onRemoveWebhook');
+  private getWebhookList() {
+    this.showProcessing();
+    this.webhookListDataService
+      .getWebhookList(this.selectedApplication.applicationName)
+      .subscribe(result => {
+        isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')
+                ? this.errorMessage = result.errorMessage
+                : this.webhookList = result;
+        this.hideProcessing();
+      }, error => {
+        this.errorMessage = error.exception.message;
+      })
   }
 
-  private getWebhookList(applicationName: string) {
-    this.webhookList = [
-      {
-        alias: 'oss',
-        webhookId: '99771234',
-        url: 'htts://oss.navercorp.com', 
-        applicationId: '1',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'git',
-        webhookId: '46311234',
-        url: 'htts://github.com', 
-        applicationId: '2',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'naver',
-        webhookId: '68601234',
-        url: 'htts://naver.com', 
-        applicationId: '3',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'goolgle',
-        webhookId: '37791234',
-        url: 'htts://google.com', 
-        applicationId: '4',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'oss',
-        webhookId: '58751234',
-        url: 'htts://oss.navercorp.com', 
-        applicationId: '5',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'git',
-        webhookId: '10831234',
-        url: 'htts://github.com', 
-        applicationId: '6',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'naver',
-        webhookId: '76591234',
-        url: 'htts://naver.com', 
-        applicationId: '7',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'goolgle',
-        webhookId: '70871234',
-        url: 'htts://google.com', 
-        applicationId: '8',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'oss',
-        webhookId: '79961234',
-        url: 'htts://oss.navercorp.com', 
-        applicationId: '9',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'git',
-        webhookId: '41031234',
-        url: 'htts://github.com', 
-        applicationId: '1',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'naver',
-        webhookId: '16791234',
-        url: 'htts://naver.com', 
-        applicationId: '2',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'goolgle',
-        webhookId: '59891234',
-        url: 'htts://google.com', 
-        applicationId: '3',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'oss',
-        webhookId: '22551234',
-        url: 'htts://oss.navercorp.com', 
-        applicationId: '4',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'git',
-        webhookId: '61771234',
-        url: 'htts://github.com', 
-        applicationId: '5',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'naver',
-        webhookId: '75771234',
-        url: 'htts://naver.com', 
-        applicationId: '6',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'goolgle',
-        webhookId: '95241234',
-        url: 'htts://google.com', 
-        applicationId: '7',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'oss',
-        webhookId: '27411234',
-        url: 'htts://oss.navercorp.com', 
-        applicationId: '8',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'git',
-        webhookId: '59481234',
-        url: 'htts://github.com', 
-        applicationId: '9',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'naver',
-        webhookId: '12461234',
-        url: 'htts://naver.com', 
-        applicationId: '9',
-        serviceApplicationGroupId: '',
-      },
-      {
-        alias: 'goolgle',
-        webhookId: '65801234',
-        url: 'htts://google.com', 
-        applicationId: '56',
-        serviceApplicationGroupId: '',
-      },
-      
-    ]
-    // this.webhookListDataService.getWebhookList(applicationName).subscribe(result => {
+  private showProcessing(): void {
+    this.useDisable = true;
+    this.showLoading = true;
+  }
 
-    // })
+  private hideProcessing(): void {
+      this.useDisable = false;
+      this.showLoading = false;
+  }
+
+  onCloseErrorMessage(): void {
+    this.errorMessage = '';
   }
 }
