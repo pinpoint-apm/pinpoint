@@ -64,14 +64,49 @@ public class KafkaConfigTest {
         Assert.assertEquals("", config.getKafkaEntryPoint());
     }
 
+    @Test
+    public void configTest5() throws Exception {
+        KafkaConfig config = createConfig("true", "false", "true", "entryPoint1");
+
+        Assert.assertTrue(config.isProducerEnable());
+        Assert.assertFalse(config.isConsumerEnable());
+        Assert.assertTrue(config.isHeaderEnable());
+        Assert.assertEquals("entryPoint1", config.getKafkaEntryPoint());
+    }
+
+    @Test
+    public void configTest6() throws Exception {
+        KafkaConfig config = createConfig("true", "false", "false", "entryPoint2");
+
+        Assert.assertTrue(config.isProducerEnable());
+        Assert.assertFalse(config.isConsumerEnable());
+        Assert.assertFalse(config.isHeaderEnable());
+        Assert.assertEquals("entryPoint2", config.getKafkaEntryPoint());
+    }
+
+    @Test
+    public void configTest7() throws Exception {
+        KafkaConfig config = createConfig("false", "true", "false","entryPoint3");
+
+        Assert.assertFalse(config.isProducerEnable());
+        Assert.assertTrue(config.isConsumerEnable());
+        Assert.assertFalse(config.isHeaderEnable());
+        Assert.assertEquals("entryPoint3", config.getKafkaEntryPoint());
+    }
+
     private KafkaConfig createConfig(String producerEnable, String consumerEnable) {
-        return createConfig(producerEnable, consumerEnable, "");
+        return createConfig(producerEnable, consumerEnable, "true","");
     }
 
     private KafkaConfig createConfig(String producerEnable, String consumerEnable, String consumerEntryPoint) {
+        return createConfig(producerEnable, consumerEnable, "true", consumerEntryPoint);
+    }
+
+    private KafkaConfig createConfig(String producerEnable, String consumerEnable, String headerEnabled, String consumerEntryPoint) {
         Properties properties = new Properties();
         properties.put(KafkaConfig.PRODUCER_ENABLE, producerEnable);
         properties.put(KafkaConfig.CONSUMER_ENABLE, consumerEnable);
+        properties.put(KafkaConfig.HEADER_ENABLE, headerEnabled);
         properties.put(KafkaConfig.CONSUMER_ENTRY_POINT, consumerEntryPoint);
 
         ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);

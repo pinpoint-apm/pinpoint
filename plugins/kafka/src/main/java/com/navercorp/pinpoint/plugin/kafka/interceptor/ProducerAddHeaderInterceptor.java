@@ -46,7 +46,8 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
 
     public ProducerAddHeaderInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
-        this.headerEnable = traceContext.getProfilerConfig().readBoolean(KafkaConfig.HEADER_ENABLE, true);
+        KafkaConfig config = new KafkaConfig(traceContext.getProfilerConfig());
+        this.headerEnable = config.isHeaderEnable();
     }
 
     @Override
