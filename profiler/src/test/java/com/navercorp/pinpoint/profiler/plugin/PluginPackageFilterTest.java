@@ -27,7 +27,7 @@ import java.util.Arrays;
 public class PluginPackageFilterTest {
 
     @Test
-    public void testAccept() throws Exception {
+    public void testAccept() {
         PluginPackageFilter filter = new PluginPackageFilter(Arrays.asList("com.plugin"));
 
         Assert.assertTrue(filter.accept("com.plugin.test.module"));

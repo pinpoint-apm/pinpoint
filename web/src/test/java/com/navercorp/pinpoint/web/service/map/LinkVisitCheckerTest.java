@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LinkVisitCheckerTest {
 
     @Test
-    public void testVisitCaller() throws Exception {
+    public void testVisitCaller() {
         LinkVisitChecker checker = new LinkVisitChecker();
 
         Application testApplication = new Application("test", ServiceType.STAND_ALONE);
@@ -48,7 +48,7 @@ public class LinkVisitCheckerTest {
     }
 
     @Test
-    public void testVisitCallee() throws Exception {
+    public void testVisitCallee() {
         LinkVisitChecker checker = new LinkVisitChecker();
 
         Application testApplication = new Application("test", ServiceType.STAND_ALONE);

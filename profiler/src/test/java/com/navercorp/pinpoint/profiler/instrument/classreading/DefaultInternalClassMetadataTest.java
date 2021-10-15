@@ -42,13 +42,13 @@ public class DefaultInternalClassMetadataTest {
     }
 
     @Test
-    public void interfaceNamesNull() throws Exception {
+    public void interfaceNamesNull() {
         DefaultInternalClassMetadata classMetadata = new DefaultInternalClassMetadata("java/lang/String", "java/lang/Object", null, Collections.<String>emptyList(), false, false, false, false);
         assertEquals(0, classMetadata.getInterfaceInternalNames().size());
     }
 
     @Test
-    public void annotationNamesNull() throws Exception {
+    public void annotationNamesNull() {
         DefaultInternalClassMetadata classMetadata = new DefaultInternalClassMetadata("java/lang/String", "java/lang/Object", Arrays.asList("java/lang/Comparable", "java/lang/Serializable"), null, false, false, false, false);
         assertEquals(0, classMetadata.getAnnotationInternalNames().size());
     }

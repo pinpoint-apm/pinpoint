@@ -279,7 +279,7 @@ public class ZookeeperJobWorker implements Runnable {
     private void await(long waitTimeMillis) {
         try {
             Thread.sleep(waitTimeMillis);
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignore) {
         }
     }
 

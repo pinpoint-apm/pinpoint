@@ -35,7 +35,7 @@ public class BindValueConverterTest {
     private BindValueConverter bindValueConverter = BindValueConverter.defaultBindValueConverter();
 
     @Test
-    public void testBindValueToString() throws Exception {
+    public void testBindValueToString() {
         Date d = new Date();
         logger.debug("{}", d);
 
@@ -45,20 +45,20 @@ public class BindValueConverterTest {
     }
 
     @Test
-    public void testBindValueBoolean() throws Exception {
+    public void testBindValueBoolean() {
         String setBoolean = bindValueConverter.convert("setBoolean", new Object[]{null, Boolean.TRUE});
         Assert.assertEquals(setBoolean, Boolean.TRUE.toString());
     }
 
     @Test
-    public void testBindValueNotSupport() throws Exception {
+    public void testBindValueNotSupport() {
         // Should not throw even if given arguments are not supported value
         String setBoolean = bindValueConverter.convert("setXxxx", new Object[]{null, "XXX"});
         Assert.assertEquals(setBoolean, "");
     }
 
     @Test
-    public void testBindValueBytes() throws Exception {
+    public void testBindValueBytes() {
         UUID uuid = UUID.randomUUID();
         ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
         bb.putLong(uuid.getMostSignificantBits());
@@ -73,7 +73,7 @@ public class BindValueConverterTest {
     }
 
     @Test
-    public void testMaxWidth() throws Exception {
+    public void testMaxWidth() {
         int maxWidth = 2;
         BindValueConverter converter = BindValueConverter.defaultBindValueConverter(maxWidth);
 

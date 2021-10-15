@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class TFCpuLoadMapperTest {
     @Test
-    public void mapTest() throws Exception {
+    public void mapTest() {
         TFCpuLoadMapper tFCpuLoadMapper = new TFCpuLoadMapper();
         CpuLoadBo cpuLoadBo = new CpuLoadBo();
         cpuLoadBo.setJvmCpuLoad(30);

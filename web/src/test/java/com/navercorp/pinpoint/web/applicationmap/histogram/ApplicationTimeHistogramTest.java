@@ -58,7 +58,7 @@ public class ApplicationTimeHistogramTest {
     }
 
     private List<ResponseTime> createResponseTime(Application app) {
-        List<ResponseTime> responseTimeList = new ArrayList<ResponseTime>();
+        List<ResponseTime> responseTimeList = new ArrayList<>();
 
         ResponseTime one = new ResponseTime(app.getName(), app.getServiceType(), 0);
         one.addResponseTime("test", (short) 1000, 1);
@@ -71,7 +71,7 @@ public class ApplicationTimeHistogramTest {
     }
 
     @Test
-    public void testLoadViewModel() throws Exception {
+    public void testLoadViewModel() {
         Application app = new Application("test", ServiceType.STAND_ALONE);
         final long timestamp = System.currentTimeMillis();
         Range range = Range.newRange(timestamp, timestamp + 60000);

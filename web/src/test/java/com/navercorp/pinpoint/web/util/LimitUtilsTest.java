@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.web.util.LimitUtils;
  */
 public class LimitUtilsTest {
     @Test
-    public void testCheckLimit() throws Exception {
+    public void testCheckLimit() {
         int equals = LimitUtils.checkRange(LimitUtils.MAX);
         Assert.assertEquals(equals, LimitUtils.MAX);
 

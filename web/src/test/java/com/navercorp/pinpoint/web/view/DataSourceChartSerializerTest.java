@@ -71,7 +71,7 @@ public class DataSourceChartSerializerTest {
         DataSourceChart dataSourceChartGroup = new DataSourceChart(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
 
         String jsonValue = mapper.writeValueAsString(dataSourceChartGroup);
-        Map map = mapper.readValue(jsonValue, Map.class);
+        Map<?, ?> map = mapper.readValue(jsonValue, Map.class);
 
         Assert.assertTrue(map.containsKey("id"));
         Assert.assertTrue(map.containsKey("jdbcUrl"));

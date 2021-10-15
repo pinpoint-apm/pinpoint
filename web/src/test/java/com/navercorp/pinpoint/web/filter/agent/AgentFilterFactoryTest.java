@@ -26,7 +26,7 @@ public class AgentFilterFactoryTest {
 
 
     @Test
-    public void fromFilter() throws Exception {
+    public void fromFilter() {
         AgentFilterFactory factory = new AgentFilterFactory("a", "b");
         AgentFilter filter = factory.createFromAgentFilter();
 
@@ -36,7 +36,7 @@ public class AgentFilterFactoryTest {
     }
 
     @Test
-    public void fromFilter_skip() throws Exception {
+    public void fromFilter_skip() {
         AgentFilterFactory factory = new AgentFilterFactory(null, "b");
         AgentFilter filter = factory.createFromAgentFilter();
 
@@ -46,7 +46,7 @@ public class AgentFilterFactoryTest {
     }
 
     @Test
-    public void toFilter() throws Exception {
+    public void toFilter() {
         AgentFilterFactory factory = new AgentFilterFactory("a", "b");
         AgentFilter filter = factory.createToAgentFilter();
 
@@ -59,7 +59,7 @@ public class AgentFilterFactoryTest {
     }
 
     @Test
-    public void toFilter_skip() throws Exception {
+    public void toFilter_skip() {
         AgentFilterFactory factory = new AgentFilterFactory("a", null);
         AgentFilter filter = factory.createToAgentFilter();
 

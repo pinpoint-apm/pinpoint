@@ -39,7 +39,7 @@ import static org.hamcrest.Matchers.hasSize;
 public class ServerInstanceListTest {
 
     @Test
-    public void testGetAgentIdList() throws Exception {
+    public void testGetAgentIdList() {
 
         AgentInfo agentInfo1 = createAgentInfo("agentId1", "testHost");
         AgentInfo agentInfo2 = createAgentInfo("agentId2", "testHost");

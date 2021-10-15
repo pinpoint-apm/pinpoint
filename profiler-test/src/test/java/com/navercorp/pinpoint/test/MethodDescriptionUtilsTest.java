@@ -75,7 +75,7 @@ public class MethodDescriptionUtilsTest {
     }
 
     @Test
-    public void testGetConstructorSimpleName_no_package() throws Exception {
+    public void testGetConstructorSimpleName_no_package() {
 
         Assert.assertEquals(MethodDescriptionUtils.getConstructorSimpleName("String"), "String");
     }

@@ -39,7 +39,7 @@ public class AtomicLongMapTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
-    public void testIncrement() throws Exception {
+    public void testIncrement() {
         AtomicLongMap<String> cache = AtomicLongMap.create();
         cache.addAndGet("a", 1L);
         cache.addAndGet("a", 2L);
@@ -56,7 +56,7 @@ public class AtomicLongMapTest {
     }
 
     @Test
-    public void updateMax_update() throws Exception {
+    public void updateMax_update() {
         AtomicLongMap<String> cache = AtomicLongMap.create();
 
         final String key = "a";
@@ -68,7 +68,7 @@ public class AtomicLongMapTest {
     }
 
     @Test
-    public void updateMax_fail() throws Exception {
+    public void updateMax_fail() {
         AtomicLongMap<String> cache = AtomicLongMap.create();
 
         final String key = "a";

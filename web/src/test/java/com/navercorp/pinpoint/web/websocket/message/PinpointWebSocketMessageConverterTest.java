@@ -32,7 +32,7 @@ public class PinpointWebSocketMessageConverterTest {
     @Test
     public void requestMessageTest() throws Exception {
         String command = "command";
-        Map parameters = new HashMap();
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put("test", "test");
 
         String textMessage = messageConverter.getRequestTextMessage(command, parameters);
@@ -50,7 +50,7 @@ public class PinpointWebSocketMessageConverterTest {
     @Test
     public void responseMessageTest() throws Exception {
         String command = "command";
-        Map result = new HashMap();
+        Map<String, Object> result = new HashMap<>();
         result.put("test", "test");
 
         String textMessage = messageConverter.getResponseTextMessage(command, result);
@@ -68,7 +68,7 @@ public class PinpointWebSocketMessageConverterTest {
     @Test
     public void sendMessageTest() throws Exception {
         String command = "command";
-        Map parameters = new HashMap();
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put("test", "test");
 
         String textMessage = messageConverter.getSendTextMessage(command, parameters);

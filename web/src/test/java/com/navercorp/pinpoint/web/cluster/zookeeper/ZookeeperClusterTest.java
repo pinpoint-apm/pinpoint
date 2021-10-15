@@ -218,7 +218,7 @@ public class ZookeeperClusterTest {
         return mockZookeeperServer;
     }
 
-    private static void closeZookeeperServer(TestingServer mockZookeeperServer) throws Exception {
+    private static void closeZookeeperServer(TestingServer mockZookeeperServer) {
         try {
             if (mockZookeeperServer != null) {
                 mockZookeeperServer.close();

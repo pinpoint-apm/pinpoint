@@ -28,13 +28,13 @@ public class JvmUtilsTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
-    public void getVersion() throws Exception {
+    public void getVersion() {
         JvmVersion version = JvmUtils.getVersion();
         logger.debug("version:{}", version);
     }
 
     @Test
-    public void getType() throws Exception {
+    public void getType() {
         JvmType type = JvmUtils.getType();
         logger.debug("type:{}", type);
     }

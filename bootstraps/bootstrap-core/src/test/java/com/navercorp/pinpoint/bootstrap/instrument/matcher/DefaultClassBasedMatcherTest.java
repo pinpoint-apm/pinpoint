@@ -29,18 +29,18 @@ import static org.junit.Assert.*;
 public class DefaultClassBasedMatcherTest {
 
     @Test
-    public void getMatcherOperandWithClassName() throws Exception {
+    public void getMatcherOperandWithClassName() {
         DefaultClassBasedMatcher matcher = new DefaultClassBasedMatcher("java.lang.String");
         assertEquals("java.lang.String", matcher.getBaseClassName());
 
         MatcherOperand operand = matcher.getMatcherOperand();
         assertTrue(operand instanceof ClassInternalNameMatcherOperand);
         ClassInternalNameMatcherOperand classInternalNameMatcherOperand = (ClassInternalNameMatcherOperand) operand;
-        assertTrue(classInternalNameMatcherOperand.getClassInternalName().equals("java/lang/String"));
+        assertEquals("java/lang/String", classInternalNameMatcherOperand.getClassInternalName());
     }
 
     @Test
-    public void getMatcherOperandWithClassNameAndAdditional() throws Exception {
+    public void getMatcherOperandWithClassNameAndAdditional() {
         InterfaceInternalNameMatcherOperand additional = new InterfaceInternalNameMatcherOperand("java/lang/Runnable", false);
         DefaultClassBasedMatcher matcher = new DefaultClassBasedMatcher("java.lang.String", additional);
         assertEquals("java.lang.String", matcher.getBaseClassName());
@@ -54,7 +54,7 @@ public class DefaultClassBasedMatcherTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void getMatcherOperandWithClassNameIsNull() throws Exception {
+    public void getMatcherOperandWithClassNameIsNull() {
         final String className = null;
         DefaultClassBasedMatcher matcher = new DefaultClassBasedMatcher(null);
     }

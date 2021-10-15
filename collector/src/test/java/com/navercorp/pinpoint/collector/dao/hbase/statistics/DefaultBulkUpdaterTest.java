@@ -61,7 +61,7 @@ public class DefaultBulkUpdaterTest {
             new DefaultBulkIncrementer(new RowKeyMerge(CF)), Integer.MAX_VALUE, reporter);
 
     @AfterClass
-    public static void afterClass() throws Exception {
+    public static void afterClass() {
         bulkIncrementerFactory.close();
     }
 

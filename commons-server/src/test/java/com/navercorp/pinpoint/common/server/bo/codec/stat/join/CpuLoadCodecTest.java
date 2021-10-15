@@ -49,7 +49,7 @@ public class CpuLoadCodecTest {
         encodedValueBuffer.putByte(cpuLoadCodec.getVersion());
         cpuLoadCodec.encodeValues(encodedValueBuffer, joinCpuLoadBoList);
 
-        final Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());;
+        final Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());
         final long baseTimestamp = AgentStatUtils.getBaseTimestamp(currentTime);
         final long timestampDelta = currentTime - baseTimestamp;
         final ApplicationStatDecodingContext decodingContext = new ApplicationStatDecodingContext();
@@ -60,13 +60,13 @@ public class CpuLoadCodecTest {
         assertEquals(valueBuffer.readByte(), cpuLoadCodec.getVersion());
         List<JoinStatBo> decodedjoinCpuLoadBoList = cpuLoadCodec.decodeValues(valueBuffer, decodingContext);
         for (int i = 0; i < decodedjoinCpuLoadBoList.size(); i++) {
-            assertTrue(decodedjoinCpuLoadBoList.get(i).equals(joinCpuLoadBoList.get(i)));
+            assertEquals(decodedjoinCpuLoadBoList.get(i), joinCpuLoadBoList.get(i));
         }
     }
 
     private List<JoinStatBo> createJoinCpuLoadBoList(long currentTime) {
         final String id = "test_app";
-        final List<JoinStatBo> joinCpuLoadBoList = new ArrayList();
+        final List<JoinStatBo> joinCpuLoadBoList = new ArrayList<>();
         JoinCpuLoadBo joinCpuLoadBo1 = new JoinCpuLoadBo(id, 50, 97, "agent1_1", 27, "agent1_2", 80, 97, "agent1_3", 46, "agent1_4", currentTime);
         JoinCpuLoadBo joinCpuLoadBo2 = new JoinCpuLoadBo(id, 40, 87, "agent2_1", 40, "agent2_2", 70, 97, "agent2_3", 40, "agent2_4", currentTime + 5000);
         JoinCpuLoadBo joinCpuLoadBo4 = new JoinCpuLoadBo(id, 20, 67, "agent4_1", 17, "agent4_2", 40, 99, "agent4_3", 18, "agent4_4", currentTime + 15000);

@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.util;
 
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 
 import org.junit.Assert;
@@ -36,7 +35,7 @@ public class TimeWindowTest {
 
 
     @Test
-    public void testGetNextWindowFirst() throws Exception {
+    public void testGetNextWindowFirst() {
         TimeWindow window = new TimeWindow(Range.newRange(0L, 1000));
         logger.debug("{}", window.getWindowRange());
         Iterator<Long> iterator = window.iterator();
@@ -60,7 +59,7 @@ public class TimeWindowTest {
     }
 
     @Test
-    public void testGetNextWindow() throws Exception {
+    public void testGetNextWindow() {
         Range range = Range.newRange(0L, TimeUnit.MINUTES.toMillis(1));
         TimeWindow window = new TimeWindow(range);
         int i = 0;
@@ -71,7 +70,7 @@ public class TimeWindowTest {
     }
 
     @Test
-    public void testGetNextWindow2() throws Exception {
+    public void testGetNextWindow2() {
         Range range = Range.newRange(1L, TimeUnit.MINUTES.toMillis(1));
         TimeWindow window = new TimeWindow(range);
         int i = 0;
@@ -83,12 +82,12 @@ public class TimeWindowTest {
     }
 
     @Test
-    public void testRefineTimestamp() throws Exception {
+    public void testRefineTimestamp() {
 
     }
 
     @Test
-    public void testGetWindowSize() throws Exception {
+    public void testGetWindowSize() {
         testWindowSize(0, TimeUnit.MINUTES.toMillis(1));
         testWindowSize(0, TimeUnit.HOURS.toMillis(1));
         testWindowSize(0, TimeUnit.HOURS.toMillis(23));
@@ -114,7 +113,7 @@ public class TimeWindowTest {
     }
 
     @Test
-    public void testGetWindowRangeLength() throws Exception {
+    public void testGetWindowRangeLength() {
         Range range = Range.newRange(1L, 2L);
         TimeWindow window = new TimeWindow(range);
         long windowRangeLength = window.getWindowRangeCount();
@@ -124,7 +123,7 @@ public class TimeWindowTest {
     }
 
     @Test
-    public void testGetWindowRangeLength2() throws Exception {
+    public void testGetWindowRangeLength2() {
         Range range = Range.newRange(1L, 1000*60L + 1);
         TimeWindow window = new TimeWindow(range);
         long windowRangeLength = window.getWindowRangeCount();
@@ -133,7 +132,7 @@ public class TimeWindowTest {
     }
 
     @Test
-     public void testRefineIndex1() throws Exception {
+     public void testRefineIndex1() {
         Range range = Range.newRange(1L, 1000*60L);
         TimeWindow window = new TimeWindow(range);
         long index = window.getWindowIndex(2);
@@ -142,7 +141,7 @@ public class TimeWindowTest {
     }
 
     @Test
-     public void testRefineIndex2() throws Exception {
+     public void testRefineIndex2() {
         Range range = Range.newRange(1L, 1000*60L);
         TimeWindow window = new TimeWindow(range);
         long index = window.getWindowIndex(1000 * 60L);

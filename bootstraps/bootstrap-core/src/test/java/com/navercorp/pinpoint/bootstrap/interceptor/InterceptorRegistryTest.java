@@ -43,7 +43,7 @@ public class InterceptorRegistryTest {
     }
 
     @Test
-    public void testSimpleInterceptor() throws Exception {
+    public void testSimpleInterceptor() {
 
         AroundInterceptor simpleAroundInterceptor = mock(AroundInterceptor.class);
         when(registryAdaptor.getInterceptor(0)).thenReturn(simpleAroundInterceptor);
@@ -56,7 +56,7 @@ public class InterceptorRegistryTest {
     }
 
     @Test
-    public void testStaticInterceptor() throws Exception {
+    public void testStaticInterceptor() {
 
         StaticAroundInterceptor staticAroundInterceptor = mock(StaticAroundInterceptor.class);
         when(registryAdaptor.getInterceptor(0)).thenReturn(staticAroundInterceptor);

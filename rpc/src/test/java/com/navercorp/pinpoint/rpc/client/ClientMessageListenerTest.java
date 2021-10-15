@@ -36,7 +36,7 @@ public class ClientMessageListenerTest {
     private final TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX);
 
     @Test
-    public void clientMessageListenerTest1() throws InterruptedException {
+    public void clientMessageListenerTest1() {
         TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
@@ -56,7 +56,7 @@ public class ClientMessageListenerTest {
     }
 
     @Test
-    public void clientMessageListenerTest2() throws InterruptedException {
+    public void clientMessageListenerTest2() {
         TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
@@ -87,7 +87,7 @@ public class ClientMessageListenerTest {
         }
     }
 
-    private void assertSendMessage(PinpointSocket writableServer, String message, final EchoClientListener echoMessageListener) throws InterruptedException {
+    private void assertSendMessage(PinpointSocket writableServer, String message, final EchoClientListener echoMessageListener) {
         writableServer.send(message.getBytes());
 
         awaitUtils.await(new TestAwaitTaskUtils() {
@@ -100,7 +100,7 @@ public class ClientMessageListenerTest {
         Assert.assertEquals(message, new String(echoMessageListener.getSendPacketRepository().get(0).getPayload()));
     }
 
-    private void assertRequestMessage(PinpointSocket writableServer, String message, EchoClientListener echoMessageListener) throws InterruptedException {
+    private void assertRequestMessage(PinpointSocket writableServer, String message, EchoClientListener echoMessageListener) {
         byte[] response = PinpointRPCTestUtils.request(writableServer, message.getBytes());
         Assert.assertEquals(message, new String(response));
 

@@ -33,7 +33,7 @@ public class StatReceiverConfigurationTest {
     StatReceiverConfiguration configuration;
 
     @Test
-    public void properties() throws Exception {
+    public void properties() {
 
         Assert.assertFalse(configuration.isUdpEnable());
         Assert.assertEquals(configuration.getUdpBindIp(), "0.0.0.1");

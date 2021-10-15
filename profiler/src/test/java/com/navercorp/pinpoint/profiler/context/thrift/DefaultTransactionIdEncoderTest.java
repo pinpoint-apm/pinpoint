@@ -49,7 +49,7 @@ public class DefaultTransactionIdEncoderTest {
     private final DefaultTransactionIdEncoder transactionIdEncoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
 
     @Test
-    public void testCompressedTransactionId() throws Exception {
+    public void testCompressedTransactionId() {
         TraceRoot traceRoot = getRootTraceId();
         TraceId traceId = traceRoot.getTraceId();
 
@@ -64,7 +64,7 @@ public class DefaultTransactionIdEncoderTest {
     }
 
     @Test
-    public void testNormalTransactionId() throws Exception {
+    public void testNormalTransactionId() {
         TraceRoot traceRoot = getExternalTraceId();
 
         TraceId traceId = traceRoot.getTraceId();
@@ -80,7 +80,7 @@ public class DefaultTransactionIdEncoderTest {
     }
 
     @Test
-    public void testDuplicateAgentId() throws Exception {
+    public void testDuplicateAgentId() {
         TraceRoot traceRoot = getDuplicateAgentId();
 
         TraceId traceId = traceRoot.getTraceId();

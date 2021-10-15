@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -49,12 +49,12 @@ public class HistogramSerializerTest {
         original.addCallCount(schema.getNormalErrorSlot().getSlotTime(), 5);
 
         String jacksonJson = objectMapper.writeValueAsString(original);
-        HashMap objectMapperHashMap = objectMapper.readValue(jacksonJson, HashMap.class);
+        Map<String, Object> objectMapperHashMap = objectMapper.readValue(jacksonJson, Map.class);
 
         logger.debug(jacksonJson);
 
         String internalJson = internalJson(original);
-        HashMap hashMap = objectMapper.readValue(internalJson, HashMap.class);
+        Map<String, Object> hashMap = objectMapper.readValue(internalJson, Map.class);
 
         Assert.assertEquals(objectMapperHashMap, hashMap);
     }

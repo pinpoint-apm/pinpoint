@@ -96,7 +96,7 @@ public abstract class LinkSelectorTestBase {
     }
 
     @Test
-    public void testEmpty() throws Exception {
+    public void testEmpty() {
         Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
         when(linkDataMapService.selectCallerLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
         when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class))).thenReturn(newEmptyLinkDataMap());
@@ -110,7 +110,7 @@ public abstract class LinkSelectorTestBase {
     }
 
     @Test
-    public void testCaller() throws Exception {
+    public void testCaller() {
         // APP_A -> APP_B
         final Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
         final Application APP_B = new Application("APP_B", ServiceType.TEST_STAND_ALONE);
@@ -138,7 +138,7 @@ public abstract class LinkSelectorTestBase {
     }
 
     @Test
-    public void testCaller_multiple() throws Exception {
+    public void testCaller_multiple() {
         // APP_A -> TARGET_1, TARGET_2, ...
         final Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
         int numTargets = RANDOM.nextInt(100);
@@ -170,7 +170,7 @@ public abstract class LinkSelectorTestBase {
     }
 
     @Test
-    public void testCaller_3tier() throws Exception {
+    public void testCaller_3tier() {
         // APP_A -> APP_B -> APP_C
         final Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
         final Application APP_B = new Application("APP_B", ServiceType.TEST_STAND_ALONE);
@@ -221,7 +221,7 @@ public abstract class LinkSelectorTestBase {
     }
 
     @Test
-    public void testCaller_rpc() throws Exception {
+    public void testCaller_rpc() {
         // APP_A -> APP_B via "www.test.com/test"
         // Given
         final Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
@@ -266,7 +266,7 @@ public abstract class LinkSelectorTestBase {
     }
 
     @Test
-    public void testCallee() throws Exception {
+    public void testCallee() {
         // APP_A -> APP_B
         final Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
         final Application APP_B = new Application("APP_B", ServiceType.TEST_STAND_ALONE);
@@ -294,7 +294,7 @@ public abstract class LinkSelectorTestBase {
     }
 
     @Test
-    public void testCallee_3tier() throws Exception {
+    public void testCallee_3tier() {
         // APP_A -> APP_B -> APP_C
         final Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
         final Application APP_B = new Application("APP_B", ServiceType.TEST_STAND_ALONE);
@@ -344,7 +344,7 @@ public abstract class LinkSelectorTestBase {
     }
 
     @Test
-    public void testVirtual() throws Exception {
+    public void testVirtual() {
         // APP_A ---> APP_B via "www.test.com/test"
         //        |-> APP_C via "www.test.com/test"
         // Given
@@ -406,7 +406,7 @@ public abstract class LinkSelectorTestBase {
     }
 
     @Test
-    public void testVirtual_mixed() throws Exception {
+    public void testVirtual_mixed() {
         // APP_A ---> APP_B via "api.test.com/test", "b.test.com/test"
         //        |-> APP_C via "api.test.com/test", "c.test.com/test"
         // Given
@@ -475,10 +475,9 @@ public abstract class LinkSelectorTestBase {
 
     /**
      * For situations where virtual nodes are visited, but their callee data are not fetched due to callee search limit.
-     * @throws Exception
      */
     @Test
-    public void testVirtual_3tier_callee_limited() throws Exception {
+    public void testVirtual_3tier_callee_limited() {
         // APP_A ---> APP_B via "gw.test.com/api" ---> APP_D via "api.test.com/test
         //        |-> APP_C via "gw.test.com/api" -|
         // Given

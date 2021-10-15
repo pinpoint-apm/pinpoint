@@ -29,14 +29,10 @@ public class ApplicationTest {
     public void testEquals() throws Exception {
         Application one = new Application("test", ServiceType.STAND_ALONE);
         Application two = new Application("test", ServiceType.STAND_ALONE);
+        Application three = new Application("other", ServiceType.INTERNAL_METHOD);
 
-        Assert.assertTrue(one.equals(two));
+        Assert.assertEquals(one, two);
 
-        Assert.assertTrue(one.equals(two.getName(), two.getServiceType()));
-
-        Assert.assertFalse(one.equals("test2", two.getServiceType()));
-        Assert.assertFalse(one.equals("test", ServiceType.INTERNAL_METHOD));
-        Assert.assertFalse(one.equals("test2", ServiceType.STAND_ALONE));
-
+        Assert.assertNotEquals(one, three);
     }
 }

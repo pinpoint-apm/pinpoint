@@ -27,17 +27,17 @@ import static org.mockito.Mockito.when;
  * @author yinbp[yin-bp@163.com]
  */
 public class RestSeachExecutorMethodFilterTest {
-	private RestSeachExecutorMethodFilter restSeachExecutorMethodFilter;
-	@Before
-	public void setUp(){
-		restSeachExecutorMethodFilter = new RestSeachExecutorMethodFilter();
-	}
-	@Test
-	public void testAccept() {
-		InstrumentMethod instrumentMethod = mock(InstrumentMethod.class);
-		when(instrumentMethod.getName()).thenReturn("executeSimpleRequest");
-		Assert.assertTrue(restSeachExecutorMethodFilter.accept(instrumentMethod));
+    private RestSeachExecutorMethodFilter restSeachExecutorMethodFilter;
 
+    @Before
+    public void setUp() {
+        restSeachExecutorMethodFilter = new RestSeachExecutorMethodFilter();
+    }
 
-	}
+    @Test
+    public void testAccept() {
+        InstrumentMethod instrumentMethod = mock(InstrumentMethod.class);
+        when(instrumentMethod.getName()).thenReturn("executeSimpleRequest");
+        Assert.assertTrue(restSeachExecutorMethodFilter.accept(instrumentMethod));
+    }
 }

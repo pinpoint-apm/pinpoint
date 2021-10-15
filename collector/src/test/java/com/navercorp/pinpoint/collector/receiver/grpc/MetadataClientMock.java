@@ -180,7 +180,7 @@ public class MetadataClientMock {
     private void scheduleNextRetry(GeneratedMessageV3 request, int remainingRetryCount) {
         final TimerTask timerTask = new TimerTask() {
             @Override
-            public void run(Timeout timeout) throws Exception {
+            public void run(Timeout timeout) {
                 if (timeout.cancel()) {
                     return;
                 }

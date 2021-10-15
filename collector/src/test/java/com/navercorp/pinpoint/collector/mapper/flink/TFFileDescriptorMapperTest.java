@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class TFFileDescriptorMapperTest {
     @Test
-    public void mapTest() throws Exception {
+    public void mapTest() {
         TFFileDescriptorMapper tFFileDescriptorMapper = new TFFileDescriptorMapper();
         FileDescriptorBo fileDescriptorBo = new FileDescriptorBo();
         fileDescriptorBo.setOpenFileDescriptorCount(30);

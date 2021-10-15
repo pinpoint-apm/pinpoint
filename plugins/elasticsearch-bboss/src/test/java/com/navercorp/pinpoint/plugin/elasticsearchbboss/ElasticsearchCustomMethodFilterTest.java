@@ -25,25 +25,25 @@ import static org.mockito.Mockito.when;
 /**
  * @author yinbp[yin-bp@163.com]
  */
-public class ElasticsearchCustomMethodFilterTest{
+public class ElasticsearchCustomMethodFilterTest {
 
-	@Test
-	public void testReject() {
-		InstrumentMethod instrumentMethod = mock(InstrumentMethod.class);
-		when(instrumentMethod.getName()).thenReturn("runSliceTask");
-		ElasticsearchCustomMethodFilter elasticsearchCustomMethodFilter = new ElasticsearchCustomMethodFilter();
-		Assert.assertFalse(elasticsearchCustomMethodFilter.accept(instrumentMethod));
-	}
+    @Test
+    public void testReject() {
+        InstrumentMethod instrumentMethod = mock(InstrumentMethod.class);
+        when(instrumentMethod.getName()).thenReturn("runSliceTask");
+        ElasticsearchCustomMethodFilter elasticsearchCustomMethodFilter = new ElasticsearchCustomMethodFilter();
+        Assert.assertFalse(elasticsearchCustomMethodFilter.accept(instrumentMethod));
+    }
 
-	@Test
-	public void testAccept() {
-		ElasticsearchCustomMethodFilter elasticsearchCustomMethodFilter = new ElasticsearchCustomMethodFilter();
-		InstrumentMethod instrumentMethod = mock(InstrumentMethod.class);
-		when(instrumentMethod.getName()).thenReturn("execute");
-		Assert.assertTrue(elasticsearchCustomMethodFilter.accept(instrumentMethod));
-		instrumentMethod = mock(InstrumentMethod.class);
-		when(instrumentMethod.getName()).thenReturn("runSliceTask");
-		Assert.assertFalse(elasticsearchCustomMethodFilter.accept(instrumentMethod));
-	}
+    @Test
+    public void testAccept() {
+        ElasticsearchCustomMethodFilter elasticsearchCustomMethodFilter = new ElasticsearchCustomMethodFilter();
+        InstrumentMethod instrumentMethod = mock(InstrumentMethod.class);
+        when(instrumentMethod.getName()).thenReturn("execute");
+        Assert.assertTrue(elasticsearchCustomMethodFilter.accept(instrumentMethod));
+        instrumentMethod = mock(InstrumentMethod.class);
+        when(instrumentMethod.getName()).thenReturn("runSliceTask");
+        Assert.assertFalse(elasticsearchCustomMethodFilter.accept(instrumentMethod));
+    }
 
 }

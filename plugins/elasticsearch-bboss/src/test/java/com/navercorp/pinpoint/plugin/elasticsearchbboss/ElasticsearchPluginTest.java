@@ -71,7 +71,7 @@ public class ElasticsearchPluginTest {
     public void testConfigRestClientTransformCallback() {
         ElasticsearchPlugin.ConfigRestClientTransformCallback configRestClientTransformCallback = mock(ElasticsearchPlugin.ConfigRestClientTransformCallback.class);
         Instrumentor instrumentor = mock(Instrumentor.class);
-        Class classBeingRedefined = this.getClass();
+        Class<?> classBeingRedefined = this.getClass();
         byte[] classfileBuffer = new byte[]{};
         ProtectionDomain protectionDomain = mock(ProtectionDomain.class);
         try {
@@ -89,7 +89,7 @@ public class ElasticsearchPluginTest {
     public void testRestClientTransformCallback() {
         ElasticsearchPlugin.RestClientTransformCallback restClientTransformCallback = mock(ElasticsearchPlugin.RestClientTransformCallback.class);
         Instrumentor instrumentor = mock(Instrumentor.class);
-        Class classBeingRedefined = this.getClass();
+        Class<?> classBeingRedefined = this.getClass();
         byte[] classfileBuffer = new byte[]{};
         ProtectionDomain protectionDomain = mock(ProtectionDomain.class);
         try {
@@ -106,7 +106,7 @@ public class ElasticsearchPluginTest {
     public void testRestSearchExecutorTransformCallback() {
         ElasticsearchPlugin.RestSearchExecutorTransformCallback restSearchExecutorTransformCallback = mock(ElasticsearchPlugin.RestSearchExecutorTransformCallback.class);
         Instrumentor instrumentor = mock(Instrumentor.class);
-        Class classBeingRedefined = this.getClass();
+        Class<?> classBeingRedefined = this.getClass();
         byte[] classfileBuffer = new byte[]{};
         ProtectionDomain protectionDomain = mock(ProtectionDomain.class);
         try {
@@ -123,7 +123,7 @@ public class ElasticsearchPluginTest {
     public void testSliceRunTaskTransformCallback() {
         ElasticsearchPlugin.ParallelRunTaskTransformCallback sliceRunTaskTransformCallback = mock(ElasticsearchPlugin.ParallelRunTaskTransformCallback.class);
         Instrumentor instrumentor = mock(Instrumentor.class);
-        Class classBeingRedefined = this.getClass();
+        Class<?> classBeingRedefined = this.getClass();
         byte[] classfileBuffer = new byte[]{};
         ProtectionDomain protectionDomain = mock(ProtectionDomain.class);
         try {
@@ -141,7 +141,7 @@ public class ElasticsearchPluginTest {
     public void testScrollRunTaskTransformCallback() {
         ElasticsearchPlugin.ParallelRunTaskTransformCallback sliceRunTaskTransformCallback = mock(ElasticsearchPlugin.ParallelRunTaskTransformCallback.class);
         Instrumentor instrumentor = mock(Instrumentor.class);
-        Class classBeingRedefined = this.getClass();
+        Class<?> classBeingRedefined = this.getClass();
         byte[] classfileBuffer = new byte[]{};
         ProtectionDomain protectionDomain = mock(ProtectionDomain.class);
         try {

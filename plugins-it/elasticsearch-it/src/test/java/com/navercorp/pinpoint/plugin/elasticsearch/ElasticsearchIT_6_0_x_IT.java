@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.plugin.elasticsearch;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-import com.navercorp.pinpoint.plugin.elasticsearch.ElasticsearchConstants;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
@@ -63,7 +62,7 @@ public class ElasticsearchIT_6_0_x_IT extends ElasticsearchITBase {
                 "}";
         indexRequest.source(jsonString, XContentType.JSON);
 
-        Class clazz;
+        Class<?> clazz;
         try {
             clazz = Class.forName("org.elasticsearch.client.RestHighLevelClient");
         } catch (ClassNotFoundException e) {

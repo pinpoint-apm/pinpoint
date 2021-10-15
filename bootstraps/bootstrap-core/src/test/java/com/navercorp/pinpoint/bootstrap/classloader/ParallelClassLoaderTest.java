@@ -30,11 +30,11 @@ import java.net.URL;
  */
 public class ParallelClassLoaderTest {
 
-    private final Class slf4jClass = org.slf4j.LoggerFactory.class;
+    private final Class<?> slf4jClass = org.slf4j.LoggerFactory.class;
 
     @Test
     public void testOnLoadClass() throws Exception {
-        Class classLoaderType = ParallelClassLoader.class;
+        Class<?> classLoaderType = ParallelClassLoader.class;
 
         ClassLoader cl = onLoadTest(classLoaderType, slf4jClass);
 
@@ -44,7 +44,7 @@ public class ParallelClassLoaderTest {
     /**
      * TODO duplicate code
      */
-    private ClassLoader onLoadTest(Class classLoaderType, Class testClass) throws ClassNotFoundException {
+    private ClassLoader onLoadTest(Class<?> classLoaderType, Class<?> testClass) throws ClassNotFoundException {
         URL testClassJar = CodeSourceUtils.getCodeLocation(testClass);
         URL[] urls = {testClassJar};
         ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
@@ -56,7 +56,7 @@ public class ParallelClassLoaderTest {
         } catch (ClassNotFoundException ignored) {
         }
 
-        Class selfLoadClass = cl.loadClass(testClass.getName());
+        Class<?> selfLoadClass = cl.loadClass(testClass.getName());
         Assert.assertNotSame(testClass, selfLoadClass);
         Assert.assertSame(cl, selfLoadClass.getClassLoader());
         Assert.assertSame(testClass.getClassLoader(), this.getClass().getClassLoader());

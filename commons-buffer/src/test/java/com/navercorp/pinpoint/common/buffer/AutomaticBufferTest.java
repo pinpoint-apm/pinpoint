@@ -38,7 +38,7 @@ public class AutomaticBufferTest {
     private final Random random = new Random();
 
     @Test
-    public void testPutPrefixedBytes() throws Exception {
+    public void testPutPrefixedBytes() {
         Buffer buffer = new AutomaticBuffer(0);
         buffer.putInt(1);
         byte[] buf = buffer.getBuffer();
@@ -48,7 +48,7 @@ public class AutomaticBufferTest {
 
 
     @Test
-    public void testPadBytes() throws Exception {
+    public void testPadBytes() {
         int TOTAL_LENGTH = 20;
         int TEST_SIZE = 10;
         Buffer buffer = new AutomaticBuffer(10);
@@ -67,7 +67,7 @@ public class AutomaticBufferTest {
     }
 
     @Test
-    public void testPadBytes_Error() throws Exception {
+    public void testPadBytes_Error() {
 
         Buffer buffer1_1 = new AutomaticBuffer(32);
         try {
@@ -93,7 +93,7 @@ public class AutomaticBufferTest {
 
 
     @Test
-    public void testPadString() throws Exception {
+    public void testPadString() {
         int TOTAL_LENGTH = 20;
         int TEST_SIZE = 10;
         int PAD_SIZE = TOTAL_LENGTH - TEST_SIZE;
@@ -116,7 +116,7 @@ public class AutomaticBufferTest {
     }
 
     @Test
-    public void testPadString_Error() throws Exception {
+    public void testPadString_Error() {
 
         Buffer buffer1_1 = new AutomaticBuffer(32);
         try {
@@ -140,7 +140,7 @@ public class AutomaticBufferTest {
     }
 
     @Test
-    public void testPut2PrefixedBytes() throws Exception {
+    public void testPut2PrefixedBytes() {
         byte[] bytes1 = new byte[2];
         checkPut2PrefixedBytes(bytes1);
 
@@ -169,7 +169,7 @@ public class AutomaticBufferTest {
     }
 
     @Test
-    public void testPut4PrefixedBytes() throws Exception {
+    public void testPut4PrefixedBytes() {
         byte[] bytes1 = new byte[2];
         checkPut4PrefixedBytes(bytes1);
 
@@ -189,7 +189,7 @@ public class AutomaticBufferTest {
     }
 
     @Test
-    public void testPutPrefixedBytesCheckRange() throws Exception {
+    public void testPutPrefixedBytesCheckRange() {
         Buffer buffer = new AutomaticBuffer(1);
         buffer.putPrefixedString(null);
         byte[] internalBuffer = buffer.getInternalBuffer();
@@ -199,7 +199,7 @@ public class AutomaticBufferTest {
 
 
     @Test
-    public void testCurrentTime() throws InterruptedException {
+    public void testCurrentTime() {
         Buffer buffer = new AutomaticBuffer(32);
 
         long l = System.currentTimeMillis();
@@ -212,7 +212,7 @@ public class AutomaticBufferTest {
     }
 
     @Test
-     public void testPutVInt() throws Exception {
+     public void testPutVInt() {
         Buffer buffer = new AutomaticBuffer(0);
         buffer.putVInt(Integer.MAX_VALUE);
         buffer.putVInt(Integer.MIN_VALUE);
@@ -229,7 +229,7 @@ public class AutomaticBufferTest {
     }
 
     @Test
-    public void testPutVLong() throws Exception {
+    public void testPutVLong() {
         Buffer buffer = new AutomaticBuffer(0);
         buffer.putVLong(Long.MAX_VALUE);
         buffer.putVLong(Long.MIN_VALUE);
@@ -246,7 +246,7 @@ public class AutomaticBufferTest {
     }
 
     @Test
-    public void testPutSVLong() throws Exception {
+    public void testPutSVLong() {
         Buffer buffer = new AutomaticBuffer(32);
         buffer.putSVLong(Long.MAX_VALUE);
         buffer.putSVLong(Long.MIN_VALUE);
@@ -263,7 +263,7 @@ public class AutomaticBufferTest {
     }
 
     @Test
-    public void testPutSVInt() throws Exception {
+    public void testPutSVInt() {
         Buffer buffer = new AutomaticBuffer(32);
         buffer.putSVInt(Integer.MAX_VALUE);
         buffer.putSVInt(Integer.MIN_VALUE);
@@ -280,7 +280,7 @@ public class AutomaticBufferTest {
     }
 
     @Test
-    public void testPut() throws Exception {
+    public void testPut() {
         Buffer buffer = new AutomaticBuffer(0);
         buffer.putInt(1);
         buffer.putLong(1L);
@@ -291,7 +291,7 @@ public class AutomaticBufferTest {
     }
 
     @Test
-    public void testUdp() throws Exception {
+    public void testUdp() {
         // Signature:Header{signature=85, version=100, type=28704}
         Buffer buffer = new AutomaticBuffer(10);
         // l4 Udp check payload
@@ -308,7 +308,7 @@ public class AutomaticBufferTest {
     }
 
     @Test
-    public void testRemaining() throws Exception {
+    public void testRemaining() {
         final byte[] bytes = new byte[BytesUtils.INT_BYTE_LENGTH];
         Buffer buffer = new AutomaticBuffer(bytes);
         Assert.assertEquals(buffer.remaining(), 4);
@@ -328,7 +328,7 @@ public class AutomaticBufferTest {
 
 
     @Test
-    public void testExpendMultiplier_2multiplier() throws Exception {
+    public void testExpendMultiplier_2multiplier() {
         int bufferSize = 4;
         Buffer buffer = new AutomaticBuffer(bufferSize);
 
@@ -348,7 +348,7 @@ public class AutomaticBufferTest {
     }
 
     @Test
-    public void testExpendMultiplier_4multiplier() throws Exception {
+    public void testExpendMultiplier_4multiplier() {
         int bufferSize = 4;
         Buffer buffer = new AutomaticBuffer(bufferSize);
 

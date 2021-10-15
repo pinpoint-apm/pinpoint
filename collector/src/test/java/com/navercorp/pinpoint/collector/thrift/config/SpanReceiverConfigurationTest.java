@@ -36,7 +36,7 @@ public class SpanReceiverConfigurationTest {
     SpanReceiverConfiguration configuration;
 
     @Test
-    public void properties() throws Exception {
+    public void properties() {
         Assert.assertTrue(configuration.isUdpEnable());
         Assert.assertEquals(configuration.getUdpBindIp(), "0.0.0.3");
         Assert.assertEquals(configuration.getUdpBindPort(), 39997);

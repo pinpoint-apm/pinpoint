@@ -29,20 +29,20 @@ public class HostAndPortTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
-    public void testToHostAndPortString() throws Exception {
+    public void testToHostAndPortString() {
         String hostAndPortString = HostAndPort.toHostAndPortString("127.0.1.1", 80);
         Assert.assertEquals("127.0.1.1:80", hostAndPortString);
     }
 
     @Test
-    public void testToHostAndPortString_defaultPort() throws Exception {
+    public void testToHostAndPortString_defaultPort() {
         String hostAndPortString = HostAndPort.toHostAndPortString("127.0.1.1", HostAndPort.NO_PORT);
         Assert.assertEquals("127.0.1.1", hostAndPortString);
     }
 
 
     @Test
-    public void testIsValidPort() throws Exception {
+    public void testIsValidPort() {
 
         Assert.assertTrue(HostAndPort.isValidPort(0));
         Assert.assertTrue(HostAndPort.isValidPort(8080));
@@ -52,7 +52,7 @@ public class HostAndPortTest {
     }
 
     @Test
-    public void testGetPortOrNoPort() throws Exception {
+    public void testGetPortOrNoPort() {
 
         Assert.assertEquals(HostAndPort.getPortOrNoPort(1), 1);
 
@@ -61,7 +61,7 @@ public class HostAndPortTest {
     }
 
     @Test
-    public void testGetValidPortOrNoPort() throws Exception {
+    public void testGetValidPortOrNoPort() {
 
         Assert.assertEquals(HostAndPort.getValidPortOrNoPort(70000), -1);
 

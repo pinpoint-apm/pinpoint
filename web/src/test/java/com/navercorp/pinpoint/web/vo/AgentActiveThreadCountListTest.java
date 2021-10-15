@@ -78,7 +78,7 @@ public class AgentActiveThreadCountListTest {
     }
 
     @Test
-    public void testOrderName() throws Exception {
+    public void testOrderName() {
         String hostName1 = "hostName1";
         String hostName2 = "hostName2";
         String hostName3 = "hostName3";

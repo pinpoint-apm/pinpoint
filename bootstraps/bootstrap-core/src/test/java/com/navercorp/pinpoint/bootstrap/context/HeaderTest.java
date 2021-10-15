@@ -33,19 +33,19 @@ public class HeaderTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
-    public void testToString() throws Exception {
+    public void testToString() {
         logger.debug("{}", Header.HTTP_FLAGS);
     }
 
     @Test
-    public void isHeaderKey() throws Exception {
+    public void isHeaderKey() {
         Assert.assertTrue(Header.startWithPinpointHeader(Header.HTTP_FLAGS.toString()));
         Assert.assertFalse(Header.startWithPinpointHeader("Not_Exist"));
         Assert.assertFalse(Header.startWithPinpointHeader(null));
     }
 
     @Test
-    public void filteredHeaderNames() throws Exception {
+    public void filteredHeaderNames() {
         Hashtable<String, String> hashtable = new Hashtable<>();
         hashtable.put("a", "aa");
         hashtable.put("b", Header.HTTP_FLAGS.toString());
@@ -62,7 +62,7 @@ public class HeaderTest {
     }
 
     @Test
-    public void startWithPinpointHeader() throws Exception {
+    public void startWithPinpointHeader() {
         Assert.assertTrue(Header.startWithPinpointHeader("Pinpoint-Unknown"));
         Assert.assertTrue(Header.startWithPinpointHeader("pinpoint-unknown"));
         Assert.assertFalse(Header.startWithPinpointHeader("unknown-pinpoint"));

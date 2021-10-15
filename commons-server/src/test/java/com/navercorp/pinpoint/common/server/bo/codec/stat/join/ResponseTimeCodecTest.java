@@ -59,13 +59,13 @@ public class ResponseTimeCodecTest {
         assertEquals(valueBuffer.readByte(), responseTimeCodec.getVersion());
         List<JoinStatBo> decodedJoinResponseTimeBoList = responseTimeCodec.decodeValues(valueBuffer, decodingContext);
         for (int i = 0 ; i < decodedJoinResponseTimeBoList.size(); i++) {
-            assertTrue(decodedJoinResponseTimeBoList.get(i).equals(joinResponseTimeBoList.get(i)));
+            assertEquals(decodedJoinResponseTimeBoList.get(i), joinResponseTimeBoList.get(i));
         }
     }
 
     private List<JoinStatBo> createJoinResponseTimeBoList(long currentTime) {
         final String id = "test_app";
-        List<JoinStatBo> joinResponseTimeBoList = new ArrayList<JoinStatBo>();
+        List<JoinStatBo> joinResponseTimeBoList = new ArrayList<>();
         JoinResponseTimeBo joinResponseTimeBo1 = new JoinResponseTimeBo(id, currentTime, 3000, 2, "app_1_1", 6000, "app_1_2");
         JoinResponseTimeBo joinResponseTimeBo2 = new JoinResponseTimeBo(id, currentTime + 5000, 4000, 200, "app_2_1", 9000, "app_2_2");
         JoinResponseTimeBo joinResponseTimeBo3 = new JoinResponseTimeBo(id, currentTime + 10000, 2000, 20, "app_3_1", 7000, "app_3_2");

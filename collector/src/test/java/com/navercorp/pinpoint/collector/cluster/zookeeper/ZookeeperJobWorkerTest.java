@@ -128,12 +128,12 @@ public class ZookeeperJobWorkerTest {
             CreateNodeMessage createNodeMessage = new CreateNodeMessage(PATH, new byte[0]);
             try {
                 zookeeperClient.createOrSetNode(createNodeMessage);
-            } catch (Exception e) {
+            } catch (Exception ignore) {
             }
 
             try {
                 zookeeperClient.createOrSetNode(createNodeMessage);
-            } catch (Exception e) {
+            } catch (Exception ignore) {
             }
 
             waitZookeeperServerData(0, zookeeperClient);

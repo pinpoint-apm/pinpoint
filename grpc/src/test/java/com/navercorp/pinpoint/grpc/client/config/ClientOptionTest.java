@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.grpc.client.config;
 
 import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
-import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -28,7 +27,7 @@ import static org.junit.Assert.*;
 public class ClientOptionTest {
 
     @Test
-    public void build() throws Exception {
+    public void build() {
         Properties properties = new Properties();
         properties.setProperty("keepalive.time.millis", "1");
         properties.setProperty("keepalive.timeout.millis", "2");

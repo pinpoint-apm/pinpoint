@@ -90,7 +90,7 @@ public class ConnectFutureTest {
 
         boolean isReady = future.await(waitTime / 2, TimeUnit.MILLISECONDS);
         Assert.assertFalse(isReady);
-        Assert.assertEquals(null, future.getResult());
+        Assert.assertNull(future.getResult());
 
         isReady = future.await(waitTime, TimeUnit.MILLISECONDS);
         Assert.assertTrue(isReady);

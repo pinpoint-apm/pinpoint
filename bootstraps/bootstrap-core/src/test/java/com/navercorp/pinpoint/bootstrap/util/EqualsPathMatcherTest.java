@@ -25,7 +25,7 @@ import org.junit.Test;
 public class EqualsPathMatcherTest {
 
     @Test
-    public void testIsMatched() throws Exception {
+    public void testIsMatched() {
         EqualsPathMatcher matcher = new EqualsPathMatcher("/test");
         Assert.assertTrue(matcher.isMatched("/test"));
 

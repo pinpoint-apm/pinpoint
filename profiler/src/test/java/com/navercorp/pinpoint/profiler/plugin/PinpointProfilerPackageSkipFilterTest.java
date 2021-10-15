@@ -25,7 +25,7 @@ import org.junit.Test;
 public class PinpointProfilerPackageSkipFilterTest {
 
     @Test
-    public void testAccept() throws Exception {
+    public void testAccept() {
 
         PinpointProfilerPackageSkipFilter filter = new PinpointProfilerPackageSkipFilter();
         Assert.assertFalse("skip", filter.accept("com.navercorp.pinpoint.bootstrap.test.class"));

@@ -122,7 +122,7 @@ public class ASMAspectWeaverTest {
                 }
             }
         };
-        Class clazz = classLoader.loadClass(originalName);
+        Class<?> clazz = classLoader.loadClass(originalName);
         return clazz.newInstance();
     }
 

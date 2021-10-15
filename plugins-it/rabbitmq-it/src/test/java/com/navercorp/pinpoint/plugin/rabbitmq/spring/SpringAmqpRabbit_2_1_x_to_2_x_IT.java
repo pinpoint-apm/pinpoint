@@ -363,7 +363,7 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT extends SpringAmqpRabbitITBase {
         verifier.verifyTraceCount(0);
     }
 
-    private Class getRabbitTemplateClazz() {
+    private Class<?> getRabbitTemplateClazz() {
         int[] indexes = {3, 2};
 
         for (int index : indexes) {

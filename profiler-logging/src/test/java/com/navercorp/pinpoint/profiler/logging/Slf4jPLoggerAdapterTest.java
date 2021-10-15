@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 public class Slf4jPLoggerAdapterTest {
 
     @Test
-    public void getSimpleName() throws Exception {
+    public void getSimpleName() {
         assertEquals("int[]", Slf4jPLoggerAdapter.getSimpleName((new int[1]).getClass()));
         assertEquals("Slf4jPLoggerAdapterTest$Dummy", Slf4jPLoggerAdapter.getSimpleName(Dummy.class));
 
@@ -41,7 +41,7 @@ public class Slf4jPLoggerAdapterTest {
     }
 
     @Test
-    public void isSimpletype() {
+    public void isSimpleType() {
         assertTrue(Slf4jPLoggerAdapter.isSimpleType(new Integer(1)));
         assertTrue(Slf4jPLoggerAdapter.isSimpleType(Boolean.TRUE));
 

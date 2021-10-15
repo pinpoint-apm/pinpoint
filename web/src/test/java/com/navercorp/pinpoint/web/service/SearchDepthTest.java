@@ -25,7 +25,7 @@ import org.junit.Test;
 public class SearchDepthTest {
 
     @Test
-    public void testSearchDepth() throws Exception {
+    public void testSearchDepth() {
         SearchDepth zero = new SearchDepth(2);
 
         Assert.assertEquals(zero.getDepth(), 0);

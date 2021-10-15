@@ -38,7 +38,7 @@ public class InvokeAfterCodeGeneratorTest {
 
     private final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
     @Test
-    public void testGenerate_AroundInterceptor3_catchClause() throws Exception {
+    public void testGenerate_AroundInterceptor3_catchClause() {
 
         final Class<AroundInterceptor3> aroundInterceptor3Class = AroundInterceptor3.class;
         final InterceptorDefinition interceptorDefinition = interceptorDefinitionFactory.createInterceptorDefinition(aroundInterceptor3Class);
@@ -67,7 +67,7 @@ public class InvokeAfterCodeGeneratorTest {
     }
 
     @Test
-    public void testGenerate_AroundInterceptor3_NoCatchClause() throws Exception {
+    public void testGenerate_AroundInterceptor3_NoCatchClause() {
 
         final Class<AroundInterceptor3> aroundInterceptor3Class = AroundInterceptor3.class;
         final InterceptorDefinition interceptorDefinition = interceptorDefinitionFactory.createInterceptorDefinition(aroundInterceptor3Class);
@@ -95,7 +95,7 @@ public class InvokeAfterCodeGeneratorTest {
     }
 
     @Test
-    public void testGenerate_AroundInterceptor3_methodParam2() throws Exception {
+    public void testGenerate_AroundInterceptor3_methodParam2() {
 
         final Class<AroundInterceptor3> aroundInterceptor3Class = AroundInterceptor3.class;
         final InterceptorDefinition interceptorDefinition = interceptorDefinitionFactory.createInterceptorDefinition(aroundInterceptor3Class);
@@ -124,7 +124,7 @@ public class InvokeAfterCodeGeneratorTest {
     }
 
     @Test
-    public void testGenerate_AroundInterceptor3_methodParam4() throws Exception {
+    public void testGenerate_AroundInterceptor3_methodParam4() {
 
         final Class<AroundInterceptor3> aroundInterceptor3Class = AroundInterceptor3.class;
         final InterceptorDefinition interceptorDefinition = interceptorDefinitionFactory.createInterceptorDefinition(aroundInterceptor3Class);
@@ -154,7 +154,7 @@ public class InvokeAfterCodeGeneratorTest {
 
 
     @Test
-    public void testGenerate_AroundInterceptor0() throws Exception {
+    public void testGenerate_AroundInterceptor0() {
 
         final Class<AroundInterceptor0> aroundInterceptor3Class = AroundInterceptor0.class;
         final InterceptorDefinition interceptorDefinition = interceptorDefinitionFactory.createInterceptorDefinition(aroundInterceptor3Class);

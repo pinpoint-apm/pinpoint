@@ -110,10 +110,10 @@ public class AgentEventTimelineTest {
             allEventsTotalCount += marker.getTotalCount();
             Map<AgentEventType, Integer> eventTypeCountMap = marker.getTypeCounts();
             Assert.assertTrue(includedAgentEventTypes.containsAll(eventTypeCountMap.keySet()));
-            Assert.assertFalse(eventTypeCountMap.keySet().contains(AgentEventType.AGENT_UNEXPECTED_SHUTDOWN));
-            Assert.assertFalse(eventTypeCountMap.keySet().contains(AgentEventType.AGENT_UNEXPECTED_CLOSE_BY_SERVER));
-            Assert.assertFalse(eventTypeCountMap.keySet().contains(AgentEventType.USER_THREAD_DUMP));
-            Assert.assertFalse(eventTypeCountMap.keySet().contains(AgentEventType.OTHER));
+            Assert.assertFalse(eventTypeCountMap.containsKey(AgentEventType.AGENT_UNEXPECTED_SHUTDOWN));
+            Assert.assertFalse(eventTypeCountMap.containsKey(AgentEventType.AGENT_UNEXPECTED_CLOSE_BY_SERVER));
+            Assert.assertFalse(eventTypeCountMap.containsKey(AgentEventType.USER_THREAD_DUMP));
+            Assert.assertFalse(eventTypeCountMap.containsKey(AgentEventType.OTHER));
         }
         Assert.assertEquals(allEventsTotalCount, includedAgentEventTypes.size());
     }

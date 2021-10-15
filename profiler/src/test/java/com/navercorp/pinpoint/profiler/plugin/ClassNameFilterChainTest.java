@@ -27,7 +27,7 @@ import java.util.Arrays;
 public class ClassNameFilterChainTest {
 
     @Test
-    public void testAccept() throws Exception {
+    public void testAccept() {
         PluginPackageFilter include = new PluginPackageFilter(Arrays.asList("com.include"));
         PinpointProfilerPackageSkipFilter exclude = new PinpointProfilerPackageSkipFilter(Arrays.asList("com.exclude"));
 

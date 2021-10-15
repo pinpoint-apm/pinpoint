@@ -101,21 +101,21 @@ public class ExcludePathFilterTest {
 
     // Tests for urls
     @Test
-    public void testFilter() throws Exception {
+    public void testFilter() {
         Filter<String> filter = new ExcludePathFilter("/monitor/l7check.html, test/l4check.html");
 
         assertFilter(filter);
     }
 
     @Test
-    public void testFilter_InvalidExcludeURL() throws Exception {
+    public void testFilter_InvalidExcludeURL() {
         Filter<String> filter = new ExcludePathFilter("/monitor/l7check.html, test/l4check.html, ,,");
 
         assertFilter(filter);
     }
 
     @Test
-    public void testFilter_emptyExcludeURL() throws Exception {
+    public void testFilter_emptyExcludeURL() {
         Filter<String> filter = new ExcludePathFilter("");
 
         Assert.assertFalse(filter.filter("/monitor/l7check.html"));
@@ -137,7 +137,7 @@ public class ExcludePathFilterTest {
     }
 
     @Test
-    public void antStylePath() throws Exception {
+    public void antStylePath() {
         Filter<String> filter = new ExcludePathFilter("/monitor/l7check.*,/*/l7check.*");
 
         Assert.assertTrue(filter.filter("/monitor/l7check.jsp"));
@@ -152,7 +152,7 @@ public class ExcludePathFilterTest {
     }
 
     @Test
-    public void antstyle_equals_match() throws Exception {
+    public void antstyle_equals_match() {
         Filter<String> filter = new ExcludePathFilter("/monitor/stringEquals,/monitor/antstyle.*");
 
         Assert.assertTrue(filter.filter("/monitor/stringEquals"));

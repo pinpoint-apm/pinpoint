@@ -25,7 +25,7 @@ import org.junit.Test;
 public class PinpointClassFilterTest {
 
     @Test
-    public void doFilter() throws Exception {
+    public void doFilter() {
 
         ClassFileFilter filter = new PinpointClassFilter();
 
@@ -35,7 +35,7 @@ public class PinpointClassFilterTest {
     }
 
     @Test
-    public void doFilter_Package() throws Exception {
+    public void doFilter_Package() {
 
         ClassFileFilter filter = new PinpointClassFilter();
 
@@ -43,7 +43,7 @@ public class PinpointClassFilterTest {
     }
 
     @Test
-    public void doFilter_Package_exclude() throws Exception {
+    public void doFilter_Package_exclude() {
 
         ClassFileFilter filter = new PinpointClassFilter();
 

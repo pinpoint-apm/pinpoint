@@ -26,7 +26,7 @@ import org.junit.Test;
 public class DefaultCachingSqlNormalizerTest {
 
     @Test
-    public void testNormalizedSql() throws Exception {
+    public void testNormalizedSql() {
         SimpleCache<String> cache = newCache(1);
         CachingSqlNormalizer normalizer = new DefaultCachingSqlNormalizer(cache);
         ParsingResult parsingResult = normalizer.wrapSql("select * from dual");
@@ -44,7 +44,7 @@ public class DefaultCachingSqlNormalizerTest {
 
 
     @Test
-    public void testNormalizedSql_cache_expire() throws Exception {
+    public void testNormalizedSql_cache_expire() {
         SimpleCache<String> cache = newCache(1);
         CachingSqlNormalizer normalizer = new DefaultCachingSqlNormalizer(cache);
         ParsingResult parsingResult = normalizer.wrapSql("select * from table1");
@@ -62,6 +62,6 @@ public class DefaultCachingSqlNormalizerTest {
     }
 
     private SimpleCache<String> newCache(int size) {
-        return new SimpleCache<String>(new SimpleCache.ZigZagTransformer(), size);
+        return new SimpleCache<>(new SimpleCache.ZigZagTransformer(), size);
     }
 }

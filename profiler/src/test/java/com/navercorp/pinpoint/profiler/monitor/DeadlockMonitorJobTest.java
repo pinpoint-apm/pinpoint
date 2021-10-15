@@ -28,8 +28,8 @@ public class DeadlockMonitorJobTest {
     private static final long DEADLOCK_TIME = 5000;
 
 
-    private Object lock1 = new Object();
-    private Object lock2 = new Object();
+    private final Object lock1 = new Object();
+    private final Object lock2 = new Object();
 
     @Ignore
 //    @Test

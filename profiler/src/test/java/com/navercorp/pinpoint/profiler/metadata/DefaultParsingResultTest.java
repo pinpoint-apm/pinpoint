@@ -17,14 +17,13 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import com.navercorp.pinpoint.profiler.metadata.DefaultParsingResult;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class DefaultParsingResultTest {
 
     @Test
-    public void testId() throws Exception {
+    public void testId() {
         DefaultParsingResult result = new DefaultParsingResult("");
         Assert.assertEquals(ParsingResult.ID_NOT_EXIST, result.getId());
 

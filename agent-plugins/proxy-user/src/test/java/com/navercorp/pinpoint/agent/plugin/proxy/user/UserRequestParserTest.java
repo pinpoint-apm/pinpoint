@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 public class UserRequestParserTest {
 
     @Test
-    public void parse() throws Exception {
+    public void parse() {
         UserRequestParser parser = new UserRequestParser();
         String value = "t=1625212448369 D=123";
         ProxyRequestHeader proxyHttpHeader = parser.parseHeader("HEADER_NAME", value);
@@ -37,7 +37,7 @@ public class UserRequestParserTest {
     }
 
     @Test
-    public void parseOnlyReceivedTime() throws Exception {
+    public void parseOnlyReceivedTime() {
         UserRequestParser parser = new UserRequestParser();
         String value = "t=1625212448369";
         ProxyRequestHeader proxyHttpHeader = parser.parseHeader("HEADER_NAME", value);
@@ -49,7 +49,7 @@ public class UserRequestParserTest {
     }
 
     @Test
-    public void parseNotFoundReceived() throws Exception {
+    public void parseNotFoundReceived() {
         UserRequestParser parser = new UserRequestParser();
         String value = "D=123";
         ProxyRequestHeader proxyHttpHeader = parser.parse(value);
@@ -58,7 +58,7 @@ public class UserRequestParserTest {
     }
 
     @Test
-    public void parseInvalidReceived() throws Exception {
+    public void parseInvalidReceived() {
         UserRequestParser parser = new UserRequestParser();
         String value = "t=1625212448.369";
         ProxyRequestHeader proxyHttpHeader = parser.parse(value);

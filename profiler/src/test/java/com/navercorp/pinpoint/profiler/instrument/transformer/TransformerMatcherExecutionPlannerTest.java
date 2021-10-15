@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
 public class TransformerMatcherExecutionPlannerTest {
 
     @Test
-    public void findIndex() throws Exception {
+    public void findIndex() {
         TransformerMatcherExecutionPlanner executionPlanner = new TransformerMatcherExecutionPlanner();
 
         // and

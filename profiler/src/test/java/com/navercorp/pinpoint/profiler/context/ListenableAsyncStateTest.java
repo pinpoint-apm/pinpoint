@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
  */
 public class ListenableAsyncStateTest {
     @Test
-    public void close() throws Exception {
+    public void close() {
         SpanAsyncStateListener mock = mock(SpanAsyncStateListener.class);
 
         ListenableAsyncState listenableAsyncState = new ListenableAsyncState(mock, ActiveTraceHandle.EMPTY_HANDLE);
@@ -40,7 +40,7 @@ public class ListenableAsyncStateTest {
 
 
     @Test
-    public void close_setup() throws Exception {
+    public void close_setup() {
         SpanAsyncStateListener mock = mock(SpanAsyncStateListener.class);
 
         ListenableAsyncState listenableAsyncState = new ListenableAsyncState(mock, ActiveTraceHandle.EMPTY_HANDLE);
@@ -52,7 +52,7 @@ public class ListenableAsyncStateTest {
 
 
     @Test
-    public void close_await() throws Exception {
+    public void close_await() {
         SpanAsyncStateListener mock = mock(SpanAsyncStateListener.class);
 
         ListenableAsyncState listenableAsyncState = new ListenableAsyncState(mock, ActiveTraceHandle.EMPTY_HANDLE);

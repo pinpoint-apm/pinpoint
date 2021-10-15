@@ -57,7 +57,7 @@ public class ElasticsearchOperationInterceptorTest {
         try {
             elasticsearchExecutorOperationInterceptor.before(new Object(),args);
         }
-        catch (Exception e){
+        catch (Exception e) {
             Assert.assertTrue(e instanceof NullPointerException);
         }
 
@@ -87,7 +87,7 @@ public class ElasticsearchOperationInterceptorTest {
 
             elasticsearchExecutorOperationInterceptor.doInAfterTrace(mock(SpanEventRecorder.class),new Object(),args,"aa",null);
         }
-        catch (Exception e){
+        catch (Exception ignore){
 
         }
 

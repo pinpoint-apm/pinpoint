@@ -63,7 +63,7 @@ public class DataSourceChartGroupTest {
     }
 
     @Test
-    public void basicFunctionTest1() throws Exception {
+    public void basicFunctionTest1() {
         long currentTimeMillis = System.currentTimeMillis();
         TimeWindow timeWindow = new TimeWindow(Range.newRange(currentTimeMillis - 300000, currentTimeMillis));
 
@@ -74,7 +74,7 @@ public class DataSourceChartGroupTest {
     }
 
     @Test
-    public void basicFunctionTest2() throws Exception {
+    public void basicFunctionTest2() {
         long currentTimeMillis = System.currentTimeMillis();
         TimeWindow timeWindow = new TimeWindow(Range.newRange(currentTimeMillis - 300000, currentTimeMillis));
 

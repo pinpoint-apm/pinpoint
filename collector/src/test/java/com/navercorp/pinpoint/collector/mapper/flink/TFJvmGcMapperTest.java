@@ -28,15 +28,15 @@ import static org.junit.Assert.assertEquals;
 public class TFJvmGcMapperTest {
 
     @Test
-    public void mapTest() throws Exception {
+    public void mapTest() {
         TFJvmGcMapper tFJvmGcMapper = new TFJvmGcMapper();
         JvmGcBo jvmGcBo = new JvmGcBo();
         jvmGcBo.setHeapUsed(3000);
         jvmGcBo.setNonHeapUsed(500);
         TFJvmGc tFJvmGc = tFJvmGcMapper.map(jvmGcBo);
 
-        assertEquals(tFJvmGc.getJvmMemoryHeapUsed(), 3000);
-        assertEquals(tFJvmGc.getJvmMemoryNonHeapUsed(), 500);
+        assertEquals(3000, tFJvmGc.getJvmMemoryHeapUsed());
+        assertEquals(500, tFJvmGc.getJvmMemoryNonHeapUsed());
     }
 
 }

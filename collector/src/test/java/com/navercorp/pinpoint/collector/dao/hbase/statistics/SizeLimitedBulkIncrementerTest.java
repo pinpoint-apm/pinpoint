@@ -67,7 +67,7 @@ public class SizeLimitedBulkIncrementerTest {
             new DefaultBulkIncrementer(new RowKeyMerge(CF)), 1000, reporter);
 
     @AfterClass
-    public static void afterClass() throws Exception {
+    public static void afterClass() {
         bulkIncrementerFactory.close();
     }
 

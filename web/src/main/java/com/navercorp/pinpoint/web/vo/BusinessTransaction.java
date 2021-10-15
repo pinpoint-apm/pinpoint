@@ -48,7 +48,7 @@ public class BusinessTransaction {
         Trace trace = new Trace(transactionIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
         this.traces.add(trace);
         calls++;
-        if(span.getErrCode() > 0) {
+        if (span.getErrCode() > 0) {
             error++;
         }
     }
@@ -58,19 +58,15 @@ public class BusinessTransaction {
 
         long elapsed = span.getElapsed();
 
-        totalTime += elapsed;
-        if (maxTime < elapsed) {
-            maxTime = elapsed;
-        }
-        if (minTime > elapsed) {
-            minTime = elapsed;
-        }
+        this.totalTime += elapsed;
+        this.maxTime = Math.max(this.maxTime, elapsed);
+        this.minTime = Math.min(this.minTime, elapsed);
 
         String transactionIdString = TransactionIdUtils.formatString(span.getTransactionId());
         Trace trace = new Trace(transactionIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
         this.traces.add(trace);
 
-        if(span.getErrCode() > 0) {
+        if (span.getErrCode() > 0) {
             error++;
         }
 

@@ -87,7 +87,7 @@ public class AgentUriStatCodecV2Test extends AgentStatCodecTestBase<AgentUriStat
         Assert.assertEquals(expected.getCount(), actual.getCount());
         Assert.assertEquals(AgentStatUtils.convertDoubleToLong(expected.getAvg()), AgentStatUtils.convertDoubleToLong(actual.getAvg()));
         Assert.assertEquals(expected.getMax(), actual.getMax());
-        Assert.assertTrue(Arrays.equals(expected.getTimestampHistogram(), actual.getTimestampHistogram()));
+        Assert.assertArrayEquals(expected.getTimestampHistogram(), actual.getTimestampHistogram());
     }
 
 }

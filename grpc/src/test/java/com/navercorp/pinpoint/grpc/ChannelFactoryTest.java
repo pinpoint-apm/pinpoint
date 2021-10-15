@@ -137,7 +137,7 @@ public class ChannelFactoryTest {
         logger.debug("client-onCompleted");
         sendSpan.onCompleted();
 
-        Assert.assertTrue(countRecordClientInterceptor.getExecutedInterceptCallCount() == 1);
+        Assert.assertEquals(1, countRecordClientInterceptor.getExecutedInterceptCallCount());
 
         logger.debug("state:{}", managedChannel.getState(true));
         spanService.awaitOnCompleted();

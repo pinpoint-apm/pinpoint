@@ -52,14 +52,6 @@ public final class Application {
         return serviceType.getCode();
     }
 
-    public boolean equals(String thatName, ServiceType thatServiceType) {
-        Objects.requireNonNull(thatName, "thatName");
-        Objects.requireNonNull(thatServiceType, "thatServiceType");
-
-        if (!name.equals(thatName)) return false;
-        return serviceType.equals(thatServiceType);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

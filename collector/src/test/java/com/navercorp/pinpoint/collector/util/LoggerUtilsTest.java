@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 public class LoggerUtilsTest {
 
     @Test
-    public void testGetLoggerLevel_debug() throws Exception {
+    public void testGetLoggerLevel_debug() {
         Logger logger = mock(Logger.class);
         when(logger.isDebugEnabled()).thenReturn(true);
 
@@ -40,7 +40,7 @@ public class LoggerUtilsTest {
     }
 
     @Test
-    public void testGetLoggerLevel_info() throws Exception {
+    public void testGetLoggerLevel_info() {
         Logger logger = mock(Logger.class);
         when(logger.isInfoEnabled()).thenReturn(true);
 
@@ -51,7 +51,7 @@ public class LoggerUtilsTest {
     }
 
     @Test
-    public void testGetLoggerLevel_warn() throws Exception {
+    public void testGetLoggerLevel_warn() {
         Logger logger = mock(Logger.class);
         when(logger.isWarnEnabled()).thenReturn(true);
 

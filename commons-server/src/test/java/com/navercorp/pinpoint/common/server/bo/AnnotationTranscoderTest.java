@@ -42,7 +42,7 @@ public class AnnotationTranscoderTest {
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     @Test
-    public void testDecode() throws Exception {
+    public void testDecode() {
         typeCode("test");
         typeCode("");
         typeCode("adfesdfsesdfsdfserfsdfsdfe");

@@ -86,7 +86,7 @@ public class FilterHintTest {
         final FilterHint hint = mapper.readValue(json, FilterHint.class);
 
         Assert.assertNotNull(hint);
-        Assert.assertTrue(hint.size() == 0);
+        Assert.assertEquals(0, hint.size());
 
     }
 

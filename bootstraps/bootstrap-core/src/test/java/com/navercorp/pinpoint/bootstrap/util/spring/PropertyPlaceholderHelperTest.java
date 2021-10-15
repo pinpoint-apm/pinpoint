@@ -27,7 +27,7 @@ import java.util.Properties;
 public class PropertyPlaceholderHelperTest {
 
     @Test
-    public void testReplacePlaceholders() throws Exception {
+    public void testReplacePlaceholders() {
         Properties properties = new Properties();
         properties.setProperty("test", "a");
 

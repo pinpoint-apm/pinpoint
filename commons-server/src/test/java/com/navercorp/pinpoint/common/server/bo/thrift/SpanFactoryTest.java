@@ -49,7 +49,7 @@ public class SpanFactoryTest {
 
 
     @Test
-    public void testNewSpanBo() throws Exception {
+    public void testNewSpanBo() {
         TSpan tSpan = random.randomTSpan();
 
         SpanBo spanBo = spanFactory.newSpanBo(tSpan);
@@ -59,7 +59,7 @@ public class SpanFactoryTest {
 
 
     @Test
-    public void testNewSpanBo_N() throws Exception {
+    public void testNewSpanBo_N() {
         for (int i = 0; i < REPEAT_COUNT; i++) {
             testNewSpanBo();
         }
@@ -67,7 +67,7 @@ public class SpanFactoryTest {
 
 
     @Test
-    public void testNewSpanChunkBo() throws Exception {
+    public void testNewSpanChunkBo() {
         TSpanChunk tSpanChunk = random.randomTSpanChunk();
 
         SpanChunkBo spanChunkBo = spanFactory.newSpanChunkBo(tSpanChunk);
@@ -77,14 +77,14 @@ public class SpanFactoryTest {
     }
 
     @Test
-    public void testNewSpanChunkBo_N() throws Exception {
+    public void testNewSpanChunkBo_N() {
         for (int i = 0; i < REPEAT_COUNT; i++) {
             testNewSpanChunkBo();
         }
     }
 
     @Test
-    public void testNewSpanEventBo() throws Exception {
+    public void testNewSpanEventBo() {
 
         TSpanEvent tSpanEvent = random.randomTSpanEvent((short) RandomUtils.nextInt(0, 100));
         SpanEventBo spanEventBo = spanFactory.buildSpanEventBo(tSpanEvent);
@@ -94,14 +94,14 @@ public class SpanFactoryTest {
     }
 
     @Test
-    public void testNewSpanEventBo_N() throws Exception {
+    public void testNewSpanEventBo_N() {
         for (int i = 0; i < REPEAT_COUNT; i++) {
             testNewSpanEventBo();
         }
     }
 
     @Test
-    public void testBuildSpanBo() throws Exception {
+    public void testBuildSpanBo() {
         TSpan tSpan = random.randomTSpan();
         TSpanEvent tSpanEvent1 = random.randomTSpanEvent((short)0);
         TSpanEvent tSpanEvent2 = random.randomTSpanEvent((short)1);
@@ -116,7 +116,7 @@ public class SpanFactoryTest {
     }
 
     @Test
-    public void testBuildSpanBo_N() throws Exception {
+    public void testBuildSpanBo_N() {
         for (int i = 0; i < REPEAT_COUNT; i++) {
             testBuildSpanBo();
         }
@@ -124,7 +124,7 @@ public class SpanFactoryTest {
 
 
     @Test
-    public void testBuildSpanChunkBo() throws Exception {
+    public void testBuildSpanChunkBo() {
         TSpanChunk tSpanChunk = random.randomTSpanChunk();
         TSpanEvent tSpanEvent1 = random.randomTSpanEvent((short)0);
         TSpanEvent tSpanEvent2 = random.randomTSpanEvent((short)1);
@@ -146,7 +146,7 @@ public class SpanFactoryTest {
     }
 
     @Test
-    public void testTransactionId_skip_agentId() throws Exception {
+    public void testTransactionId_skip_agentId() {
         TSpan tSpan = new TSpan();
         tSpan.setAgentId("agentId");
         byte[] transactionIdBytes = TransactionIdUtils.formatBytes(null, 1, 2);
@@ -161,7 +161,7 @@ public class SpanFactoryTest {
     }
 
     @Test
-    public void testTransactionId_include_agentId() throws Exception {
+    public void testTransactionId_include_agentId() {
         TSpan tSpan = new TSpan();
         tSpan.setAgentId("agentId");
         byte[] transactionIdBytes = TransactionIdUtils.formatBytes("transactionAgentId", 1, 2);
@@ -177,7 +177,7 @@ public class SpanFactoryTest {
 
 
     @Test
-    public void testFastLocalAsyncIdBo() throws Exception {
+    public void testFastLocalAsyncIdBo() {
         int asyncId = 1;
         short asyncSequence = 0;
         TSpanEvent tSpanEvent = new TSpanEvent();
@@ -191,7 +191,7 @@ public class SpanFactoryTest {
     }
 
     @Test
-    public void testFastLocalAsyncIdBo_empty() throws Exception {
+    public void testFastLocalAsyncIdBo_empty() {
 
         TSpanEvent tSpanEvent = new TSpanEvent();
 
@@ -200,7 +200,7 @@ public class SpanFactoryTest {
     }
 
     @Test
-    public void testFullScanLocalAsyncIdBo() throws Exception {
+    public void testFullScanLocalAsyncIdBo() {
         int asyncId = 1;
         short asyncSequence = 0;
         TSpanEvent tSpanEvent = new TSpanEvent();
@@ -217,7 +217,7 @@ public class SpanFactoryTest {
     }
 
     @Test
-    public void testFullScanLocalAsyncIdBo_empty() throws Exception {
+    public void testFullScanLocalAsyncIdBo_empty() {
 
         TSpanEvent tSpanEvent = new TSpanEvent();
         TSpanChunk tSpanChunk = new TSpanChunk();

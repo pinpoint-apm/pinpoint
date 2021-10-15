@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
 public class DefaultMultiClassBasedMatcherTest {
 
     @Test
-    public void getMatcherOperandWithMultiClassName() throws Exception {
+    public void getMatcherOperandWithMultiClassName() {
         // (class OR class)
         DefaultMultiClassBasedMatcher matcher = new DefaultMultiClassBasedMatcher(Arrays.asList("java.lang.String", "java.lang.Thread"));
         assertTrue(matcher.getBaseClassNames().contains("java.lang.String"));
@@ -51,7 +51,7 @@ public class DefaultMultiClassBasedMatcherTest {
     }
 
     @Test
-    public void getMatcherOperandWithMultiClassNameAndAdditional() throws Exception {
+    public void getMatcherOperandWithMultiClassNameAndAdditional() {
         // (class OR class) AND interface
         InterfaceInternalNameMatcherOperand additional = new InterfaceInternalNameMatcherOperand("java/lang/Runnable", false);
         DefaultMultiClassBasedMatcher matcher = new DefaultMultiClassBasedMatcher(Arrays.asList("java.lang.String", "java.lang.Thread"), additional);

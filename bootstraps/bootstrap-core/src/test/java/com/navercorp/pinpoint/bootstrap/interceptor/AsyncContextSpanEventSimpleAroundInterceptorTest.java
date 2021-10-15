@@ -55,12 +55,12 @@ public class AsyncContextSpanEventSimpleAroundInterceptorTest {
     private AsyncContext asyncContext;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
 
     }
 
     @Test
-    public void propagation_fail() throws Exception {
+    public void propagation_fail() {
 
         AroundInterceptor interceptor = mockSpanAsyncEventSimpleInterceptor(traceContext, methodDescriptor);
         interceptor.before(asyncContextAccessor, null);
@@ -71,7 +71,7 @@ public class AsyncContextSpanEventSimpleAroundInterceptorTest {
     }
 
     @Test
-    public void asyncTraceCreate() throws Exception {
+    public void asyncTraceCreate() {
         when(asyncContextAccessor._$PINPOINT$_getAsyncContext()).thenReturn(asyncContext);
         when(asyncContext.continueAsyncTraceObject()).thenReturn(trace);
 
@@ -83,7 +83,7 @@ public class AsyncContextSpanEventSimpleAroundInterceptorTest {
     }
 
     @Test
-    public void nestedAsyncTraceCreate() throws Exception {
+    public void nestedAsyncTraceCreate() {
         when(asyncContextAccessor._$PINPOINT$_getAsyncContext()).thenReturn(asyncContext);
 //        when(asyncContext.continueAsyncTraceObject()).thenReturn(trace);
 

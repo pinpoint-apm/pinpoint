@@ -9,14 +9,14 @@ import com.navercorp.pinpoint.bootstrap.interceptor.registry.Locker;
 public class DefaultLockerTest {
 
     @Test
-    public void testLock_Null0() throws Exception {
+    public void testLock_Null0() {
         Locker locker = new DefaultLocker();
         Assert.assertTrue(locker.lock(null));
         Assert.assertTrue(locker.lock(null));
     }
 
     @Test
-    public void testLock_Null1() throws Exception {
+    public void testLock_Null1() {
         Locker locker = new DefaultLocker();
 
         Assert.assertTrue(locker.lock(null));
@@ -36,7 +36,7 @@ public class DefaultLockerTest {
     }
 
     @Test
-    public void testUnlock() throws Exception {
+    public void testUnlock() {
 
     }
 }

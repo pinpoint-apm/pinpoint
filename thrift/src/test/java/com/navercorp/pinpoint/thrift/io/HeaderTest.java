@@ -32,7 +32,7 @@ public class HeaderTest {
     private final Logger logger = LoggerFactory.getLogger(Header.class.getName());
 
     @Test
-    public void testGetSignature() throws Exception {
+    public void testGetSignature() {
         Header header = new HeaderV1((short) 1);
         byte signature = header.getSignature();
         short type = header.getType();

@@ -37,7 +37,7 @@ public class ScatterDataTest {
     String transactionAgentId = "transactionAgent";
 
     @Test
-    public void addDotTest() throws Exception {
+    public void addDotTest() {
         int count = 100;
 
         long from = 1000;
@@ -57,7 +57,7 @@ public class ScatterDataTest {
     }
 
     @Test
-    public void addDotTest2() throws Exception {
+    public void addDotTest2() {
         long from = 1000;
         long to = 10000;
         int xGroupUnit = 100;
@@ -83,16 +83,16 @@ public class ScatterDataTest {
         ScatterData scatterData = builder.build();
 
         List<DotGroups> values = scatterData.getScatterData();
-        Assert.assertTrue(values.size() == 1);
+        Assert.assertEquals(1, values.size());
 
         for (DotGroups dotGroups : values) {
             Map<Dot, DotGroup> dotGroupLeaders = dotGroups.getDotGroupLeaders();
-            Assert.assertTrue(dotGroupLeaders.keySet().size() == 2);
+            Assert.assertEquals(2, dotGroupLeaders.keySet().size());
         }
     }
 
     @Test
-    public void addDotTest3() throws Exception {
+    public void addDotTest3() {
         long from = 1000;
         long to = 10000;
         int xGroupUnit = 100;

@@ -25,7 +25,7 @@ import org.junit.Test;
  */
 public class LoadStateTest {
     @Test
-    public void testStart() throws Exception {
+    public void testStart() {
         LoadState loadState = new LoadState();
 
         Assert.assertTrue(loadState.start());

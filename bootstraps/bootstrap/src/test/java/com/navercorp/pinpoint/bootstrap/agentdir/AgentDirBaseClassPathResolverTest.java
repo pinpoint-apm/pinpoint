@@ -87,14 +87,14 @@ public class AgentDirBaseClassPathResolverTest {
     }
 
     @Test
-    public void testFindAgentJar() throws Exception {
+    public void testFindAgentJar() {
 
         logger.debug("TEST_AGENT_DIR:{}", agentBuildDir);
         logger.debug("agentBootstrapPath:{}", agentBootstrapPath);
 
         AgentDirBaseClassPathResolver classPathResolver = new AgentDirBaseClassPathResolver(agentBootstrapPath);
         AgentDirectory agentDirectory = classPathResolver.resolve();
-        Assert.assertTrue("verify agent directory ", agentDirectory != null);
+        Assert.assertNotNull("verify agent directory ", agentDirectory);
 
         String findAgentJar = agentDirectory.getAgentJarName();
         Assert.assertNotNull(findAgentJar);

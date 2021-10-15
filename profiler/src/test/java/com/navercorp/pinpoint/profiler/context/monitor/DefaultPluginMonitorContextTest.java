@@ -29,7 +29,7 @@ import java.util.Random;
 public class DefaultPluginMonitorContextTest {
 
     @Test
-    public void registerTest1() throws Exception {
+    public void registerTest1() {
 
         DataSourceMonitorRegistryService dataSourceMonitorRegistryService = new DefaultDataSourceMonitorRegistryService(20);
         int remainingCapacity = dataSourceMonitorRegistryService.getRemainingIdNumber();
@@ -49,7 +49,7 @@ public class DefaultPluginMonitorContextTest {
     }
 
     @Test
-    public void registerTest2() throws Exception {
+    public void registerTest2() {
         DataSourceMonitorRegistryService dataSourceMonitorRegistryService = new DefaultDataSourceMonitorRegistryService(20);
         int remainingCapacity = dataSourceMonitorRegistryService.getRemainingIdNumber();
 

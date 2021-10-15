@@ -33,7 +33,7 @@ public class InterceptorDefinitionFactoryTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Test
-    public void testGetInterceptorType_BasicType() throws Exception {
+    public void testGetInterceptorType_BasicType() {
         InterceptorDefinitionFactory typeDetector = new InterceptorDefinitionFactory();
 
         Assert.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
@@ -52,7 +52,7 @@ public class InterceptorDefinitionFactoryTest {
 
 
     @Test
-    public void testGetInterceptorType_Inherited() throws Exception {
+    public void testGetInterceptorType_Inherited() {
         InterceptorDefinitionFactory typeDetector = new InterceptorDefinitionFactory();
 
         Assert.assertSame(typeDetector.createInterceptorDefinition(InheritedAroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
@@ -70,14 +70,14 @@ public class InterceptorDefinitionFactoryTest {
 
 
     @Test(expected = RuntimeException.class)
-    public void testGetType_Error() throws Exception {
+    public void testGetType_Error() {
         InterceptorDefinitionFactory typeDetector = new InterceptorDefinitionFactory();
         typeDetector.createInterceptorDefinition(Interceptor.class);
     }
 
 
     @Test
-    public void testGetInterceptorCaptureType() throws Exception {
+    public void testGetInterceptorCaptureType() {
         InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
 
         final InterceptorDefinition before = interceptorDefinitionFactory.createInterceptorDefinition(TestBeforeInterceptor.class);

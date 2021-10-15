@@ -57,13 +57,13 @@ public class LoadedClassCountCodecTest {
         assertEquals(valueBuffer.readByte(), loadedClassCodec.getVersion());
         List<JoinStatBo> decodedJoinLoadedClassBoList = loadedClassCodec.decodeValues(valueBuffer, decodingContext);
         for (int i = 0; i < decodedJoinLoadedClassBoList.size(); i++) {
-            assertTrue(decodedJoinLoadedClassBoList.get(i).equals(joinLoadedClassBoList.get(i)));
+            assertEquals(decodedJoinLoadedClassBoList.get(i), joinLoadedClassBoList.get(i));
         }
     }
 
     private List<JoinStatBo> createJoinLoadedClassCountBoList(long currentTime) {
         final String id = "test_app";
-        final List<JoinStatBo> joinLoadedClassBoList = new ArrayList();
+        final List<JoinStatBo> joinLoadedClassBoList = new ArrayList<>();
         JoinLoadedClassBo joinLoadedClassBo1 = new JoinLoadedClassBo(id, 80, 900, "agent2_1", 20, "agent2_2", 70, 900, "agent2_1", 20, "agent2_2", currentTime);
         JoinLoadedClassBo joinLoadedClassBo2 = new JoinLoadedClassBo(id, 70, 900, "agent2_1", 20, "agent2_2", 70, 900, "agent2_1", 20, "agent2_2", currentTime+5000);
         JoinLoadedClassBo joinLoadedClassBo3 = new JoinLoadedClassBo(id, 60, 800, "agent4_1", 15, "agent4_2", 60, 800, "agent4_1", 15, "agent4_2", currentTime+15000);
