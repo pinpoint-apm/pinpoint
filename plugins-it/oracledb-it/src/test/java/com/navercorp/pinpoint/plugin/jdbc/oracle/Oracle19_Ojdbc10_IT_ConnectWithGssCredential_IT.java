@@ -31,7 +31,6 @@ import org.testcontainers.containers.wait.strategy.Wait;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"com.oracle.database.jdbc:ojdbc10:[19,19.9)", JDBCTestConstants.VERSION, OracleITConstants.ORACLE_TESTCONTAINER})
-@Repository("http://repo.navercorp.com/maven2")
 @JvmVersion(11)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-oracle-jdbc-driver-plugin")
 public class Oracle19_Ojdbc10_IT_ConnectWithGssCredential_IT extends Oracle_IT_Base {
