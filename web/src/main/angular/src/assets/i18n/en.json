@@ -95,6 +95,11 @@
         },
         "EXPERIMENTAL": {
             "DESC": "* You may try the experimental features."
+        },
+        "WEBHOOK": {
+            "URL": "url",
+            "URL_VALIDATION": "Please enter the Url correctly.",
+            "ALIAS": "If empty, it is set to the entered Url."
         }
     },
     "TRANSACTION": {

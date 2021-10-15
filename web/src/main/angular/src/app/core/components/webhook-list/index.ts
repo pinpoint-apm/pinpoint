@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'app/shared';
 import { WebhookListComponent } from './webhook-list.component';
 import { WebhookListCreateAndUpdateComponent } from './webhook-list-create-and-update.component';
@@ -12,6 +13,8 @@ import { WebhookListDataService } from './webhook-list-data.service';
         WebhookListCreateAndUpdateComponent,
     ],
     imports: [
+        FormsModule,
+        ReactiveFormsModule,
         SharedModule
     ],
     exports: [
