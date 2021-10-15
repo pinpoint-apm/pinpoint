@@ -6,7 +6,7 @@ import com.navercorp.pinpoint.collector.dao.hbase.HbaseMapStatisticsCalleeDao;
 import com.navercorp.pinpoint.collector.dao.hbase.HbaseMapStatisticsCallerDao;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +24,8 @@ public class BulkFactory {
     private final BulkIncrementerFactory bulkIncrementerFactory;
     private final BulkOperationReporterFactory bulkOperationReporterFactory;
 
-    public BulkFactory(BulkConfiguration bulkConfiguration, BulkIncrementerFactory bulkIncrementerFactory,
+    public BulkFactory(BulkConfiguration bulkConfiguration,
+                       BulkIncrementerFactory bulkIncrementerFactory,
                        BulkOperationReporterFactory bulkOperationReporterFactory) {
         this.bulkConfiguration = Objects.requireNonNull(bulkConfiguration, "bulkConfiguration");
         this.bulkIncrementerFactory = Objects.requireNonNull(bulkIncrementerFactory, "bulkIncrementerFactory");
@@ -47,16 +48,18 @@ public class BulkFactory {
         return bulkIncrementerFactory.wrap(bulkUpdater, bulkConfiguration.getCalleeLimitSize(), reporter);
     }
 
-    private BulkWriter newBulkWriter(String loggerName, HbaseOperations2 hbaseTemplate,
-                                     TableDescriptor<? extends HbaseColumnFamily> descriptor,
+    private BulkWriter newBulkWriter(String loggerName,
+                                     HbaseOperations2 hbaseTemplate,
+                                     HbaseColumnFamily descriptor,
+                                     TableNameProvider tableNameProvider,
                                      RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                                      BulkIncrementer bulkIncrementer,
                                      BulkUpdater bulkUpdater) {
         if (bulkConfiguration.enableBulk()) {
             return new DefaultBulkWriter(loggerName, hbaseTemplate, rowKeyDistributorByHashPrefix,
-                    bulkIncrementer, bulkUpdater, descriptor);
+                    bulkIncrementer, bulkUpdater, descriptor, tableNameProvider);
         } else {
-            return new SyncWriter(loggerName, hbaseTemplate, rowKeyDistributorByHashPrefix, descriptor);
+            return new SyncWriter(loggerName, hbaseTemplate, rowKeyDistributorByHashPrefix, descriptor, tableNameProvider);
         }
     }
 
@@ -78,12 +81,12 @@ public class BulkFactory {
 
     @Bean("callerBulkWriter")
     public BulkWriter newCallerBulkWriter(HbaseOperations2 hbaseTemplate,
-                                          TableDescriptor<HbaseColumnFamily.CalleeStatMap> descriptor,
+                                          TableNameProvider tableNameProvider,
                                           @Qualifier("statisticsCallerRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                                           @Qualifier("callerBulkIncrementer") BulkIncrementer bulkIncrementer,
                                           @Qualifier("callerBulkUpdater") BulkUpdater bulkUpdater) {
         String loggerName = newBulkWriterName(HbaseMapStatisticsCallerDao.class.getName());
-        return newBulkWriter(loggerName, hbaseTemplate, descriptor, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
+        return newBulkWriter(loggerName, hbaseTemplate, HbaseColumnFamily.MAP_STATISTICS_CALLEE_VER2_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
     }
 
 
@@ -105,12 +108,12 @@ public class BulkFactory {
 
     @Bean("calleeBulkWriter")
     public BulkWriter newCalleeBulkWriter(HbaseOperations2 hbaseTemplate,
-                                          TableDescriptor<HbaseColumnFamily.CallerStatMap> descriptor,
+                                          TableNameProvider tableNameProvider,
                                           @Qualifier("statisticsCalleeRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                                           @Qualifier("calleeBulkIncrementer") BulkIncrementer bulkIncrementer,
                                           @Qualifier("calleeBulkUpdater") BulkUpdater bulkUpdater) {
         String loggerName = newBulkWriterName(HbaseMapStatisticsCalleeDao.class.getName());
-        return newBulkWriter(loggerName, hbaseTemplate, descriptor, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
+        return newBulkWriter(loggerName, hbaseTemplate, HbaseColumnFamily.MAP_STATISTICS_CALLER_VER2_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
     }
 
     @Bean("selfBulkIncrementer")
@@ -130,12 +133,12 @@ public class BulkFactory {
 
     @Bean("selfBulkWriter")
     public BulkWriter newSelfBulkWriter(HbaseOperations2 hbaseTemplate,
-                                        TableDescriptor<HbaseColumnFamily.SelfStatMap> descriptor,
+                                        TableNameProvider tableNameProvider,
                                         @Qualifier("statisticsSelfRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                                         @Qualifier("selfBulkIncrementer") BulkIncrementer bulkIncrementer,
                                         @Qualifier("selfBulkUpdater") BulkUpdater bulkUpdater) {
         String loggerName = newBulkWriterName(HbaseMapResponseTimeDao.class.getName());
-        return newBulkWriter(loggerName, hbaseTemplate, descriptor, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
+        return newBulkWriter(loggerName, hbaseTemplate, HbaseColumnFamily.MAP_STATISTICS_SELF_VER2_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
     }
 
     private String newBulkWriterName(String className) {

@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
@@ -47,19 +47,21 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private static final HbaseColumnFamily.ApiMetadata description = HbaseColumnFamily.API_METADATA_API;
+
     private final HbaseOperations2 hbaseTemplate;
 
-    private final TableDescriptor<HbaseColumnFamily.ApiMetadata> description;
+    private final TableNameProvider tableNameProvider;
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder = new MetadataEncoder();
 
     public HbaseApiMetaDataDao(HbaseOperations2 hbaseTemplate,
-                               TableDescriptor<HbaseColumnFamily.ApiMetadata> description,
+                               TableNameProvider tableNameProvider,
                                @Qualifier("metadataRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
-        this.description = Objects.requireNonNull(description, "description");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
     }
 
@@ -82,9 +84,9 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
         buffer.putInt(apiMetaData.getMethodTypeEnum().getCode());
 
         final byte[] apiMetaDataBytes = buffer.getBuffer();
-        put.addColumn(description.getColumnFamilyName(), description.getColumnFamily().QUALIFIER_SIGNATURE, apiMetaDataBytes);
+        put.addColumn(description.getName(), description.QUALIFIER_SIGNATURE, apiMetaDataBytes);
 
-        final TableName apiMetaDataTableName = description.getTableName();
+        final TableName apiMetaDataTableName = tableNameProvider.getTableName(description.getTable());
         hbaseTemplate.put(apiMetaDataTableName, put);
     }
 

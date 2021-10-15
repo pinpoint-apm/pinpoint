@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
@@ -49,18 +49,18 @@ public class HbaseApplicationStatDaoOperations {
     private static final int MAX_SCAN_CACHE_SIZE = 256;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final HbaseColumnFamily.ApplicationStatStatistics DESCRIPTOR = HbaseColumnFamily.APPLICATION_STAT_STATISTICS;
 
     private final HbaseOperations2 hbaseOperations2;
+    private final TableNameProvider tableNameProvider;
 
     private final ApplicationStatHbaseOperationFactory operationFactory;
 
-    private final TableDescriptor<HbaseColumnFamily.ApplicationStatStatistics> descriptor;
-
     public HbaseApplicationStatDaoOperations(HbaseOperations2 hbaseOperations2,
-                                             TableDescriptor<HbaseColumnFamily.ApplicationStatStatistics> descriptor,
+                                             TableNameProvider tableNameProvider,
                                              ApplicationStatHbaseOperationFactory operationFactory) {
         this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.operationFactory = Objects.requireNonNull(operationFactory, "operationFactory");
     }
 
@@ -71,7 +71,7 @@ public class HbaseApplicationStatDaoOperations {
 
         Scan scan = this.createScan(statType, applicationId, range);
 
-        TableName applicationStatAggreTableName = descriptor.getTableName();
+        TableName applicationStatAggreTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return hbaseOperations2.findParallel(applicationStatAggreTableName, scan, this.operationFactory.getRowKeyDistributor(), resultExtractor, APPLICATION_STAT_NUM_PARTITIONS);
     }
 
@@ -82,7 +82,7 @@ public class HbaseApplicationStatDaoOperations {
 
     private Scan createScan(StatType statType, String applicationId, Range range) {
         long scanRange = range.getTo() - range.getFrom();
-        long expectedNumRows = ((scanRange - 1) / descriptor.getColumnFamily().TIMESPAN_MS) + 1;
+        long expectedNumRows = ((scanRange - 1) / DESCRIPTOR.TIMESPAN_MS) + 1;
         if (range.getFrom() != AgentStatUtils.getBaseTimestamp(range.getFrom())) {
             expectedNumRows++;
         }
@@ -98,7 +98,7 @@ public class HbaseApplicationStatDaoOperations {
         Scan scan = this.operationFactory.createScan(applicationId, statType, range.getFrom(), range.getTo());
         scan.setCaching(scanCacheSize);
         scan.setId("ApplicationStat_" + statType);
-        scan.addFamily(descriptor.getColumnFamilyName());
+        scan.addFamily(DESCRIPTOR.getName());
         return scan;
     }
 

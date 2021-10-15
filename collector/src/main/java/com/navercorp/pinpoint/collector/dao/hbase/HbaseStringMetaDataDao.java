@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.collector.dao.StringMetaDataDao;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
@@ -46,19 +46,21 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final HbaseOperations2 hbaseTemplate;
+    private static final HbaseColumnFamily.StringMetadataStr DESCRIPTOR = HbaseColumnFamily.STRING_METADATA_STR;
 
-    private final TableDescriptor<HbaseColumnFamily.StringMetadataStr> descriptor;
+    private final HbaseOperations2 hbaseTemplate;
+    private final TableNameProvider tableNameProvider;
+
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder = new MetadataEncoder();
 
     public HbaseStringMetaDataDao(HbaseOperations2 hbaseTemplate,
-                                  TableDescriptor<HbaseColumnFamily.StringMetadataStr> descriptor,
+                                  TableNameProvider tableNameProvider,
                                   @Qualifier("metadataRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
     }
 
@@ -76,9 +78,9 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
         final Put put = new Put(rowKey);
         final String stringValue = stringMetaData.getStringValue();
         final byte[] sqlBytes = Bytes.toBytes(stringValue);
-        put.addColumn(descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_STRING, sqlBytes);
+        put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.QUALIFIER_STRING, sqlBytes);
 
-        final TableName stringMetaDataTableName = descriptor.getTableName();
+        final TableName stringMetaDataTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         hbaseTemplate.put(stringMetaDataTableName, put);
     }
 
