@@ -26,7 +26,7 @@ import org.junit.Test;
 public class SequenceSpanEventFilterTest {
 
     @Test
-    public void testFilter_accept() throws Exception {
+    public void testFilter_accept() {
         SpanEventFilter filter = new SequenceSpanEventFilter(100);
 
         final SpanEventBo spanEventBo = new SpanEventBo();
@@ -38,7 +38,7 @@ public class SequenceSpanEventFilterTest {
 
 
     @Test
-    public void testFilter_reject() throws Exception {
+    public void testFilter_reject() {
         SpanEventFilter filter = new SequenceSpanEventFilter(10);
 
         final SpanEventBo spanEventBo = new SpanEventBo();
@@ -49,7 +49,7 @@ public class SequenceSpanEventFilterTest {
     }
 
     @Test
-    public void testFilter_max() throws Exception {
+    public void testFilter_max() {
         new SequenceSpanEventFilter(Short.MAX_VALUE);
 
         try {

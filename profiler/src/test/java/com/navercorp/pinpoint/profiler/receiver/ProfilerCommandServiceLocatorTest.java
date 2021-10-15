@@ -33,7 +33,7 @@ import java.util.List;
 public class ProfilerCommandServiceLocatorTest {
 
     @Test(expected = NullPointerException.class)
-    public void throwNullTest1() throws Exception {
+    public void throwNullTest1() {
         ProfilerCommandService commandService = null;
 
         ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
@@ -41,7 +41,7 @@ public class ProfilerCommandServiceLocatorTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void throwNullTest2() throws Exception {
+    public void throwNullTest2() {
         ProfilerCommandServiceGroup commandServiceGroup = null;
 
         ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
@@ -49,19 +49,19 @@ public class ProfilerCommandServiceLocatorTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void throwNullTest3() throws Exception {
+    public void throwNullTest3() {
         ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
         builder.addService((short) -1, null);
     }
 
     @Test(expected = NullPointerException.class)
-    public void throwNullTest4() throws Exception {
+    public void throwNullTest4() {
         ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
         builder.addService(TCommandType.RESULT.getCode(), null);
     }
 
     @Test
-    public void returnNullTest() throws Exception {
+    public void returnNullTest() {
         ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
         ProfilerCommandServiceLocator commandServiceLocator = builder.build();
 
@@ -72,7 +72,7 @@ public class ProfilerCommandServiceLocatorTest {
     }
 
     @Test
-    public void basicFunctionTest1() throws Exception {
+    public void basicFunctionTest1() {
         ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
         builder.addService(new EchoService());
         builder.addService(new EchoService());
@@ -92,7 +92,7 @@ public class ProfilerCommandServiceLocatorTest {
     }
 
     @Test
-    public void basicFunctionTest2() throws Exception {
+    public void basicFunctionTest2() {
         ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
         builder.addService(new MockCommandServiceGroup());
         DefaultProfilerCommandServiceLocator commandServiceLocator = (DefaultProfilerCommandServiceLocator) builder.build();

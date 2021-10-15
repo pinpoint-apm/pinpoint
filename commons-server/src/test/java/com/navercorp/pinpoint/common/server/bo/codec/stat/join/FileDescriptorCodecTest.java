@@ -60,13 +60,13 @@ public class FileDescriptorCodecTest {
         assertEquals(valueBuffer.readByte(), fileDescriptorCodec.getVersion());
         List<JoinStatBo> decodedJoinFileDescriptorBoList = fileDescriptorCodec.decodeValues(valueBuffer, decodingContext);
         for (int i = 0; i < decodedJoinFileDescriptorBoList.size(); i++) {
-            assertTrue(decodedJoinFileDescriptorBoList.get(i).equals(joinFileDescriptorBoList.get(i)));
+            assertEquals(decodedJoinFileDescriptorBoList.get(i), joinFileDescriptorBoList.get(i));
         }
     }
 
     private List<JoinStatBo> createJoinFileDescriptorBoList(long currentTime) {
         final String id = "test_app";
-        final List<JoinStatBo> joinFileDescriptorBoList = new ArrayList();
+        final List<JoinStatBo> joinFileDescriptorBoList = new ArrayList<>();
         JoinFileDescriptorBo joinFileDescriptorBo1 = new JoinFileDescriptorBo(id, 80, 1000, "agent1_1", 30, "agent1_2", currentTime);
         JoinFileDescriptorBo joinFileDescriptorBo2 = new JoinFileDescriptorBo(id, 70, 900, "agent2_1", 20, "agent2_2", currentTime + 5000);
         JoinFileDescriptorBo joinFileDescriptorBo4 = new JoinFileDescriptorBo(id, 60, 800, "agent4_1", 15, "agent4_2",  currentTime + 15000);

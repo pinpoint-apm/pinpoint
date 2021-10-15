@@ -44,7 +44,7 @@ import static org.junit.Assert.assertEquals;
 public class MatchableTransformerRegistryTest {
 
     @Test
-    public void findTransformer() throws Exception {
+    public void findTransformer() {
         List<MatchableClassFileTransformer> matchableClassFileTransformerList = new ArrayList<>();
         MockMatchableClassFileTransformer mock1 = new MockMatchableClassFileTransformer(Matchers.newPackageBasedMatcher("com.navercorp.pinpoint.profiler.plugin"));
         MockMatchableClassFileTransformer mock2 = new MockMatchableClassFileTransformer(Matchers.newPackageBasedMatcher("com.navercorp.pinpoint.profiler.sender"));
@@ -71,7 +71,7 @@ public class MatchableTransformerRegistryTest {
     @Test
     public void packageNameBasedIndex() {
         // sorted
-        TreeMap<String, String> packageNameBasedIndex = new TreeMap<String, String>(new Comparator<String>() {
+        TreeMap<String, String> packageNameBasedIndex = new TreeMap<>(new Comparator<String>() {
             @Override
             public int compare(String key1, String key2) {
                 return key1.compareTo(key2);

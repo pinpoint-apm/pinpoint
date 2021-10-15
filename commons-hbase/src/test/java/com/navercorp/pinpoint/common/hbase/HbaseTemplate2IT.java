@@ -70,7 +70,7 @@ public class HbaseTemplate2IT {
 
     @Test
     @Ignore
-    public void notExist() throws Exception {
+    public void notExist() {
         try {
             hbaseTemplate2.put(TableName.valueOf("NOT_EXIST"), new byte[] {0, 0, 0}, "familyName".getBytes(), "columnName".getBytes(), new byte[]{0, 0, 0});
             Assert.fail("exceptions");

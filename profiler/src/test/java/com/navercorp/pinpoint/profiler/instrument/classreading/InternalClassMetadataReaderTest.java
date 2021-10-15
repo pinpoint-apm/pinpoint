@@ -31,7 +31,7 @@ import static org.junit.Assert.*;
 public class InternalClassMetadataReaderTest {
 
     @Test
-    public void getInternalClassMetadata() throws Exception {
+    public void getInternalClassMetadata() {
         final Class<?> clazz = String.class;
         final byte[] classBinary = BytecodeUtils.getClassFile(ClassLoaderUtils.getDefaultClassLoader(), clazz.getName());
 
@@ -40,7 +40,7 @@ public class InternalClassMetadataReaderTest {
         assertEquals(JavaAssistUtils.javaNameToJvmName(clazz.getName()), classMetadata.getClassInternalName());
 
         // interfaces
-        for (Class interfacez : clazz.getInterfaces()) {
+        for (Class<?> interfacez : clazz.getInterfaces()) {
             final String interfaceInternalName = JavaAssistUtils.javaNameToJvmName(interfacez.getName());
             Assert.assertTrue(classMetadata.getInterfaceInternalNames().contains(interfaceInternalName));
         }
@@ -56,7 +56,7 @@ public class InternalClassMetadataReaderTest {
     }
 
     @Test
-    public void SuperIsNull() throws Exception {
+    public void SuperIsNull() {
         final Class<?> clazz = Object.class;
         final byte[] classBinary = BytecodeUtils.getClassFile(ClassLoaderUtils.getDefaultClassLoader(), clazz.getName());
         InternalClassMetadata classMetadata = InternalClassMetadataReader.readInternalClassMetadata(classBinary);

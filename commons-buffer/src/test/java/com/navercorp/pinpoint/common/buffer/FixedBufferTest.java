@@ -196,7 +196,7 @@ public class FixedBufferTest {
     }
 
     @Test
-    public void testPut2PrefixedBytes() throws Exception {
+    public void testPut2PrefixedBytes() {
         String test = "test";
         int endExpected = 3333;
 
@@ -240,7 +240,7 @@ public class FixedBufferTest {
     }
 
     @Test
-    public void testPut4PrefixedBytes() throws Exception {
+    public void testPut4PrefixedBytes() {
         String test = "test";
         int endExpected = 3333;
 
@@ -270,22 +270,22 @@ public class FixedBufferTest {
     }
 
     @Test
-    public void testReadByte() throws Exception {
+    public void testReadByte() {
 
     }
 
     @Test
-    public void testReadBoolean() throws Exception {
+    public void testReadBoolean() {
 
     }
 
     @Test
-    public void testReadInt() throws Exception {
+    public void testReadInt() {
 
     }
 
     @Test
-    public void testReadLong() throws Exception {
+    public void testReadLong() {
 
     }
 
@@ -293,7 +293,7 @@ public class FixedBufferTest {
 
 
     @Test
-    public void testReadPrefixedString() throws Exception {
+    public void testReadPrefixedString() {
 
     }
 
@@ -305,7 +305,7 @@ public class FixedBufferTest {
     }
 
     @Test
-    public void testRead4PrefixedString() throws Exception {
+    public void testRead4PrefixedString() {
         String value = "test";
 
         byte[] length = intToByteArray(value.length());
@@ -321,7 +321,7 @@ public class FixedBufferTest {
 
 
     @Test
-    public void testRead4PrefixedString_Null() throws Exception {
+    public void testRead4PrefixedString_Null() {
         byte[] length = intToByteArray(-1);
 
 
@@ -332,7 +332,7 @@ public class FixedBufferTest {
     }
 
     @Test
-    public void testPut() throws Exception {
+    public void testPut() {
         checkUnsignedByte(255);
 
         checkUnsignedByte(0);
@@ -346,7 +346,7 @@ public class FixedBufferTest {
     * bound 5->268435456
     */
     @Test
-    public void testPutVInt() throws Exception {
+    public void testPutVInt() {
         checkVInt(Integer.MAX_VALUE, 5);
         checkVInt(25, 1);
         checkVInt(100, 1);
@@ -397,7 +397,7 @@ public class FixedBufferTest {
     }
 
     @Test
-    public void testPutSVInt() throws Exception {
+    public void testPutSVInt() {
         // 63 is the boundary for a 1 byte number
         checkSVInt(63, -1);
         // 8191 is the boundary for a 2 byte number
@@ -422,7 +422,7 @@ public class FixedBufferTest {
     }
 
 //    @Test
-    public void find_SVInt_errorCode() throws Exception {
+    public void find_SVInt_errorCode() {
         Random random = new Random();
         byte[] bytes = new byte[10];
 
@@ -445,7 +445,7 @@ public class FixedBufferTest {
     }
 
 //    @Test
-    public void find_SVLong_errorCode() throws Exception {
+    public void find_SVLong_errorCode() {
         Random random = new Random();
         byte[] bytes = new byte[10];
 
@@ -507,7 +507,7 @@ public class FixedBufferTest {
     }
 
     @Test
-    public void testPutVLong() throws Exception {
+    public void testPutVLong() {
         checkVLong(1);
         checkVLong(-1);
 
@@ -571,7 +571,7 @@ public class FixedBufferTest {
 
 
     @Test
-    public void testGetBuffer() throws Exception {
+    public void testGetBuffer() {
         Buffer buffer = new FixedBuffer(4);
         buffer.putInt(1);
         Assert.assertEquals(buffer.getOffset(), 4);
@@ -579,7 +579,7 @@ public class FixedBufferTest {
     }
 
     @Test
-    public void testWrapByteBuffer() throws Exception {
+    public void testWrapByteBuffer() {
         FixedBuffer buffer = new FixedBuffer(8);
         buffer.putInt(1);
         buffer.putInt(2);
@@ -590,7 +590,7 @@ public class FixedBufferTest {
     }
 
     @Test
-    public void testSliceGetBuffer() throws Exception {
+    public void testSliceGetBuffer() {
         Buffer buffer = new FixedBuffer(5);
         buffer.putInt(1);
         Assert.assertEquals(buffer.getOffset(), 4);
@@ -598,7 +598,7 @@ public class FixedBufferTest {
 
         byte[] buffer1 = buffer.getBuffer();
         byte[] buffer2 = buffer.getBuffer();
-        Assert.assertTrue(buffer1 != buffer2);
+        Assert.assertNotSame(buffer1, buffer2);
 
     }
 
@@ -617,7 +617,7 @@ public class FixedBufferTest {
     }
 
     @Test
-    public void testGetOffset() throws Exception {
+    public void testGetOffset() {
         Buffer buffer = new FixedBuffer();
         Assert.assertEquals(buffer.getOffset(), 0);
 
@@ -628,7 +628,7 @@ public class FixedBufferTest {
 
 
     @Test
-    public void test_remaining() throws Exception {
+    public void test_remaining() {
         final byte[] bytes = new byte[BytesUtils.INT_BYTE_LENGTH];
         Buffer buffer = new FixedBuffer(bytes);
         Assert.assertEquals(buffer.remaining(), 4);

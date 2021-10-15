@@ -31,7 +31,7 @@ public class DefaultRpcMetric implements RpcMetric {
 
     private final ServiceType serviceType;
     // TODO Change to LRU cache. It could makes numbers incorrect but prevents OOM.
-    private final ConcurrentMap<String, Histogram> histogramMap = new ConcurrentHashMap<String, Histogram>();
+    private final ConcurrentMap<String, Histogram> histogramMap = new ConcurrentHashMap<>();
 
     public DefaultRpcMetric(ServiceType serviceType) {
         this.serviceType = Objects.requireNonNull(serviceType, "serviceType");

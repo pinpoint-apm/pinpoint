@@ -31,7 +31,7 @@ public class AcceptApplicationLocalCacheTest {
 
 
     @Test
-    public void testFind() throws Exception {
+    public void testFind() {
         AcceptApplicationLocalCache cache = new AcceptApplicationLocalCache();
 
         Application tomcat = new Application("Tomcat", ServiceType.STAND_ALONE);

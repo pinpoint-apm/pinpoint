@@ -37,7 +37,7 @@ import static org.junit.Assert.assertEquals;
 public class ApplicationCpuLoadChartGroupTest {
 
     @Test
-    public void createApplicationCpuLoadChartGroupTest() throws Exception {
+    public void createApplicationCpuLoadChartGroupTest() {
         long time = 1495418083250L;
         Range range = Range.newRange(time - 240000, time);
         TimeWindow timeWindow = new TimeWindow(range);

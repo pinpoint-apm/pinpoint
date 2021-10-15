@@ -28,7 +28,7 @@ import static org.junit.Assert.*;
 public class DiscardLimiterTest {
 
     @Test
-    public void discardCase1() throws Exception {
+    public void discardCase1() {
         DiscardLimiter discardLimiter = new DiscardLimiter(100, 100);
         discardLimiter.reset();
 
@@ -98,7 +98,7 @@ public class DiscardLimiterTest {
     }
 
     @Test
-    public void checkDiscardCountForReconnect() throws Exception {
+    public void checkDiscardCountForReconnect() {
         DiscardLimiter discardLimiter = new DiscardLimiter(100, 100);
         discardLimiter.reset();
 

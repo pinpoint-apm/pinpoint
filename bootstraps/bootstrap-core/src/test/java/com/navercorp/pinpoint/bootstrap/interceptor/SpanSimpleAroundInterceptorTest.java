@@ -36,7 +36,7 @@ public class SpanSimpleAroundInterceptorTest {
 
 
     @Test
-    public void lifeCycle() throws Exception {
+    public void lifeCycle() {
         Trace trace = newTrace();
         TraceContext context = newTraceContext(trace);
 
@@ -46,7 +46,7 @@ public class SpanSimpleAroundInterceptorTest {
     }
 
     @Test
-    public void beforeExceptionLifeCycle() throws Exception {
+    public void beforeExceptionLifeCycle() {
 
         Trace trace = newTrace();
         TraceContext context = newTraceContext(trace);
@@ -95,7 +95,7 @@ public class SpanSimpleAroundInterceptorTest {
 
 
     @Test
-    public void afterExceptionLifeCycle() throws Exception {
+    public void afterExceptionLifeCycle() {
 
         Trace trace = newTrace();
         TraceContext context = newTraceContext(trace);
@@ -112,7 +112,7 @@ public class SpanSimpleAroundInterceptorTest {
     }
 
     @Test
-    public void beforeAfterExceptionLifeCycle() throws Exception {
+    public void beforeAfterExceptionLifeCycle() {
 
         Trace trace = newTrace();
         TraceContext context = newTraceContext(trace);
@@ -173,12 +173,12 @@ public class SpanSimpleAroundInterceptorTest {
 
 
     @Test
-    public void testCreateTrace() throws Exception {
+    public void testCreateTrace() {
 
     }
 
     @Test
-    public void testDoInAfterTrace() throws Exception {
+    public void testDoInAfterTrace() {
 
     }
 

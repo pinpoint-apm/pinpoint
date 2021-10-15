@@ -41,7 +41,7 @@ public class PreparedStatementUtilsTest {
     }
 
     @Test
-    public void testMatch() throws Exception {
+    public void testMatch() {
         Assert.assertTrue(PreparedStatementUtils.isSetter("setNCString"));
         Assert.assertTrue(PreparedStatementUtils.isSetter("setInt"));
         Assert.assertTrue(PreparedStatementUtils.isSetter("setTestTeTst"));

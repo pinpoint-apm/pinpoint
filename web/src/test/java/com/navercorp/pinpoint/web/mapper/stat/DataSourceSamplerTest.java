@@ -37,7 +37,7 @@ public class DataSourceSamplerTest {
     private final DataSourceSampler sampler = new DataSourceSampler();
 
     @Test
-    public void sampleDataPointsTest1() throws Exception {
+    public void sampleDataPointsTest1() {
         int testObjectSize = RandomUtils.nextInt(1, CREATE_TEST_OBJECT_MAX_SIZE);
         int maxConnectionSize = RandomUtils.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE, MIN_VALUE_OF_MAX_CONNECTION_SIZE * 2);
         List<DataSourceBo> dataSourceBoList = DataSourceTestUtils.createDataSourceBoList(1, testObjectSize, maxConnectionSize);
@@ -58,31 +58,23 @@ public class DataSourceSamplerTest {
 
         for (DataSourceBo dataSourceBo : dataSourceBoList) {
             int activeConnectionSize = dataSourceBo.getActiveConnectionSize();
-            if (activeConnectionSize < minActiveConnectionSize) {
-                minActiveConnectionSize = activeConnectionSize;
-            }
-            if (activeConnectionSize > maxActiveConnectionSize) {
-                maxActiveConnectionSize = activeConnectionSize;
-            }
+            minActiveConnectionSize = Math.min(activeConnectionSize, minActiveConnectionSize);
+            maxActiveConnectionSize = Math.max(activeConnectionSize, maxActiveConnectionSize);
             sumActiveConnectionSize += activeConnectionSize;
 
             int maxConnectionSize = dataSourceBo.getMaxConnectionSize();
-            if (maxConnectionSize < minMaxConnectionSize) {
-                minMaxConnectionSize = maxConnectionSize;
-            }
-            if (maxConnectionSize > maxMaxConnectionSize) {
-                maxMaxConnectionSize = maxConnectionSize;
-            }
+            minMaxConnectionSize = Math.min(maxConnectionSize, minMaxConnectionSize);
+            maxMaxConnectionSize = Math.max(maxConnectionSize, maxMaxConnectionSize);
             sumMaxConnectionSize += maxConnectionSize;
         }
 
-        Assert.assertTrue(sampledDataSource.getActiveConnectionSize().getMinYVal().equals(minActiveConnectionSize));
-        Assert.assertTrue(sampledDataSource.getActiveConnectionSize().getMaxYVal().equals(maxActiveConnectionSize));
-        Assert.assertTrue(sampledDataSource.getActiveConnectionSize().getSumYVal().equals(sumActiveConnectionSize));
+        Assert.assertEquals((int) sampledDataSource.getActiveConnectionSize().getMinYVal(), minActiveConnectionSize);
+        Assert.assertEquals((int) sampledDataSource.getActiveConnectionSize().getMaxYVal(), maxActiveConnectionSize);
+        Assert.assertEquals((int) sampledDataSource.getActiveConnectionSize().getSumYVal(), sumActiveConnectionSize);
 
-        Assert.assertTrue(sampledDataSource.getMaxConnectionSize().getMinYVal().equals(minMaxConnectionSize));
-        Assert.assertTrue(sampledDataSource.getMaxConnectionSize().getMaxYVal().equals(maxMaxConnectionSize));
-        Assert.assertTrue(sampledDataSource.getMaxConnectionSize().getSumYVal().equals(sumMaxConnectionSize));
+        Assert.assertEquals((int) sampledDataSource.getMaxConnectionSize().getMinYVal(), minMaxConnectionSize);
+        Assert.assertEquals((int) sampledDataSource.getMaxConnectionSize().getMaxYVal(), maxMaxConnectionSize);
+        Assert.assertEquals((int) sampledDataSource.getMaxConnectionSize().getSumYVal(), sumMaxConnectionSize);
     }
 
 }

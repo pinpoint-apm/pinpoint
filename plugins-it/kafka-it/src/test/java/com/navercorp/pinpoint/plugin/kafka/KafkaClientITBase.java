@@ -104,7 +104,7 @@ public abstract class KafkaClientITBase {
         );
     }
 
-    private void verifyConsumerEntryPoint(PluginTestVerifier verifier, String topic, String expectedRpc, Class paramType, ExpectedAnnotation... expectedAnnotations)
+    private void verifyConsumerEntryPoint(PluginTestVerifier verifier, String topic, String expectedRpc, Class<?> paramType, ExpectedAnnotation... expectedAnnotations)
             throws NoSuchMethodException {
 
         Method sendMethod = KafkaProducer.class.getDeclaredMethod("send", ProducerRecord.class, Callback.class);

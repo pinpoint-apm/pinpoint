@@ -134,7 +134,7 @@ public class TransformClassLoader extends ClassLoader {
     /**
      * Requests the class loader to load a class.
      */
-    protected Class loadClass(String name, boolean resolve)
+    protected Class<?> loadClass(String name, boolean resolve)
             throws ClassFormatError, ClassNotFoundException {
 
         synchronized (getClassLoadingLock(name)) {

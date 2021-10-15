@@ -20,7 +20,6 @@ package com.navercorp.pinpoint.thrift.io;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.thrift.io.PacketUtils;
 
 import java.net.DatagramPacket;
 import java.util.Arrays;
@@ -30,7 +29,7 @@ import java.util.Arrays;
  */
 public class PacketUtilsTest {
     @Test
-    public void testSliceData1() throws Exception {
+    public void testSliceData1() {
         DatagramPacket packet = createPacket(10);
         packet.setLength(5);
 
@@ -40,7 +39,7 @@ public class PacketUtilsTest {
     }
 
     @Test
-    public void testSliceData2() throws Exception {
+    public void testSliceData2() {
         DatagramPacket packet = createPacket(10);
         Arrays.fill(packet.getData(), 1, 8, (byte)'a');
 
@@ -50,7 +49,7 @@ public class PacketUtilsTest {
 
 
     @Test
-    public void testSliceData3() throws Exception {
+    public void testSliceData3() {
         DatagramPacket packet = createPacket(10);
         Arrays.fill(packet.getData(), 1, 8, (byte)'a');
         packet.setLength(4);

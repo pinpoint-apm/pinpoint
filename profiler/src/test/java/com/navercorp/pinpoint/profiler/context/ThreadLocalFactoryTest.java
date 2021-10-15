@@ -78,7 +78,7 @@ public abstract class ThreadLocalFactoryTest {
 
 
     @Test
-    public void testCurrentTraceObject() throws Exception {
+    public void testCurrentTraceObject() {
         TraceFactory traceFactory = sampledTraceFactory;
 
         Trace newTrace = traceFactory.newTraceObject();
@@ -89,7 +89,7 @@ public abstract class ThreadLocalFactoryTest {
     }
 
     @Test
-    public void testCurrentTraceObject_unsampled() throws Exception {
+    public void testCurrentTraceObject_unsampled() {
         TraceFactory traceFactory = unsampledTraceFactory;
 
         Trace newTrace = traceFactory.newTraceObject();
@@ -101,7 +101,7 @@ public abstract class ThreadLocalFactoryTest {
 
 
     @Test
-    public void testCurrentRawTraceObject() throws Exception {
+    public void testCurrentRawTraceObject() {
         TraceFactory traceFactory = sampledTraceFactory;
 
         Trace trace = traceFactory.newTraceObject();
@@ -112,7 +112,7 @@ public abstract class ThreadLocalFactoryTest {
     }
 
     @Test
-    public void testCurrentRawTraceObject_unsampled() throws Exception {
+    public void testCurrentRawTraceObject_unsampled() {
         TraceFactory traceFactory = unsampledTraceFactory;
 
         Trace trace = traceFactory.newTraceObject();
@@ -123,7 +123,7 @@ public abstract class ThreadLocalFactoryTest {
     }
 
     @Test
-    public void testDisableSampling() throws Exception {
+    public void testDisableSampling() {
 
         TraceFactory traceFactory = sampledTraceFactory;
 
@@ -135,11 +135,11 @@ public abstract class ThreadLocalFactoryTest {
     }
 
     @Test
-    public void testContinueTraceObject() throws Exception {
+    public void testContinueTraceObject() {
     }
 
     @Test
-    public void testNewTraceObject() throws Exception {
+    public void testNewTraceObject() {
         TraceFactory traceFactory = sampledTraceFactory;
 
         traceFactory.newTraceObject();
@@ -159,7 +159,7 @@ public abstract class ThreadLocalFactoryTest {
     }
 
     @Test
-    public void testDetachTraceObject() throws Exception {
+    public void testDetachTraceObject() {
         TraceFactory traceFactory = this.sampledTraceFactory;
 
         traceFactory.newTraceObject();

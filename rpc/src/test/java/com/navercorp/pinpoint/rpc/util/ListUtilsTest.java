@@ -27,7 +27,7 @@ public class ListUtilsTest {
         ArrayList<String> strings = new ArrayList<>();
 
         Assert.assertTrue(ListUtils.addIfValueNotNull(strings, "foo"));
-        Assert.assertTrue(strings.get(0).equals("foo"));
+        Assert.assertEquals("foo", strings.get(0));
 
         Assert.assertFalse(ListUtils.addIfValueNotNull(strings, null));
     }
@@ -39,9 +39,9 @@ public class ListUtilsTest {
         Assert.assertTrue(
                 ListUtils.addAllIfAllValuesNotNull(
                         strings, new String[]{"a", "b", "c"}));
-        Assert.assertTrue(strings.get(0).equals("a"));
-        Assert.assertTrue(strings.get(1).equals("b"));
-        Assert.assertTrue(strings.get(2).equals("c"));
+        Assert.assertEquals("a", strings.get(0));
+        Assert.assertEquals("b", strings.get(1));
+        Assert.assertEquals("c", strings.get(2));
 
         Assert.assertFalse(ListUtils.addAllIfAllValuesNotNull(strings, null));
         Assert.assertFalse(ListUtils

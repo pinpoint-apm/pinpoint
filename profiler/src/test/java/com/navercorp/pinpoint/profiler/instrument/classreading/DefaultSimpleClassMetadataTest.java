@@ -40,7 +40,7 @@ public class DefaultSimpleClassMetadataTest {
     }
 
     @Test
-    public void interfaceNameNull() throws Exception {
+    public void interfaceNameNull() {
         final byte[] classBinary = new byte[1];
         DefaultSimpleClassMetadata classMetadata = new DefaultSimpleClassMetadata(1, 1, "java/lang/String", "java/lang/Object", null, classBinary);
         assertEquals(0, classMetadata.getInterfaceNames().size());

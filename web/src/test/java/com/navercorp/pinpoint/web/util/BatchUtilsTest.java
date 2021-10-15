@@ -27,8 +27,8 @@ public class BatchUtilsTest {
 
     @Test
     public void test() {
-        assertEquals(BatchUtils.decisionBatchServer("127.0.0.1"), true);
-        assertEquals(BatchUtils.decisionBatchServer("127.127.127.127"), false);
+        assertTrue(BatchUtils.decisionBatchServer("127.0.0.1"));
+        assertFalse(BatchUtils.decisionBatchServer("127.127.127.127"));
     }
 
 }

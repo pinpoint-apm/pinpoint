@@ -44,7 +44,7 @@ public class SpanAlignerTest {
     }
 
     @Test
-    public void singleSpan() throws Exception {
+    public void singleSpan() {
         List<String> expectResult = new ArrayList<>();
         expectResult.add("#");
         expectResult.add("##");
@@ -67,7 +67,7 @@ public class SpanAlignerTest {
     }
 
     @Test
-    public void nextSpan() throws Exception {
+    public void nextSpan() {
         List<String> expectResult = new ArrayList<>();
         expectResult.add("#");
         expectResult.add("##");
@@ -103,7 +103,7 @@ public class SpanAlignerTest {
     }
 
     @Test
-    public void duplicatedNextSpan() throws Exception {
+    public void duplicatedNextSpan() {
         List<String> expectResult = new ArrayList<>();
         expectResult.add("#");
         expectResult.add("##");
@@ -153,7 +153,7 @@ public class SpanAlignerTest {
     }
 
     @Test
-    public void notFoundNextSpan() throws Exception {
+    public void notFoundNextSpan() {
         List<String> expectResult = new ArrayList<>();
         expectResult.add("#");
         expectResult.add("##");
@@ -177,7 +177,7 @@ public class SpanAlignerTest {
     }
 
     @Test
-    public void notFoundRoot() throws Exception {
+    public void notFoundRoot() {
         List<String> expectResult = new ArrayList<>();
         expectResult.add("#"); // unknown
         expectResult.add("##");
@@ -200,7 +200,7 @@ public class SpanAlignerTest {
     }
 
     @Test
-    public void duplicatedRoot() throws Exception {
+    public void duplicatedRoot() {
         List<String> expectResult = new ArrayList<>();
         expectResult.add("#");
         expectResult.add("##");
@@ -230,7 +230,7 @@ public class SpanAlignerTest {
     }
 
     @Test
-    public void fill() throws Exception {
+    public void fill() {
         List<String> expectResult = new ArrayList<>();
         expectResult.add("#"); // unknown - not found root
         expectResult.add("##");
@@ -271,7 +271,7 @@ public class SpanAlignerTest {
     }
 
     @Test
-    public void notFoundFill() throws Exception {
+    public void notFoundFill() {
         List<String> expectResult = new ArrayList<>();
         expectResult.add("#"); // unknown - not found root
         expectResult.add("##");
@@ -308,7 +308,7 @@ public class SpanAlignerTest {
     }
 
     @Test
-    public void duplicatedSpan() throws Exception {
+    public void duplicatedSpan() {
         List<String> expectResult = new ArrayList<>();
         expectResult.add("#"); // unknown - not found root
         expectResult.add("##");
@@ -353,7 +353,7 @@ public class SpanAlignerTest {
     }
 
     @Test
-    public void multipleSpanNotFoundRoot() throws Exception {
+    public void multipleSpanNotFoundRoot() {
         List<String> expectResult = new ArrayList<>();
         expectResult.add("#"); // unknown - not found root
         expectResult.add("##");
@@ -391,7 +391,7 @@ public class SpanAlignerTest {
     }
 
     @Test
-    public void corrupted() throws Exception {
+    public void corrupted() {
         List<String> expectResult = new ArrayList<>();
         expectResult.add("#");
         expectResult.add("##");
@@ -414,7 +414,7 @@ public class SpanAlignerTest {
     }
 
     @Test
-    public void corruptedNextSpan() throws Exception {
+    public void corruptedNextSpan() {
         List<String> expectResult = new ArrayList<>();
         expectResult.add("#");
         expectResult.add("##");
@@ -446,7 +446,7 @@ public class SpanAlignerTest {
     }
 
     @Test
-    public void emptySpanList() throws Exception {
+    public void emptySpanList() {
         List<String> expectResult = new ArrayList<>();
         expectResult.add("#"); // unknown
 
@@ -458,7 +458,7 @@ public class SpanAlignerTest {
     }
 
     @Test
-    public void loopSpanList() throws Exception {
+    public void loopSpanList() {
         List<String> expectResult = new ArrayList<>();
         expectResult.add("#"); // unknown
 

@@ -27,7 +27,7 @@ public class MetadataTest {
     private static final Logger logger = LoggerFactory.getLogger(ChannelFactoryTest.class);
 
     @Test
-    public void metadataTest() throws Exception {
+    public void metadataTest() {
         Metadata.Key<String> dd = Metadata.Key.of("key", Metadata.ASCII_STRING_MARSHALLER);
         Metadata metadata = InternalMetadata.newMetadata(BytesUtils.toBytes("key"), BytesUtils.toBytes("value"));
 

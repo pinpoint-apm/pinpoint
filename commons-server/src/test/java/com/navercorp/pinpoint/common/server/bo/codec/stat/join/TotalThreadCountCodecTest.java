@@ -31,7 +31,6 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class TotalThreadCountCodecTest {
 
@@ -57,13 +56,13 @@ public class TotalThreadCountCodecTest {
         assertEquals(valueBuffer.readByte(), totalThreadCountCodec.getVersion());
         List<JoinStatBo> decodedJoinTotalThreadCountBoList = totalThreadCountCodec.decodeValues(valueBuffer, decodingContext);
         for (int i = 0; i < decodedJoinTotalThreadCountBoList.size(); i++) {
-            assertTrue(decodedJoinTotalThreadCountBoList.get(i).equals(joinTotalThreadCountBoList.get(i)));
+            assertEquals(decodedJoinTotalThreadCountBoList.get(i), joinTotalThreadCountBoList.get(i));
         }
     }
 
     private List<JoinStatBo> createJoinTotalThreadCountBoList(long currentTime) {
         final String id = "test_app";
-        final List<JoinStatBo> joinTotalThreadCountBoList = new ArrayList();
+        final List<JoinStatBo> joinTotalThreadCountBoList = new ArrayList<>();
         JoinTotalThreadCountBo joinTotalThreadCountBo1 = new JoinTotalThreadCountBo(id, currentTime, 80, 1000, "agent1_1", 30, "agent1_2");
         JoinTotalThreadCountBo joinTotalThreadCountBo2 = new JoinTotalThreadCountBo(id, currentTime+5000, 70, 900, "agent2_1", 20, "agent2_2");
         JoinTotalThreadCountBo joinTotalThreadCountBo3 = new JoinTotalThreadCountBo(id, currentTime+15000, 60, 800, "agent4_1", 15, "agent4_2");

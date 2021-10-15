@@ -36,7 +36,7 @@ public class ScopeFactoryTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
-    public void newScopeInfo_annotation() throws Exception {
+    public void newScopeInfo_annotation() {
         InstrumentContext context = Mockito.mock(InstrumentContext.class);
         Mockito.when(context.getInterceptorScope("test")).thenReturn(new DefaultInterceptorScope("test"));
 
@@ -50,7 +50,7 @@ public class ScopeFactoryTest {
     }
 
     @Test
-    public void newScopeInfo_annotation_and_policy() throws Exception {
+    public void newScopeInfo_annotation_and_policy() {
         InstrumentContext context = Mockito.mock(InstrumentContext.class);
         Mockito.when(context.getInterceptorScope("test")).thenReturn(new DefaultInterceptorScope("test"));
 
@@ -65,7 +65,7 @@ public class ScopeFactoryTest {
 
 
     @Test
-    public void newScopeInfo_policyIsNull() throws Exception {
+    public void newScopeInfo_policyIsNull() {
         InstrumentContext context = Mockito.mock(InstrumentContext.class);
         InterceptorScope interceptorScope = new DefaultInterceptorScope("test");
         Mockito.when(context.getInterceptorScope("test")).thenReturn(interceptorScope);

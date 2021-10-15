@@ -30,13 +30,13 @@ import java.util.Arrays;
 public class AgentActiveThreadCountFactoryTest {
 
     @Test(expected = NullPointerException.class)
-    public void assertAgentIdTest() throws Exception {
+    public void assertAgentIdTest() {
         AgentActiveThreadCountFactory factory = new AgentActiveThreadCountFactory();
         factory.create(new TCmdActiveThreadCountRes());
     }
 
     @Test
-    public void invalidActiveThreadCountTest1() throws Exception {
+    public void invalidActiveThreadCountTest1() {
         TCmdActiveThreadCountRes response = new TCmdActiveThreadCountRes();
         response.setActiveThreadCount(Arrays.asList(1, 2, 3));
 
@@ -45,11 +45,11 @@ public class AgentActiveThreadCountFactoryTest {
         AgentActiveThreadCount agentActiveThreadCount = factory.create(response);
 
         Assert.assertEquals(factory.INTERNAL_ERROR.getCode(), agentActiveThreadCount.getCode());
-        Assert.assertTrue(CollectionUtils.nullSafeSize(agentActiveThreadCount.getActiveThreadCountList()) == 0);
+        Assert.assertEquals(0, CollectionUtils.nullSafeSize(agentActiveThreadCount.getActiveThreadCountList()));
     }
 
     @Test
-    public void invalidActiveThreadCountTest2() throws Exception {
+    public void invalidActiveThreadCountTest2() {
         TCmdActiveThreadCountRes response = new TCmdActiveThreadCountRes();
         response.setActiveThreadCount(Arrays.asList(1, 2, 3, 4, 5));
 
@@ -58,11 +58,11 @@ public class AgentActiveThreadCountFactoryTest {
         AgentActiveThreadCount agentActiveThreadCount = factory.create(response);
 
         Assert.assertEquals(factory.INTERNAL_ERROR.getCode(), agentActiveThreadCount.getCode());
-        Assert.assertTrue(CollectionUtils.nullSafeSize(agentActiveThreadCount.getActiveThreadCountList()) == 0);
+        Assert.assertEquals(0, CollectionUtils.nullSafeSize(agentActiveThreadCount.getActiveThreadCountList()));
     }
 
     @Test
-    public void invalidArgumentTest1() throws Exception {
+    public void invalidArgumentTest1() {
         TCmdActiveThreadCount response = new TCmdActiveThreadCount();
 
         AgentActiveThreadCountFactory factory = new AgentActiveThreadCountFactory();
@@ -70,7 +70,7 @@ public class AgentActiveThreadCountFactoryTest {
         AgentActiveThreadCount agentActiveThreadCount = factory.create(response);
 
         Assert.assertEquals(factory.INTERNAL_ERROR.getCode(), agentActiveThreadCount.getCode());
-        Assert.assertTrue(CollectionUtils.nullSafeSize(agentActiveThreadCount.getActiveThreadCountList()) == 0);
+        Assert.assertEquals(0, CollectionUtils.nullSafeSize(agentActiveThreadCount.getActiveThreadCountList()));
     }
 
 }

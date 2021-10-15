@@ -34,7 +34,7 @@ public class AgentBaseDataReceiverConfigurationTest {
     AgentBaseDataReceiverConfiguration configuration;
 
     @Test
-    public void properties() throws Exception {
+    public void properties() {
 
         Assert.assertEquals(configuration.getBindIp(), "0.0.0.2");
         Assert.assertEquals(configuration.getBindPort(), 39994);

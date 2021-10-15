@@ -11,7 +11,7 @@ import java.nio.ByteOrder;
 public class ByteBufferFactoryTest {
 
     @Test
-    public void directByteBufferFactoryTest() throws Exception {
+    public void directByteBufferFactoryTest() {
         ByteBufferFactory byteBufferFactory = ByteBufferFactoryLocator.getFactory("direct");
         ByteBuffer buffer = byteBufferFactory.getBuffer(20);
 
@@ -20,7 +20,7 @@ public class ByteBufferFactoryTest {
     }
 
     @Test
-    public void heapByteBufferFactoryTest() throws Exception {
+    public void heapByteBufferFactoryTest() {
         ByteBufferFactory byteBufferFactory = ByteBufferFactoryLocator.getFactory("heap");
         ByteBuffer buffer = byteBufferFactory.getBuffer(20);
 
@@ -29,7 +29,7 @@ public class ByteBufferFactoryTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void unknownByteBufferFactoryTest() throws Exception {
+    public void unknownByteBufferFactoryTest() {
         ByteBufferFactory byteBufferFactory = ByteBufferFactoryLocator.getFactory("unknown");
 
     }

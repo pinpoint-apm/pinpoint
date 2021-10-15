@@ -35,7 +35,7 @@ public class HeaderUtilsTest {
     @Test
     public void validateSignature() throws TException {
         Header header = new HeaderV1((short) 1);
-        Assert.assertTrue(HeaderUtils.validateSignature(header.getSignature()) == HeaderUtils.OK);
+        Assert.assertEquals(HeaderUtils.validateSignature(header.getSignature()), HeaderUtils.OK);
 
         logger.debug(header.toString());
     }
@@ -43,7 +43,7 @@ public class HeaderUtilsTest {
     @Test(expected = InvalidHeaderException.class)
     public void validateSignature_error() throws TException {
         Header error = new HeaderV1((byte) 0x11, (byte) 0x20, (short) 1);
-        Assert.assertTrue(HeaderUtils.validateSignature(error.getSignature()) != HeaderUtils.OK);
+        Assert.assertNotEquals(HeaderUtils.validateSignature(error.getSignature()), HeaderUtils.OK);
 
 
         logger.debug(error.toString());

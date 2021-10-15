@@ -35,7 +35,7 @@ public class Java9ClassLoaderTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final Class slf4jClass = org.slf4j.LoggerFactory.class;
+    private final Class<?> slf4jClass = org.slf4j.LoggerFactory.class;
 
     @Test
     public void newClassLoader_bootstrap() throws ClassNotFoundException, IOException {
@@ -54,7 +54,7 @@ public class Java9ClassLoaderTest {
     /**
      * TODO duplicate code
      */
-    private ClassLoader onLoadTest(Class<?> classLoaderType, Class testClass) throws ClassNotFoundException {
+    private ClassLoader onLoadTest(Class<?> classLoaderType, Class<?> testClass) throws ClassNotFoundException {
         URL testClassJar = CodeSourceUtils.getCodeLocation(testClass);
         URL[] urls = {testClassJar};
         ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
@@ -66,7 +66,7 @@ public class Java9ClassLoaderTest {
         } catch (ClassNotFoundException ignored) {
         }
 
-        Class selfLoadClass = cl.loadClass(testClass.getName());
+        Class<?> selfLoadClass = cl.loadClass(testClass.getName());
         Assert.assertNotSame(testClass, selfLoadClass);
         Assert.assertSame(cl, selfLoadClass.getClassLoader());
         Assert.assertSame(testClass.getClassLoader(), this.getClass().getClassLoader());

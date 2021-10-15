@@ -45,7 +45,7 @@ public class LimitedListTest {
         Comparator<ThreadDump> threadDump =  Collections.reverseOrder(new ThreadDumpComparator());
 
         final int maxSize = 10;
-        Collection<ThreadDump> limitedList = new LimitedList<ThreadDump>(maxSize, threadDump);
+        Collection<ThreadDump> limitedList = new LimitedList<>(maxSize, threadDump);
 
         final int id = 100;
         final long startTime = System.currentTimeMillis();

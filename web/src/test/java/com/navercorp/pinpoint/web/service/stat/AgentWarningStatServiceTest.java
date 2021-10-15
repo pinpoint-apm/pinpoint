@@ -55,23 +55,23 @@ public class AgentWarningStatServiceTest {
     }
 
     @Test
-    public void selectTest1() throws Exception {
+    public void selectTest1() {
         Range range = Range.newRange(CURRENT_TIME - TIME, CURRENT_TIME);
 
         List<DeadlockThreadCountBo> mockData = createMockData(10, 5000);
         when(deadlockDao.getAgentStatList("pinpoint", range)).thenReturn(mockData);
         List<AgentStatusTimelineSegment> timelineSegmentList = agentWarningStatService.select("pinpoint", range);
-        Assert.assertTrue(timelineSegmentList.size() == 1);
+        Assert.assertEquals(1, timelineSegmentList.size());
     }
 
     @Test
-    public void selectTest2() throws Exception {
+    public void selectTest2() {
         Range range = Range.newRange(CURRENT_TIME - TIME, CURRENT_TIME);
 
         List<DeadlockThreadCountBo> mockData = createMockData(10, 70000);
         when(deadlockDao.getAgentStatList("pinpoint", range)).thenReturn(mockData);
         List<AgentStatusTimelineSegment> timelineSegmentList = agentWarningStatService.select("pinpoint", range);
-        Assert.assertTrue(timelineSegmentList.size() == 10);
+        Assert.assertEquals(10, timelineSegmentList.size());
     }
 
     private List<DeadlockThreadCountBo> createMockData(int mockSize, long interval) {

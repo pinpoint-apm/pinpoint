@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.profiler.instrument.interceptor.CodeBuilder;
  */
 public class CodeBuilderTest {
     @Test
-    public void testCodeBuilder() throws Exception {
+    public void testCodeBuilder() {
         CodeBuilder builder = new CodeBuilder();
         builder.begin();
         builder.format("1");
@@ -35,7 +35,7 @@ public class CodeBuilderTest {
     }
 
     @Test
-    public void testFormat() throws Exception {
+    public void testFormat() {
         CodeBuilder builder = new CodeBuilder();
         builder.begin();
         builder.format("1");
@@ -45,7 +45,7 @@ public class CodeBuilderTest {
     }
 
     @Test
-    public void testFormatAppend() throws Exception {
+    public void testFormatAppend() {
         CodeBuilder builder = new CodeBuilder();
         builder.begin();
         builder.format("1");

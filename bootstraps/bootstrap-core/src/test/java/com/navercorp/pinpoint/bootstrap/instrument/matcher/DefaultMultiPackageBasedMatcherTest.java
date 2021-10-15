@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
 public class DefaultMultiPackageBasedMatcherTest {
 
     @Test
-    public void getMatcherOperandWithMulitPackageName() throws Exception {
+    public void getMatcherOperandWithMulitPackageName() {
         DefaultMultiPackageBasedMatcher matcher = new DefaultMultiPackageBasedMatcher(Arrays.asList("java", "javax"));
         assertTrue(matcher.getBasePackageNames().contains("java"));
         assertTrue(matcher.getBasePackageNames().contains("javax"));

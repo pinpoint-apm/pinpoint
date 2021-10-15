@@ -28,7 +28,7 @@ import java.net.URL;
  */
 public class PinpointClassLoaderTest {
 
-    private final Class slf4jClass = org.slf4j.LoggerFactory.class;
+    private final Class<?> slf4jClass = org.slf4j.LoggerFactory.class;
 
     @Test
     public void testOnLoadClass() throws Exception {
@@ -40,7 +40,7 @@ public class PinpointClassLoaderTest {
     /**
      * TODO duplicate code
      */
-    private ClassLoader onLoadTest(Class classLoaderType, Class testClass) throws ClassNotFoundException {
+    private ClassLoader onLoadTest(Class<?> classLoaderType, Class<?> testClass) throws ClassNotFoundException {
         URL testClassJar = CodeSourceUtils.getCodeLocation(testClass);
         URL[] urls = {testClassJar};
         ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
@@ -52,7 +52,7 @@ public class PinpointClassLoaderTest {
         } catch (ClassNotFoundException ignored) {
         }
 
-        Class selfLoadClass = cl.loadClass(testClass.getName());
+        Class<?> selfLoadClass = cl.loadClass(testClass.getName());
         Assert.assertNotSame(testClass, selfLoadClass);
         Assert.assertSame(cl, selfLoadClass.getClassLoader());
         Assert.assertSame(testClass.getClassLoader(), this.getClass().getClassLoader());

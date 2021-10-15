@@ -26,7 +26,7 @@ import java.util.*;
 public class DelegateEnumerationTest {
 
     @Test
-    public void testNormal() throws Exception {
+    public void testNormal() {
         Hashtable<String, String> hashTable = new Hashtable<>();
         hashTable.put("a", "aa");
         hashTable.put("b", "bb");
@@ -54,7 +54,7 @@ public class DelegateEnumerationTest {
     }
 
     @Test
-    public void bug69_Inefficient_exception_is_created() throws Exception {
+    public void bug69_Inefficient_exception_is_created() {
         Hashtable<String, String> hashTable = new Hashtable<>();
 
         Enumeration<String> enumeration = hashTable.elements();
@@ -67,7 +67,7 @@ public class DelegateEnumerationTest {
     }
 
     @Test
-    public void bug69_Inefficient_exception_is_created_nextElement() throws Exception {
+    public void bug69_Inefficient_exception_is_created_nextElement() {
 
         Enumeration<String> enumeration = mock(Enumeration.class);
         when(enumeration.hasMoreElements()).thenReturn(true);
@@ -87,7 +87,7 @@ public class DelegateEnumerationTest {
 
 
     @Test
-    public void testSkip() throws Exception {
+    public void testSkip() {
         Hashtable<String, String> hashTable = new Hashtable<>();
         hashTable.put("a", "aa");
         hashTable.put("b", "bb");
@@ -122,7 +122,7 @@ public class DelegateEnumerationTest {
     }
 
     @Test
-    public void testExceptionTest_Exception() throws Exception {
+    public void testExceptionTest_Exception() {
         Hashtable<String, String> hashTable = new Hashtable<>();
 
         Enumeration<String> enumeration = hashTable.elements();
@@ -141,7 +141,7 @@ public class DelegateEnumerationTest {
     }
 
     @Test
-    public void testExceptionTest_Exception2() throws Exception {
+    public void testExceptionTest_Exception2() {
 
         Enumeration enumeration = mock(Enumeration.class);
 
@@ -162,8 +162,8 @@ public class DelegateEnumerationTest {
     }
 
     @Test
-    public void testExceptionTest_Null() throws Exception {
-        Enumeration enumeration = mock(Enumeration.class);
+    public void testExceptionTest_Null() {
+        Enumeration<String> enumeration = mock(Enumeration.class);
 
         when(enumeration.hasMoreElements()).thenReturn(false);
         when(enumeration.nextElement()).thenReturn(null);
@@ -182,7 +182,7 @@ public class DelegateEnumerationTest {
     }
 
     @Test
-    public void testExceptionTest_Null2() throws Exception {
+    public void testExceptionTest_Null2() {
         Enumeration<String> enumeration = new Enumeration<String>() {
             private boolean first = true;
             @Override

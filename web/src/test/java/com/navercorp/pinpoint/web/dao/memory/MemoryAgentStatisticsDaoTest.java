@@ -50,7 +50,7 @@ public class MemoryAgentStatisticsDaoTest {
     }
 
     @Test
-    public void simpleTest() throws Exception {
+    public void simpleTest() {
         MemoryAgentStatisticsDao dao = new MemoryAgentStatisticsDao();
         for (AgentCountStatistics testData : testDataList) {
             dao.insertAgentCount(testData);

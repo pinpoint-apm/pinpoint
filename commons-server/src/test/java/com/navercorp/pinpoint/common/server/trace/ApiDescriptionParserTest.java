@@ -32,7 +32,7 @@ public class ApiDescriptionParserTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private ApiDescriptionParser apiParser = new ApiDescriptionParser();
+    private final ApiDescriptionParser apiParser = new ApiDescriptionParser();
 
     @Test
     public void parse() {

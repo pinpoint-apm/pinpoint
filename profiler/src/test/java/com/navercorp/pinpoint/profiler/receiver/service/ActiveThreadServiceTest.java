@@ -55,7 +55,7 @@ public class ActiveThreadServiceTest {
 
 
     @Test
-    public void serviceTest1() throws InterruptedException {
+    public void serviceTest1() {
         ResponseTimeCollector responseTimeCollector = new ReuseResponseTimeCollector();
         ActiveTraceRepository activeTraceRepository = new DefaultActiveTraceRepository(responseTimeCollector);
 

@@ -31,7 +31,7 @@ public class OffsetFixedBufferTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
-    public void testFixedBuffer() throws Exception {
+    public void testFixedBuffer() {
         new OffsetFixedBuffer(new byte[10], 10, 0);
         try {
             new OffsetFixedBuffer(new byte[10], 11, 0);
@@ -46,7 +46,7 @@ public class OffsetFixedBufferTest {
     }
 
     @Test
-    public void testFixedBuffer_length() throws Exception {
+    public void testFixedBuffer_length() {
         try {
             new OffsetFixedBuffer(new byte[10], 0, 11);
             Assert.fail();
@@ -58,7 +58,7 @@ public class OffsetFixedBufferTest {
     }
 
     @Test
-    public void testGetBuffer() throws Exception {
+    public void testGetBuffer() {
         final int bufferSize = 10;
         Buffer buffer = new OffsetFixedBuffer(new byte[bufferSize], 2, bufferSize - 2);
         final int putValue = 10;
@@ -72,7 +72,7 @@ public class OffsetFixedBufferTest {
     }
 
     @Test
-    public void testCopyBuffer() throws Exception {
+    public void testCopyBuffer() {
         final int bufferSize = 10;
         Buffer buffer = new OffsetFixedBuffer(new byte[bufferSize], 2, bufferSize - 2);
 
@@ -87,7 +87,7 @@ public class OffsetFixedBufferTest {
     }
 
     @Test
-    public void testWrapByteBuffer() throws Exception {
+    public void testWrapByteBuffer() {
         final int bufferSize = 10;
         Buffer buffer = new OffsetFixedBuffer(new byte[bufferSize], 2, bufferSize - 2);
 

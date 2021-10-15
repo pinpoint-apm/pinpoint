@@ -28,7 +28,7 @@ import org.junit.Test;
 public class HistogramTest {
 
     @Test
-    public void testAddResponseTime() throws Exception {
+    public void testAddResponseTime() {
         HistogramSchema schema = ServiceType.STAND_ALONE.getHistogramSchema();
         LongAdderHistogram histogram = new LongAdderHistogram(ServiceType.STAND_ALONE);
         histogram.addResponseTime(1000, false);

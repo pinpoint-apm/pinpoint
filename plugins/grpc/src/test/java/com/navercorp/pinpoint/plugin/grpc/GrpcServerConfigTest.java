@@ -29,28 +29,28 @@ import java.util.Properties;
 public class GrpcServerConfigTest {
 
     @Test
-    public void configTest1() throws Exception {
+    public void configTest1() {
         GrpcServerConfig config = createConfig("false", "false");
 
         Assert.assertFalse(config.isServerEnable());
     }
 
     @Test
-    public void configTest2() throws Exception {
+    public void configTest2() {
         GrpcServerConfig config = createConfig("false", "true");
 
         Assert.assertTrue(config.isServerEnable());
     }
 
     @Test
-    public void configTest3() throws Exception {
+    public void configTest3() {
         GrpcServerConfig config = createConfig("true", "false");
 
         Assert.assertFalse(config.isServerEnable());
     }
 
     @Test
-    public void configTest4() throws Exception {
+    public void configTest4() {
         GrpcServerConfig config = createConfig("true", "true");
 
         Assert.assertTrue(config.isServerEnable());

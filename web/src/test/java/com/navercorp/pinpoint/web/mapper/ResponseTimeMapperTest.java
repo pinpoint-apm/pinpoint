@@ -41,7 +41,7 @@ import static org.mockito.Mockito.mock;
 public class ResponseTimeMapperTest {
 
     @Test
-    public void testResponseTimeMapperTest() throws Exception {
+    public void testResponseTimeMapperTest() {
 
         Buffer buffer = new AutomaticBuffer();
         HistogramSlot histogramSlot = ServiceType.STAND_ALONE.getHistogramSchema().findHistogramSlot(1000, false);

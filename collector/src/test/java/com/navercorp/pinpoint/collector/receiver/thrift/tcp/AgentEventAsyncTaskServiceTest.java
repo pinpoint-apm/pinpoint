@@ -64,7 +64,7 @@ public class AgentEventAsyncTaskServiceTest {
     }
 
     @Test
-    public void handler_should_handle_events_with_empty_message_body() throws Exception {
+    public void handler_should_handle_events_with_empty_message_body() {
         // given
         final AgentEventType expectedEventType = AgentEventType.AGENT_CONNECTED;
         ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);

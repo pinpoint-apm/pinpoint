@@ -91,7 +91,7 @@ public class ApplicationMapBuilderTest {
         Answer<List<ResponseTime>> responseTimeAnswer = new Answer<List<ResponseTime>>() {
             final long timestamp = System.currentTimeMillis();
             @Override
-            public List<ResponseTime> answer(InvocationOnMock invocation) throws Throwable {
+            public List<ResponseTime> answer(InvocationOnMock invocation) {
                 Application application = invocation.getArgument(0);
                 String applicationName = application.getName();
                 ServiceType applicationServiceType = application.getServiceType();

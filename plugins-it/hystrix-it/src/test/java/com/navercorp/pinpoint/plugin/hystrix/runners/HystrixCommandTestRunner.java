@@ -82,7 +82,7 @@ public class HystrixCommandTestRunner {
         final String expectedMessage = HystrixTestHelper.sayHello(name);
         HystrixCommand<String> helloCommand = SayHelloCommand.create(commandGroup, name);
         List<String> actualMessages = helloCommand.observe().toList().toBlocking().single();
-        Assert.assertTrue(actualMessages.size() == 1);
+        Assert.assertEquals(1, actualMessages.size());
         Assert.assertEquals(expectedMessage, actualMessages.get(0));
 
         HystrixTestHelper.waitForSpanDataFlush();
@@ -93,7 +93,7 @@ public class HystrixCommandTestRunner {
         final String expectedMessage = HystrixTestHelper.sayHello(name);
         HystrixCommand<String> helloCommand = SayHelloCommand.create(commandGroup, name);
         List<String> actualMessages = helloCommand.toObservable().toList().toBlocking().single();
-        Assert.assertTrue(actualMessages.size() == 1);
+        Assert.assertEquals(1, actualMessages.size());
         Assert.assertEquals(expectedMessage, actualMessages.get(0));
 
         HystrixTestHelper.waitForSpanDataFlush();

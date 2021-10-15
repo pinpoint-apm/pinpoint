@@ -76,7 +76,7 @@ public class DefaultDataSourceMetricTest {
     }
 
     private void assertIdIsUnique(List<DataSource> dataSourceList) {
-        Set<Integer> idSet = new HashSet<Integer>();
+        Set<Integer> idSet = new HashSet<>();
 
         for (DataSource dataSource : dataSourceList) {
             idSet.add(dataSource.getId());

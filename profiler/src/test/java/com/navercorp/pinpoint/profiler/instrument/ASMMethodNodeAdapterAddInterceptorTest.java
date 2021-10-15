@@ -103,7 +103,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         addInterceptor(interceptorId, ExceptionHandleAroundInterceptor.class);
     }
 
-    private void addInterceptor(int interceptorId, Class interceptorClass) throws Exception {
+    private void addInterceptor(int interceptorId, Class<?> interceptorClass) throws Exception {
         // method
         checkMethod(interceptorId, interceptorClass);
 
@@ -124,11 +124,11 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         checkExtends(interceptorId, interceptorClass);
     }
 
-    private void checkMethod(int interceptorId, Class interceptorClass) throws Exception {
+    private void checkMethod(int interceptorId, Class<?> interceptorClass) throws Exception {
         // method
         Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.MethodClass", interceptorClass);
 
-        Class[] parameterTypes = new Class[0];
+        Class<?>[] parameterTypes = new Class[0];
         Object[] args = new Object[0];
         invokeMethod(clazz, "publicMethod", interceptorClass, parameterTypes, args, null, false);
         invokeMethod(clazz, "publicStaticMethod", interceptorClass, parameterTypes, args, null, false);
@@ -139,7 +139,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         invokeMethod(clazz, "publicStaticFinalSynchronizedMethod", interceptorClass, parameterTypes, args, null, false);
     }
 
-    private void checkConstructor(int interceptorId, Class interceptorClass) throws Exception {
+    private void checkConstructor(int interceptorId, Class<?> interceptorClass) throws Exception {
         Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ConstructorClass", interceptorClass);
 
         invokeMethod(clazz, "<init>", interceptorClass, new Class[0], new Object[0], null, false);
@@ -204,7 +204,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{String.class, int.class, byte.class, Object.class, Enum.class, char.class, float.class, long.class}, new Object[]{"foo", 1, Byte.parseByte("0"), new Object(), BaseEnum.AGENT, 'a', 1.1f, 1l}, null, false);
     }
 
-    private void checkArguments(int interceptorId, Class interceptorClass) throws Exception {
+    private void checkArguments(int interceptorId, Class<?> interceptorClass) throws Exception {
         Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass", interceptorClass);
 
         invokeMethod(clazz, "arg", interceptorClass, new Class[0], new Object[0], null, false);
@@ -241,7 +241,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         invokeMethod(clazz, "argInterface", interceptorClass, new Class[]{Map.class, Map.class, Map.class}, new Object[]{new HashMap(), new HashMap<String, String>(), new HashMap<Object, Object>()}, null, false);
     }
 
-    private void checkReturn(int interceptorId, Class interceptorClass) throws Exception {
+    private void checkReturn(int interceptorId, Class<?> interceptorClass) throws Exception {
         Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ReturnClass", interceptorClass);
 
         invokeMethod(clazz, "voidType", interceptorClass, new Class[0], new Object[0], null, false);
@@ -259,7 +259,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         invokeMethod(clazz, "returnEnum", interceptorClass, new Class[0], new Object[0], BaseEnum.AGENT, false);
     }
 
-    private void checkMethodException(int interceptorId, Class interceptorClass) throws Exception {
+    private void checkMethodException(int interceptorId, Class<?> interceptorClass) throws Exception {
         Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ExceptionClass", interceptorClass);
 
         invokeMethod(clazz, "throwable", interceptorClass, new Class[]{}, new Object[]{}, null, true);
@@ -270,17 +270,17 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         invokeMethod(clazz, "condition", interceptorClass, new Class[]{}, new Object[]{}, null, true);
     }
 
-    private void checkConstructorException(int interceptorId, Class interceptorClass) throws Exception {
-        Class clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ConstructorExceptionClass", interceptorClass);
+    private void checkConstructorException(int interceptorId, Class<?> interceptorClass) throws Exception {
+        Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ConstructorExceptionClass", interceptorClass);
 
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{String.class, int.class}, new Object[]{"foo", 0}, null, true);
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{Boolean.class}, new Object[]{Boolean.TRUE}, null, true);
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{Boolean.class}, new Object[]{Boolean.FALSE}, null, false);
     }
 
-    private void checkExtends(int interceptorId, Class interceptorClass) throws Exception {
+    private void checkExtends(int interceptorId, Class<?> interceptorClass) throws Exception {
         addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ConstructorParentClass", interceptorClass);
-        Class clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ConstructorChildClass", interceptorClass);
+        Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ConstructorChildClass", interceptorClass);
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{}, new Object[]{}, null, false);
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{String.class}, new Object[]{"foo"}, null, false);
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{String.class, int.class}, new Object[]{"foo", 1}, null, false);
@@ -288,7 +288,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{int.class}, new Object[]{1}, null, false);
     }
 
-    private void invokeMethod(final Class<?> clazz, final String methodName, final Class interceptorClass, final Class[] parameterTypes, final Object[] args, final Object returnValue, final boolean throwable) throws Exception {
+    private void invokeMethod(final Class<?> clazz, final String methodName, final Class<?> interceptorClass, final Class<?>[] parameterTypes, final Object[] args, final Object returnValue, final boolean throwable) throws Exception {
         ArgsArrayInterceptor.clear();
         StaticInterceptor.clear();
         ApiIdAwareInterceptor.clear();
@@ -478,7 +478,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         }
     }
 
-    private Class addInterceptor(final int interceptorId, final String targetClassName, final Class<?> interceptorClass) {
+    private Class<?> addInterceptor(final int interceptorId, final String targetClassName, final Class<?> interceptorClass) {
         final InterceptorDefinition interceptorDefinition = new InterceptorDefinitionFactory().createInterceptorDefinition(interceptorClass);
         try {
             classLoader.setTrace(false);

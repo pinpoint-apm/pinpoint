@@ -31,7 +31,7 @@ public class ThreadDumpUtilsTest {
 
 
     @Test
-    public void toTThreadState() throws Exception {
+    public void toTThreadState() {
         ThreadStateThriftMessageConverter threadStateThriftMessageConverter = new ThreadStateThriftMessageConverter();
 
         TThreadState newState = threadStateThriftMessageConverter.toMessage(Thread.State.NEW);

@@ -61,7 +61,7 @@ public class ActiveThreadDumpServiceTest {
     }
 
     @Test
-    public void basicFunctionTest1() throws Exception {
+    public void basicFunctionTest1() {
 
         List<WaitingJob> waitingJobList = this.waitingJobListFactory.createList(CREATE_SIZE, JOB_TIMEOUT);
 
@@ -75,7 +75,7 @@ public class ActiveThreadDumpServiceTest {
     }
 
     @Test
-    public void basicFunctionTest2() throws Exception {
+    public void basicFunctionTest2() {
         List<WaitingJob> waitingJobList = this.waitingJobListFactory.createList(CREATE_SIZE, 1000 * 3);
 
         List<ActiveTraceSnapshot> activeTraceInfoList = createMockActiveTraceInfoList(CREATE_SIZE, DEFAULT_TIME_MILLIS, TIME_DIFF_INTERVAL, waitingJobList);
@@ -90,7 +90,7 @@ public class ActiveThreadDumpServiceTest {
     }
 
     @Test
-    public void basicFunctionTest3() throws Exception {
+    public void basicFunctionTest3() {
         List<WaitingJob> waitingJobList = this.waitingJobListFactory.createList(CREATE_SIZE, 1000 * 3);
 
         int targetThreadNameSize = 3;
@@ -108,7 +108,7 @@ public class ActiveThreadDumpServiceTest {
     }
 
     @Test
-    public void basicFunctionTest4() throws Exception {
+    public void basicFunctionTest4() {
         List<WaitingJob> waitingJobList = this.waitingJobListFactory.createList(CREATE_SIZE, 1000 * 3);
 
 
@@ -131,7 +131,7 @@ public class ActiveThreadDumpServiceTest {
     }
 
     @Test
-    public void basicFunctionTest5() throws Exception {
+    public void basicFunctionTest5() {
         List<WaitingJob> waitingJobList = this.waitingJobListFactory.createList(CREATE_SIZE, 1000 * 3);
 
 
@@ -155,7 +155,7 @@ public class ActiveThreadDumpServiceTest {
 
 
     private List<ActiveTraceSnapshot> createMockActiveTraceInfoList(int createActiveTraceRepositorySize, long currentTimeMillis, long diff, List<WaitingJob> waitingJobList) {
-        List<ActiveTraceSnapshot> activeTraceInfoList = new ArrayList<ActiveTraceSnapshot>(createActiveTraceRepositorySize);
+        List<ActiveTraceSnapshot> activeTraceInfoList = new ArrayList<>(createActiveTraceRepositorySize);
         for (int i = 0; i < createActiveTraceRepositorySize; i++) {
             ActiveTraceSnapshot activeTraceInfo = createActiveTraceInfo(currentTimeMillis + (diff * i), waitingJobList.get(i));
             activeTraceInfoList.add(activeTraceInfo);
@@ -171,7 +171,7 @@ public class ActiveThreadDumpServiceTest {
     }
 
     private List<Long> getOldTimeList(int maxCount) {
-        List<Long> startTimeMillisList = new ArrayList<Long>(maxCount);
+        List<Long> startTimeMillisList = new ArrayList<>(maxCount);
         for (int i = 0; i < maxCount; i++) {
             startTimeMillisList.add(DEFAULT_TIME_MILLIS + (TIME_DIFF_INTERVAL * i));
         }
@@ -181,7 +181,7 @@ public class ActiveThreadDumpServiceTest {
     private List<String> extractThreadNameList(List<ActiveTraceSnapshot> activeTraceInfoList, int size) {
         List<ActiveTraceSnapshot> copied = shuffle(activeTraceInfoList);
 
-        List<String> threadNameList = new ArrayList<String>(size);
+        List<String> threadNameList = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
 
             final ActiveTraceSnapshot activeTraceSnapshot = copied.get(i);
@@ -195,7 +195,7 @@ public class ActiveThreadDumpServiceTest {
     private List<Long> extractLocalTraceIdList(List<ActiveTraceSnapshot> activeTraceInfoList, int size) {
         List<ActiveTraceSnapshot> copied = shuffle(activeTraceInfoList);
 
-        List<Long> localTraceIdList = new ArrayList<Long>(size);
+        List<Long> localTraceIdList = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             localTraceIdList.add(copied.get(i).getLocalTransactionId());
         }

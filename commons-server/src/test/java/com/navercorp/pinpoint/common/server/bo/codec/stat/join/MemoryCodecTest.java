@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
 public class MemoryCodecTest {
 
     @Test
-    public void encodeAndDecodeTest() throws Exception {
+    public void encodeAndDecodeTest() {
         final String id = "test_app";
         final long currentTime = new Date().getTime();
         final AgentStatDataPointCodec agentStatDataPointCodec = new AgentStatDataPointCodec();
@@ -59,7 +59,7 @@ public class MemoryCodecTest {
         assertEquals(valueBuffer.readByte(), memoryCodec.getVersion());
         List<JoinStatBo> decodedJoinMemoryBoList = memoryCodec.decodeValues(valueBuffer, decodingContext);
         for (int i = 0; i < decodedJoinMemoryBoList.size(); i++) {
-            assertTrue(decodedJoinMemoryBoList.get(i).equals(joinMemoryBoList.get(i)));
+            assertEquals(decodedJoinMemoryBoList.get(i), joinMemoryBoList.get(i));
         }
     }
 

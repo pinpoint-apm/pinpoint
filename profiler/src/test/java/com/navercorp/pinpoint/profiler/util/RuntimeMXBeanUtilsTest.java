@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 
 import java.util.Date;
 
@@ -29,18 +28,16 @@ import java.util.Date;
  * @author emeroad
  */
 public class RuntimeMXBeanUtilsTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Test
     public void vmStartTime() {
         long vmStartTime = RuntimeMXBeanUtils.getVmStartTime();
-        logger.debug("vmStartTime:{}", new Date(vmStartTime));
-        Assert.assertNotSame(vmStartTime, 0);
+        Assert.assertNotSame(0, vmStartTime);
     }
 
     @Test
     public void pid() {
         int pid = RuntimeMXBeanUtils.getPid();
-        logger.debug("pid:{}", pid);
         Assert.assertTrue(pid > 0);
     }
 }

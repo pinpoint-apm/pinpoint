@@ -29,7 +29,7 @@ import java.util.Properties;
 public class CommonsDbcp2ConfigTest {
 
     @Test
-    public void configTest1() throws Exception {
+    public void configTest1() {
         CommonsDbcp2Config commonsDbcpConfig = createCommonsDbcpConfig("false", "false");
 
         Assert.assertFalse(commonsDbcpConfig.isPluginEnable());
@@ -37,7 +37,7 @@ public class CommonsDbcp2ConfigTest {
     }
 
     @Test
-    public void configTest2() throws Exception {
+    public void configTest2() {
         CommonsDbcp2Config commonsDbcpConfig = createCommonsDbcpConfig("false", "true");
 
         Assert.assertFalse(commonsDbcpConfig.isPluginEnable());
@@ -45,7 +45,7 @@ public class CommonsDbcp2ConfigTest {
     }
 
     @Test
-    public void configTest3() throws Exception {
+    public void configTest3() {
         CommonsDbcp2Config commonsDbcpConfig = createCommonsDbcpConfig("true", "false");
 
         Assert.assertTrue(commonsDbcpConfig.isPluginEnable());
@@ -53,7 +53,7 @@ public class CommonsDbcp2ConfigTest {
     }
 
     @Test
-    public void configTest4() throws Exception {
+    public void configTest4() {
         CommonsDbcp2Config commonsDbcpConfig = createCommonsDbcpConfig("true", "true");
 
         Assert.assertTrue(commonsDbcpConfig.isPluginEnable());

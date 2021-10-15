@@ -38,7 +38,7 @@ public class AgentHistogramTest {
 
     private final ObjectMapper mapper = new ObjectMapper();
     @Test
-    public void testDeepCopy() throws Exception {
+    public void testDeepCopy() {
         AgentHistogram agentHistogram = new AgentHistogram(new Application("test", ServiceType.STAND_ALONE));
         TimeHistogram histogram = new TimeHistogram(ServiceType.STAND_ALONE, 0);
         histogram.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getFastErrorSlot().getSlotTime(), 1);

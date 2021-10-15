@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.web.util;
 
-import com.navercorp.pinpoint.web.util.DateLimiter;
-import com.navercorp.pinpoint.web.util.Limiter;
 import com.navercorp.pinpoint.web.vo.Range;
 
 import org.junit.Assert;

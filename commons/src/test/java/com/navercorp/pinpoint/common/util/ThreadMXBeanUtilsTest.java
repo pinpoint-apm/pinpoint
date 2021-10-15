@@ -30,7 +30,7 @@ public class ThreadMXBeanUtilsTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
-    public void testName() throws Exception {
+    public void testName() {
         ThreadInfo[] threadInfos = ThreadMXBeanUtils.dumpAllThread();
 
         Assert.assertNotNull(threadInfos);

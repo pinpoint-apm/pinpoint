@@ -33,7 +33,7 @@ public class OutputParameterMongoJsonParserTest {
     private final OutputParameterMongoJsonParser parser = new OutputParameterMongoJsonParser();
 
     @Test
-    public void testParseOutputParameter() throws Exception {
+    public void testParseOutputParameter() {
 
         assertOutputParameter("\"wow\",12,34", "\"wow\"", "12", "34");
 
@@ -60,7 +60,7 @@ public class OutputParameterMongoJsonParserTest {
             Assert.assertArrayEquals(params, result.toArray(new String[0]));
         } catch (AssertionError e) {
             logger.warn("parseResult:{}", result);
-            logger.warn("params:{}", (Object[]) params);
+            logger.warn("params:{}", params);
             throw e;
         }
     }

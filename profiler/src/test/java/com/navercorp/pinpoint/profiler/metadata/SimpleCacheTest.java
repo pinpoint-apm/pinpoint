@@ -20,8 +20,6 @@ import org.junit.Assert;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.profiler.metadata.Result;
-import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
 
 /**
  * @author emeroad
@@ -32,21 +30,21 @@ public class SimpleCacheTest {
 
     @Test
     public void startKey0() {
-        SimpleCache<String> cache = new SimpleCache<String>(idTransformer, 1024, 0);
+        SimpleCache<String> cache = new SimpleCache<>(idTransformer, 1024, 0);
         Result test = cache.put("test");
         Assert.assertEquals(0, test.getId());
     }
 
     @Test
     public void startKey1() {
-        SimpleCache<String> cache = new SimpleCache<String>(idTransformer, 1);
+        SimpleCache<String> cache = new SimpleCache<>(idTransformer, 1);
         Result test = cache.put("test");
         Assert.assertEquals(-1, test.getId());
     }
 
     @Test
     public void put() {
-        SimpleCache<String> cache = new SimpleCache<String>(idTransformer);
+        SimpleCache<String> cache = new SimpleCache<>(idTransformer);
         Result test = cache.put("test");
         Assert.assertEquals(-1, test.getId());
         Assert.assertTrue(test.isNewValue());

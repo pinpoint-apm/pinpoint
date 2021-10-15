@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class TFDirectBufferMapperTest {
     @Test
-    public void mapTest() throws Exception {
+    public void mapTest() {
         TFDirectBufferMapper tFDirectBufferMapper = new TFDirectBufferMapper();
         DirectBufferBo directBufferBo = new DirectBufferBo();
         directBufferBo.setDirectCount(30);

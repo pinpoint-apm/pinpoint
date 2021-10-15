@@ -7,7 +7,7 @@ import static org.junit.Assert.*;
 public class ExcludeMethodFilterTest {
 
     @Test
-    public void testFilter() throws Exception {
+    public void testFilter() {
         Filter<String> filter = new ExcludeMethodFilter("get,post");
 
         boolean getResult = filter.filter("GET");
@@ -18,7 +18,7 @@ public class ExcludeMethodFilterTest {
     }
 
     @Test
-    public void testUnFilter() throws Exception {
+    public void testUnFilter() {
         Filter<String> filter = new ExcludeMethodFilter("get,post");
 
         boolean putResult = filter.filter("PUT");

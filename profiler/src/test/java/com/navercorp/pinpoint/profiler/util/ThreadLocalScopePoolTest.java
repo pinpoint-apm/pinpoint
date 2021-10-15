@@ -27,17 +27,17 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 public class ThreadLocalScopePoolTest {
 
     @Test
-    public void testGetScope() throws Exception {
+    public void testGetScope() {
 
         ScopePool pool = new ThreadLocalScopePool();
         InterceptorScopeInvocation scope = pool.getScope(new DefaultInterceptorScopeDefinition("test"));
         Assert.assertTrue(scope instanceof ThreadLocalScope);
 
-        Assert.assertEquals("name", scope.getName(), "test");
+        Assert.assertEquals("name", "test", scope.getName());
     }
 
     @Test
-     public void testAttachment() throws Exception {
+     public void testAttachment() {
 
         ScopePool pool = new ThreadLocalScopePool();
         InterceptorScopeInvocation scope = pool.getScope(new DefaultInterceptorScopeDefinition("test"));
@@ -54,12 +54,12 @@ public class ThreadLocalScopePoolTest {
         Assert.assertTrue(scope.canLeave(ExecutionPolicy.BOUNDARY));
         scope.leave(ExecutionPolicy.BOUNDARY);
         
-        Assert.assertEquals("name", scope.getName(), "test");
+        Assert.assertEquals("name", "test", scope.getName());
     }
 
 
     @Test
-    public void testGetOrCreate() throws Exception {
+    public void testGetOrCreate() {
         ScopePool pool = new ThreadLocalScopePool();
         InterceptorScopeInvocation scope= pool.getScope(new DefaultInterceptorScopeDefinition("test"));
         
@@ -79,6 +79,6 @@ public class ThreadLocalScopePoolTest {
         Assert.assertTrue(scope.canLeave(ExecutionPolicy.BOUNDARY));
         scope.leave(ExecutionPolicy.BOUNDARY);
         
-        Assert.assertEquals("name", scope.getName(), "test");
+        Assert.assertEquals("name", "test", scope.getName());
     }
 }

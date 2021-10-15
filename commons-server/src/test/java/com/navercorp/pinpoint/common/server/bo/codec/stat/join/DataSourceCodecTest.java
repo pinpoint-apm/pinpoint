@@ -60,13 +60,13 @@ public class DataSourceCodecTest {
         assertEquals(valueBuffer.readByte(), dataSourceCodec.getVersion());
         List<JoinStatBo> decodedJoinDataSourceListBoList = dataSourceCodec.decodeValues(valueBuffer, decodingContext);
         for (int i = 0 ; i < decodedJoinDataSourceListBoList.size(); ++i) {
-            assertTrue(decodedJoinDataSourceListBoList.get(i).equals(joinDataSourceListBoList.get(i)));
+            assertEquals(decodedJoinDataSourceListBoList.get(i), joinDataSourceListBoList.get(i));
         }
     }
 
     private List<JoinStatBo> createJoinDataSourceListBoList(long currentTime) {
         final String id = "test_app";
-        List<JoinStatBo> joinDataSourceListBoList = new ArrayList<JoinStatBo>();
+        List<JoinStatBo> joinDataSourceListBoList = new ArrayList<>();
 
         JoinDataSourceListBo joinDataSourceListBo1 = new JoinDataSourceListBo(id, createJoinDataSourceBoList(10), currentTime);
         JoinDataSourceListBo joinDataSourceListBo2 = new JoinDataSourceListBo(id, createJoinDataSourceBoList(20), currentTime + 5000);
@@ -84,7 +84,7 @@ public class DataSourceCodecTest {
     }
 
     private List<JoinDataSourceBo> createJoinDataSourceBoList(int plus) {
-        List<JoinDataSourceBo> joinDataSourceBoList = new ArrayList<JoinDataSourceBo>();
+        List<JoinDataSourceBo> joinDataSourceBoList = new ArrayList<>();
 
         JoinDataSourceBo joinDataSourceBo1 = new JoinDataSourceBo((short)1000, "jdbc:mysql", 30 + plus, 25 + plus, "agent_id_1", 60 + plus, "agent_id_6");
         JoinDataSourceBo joinDataSourceBo2 = new JoinDataSourceBo((short)2000, "jdbc:mssql", 20 + plus, 5 + plus, "agent_id_2", 30 + plus, "agent_id_7");

@@ -27,7 +27,7 @@ import java.net.DatagramPacket;
 public class DatagramPacketFactoryTest {
 
     @Test
-    public void testCreate() throws Exception {
+    public void testCreate() {
         int bufferLength = 10;
         DatagramPacketFactory factory = new DatagramPacketFactory(bufferLength);
         DatagramPacket packet = factory.create();
@@ -35,7 +35,7 @@ public class DatagramPacketFactoryTest {
     }
 
     @Test
-    public void testBeforeReturn() throws Exception {
+    public void testBeforeReturn() {
         int bufferLength = 10;
         DatagramPacketFactory factory = new DatagramPacketFactory(bufferLength);
         DatagramPacket packet = factory.create();

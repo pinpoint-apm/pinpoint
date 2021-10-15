@@ -27,7 +27,7 @@ import org.junit.Test;
 public class DefaultResponseTimeFilterTest {
 
     @Test
-    public void testAccept() throws Exception {
+    public void testAccept() {
 
         ResponseTimeFilter filter1 = new DefaultResponseTimeFilter(1000, 2000);
 

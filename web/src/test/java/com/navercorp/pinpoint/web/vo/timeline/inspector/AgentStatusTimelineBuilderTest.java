@@ -57,7 +57,7 @@ public class AgentStatusTimelineBuilderTest {
 
         // Then
         List<AgentStatusTimelineSegment> actualTimelineSegmentList = timeline.getTimelineSegments();
-        Assert.assertTrue(actualTimelineSegmentList.size() == 3);
+        Assert.assertEquals(3, actualTimelineSegmentList.size());
 
         AgentStatusTimelineSegment first = actualTimelineSegmentList.get(0);
         assertTimelineSegment(first, FROM, startTime, AgentState.RUNNING);
@@ -87,7 +87,7 @@ public class AgentStatusTimelineBuilderTest {
 
         // Then
         List<AgentStatusTimelineSegment> actualTimelineSegmentList = timeline.getTimelineSegments();
-        Assert.assertTrue(actualTimelineSegmentList.size() == 5);
+        Assert.assertEquals(5, actualTimelineSegmentList.size());
 
         AgentStatusTimelineSegment first = actualTimelineSegmentList.get(0);
         assertTimelineSegment(first, FROM, firstStartTime, AgentState.RUNNING);
@@ -118,7 +118,7 @@ public class AgentStatusTimelineBuilderTest {
 
         // Then
         List<AgentStatusTimelineSegment> actualTimelineSegmentList = timeline.getTimelineSegments();
-        Assert.assertTrue(actualTimelineSegmentList.size() == 2);
+        Assert.assertEquals(2, actualTimelineSegmentList.size());
 
         AgentStatusTimelineSegment unstableTimelineSegment = actualTimelineSegmentList.get(0);
         assertTimelineSegment(unstableTimelineSegment, FROM, endTime, AgentState.UNSTABLE_RUNNING);
@@ -140,7 +140,7 @@ public class AgentStatusTimelineBuilderTest {
 
         // Then
         List<AgentStatusTimelineSegment> actualTimelineSegmentList = timeline.getTimelineSegments();
-        Assert.assertTrue(actualTimelineSegmentList.size() == 2);
+        Assert.assertEquals(2, actualTimelineSegmentList.size());
 
         AgentStatusTimelineSegment first = actualTimelineSegmentList.get(0);
         assertTimelineSegment(first, FROM, startTime, AgentState.RUNNING);
@@ -163,7 +163,7 @@ public class AgentStatusTimelineBuilderTest {
 
         // Then
         List<AgentStatusTimelineSegment> actualTimelineSegmentList = timeline.getTimelineSegments();
-        Assert.assertTrue(actualTimelineSegmentList.size() == 1);
+        Assert.assertEquals(1, actualTimelineSegmentList.size());
 
         AgentStatusTimelineSegment timelineSegment1 = actualTimelineSegmentList.get(0);
         assertTimelineSegment(timelineSegment1, FROM, TO, AgentState.RUNNING);
@@ -182,7 +182,7 @@ public class AgentStatusTimelineBuilderTest {
 
         // Then
         List<AgentStatusTimelineSegment> actualTimelineSegmentList = timeline.getTimelineSegments();
-        Assert.assertTrue(actualTimelineSegmentList.size() == 1);
+        Assert.assertEquals(1, actualTimelineSegmentList.size());
 
         AgentStatusTimelineSegment timelineSegment1 = actualTimelineSegmentList.get(0);
         assertTimelineSegment(timelineSegment1, FROM, TO, AgentState.RUNNING);

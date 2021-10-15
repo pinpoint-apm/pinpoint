@@ -79,7 +79,7 @@ public class NetworkUtilsTest {
     }
     
     @Test
-    public void hostIpTest() throws Exception {
+    public void hostIpTest() {
         List<String> hostIpList = NetworkUtils.getHostIpList();
         for (String hostIp : hostIpList) {
             Assert.assertFalse(NetworkUtils.isLoopbackAddress(hostIp));

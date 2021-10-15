@@ -23,17 +23,17 @@ import org.junit.Test;
  * @author yinbp[yin-bp@163.com]
  */
 public class ElasticsearchPluginConfigTest {
-	private ElasticsearchPluginConfig elasticsearchPluginConfig = null;
+    private ElasticsearchPluginConfig elasticsearchPluginConfig = null;
 
-	@Before
-	public void setUp(){
-		elasticsearchPluginConfig = new ElasticsearchPluginConfig(null);
-	}
+    @Before
+    public void setUp() {
+        elasticsearchPluginConfig = new ElasticsearchPluginConfig(null);
+    }
 
-	@Test
+    @Test
     public void testIsEnabled() {
-		Assert.assertFalse(elasticsearchPluginConfig.isEnabled());
-	}
+        Assert.assertFalse(elasticsearchPluginConfig.isEnabled());
+    }
 
     @Test
     public void testToString() {

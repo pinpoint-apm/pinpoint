@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.view;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -41,7 +42,7 @@ public class LinkSerializerTest {
 
 
     @Test
-    public void testSerialize() throws Exception {
+    public void testSerialize() throws JsonProcessingException {
         AgentHistogramList list = new AgentHistogramList();
         AgentHistogram histogram = new AgentHistogram(new Application("test", ServiceType.STAND_ALONE));
         list.addAgentHistogram(histogram);

@@ -41,13 +41,13 @@ public class LinkListTest {
       
     
     @Test
-    public void testGetLinkList() throws Exception {
+    public void testGetLinkList() {
         LinkList linkList = new LinkList();
         Assert.assertEquals(linkList.getLinkList().size(), 0);
     }
 
     @Test
-    public void addLinkList() throws Exception {
+    public void addLinkList() {
         Link tomcatToTomcatLink = createTomcatToTomcatLink();
         LinkList copy = new LinkList();
         copy.addLink(tomcatToTomcatLink);
@@ -79,7 +79,7 @@ public class LinkListTest {
     }
 
     @Test
-    public void testFindToLink() throws Exception {
+    public void testFindToLink() {
         Link tomcatToBlocLink = createTomcatToBlocLink();
         LinkList list = new LinkList();
         list.addLink(tomcatToBlocLink);
@@ -93,7 +93,7 @@ public class LinkListTest {
 
         for (Link link : findToLink) {
             Application to = link.getTo().getApplication();
-            Assert.assertTrue(toBloc + " " + to, toBloc.equals(to));
+            Assert.assertEquals(toBloc + " " + to, toBloc, to);
         }
 
         List<Link> unknown = list.findToLink(new Application("unknown", BLOC));
@@ -101,7 +101,7 @@ public class LinkListTest {
     }
 
     @Test
-    public void testFindFromLink() throws Exception {
+    public void testFindFromLink() {
         Link tomcatToBlocLink = createTomcatToBlocLink();
         LinkList list = new LinkList();
         list.addLink(tomcatToBlocLink);
@@ -114,7 +114,7 @@ public class LinkListTest {
         Assert.assertEquals(findFromLink.size(), 2);
         for (Link link : findFromLink) {
             Application linkFrom = link.getFrom().getApplication();
-            Assert.assertTrue(linkFrom.equals(tomcat));
+            Assert.assertEquals(linkFrom, tomcat);
         }
 
         List<Link> unknown = list.findFromLink(new Application("unknown", TOMCAT));
@@ -122,7 +122,7 @@ public class LinkListTest {
     }
 
     @Test
-    public void testContainsNode() throws Exception {
+    public void testContainsNode() {
         Link tomcatToBlocLink = createTomcatToBlocLink();
         LinkList list = new LinkList();
         Assert.assertFalse(list.containsNode(tomcatToBlocLink));
@@ -133,7 +133,7 @@ public class LinkListTest {
     }
 
     @Test
-    public void testSize() throws Exception {
+    public void testSize() {
         LinkList list = new LinkList();
         Assert.assertEquals(list.size(), 0);
 

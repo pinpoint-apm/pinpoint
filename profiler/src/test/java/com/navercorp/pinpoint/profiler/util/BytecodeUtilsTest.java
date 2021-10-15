@@ -26,12 +26,12 @@ import org.junit.Test;
 public class BytecodeUtilsTest {
 
     @Test
-    public void testDefineClass() throws Exception {
+    public void testDefineClass() {
 
     }
 
     @Test
-    public void testGetClassFile() throws Exception {
+    public void testGetClassFile() {
 
 
     }

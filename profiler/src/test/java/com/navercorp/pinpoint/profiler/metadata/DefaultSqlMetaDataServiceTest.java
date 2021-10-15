@@ -32,9 +32,9 @@ import static org.mockito.Mockito.verify;
 public class DefaultSqlMetaDataServiceTest {
 
     @Test
-    public void cacheSql() throws Exception {
-        final EnhancedDataSender dataSender = mock(EnhancedDataSender.class);
-        SimpleCache<String> sqlCache = new SimpleCache<String>(new SimpleCache.ZigZagTransformer(), 100);
+    public void cacheSql() {
+        final EnhancedDataSender<MetaDataType> dataSender = mock(EnhancedDataSender.class);
+        SimpleCache<String> sqlCache = new SimpleCache<>(new SimpleCache.ZigZagTransformer(), 100);
         final SqlMetaDataService sqlMetaDataService = new DefaultSqlMetaDataService(dataSender, sqlCache);
 
         final String sql = "select * from A";

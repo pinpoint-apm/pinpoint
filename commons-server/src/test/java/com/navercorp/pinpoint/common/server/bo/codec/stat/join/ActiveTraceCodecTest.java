@@ -58,7 +58,7 @@ public class ActiveTraceCodecTest {
         assertEquals(valueBuffer.readByte(), activeTraceCodec.getVersion());
         List<JoinStatBo> decodedJoinActiveTraceBoList = activeTraceCodec.decodeValues(valueBuffer, decodingContext);
         for (int i = 0; i < decodedJoinActiveTraceBoList.size(); i++) {
-            assertTrue(decodedJoinActiveTraceBoList.get(i).equals(joinActiveTraceBoList.get(i)));
+            assertEquals(decodedJoinActiveTraceBoList.get(i), joinActiveTraceBoList.get(i));
         }
     }
 

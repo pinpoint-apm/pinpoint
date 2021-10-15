@@ -97,7 +97,7 @@ public class ASMMethodNodeTest {
             @Override
             public InterceptorDefinition answer(InvocationOnMock invocation) throws Throwable {
                 Object[] arguments = invocation.getArguments();
-                Class clazz = (Class) arguments[0];
+                Class<?> clazz = (Class) arguments[0];
                 return interceptorDefinitionFactory.createInterceptorDefinition(clazz);
             }
         });

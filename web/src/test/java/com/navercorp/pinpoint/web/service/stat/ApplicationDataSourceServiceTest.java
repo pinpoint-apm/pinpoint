@@ -34,7 +34,7 @@ import static org.mockito.Mockito.mock;
  */
 public class ApplicationDataSourceServiceTest {
     @Test
-    public void classifyByDataSourceUrlTest() throws Exception {
+    public void classifyByDataSourceUrlTest() {
         final String id = "test_app";
         long timestamp = new Date().getTime();
 
@@ -48,7 +48,7 @@ public class ApplicationDataSourceServiceTest {
     }
 
     private List<AggreJoinDataSourceListBo> createJoinDataSourceListBoList(String id, long currentTime) {
-        List<AggreJoinDataSourceListBo> aggreJoinDataSourceListBoList = new ArrayList<AggreJoinDataSourceListBo>();
+        List<AggreJoinDataSourceListBo> aggreJoinDataSourceListBoList = new ArrayList<>();
 
         AggreJoinDataSourceListBo aggreJoinDataSourceListBo1 = new AggreJoinDataSourceListBo(id, createJoinDataSourceBoList(10, currentTime + 5000), currentTime + 5000);
         AggreJoinDataSourceListBo aggreJoinDataSourceListBo2 = new AggreJoinDataSourceListBo(id, createJoinDataSourceBoList(20, currentTime + 10000), currentTime + 10000);
@@ -66,7 +66,7 @@ public class ApplicationDataSourceServiceTest {
     }
 
     private List<JoinDataSourceBo> createJoinDataSourceBoList(int plus, long timestamp) {
-        List<JoinDataSourceBo> joinDataSourceBoList = new ArrayList<JoinDataSourceBo>();
+        List<JoinDataSourceBo> joinDataSourceBoList = new ArrayList<>();
 
         AggreJoinDataSourceBo joinDataSourceBo1 = new AggreJoinDataSourceBo((short) 1000, "jdbc:mysql", 30 + plus, 25 + plus, "agent_id_1_" + plus, 60 + plus, "agent_id_6_" + plus, timestamp);
         AggreJoinDataSourceBo joinDataSourceBo2 = new AggreJoinDataSourceBo((short) 2000, "jdbc:mssql", 20 + plus, 5 + plus, "agent_id_2_" + plus, 30 + plus, "agent_id_7_" + plus, timestamp);

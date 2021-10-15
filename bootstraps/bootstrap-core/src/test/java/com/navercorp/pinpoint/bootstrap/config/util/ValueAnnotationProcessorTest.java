@@ -9,7 +9,7 @@ import java.util.Properties;
 public class ValueAnnotationProcessorTest {
 
     @Test
-    public void primitive() throws Exception {
+    public void primitive() {
         PrimitiveConfig config = new PrimitiveConfig();
         Properties properties = new Properties();
 
@@ -174,7 +174,7 @@ public class ValueAnnotationProcessorTest {
     }
 
     @Test
-    public void defaultValue() throws Exception {
+    public void defaultValue() {
         DefaultValueConfig config = new DefaultValueConfig();
         Properties properties = new Properties();
 //        properties.put("int", "");

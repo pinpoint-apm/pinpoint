@@ -45,7 +45,7 @@ public class AgentActiveThreadDumpListTest {
     private final ThreadStateThriftMessageConverter threadStateThriftMessageConverter = new ThreadStateThriftMessageConverter();
 
     @Test
-    public void basicFunctionTest1() throws Exception {
+    public void basicFunctionTest1() {
         List<WaitingJob> waitingJobList = createWaitingJobList(CREATE_DUMP_SIZE);
         try {
             Thread[] threads = createThread(waitingJobList);
@@ -59,7 +59,7 @@ public class AgentActiveThreadDumpListTest {
     }
 
     @Test
-    public void basicFunctionTest2() throws Exception {
+    public void basicFunctionTest2() {
         List<WaitingJob> waitingJobList = createWaitingJobList(CREATE_DUMP_SIZE);
         try {
             Thread[] threads = createThread(waitingJobList);
@@ -82,7 +82,7 @@ public class AgentActiveThreadDumpListTest {
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void checkUnmodifiableList() throws Exception {
+    public void checkUnmodifiableList() {
         List<WaitingJob> waitingJobList = createWaitingJobList(CREATE_DUMP_SIZE);
         try {
             Thread[] threads = createThread(waitingJobList);
@@ -97,7 +97,7 @@ public class AgentActiveThreadDumpListTest {
     }
 
     private List<WaitingJob> createWaitingJobList(int createActiveTraceRepositorySize) {
-        List<WaitingJob> waitingJobList = new ArrayList<WaitingJob>();
+        List<WaitingJob> waitingJobList = new ArrayList<>();
         for (int i = 0; i < createActiveTraceRepositorySize; i++) {
             waitingJobList.add(new WaitingJob(100));
         }

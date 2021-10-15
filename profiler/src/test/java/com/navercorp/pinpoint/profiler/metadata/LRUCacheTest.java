@@ -20,7 +20,6 @@ import org.junit.Assert;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.profiler.metadata.LRUCache;
 
 import java.util.Random;
 
@@ -29,9 +28,9 @@ import java.util.Random;
  */
 public class LRUCacheTest {
     @Test
-    public void testPut() throws Exception {
+    public void testPut() {
         long cacheSize = 100;
-        LRUCache cache = new LRUCache((int) cacheSize);
+        LRUCache<String> cache = new LRUCache<>((int) cacheSize);
         Random random = new Random();
         for (int i = 0; i < 1000; i++) {
             cache.put(String.valueOf(random.nextInt(100000)));
@@ -43,8 +42,8 @@ public class LRUCacheTest {
     }
 
     @Test
-    public void testGetSize() throws Exception {
-        LRUCache<String> cache = new LRUCache<String>(2);
+    public void testGetSize() {
+        LRUCache<String> cache = new LRUCache<>(2);
         Assert.assertEquals(cache.getSize(), 0);
 
         String sqlObject = "test";

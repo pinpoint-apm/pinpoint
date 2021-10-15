@@ -29,7 +29,7 @@ public class ReuseResponseTimeCollectorTest {
     private final Random random = new Random(System.currentTimeMillis());
 
     @Test
-    public void defaultTest() throws Exception {
+    public void defaultTest() {
 
         int count = 3;
 

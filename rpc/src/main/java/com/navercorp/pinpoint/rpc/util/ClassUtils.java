@@ -53,11 +53,11 @@ public class ClassUtils {
         primitiveWrapperMap.put(Void.TYPE, Void.TYPE);
     }
 
-    private static final Map<Class, Class> wrapperPrimitiveMap = new HashMap<>();
+    private static final Map<Class<?>, Class<?>> wrapperPrimitiveMap = new HashMap<>();
     static {
         for (Object o : primitiveWrapperMap.keySet()) {
-            Class primitiveClass = (Class) o;
-            Class wrapperClass = primitiveWrapperMap.get(primitiveClass);
+            Class<?> primitiveClass = (Class) o;
+            Class<?> wrapperClass = primitiveWrapperMap.get(primitiveClass);
             if (!primitiveClass.equals(wrapperClass)) {
                 wrapperPrimitiveMap.put(wrapperClass, primitiveClass);
             }
@@ -97,7 +97,7 @@ public class ClassUtils {
      * @param toClassArray  the array of Classes to try to assign into, may be <code>null</code>
      * @return <code>true</code> if assignment possible
      */
-    public static boolean isAssignable(Class cls, Class toClass) {
+    public static boolean isAssignable(Class<?> cls, Class<?> toClass) {
         return isAssignable(cls, toClass, true);
     }
 
@@ -207,8 +207,8 @@ public class ClassUtils {
      * <code>cls</code> is not a primitive. <code>null</code> if null input.
      * @since 2.1
      */
-    public static Class primitiveToWrapper(Class cls) {
-        Class convertedClass = cls;
+    public static Class<?> primitiveToWrapper(Class<?> cls) {
+        Class<?> convertedClass = cls;
         if (cls != null && cls.isPrimitive()) {
             convertedClass = primitiveWrapperMap.get(cls);
         }
@@ -225,7 +225,7 @@ public class ClassUtils {
      * Empty array if an empty array passed in.
      * @since 2.1
      */
-    public static Class wrapperToPrimitive(Class cls) {
+    public static Class<?> wrapperToPrimitive(Class<?> cls) {
         return wrapperPrimitiveMap.get(cls);
     }
     
@@ -243,7 +243,7 @@ public class ClassUtils {
             return "null_object";
         }
 
-        Class clazz = object.getClass();
+        Class<?> clazz = object.getClass();
         Package pkg = clazz.getPackage();
         if (pkg != null) {
             return clazz.getName().substring(pkg.getName().length() + 1);

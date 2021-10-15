@@ -93,7 +93,7 @@ public class AnnotatedInterceptorFactoryTest {
     }
 
     @Test
-    public void test0() throws Exception {
+    public void test0() {
         AnnotatedInterceptorFactory factory = newAnnotatedInterceptorFactory();
         final ScopeInfo scopeInfo = newEmptyScopeInfo();
         Interceptor interceptor = factory.newInterceptor(TestInterceptor0.class, null, scopeInfo, instrumentClass, instrumentMethod);
@@ -184,14 +184,14 @@ public class AnnotatedInterceptorFactoryTest {
     }
 
     @Test(expected=PinpointException.class)
-    public void test7() throws Exception {
+    public void test7() {
         AnnotatedInterceptorFactory factory = newAnnotatedInterceptorFactory();
         final ScopeInfo scopeInfo = newEmptyScopeInfo();
         factory.newInterceptor(TestInterceptor1.class, null, scopeInfo, instrumentClass, instrumentMethod);
     }
 
     @Test(expected=PinpointException.class)
-    public void test8() throws Exception {
+    public void test8() {
         AnnotatedInterceptorFactory factory = newAnnotatedInterceptorFactory();
         final ScopeInfo scopeInfo = newEmptyScopeInfo();
         factory.newInterceptor(TestInterceptor1.class, null, scopeInfo, instrumentClass, instrumentMethod);

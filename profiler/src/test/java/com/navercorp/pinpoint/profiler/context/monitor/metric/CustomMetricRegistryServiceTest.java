@@ -156,7 +156,7 @@ public class CustomMetricRegistryServiceTest {
         Assert.assertTrue(customMetricWrapper instanceof DoubleGaugeWrapper);
 
         DoubleGaugeWrapper doubleGaugeMetricWrapper = (DoubleGaugeWrapper) customMetricWrapper;
-        Assert.assertTrue(value == doubleGaugeMetricWrapper.getValue());
+        Assert.assertEquals(value, doubleGaugeMetricWrapper.getValue(), 0.0);
 
         boolean unregister = customMetricRegistryService.unregister((DoubleGauge) customMetric);
         Assert.assertTrue(unregister);
@@ -257,7 +257,7 @@ public class CustomMetricRegistryServiceTest {
     }
 
     //
-    private CustomMetric createFixedValueMetric(final String metricName, final Number fixedValue, Class clazz) {
+    private CustomMetric createFixedValueMetric(final String metricName, final Number fixedValue, Class<?> clazz) {
         if (clazz == IntCounter.class) {
             return new IntCounter() {
                 @Override

@@ -81,7 +81,7 @@ public class NetworkAvailabilityCheckPacketFilterTest {
 
 
     @Test
-    public void testFilter_Continue() throws Exception {
+    public void testFilter_Continue() {
 
         SocketAddress localSocketAddress = senderSocket.getLocalSocketAddress();
         logger.debug("localSocket:{}", localSocketAddress);

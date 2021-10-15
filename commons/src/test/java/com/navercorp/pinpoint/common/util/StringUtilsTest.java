@@ -29,8 +29,8 @@ import java.util.Objects;
  * @author poap
  */
 public class StringUtilsTest {
-    private String longString = "This is a very long string for testing drop function. Length of this string is more than sixty four.";
-    private String shortString = "This is ashort string.";
+    private final String longString = "This is a very long string for testing drop function. Length of this string is more than sixty four.";
+    private final String shortString = "This is ashort string.";
 
     @Test
     public void defaultString() {
@@ -104,28 +104,28 @@ public class StringUtilsTest {
 
 
     @Test
-    public void testAbbreviate1() throws Exception {
+    public void testAbbreviate1() {
         String string = "abc";
         String drop = StringUtils.abbreviate(string, 1);
         Assert.assertEquals("a...(3)", drop);
     }
 
     @Test
-    public void testAbbreviate2() throws Exception {
+    public void testAbbreviate2() {
         String string = "abc";
         String drop = StringUtils.abbreviate(string, 5);
         Assert.assertEquals("abc", drop);
     }
 
     @Test
-    public void testAbbreviate3() throws Exception {
+    public void testAbbreviate3() {
         String string = "abc";
         String drop = StringUtils.abbreviate(string, 3);
         Assert.assertEquals("abc", drop);
     }
 
     @Test
-    public void testAbbreviate4() throws Exception {
+    public void testAbbreviate4() {
         String string = "abc";
         String drop = StringUtils.abbreviate(string, 0);
         Assert.assertEquals("...(3)", drop);
@@ -133,7 +133,7 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testAbbreviateNegative() throws Exception {
+    public void testAbbreviateNegative() {
         String string = "abc";
         try {
             StringUtils.abbreviate(string, -1);
@@ -152,7 +152,7 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testTokenizeToStringList() throws Exception {
+    public void testTokenizeToStringList() {
 
         final String sample = "a, b,  ,,   c";
         List<String> tokenList = StringUtils.tokenizeToStringList(sample, ",");
@@ -163,7 +163,7 @@ public class StringUtilsTest {
 
 
     @Test
-    public void testTokenizeToStringList_compatibility() throws Exception {
+    public void testTokenizeToStringList_compatibility() {
 
         final String sample = "a, b,  ,,   c";
         List<String> tokenList = StringUtils.tokenizeToStringList(sample, ",");
@@ -174,7 +174,7 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testTokenizeToStringList_nullValue() throws Exception {
+    public void testTokenizeToStringList_nullValue() {
 
         List<String> tokenList = StringUtils.tokenizeToStringList(null, ",");
         Assert.assertEquals(tokenList.size(), 0);

@@ -68,7 +68,7 @@ public class DiscardClientInterceptorTest {
     private DiscardClientCall<String, Integer> call ;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         this.descriptor = MethodDescriptor.<String, Integer>newBuilder()
                 .setType(MethodDescriptor.MethodType.CLIENT_STREAMING)
                 .setFullMethodName("a.service/method")

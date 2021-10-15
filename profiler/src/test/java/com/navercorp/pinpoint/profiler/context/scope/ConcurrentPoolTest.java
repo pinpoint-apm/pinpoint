@@ -27,10 +27,10 @@ import org.junit.Test;
  */
 public class ConcurrentPoolTest {
     @Test
-    public void testConcurrentPool() throws Exception {
+    public void testConcurrentPool() {
 
         InterceptorScopeFactory traceScopeFactory = new InterceptorScopeFactory();
-        Pool<String, InterceptorScope> pool = new ConcurrentPool<String, InterceptorScope>(traceScopeFactory);
+        Pool<String, InterceptorScope> pool = new ConcurrentPool<>(traceScopeFactory);
 
         final String OBJECT_NAME = "test";
 

@@ -22,7 +22,7 @@ import org.junit.Test;
 public class IdValidateUtilsTest  {
 
     @Test
-    public void testValidateId() throws Exception {
+    public void testValidateId() {
         Assert.assertTrue(IdValidateUtils.validateId("abcd"));
         Assert.assertTrue(IdValidateUtils.validateId("ab-_bc"));
         Assert.assertTrue(IdValidateUtils.validateId("test.abc"));
@@ -39,7 +39,7 @@ public class IdValidateUtilsTest  {
     }
 
     @Test
-    public void testValidateId_max_length() throws Exception {
+    public void testValidateId_max_length() {
         Assert.assertTrue("check max length", IdValidateUtils.validateId("0123456789012"));
         Assert.assertTrue("check max length", IdValidateUtils.validateId("012345678901234567891234"));
 
@@ -49,7 +49,7 @@ public class IdValidateUtilsTest  {
     }
 
     @Test
-    public void testValidateId_custom_max_length() throws Exception {
+    public void testValidateId_custom_max_length() {
         Assert.assertTrue("check max length", IdValidateUtils.validateId("0", 1));
         Assert.assertFalse("check max length", IdValidateUtils.validateId("01", 1));
 

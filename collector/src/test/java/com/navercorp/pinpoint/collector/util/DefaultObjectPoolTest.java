@@ -27,7 +27,7 @@ import java.net.DatagramPacket;
 public class DefaultObjectPoolTest {
 
     @Test
-    public void testGetObject() throws Exception {
+    public void testGetObject() {
         DefaultObjectPool<DatagramPacket> pool = new DefaultObjectPool<>(new DatagramPacketFactory(), 1);
 
         PooledObject<DatagramPacket> pooledObject = pool.getObject();
@@ -38,7 +38,7 @@ public class DefaultObjectPoolTest {
     }
 
     @Test
-    public void testReset() throws Exception {
+    public void testReset() {
         DefaultObjectPool<DatagramPacket> pool = new DefaultObjectPool<>(new DatagramPacketFactory(), 1);
 
         PooledObject<DatagramPacket> pooledObject = pool.getObject();

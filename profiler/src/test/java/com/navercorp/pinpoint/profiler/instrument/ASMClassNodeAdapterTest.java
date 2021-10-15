@@ -218,7 +218,7 @@ public class ASMClassNodeAdapterTest {
 
 
     @Test
-    public void hasAnnotation() throws Exception {
+    public void hasAnnotation() {
         ASMClassNodeAdapter classNodeAdapter = ASMClassNodeAdapter.get(pluginClassInputStreamProvider, ASMClassNodeLoader.getClassLoader(), getClass().getProtectionDomain(), "com/navercorp/pinpoint/profiler/instrument/mock/AnnotationClass");
         Assert.assertTrue(classNodeAdapter.hasAnnotation(Aspect.class));
         Assert.assertFalse(classNodeAdapter.hasAnnotation(Override.class));

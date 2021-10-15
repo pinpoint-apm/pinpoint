@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class ActiveTraceHistogramUtilsTest {
     @Test
-    public void asList_ZERO_CASE() throws Exception {
+    public void asList_ZERO_CASE() {
 
         ActiveTraceHistogram emptyHistogram= new EmptyActiveTraceHistogram(BaseHistogramSchema.NORMAL_SCHEMA);
 

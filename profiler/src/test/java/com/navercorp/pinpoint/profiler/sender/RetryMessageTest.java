@@ -29,7 +29,7 @@ public class RetryMessageTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
-    public void availableTest1() throws Exception {
+    public void availableTest1() {
         RetryMessage retryMessage = new RetryMessage(1, new byte[0]);
         Assert.assertTrue(retryMessage.isRetryAvailable());
 
@@ -38,7 +38,7 @@ public class RetryMessageTest {
     }
 
     @Test
-    public void availableTest2() throws Exception {
+    public void availableTest2() {
         RetryMessage retryMessage = new RetryMessage(1, 2, new byte[0]);
         Assert.assertTrue(retryMessage.isRetryAvailable());
 
@@ -47,7 +47,7 @@ public class RetryMessageTest {
     }
 
     @Test
-    public void availableTest3() throws Exception {
+    public void availableTest3() {
         RetryMessage retryMessage = new RetryMessage(2, 2, new byte[0]);
         Assert.assertFalse(retryMessage.isRetryAvailable());
     }

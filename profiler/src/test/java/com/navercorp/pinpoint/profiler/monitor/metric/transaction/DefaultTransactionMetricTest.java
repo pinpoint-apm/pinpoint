@@ -54,7 +54,7 @@ public class DefaultTransactionMetricTest {
     }
 
     @Test
-    public void checkCalculationFor_0_Transaction() throws Exception {
+    public void checkCalculationFor_0_Transaction() {
         // Given
         final long expectedNumberOfTransactions = 0L;
         initTransactionMetric();
@@ -72,7 +72,7 @@ public class DefaultTransactionMetricTest {
     }
 
     @Test
-    public void checkCalculationFor_1_Transaction() throws Exception {
+    public void checkCalculationFor_1_Transaction() {
         // Given
         final long expectedNumberOfTransactions = 1L;
         initTransactionMetric();
@@ -90,7 +90,7 @@ public class DefaultTransactionMetricTest {
     }
 
     @Test
-    public void checkCalculationFor_100_Transaction() throws Exception {
+    public void checkCalculationFor_100_Transaction() {
         // Given
         final long expectedNumberOfTransactions = 100L;
         initTransactionMetric();
@@ -108,7 +108,7 @@ public class DefaultTransactionMetricTest {
     }
 
     @Test
-    public void negative_Transaction_should_return_UNCOLLECTED() throws Exception {
+    public void negative_Transaction_should_return_UNCOLLECTED() {
         // Given
         final long expectedNumberOfTransactions = TransactionMetric.UNCOLLECTED;
         initTransactionMetric();
@@ -126,7 +126,7 @@ public class DefaultTransactionMetricTest {
     }
     
     @Test
-    public void checkContinuousTransactions() throws Exception {
+    public void checkContinuousTransactions() {
         // Given
         final int testCnt = 10;
         final long expectedNumberOfTransactionsPerCollection = 100L;

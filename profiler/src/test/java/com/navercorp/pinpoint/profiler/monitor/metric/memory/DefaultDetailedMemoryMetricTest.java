@@ -45,10 +45,10 @@ public class DefaultDetailedMemoryMetricTest {
         Assert.assertNotEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getSurvivorSpaceUsage());
         Assert.assertNotEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getCodeCacheUsage());
         if (DetailedMemoryMetric.UNCOLLECTED_USAGE != snapshot.getPermGenUsage()) {
-            Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getMetaspaceUsage());
+            Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getMetaspaceUsage(), 0.0);
         }
         if (DetailedMemoryMetric.UNCOLLECTED_USAGE != snapshot.getMetaspaceUsage()) {
-            Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getPermGenUsage());
+            Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getPermGenUsage(), 0.0);
         }
     }
 
@@ -59,12 +59,12 @@ public class DefaultDetailedMemoryMetricTest {
         // When
         DetailedMemoryMetricSnapshot snapshot = detailedMemoryMetric.getSnapshot();
         // Then
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getNewGenUsage());
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getOldGenUsage());
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getSurvivorSpaceUsage());
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getCodeCacheUsage());
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getPermGenUsage());
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getMetaspaceUsage());
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getNewGenUsage(), 0.0);
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getOldGenUsage(), 0.0);
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getSurvivorSpaceUsage(), 0.0);
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getCodeCacheUsage(), 0.0);
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getPermGenUsage(), 0.0);
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getMetaspaceUsage(), 0.0);
     }
 
     @Test
@@ -77,12 +77,12 @@ public class DefaultDetailedMemoryMetricTest {
         // When
         DetailedMemoryMetricSnapshot snapshot = detailedMemoryMetric.getSnapshot();
         // Then
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getNewGenUsage());
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getOldGenUsage());
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getSurvivorSpaceUsage());
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getCodeCacheUsage());
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getPermGenUsage());
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getMetaspaceUsage());
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getNewGenUsage(), 0.0);
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getOldGenUsage(), 0.0);
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getSurvivorSpaceUsage(), 0.0);
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getCodeCacheUsage(), 0.0);
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getPermGenUsage(), 0.0);
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getMetaspaceUsage(), 0.0);
     }
 
     @Test
@@ -96,12 +96,12 @@ public class DefaultDetailedMemoryMetricTest {
         // When
         DetailedMemoryMetricSnapshot snapshot = detailedMemoryMetric.getSnapshot();
         // Then
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getNewGenUsage());
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getOldGenUsage());
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getSurvivorSpaceUsage());
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getCodeCacheUsage());
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getPermGenUsage());
-        Assert.assertTrue(DetailedMemoryMetric.UNCOLLECTED_USAGE == snapshot.getMetaspaceUsage());
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getNewGenUsage(), 0.0);
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getOldGenUsage(), 0.0);
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getSurvivorSpaceUsage(), 0.0);
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getCodeCacheUsage(), 0.0);
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getPermGenUsage(), 0.0);
+        Assert.assertEquals(DetailedMemoryMetric.UNCOLLECTED_USAGE, snapshot.getMetaspaceUsage(), 0.0);
     }
 
     @Test

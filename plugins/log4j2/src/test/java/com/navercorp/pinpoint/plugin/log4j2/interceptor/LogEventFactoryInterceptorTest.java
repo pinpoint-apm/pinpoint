@@ -41,7 +41,7 @@ public class LogEventFactoryInterceptorTest {
         LogEventFactoryInterceptor interceptor = new LogEventFactoryInterceptor(traceContext);
         interceptor.before(null);
         interceptor.after(null, null, null);
-        Assert.assertTrue(ThreadContext.get(TRANSACTION_ID) == null);
+        assertNull(ThreadContext.get(TRANSACTION_ID));
     }
 
     @Test
@@ -57,6 +57,6 @@ public class LogEventFactoryInterceptorTest {
         LogEventFactoryInterceptor interceptor = spy(new LogEventFactoryInterceptor(traceContext));
         interceptor.before(null);
         interceptor.after(null, null, null);
-        Assert.assertTrue(ThreadContext.get(TRANSACTION_ID) != null);
+        assertNotNull(ThreadContext.get(TRANSACTION_ID));
     }
 }

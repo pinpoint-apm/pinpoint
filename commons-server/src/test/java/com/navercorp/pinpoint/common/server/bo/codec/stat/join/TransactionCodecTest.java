@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
  */
 public class TransactionCodecTest {
     @Test
-    public void encodeValuesTest() throws Exception {
+    public void encodeValuesTest() {
         final String id = "test_app";
         final long currentTime = new Date().getTime();
         TransactionCodec transactionCodec = new TransactionCodec(new AgentStatDataPointCodec());
@@ -57,7 +57,7 @@ public class TransactionCodecTest {
         assertEquals(valueBuffer.readByte(), transactionCodec.getVersion());
         List<JoinStatBo> decodedJoinTransactionBoList = transactionCodec.decodeValues(valueBuffer, decodingContext);
         for (int i = 0; i < decodedJoinTransactionBoList.size(); i++) {
-            assertTrue(decodedJoinTransactionBoList.get(i).equals(joinTransactionBoList.get(i)));
+            assertEquals(decodedJoinTransactionBoList.get(i), joinTransactionBoList.get(i));
         }
     }
 
@@ -79,7 +79,7 @@ public class TransactionCodecTest {
     }
 
     @Test
-    public void decodeValuesTest() throws Exception {
+    public void decodeValuesTest() {
 
     }
 

@@ -223,7 +223,7 @@ public class SocketUtilsTest {
         }, IllegalArgumentException.class, "'numRequested' must not be greater than 'maxPort' - 'minPort'");
     }
 
-    private static void assertThrows(Runnable runnable, Class clazz, String message) {
+    private static void assertThrows(Runnable runnable, Class<?> clazz, String message) {
         try {
             runnable.run();
             fail();

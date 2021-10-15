@@ -38,7 +38,7 @@ import java.util.jar.JarFile;
 public class ModuleBuilderTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final Class slf4jClass = org.slf4j.LoggerFactory.class;
+    private final Class<?> slf4jClass = org.slf4j.LoggerFactory.class;
 
     @Test
     public void defineModuleTest() throws IOException, URISyntaxException, ClassNotFoundException {

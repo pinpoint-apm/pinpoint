@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 public class StringCacheableBufferTest {
 
     @Test
-    public void stringCache () {
+    public void stringCache() {
 
         Buffer writer = new AutomaticBuffer();
         writer.putPrefixedString("abc");

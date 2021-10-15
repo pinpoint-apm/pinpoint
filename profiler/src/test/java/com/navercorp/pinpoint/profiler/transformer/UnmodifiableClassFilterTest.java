@@ -27,7 +27,7 @@ import java.net.URLClassLoader;
 public class UnmodifiableClassFilterTest {
 
     @Test
-    public void testDoFilter_Package() throws Exception {
+    public void testDoFilter_Package() {
         ClassFileFilter filter = new UnmodifiableClassFilter();
 
         Assert.assertSame(filter.accept(null, "java/test", null, null, null), ClassFileFilter.SKIP);
@@ -41,7 +41,7 @@ public class UnmodifiableClassFilterTest {
 
 
     @Test
-    public void testDoFilter_ClassLoader() throws Exception {
+    public void testDoFilter_ClassLoader() {
         ClassFileFilter filter = new UnmodifiableClassFilter();
 
         Assert.assertSame(filter.accept(this.getClass().getClassLoader(), "test", null, null, null), ClassFileFilter.CONTINUE);

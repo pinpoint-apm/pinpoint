@@ -37,7 +37,7 @@ public class DefaultJdbcUrlParsingServiceTest {
     private final JdbcUrlParserV2 jdbcUrlParser = new MockJdbcUrlParser();
 
     @Test
-    public void cacheTest1() throws Exception {
+    public void cacheTest1() {
         JdbcUrlParsingService jdbcUrlParsingService = new DefaultJdbcUrlParsingService(Arrays.asList(jdbcUrlParser));
 
         DatabaseInfo databaseInfo = jdbcUrlParsingService.getDatabaseInfo(MYSQL_JDBC_URL);
@@ -53,7 +53,7 @@ public class DefaultJdbcUrlParsingServiceTest {
     }
 
     @Test
-    public void cacheTest2() throws Exception {
+    public void cacheTest2() {
         JdbcUrlParsingService jdbcUrlParsingService = new DefaultJdbcUrlParsingService(Arrays.asList(jdbcUrlParser));
 
         DatabaseInfo parsingResult = jdbcUrlParsingService.parseJdbcUrl(ServiceType.TEST, MYSQL_JDBC_URL);

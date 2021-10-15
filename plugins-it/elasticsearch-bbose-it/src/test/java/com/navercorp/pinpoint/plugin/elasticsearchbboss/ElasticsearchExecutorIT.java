@@ -96,12 +96,12 @@ public abstract class ElasticsearchExecutorIT {
     @Test
     public void indiceCreate() throws Exception {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        Class configClass = Class.forName("org.frameworkset.elasticsearch.client.ConfigRestClientUtil");
+        Class<?> configClass = Class.forName("org.frameworkset.elasticsearch.client.ConfigRestClientUtil");
         Method createIndiceMappingMethod = configClass.getMethod("createIndiceMapping", String.class, String.class);
         try {
             configRestClientInterface.createIndiceMapping("cars", "createCarIndice");
 
-        } catch (Exception e) {
+        } catch (Exception ignore) {
 
         }
 
@@ -113,11 +113,11 @@ public abstract class ElasticsearchExecutorIT {
     @Test
     public void indiceDrop() throws Exception {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        Class configClass = Class.forName("org.frameworkset.elasticsearch.client.ConfigRestClientUtil");
+        Class<?> configClass = Class.forName("org.frameworkset.elasticsearch.client.ConfigRestClientUtil");
         Method dropIndiceMethod = configClass.getMethod("dropIndice", String.class);
         try {
             configRestClientInterface.dropIndice("cars");
-        } catch (Exception e) {
+        } catch (Exception ignore) {
 
         }
 
@@ -136,7 +136,7 @@ public abstract class ElasticsearchExecutorIT {
         boolean existIndice = clientInterface.existIndice("cars");
 
 //		Assert.assertEquals(existIndice,true);
-        Class restClientUtilClass = Class.forName("org.frameworkset.elasticsearch.client.RestClientUtil");
+        Class<?> restClientUtilClass = Class.forName("org.frameworkset.elasticsearch.client.RestClientUtil");
         Method existIndiceMethod = restClientUtilClass.getMethod("existIndice", String.class);
         verifier.verifyTrace(event(serviceType, existIndiceMethod));
 
@@ -144,7 +144,7 @@ public abstract class ElasticsearchExecutorIT {
 
     @Test
     public void addDocument() throws Exception {
-        Class restClientUtilClass = Class.forName("org.frameworkset.elasticsearch.client.RestClientUtil");
+        Class<?> restClientUtilClass = Class.forName("org.frameworkset.elasticsearch.client.RestClientUtil");
         Method addDocumentMethod = restClientUtilClass.getDeclaredMethod("addDocument", String.class, String.class,
                 Object.class, String.class);
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
@@ -160,7 +160,7 @@ public abstract class ElasticsearchExecutorIT {
         // clientInterface.addDocument("cars",car).
         try {
             clientInterface.addDocument("cars", "car", car, "refresh=true");
-        } catch (Exception e) {
+        } catch (Exception ignore) {
 
         }
 
@@ -174,12 +174,12 @@ public abstract class ElasticsearchExecutorIT {
         //get car by document id "1"
         try {
             Car car = clientInterface.getDocument("cars", "1", Car.class);
-        } catch (Exception e) {
+        } catch (Exception ignore) {
 
         }
 
 
-        Class restClientUtilClass = Class.forName("org.frameworkset.elasticsearch.client.RestClientUtil");
+        Class<?> restClientUtilClass = Class.forName("org.frameworkset.elasticsearch.client.RestClientUtil");
         Method getDocumentMethod = restClientUtilClass.getDeclaredMethod("getDocument", String.class,
                 String.class, Class.class);
         verifier.verifyTrace(event(serviceType, getDocumentMethod));
@@ -209,10 +209,10 @@ public abstract class ElasticsearchExecutorIT {
 
         try {
             clientInterface.addDocuments("cars", "car", cars, "refresh=true");
-        } catch (Exception e) {
+        } catch (Exception ignore) {
 
         }
-        Class restClientUtilClass = Class.forName("org.frameworkset.elasticsearch.client.RestClientUtil");
+        Class<?> restClientUtilClass = Class.forName("org.frameworkset.elasticsearch.client.RestClientUtil");
         Method addDocumentsMethod = restClientUtilClass.getDeclaredMethod("addDocuments", String.class, String.class,
                 List.class, String.class);
         verifier.verifyTrace(event(serviceType, addDocumentsMethod));
@@ -234,11 +234,11 @@ public abstract class ElasticsearchExecutorIT {
             List<Car> cars = carESDatas.getDatas();
             //totalsize that match condition
             long totalSize = carESDatas.getTotalSize();
-        } catch (Exception e) {
+        } catch (Exception ignore) {
 
         }
 
-        Class configClass = Class.forName("org.frameworkset.elasticsearch.client.ConfigRestClientUtil");
+        Class<?> configClass = Class.forName("org.frameworkset.elasticsearch.client.ConfigRestClientUtil");
         Method searchListMethod = configClass.getDeclaredMethod("searchList", String.class,
                 String.class, Map.class, Class.class);
         verifier.verifyTrace(event(serviceType, searchListMethod));
@@ -261,10 +261,10 @@ public abstract class ElasticsearchExecutorIT {
 
         try {
             clientInterface.updateDocument("cars", "car", "1", car, "refresh=true");
-        } catch (Exception e) {
+        } catch (Exception ignore) {
 
         }
-        Class restClientUtilClass = Class.forName("org.frameworkset.elasticsearch.client.RestClientUtil");
+        Class<?> restClientUtilClass = Class.forName("org.frameworkset.elasticsearch.client.RestClientUtil");
         Method updateDocumentMethod = restClientUtilClass.getDeclaredMethod("updateDocument", String.class, String.class,
                 Object.class, Object.class, String.class);
         verifier.verifyTrace(event(serviceType, updateDocumentMethod));
@@ -281,10 +281,10 @@ public abstract class ElasticsearchExecutorIT {
 
         try {
             clientInterface.deleteDocument("cars", "car", "1", "refresh=true");
-        } catch (Exception e) {
+        } catch (Exception ignore) {
 
         }
-        Class restClientUtilClass = Class.forName("org.frameworkset.elasticsearch.client.RestClientUtil");
+        Class<?> restClientUtilClass = Class.forName("org.frameworkset.elasticsearch.client.RestClientUtil");
         Method deleteDocument = restClientUtilClass.getDeclaredMethod("deleteDocument", String.class, String.class,
                 String.class, String.class);
         verifier.verifyTrace(event(serviceType, deleteDocument));

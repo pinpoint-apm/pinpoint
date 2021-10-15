@@ -227,7 +227,7 @@ public class TFAgentStatMapperTest {
     }
 
     @Test
-    public void map3Test() throws Exception {
+    public void map3Test() {
         AgentStatBo agentStatBo = createJvmGcBoList();
 
         List<TFAgentStat> tFAgentStatList = newAgentStatMapper().map(agentStatBo);
@@ -377,7 +377,7 @@ public class TFAgentStatMapperTest {
     }
 
     @Test
-    public void map6Test() throws Exception {
+    public void map6Test() {
 
         AgentStatBo agentStatBo = createFileDescriptorBoList();
 

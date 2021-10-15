@@ -74,7 +74,7 @@ public class ServerInstanceListSerializerTest {
     }
 
 
-    private ObjectMapper createMapper() throws Exception {
+    private ObjectMapper createMapper() {
         final Jackson2ObjectMapperFactoryBean factoryBean = new Jackson2ObjectMapperFactoryBean();
 
         factoryBean.setHandlerInstantiator(new TestHandlerInstantiator());

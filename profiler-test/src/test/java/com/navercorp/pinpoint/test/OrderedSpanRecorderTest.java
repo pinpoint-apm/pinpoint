@@ -58,7 +58,7 @@ public class OrderedSpanRecorderTest {
     private final String agentId = "agentId";
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         this.recorder.clear();
     }
 

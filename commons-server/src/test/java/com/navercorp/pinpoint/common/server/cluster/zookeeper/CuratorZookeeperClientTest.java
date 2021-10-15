@@ -140,7 +140,7 @@ public class CuratorZookeeperClientTest {
             try {
                 curatorZookeeperClient.createOrSetNode(new CreateNodeMessage(testNodePath, message.getBytes()));
                 Assert.fail();
-            } catch (Exception e) {
+            } catch (Exception ignore) {
             }
 
             boolean existNode = isExistNode(zooKeeper, path);
@@ -246,7 +246,7 @@ public class CuratorZookeeperClientTest {
             Assert.assertEquals(Watcher.Event.EventType.NodeChildrenChanged, lastWatchedEvent.getType());
 
             childrenNode = curatorZookeeperClient.getChildNodeList(pathAndNode.getPath(), false);
-            Assert.assertTrue(!childrenNode.isEmpty());
+            Assert.assertFalse(childrenNode.isEmpty());
         } finally {
             if (zooKeeper != null) {
                 zooKeeper.close();

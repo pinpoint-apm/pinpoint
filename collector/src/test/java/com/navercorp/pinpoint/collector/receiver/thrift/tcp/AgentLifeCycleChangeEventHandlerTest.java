@@ -72,42 +72,42 @@ public class AgentLifeCycleChangeEventHandlerTest {
 //    }
 
     @Test
-    public void runningStatesShouldBeHandledCorrectly() throws Exception {
+    public void runningStatesShouldBeHandledCorrectly() {
         // given
         final Set<SocketStateCode> runningStates = ManagedAgentLifeCycle.RUNNING.getManagedStateCodes();
         runAndVerifyByStateCodes(runningStates);
     }
 
     @Test
-    public void closedByClientStatesShouldBeHandledCorrectly() throws Exception {
+    public void closedByClientStatesShouldBeHandledCorrectly() {
         // given
         final Set<SocketStateCode> closedByClientStates = ManagedAgentLifeCycle.CLOSED_BY_CLIENT.getManagedStateCodes();
         runAndVerifyByStateCodes(closedByClientStates);
     }
 
     @Test
-    public void unexpectedCloseByClientStatesShouldBeHandledCorrectly() throws Exception {
+    public void unexpectedCloseByClientStatesShouldBeHandledCorrectly() {
         // given
         final Set<SocketStateCode> unexpectedCloseByClientStates = ManagedAgentLifeCycle.UNEXPECTED_CLOSE_BY_CLIENT.getManagedStateCodes();
         runAndVerifyByStateCodes(unexpectedCloseByClientStates);
     }
 
     @Test
-    public void closedByServerStatesShouldBeHandledCorrectly() throws Exception {
+    public void closedByServerStatesShouldBeHandledCorrectly() {
         // given
         final Set<SocketStateCode> closedByServerStates = ManagedAgentLifeCycle.CLOSED_BY_SERVER.getManagedStateCodes();
         runAndVerifyByStateCodes(closedByServerStates);
     }
 
     @Test
-    public void unexpectedCloseByServerStatesShouldBeHandledCorrectly() throws Exception {
+    public void unexpectedCloseByServerStatesShouldBeHandledCorrectly() {
         // given
         final Set<SocketStateCode> unexpectedCloseByServerStates = ManagedAgentLifeCycle.UNEXPECTED_CLOSE_BY_SERVER.getManagedStateCodes();
         runAndVerifyByStateCodes(unexpectedCloseByServerStates);
     }
 
     @Test
-    public void unmanagedStatesShouldNotBeHandled() throws Exception {
+    public void unmanagedStatesShouldNotBeHandled() {
         // given
         final Set<SocketStateCode> unmanagedStates = new HashSet<>();
         for (SocketStateCode socketStateCode : SocketStateCode.values()) {
@@ -124,7 +124,7 @@ public class AgentLifeCycleChangeEventHandlerTest {
         }
     }
 
-    private void runAndVerifyByStateCodes(Set<SocketStateCode> socketStates) throws Exception {
+    private void runAndVerifyByStateCodes(Set<SocketStateCode> socketStates) {
         int testCount = 0;
         for (SocketStateCode socketState : socketStates) {
             this.lifeCycleChangeEventHandler.stateUpdated(this.server, socketState);

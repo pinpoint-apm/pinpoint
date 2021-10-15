@@ -31,7 +31,7 @@ public class GuavaCacheTest {
 
     @Test
     public void test() {
-        CacheBuilder builder = CacheBuilder.newBuilder();
+        CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder();
         builder.concurrencyLevel(8);
         builder.maximumSize(1);
         builder.initialCapacity(1);

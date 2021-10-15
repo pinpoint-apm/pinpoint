@@ -27,7 +27,7 @@ public class ParameterUtils {
         }
         final String[] methodParams = method.getParameterTypes();
         final int minIndex = Math.min(methodParams.length, maxIndex);
-        for(int i =0; i < minIndex; i++) {
+        for(int i = 0; i < minIndex; i++) {
             if ("java.lang.String".equals(methodParams[i])) {
                 return i;
             }

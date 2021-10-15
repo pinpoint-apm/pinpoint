@@ -30,7 +30,7 @@ import java.net.URLClassLoader;
 public class PinpointClassLoaderFilterTest {
 
     @Test
-    public void testDoFilter_ClassLoader() throws Exception {
+    public void testDoFilter_ClassLoader() {
 
         final URLClassLoader agentClassLoader = new URLClassLoader(new URL[0]);
         ClassFileFilter filter = new PinpointClassLoaderFilter(agentClassLoader);
