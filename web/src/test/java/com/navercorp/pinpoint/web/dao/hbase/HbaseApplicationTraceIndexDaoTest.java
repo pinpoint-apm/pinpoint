@@ -84,10 +84,8 @@ public class HbaseApplicationTraceIndexDaoTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        TableDescriptorConfig tableDescriptorConfig = new TableDescriptorConfig(tableNameProvider);
-        TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor = tableDescriptorConfig.getApplicationTraceIndexTrace();
         ScatterChartConfig scatterChartConfig = new ScatterChartConfig();
-        this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(scatterChartConfig, hbaseOperations2, descriptor, traceIndexMapper, traceIndexScatterMapper, traceIdRowKeyDistributor);
+        this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(scatterChartConfig, hbaseOperations2, tableNameProvider, traceIndexMapper, traceIndexScatterMapper, traceIdRowKeyDistributor);
     }
 
     @Test(expected = IllegalArgumentException.class)

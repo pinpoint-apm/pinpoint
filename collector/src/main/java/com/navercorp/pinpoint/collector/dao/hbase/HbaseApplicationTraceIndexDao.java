@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyFactory;
@@ -54,9 +54,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final HbaseOperations2 hbaseTemplate;
+    private static final HbaseColumnFamily.ApplicationTraceIndexTrace DESCRIPTOR = HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE;
 
-    private final TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor;
+    private final HbaseOperations2 hbaseTemplate;
+    private final TableNameProvider tableNameProvider;
 
     private final AcceptedTimeService acceptedTimeService;
 
@@ -68,14 +69,14 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     private final ApplicationNameRowKeyEncoder rowKeyEncoder = new ApplicationNameRowKeyEncoder();
 
     public HbaseApplicationTraceIndexDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate,
-                                         TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor,
+                                         TableNameProvider tableNameProvider,
                                          @Qualifier("applicationTraceIndexDistributor") AbstractRowKeyDistributor rowKeyDistributor,
                                          AcceptedTimeService acceptedTimeService,
                                          ScatterConfiguration scatterConfiguration) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.scatterConfiguration = Objects.requireNonNull(scatterConfiguration, "scatterConfiguration");
     }
 
@@ -103,9 +104,9 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         final Put put = new Put(distributedKey);
 
-        put.addColumn(descriptor.getColumnFamilyName(), makeQualifier(span) , acceptedTime, value);
+        put.addColumn(DESCRIPTOR.getName(), makeQualifier(span) , acceptedTime, value);
 
-        final TableName applicationTraceIndexTableName = descriptor.getTableName();
+        final TableName applicationTraceIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         hbaseTemplate.asyncPut(applicationTraceIndexTableName, put);
     }
 

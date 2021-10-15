@@ -2,11 +2,9 @@ package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -15,24 +13,23 @@ import java.util.Objects;
  */
 public class SyncWriter implements BulkWriter {
 
-    private final Logger logger;
 
     private final HbaseOperations2 hbaseTemplate;
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
-    private final TableDescriptor<? extends HbaseColumnFamily> tableDescriptor;
-    private final TableName tableName;
+    private final HbaseColumnFamily tableDescriptor;
+    private final TableNameProvider tableNameProvider;
 
 
     public SyncWriter(String loggerName,
                              HbaseOperations2 hbaseTemplate,
                              RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-                            TableDescriptor<? extends HbaseColumnFamily> tableDescriptor) {
-        this.logger = LoggerFactory.getLogger(loggerName);
+                             HbaseColumnFamily tableDescriptor,
+                             TableNameProvider tableNameProvider) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
         this.tableDescriptor = Objects.requireNonNull(tableDescriptor, "tableDescriptor");
-        this.tableName = this.tableDescriptor.getTableName();
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
     }
 
     @Override
@@ -48,6 +45,7 @@ public class SyncWriter implements BulkWriter {
         Objects.requireNonNull(rowKey, "rowKey");
         Objects.requireNonNull(columnName, "columnName");
 
+        TableName tableName = tableNameProvider.getTableName(this.tableDescriptor.getTable());
         final byte[] rowKeyBytes = getDistributedKey(rowKey.getRowKey());
         this.hbaseTemplate.incrementColumnValue(tableName, rowKeyBytes, getColumnFamilyName(), columnName.getColumnName(), 1L);
     }
@@ -58,6 +56,7 @@ public class SyncWriter implements BulkWriter {
         Objects.requireNonNull(rowKey, "rowKey");
         Objects.requireNonNull(columnName, "columnName");
 
+        TableName tableName = tableNameProvider.getTableName(this.tableDescriptor.getTable());
         final byte[] rowKeyBytes = getDistributedKey(rowKey.getRowKey());
         this.hbaseTemplate.maxColumnValue(tableName, rowKeyBytes, getColumnFamilyName(), columnName.getColumnName(), value);
     }
@@ -73,7 +72,7 @@ public class SyncWriter implements BulkWriter {
     }
 
     private byte[] getColumnFamilyName() {
-        return tableDescriptor.getColumnFamilyName();
+        return tableDescriptor.getName();
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {

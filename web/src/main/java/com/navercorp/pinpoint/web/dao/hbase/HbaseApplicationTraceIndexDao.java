@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyBuilder;
@@ -65,12 +65,12 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     private static final int APPLICATION_TRACE_INDEX_NUM_PARTITIONS = 32;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final HbaseColumnFamily.ApplicationTraceIndexTrace DESCRIPTOR = HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE;
 
     private final ScatterChartConfig scatterChartConfig;
 
     private final HbaseOperations2 hbaseOperations2;
-
-    private final TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor;
+    private final TableNameProvider tableNameProvider;
 
     private final FuzzyRowKeyBuilder fuzzyRowKeyBuilder = new FuzzyRowKeyBuilder();
 
@@ -86,13 +86,13 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     public HbaseApplicationTraceIndexDao(ScatterChartConfig scatterChartConfig,
                                          HbaseOperations2 hbaseOperations2,
-                                         TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor,
+                                         TableNameProvider tableNameProvider,
                                          @Qualifier("transactionIdMapper") RowMapper<List<TransactionId>> traceIndexMapper,
                                          @Qualifier("traceIndexScatterMapper") RowMapper<List<Dot>> traceIndexScatterMapper,
                                          @Qualifier("applicationTraceIndexDistributor") AbstractRowKeyDistributor traceIdRowKeyDistributor) {
         this.scatterChartConfig = Objects.requireNonNull(scatterChartConfig, "scatterChartConfig");
         this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.traceIndexMapper = Objects.requireNonNull(traceIndexMapper, "traceIndexMapper");
         this.traceIndexScatterMapper = Objects.requireNonNull(traceIndexScatterMapper, "traceIndexScatterMapper");
         this.traceIdRowKeyDistributor = Objects.requireNonNull(traceIdRowKeyDistributor, "traceIdRowKeyDistributor");
@@ -113,7 +113,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         Scan scan = createScan(applicationName, range, scanBackward);
 
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
-        TableName applicationTraceIndexTableName = descriptor.getTableName();
+        TableName applicationTraceIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         List<List<TransactionId>> traceIndexList = hbaseOperations2.findParallel(applicationTraceIndexTableName,
                 scan, traceIdRowKeyDistributor, limit, traceIndexMapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
@@ -198,7 +198,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             scan.withStopRow(traceIndexEndKey);
         }
 
-        scan.addFamily(descriptor.getColumnFamilyName());
+        scan.addFamily(DESCRIPTOR.getName());
         scan.setId("ApplicationTraceIndexScan");
 
         // toString() method of Scan converts a message to json format so it is slow for the first time.
@@ -218,7 +218,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         Scan scan = createScan(applicationName, range, scanBackward);
 
-        TableName applicationTraceIndexTableName = descriptor.getTableName();
+        TableName applicationTraceIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         List<List<Dot>> listList = hbaseOperations2.findParallel(applicationTraceIndexTableName, scan,
                 traceIdRowKeyDistributor, limit, this.traceIndexScatterMapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
         List<Dot> dots = ListListUtils.toList(listList);
@@ -242,7 +242,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         // TODO
 //        Predicate<Dot> filter = ElpasedTimeDotPredicate.newDragAreaDotPredicate(dragArea);
 
-        final TableName applicationTraceIndexTableName = descriptor.getTableName();
+        final TableName applicationTraceIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         List<List<TransactionId>> listList = this.hbaseOperations2.findParallel(applicationTraceIndexTableName,
                 scan, traceIdRowKeyDistributor, limit, traceIndexMapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
@@ -274,7 +274,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         RowMapper<List<Dot>> mapper = new TraceIndexScatterMapper(filter);
 
-        TableName applicationTraceIndexTableName = descriptor.getTableName();
+        TableName applicationTraceIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         List<List<Dot>> dotListList = hbaseOperations2.findParallel(applicationTraceIndexTableName, scan,
                 traceIdRowKeyDistributor, limit, mapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
         List<Dot> dots = ListListUtils.toList(dotListList);

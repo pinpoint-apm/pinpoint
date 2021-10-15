@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
@@ -51,18 +51,20 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
     private static final int SCANNER_CACHING = 20;
 
+    private static final HbaseColumnFamily.AgentLifeCycleStatus DESCRIPTOR = HbaseColumnFamily.AGENT_LIFECYCLE_STATUS;
+
     private final HbaseOperations2 hbaseOperations2;
+    private final TableNameProvider tableNameProvider;
 
     private final RowMapper<AgentLifeCycleBo> agentLifeCycleMapper;
 
-    private final TableDescriptor<HbaseColumnFamily.AgentLifeCycleStatus> descriptor;
-
     private final AgentIdRowKeyEncoder agentIdEncoder = new AgentIdRowKeyEncoder();
 
-    public HbaseAgentLifeCycleDao(TableDescriptor<HbaseColumnFamily.AgentLifeCycleStatus> descriptor, HbaseOperations2 hbaseOperations2,
+    public HbaseAgentLifeCycleDao(HbaseOperations2 hbaseOperations2,
+                                  TableNameProvider tableNameProvider,
                                   @Qualifier("agentLifeCycleMapper")RowMapper<AgentLifeCycleBo> agentLifeCycleMapper) {
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
         this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.agentLifeCycleMapper = Objects.requireNonNull(agentLifeCycleMapper, "agentLifeCycleMapper");
 
     }
@@ -74,7 +76,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
         Scan scan = createScan(agentId, 0, timestamp);
 
-        TableName agentLifeCycleTableName = descriptor.getTableName();
+        TableName agentLifeCycleTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         AgentLifeCycleBo agentLifeCycleBo = this.hbaseOperations2.find(agentLifeCycleTableName, scan, new MostRecentAgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp));
         return createAgentStatus(agentId, agentLifeCycleBo);
     }
@@ -90,7 +92,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         final long fromTimestamp = toTimestamp - 1;
         Scan scan = createScan(agentId, fromTimestamp, toTimestamp);
 
-        TableName agentLifeCycleTableName = descriptor.getTableName();
+        TableName agentLifeCycleTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         AgentLifeCycleBo agentLifeCycleBo = this.hbaseOperations2.find(agentLifeCycleTableName, scan, new MostRecentAgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp));
         AgentStatus agentStatus = createAgentStatus(agentId, agentLifeCycleBo);
         return Optional.of(agentStatus);
@@ -119,7 +121,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         }
 
         ResultsExtractor<AgentLifeCycleBo> action = new MostRecentAgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, agentStatusQuery.getQueryTimestamp());
-        TableName agentLifeCycleTableName = descriptor.getTableName();
+        TableName agentLifeCycleTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         List<AgentLifeCycleBo> agentLifeCycles = this.hbaseOperations2.findParallel(agentLifeCycleTableName, scans, action);
 
         int idx = 0;
@@ -140,7 +142,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         byte[] endKeyBytes = agentIdEncoder.encodeRowKey(agentId, fromTimestamp);
 
         Scan scan = new Scan(startKeyBytes, endKeyBytes);
-        scan.addColumn(descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_STATES);
+        scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.QUALIFIER_STATES);
         scan.setMaxVersions(1);
         scan.setCaching(SCANNER_CACHING);
 

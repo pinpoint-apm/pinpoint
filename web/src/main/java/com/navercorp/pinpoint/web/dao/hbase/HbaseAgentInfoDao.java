@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
@@ -43,18 +43,22 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     private static final int SCANNER_CACHING = 1;
 
+    private static final HbaseColumnFamily.AgentInfo DESCRIPTOR = HbaseColumnFamily.AGENTINFO_INFO;
+
     private final HbaseOperations2 hbaseOperations2;
+
+    private final TableNameProvider tableNameProvider;
 
     private final ResultsExtractor<AgentInfo> agentInfoResultsExtractor;
 
-    private final TableDescriptor<HbaseColumnFamily.AgentInfo> descriptor;
-
     private final AgentIdRowKeyEncoder encoder = new AgentIdRowKeyEncoder();
 
-    public HbaseAgentInfoDao(HbaseOperations2 hbaseOperations2, TableDescriptor<HbaseColumnFamily.AgentInfo> descriptor,
+
+    public HbaseAgentInfoDao(HbaseOperations2 hbaseOperations2,
+                             TableNameProvider tableNameProvider,
                              ResultsExtractor<AgentInfo> agentInfoResultsExtractor) {
         this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.agentInfoResultsExtractor = Objects.requireNonNull(agentInfoResultsExtractor, "agentInfoResultsExtractor");
     }
 
@@ -69,7 +73,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
         Scan scan = createScanForInitialAgentInfo(agentId);
 
-        TableName agentInfoTableName = descriptor.getTableName();
+        TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
     }
 
@@ -83,7 +87,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
             scans.add(createScanForInitialAgentInfo(agentId));
         }
 
-        TableName agentInfoTableName = descriptor.getTableName();
+        TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return this.hbaseOperations2.find(agentInfoTableName, scans, agentInfoResultsExtractor);
     }
 
@@ -111,7 +115,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
         Scan scan = createScan(agentId, timestamp);
 
-        TableName agentInfoTableName = descriptor.getTableName();
+        TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
     }
 
@@ -139,7 +143,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
         Scan scan = createScan(agentId, startTime, endTime);
 
-        TableName agentInfoTableName = descriptor.getTableName();
+        TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
     }
 
@@ -154,7 +158,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
             scans.add(createScan(agentId, timestamp));
         }
 
-        TableName agentInfoTableName = descriptor.getTableName();
+        TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return this.hbaseOperations2.findParallel(agentInfoTableName, scans, agentInfoResultsExtractor);
     }
 
@@ -177,7 +181,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
         scan.withStartRow(startKeyBytes);
         scan.withStopRow(endKeyBytes);
-        scan.addFamily(descriptor.getColumnFamilyName());
+        scan.addFamily(DESCRIPTOR.getName());
 
         scan.setMaxVersions(1);
         scan.setCaching(SCANNER_CACHING);

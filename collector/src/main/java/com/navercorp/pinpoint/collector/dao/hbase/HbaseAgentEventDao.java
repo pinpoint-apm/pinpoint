@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.collector.dao.AgentEventDao;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.ValueMapper;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
@@ -41,19 +41,20 @@ public class HbaseAgentEventDao implements AgentEventDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final HbaseOperations2 hbaseTemplate;
+    private static final HbaseColumnFamily.AgentEvent DESCRIPTOR = HbaseColumnFamily.AGENT_EVENT_EVENTS;
 
-    private final TableDescriptor<HbaseColumnFamily.AgentEvent> descriptor;
+    private final HbaseOperations2 hbaseTemplate;
+    private final TableNameProvider tableNameProvider;
 
     private final ValueMapper<AgentEventBo> valueMapper;
 
     private final AgentIdRowKeyEncoder rowKeyEncoder = new AgentIdRowKeyEncoder();
 
     public HbaseAgentEventDao(HbaseOperations2 hbaseTemplate,
-                              TableDescriptor<HbaseColumnFamily.AgentEvent> descriptor,
+                              TableNameProvider tableNameProvider,
                               ValueMapper<AgentEventBo> valueMapper) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.valueMapper = Objects.requireNonNull(valueMapper, "valueMapper");
     }
 
@@ -75,8 +76,8 @@ public class HbaseAgentEventDao implements AgentEventDao {
         final AgentEventType eventType = agentEventBo.getEventType();
         byte[] qualifier = Bytes.toBytes(eventType.getCode());
 
-        TableName agentEventTableName = descriptor.getTableName();
-        this.hbaseTemplate.put(agentEventTableName, rowKey, descriptor.getColumnFamilyName(), qualifier, agentEventBo, this.valueMapper);
+        TableName agentEventTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        this.hbaseTemplate.put(agentEventTableName, rowKey, DESCRIPTOR.getName(), qualifier, agentEventBo, this.valueMapper);
     }
 
     byte[] createRowKey(String agentId, long eventTimestamp) {

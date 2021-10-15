@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -46,10 +46,11 @@ import java.util.Objects;
 public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final HbaseColumnFamily.HostStatMap DESCRIPTOR = HbaseColumnFamily.HOST_APPLICATION_MAP_VER2_MAP;
 
     private final HbaseOperations2 hbaseTemplate;
 
-    private final TableDescriptor<HbaseColumnFamily.HostStatMap> descriptor;
+    private final TableNameProvider tableNameProvider;
 
     private final AcceptedTimeService acceptedTimeService;
 
@@ -60,13 +61,14 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     // FIXME should modify to save a cachekey at each 30~50 seconds instead of saving at each time
     private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<>();
 
+
     public HbaseHostApplicationMapDao(HbaseOperations2 hbaseTemplate,
-                                      TableDescriptor<HbaseColumnFamily.HostStatMap> descriptor,
+                                      TableNameProvider tableNameProvider,
                                       @Qualifier("acceptApplicationRowKeyDistributor") AbstractRowKeyDistributor rowKeyDistributor,
                                       AcceptedTimeService acceptedTimeService,
                                       TimeSlot timeSlot) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
@@ -110,12 +112,12 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
         byte[] columnName = createColumnName(host, bindApplicationName, bindServiceType);
 
-        TableName hostApplicationMapTableName = descriptor.getTableName();
+        TableName hostApplicationMapTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         try {
-            hbaseTemplate.put(hostApplicationMapTableName, rowKey, descriptor.getColumnFamilyName(), columnName, null);
+            hbaseTemplate.put(hostApplicationMapTableName, rowKey, DESCRIPTOR.getName(), columnName, null);
         } catch (Exception ex) {
             logger.warn("retry one. Caused:{}", ex.getCause(), ex);
-            hbaseTemplate.put(hostApplicationMapTableName, rowKey, descriptor.getColumnFamilyName(), columnName, null);
+            hbaseTemplate.put(hostApplicationMapTableName, rowKey, DESCRIPTOR.getName(), columnName, null);
         }
     }
 

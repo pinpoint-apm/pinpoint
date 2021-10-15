@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.ValueMapper;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.util.BytesUtils;
@@ -43,15 +43,18 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private static final HbaseColumnFamily.AgentLifeCycleStatus DESCRIPTOR = HbaseColumnFamily.AGENT_LIFECYCLE_STATUS;
+
     private final HbaseOperations2 hbaseTemplate;
 
-    private final TableDescriptor<HbaseColumnFamily.AgentLifeCycleStatus> descriptor;
-
+    private final TableNameProvider tableNameProvider;
     private final ValueMapper<AgentLifeCycleBo> valueMapper;
 
-    public HbaseAgentLifeCycleDao(HbaseOperations2 hbaseTemplate, TableDescriptor<HbaseColumnFamily.AgentLifeCycleStatus> descriptor, ValueMapper<AgentLifeCycleBo> valueMapper) {
+    public HbaseAgentLifeCycleDao(HbaseOperations2 hbaseTemplate,
+                                  TableNameProvider tableNameProvider,
+                                  ValueMapper<AgentLifeCycleBo> valueMapper) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.valueMapper = Objects.requireNonNull(valueMapper, "valueMapper");
     }
 
@@ -71,8 +74,8 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
         byte[] rowKey = createRowKey(agentId, startTimestamp, eventIdentifier);
 
-        TableName agentLifeCycleTableName = descriptor.getTableName();
-        this.hbaseTemplate.put(agentLifeCycleTableName, rowKey, descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_STATES,
+        TableName agentLifeCycleTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        this.hbaseTemplate.put(agentLifeCycleTableName, rowKey, DESCRIPTOR.getName(), DESCRIPTOR.QUALIFIER_STATES,
                 agentLifeCycleBo, this.valueMapper);
     }
 
