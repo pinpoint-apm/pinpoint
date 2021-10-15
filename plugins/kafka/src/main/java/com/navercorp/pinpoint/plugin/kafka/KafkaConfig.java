@@ -32,15 +32,14 @@ public class KafkaConfig {
     private final boolean producerEnable;
     private final boolean consumerEnable;
     private final boolean springConsumerEnable;
+    private final boolean headerEnable;
     private final String kafkaEntryPoint;
 
     public KafkaConfig(ProfilerConfig config) {
-        /*
-         * kafka
-         */
         this.producerEnable = config.readBoolean(PRODUCER_ENABLE, false);
         this.consumerEnable = config.readBoolean(CONSUMER_ENABLE, false);
         this.springConsumerEnable = config.readBoolean(SPRING_CONSUMER_ENABLE, false);
+        this.headerEnable = config.readBoolean(KafkaConfig.HEADER_ENABLE, true);
         this.kafkaEntryPoint = config.readString(CONSUMER_ENTRY_POINT, "");
     }
 
@@ -56,6 +55,10 @@ public class KafkaConfig {
         return springConsumerEnable;
     }
 
+    public boolean isHeaderEnable() {
+        return headerEnable;
+    }
+
     public String getKafkaEntryPoint() {
         return kafkaEntryPoint;
     }
@@ -66,6 +69,7 @@ public class KafkaConfig {
                 "producerEnable=" + producerEnable +
                 ", consumerEnable=" + consumerEnable +
                 ", springConsumerEnable=" + springConsumerEnable +
+                ", headerEnable=" + headerEnable +
                 ", kafkaEntryPoint='" + kafkaEntryPoint + '\'' +
                 '}';
     }
