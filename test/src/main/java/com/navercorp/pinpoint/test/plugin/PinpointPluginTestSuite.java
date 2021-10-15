@@ -18,6 +18,8 @@ import com.navercorp.pinpoint.test.plugin.shared.SharedProcessManager;
 import com.navercorp.pinpoint.test.plugin.shared.SharedProcessPluginTestCase;
 import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
+
+import org.eclipse.aether.ConfigurationProperties;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
@@ -41,10 +43,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.CHILD_CLASS_PATH_PREFIX;
 
@@ -63,7 +67,16 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
     private final boolean testOnChildClassLoader;
     private final String[] repositories;
 
-    private static final DependencyResolverFactory RESOLVER_FACTORY = new DependencyResolverFactory();
+    private static final Map<String, Object> RESOLVER_OPTION = createResolverOption();
+
+    private static Map<String, Object> createResolverOption() {
+        Map<String, Object> resolverOption = new HashMap<>();
+        resolverOption.put(ConfigurationProperties.CONNECT_TIMEOUT, TimeUnit.SECONDS.toMillis(5));
+        resolverOption.put(ConfigurationProperties.REQUEST_TIMEOUT, TimeUnit.MINUTES.toMillis(5));
+        return resolverOption;
+    }
+
+    private static final DependencyResolverFactory RESOLVER_FACTORY = new DependencyResolverFactory(RESOLVER_OPTION);
 
     private final String[] dependencies;
     private final String libraryPath;
