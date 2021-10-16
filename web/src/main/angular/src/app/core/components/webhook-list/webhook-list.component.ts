@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { IWebhook } from './webhook-list-data.service';
+import { IWebhook } from 'app/shared/services/webhook-data.service';
 
 @Component({
   selector: 'pp-webhook-list',

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Subject, forkJoin } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { IWebhook, IWebhookCreate, IWebhookRule, WebhookListDataService } from './webhook-list-data.service';
+import { IWebhook, IWebhookCreate, IWebhookRule, WebhookDataService } from 'app/shared/services/webhook-data.service';
 import { AnalyticsService, TRACKED_EVENT_LIST, WebAppSettingDataService, TranslateReplaceService } from 'app/shared/services';
 import { ApplicationListInteractionForConfigurationService } from 'app/core/components/application-list/application-list-interaction-for-configuration.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -35,7 +35,7 @@ export class WebhookListContainerComponent implements OnInit {
     private translateReplaceService: TranslateReplaceService,
     private applicationListInteractionForConfigurationService: ApplicationListInteractionForConfigurationService,
     private webAppSettingDataService: WebAppSettingDataService,
-    private webhookListDataService: WebhookListDataService,
+    private webhookDataService: WebhookDataService,
     private analyticsService: AnalyticsService,
   ) { }
 
@@ -110,7 +110,7 @@ export class WebhookListContainerComponent implements OnInit {
       applicationId: this.selectedApplication.applicationName,
     }
 
-    this.webhookListDataService
+    this.webhookDataService
       .addWebhook(webhook)
       .subscribe(result => {
         if (isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')) {
@@ -135,7 +135,7 @@ export class WebhookListContainerComponent implements OnInit {
       applicationId: this.selectedApplication.applicationName,
     }
 
-    this.webhookListDataService
+    this.webhookDataService
       .editWebhook(webhook)
       .subscribe(result => {
         if (isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')) {
@@ -153,7 +153,7 @@ export class WebhookListContainerComponent implements OnInit {
   private onRemoveWebhook(webhook: IWebhook): void {
     this.showProcessing();
 
-    this.webhookListDataService
+    this.webhookDataService
       .removeWebhook(webhook)
       .subscribe(result => {
         if (isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')) {
@@ -185,7 +185,7 @@ export class WebhookListContainerComponent implements OnInit {
   
   private getWebhookList() {
     this.showProcessing();
-    this.webhookListDataService
+    this.webhookDataService
       .getWebhookList(this.selectedApplication.applicationName)
       .subscribe(result => {
         isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')

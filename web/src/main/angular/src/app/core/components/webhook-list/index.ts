@@ -4,7 +4,7 @@ import { SharedModule } from 'app/shared';
 import { WebhookListComponent } from './webhook-list.component';
 import { WebhookListCreateAndUpdateComponent } from './webhook-list-create-and-update.component';
 import { WebhookListContainerComponent } from './webhook-list-container.component';
-import { WebhookListDataService } from './webhook-list-data.service';
+import { WebhookDataService } from '../../../shared/services/webhook-data.service';
 
 @NgModule({
     declarations: [
@@ -25,7 +25,7 @@ import { WebhookListDataService } from './webhook-list-data.service';
         WebhookListContainerComponent
     ],
     providers: [
-        WebhookListDataService
+        WebhookDataService
     ]
 })
 export class WebhookListModule { }

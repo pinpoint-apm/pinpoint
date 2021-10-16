@@ -25,6 +25,7 @@ import { StoreHelperService } from './services/store-helper.service';
 import { UrlValidateGuard } from './services/url-validate.guard';
 import { ThemeService } from './services/theme.service';
 import { AuthService } from './services/auth.service';
+import { WebhookDataService } from './services/webhook-data.service';
 
 import { HeaderLogoComponent } from './components/header-logo';
 import { EmptyContentsComponent, NoneComponent } from './components/empty-contents';
@@ -123,7 +124,8 @@ export class SharedModule {
                 MessageQueueService,
                 DynamicPopupService,
                 ThemeService,
-                AuthService
+                AuthService,
+                WebhookDataService,
             ]
         };
     }
