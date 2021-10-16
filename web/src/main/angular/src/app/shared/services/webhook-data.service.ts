@@ -11,14 +11,14 @@ export interface IWebhook {
     applicationId: string;
 }
 
-
 export interface IWebhookCreate extends Omit<IWebhook, 'webhookId'> { }
+
 export interface IWebhookRule {
     url: string;
     alias?: string;
 }
 @Injectable()
-export class WebhookListDataService {
+export class WebhookDataService {
     private apiUrl = 'application/webhook.pinpoint';
 
     constructor(

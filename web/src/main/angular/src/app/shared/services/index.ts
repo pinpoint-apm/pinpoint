@@ -21,3 +21,4 @@ export * from './dynamic-popup.service';
 export * from './message-queue.service';
 export * from './theme.service';
 export * from './auth.service';
+export * from './webhook-data.service';
