@@ -10,8 +10,8 @@
               <button [hidden]="!hasRemoveTarget(webhook.webhookId)" class="fas fa-check" (click)="onConfirmRemove()"></button>
           </div> 
           <div class="l-item-info">
-            <div class="alias">{{webhook.alias ? webhook.alias : '-'}}</div>
-            <div class="url">{{webhook.url}}</div>
+            <div class="url">{{webhook.url}} </div>
+            <div class="alias">({{webhook.alias ? webhook.alias : '-'}})</div>
           </div>
       </div>
     </li>
