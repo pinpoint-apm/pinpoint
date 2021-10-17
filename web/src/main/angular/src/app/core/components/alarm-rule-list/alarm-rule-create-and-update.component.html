@@ -1,6 +1,6 @@
 <div class="l-wrapper">
     <button class="btn btn-black l-close" (click)="onClose(); formDir.resetForm();"><i class="fas fa-times"></i></button>
-    <h1>Alarm</h1>
+    <h1>{{ editAlarm ? 'Edit Alarm' : 'Add Alarm' }}</h1>
     <form [formGroup]="alarmForm" #formDir="ngForm" (ngSubmit)="onCreateOrUpdate()">
         <div class="l-form-grid">
             <div>
@@ -51,8 +51,37 @@
                 <span class="fas fa-angle-down"></span>
             </div>
         </div>
-        <div class="l-form-label">{{i18nLabel.NOTES_LABEL}}</div>
-        <textarea id="notes" class="l-textarea" formControlName="notes"></textarea>
+        <ng-container *ngIf="webhookEnable">
+            <div class="l-form-webhook-wrap">
+                <div class="l-form-label">Webhook</div>
+                <div class="l-form-webhook-container" 
+                    [style.overflow-y]="webhookListScroll"
+                >
+                    <div class="l-form-webhook-list">
+                        <pp-alarm-rule-webhook-list 
+                            *ngFor="let webhook of webhookList"
+                            [webhook]="webhook"
+                            [checkedWebhookList]="checkedWebhookList"
+                            (outCheckWebhook)="onCheckWebhook($event)"
+                        >
+                        </pp-alarm-rule-webhook-list>
+                    </div>
+                    <div class="l-form-webhook-guide-wrap" [style.display]="webhookList.length ? 'none' : 'block'">
+                        <div class="l-form-webhook-guide">
+                            No Registered Webhook<br><br>
+                            If you want to register webhook, <br>
+                            go to <a routerLink="/config/webhook">webhook configuration page</a>.
+                        </div>
+                    </div>
+                    <pp-loading [showLoading]="showWebhookLoading" [zIndex]="20"></pp-loading>    
+                    <pp-film-for-disable *ngIf="disableWebhookList || isWebhookSelectDisable" [zIndex]="9" [marginWidth]="0" [height]="9999"></pp-film-for-disable>
+                </div>
+            </div>
+        </ng-container>
+        <div class="l-form-textarera-wrap">
+            <div class="l-form-label">{{i18nLabel.NOTES_LABEL}}</div>
+            <textarea id="notes" class="l-textarea" formControlName="notes"></textarea>
+        </div>
         <button type="submit" class="btn btn-blue l-create">OK</button>
     </form>
 </div>

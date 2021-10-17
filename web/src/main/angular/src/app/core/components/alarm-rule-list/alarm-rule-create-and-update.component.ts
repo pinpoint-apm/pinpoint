@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { IAlarmRule } from './alarm-rule-data.service';
 import { filterObj } from 'app/core/utils/util';
+import { IWebhook } from 'app/shared/services';
 
 export const enum NotificationType {
     ALL = 'all',
@@ -31,10 +32,15 @@ export class AlarmRuleCreateAndUpdateComponent implements OnInit, OnChanges {
     @Input() i18nLabel: {[key: string]: string};
     @Input() i18nFormGuide: {[key: string]: IFormFieldErrorType};
     @Input() webhookEnable: boolean;
+    @Input() webhookList: IWebhook[];
+    @Input() checkedWebhookList: IWebhook['webhookId'][];
+    @Input() showWebhookLoading: boolean;
+    @Input() disableWebhookList: boolean;
     @Output() outUpdateAlarm = new EventEmitter<IAlarmForm>();
     @Output() outCreateAlarm = new EventEmitter<IAlarmForm>();
     @Output() outClose = new EventEmitter<void>();
     @Output() outShowHelp = new EventEmitter<{[key: string]: ICoordinate}>();
+    @Output() outCheckWebhook = new EventEmitter<string>();
 
     alarmForm = new FormGroup({
         'checkerName': new FormControl('', [Validators.required]),
@@ -42,6 +48,7 @@ export class AlarmRuleCreateAndUpdateComponent implements OnInit, OnChanges {
         'threshold': new FormControl(1, [Validators.required, Validators.min(1)]),
         'type': new FormControl('all'),
         'notes': new FormControl(''),
+        'webhook': new FormControl({ disable: false }, [])
     });
 
     constructor() {}
@@ -98,5 +105,17 @@ export class AlarmRuleCreateAndUpdateComponent implements OnInit, OnChanges {
                 coordY: top + height / 2
             }
         });
+    }
+
+    onCheckWebhook(webhook: string): void {
+        this.outCheckWebhook.emit(webhook);
+    }
+
+    get isWebhookSelectDisable() {
+        return (this.alarmForm.value.type === 'all' || this.alarmForm.value.type === 'webhook') ? false : true
+    }
+
+    get webhookListScroll() {
+        return this.showWebhookLoading || this.disableWebhookList || this.isWebhookSelectDisable ? 'hidden' : 'scroll' 
     }
 }

@@ -1,0 +1,9 @@
+<div class="l-wrap" (click)="onCheckWebhook($evnet)">
+  <input type="checkbox" class="l-checkbox-input" [checked]="isChecked">
+  <div class="l-item-info">
+    <div class="l-url"> {{ webhook.url }} </div>
+    <div class="l-alias"> 
+      ({{ webhook.alias ? webhook.alias : '-' }})
+    </div>
+  </div>
+<div>
