@@ -25,6 +25,7 @@ export interface IAlarmRuleResponse {
 @Injectable()
 export class AlarmRuleDataService {
     private alarmRuleURL = 'application/alarmRule.pinpoint';
+    private alarmRuleWithWebhookURL = 'application/alarmRuleWithWebhooks.pinpoint';
     private checkerListURL = 'application/alarmRule/checker.pinpoint';
     private cache$: Observable<any>;
 
@@ -49,6 +50,10 @@ export class AlarmRuleDataService {
 
     create(params: {[key: string]: any}): Observable<IAlarmRuleCreated> {
         return this.http.post<IAlarmRuleCreated>(this.alarmRuleURL, params);
+    }
+    
+    createWithWebhook(params: {[key: string]: any}): Observable<IAlarmRuleCreated> {
+        return this.http.post<IAlarmRuleCreated>(this.alarmRuleWithWebhookURL, params);
     }
 
     update(params: IAlarmRule): Observable<IAlarmRuleResponse> {

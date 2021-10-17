@@ -48,7 +48,7 @@ form {
     margin-left: 2px;
 }
 
-.l-input, .l-select {
+.l-input, .l-select, .l-form-webhook-container {
     width: 100%;
     border-radius: 4px;
     background-color: var(--background-default);
@@ -58,6 +58,33 @@ form {
     color: var(--text-primary);
     box-shadow: 0 0 1px 0 var(--border-primary-darker);
     outline: 0;
+}
+
+.l-form-webhook-container {
+    position: relative;
+    height: 150px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    padding: 0;
+}
+
+.l-form-webhook-guide-wrap {
+    height: 100%;
+}
+
+.l-form-webhook-guide {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    right: 0;
+    text-align: center;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+.l-form-webhook-guide a {
+    color: var(--primary);
+    text-decoration: underline;
 }
 
 .l-wrapper .l-create {
@@ -109,6 +136,10 @@ form {
     font-family: 'Open Sans', sans-serif;
     font-weight: 600;
     margin-bottom: 4px;
+}
+
+.l-form-textarera-wrap {
+    margin-top: 15px;
 }
 
 .ng-valid[required] {

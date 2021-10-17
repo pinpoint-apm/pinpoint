@@ -8,6 +8,7 @@ import { Component, OnInit, Input, ElementRef, Renderer2 } from '@angular/core';
 export class FilmForDisableComponent implements OnInit {
     @Input() zIndex: number;
     @Input() marginWidth: number;
+    @Input() height: number;
     constructor(
         private el: ElementRef,
         private renderer: Renderer2
@@ -17,5 +18,6 @@ export class FilmForDisableComponent implements OnInit {
         const el = this.el.nativeElement.querySelector('.l-disabled');
         this.renderer.setStyle(el, 'z-index', this.zIndex);
         this.renderer.setStyle(el, 'width', `calc(100% - ${this.marginWidth}px)`);
+        this.renderer.setStyle(el, 'height', `${this.height}px`);
     }
 }

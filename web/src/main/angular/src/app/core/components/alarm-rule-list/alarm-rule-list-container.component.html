@@ -41,6 +41,10 @@
 </table>
 <ng-container *ngIf="showPopup">
     <pp-alarm-rule-create-and-update
+        [webhookList]="webhookList"
+        [checkedWebhookList]="checkedWebhookList"
+        [showWebhookLoading]="showWebhookLoading"
+        [disableWebhookList]="disableWebhookList"
         [checkerList]="checkerList"
         [userGroupList]="userGroupList"
         [editAlarm]="editAlarm"
@@ -50,7 +54,8 @@
         (outUpdateAlarm)="onUpdateAlarm($event)"
         (outCreateAlarm)="onCreateAlarm($event)"
         (outClose)="onClosePopup()"
-        (outShowHelp)="onShowHelp($event)">
+        (outShowHelp)="onShowHelp($event)"
+        (outCheckWebhook)="onCheckWebhook($event)">
     </pp-alarm-rule-create-and-update>
 </ng-container>
 <ng-container *ngIf="errorMessage">
