@@ -186,7 +186,7 @@ export class WebhookListContainerComponent implements OnInit {
   private getWebhookList() {
     this.showProcessing();
     this.webhookDataService
-      .getWebhookList(this.selectedApplication.applicationName)
+      .getWebhookListByAppId(this.selectedApplication.applicationName)
       .subscribe(result => {
         isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')
                 ? this.errorMessage = result.errorMessage

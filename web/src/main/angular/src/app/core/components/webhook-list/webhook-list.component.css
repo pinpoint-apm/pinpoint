@@ -16,14 +16,12 @@ li.selected {
 
 .l-item-wrapper {
   display: block;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .l-item-info {
-  display: grid;
-  grid-template-columns: 170px auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .l-item-info div {
@@ -32,10 +30,7 @@ li.selected {
 
 .alias {
   color: var(--text-secondary);
-  padding-right: 30px;
-  overflow: hidden;
-  white-space: no-wrap;
-  text-overflow: ellipsis;
+  padding-left: 4px;
 }
 
 .url {
