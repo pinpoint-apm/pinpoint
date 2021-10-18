@@ -37,14 +37,14 @@ public class SystemMetric {
     protected final String hostName;
     protected final List<Tag> tags;
     @Positive
-    protected final long timestamp;
+    protected final long eventTime;
 
-    public SystemMetric(String metricName, String fieldName, String hostName, List<Tag> tags, long timestamp) {
+    public SystemMetric(String metricName, String fieldName, String hostName, List<Tag> tags, long eventTime) {
         this.metricName = Objects.requireNonNull(metricName, "metricName");
         this.hostName = Objects.requireNonNull(hostName, "hostName");
         this.fieldName = Objects.requireNonNull(fieldName, "fieldName");
         this.tags = Objects.requireNonNull(tags, "tags");
-        this.timestamp = timestamp;
+        this.eventTime = eventTime;
     }
 
     @JsonProperty("metricName")
@@ -67,9 +67,9 @@ public class SystemMetric {
         return tags;
     }
 
-    @JsonProperty("timestamp")
-    public long getTimestamp() {
-        return timestamp;
+    @JsonProperty("eventTime")
+    public long getEventTime() {
+        return eventTime;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class SystemMetric {
         sb.append(", host=").append(hostName);
         sb.append(", field=").append(fieldName);
         sb.append(", tags=").append(tags);
-        sb.append(", timestamp=").append(timestamp);
+        sb.append(", eventTime=").append(eventTime);
         sb.append('}');
         return sb.toString();
     }

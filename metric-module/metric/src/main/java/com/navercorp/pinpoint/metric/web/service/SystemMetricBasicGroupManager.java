@@ -325,7 +325,7 @@ public class SystemMetricBasicGroupManager {
         } else if (SYSTEM_LOAD_METRIC_NAME.equals(metricName)) {
             definitionIdList.add(SYSTEM_LOAD_DEFINITION_ID);
         } else if (SWAP_METRIC_NAME.equals(metricName)) {
-            definitionIdList.add(SYSTEM_LOAD_DEFINITION_ID);
+            definitionIdList.add(SWAP_DEFINITION_ID);
         }
 
         return definitionIdList;
