@@ -10,7 +10,7 @@
             <arg column="fieldName" javaType="string"/>
             <arg column="fieldValue" javaType="_long"/>
             <arg column="tags" javaType="list" typeHandler="TagListHandler" />
-            <arg column="timestamp" javaType="_long"/>
+            <arg column="eventTime" javaType="_long"/>
         </constructor>
     </resultMap>
 
@@ -21,7 +21,7 @@
             fieldName,
             fieldValue,
             tags,
-            timestamp
+            eventTime
         FROM systemMetricLong
         WHERE hostGroupName = #{hostGroupName}
             AND metricName = #{metricName}
@@ -30,7 +30,7 @@
             <foreach collection="tagList" item="tag" separator=" ">
                 AND tags = #{tag}
             </foreach>
-            AND timestamp BETWEEN #{range.from} AND #{range.to}
+            AND eventTime BETWEEN #{range.from} AND #{range.to}
         LIMIT ${limit}
     </select>
 
@@ -51,7 +51,7 @@
     <select id="selectSampledSystemMetric" resultMap="sampledSystemMetricResultMap" parameterType="QueryParameter">
         SELECT
             AVG(fieldValue) AS avgValue,
-            DATETIME_CONVERT(timestamp, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime,
+            DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime,
             tags
         FROM systemMetricLong
         WHERE hostGroupName = #{hostGroupName}
@@ -61,7 +61,7 @@
             <foreach collection="tagList" item="tag" separator=" ">
                 AND tags = #{tag}
             </foreach>
-            AND timestamp BETWEEN #{range.from} AND #{range.to}
+            AND eventTime BETWEEN #{range.from} AND #{range.to}
         GROUP BY avgTime, tags
         ORDER BY avgTime asc
         LIMIT ${limit}
@@ -70,7 +70,7 @@
     <select id="selectSampledSystemMetricData" resultMap="systemMetricPointResultMap" parameterType="systemMetricDataSearchKey">
         SELECT
         AVG(fieldValue) AS avgValue,
-        DATETIME_CONVERT(timestamp, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
+        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
         FROM systemMetricLong
         WHERE hostGroupName = #{hostGroupName}
         AND metricName = #{metricName}
@@ -79,7 +79,7 @@
         <foreach collection="tagList" item="tag" separator=" ">
             AND tags = #{tag}
         </foreach>
-        AND timestamp BETWEEN #{range.from} AND #{range.to}
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
         GROUP BY avgTime
         ORDER BY avgTime asc
         LIMIT ${limit}

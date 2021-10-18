@@ -72,25 +72,25 @@ mappings:
         matchingRule: ALL
 
   - definitionId: "systemLoad"
-      name: "system"
-      title: "system load"
-      grouping: "TAG"
-      unit: "count"
-      fields:
-        - name: "load1"
-          matchingRule: EXACT
-        - name: "load5"
-          matchingRule: EXACT
-        - name: "load15"
-          matchingRule: EXACT
+    name: "system"
+    title: "system load"
+    grouping: "TAG"
+    unit: "count"
+    fields:
+      - name: "load1"
+        matchingRule: EXACT
+      - name: "load5"
+        matchingRule: EXACT
+      - name: "load15"
+        matchingRule: EXACT
 
   - definitionId: "swap"
-      name: "swap"
-      title: "swap"
-      grouping: "TAG"
-      unit: "count"
-      fields:
-        - name: "total"
-          matchingRule: EXACT
-        - name: "used"
-          matchingRule: EXACT
+    name: "swap"
+    title: "swap"
+    grouping: "TAG"
+    unit: "count"
+    fields:
+      - name: "total"
+        matchingRule: EXACT
+      - name: "used"
+        matchingRule: EXACT
