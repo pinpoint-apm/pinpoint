@@ -209,6 +209,9 @@ export class ScatterChart {
             const toX = this.coordinateManager.parseMouseXToXData(area.x.to);
             const fromY = this.coordinateManager.parseMouseYToYData(area.y.from);
             const toY = this.coordinateManager.parseMouseYToYData(area.y.to);
+
+            const {to: maxY} = this.coordinateManager.getY();
+
             if (this.hasDataByXY(fromX, toX, fromY, toY)) {
                 this.outSelect.next({
                     x: {
@@ -217,7 +220,7 @@ export class ScatterChart {
                     },
                     y: {
                         from: fromY,
-                        to: toY
+                        to: toY >= maxY ? Number.MAX_SAFE_INTEGER : toY
                     },
                     drag: area,
                     type: this.typeManager.getCheckedTypeNameList(),
