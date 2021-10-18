@@ -22,6 +22,11 @@ export interface IAlarmRuleResponse {
     result: string;
 }
 
+export interface IAlarmWithWebhook {
+    rule: IAlarmRule,
+    webhookIds: string[],
+}
+
 @Injectable()
 export class AlarmRuleDataService {
     private alarmRuleURL = 'application/alarmRule.pinpoint';
@@ -52,12 +57,16 @@ export class AlarmRuleDataService {
         return this.http.post<IAlarmRuleCreated>(this.alarmRuleURL, params);
     }
     
-    createWithWebhook(params: {[key: string]: any}): Observable<IAlarmRuleCreated> {
+    createWithWebhook(params: IAlarmWithWebhook): Observable<IAlarmRuleCreated> {
         return this.http.post<IAlarmRuleCreated>(this.alarmRuleWithWebhookURL, params);
     }
 
     update(params: IAlarmRule): Observable<IAlarmRuleResponse> {
         return this.http.put<IAlarmRuleResponse>(this.alarmRuleURL, params);
+    }
+
+    updateWithWebhook(params: IAlarmWithWebhook): Observable<IAlarmRuleResponse> {
+        return this.http.put<IAlarmRuleResponse>(this.alarmRuleWithWebhookURL, params);
     }
 
     remove(applicationId: string, ruleId: string): Observable<IAlarmRuleResponse> {

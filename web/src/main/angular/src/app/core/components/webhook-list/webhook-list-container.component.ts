@@ -150,7 +150,7 @@ export class WebhookListContainerComponent implements OnInit {
       });   
   }
 
-  private onRemoveWebhook(webhook: IWebhook): void {
+  onRemoveWebhook(webhook: IWebhook): void {
     this.showProcessing();
 
     this.webhookDataService
@@ -168,16 +168,16 @@ export class WebhookListContainerComponent implements OnInit {
       });   
   }
 
-  private onClosePopup(): void {
+  onClosePopup(): void {
     this.showPopup = false;
   }
 
-  private onAddWebhook(): void {
+  onAddWebhook(): void {
     this.editWebhook = null;
     this.showPopup = true;
   }
   
-  private onEditWebhook(webhookId: string): void {
+  onEditWebhook(webhookId: string): void {
     this.editWebhook = this.webhookList.find(webhook => webhook.webhookId === webhookId);
     this.showPopup = true;
     this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_WEBHOOK_UPDATE_POPUP);
