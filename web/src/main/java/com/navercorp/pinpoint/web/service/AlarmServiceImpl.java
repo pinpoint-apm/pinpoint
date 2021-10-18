@@ -20,7 +20,6 @@ import java.util.Objects;
 
 import com.navercorp.pinpoint.web.dao.WebhookSendInfoDao;
 import com.navercorp.pinpoint.web.vo.WebhookSendInfo;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
@@ -83,7 +82,26 @@ public class AlarmServiceImpl implements AlarmService {
         alarmDao.updateRule(rule);
         alarmDao.deleteCheckerResult(rule.getRuleId());
     }
-    
+
+    @Override
+    public void updateRuleWithWebhooks(Rule rule, List<String> webhookIds) {
+        updateRule(rule);
+
+        List<WebhookSendInfo> oldListofWebhookInfos = webhookSendInfoDao.selectWebhookSendInfoByRuleId(rule.getRuleId());
+
+        for (WebhookSendInfo webhookSendInfo : oldListofWebhookInfos) {
+            // remove already existing webhook mapping to this alarm from webhookIds
+            if (!webhookIds.remove(webhookSendInfo.getWebhookId())) {
+                // webhook not linked to this alarm anymore, so delete from mysql
+                webhookSendInfoDao.deleteWebhookSendInfo(webhookSendInfo);
+            }
+        }
+
+        // adds newly mapped webhooks to this alarm
+        for (String webhookId : webhookIds) {
+            webhookSendInfoDao.insertWebhookSendInfo(new WebhookSendInfo("", webhookId, rule.getRuleId()));
+        }
+    }
 
     @Override
     public void deleteRuleByUserGroupId(String groupId) {
