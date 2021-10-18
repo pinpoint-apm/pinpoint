@@ -6,7 +6,7 @@ import { TranslateReplaceService, AnalyticsService, TRACKED_EVENT_LIST, DynamicP
 import { UserGroupDataService, IUserGroup } from 'app/core/components/user-group/user-group-data.service';
 import { ApplicationListInteractionForConfigurationService } from 'app/core/components/application-list/application-list-interaction-for-configuration.service';
 import { NotificationType, IAlarmForm } from './alarm-rule-create-and-update.component';
-import { AlarmRuleDataService, IAlarmRule, IAlarmRuleCreated, IAlarmRuleResponse } from './alarm-rule-data.service';
+import { AlarmRuleDataService, IAlarmRule, IAlarmRuleCreated, IAlarmRuleResponse, IAlarmWithWebhook } from './alarm-rule-data.service';
 import { isThatType } from 'app/core/utils/util';
 import { takeUntil } from 'rxjs/operators';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from '../help-viewer-popup/help-viewer-popup-container.component';
@@ -196,7 +196,7 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
             ? { rule: alarmRule, webhookIds: this.checkedWebhookList }
             : alarmRule;
         const postAlarmRule = isWithWebhook
-            ? this.alarmRuleDataService.createWithWebhook(param)
+            ? this.alarmRuleDataService.createWithWebhook(param as IAlarmWithWebhook)
             : this.alarmRuleDataService.create(param);
         
         postAlarmRule.subscribe((response: IAlarmRuleCreated | IServerErrorShortFormat) => {
@@ -216,8 +216,7 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
     onUpdateAlarm({checkerName, userGroupId, threshold, type, notes}: IAlarmForm): void {
         this.showProcessing();
         const {ruleId, applicationId, serviceType} = this.editAlarm;
-
-        this.alarmRuleDataService.update({
+        const alarmRule = {
             ruleId,
             applicationId,
             serviceType,
@@ -227,8 +226,18 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
             emailSend: type === NotificationType.ALL || type === NotificationType.EMAIL,
             smsSend: type === NotificationType.ALL || type === NotificationType.SMS,
             webhookSend: (this.webhookEnable && type === NotificationType.ALL) || type === NotificationType.WEBHOOK,
-            notes
-        }).subscribe((response: IAlarmRuleResponse | IServerErrorShortFormat) => {
+            notes,
+        };
+
+        const isWithWebhook = type === 'all' || type === 'webhook'
+        const param = isWithWebhook 
+            ? { rule: alarmRule, webhookIds: this.checkedWebhookList }
+            : alarmRule;
+        const putAlarmRule = isWithWebhook
+            ? this.alarmRuleDataService.updateWithWebhook(param as IAlarmWithWebhook)
+            : this.alarmRuleDataService.update(param as IAlarmRule);
+
+        putAlarmRule.subscribe((response: IAlarmRuleResponse | IServerErrorShortFormat) => {
             if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
                 this.errorMessage = (response as IServerErrorShortFormat).errorMessage;
                 this.hideProcessing();
