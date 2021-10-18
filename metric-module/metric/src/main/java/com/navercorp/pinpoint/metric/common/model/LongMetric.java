@@ -5,8 +5,8 @@ import java.util.List;
 public class LongMetric extends SystemMetric {
     private final long fieldValue;
 
-    public LongMetric(String metricName, String hostName, String fieldName, long fieldValue, List<Tag> tags, long timestamp) {
-        super(metricName, fieldName, hostName, tags, timestamp);
+    public LongMetric(String metricName, String hostName, String fieldName, long fieldValue, List<Tag> tags, long eventTime) {
+        super(metricName, fieldName, hostName, tags, eventTime);
         this.fieldValue = fieldValue;
     }
 
@@ -22,7 +22,7 @@ public class LongMetric extends SystemMetric {
         sb.append(", field=").append(fieldName);
         sb.append(", value=").append(fieldValue);
         sb.append(", tags=").append(tags);
-        sb.append(", timestamp=").append(timestamp);
+        sb.append(", eventTime=").append(eventTime);
         sb.append('}');
         return sb.toString();
     }
