@@ -144,9 +144,25 @@ public class AlarmController {
     @PutMapping(value={"/alarmRule", "/application/alarmRule"})
     public Map<String, String> updateRule(@RequestBody Rule rule) {
         if (StringUtils.isEmpty(rule.getRuleId()) || StringUtils.isEmpty(rule.getApplicationId()) || StringUtils.isEmpty(rule.getCheckerName()) || StringUtils.isEmpty(rule.getUserGroupId())) {
-            return getErrorStringMap("500", "there is not ruleId/userGroupId/applicationid/checkerName to get alarm rule");
+            return getErrorStringMap("500", "there is not ruleId/userGroupId/applicationid/checkerName to update alarm rule");
         }
         alarmService.updateRule(rule);
+        return getResultStringMap("SUCCESS");
+    }
+
+    @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
+    @PutMapping(value={"/alarmRuleWithWebhooks", "/application/alarmRuleWithWebhooks"})
+    public Map<String, String> updateRuleWithWebhooks(@RequestBody RuleWithWebhooks ruleWithWebhooks) {
+        Rule rule = ruleWithWebhooks.getRule();
+        if (StringUtils.isEmpty(rule.getRuleId()) || StringUtils.isEmpty(rule.getApplicationId()) || StringUtils.isEmpty(rule.getCheckerName()) || StringUtils.isEmpty(rule.getUserGroupId())) {
+            return getErrorStringMap("500", "there is not ruleId/userGroupId/applicationid/checkerName to update alarm rule");
+        }
+
+        if (!webhookEnable) {
+            return getErrorStringMap("500", "webhook should be enabled to bind webhook to an alarm");
+        }
+
+        alarmService.updateRuleWithWebhooks(rule, ruleWithWebhooks.getWebhookIds());
         return getResultStringMap("SUCCESS");
     }
     
@@ -157,8 +173,8 @@ public class AlarmController {
     
     @ExceptionHandler(Exception.class)
     public Map<String, String> handleException(Exception e) {
-        logger.error(" Exception occurred while trying to CRUD Alarm Rule information", e);
-        return getErrorStringMap("500", "Exception occurred while trying to Alarm Rule information");
+        logger.warn(" Exception occurred while trying to CRUD Alarm Rule information", e);
+        return getErrorStringMap("500", String.format("Exception occurred while trying to Alarm Rule information: %s", e.getMessage()));
     }
 
     static private class RuleWithWebhooks {

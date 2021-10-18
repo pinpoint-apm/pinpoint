@@ -37,6 +37,8 @@ public interface AlarmService {
 
     void updateRule(Rule rule);
 
+    void updateRuleWithWebhooks(Rule rule, List<String> webhookIds);
+
     void deleteRuleByUserGroupId(String groupId);
 
     void updateUserGroupIdOfRule(UserGroup userGroup);

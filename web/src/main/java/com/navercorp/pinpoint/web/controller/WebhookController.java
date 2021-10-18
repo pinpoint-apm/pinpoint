@@ -116,11 +116,11 @@ public class WebhookController {
 
     @ExceptionHandler(Exception.class)
     public Map<String, String> handleException(Exception e) {
-        logger.error(" Exception occurred while trying to CRUD Webhook information", e);
+        logger.warn(" Exception occurred while trying to CRUD Webhook information", e);
 
         Map<String, String> result = new HashMap<>();
         result.put("errorCode", "500");
-        result.put("errorMessage", "Exception occurred while trying to process Webhook information");
+        result.put("errorMessage", String.format("Exception occurred while trying to process Webhook information: %s", e.getMessage()));
         return result;
     }
 }

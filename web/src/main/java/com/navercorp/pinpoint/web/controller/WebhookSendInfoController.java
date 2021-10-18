@@ -110,11 +110,11 @@ public class WebhookSendInfoController {
 
     @ExceptionHandler(Exception.class)
     public Map<String, String> handleException(Exception e) {
-        logger.error(" Exception occurred while trying to CRUD WebhookSendInfo", e);
+        logger.warn(" Exception occurred while trying to CRUD WebhookSendInfo", e);
 
         Map<String, String> result = new HashMap<>();
         result.put("errorCode", "500");
-        result.put("errorMessage", "Exception occurred while trying to process WebhookSendInfo");
+        result.put("errorMessage", String.format("Exception occurred while trying to process WebhookSendInfo: %s", e.getMessage()));
         return result;
     }
 }
