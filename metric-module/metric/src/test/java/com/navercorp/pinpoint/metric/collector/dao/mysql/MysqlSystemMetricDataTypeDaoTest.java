@@ -12,6 +12,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author minwoo.jung
@@ -20,6 +21,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ContextConfiguration(classes = MysqlTestConfig.class)
 @TestPropertySource(properties = {"pinpoint.profiles.active=local"})
 @WebAppConfiguration
+@Transactional
 public class MysqlSystemMetricDataTypeDaoTest {
 
     @Autowired
