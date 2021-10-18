@@ -38,9 +38,9 @@ import java.util.Objects;
 public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoService {
 
     private final SystemMetricHostInfoDao systemMetricHostInfoDao;
-    private final SystemMetricBasicGroupManager systemMetricBasicGroupManager;
+    private final YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager;
 
-    public SystemMetricHostInfoServiceImpl(SystemMetricHostInfoDao systemMetricHostInfoDao, SystemMetricBasicGroupManager systemMetricBasicGroupManager) {
+    public SystemMetricHostInfoServiceImpl(SystemMetricHostInfoDao systemMetricHostInfoDao, YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager) {
         this.systemMetricHostInfoDao = systemMetricHostInfoDao;
         this.systemMetricBasicGroupManager = Objects.requireNonNull(systemMetricBasicGroupManager, "systemMetricBasicGroupManager");
     }
