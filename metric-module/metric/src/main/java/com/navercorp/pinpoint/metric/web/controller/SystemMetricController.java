@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.metric.web.controller;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
-import com.navercorp.pinpoint.metric.web.service.SystemMetricBasicGroupManager;
 import com.navercorp.pinpoint.metric.web.service.SystemMetricDataService;
 import com.navercorp.pinpoint.metric.web.service.SystemMetricHostInfoService;
+import com.navercorp.pinpoint.metric.web.service.YMLSystemMetricBasicGroupManager;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 import com.navercorp.pinpoint.metric.web.util.Range;
@@ -47,13 +47,13 @@ import java.util.concurrent.TimeUnit;
 public class SystemMetricController {
     private final SystemMetricDataService systemMetricDataService;
     private final SystemMetricHostInfoService systemMetricHostInfoService;
-    private final SystemMetricBasicGroupManager systemMetricBasicGroupManager;
+    private final YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager;
 
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new DefaultTimeWindowSampler(10000L);
 
     private final TagParser tagParser = new TagParser();
 
-    public SystemMetricController(SystemMetricDataService systemMetricDataService, SystemMetricHostInfoService systemMetricHostInfoService, SystemMetricBasicGroupManager systemMetricBasicGroupManager) {
+    public SystemMetricController(SystemMetricDataService systemMetricDataService, SystemMetricHostInfoService systemMetricHostInfoService, YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager) {
         this.systemMetricDataService = Objects.requireNonNull(systemMetricDataService, "systemMetricService");
         this.systemMetricHostInfoService = Objects.requireNonNull(systemMetricHostInfoService, "systemMetricHostInfoService");
         this.systemMetricBasicGroupManager = Objects.requireNonNull(systemMetricBasicGroupManager, "systemMetricBasicGroupManager");
