@@ -2,7 +2,7 @@
   "tableName": "systemMetricLong",
   "tableType": "REALTIME",
   "segmentsConfig": {
-    "timeColumnName": "timestamp",
+    "timeColumnName": "eventTime",
     "timeType": "MILLISECONDS",
     "schemaName": "systemMetricLong",
     "replicasPerPartition": "1",
@@ -13,7 +13,7 @@
   "tableIndexConfig": {
     "invertedIndexColumns": ["tags"],
     "sortedColumn": ["hostGroupName"],
-    "rangeIndexColumns": ["timestamp"],
+    "rangeIndexColumns": ["eventTime"],
     "loadMode": "MMAP",
     "nullHandlingEnabled": true,
     "streamConfigs": {
