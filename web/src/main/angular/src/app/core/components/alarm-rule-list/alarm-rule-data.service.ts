@@ -23,8 +23,8 @@ export interface IAlarmRuleResponse {
 }
 
 export interface IAlarmWithWebhook {
-    rule: IAlarmRule,
-    webhookIds: string[],
+    rule: IAlarmRule;
+    webhookIds: string[];
 }
 
 @Injectable()
@@ -56,7 +56,7 @@ export class AlarmRuleDataService {
     create(params: {[key: string]: any}): Observable<IAlarmRuleCreated> {
         return this.http.post<IAlarmRuleCreated>(this.alarmRuleURL, params);
     }
-    
+
     createWithWebhook(params: IAlarmWithWebhook): Observable<IAlarmRuleCreated> {
         return this.http.post<IAlarmRuleCreated>(this.alarmRuleWithWebhookURL, params);
     }

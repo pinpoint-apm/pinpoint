@@ -1,19 +1,19 @@
 <div class="l-webhook-list">
-  <ul>
-    <li *ngFor="let webhook of webhookList">
-    <!-- [class.selected]="isSelected(webhook.id)" (click)="onSelect($event, webhook)" -->
-      <div class="l-item-wrapper">
-          <div class="l-item-buttons">
-              <button [hidden]="hasRemoveTarget(webhook.webhookId)" class="far fa-trash-alt" (click)="onRemove(webhook)"></button>
-              <button [hidden]="hasRemoveTarget(webhook.webhookId)" class="far fa-edit" (click)="onEdit(webhook.webhookId)"></button>
-              <button [hidden]="!hasRemoveTarget(webhook.webhookId)" class="fas fa-arrow-left" (click)="onCancelRemove()"></button>
-              <button [hidden]="!hasRemoveTarget(webhook.webhookId)" class="fas fa-check" (click)="onConfirmRemove()"></button>
-          </div> 
-          <div class="l-item-info">
-            <div class="url">{{webhook.url}} </div>
-            <div class="alias">({{webhook.alias ? webhook.alias : '-'}})</div>
-          </div>
-      </div>
-    </li>
-  </ul>
+    <ul>
+        <li *ngFor="let webhook of webhookList">
+        <!-- [class.selected]="isSelected(webhook.id)" (click)="onSelect($event, webhook)" -->
+            <div class="l-item-wrapper">
+                <div class="l-item-buttons">
+                    <button [hidden]="hasRemoveTarget(webhook.webhookId)" class="far fa-trash-alt" (click)="onRemove(webhook)"></button>
+                    <button [hidden]="hasRemoveTarget(webhook.webhookId)" class="far fa-edit" (click)="onEdit(webhook.webhookId)"></button>
+                    <button [hidden]="!hasRemoveTarget(webhook.webhookId)" class="fas fa-arrow-left" (click)="onCancelRemove()"></button>
+                    <button [hidden]="!hasRemoveTarget(webhook.webhookId)" class="fas fa-check" (click)="onConfirmRemove()"></button>
+                </div> 
+                <div class="l-item-info">
+                    <div class="url">{{webhook.url}} </div>
+                    <div class="alias">({{webhook.alias ? webhook.alias : '-'}})</div>
+                </div>
+            </div>
+        </li>
+    </ul>
 </div>

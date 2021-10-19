@@ -7,7 +7,7 @@ import { ConfigurationWebhookContainerComponent } from './configuration-webhook-
 
 @NgModule({
     declarations: [
-      ConfigurationWebhookContainerComponent
+        ConfigurationWebhookContainerComponent
     ],
     imports: [
         SharedModule,
@@ -15,7 +15,7 @@ import { ConfigurationWebhookContainerComponent } from './configuration-webhook-
         WebhookListModule,
     ],
     exports: [
-      ConfigurationWebhookContainerComponent
+        ConfigurationWebhookContainerComponent
     ],
     providers: []
 })

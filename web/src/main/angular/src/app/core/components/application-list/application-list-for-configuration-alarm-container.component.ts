@@ -142,7 +142,7 @@ export class ApplicationListForConfigurationAlarmContainerComponent implements O
         if (app.equals(this.selectedApp)) {
             return;
         }
-        
+
         this.selectedApp = app;
         this.applicationListInteractionForConfigurationService.setSelectedApplication(app);
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_APPLICATION_FOR_ALARM);

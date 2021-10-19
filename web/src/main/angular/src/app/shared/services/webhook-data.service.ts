@@ -19,7 +19,7 @@ export interface IWebhookRule {
 }
 
 export interface IWebhookAlarm extends Pick<IWebhook, 'webhookId'> {
-    ruleId: string
+    ruleId: string;
 }
 
 @Injectable()
@@ -31,13 +31,13 @@ export class WebhookDataService {
         private http: HttpClient
     ) {}
 
-    getWebhookListByAppId(appName: string): Observable<IWebhook[]> {    
+    getWebhookListByAppId(appName: string): Observable<IWebhook[]> {
         return this.http.get<IWebhook[]>(this.apiUrl, {
             params: new HttpParams().set('applicationId', appName)
         });
     }
 
-    getWebhookListByAlarmId(ruleId: string): Observable<IWebhook[]> {    
+    getWebhookListByAlarmId(ruleId: string): Observable<IWebhook[]> {
         return this.http.get<IWebhook[]>(this.apiUrl, {
             params: new HttpParams().set('ruleId', ruleId)
         });
@@ -52,7 +52,7 @@ export class WebhookDataService {
     }
 
     removeWebhook(webhook: IWebhook): Observable<any> {
-        return this.http.request<any>('DELETE', this.apiUrl, { body: webhook })
+        return this.http.request<any>('DELETE', this.apiUrl, { body: webhook });
     }
 
     addWebhookAlarm(webhookIds: string[]) {

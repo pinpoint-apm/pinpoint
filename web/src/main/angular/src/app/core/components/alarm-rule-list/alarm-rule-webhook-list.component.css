@@ -1,23 +1,23 @@
 .l-wrap {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 10px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
 }
 
 .l-wrap:hover {
-  background-color: var(--background-hover-secondary);
+    background-color: var(--background-hover-secondary);
 }
 
 .l-item-info {
-  padding-left: 5px;
-  cursor: default;
+    padding-left: 5px;
+    cursor: default;
 }
 
 .l-item-info div {
-  display: inline-block;
+    display: inline-block;
 }
 
 .l-alias {
-  padding-left: 4px;
+    padding-left: 4px;
 }

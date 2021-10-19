@@ -1,21 +1,21 @@
 <div class="l-wrapper">
-  <button class="btn btn-black l-close" (click)="onClose();"><i class="fas fa-times"></i></button>
-  <h1>{{ title }}</h1>
-  <form [formGroup]="webhookForm" #formDir="ngForm" (ngSubmit)="onCreateOrUpdate()">
-      <div class="l-form-grid">
-          <div>
-              <div class="l-form-label">alias</div>
-              <input value="{{ editWebhook ? editWebhook.alias : ''}}" type="text" id="alias" class="l-input" formControlName="alias" [placeholder]="i18nText['ALIAS_PLACEHOLDER']">
-          </div>
-          <div>
-              <div class="l-form-label">url <span class="l-required-icon">*</span></div>
-              <input value="{{ editWebhook ? editWebhook.url : ''}}" type="text" id="url" class="l-input" formControlName="url" required>
-              <pp-form-field-error-message
-                  [control]="webhookForm.get('url')"
-                  [errorMessage]="i18nFormGuide['url']">
-              </pp-form-field-error-message>
-          </div>
-      </div>
-      <button type="submit" class="btn btn-blue l-create">OK</button>
-  </form>
+    <button class="btn btn-black l-close" (click)="onClose();"><i class="fas fa-times"></i></button>
+    <h1>{{title}}</h1>
+    <form [formGroup]="webhookForm" #formDir="ngForm" (ngSubmit)="onCreateOrUpdate()">
+        <div class="l-form-grid">
+            <div>
+                <div class="l-form-label">alias</div>
+                <input value="{{editWebhook ? editWebhook.alias : ''}}" type="text" id="alias" class="l-input" formControlName="alias" [placeholder]="i18nText['ALIAS_PLACEHOLDER']">
+            </div>
+            <div>
+                <div class="l-form-label">url <span class="l-required-icon">*</span></div>
+                <input value="{{editWebhook ? editWebhook.url : ''}}" type="text" id="url" class="l-input" formControlName="url" required>
+                <pp-form-field-error-message
+                    [control]="webhookForm.get('url')"
+                    [errorMessage]="i18nFormGuide['url']">
+                </pp-form-field-error-message>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-blue l-create">OK</button>
+    </form>
 </div>

@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+
 import { filterObj } from 'app/core/utils/util';
 import { IWebhook } from 'app/shared/services';
 import { CustomFormValidatorService } from 'app/shared/services/custom-form-validator.service';
@@ -36,9 +37,7 @@ export class WebhookListCreateAndUpdateComponent implements OnInit, OnChanges {
     });
 
     constructor() {}
-    
     ngOnInit() {}
-    
     ngOnChanges(changes: SimpleChanges) {
         const editWebhook = changes['editWebhook'];
 

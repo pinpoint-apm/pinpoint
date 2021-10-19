@@ -112,10 +112,10 @@ export class AlarmRuleCreateAndUpdateComponent implements OnInit, OnChanges {
     }
 
     get isWebhookSelectDisable() {
-        return (this.alarmForm.value.type === 'all' || this.alarmForm.value.type === 'webhook') ? false : true
+        return (this.alarmForm.value.type === 'all' || this.alarmForm.value.type === 'webhook') ? false : true;
     }
 
     get webhookListScroll() {
-        return this.showWebhookLoading || this.disableWebhookList || this.isWebhookSelectDisable ? 'hidden' : 'scroll' 
+        return this.showWebhookLoading || this.disableWebhookList || this.isWebhookSelectDisable ? 'hidden' : 'scroll';
     }
 }

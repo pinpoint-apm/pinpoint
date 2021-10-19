@@ -1,60 +1,60 @@
 li {
-  color: var(--text-primary);
-  /* height: 28px; */
-  margin: 0;
-  padding: 12px 15px;
-  font-size: 13px;    
+    color: var(--text-primary);
+    /* height: 28px; */
+    margin: 0;
+    padding: 12px 15px;
+    font-size: 13px;    
 }
 
 li:hover {
-  background: var(--background-hover-secondary);
+    background: var(--background-hover-secondary);
 }
 
 li.selected {
-  background: var(--background-hover-secondary);
+    background: var(--background-hover-secondary);
 }
 
 .l-item-wrapper {
-  display: block;
+    display: block;
 }
 
 .l-item-info {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .l-item-info div {
-  display: inline-block;
+    display: inline-block;
 }
 
 .alias {
-  color: var(--text-secondary);
-  padding-left: 4px;
+    color: var(--text-secondary);
+    padding-left: 4px;
 }
 
 .url {
-  font-weight: 600;
+    font-weight: 600;
 }
 
 .l-item-buttons {
-  float: right;
+    float: right;
 }
 
 .fa, .fas, .far {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 .far.fa-trash-alt {
-  color: var(--icon-default);
+    color: var(--icon-default);
 }
 
 .far.fa-edit {
-  color: var(--icon-default);
-  padding-left: 10px;
+    color: var(--icon-default);
+    padding-left: 10px;
 }
 
 .fa-check {
-  color: var(--status-danger-lighter);
-  margin-left: 10px;
+    color: var(--status-danger-lighter);
+    margin-left: 10px;
 }

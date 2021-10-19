@@ -1,40 +1,39 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+
 import { IWebhook } from 'app/shared/services/webhook-data.service';
 
 @Component({
-  selector: 'pp-webhook-list',
-  templateUrl: './webhook-list.component.html',
-  styleUrls: ['./webhook-list.component.css']
+    selector: 'pp-webhook-list',
+    templateUrl: './webhook-list.component.html',
+    styleUrls: ['./webhook-list.component.css']
 })
 export class WebhookListComponent implements OnInit {
-  @Input() webhookList: any[];
-  @Output() outRemove = new EventEmitter<IWebhook>();
-  @Output() outEdit = new EventEmitter<string>();
+    @Input() webhookList: any[];
+    @Output() outRemove = new EventEmitter<IWebhook>();
+    @Output() outEdit = new EventEmitter<string>();
 
-  private removeConfirmWebhook: IWebhook;
+    private removeConfirmWebhook: IWebhook;
 
-  constructor() { }
+    constructor() {}
+    ngOnInit() {}
+    onRemove(webhook: IWebhook): void {
+        this.removeConfirmWebhook = webhook;
+    }
 
-  ngOnInit() { }
+    onEdit(webhookId: string): void {
+        this.outEdit.emit(webhookId);
+    }
 
-  onRemove(webhook: IWebhook): void {
-    this.removeConfirmWebhook = webhook;
-  }
+    onCancelRemove(): void {
+        this.removeConfirmWebhook = null;
+    }
 
-  onEdit(webhookId: string): void {
-    this.outEdit.emit(webhookId);
-  }
+    onConfirmRemove(): void {
+        this.outRemove.emit(this.removeConfirmWebhook);
+        this.removeConfirmWebhook = null;
+    }
 
-  onCancelRemove(): void {
-    this.removeConfirmWebhook = null;
-  }
-
-  onConfirmRemove(): void {
-    this.outRemove.emit(this.removeConfirmWebhook);
-    this.removeConfirmWebhook = null;
-  }
-
-  hasRemoveTarget(webhookId: string): boolean {
-    return this.removeConfirmWebhook && this.removeConfirmWebhook.webhookId === webhookId;
-  }
+    hasRemoveTarget(webhookId: string): boolean {
+        return this.removeConfirmWebhook && this.removeConfirmWebhook.webhookId === webhookId;
+    }
 }
