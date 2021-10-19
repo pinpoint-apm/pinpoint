@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
 import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.stereotype.Component;
 
@@ -64,11 +65,13 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
         List<Dot> list = new ArrayList<>(rawCells.length);
         final Predicate<Dot> filter = this.filter;
         for (Cell cell : rawCells) {
-            final Dot dot = createDot(cell);
-            if (filter == null) {
-                list.add(dot);
-            } else if(filter.test(dot)) {
-                list.add(dot);
+            if (CellUtil.matchingFamily(cell,HbaseColumnFamily. APPLICATION_TRACE_INDEX_TRACE.getName())) {
+                final Dot dot = createDot(cell);
+                if (filter == null) {
+                    list.add(dot);
+                } else if (filter.test(dot)) {
+                    list.add(dot);
+                }
             }
         }
         return list;
