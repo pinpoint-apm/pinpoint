@@ -7,13 +7,11 @@
     "schemaName": "systemMetricLong",
     "replicasPerPartition": "1",
     "retentionTimeUnit": "DAYS",
-    "retentionTimeValue": "2"
+    "retentionTimeValue": "21"
   },
   "tenants": {},
   "tableIndexConfig": {
-    "invertedIndexColumns": ["tags"],
     "sortedColumn": ["hostGroupName"],
-    "rangeIndexColumns": ["eventTime"],
     "loadMode": "MMAP",
     "nullHandlingEnabled": true,
     "streamConfigs": {
@@ -23,9 +21,9 @@
       "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder",
       "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
       "stream.kafka.broker.list": "localhost:19092",
-      "realtime.segment.flush.threshold.size": "0",
+      "realtime.segment.flush.threshold.rows": "0",
       "realtime.segment.flush.threshold.time": "24h",
-      "realtime.segment.flush.desired.size": "50M",
+      "realtime.segment.flush.threshold.segment.size": "64M",
       "stream.kafka.consumer.prop.auto.offset.reset": "smallest"
     }
   },
