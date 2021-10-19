@@ -32,6 +32,7 @@ public enum Header {
     HTTP_PARENT_APPLICATION_NAME("Pinpoint-pAppName"),
     HTTP_PARENT_APPLICATION_TYPE("Pinpoint-pAppType"),
     HTTP_PARENT_APPLICATION_NAMESPACE("Pinpoint-pAppNamespace"),
+    HTTP_TAGS("Pinpoint-Tags"),
     HTTP_HOST("Pinpoint-Host");
 
     public static final String FILTER_PATTERN_PREFIX = "Pinpoint-";

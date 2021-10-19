@@ -28,6 +28,16 @@ import java.util.Properties;
  */
 public class KafkaConfigTest {
 
+    public static final String HEADER_ENABLE = KafkaConfig.HEADER_ENABLE;
+
+    public static final String PRODUCER_ENABLE = KafkaConfig.PRODUCER_ENABLE;
+
+    public static final String CONSUMER_ENABLE = KafkaConfig.CONSUMER_ENABLE;
+
+    public static final String SPRING_CONSUMER_ENABLE = KafkaConfig.SPRING_CONSUMER_ENABLE;
+
+    public static final String CONSUMER_FILTER_TAGS = KafkaConfig.CONSUMER_FILTER_TAGS;
+
     @Test
     public void configTest1() throws Exception {
         KafkaConfig config = createConfig("true", "true", "entryPoint");

@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.plugin.kafka;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
+import java.util.List;
+
 public class KafkaConfig {
 
     public static final String HEADER_ENABLE = "profiler.kafka.header.enable";
@@ -28,12 +30,16 @@ public class KafkaConfig {
     static final String CONSUMER_ENTRY_POINT = "profiler.kafka.consumer.entryPoint";
 
     static final String SPRING_CONSUMER_ENABLE = "profiler.springkafka.consumer.enable";
+    private static final String PRODUCER_TAGS = "pinpoint.kafka.producer.tags";
+    static final String CONSUMER_FILTER_TAGS = "pinpoint.kafka.consumer.filter.tags";
 
     private final boolean producerEnable;
     private final boolean consumerEnable;
     private final boolean springConsumerEnable;
     private final boolean headerEnable;
     private final String kafkaEntryPoint;
+    private final String producerTags;
+    private final List<String> consumerFilterTagList;
 
     public KafkaConfig(ProfilerConfig config) {
         this.producerEnable = config.readBoolean(PRODUCER_ENABLE, false);
@@ -41,6 +47,8 @@ public class KafkaConfig {
         this.springConsumerEnable = config.readBoolean(SPRING_CONSUMER_ENABLE, false);
         this.headerEnable = config.readBoolean(KafkaConfig.HEADER_ENABLE, true);
         this.kafkaEntryPoint = config.readString(CONSUMER_ENTRY_POINT, "");
+        this.producerTags = config.readString(PRODUCER_TAGS, "");
+        this.consumerFilterTagList = config.readList(CONSUMER_FILTER_TAGS);
     }
 
     public boolean isProducerEnable() {
@@ -63,6 +71,14 @@ public class KafkaConfig {
         return kafkaEntryPoint;
     }
 
+    public String getProducerTags() {
+        return producerTags;
+    }
+
+    public List<String> getConsumerFilterTagList() {
+        return consumerFilterTagList;
+    }
+
     @Override
     public String toString() {
         return "KafkaConfig{" +
@@ -71,6 +87,8 @@ public class KafkaConfig {
                 ", springConsumerEnable=" + springConsumerEnable +
                 ", headerEnable=" + headerEnable +
                 ", kafkaEntryPoint='" + kafkaEntryPoint + '\'' +
+                ", producerTags='" + producerTags + '\'' +
+                ", consumerFilterTagList=" + consumerFilterTagList +
                 '}';
     }
 }

@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConfig;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.field.getter.ApiVersionsGetter;
@@ -38,16 +39,17 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
 
-    private final DefaultHeaderSetter headerSetter = new DefaultHeaderSetter();
+    private final DefaultHeaderSetter headerSetter;
 
     private final TraceContext traceContext;
 
     private final boolean headerEnable;
 
     public ProducerAddHeaderInterceptor(TraceContext traceContext) {
-        this.traceContext = traceContext;
         KafkaConfig config = new KafkaConfig(traceContext.getProfilerConfig());
         this.headerEnable = config.isHeaderEnable();
+        this.headerSetter = new DefaultHeaderSetter(config);
+        this.traceContext = traceContext;
     }
 
     @Override
@@ -94,6 +96,12 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
 
     private static class DefaultHeaderSetter {
 
+        private final String producerTags;
+
+        public DefaultHeaderSetter(KafkaConfig kafkaConfig) {
+            this.producerTags = kafkaConfig.getProducerTags();
+        }
+
         public void setPinpointHeaders(SpanEventRecorder recorder, Trace trace, org.apache.kafka.common.header.Headers headers, boolean sample, String applicationName, short serverTypeCode) {
             if (headers == null) {
                 return;
@@ -112,6 +120,9 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
                 headers.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(serverTypeCode).getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
             } else {
                 headers.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE.getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
+            }
+            if (StringUtils.hasText(this.producerTags)) {
+                headers.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_TAGS.toString(), String.valueOf(this.producerTags).getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
             }
         }
 

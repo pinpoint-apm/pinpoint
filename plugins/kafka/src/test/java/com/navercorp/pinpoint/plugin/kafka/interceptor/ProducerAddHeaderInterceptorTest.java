@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.plugin.kafka.KafkaConfig;
+import com.navercorp.pinpoint.plugin.kafka.KafkaConfigTest;
 import com.navercorp.pinpoint.plugin.kafka.field.getter.ApiVersionsGetter;
 
 import org.apache.kafka.clients.ApiVersions;
@@ -69,7 +69,7 @@ public class ProducerAddHeaderInterceptorTest {
     @Test
     public void beforeWhenSampled() {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
-        doReturn(true).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
+        doReturn(true).when(profilerConfig).readBoolean(KafkaConfigTest.HEADER_ENABLE, true);
         Header[] headers = getHeadersWhenSampled();
         Assert.assertEquals(6, headers.length);
     }
@@ -77,7 +77,7 @@ public class ProducerAddHeaderInterceptorTest {
     @Test
     public void beforeWhenSampledNoHeader() {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
-        doReturn(false).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
+        doReturn(false).when(profilerConfig).readBoolean(KafkaConfigTest.HEADER_ENABLE, true);
 
         Header[] headers = getHeadersWhenSampled();
         Assert.assertEquals(0, headers.length);
@@ -112,7 +112,7 @@ public class ProducerAddHeaderInterceptorTest {
     @Test
     public void beforeWhenUnsampled() {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
-        doReturn(true).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
+        doReturn(true).when(profilerConfig).readBoolean(KafkaConfigTest.HEADER_ENABLE, true);
         doReturn(trace).when(traceContext).currentRawTraceObject();
         doReturn(false).when(trace).canSampled();
         doReturn(recorder).when(trace).currentSpanEventRecorder();
@@ -133,7 +133,7 @@ public class ProducerAddHeaderInterceptorTest {
     @Test
     public void beforeWhenV1() {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
-        doReturn(true).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
+        doReturn(true).when(profilerConfig).readBoolean(KafkaConfigTest.HEADER_ENABLE, true);
         doReturn(trace).when(traceContext).currentRawTraceObject();
 
         doReturn(apiVersions).when(apiVersionsGetter)._$PINPOINT$_getApiVersions();
