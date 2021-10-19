@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+
 import { IWebhook } from 'app/shared/services';
 
 @Component({
@@ -11,17 +12,16 @@ export class AlarmRuleWebhookListComponent implements OnInit {
     @Input() webhook: IWebhook;
     @Input() checkedWebhookList: IWebhook['webhookId'][];
     @Output() outCheckWebhook = new EventEmitter<string>();
-    
+
     constructor() {}
     ngOnInit() {}
-
     onCheckWebhook(): void {
         this.outCheckWebhook.emit(this.webhook.webhookId);
     }
 
     get isChecked(): boolean {
-        return this.checkedWebhookList.some(webhookId => {
-            return webhookId === this.webhook.webhookId
-        })
+        return this.checkedWebhookList.some((webhookId: string) => {
+            return webhookId === this.webhook.webhookId;
+        });
     }
 }

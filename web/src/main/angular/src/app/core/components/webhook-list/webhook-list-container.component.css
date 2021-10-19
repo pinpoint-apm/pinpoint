@@ -1,33 +1,33 @@
 .l-webhook-list-wrapper {
-  color: var(--text-primary);
-  border: 1px solid var(--border-primary);
-  height: 100%;
-  display: grid;
-  position: relative;
-  font-size: 13px;
-  font-family: 'Open Sans', sans-serif;
-  background-color: var(--background-default);
-  grid-template-columns: auto;
-  grid-template-rows: 48px 53px calc(100% - 101px);
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+    height: 100%;
+    display: grid;
+    position: relative;
+    font-size: 13px;
+    font-family: 'Open Sans', sans-serif;
+    background-color: var(--background-default);
+    grid-template-columns: auto;
+    grid-template-rows: 48px 53px calc(100% - 101px);
 }
 
 .l-webhook-title {
-  display: flex;
-  padding: 0px 15px;
-  align-items: center;
-  font-weight: bold;
-  font-size: 14px;
-  border-bottom: 1px solid var(--border-primary);
-  justify-content: space-between;
+    display: flex;
+    padding: 0px 15px;
+    align-items: center;
+    font-weight: bold;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border-primary);
+    justify-content: space-between;
 }
 
 .l-guide {
-  padding-top: 30%;
-  text-align: center;
-  font-size: 16px;
-  color: var(--text-secondary);
+    padding-top: 30%;
+    text-align: center;
+    font-size: 16px;
+    color: var(--text-secondary);
 }
 
 .l-empty-text {
-  color: var(--text-secondary);
+    color: var(--text-secondary);
 }

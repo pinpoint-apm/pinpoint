@@ -1,6 +1,6 @@
 <div class="l-wrapper">
     <button class="btn btn-black l-close" (click)="onClose(); formDir.resetForm();"><i class="fas fa-times"></i></button>
-    <h1>{{ editAlarm ? 'Edit Alarm' : 'Add Alarm' }}</h1>
+    <h1>{{editAlarm ? 'Edit Alarm' : 'Add Alarm'}}</h1>
     <form [formGroup]="alarmForm" #formDir="ngForm" (ngSubmit)="onCreateOrUpdate()">
         <div class="l-form-grid">
             <div>
@@ -54,16 +54,13 @@
         <ng-container *ngIf="webhookEnable">
             <div class="l-form-webhook-wrap">
                 <div class="l-form-label">Webhook</div>
-                <div class="l-form-webhook-container" 
-                    [style.overflow-y]="webhookListScroll"
-                >
+                <div class="l-form-webhook-container" [style.overflow-y]="webhookListScroll">
                     <div class="l-form-webhook-list">
                         <pp-alarm-rule-webhook-list 
                             *ngFor="let webhook of webhookList"
                             [webhook]="webhook"
                             [checkedWebhookList]="checkedWebhookList"
-                            (outCheckWebhook)="onCheckWebhook($event)"
-                        >
+                            (outCheckWebhook)="onCheckWebhook($event)">
                         </pp-alarm-rule-webhook-list>
                     </div>
                     <div class="l-form-webhook-guide-wrap" [style.display]="webhookList.length ? 'none' : 'block'">

@@ -1,45 +1,43 @@
 <div class="l-webhook-list-wrapper">
-  <div class="l-webhook-title">
-    <span>Webhook List</span>
-    <div>
-      <button 
-        class="btn btn-sm btn-blue"
-        [hidden]="!allowedUserEdit" 
-        [disabled]="!isApplicationSelected()"  
-        (click)="onAddWebhook()"
-      >
-        <i class="fas fa-plus"></i>
-      </button>
+    <div class="l-webhook-title">
+        <span>Webhook List</span>
+        <div>
+            <button 
+                class="btn btn-sm btn-blue"
+                [hidden]="!allowedUserEdit" 
+                [disabled]="!isApplicationSelected()"  
+                (click)="onAddWebhook()">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
     </div>
-  </div>
-  <ng-container *ngIf="showGuide(); else list">
-    <p class="l-guide">{{guideMessage}}</p>
-  </ng-container>
-  <ng-template #list>
-    <pp-webhook-list 
-      [webhookList]="webhookList"
-      (outAdd)="onAddWebhook($event)"
-      (outEdit)="onEditWebhook($event)"
-      (outRemove)="onRemoveWebhook($event)">
-    </pp-webhook-list>
-  </ng-template>
-  <ng-container *ngIf="showPopup">
-    <pp-webhook-list-create-and-update
-      [i18nText]="i18nText"
-      [i18nFormGuide]="i18nFormGuide"
-      [editWebhook]="editWebhook"
-      (outClose)="onClosePopup()"
-      (outCreateWebhook)="onCreateWebhook($event)"
-      (outUpdateWebhook)="onUpdateWebhook($event)"
-    >
-    </pp-webhook-list-create-and-update>
-  </ng-container> 
-  <ng-container *ngIf="errorMessage">
-    <pp-server-error-message
-      [message]="errorMessage"
-      (outClose)="onCloseErrorMessage()">
-    </pp-server-error-message>
-  </ng-container>
-  <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
-  <pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>
+    <ng-container *ngIf="showGuide(); else list">
+        <p class="l-guide">{{guideMessage}}</p>
+    </ng-container>
+    <ng-template #list>
+        <pp-webhook-list 
+            [webhookList]="webhookList"
+            (outAdd)="onAddWebhook($event)"
+            (outEdit)="onEditWebhook($event)"
+            (outRemove)="onRemoveWebhook($event)">
+        </pp-webhook-list>
+    </ng-template>
+    <ng-container *ngIf="showPopup">
+        <pp-webhook-list-create-and-update
+            [i18nText]="i18nText"
+            [i18nFormGuide]="i18nFormGuide"
+            [editWebhook]="editWebhook"
+            (outClose)="onClosePopup()"
+            (outCreateWebhook)="onCreateWebhook($event)"
+            (outUpdateWebhook)="onUpdateWebhook($event)">
+        </pp-webhook-list-create-and-update>
+    </ng-container> 
+    <ng-container *ngIf="errorMessage">
+        <pp-server-error-message
+            [message]="errorMessage"
+            (outClose)="onCloseErrorMessage()">
+        </pp-server-error-message>
+    </ng-container>
+    <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
+    <pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>
 </div>
