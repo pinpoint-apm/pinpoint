@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.plugin.kafka;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.producer.ProducerRecord;
+
 /**
  * @author yjqg6666
  */
@@ -23,6 +26,14 @@ public class KafkaClientUtils {
 
     public static boolean supportHeaders(Class<?> clazz) {
         return clientSupportHeaders(clazz);
+    }
+
+    public static boolean supportHeaders(ConsumerRecord<?, ?> consumerRecord) {
+        return consumerRecord != null && clientSupportHeaders(consumerRecord.getClass());
+    }
+
+    public static boolean supportHeaders(ProducerRecord<?, ?> producerRecord) {
+        return producerRecord != null && clientSupportHeaders(producerRecord.getClass());
     }
 
     private static boolean clientSupportHeaders(Class<?> clazz) {
