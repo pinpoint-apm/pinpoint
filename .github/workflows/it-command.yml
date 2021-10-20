@@ -33,7 +33,7 @@ jobs:
           java-version: 9
       - name: Set JAVA_HOME
         run: |
-          echo "JAVA_7_HOME=$JAVA_HOME_7_0_312_X64" >> $GITHUB_ENV
+          echo "JAVA_7_HOME=$JAVA_HOME_7_0_322_X64" >> $GITHUB_ENV
           echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
           echo "JAVA_9_HOME=$JAVA_HOME_9_0_7_X64" >> $GITHUB_ENV
           echo "JAVA_11_HOME=$JAVA_HOME_11_X64" >> $GITHUB_ENV
