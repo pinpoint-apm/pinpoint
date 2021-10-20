@@ -151,8 +151,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
                 return;
             }
 
-            Cell[] rawCells = lastResult.rawCells();
-            Cell last = rawCells[rawCells.length - 1];
+            Cell last = lastCell(lastResult);
             byte[] row = CellUtil.cloneRow(last);
             byte[] originalRow = traceIdRowKeyDistributor.getOriginalKey(row);
             long reverseStartTime = BytesUtils.bytesToLong(originalRow, PinpointConstants.APPLICATION_NAME_MAX_LEN);
@@ -165,6 +164,17 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             if (logger.isDebugEnabled()) {
                 logger.debug("lastRowTimestamp={}, lastTransactionId={}, lastTransactionElapsed={}", DateTimeFormatUtils.format(lastRowTimestamp), lastTransactionId, lastTransactionElapsed);
             }
+        }
+
+        private Cell lastCell(Result lastResult) {
+            Cell last = null;
+            Cell[] rawCells = lastResult.rawCells();
+            for (Cell rawCell : rawCells) {
+                if (CellUtil.matchingFamily(rawCell, HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE.getName())) {
+                    last = rawCell;
+                }
+            }
+            return last;
         }
 
         private Long getLastRowTimestamp() {

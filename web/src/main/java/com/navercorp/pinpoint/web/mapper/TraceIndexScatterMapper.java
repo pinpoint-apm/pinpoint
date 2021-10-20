@@ -65,7 +65,7 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
         List<Dot> list = new ArrayList<>(rawCells.length);
         final Predicate<Dot> filter = this.filter;
         for (Cell cell : rawCells) {
-            if (CellUtil.matchingFamily(cell,HbaseColumnFamily. APPLICATION_TRACE_INDEX_TRACE.getName())) {
+            if (CellUtil.matchingFamily(cell, HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE.getName())) {
                 final Dot dot = createDot(cell);
                 if (filter == null) {
                     list.add(dot);
