@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.plugin.kafka.KafkaClientUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.descriptor.EntryPointMethodDescriptor;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.EndPointFieldAccessor;
@@ -109,17 +110,11 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
     private static class TraceFactoryProvider {
 
         private static TraceFactory get(Object object) {
-            try {
-                final Class<?> aClass = object.getClass();
-                final Method method = aClass.getMethod("headers");
-
-                if (method != null) {
-                    return new SupportContinueTraceFactory();
-                }
-            } catch (NoSuchMethodException e) {
-                // ignore
+            if (KafkaClientUtils.supportHeaders(object.getClass())) {
+                return new SupportContinueTraceFactory();
+            } else {
+                return new DefaultTraceFactory();
             }
-            return new DefaultTraceFactory();
         }
 
         private interface TraceFactory {
