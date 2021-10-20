@@ -39,8 +39,7 @@ public class KafkaConstants {
     public static final AnnotationKey KAFKA_PARTITION_ANNOTATION_KEY = AnnotationKeyFactory.of(141, "kafka.partition", VIEW_IN_RECORD_SET);
     public static final AnnotationKey KAFKA_OFFSET_ANNOTATION_KEY = AnnotationKeyFactory.of(142, "kafka.offset", VIEW_IN_RECORD_SET);
     public static final AnnotationKey KAFKA_BATCH_ANNOTATION_KEY = AnnotationKeyFactory.of(143, "kafka.batch", VIEW_IN_RECORD_SET);
-
-
+    public static final AnnotationKey KAFKA_HEADER_ANNOTATION_KEY = AnnotationKeyFactory.of(144, "kafka.header", VIEW_IN_RECORD_SET);
 
     public static final String CONSUMER_MULTI_RECORD_CLASS_NAME = "org.apache.kafka.clients.consumer.ConsumerRecords";
 

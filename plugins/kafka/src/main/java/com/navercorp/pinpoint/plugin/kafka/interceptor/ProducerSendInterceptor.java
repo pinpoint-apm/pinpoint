@@ -28,8 +28,9 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
 
+import com.navercorp.pinpoint.plugin.kafka.recorder.DefaultHeaderRecorder;
+import com.navercorp.pinpoint.plugin.kafka.recorder.HeaderRecorder;
 import org.apache.kafka.clients.producer.ProducerRecord;
-
 
 /**
  * @author Taejin Koo
@@ -40,10 +41,12 @@ public class ProducerSendInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
+    private final HeaderRecorder headerRecorder;
 
     public ProducerSendInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
+        this.headerRecorder = new DefaultHeaderRecorder();
     }
 
     @Override
@@ -114,6 +117,7 @@ public class ProducerSendInterceptor implements AroundInterceptor {
             if (throwable != null) {
                 recorder.recordException(throwable);
             }
+            headerRecorder.record(recorder, record);
         } finally {
             trace.traceBlockEnd();
         }
@@ -131,6 +135,5 @@ public class ProducerSendInterceptor implements AroundInterceptor {
             return remoteAddress;
         }
     }
-
 
 }

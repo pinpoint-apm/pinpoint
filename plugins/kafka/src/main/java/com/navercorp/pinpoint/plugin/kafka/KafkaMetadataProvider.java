@@ -30,6 +30,7 @@ public class KafkaMetadataProvider implements TraceMetadataProvider {
         context.addAnnotationKey(KafkaConstants.KAFKA_PARTITION_ANNOTATION_KEY);
         context.addAnnotationKey(KafkaConstants.KAFKA_OFFSET_ANNOTATION_KEY);
         context.addAnnotationKey(KafkaConstants.KAFKA_BATCH_ANNOTATION_KEY);
+        context.addAnnotationKey(KafkaConstants.KAFKA_HEADER_ANNOTATION_KEY);
     }
 
 }
