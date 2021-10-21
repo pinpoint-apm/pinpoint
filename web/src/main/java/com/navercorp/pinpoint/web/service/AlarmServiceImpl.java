@@ -62,7 +62,9 @@ public class AlarmServiceImpl implements AlarmService {
     public void deleteRule(Rule rule) {
         alarmDao.deleteRule(rule);
         alarmDao.deleteCheckerResult(rule.getRuleId());
-        webhookSendInfoDao.deleteWebhookSendInfoByRuleId(rule.getRuleId());
+        if (rule.isWebhookSend()) {
+            webhookSendInfoDao.deleteWebhookSendInfoByRuleId(rule.getRuleId());
+        }
     }
     
     @Override
