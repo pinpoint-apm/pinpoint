@@ -27,6 +27,8 @@ export interface IAlarmWithWebhook {
     webhookIds: string[];
 }
 
+export interface IAlarmRuleDelete extends Pick<IAlarmRule, 'applicationId' | 'ruleId' | 'emailSend' | 'smsSend' | 'webhookSend'> {}
+
 @Injectable()
 export class AlarmRuleDataService {
     private alarmRuleURL = 'application/alarmRule.pinpoint';
@@ -69,9 +71,9 @@ export class AlarmRuleDataService {
         return this.http.put<IAlarmRuleResponse>(this.alarmRuleWithWebhookURL, params);
     }
 
-    remove(applicationId: string, ruleId: string): Observable<IAlarmRuleResponse> {
+    remove(params: IAlarmRuleDelete): Observable<IAlarmRuleResponse> {
         return this.http.request<IAlarmRuleResponse>('delete', this.alarmRuleURL, {
-            body: { applicationId, ruleId }
+            body: params
         });
     }
 

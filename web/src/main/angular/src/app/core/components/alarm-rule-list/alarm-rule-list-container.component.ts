@@ -6,7 +6,7 @@ import { TranslateReplaceService, AnalyticsService, TRACKED_EVENT_LIST, DynamicP
 import { UserGroupDataService, IUserGroup } from 'app/core/components/user-group/user-group-data.service';
 import { ApplicationListInteractionForConfigurationService } from 'app/core/components/application-list/application-list-interaction-for-configuration.service';
 import { NotificationType, IAlarmForm } from './alarm-rule-create-and-update.component';
-import { AlarmRuleDataService, IAlarmRule, IAlarmRuleCreated, IAlarmRuleResponse, IAlarmWithWebhook } from './alarm-rule-data.service';
+import { AlarmRuleDataService, IAlarmRule, IAlarmRuleCreated, IAlarmRuleDelete, IAlarmRuleResponse, IAlarmWithWebhook } from './alarm-rule-data.service';
 import { isThatType } from 'app/core/utils/util';
 import { takeUntil } from 'rxjs/operators';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from '../help-viewer-popup/help-viewer-popup-container.component';
@@ -270,9 +270,16 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
         this.errorMessage = '';
     }
 
-    onRemoveAlarm(ruleId: string): void {
+    onRemoveAlarm({ ruleId, emailSend, smsSend, webhookSend }: IAlarmRule): void {
         this.showProcessing();
-        this.alarmRuleDataService.remove(this.selectedApplication.getApplicationName(), ruleId).subscribe((response: IAlarmRuleResponse | IServerErrorShortFormat) => {
+        const params: IAlarmRuleDelete = {
+            ruleId,
+            emailSend, 
+            smsSend, 
+            webhookSend: this.webhookEnable && webhookSend, 
+            applicationId: this.selectedApplication.getApplicationName(),
+        }
+        this.alarmRuleDataService.remove(params).subscribe((response: IAlarmRuleResponse | IServerErrorShortFormat) => {
             if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
                 this.errorMessage = (response as IServerErrorShortFormat).errorMessage;
                 this.hideProcessing();
@@ -290,7 +297,7 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
         this.editAlarm = this.alarmRuleList.find(({ruleId: alarmId}: IAlarmRule) => alarmId === ruleId);
         this.showPopup = true;
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_ALARM_UPDATE_POPUP);
-        this.getWebhookList();
+        this.webhookEnable && this.getWebhookList();
     }
 
     onCheckWebhook(webhookId: IWebhook['webhookId']): void {
