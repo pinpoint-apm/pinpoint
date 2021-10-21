@@ -5,7 +5,7 @@
     <div>{{getNotificationType(alarm.emailSend, alarm.smsSend, alarm.webhookSend)}}</div>
     <div class="l-alarm-rules-btn-group">
         <button [hidden]="isRemoveTarget(alarm.ruleId)" class="far fa-edit" (click)="onEdit(alarm.ruleId)"></button>
-        <button [hidden]="isRemoveTarget(alarm.ruleId)" class="far fa-trash-alt" (click)="onRemove(alarm.ruleId)"></button>
+        <button [hidden]="isRemoveTarget(alarm.ruleId)" class="far fa-trash-alt" (click)="onRemove(alarm)"></button>
         <button [hidden]="!isRemoveTarget(alarm.ruleId)" class="fas fa-arrow-left" (click)="onCancelRemove()"></button>
         <button [hidden]="!isRemoveTarget(alarm.ruleId)" class="fas fa-check" (click)="onConfirmRemove()"></button>
     </div>

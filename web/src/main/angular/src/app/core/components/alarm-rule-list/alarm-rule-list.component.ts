@@ -10,10 +10,10 @@ import { IAlarmRule } from './alarm-rule-data.service';
 export class AlarmRuleListComponent implements OnInit {
     @Input() alarmRuleList: IAlarmRule[];
     @Input() webhookEnable: boolean;
-    @Output() outRemove = new EventEmitter<string>();
+    @Output() outRemove = new EventEmitter<IAlarmRule>();
     @Output() outEdit = new EventEmitter<string>();
 
-    private removeConfirmId = '';
+    private removeConfirmAlarm: IAlarmRule = null;
 
     constructor() {}
     ngOnInit() {}
@@ -39,8 +39,8 @@ export class AlarmRuleListComponent implements OnInit {
         return notificationTypes.join(', ');
     }
 
-    onRemove(ruleId: string): void {
-        this.removeConfirmId = ruleId;
+    onRemove(alarm: IAlarmRule): void {
+        this.removeConfirmAlarm = alarm;
     }
 
     onEdit(ruleId: string): void {
@@ -48,15 +48,15 @@ export class AlarmRuleListComponent implements OnInit {
     }
 
     onCancelRemove(): void {
-        this.removeConfirmId = '';
+        this.removeConfirmAlarm = null;
     }
 
     onConfirmRemove(): void {
-        this.outRemove.emit(this.removeConfirmId);
-        this.removeConfirmId = '';
+        this.outRemove.emit(this.removeConfirmAlarm);
+        this.removeConfirmAlarm = null;
     }
 
     isRemoveTarget(ruleId: string): boolean {
-        return this.removeConfirmId === ruleId;
+        return this.removeConfirmAlarm && this.removeConfirmAlarm.ruleId === ruleId;
     }
 }
