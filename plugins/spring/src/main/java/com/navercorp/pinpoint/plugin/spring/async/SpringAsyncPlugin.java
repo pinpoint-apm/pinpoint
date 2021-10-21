@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.plugin.spring.async.interceptor.AsyncExecutionAspectSupportInterceptor;
 import com.navercorp.pinpoint.plugin.spring.async.interceptor.AsyncTaskExecutorSubmitInterceptor;
 import com.navercorp.pinpoint.plugin.spring.async.interceptor.TaskCallInterceptor;
 
@@ -52,6 +53,7 @@ public class SpringAsyncPlugin implements ProfilerPlugin, MatchableTransformTemp
 
         interceptTask(config);
         interceptTaskExecutor(config);
+        interceptAsyncExecutionAspectSupport(config);
     }
 
     private void interceptTask(SpringAsyncConfig config) {
@@ -70,6 +72,10 @@ public class SpringAsyncPlugin implements ProfilerPlugin, MatchableTransformTemp
                 addAsyncTaskExecutor(className);
             }
         }
+    }
+
+    private void interceptAsyncExecutionAspectSupport(SpringAsyncConfig config) {
+        transformTemplate.transform(config.getDefaultAsyncInterceptor(), AsyncExecutionAspectSupportTransform.class);
     }
 
     private void addAsyncExecutionInterceptorTask(final Matcher matcher) {
@@ -111,6 +117,22 @@ public class SpringAsyncPlugin implements ProfilerPlugin, MatchableTransformTemp
                 submitListenableMethod.addScopedInterceptor(AsyncTaskExecutorSubmitInterceptor.class, SpringAsyncConstants.ASYNC_TASK_EXECUTOR_SCOPE);
             }
 
+            return target.toBytecode();
+        }
+    }
+
+    public static class AsyncExecutionAspectSupportTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            final String callable = "java.util.concurrent.Callable";
+            InstrumentMethod doSubmit = target.getDeclaredMethod("doSubmit", callable,
+                    "org.springframework.core.task.AsyncTaskExecutor", "java.lang.Class");
+
+            if (doSubmit != null) {
+                doSubmit.addScopedInterceptor(AsyncExecutionAspectSupportInterceptor.class, SpringAsyncConstants.ASYNC_TASK_EXECUTOR_SCOPE);
+            }
             return target.toBytecode();
         }
     }
