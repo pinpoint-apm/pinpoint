@@ -46,7 +46,7 @@ public class AsyncTaskExecutorSubmitInterceptor extends SpanEventSimpleAroundInt
         }
     }
 
-    private boolean validate(final Object[] args) {
+    protected boolean validate(final Object[] args) {
         if (ArrayUtils.isEmpty(args)) {
             if (isDebug) {
                 logger.debug("Invalid args object. args={}.", args);

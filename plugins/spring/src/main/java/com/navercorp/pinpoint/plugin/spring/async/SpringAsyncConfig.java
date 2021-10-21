@@ -43,6 +43,8 @@ public class SpringAsyncConfig {
             "org.springframework.aop.interceptor.AsyncExecutionInterceptor$$Lambda$" // for spring framework 5.0 or later.
     };
 
+    private static final String DEFAULT_ASYNC_INTERCEPTOR = "org.springframework.aop.interceptor.AsyncExecutionAspectSupport";
+
     private final Set<String> asyncTaskExecutorClassNameList = new HashSet<>(Arrays.asList(DEFAULT_ASYNC_TASK_EXECUTOR));
 
     private final Set<String> asyncTaskClassNameList = new HashSet<>(Arrays.asList(DEFAULT_ASYNC_TASK));
@@ -65,6 +67,10 @@ public class SpringAsyncConfig {
 
     public Set<String> getAsyncTaskClassNameList() {
         return asyncTaskClassNameList;
+    }
+
+    public String getDefaultAsyncInterceptor() {
+        return DEFAULT_ASYNC_INTERCEPTOR;
     }
 
     public boolean isEnable() {
