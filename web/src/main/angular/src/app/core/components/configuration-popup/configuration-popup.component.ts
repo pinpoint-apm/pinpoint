@@ -34,6 +34,7 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
 })
 export class ConfigurationPopupComponent implements OnInit {
     @HostBinding('class.font-opensans') fontFamily = true;
+    @Input() webhookEnable: boolean;
     @Input() currentTheme: string;
     @Output() outMenuClick = new EventEmitter<string>();
     @Output() outOpenLink = new EventEmitter<void>();

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 
-import { UrlRouteManagerService, NewUrlStateNotificationService, TRACKED_EVENT_LIST, AnalyticsService } from 'app/shared/services';
+import { UrlRouteManagerService, NewUrlStateNotificationService, TRACKED_EVENT_LIST, AnalyticsService, WebAppSettingDataService } from 'app/shared/services';
 import { UrlPath } from 'app/shared/models';
 
 @Component({
@@ -39,14 +39,25 @@ export class ConfigPageComponent implements OnInit {
         admin: false,
         setting: false
     };
+    webhookEnable: boolean;
 
     constructor(
         private urlRouteManagerService: UrlRouteManagerService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
+        private webAppSettingDataService: WebAppSettingDataService,
         private analyticsService: AnalyticsService,
     ) {}
 
-    ngOnInit() {}
+    ngOnInit() {
+        this.initWebhookConfig();
+    }
+
+    private initWebhookConfig(): void {
+        this.webAppSettingDataService.isWebhookEnable().subscribe((webhookEnable: boolean) => {
+            this.webhookEnable = webhookEnable
+        });
+    }
+
     onClickExit(): void {
         const {startPath, pathParams, queryParams: query} = this.newUrlStateNotificationService.getPrevPageUrlInfo();
         const url = startPath === UrlPath.CONFIG ? [UrlPath.MAIN] : [startPath, ...pathParams.values()];

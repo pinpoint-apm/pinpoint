@@ -22,6 +22,7 @@ export class ConfigurationPopupContainerComponent implements OnInit, AfterViewIn
     @Output() outCreated = new EventEmitter<ICoordinate>();
 
     currentTheme: string;
+    webhookEnable: boolean;
 
     private posX: number;
 
@@ -39,12 +40,19 @@ export class ConfigurationPopupContainerComponent implements OnInit, AfterViewIn
             ? this.coord.coordX - PopupConstant.SPACE_FROM_LEFT
             : this.windowRefService.nativeWindow.innerWidth - this.el.nativeElement.offsetWidth;
         this.currentTheme = this.webAppSettingDataService.getTheme();
+        this.initWebhookConfig();
     }
 
     ngAfterViewInit() {
         this.outCreated.emit({
             coordX: this.posX,
             coordY: this.coord.coordY + PopupConstant.SPACE_FROM_BUTTON + PopupConstant.TOOLTIP_TRIANGLE_HEIGHT
+        });
+    }
+
+    private initWebhookConfig(): void {
+        this.webAppSettingDataService.isWebhookEnable().subscribe((webhookEnable: boolean) => {
+            this.webhookEnable = webhookEnable
         });
     }
 
