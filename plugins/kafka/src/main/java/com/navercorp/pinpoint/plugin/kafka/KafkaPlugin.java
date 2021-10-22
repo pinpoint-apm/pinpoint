@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAcce
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.SocketChannelListFieldAccessor;
 import com.navercorp.pinpoint.plugin.kafka.field.getter.ApiVersionsGetter;
 import com.navercorp.pinpoint.plugin.kafka.field.getter.SelectorGetter;
+import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerConstructor_V_2_7_Interceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerMultiRecordEntryPointInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerPollInterceptor;
@@ -199,6 +200,13 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
                     "org.apache.kafka.common.serialization.Deserializer", "org.apache.kafka.common.serialization.Deserializer");
             if(constructor != null) {
                 constructor.addInterceptor(ConsumerConstructorInterceptor.class);
+            }
+
+            if (constructor == null) {
+                constructor = target.getConstructor("java.util.Map", "org.apache.kafka.common.serialization.Deserializer", "org.apache.kafka.common.serialization.Deserializer");
+                if (constructor != null) {
+                    constructor.addInterceptor(ConsumerConstructor_V_2_7_Interceptor.class);
+                }
             }
 
             // Version 2.2.0+ is supported.

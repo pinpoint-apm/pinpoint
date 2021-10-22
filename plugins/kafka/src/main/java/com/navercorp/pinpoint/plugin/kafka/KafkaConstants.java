@@ -48,6 +48,8 @@ public class KafkaConstants {
 
     public static final String UNKNOWN = "Unknown";
 
+    public static final String CONFIG_BOOTSTRAP_SERVERS_KEY = "bootstrap.servers";
+
     public static final Charset DEFAULT_PINPOINT_HEADER_CHARSET = StandardCharsets.UTF_8;
 
 }
