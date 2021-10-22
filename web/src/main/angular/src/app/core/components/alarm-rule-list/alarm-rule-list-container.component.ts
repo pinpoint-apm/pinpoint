@@ -259,7 +259,7 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
         this.editAlarm = null;
         this.showPopup = true;
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_ALARM_CREATION_POPUP);
-        this.getWebhookList();
+        this.webhookEnable && this.getWebhookList();
     }
 
     onClosePopup(): void {
@@ -276,7 +276,7 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
             ruleId,
             emailSend, 
             smsSend, 
-            webhookSend: this.webhookEnable && webhookSend, 
+            webhookSend, 
             applicationId: this.selectedApplication.getApplicationName(),
         }
         this.alarmRuleDataService.remove(params).subscribe((response: IAlarmRuleResponse | IServerErrorShortFormat) => {
