@@ -10,6 +10,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Collections;
+
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
@@ -70,6 +72,7 @@ public class ConsumerRecordEntryPointInterceptorTest {
         doReturn(0).when(consumerRecord).partition();
         doReturn(headers).when(consumerRecord).headers();
         doReturn(new Header[]{}).when(headers).toArray();
+        doReturn(Collections.emptyIterator()).when(headers).iterator();
 
         ConsumerRecordEntryPointInterceptor interceptor = new ConsumerRecordEntryPointInterceptor(traceContext, descriptor, 0);
 
