@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2021 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,14 @@ import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 
 import java.util.List;
+import java.util.Map;
 
-public class ConsumerConstructorInterceptor implements AroundInterceptor {
+/**
+ * @author Taejin Koo
+ */
+public class ConsumerConstructor_V_2_7_Interceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -37,7 +40,6 @@ public class ConsumerConstructorInterceptor implements AroundInterceptor {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
-
     }
 
     @Override
@@ -54,7 +56,7 @@ public class ConsumerConstructorInterceptor implements AroundInterceptor {
             return;
         }
 
-        ConsumerConfig consumerConfig = getConsumerConfig(args);
+        Map consumerConfig = getMap(args);
         if (consumerConfig == null) {
             return;
         }
@@ -63,27 +65,41 @@ public class ConsumerConstructorInterceptor implements AroundInterceptor {
         ((RemoteAddressFieldAccessor) target)._$PINPOINT$_setRemoteAddress(remoteAddress);
     }
 
-    private ConsumerConfig getConsumerConfig(Object args[]) {
+    private Map getMap(Object args[]) {
         if (ArrayUtils.isEmpty(args)) {
             return null;
         }
 
-        if (args[0] instanceof ConsumerConfig) {
-            return (ConsumerConfig)args[0];
+        if (args[0] instanceof Map) {
+            return (Map)args[0];
         }
 
         return null;
     }
 
-    private String getRemoteAddress(ConsumerConfig consumerConfig) {
-        List<String> serverList = consumerConfig.getList(KafkaConstants.CONFIG_BOOTSTRAP_SERVERS_KEY);
-        String remoteAddress = KafkaConstants.UNKNOWN;
-        if (CollectionUtils.nullSafeSize(serverList) == 1) {
-            remoteAddress = serverList.get(0);
-        } else if (CollectionUtils.nullSafeSize(serverList) > 1) {
-            remoteAddress = serverList.toString();
+    private String getRemoteAddress(Map map) {
+        Object bootstrapServersValue = map.get(KafkaConstants.CONFIG_BOOTSTRAP_SERVERS_KEY);
+
+        if (bootstrapServersValue instanceof String) {
+            return (String) bootstrapServersValue;
         }
-        return remoteAddress;
+
+        if (bootstrapServersValue instanceof List) {
+            List bootstrapServerList = (List) bootstrapServersValue;
+
+            if (CollectionUtils.nullSafeSize(bootstrapServerList) == 1 && (bootstrapServerList.get(0) instanceof String)) {
+                return (String) bootstrapServerList.get(0);
+            } else if (CollectionUtils.nullSafeSize(bootstrapServerList) > 1) {
+                for (Object bootstrapServer : bootstrapServerList) {
+                    if (!(bootstrapServer instanceof String)) {
+                        return KafkaConstants.UNKNOWN;
+                    }
+                }
+                return bootstrapServerList.toString();
+            }
+        }
+
+        return KafkaConstants.UNKNOWN;
     }
 
 }

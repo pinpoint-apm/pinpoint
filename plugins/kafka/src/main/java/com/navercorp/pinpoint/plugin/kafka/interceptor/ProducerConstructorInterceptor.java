@@ -34,8 +34,6 @@ import java.util.Map;
  */
 public class ProducerConstructorInterceptor implements AroundInterceptor {
 
-    private static final String KEY_BOOTSTRAP_SERVERS = "bootstrap.servers";
-
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -70,7 +68,7 @@ public class ProducerConstructorInterceptor implements AroundInterceptor {
         // Version 2.2.0+ is supported.
         Map map = getMap(args);
         if (map != null) {
-            Object remoteAddressObject = map.get(KEY_BOOTSTRAP_SERVERS);
+            Object remoteAddressObject = map.get(KafkaConstants.CONFIG_BOOTSTRAP_SERVERS_KEY);
             String remoteAddress = getRemoteAddress0(remoteAddressObject);
             ((RemoteAddressFieldAccessor) target)._$PINPOINT$_setRemoteAddress(remoteAddress);
             return;
@@ -103,7 +101,7 @@ public class ProducerConstructorInterceptor implements AroundInterceptor {
     }
 
     private String getRemoteAddress(ProducerConfig producerConfig) {
-        List<String> serverList = producerConfig.getList(KEY_BOOTSTRAP_SERVERS);
+        List<String> serverList = producerConfig.getList(KafkaConstants.CONFIG_BOOTSTRAP_SERVERS_KEY);
         return getRemoteAddress0(serverList);
     }
 
