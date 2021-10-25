@@ -182,15 +182,17 @@ export class WebhookListContainerComponent implements OnInit, OnDestroy {
     }
 
     private getWebhookList() {
-        this.showProcessing();
-        this.webhookDataService.getWebhookListByAppId(this.selectedApplication.applicationName).subscribe((result) => {
-            isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')
-                ? this.errorMessage = result.errorMessage
-                : this.webhookList = result;
-            this.hideProcessing();
-        }, (error) => {
-            this.errorMessage = error.exception.message;
-        });
+        if (this.isApplicationSelected()) {
+            this.showProcessing();
+            this.webhookDataService.getWebhookListByAppId(this.selectedApplication.applicationName).subscribe((result) => {
+                isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')
+                    ? this.errorMessage = result.errorMessage
+                    : this.webhookList = result;
+                this.hideProcessing();
+            }, (error) => {
+                this.errorMessage = error.exception.message;
+            });
+        }
     }
 
     private showProcessing(): void {
