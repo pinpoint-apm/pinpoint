@@ -157,29 +157,46 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
 
     private getWebhookList(): void {
         this.checkedWebhookList = [];
-        this.showWebhookLoading = true;
-        this.disableWebhookList = true;
-        const getWebhookList = this.editAlarm
-            ? this.webhookDataService.getWebhookListByAlarmId(this.editAlarm.ruleId)
-            : this.webhookDataService.getWebhookListByAppId(this.selectedApplication.applicationName);
+        const blockWebhook = (state: boolean) => {
+            this.showWebhookLoading = state;
+            this.disableWebhookList = state;
+        };
 
-        getWebhookList.subscribe((result: IWebhook[] | IServerErrorShortFormat) => {
-            if (isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')) {
-                this.errorMessage = result.errorMessage;
-            } else {
-                this.webhookList = result;
-                if (this.editAlarm) {
-                    this.checkedWebhookList = result.map(({webhookId}) => webhookId);
+        blockWebhook(true);
+
+        if (this.editAlarm) {
+            forkJoin(
+                this.webhookDataService.getWebhookListByAppId(this.selectedApplication.applicationName),
+                this.webhookDataService.getWebhookListByAlarmId(this.editAlarm.ruleId),
+            ).subscribe(([webhookList, checkedWebhookList]: IWebhook[][] | IServerErrorShortFormat[]) => {
+                if (isThatType<IServerErrorShortFormat>(webhookList, 'errorCode', 'errorMessage')) {
+                    this.errorMessage = webhookList.errorMessage;
+                } else if (isThatType<IServerErrorShortFormat>(checkedWebhookList, 'errorCode', 'errorMessage')) {
+                    this.errorMessage = checkedWebhookList.errorMessage;
+                } else {
+                    this.webhookList = webhookList;
+                    this.checkedWebhookList = checkedWebhookList.map(({webhookId}) => webhookId);
                 }
-            }
 
-            this.showWebhookLoading = false;
-            this.disableWebhookList = false;
-        }, (error: IServerErrorFormat) => {
-            this.errorMessage = error.exception.message;
-            this.showWebhookLoading = false;
-            this.disableWebhookList = false;
-        });
+                blockWebhook(false);
+            }, (error: IServerErrorFormat) => {
+                this.errorMessage = error.exception.message;
+                blockWebhook(false);
+            });
+        } else {
+            this.webhookDataService.getWebhookListByAppId(this.selectedApplication.applicationName).subscribe((result: IWebhook[] | IServerErrorShortFormat) => {
+                if (isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')) {
+                    this.errorMessage = result.errorMessage;
+                } else {
+                    this.webhookList = result;
+                }
+
+                blockWebhook(false);
+            }, (error: IServerErrorFormat) => {
+                this.errorMessage = error.exception.message;
+                blockWebhook(false);
+            });
+        }
       }
 
     onCreateAlarm({checkerName, userGroupId, threshold, type, notes}: IAlarmForm): void {
@@ -259,7 +276,9 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
         this.editAlarm = null;
         this.showPopup = true;
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_ALARM_CREATION_POPUP);
-        this.webhookEnable && this.getWebhookList();
+        if (this.webhookEnable) {
+            this.getWebhookList();
+        }
     }
 
     onClosePopup(): void {
@@ -270,15 +289,16 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
         this.errorMessage = '';
     }
 
-    onRemoveAlarm({ ruleId, emailSend, smsSend, webhookSend }: IAlarmRule): void {
+    onRemoveAlarm({ruleId, emailSend, smsSend, webhookSend}: IAlarmRule): void {
         this.showProcessing();
         const params: IAlarmRuleDelete = {
             ruleId,
-            emailSend, 
-            smsSend, 
-            webhookSend, 
+            emailSend,
+            smsSend,
+            webhookSend,
             applicationId: this.selectedApplication.getApplicationName(),
-        }
+        };
+
         this.alarmRuleDataService.remove(params).subscribe((response: IAlarmRuleResponse | IServerErrorShortFormat) => {
             if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
                 this.errorMessage = (response as IServerErrorShortFormat).errorMessage;
@@ -297,7 +317,9 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
         this.editAlarm = this.alarmRuleList.find(({ruleId: alarmId}: IAlarmRule) => alarmId === ruleId);
         this.showPopup = true;
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_ALARM_UPDATE_POPUP);
-        this.webhookEnable && this.getWebhookList();
+        if (this.webhookEnable) {
+            this.getWebhookList();
+        }
     }
 
     onCheckWebhook(webhookId: IWebhook['webhookId']): void {
