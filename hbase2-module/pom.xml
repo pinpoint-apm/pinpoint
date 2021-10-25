@@ -29,7 +29,7 @@
     <description>pinpoint hbase2 support pom</description>
 
     <properties>
-
+        <thrift.version>${thrift-jdk8.version}</thrift.version>
     </properties>
 
     <modules>

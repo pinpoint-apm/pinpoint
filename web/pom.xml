@@ -42,6 +42,8 @@
         <spring.version>${spring5.version}</spring.version>
         <spring.security.version>${spring.security5.version}</spring.security.version>
         <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
+        <thrift.version>${thrift-jdk8.version}</thrift.version>
+
         <pinpoint.web.executable.name>${project.artifactId}-boot-${project.version}</pinpoint.web.executable.name>
     </properties>
 
