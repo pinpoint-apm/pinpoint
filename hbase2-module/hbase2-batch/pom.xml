@@ -19,8 +19,8 @@
         <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
         <spring.version>${spring5.version}</spring.version>
         <spring.security.version>${spring.security5.version}</spring.security.version>
+
         <pinpoint.batch.executable.name>${project.artifactId}-${project.version}</pinpoint.batch.executable.name>
-        <pinpoint.batch.stat.executable.name>${project.artifactId}-stat-${project.version}</pinpoint.batch.stat.executable.name>
     </properties>
 
     <dependencies>
@@ -35,37 +35,13 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>stat-batch</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <mainClass>com.navercorp.pinpoint.batch.NaverBatchStatApp</mainClass>
-                            <outputDirectory>${project.build.directory}/deploy</outputDirectory>
-                            <executable>true</executable>
-                            <attach>false</attach>
-                            <finalName>${pinpoint.batch.stat.executable.name}</finalName>
-                        </configuration>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-<!--                        <id>stat-batch</id>-->
-                        <phase>package</phase>
-                        <configuration>
-                            <mainClass>com.navercorp.pinpoint.batch.NaverBatchApp</mainClass>
-                            <outputDirectory>${project.build.directory}/deploy</outputDirectory>
-                            <executable>true</executable>
-                            <attach>false</attach>
-                            <finalName>${pinpoint.batch.executable.name}</finalName>
-                        </configuration>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-
-                </executions>
+                <configuration>
+                    <mainClass>com.navercorp.pinpoint.batch.BatchApp</mainClass>
+                    <outputDirectory>${project.build.directory}/deploy</outputDirectory>
+                    <executable>true</executable>
+                    <attach>false</attach>
+                    <finalName>${pinpoint.batch.executable.name}</finalName>
+                </configuration>
             </plugin>
             <!--
                 https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/3478
