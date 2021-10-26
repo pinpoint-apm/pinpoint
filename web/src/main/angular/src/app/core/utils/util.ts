@@ -17,7 +17,7 @@ export function isThatType<T extends object>(obj: T | any, ...props: string[]): 
 }
 
 export function isEmpty(obj: Object | any[]): boolean {
-    return Array.isArray(obj) ? obj.length === 0 : Object.keys(obj).length === 0;
+    return obj == null || (Array.isArray(obj) ? obj.length === 0 : Object.keys(obj).length === 0);
 }
 
 /**

@@ -11,7 +11,8 @@ export interface IApplicationListState {
 }
 
 const initialState: IApplicationListState = {
-    item: [] as IApplication[],
+    // item: [] as IApplication[],
+    item: null as IApplication[],
     error: {} as IServerErrorFormat
 };
 

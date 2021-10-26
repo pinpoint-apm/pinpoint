@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, forkJoin } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { filter, skipWhile, takeUntil } from 'rxjs/operators';
 
 import {
     WebAppSettingDataService,
@@ -92,7 +92,7 @@ export class ApplicationListForAgentManagementContainerComponent implements OnIn
 
     private connectStore(): void {
         this.storeHelperService.getApplicationList(this.unsubscribe).pipe(
-            filter((appList: IApplication[]) => !isEmpty(appList)),
+            skipWhile((list: IApplication[]) => list === null),
             takeUntil(this.unsubscribe)
         ).subscribe((appList: IApplication[]) => {
             this.hideProcessing();

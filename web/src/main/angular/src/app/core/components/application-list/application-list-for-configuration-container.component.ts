@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector} from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, forkJoin, combineLatest } from 'rxjs';
-import { filter, map, takeUntil } from 'rxjs/operators';
+import { filter, map, skipWhile, takeUntil } from 'rxjs/operators';
 
 import { StoreHelperService, WebAppSettingDataService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
 import { isEmpty } from 'app/core/utils/util';
@@ -71,8 +71,12 @@ export class ApplicationListForConfigurationContainerComponent implements OnInit
 
     private connectStore(): void {
         combineLatest(
-            this.storeHelperService.getApplicationList(this.unsubscribe).pipe(filter((appList: IApplication[]) => !isEmpty(appList))),
-            this.storeHelperService.getFavoriteApplicationList(this.unsubscribe)
+            this.storeHelperService.getApplicationList(this.unsubscribe).pipe(
+                skipWhile((list: IApplication[]) => list === null)
+            ),
+            this.storeHelperService.getFavoriteApplicationList(this.unsubscribe).pipe(
+                skipWhile((list: IApplication[]) => list === null)
+            )
         ).pipe(
             map(([appList, favAppList]: IApplication[][]) => {
                 const validFavAppList = favAppList.filter((favApp: IApplication) => {
