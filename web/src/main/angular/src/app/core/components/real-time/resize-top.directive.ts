@@ -1,6 +1,6 @@
 import { Directive, ElementRef, OnInit, OnDestroy, Renderer2, Input, HostListener, Output, EventEmitter } from '@angular/core';
 
-import { WebAppSettingDataService } from 'app/shared/services';
+import { AnalyticsService, TRACKED_EVENT_LIST, WebAppSettingDataService } from 'app/shared/services';
 
 @Directive({
     selector: '[ppResizeTop]'
@@ -18,6 +18,7 @@ export class ResizeTopDirective implements OnInit, OnDestroy {
         private elementRef: ElementRef,
         private renderer: Renderer2,
         private webAppSettingDataService: WebAppSettingDataService,
+        private analyticsService: AnalyticsService,
     ) {}
 
     ngOnInit() {
@@ -35,6 +36,7 @@ export class ResizeTopDirective implements OnInit, OnDestroy {
 
     onWindowMouseUp(): void {
         this.dragging = false;
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SET_REAL_TIME_AREA_HEIGHT, `${Math.floor(this.resizeElement.offsetHeight / this.maxHeight * 100)}%`);
     }
 
     onWindowMouseMove({movementY}: MouseEvent): void {
@@ -59,6 +61,7 @@ export class ResizeTopDirective implements OnInit, OnDestroy {
 
     @HostListener('mouseup') onMouseUp() {
         this.dragging = false;
+        // this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SET_REAL_TIME_AREA_HEIGHT, `${this.resizeElement.offsetHeight}px`);
     }
 
     private resize(dy: number): void {
