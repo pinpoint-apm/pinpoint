@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, ChangeDetectorRef, ChangeDetectionStrategy, OnDestroy, Renderer2, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject, combineLatest, fromEvent, of, forkJoin } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, takeUntil, pluck, delay, map } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, takeUntil, pluck, delay, map, skipWhile } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import {
@@ -101,8 +101,13 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
 
     private connectStore(): void {
         combineLatest(
-            this.storeHelperService.getApplicationList(this.unsubscribe).pipe(filter((appList: IApplication[]) => !isEmpty(appList))),
-            this.storeHelperService.getFavoriteApplicationList(this.unsubscribe)
+            this.storeHelperService.getApplicationList(this.unsubscribe).pipe(
+                skipWhile((list: IApplication[]) => list === null)
+                // filter((appList: IApplication[]) => !isEmpty(appList))
+            ),
+            this.storeHelperService.getFavoriteApplicationList(this.unsubscribe).pipe(
+                skipWhile((list: IApplication[]) => list === null)
+            )
         ).pipe(
             map(([appList, favAppList]: IApplication[][]) => {
                 const validFavAppList = favAppList.filter((favApp: IApplication) => {

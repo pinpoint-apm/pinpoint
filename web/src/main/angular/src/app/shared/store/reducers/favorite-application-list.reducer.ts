@@ -26,7 +26,8 @@ export interface IFavoriteApplicationListState {
 }
 
 const initialState = {
-    item: [] as IApplication[],
+    // item: [] as IApplication[],
+    item: null as IApplication[],
     error: {} as IErrorState
 };
 
