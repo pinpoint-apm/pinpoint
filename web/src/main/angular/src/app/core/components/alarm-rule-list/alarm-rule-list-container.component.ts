@@ -28,7 +28,7 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
     userGroupList: string[];
     alarmRuleList: IAlarmRule[] = [];
     webhookList: IWebhook[] = [];
-    checkedWebhookList: IWebhook['webhookId'][] = null;
+    checkedWebhookList: IWebhook['webhookId'][] = [];
     webhookEnable: boolean;
     showWebhookLoading = false;
     disableWebhookList = false;
@@ -212,7 +212,7 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
             webhookSend: (this.webhookEnable && type === NotificationType.ALL) || type === NotificationType.WEBHOOK,
             notes
         };
-        const isWithWebhook = (type === 'all' || type === 'webhook') && this.checkedWebhookList.length > 0;
+        const isWithWebhook = this.webhookEnable && (type === 'all' || type === 'webhook') && this.checkedWebhookList.length > 0;
         const param = isWithWebhook
             ? {rule: alarmRule, webhookIds: this.checkedWebhookList}
             : alarmRule;
