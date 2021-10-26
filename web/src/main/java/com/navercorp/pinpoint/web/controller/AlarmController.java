@@ -100,7 +100,7 @@ public class AlarmController {
         return getResultStringMap("SUCCESS", ruleId);
     }
 
-    @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
+    @PreAuthorize("hasPermission(#ruleWithWebhooks.getRule().getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
     @PostMapping(value={"/alarmRuleWithWebhooks", "/application/alarmRuleWithWebhooks"})
     public Map<String, String> insertRuleWithWebhooks(@RequestBody RuleWithWebhooks ruleWithWebhooks) {
         Rule rule = ruleWithWebhooks.getRule();
@@ -150,7 +150,7 @@ public class AlarmController {
         return getResultStringMap("SUCCESS");
     }
 
-    @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
+    @PreAuthorize("hasPermission(#ruleWithWebhooks.getRule().getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
     @PutMapping(value={"/alarmRuleWithWebhooks", "/application/alarmRuleWithWebhooks"})
     public Map<String, String> updateRuleWithWebhooks(@RequestBody RuleWithWebhooks ruleWithWebhooks) {
         Rule rule = ruleWithWebhooks.getRule();
