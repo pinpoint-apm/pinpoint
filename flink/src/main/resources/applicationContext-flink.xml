@@ -172,7 +172,6 @@
 
     <bean id="flinkServerRegister" class="com.navercorp.pinpoint.flink.cluster.FlinkServerRegister" lazy-init="true">
         <constructor-arg index="0" ref="flinkConfiguration"/>
-        <constructor-arg index="1" value="/pinpoint-cluster/flink"/>
     </bean>
 
     <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry"/>

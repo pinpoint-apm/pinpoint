@@ -31,6 +31,5 @@
     <bean id="flinkClusterService" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkClusterService">
         <constructor-arg index="0" ref="flinkConfiguration"/>
         <constructor-arg index="1" ref="flinkClusterConnectionManager"/>
-        <constructor-arg index="2" value="/pinpoint-cluster/flink"/>
     </bean>
 </beans>

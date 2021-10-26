@@ -39,6 +39,9 @@ public class FlinkConfiguration {
     @Value("${flink.cluster.zookeeper.address:}")
     private String flinkClusterZookeeperAddress;
 
+    @Value("${flink.cluster.zookeeper.path:}")
+    protected String flinkClusterZookeeperPath;
+
     @Value("${flink.cluster.zookeeper.sessiontimeout:-1}")
     private int flinkClusterSessionTimeout;
 
@@ -63,6 +66,10 @@ public class FlinkConfiguration {
 
     public String getFlinkClusterZookeeperAddress() {
         return flinkClusterZookeeperAddress;
+    }
+
+    public String getFlinkClusterZookeeperPath() {
+        return flinkClusterZookeeperPath;
     }
 
     public int getFlinkClusterTcpPort() {
@@ -92,18 +99,17 @@ public class FlinkConfiguration {
         annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
 
-
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("FlinkConfiguration{");
-        sb.append("flinkClusterEnable=").append(flinkClusterEnable);
-        sb.append(", flinkClusterZookeeperAddress='").append(flinkClusterZookeeperAddress).append('\'');
-        sb.append(", flinkClusterSessionTimeout=").append(flinkClusterSessionTimeout);
-        sb.append(", flinkRetryInterval=").append(flinkRetryInterval);
-        sb.append(", flinkClusterTcpPort=").append(flinkClusterTcpPort);
-        sb.append(", flinkStreamExecutionEnvironment='").append(flinkStreamExecutionEnvironment).append('\'');
-        sb.append(", l4IpList=").append(Arrays.toString(l4IpList));
-        sb.append('}');
-        return sb.toString();
+        return "FlinkConfiguration{" +
+                "flinkClusterEnable=" + flinkClusterEnable +
+                ", flinkClusterZookeeperAddress='" + flinkClusterZookeeperAddress + '\'' +
+                ", flinkClusterZookeeperPath='" + flinkClusterZookeeperPath + '\'' +
+                ", flinkClusterSessionTimeout=" + flinkClusterSessionTimeout +
+                ", flinkRetryInterval=" + flinkRetryInterval +
+                ", flinkClusterTcpPort=" + flinkClusterTcpPort +
+                ", flinkStreamExecutionEnvironment='" + flinkStreamExecutionEnvironment + '\'' +
+                ", l4IpList=" + Arrays.toString(l4IpList) +
+                '}';
     }
 }

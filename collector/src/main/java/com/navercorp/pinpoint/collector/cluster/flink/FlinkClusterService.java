@@ -48,13 +48,11 @@ public class FlinkClusterService {
     private ZookeeperClient client;
     private ZookeeperClusterManager zookeeperClusterManager;
 
-    public FlinkClusterService(FlinkConfiguration config, FlinkClusterConnectionManager clusterConnectionManager, String pinpointFlinkClusterPath) {
+    public FlinkClusterService(FlinkConfiguration config, FlinkClusterConnectionManager clusterConnectionManager) {
         this.config = Objects.requireNonNull(config, "config");
         this.serviceState = new CommonStateContext();
         this.clusterConnectionManager = Objects.requireNonNull(clusterConnectionManager, "clusterConnectionManager");
-
-        Assert.hasLength(pinpointFlinkClusterPath, "pinpointFlinkClusterPath must not be empty");
-        this.pinpointFlinkClusterPath = pinpointFlinkClusterPath;
+        this.pinpointFlinkClusterPath = config.getFlinkClusterZookeeperPath();
     }
 
     @PostConstruct
