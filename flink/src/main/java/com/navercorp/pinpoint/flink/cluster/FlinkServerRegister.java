@@ -52,6 +52,7 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
     private final ZookeeperClusterDataManagerHelper clusterDataManagerHelper = new ZookeeperClusterDataManagerHelper();
 
     private final String connectAddress;
+    private final String zookeeperPath;
     private final int sessionTimeout;
     private final boolean clusterEnable;
 
@@ -60,16 +61,15 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
     private ZookeeperClient client;
     private Timer timer;
 
-    public FlinkServerRegister(FlinkConfiguration flinkConfiguration, String pinpointFlinkClusterPath) {
+    public FlinkServerRegister(FlinkConfiguration flinkConfiguration) {
         Objects.requireNonNull(flinkConfiguration, "flinkConfiguration");
         this.clusterEnable = flinkConfiguration.isFlinkClusterEnable();
         this.connectAddress = flinkConfiguration.getFlinkClusterZookeeperAddress();
         this.sessionTimeout = flinkConfiguration.getFlinkClusterSessionTimeout();
+        this.zookeeperPath = flinkConfiguration.getFlinkClusterZookeeperPath();
 
         String zNodeName = getRepresentationLocalV4Ip() + ":" +  flinkConfiguration.getFlinkClusterTcpPort();
-        Assert.hasLength(pinpointFlinkClusterPath, "pinpointFlinkClusterPath must not be empty");
-
-        String zNodeFullPath = ZKPaths.makePath(pinpointFlinkClusterPath, zNodeName);
+        String zNodeFullPath = ZKPaths.makePath(zookeeperPath, zNodeName);
 
         CreateNodeMessage createNodeMessage = new CreateNodeMessage(zNodeFullPath, new byte[0]);
         int retryInterval = flinkConfiguration.getFlinkRetryInterval();
