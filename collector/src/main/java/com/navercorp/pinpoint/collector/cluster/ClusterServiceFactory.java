@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.cluster;
 
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
-import com.navercorp.pinpoint.collector.config.ClusterConfig;
+import com.navercorp.pinpoint.collector.config.CollectorClusterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -30,7 +30,7 @@ public class ClusterServiceFactory implements FactoryBean<ClusterService>, Initi
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private ClusterConfig clusterConfig;
+    private CollectorClusterConfig collectorClusterConfig;
     private ClusterPointRouter clusterPointRouter;
 
     private ClusterService clusterService;
@@ -40,8 +40,8 @@ public class ClusterServiceFactory implements FactoryBean<ClusterService>, Initi
         return this.clusterService;
     }
 
-    public void setClusterConfig(ClusterConfig clusterConfig) {
-        this.clusterConfig = Objects.requireNonNull(clusterConfig, "clusterConfig");
+    public void setClusterConfig(CollectorClusterConfig collectorClusterConfig) {
+        this.collectorClusterConfig = Objects.requireNonNull(collectorClusterConfig, "clusterConfig");
     }
 
     public void setClusterPointRouter(ClusterPointRouter clusterPointRouter) {
@@ -61,8 +61,8 @@ public class ClusterServiceFactory implements FactoryBean<ClusterService>, Initi
     }
 
     private ClusterService newClusterService() {
-        if (clusterConfig.isClusterEnable()) {
-            return new ZookeeperClusterService(clusterConfig, clusterPointRouter);
+        if (collectorClusterConfig.isClusterEnable()) {
+            return new ZookeeperClusterService(collectorClusterConfig, clusterPointRouter);
         }
         logger.info("pinpoint-collector cluster disable");
         return new DisableClusterService();

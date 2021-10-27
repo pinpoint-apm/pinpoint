@@ -28,7 +28,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Woonduk Kang(emeroad)
  */
 @TestPropertySource(locations = "classpath:profiles/local/pinpoint-flink.properties")
-@ContextConfiguration(classes = FlinkConfiguration.class)
+@ContextConfiguration("classpath:applicationContext-flink-test.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
 public class FlinkConfigurationTest {
     @Autowired

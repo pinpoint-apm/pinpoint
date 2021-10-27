@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.cluster.connection;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
-import com.navercorp.pinpoint.web.config.WebConfig;
+import com.navercorp.pinpoint.web.config.WebClusterConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
@@ -35,12 +35,12 @@ import java.util.List;
 public class ClusterConnectionManager {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final WebConfig config;
+    private final WebClusterConfig config;
 
     private ClusterAcceptor clusterAcceptor;
     private ClusterConnector clusterConnector;
 
-    public ClusterConnectionManager(WebConfig config) {
+    public ClusterConnectionManager(WebClusterConfig config) {
         this.config = config;
     }
 

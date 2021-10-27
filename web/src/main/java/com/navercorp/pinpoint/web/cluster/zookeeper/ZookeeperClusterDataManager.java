@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.web.cluster.ClusterDataManager;
 import com.navercorp.pinpoint.web.cluster.CollectorClusterInfoRepository;
-import com.navercorp.pinpoint.web.config.WebConfig;
+import com.navercorp.pinpoint.web.config.WebClusterConfig;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 
 import org.apache.curator.utils.ZKPaths;
@@ -73,7 +73,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
 
     private final PeriodicSyncTask periodicSyncTask;
 
-    public ZookeeperClusterDataManager(WebConfig config) {
+    public ZookeeperClusterDataManager(WebClusterConfig config) {
         this.connectAddress = config.getClusterZookeeperAddress();
         this.sessionTimeout = config.getClusterZookeeperSessionTimeout();
         this.retryInterval = config.getClusterZookeeperRetryInterval();

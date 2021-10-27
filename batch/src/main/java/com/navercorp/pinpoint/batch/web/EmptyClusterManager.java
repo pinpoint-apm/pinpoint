@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.batch.web;
 
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.web.cluster.ClusterManager;
-import com.navercorp.pinpoint.web.config.WebConfig;
+import com.navercorp.pinpoint.web.config.WebClusterConfig;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.zookeeper.KeeperException;
 
@@ -31,7 +31,7 @@ import java.util.List;
 public class EmptyClusterManager extends ClusterManager {
 
     public EmptyClusterManager() {
-        super(new WebConfig(), new EmptyClusterConnectionManager(new WebConfig()), new EmptyClusterDataManager());
+        super(new WebClusterConfig(), new EmptyClusterConnectionManager(new WebClusterConfig()), new EmptyClusterDataManager());
     };
 
     @Override

@@ -16,27 +16,25 @@
 
 package com.navercorp.pinpoint.collector.config;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterConfiguration;
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 
 @Component
-public class ClusterConfig {
+public class CollectorClusterConfig {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Value("${cluster.enable}")
-    private boolean clusterEnable;
-
-    @Value("${cluster.zookeeper.address:}")
-    private String clusterAddress;
-
-    @Value("${cluster.zookeeper.sessiontimeout:-1}")
-    private int clusterSessionTimeout;
+    @Qualifier("clusterConfiguration")
+    @Autowired
+    private ZookeeperClusterConfiguration clusterConfiguration;
 
     @Value("${cluster.listen.ip:}")
     private String clusterListenIp;
@@ -46,27 +44,15 @@ public class ClusterConfig {
 
 
     public boolean isClusterEnable() {
-        return clusterEnable;
-    }
-
-    public void setClusterEnable(boolean clusterEnable) {
-        this.clusterEnable = clusterEnable;
+        return clusterConfiguration.isEnable();
     }
 
     public String getClusterAddress() {
-        return clusterAddress;
-    }
-
-    public void setClusterAddress(String clusterAddress) {
-        this.clusterAddress = clusterAddress;
+        return clusterConfiguration.getAddress();
     }
 
     public int getClusterSessionTimeout() {
-        return clusterSessionTimeout;
-    }
-
-    public void setClusterSessionTimeout(int clusterSessionTimeout) {
-        this.clusterSessionTimeout = clusterSessionTimeout;
+        return clusterConfiguration.getSessionTimeout();
     }
 
     public String getClusterListenIp() {
@@ -95,9 +81,9 @@ public class ClusterConfig {
     @Override
     public String toString() {
         return "ClusterConfig{" +
-                "clusterEnable=" + clusterEnable +
-                ", clusterAddress='" + clusterAddress + '\'' +
-                ", clusterSessionTimeout=" + clusterSessionTimeout +
+                "clusterEnable=" + isClusterEnable() +
+                ", clusterAddress='" + getClusterAddress() + '\'' +
+                ", clusterSessionTimeout=" + getClusterSessionTimeout() +
                 ", clusterListenIp='" + clusterListenIp + '\'' +
                 ", clusterListenPort=" + clusterListenPort +
                 '}';

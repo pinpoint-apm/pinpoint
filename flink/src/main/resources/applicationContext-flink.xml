@@ -16,6 +16,7 @@
 
     <context:component-scan
             base-package="com.navercorp.pinpoint.common.server.util,
+                        com.navercorp.pinpoint.common.server.config,
                         com.navercorp.pinpoint.collector.mapper.thrift.stat"/>
 
     <bean id="flinkConfiguration" class="com.navercorp.pinpoint.flink.config.FlinkConfiguration"/>

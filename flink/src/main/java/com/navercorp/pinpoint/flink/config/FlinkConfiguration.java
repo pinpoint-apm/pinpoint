@@ -15,12 +15,16 @@
  */
 package com.navercorp.pinpoint.flink.config;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterConfiguration;
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
@@ -29,21 +33,16 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-@Configuration
+@Component
 public class FlinkConfiguration {
     private final Logger logger = LoggerFactory.getLogger(FlinkConfiguration.class);
 
-    @Value("${flink.cluster.enable:false}")
-    private boolean flinkClusterEnable;
-
-    @Value("${flink.cluster.zookeeper.address:}")
-    private String flinkClusterZookeeperAddress;
+    @Qualifier("flinkClusterConfiguration")
+    @Autowired
+    private ZookeeperClusterConfiguration clusterConfiguration;
 
     @Value("${flink.cluster.zookeeper.path:}")
     protected String flinkClusterZookeeperPath;
-
-    @Value("${flink.cluster.zookeeper.sessiontimeout:-1}")
-    private int flinkClusterSessionTimeout;
 
     @Value("${flink.cluster.zookeeper.retry.interval:60000}")
     private int flinkRetryInterval;
@@ -61,11 +60,11 @@ public class FlinkConfiguration {
     }
 
     public boolean isFlinkClusterEnable() {
-        return flinkClusterEnable;
+        return clusterConfiguration.isEnable();
     }
 
     public String getFlinkClusterZookeeperAddress() {
-        return flinkClusterZookeeperAddress;
+        return clusterConfiguration.getAddress();
     }
 
     public String getFlinkClusterZookeeperPath() {
@@ -77,7 +76,7 @@ public class FlinkConfiguration {
     }
 
     public int getFlinkClusterSessionTimeout() {
-        return flinkClusterSessionTimeout;
+        return clusterConfiguration.getSessionTimeout();
     }
 
     public int getFlinkRetryInterval() {
@@ -99,13 +98,14 @@ public class FlinkConfiguration {
         annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
 
+
     @Override
     public String toString() {
         return "FlinkConfiguration{" +
-                "flinkClusterEnable=" + flinkClusterEnable +
-                ", flinkClusterZookeeperAddress='" + flinkClusterZookeeperAddress + '\'' +
+                "flinkClusterEnable=" + isFlinkClusterEnable() +
+                ", flinkClusterZookeeperAddress='" + getFlinkClusterZookeeperAddress() + '\'' +
                 ", flinkClusterZookeeperPath='" + flinkClusterZookeeperPath + '\'' +
-                ", flinkClusterSessionTimeout=" + flinkClusterSessionTimeout +
+                ", flinkClusterSessionTimeout=" + getFlinkClusterSessionTimeout() +
                 ", flinkRetryInterval=" + flinkRetryInterval +
                 ", flinkClusterTcpPort=" + flinkClusterTcpPort +
                 ", flinkStreamExecutionEnvironment='" + flinkStreamExecutionEnvironment + '\'' +
