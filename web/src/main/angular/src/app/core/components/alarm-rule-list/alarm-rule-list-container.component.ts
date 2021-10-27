@@ -8,7 +8,7 @@ import { ApplicationListInteractionForConfigurationService } from 'app/core/comp
 import { NotificationType, IAlarmForm } from './alarm-rule-create-and-update.component';
 import { AlarmRuleDataService, IAlarmRule, IAlarmRuleCreated, IAlarmRuleDelete, IAlarmRuleResponse, IAlarmWithWebhook } from './alarm-rule-data.service';
 import { isThatType } from 'app/core/utils/util';
-import { takeUntil } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from '../help-viewer-popup/help-viewer-popup-container.component';
 
 @Component({
@@ -101,7 +101,8 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
 
     private bindToAppSelectionEvent(): void {
         this.applicationListInteractionForConfigurationService.onSelectApplication$.pipe(
-            takeUntil(this.unsubscribe)
+            takeUntil(this.unsubscribe),
+            filter((app: IApplication) => app !== null),
         ).subscribe((selectedApplication: IApplication) => {
             this.selectedApplication = selectedApplication;
             this.errorMessage = '';

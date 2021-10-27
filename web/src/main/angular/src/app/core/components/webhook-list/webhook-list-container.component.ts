@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject, forkJoin } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import { IWebhook, IWebhookCreate, IWebhookRule, WebhookDataService } from 'app/shared/services/webhook-data.service';
@@ -71,7 +71,8 @@ export class WebhookListContainerComponent implements OnInit, OnDestroy {
 
     private bindToAppSelectionEvent(): void {
         this.applicationListInteractionForConfigurationService.onSelectApplication$.pipe(
-            takeUntil(this.unsubscribe)
+            takeUntil(this.unsubscribe),
+            filter((app: IApplication) => app !== null),
         ).subscribe((selectedApplication: IApplication) => {
             this.selectedApplication = selectedApplication;
             this.getWebhookList();
