@@ -20,7 +20,8 @@
                                           com.navercorp.pinpoint.collector.service,
                                           com.navercorp.pinpoint.common.server.bo.codec,
                                           com.navercorp.pinpoint.common.server.util,
-                                          com.navercorp.pinpoint.common.server.bo"/>
+                                          com.navercorp.pinpoint.common.server.bo.
+                                          com.navercorp.pinpoint.common.server.config" />
 
     <import resource="classpath:applicationContext-collector-profile.xml"/>
     <import resource="classpath:applicationContext-collector-grpc.xml"/>
@@ -46,7 +47,7 @@
     </bean>
 
     <bean id="clusterManager" class="com.navercorp.pinpoint.collector.manage.ClusterManager">
-        <constructor-arg ref="clusterConfig"/>
+        <constructor-arg ref="collectorClusterConfig"/>
         <constructor-arg ref="targetClusterPointRepository"/>
     </bean>
 
@@ -163,7 +164,7 @@
     </bean>
 
     <bean id="clusterService" class="com.navercorp.pinpoint.collector.cluster.ClusterServiceFactory">
-        <property name="clusterConfig" ref="clusterConfig"/>
+        <property name="clusterConfig" ref="collectorClusterConfig"/>
         <property name="clusterPointRouter" ref="clusterPointRouter"/>
     </bean>
 

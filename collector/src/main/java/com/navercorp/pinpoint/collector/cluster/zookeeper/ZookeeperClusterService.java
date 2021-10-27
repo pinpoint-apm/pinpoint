@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConne
 import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionManager;
 import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionRepository;
 import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnector;
-import com.navercorp.pinpoint.collector.config.ClusterConfig;
+import com.navercorp.pinpoint.collector.config.CollectorClusterConfig;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
@@ -51,7 +51,7 @@ public class ZookeeperClusterService implements ClusterService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ClusterConfig config;
+    private final CollectorClusterConfig config;
     private final ClusterPointRouter clusterPointRouter;
 
     // represented as pid@hostname (identifiers may overlap for services hosted on localhost if pids are identical)
@@ -70,7 +70,7 @@ public class ZookeeperClusterService implements ClusterService {
     // ProfilerClusterManager detects/manages profiler -> collector connections, and saves their information in Zookeeper.
     private ProfilerClusterManager profilerClusterManager;
 
-    public ZookeeperClusterService(ClusterConfig config, ClusterPointRouter clusterPointRouter) {
+    public ZookeeperClusterService(CollectorClusterConfig config, ClusterPointRouter clusterPointRouter) {
         this.config = Objects.requireNonNull(config, "config");
         Assert.isTrue(config.isClusterEnable(), "clusterEnable is false");
 
@@ -86,9 +86,9 @@ public class ZookeeperClusterService implements ClusterService {
 
     }
 
-    private CollectorClusterAcceptor newCollectorClusterAcceptor(ClusterConfig config,
-            CollectorClusterConnectionRepository clusterRepository,
-                CollectorClusterConnectionFactory clusterConnectionFactory) {
+    private CollectorClusterAcceptor newCollectorClusterAcceptor(CollectorClusterConfig config,
+                                                                 CollectorClusterConnectionRepository clusterRepository,
+                                                                 CollectorClusterConnectionFactory clusterConnectionFactory) {
         if (StringUtils.isNotEmpty(config.getClusterListenIp()) && config.getClusterListenPort() > 0) {
             InetSocketAddress bindAddress = new InetSocketAddress(config.getClusterListenIp(), config.getClusterListenPort());
             return clusterConnectionFactory.createAcceptor(bindAddress, clusterRepository);

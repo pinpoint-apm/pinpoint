@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterAcceptor;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnector;
-import com.navercorp.pinpoint.web.config.WebConfig;
+import com.navercorp.pinpoint.web.config.WebClusterConfig;
 import org.apache.zookeeper.KeeperException;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ import java.util.List;
 public class EmptyClusterConnectionManager extends ClusterConnectionManager {
 
 
-    public EmptyClusterConnectionManager(WebConfig config) {
+    public EmptyClusterConnectionManager(WebClusterConfig config) {
         super(config);
     }
 

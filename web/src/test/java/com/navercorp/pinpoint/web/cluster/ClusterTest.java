@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.cluster;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
@@ -25,9 +26,10 @@ import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
 import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterDataManager;
-import com.navercorp.pinpoint.web.config.WebConfig;
+import com.navercorp.pinpoint.web.config.WebClusterConfig;
 
 import org.apache.curator.test.TestingServer;
+import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 import org.junit.After;
@@ -80,7 +82,7 @@ public class ClusterTest {
         zookeeperAddress = DEFAULT_IP + ":" + zookeeperPort;
         ts = createZookeeperServer(zookeeperPort);
 
-        WebConfig config = mock(WebConfig.class);
+        WebClusterConfig config = mock(WebClusterConfig.class);
         when(config.isClusterEnable()).thenReturn(true);
         when(config.getHostAddress()).thenReturn(DEFAULT_IP);
         when(config.getClusterZookeeperAddress()).thenReturn(zookeeperAddress);
@@ -91,7 +93,7 @@ public class ClusterTest {
         acceptorAddress = DEFAULT_IP + ":" + acceptorPort;
         when(config.getClusterTcpPort()).thenReturn(acceptorPort);
 
-        CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + acceptorAddress;
+        CLUSTER_NODE_PATH = ZKPaths.makePath(ZookeeperConstants.PINPOINT_WEB_CLUSTER_PATH, acceptorAddress);
         LOGGER.debug("CLUSTER_NODE_PATH:{}", CLUSTER_NODE_PATH);
 
         clusterConnectionManager = new ClusterConnectionManager(config);

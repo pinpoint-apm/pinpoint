@@ -14,7 +14,8 @@
                                          com.navercorp.pinpoint.web.view,
                                          com.navercorp.pinpoint.web.applicationmap,
                                          com.navercorp.pinpoint.common.server.bo,
-                                         com.navercorp.pinpoint.common.server.util" />
+                                         com.navercorp.pinpoint.common.server.util,
+                                         com.navercorp.pinpoint.common.server.config" />
 
     <import resource="classpath:applicationContext-web-profile.xml" />
     <import resource="classpath:applicationContext-web-hbase.xml" />
@@ -29,7 +30,7 @@
 
     <bean id="timeSlot" class="com.navercorp.pinpoint.common.server.util.DefaultTimeSlot"/>
 
-    <bean id="webConfig" class="com.navercorp.pinpoint.web.config.WebConfig"/>
+    <bean id="webConfig" class="com.navercorp.pinpoint.web.config.WebClusterConfig"/>
     <bean id="configProperties" class="com.navercorp.pinpoint.web.config.ConfigProperties"/>
     <bean id="logConfiguration" class="com.navercorp.pinpoint.web.config.LogConfiguration"/>
     <bean id="webSocketConfig" class="com.navercorp.pinpoint.web.config.WebSocketConfig"/>

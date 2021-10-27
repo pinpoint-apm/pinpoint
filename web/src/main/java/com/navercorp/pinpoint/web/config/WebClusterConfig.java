@@ -16,39 +16,37 @@
 
 package com.navercorp.pinpoint.web.config;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterConfiguration;
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 
 /**
  * @author koo.taejin
  */
-@Configuration
-public class WebConfig {
+@Component
+public class WebClusterConfig {
 
-    private final Logger logger = LoggerFactory.getLogger(WebConfig.class);
+    private final Logger logger = LoggerFactory.getLogger(WebClusterConfig.class);
 
-    @Value("${cluster.enable:false}")
-    private boolean clusterEnable;
+    @Qualifier("clusterConfiguration")
+    @Autowired
+    private ZookeeperClusterConfiguration clusterConfiguration;
 
     @Value("${cluster.web.tcp.hostaddress:}")
     private String hostAddress;
 
     @Value("${cluster.web.tcp.port:0}")
     private int clusterTcpPort;
-
-    @Value("${cluster.zookeeper.address:}")
-    private String clusterZookeeperAddress;
-
-    @Value("${cluster.zookeeper.sessiontimeout:-1}")
-    private int clusterZookeeperSessionTimeout;
 
     @Value("${cluster.zookeeper.retry.interval:60000}")
     private int clusterZookeeperRetryInterval;
@@ -66,10 +64,10 @@ public class WebConfig {
     public void validation() {
         if (isClusterEnable()) {
 //            assertPort(clusterTcpPort);
-            if (StringUtils.isEmpty(clusterZookeeperAddress)) {
-                throw new IllegalArgumentException("clusterZookeeperAddress may not be empty =" + clusterZookeeperAddress);
+            final String zookeeperAddress = clusterConfiguration.getAddress();
+            if (StringUtils.isEmpty(zookeeperAddress)) {
+                throw new IllegalArgumentException("clusterZookeeperAddress may not be empty =" + zookeeperAddress);
             }
-            assertPositiveNumber(clusterZookeeperSessionTimeout);
             assertPositiveNumber(clusterZookeeperRetryInterval);
 
             if (clusterZookeeperPeriodicSyncEnable) {
@@ -99,7 +97,7 @@ public class WebConfig {
     }
 
     public boolean isClusterEnable() {
-        return clusterEnable;
+        return clusterConfiguration.isEnable();
     }
 
     public String getHostAddress() {
@@ -111,11 +109,11 @@ public class WebConfig {
     }
 
     public String getClusterZookeeperAddress() {
-        return clusterZookeeperAddress;
+        return clusterConfiguration.getAddress();
     }
 
     public int getClusterZookeeperSessionTimeout() {
-        return clusterZookeeperSessionTimeout;
+        return clusterConfiguration.getSessionTimeout();
     }
 
     public int getClusterZookeeperRetryInterval() {
@@ -137,10 +135,10 @@ public class WebConfig {
     @Override
     public String toString() {
         return "WebConfig{" +
-                "clusterEnable=" + clusterEnable +
+                "clusterEnable=" + isClusterEnable() +
                 ", clusterTcpPort=" + clusterTcpPort +
-                ", clusterZookeeperAddress='" + clusterZookeeperAddress + '\'' +
-                ", clusterZookeeperSessionTimeout=" + clusterZookeeperSessionTimeout +
+                ", clusterZookeeperAddress='" + getClusterZookeeperAddress() + '\'' +
+                ", clusterZookeeperSessionTimeout=" + getClusterZookeeperSessionTimeout() +
                 ", clusterZookeeperRetryInterval=" + clusterZookeeperRetryInterval +
                 ", clusterZookeeperPeriodicSyncEnable=" + clusterZookeeperPeriodicSyncEnable +
                 ", clusterZookeeperPeriodicSyncInterval=" + clusterZookeeperPeriodicSyncInterval +

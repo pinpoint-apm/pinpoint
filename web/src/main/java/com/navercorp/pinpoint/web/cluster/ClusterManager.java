@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterAcceptor;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
-import com.navercorp.pinpoint.web.config.WebConfig;
+import com.navercorp.pinpoint.web.config.WebClusterConfig;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
@@ -45,12 +45,12 @@ public class ClusterManager {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Charset charset = StandardCharsets.UTF_8;
 
-    private final WebConfig config;
+    private final WebClusterConfig config;
 
     private final ClusterConnectionManager clusterConnectionManager;
     private final ClusterDataManager clusterDataManager;
 
-    public ClusterManager(WebConfig config, ClusterConnectionManager clusterConnectionManager, ClusterDataManager clusterDataManager) {
+    public ClusterManager(WebClusterConfig config, ClusterConnectionManager clusterConnectionManager, ClusterDataManager clusterDataManager) {
         this.config = Objects.requireNonNull(config, "config");
         this.clusterConnectionManager = Objects.requireNonNull(clusterConnectionManager, "clusterConnectionManager");
         this.clusterDataManager = Objects.requireNonNull(clusterDataManager, "clusterDataManager");

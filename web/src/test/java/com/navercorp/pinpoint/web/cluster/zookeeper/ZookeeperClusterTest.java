@@ -16,16 +16,18 @@
 
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
-import com.navercorp.pinpoint.web.config.WebConfig;
+import com.navercorp.pinpoint.web.config.WebClusterConfig;
 import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
 
 import org.apache.curator.test.TestingServer;
+import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs.Ids;
@@ -54,12 +56,12 @@ public class ZookeeperClusterTest {
     private static final String DEFAULT_IP = PinpointWebTestUtils.getRepresentationLocalV4Ip();
 
     private static int zookeeperPort;
-    private static WebConfig webConfig;
+    private static WebClusterConfig webClusterConfig;
 
     private static TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 10000);
 
-    private static final String COLLECTOR_NODE_PATH = "/pinpoint-cluster/collector";
-    private static final String COLLECTOR_TEST_NODE_PATH = COLLECTOR_NODE_PATH + "/test";
+    private static final String COLLECTOR_TEST_NODE_PATH
+            = ZKPaths.makePath(ZookeeperConstants.PINPOINT_COLLECTOR_CLUSTER_PATH, "test");
     private static String CLUSTER_NODE_PATH;
 
     private static TestingServer ts = null;
@@ -68,16 +70,17 @@ public class ZookeeperClusterTest {
     public static void setUp() throws Exception {
         int acceptorPort = SocketUtils.findAvailableTcpPort();
         zookeeperPort = SocketUtils.findAvailableTcpPort(acceptorPort + 1);
-        
-        CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + DEFAULT_IP + ":" + acceptorPort;
-        
+
+        CLUSTER_NODE_PATH
+                = ZKPaths.makePath(ZookeeperConstants.PINPOINT_WEB_CLUSTER_PATH, DEFAULT_IP + ":" + acceptorPort);
+
         ts = createZookeeperServer(zookeeperPort);
 
-        WebConfig mockWebConfig = Mockito.mock(WebConfig.class);
-        when(mockWebConfig.getClusterZookeeperAddress()).thenReturn(DEFAULT_IP + ":" + zookeeperPort);
-        when(mockWebConfig.getClusterZookeeperSessionTimeout()).thenReturn(5000);
-        when(mockWebConfig.getClusterZookeeperRetryInterval()).thenReturn(60000);
-        webConfig = mockWebConfig;
+        WebClusterConfig mockWebClusterConfig = Mockito.mock(WebClusterConfig.class);
+        when(mockWebClusterConfig.getClusterZookeeperAddress()).thenReturn(DEFAULT_IP + ":" + zookeeperPort);
+        when(mockWebClusterConfig.getClusterZookeeperSessionTimeout()).thenReturn(5000);
+        when(mockWebClusterConfig.getClusterZookeeperRetryInterval()).thenReturn(60000);
+        webClusterConfig = mockWebClusterConfig;
     }
 
     @AfterClass
@@ -100,7 +103,7 @@ public class ZookeeperClusterTest {
             createPath(zookeeper, COLLECTOR_TEST_NODE_PATH, true);
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1".getBytes(), -1);
 
-            manager = new ZookeeperClusterDataManager(webConfig);
+            manager = new ZookeeperClusterDataManager(webClusterConfig);
             manager.start();
             awaitClusterManagerConnected(manager);
 
@@ -142,7 +145,7 @@ public class ZookeeperClusterTest {
             createPath(zookeeper, COLLECTOR_TEST_NODE_PATH, true);
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1".getBytes(), -1);
 
-            manager = new ZookeeperClusterDataManager(webConfig);
+            manager = new ZookeeperClusterDataManager(webClusterConfig);
             manager.start();
             awaitClusterManagerConnected(manager);
 
