@@ -44,7 +44,7 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @RestController
-@RequestMapping
+@RequestMapping(value={"/alarmRule", "/application/alarmRule"})
 public class AlarmController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -91,7 +91,7 @@ public class AlarmController {
     }
 
     @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
-    @PostMapping(value={"/alarmRule", "/application/alarmRule"})
+    @PostMapping()
     public Map<String, String> insertRule(@RequestBody Rule rule) {
         if (!isRuleDataValidForPost(rule)) {
             return getErrorStringMap("500", "there is not applicationId/checkerName/userGroupId/threashold to insert alarm rule");
@@ -100,8 +100,41 @@ public class AlarmController {
         return getResultStringMap("SUCCESS", ruleId);
     }
 
+    @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
+    @DeleteMapping()
+    public Map<String, String> deleteRule(@RequestBody Rule rule) {
+        if (StringUtils.isEmpty(rule.getRuleId())) {
+            return getErrorStringMap("500", "there is not ruleId to delete alarm rule");
+        }
+        alarmService.deleteRule(rule);
+        return getResultStringMap("SUCCESS");
+    }
+    
+    @GetMapping()
+    public Object getRule(@RequestParam(value=USER_GROUP_ID, required=false) String userGroupId, @RequestParam(value=APPLICATION_ID, required=false) String applicationId) {
+        if (StringUtils.isEmpty(userGroupId) && StringUtils.isEmpty(applicationId)) {
+            return getErrorStringMap("500", "there is not userGroupId or applicationID to get alarm rule");
+        }
+        
+        if (StringUtils.hasLength(userGroupId)) {
+            return alarmService.selectRuleByUserGroupId(userGroupId);
+        }
+        
+        return alarmService.selectRuleByApplicationId(applicationId);
+    }
+
+    @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
+    @PutMapping()
+    public Map<String, String> updateRule(@RequestBody Rule rule) {
+        if (StringUtils.isEmpty(rule.getRuleId()) || StringUtils.isEmpty(rule.getApplicationId()) || StringUtils.isEmpty(rule.getCheckerName()) || StringUtils.isEmpty(rule.getUserGroupId())) {
+            return getErrorStringMap("500", "there is not ruleId/userGroupId/applicationid/checkerName to update alarm rule");
+        }
+        alarmService.updateRule(rule);
+        return getResultStringMap("SUCCESS");
+    }
+
     @PreAuthorize("hasPermission(#ruleWithWebhooks.getRule().getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
-    @PostMapping(value={"/alarmRuleWithWebhooks", "/application/alarmRuleWithWebhooks"})
+    @PostMapping(value = "/includeWebhooks")
     public Map<String, String> insertRuleWithWebhooks(@RequestBody RuleWithWebhooks ruleWithWebhooks) {
         Rule rule = ruleWithWebhooks.getRule();
         if (!isRuleDataValidForPost(rule)) {
@@ -117,41 +150,8 @@ public class AlarmController {
         return getResultStringMap("SUCCESS", ruleId);
     }
 
-    @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
-    @DeleteMapping(value={"/alarmRule", "/application/alarmRule"})
-    public Map<String, String> deleteRule(@RequestBody Rule rule) {
-        if (StringUtils.isEmpty(rule.getRuleId())) {
-            return getErrorStringMap("500", "there is not ruleId to delete alarm rule");
-        }
-        alarmService.deleteRule(rule);
-        return getResultStringMap("SUCCESS");
-    }
-    
-    @GetMapping(value={"/alarmRule", "/application/alarmRule"})
-    public Object getRule(@RequestParam(value=USER_GROUP_ID, required=false) String userGroupId, @RequestParam(value=APPLICATION_ID, required=false) String applicationId) {
-        if (StringUtils.isEmpty(userGroupId) && StringUtils.isEmpty(applicationId)) {
-            return getErrorStringMap("500", "there is not userGroupId or applicationID to get alarm rule");
-        }
-        
-        if (StringUtils.hasLength(userGroupId)) {
-            return alarmService.selectRuleByUserGroupId(userGroupId);
-        }
-        
-        return alarmService.selectRuleByApplicationId(applicationId);
-    }
-
-    @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
-    @PutMapping(value={"/alarmRule", "/application/alarmRule"})
-    public Map<String, String> updateRule(@RequestBody Rule rule) {
-        if (StringUtils.isEmpty(rule.getRuleId()) || StringUtils.isEmpty(rule.getApplicationId()) || StringUtils.isEmpty(rule.getCheckerName()) || StringUtils.isEmpty(rule.getUserGroupId())) {
-            return getErrorStringMap("500", "there is not ruleId/userGroupId/applicationid/checkerName to update alarm rule");
-        }
-        alarmService.updateRule(rule);
-        return getResultStringMap("SUCCESS");
-    }
-
     @PreAuthorize("hasPermission(#ruleWithWebhooks.getRule().getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
-    @PutMapping(value={"/alarmRuleWithWebhooks", "/application/alarmRuleWithWebhooks"})
+    @PutMapping(value = "/includeWebhooks")
     public Map<String, String> updateRuleWithWebhooks(@RequestBody RuleWithWebhooks ruleWithWebhooks) {
         Rule rule = ruleWithWebhooks.getRule();
         if (StringUtils.isEmpty(rule.getRuleId()) || StringUtils.isEmpty(rule.getApplicationId()) || StringUtils.isEmpty(rule.getCheckerName()) || StringUtils.isEmpty(rule.getUserGroupId())) {
@@ -166,7 +166,7 @@ public class AlarmController {
         return getResultStringMap("SUCCESS");
     }
     
-    @GetMapping(value={"/application/alarmRule/checker", "/alarmRule/checker"})
+    @GetMapping(value = "/checker")
     public List<String> getCheckerName() {
         return CheckerCategory.getNames();
     }
