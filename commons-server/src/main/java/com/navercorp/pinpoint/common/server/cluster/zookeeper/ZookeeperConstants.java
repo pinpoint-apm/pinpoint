@@ -21,12 +21,13 @@ package com.navercorp.pinpoint.common.server.cluster.zookeeper;
  */
 public class ZookeeperConstants {
 
+
     public static final String PATH_SEPARATOR = "/";
 
-    public static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
+    public static final String DEFAULT_CLUSTER_ZNODE_ROOT_PATH = "/pinpoint-cluster";
 
-    public static final String PINPOINT_WEB_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/web";
-
-    public static final String PINPOINT_COLLECTOR_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/collector";
+    public static final String WEB_LEAF_PATH = "web";
+    public static final String COLLECTOR_LEAF_PATH = "collector";
+    public static final String FLINK_LEAF_PATH = "flink";
 
 }

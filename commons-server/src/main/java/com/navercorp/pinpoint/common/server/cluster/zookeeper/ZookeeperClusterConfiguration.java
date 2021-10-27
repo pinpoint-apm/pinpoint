@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 
 import com.navercorp.pinpoint.common.util.Assert;
 
+import org.apache.curator.utils.ZKPaths;
+import org.apache.zookeeper.common.PathUtils;
+
 import java.util.Objects;
 
 /**
@@ -30,10 +33,19 @@ public class ZookeeperClusterConfiguration {
     private final String address;
     private final int sessionTimeout;
 
+    private final String webZNodePath;
+    private final String collectorZNodePath;
+    private final String flinkZNodePath;
+
     private ZookeeperClusterConfiguration(Builder builder) {
         this.enable = builder.enable;
         this.address = builder.address;
         this.sessionTimeout = builder.sessionTimeout;
+
+        String zNodeRootPath = builder.zNodeRoot;
+        this.webZNodePath = ZKPaths.makePath(zNodeRootPath, builder.webLeafPath);
+        this.collectorZNodePath = ZKPaths.makePath(zNodeRootPath, builder.collectorLeafPath);
+        this.flinkZNodePath = ZKPaths.makePath(zNodeRootPath, builder.flinkLeafPath);
     }
 
     public boolean isEnable() {
@@ -42,6 +54,18 @@ public class ZookeeperClusterConfiguration {
 
     public String getAddress() {
         return address;
+    }
+
+    public String getWebZNodePath() {
+        return webZNodePath;
+    }
+
+    public String getCollectorZNodePath() {
+        return collectorZNodePath;
+    }
+
+    public String getFlinkZNodePath() {
+        return flinkZNodePath;
     }
 
     public int getSessionTimeout() {
@@ -56,6 +80,11 @@ public class ZookeeperClusterConfiguration {
     public static class Builder {
         private boolean enable = false;
         private String address = "localhost";
+        private String zNodeRoot = ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH;
+        private String webLeafPath = ZookeeperConstants.WEB_LEAF_PATH;
+        private String collectorLeafPath = ZookeeperConstants.COLLECTOR_LEAF_PATH;
+        private String flinkLeafPath = ZookeeperConstants.FLINK_LEAF_PATH;
+
         private int sessionTimeout = 3000;
 
         public Builder() {
@@ -77,6 +106,38 @@ public class ZookeeperClusterConfiguration {
             this.address = address;
         }
 
+        public String getZnodeRoot() {
+            return zNodeRoot;
+        }
+
+        public void setZnodeRoot(String zNodeRoot) {
+            this.zNodeRoot = zNodeRoot;
+        }
+
+        public String getWebLeafPath() {
+            return webLeafPath;
+        }
+
+        public void setWebLeafPath(String webLeafPath) {
+            this.webLeafPath = webLeafPath;
+        }
+
+        public String getCollectorLeafPath() {
+            return collectorLeafPath;
+        }
+
+        public void setCollectorLeafPath(String collectorLeafPath) {
+            this.collectorLeafPath = collectorLeafPath;
+        }
+
+        public String getFlinkLeafPath() {
+            return flinkLeafPath;
+        }
+
+        public void setFlinkLeafPath(String flinkLeafPath) {
+            this.flinkLeafPath = flinkLeafPath;
+        }
+
         public int getSessionTimeout() {
             return sessionTimeout;
         }
@@ -87,6 +148,7 @@ public class ZookeeperClusterConfiguration {
 
         public ZookeeperClusterConfiguration build() {
             Objects.requireNonNull(address);
+            PathUtils.validatePath(zNodeRoot);
             Assert.isTrue(sessionTimeout > 0, "sessionTimeout must be greater than 0");
 
             return new ZookeeperClusterConfiguration(this);
@@ -99,6 +161,9 @@ public class ZookeeperClusterConfiguration {
         sb.append("enable=").append(enable);
         sb.append(", address='").append(address).append('\'');
         sb.append(", sessionTimeout=").append(sessionTimeout);
+        sb.append(", webZNodePath='").append(webZNodePath).append('\'');
+        sb.append(", collectorZNodePath='").append(collectorZNodePath).append('\'');
+        sb.append(", flinkZNodePath='").append(flinkZNodePath).append('\'');
         sb.append('}');
         return sb.toString();
     }

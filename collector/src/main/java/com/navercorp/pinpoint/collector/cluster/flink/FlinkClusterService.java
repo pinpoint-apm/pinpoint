@@ -52,7 +52,7 @@ public class FlinkClusterService {
         this.config = Objects.requireNonNull(config, "config");
         this.serviceState = new CommonStateContext();
         this.clusterConnectionManager = Objects.requireNonNull(clusterConnectionManager, "clusterConnectionManager");
-        this.pinpointFlinkClusterPath = config.getFlinkClusterZookeeperPath();
+        this.pinpointFlinkClusterPath = config.getFlinkZNodePath();
     }
 
     @PostConstruct

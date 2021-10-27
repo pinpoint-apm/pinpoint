@@ -43,19 +43,16 @@ public class FlinkConfiguration {
         return clusterConfiguration.isEnable();
     }
 
-    @Value("${flink.cluster.zookeeper.path:}")
-    protected String flinkClusterZookeeperPath;
-
     public String getFlinkClusterZookeeperAddress() {
         return clusterConfiguration.getAddress();
     }
 
-    public int getFlinkClusterSessionTimeout() {
-        return clusterConfiguration.getSessionTimeout();
+    public String getFlinkZNodePath() {
+        return clusterConfiguration.getFlinkZNodePath();
     }
 
-    public String getFlinkClusterZookeeperPath() {
-        return flinkClusterZookeeperPath;
+    public int getFlinkClusterSessionTimeout() {
+        return clusterConfiguration.getSessionTimeout();
     }
 
     @PostConstruct
@@ -73,7 +70,7 @@ public class FlinkConfiguration {
         return "FlinkConfiguration{" +
                 "flinkClusterEnable=" + isFlinkClusterEnable() +
                 ", flinkClusterZookeeperAddress='" + getFlinkClusterZookeeperAddress() + '\'' +
-                ", flinkClusterZookeeperPath='" + flinkClusterZookeeperPath + '\'' +
+                ", flinkZNodePath='" + getFlinkZNodePath() + '\'' +
                 ", flinkClusterSessionTimeout=" + getFlinkClusterSessionTimeout() +
                 '}';
     }

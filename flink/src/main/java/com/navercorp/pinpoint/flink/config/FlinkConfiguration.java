@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.flink.config;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterConfiguration;
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -40,9 +40,6 @@ public class FlinkConfiguration {
     @Qualifier("flinkClusterConfiguration")
     @Autowired
     private ZookeeperClusterConfiguration clusterConfiguration;
-
-    @Value("${flink.cluster.zookeeper.path:}")
-    protected String flinkClusterZookeeperPath;
 
     @Value("${flink.cluster.zookeeper.retry.interval:60000}")
     private int flinkRetryInterval;
@@ -67,8 +64,8 @@ public class FlinkConfiguration {
         return clusterConfiguration.getAddress();
     }
 
-    public String getFlinkClusterZookeeperPath() {
-        return flinkClusterZookeeperPath;
+    public String getFlinkZNodePath() {
+        return clusterConfiguration.getFlinkZNodePath();
     }
 
     public int getFlinkClusterTcpPort() {
@@ -104,7 +101,7 @@ public class FlinkConfiguration {
         return "FlinkConfiguration{" +
                 "flinkClusterEnable=" + isFlinkClusterEnable() +
                 ", flinkClusterZookeeperAddress='" + getFlinkClusterZookeeperAddress() + '\'' +
-                ", flinkClusterZookeeperPath='" + flinkClusterZookeeperPath + '\'' +
+                ", flinkZNodePath='" + getFlinkZNodePath() + '\'' +
                 ", flinkClusterSessionTimeout=" + getFlinkClusterSessionTimeout() +
                 ", flinkRetryInterval=" + flinkRetryInterval +
                 ", flinkClusterTcpPort=" + flinkClusterTcpPort +

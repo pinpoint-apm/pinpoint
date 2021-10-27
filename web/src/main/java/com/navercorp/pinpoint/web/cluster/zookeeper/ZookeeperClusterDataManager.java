@@ -59,6 +59,10 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final String connectAddress;
+
+    private final String webZNodePath;
+    private final String collectorZNodePath;
+
     private final int sessionTimeout;
     private final int retryInterval;
 
@@ -77,6 +81,9 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
         this.connectAddress = config.getClusterZookeeperAddress();
         this.sessionTimeout = config.getClusterZookeeperSessionTimeout();
         this.retryInterval = config.getClusterZookeeperRetryInterval();
+
+        this.webZNodePath = config.getWebZNodePath();
+        this.collectorZNodePath = config.getCollectorZNodePath();
 
         if (config.isClusterZookeeperPeriodicSyncEnable()) {
             this.periodicSyncTask = new PeriodicSyncTask(config.getClusterZookeeperPeriodicSyncInterval());
@@ -114,7 +121,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
     // not too much overhead, just logging
     @Override
     public boolean registerWebCluster(String zNodeName, byte[] contents) {
-        String zNodeFullPath = ZKPaths.makePath(ZookeeperConstants.PINPOINT_WEB_CLUSTER_PATH, zNodeName);
+        String zNodeFullPath = ZKPaths.makePath(webZNodePath, zNodeName);
 
         logger.info("registerWebCluster() started. create UniqPath={}.", zNodeFullPath);
         CreateNodeMessage createNodeMessage = new CreateNodeMessage(zNodeFullPath, contents);
@@ -190,7 +197,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
     }
 
     private boolean handleNodeChildrenChanged(String path) {
-        if (ZookeeperConstants.PINPOINT_COLLECTOR_CLUSTER_PATH.equals(path)) {
+        if (collectorZNodePath.equals(path)) {
             if (syncPullCollectorCluster()) {
                 return true;
             }
@@ -202,7 +209,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
 
     private boolean handleNodeDeleted(String path) {
         if (path != null) {
-            String id = clusterDataManagerHelper.extractCollectorClusterId(path, ZookeeperConstants.PINPOINT_COLLECTOR_CLUSTER_PATH);
+            String id = clusterDataManagerHelper.extractCollectorClusterId(path, collectorZNodePath);
             if (id != null) {
                 collectorClusterInfo.remove(id);
                 return true;
@@ -213,7 +220,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
 
     private boolean handleNodeDataChanged(String path) {
         if (path != null) {
-            String id = clusterDataManagerHelper.extractCollectorClusterId(path, ZookeeperConstants.PINPOINT_COLLECTOR_CLUSTER_PATH);
+            String id = clusterDataManagerHelper.extractCollectorClusterId(path, collectorZNodePath);
             if (id != null) {
                 if (pushCollectorClusterData(id)) {
                     return true;
@@ -248,7 +255,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
     private boolean syncPullCollectorCluster() {
         logger.info("syncPullCollectorCluster() started.");
         synchronized (this) {
-            Map<String, byte[]> map = clusterDataManagerHelper.syncPullCollectorCluster(client, ZookeeperConstants.PINPOINT_COLLECTOR_CLUSTER_PATH);
+            Map<String, byte[]> map = clusterDataManagerHelper.syncPullCollectorCluster(client, collectorZNodePath);
             if (MapUtils.isEmpty(map)) {
                 return false;
             }
@@ -265,7 +272,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
 
     private boolean pushCollectorClusterData(String id) {
         logger.info("pushCollectorClusterData() started.");
-        String path = ZKPaths.makePath(ZookeeperConstants.PINPOINT_COLLECTOR_CLUSTER_PATH, id);
+        String path = ZKPaths.makePath(collectorZNodePath, id);
         synchronized (this) {
             try {
                 byte[] data = client.getData(path, true);
