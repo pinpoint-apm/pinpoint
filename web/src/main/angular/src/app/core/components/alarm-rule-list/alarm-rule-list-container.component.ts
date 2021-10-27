@@ -250,7 +250,7 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
             notes,
         };
 
-        const isWithWebhook = type === 'all' || type === 'webhook';
+        const isWithWebhook = this.webhookEnable && (type === 'all' || type === 'webhook');
         const param = isWithWebhook
             ? {rule: alarmRule, webhookIds: this.checkedWebhookList}
             : alarmRule;
