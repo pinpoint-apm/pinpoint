@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 
 public class StatStreamingVer2Job implements Serializable {
-    private final transient Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final static Logger logger = LoggerFactory.getLogger(StatStreamingVer2Job.class);
 
     public static void main(String[] args) throws Exception {
         ParameterTool parameters = ParameterTool.fromArgs(args);

@@ -39,7 +39,7 @@ public class ApplicationStatBoWindow extends RichWindowFunction<Tuple3<String, J
     public static final int WINDOW_SIZE = 10000;
     public static final int ALLOWED_LATENESS = 45000;
 
-    private final transient Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final static Logger logger = LoggerFactory.getLogger(ApplicationStatBoWindow.class);
 
     private transient ApplicationStatBoWindowInterceptor applicationStatBoWindowInterceptor;
 

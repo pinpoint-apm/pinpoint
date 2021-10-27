@@ -36,7 +36,7 @@ import java.util.List;
  * @author minwoo.jung
  */
 public class StatisticsDao extends RichOutputFormat<Tuple3<String, JoinStatBo, Long>> {
-    private final transient Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final static Logger logger = LoggerFactory.getLogger(StatisticsDao.class);
 
     private static final long serialVersionUID = 1L;
     private transient CpuLoadDao cpuLoadDao;
