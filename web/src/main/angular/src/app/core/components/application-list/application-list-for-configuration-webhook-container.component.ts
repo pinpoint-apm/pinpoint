@@ -58,6 +58,7 @@ export class ApplicationListForConfigurationWebhookContainerComponent implements
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+        this.applicationListInteractionForConfigurationService.setSelectedApplication(null);
     }
 
     private initList(): void {
