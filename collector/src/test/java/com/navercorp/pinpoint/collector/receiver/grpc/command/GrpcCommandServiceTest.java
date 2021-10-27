@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterServic
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClusterManager;
 import com.navercorp.pinpoint.collector.receiver.grpc.RecordedStreamObserver;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.command.GrpcCommandService;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.DefaultTransportMetadata;
@@ -40,6 +41,7 @@ import com.google.protobuf.Empty;
 import io.grpc.Context;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
+import org.apache.curator.utils.ZKPaths;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -140,7 +142,10 @@ public class GrpcCommandServiceTest {
         InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient();
         zookeeperClient.connect();
 
-        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, this.getClass().getSimpleName(), new ClusterPointRepository());
+        String path
+            = ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.COLLECTOR_LEAF_PATH, this.getClass().getSimpleName());
+
+        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, path, new ClusterPointRepository());
         manager.start();
         return manager;
     }

@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 
 import org.apache.curator.utils.ZKPaths;
+import org.apache.hadoop.mapreduce.ID;
 import org.junit.Assert;
 import org.junit.Test;
 import static org.mockito.Mockito.mock;
@@ -53,7 +54,7 @@ public class ZookeeperJobWorkerTest {
 
     private static final String IDENTIFIER = "ZookeeperJobWorkerTest";
     private static final String PATH =
-            ZKPaths.makePath(ZookeeperConstants.PINPOINT_COLLECTOR_CLUSTER_PATH, IDENTIFIER);
+            ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.COLLECTOR_LEAF_PATH, IDENTIFIER);
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -65,7 +66,7 @@ public class ZookeeperJobWorkerTest {
         InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient(true);
         zookeeperClient.connect();
 
-        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, IDENTIFIER, new ClusterPointRepository());
+        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, PATH, new ClusterPointRepository());
         manager.start();
 
         ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, manager);
@@ -89,7 +90,7 @@ public class ZookeeperJobWorkerTest {
         InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient(true);
         zookeeperClient.connect();
 
-        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, IDENTIFIER, new ClusterPointRepository());
+        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, PATH, new ClusterPointRepository());
         manager.start();
 
         ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, manager);
@@ -113,7 +114,7 @@ public class ZookeeperJobWorkerTest {
         InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient(true);
         zookeeperClient.connect();
 
-        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, IDENTIFIER, new ClusterPointRepository());
+        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, PATH, new ClusterPointRepository());
         manager.start();
 
         ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, manager);
@@ -152,7 +153,7 @@ public class ZookeeperJobWorkerTest {
         InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient(true);
         zookeeperClient.connect();
 
-        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, IDENTIFIER, new ClusterPointRepository());
+        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, PATH, new ClusterPointRepository());
         manager.start();
 
         ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, manager);

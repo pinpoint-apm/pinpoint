@@ -28,13 +28,13 @@ import com.navercorp.pinpoint.collector.config.CollectorClusterConfig;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
-import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
-
 import com.navercorp.pinpoint.common.util.Assert;
+
 import org.apache.commons.lang3.StringUtils;
+import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.slf4j.Logger;
@@ -52,6 +52,8 @@ public class ZookeeperClusterService implements ClusterService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final CollectorClusterConfig config;
+    private final String webZNodePath;
+
     private final ClusterPointRouter clusterPointRouter;
 
     // represented as pid@hostname (identifiers may overlap for services hosted on localhost if pids are identical)
@@ -73,6 +75,8 @@ public class ZookeeperClusterService implements ClusterService {
     public ZookeeperClusterService(CollectorClusterConfig config, ClusterPointRouter clusterPointRouter) {
         this.config = Objects.requireNonNull(config, "config");
         Assert.isTrue(config.isClusterEnable(), "clusterEnable is false");
+
+        this.webZNodePath = Objects.requireNonNull(config.getWebZNodePath(), "webZNodePath");
 
         this.clusterPointRouter = Objects.requireNonNull(clusterPointRouter, "clusterPointRouter");
 
@@ -110,10 +114,12 @@ public class ZookeeperClusterService implements ClusterService {
                     this.client = new CuratorZookeeperClient(config.getClusterAddress(), config.getClusterSessionTimeout(), watcher);
                     this.client.connect();
 
-                    this.profilerClusterManager = new ZookeeperProfilerClusterManager(client, serverIdentifier, clusterPointRouter.getTargetClusterPointRepository());
+                    final String connectedAgentZNodePath = ZKPaths.makePath(config.getCollectorZNodePath(), serverIdentifier);
+
+                    this.profilerClusterManager = new ZookeeperProfilerClusterManager(client, connectedAgentZNodePath, clusterPointRouter.getTargetClusterPointRepository());
                     this.profilerClusterManager.start();
 
-                    this.webClusterManager = new ZookeeperClusterManager(client, ZookeeperConstants.PINPOINT_WEB_CLUSTER_PATH, clusterConnectionManager);
+                    this.webClusterManager = new ZookeeperClusterManager(client, webZNodePath, clusterConnectionManager);
                     this.webClusterManager.start();
 
                     this.serviceState.changeStateStarted();
@@ -196,7 +202,7 @@ public class ZookeeperClusterService implements ClusterService {
                 if (eventType == EventType.NodeChildrenChanged) {
                     String path = event.getPath();
 
-                    if (ZookeeperConstants.PINPOINT_WEB_CLUSTER_PATH.equals(path)) {
+                    if (webZNodePath.equals(path)) {
                         webClusterManager.handleAndRegisterWatcher(path);
                     } else {
                         logger.warn("Unknown Path ChildrenChanged {}.", path);
@@ -209,7 +215,7 @@ public class ZookeeperClusterService implements ClusterService {
         public boolean handleConnected() {
             if (serviceState.isStarted()) {
                 profilerClusterManager.refresh();
-                webClusterManager.handleAndRegisterWatcher(ZookeeperConstants.PINPOINT_WEB_CLUSTER_PATH);
+                webClusterManager.handleAndRegisterWatcher(webZNodePath);
                 return true;
             } else {
                 return false;

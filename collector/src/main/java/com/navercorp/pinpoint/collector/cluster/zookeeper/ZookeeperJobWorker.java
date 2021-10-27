@@ -17,19 +17,17 @@
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.zookeeper.job.ZookeeperJob;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
-import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.curator.utils.ZKPaths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadFactory;
 
@@ -59,12 +58,12 @@ public class ZookeeperJobWorker implements Runnable {
     private final ConcurrentLinkedDeque<ZookeeperJob> zookeeperJobDeque = new ConcurrentLinkedDeque<>();
     private Thread workerThread;
 
-    public ZookeeperJobWorker(ZookeeperClient zookeeperClient, String serverIdentifier) {
+    public ZookeeperJobWorker(ZookeeperClient zookeeperClient, String connectedAgentZNodePath) {
         this.zookeeperClient = zookeeperClient;
 
         this.workerState = new CommonStateContext();
 
-        this.collectorUniqPath = ZKPaths.makePath(ZookeeperConstants.PINPOINT_COLLECTOR_CLUSTER_PATH, serverIdentifier);
+        this.collectorUniqPath = Objects.requireNonNull(connectedAgentZNodePath, "connectedAgentZNodePath");
     }
 
     public void start() {

@@ -112,6 +112,14 @@ public class WebClusterConfig {
         return clusterConfiguration.getAddress();
     }
 
+    public String getWebZNodePath() {
+        return clusterConfiguration.getWebZNodePath();
+    }
+
+    public String getCollectorZNodePath() {
+        return clusterConfiguration.getCollectorZNodePath();
+    }
+
     public int getClusterZookeeperSessionTimeout() {
         return clusterConfiguration.getSessionTimeout();
     }
@@ -138,6 +146,8 @@ public class WebClusterConfig {
                 "clusterEnable=" + isClusterEnable() +
                 ", clusterTcpPort=" + clusterTcpPort +
                 ", clusterZookeeperAddress='" + getClusterZookeeperAddress() + '\'' +
+                ", webZNodePath='" + getWebZNodePath() + '\'' +
+                ", collectorZNodePath='" + getCollectorZNodePath() + '\'' +
                 ", clusterZookeeperSessionTimeout=" + getClusterZookeeperSessionTimeout() +
                 ", clusterZookeeperRetryInterval=" + clusterZookeeperRetryInterval +
                 ", clusterZookeeperPeriodicSyncEnable=" + clusterZookeeperPeriodicSyncEnable +

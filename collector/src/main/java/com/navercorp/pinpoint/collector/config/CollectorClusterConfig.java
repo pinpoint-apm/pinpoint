@@ -42,13 +42,20 @@ public class CollectorClusterConfig {
     @Value("${cluster.listen.port:-1}")
     private int clusterListenPort;
 
-
     public boolean isClusterEnable() {
         return clusterConfiguration.isEnable();
     }
 
     public String getClusterAddress() {
         return clusterConfiguration.getAddress();
+    }
+
+    public String getWebZNodePath() {
+        return clusterConfiguration.getWebZNodePath();
+    }
+
+    public String getCollectorZNodePath() {
+        return clusterConfiguration.getCollectorZNodePath();
     }
 
     public int getClusterSessionTimeout() {
@@ -80,12 +87,15 @@ public class CollectorClusterConfig {
 
     @Override
     public String toString() {
-        return "ClusterConfig{" +
-                "clusterEnable=" + isClusterEnable() +
-                ", clusterAddress='" + getClusterAddress() + '\'' +
-                ", clusterSessionTimeout=" + getClusterSessionTimeout() +
-                ", clusterListenIp='" + clusterListenIp + '\'' +
-                ", clusterListenPort=" + clusterListenPort +
-                '}';
+        final StringBuilder sb = new StringBuilder("CollectorClusterConfig{");
+        sb.append("clusterEnable").append(isClusterEnable());
+        sb.append(", clusterAddress='").append(getClusterAddress()).append('\'');
+        sb.append(", webZNodePath='").append(getCollectorZNodePath()).append('\'');
+        sb.append(", collectorZNodePath='").append(getWebZNodePath()).append('\'');
+        sb.append(", clusterSessionTimeout=").append(getClusterSessionTimeout());
+        sb.append(", clusterListenPort=").append(clusterListenPort);
+        sb.append('}');
+        return sb.toString();
     }
+
 }

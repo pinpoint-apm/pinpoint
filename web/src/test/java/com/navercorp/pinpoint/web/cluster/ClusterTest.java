@@ -88,12 +88,17 @@ public class ClusterTest {
         when(config.getClusterZookeeperAddress()).thenReturn(zookeeperAddress);
         when(config.getClusterZookeeperRetryInterval()).thenReturn(60000);
         when(config.getClusterZookeeperSessionTimeout()).thenReturn(3000);
+        when(config.getWebZNodePath()).
+                thenReturn(ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.WEB_LEAF_PATH));
+        when(config.getCollectorZNodePath()).
+                thenReturn(ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.COLLECTOR_LEAF_PATH));
 
         acceptorPort = SocketUtils.findAvailableTcpPort(zookeeperPort);
         acceptorAddress = DEFAULT_IP + ":" + acceptorPort;
         when(config.getClusterTcpPort()).thenReturn(acceptorPort);
 
-        CLUSTER_NODE_PATH = ZKPaths.makePath(ZookeeperConstants.PINPOINT_WEB_CLUSTER_PATH, acceptorAddress);
+        CLUSTER_NODE_PATH
+                = ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.WEB_LEAF_PATH, acceptorAddress);
         LOGGER.debug("CLUSTER_NODE_PATH:{}", CLUSTER_NODE_PATH);
 
         clusterConnectionManager = new ClusterConnectionManager(config);

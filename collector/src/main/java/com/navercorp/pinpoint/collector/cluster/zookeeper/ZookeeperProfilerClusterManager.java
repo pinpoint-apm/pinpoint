@@ -47,10 +47,10 @@ public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
 
     // keep it simple - register on RUN, remove on FINISHED, skip otherwise
     // should only be instantiated when cluster is enabled.
-    public ZookeeperProfilerClusterManager(ZookeeperClient client, String serverIdentifier, ClusterPointRepository<ClusterPoint<?>> profileCluster) {
+    public ZookeeperProfilerClusterManager(ZookeeperClient client, String connectedAgentZNodePath, ClusterPointRepository<ClusterPoint<?>> profileCluster) {
         this.profileCluster = Objects.requireNonNull(profileCluster, "profileCluster");
 
-        this.worker = new ZookeeperJobWorker(client, serverIdentifier);
+        this.worker = new ZookeeperJobWorker(client, connectedAgentZNodePath);
     }
 
     @Override

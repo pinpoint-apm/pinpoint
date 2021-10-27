@@ -66,7 +66,7 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
         this.clusterEnable = flinkConfiguration.isFlinkClusterEnable();
         this.connectAddress = flinkConfiguration.getFlinkClusterZookeeperAddress();
         this.sessionTimeout = flinkConfiguration.getFlinkClusterSessionTimeout();
-        this.zookeeperPath = flinkConfiguration.getFlinkClusterZookeeperPath();
+        this.zookeeperPath = flinkConfiguration.getFlinkZNodePath();
 
         String zNodeName = getRepresentationLocalV4Ip() + ":" +  flinkConfiguration.getFlinkClusterTcpPort();
         String zNodeFullPath = ZKPaths.makePath(zookeeperPath, zNodeName);
