@@ -88,7 +88,7 @@ public class CollectorClusterConfig {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("CollectorClusterConfig{");
-        sb.append("clusterEnable").append(isClusterEnable());
+        sb.append("clusterEnable=").append(isClusterEnable());
         sb.append(", clusterAddress='").append(getClusterAddress()).append('\'');
         sb.append(", webZNodePath='").append(getCollectorZNodePath()).append('\'');
         sb.append(", collectorZNodePath='").append(getWebZNodePath()).append('\'');

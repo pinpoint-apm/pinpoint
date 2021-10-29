@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.config;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterConfiguration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -27,63 +28,94 @@ import org.springframework.core.env.Environment;
  * @author Taejin Koo
  */
 @Configuration
+@EnableConfigurationProperties
 public class ClusterConfigurationFactory {
 
-    public static final String DEFAULT_CLUSTER = "cluster.zookeeper";
+    private static final String DEFAULT_CLUSTER = "cluster";
+    private static final String DEFAULT_CLUSTER_ZOOKEEPER = "cluster.zookeeper";
 
-    public static final String FLINK_CLUSTER = "flink.cluster.zookeeper";
+    private static final String FLINK_CLUSTER = "flink.cluster";
+    private static final String FLINK_CLUSTER_ZOOKEEPER = "flink.cluster.zookeeper";
 
-    public static final String FLINK_SPAN_STAT_CLUSTER = "span.stat.flink.cluster.zookeeper";
+    private static final String FLINK_SPAN_STAT_CLUSTER = "span.stat.flink.cluster";
+    private static final String SPAN_STAT_FLINK_CLUSTER_ZOOKEEPER = "span.stat.flink.cluster.zookeeper";
 
     @Bean(DEFAULT_CLUSTER)
-    @ConfigurationProperties(DEFAULT_CLUSTER)
+    @ConfigurationProperties(prefix = DEFAULT_CLUSTER)
+    public ClusterEnable newDefaultConfigurationEnable() {
+        return new ClusterEnable();
+    }
+
+    @Bean(FLINK_CLUSTER)
+    @ConfigurationProperties(prefix = FLINK_CLUSTER)
+    public ClusterEnable newFlinkConfigurationEnable() {
+        return new ClusterEnable();
+    }
+
+    @Bean(FLINK_SPAN_STAT_CLUSTER)
+    @ConfigurationProperties(prefix = FLINK_SPAN_STAT_CLUSTER)
+    public ClusterEnable newFlinkSpanStatConfigurationEnable() {
+        return new ClusterEnable();
+    }
+
+
+    @Bean(DEFAULT_CLUSTER_ZOOKEEPER)
+    @ConfigurationProperties(prefix = DEFAULT_CLUSTER_ZOOKEEPER)
     public ZookeeperClusterConfiguration.Builder newDefaultConfigurationBuilder() {
         return ZookeeperClusterConfiguration.newBuilder();
     }
 
-    @Bean(FLINK_CLUSTER)
-    @ConfigurationProperties(FLINK_CLUSTER)
+    @Bean(FLINK_CLUSTER_ZOOKEEPER)
+    @ConfigurationProperties(prefix = FLINK_CLUSTER_ZOOKEEPER)
     public ZookeeperClusterConfiguration.Builder newFlinkConfigurationBuilder() {
         return ZookeeperClusterConfiguration.newBuilder();
     }
 
-    @Bean(FLINK_SPAN_STAT_CLUSTER)
-    @ConfigurationProperties(FLINK_SPAN_STAT_CLUSTER)
+    @Bean(SPAN_STAT_FLINK_CLUSTER_ZOOKEEPER)
+    @ConfigurationProperties(prefix = SPAN_STAT_FLINK_CLUSTER_ZOOKEEPER)
     public ZookeeperClusterConfiguration.Builder newFlinkSpanStatConfigurationBuilder() {
         return ZookeeperClusterConfiguration.newBuilder();
     }
 
     @Bean("clusterConfiguration")
     public ZookeeperClusterConfiguration newDefault(Environment environment) {
-        boolean enable = environment.getProperty("cluster.enable", boolean.class, false);
-
+        ClusterEnable clusterEnable = newDefaultConfigurationEnable();
         ZookeeperClusterConfiguration.Builder builder = newDefaultConfigurationBuilder();
-        builder.setEnable(enable);
-
-        ZookeeperClusterConfiguration configuration = builder.build();
-        return configuration;
+        return createConfiguration(clusterEnable, builder);
     }
 
     @Bean("flinkClusterConfiguration")
     public ZookeeperClusterConfiguration newFlink(Environment environment) {
-        boolean enable = environment.getProperty("flink.cluster.enable", boolean.class, false);
-
+        ClusterEnable clusterEnable = newFlinkConfigurationEnable();
         ZookeeperClusterConfiguration.Builder builder = newFlinkConfigurationBuilder();
-        builder.setEnable(enable);
+        return createConfiguration(clusterEnable, builder);
+    }
+
+    @Bean("flinkSpanStatClusterConfiguration")
+    public ZookeeperClusterConfiguration newFlinkSpanStat(Environment environment) {
+        ClusterEnable clusterEnable = newFlinkSpanStatConfigurationEnable();
+        ZookeeperClusterConfiguration.Builder builder = newFlinkSpanStatConfigurationBuilder();
+        return createConfiguration(clusterEnable, builder);
+    }
+
+    private ZookeeperClusterConfiguration createConfiguration(ClusterEnable clusterEnable, ZookeeperClusterConfiguration.Builder builder) {
+        builder.setEnable(clusterEnable.isEnable());
 
         ZookeeperClusterConfiguration configuration = builder.build();
         return configuration;
     }
 
-    @Bean("flinkSpanStatClusterConfiguration")
-    public ZookeeperClusterConfiguration newFlinkSpanStat(Environment environment) {
-        boolean enable = environment.getProperty("span.stat.flink.cluster.enable", boolean.class, false);
+    private static class ClusterEnable {
 
-        ZookeeperClusterConfiguration.Builder builder = newFlinkSpanStatConfigurationBuilder();
-        builder.setEnable(enable);
+        private boolean enable;
 
-        ZookeeperClusterConfiguration configuration = builder.build();
-        return configuration;
+        public boolean isEnable() {
+            return enable;
+        }
+
+        public void setEnable(boolean enable) {
+            this.enable = enable;
+        }
     }
 
 }
