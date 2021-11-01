@@ -57,6 +57,9 @@ public class HbaseConfig {
     @Value("${hbase.client.operation.timeout:5000}")
     private String clientOperationTimeout;
 
+    @Value("${hbase.client.meta.operation.timeout:5000}")
+    private String clientMetaOperationTimeout;
+
     @Value("${hbase.ipc.client.socket.timeout.read:5000}")
     private String ipcClientSocketTimeoutRead;
 
@@ -119,6 +122,14 @@ public class HbaseConfig {
         this.clientOperationTimeout = clientOperationTimeout;
     }
 
+    public String getClientMetaOperationTimeout() {
+        return clientMetaOperationTimeout;
+    }
+
+    public void setClientMetaOperationTimeout(String clientMetaOperationTimeout) {
+        this.clientMetaOperationTimeout = clientMetaOperationTimeout;
+    }
+
     public String getIpcClientSocketTimeoutRead() {
         return ipcClientSocketTimeoutRead;
     }
@@ -145,6 +156,7 @@ public class HbaseConfig {
         properties.setProperty("hbase.ipc.client.tcpnodelay", ipcClientTcpNoDelay);
         properties.setProperty("hbase.rpc.timeout", rpcTimeout);
         properties.setProperty("hbase.client.operation.timeout", clientOperationTimeout);
+        properties.setProperty("hbase.client.meta.operation.timeout", clientMetaOperationTimeout);
         properties.setProperty("hbase.ipc.client.socket.timeout.read", ipcClientSocketTimeoutRead);
         properties.setProperty("hbase.ipc.client.socket.timeout.write", ipcClientSocketTimeoutWrite);
         HbaseConfigurationFactoryBean factoryBean = new HbaseConfigurationFactoryBean();
