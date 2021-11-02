@@ -19,7 +19,6 @@ export class WebhookListContainerComponent implements OnInit, OnDestroy {
 
     webhookList: IWebhook[] = [];
     editWebhook: IWebhook;
-    allowedUserEdit = false;
     showPopup = false;
     useDisable = false;
     showLoading = false;
@@ -42,7 +41,6 @@ export class WebhookListContainerComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.initI18NText();
-        this.checkUserEditable();
         this.bindToAppSelectionEvent();
     }
 
@@ -61,12 +59,6 @@ export class WebhookListContainerComponent implements OnInit, OnDestroy {
 
     get guideMessage(): string {
         return !this.isApplicationSelected() ? this.i18nText.APP_NOT_SELECTED : this.i18nText.NO_WEBHOOK_RESGISTERED;
-    }
-
-    private checkUserEditable() {
-        this.webAppSettingDataService.useUserEdit().subscribe((allowedUserEdit: boolean) => {
-            this.allowedUserEdit = allowedUserEdit;
-        });
     }
 
     private bindToAppSelectionEvent(): void {
