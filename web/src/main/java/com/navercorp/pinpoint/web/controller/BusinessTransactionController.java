@@ -123,12 +123,8 @@ public class BusinessTransactionController {
 
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
 
-        TransactionInfoViewModel result;
-        if (spanResult.getTraceState() == TraceState.State.PROGRESS && columnGetCount.isreachedLimit()) {
-            result = new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, TraceState.State.OVERFLOW, logConfiguration);
-        } else {
-            result = new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, spanResult.getTraceState(), logConfiguration);
-        }
+        TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, spanResult.getTraceState(), logConfiguration);
+
         if (useLoadHistogramFormat) {
             result.setTimeHistogramFormat(TimeHistogramFormat.V2);
         }
@@ -180,7 +176,7 @@ public class BusinessTransactionController {
                                                     @RequestParam(value = "focusTimestamp", required = false, defaultValue = "0") long focusTimestamp,
                                                     @RequestParam(value = "agentId", required = false) String agentId,
                                                     @RequestParam(value = "spanId", required = false, defaultValue = "-1") long spanId) {
-        logger.debug("GET /traceViewerData params {traceId={}, focusTimestamp={}, agentId={}, spanId={}, v={}}", traceIdParam, focusTimestamp, agentId, spanId);
+        logger.debug("GET /traceViewerData params {traceId={}, focusTimestamp={}, agentId={}, spanId={}}", traceIdParam, focusTimestamp, agentId, spanId);
 
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceIdParam);
 

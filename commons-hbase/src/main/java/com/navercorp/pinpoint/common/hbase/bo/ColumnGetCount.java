@@ -26,9 +26,8 @@ public class ColumnGetCount {
     public static final ColumnGetCount UNLIMITED_COLUMN_GET_COUNT = new UnlimitedColumnGetCount();
 
     private final int limit;
-    private int resultSize;
 
-    public ColumnGetCount(int limit) {
+    ColumnGetCount(int limit) {
         Assert.isTrue(limit > 0, "limit must be 'limit >= 0'");
         this.limit = limit;
     }
@@ -37,13 +36,10 @@ public class ColumnGetCount {
         return limit;
     }
 
-    public boolean isreachedLimit() {
+    public boolean isReachedLimit(int resultSize) {
         return resultSize >= limit;
     }
 
-    public void setResultSize(int resultSize) {
-        this.resultSize = resultSize;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -67,13 +63,8 @@ public class ColumnGetCount {
         }
 
         @Override
-        public boolean isreachedLimit() {
+        public boolean isReachedLimit(int resultSize) {
             return false;
-        }
-
-        @Override
-        public void setResultSize(int resultSize) {
-            // skip
         }
 
     }

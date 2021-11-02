@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
+import com.navercorp.pinpoint.common.hbase.rowmapper.ResultSizeMapper;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareDynamicRowMapper;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareRowMapper;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareRowMapperAdaptor;
@@ -36,13 +37,13 @@ import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.mapper.CellTraceMapper;
 import com.navercorp.pinpoint.web.mapper.SpanMapperV2;
 import com.navercorp.pinpoint.web.mapper.FilteringSpanDecoder;
+import com.navercorp.pinpoint.web.service.FetchResult;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
 import org.apache.hadoop.hbase.filter.ByteArrayComparable;
 import org.apache.hadoop.hbase.filter.ColumnCountGetFilter;
@@ -116,11 +117,11 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     @Override
     public List<SpanBo> selectSpan(TransactionId transactionId) {
-        return selectSpan(transactionId, null);
+        return selectSpan(transactionId, null).getData();
     }
 
     @Override
-    public List<SpanBo> selectSpan(TransactionId transactionId, ColumnGetCount columnGetCount) {
+    public FetchResult<List<SpanBo>> selectSpan(TransactionId transactionId, ColumnGetCount columnGetCount) {
         Objects.requireNonNull(transactionId, "transactionId");
 
         byte[] transactionIdRowKey = rowKeyEncoder.encodeRowKey(transactionId);
@@ -133,17 +134,12 @@ public class HbaseTraceDaoV2 implements TraceDao {
         }
 
         TableName traceTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        RowMapper<List<SpanBo>> rowMapper = new RowMapperResultAdaptor<>(spanMapperV2, new RowMapper<List<SpanBo>>() {
-            @Override
-            public List<SpanBo> mapRow(Result result, int rowNum) {
-                if (columnGetCount != null && columnGetCount != ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT) {
-                    int size = result.size();
-                    columnGetCount.setResultSize(size);
-                }
-                return null;
-            }
-        });
-        return template2.get(traceTableName, get, rowMapper);
+        ResultSizeMapper<List<SpanBo>> resultSizeMapper = new ResultSizeMapper<>();
+        RowMapper<List<SpanBo>> rowMapper = new RowMapperResultAdaptor<>(spanMapperV2, resultSizeMapper);
+
+        List<SpanBo> spanBos = template2.get(traceTableName, get, rowMapper);
+
+        return new FetchResult<>(resultSizeMapper.getResultSize(), spanBos);
     }
 
     @Override

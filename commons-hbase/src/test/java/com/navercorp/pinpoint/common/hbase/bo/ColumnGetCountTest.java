@@ -32,10 +32,7 @@ public class ColumnGetCountTest {
         columnGetCount = ColumnGetCountFactory.create(Integer.MAX_VALUE);
         Assert.assertEquals(Integer.MAX_VALUE, columnGetCount.getLimit());
 
-
-        columnGetCount.setResultSize(Integer.MAX_VALUE);
-
-        Assert.assertFalse(columnGetCount.isreachedLimit());
+        Assert.assertFalse(columnGetCount.isReachedLimit(Integer.MAX_VALUE));
 
     }
 
@@ -46,10 +43,9 @@ public class ColumnGetCountTest {
         ColumnGetCount columnGetCount = ColumnGetCountFactory.create(countValue);
         Assert.assertEquals(countValue, columnGetCount.getLimit());
 
-        Assert.assertFalse(columnGetCount.isreachedLimit());
+        Assert.assertFalse(columnGetCount.isReachedLimit(0));
 
-        columnGetCount.setResultSize(++countValue);
-        Assert.assertTrue(columnGetCount.isreachedLimit());
+        Assert.assertTrue(columnGetCount.isReachedLimit(++countValue));
 
     }
 
