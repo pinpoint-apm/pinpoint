@@ -7,18 +7,18 @@ import java.util.Objects;
 
 
 public class RowMapperResultAdaptor<T> implements RowMapper<T> {
-    private final ResultHandler resultHandler;
+    private final RowMapper<T> consumer;
     private final RowMapper<T> delegate;
 
-    public RowMapperResultAdaptor(RowMapper<T> delegate, ResultHandler resultConsumer) {
+    public RowMapperResultAdaptor(RowMapper<T> delegate, RowMapper<T> consumer) {
         this.delegate = Objects.requireNonNull(delegate, "delegate");
-        this.resultHandler = Objects.requireNonNull(resultConsumer, "resultConsumer");
+        this.consumer = Objects.requireNonNull(consumer, "consumer");
     }
 
 
     @Override
     public T mapRow(Result result, int rowNum) throws Exception {
-        this.resultHandler.mapRow(result, rowNum);
+        this.consumer.mapRow(result, rowNum);
         return delegate.mapRow(result, rowNum);
     }
 

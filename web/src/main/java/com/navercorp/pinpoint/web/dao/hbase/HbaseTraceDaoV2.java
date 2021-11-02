@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareDynamicRowMapper;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareRowMapper;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareRowMapperAdaptor;
-import com.navercorp.pinpoint.common.hbase.rowmapper.ResultHandler;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RowMapperResultAdaptor;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -134,13 +133,14 @@ public class HbaseTraceDaoV2 implements TraceDao {
         }
 
         TableName traceTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        RowMapper<List<SpanBo>> rowMapper = new RowMapperResultAdaptor<>(spanMapperV2, new ResultHandler() {
+        RowMapper<List<SpanBo>> rowMapper = new RowMapperResultAdaptor<>(spanMapperV2, new RowMapper<List<SpanBo>>() {
             @Override
-            public void mapRow(Result result, int rowNum) {
+            public List<SpanBo> mapRow(Result result, int rowNum) {
                 if (columnGetCount != null && columnGetCount != ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT) {
                     int size = result.size();
                     columnGetCount.setResultSize(size);
                 }
+                return null;
             }
         });
         return template2.get(traceTableName, get, rowMapper);
