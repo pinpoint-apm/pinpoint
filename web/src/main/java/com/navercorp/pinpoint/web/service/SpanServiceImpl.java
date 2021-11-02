@@ -117,7 +117,8 @@ public class SpanServiceImpl implements SpanService {
         Objects.requireNonNull(transactionId, "transactionId");
         Objects.requireNonNull(filter, "filter");
 
-        final List<SpanBo> spans = traceDao.selectSpan(transactionId, columnGetCount);
+        final FetchResult<List<SpanBo>> fetchResult = traceDao.selectSpan(transactionId, columnGetCount);
+        final List<SpanBo> spans = fetchResult.getData();
         logger.debug("selectSpan spans:{}", spans.size());
 
         populateAgentName(spans);
@@ -125,7 +126,9 @@ public class SpanServiceImpl implements SpanService {
             return new SpanResult(TraceState.State.ERROR, new CallTreeIterator(null));
         }
 
-        final SpanResult result = order(spans, filter);
+        final boolean isReachedLimit = columnGetCount.isReachedLimit(fetchResult.getFetchCount());
+
+        final SpanResult result = order(spans, filter, isReachedLimit);
         final CallTreeIterator callTreeIterator = result.getCallTree();
         final List<Align> values = callTreeIterator.values();
 
@@ -488,11 +491,16 @@ public class SpanServiceImpl implements SpanService {
         void replacement(Align align, List<AnnotationBo> annotationBoList);
     }
 
-    private SpanResult order(List<SpanBo> spans, Predicate<SpanBo> filter) {
+    private SpanResult order(List<SpanBo> spans, Predicate<SpanBo> filter, boolean isReachedLimit) {
         SpanAligner spanAligner = new SpanAligner(spans, filter, serviceTypeRegistryService);
         final CallTree callTree = spanAligner.align();
 
-        return new SpanResult(spanAligner.getMatchType(), callTree.iterator());
+        TraceState.State matchType = spanAligner.getMatchType();
+        if (matchType == TraceState.State.PROGRESS && isReachedLimit) {
+            matchType = TraceState.State.OVERFLOW;
+        }
+
+        return new SpanResult(matchType, callTree.iterator());
     }
 
     private Optional<String> getAgentName(String agentId, long agentStartTime) {
