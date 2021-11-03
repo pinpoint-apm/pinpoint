@@ -1,3 +1,7 @@
+:host {
+    overflow-y: scroll;
+}
+
 li {
     color: var(--text-primary);
     /* height: 28px; */

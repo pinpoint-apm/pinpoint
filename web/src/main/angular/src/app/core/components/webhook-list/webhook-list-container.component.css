@@ -8,7 +8,7 @@
     font-family: 'Open Sans', sans-serif;
     background-color: var(--background-default);
     grid-template-columns: auto;
-    grid-template-rows: 48px 53px calc(100% - 101px);
+    grid-template-rows: 48px calc(100% - 48px);
 }
 
 .l-webhook-title {
