@@ -65,9 +65,6 @@
 
     <build>
         <resources>
-            <resource>
-                <directory>${basedir}/src/main/resources-${env}</directory>
-            </resource>
         </resources>
 
         <plugins>
