@@ -396,4 +396,15 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="pinpoint-2.4.0_1">
+        <modifyTable name="ApplicationTraceIndex">
+            <createColumnFamily name="M">
+                <configuration>
+                    <timeToLive>5184000</timeToLive>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+        </modifyTable>
+    </changeSet>
+
 </hbaseSchema>
