@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +70,7 @@ public class YMLSystemMetricBasicGroupManager {
         Map<String, List<String>> metricIdMap = new HashMap<>();
         for (Metric metric : metrics) {
             String definitionId = metric.getDefinitionId();
-            metricIdMap.computeIfPresent(metric.getName(), new BiFunction<String, List<String>, List<String>>() {
+            metricIdMap.compute(metric.getName(), new BiFunction<String, List<String>, List<String>>() {
                 @Override
                 public List<String> apply(String metricId, List<String> definitionIdList) {
                     if (definitionIdList == null) {
@@ -128,10 +129,11 @@ public class YMLSystemMetricBasicGroupManager {
     }
 
     public List<String> findMetricDefinitionIdList(String metricName) {
-        List<String> definitionId = metricIdMap.get(metricName);
-        if (definitionId != null) {
-            return definitionId;
+        List<String> definitionIdList = metricIdMap.get(metricName);
+        if (definitionIdList != null) {
+            return definitionIdList;
         }
-        throw new UnsupportedOperationException("unsupported metric :" + metricName);
+
+        return Collections.emptyList();
     }
 }
