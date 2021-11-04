@@ -170,17 +170,11 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
     }
 
     private List<MetricValueGroup<? extends Number>> groupingByTag(List<MetricValue<? extends Number>> metricValueList) {
-        List<TagGroup> uniqueTagGroupList = new ArrayList<>();
-
-        for (MetricValue<?> metricValue : metricValueList) {
-            List<Tag> tagList = metricValue.getTagList();
-            addTagList(uniqueTagGroupList, tagList);
-        }
+        List<TagGroup> uniqueTagGroupList = createUniqueTagGroupList(metricValueList);
 
         Map<TagGroup, List<MetricValue<?>>> metricValueGroupMap = new HashMap<>();
         for (MetricValue<?> metricValue : metricValueList) {
-            int index = uniqueTagGroupList.indexOf(new TagGroup(metricValue.getTagList()));
-            TagGroup tagGroup = uniqueTagGroupList.get(index);
+            TagGroup tagGroup = findTagGroup(uniqueTagGroupList, new TagGroup(metricValue.getTagList()));
 
             if (metricValueGroupMap.containsKey(tagGroup)) {
                 List<MetricValue<?>> metricValues = metricValueGroupMap.get(tagGroup);
@@ -205,16 +199,54 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
         return metricValueGroupList;
     }
 
-    private void addTagList(List<TagGroup> uniqueTagList, List<Tag> tagList) {
-        TagGroup newTagGroup = new TagGroup(tagList);
-
-        for (TagGroup tagGroup : uniqueTagList) {
-            if (tagGroup.equals(newTagGroup)) {
-                return;
+    private TagGroup findTagGroup(List<TagGroup> uniqueTagGroupList, TagGroup tagGroup) {
+        for(TagGroup tg : uniqueTagGroupList) {
+            if (equalsTagGroup(tg, tagGroup)) {
+                return tg;
             }
         }
 
-        uniqueTagList.add(newTagGroup);
+        throw new RuntimeException("cann't find tagGroup");
+    }
+
+    private List<TagGroup> createUniqueTagGroupList(List<MetricValue<? extends Number>> metricValueList) {
+        List<TagGroup> uniqueTagGroupList = new ArrayList<>();
+
+        for (MetricValue<?> metricValue : metricValueList) {
+            boolean containTagGroup = false;
+
+            List<Tag> tagList = metricValue.getTagList();
+            TagGroup newTagGroup = new TagGroup(tagList);
+
+            for (TagGroup tagGroup : uniqueTagGroupList) {
+                if (equalsTagGroup(tagGroup, newTagGroup)) {
+                    containTagGroup = true;
+                }
+            }
+
+            if (containTagGroup == false) {
+                uniqueTagGroupList.add(newTagGroup);
+            }
+        }
+
+        return uniqueTagGroupList;
+    }
+
+    private boolean equalsTagGroup(TagGroup tagGroup1, TagGroup tagGroup2) {
+        if (tagGroup1 == tagGroup2) {
+            return true;
+        }
+
+        List<Tag> tagList1 = tagGroup1.getTagList();
+        List<Tag> tagList2 = tagGroup2.getTagList();
+
+        if (tagList1.size() == tagList2.size()) {
+            if (tagList1.containsAll(tagList2)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static class TagGroup {
@@ -224,19 +256,8 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
             this.tagList = Objects.requireNonNull(tagList, "tagList");
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            TagGroup tagGroup = (TagGroup) o;
-
-            if (tagList.size() == tagGroup.tagList.size()) {
-                if (tagList.containsAll(tagGroup.tagList)) {
-                    return true;
-                }
-            }
-
-            return false;
+        public List<Tag> getTagList() {
+            return tagList;
         }
 
         @Override
