@@ -109,13 +109,14 @@ public class SpanServiceImpl implements SpanService {
 
     @Override
     public SpanResult selectSpan(TransactionId transactionId, Predicate<SpanBo> filter) {
-        return selectSpan(transactionId, filter, null);
+        return selectSpan(transactionId, filter, ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT);
     }
 
     @Override
     public SpanResult selectSpan(TransactionId transactionId, Predicate<SpanBo> filter, ColumnGetCount columnGetCount) {
         Objects.requireNonNull(transactionId, "transactionId");
         Objects.requireNonNull(filter, "filter");
+        Objects.requireNonNull(columnGetCount, "columnGetCount");
 
         final FetchResult<List<SpanBo>> fetchResult = traceDao.selectSpan(transactionId, columnGetCount);
         final List<SpanBo> spans = fetchResult.getData();
