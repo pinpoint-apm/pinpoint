@@ -210,6 +210,10 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
                 suppressSizeToFit: true,
                 valueFormatter: (params: any) => {
                     return params.value === 0 ? '' : moment(params.value).tz(this.timezone).format(this.dateFormat);
+                },
+                tooltipValueGetter: (params: any) => {
+                    const dayFormat = 'YYYY-MM-DD';
+                    return params.value === 0 ? '' : moment(params.value).tz(this.timezone).format(dayFormat);
                 }
             },
             {
