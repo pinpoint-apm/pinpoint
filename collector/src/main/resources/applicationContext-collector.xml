@@ -20,7 +20,7 @@
                                           com.navercorp.pinpoint.collector.service,
                                           com.navercorp.pinpoint.common.server.bo.codec,
                                           com.navercorp.pinpoint.common.server.util,
-                                          com.navercorp.pinpoint.common.server.bo.
+                                          com.navercorp.pinpoint.common.server.bo,
                                           com.navercorp.pinpoint.common.server.config" />
 
     <import resource="classpath:applicationContext-collector-profile.xml"/>
