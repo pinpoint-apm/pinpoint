@@ -1,10 +1,12 @@
 <div class="l-title-group">
     {{title}}
     <ng-container *ngIf="isGroupedMetric">
-        <select class="l-metric-select" [ngModel]="selectedMetricGroupName" (ngModelChange)="onChangeGroup($event)">
-            <option *ngFor="let metricGroup of metricGroupList" [ngValue]="metricGroup">{{metricGroup}}</option>
-        </select>
-        <span class="fas fa-angle-down"></span>
+        <div class="l-select-container" [attr.data-content]="selectedMetricGroupName">
+            <select class="l-metric-select" [ngModel]="selectedMetricGroupName" (ngModelChange)="onChangeGroup($event)">
+                <option *ngFor="let metricGroup of metricGroupList" [ngValue]="metricGroup">{{metricGroup}}</option>
+            </select>
+        </div>
+        <!-- <span class="fas fa-angle-down"></span> -->
     </ng-container>
     <!-- <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button> -->
 </div>
