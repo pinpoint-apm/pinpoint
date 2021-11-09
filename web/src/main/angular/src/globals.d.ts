@@ -428,3 +428,25 @@ interface IUserProfile {
     phoneNumber?: string;
     email?: string;
 }
+
+interface IMetricData {
+    title: string;
+    timestamp: number[];
+    metricValueGroups: {
+        groupName: string,
+        metricValues: IMetricValue[]
+    }[];
+}
+
+// interface IMetricData {
+//     title: string;
+//     timestamp: number[];
+//     metricValues: IMetricValue[];
+// }
+
+interface IMetricValue {
+    fieldName: string;
+    // tagList: {name: string, value: string}[];
+    tags?: any[]; // TODO: Check format
+    values: number[];
+}

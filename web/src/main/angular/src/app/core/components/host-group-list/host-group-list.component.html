@@ -1,0 +1,12 @@
+<dl class="l-host-group-list" #listWrapper>
+    <dt *ngIf="showTitle">{{title}}</dt>
+    <dd *ngFor="let hostGroup of hostGroupList; let i = index"
+        (click)="onSelectHostGroup(hostGroup)"
+        (mouseenter)="onFocus(i + restCount)"
+        [ngClass]="makeClass(i + restCount)"
+        class="l-item">
+        <!-- <i class="fas fa-server l-host-icon"></i> -->
+        <span class="l-text-ellipsis">{{hostGroup}}</span>
+    </dd>
+    <dd class="l-item" *ngIf="isEmpty">{{emptyText}}</dd>
+</dl>

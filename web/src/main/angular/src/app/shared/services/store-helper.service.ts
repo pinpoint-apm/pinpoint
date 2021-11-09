@@ -16,6 +16,7 @@ import { isEmpty } from 'app/core/utils/util';
 import { applicationList, applicationListError } from 'app/shared/store/selectors/application-list.selector';
 import { favoriteApplicationList, favoriteApplicationListError } from 'app/shared/store/selectors/favorite-application-list.selector';
 import { ErrorType } from 'app/shared/store/reducers/favorite-application-list.reducer';
+import { hostGroupList, hostGroupListError } from 'app/shared/store/selectors/host-group-list.selector';
 
 @Injectable()
 export class StoreHelperService {
@@ -71,6 +72,17 @@ export class StoreHelperService {
 
         return this.store.pipe(selectError);
     }
+    getHostGroupList(): Observable<string[]> {
+        return this.store.pipe(select(hostGroupList));
+    }
+    getHostGroupListError(): Observable<IServerErrorFormat> {
+        const selectError = pipe(
+            select(hostGroupListError),
+            filter((error: IServerErrorFormat) => error && !isEmpty(error))
+        );
+
+        return this.store.pipe(selectError);
+    }
     getTimezone(unsubscribe?: Subject<void>): Observable<string> {
         return this.getObservable(STORE_KEY.TIMEZONE, unsubscribe);
     }
@@ -99,7 +111,7 @@ export class StoreHelperService {
     getAgentList(unsubscribe: Subject<void>): Observable<IAgentList> {
         return this.getObservable(STORE_KEY.ADMIN_AGENT_LIST, unsubscribe);
     }
-    getServerAndAgentQuery<T>(unsubscribe: Subject<void>): Observable<T> {
+    getServerAndAgentQuery(unsubscribe: Subject<void>): Observable<string> {
         return this.getObservable(STORE_KEY.SERVER_AND_AGENT, unsubscribe).pipe(
             debounceTime(100),
             distinctUntilChanged()
