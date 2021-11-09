@@ -21,6 +21,10 @@ const appRoutes: Routes = [
                 },
                 children: [
                     {
+                        path: UrlPath.METRIC,
+                        loadChildren: () => import('./routes/metric-page/index').then(m => m.MetricPageModule)
+                    },
+                    {
                         path: UrlPath.URL_STATISTIC,
                         loadChildren: () => import('./routes/url-statistic-page/index').then(m => m.UrlStatisticPageModule)
                     },

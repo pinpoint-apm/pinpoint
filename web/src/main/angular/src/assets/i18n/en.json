@@ -16,12 +16,18 @@
         "SELECT_YOUR_APP": "Select your application",
         "INPUT_APP_NAME_PLACE_HOLDER": "Input application name",
         "EMPTY": "The list is empty.",
-        "EMPTY_ON_SEARCH": "We couldn't find anything."
+        "EMPTY_ON_SEARCH": "We couldn't find anything.",
+        "CHART_INTERACTION_GUIDE_MESSAGE": "* You can zoom in on the chart by dragging the mouse."
     },
     "MAIN": {
         "FAVORITE_APP_LIST": "Favorite List",
         "APP_LIST": "Application List",
         "VISIBILITY_HIDDEN": "The page has been deactivated. <br>You may want to refresh to back on it."
+    },
+    "METRIC": {
+        "HOST_GROUP_LIST": "Host-Group List",
+        "SELECT_HOST_GROUP": "Select your host-group",
+        "INPUT_HOST_GROUP_NAME_PLACE_HOLDER": "Input host-group name"
     },
     "INSPECTOR": {
         "APPLICATION_INSPECTOR_USAGE_GUIDE_MESSAGE": "[TEXT]:{value=Application Inspector is not enabled.<br> To enable Application Inspector, please refer to}|[LINK]:{href=https://pinpoint-apm.gitbook.io/pinpoint/documents/application-inspector\\target=blank\\style=color:#428bca\\linkText=this link}",
@@ -35,8 +41,7 @@
                 "For case 1, you should delete the mapping between !{0} and !{1}.",
 				"For case 2, the agent id of the duplicate agent must change."
             ]
-        },
-        "CHART_INTERACTION_GUIDE_MESSAGE": "* You can zoom in on the chart by dragging the mouse."
+        }
     },
     "TRANSACTION_LIST": {
         "SELECT_TRANSACTION": "Select your transaction",

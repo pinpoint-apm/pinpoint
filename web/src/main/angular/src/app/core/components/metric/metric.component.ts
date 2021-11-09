@@ -1,29 +1,27 @@
-import { Component, OnInit, OnChanges, Input, Output, EventEmitter, ViewChild, ElementRef, SimpleChanges, Renderer2, OnDestroy } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, SimpleChanges, ViewChild, OnChanges, OnDestroy } from '@angular/core';
+import { takeUntil, filter } from 'rxjs/operators';
 import bb, { PrimitiveArray } from 'billboard.js';
-import { Subject, merge, fromEvent } from 'rxjs';
-import { filter, map, takeUntil } from 'rxjs/operators';
 
-import { MessageQueueService, MESSAGE_TO, GutterEventService, NewUrlStateNotificationService } from 'app/shared/services';
-import { UrlPath } from 'app/shared/models';
+import { MessageQueueService, MESSAGE_TO } from 'app/shared/services';
+import { Subject, merge, fromEvent } from 'rxjs';
 
 @Component({
-    selector: 'pp-inspector-chart',
-    templateUrl: './inspector-chart.component.html',
-    styleUrls: ['./inspector-chart.component.css'],
+    selector: 'pp-metric',
+    templateUrl: './metric.component.html',
+    styleUrls: ['./metric.component.css']
 })
-export class InspectorChartComponent implements OnInit, OnChanges, OnDestroy {
-    @ViewChild('chartHolder', { static: true }) chartHolder: ElementRef;
+export class MetricComponent implements OnInit, OnChanges, OnDestroy {
+    @ViewChild('chartHolder', {static: true}) chartHolder: ElementRef;
     @Input() chartConfig: IChartConfig;
     @Output() outRendered = new EventEmitter<void>(true);
 
     private unsubscribe = new Subject<void>();
     private chartInstance: any;
-    private readonly inspectorChartRatio = 1.92;
+    private readonly ratio = 1.92;
+    // private readonly ratio = 4.69;
 
     constructor(
         private messageQueueService: MessageQueueService,
-        private gutterEventService: GutterEventService,
-        private newUrlStateNotificationService: NewUrlStateNotificationService,
         private el: ElementRef,
         private renderer: Renderer2
     ) {}
@@ -32,27 +30,12 @@ export class InspectorChartComponent implements OnInit, OnChanges, OnDestroy {
         this.setHeight();
         merge(
             fromEvent(window, 'resize'),
-            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SET_CHART_LAYOUT).pipe(),
-            this.gutterEventService.onGutterResized$
+            // this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SET_CHART_LAYOUT).pipe(),
         ).pipe(
             takeUntil(this.unsubscribe),
-            filter(() => {
-                return this.chartInstance && this.el.nativeElement.isConnected;
-            }),
+            filter(() => this.chartInstance && this.el.nativeElement.isConnected)
         ).subscribe(() => {
             this.resize();
-        });
-
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.CALL_TREE_ROW_SELECT).subscribe(({time}: ISelectedRowInfo) => {
-            const closestTime = (Object.values(this.chartInstance.x())[0] as Date[])
-                .map((d: Date) => d.getTime())
-                .find((t: number, i: number, arr: number[]) => {
-                    return time <= t || ((arr[i] < time && time < arr[i + 1]) && (time - arr[i] <= arr[i + 1] - time));
-                });
-
-            this.chartInstance.tooltip.show({
-                x: closestTime
-            });
         });
     }
 
@@ -85,9 +68,7 @@ export class InspectorChartComponent implements OnInit, OnChanges, OnDestroy {
 
     private setHeight(): void {
         const width = getComputedStyle(this.chartHolder.nativeElement).getPropertyValue('width');
-        const height = this.newUrlStateNotificationService.getStartPath() === UrlPath.INSPECTOR
-            ? `${Number(width.replace(/px/, '')) / this.inspectorChartRatio}px`
-            : `${this.el.nativeElement.offsetHeight}px`;
+        const height = `${Number(width.replace(/px/, '')) / this.ratio}px`;
 
         this.renderer.setStyle(this.chartHolder.nativeElement, 'height', height);
     }
@@ -99,10 +80,9 @@ export class InspectorChartComponent implements OnInit, OnChanges, OnDestroy {
         const currKeys = currColumns.map(([key]: PrimitiveArray) => key);
         const removedKeys = prevKeys.filter((key: string) => !currKeys.includes(key));
         const unloadKeys = [...this.getEmptyDataKeys(currColumns), ...removedKeys];
-        const {axis: {y, y2 = {}}} = currentValue.elseConfig;
+        // const {axis: {y}} = currentValue.elseConfig;
 
-        this.chartInstance.config('axis.y.max', y.max);
-        this.chartInstance.config('axis.y2.max', y2.max);
+        // this.chartInstance.config('axis.y.max', y.max);
         this.chartInstance.load({
             columns: currColumns,
             unload: unloadKeys,
