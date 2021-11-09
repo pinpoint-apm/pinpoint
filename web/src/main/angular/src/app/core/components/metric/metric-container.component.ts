@@ -10,6 +10,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { combineLatest, forkJoin, of, Subject, EMPTY } from 'rxjs';
 import { getMaxTickValue, makeXData } from 'app/core/utils/chart-util';
 import { isEmpty } from 'app/core/utils/util';
+import { getMetaInfo, Unit } from './metric-util';
 
 export enum Layer {
     LOADING = 'loading',
@@ -33,6 +34,8 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
     private defaultYMax = 100;
 
     private originalData: IMetricData;
+
+    private metaInfo: {yMax: number, getFormat: Function};
 
     title: string;
     chartConfig: IChartConfig;
@@ -88,13 +91,14 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
                 );
             }),
             map((data: IMetricData) => {
-                const {title, timestamp, metricValueGroups} = data;
+                const {title, timestamp, metricValueGroups, unit} = data;
 
                 this.title = title;
                 this.isGroupedMetric = metricValueGroups.length > 1;
                 this.metricGroupList = metricValueGroups.map(({groupName}: {groupName: string}) => groupName);
                 this.originalData = data;
                 this.selectedMetricGroupName = metricValueGroups[0].groupName;
+                this.metaInfo = getMetaInfo(unit as Unit);
 
                 return {timestamp, metricValues: metricValueGroups[0].metricValues};
             })
@@ -239,13 +243,12 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
                 },
                 y: {
                     label: {
-                        // TODO: Add y-axis label
                         // text: 'File Descriptor (count)',
-                        position: 'outer-middle'
+                        // position: 'outer-middle'
                     },
                     tick: {
                         count: 5,
-                        // format: (v: number): string => this.convertWithUnit(v)
+                        format: this.metaInfo.getFormat
                     },
                     padding: {
                         top: 0,
@@ -253,6 +256,10 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
                     },
                     min: 0,
                     max: (() => {
+                        if (this.metaInfo.yMax) {
+                            return this.metaInfo.yMax;
+                        }
+
                         const maxTickValue = getMaxTickValue(data, 1);
 
                         return maxTickValue === 0 ? this.defaultYMax : maxTickValue;
@@ -276,9 +283,7 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
             tooltip: {
                 linked: true,
                 format: {
-                    value: (v: number, _: number, columnId: string, i: number) => {
-                        return v.toString();
-                    }
+                    value: this.metaInfo.getFormat
                 },
                 order: ''
             },
