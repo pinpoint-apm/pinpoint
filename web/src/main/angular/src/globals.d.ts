@@ -436,6 +436,7 @@ interface IMetricData {
         groupName: string,
         metricValues: IMetricValue[]
     }[];
+    unit: string;
 }
 
 // interface IMetricData {
