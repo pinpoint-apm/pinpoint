@@ -41,7 +41,8 @@
     height: 100%;
     width: calc(100% - 250px);
 
-    padding: 20px 15px;
+    /* padding: 20px 15px; */
+    padding: 10px;
     max-height: 100%;
     overflow-y: auto;
 }

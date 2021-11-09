@@ -16,6 +16,7 @@ import { MetricContentsDataService } from './metric-contents-data.service';
 export class MetricContentsContainerComponent implements OnInit, OnDestroy {
     @ViewChild('chartGroupWrapper', {static: true}) chartGroupWrapper: ElementRef;
     private unsubscribe = new Subject<void>();
+    private chartCountPerRow = 2; // Display 2 metrics per row temporarily
 
     metricList: string[];
     guideMessage$: Observable<string>;
@@ -41,7 +42,7 @@ export class MetricContentsContainerComponent implements OnInit, OnDestroy {
         // ).pipe(
         //     takeUntil(this.unsubscribe)
         // ).subscribe((chartCountPerRow: number) => {
-        //     this.renderer.setStyle(this.chartGroupWrapper.nativeElement, 'grid-template-columns', this.getGridLayout(chartCountPerRow));
+            this.renderer.setStyle(this.chartGroupWrapper.nativeElement, 'grid-template-columns', this.getGridLayout(this.chartCountPerRow));
         // });
 
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
