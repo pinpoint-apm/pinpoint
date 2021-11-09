@@ -1,0 +1,51 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
+.l-title-group {
+    height: 40px;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 0 20px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    /* justify-content: space-between; */
+    background: var(--background-default);
+}
+
+.l-title-group .fas {
+    font-size: 18px;
+    color: var(--icon-default);
+    cursor: pointer;
+}
+
+.l-chart-area-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.fa-angle-down {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 15px;
+}
+
+.l-metric-select {
+    width: 300px;
+    cursor: pointer;
+    padding: 6px 0px;
+    background-color: var(--background-default);
+    /* border: 1px solid; */
+    border-color: var(--border-primary) !important;
+    border-radius: 0px;
+    font-size: 13px;
+    color: var(--text-primary-lightest);
+    /* appearance: none; */
+    /* -webkit-appearance: none; */
+    outline: 0;
+
+    margin-left: 10px;
+}

@@ -1,0 +1,19 @@
+<div class="l-title-group">
+    {{title}}
+    <ng-container *ngIf="isGroupedMetric">
+        <select class="l-metric-select" [ngModel]="selectedMetricGroupName" (ngModelChange)="onChangeGroup($event)">
+            <option *ngFor="let metricGroup of metricGroupList" [ngValue]="metricGroup">{{metricGroup}}</option>
+        </select>
+        <span class="fas fa-angle-down"></span>
+    </ng-container>
+    <!-- <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button> -->
+</div>
+<div class="l-chart-area-wrapper">
+    <pp-loading [showLoading]="isActiveLayer('loading')" [zIndex]="10"></pp-loading>
+    <pp-retry [showRetry]="isActiveLayer('retry')" [message]="retryMessage" (outRetry)="onRetry()"></pp-retry>
+    <pp-metric
+        [ngClass]="chartVisibility"
+        [chartConfig]="chartConfig"
+        (outRendered)="onRendered()">
+    </pp-metric>
+</div>

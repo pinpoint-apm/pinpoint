@@ -1,0 +1,20 @@
+<pp-notice-container></pp-notice-container>
+<header class="l-header flex-container flex-row">
+    <pp-header-logo></pp-header-logo>
+    <div class="l-widget-group">
+        <pp-host-group-list-container></pp-host-group-list-container>
+        <pp-period-selector-container></pp-period-selector-container>
+    </div>
+    <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
+    <pp-configuration-icon-container></pp-configuration-icon-container>
+</header>
+<div class="l-main-container">
+    <section *ngIf="(showSideMenu$ | async) as showSideMenu" class="l-sidemenu-wrap font-opensans">
+        <div class="l-sidemenu-left">
+            <pp-host-group-and-host-list-container></pp-host-group-and-host-list-container>            
+        </div>
+    </section>
+    <section class="l-main-section">
+        <router-outlet></router-outlet>
+    </section>
+</div>
