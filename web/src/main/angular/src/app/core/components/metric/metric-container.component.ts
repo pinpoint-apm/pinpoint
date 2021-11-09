@@ -63,12 +63,6 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.initI18nText();
         this.connectStore();
-        // @RequestParam("hostGroupId") String hostGroupId,
-        // @RequestParam("hostName") String hostName,
-        // @RequestParam("metricName") String metricName,
-        // @RequestParam("metricDefinitionId") String metricDefinitionId,
-        // @RequestParam("from") long from,
-        // @RequestParam("to"
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
             filter((urlService: NewUrlStateNotificationService) => {
@@ -80,8 +74,6 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
                 const hostName = urlService.getPathValue(UrlPathId.HOST);
                 const from = urlService.getStartTimeToNumber();
                 const to = urlService.getEndTimeToNumber();
-                // const from = 1636060980000;
-                // const to = 1636090980000;
 
                 return {hostGroupName, hostName, from, to, metricDefinitionId: this.type};
             }),
@@ -95,9 +87,7 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
                     })
                 );
             }),
-            // TODO: 이거 그룹 스위칭을 위해서 data를 캐싱해놔야 할 거 같기도함.
             map((data: IMetricData) => {
-                console.log(data);
                 const {title, timestamp, metricValueGroups} = data;
 
                 this.title = title;
@@ -105,7 +95,6 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
                 this.metricGroupList = metricValueGroups.map(({groupName}: {groupName: string}) => groupName);
                 this.originalData = data;
                 this.selectedMetricGroupName = metricValueGroups[0].groupName;
-                console.log(this.selectedMetricGroupName);
 
                 return {timestamp, metricValues: metricValueGroups[0].metricValues};
             })
