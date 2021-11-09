@@ -16,7 +16,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /* margin: 5px 10px 0 15px; */
+    margin: 5px 10px 0 15px;
     margin-bottom: 20px;
 }
 
@@ -28,11 +28,11 @@
 }
 
 .l-chart-group-wrap {
-    /* display: grid; */
+    display: grid;
     width: 100%;
-    /* column-gap: 10px;
+    column-gap: 10px;
     row-gap: 10px;
-    padding: 10px; */
+    /* padding: 10px; */
     min-height: 0;
     min-width: 0;
 }
@@ -42,6 +42,6 @@
     min-width: 0;
 }
 
-.l-chart-wrapper:not(:last-child) {
+/* .l-chart-wrapper:not(:last-child) {
     margin-bottom: 20px;
-}
+} */

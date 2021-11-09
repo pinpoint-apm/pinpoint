@@ -17,8 +17,8 @@ export class MetricComponent implements OnInit, OnChanges, OnDestroy {
 
     private unsubscribe = new Subject<void>();
     private chartInstance: any;
-    // private readonly ratio = 1.92;
-    private readonly ratio = 4.69;
+    private readonly ratio = 1.92;
+    // private readonly ratio = 4.69;
 
     constructor(
         private messageQueueService: MessageQueueService,
