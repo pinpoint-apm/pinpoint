@@ -1,15 +1,20 @@
 <div class="l-title-group">
-    {{title}}
-    <ng-container *ngIf="isGroupedMetric">
-        <div class="l-select-container" [attr.data-content]="selectedMetricGroupName">
-            <select class="l-metric-select" [ngModel]="selectedMetricGroupName" (ngModelChange)="onChangeGroup($event)">
-                <option *ngFor="let metricGroup of metricGroupList" [ngValue]="metricGroup">{{metricGroup}}</option>
-            </select>
-        </div>
-        <!-- <span class="fas fa-angle-down"></span> -->
-    </ng-container>
+    <h2 class="l-chart-title">{{title}}</h2>
     <!-- <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button> -->
 </div>
+<ng-container *ngIf="isGroupedMetric">
+    <div class="l-chart-option">
+        <div class="l-option-wrapper">
+            <h3 class="l-option-label">Metric Query</h3>
+            <div class="l-select-container" [attr.data-content]="selectedMetricGroupName">
+                <select class="l-metric-select" [ngModel]="selectedMetricGroupName" (ngModelChange)="onChangeGroup($event)">
+                    <option *ngFor="let metricGroup of metricGroupList" [ngValue]="metricGroup">{{metricGroup}}</option>
+                </select>
+                <span class="fas fa-angle-down"></span>
+            </div>
+        </div>
+    </div>
+ </ng-container>
 <div class="l-chart-area-wrapper">
     <pp-loading [showLoading]="isActiveLayer('loading')" [zIndex]="10"></pp-loading>
     <pp-retry [showRetry]="isActiveLayer('retry')" [message]="retryMessage" (outRetry)="onRetry()"></pp-retry>

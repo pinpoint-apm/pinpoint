@@ -4,15 +4,35 @@
 }
 
 .l-title-group {
-    height: 40px;
-    font-size: 14px;
-    font-weight: 600;
+    height: 50px;
+    /* font-size: 14px;
+    font-weight: 600; */
     padding: 0 20px;
     color: var(--text-primary);
     display: flex;
     align-items: center;
     /* justify-content: space-between; */
     background: var(--background-default);
+}
+
+.l-chart-title {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.l-chart-option {
+    padding: 0 20px;
+    background: var(--background-default);
+}
+
+.l-option-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.l-option-label {
+    font-size: 12px;
 }
 
 .l-title-group .fas {
@@ -28,26 +48,24 @@
 
 .fa-angle-down {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    font-size: 15px;
+    top: 7px;
+    right: 7px;
+    font-size: 14px;
 }
 
 .l-metric-select {
-    width: 300px;
+    width: 400px;
     cursor: pointer;
     padding: 6px 0px;
     background-color: var(--background-default);
-    /* border: 1px solid; */
+    border: 1px solid;
     border-color: var(--border-primary) !important;
     border-radius: 0px;
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text-primary-lightest);
     /* appearance: none; */
     /* -webkit-appearance: none; */
     outline: 0;
-
-    margin-left: 10px;
 
     color: transparent;
     appearance: none;
@@ -66,7 +84,7 @@
     right: 10px;
     bottom: 0;
     left: 0;
-    padding: 7px;
+    padding: 5px 8px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
