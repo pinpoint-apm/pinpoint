@@ -60,7 +60,7 @@ mappings:
 
   - definitionId: "inodeUsage"
     name: "disk"
-    title: "inode usage percent"
+    title: "inode usage"
     grouping: "TAG"
     unit: "count"
     fields:
@@ -75,7 +75,7 @@ mappings:
     name: "system"
     title: "system load"
     grouping: "TAG"
-    unit: "count"
+    unit: "percent"
     fields:
       - name: "load1"
         matchingRule: EXACT
