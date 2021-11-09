@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-plugins</artifactId>
-        <version>2.3.1-SNAPSHOT</version>
+        <version>2.3.1</version>
     </parent>
 
     <artifactId>pinpoint-activemq-client-plugin</artifactId>
