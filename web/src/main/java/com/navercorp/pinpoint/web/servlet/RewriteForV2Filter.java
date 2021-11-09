@@ -56,7 +56,8 @@ public class RewriteForV2Filter implements Filter {
             "/transactionDetail",
             "/transactionList",
             "/transactionView",
-            "/urlStatistic"
+            "/urlStatistic",
+            "/metric",
     };
 
     private final String PINPOINT_REST_API_SUFFIX = ".pinpoint";

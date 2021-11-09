@@ -88,6 +88,8 @@ export class UrlPathId {
     static CHART_MANAGER = 'chartManager';
     static AGENT_STATISTIC = 'agentStatistic';
     static AGENT_MANAGEMENT = 'agentManagement';
+    static HOST_GROUP = 'hostGroup';
+    static HOST = 'host';
 
     constructor() {}
     static getPathIdList(): string[] {
@@ -104,7 +106,9 @@ export class UrlPathId {
             UrlPathId.SPAN_ID,
             UrlPathId.TRACE_ID,
             UrlPathId.AGENT_STATISTIC,
-            UrlPathId.AGENT_MANAGEMENT
+            UrlPathId.AGENT_MANAGEMENT,
+            UrlPathId.HOST_GROUP,
+            UrlPathId.HOST
         ];
     }
 }
@@ -131,6 +135,8 @@ export class UrlPathIdFactory {
             case UrlPathId.SPAN_ID:
             case UrlPathId.AGENT_STATISTIC:
             case UrlPathId.AGENT_MANAGEMENT:
+            case UrlPathId.HOST_GROUP:
+            case UrlPathId.HOST:
                 return new UrlGeneral(paramValue) as IUrlPathId<string>;
             default:
                 return new UrlGeneral(paramValue) as IUrlPathId<string>;

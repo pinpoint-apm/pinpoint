@@ -1,0 +1,22 @@
+<div class="l-container-wrapper">
+    <div class="l-wrapper">
+        <input type="text" placeholder="{{inputPlaceholder$ | async}}" class="l-search-input" 
+            ppSearchInput 
+            [searchMinLength]="SEARCH_MIN_LENGTH"
+            [useEnter]="searchUseEnter"
+            (outCancel)="onCancel()"
+            (outSearch)="onSearch($event)">
+        <button class="fas fa-search"></button>
+    </div>
+</div>
+<ng-container *ngIf="filteredHostList && !isEmpty; else emptyText">
+    <pp-host-group-and-host-list
+        [hostList]="filteredHostList"
+        [selectedHostGroup]="selectedHostGroup"
+        [selectedHost]="selectedHost"
+        (outSelectHost)="onSelectHost($event)">
+    </pp-host-group-and-host-list>
+</ng-container>
+<ng-template #emptyText>
+    <p class="l-empty-text">{{emptyText$ | async}}</p>
+</ng-template>

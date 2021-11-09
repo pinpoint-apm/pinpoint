@@ -1,10 +1,10 @@
 import { Component, OnInit, OnDestroy, HostBinding, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import { Observable, of, Subject, merge } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, takeUntil } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 
 import { WebAppSettingDataService, MessageQueueService, MESSAGE_TO, NewUrlStateNotificationService } from 'app/shared/services';
 import { ChartType } from 'app/core/components/inspector-chart/inspector-chart-container-factory';
-import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'pp-application-inspector-contents-container',
@@ -35,11 +35,13 @@ export class ApplicationInspectorContentsContainerComponent implements OnInit, O
         this.coverRangeElements$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             map((urlService: NewUrlStateNotificationService) => urlService.isRealTimeMode())
         );
-        this.guideMessage$ = this.translateService.get('INSPECTOR.CHART_INTERACTION_GUIDE_MESSAGE');
+        this.guideMessage$ = this.translateService.get('COMMON.CHART_INTERACTION_GUIDE_MESSAGE');
 
         merge(
             of(this.webAppSettingDataService.getChartLayoutOption()),
-            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_SET_LAYOUT)
+            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SET_CHART_LAYOUT)
+        ).pipe(
+            takeUntil(this.unsubscribe)
         ).subscribe((chartCountPerRow: number) => {
             this.renderer.setStyle(this.chartGroupWrapper.nativeElement, 'grid-template-columns', this.getGridLayout(chartCountPerRow));
         });

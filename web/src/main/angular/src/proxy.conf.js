@@ -59,6 +59,10 @@ const PROXY_CONFIG = [
             "/application/webhook.pinpoint",
             "/application/webhookSendInfo.pinpoint",
             "/application/alarmRule/includeWebhooks.pinpoint",
+            "/systemMetric/hostGroup.pinpoint",
+            "/systemMetric/hostGroup/host.pinpoint",
+            "/systemMetric/hostGroup/host/collectedMetricInfo.pinpoint",
+            "/systemMetric/hostGroup/host/collectedMetricData.pinpoint"
         ],
         target: 'http://localhost:8080',
         secure: false

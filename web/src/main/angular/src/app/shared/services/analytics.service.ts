@@ -146,6 +146,9 @@ export enum TRACKED_EVENT_LIST {
     SHOW_WEBHOOK_UPDATE_POPUP = 'Show Webhook Update Popup',
     CLICK_SIDE_NAVIGATION_BAR = 'Click Side Navigation Bar',
     CLICK_APDEX_SCORE = 'Click Apdex Score',
+    SELECT_HOST_GROUP = 'Select Host Group',
+    CLICK_RELOAD_HOST_GROUP_LIST_BUTTON = 'Click Reload Host Group List Button',
+    SELECT_HOST = 'Select Host',
 }
 
 @Injectable()

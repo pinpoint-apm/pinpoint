@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, HostBinding, Renderer2, ViewChild, ElementRef } from '@angular/core';
 import { Subject, Observable, merge, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import { MessageQueueService, MESSAGE_TO, WebAppSettingDataService, NewUrlStateNotificationService } from 'app/shared/services';
@@ -32,10 +32,12 @@ export class AgentInspectorContentsContainerComponent implements OnInit, OnDestr
         this.coverRangeElements$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             map((urlService: NewUrlStateNotificationService) => urlService.isRealTimeMode())
         );
-        this.guideMessage$ = this.translateService.get('INSPECTOR.CHART_INTERACTION_GUIDE_MESSAGE');
+        this.guideMessage$ = this.translateService.get('COMMON.CHART_INTERACTION_GUIDE_MESSAGE');
         merge(
             of(this.webAppSettingDataService.getChartLayoutOption()),
-            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_SET_LAYOUT)
+            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SET_CHART_LAYOUT)
+        ).pipe(
+            takeUntil(this.unsubscribe)
         ).subscribe((chartCountPerRow: number) => {
             this.renderer.setStyle(this.chartGroupWrapper.nativeElement, 'grid-template-columns', this.getGridLayout(chartCountPerRow));
         });
