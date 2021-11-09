@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRe
 import { Subject, Observable } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
+import { PRIMARY_OUTLET, Router } from '@angular/router';
 
 import {
     TranslateReplaceService,
@@ -47,6 +48,7 @@ export class PeriodSelectorContainerComponent implements OnInit, OnDestroy {
         private translateReplaceService: TranslateReplaceService,
         private analyticsService: AnalyticsService,
         private cd: ChangeDetectorRef,
+        private router: Router,
     ) {}
 
     ngOnInit() {
@@ -95,20 +97,29 @@ export class PeriodSelectorContainerComponent implements OnInit, OnDestroy {
         });
     }
 
+    // TODO: Set the period as query param instead of taking it as path.
     onChangePeriodTime(selectedPeriod: string): void {
         if (this.newUrlStateNotificationService.isRealTimeMode(selectedPeriod)) {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SET_PERIOD_AS_REAL_TIME);
             this.urlRouteManagerService.moveToRealTime();
         } else {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_PERIOD, selectedPeriod);
+
+            const tree = this.router.parseUrl(this.router.url);
+            const g = tree.root.children[PRIMARY_OUTLET];
+            const s = g.segments;
+
             this.urlRouteManagerService.move({
                 url: [
                     this.newUrlStateNotificationService.getStartPath(),
-                    this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                    // this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                    // this.router.url[1],
+                    s[1].path,
                     selectedPeriod
                 ],
                 needServerTimeRequest: true,
-                nextUrl: this.newUrlStateNotificationService.hasValue(UrlPathId.AGENT_ID) ? [this.newUrlStateNotificationService.getPathValue(UrlPathId.AGENT_ID)] : []
+                // nextUrl: this.newUrlStateNotificationService.hasValue(UrlPathId.AGENT_ID) ? [this.newUrlStateNotificationService.getPathValue(UrlPathId.AGENT_ID)] : []
+                nextUrl: s[4] ? [s[4].path] : []
             });
         }
     }

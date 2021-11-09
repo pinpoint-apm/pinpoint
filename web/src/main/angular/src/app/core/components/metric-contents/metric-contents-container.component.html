@@ -1,0 +1,14 @@
+<div class="l-page-title-wrapper">
+    <h2 class="l-page-title"><i class="fas fa-chart-bar l-page-title-icon"></i>System Metric <span class="l-beta-text">Beta</span></h2>
+</div>
+<div class="l-main-contents">
+    <!-- <div class="l-chart-option-area">
+        <p class="l-guide-text">{{guideMessage$ | async}}</p>
+        <pp-chart-layout-option-container></pp-chart-layout-option-container>
+    </div> -->
+    <div class="l-chart-group-wrap" #chartGroupWrapper>
+        <!-- <div class="l-chart-wrapper"><pp-inspector-chart-container [chartType]="chartType.APPLICATION_JVM_HEAP"></pp-inspector-chart-container></div> -->
+
+        <div *ngFor="let metric of metricList" class="l-chart-wrapper"><pp-metric-container [type]="metric"></pp-metric-container></div>
+    </div>
+</div>

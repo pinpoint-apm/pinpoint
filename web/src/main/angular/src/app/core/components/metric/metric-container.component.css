@@ -1,0 +1,104 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
+.l-title-group {
+    height: 50px;
+    /* font-size: 14px;
+    font-weight: 600; */
+    padding: 0 20px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    /* justify-content: space-between; */
+    background: var(--background-default);
+
+    border-bottom: 1px solid var(--border-primary-lighter);
+}
+
+.l-chart-title {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.l-chart-option {
+    height: 38px;
+    /* padding: 0 20px; */
+    padding: 5px 20px;
+    background: var(--background-default);
+
+    /* border-bottom: 1px solid var(--border-primary-lighter); */
+}
+
+.l-chart-option.l-option-boundary {
+    border-bottom: 1px solid var(--border-primary-lighter);
+}
+
+.l-option-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.l-option-label {
+    font-size: 12px;
+}
+
+.l-title-group .fas {
+    font-size: 18px;
+    color: var(--icon-default);
+    cursor: pointer;
+}
+
+.l-chart-area-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.fa-angle-down {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    font-size: 14px;
+}
+
+.l-metric-select {
+    width: 400px;
+    cursor: pointer;
+    padding: 6px 0px;
+    background-color: var(--background-default);
+    border: 1px solid;
+    border-color: var(--border-primary) !important;
+    border-radius: 0px;
+    font-size: 11px;
+    color: var(--text-primary-lightest);
+    /* appearance: none; */
+    /* -webkit-appearance: none; */
+    outline: 0;
+
+    color: transparent;
+    appearance: none;
+}
+
+.l-select-container {
+    position: relative;
+    display: inline-block;
+}
+
+.l-select-container::before {
+    content: attr(data-content);
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    right: 10px;
+    bottom: 0;
+    left: 0;
+    padding: 5px 8px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: var(--text-var-lightest);
+    font-size: 11px;
+    font-family: 'Open Sans', sans-serif;
+}

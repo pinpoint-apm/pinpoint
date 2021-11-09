@@ -59,6 +59,10 @@ const PROXY_CONFIG = [
             "/application/webhook.pinpoint",
             "/application/webhookSendInfo.pinpoint",
             "/application/alarmRule/includeWebhooks.pinpoint",
+            "/systemMetric/hostGroup.pinpoint",
+            "/systemMetric/hostGroup/host.pinpoint",
+            "/systemMetric/hostGroup/host/collectedMetricInfo.pinpoint",
+            "/systemMetric/hostGroup/host/collectedMetricData.pinpoint"
             "/getApdexScore.pinpoint",
             "/getApplicationStat/apdexScore/chart.pinpoint",
             "/getAgentStat/apdexScore/chart.pinpoint"

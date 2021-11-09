@@ -16,12 +16,18 @@
         "SELECT_YOUR_APP": "애플리케이션을 선택하세요.",
         "INPUT_APP_NAME_PLACE_HOLDER": "애플리케이션 이름을 입력하세요.",
         "EMPTY": "등록된 목록이 없습니다.",
-        "EMPTY_ON_SEARCH": "검색결과가 없습니다."
+        "EMPTY_ON_SEARCH": "검색결과가 없습니다.",
+        "CHART_INTERACTION_GUIDE_MESSAGE": "* 마우스 드래그로 차트의 해당 영역을 확대해서 볼 수 있습니다."
     },
     "MAIN": {
         "FAVORITE_APP_LIST": "즐겨찾기 목록",
         "APP_LIST": "애플리케이션 목록",
         "VISIBILITY_HIDDEN": "페이지가 비활성화 되었습니다. <br>다시 이용하려면, 페이지를 새로고침해주세요."
+    },
+    "METRIC": {
+        "HOST_GROUP_LIST": "호스트 그룹 목록",
+        "SELECT_HOST_GROUP": "호스트 그룹을 선택하세요.",
+        "INPUT_HOST_GROUP_NAME_PLACE_HOLDER": "호스트 그룹 이름을 입력하세요."
     },
     "INSPECTOR": {
         "APPLICATION_INSPECTOR_USAGE_GUIDE_MESSAGE": "[TEXT]:{value=Application Inspector 기능이 활성화 되어 있지 않습니다.<br> Application Inspector 기능을 사용하려면,}|[LINK]:{href=https://pinpoint-apm.gitbook.io/pinpoint/documents/application-inspector\\target=_blank\\style=color:#428bca\\linkText=링크}|[TEXT]:{value=를 참고하세요.}",
@@ -35,8 +41,7 @@
                 "1의 경우 !{0}과 !{1}간의 매핑 정보를 삭제해야 합니다.",
 				"2의 경우 중복 등록된 agent의 id를 변경해야 합니다."
             ]
-        },
-        "CHART_INTERACTION_GUIDE_MESSAGE": "* 마우스 드래그로 차트의 해당 영역을 확대해서 볼 수 있습니다."
+        }
     },
     "TRANSACTION_LIST": {
         "SELECT_TRANSACTION": "Transaction을 선택하세요.",
