@@ -48,4 +48,29 @@
     outline: 0;
 
     margin-left: 10px;
+
+    color: transparent;
+    appearance: none;
+}
+
+.l-select-container {
+    position: relative;
+    display: inline-block;
+}
+
+.l-select-container::before {
+    content: attr(data-content);
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    right: 10px;
+    bottom: 0;
+    left: 0;
+    padding: 7px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: var(--text-var-lightest);
+    font-size: 12px;
+    font-family: 'Open Sans', sans-serif;
 }
