@@ -28,6 +28,10 @@
     background-color: var(--background-default);
 }
 
+::ng-deep #call-tree-table .ag-row-exception {
+    background-color: #fff1f1;
+}
+
 ::ng-deep #call-tree-table .ag-body {
     background-color: var(--background-default);
 }
