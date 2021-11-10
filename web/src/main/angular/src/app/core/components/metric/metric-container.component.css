@@ -23,6 +23,7 @@
 }
 
 .l-chart-option {
+    /* height: 38px; */
     /* padding: 0 20px; */
     padding: 5px 20px;
     background: var(--background-default);
