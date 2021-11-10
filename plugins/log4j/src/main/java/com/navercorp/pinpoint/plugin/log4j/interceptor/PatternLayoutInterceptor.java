@@ -70,8 +70,7 @@ public class PatternLayoutInterceptor implements AroundInterceptor1 {
             if (!oldPattern.contentEquals(newPattern)) {
                 changed = true;
                 if (debug) {
-                    logger.debug("Log4j pattern replaced, old pattern(" + oldPattern + ") and new pattern(" +
-                            newPattern + ").");
+                    logger.debug("Log4j pattern replaced, old pattern({}) and new pattern({}).", oldPattern, newPattern);
                 }
                 break;
             }
