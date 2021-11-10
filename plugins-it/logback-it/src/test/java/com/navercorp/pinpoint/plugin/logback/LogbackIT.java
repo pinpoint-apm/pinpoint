@@ -16,6 +16,8 @@
 package com.navercorp.pinpoint.plugin.logback;
 
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
+import com.navercorp.pinpoint.pluginit.utils.StdoutRecorder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmArgument;
@@ -29,13 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"ch.qos.logback:logback-classic:[1.0.13],[1.1.0,1.1.11],[1.2.0,1.2.6]", "org.slf4j:slf4j-api:1.7.12"})
+@Dependency({"ch.qos.logback:logback-classic:[1.0.13],[1.1.0,1.1.11],[1.2.0,1.2.6]", "org.slf4j:slf4j-api:1.7.12", PluginITConstants.VERSION})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-logback-plugin"})
 @PinpointConfig("pinpoint-spring-bean-test.config")
 @JvmArgument("-DtestLoggerEnable=false")
@@ -52,23 +50,21 @@ public class LogbackIT {
         Assert.assertNotNull("spanId", MDC.get("PspanId"));
     }
 
+    private Logger logger;
     @Test
-    public void patternUpdate() throws IOException {
-        final PrintStream originalOut = System.out;
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    public void patternUpdate() {
 
         final String msg = "pattern";
-        Logger logger;
-        try {
-            System.setOut(new PrintStream(outputStream));
-            logger = LoggerFactory.getLogger("patternUpdateLogback");
-            logger.error(msg);
-        } finally {
-            System.setOut(originalOut);
-        }
+        StdoutRecorder stdoutRecorder = new StdoutRecorder();
 
-        final String log = outputStream.toString();
-        outputStream.close();
+        String log = stdoutRecorder.record(new Runnable() {
+            @Override
+            public void run() {
+                logger = LoggerFactory.getLogger("patternUpdateLogback");
+                logger.error(msg);
+            }
+        });
+
         System.out.println(log);
         Assert.assertNotNull("log null", log);
         Assert.assertTrue("contains msg", log.contains(msg));

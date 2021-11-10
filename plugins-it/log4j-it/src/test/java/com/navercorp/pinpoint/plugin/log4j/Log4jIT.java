@@ -16,6 +16,8 @@
 package com.navercorp.pinpoint.plugin.log4j;
 
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
+import com.navercorp.pinpoint.pluginit.utils.StdoutRecorder;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import org.apache.log4j.Logger;
@@ -28,16 +30,16 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"log4j:log4j:[1.2.16,)"})
+@Dependency({"log4j:log4j:[1.2.16,)", PluginITConstants.VERSION})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-log4j-plugin"})
 @PinpointConfig("pinpoint-spring-bean-test.config")
 public class Log4jIT {
+
+    private Logger logger;
 
     @Test
     public void test() {
@@ -51,22 +53,19 @@ public class Log4jIT {
     }
 
     @Test
-    public void patternUpdate() throws IOException {
-        final PrintStream originalOut = System.out;
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
+    public void patternUpdate() {
         final String msg = "pattern";
-        Logger logger;
-        try {
-            System.setOut(new PrintStream(outputStream));
-            logger = Logger.getLogger("patternUpdateLogback");
-            logger.error(msg);
-        } finally {
-            System.setOut(originalOut);
-        }
 
-        final String log = outputStream.toString();
-        outputStream.close();
+
+        StdoutRecorder stdoutRecorder = new StdoutRecorder();
+        final String log = stdoutRecorder.record(new Runnable() {
+            @Override
+            public void run() {
+                logger = Logger.getLogger("patternUpdateLogback");
+                logger.error(msg);
+            }
+        });
+
         System.out.println(log);
         Assert.assertNotNull("log null", log);
         Assert.assertTrue("contains msg", log.contains(msg));

@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.plugin.log4j2;
 
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.pluginit.utils.StdoutRecorder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmArgument;
@@ -29,9 +30,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
 
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
@@ -41,25 +39,21 @@ import java.io.PrintStream;
 @Dependency({"org.apache.logging.log4j:log4j-core:[2.8,2.14.1]"})
 @JvmArgument("-DtestLoggerEnable=false")
 public class Log4j2PatternIT extends Log4j2TestBase {
-
+    private String location;
     @Test
-    public void patternUpdate() throws IOException {
-        final PrintStream originalOut = System.out;
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    public void patternUpdate() {
         final String msg = "pattern";
 
-        String location;
-        try {
-            System.setOut(new PrintStream(outputStream));
-            Logger logger = LogManager.getLogger("patternUpdateLog4j2Jvm8");
-            logger.error(msg);
-            location = getLoggerJarLocation(logger);
-        } finally {
-            System.setOut(originalOut);
-        }
+        StdoutRecorder stdoutRecorder = new StdoutRecorder();
+        String log = stdoutRecorder.record(new Runnable() {
+            @Override
+            public void run() {
+                Logger logger = LogManager.getLogger("patternUpdateLog4j2Jvm8");
+                logger.error(msg);
+                location = getLoggerJarLocation(logger);
+            }
+        });
 
-        final String log = outputStream.toString();
-        outputStream.close();
         System.out.println(log);
         Assert.assertNotNull("log null", log);
         Assert.assertTrue("contains msg", log.contains(msg));
