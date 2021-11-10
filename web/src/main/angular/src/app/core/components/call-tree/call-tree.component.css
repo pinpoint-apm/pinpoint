@@ -29,7 +29,7 @@
 }
 
 ::ng-deep #call-tree-table .ag-row-exception {
-    background-color: #fff1f1;
+    background-color: var(--background-row-danger);
 }
 
 ::ng-deep #call-tree-table .ag-body {
