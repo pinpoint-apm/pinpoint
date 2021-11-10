@@ -49,6 +49,8 @@ public class HelloWorldSimpleServer implements HelloWorldServer {
 
     private int bindPort;
 
+    private ExecutorService workerExecutor;
+
     @PostConstruct
     public void start() throws IOException {
         bindPort = SocketUtils.findAvailableTcpPort(27675);
@@ -56,7 +58,7 @@ public class HelloWorldSimpleServer implements HelloWorldServer {
         /* The port on which the server should run */
         ServerBuilder<?> serverBuilder = ServerBuilder.forPort(bindPort);
         if (serverBuilder instanceof NettyServerBuilder) {
-            ExecutorService workerExecutor = Executors.newCachedThreadPool();
+            this.workerExecutor = Executors.newCachedThreadPool();
             NioEventLoopGroup eventExecutors = new NioEventLoopGroup(CpuUtils.cpuCount() + 5, workerExecutor);
             ((NettyServerBuilder) serverBuilder).workerEventLoopGroup(eventExecutors);
         }
@@ -84,6 +86,9 @@ public class HelloWorldSimpleServer implements HelloWorldServer {
     public void stop() throws InterruptedException {
         if (server != null) {
             server.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        }
+        if (workerExecutor != null) {
+            workerExecutor.shutdownNow();
         }
     }
 
