@@ -52,6 +52,8 @@ public class HelloWorldStreamServer implements HelloWorldServer {
 
     private int bindPort;
 
+    private ExecutorService workerExecutor;
+
     @PostConstruct
     public void start() throws IOException {
         StreamingGreeterGrpc.StreamingGreeterImplBase svc = new StreamingGreeterGrpc.StreamingGreeterImplBase() {
@@ -151,7 +153,7 @@ public class HelloWorldStreamServer implements HelloWorldServer {
 
         ServerBuilder<?> serverBuilder = ServerBuilder.forPort(bindPort);
         if (serverBuilder instanceof NettyServerBuilder) {
-            ExecutorService workerExecutor = Executors.newCachedThreadPool();
+            this.workerExecutor = Executors.newCachedThreadPool();
             NioEventLoopGroup eventExecutors = new NioEventLoopGroup(CpuUtils.cpuCount() + 5, workerExecutor);
             ((NettyServerBuilder) serverBuilder).workerEventLoopGroup(eventExecutors);
         }
@@ -179,6 +181,9 @@ public class HelloWorldStreamServer implements HelloWorldServer {
     public void stop() throws InterruptedException {
         if (server != null) {
             server.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        }
+        if (workerExecutor != null) {
+            workerExecutor.shutdownNow();
         }
     }
 
