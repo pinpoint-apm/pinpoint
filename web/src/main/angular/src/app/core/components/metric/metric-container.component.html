@@ -4,15 +4,17 @@
 </div>
 <ng-container *ngIf="isGroupedMetric">
     <div class="l-chart-option">
-        <div class="l-option-wrapper">
-            <h3 class="l-option-label">Metric Query</h3>
-            <div class="l-select-container" [attr.data-content]="selectedMetricGroupName">
-                <select class="l-metric-select" [ngModel]="selectedMetricGroupName" (ngModelChange)="onChangeGroup($event)">
-                    <option *ngFor="let metricGroup of metricGroupList" [ngValue]="metricGroup">{{metricGroup}}</option>
-                </select>
-                <span class="fas fa-angle-down"></span>
+        <!-- <ng-container *ngIf="isGroupedMetric"> -->
+            <div class="l-option-wrapper">
+                <h3 class="l-option-label">Group</h3>
+                <div class="l-select-container" [attr.data-content]="selectedMetricGroupName">
+                    <select class="l-metric-select" [ngModel]="selectedMetricGroupName" (ngModelChange)="onChangeGroup($event)">
+                        <option *ngFor="let metricGroup of metricGroupList" [ngValue]="metricGroup">{{metricGroup}}</option>
+                    </select>
+                    <span class="fas fa-angle-down"></span>
+                </div>
             </div>
-        </div>
+        <!-- </ng-container> -->
     </div>
  </ng-container>
 <div class="l-chart-area-wrapper">

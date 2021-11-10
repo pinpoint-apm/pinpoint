@@ -6,7 +6,9 @@ export const enum Unit {
 
 export function getMetaInfo(dataUnit: Unit): {yMax: number, getFormat: Function} {
     return {
-        yMax: dataUnit === Unit.Percent ? 100 : undefined,
+        // yMax: dataUnit === Unit.Percent ? 100 : undefined,
+        // * Set yMax as undefined for every case temporarily
+        yMax: undefined,
         getFormat: (value: number) => dataUnit === Unit.Percent ? Number.isInteger(value) ? `${value}%` : `${value.toFixed(2)}%`
             : dataUnit === Unit.Count ? value.toLocaleString()
             : convertWithUnit(value)
