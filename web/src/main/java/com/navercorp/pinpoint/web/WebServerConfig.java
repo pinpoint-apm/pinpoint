@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.boot.web.servlet.support.ErrorPageFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.ShallowEtagHeaderFilter;
@@ -17,5 +18,10 @@ public class WebServerConfig {
         filterBean.setFilter(filter);
         filterBean.setUrlPatterns(Collections.singletonList("*"));
         return filterBean;
+    }
+
+    @Bean
+    public Filter errorPageFilter() {
+        return new ErrorPageFilter();
     }
 }
