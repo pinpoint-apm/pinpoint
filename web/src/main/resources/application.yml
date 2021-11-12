@@ -6,3 +6,10 @@ spring:
 
 server:
   port: 8080
+  error:
+    include-exception: true
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: always
+    whitelabel:
+      enabled: true
