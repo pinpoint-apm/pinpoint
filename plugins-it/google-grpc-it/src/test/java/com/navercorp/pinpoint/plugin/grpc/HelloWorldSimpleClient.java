@@ -27,6 +27,7 @@ import io.grpc.examples.helloworld.HelloRequest;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.concurrent.Future;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -47,21 +48,26 @@ public class HelloWorldSimpleClient implements HelloWorldClient {
     private final ManagedChannel channel;
     private final GreeterGrpc.GreeterBlockingStub blockingStub;
 
+    private final ExecutorService workerExecutor;
+    private final NioEventLoopGroup eventExecutors;
+
     /**
      * Construct client connecting to HelloWorld server at {@code host:port}.
      */
     @SuppressWarnings("deprecated")
     public HelloWorldSimpleClient(String host, int port) {
-        this(newChannel(host, port));
+        this.workerExecutor = Executors.newCachedThreadPool();
+        this.eventExecutors = new NioEventLoopGroup(CpuUtils.cpuCount() + 5, workerExecutor);
+
+        this.channel = newChannel(host, port, eventExecutors);
+        this.blockingStub = GreeterGrpc.newBlockingStub(channel);
     }
 
-    private static ManagedChannel newChannel(String host, int port) {
+    private static ManagedChannel newChannel(String host, int port, NioEventLoopGroup eventExecutors) {
         ManagedChannelBuilder<?> builder = ManagedChannelBuilder.forAddress(host, port);
         BuilderUtils.usePlainText(builder);
 
         if (builder instanceof NettyChannelBuilder) {
-            ExecutorService workerExecutor = Executors.newCachedThreadPool();
-            NioEventLoopGroup eventExecutors = new NioEventLoopGroup(CpuUtils.cpuCount() + 5, workerExecutor);
             ((NettyChannelBuilder) builder).eventLoopGroup(eventExecutors);
         }
 
@@ -69,18 +75,12 @@ public class HelloWorldSimpleClient implements HelloWorldClient {
         return builder.build();
     }
 
-
-    /**
-     * Construct client for accessing HelloWorld server using the existing channel.
-     */
-    HelloWorldSimpleClient(ManagedChannel channel) {
-        this.channel = channel;
-        blockingStub = GreeterGrpc.newBlockingStub(channel);
-    }
-
     @Override
     public void shutdown() throws InterruptedException {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        Future<?> future = eventExecutors.shutdownGracefully(500, 500, TimeUnit.MILLISECONDS);
+        future.await(1000);
+        workerExecutor.shutdownNow();
     }
 
     public String greet(String name) {
