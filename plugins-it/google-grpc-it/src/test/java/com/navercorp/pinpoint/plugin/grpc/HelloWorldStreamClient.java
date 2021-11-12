@@ -26,7 +26,9 @@ import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
 import io.grpc.stub.MetadataUtils;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.concurrent.Future;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -49,21 +51,26 @@ public class HelloWorldStreamClient implements HelloWorldClient {
     private final ManagedChannel channel;
     private final StreamingGreeterGrpc.StreamingGreeterStub stub;
 
+    private final ExecutorService workerExecutor;
+    private final NioEventLoopGroup eventExecutors;
+
     /**
      * Construct client connecting to HelloWorld server at {@code host:port}.
      */
     @SuppressWarnings("deprecated")
     public HelloWorldStreamClient(String host, int port) {
-        this(newChannel(host, port));
+        this.workerExecutor = Executors.newCachedThreadPool();
+        this.eventExecutors = new NioEventLoopGroup(CpuUtils.cpuCount() + 5, workerExecutor);
+
+        this.channel = newChannel(host, port, eventExecutors);
+        this.stub = StreamingGreeterGrpc.newStub(channel);
     }
 
-    private static ManagedChannel newChannel(String host, int port) {
+    private static ManagedChannel newChannel(String host, int port, EventLoopGroup eventExecutors) {
         ManagedChannelBuilder<?> builder = ManagedChannelBuilder.forAddress(host, port);
         BuilderUtils.usePlainText(builder);
 
         if (builder instanceof NettyChannelBuilder) {
-            ExecutorService workerExecutor = Executors.newCachedThreadPool();
-            NioEventLoopGroup eventExecutors = new NioEventLoopGroup(CpuUtils.cpuCount() + 5, workerExecutor);
             ((NettyChannelBuilder) builder).eventLoopGroup(eventExecutors);
         }
 
@@ -71,17 +78,13 @@ public class HelloWorldStreamClient implements HelloWorldClient {
         return builder.build();
     }
 
-    /**
-     * Construct client for accessing HelloWorld server using the existing channel.
-     */
-    HelloWorldStreamClient(ManagedChannel channel) {
-        this.channel = channel;
-        this.stub = StreamingGreeterGrpc.newStub(channel);
-    }
-
     @Override
     public void shutdown() throws InterruptedException {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+
+        Future<?> future = eventExecutors.shutdownGracefully(500, 500, TimeUnit.MILLISECONDS);
+        future.await(1000);
+        workerExecutor.shutdownNow();
     }
 
     /**
