@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.grpc;
 
 import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.pluginit.utils.SocketUtils;
+
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.Status;
@@ -28,6 +29,7 @@ import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.concurrent.Future;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -51,6 +53,14 @@ public class HelloWorldStreamServer implements HelloWorldServer {
     private Server server;
 
     private int bindPort;
+
+    private final ExecutorService workerExecutor;
+    private final NioEventLoopGroup eventExecutors;
+
+    public HelloWorldStreamServer() {
+        this.workerExecutor = Executors.newCachedThreadPool();
+        this.eventExecutors = new NioEventLoopGroup(CpuUtils.cpuCount() + 5, workerExecutor);
+    }
 
     @PostConstruct
     public void start() throws IOException {
@@ -151,9 +161,7 @@ public class HelloWorldStreamServer implements HelloWorldServer {
 
         ServerBuilder<?> serverBuilder = ServerBuilder.forPort(bindPort);
         if (serverBuilder instanceof NettyServerBuilder) {
-            ExecutorService workerExecutor = Executors.newCachedThreadPool();
-            NioEventLoopGroup eventExecutors = new NioEventLoopGroup(CpuUtils.cpuCount() + 5, workerExecutor);
-            ((NettyServerBuilder) serverBuilder).workerEventLoopGroup(eventExecutors);
+            ((NettyServerBuilder) serverBuilder).bossEventLoopGroup(eventExecutors).workerEventLoopGroup(eventExecutors);
         }
         this.server = serverBuilder
                 .addService(svc)
@@ -180,6 +188,10 @@ public class HelloWorldStreamServer implements HelloWorldServer {
         if (server != null) {
             server.shutdown().awaitTermination(5, TimeUnit.SECONDS);
         }
+
+        Future<?> future = eventExecutors.shutdownGracefully(500, 500, TimeUnit.MILLISECONDS);
+        future.await(1000);
+        workerExecutor.shutdownNow();
     }
 
 
