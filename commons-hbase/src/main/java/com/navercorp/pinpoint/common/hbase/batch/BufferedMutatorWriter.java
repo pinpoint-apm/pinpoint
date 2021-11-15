@@ -73,7 +73,7 @@ public class BufferedMutatorWriter implements DisposableBean, HbaseBatchWriter {
             @Override
             public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
                 // error log
-                logger.error("Async batch job rejected job:{} ", r);
+                logger.warn("Async batch job rejected job:{} ", r);
             }
         });
         return pool;
@@ -96,7 +96,7 @@ public class BufferedMutatorWriter implements DisposableBean, HbaseBatchWriter {
                 int numExceptions = e.getNumExceptions();
                 if (e.mayHaveClusterIssues()) {
                     String hosts = HBaseExceptionUtils.getErrorHost(e);
-                    logger.error("Batch write error(mayHaveClusterIssues) {} numExceptions:{} {}", tableName, numExceptions, hosts);
+                    logger.warn("Batch write error(mayHaveClusterIssues) {} numExceptions:{} {}", tableName, numExceptions, hosts);
                 } else {
                     logger.warn("Batch write error {} numExceptions:{}", tableName, numExceptions);
                 }
@@ -133,7 +133,7 @@ public class BufferedMutatorWriter implements DisposableBean, HbaseBatchWriter {
     private BufferedMutatorImpl getBufferedMutator(TableName tableName) {
         // workaround https://bugs.openjdk.java.net/browse/JDK-8161372
         final BufferedMutatorImpl mutator = this.mutatorMap.get(tableName);
-        if (mutator!= null) {
+        if (mutator != null) {
             return mutator;
         }
 
