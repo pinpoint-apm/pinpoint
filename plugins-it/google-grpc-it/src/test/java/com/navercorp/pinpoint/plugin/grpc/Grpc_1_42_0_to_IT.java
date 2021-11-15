@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2021 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,15 +31,19 @@ import org.junit.runner.RunWith;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"io.grpc:grpc-stub:[1.23.0,1.41.max]", "io.grpc:grpc-netty:[1.21.0]", "io.grpc:grpc-protobuf:[1.21.0]",
+@Dependency({"io.grpc:grpc-stub:[1.42.0,)", "io.grpc:grpc-netty:[1.21.0]", "io.grpc:grpc-protobuf:[1.21.0]",
         PluginITConstants.VERSION})
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-grpc-plugin")
 @PinpointConfig("pinpoint-grpc-plugin-test.config")
-public class Grpc_1_23_0_to_IT extends GrpcITBase {
+public class Grpc_1_42_0_to_IT extends GrpcITBase {
 
     @Override
     protected int getExpectedRequestResponseTestTraceCount() {
-        return 9;
+        return 11;
     }
 
+    @Override
+    protected int getExpectedStreamingTestInitializationCount() {
+        return 8;
+    }
 }
