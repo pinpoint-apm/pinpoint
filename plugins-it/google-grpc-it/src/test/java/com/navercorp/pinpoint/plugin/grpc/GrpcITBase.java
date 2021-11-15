@@ -86,12 +86,17 @@ public abstract class GrpcITBase {
 
             assertTrace(server, verifier);
 
-            verifier.awaitTraceCount(6 + (requestCount * 2), 20, 3000);
-            verifier.verifyTraceCount(6 + (requestCount * 2));
+            verifier.awaitTraceCount(getExpectedStreamingTestInitializationCount() + (requestCount * 2), 20, 3000);
+            verifier.verifyTraceCount(getExpectedStreamingTestInitializationCount() + (requestCount * 2));
         } finally {
             clearResources(client, server);
         }
     }
+
+    protected int getExpectedStreamingTestInitializationCount() {
+        return 6;
+    }
+
 
     private PluginTestVerifier getPluginTestVerifier() {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
