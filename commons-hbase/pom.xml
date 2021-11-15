@@ -34,6 +34,7 @@
         <sniffer.artifactid>java18</sniffer.artifactid>
 
         <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
+        <spring.version>${spring5.version}</spring.version>
     </properties>
 
     <dependencies>
@@ -71,6 +72,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>commons-logging</artifactId>
@@ -81,6 +83,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
+            <version>${spring.version}</version>
         </dependency>
 
 

@@ -7,7 +7,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
  * @author Woonduk Kang(emeroad)
  */
 public interface TraceDao {
-    boolean insert(SpanBo span);
+    void insert(SpanBo span);
 
-    boolean insertSpanChunk(SpanChunkBo spanChunk);
+    void insertSpanChunk(SpanChunkBo spanChunk);
 }
