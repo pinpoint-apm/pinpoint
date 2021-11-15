@@ -17,7 +17,6 @@
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
         <test.jdk.home>${env.JAVA_8_HOME}</test.jdk.home>
         <sniffer.artifactid>java18</sniffer.artifactid>
-        <spring.version>5.2.7.RELEASE</spring.version>
     </properties>
 
     <dependencies>
