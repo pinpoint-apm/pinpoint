@@ -140,17 +140,13 @@
         <httpcomponents.version>4.5.6</httpcomponents.version>
         <httpcomponents-core.version>4.4.10</httpcomponents-core.version>
 
+        <spring4.version>4.3.30.RELEASE</spring4.version>
+        <spring5.version>5.3.13</spring5.version>
+        <spring.version>${spring5.version}</spring.version>
+        <spring.batch.version>4.3.3</spring.batch.version>
 
-        <spring4.version>4.3.27.RELEASE</spring4.version>
-        <spring5.version>5.3.6</spring5.version>
-        <spring.version>${spring4.version}</spring.version>
-        <spring.batch.version>4.2.4.RELEASE</spring.batch.version>
-
-        <spring.security4.version>4.2.8.RELEASE</spring.security4.version>
-        <spring.security5.version>5.4.6</spring.security5.version>
-        <spring.security.version>${spring.security4.version}</spring.security.version>
-
-        <spring.boot.version>2.4.5</spring.boot.version>
+        <spring.security.version>5.5.3</spring.security.version>
+        <spring.boot.version>2.5.6</spring.boot.version>
 
         <slf4j.version>1.7.30</slf4j.version>
         <log4j2-jdk7.version>2.12.1</log4j2-jdk7.version>

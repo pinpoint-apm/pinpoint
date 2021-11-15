@@ -34,7 +34,6 @@
         <sniffer.artifactid>java18</sniffer.artifactid>
 
         <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
-        <spring.version>${spring5.version}</spring.version>
     </properties>
 
     <dependencies>

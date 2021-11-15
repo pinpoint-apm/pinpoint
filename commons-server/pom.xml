@@ -33,7 +33,6 @@
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
         <test.jdk.home>${jdk.home}</test.jdk.home>
         <sniffer.artifactid>java18</sniffer.artifactid>
-        <spring.version>${spring5.version}</spring.version>
 
         <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
         <guava.version>${guava-jdk8.version}</guava.version>
