@@ -54,7 +54,7 @@ public class HandshakeVerifyMessageListenerFactory implements ServerMessageListe
         }
 
         @Override
-        public HandshakeResponseCode handleHandshake(Map properties) {
+        public HandshakeResponseCode handleHandshake(Map<?, ?> properties) {
             if (properties == null) {
                 return HandshakeResponseType.ProtocolError.PROTOCOL_ERROR;
             }

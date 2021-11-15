@@ -24,12 +24,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author minwoo.jung
  */
 public class TcpDataSenderRepository {
-    private final ConcurrentHashMap<Address, SenderContext> clusterConnectionRepository = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Address, SenderContext> clusterConnectionRepository = new ConcurrentHashMap<>();
     private final SendDataToFlinkService sendDataToFlinkService;
 
     TcpDataSenderRepository(SendDataToFlinkService sendDataToFlinkService) {

@@ -112,7 +112,7 @@ public class MetadataMessageConverter implements MessageConverter<MetaDataType, 
         final TServerMetaData tServerMetaData = new TServerMetaData();
         tServerMetaData.setServerInfo(serverMetaData.getServerInfo());
         tServerMetaData.setVmArgs(serverMetaData.getVmArgs());
-        List<TServiceInfo> tServiceInfos = new ArrayList<TServiceInfo>();
+        List<TServiceInfo> tServiceInfos = new ArrayList<>();
         for (ServiceInfo serviceInfo : serverMetaData.getServiceInfos()) {
             TServiceInfo tServiceInfo = new TServiceInfo();
             tServiceInfo.setServiceName(serviceInfo.getServiceName());

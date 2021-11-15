@@ -69,7 +69,7 @@ public class BufferedStorage implements Storage {
 
 
     private List<SpanEvent> allocateBuffer() {
-        return new ArrayList<SpanEvent>(this.bufferSize);
+        return new ArrayList<>(this.bufferSize);
     }
 
     private List<SpanEvent> getBuffer() {

@@ -24,13 +24,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Taejin Koo
  */
 public class CollectorClusterConnectionRepository {
 
-    private final ConcurrentHashMap<Address, PinpointSocket> clusterConnectionRepository = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Address, PinpointSocket> clusterConnectionRepository = new ConcurrentHashMap<>();
 
     public PinpointSocket putIfAbsent(Address address, PinpointSocket pinpointSocket) {
         return clusterConnectionRepository.putIfAbsent(address, pinpointSocket);

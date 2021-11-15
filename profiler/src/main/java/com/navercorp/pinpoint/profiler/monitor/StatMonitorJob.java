@@ -56,7 +56,8 @@ class StatMonitorJob implements Runnable {
             if (runnable instanceof Closeable) {
                 try {
                     ((Closeable) runnable).close();
-                } catch (Exception e) {
+                } catch (Exception ignore) {
+                    // ignore
                 }
             }
         }

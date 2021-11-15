@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Taejin Koo
@@ -32,8 +33,8 @@ public class DefaultJdbcUrlParsingService implements JdbcUrlParsingService {
 
     private final JdbcUrlParserV2[] jdbcUrlParsers;
 
-    private final ConcurrentHashMap<String, DatabaseInfo> cache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<CacheKey, DatabaseInfo> eachServiceTypeCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, DatabaseInfo> cache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<CacheKey, DatabaseInfo> eachServiceTypeCache = new ConcurrentHashMap<>();
 
     public DefaultJdbcUrlParsingService(List<JdbcUrlParserV2> jdbcUrlParsers) {
         Objects.requireNonNull(jdbcUrlParsers, "jdbcUrlParserList");

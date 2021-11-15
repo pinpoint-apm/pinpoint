@@ -259,12 +259,13 @@ public class AgentInfoSenderTest {
         assertEquals(expectedFailServerTries, failMessageListener.getRequestCount());
     }
 
-    private void await(CountDownLatch agentReconnectLatch, long timeout) {
+    private boolean await(CountDownLatch agentReconnectLatch, long timeout) {
         try {
-            agentReconnectLatch.await(timeout, TimeUnit.MILLISECONDS);
+            return agentReconnectLatch.await(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+        return false;
     }
 
     @Test
@@ -611,7 +612,7 @@ public class AgentInfoSenderTest {
         }
 
         @Override
-        public HandshakeResponseCode handleHandshake(@SuppressWarnings("rawtypes") Map arg0) {
+        public HandshakeResponseCode handleHandshake(Map<?, ?> arg0) {
             return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
         }
 

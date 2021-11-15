@@ -75,7 +75,7 @@ class ClusterServerMessageListenerFactory implements ServerMessageListenerFactor
         }
 
         @Override
-        public HandshakeResponseCode handleHandshake(Map properties) {
+        public HandshakeResponseCode handleHandshake(Map<?, ?> properties) {
             logger.info("handle handShake {}", properties);
             return HandshakeResponseCode.DUPLEX_COMMUNICATION;
         }

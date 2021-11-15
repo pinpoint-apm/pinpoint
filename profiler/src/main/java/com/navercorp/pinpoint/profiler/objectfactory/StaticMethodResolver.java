@@ -41,7 +41,7 @@ public class StaticMethodResolver {
     }
     
     private List<Method> getCandidates() {
-        List<Method> result = new ArrayList<Method>();
+        List<Method> result = new ArrayList<>();
         
         for (Method method : type.getMethods()) {
             if (!Modifier.isStatic(method.getModifiers())) {

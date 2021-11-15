@@ -126,7 +126,7 @@ public class TestServerMessageListenerFactory implements ServerMessageListenerFa
         }
 
         @Override
-        public HandshakeResponseCode handleHandshake(Map properties) {
+        public HandshakeResponseCode handleHandshake(Map<?, ?> properties) {
             logger.info("handleHandshake properties:{}", properties);
 
             if (handshakeType == HandshakeType.DUPLEX) {
