@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.TraceDao;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
+import com.navercorp.pinpoint.common.hbase.SimpleBatchWriter;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -49,7 +49,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     private static final HbaseColumnFamily.Trace descriptor = HbaseColumnFamily.TRACE_V2_SPAN;
 
-    private final HbaseOperations2 hbaseTemplate;
+    private final SimpleBatchWriter writer;
     private final TableNameProvider tableNameProvider;
 
     private final SpanSerializerV2 spanSerializer;
@@ -58,12 +58,12 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     private final RowKeyEncoder<TransactionId> rowKeyEncoder;
 
-    public HbaseTraceDaoV2(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate,
+    public HbaseTraceDaoV2(SimpleBatchWriter writer,
                            TableNameProvider tableNameProvider,
                            @Qualifier("traceRowKeyEncoderV2") RowKeyEncoder<TransactionId> rowKeyEncoder,
                            SpanSerializerV2 spanSerializer,
                            SpanChunkSerializerV2 spanChunkSerializer) {
-        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.writer = Objects.requireNonNull(writer, "writer");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.spanSerializer = Objects.requireNonNull(spanSerializer, "spanSerializer");
@@ -71,7 +71,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
     }
 
     @Override
-    public boolean insert(final SpanBo spanBo) {
+    public void insert(final SpanBo spanBo) {
         Objects.requireNonNull(spanBo, "spanBo");
         if (logger.isDebugEnabled()) {
             logger.debug("insert trace: {}", spanBo);
@@ -91,12 +91,11 @@ public class HbaseTraceDaoV2 implements TraceDao {
         this.spanSerializer.serialize(spanBo, put, null);
 
         TableName traceTableName = tableNameProvider.getTableName(descriptor.getTable());
-
-        return hbaseTemplate.asyncPut(traceTableName, put);
+        writer.write(traceTableName, put);
     }
 
     @Override
-    public boolean insertSpanChunk(SpanChunkBo spanChunkBo) {
+    public void insertSpanChunk(SpanChunkBo spanChunkBo) {
         Objects.requireNonNull(spanChunkBo, "spanChunkBo");
 
         TransactionId transactionId = spanChunkBo.getTransactionId();
@@ -107,16 +106,14 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
         final List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         if (CollectionUtils.isEmpty(spanEventBoList)) {
-            return true;
+            return;
         }
 
         this.spanChunkSerializer.serialize(spanChunkBo, put, null);
 
         if (!put.isEmpty()) {
             TableName traceTableName = tableNameProvider.getTableName(descriptor.getTable());
-            return hbaseTemplate.asyncPut(traceTableName, put);
+            writer.write(traceTableName, put);
         }
-
-        return false;
     }
 }
