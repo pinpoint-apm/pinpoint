@@ -30,7 +30,7 @@ public class RemoteAddressResolverFactory {
         if (!StringUtils.hasLength(realIpHeaderName)) {
             return requestAdaptor;
         }
-        RealIpHeaderResolver<T> tealIpHeaderResolver = new RealIpHeaderResolver<T>(realIpHeaderName, realIpHeaderEmptyValue);
+        RealIpHeaderResolver<T> tealIpHeaderResolver = new RealIpHeaderResolver<>(realIpHeaderName, realIpHeaderEmptyValue);
         RequestAdaptor<T> wrap = new HeaderResolveRequestAdaptor<T>(requestAdaptor, tealIpHeaderResolver);
         return wrap;
     }

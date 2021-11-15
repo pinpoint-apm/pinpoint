@@ -34,7 +34,7 @@ public class ImportPluginFilter implements PluginFilter {
 
     public ImportPluginFilter(List<String> pluginIds) {
         Objects.requireNonNull(pluginIds, "pluginIds");
-        this.enablePluginIds = new HashSet<String>(pluginIds);
+        this.enablePluginIds = new HashSet<>(pluginIds);
     }
 
     @Override

@@ -26,7 +26,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
@@ -91,7 +90,7 @@ public class ApplicationAgentsList {
 
     private final GroupBy groupBy;
     private final AgentInfoFilter filter;
-    private final SortedMap<GroupingKey, List<AgentInfo>> agentsMap = new TreeMap<>();
+    private final Map<GroupingKey, List<AgentInfo>> agentsMap = new TreeMap<>();
 
     public ApplicationAgentsList(GroupBy groupBy, AgentInfoFilter filter) {
         this.groupBy = Objects.requireNonNull(groupBy, "groupBy");

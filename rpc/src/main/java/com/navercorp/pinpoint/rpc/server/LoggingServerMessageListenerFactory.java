@@ -69,7 +69,7 @@ public class LoggingServerMessageListenerFactory implements ServerMessageListene
         }
 
         @Override
-        public HandshakeResponseCode handleHandshake(Map properties) {
+        public HandshakeResponseCode handleHandshake(Map<?, ?> properties) {
             logger.info("handleHandshake properties:{}", properties);
 
             if (enableDuplex) {

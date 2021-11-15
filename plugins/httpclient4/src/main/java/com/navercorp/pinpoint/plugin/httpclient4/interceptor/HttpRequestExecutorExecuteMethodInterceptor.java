@@ -84,7 +84,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         final HttpClient4PluginConfig profilerConfig = new HttpClient4PluginConfig(traceContext.getProfilerConfig());
 
         ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
-        this.clientRequestRecorder = new ClientRequestRecorder<ClientRequestWrapper>(profilerConfig.isParam(), clientRequestAdaptor);
+        this.clientRequestRecorder = new ClientRequestRecorder<>(profilerConfig.isParam(), clientRequestAdaptor);
 
         CookieExtractor<HttpRequest> cookieExtractor = HttpClient4CookieExtractor.INSTANCE;
         this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(profilerConfig.getHttpDumpConfig(), cookieExtractor);
@@ -153,9 +153,9 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         final Object attachment = getAttachment(transaction);
         if (attachment instanceof HttpCallContext) {
             HttpCallContext callContext = (HttpCallContext) attachment;
-            return new NameIntValuePair<String>(callContext.getHost(), callContext.getPort());
+            return new NameIntValuePair<>(callContext.getHost(), callContext.getPort());
         }
-        return new NameIntValuePair<String>(null, -1);
+        return new NameIntValuePair<>(null, -1);
     }
 
     @Override

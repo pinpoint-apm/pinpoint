@@ -12,7 +12,7 @@ public class WebhookSenderFactoryBean implements FactoryBean<WebhookSender> {
     private final BatchConfiguration batchConfiguration;
     private final UserService userService;
     private final RestTemplate restTemplate;
-    private WebhookService webhookService;
+    private final WebhookService webhookService;
 
     public WebhookSenderFactoryBean(BatchConfiguration batchConfiguration,
                                     UserService userService,

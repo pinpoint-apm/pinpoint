@@ -56,7 +56,7 @@ public class HttpClientExecuteMethodWithHttpRequestInterceptor extends AbstractH
         final Object arg = args[HTTP_HOST_INDEX];
         if (arg instanceof HttpHost) {
             final HttpHost httpHost = (HttpHost) arg;
-            return new NameIntValuePair<String>(httpHost.getHostName(), httpHost.getPort());
+            return new NameIntValuePair<>(httpHost.getHostName(), httpHost.getPort());
         }
         return null;
     }

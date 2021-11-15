@@ -44,7 +44,7 @@ class ClusterAcceptorMessageListenerFactory implements ServerMessageListenerFact
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
         @Override
-        public HandshakeResponseCode handleHandshake(Map properties) {
+        public HandshakeResponseCode handleHandshake(Map<?, ?> properties) {
             logger.warn("do handShake {}", properties);
             return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
         }

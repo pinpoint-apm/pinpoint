@@ -59,7 +59,7 @@ class TCPReceiverServerMessageListenerFactory implements ServerMessageListenerFa
         }
 
         @Override
-        public HandshakeResponseCode handleHandshake(Map properties) {
+        public HandshakeResponseCode handleHandshake(Map<?, ?> properties) {
             return HandshakeResponseCode.SIMPLEX_COMMUNICATION;
         }
 

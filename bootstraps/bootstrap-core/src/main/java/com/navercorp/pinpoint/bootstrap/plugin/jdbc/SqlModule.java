@@ -35,15 +35,7 @@ public final class SqlModule {
     private static final Class<?> SQL_PREPARED_STATEMENT;
 
     static {
-        if (JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_9)) {
-            if (PlatformClassLoaderUtils.findClassFromPlatformClassLoader("java.sql.Date") != null) {
-                SQL_MODULE = true;
-            } else {
-                SQL_MODULE = false;
-            }
-        } else {
-            SQL_MODULE = true;
-        }
+        SQL_MODULE = existSqlModule();
         if (SQL_MODULE) {
             SQL_DATE = getSqlClass("java.sql.Date");
             SQL_TIME = getSqlClass("java.sql.Time");
@@ -62,6 +54,18 @@ public final class SqlModule {
 
             SQL_CONNECTION = null;
             SQL_PREPARED_STATEMENT = null;
+        }
+    }
+
+    private static boolean existSqlModule() {
+        if (JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_9)) {
+            if (PlatformClassLoaderUtils.findClassFromPlatformClassLoader("java.sql.Date") != null) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
         }
     }
 

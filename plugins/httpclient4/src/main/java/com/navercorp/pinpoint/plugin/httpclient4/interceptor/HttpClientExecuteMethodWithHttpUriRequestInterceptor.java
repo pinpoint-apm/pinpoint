@@ -65,7 +65,7 @@ public class HttpClientExecuteMethodWithHttpUriRequestInterceptor extends Abstra
 
     private HttpUriRequest getHttpUriRequest(Object[] args) {
         final Object arg = args[HTTP_URI_REQUEST_INDEX];
-        if (arg != null && arg instanceof HttpUriRequest) {
+        if (arg instanceof HttpUriRequest) {
             return (HttpUriRequest) arg;
         }
         return null;
@@ -122,7 +122,7 @@ public class HttpClientExecuteMethodWithHttpUriRequestInterceptor extends Abstra
                 }
             }
             if (host != null) {
-                target = new NameIntValuePair<String>(host, port);
+                target = new NameIntValuePair<>(host, port);
             }
         }
         return target;

@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.profiler.util.NameValueList;
  */
 public class DefaultTraceScopePool {
 
-    private final NameValueList<TraceScope> list = new NameValueList<TraceScope>();
+    private final NameValueList<TraceScope> list = new NameValueList<>();
 
     public TraceScope get(String name) {
         if (name == null) {
