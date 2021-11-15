@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -46,7 +47,7 @@ public class PluginPackageFilter implements ClassNameFilter {
     @Override
     public String toString() {
         return "PluginPackageFilter{" +
-                "packageList=" + packageList +
+                "packageList=" + Arrays.toString(packageList) +
                 '}';
     }
 }
