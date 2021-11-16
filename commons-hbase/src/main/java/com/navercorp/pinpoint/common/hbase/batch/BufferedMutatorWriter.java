@@ -36,8 +36,8 @@ import java.util.function.Function;
 public class BufferedMutatorWriter implements DisposableBean, HbaseBatchWriter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private BufferedMutatorConfiguration configuration;
-
+    private final BufferedMutatorConfiguration configuration;
+    private final boolean autoFlush;
 
     //    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 //    private final Striped<Lock> lock = Striped.lock(128);
@@ -56,6 +56,7 @@ public class BufferedMutatorWriter implements DisposableBean, HbaseBatchWriter {
         Objects.requireNonNull(connection, "connection");
         logger.info("{}", configuration);
         this.configuration = Objects.requireNonNull(configuration, "configuration");
+        this.autoFlush = configuration.isAutoFlush();
 
         this.mutatorSupplier = new MutatorFactory(connection);
 
@@ -129,7 +130,7 @@ public class BufferedMutatorWriter implements DisposableBean, HbaseBatchWriter {
     }
 
     private void autoFlush(BufferedMutatorImpl mutator) throws InterruptedIOException, RetriesExhaustedWithDetailsException {
-        if (configuration.isBatchWriter()) {
+        if (autoFlush) {
             mutator.flush();
         }
     }
