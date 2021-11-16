@@ -14,6 +14,9 @@ public class BufferedMutatorConfiguration {
     @Value("${collector.batchwrite.writebuffer.size:5012}")
     private long writeBufferSize = 1024 * 5;
 
+    @Value("${collector.batchwrite.autoflush:false}")
+    private boolean autoFlush;
+
     // for OOM prevent
     @Value("${collector.batchwrite.writebuffer.heaplimit:100MB}")
     private DataSize writeBufferHeapLimit = DataSize.ofMegabytes(100);
@@ -40,6 +43,7 @@ public class BufferedMutatorConfiguration {
                 "batchWriter=" + batchWriter +
                 ", writeBufferPeriodicFlushTimerTickMs=" + writeBufferPeriodicFlushTimerTickMs +
                 ", writeBufferSize=" + writeBufferSize +
+                ", autoFlush=" + autoFlush +
                 ", writeBufferHeapLimit=" + writeBufferHeapLimit +
                 '}';
     }
