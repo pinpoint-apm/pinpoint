@@ -62,7 +62,6 @@ public class ApacheDubboConsumerInterceptor implements AroundInterceptor {
             return;
         }
 
-        final RpcInvocation invocation = (RpcInvocation) args[0];
         final RpcContext context = RpcContext.getContext();
 
         if (trace.canSampled()) {
@@ -87,7 +86,7 @@ public class ApacheDubboConsumerInterceptor implements AroundInterceptor {
             setAttachment(context, ApacheDubboConstants.META_PARENT_APPLICATION_NAME, traceContext.getApplicationName());
             setAttachment(context, ApacheDubboConstants.META_FLAGS, Short.toString(nextId.getFlags()));
 
-            setAttachment(context, ApacheDubboConstants.META_HOST, getHostAddress(invocation));
+            setAttachment(context, ApacheDubboConstants.META_HOST, getHostAddress((RpcInvocation) args[0]));
         } else {
             // If sampling this transaction is disabled, pass only that infomation to the server.
             setAttachment(context, ApacheDubboConstants.META_DO_NOT_TRACE, "1");
@@ -123,7 +122,6 @@ public class ApacheDubboConsumerInterceptor implements AroundInterceptor {
         }
 
         try {
-            final RpcInvocation invocation = (RpcInvocation) args[0];
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             if (throwable == null) {
@@ -133,7 +131,7 @@ public class ApacheDubboConsumerInterceptor implements AroundInterceptor {
 
                 // Optionally, record the destination id (logical name of server. e.g. DB name)
                 recorder.recordDestinationId(endPoint);
-                recorder.recordAttribute(ApacheDubboConstants.DUBBO_ARGS_ANNOTATION_KEY, invocation.getArguments());
+                recorder.recordAttribute(ApacheDubboConstants.DUBBO_ARGS_ANNOTATION_KEY, ((RpcInvocation) args[0]).getArguments());
                 recorder.recordAttribute(ApacheDubboConstants.DUBBO_RESULT_ANNOTATION_KEY, result);
             } else {
                 recorder.recordException(throwable);

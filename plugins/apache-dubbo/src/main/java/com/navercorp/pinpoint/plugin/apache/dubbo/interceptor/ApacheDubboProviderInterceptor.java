@@ -190,10 +190,9 @@ public class ApacheDubboProviderInterceptor extends SpanRecursiveAroundIntercept
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        final RpcInvocation invocation = (RpcInvocation) args[0];
         recorder.recordServiceType(ApacheDubboConstants.DUBBO_PROVIDER_SERVICE_NO_STATISTICS_TYPE);
         recorder.recordApi(methodDescriptor);
-        recorder.recordAttribute(ApacheDubboConstants.DUBBO_ARGS_ANNOTATION_KEY, invocation.getArguments());
+        recorder.recordAttribute(ApacheDubboConstants.DUBBO_ARGS_ANNOTATION_KEY, ((RpcInvocation) args[0]).getArguments());
 
         if (throwable == null) {
             recorder.recordAttribute(ApacheDubboConstants.DUBBO_RESULT_ANNOTATION_KEY, result);
