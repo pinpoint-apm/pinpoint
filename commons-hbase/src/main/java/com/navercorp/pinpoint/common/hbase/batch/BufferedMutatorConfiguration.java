@@ -37,6 +37,10 @@ public class BufferedMutatorConfiguration {
         return writeBufferHeapLimit.toBytes();
     }
 
+    public boolean isAutoFlush() {
+        return autoFlush;
+    }
+
     @Override
     public String toString() {
         return "BufferedMutatorConfiguration{" +
