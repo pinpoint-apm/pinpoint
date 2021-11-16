@@ -70,12 +70,12 @@ public class ApacheDubboProviderInterceptor extends SpanRecursiveAroundIntercept
             return traceContext.disableSampling();
         }
 
-        final RpcInvocation invocation = (RpcInvocation) args[0];
+        final RpcContext context = RpcContext.getContext();
         // If this transaction is not traceable, mark as disabled.
-        if (invocation.getAttachment(ApacheDubboConstants.META_DO_NOT_TRACE) != null) {
+        if (context.getAttachment(ApacheDubboConstants.META_DO_NOT_TRACE) != null) {
             return traceContext.disableSampling();
         }
-        final String transactionId = invocation.getAttachment(ApacheDubboConstants.META_TRANSACTION_ID);
+        final String transactionId = context.getAttachment(ApacheDubboConstants.META_TRANSACTION_ID);
         // If there's no trasanction id, a new trasaction begins here.
         // FIXME There seems to be cases where the invoke method is called after a span is already created.
         // We'll have to check if a trace object already exists and create a span event instead of a span in that case.
@@ -84,9 +84,9 @@ public class ApacheDubboProviderInterceptor extends SpanRecursiveAroundIntercept
         }
 
         // otherwise, continue tracing with given data.
-        final long parentSpanID = NumberUtils.parseLong(invocation.getAttachment(ApacheDubboConstants.META_PARENT_SPAN_ID), SpanId.NULL);
-        final long spanID = NumberUtils.parseLong(invocation.getAttachment(ApacheDubboConstants.META_SPAN_ID), SpanId.NULL);
-        final short flags = NumberUtils.parseShort(invocation.getAttachment(ApacheDubboConstants.META_FLAGS), (short) 0);
+        final long parentSpanID = NumberUtils.parseLong(context.getAttachment(ApacheDubboConstants.META_PARENT_SPAN_ID), SpanId.NULL);
+        final long spanID = NumberUtils.parseLong(context.getAttachment(ApacheDubboConstants.META_SPAN_ID), SpanId.NULL);
+        final short flags = NumberUtils.parseShort(context.getAttachment(ApacheDubboConstants.META_FLAGS), (short) 0);
         final TraceId traceId = traceContext.createTraceId(transactionId, parentSpanID, spanID, flags);
 
         return traceContext.continueTraceObject(traceId);
@@ -107,12 +107,12 @@ public class ApacheDubboProviderInterceptor extends SpanRecursiveAroundIntercept
 
         // If this transaction did not begin here, record parent(client who sent this request) information
         if (!recorder.isRoot()) {
-            final String parentApplicationName = invocation.getAttachment(ApacheDubboConstants.META_PARENT_APPLICATION_NAME);
+            final String parentApplicationName = rpcContext.getAttachment(ApacheDubboConstants.META_PARENT_APPLICATION_NAME);
             if (parentApplicationName != null) {
-                final short parentApplicationType = NumberUtils.parseShort(invocation.getAttachment(ApacheDubboConstants.META_PARENT_APPLICATION_TYPE), ServiceType.UNDEFINED.getCode());
+                final short parentApplicationType = NumberUtils.parseShort(rpcContext.getAttachment(ApacheDubboConstants.META_PARENT_APPLICATION_TYPE), ServiceType.UNDEFINED.getCode());
                 recorder.recordParentApplication(parentApplicationName, parentApplicationType);
 
-                final String host = invocation.getAttachment(ApacheDubboConstants.META_HOST);
+                final String host = rpcContext.getAttachment(ApacheDubboConstants.META_HOST);
                 if (host != null) {
                     recorder.recordAcceptorHost(host);
                 } else {

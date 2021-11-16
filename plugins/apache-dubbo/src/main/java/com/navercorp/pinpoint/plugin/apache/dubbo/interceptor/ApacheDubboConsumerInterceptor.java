@@ -63,6 +63,7 @@ public class ApacheDubboConsumerInterceptor implements AroundInterceptor {
         }
 
         final RpcInvocation invocation = (RpcInvocation) args[0];
+        final RpcContext context = RpcContext.getContext();
 
         if (trace.canSampled()) {
             final SpanEventRecorder recorder = trace.traceBlockBegin();
@@ -79,17 +80,17 @@ public class ApacheDubboConsumerInterceptor implements AroundInterceptor {
             // Finally, pass some tracing data to the server.
             // How to put them in a message is protocol specific.
             // This example assumes that the target protocol message can include any metadata (like HTTP headers).
-            setAttachment(invocation, ApacheDubboConstants.META_TRANSACTION_ID, nextId.getTransactionId());
-            setAttachment(invocation, ApacheDubboConstants.META_SPAN_ID, Long.toString(nextId.getSpanId()));
-            setAttachment(invocation, ApacheDubboConstants.META_PARENT_SPAN_ID, Long.toString(nextId.getParentSpanId()));
-            setAttachment(invocation, ApacheDubboConstants.META_PARENT_APPLICATION_TYPE, Short.toString(traceContext.getServerTypeCode()));
-            setAttachment(invocation, ApacheDubboConstants.META_PARENT_APPLICATION_NAME, traceContext.getApplicationName());
-            setAttachment(invocation, ApacheDubboConstants.META_FLAGS, Short.toString(nextId.getFlags()));
+            setAttachment(context, ApacheDubboConstants.META_TRANSACTION_ID, nextId.getTransactionId());
+            setAttachment(context, ApacheDubboConstants.META_SPAN_ID, Long.toString(nextId.getSpanId()));
+            setAttachment(context, ApacheDubboConstants.META_PARENT_SPAN_ID, Long.toString(nextId.getParentSpanId()));
+            setAttachment(context, ApacheDubboConstants.META_PARENT_APPLICATION_TYPE, Short.toString(traceContext.getServerTypeCode()));
+            setAttachment(context, ApacheDubboConstants.META_PARENT_APPLICATION_NAME, traceContext.getApplicationName());
+            setAttachment(context, ApacheDubboConstants.META_FLAGS, Short.toString(nextId.getFlags()));
 
-            setAttachment(invocation, ApacheDubboConstants.META_HOST, getHostAddress(invocation));
+            setAttachment(context, ApacheDubboConstants.META_HOST, getHostAddress(invocation));
         } else {
             // If sampling this transaction is disabled, pass only that infomation to the server.
-            setAttachment(invocation, ApacheDubboConstants.META_DO_NOT_TRACE, "1");
+            setAttachment(context, ApacheDubboConstants.META_DO_NOT_TRACE, "1");
         }
     }
 
@@ -98,8 +99,8 @@ public class ApacheDubboConsumerInterceptor implements AroundInterceptor {
         return HostAndPort.toHostAndPortString(url.getHost(), url.getPort());
     }
 
-    private void setAttachment(RpcInvocation invocation, String name, String value) {
-        invocation.setAttachment(name, value);
+    private void setAttachment(RpcContext context, String name, String value) {
+        context.setAttachment(name, value);
         if (isDebug) {
             logger.debug("Set attachment {}={}", name, value);
         }
