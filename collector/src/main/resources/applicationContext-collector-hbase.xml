@@ -93,7 +93,7 @@
         <constructor-arg ref="connectionFactory"/>
     </bean>
 
-    <bean id="hbaseBatchPutWriter" class="com.navercorp.pinpoint.common.hbase.batch.DelegateSimpleBatchWriter"/>
+    <bean id="simpleBatchWriter" class="com.navercorp.pinpoint.common.hbase.batch.DelegateSimpleBatchWriter"/>
 
     <bean id="hbaseAdminFactory" class="com.navercorp.pinpoint.common.hbase.HbaseAdminFactory">
         <constructor-arg ref="connectionFactory"/>
