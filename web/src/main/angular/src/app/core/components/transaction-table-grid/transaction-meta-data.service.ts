@@ -53,7 +53,7 @@ export class TransactionMetaDataService {
         this.onTransactionDataCount$ = this.outTransactionDataCount.asObservable();
         this.onTransactionDataFecthState$ = this.outTransactionDataFetchState.asObservable();
 
-        this.enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
+        this.enableServerSideScan = Boolean(this.webAppSettingDataService.getExperimentalOption('scatterScan'));
         this.translateService.get('TRANSACTION_LIST.TRANSACTION_RETRIEVE_ERROR').subscribe((text: string) => {
             this.retrieveErrorMessage = text;
         });
