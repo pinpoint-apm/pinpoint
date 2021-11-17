@@ -27,7 +27,7 @@ export class StateButtonForTransactionListContainerComponent implements OnInit, 
     ) {}
 
     ngOnInit() {
-        this.showCountInfo = !this.webAppSettingDataService.getExperimentalOption('scatterScan');
+        this.showCountInfo = !Boolean(this.webAppSettingDataService.getExperimentalOption('scatterScan'));
         this.transactionMetaDataService.onTransactionDataCount$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((counter: number[]) => {

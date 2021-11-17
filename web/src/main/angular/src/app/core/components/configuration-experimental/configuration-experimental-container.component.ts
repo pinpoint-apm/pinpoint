@@ -33,10 +33,15 @@ export class ConfigurationExperimentalContainerComponent implements OnInit {
     }
 
     private setOptions(): void {
-        this.enableServerSideScanForScatter = this.webAppSettingDataService.getExperimentalOption('scatterScan');
-        this.useStatisticsAgentState = this.webAppSettingDataService.getExperimentalOption('statisticsAgentState');
-        this.enableServerMapRealTime = this.webAppSettingDataService.getExperimentalOption('serverMapRealTime');
-        this.sampleScatter = this.webAppSettingDataService.getExperimentalOption('scatterSampling');
+        const enableServerSideScanForScatter = this.webAppSettingDataService.getExperimentalOption('scatterScan');
+        const useStatisticsAgentState = this.webAppSettingDataService.getExperimentalOption('statisticsAgentState');
+        const enableServerMapRealTime = this.webAppSettingDataService.getExperimentalOption('serverMapRealTime');
+        const sampleScatter = this.webAppSettingDataService.getExperimentalOption('scatterSampling');
+
+        this.enableServerSideScanForScatter = Boolean(enableServerSideScanForScatter);
+        this.useStatisticsAgentState = Boolean(useStatisticsAgentState);
+        this.enableServerMapRealTime = enableServerMapRealTime === null ? true : enableServerMapRealTime;
+        this.sampleScatter = sampleScatter === null ? true : sampleScatter;
     }
 
     onChangeOption(optionKey: string): void {

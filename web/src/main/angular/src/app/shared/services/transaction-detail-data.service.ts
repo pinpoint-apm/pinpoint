@@ -66,7 +66,7 @@ export class TransactionDetailDataService {
                 .set('spanId', spanId)
                 .set('traceId', traceId)
                 .set('focusTimestamp', focusTimestamp + '')
-                .set('useStatisticsAgentState', this.webAppSettingDataService.getExperimentalOption('statisticsAgentState').toString())
+                .set('useStatisticsAgentState', Boolean(this.webAppSettingDataService.getExperimentalOption('statisticsAgentState')).toString())
         };
     }
 }

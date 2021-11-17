@@ -29,7 +29,7 @@ export class ServerMapDataService {
                 .set('callerRange', this.newUrlStateNotificationService.hasValue(UrlQuery.OUTBOUND) ? this.newUrlStateNotificationService.getQueryValue(UrlQuery.OUTBOUND) : this.webAppSettingDataService.getSystemDefaultOutbound())
                 .set('wasOnly', this.newUrlStateNotificationService.hasValue(UrlQuery.WAS_ONLY) ? this.newUrlStateNotificationService.getQueryValue(UrlQuery.WAS_ONLY) : false)
                 .set('bidirectional', this.newUrlStateNotificationService.hasValue(UrlQuery.BIDIRECTIONAL) ? this.newUrlStateNotificationService.getQueryValue(UrlQuery.BIDIRECTIONAL) : false)
-                .set('useStatisticsAgentState', this.webAppSettingDataService.getExperimentalOption('statisticsAgentState').toString())
+                .set('useStatisticsAgentState', Boolean(this.webAppSettingDataService.getExperimentalOption('statisticsAgentState')).toString())
         };
     }
 }

@@ -287,6 +287,7 @@ export class WebAppSettingDataService {
         this.localStorageService.set(key, value);
     }
     getExperimentalOption(key: string): boolean {
-        return this.localStorageService.get<boolean>(key) || false;
+        // return this.localStorageService.get<boolean>(key) || false;
+        return this.localStorageService.get<boolean>(key);
     }
 }
