@@ -33,13 +33,14 @@ export class ConfigurationExperimentalContainerComponent implements OnInit {
     }
 
     private setOptions(): void {
+        // TODO: Set it as key-value object?
         const enableServerSideScanForScatter = this.webAppSettingDataService.getExperimentalOption('scatterScan');
         const useStatisticsAgentState = this.webAppSettingDataService.getExperimentalOption('statisticsAgentState');
         const enableServerMapRealTime = this.webAppSettingDataService.getExperimentalOption('serverMapRealTime');
         const sampleScatter = this.webAppSettingDataService.getExperimentalOption('scatterSampling');
 
-        this.enableServerSideScanForScatter = Boolean(enableServerSideScanForScatter);
-        this.useStatisticsAgentState = Boolean(useStatisticsAgentState);
+        this.enableServerSideScanForScatter = enableServerSideScanForScatter === null ? true : enableServerSideScanForScatter;
+        this.useStatisticsAgentState = useStatisticsAgentState === null ? true : useStatisticsAgentState;
         this.enableServerMapRealTime = enableServerMapRealTime === null ? true : enableServerMapRealTime;
         this.sampleScatter = sampleScatter === null ? true : sampleScatter;
     }

@@ -60,13 +60,15 @@ export class TransactionDetailDataService {
     }
 
     private makeRequestOptionsArgs(agentId: string, spanId: string, traceId: string, focusTimestamp: number): object {
+        const useStatisticsAgentState = this.webAppSettingDataService.getExperimentalOption('statisticsAgentState');
+
         return {
             params: new HttpParams()
                 .set('agentId', agentId)
                 .set('spanId', spanId)
                 .set('traceId', traceId)
                 .set('focusTimestamp', focusTimestamp + '')
-                .set('useStatisticsAgentState', Boolean(this.webAppSettingDataService.getExperimentalOption('statisticsAgentState')).toString())
+                .set('useStatisticsAgentState', (useStatisticsAgentState === null ? true : useStatisticsAgentState).toString())
         };
     }
 }

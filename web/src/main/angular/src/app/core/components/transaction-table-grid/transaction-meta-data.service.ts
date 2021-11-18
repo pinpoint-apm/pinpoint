@@ -48,12 +48,15 @@ export class TransactionMetaDataService {
         private componentFactoryResolver: ComponentFactoryResolver,
         private injector: Injector
     ) {
+        const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
+
+        this.enableServerSideScan = enableServerSideScan === null ? true : enableServerSideScan;
+
         this.onTransactionDataLoad$ = this.outTransactionDataLoad.asObservable();
         this.onTransactionDataRange$ = this.outTransactionDataRange.asObservable();
         this.onTransactionDataCount$ = this.outTransactionDataCount.asObservable();
         this.onTransactionDataFecthState$ = this.outTransactionDataFetchState.asObservable();
 
-        this.enableServerSideScan = Boolean(this.webAppSettingDataService.getExperimentalOption('scatterScan'));
         this.translateService.get('TRANSACTION_LIST.TRANSACTION_RETRIEVE_ERROR').subscribe((text: string) => {
             this.retrieveErrorMessage = text;
         });

@@ -74,7 +74,9 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
         private messageQueueService: MessageQueueService
     ) {}
     ngOnInit() {
-        this.enableServerSideScan = Boolean(this.webAppSettingDataService.getExperimentalOption('scatterScan'));
+        const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
+
+        this.enableServerSideScan = enableServerSideScan === null ? true : enableServerSideScan;
         this.setScatterY();
         this.getI18NText();
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(

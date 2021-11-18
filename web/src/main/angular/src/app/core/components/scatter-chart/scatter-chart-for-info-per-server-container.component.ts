@@ -72,7 +72,9 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
     ) {}
 
     ngOnInit() {
-        this.enableServerSideScan = Boolean(this.webAppSettingDataService.getExperimentalOption('scatterScan'));
+        const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
+
+        this.enableServerSideScan = enableServerSideScan === null ? true : enableServerSideScan;
         this.setScatterY();
         forkJoin(
             this.translateService.get('COMMON.NO_DATA'),
