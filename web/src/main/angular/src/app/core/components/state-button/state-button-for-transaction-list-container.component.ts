@@ -18,6 +18,7 @@ export class StateButtonForTransactionListContainerComponent implements OnInit, 
     countInfo = [0, 0];
     showCountInfo = true;
     currentState = BUTTON_STATE.MORE;
+    enableServerSideScan: boolean;
 
     constructor(
         private changeDetectorRef: ChangeDetectorRef,
@@ -27,7 +28,10 @@ export class StateButtonForTransactionListContainerComponent implements OnInit, 
     ) {}
 
     ngOnInit() {
-        this.showCountInfo = !Boolean(this.webAppSettingDataService.getExperimentalOption('scatterScan'));
+        const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
+
+        this.enableServerSideScan = enableServerSideScan === null ? true : enableServerSideScan;
+        this.showCountInfo = !this.enableServerSideScan;
         this.transactionMetaDataService.onTransactionDataCount$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((counter: number[]) => {

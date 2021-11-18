@@ -112,6 +112,8 @@ export class ServerMapForFilteredMapDataService {
     }
 
     private makeRequestOptionsArgs(to?: number): object {
+        const useStatisticsAgentState = this.webAppSettingDataService.getExperimentalOption('statisticsAgentState');
+
         return {
             params: new HttpParams()
                 .set('applicationName', this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).applicationName)
@@ -127,7 +129,7 @@ export class ServerMapForFilteredMapDataService {
                 .set('limit', this.REQUEST_LIMIT + '')
                 .set('xGroupUnit', this.X_GROUP_UNIT + '') // for scatter-chart
                 .set('yGroupUnit', this.Y_GROUP_UNIT + '') // for scatter-chart
-                .set('useStatisticsAgentState', Boolean(this.webAppSettingDataService.getExperimentalOption('statisticsAgentState')).toString())
+                .set('useStatisticsAgentState', (useStatisticsAgentState === null ? true : useStatisticsAgentState).toString())
         };
     }
 }

@@ -76,7 +76,9 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.enableServerSideScan = Boolean(this.webAppSettingDataService.getExperimentalOption('scatterScan'));
+        const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
+
+        this.enableServerSideScan = enableServerSideScan === null ? true : enableServerSideScan;
         this.setScatterY();
 
         forkJoin(
