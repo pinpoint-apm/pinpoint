@@ -23,11 +23,15 @@
 }
 
 .l-chart-option {
-    /* height: 38px; */
+    height: 38px;
     /* padding: 0 20px; */
     padding: 5px 20px;
     background: var(--background-default);
 
+    /* border-bottom: 1px solid var(--border-primary-lighter); */
+}
+
+.l-chart-option.l-option-boundary {
     border-bottom: 1px solid var(--border-primary-lighter);
 }
 
