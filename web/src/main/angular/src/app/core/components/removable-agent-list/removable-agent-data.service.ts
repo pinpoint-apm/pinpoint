@@ -21,19 +21,21 @@ export class RemovableAgentDataService {
     }
 
     removeApplication({applicationName, password}: {applicationName: string, password: string}): Observable<string> {
-        return this.http.get<string>(this.removeApplicationUrl, {
+        return this.http.get(this.removeApplicationUrl, {
             params: new HttpParams()
                 .set('applicationName', applicationName)
-                .set('password', password)
+                .set('password', password),
+            responseType: 'text',
         });
     }
 
     removeAgentId({applicationName, agentId, password}: {applicationName: string, agentId: string, password: string}): Observable<string> {
-        return this.http.get<string>(this.removeAgentUrl, {
+        return this.http.get(this.removeAgentUrl, {
             params: new HttpParams()
                 .set('applicationName', applicationName)
                 .set('agentId', agentId)
-                .set('password', password)
+                .set('password', password),
+            responseType: 'text',
         });
     }
 }
