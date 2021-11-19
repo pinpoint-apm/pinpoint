@@ -45,3 +45,25 @@
 /* .l-chart-wrapper:not(:last-child) {
     margin-bottom: 20px;
 } */
+
+.l-page-title-wrapper {
+    /* padding: 5px 0px; */
+    margin-bottom: 15px;
+}
+
+.l-page-title {
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.l-beta-text {
+    font-style: italic;
+    font-weight: bold;
+    color: var(--primary);
+    margin-left: 5px;
+}
+
+.l-page-title-icon {
+    margin-right: 5px;
+}
