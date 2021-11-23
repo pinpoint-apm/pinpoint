@@ -247,23 +247,24 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
                         // position: 'outer-middle'
                     },
                     tick: {
-                        count: 5,
+                        // count: 5,
                         format: this.metaInfo.getFormat
                     },
                     padding: {
-                        top: 0,
+                        // top: 0,
                         bottom: 0
                     },
                     min: 0,
-                    max: (() => {
-                        if (this.metaInfo.yMax) {
-                            return this.metaInfo.yMax;
-                        }
+                    // max: (() => {
+                    //     if (this.metaInfo.yMax) {
+                    //         return this.metaInfo.yMax;
+                    //     }
 
-                        const maxTickValue = getMaxTickValue(data, 1);
+                    //     // TODO: Use values in billboardjs?
+                    //     const maxTickValue = getMaxTickValue(data, 1);
 
-                        return maxTickValue === 0 ? this.defaultYMax : maxTickValue;
-                    })(),
+                    //     return maxTickValue === 0 ? this.defaultYMax : maxTickValue;
+                    // })(),
                     default: [0, this.defaultYMax]
                 }
             },
