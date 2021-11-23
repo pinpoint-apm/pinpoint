@@ -80,9 +80,9 @@ export class MetricComponent implements OnInit, OnChanges, OnDestroy {
         const currKeys = currColumns.map(([key]: PrimitiveArray) => key);
         const removedKeys = prevKeys.filter((key: string) => !currKeys.includes(key));
         const unloadKeys = [...this.getEmptyDataKeys(currColumns), ...removedKeys];
-        const {axis: {y}} = currentValue.elseConfig;
+        // const {axis: {y}} = currentValue.elseConfig;
 
-        this.chartInstance.config('axis.y.max', y.max);
+        // this.chartInstance.config('axis.y.max', y.max);
         this.chartInstance.load({
             columns: currColumns,
             unload: unloadKeys,

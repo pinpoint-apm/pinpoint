@@ -43,8 +43,8 @@
 
     /* padding: 20px 15px; */
     padding: 15px;
-    max-height: 100%;
-    overflow-y: auto;
+    /* max-height: 100%;
+    overflow-y: auto; */
 }
 
 .fa-question-circle {
