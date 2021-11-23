@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ElementRef, Renderer2, ViewChild, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, Observable, merge, of, EMPTY } from 'rxjs';
-import { takeUntil, filter, switchMap, catchError } from 'rxjs/operators';
+import { takeUntil, filter, switchMap, catchError, tap } from 'rxjs/operators';
 
 import { WebAppSettingDataService, MessageQueueService, MESSAGE_TO, NewUrlStateNotificationService, DynamicPopupService } from 'app/shared/services';
 import { UrlPathId } from 'app/shared/models';
@@ -47,6 +47,7 @@ export class MetricContentsContainerComponent implements OnInit, OnDestroy {
 
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             filter((urlService: NewUrlStateNotificationService) => urlService.isValueChanged(UrlPathId.HOST_GROUP) || urlService.isValueChanged(UrlPathId.HOST)),
+            tap(() => this.metricList = []),
             switchMap((urlService: NewUrlStateNotificationService) => {
                 const hostGroup = urlService.getPathValue(UrlPathId.HOST_GROUP);
                 const host = urlService.getPathValue(UrlPathId.HOST);
