@@ -40,7 +40,7 @@ export class ConfigurationExperimentalContainerComponent implements OnInit {
         const sampleScatter = this.webAppSettingDataService.getExperimentalOption('scatterSampling');
 
         this.enableServerSideScanForScatter = enableServerSideScanForScatter === null ? true : enableServerSideScanForScatter;
-        this.useStatisticsAgentState = useStatisticsAgentState === null ? true : useStatisticsAgentState;
+        this.useStatisticsAgentState = Boolean(useStatisticsAgentState);
         this.enableServerMapRealTime = enableServerMapRealTime === null ? true : enableServerMapRealTime;
         this.sampleScatter = sampleScatter === null ? true : sampleScatter;
     }

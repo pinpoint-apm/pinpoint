@@ -68,7 +68,8 @@ export class TransactionDetailDataService {
                 .set('spanId', spanId)
                 .set('traceId', traceId)
                 .set('focusTimestamp', focusTimestamp + '')
-                .set('useStatisticsAgentState', (useStatisticsAgentState === null ? true : useStatisticsAgentState).toString())
+                // .set('useStatisticsAgentState', (useStatisticsAgentState === null ? true : useStatisticsAgentState).toString())
+                .set('useStatisticsAgentState', Boolean(useStatisticsAgentState).toString())
         };
     }
 }
