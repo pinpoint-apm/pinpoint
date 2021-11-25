@@ -78,13 +78,13 @@ public class TelegrafMetricController {
             throw new BindException(bindingResult);
         }
 
-        if (logger.isInfoEnabled()) {
-            String host = getHost(telegrafMetrics);
-            logger.info("hostGroupName:{} host:{} size:{}", hostGroupName, host, telegrafMetrics.size());
-        }
-        logger.info("telegrafMetrics:{}", telegrafMetrics);
+        String hostName = getHost(telegrafMetrics);
 
-        Metrics systemMetric = toMetrics(hostGroupName, telegrafMetrics);
+        if (logger.isDebugEnabled()) {
+            logger.debug("hostGroupName:{} host:{} size:{}", hostGroupName, hostName, telegrafMetrics.size());
+        }
+
+        Metrics systemMetric = toMetrics(hostGroupName, hostName, telegrafMetrics);
 
         updateMetadata(systemMetric);
         systemMetricService.insert(systemMetric);
@@ -105,14 +105,14 @@ public class TelegrafMetricController {
         return host.getValue();
     }
 
-    private Metrics toMetrics(String id, TelegrafMetrics telegrafMetrics) {
+    private Metrics toMetrics(String hostGroupName, String hostName, TelegrafMetrics telegrafMetrics) {
         List<TelegrafMetric> metrics = telegrafMetrics.getMetrics();
 
         List<SystemMetric> metricList = metrics.stream()
                 .flatMap(this::toMetric)
                 .collect(Collectors.toList());
 
-        return new Metrics(id, metricList);
+        return new Metrics(hostGroupName, hostName, metricList);
     }
 
     Stream<SystemMetric> toMetric(TelegrafMetric tMetric) {
@@ -148,7 +148,7 @@ public class TelegrafMetricController {
     private void updateMetadata(Metrics systemMetrics) {
         for (SystemMetric systemMetric : systemMetrics) {
             systemMetricMetadataService.saveMetricDataType(systemMetric);
-            systemMetricTagService.saveMetricTag(systemMetrics.getId(), systemMetric);
+            systemMetricTagService.saveMetricTag(systemMetrics.getHostGroupName(), systemMetric);
         }
 
     }

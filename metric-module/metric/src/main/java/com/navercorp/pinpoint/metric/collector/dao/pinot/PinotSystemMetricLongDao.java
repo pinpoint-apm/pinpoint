@@ -43,13 +43,13 @@ public class PinotSystemMetricLongDao implements SystemMetricDao<LongMetric> {
     }
 
     @Override
-    public void insert(String hostGroupName, List<LongMetric> systemMetrics) {
+    public void insert(String hostGroupName, String hostName, List<LongMetric> systemMetrics) {
         Objects.requireNonNull(hostGroupName, "hostGroupName");
         Objects.requireNonNull(systemMetrics, "systemMetrics");
 
         for (LongMetric longMetric : systemMetrics) {
             SystemMetricView systemMetricView = new SystemMetricView(hostGroupName, longMetric);
-            this.kafkaLongTemplate.send(topic, systemMetricView);
+            this.kafkaLongTemplate.send(topic, hostName, systemMetricView);
         }
     }
 }
