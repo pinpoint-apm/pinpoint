@@ -39,6 +39,7 @@ public class MetricEnvironmentPostProcessor implements EnvironmentPostProcessor 
 
     private final String[] resources = new String[] {
             "classpath:pinot-collector/profiles/${pinpoint.profiles.active}/jdbc.properties",
+            "classpath:pinot-collector/profiles/${pinpoint.profiles.active}/kafka-producer-factory.properties"
     };
     private static final String EXTERNAL_CONFIGURATION_KEY = "pinpoint.collector.config.location";
 

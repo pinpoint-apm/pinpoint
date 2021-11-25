@@ -12,8 +12,7 @@ import org.springframework.context.annotation.PropertySource;
 @SpringBootConfiguration
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, TransactionAutoConfiguration.class, KafkaAutoConfiguration.class})
 @ImportResource({"classpath:pinot-collector/applicationContext-collector-pinot.xml", "classpath:pinot-collector/servlet-context-collector-pinot.xml"})
-@PropertySource({"classpath:pinot-collector/kafka-producer-factory.properties",
-        "classpath:pinot-collector/kafka-topic.properties"})
+@PropertySource({"classpath:pinot-collector/kafka-topic.properties"})
 @Profile("metric")
 public class MetricCollectorApp {
 }

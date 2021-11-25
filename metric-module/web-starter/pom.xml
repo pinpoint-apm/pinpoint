@@ -43,7 +43,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.navercorp.pinpoint.collector.CollectorApp</mainClass>
+                    <mainClass>com.navercorp.pinpoint.web.starter.multi.MetricAndWebApp</mainClass>
                     <outputDirectory>target/deploy</outputDirectory>
                     <executable>true</executable>
                     <attach>false</attach>
