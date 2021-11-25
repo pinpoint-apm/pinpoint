@@ -78,6 +78,6 @@ public class SystemMetricFilterTest {
             systemMetricList.add(doubleMetric);
         }
 
-        return new Metrics("id", systemMetricList);
+        return new Metrics("hostGroupName", "hostName", systemMetricList);
     }
 }

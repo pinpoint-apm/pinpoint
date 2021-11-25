@@ -47,8 +47,8 @@ public class SystemMetricService {
         List<LongMetric> longMetrics = filterLongCounter(systemMetrics);
         List<DoubleMetric> doubleMetrics = filterDoubleCounter(systemMetrics);
 
-        systemMetricLongDao.insert(systemMetrics.getId(), longMetrics);
-        systemMetricDoubleDao.insert(systemMetrics.getId(), doubleMetrics);
+        systemMetricLongDao.insert(systemMetrics.getHostGroupName(), systemMetrics.getHostName(), longMetrics);
+        systemMetricDoubleDao.insert(systemMetrics.getHostGroupName(), systemMetrics.getHostName(), doubleMetrics);
     }
 
     public List<LongMetric> filterLongCounter(Metrics systemMetrics) {

@@ -8,18 +8,24 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class Metrics implements Iterable<SystemMetric> {
-    private final String id;
+    private final String hostGroupName;
+    private final String hostName;
 
     @Valid
     private final List<SystemMetric> metrics;
 
-    public Metrics(String id, List<SystemMetric> metrics) {
-        this.id = Objects.requireNonNull(id, "id");
+    public Metrics(String hostGroupName, String hostName, List<SystemMetric> metrics) {
+        this.hostGroupName = Objects.requireNonNull(hostGroupName, "hostGroupName");
+        this.hostName = Objects.requireNonNull(hostName, "hostName");
         this.metrics = Objects.requireNonNull(metrics, "metrics");
     }
 
-    public String getId() {
-        return id;
+    public String getHostGroupName() {
+        return hostGroupName;
+    }
+
+    public String getHostName() {
+        return hostName;
     }
 
     public List<SystemMetric> getMetrics() {

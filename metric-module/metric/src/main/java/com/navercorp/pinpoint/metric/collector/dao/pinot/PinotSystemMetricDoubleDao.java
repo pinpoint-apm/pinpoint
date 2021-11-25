@@ -43,13 +43,13 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<DoubleMetric>
     }
 
     @Override
-    public void insert(String hostGroupName, List<DoubleMetric> systemMetrics) {
+    public void insert(String hostGroupName, String hostName, List<DoubleMetric> systemMetrics) {
         Objects.requireNonNull(hostGroupName, "hostGroupName");
         Objects.requireNonNull(systemMetrics, "systemMetrics");
 
         for (DoubleMetric doubleMetric : systemMetrics) {
             SystemMetricView systemMetricView = new SystemMetricView(hostGroupName, doubleMetric);
-            this.kafkaDoubleTemplate.send(topic, systemMetricView);
+            this.kafkaDoubleTemplate.send(topic, hostName, systemMetricView);
         }
     }
 }
