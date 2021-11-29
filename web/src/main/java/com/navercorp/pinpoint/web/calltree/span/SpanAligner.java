@@ -252,7 +252,7 @@ public class SpanAligner {
         // find root
         final NodeList rootNodeList = nodeList.filter(NodeList.rootFilter());
         if (rootNodeList.size() >= 1) {
-            return selectInRootNodeList(rootNodeList);
+            return selectInRootNodeList(rootNodeList, true);
         }
 
         // Corner case : root node not found
@@ -274,6 +274,8 @@ public class SpanAligner {
     private CallTree selectFirstSpan(NodeList topNodeList) {
         final Node node = topNodeList.get(0);
         if (node.getSpanCallTree().isRootSpan()) {
+            logger.info("Select root span in top node list");
+
             traceState.complete();
             return node.getSpanCallTree();
         }
@@ -307,13 +309,18 @@ public class SpanAligner {
         return selectInNodeList(node, topNodeList);
     }
 
-    private CallTree selectInRootNodeList(final NodeList rootNodeList) {
+    private CallTree selectInRootNodeList(final NodeList rootNodeList, boolean bestMatchingState) {
         // in root list
         if (rootNodeList.size() == 1) {
             logger.info("Select root span in top node list");
 
             final Node node = rootNodeList.get(0);
-            traceState.progress();
+
+            if (bestMatchingState) {
+                traceState.complete();
+            } else {
+                traceState.progress();
+            }
             return node.getSpanCallTree();
         }
         // find focus
