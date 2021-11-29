@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.starter.multi.port;
 
-import com.navercorp.pinpoint.collector.starter.ApplicationStarter;
+import com.navercorp.pinpoint.collector.CollectorStarter;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -35,7 +35,7 @@ public class MultiPortCollectorApp {
 
     public static void main(String[] args) {
         try {
-            ApplicationStarter starter = new ApplicationStarter(MultiPortCollectorApp.class);
+            CollectorStarter starter = new CollectorStarter(MultiPortCollectorApp.class);
             starter.start(args);
         } catch (Exception exception) {
             logger.error("[MultiPortCollectorApp] could not launch app.", exception);
