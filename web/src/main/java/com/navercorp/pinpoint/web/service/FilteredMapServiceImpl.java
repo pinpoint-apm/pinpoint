@@ -175,10 +175,10 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         applicationMapBuilder.linkType(LinkType.DETAILED);
         final WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(filteredMap.getResponseHistograms());
         applicationMapBuilder.includeNodeHistogram(new DefaultNodeHistogramFactory(wasNodeHistogramDataSource));
+        ServerInstanceListDataSource serverInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService);
         if(option.isUseStatisticsAgentState()) {
-            applicationMapBuilder.includeServerInfo(new StatisticsServerInstanceListFactory());
+            applicationMapBuilder.includeServerInfo(new StatisticsServerInstanceListFactory(serverInstanceListDataSource));
         } else {
-            ServerInstanceListDataSource serverInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService);
             applicationMapBuilder.includeServerInfo(new DefaultServerInstanceListFactory(serverInstanceListDataSource));
         }
         ApplicationMap map = applicationMapBuilder.build(filteredMap.getLinkDataDuplexMap(), buildTimeoutMillis);
