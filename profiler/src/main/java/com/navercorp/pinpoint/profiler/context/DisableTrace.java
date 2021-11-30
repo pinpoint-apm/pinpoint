@@ -34,7 +34,7 @@ public class DisableTrace implements Trace {
 
     private final long id;
     private final long startTime;
-    private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
+    private DefaultTraceScopePool scopePool;
     private final ActiveTraceHandle handle;
     private boolean closed = false;
 
@@ -135,11 +135,17 @@ public class DisableTrace implements Trace {
 
     @Override
     public TraceScope getScope(String name) {
+        if (scopePool == null) {
+            return null;
+        }
         return scopePool.get(name);
     }
 
     @Override
     public TraceScope addScope(String name) {
+        if (scopePool == null) {
+            scopePool = new DefaultTraceScopePool();
+        }
         return scopePool.add(name);
     }
 }
