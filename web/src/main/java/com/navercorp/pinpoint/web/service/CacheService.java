@@ -25,8 +25,6 @@ public interface CacheService {
 
     String DEFAULT_KEY = "DEFAULT";
 
-    String APPLICATION_LIST_CACHE_NAME = "applicationNameList";
-
     TagApplications get(String key);
 
     void put(String key, TagApplications tagApplications);
