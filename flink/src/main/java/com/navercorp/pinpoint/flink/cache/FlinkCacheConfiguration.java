@@ -30,6 +30,8 @@ import java.util.concurrent.TimeUnit;
 @EnableCaching
 public class FlinkCacheConfiguration {
 
+    public static final String APPLICATION_ID_CACHE_NAME = "applicationId";
+
     @Bean
     @Primary
     public CacheManager cacheManager() {
@@ -43,7 +45,7 @@ public class FlinkCacheConfiguration {
 
     @Bean
     public CacheManager applicationId() {
-        CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager("applicationId");
+        CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager(APPLICATION_ID_CACHE_NAME);
         caffeineCacheManager.setCaffeine(Caffeine.newBuilder()
                 .expireAfterWrite(600, TimeUnit.SECONDS)
                 .initialCapacity(500)

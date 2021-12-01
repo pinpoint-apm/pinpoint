@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.flink.process;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
+import com.navercorp.pinpoint.flink.cache.FlinkCacheConfiguration;
 import com.navercorp.pinpoint.web.mapper.AgentInfoMapper;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.hadoop.hbase.TableName;
@@ -52,7 +53,7 @@ public class ApplicationCache {
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
     }
 
-    @Cacheable(cacheNames = "applicationId", key = SPEL_KEY, cacheManager = "applicationId")
+    @Cacheable(cacheNames = "applicationId", key = SPEL_KEY, cacheManager = FlinkCacheConfiguration.APPLICATION_ID_CACHE_NAME)
     public String findApplicationId(ApplicationKey application) {
         final String agentId = application.getAgentId();
         final long agentStartTimestamp = application.getAgentStartTime();
