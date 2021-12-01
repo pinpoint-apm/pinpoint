@@ -29,9 +29,9 @@
     <packaging>jar</packaging>
 
     <properties>
-        <grpc.version>1.36.2</grpc.version>
-        <protoc.version>3.12.4</protoc.version>
-        <tcnative.version>2.0.36.Final</tcnative.version>
+        <grpc.version>1.42.1</grpc.version>
+        <protoc.version>3.17.2</protoc.version>
+        <tcnative.version>2.0.38.Final</tcnative.version>
     </properties>
 
 

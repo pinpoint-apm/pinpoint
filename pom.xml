@@ -167,7 +167,7 @@
         <caffeine.version>2.9.2</caffeine.version>
 
         <netty3.version>3.10.6.Final</netty3.version>
-        <netty4.version>4.1.58.Final</netty4.version>
+        <netty4.version>4.1.63.Final</netty4.version>
 
 
         <guava-jdk7.version>30.1-android</guava-jdk7.version>
