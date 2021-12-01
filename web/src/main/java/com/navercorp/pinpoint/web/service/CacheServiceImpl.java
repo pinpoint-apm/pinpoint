@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.web.cache.CacheConfiguration;
 import com.navercorp.pinpoint.web.view.TagApplications;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -34,7 +35,7 @@ public class CacheServiceImpl implements CacheService {
 
     public CacheServiceImpl(CacheManager cacheManager) {
         Objects.requireNonNull(cacheManager, "cacheManager");
-        this.cache = Objects.requireNonNull(cacheManager.getCache(APPLICATION_LIST_CACHE_NAME));
+        this.cache = Objects.requireNonNull(cacheManager.getCache(CacheConfiguration.APPLICATION_LIST_CACHE_NAME));
     }
 
     @Override

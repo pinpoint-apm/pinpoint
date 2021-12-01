@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.DefaultMetaDataRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataEncoder;
+import com.navercorp.pinpoint.web.cache.CacheConfiguration;
 import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
@@ -67,7 +68,7 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
     }
 
     @Override
-    @Cacheable(cacheNames="apiMetaData", key=SPEL_KEY, cacheManager = "apiMeatData")
+    @Cacheable(cacheNames="apiMetaData", key=SPEL_KEY, cacheManager = CacheConfiguration.API_METADATA_CACHE_NAME)
     public List<ApiMetaDataBo> getApiMetaData(String agentId, long time, int apiId) {
         Objects.requireNonNull(agentId, "agentId");
 

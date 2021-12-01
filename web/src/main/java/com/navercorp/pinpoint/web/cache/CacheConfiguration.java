@@ -31,6 +31,9 @@ import java.util.concurrent.TimeUnit;
 @EnableCaching
 public class CacheConfiguration extends CachingConfigurerSupport {
 
+    public static final String API_METADATA_CACHE_NAME = "apiMetaData";
+    public static final String APPLICATION_LIST_CACHE_NAME = "applicationNameList";
+
     @Bean
     @Primary
     public CacheManager cacheManager() {
@@ -43,8 +46,8 @@ public class CacheConfiguration extends CachingConfigurerSupport {
     }
 
     @Bean
-    public CacheManager apiMeatData() {
-        CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager("apiMetaData");
+    public CacheManager apiMetaData() {
+        CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager(API_METADATA_CACHE_NAME);
         caffeineCacheManager.setCaffeine(Caffeine.newBuilder()
                 .expireAfterWrite(600, TimeUnit.SECONDS)
                 .initialCapacity(500)
@@ -54,7 +57,7 @@ public class CacheConfiguration extends CachingConfigurerSupport {
 
     @Bean
     public CacheManager applicationNameList() {
-        CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager("applicationNameList");
+        CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager(APPLICATION_LIST_CACHE_NAME);
         caffeineCacheManager.setCaffeine(Caffeine.newBuilder()
                 .expireAfterWrite(120, TimeUnit.SECONDS)
                 .initialCapacity(10)
