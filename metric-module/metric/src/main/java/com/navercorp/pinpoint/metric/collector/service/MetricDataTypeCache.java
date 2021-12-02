@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.metric.collector.service;
 
+import com.navercorp.pinpoint.metric.collector.cache.MetricCacheConfiguration;
 import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDataTypeDao;
 import com.navercorp.pinpoint.metric.common.model.MetricData;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
@@ -40,7 +41,7 @@ public class MetricDataTypeCache {
         this.systemMetricDataTypeDao = Objects.requireNonNull(systemMetricDataTypeDao, "systemMetricDataTypeDao");
     }
 
-    @Cacheable(value="metricDataType", key="#metricDataName")
+    @Cacheable(cacheNames = "metricDataType", key = "#metricDataName", cacheManager = MetricCacheConfiguration.METRIC_DATA_TYPE_CACHE_NAME)
     public MetricData getMetricDataType(MetricDataName metricDataName) {
         MetricData metricData =  systemMetricDataTypeDao.selectMetricDataType(metricDataName);
 
@@ -51,7 +52,7 @@ public class MetricDataTypeCache {
         return metricData;
     }
 
-    @CachePut(value="metricDataType", key="#metricDataName")
+    @CachePut(cacheNames = "metricDataType", key = "#metricDataName", cacheManager = MetricCacheConfiguration.METRIC_DATA_TYPE_CACHE_NAME)
     public MetricData saveMetricDataType(MetricDataName metricDataName, MetricData metricData) {
         if (logger.isDebugEnabled()) {
             logger.debug("called saveMetricDataType method. metricDataName: {}, metricData : {}", metricDataName, metricData);
