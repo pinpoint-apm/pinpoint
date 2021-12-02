@@ -5,14 +5,5 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
 
-    <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-        <property name="configLocation" value="classpath:pinot-collector/ehcache.xml"/>
-    </bean>
-
-
-    <bean id="ehcacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
-        <property name="cacheManager" ref="ehcache"/>
-    </bean>
-
-    <cache:annotation-driven cache-manager="ehcacheManager"/>
+    <bean class="com.navercorp.pinpoint.metric.collector.cache.MetricCacheConfiguration"/>
 </beans>

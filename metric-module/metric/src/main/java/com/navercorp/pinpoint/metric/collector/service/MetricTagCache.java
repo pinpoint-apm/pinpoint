@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.metric.collector.service;
 
+import com.navercorp.pinpoint.metric.collector.cache.MetricCacheConfiguration;
 import com.navercorp.pinpoint.metric.collector.dao.MetricTagDao;
 import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
@@ -43,7 +44,7 @@ public class MetricTagCache {
         this.metricTagDao = Objects.requireNonNull(metricTagDao, "metricTagDao");
     }
 
-    @Cacheable(value="metricTagCollection", key="#metricTagKey")
+    @Cacheable(cacheNames = "metricTagCollection", key = "#metricTagKey", cacheManager = MetricCacheConfiguration.METRIC_TAG_COLLECTION_CACHE_NAME)
     public MetricTagCollection getMetricTag(MetricTagKey metricTagKey) {
         MetricTagCollection metricTagCollection = metricTagDao.selectMetricTag(metricTagKey);
 
@@ -58,7 +59,7 @@ public class MetricTagCache {
         metricTagDao.insertMetricTag(metricTag);
     }
 
-    @CachePut(value="metricTagCollection", key="#metricTagKey")
+    @CachePut(cacheNames = "metricTagCollection", key = "#metricTagKey", cacheManager = MetricCacheConfiguration.METRIC_TAG_COLLECTION_CACHE_NAME)
     public MetricTagCollection updateCacheForMetricTag(MetricTagKey metricTagKey, MetricTagCollection metricTagCollection) {
         if (logger.isDebugEnabled()) {
             logger.debug("updateCacheForMetricTag metricTagKey: {}, metricTagCollection : {}", metricTagKey, metricTagCollection);
