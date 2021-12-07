@@ -74,7 +74,7 @@ public class ConfigControllerTest {
 
     @Test
     public void configuration() throws Exception {
-        MvcResult result = this.mockMvc.perform(get("/configuration.pinpoint").contentType(MediaType.APPLICATION_JSON).header("SSO_USER", "naver01"))
+        MvcResult result = this.mockMvc.perform(get("/configuration.pinpoint").contentType(MediaType.APPLICATION_JSON))
                                         .andExpect(status().isOk())
                                         .andExpect(content().contentType("application/json;charset=UTF-8"))
                                         .andExpect(jsonPath("$", hasKey("showActiveThread")))
