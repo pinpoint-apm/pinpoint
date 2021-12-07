@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializer;
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.util.Assert;
 
 import java.util.HashMap;
@@ -32,7 +32,7 @@ import java.util.Objects;
  */
 public class FlinkTcpDataSender extends TcpDataSender<TBase<?, ?>> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final FlinkHeaderTBaseSerializer flinkHeaderTBaseSerializer;
     private final FlinkRequestFactory flinkRequestFactory;

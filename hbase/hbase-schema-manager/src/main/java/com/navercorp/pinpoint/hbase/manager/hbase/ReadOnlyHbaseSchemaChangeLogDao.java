@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.hbase.manager.hbase;
 import com.navercorp.pinpoint.hbase.schema.dao.SchemaChangeLogDao;
 import com.navercorp.pinpoint.hbase.schema.dao.hbase.HbaseSchemaChangeLogDao;
 import com.navercorp.pinpoint.hbase.schema.domain.SchemaChangeLog;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +30,7 @@ import java.util.Objects;
  */
 public class ReadOnlyHbaseSchemaChangeLogDao implements SchemaChangeLogDao {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final HbaseSchemaChangeLogDao hbaseSchemaChangeLogDao;
 

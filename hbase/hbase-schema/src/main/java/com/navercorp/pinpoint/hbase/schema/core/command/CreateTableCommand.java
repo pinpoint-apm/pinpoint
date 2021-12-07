@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.io.compress.Compression;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -32,7 +32,7 @@ import java.util.Objects;
  */
 public class CreateTableCommand extends TableCommand {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final byte[][] splitKeys;
 

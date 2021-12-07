@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.grpc.server.lifecycle;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -31,7 +31,7 @@ import java.util.Objects;
 public class DefaultPingEventHandler implements PingEventHandler {
     private static final long PING_MIN_TIME_MILLIS = 60 * 1000; // 1min
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final PingSessionRegistry pingSessionRegistry;
     private final LifecycleListener lifecycleListener;
 

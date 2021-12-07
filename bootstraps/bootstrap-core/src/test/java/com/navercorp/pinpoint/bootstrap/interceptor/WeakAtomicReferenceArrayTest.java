@@ -21,8 +21,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.WeakAtomicReferenceArray;
 
@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Ignore
 public class WeakAtomicReferenceArrayTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final int arraySize = 1024 * 2000;
     private final int testMapSize = 1;

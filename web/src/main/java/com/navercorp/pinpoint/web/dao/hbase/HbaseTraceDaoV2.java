@@ -50,8 +50,8 @@ import org.apache.hadoop.hbase.filter.ColumnCountGetFilter;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -71,7 +71,7 @@ import java.util.stream.Collectors;
 @Repository
 public class HbaseTraceDaoV2 implements TraceDao {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final HbaseColumnFamily.Trace DESCRIPTOR = HbaseColumnFamily.TRACE_V2_SPAN;
 
@@ -107,7 +107,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
     @PostConstruct
     private void setup() {
         SpanMapperV2 spanMapperV2 = new SpanMapperV2(rowKeyDecoder, stringCacheSize);
-        final Logger logger = LoggerFactory.getLogger(spanMapperV2.getClass());
+        final Logger logger = LogManager.getLogger(spanMapperV2.getClass());
         if (logger.isDebugEnabled()) {
             this.spanMapperV2 = CellTraceMapper.wrap(spanMapperV2);
         } else {

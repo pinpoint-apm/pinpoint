@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.HashMap;
 
@@ -34,7 +34,7 @@ import java.util.HashMap;
  */
 public class HistogramTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 

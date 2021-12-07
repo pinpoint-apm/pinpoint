@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.bootstrap.config;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.InputStream;
 import java.util.Properties;
@@ -29,7 +29,7 @@ import java.util.Properties;
  * @author emeroad
  */
 public class DefaultProfilerConfigTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void readProperty() {

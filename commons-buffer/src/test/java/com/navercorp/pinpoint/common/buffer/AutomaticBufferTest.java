@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -33,7 +33,7 @@ import java.util.Random;
  */
 public class AutomaticBufferTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Random random = new Random();
 

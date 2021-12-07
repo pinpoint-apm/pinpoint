@@ -30,8 +30,8 @@ import com.google.protobuf.GeneratedMessageV3;
 
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -42,7 +42,7 @@ import java.util.concurrent.ThreadFactory;
  * @author Woonduk Kang(emeroad)
  */
 public abstract class GrpcDataSender<T> implements DataSender<T> {
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LogManager.getLogger(this.getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
     protected final String name;

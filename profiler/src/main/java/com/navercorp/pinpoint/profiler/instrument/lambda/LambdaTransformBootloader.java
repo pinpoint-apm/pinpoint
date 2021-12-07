@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.instrument.transformer.InnerClassLambdaMetafactoryTransformer;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 
 import java.lang.instrument.ClassFileTransformer;
@@ -35,7 +35,7 @@ import java.lang.reflect.Method;
  * @author Woonduk Kang(emeroad)
  */
 public class LambdaTransformBootloader {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
 
     public void transformLambdaFactory(Instrumentation instrumentation, final ClassFileTransformModuleAdaptor classFileTransformer, final JavaModuleFactory javaModuleFactory)  {
@@ -84,7 +84,8 @@ public class LambdaTransformBootloader {
 
     private LambdaBytecodeHandler newLambdaBytecodeHandler(ClassFileTransformModuleAdaptor classFileTransformer, JavaModuleFactory javaModuleFactory) {
         final LambdaBytecodeHandler lambdaBytecodeHandler = new DefaultLambdaBytecodeHandler(classFileTransformer, javaModuleFactory);
-        if (LoggerFactory.getLogger(lambdaBytecodeHandler.getClass()).isDebugEnabled()) {
+        final Logger logger = LogManager.getLogger(lambdaBytecodeHandler.getClass());
+        if (logger.isDebugEnabled()) {
             return new LambdaBytecodeLogger(lambdaBytecodeHandler);
         }
         return lambdaBytecodeHandler;

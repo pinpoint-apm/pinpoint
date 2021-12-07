@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.test.javasssit;
 import java.lang.reflect.Method;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 
 /**
@@ -31,7 +31,7 @@ public class TestBootstrapClass {
 
     private static final String TEST_CLASS_NAME = "com.navercorp.pinpoint.profiler.javaassist.DynamicCreateTest";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
 
     @Test

@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDumpRes;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ import static org.mockito.Mockito.when;
  */
 public class ActiveThreadLightDumpServiceTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final int CREATE_SIZE = 10;
 

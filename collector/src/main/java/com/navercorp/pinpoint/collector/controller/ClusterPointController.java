@@ -36,8 +36,8 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,7 +55,7 @@ import java.util.Objects;
 @RequestMapping("/cluster/grpc")
 public class ClusterPointController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final TCommandEcho CONNECTION_CHECK_COMMAND = new TCommandEcho("PING");
 

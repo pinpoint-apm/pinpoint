@@ -26,8 +26,8 @@ import org.junit.Test;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -41,7 +41,7 @@ import static org.junit.Assert.fail;
 public class ASMClassNodeAdapterTest {
 
     private final ClassInputStreamProvider pluginClassInputStreamProvider = new SimpleClassInputStreamProvider();
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void get() {

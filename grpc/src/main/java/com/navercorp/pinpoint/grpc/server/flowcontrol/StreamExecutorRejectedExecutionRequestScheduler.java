@@ -23,7 +23,7 @@ import java.util.concurrent.Future;
  * @author jaehong.kim
  */
 public class StreamExecutorRejectedExecutionRequestScheduler {
-//    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+//    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ScheduledExecutor scheduledExecutor;
     private final RejectedExecutionListenerFactory rejectedExecutionListenerFactory;

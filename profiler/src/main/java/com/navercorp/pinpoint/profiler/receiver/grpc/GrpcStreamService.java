@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.profiler.receiver.grpc;
 import java.util.Objects;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 import java.util.Timer;
@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class GrpcStreamService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Timer timer;
     private final long flushDelay;

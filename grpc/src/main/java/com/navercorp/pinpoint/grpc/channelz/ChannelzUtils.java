@@ -3,8 +3,8 @@ package com.navercorp.pinpoint.grpc.channelz;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.grpc.InternalInstrumented;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public final class ChannelzUtils {
-    private static final Logger logger = LoggerFactory.getLogger(ChannelzUtils.class);
+    private static final Logger logger = LogManager.getLogger(ChannelzUtils.class);
 
     private static final long timeout = 3000L;
 

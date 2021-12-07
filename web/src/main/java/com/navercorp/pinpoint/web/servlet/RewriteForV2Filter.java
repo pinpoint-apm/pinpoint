@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.servlet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -37,7 +37,7 @@ public class RewriteForV2Filter implements Filter {
 
     public static final String DEFAULT_INDEX = "/index.html";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private static final char PATH_DELIMITER = '/';

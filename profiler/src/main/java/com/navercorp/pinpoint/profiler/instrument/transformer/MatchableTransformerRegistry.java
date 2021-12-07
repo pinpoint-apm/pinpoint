@@ -26,8 +26,8 @@ import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadataReader;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author jaehong.kim
  */
 public class MatchableTransformerRegistry implements TransformerRegistry {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     // class name.

@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -30,7 +30,7 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class DelegateDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AcceptedTimeService acceptedTimeService;
     private final DispatchHandler<REQ, RES> delegate;

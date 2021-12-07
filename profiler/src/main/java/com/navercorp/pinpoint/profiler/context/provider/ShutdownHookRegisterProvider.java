@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.ShutdownHookRegister;
 import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.reflect.Constructor;
 import java.util.Objects;
@@ -49,7 +49,7 @@ public class ShutdownHookRegisterProvider implements Provider<ShutdownHookRegist
     //   - 6 not exist
     //   - 7 ~ void registerShutdownHook(int var1, boolean , Runnable );
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     // Java7,8
     private static final String JDK7_SHUTDOWN_HOOK_REGISTER = "com.navercorp.pinpoint.profiler.shutdown.Java7ShutdownHookRegister";
@@ -113,7 +113,7 @@ public class ShutdownHookRegisterProvider implements Provider<ShutdownHookRegist
 
     private static class RuntimeShutdownHookRegister implements ShutdownHookRegister {
 
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
         @Override
         public void register(Thread thread) {

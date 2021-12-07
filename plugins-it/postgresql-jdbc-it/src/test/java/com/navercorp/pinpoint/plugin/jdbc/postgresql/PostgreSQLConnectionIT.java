@@ -30,8 +30,8 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -52,20 +52,20 @@ import java.util.Properties;
 @JunitAgentConfigPath("pinpoint-postgresql.config")
 public class PostgreSQLConnectionIT extends BasePinpointTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(PostgreSQLConnectionIT.class);
+    private static final Logger logger = LogManager.getLogger(PostgreSQLConnectionIT.class);
 
-    public static JdbcDatabaseContainer<?> container = PostgreSQLContainerFactory.newContainer(logger);
+    public static JdbcDatabaseContainer<?> container = PostgreSQLContainerFactory.newContainer(logger.getName());
 
     private static final JDBCDriverClass driverClass = new PostgreSql_9_4_1207_JDBCDriverClass();
 
     @BeforeClass
-    public static void beforeClass() throws Exception {
+    public static void beforeClass() {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
         container.start();
     }
 
     @AfterClass
-    public static void afterClass() throws Exception {
+    public static void afterClass() {
         container.stop();
     }
 

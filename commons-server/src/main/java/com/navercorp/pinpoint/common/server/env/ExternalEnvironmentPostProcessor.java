@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.env;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -42,7 +42,7 @@ public class ExternalEnvironmentPostProcessor implements EnvironmentPostProcesso
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        Logger logger = LoggerFactory.getLogger(this.getClass());
+        Logger logger = LogManager.getLogger(this.getClass());
         logger.info("postProcessEnvironment");
 
 

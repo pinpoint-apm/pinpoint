@@ -49,11 +49,10 @@
             <artifactId>pinpoint-bootstrap-java9-internal</artifactId>
         </dependency>
 
-
         <!-- Logging dependencies -->
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
 
 import org.junit.After;
 import org.junit.Before;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
 import java.sql.Driver;
@@ -37,7 +37,7 @@ import java.util.Properties;
 public abstract class PostgreSqlBase {
     protected abstract JDBCDriverClass getJDBCDriverClass();
 
-    private static final Logger logger = LoggerFactory.getLogger(PostgreSqlBase.class);
+    private static final Logger logger = LogManager.getLogger(PostgreSqlBase.class);
 
     protected static JdbcDatabaseContainer container;
 

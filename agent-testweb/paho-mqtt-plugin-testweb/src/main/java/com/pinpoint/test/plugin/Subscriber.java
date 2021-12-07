@@ -16,8 +16,8 @@
 
 package com.pinpoint.test.plugin;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +30,7 @@ import java.util.UUID;
 @Component
 public class Subscriber {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private org.eclipse.paho.mqttv5.client.MqttAsyncClient v5Client;
     private org.eclipse.paho.client.mqttv3.MqttAsyncClient v3Client;

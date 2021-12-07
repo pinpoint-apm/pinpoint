@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operator.NotMatcherOp
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operator.OrMatcherOperator;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadataReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author jaehong.kim
@@ -38,7 +38,7 @@ public class DefaultTransformerMatcher implements TransformerMatcher {
     private static final String OBJECT_CLASS_INTERNAL_NAME = "java/lang/Object";
     private static final String ANNOTATION_PACKAGE_INTERNAL_NAME = "java/lang/annotation";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final HierarchyCaches interfaceCaches;
     private final HierarchyCaches annotationCaches;

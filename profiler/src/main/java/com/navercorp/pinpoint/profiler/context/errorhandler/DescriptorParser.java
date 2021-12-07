@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class DescriptorParser {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Map<String, String> property;
 

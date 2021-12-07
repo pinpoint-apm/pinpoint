@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.web.mapper.AgentInfoMapper;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.cache.annotation.Cacheable;
 
 import java.util.Objects;
@@ -35,7 +35,7 @@ import static com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.AGENTINFO_IN
  * @author minwoo.jung
  */
 public class ApplicationCache {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final String SPEL_KEY = "#application.getAgentId() + '.' + #application.getAgentStartTime()";
     public static final String NOT_FOUND_APP_ID = "notFoundId";

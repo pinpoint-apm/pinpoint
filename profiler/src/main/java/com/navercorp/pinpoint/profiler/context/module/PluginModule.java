@@ -28,15 +28,15 @@ import com.navercorp.pinpoint.profiler.context.provider.plugin.ServiceTypeRegist
 import com.navercorp.pinpoint.profiler.context.provider.plugin.Slf4jCommonLoggerFactory;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.TraceMetadataLoaderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.TraceMetadataLoaderServiceProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 
 public class PluginModule extends PrivateModule {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     protected void configure() {

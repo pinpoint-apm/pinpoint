@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.monitor;
 
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
-import com.navercorp.pinpoint.collector.util.LoggerUtils;
 
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.JvmAttributeGaugeSet;
@@ -28,8 +27,11 @@ import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.slf4j.Log4jLoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -51,8 +53,6 @@ import java.util.concurrent.TimeUnit;
 public class CollectorMetric {
 
     public static final String REPORTER_LOGGER_NAME = "com.navercorp.pinpoint.collector.StateReport";
-
-    private final Logger reporterLogger = LoggerFactory.getLogger(REPORTER_LOGGER_NAME);
 
     private final CollectorConfiguration collectorConfiguration;
 
@@ -86,9 +86,9 @@ public class CollectorMetric {
     }
 
     private boolean isEnable0(String loggerName) {
-        final Logger logger = LoggerFactory.getLogger(loggerName);
-        final int loggerLevel = LoggerUtils.getLoggerLevel(logger);
-        if (loggerLevel >= LoggerUtils.WARN_LEVEL) {
+        final Logger logger = LogManager.getLogger(loggerName);
+        final Level level = logger.getLevel();
+        if (level.isLessSpecificThan(Level.WARN)) {
             return false;
         }
         return true;
@@ -138,6 +138,9 @@ public class CollectorMetric {
         builder.convertRatesTo(TimeUnit.SECONDS);
         builder.convertDurationsTo(TimeUnit.MILLISECONDS);
 
+        Log4jLoggerFactory log4jLoggerFactory = new Log4jLoggerFactory();
+
+        final org.slf4j.Logger reporterLogger = log4jLoggerFactory.getLogger(REPORTER_LOGGER_NAME);
         builder.outputTo(reporterLogger);
         return builder.build();
     }

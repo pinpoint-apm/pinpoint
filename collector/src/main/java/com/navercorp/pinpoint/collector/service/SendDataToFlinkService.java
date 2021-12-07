@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.sender.FlinkTcpDataSender;
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author minwoo.jung
  */
 public abstract class SendDataToFlinkService {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private volatile List<FlinkTcpDataSender> flinkTcpDataSenderList = new CopyOnWriteArrayList<>();
     private final AtomicInteger callCount = new AtomicInteger(1);

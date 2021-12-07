@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.DefaultCustomMetricRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.DisabledCustomMetricRegistryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -34,7 +34,7 @@ public class CustomMetricRegistryServiceProvider implements Provider<CustomMetri
 
     private static final int DEFAULT_LIMIT_SIZE = 10;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final MonitorConfig monitorConfig;
 

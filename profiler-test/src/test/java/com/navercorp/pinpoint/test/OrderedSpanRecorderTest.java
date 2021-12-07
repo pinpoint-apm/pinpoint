@@ -39,8 +39,8 @@ import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.junit.After;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 
 /**
@@ -51,7 +51,7 @@ public class OrderedSpanRecorderTest {
     private static final int UNSET_ASYNC_ID = -1;
     private static final short UNSET_ASYNC_SEQUENCE = -1;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final OrderedSpanRecorder recorder = new OrderedSpanRecorder();
 

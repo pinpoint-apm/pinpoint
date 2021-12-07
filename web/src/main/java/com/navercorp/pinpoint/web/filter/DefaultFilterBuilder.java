@@ -34,8 +34,8 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -47,7 +47,7 @@ import org.springframework.util.Assert;
 @Component
 public class DefaultFilterBuilder implements FilterBuilder<List<SpanBo>> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ObjectReader filterHintReader;
     private final ObjectReader filterDescriptorReader;

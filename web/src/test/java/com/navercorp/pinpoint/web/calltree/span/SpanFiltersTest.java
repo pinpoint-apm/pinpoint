@@ -4,14 +4,14 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.function.Predicate;
 
 public class SpanFiltersTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final long collectorAcceptTime = 1000;
     private static final String agentId = "agent";

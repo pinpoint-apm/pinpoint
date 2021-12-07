@@ -20,15 +20,15 @@ import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class TraceLogDelegateStorage implements Storage {
 
-    private final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
+    private final Logger logger = LogManager.getLogger(DefaultTrace.class.getName());
 
     private final Storage delegate;
 

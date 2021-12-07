@@ -4,11 +4,11 @@ import io.grpc.InternalLogId;
 import io.grpc.internal.ServerListener;
 import io.grpc.internal.ServerTransport;
 import io.grpc.internal.ServerTransportListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public class LogIdServerListenerDelegator implements ServerListenerDelegator {
-    final Logger logger = LoggerFactory.getLogger(this.getClass());
+    final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public ServerListener wrapServerListener(final ServerListener serverListener) {

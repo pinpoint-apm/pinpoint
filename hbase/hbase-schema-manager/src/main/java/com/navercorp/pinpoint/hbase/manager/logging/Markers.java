@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.hbase.manager.logging;
 
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
+
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 /**
  * @author HyunGil Jeong
@@ -27,7 +28,7 @@ public class Markers {
     private static final String TERMINAL_MARKER = "TERMINAL";
     private static final String APP_LOG_MARKER = "APP_LOG";
 
-    public static final Marker TERMINAL = MarkerFactory.getMarker(TERMINAL_MARKER);
-    public static final Marker APP_LOG = MarkerFactory.getMarker(APP_LOG_MARKER);
+    public static final Marker TERMINAL = MarkerManager.getMarker(TERMINAL_MARKER);
+    public static final Marker APP_LOG = MarkerManager.getMarker(APP_LOG_MARKER);
 
 }

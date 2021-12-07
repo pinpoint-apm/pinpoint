@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.rpc.client;
 import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ConnectFutureTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void setResultTest() {

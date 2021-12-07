@@ -8,8 +8,8 @@ import com.navercorp.pinpoint.profiler.sender.grpc.StreamState;
 import com.navercorp.pinpoint.profiler.sender.grpc.StreamTask;
 import com.navercorp.pinpoint.profiler.util.NamedRunnable;
 import io.grpc.stub.ClientCallStreamObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final StreamId streamId;
 

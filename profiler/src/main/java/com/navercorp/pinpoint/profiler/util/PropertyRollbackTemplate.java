@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.profiler.util;
 
 import java.util.Objects;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +30,7 @@ import java.util.Properties;
  */
 public class PropertyRollbackTemplate {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Properties properties;
     private final List<ExecuteContext<String>> contexts = new ArrayList<>();

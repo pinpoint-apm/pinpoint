@@ -18,8 +18,8 @@
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
 import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -32,7 +32,7 @@ import java.util.Objects;
 @Component
 public class BulkOperationReporterFactory implements BeanDefinitionRegistryPostProcessor {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private ConfigurableListableBeanFactory beanFactory;
     private BeanDefinitionRegistry registry;

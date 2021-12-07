@@ -25,29 +25,29 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author jaehong.kim
  */
-public class Slf4jPLoggerAdapterTest {
+public class Log4j2PLoggerAdapterTest {
 
     @Test
     public void getSimpleName() {
-        assertEquals("int[]", Slf4jPLoggerAdapter.getSimpleName((new int[1]).getClass()));
-        assertEquals("Slf4jPLoggerAdapterTest$Dummy", Slf4jPLoggerAdapter.getSimpleName(Dummy.class));
+        assertEquals("int[]", Log4j2PLoggerAdapter.getSimpleName((new int[1]).getClass()));
+        assertEquals("Log4j2PLoggerAdapterTest$Dummy", Log4j2PLoggerAdapter.getSimpleName(Dummy.class));
 
         Runnable r = new Runnable() {
             @Override
             public void run() {
             }
         };
-        assertEquals("Slf4jPLoggerAdapterTest$1", Slf4jPLoggerAdapter.getSimpleName(r.getClass()));
+        assertEquals("Log4j2PLoggerAdapterTest$1", Log4j2PLoggerAdapter.getSimpleName(r.getClass()));
     }
 
     @Test
     public void isSimpleType() {
-        assertTrue(Slf4jPLoggerAdapter.isSimpleType(new Integer(1)));
-        assertTrue(Slf4jPLoggerAdapter.isSimpleType(Boolean.TRUE));
+        assertTrue(Log4j2PLoggerAdapter.isSimpleType(new Integer(1)));
+        assertTrue(Log4j2PLoggerAdapter.isSimpleType(Boolean.TRUE));
 
         // array, object
-        assertFalse(Slf4jPLoggerAdapter.isSimpleType(new int[1]));
-        assertFalse(Slf4jPLoggerAdapter.isSimpleType(new Dummy()));
+        assertFalse(Log4j2PLoggerAdapter.isSimpleType(new int[1]));
+        assertFalse(Log4j2PLoggerAdapter.isSimpleType(new Dummy()));
     }
 
     private class Dummy {

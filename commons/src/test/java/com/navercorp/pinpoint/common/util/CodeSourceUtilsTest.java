@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.common.util;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.URL;
 
@@ -27,7 +27,7 @@ import java.net.URL;
  */
 public class CodeSourceUtilsTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void getLocationTest() {

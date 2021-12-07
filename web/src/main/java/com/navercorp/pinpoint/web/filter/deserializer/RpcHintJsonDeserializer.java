@@ -23,8 +23,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.navercorp.pinpoint.web.filter.RpcHint;
 import com.navercorp.pinpoint.web.filter.RpcType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import java.util.List;
  * @author emeroad
  */
 public class RpcHintJsonDeserializer extends JsonDeserializer<RpcHint> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public RpcHint deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {

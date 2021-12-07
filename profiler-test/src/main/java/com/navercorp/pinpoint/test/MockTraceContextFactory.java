@@ -29,8 +29,8 @@ import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 
 /**
@@ -52,7 +52,7 @@ public class MockTraceContextFactory {
     }
 
     public static class LoggingModule extends AbstractModule {
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
         @Override
         protected void configure() {
             logger.info("configure {}", this.getClass().getSimpleName());

@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.common.server.env;
 
 import com.navercorp.pinpoint.common.server.profile.PinpointProfileEnvironment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
@@ -18,7 +18,7 @@ import java.util.Properties;
 import java.util.Set;
 
 public class PropertiesPropertySourceLoader {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
 
 
     private final ResourceLoader resourceLoader;

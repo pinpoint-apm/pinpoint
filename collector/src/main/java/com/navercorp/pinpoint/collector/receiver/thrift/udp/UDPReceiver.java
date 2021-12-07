@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CpuUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.io.IOException;
@@ -78,7 +78,7 @@ public class UDPReceiver {
                        @Qualifier("udpWorker") Executor worker, int receiverBufferSize, InetSocketAddress bindAddress,
                        ReusePortSocketOptionApplier reusePortSocketOptionApplier, ObjectPool<DatagramPacket> datagramPacketPool) {
         this.name = Objects.requireNonNull(name, "name");
-        this.logger = LoggerFactory.getLogger(name);
+        this.logger = LogManager.getLogger(name);
 
         this.bindAddress = Objects.requireNonNull(bindAddress, "bindAddress");
         this.packetHandlerFactory = Objects.requireNonNull(packetHandlerFactory, "packetHandlerFactory");

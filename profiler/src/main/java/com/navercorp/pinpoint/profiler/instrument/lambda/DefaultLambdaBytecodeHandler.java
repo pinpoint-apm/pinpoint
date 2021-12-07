@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.lambda.LambdaBytecodeHandler;
 import com.navercorp.pinpoint.bootstrap.module.ClassFileTransformModuleAdaptor;
 import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
 import java.util.Objects;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
 
 import java.security.ProtectionDomain;
 
@@ -52,7 +52,7 @@ public class DefaultLambdaBytecodeHandler implements LambdaBytecodeHandler {
             }
             return data;
         } catch (Exception e) {
-            LoggerFactory.getLogger(this.getClass()).warn("lambda transform fail Caused by:" + e.getMessage(), e);
+            LogManager.getLogger(this.getClass()).warn("lambda transform fail Caused by:" + e.getMessage(), e);
             return data;
         }
     }

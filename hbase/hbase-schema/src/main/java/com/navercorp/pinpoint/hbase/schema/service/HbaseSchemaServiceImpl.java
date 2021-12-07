@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.hbase.schema.core.command.HbaseSchemaCommandManage
 import com.navercorp.pinpoint.hbase.schema.reader.core.ChangeSet;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  */
 public class HbaseSchemaServiceImpl implements HbaseSchemaService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final HbaseAdminOperation hbaseAdminOperation;
 

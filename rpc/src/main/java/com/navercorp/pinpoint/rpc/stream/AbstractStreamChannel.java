@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.rpc.stream;
 
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class AbstractStreamChannel implements StreamChannel {
 
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ConcurrentMap<String, Object> attribute = new ConcurrentHashMap<>();
 

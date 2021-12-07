@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.util;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ public class JavaAssistUtilsTest {
 
     private static final String TEST_CLASS_NAME = "com.navercorp.pinpoint.profiler.util.JavaAssistUtilsTest";
 
-    private final Logger logger = LoggerFactory.getLogger(JavaAssistUtilsTest.class.getName());
+    private final Logger logger = LogManager.getLogger(JavaAssistUtilsTest.class.getName());
 
 
     @Test

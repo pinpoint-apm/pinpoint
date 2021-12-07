@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
-import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
+import com.navercorp.pinpoint.profiler.logging.Log4j2LoggerBinderInitializer;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
@@ -64,12 +64,12 @@ public class DefaultTraceTest {
 
     @BeforeClass
     public static void before() throws Exception {
-        Slf4jLoggerBinderInitializer.beforeClass();
+        Log4j2LoggerBinderInitializer.beforeClass();
     }
 
     @AfterClass
     public static void after()  throws Exception {
-        Slf4jLoggerBinderInitializer.afterClass();
+        Log4j2LoggerBinderInitializer.afterClass();
     }
 
 

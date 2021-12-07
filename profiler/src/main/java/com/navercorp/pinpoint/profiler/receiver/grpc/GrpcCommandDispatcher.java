@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 
 import com.google.protobuf.StringValue;
 import io.grpc.stub.StreamObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.Closeable;
 import java.util.Collection;
@@ -39,7 +39,7 @@ import java.util.Set;
  */
 public class GrpcCommandDispatcher {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub;
     private final ProfilerCommandServiceLocator commandServiceLocator;

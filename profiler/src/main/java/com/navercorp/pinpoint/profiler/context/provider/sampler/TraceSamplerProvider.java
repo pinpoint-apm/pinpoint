@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.sampler.BasicTraceSampler;
 import com.navercorp.pinpoint.profiler.sampler.RateLimitTraceSampler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -34,7 +34,7 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class TraceSamplerProvider implements Provider<TraceSampler> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Sampler sampler;
     private final IdGenerator idGenerator;

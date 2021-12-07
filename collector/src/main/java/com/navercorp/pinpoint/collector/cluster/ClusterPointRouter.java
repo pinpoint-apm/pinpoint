@@ -41,8 +41,8 @@ import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import javax.annotation.PreDestroy;
 import java.util.Objects;
@@ -53,7 +53,7 @@ import java.util.Objects;
  */
 public class ClusterPointRouter extends ServerStreamChannelMessageHandler implements MessageListener {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ClusterPointRepository<ClusterPoint<?>> targetClusterPointRepository;
 

@@ -24,8 +24,8 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Arrays;
 
@@ -33,7 +33,7 @@ import java.util.Arrays;
  * @author emeroad
  */
 public class HeaderTBaseSerializerTest {
-    private final Logger logger = LoggerFactory.getLogger(HeaderTBaseSerializerTest.class.getName());
+    private final Logger logger = LogManager.getLogger(HeaderTBaseSerializerTest.class.getName());
 
 
     @Test

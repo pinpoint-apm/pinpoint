@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
@@ -98,7 +98,7 @@ public final class RuntimeMXBeanUtils {
     }
 
     private static Logger getLogger() {
-        return LoggerFactory.getLogger(RuntimeMXBeanUtils.class);
+        return LogManager.getLogger(RuntimeMXBeanUtils.class);
     }
 
 }

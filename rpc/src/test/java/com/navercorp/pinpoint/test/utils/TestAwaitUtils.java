@@ -17,15 +17,15 @@
 package com.navercorp.pinpoint.test.utils;
 
 import com.navercorp.pinpoint.common.util.StopWatch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Taejin Koo
  */
 public class TestAwaitUtils {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(TestAwaitUtils.class);
+    private final static Logger LOGGER = LogManager.getLogger(TestAwaitUtils.class);
 
     private final long waitUnitTime;
     private final long maxWaitTime;

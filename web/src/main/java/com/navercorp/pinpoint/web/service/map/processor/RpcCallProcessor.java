@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 import com.navercorp.pinpoint.web.service.map.VirtualLinkMarker;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -44,7 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RpcCallProcessor implements LinkDataMapProcessor {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final HostApplicationMapDao hostApplicationMapDao;
 

@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.rpc;
 
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
@@ -56,7 +56,7 @@ public final class ClassPreLoader {
             System.err.print("preLoad error Caused:" + ex.getMessage());
             ex.printStackTrace();
 
-            final Logger logger = LoggerFactory.getLogger(ClassPreLoader.class);
+            final Logger logger = LogManager.getLogger(ClassPreLoader.class);
             logger.warn("preLoad error Caused:{}", ex.getMessage(), ex);
             if (ex instanceof PinpointSocketException) {
                 throw (PinpointSocketException)ex;

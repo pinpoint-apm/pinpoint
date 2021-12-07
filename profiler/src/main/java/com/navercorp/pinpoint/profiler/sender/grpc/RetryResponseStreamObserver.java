@@ -22,7 +22,7 @@ import java.util.Objects;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
 import io.grpc.stub.StreamObserver;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author Woonduk Kang(emeroad)

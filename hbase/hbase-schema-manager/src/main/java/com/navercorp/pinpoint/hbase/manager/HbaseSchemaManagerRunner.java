@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.hbase.manager.logging.Markers;
 import com.navercorp.pinpoint.hbase.manager.task.HbaseSchemaManagerTask;
 import com.navercorp.pinpoint.hbase.schema.reader.HbaseSchemaParseException;
 import com.navercorp.pinpoint.hbase.schema.reader.InvalidHbaseSchemaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -36,7 +36,7 @@ import java.util.Objects;
 @Component
 public class HbaseSchemaManagerRunner implements ApplicationRunner {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final HbaseSchemaManagerTaskFactory taskFactory;
 

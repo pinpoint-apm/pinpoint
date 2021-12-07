@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.cluster;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -31,7 +31,7 @@ import java.util.List;
 public class CollectorClusterInfoRepositoryTest {
 
     private static final String PROFILER_SEPARATOR = CollectorClusterInfoRepository.PROFILER_SEPARATOR;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void test() throws Exception {

@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -57,7 +57,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
     private final static int LOG_RECORD_RATE = 60;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String applicationName;
     private final AgentService agentService;

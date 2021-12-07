@@ -22,8 +22,8 @@ import java.util.Objects;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.client.DnsSocketAddressProvider;
 import com.navercorp.pinpoint.rpc.client.SocketAddressProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -39,7 +39,7 @@ import java.net.SocketException;
  */
 public class UdpDataSender<T> implements DataSender<T> {
 
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LogManager.getLogger(this.getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
     // Caution. not thread safe

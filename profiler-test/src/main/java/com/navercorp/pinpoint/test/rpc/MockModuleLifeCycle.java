@@ -18,14 +18,14 @@ package com.navercorp.pinpoint.test.rpc;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.profiler.context.module.ModuleLifeCycle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class MockModuleLifeCycle implements ModuleLifeCycle {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Inject
     public MockModuleLifeCycle() {

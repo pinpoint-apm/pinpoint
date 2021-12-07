@@ -16,8 +16,8 @@
 
 package com.pinpointest.plugin.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,7 +33,7 @@ import java.util.function.Function;
 @RestController
 public class HttpHeaderController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @GetMapping(value = "/reqHeader")
     public String reqHeader(HttpServletRequest request) {

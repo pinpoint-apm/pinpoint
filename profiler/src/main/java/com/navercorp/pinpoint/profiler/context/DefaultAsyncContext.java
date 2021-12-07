@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -34,7 +34,7 @@ import java.util.Objects;
 public class DefaultAsyncContext implements AsyncContext {
 
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultAsyncContext.class);
+    private static final Logger logger = LogManager.getLogger(DefaultAsyncContext.class);
 
     private final TraceRoot traceRoot;
     private final AsyncId asyncId;

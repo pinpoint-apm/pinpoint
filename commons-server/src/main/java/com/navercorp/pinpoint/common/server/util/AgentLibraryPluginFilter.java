@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.common.server.util;
 
 import com.navercorp.pinpoint.common.util.Filter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.URL;
 
@@ -27,7 +27,7 @@ import java.net.URL;
  * @author Woonduk Kang(emeroad)
  */
 public class AgentLibraryPluginFilter implements Filter<URL> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     public static final String BOOTSTRAP = "com/navercorp/pinpoint/bootstrap/PinpointBootStrap.class";
 
     private final String agentDirectory;

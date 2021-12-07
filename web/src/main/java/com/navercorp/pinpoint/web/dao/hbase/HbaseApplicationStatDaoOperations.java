@@ -32,8 +32,8 @@ import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -48,7 +48,7 @@ public class HbaseApplicationStatDaoOperations {
     private static final int APPLICATION_STAT_NUM_PARTITIONS = 32;
     private static final int MAX_SCAN_CACHE_SIZE = 256;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private static final HbaseColumnFamily.ApplicationStatStatistics DESCRIPTOR = HbaseColumnFamily.APPLICATION_STAT_STATISTICS;
 
     private final HbaseOperations2 hbaseOperations2;

@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.web.service.WebhookService;
 import com.navercorp.pinpoint.web.vo.Webhook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +15,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping(value={"/webhook", "/application/webhook"})
 public class WebhookController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public final static String APPLICATION_ID = "applicationId";
     public final static String SERVICE_NAME = "serviceName";

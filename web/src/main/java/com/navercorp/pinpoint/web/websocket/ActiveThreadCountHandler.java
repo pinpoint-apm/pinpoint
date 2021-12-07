@@ -31,8 +31,8 @@ import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageType
 import com.navercorp.pinpoint.web.websocket.message.PongMessage;
 import com.navercorp.pinpoint.web.websocket.message.RequestMessage;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -57,7 +57,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     static final String API_ACTIVE_THREAD_COUNT = "activeThreadCount";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Object lock = new Object();
     private final AgentService agentService;

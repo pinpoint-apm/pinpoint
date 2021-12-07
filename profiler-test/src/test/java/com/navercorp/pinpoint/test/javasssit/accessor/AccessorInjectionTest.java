@@ -26,15 +26,16 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
-import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
+import com.navercorp.pinpoint.profiler.logging.Log4j2Binder;
 import com.navercorp.pinpoint.test.MockApplicationContextFactory;
 import com.navercorp.pinpoint.test.classloader.TestClassLoader;
 import com.navercorp.pinpoint.test.javasssit.TestBeforeInterceptor;
+import org.apache.logging.log4j.spi.LoggerContext;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
@@ -45,12 +46,13 @@ import java.security.ProtectionDomain;
 @Deprecated
 public class AccessorInjectionTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private DefaultApplicationContext applicationContext;
 
     private TestClassLoader getTestClassLoader() {
-        PLoggerFactory.initialize(new Slf4jLoggerBinder());
+        LoggerContext context = LogManager.getContext();
+        PLoggerFactory.initialize(new Log4j2Binder(context));
 
         DefaultProfilerConfig profilerConfig = new DefaultProfilerConfig();
 

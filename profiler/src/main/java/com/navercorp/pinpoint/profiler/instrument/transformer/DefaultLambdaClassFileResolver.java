@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
 import org.objectweb.asm.ClassReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.security.ProtectionDomain;
 
@@ -27,7 +27,7 @@ import java.security.ProtectionDomain;
  */
 public class DefaultLambdaClassFileResolver implements LambdaClassFileResolver {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public String resolve(ClassLoader classLoader, String classInternalName, ProtectionDomain protectionDomain, byte[] classFileBuffer) {

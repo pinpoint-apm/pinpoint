@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntGauge;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongGauge;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Map;
 import java.util.Objects;
@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultCustomMetricRegistryService implements CustomMetricRegistryService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCustomMetricRegistryService.class);
+    private static final Logger LOGGER = LogManager.getLogger(DefaultCustomMetricRegistryService.class);
 
     private final CustomMetricWrapperFactory customMetricWrapperFactory = new CustomMetricWrapperFactory();
 

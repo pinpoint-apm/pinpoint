@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.slf4j.MDC;
 
 @RunWith(PinpointPluginTestSuite.class)
@@ -41,7 +41,7 @@ public class LogbackIT {
 
     @Test
     public void test() {
-        Logger logger = LoggerFactory.getLogger(getClass());
+        Logger logger = LogManager.getLogger(getClass());
         logger.error("maru");
 
         checkVersion(logger);
@@ -60,7 +60,7 @@ public class LogbackIT {
         String log = stdoutRecorder.record(new Runnable() {
             @Override
             public void run() {
-                logger = LoggerFactory.getLogger("patternUpdateLogback");
+                logger = LogManager.getLogger("patternUpdateLogback");
                 logger.error(msg);
             }
         });

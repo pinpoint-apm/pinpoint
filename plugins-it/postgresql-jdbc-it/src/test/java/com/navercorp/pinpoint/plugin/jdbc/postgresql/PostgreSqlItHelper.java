@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCApi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -45,7 +45,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
  */
 public class PostgreSqlItHelper {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final String POSTGRESQL = "POSTGRESQL";
     private static final String POSTGRESQL_EXECUTE_QUERY = "POSTGRESQL_EXECUTE_QUERY";

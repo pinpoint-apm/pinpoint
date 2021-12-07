@@ -23,15 +23,15 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import java.util.Objects;
 
 import com.navercorp.pinpoint.profiler.instrument.config.InstrumentConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author HyunGil Jeong
  */
 public class ConfiguredApplicationTypeProvider implements Provider<ServiceType> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String applicationTypeString;
     private final ServiceTypeRegistryService serviceTypeRegistryService;

@@ -28,7 +28,10 @@ import com.navercorp.pinpoint.bootstrap.plugin.proxy.DisableRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.logging.Log4j2Binder;
 import com.navercorp.pinpoint.test.MockTraceContextFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.spi.LoggerContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -42,7 +45,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.jboss.interceptor.StandardHostValveInvokeInterceptor;
 import com.navercorp.pinpoint.profiler.context.DefaultMethodDescriptor;
-import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 
 import static org.mockito.Mockito.*;
 
@@ -75,7 +77,8 @@ public class InvokeMethodInterceptorTest {
      */
     @BeforeClass
     public static void before() {
-        PLoggerFactory.initialize(new Slf4jLoggerBinder());
+        LoggerContext context = LogManager.getContext();
+        PLoggerFactory.initialize(new Log4j2Binder(context));
     }
 
     /**

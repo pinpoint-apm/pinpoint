@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * https://jdbc.postgresql.org/documentation/head/connect.html
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PostgreSqlJdbcUrlParserTest {
 
-    private Logger logger = LoggerFactory.getLogger(PostgreSqlJdbcUrlParserTest.class);
+    private Logger logger = LogManager.getLogger(PostgreSqlJdbcUrlParserTest.class);
     private final PostgreSqlJdbcUrlParser jdbcUrlParser = new PostgreSqlJdbcUrlParser();
 
     @Test

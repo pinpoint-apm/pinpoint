@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.hbase.manager.task;
 
 import com.navercorp.pinpoint.hbase.schema.service.HbaseSchemaService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -28,7 +28,7 @@ import java.util.Objects;
  */
 public class InitTask implements HbaseSchemaManagerTask {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final HbaseSchemaService hbaseSchemaService;
     private final String namespace;

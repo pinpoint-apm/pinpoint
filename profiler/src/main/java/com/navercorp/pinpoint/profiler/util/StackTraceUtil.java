@@ -17,12 +17,12 @@
 package com.navercorp.pinpoint.profiler.util;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public class StackTraceUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(StackTraceUtil.class.getName());
+    private static final Logger logger = LogManager.getLogger(StackTraceUtil.class.getName());
 
     public static void printCurrentStackTrace() {
         printCurrentStackTrace(logger);

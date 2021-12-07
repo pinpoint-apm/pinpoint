@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.plugin.jdbc.oracle.parser;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 
 
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class OracleNetConnectionDescriptorParserTest {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void simple() {

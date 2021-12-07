@@ -16,15 +16,15 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Taejin Koo
  */
 public class LoggingStreamChannelStateChangeEventHandler implements StreamChannelStateChangeEventHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public void stateUpdated(StreamChannel streamChannel, StreamChannelStateCode updatedStateCode) {

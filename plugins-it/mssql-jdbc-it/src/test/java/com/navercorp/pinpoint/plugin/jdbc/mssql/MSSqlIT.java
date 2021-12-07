@@ -37,8 +37,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MSSQLServerContainer;
 
@@ -61,14 +61,14 @@ public class MSSqlIT extends DataBaseTestCase {
     private static final String MSSQL = "MSSQL_JDBC";
     private static final String MSSQL_EXECUTE_QUERY = "MSSQL_JDBC_QUERY";
 
-    private static final Logger logger = LoggerFactory.getLogger(MSSqlIT.class);
+    private static final Logger logger = LogManager.getLogger(MSSqlIT.class);
 
     private static DriverProperties driverProperties;
     private static JDBCDriverClass driverClass;
     private static JDBCApi jdbcApi;
 
     private static JdbcUrlParserV2 jdbcUrlParser;
-    public static final MSSQLServerContainer mssqlserver = MSSQLServerContainerFactory.newMSSQLServerContainer(logger);
+    public static final MSSQLServerContainer mssqlserver = MSSQLServerContainerFactory.newMSSQLServerContainer(logger.getName());
 
     // ---------- For @BeforeSharedClass, @AfterSharedClass   //
     private static String JDBC_URL;

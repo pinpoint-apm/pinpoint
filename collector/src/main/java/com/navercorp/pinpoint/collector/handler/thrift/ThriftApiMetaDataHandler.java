@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -39,7 +39,7 @@ import java.util.Objects;
 @Service
 public class ThriftApiMetaDataHandler implements RequestResponseHandler<TBase<?, ?>, TBase<?, ?>> {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
 
     private final ApiMetaDataService apiMetaDataService;
 

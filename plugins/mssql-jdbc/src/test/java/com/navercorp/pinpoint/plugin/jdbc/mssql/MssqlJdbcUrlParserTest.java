@@ -7,8 +7,8 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeLocator;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -24,7 +24,7 @@ public class MssqlJdbcUrlParserTest {
     public static final short EXECUTE_CODE = 2251;
     public static final String EXECUTE_MSSQL_JDBC_QUERY = "MSSQL_JDBC_QUERY";
 
-    private Logger logger = LoggerFactory.getLogger(MssqlJdbcUrlParserTest.class);
+    private Logger logger = LogManager.getLogger(MssqlJdbcUrlParserTest.class);
 
     private MssqlJdbcUrlParser jdbcUrlParser = new MssqlJdbcUrlParser();
 

@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.common.util.IOUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +34,7 @@ import java.util.Set;
 public final class ASMClassWriter extends ClassWriter {
     private static final String OBJECT_CLASS_INTERNAL_NAME = "java/lang/Object";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ClassInputStreamProvider pluginInputStreamProvider;
     private final ClassLoader classLoader;

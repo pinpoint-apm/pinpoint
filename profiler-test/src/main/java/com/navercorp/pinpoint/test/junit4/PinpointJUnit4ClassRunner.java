@@ -27,8 +27,8 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -41,7 +41,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  */
 public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
-    private static final Logger logger = LoggerFactory.getLogger(PinpointJUnit4ClassRunner.class);
+    private static final Logger logger = LogManager.getLogger(PinpointJUnit4ClassRunner.class);
 
     private static TestContext testContext;
 

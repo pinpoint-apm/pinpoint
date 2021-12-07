@@ -34,8 +34,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
@@ -47,7 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class CuratorZookeeperClientTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CuratorZookeeperClientTest.class);
+    private static final Logger LOGGER = LogManager.getLogger(CuratorZookeeperClientTest.class);
 
     private static TestAwaitUtils AWAIT_UTILS = new TestAwaitUtils(100, 3000);
 

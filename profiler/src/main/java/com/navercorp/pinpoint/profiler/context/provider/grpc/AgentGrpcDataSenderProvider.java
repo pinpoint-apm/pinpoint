@@ -43,8 +43,8 @@ import com.navercorp.pinpoint.profiler.sender.grpc.AgentGrpcDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -56,7 +56,7 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<MetaDataType>> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final GrpcTransportConfig grpcTransportConfig;
     private final MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter;

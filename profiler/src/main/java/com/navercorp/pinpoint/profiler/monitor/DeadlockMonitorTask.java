@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.monitor;
 
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.management.LockInfo;
 import java.lang.management.MonitorInfo;
@@ -33,7 +33,7 @@ public class DeadlockMonitorTask implements Runnable {
 
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final DeadlockThreadRegistry deadlockThreadRegistry;
     private final long intervalMillis;

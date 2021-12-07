@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.security.login;
 
 import com.navercorp.pinpoint.web.config.BasicLoginConfig;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @Profile("basicLogin")
 public class PinpointMemoryUserDetailsService implements UserDetailsService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Map<String, UserDetails> userDetailsMap;
 

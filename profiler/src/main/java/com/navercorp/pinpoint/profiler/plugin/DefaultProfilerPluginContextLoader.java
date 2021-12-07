@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjectorFactory;
 import com.navercorp.pinpoint.profiler.plugin.config.PluginLoadingConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ import java.util.Map;
  *
  */
 public class DefaultProfilerPluginContextLoader implements ProfilerPluginContextLoader {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
 
     private final ClassNameFilter profilerPackageFilter = new PinpointProfilerPackageSkipFilter();
 
@@ -131,7 +131,7 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
 
     private static class JarPluginComponents {
 
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
         private final Map<String, JarPluginComponent> componentMap;
 

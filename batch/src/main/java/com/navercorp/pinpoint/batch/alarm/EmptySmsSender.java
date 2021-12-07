@@ -16,8 +16,8 @@
 package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.batch.core.StepExecution;
 
 /**
@@ -25,7 +25,7 @@ import org.springframework.batch.core.StepExecution;
  */
 public class EmptySmsSender implements SmsSender {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public void sendSms(AlarmChecker<?> checker, int sequenceCount, StepExecution stepExecution) {

@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.common.server.bo.filter;
 
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 
 /**
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SequenceSpanEventFilter implements SpanEventFilter {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public static final int MAX_SEQUENCE = Short.MAX_VALUE;
     public static final int DEFAULT_SEQUENCE_LIMIT = 1024*10;

@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -42,7 +42,7 @@ import java.util.Objects;
 public class HbaseAgentInfoDao implements AgentInfoDao {
     private static final int SCANNER_CACHING = 1;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private static final HbaseColumnFamily.AgentInfo DESCRIPTOR = HbaseColumnFamily.AGENTINFO_INFO;
 
     private final HbaseOperations2 hbaseTemplate;

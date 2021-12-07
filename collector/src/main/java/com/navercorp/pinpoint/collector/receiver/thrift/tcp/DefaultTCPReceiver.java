@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
 import com.navercorp.pinpoint.collector.receiver.thrift.PinpointServerAcceptorProvider;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.InetSocketAddress;
 import java.util.Objects;
@@ -46,7 +46,7 @@ public class DefaultTCPReceiver implements TCPReceiver {
 
     public DefaultTCPReceiver(String name, TCPPacketHandler tcpPacketHandler, Executor executor, InetSocketAddress bindAddress, PinpointServerAcceptorProvider acceptorProvider) {
         this.name = Objects.requireNonNull(name, "name");
-        this.logger = LoggerFactory.getLogger(name);
+        this.logger = LogManager.getLogger(name);
 
         this.bindAddress = Objects.requireNonNull(bindAddress, "bindAddress");
 

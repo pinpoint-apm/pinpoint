@@ -17,11 +17,9 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.thrift.DefaultTransactionIdEncoder;
-import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.thrift.BypassMessageConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
-import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
+import com.navercorp.pinpoint.profiler.logging.Log4j2LoggerBinderInitializer;
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 
@@ -49,15 +47,13 @@ public class UdpDataSenderTest {
     private final int PORT = SocketUtils.findAvailableUdpPort(9009);
     @BeforeClass
     public static void before() {
-        Slf4jLoggerBinderInitializer.beforeClass();
+        Log4j2LoggerBinderInitializer.beforeClass();
     }
 
     @AfterClass
     public static void after() {
-        Slf4jLoggerBinderInitializer.afterClass();
+        Log4j2LoggerBinderInitializer.afterClass();
     }
-
-    private final TransactionIdEncoder transactionIdEncoder = new DefaultTransactionIdEncoder(AGENT_ID, AGENT_START_TIME);
 
 
     @Test

@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.bootstrap.java9.classloader.Java9ClassLoader;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.lang.module.ModuleDescriptor;
@@ -35,7 +35,7 @@ import java.util.jar.JarFile;
  * @author Woonduk Kang(emeroad)
  */
 public class ModuleBuilderTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Class<?> slf4jClass = org.slf4j.LoggerFactory.class;
 

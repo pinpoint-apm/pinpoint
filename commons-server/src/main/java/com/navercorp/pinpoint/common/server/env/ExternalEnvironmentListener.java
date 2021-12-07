@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.env;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
@@ -26,7 +26,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import java.util.Objects;
 
 public class ExternalEnvironmentListener implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
 
     private final String sourceName;
     private final String configurationKey;

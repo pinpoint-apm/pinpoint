@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
@@ -39,7 +39,7 @@ import java.util.Objects;
  */
 public class FlinkClusterService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final CommonStateContext serviceState;
     private final FlinkConfiguration config;
     private final FlinkClusterConnectionManager clusterConnectionManager;

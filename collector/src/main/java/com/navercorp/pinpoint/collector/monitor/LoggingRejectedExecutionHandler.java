@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.collector.monitor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -35,7 +35,7 @@ public class LoggingRejectedExecutionHandler implements RejectedExecutionHandler
     public LoggingRejectedExecutionHandler(String executorName, int logRate) {
         Objects.requireNonNull(executorName, "executorName");
 
-        this.logger = LoggerFactory.getLogger(executorName);
+        this.logger = LogManager.getLogger(executorName);
         this.logRate = logRate;
     }
 

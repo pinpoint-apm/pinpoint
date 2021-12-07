@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatInfo;
 import com.navercorp.pinpoint.profiler.sender.AsyncQueueingExecutor;
 import com.navercorp.pinpoint.profiler.sender.AsyncQueueingExecutorListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -36,7 +36,7 @@ import java.util.LinkedList;
  */
 public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatInfo> implements UriStatStorage {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncQueueingUriStatStorage.class);
+    private static final Logger LOGGER = LogManager.getLogger(AsyncQueueingUriStatStorage.class);
 
     private final ExecutorListener executorListener;
 

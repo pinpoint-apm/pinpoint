@@ -22,8 +22,8 @@ import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ import java.util.concurrent.Executors;
 public class NettyUdpReceiverTest {
 
     public static final int PORT = SocketUtils.findAvailableUdpPort(30011);
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final CountDownLatch latch = new CountDownLatch(1);
     /*

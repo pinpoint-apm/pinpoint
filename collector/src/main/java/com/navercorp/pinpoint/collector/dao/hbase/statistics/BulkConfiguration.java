@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +26,7 @@ import javax.annotation.PostConstruct;
 @Component
 public class BulkConfiguration {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
 
     private final int callerLimitSize;

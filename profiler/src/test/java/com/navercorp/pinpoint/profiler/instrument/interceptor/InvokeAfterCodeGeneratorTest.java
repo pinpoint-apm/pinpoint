@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -34,7 +34,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor3;
  * @author emeroad
  */
 public class InvokeAfterCodeGeneratorTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
     @Test

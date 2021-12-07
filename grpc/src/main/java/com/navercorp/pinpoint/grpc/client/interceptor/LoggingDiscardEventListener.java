@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.grpc.client.interceptor;
 
 import com.navercorp.pinpoint.grpc.logging.ThrottledLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -31,7 +31,7 @@ public class LoggingDiscardEventListener<ReqT> implements DiscardEventListener<R
 
     public LoggingDiscardEventListener(String loggerName, long rateLimitCount) {
         Objects.requireNonNull(loggerName, "loggerName");
-        Logger log = LoggerFactory.getLogger(loggerName);
+        Logger log = LogManager.getLogger(loggerName);
         this.logger = ThrottledLogger.getLogger(log, rateLimitCount);
     }
 

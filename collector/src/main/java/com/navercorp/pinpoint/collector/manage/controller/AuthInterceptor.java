@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.collector.manage.controller;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndViewDefiningException;
@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class AuthInterceptor implements HandlerInterceptor {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String password;
     private final boolean isActive;

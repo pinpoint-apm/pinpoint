@@ -29,8 +29,8 @@ import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
@@ -47,7 +47,7 @@ import java.util.concurrent.Executor;
  */
 public class AgentBaseDataReceiver {
 
-    private final Logger logger = LoggerFactory.getLogger(AgentBaseDataReceiver.class);
+    private final Logger logger = LogManager.getLogger(AgentBaseDataReceiver.class);
 
     private final PinpointServerAcceptor acceptor;
 

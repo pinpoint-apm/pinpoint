@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import org.jboss.netty.channel.ChannelHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 
@@ -39,7 +39,7 @@ public class TestPinpointServerAcceptor {
 
     public static final String LOCALHOST = "localhost";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final PinpointServerAcceptor serverAcceptor;
 

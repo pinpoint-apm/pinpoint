@@ -25,14 +25,14 @@ import com.navercorp.pinpoint.profiler.sampler.CountingSamplerFactory;
 import com.navercorp.pinpoint.profiler.sampler.PercentSamplerFactory;
 import com.navercorp.pinpoint.profiler.sampler.SamplerFactory;
 import com.navercorp.pinpoint.profiler.sampler.SamplerType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class SamplerProvider implements Provider<Sampler> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ProfilerConfig profilerConfig;
 

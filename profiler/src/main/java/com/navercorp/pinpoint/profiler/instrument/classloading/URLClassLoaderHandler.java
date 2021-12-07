@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.profiler.instrument.classloading;
 import java.util.Objects;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -34,7 +34,7 @@ import java.net.URLClassLoader;
  */
 public class URLClassLoaderHandler implements ClassInjector {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private static final Method ADD_URL;

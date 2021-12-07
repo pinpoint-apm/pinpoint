@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEnc
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -39,7 +39,7 @@ import java.util.Objects;
 @Repository
 public class HbaseAgentEventDao implements AgentEventDao {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final HbaseColumnFamily.AgentEvent DESCRIPTOR = HbaseColumnFamily.AGENT_EVENT_EVENTS;
 

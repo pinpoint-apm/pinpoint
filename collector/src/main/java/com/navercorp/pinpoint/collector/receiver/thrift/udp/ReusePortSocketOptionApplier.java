@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.udp;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -31,7 +31,7 @@ import java.net.StandardSocketOptions;
  */
 public class ReusePortSocketOptionApplier {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReusePortSocketOptionApplier.class);
+    private static final Logger LOGGER = LogManager.getLogger(ReusePortSocketOptionApplier.class);
 
     private static final String FIELD_NAME_SO_REUSEPORT = "SO_REUSEPORT";
 

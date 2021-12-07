@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.channelz;
 
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.InetSocketAddress;
 import java.util.Collections;
@@ -16,7 +16,7 @@ import java.util.function.BiFunction;
 public class DefaultChannelzRegistry implements ChannelzRegistry {
 
     public static final long NO_EXIST = -1L;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ConcurrentMap<ChannelzRegistry.AddressId, Set<Long>> socketMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<ChannelzRegistry.AddressId, RemoteId> remoteAddressSocketMap = new ConcurrentHashMap<>();

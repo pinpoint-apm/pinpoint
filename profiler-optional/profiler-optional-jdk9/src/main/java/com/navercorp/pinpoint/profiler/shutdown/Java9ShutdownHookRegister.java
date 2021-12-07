@@ -20,8 +20,8 @@ package com.navercorp.pinpoint.profiler.shutdown;
 import com.navercorp.pinpoint.profiler.ShutdownHookRegister;
 import com.navercorp.pinpoint.profiler.instrument.classloading.JavaLangAccess;
 import com.navercorp.pinpoint.profiler.instrument.classloading.JavaLangAccessHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 
 /**
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Java9ShutdownHookRegister implements ShutdownHookRegister {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public void register(Thread thread) {

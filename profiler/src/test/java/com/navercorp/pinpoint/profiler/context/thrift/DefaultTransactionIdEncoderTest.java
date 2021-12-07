@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -34,7 +34,7 @@ import java.util.Arrays;
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultTransactionIdEncoderTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public static final String DEFAULT_AGENT_ID = "defaultAgentId";
 

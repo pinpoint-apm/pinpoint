@@ -34,8 +34,8 @@ import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -50,7 +50,7 @@ public class HbaseAgentStatDaoOperationsV2 {
     private static final int AGENT_STAT_VER2_NUM_PARTITIONS = 32;
     private static final int MAX_SCAN_CACHE_SIZE = 256;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private static final HbaseColumnFamily.AgentStatStatistics DESCRIPTOR = HbaseColumnFamily.AGENT_STAT_STATISTICS;
 
     private final HbaseOperations2 hbaseOperations2;

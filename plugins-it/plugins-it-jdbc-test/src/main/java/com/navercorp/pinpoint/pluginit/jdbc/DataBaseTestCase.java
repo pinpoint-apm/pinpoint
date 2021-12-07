@@ -31,8 +31,8 @@ import com.navercorp.pinpoint.pluginit.jdbc.template.TransactionDataSource;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Method;
@@ -52,7 +52,7 @@ import java.util.List;
  */
 public abstract class DataBaseTestCase {
 
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LogManager.getLogger(this.getClass());
 
     protected String DB_TYPE;
     protected String DB_EXECUTE_QUERY;

@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.common.hbase;
 import org.apache.hadoop.hbase.ClusterStatus;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.util.VersionInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -28,7 +28,7 @@ import java.util.Objects;
 
 
 public class HbaseVersionCheckBean implements InitializingBean {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final HBaseAdminTemplate template;
 

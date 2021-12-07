@@ -19,8 +19,8 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterCo
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +35,7 @@ import java.util.List;
  */
 @Component
 public class FlinkConfiguration {
-    private final Logger logger = LoggerFactory.getLogger(FlinkConfiguration.class);
+    private final Logger logger = LogManager.getLogger(FlinkConfiguration.class);
 
     @Qualifier("flinkClusterConfiguration")
     @Autowired

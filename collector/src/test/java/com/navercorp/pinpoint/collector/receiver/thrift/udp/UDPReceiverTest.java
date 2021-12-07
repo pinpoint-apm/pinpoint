@@ -26,8 +26,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.util.SocketUtils;
 
 import java.io.Closeable;
@@ -49,13 +49,13 @@ import static org.mockito.Mockito.when;
  * @author emeroad
  */
 public class UDPReceiverTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final String ADDRESS = "127.0.0.1";
     private int port;
 
     private final PacketHandler<DatagramPacket> loggingPacketHandler = new PacketHandler<DatagramPacket>() {
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
         @Override
         public void receive(DatagramSocket localSocket, DatagramPacket packet) {
             logger.info("receive localSocket:{} packet:{}", localSocket, packet);

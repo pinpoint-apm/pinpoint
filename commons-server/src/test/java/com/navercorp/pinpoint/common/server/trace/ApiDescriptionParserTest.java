@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.util.LineNumber;
 import org.junit.Assert;
 import org.junit.Test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 
 /**
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ApiDescriptionParserTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ApiDescriptionParser apiParser = new ApiDescriptionParser();
 

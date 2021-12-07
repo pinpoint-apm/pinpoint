@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.thrift.io;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 
 
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HeaderTest {
 
-    private final Logger logger = LoggerFactory.getLogger(Header.class.getName());
+    private final Logger logger = LogManager.getLogger(Header.class.getName());
 
     @Test
     public void testGetSignature() {

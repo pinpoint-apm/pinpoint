@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,7 +33,7 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class Node {
-    private static final Logger logger = LoggerFactory.getLogger(Node.class);
+    private static final Logger logger = LogManager.getLogger(Node.class);
 
     private final SpanBo span;
     private final SpanCallTree spanCallTree;

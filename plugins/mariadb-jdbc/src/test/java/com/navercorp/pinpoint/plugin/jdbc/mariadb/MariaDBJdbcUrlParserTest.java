@@ -20,15 +20,15 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author dawidmalina
  */
 public class MariaDBJdbcUrlParserTest {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
     private final MariaDBJdbcUrlParser jdbcUrlParser = new MariaDBJdbcUrlParser();
 
     private static final ServiceType SERVICE_TYPE = MariaDBConstants.MARIADB;

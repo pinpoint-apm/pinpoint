@@ -18,14 +18,14 @@ package com.navercorp.pinpoint.profiler.instrument.classloading;
 
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author jaehong.kim
  */
 public final class JavaLangAccessHelper {
-    private static final Logger logger = LoggerFactory.getLogger(JavaLangAccessHelper.class);
+    private static final Logger logger = LogManager.getLogger(JavaLangAccessHelper.class);
     // Java 9 version over and after
     private static final String MISC_SHARED_SECRETS_CLASS_NAME = "jdk.internal.misc.SharedSecrets";
     private static final String MISC_JAVA_LANG_ACCESS_CLASS_NAME = "jdk.internal.misc.JavaLangAccess";

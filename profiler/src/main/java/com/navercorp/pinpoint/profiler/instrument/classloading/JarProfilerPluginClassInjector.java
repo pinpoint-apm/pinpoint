@@ -22,8 +22,8 @@ import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.exception.PinpointException;
 
@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.exception.PinpointException;
  * @author jaehong.kim
  */
 public class JarProfilerPluginClassInjector implements ClassInjector {
-    private final Logger logger = LoggerFactory.getLogger(JarProfilerPluginClassInjector.class);
+    private final Logger logger = LogManager.getLogger(JarProfilerPluginClassInjector.class);
 
     private final BootstrapCore bootstrapCore;
     private final ClassInjector bootstrapClassLoaderHandler;

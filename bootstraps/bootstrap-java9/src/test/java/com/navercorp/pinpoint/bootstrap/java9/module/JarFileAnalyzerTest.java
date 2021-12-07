@@ -18,15 +18,17 @@ package com.navercorp.pinpoint.bootstrap.java9.module;
 
 import com.navercorp.pinpoint.bootstrap.module.Providers;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
@@ -39,13 +41,26 @@ import static org.mockito.Mockito.when;
  * @author Woonduk Kang(emeroad)
  */
 public class JarFileAnalyzerTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final Set<String> SLF4J_API_PACKAGE = Set.of("org.slf4j", "org.slf4j.event", "org.slf4j.helpers", "org.slf4j.spi");
+    private final Set<String> COMMONS_IO_PACKAGE = getCommonsLangPackage();
+
+    private Set<String> getCommonsLangPackage() {
+        String packagePrefix = "org.apache.commons.io";
+        Set<String> set = new HashSet<>();
+        set.add(packagePrefix);
+        set.add(packagePrefix + ".comparator");
+        set.add(packagePrefix + ".filefilter");
+        set.add(packagePrefix + ".input");
+        set.add(packagePrefix + ".monitor");
+        set.add(packagePrefix + ".output");
+        set.add(packagePrefix + ".serialization");
+        return set;
+    }
 
     @Test
     public void packageAnalyzer() throws IOException {
-        URL url = CodeSourceUtils.getCodeLocation(Logger.class);
+        URL url = CodeSourceUtils.getCodeLocation(IOUtils.class);
 
         JarFile jarFile = new JarFile(url.getFile());
         logger.debug("jarFile:{}", jarFile.getName());
@@ -56,7 +71,7 @@ public class JarFileAnalyzerTest {
 
         logger.debug("package:{}", packageSet);
 
-        Assert.assertEquals(packageSet, SLF4J_API_PACKAGE);
+        Assert.assertEquals(packageSet, COMMONS_IO_PACKAGE);
     }
 
     @Test

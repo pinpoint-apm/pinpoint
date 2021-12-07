@@ -34,8 +34,8 @@ import com.navercorp.pinpoint.web.vo.AgentInfo;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -48,7 +48,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
 
     private static final ActiveThreadCountErrorType INTERNAL_ERROR = ActiveThreadCountErrorType.PINPOINT_INTERNAL_ERROR;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final Object lock = new Object();
     private final AgentService agentService;
 

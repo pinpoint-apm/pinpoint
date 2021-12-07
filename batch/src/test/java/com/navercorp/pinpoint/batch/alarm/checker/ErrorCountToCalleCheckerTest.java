@@ -30,8 +30,8 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,7 +41,7 @@ import static org.junit.Assert.assertTrue;
 
 public class ErrorCountToCalleCheckerTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(ErrorCountToCalleCheckerTest.class);
+    private static final Logger logger = LogManager.getLogger(ErrorCountToCalleCheckerTest.class);
 
     private static final String FROM_SERVICE_NAME = "from_local_service";
     private static final String TO_SERVICE_NAME = "to_local_service";

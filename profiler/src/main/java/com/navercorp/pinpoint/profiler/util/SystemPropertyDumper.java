@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Properties;
 import java.util.Set;
@@ -27,7 +27,7 @@ import java.util.Set;
  */
 public class SystemPropertyDumper {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public void dump() {
         if (logger.isInfoEnabled()) {

@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.profiler.context.monitor.metric;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +32,7 @@ public class CustomMetricIdGenerator {
 
     static final int NOT_REGISTERED = -1;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Object lockObject = new Object();
 

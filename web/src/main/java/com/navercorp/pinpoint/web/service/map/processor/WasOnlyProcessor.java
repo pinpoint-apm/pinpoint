@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * Filters out link data pointing to terminal and unknown nodes.
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 public class WasOnlyProcessor implements LinkDataMapProcessor {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public LinkDataMap processLinkDataMap(LinkDataMap linkDataMap, Range range) {

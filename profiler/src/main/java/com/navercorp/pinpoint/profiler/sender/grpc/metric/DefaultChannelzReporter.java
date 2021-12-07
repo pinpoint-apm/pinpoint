@@ -7,7 +7,7 @@ import com.navercorp.pinpoint.grpc.channelz.ChannelzUtils;
 import io.grpc.InternalChannelz;
 import io.grpc.InternalInstrumented;
 import io.grpc.InternalWithLogId;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.List;

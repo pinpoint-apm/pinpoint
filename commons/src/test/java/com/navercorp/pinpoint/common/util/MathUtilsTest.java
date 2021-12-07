@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.common.util;
 import org.junit.Assert;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.common.util.MathUtils;
 
@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.common.util.MathUtils;
  * @author emeroad
  */
 public class MathUtilsTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     
     @Test
     public void fastAbs() {

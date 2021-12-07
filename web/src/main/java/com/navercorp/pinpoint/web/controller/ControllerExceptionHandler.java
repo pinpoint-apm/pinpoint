@@ -29,8 +29,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.view.error.InternalServerError;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -47,7 +47,7 @@ public class ControllerExceptionHandler {
 
     private static final String UNKNOWN = "UNKNOWN";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ConfigProperties configProperties;
 

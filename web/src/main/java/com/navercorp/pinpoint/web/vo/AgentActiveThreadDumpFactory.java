@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 import com.navercorp.pinpoint.web.util.ThreadDumpUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -38,7 +38,7 @@ public class AgentActiveThreadDumpFactory {
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
     public static final String TAB_SEPARATOR = "    "; // tab to 4 spaces
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public AgentActiveThreadDumpFactory() {
     }

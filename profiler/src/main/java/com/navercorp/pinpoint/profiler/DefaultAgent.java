@@ -37,8 +37,8 @@ import com.navercorp.pinpoint.profiler.logging.Log4j2LoggingSystem;
 import com.navercorp.pinpoint.profiler.logging.LoggingSystem;
 import com.navercorp.pinpoint.profiler.util.SystemPropertyDumper;
 import com.navercorp.pinpoint.rpc.ClassPreLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Map;
 import java.util.Properties;
@@ -73,7 +73,7 @@ public class DefaultAgent implements Agent {
         this.loggingSystem = newLoggingSystem(logConfigPath);
         this.loggingSystem.start();
 
-        logger = LoggerFactory.getLogger(this.getClass());
+        logger = LogManager.getLogger(this.getClass());
         dumpAgentOption(agentOption);
 
         dumpSystemProperties();

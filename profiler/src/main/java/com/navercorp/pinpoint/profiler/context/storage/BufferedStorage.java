@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.context.*;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ import java.util.List;
  * @author jaehong.kim
  */
 public class BufferedStorage implements Storage {
-    private static final Logger logger = LoggerFactory.getLogger(BufferedStorage.class);
+    private static final Logger logger = LogManager.getLogger(BufferedStorage.class);
     private static final boolean isDebug = logger.isDebugEnabled();
 
     private static final int DEFAULT_BUFFER_SIZE = 20;

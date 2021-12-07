@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.reflect.Method;
 
@@ -31,7 +31,7 @@ import java.lang.reflect.Method;
  */
 public class InterceptorDefinitionFactoryTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     @Test
     public void testGetInterceptorType_BasicType() {
         InterceptorDefinitionFactory typeDetector = new InterceptorDefinitionFactory();

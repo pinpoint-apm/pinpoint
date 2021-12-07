@@ -24,8 +24,8 @@ import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -35,7 +35,7 @@ import java.util.concurrent.RejectedExecutionException;
  * @author jaehong.kim
  */
 public class StreamExecutorServerInterceptor implements ServerInterceptor {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final String name;
     private final Executor executor;
     private final int initNumMessages;

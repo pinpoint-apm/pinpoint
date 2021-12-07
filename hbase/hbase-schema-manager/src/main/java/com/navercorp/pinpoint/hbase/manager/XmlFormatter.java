@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.hbase.manager;
 
 import com.navercorp.pinpoint.hbase.manager.logging.Markers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Document;
@@ -45,7 +45,7 @@ import java.io.StringWriter;
 @Component
 public class XmlFormatter {
 
-    private final Logger logger = LoggerFactory.getLogger(XmlFormatter.class);
+    private final Logger logger = LogManager.getLogger(XmlFormatter.class);
 
     private final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
     private final TransformerFactory transformerFactory = TransformerFactory.newInstance();

@@ -25,8 +25,8 @@ import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.concurrent.TimeUnit;
 
@@ -73,7 +73,7 @@ public class ConnectionFactory {
 
     private static class ConnectEvent implements TimerTask {
 
-        private final Logger logger = LoggerFactory.getLogger(getClass());
+        private final Logger logger = LogManager.getLogger(getClass());
 
         private final ConnectionFactory connectionFactory;
         private final SocketAddressProvider socketAddressProvider;

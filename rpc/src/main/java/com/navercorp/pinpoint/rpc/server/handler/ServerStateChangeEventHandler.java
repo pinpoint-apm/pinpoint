@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.rpc.StateChangeEventListener;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author koo.taejin
@@ -34,7 +34,7 @@ public abstract class ServerStateChangeEventHandler implements StateChangeEventL
 
     private static class DisabledHandler extends ServerStateChangeEventHandler {
 
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
         @Override
         public void stateUpdated(PinpointServer pinpointServer, SocketStateCode updatedStateCode) throws Exception {

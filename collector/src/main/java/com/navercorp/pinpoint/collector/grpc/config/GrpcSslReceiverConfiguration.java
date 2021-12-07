@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.collector.grpc.config;
 
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import javax.annotation.PostConstruct;
 import java.util.Objects;
@@ -30,7 +30,7 @@ import java.util.Objects;
  */
 public class GrpcSslReceiverConfiguration {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
+    protected final Logger logger = LogManager.getLogger(getClass());
 
     private final boolean enable;
     private final BindAddress bindAddress;
