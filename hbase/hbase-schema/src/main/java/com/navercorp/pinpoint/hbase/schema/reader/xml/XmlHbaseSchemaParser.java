@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.hbase.schema.reader.xml;
 import com.navercorp.pinpoint.hbase.schema.definition.xml.HbaseSchema;
 import com.navercorp.pinpoint.hbase.schema.reader.HbaseSchemaParseException;
 import com.navercorp.pinpoint.hbase.schema.reader.xml.mapper.HbaseSchemaMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -42,7 +42,7 @@ class XmlHbaseSchemaParser {
     private static final String SCHEMA_VERSION = "1.0";
     private static final String XSD_FILE = "pinpoint-hbase-" + SCHEMA_VERSION + ".xsd";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(XmlHbaseSchemaParser.class);
+    private static final Logger LOGGER = LogManager.getLogger(XmlHbaseSchemaParser.class);
 
     private static final JAXBContext JAXB_CONTEXT = createJaxbContext();
     private static final Schema SCHEMA = createSchema();

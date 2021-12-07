@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.MultiClassNameMatcher
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.test.util.BytecodeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class DefaultTranslator implements Translator {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ConcurrentMap<String, MatchableClassFileTransformer> transformerMap = new ConcurrentHashMap<>();
 

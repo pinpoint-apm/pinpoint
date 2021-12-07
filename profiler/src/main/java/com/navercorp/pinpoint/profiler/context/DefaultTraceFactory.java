@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import java.util.Objects;
 import com.navercorp.pinpoint.exception.PinpointException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 
 /**
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultTraceFactory implements TraceFactory {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Binder<Trace> threadLocalBinder;
 

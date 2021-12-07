@@ -35,8 +35,8 @@ import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.SearchOption;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,7 +58,7 @@ import java.util.Objects;
  */
 @RestController
 public class MapController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final MapService mapService;
     private final ResponseTimeHistogramService responseTimeHistogramService;

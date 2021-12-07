@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.context.module;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.exception.PinpointException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.reflect.Constructor;
 import java.util.Objects;
@@ -30,7 +30,7 @@ import java.util.Objects;
 public class DefaultModuleFactoryResolver implements ModuleFactoryResolver {
 
     private static final String DEFAULT_MODULE_FACTORY = ApplicationContextModuleFactory.class.getName();
-    private final Logger logger = LoggerFactory.getLogger(DefaultModuleFactoryResolver.class);
+    private final Logger logger = LogManager.getLogger(DefaultModuleFactoryResolver.class);
 
     private final String moduleFactoryClazzName;
 

@@ -30,8 +30,8 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -46,7 +46,7 @@ import java.util.Set;
 public class AgentEventHandlingFilter implements RouteFilter<ResponseEvent> {
     private static final Set<AgentEventType> RESPONSE_EVENT_TYPES = AgentEventType.getTypesByCategory(AgentEventTypeCategory.USER_REQUEST);
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AgentEventService agentEventService;
 

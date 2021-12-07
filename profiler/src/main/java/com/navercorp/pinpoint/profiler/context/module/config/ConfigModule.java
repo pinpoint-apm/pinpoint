@@ -53,8 +53,8 @@ import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryB
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.profiler.plugin.config.DefaultPluginLoadingConfig;
 import com.navercorp.pinpoint.profiler.plugin.config.PluginLoadingConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.instrument.Instrumentation;
 import java.util.List;
@@ -66,7 +66,7 @@ import java.util.Properties;
  */
 public class ConfigModule extends AbstractModule {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final AgentOption agentOption;
 
     public ConfigModule(AgentOption agentOption) {

@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.collector.cluster;
 
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.navercorp.pinpoint.collector.config.CollectorClusterConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -28,7 +28,7 @@ import java.util.Objects;
 
 public class ClusterServiceFactory implements FactoryBean<ClusterService>, InitializingBean, DisposableBean {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private CollectorClusterConfig collectorClusterConfig;
     private ClusterPointRouter clusterPointRouter;

@@ -50,8 +50,8 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import javax.net.ssl.SSLException;
 import java.util.concurrent.CountDownLatch;
@@ -67,7 +67,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ChannelFactoryTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(ChannelFactoryTest.class);
+    private static final Logger logger = LogManager.getLogger(ChannelFactoryTest.class);
 
     public static final int PORT = 30211;
 
@@ -185,7 +185,7 @@ public class ChannelFactoryTest {
     }
 
     static class SpanService extends SpanGrpc.SpanImplBase {
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
         private final CountDownLatch onCompletedLatch;
 

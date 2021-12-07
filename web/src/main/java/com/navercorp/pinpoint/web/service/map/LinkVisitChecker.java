@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.service.map;
 
 import com.google.common.collect.Sets;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 import java.util.Set;
@@ -30,7 +30,7 @@ import java.util.Set;
  */
 public class LinkVisitChecker {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Set<Application> calleeFound = Sets.newConcurrentHashSet();
     private final Set<Application> callerFound = Sets.newConcurrentHashSet();

@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 @RunWith(PinpointPluginTestSuite.class)
@@ -32,7 +32,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 @Dependency({"com.oracle.database.jdbc:ojdbc8:[19,19.9)", JDBCTestConstants.VERSION, OracleITConstants.ORACLE_TESTCONTAINER})
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-oracle-jdbc-driver-plugin")
 public class Oracle19_Ojdbc8_ConnectWithGssCredential_IT extends Oracle_IT_Base {
-    private static final Logger logger = LoggerFactory.getLogger(Oracle19_Ojdbc8_ConnectWithGssCredential_IT.class);
+    private static final Logger logger = LogManager.getLogger(Oracle19_Ojdbc8_ConnectWithGssCredential_IT.class);
 
     @BeforeSharedClass
     public static void sharedSetup() throws Exception {

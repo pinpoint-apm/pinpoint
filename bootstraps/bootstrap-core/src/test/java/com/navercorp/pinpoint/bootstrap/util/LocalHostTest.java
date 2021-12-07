@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.bootstrap.util;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -31,7 +31,7 @@ import java.util.Enumeration;
  * @author emeroad
  */
 public class LocalHostTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Ignore
     @Test

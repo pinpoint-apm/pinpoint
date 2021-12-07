@@ -46,14 +46,14 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ThriftStatsModule extends AbstractModule {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     @Override
     protected void configure() {
         logger.info("configure {}", this.getClass().getSimpleName());

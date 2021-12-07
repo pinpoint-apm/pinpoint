@@ -19,8 +19,8 @@ package test.pinpoint.plugin.kafka;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServerStartable;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import java.util.Properties;
  */
 public class KafkaUnitServer {
 
-    private static final Logger logger = LoggerFactory.getLogger(KafkaUnitServer.class);
+    private static final Logger logger = LogManager.getLogger(KafkaUnitServer.class);
     private String zookeeperString;
     private String brokerString;
     private int zkPort;

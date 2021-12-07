@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.filter;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.util.AntPathMatcher;
 
 import java.util.List;
@@ -32,7 +32,7 @@ import java.util.Objects;
  */
 public class AcceptUrlFilter implements URLPatternFilter {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final String urlPattern;
     private final AntPathMatcher matcher = new AntPathMatcher();
 

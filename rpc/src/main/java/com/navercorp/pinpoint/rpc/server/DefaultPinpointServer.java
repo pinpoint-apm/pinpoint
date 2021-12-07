@@ -51,8 +51,8 @@ import com.navercorp.pinpoint.rpc.util.ListUtils;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.SocketAddress;
 import java.util.ArrayList;
@@ -68,7 +68,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class DefaultPinpointServer implements PinpointServer {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final long startTimestamp = System.currentTimeMillis();
 

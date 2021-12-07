@@ -584,10 +584,12 @@
             </dependency>
 
             <!-- Logging dependencies -->
+
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j2.version}</version>
+                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
@@ -596,15 +598,14 @@
                 <scope>runtime</scope>
                 <optional>true</optional>
             </dependency>
+
+
             <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-api</artifactId>
-                <version>${log4j2.version}</version>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
                 <scope>runtime</scope>
-                <optional>true</optional>
             </dependency>
-
-
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-slf4j-impl</artifactId>

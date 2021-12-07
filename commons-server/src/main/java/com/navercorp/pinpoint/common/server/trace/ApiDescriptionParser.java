@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.common.server.trace;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  * @author emeroad
  */
 public class ApiDescriptionParser {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final char DOT = '.';

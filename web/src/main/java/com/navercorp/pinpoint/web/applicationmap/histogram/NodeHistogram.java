@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.vo.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,7 +39,7 @@ import java.util.Objects;
  */
 public class NodeHistogram {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Application application;
 

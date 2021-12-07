@@ -29,8 +29,8 @@ import com.navercorp.pinpoint.thrift.io.*;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -46,7 +46,7 @@ import java.util.Objects;
  */
 public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> implements PacketHandlerFactory<T> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<>(new HeaderTBaseDeserializerFactory());
     private final DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler;

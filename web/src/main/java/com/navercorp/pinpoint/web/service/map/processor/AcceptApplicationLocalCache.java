@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.service.map.processor;
 
 import com.google.common.collect.Sets;
 import com.navercorp.pinpoint.web.service.map.AcceptApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 class AcceptApplicationLocalCache {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ConcurrentMap<RpcApplication, Set<AcceptApplication>> acceptApplicationLocalCache = new ConcurrentHashMap<>();
 

@@ -46,8 +46,8 @@ import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegme
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -70,7 +70,7 @@ import java.util.stream.Collectors;
 @Service
 public class AgentInfoServiceImpl implements AgentInfoService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AgentEventService agentEventService;
 

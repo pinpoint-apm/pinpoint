@@ -30,8 +30,8 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer2;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory2;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -44,7 +44,7 @@ import java.nio.channels.DatagramChannel;
  */
 public class NioUDPDataSender<T> implements DataSender<T> {
 
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LogManager.getLogger(this.getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
     public static final int SOCKET_TIMEOUT = 1000 * 5;

@@ -35,8 +35,8 @@ import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
 
 import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -50,7 +50,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class AgentService extends AgentGrpc.AgentImplBase {
     private static final AtomicLong idAllocator = new AtomicLong();
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final SimpleRequestHandlerAdaptor<GeneratedMessageV3, GeneratedMessageV3> simpleRequestHandlerAdaptor;
     private final PingEventHandler pingEventHandler;

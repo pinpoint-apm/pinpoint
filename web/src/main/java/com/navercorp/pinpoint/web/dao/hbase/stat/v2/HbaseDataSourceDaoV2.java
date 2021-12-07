@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.web.dao.stat.DataSourceDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -35,7 +35,7 @@ import java.util.Objects;
 @Repository("dataSourceDaoV2")
 public class HbaseDataSourceDaoV2 implements DataSourceDao {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final HbaseAgentStatDaoOperationsV2 operations;
 

@@ -29,8 +29,8 @@ import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
@@ -173,7 +173,7 @@ public class GrpcClientStreamChannelTest {
 
     private static class RecordClientStreamChannelEventHandler extends ClientStreamChannelEventHandler {
 
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
         private StreamResponsePacket lastStreamResponsePacket;
 

@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
@@ -39,7 +39,7 @@ import java.lang.reflect.Field;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class AnnotationVisitorTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AnnotationVisitor<Value> annotationVisitor = new AnnotationVisitor<>(Value.class);
 

@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.AgentStatDaoV2;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -29,7 +29,7 @@ import java.util.Objects;
 @Service("hBaseAgentStatService")
 public class HBaseAgentStatService implements AgentStatService {
 
-    private final Logger logger = LoggerFactory.getLogger(HBaseAgentStatService.class.getName());
+    private final Logger logger = LogManager.getLogger(HBaseAgentStatService.class.getName());
 
     private final AgentStatDaoV2<?>[] agentStatDaoList;
 

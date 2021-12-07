@@ -20,8 +20,8 @@ import com.google.common.util.concurrent.AtomicLongMap;
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class AtomicLongMapTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void testIncrement() {

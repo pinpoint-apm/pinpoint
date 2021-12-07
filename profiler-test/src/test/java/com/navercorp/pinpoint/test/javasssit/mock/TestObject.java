@@ -16,14 +16,14 @@
 
 package com.navercorp.pinpoint.test.javasssit.mock;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author emeroad
  */
 public class TestObject {
-    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private Logger logger = LogManager.getLogger(this.getClass().getName());
 
     private int callA;
     private boolean isthrow = false;

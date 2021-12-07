@@ -26,8 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.rpc.ChannelWriteFailListenableFuture;
 import com.navercorp.pinpoint.rpc.DefaultFuture;
@@ -43,7 +43,7 @@ import com.navercorp.pinpoint.rpc.server.PinpointServer;
  */
 public class RequestManager {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AtomicInteger requestId = new AtomicInteger(1);
 

@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.hbase.schema.reader.xml;
 import com.navercorp.pinpoint.hbase.schema.reader.HbaseSchemaParseException;
 import com.navercorp.pinpoint.hbase.schema.reader.HbaseSchemaReader;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ChangeSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -39,7 +39,7 @@ public class XmlHbaseSchemaReader implements HbaseSchemaReader {
 
     public static final String DEFAULT_HBASE_SCHEMA_PATH = "classpath:hbase-schema/hbase-schema.xml";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ResourceLoader resourceLoader = new FileSystemResourceLoader();
     private final XmlHbaseSchemaParser xmlHbaseSchemaParser = new XmlHbaseSchemaParser();

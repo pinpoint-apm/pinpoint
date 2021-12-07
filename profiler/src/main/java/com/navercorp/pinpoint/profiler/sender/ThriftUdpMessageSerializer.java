@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 
 /**
@@ -36,7 +36,7 @@ public class ThriftUdpMessageSerializer<T> implements MessageSerializer<T, ByteM
 
     public static final int UDP_MAX_PACKET_LENGTH = 65507;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     // Caution. not thread safe
     private final HeaderTBaseSerializer serializer;

@@ -29,8 +29,8 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author emeroad
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 public class LinkSerializerTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
 
     @Test

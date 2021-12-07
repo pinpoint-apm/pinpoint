@@ -46,14 +46,14 @@ import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetric;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class StatsModule extends AbstractModule {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     protected void configure() {

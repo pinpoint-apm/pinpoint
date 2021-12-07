@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.DefaultProxyRequestRecorder;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParser;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParserLoaderService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ import java.util.List;
  * @author jaehong.kim
  */
 public class DefaultRequestRecorderFactory<T> implements RequestRecorderFactory<T> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final ProxyRequestParserLoaderService proxyRequestParserLoaderService;
     private final boolean enable;
 

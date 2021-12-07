@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import java.util.Objects;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 
 /**
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultAsyncTraceContext implements AsyncTraceContext {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final Reference<Trace> EMPTY = DefaultReference.emptyReference();
 

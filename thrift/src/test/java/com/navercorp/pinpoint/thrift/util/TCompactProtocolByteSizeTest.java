@@ -21,8 +21,8 @@ import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.ByteArrayOutputStream;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class TCompactProtocolByteSizeTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
 
     @Test

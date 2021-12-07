@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * 
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorder {
-    private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
+    private static final Logger logger = LogManager.getLogger(DefaultTrace.class.getName());
     private static final boolean isDebug = logger.isDebugEnabled();
     
     private final Span span;

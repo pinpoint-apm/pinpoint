@@ -25,8 +25,8 @@ import org.apache.flink.api.common.io.RichOutputFormat;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.CollectionUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import java.util.List;
  * @author minwoo.jung
  */
 public class StatisticsDao extends RichOutputFormat<Tuple3<String, JoinStatBo, Long>> {
-    private final static Logger logger = LoggerFactory.getLogger(StatisticsDao.class);
+    private final static Logger logger = LogManager.getLogger(StatisticsDao.class);
 
     private static final long serialVersionUID = 1L;
     private transient CpuLoadDao cpuLoadDao;

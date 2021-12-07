@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.security.login;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -35,7 +35,7 @@ import java.util.Objects;
  */
 public class SaveJwtTokenAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final BasicLoginService basicLoginService;
 

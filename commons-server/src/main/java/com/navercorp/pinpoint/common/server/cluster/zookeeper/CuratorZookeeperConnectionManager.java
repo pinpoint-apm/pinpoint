@@ -23,8 +23,8 @@ import org.apache.curator.RetrySleeper;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.state.ConnectionState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -37,7 +37,7 @@ class CuratorZookeeperConnectionManager {
 
     private static final int DEFAULT_CONNECTION_TIMEOUT = 3000;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final CuratorFramework curatorFramework;
     private final PinpointZookeeperConnectionStateListener connectionStateListener;

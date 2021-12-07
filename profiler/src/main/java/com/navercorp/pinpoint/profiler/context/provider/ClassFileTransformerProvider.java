@@ -48,8 +48,8 @@ import com.navercorp.pinpoint.profiler.transformer.DelegateTransformerRegistry;
 import com.navercorp.pinpoint.profiler.transformer.DynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.transformer.PinpointClassFilter;
 import com.navercorp.pinpoint.profiler.transformer.UnmodifiableClassFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ import java.util.List;
  */
 public class ClassFileTransformerProvider implements Provider<ClassFileTransformer> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ProfilerConfig profilerConfig;
     private final InstrumentConfig instrumentConfig;

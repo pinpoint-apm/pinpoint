@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.collector.manage.jmx;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.collector.manage.CollectorManager;
 
@@ -31,7 +31,7 @@ import java.util.Objects;
  */
 public class JMXCollectorManager {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final PinpointMBeanServer pinpointMBeanServer;
 

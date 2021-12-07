@@ -25,8 +25,8 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.windowing.RichWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,7 +39,7 @@ public class ApplicationStatBoWindow extends RichWindowFunction<Tuple3<String, J
     public static final int WINDOW_SIZE = 10000;
     public static final int ALLOWED_LATENESS = 45000;
 
-    private final static Logger logger = LoggerFactory.getLogger(ApplicationStatBoWindow.class);
+    private final static Logger logger = LogManager.getLogger(ApplicationStatBoWindow.class);
 
     private transient ApplicationStatBoWindowInterceptor applicationStatBoWindowInterceptor;
 

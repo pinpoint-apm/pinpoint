@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.test.javasssit;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Arrays;
 
@@ -30,7 +30,7 @@ public class TestBeforeInterceptor implements StaticAroundInterceptor {
         System.out.println("load TestBeforeInterceptor cl:" + TestBeforeInterceptor.class.getClassLoader());
     }
     
-    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private Logger logger = LogManager.getLogger(this.getClass().getName());
 
     public int call = 0;
     public Object target;

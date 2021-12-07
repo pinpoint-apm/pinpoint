@@ -37,8 +37,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,7 +56,7 @@ public class ZookeeperJobWorkerTest {
     private static final String PATH =
             ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.COLLECTOR_LEAF_PATH, IDENTIFIER);
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final TestAwaitUtils awaitUtils = new TestAwaitUtils(50, 3000);
     private final ChannelPropertiesFactory channelPropertiesFactory = new ChannelPropertiesFactory();

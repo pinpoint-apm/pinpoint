@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
@@ -29,7 +29,7 @@ import java.util.Objects;
  */
 public class ProjectPathResolver {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     // maven base path resolver
     // extract interface ????

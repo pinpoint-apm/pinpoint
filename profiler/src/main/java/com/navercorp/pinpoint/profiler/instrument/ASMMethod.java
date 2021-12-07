@@ -32,15 +32,15 @@ import com.navercorp.pinpoint.profiler.interceptor.factory.AnnotatedInterceptorF
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.tree.MethodNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author jaehong.kim
  */
 public class ASMMethod implements InstrumentMethod {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final EngineComponent engineComponent;

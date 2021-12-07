@@ -34,8 +34,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
  */
 public class AgentStatMonitorTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private TBaseRecorder<AgentStatMetricSnapshotBatch> tBaseRecorder;
     private DataSender<MetricType> dataSender;

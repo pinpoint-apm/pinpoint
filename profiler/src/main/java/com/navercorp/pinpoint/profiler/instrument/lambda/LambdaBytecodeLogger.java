@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.instrument.lambda;
 
 import com.navercorp.pinpoint.bootstrap.instrument.lambda.LambdaBytecodeHandler;
 import java.util.Objects;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Arrays;
 
@@ -32,7 +32,7 @@ public class LambdaBytecodeLogger implements LambdaBytecodeHandler {
 
     public LambdaBytecodeLogger(LambdaBytecodeHandler delegate) {
         this.delegate = Objects.requireNonNull(delegate, "delegate");
-        this.logger = LoggerFactory.getLogger(delegate.getClass());
+        this.logger = LogManager.getLogger(delegate.getClass());
     }
 
     @Override

@@ -24,8 +24,8 @@ import java.util.Objects;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ import java.util.List;
  * @author jaehong.kim
  */
 public class DefaultProxyRequestRecorder<T> implements ProxyRequestRecorder<T> {
-    private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
+    private static final Logger logger = LogManager.getLogger(DefaultTrace.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final ProxyRequestParser[] proxyRequestParsers;

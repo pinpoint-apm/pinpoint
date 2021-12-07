@@ -17,15 +17,15 @@
 package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.navercorp.pinpoint.common.util.ByteSizeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Taejin Koo
  */
 public abstract class AbstractClientFactoryProvider {
 
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LogManager.getLogger(this.getClass());
 
     protected int getByteSize(String value, int defaultSize) {
         try {

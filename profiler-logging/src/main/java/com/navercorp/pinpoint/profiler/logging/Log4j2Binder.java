@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.logging;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
-import org.apache.logging.log4j.core.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.spi.ExtendedLogger;
+import org.apache.logging.log4j.spi.LoggerContext;
 
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,7 +44,7 @@ public class Log4j2Binder implements PLoggerBinder {
         if (hitPLogger != null) {
             return hitPLogger;
         }
-        Logger logger = loggerContext.getLogger(name);
+        ExtendedLogger logger = loggerContext.getLogger(name);
         PLogger log4j2Adapter = new Log4j2PLoggerAdapter(logger);
 
         final PLogger before = loggerCache.putIfAbsent(name, log4j2Adapter);

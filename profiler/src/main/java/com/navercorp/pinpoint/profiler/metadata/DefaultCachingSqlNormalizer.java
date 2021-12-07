@@ -21,15 +21,15 @@ import java.util.Objects;
 import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
 import com.navercorp.pinpoint.common.profiler.sql.NormalizedSql;
 import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author emeroad
  */
 public class DefaultCachingSqlNormalizer implements CachingSqlNormalizer {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final DefaultParsingResult EMPTY_OBJECT = new DefaultParsingResult("");
 

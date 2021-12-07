@@ -18,15 +18,16 @@ package com.navercorp.pinpoint.profiler.logging;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * For unit test to register/unregister loggerBinder.
  *
  * @author emeroad
  */
-public class Slf4jLoggerBinderInitializer {
+public class Log4j2LoggerBinderInitializer {
 
-    private static final PLoggerBinder loggerBinder = new Slf4jLoggerBinder();
+    private static final PLoggerBinder loggerBinder = new Log4j2Binder(LogManager.getContext());
 
     public static void beforeClass() {
         PLoggerFactory.initialize(loggerBinder);

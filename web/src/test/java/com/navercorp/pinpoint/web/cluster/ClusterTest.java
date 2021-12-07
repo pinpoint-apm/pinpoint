@@ -37,8 +37,8 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.util.SocketUtils;
 
 import java.nio.charset.Charset;
@@ -54,7 +54,7 @@ import static org.mockito.Mockito.when;
  */
 public class ClusterTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClusterTest.class);
+    private static final Logger LOGGER = LogManager.getLogger(ClusterTest.class);
 
     private static final Charset UTF_8_CHARSET = StandardCharsets.UTF_8;
 

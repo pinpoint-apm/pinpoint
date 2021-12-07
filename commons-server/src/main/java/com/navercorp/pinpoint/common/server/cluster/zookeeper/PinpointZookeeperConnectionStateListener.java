@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 class PinpointZookeeperConnectionStateListener implements ConnectionStateListener {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AtomicBoolean connected = new AtomicBoolean(false);
 

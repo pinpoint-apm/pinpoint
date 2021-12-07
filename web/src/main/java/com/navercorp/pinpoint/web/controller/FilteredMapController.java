@@ -30,8 +30,8 @@ import com.navercorp.pinpoint.web.service.FilteredMapServiceOption;
 import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,7 +46,7 @@ import java.util.Objects;
  */
 @RestController
 public class FilteredMapController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final FilteredMapService filteredMapService;
     private final FilterBuilder<List<SpanBo>> filterBuilder;

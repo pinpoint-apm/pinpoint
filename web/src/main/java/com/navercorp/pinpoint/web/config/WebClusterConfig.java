@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +36,7 @@ import javax.annotation.PostConstruct;
 @Component
 public class WebClusterConfig {
 
-    private final Logger logger = LoggerFactory.getLogger(WebClusterConfig.class);
+    private final Logger logger = LogManager.getLogger(WebClusterConfig.class);
 
     @Qualifier("clusterConfiguration")
     @Autowired

@@ -22,8 +22,8 @@ import io.grpc.Attributes;
 import io.grpc.Grpc;
 import io.grpc.ServerTransportFilter;
 import io.grpc.Status;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -33,7 +33,7 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class PermissionServerTransportFilter extends ServerTransportFilter {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String debugString;
     private final AddressFilter addressFilter;

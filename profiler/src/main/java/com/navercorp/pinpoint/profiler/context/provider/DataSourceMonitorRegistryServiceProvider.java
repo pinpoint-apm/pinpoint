@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultDataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.DisabledDataSourceMonitorRegistryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -34,7 +34,7 @@ public class DataSourceMonitorRegistryServiceProvider implements Provider<DataSo
 
     private static final int DEFAULT_LIMIT_SIZE = 20;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final boolean traceAgentDataSource;
     private final int dataSourceTraceLimitSize;

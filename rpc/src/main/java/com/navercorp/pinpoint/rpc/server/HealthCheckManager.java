@@ -27,8 +27,8 @@ import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.concurrent.TimeUnit;
 
@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class HealthCheckManager {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private static final PingSimplePacket PING_PACKET = PingSimplePacket.PING_PACKET;

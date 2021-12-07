@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +37,7 @@ import java.util.Map;
 
 public final class PinpointRPCTestUtils {
     
-    private static final Logger logger = LoggerFactory.getLogger(PinpointRPCTestUtils.class);
+    private static final Logger logger = LogManager.getLogger(PinpointRPCTestUtils.class);
 
     private PinpointRPCTestUtils() {
     }

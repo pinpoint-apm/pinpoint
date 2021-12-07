@@ -18,15 +18,15 @@
 package com.navercorp.pinpoint.test.classloader;
 
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author hyungil.jeong
  */
 public class TestClassLoaderFactory {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestClassLoaderFactory.class);
+    private static final Logger LOGGER = LogManager.getLogger(TestClassLoaderFactory.class);
 
     public static TestClassLoader createTestClassLoader(DefaultApplicationContext applicationContext) {
         final TestClassLoader testClassLoader = new TestClassLoader(applicationContext);

@@ -31,8 +31,8 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit;
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultPinpointClientFactory implements PinpointClientFactory {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final SocketIdFactory socketIdFactory = new SocketIdFactory();
 

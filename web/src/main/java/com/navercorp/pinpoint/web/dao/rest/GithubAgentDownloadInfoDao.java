@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
 import com.navercorp.pinpoint.web.vo.GithubAgentDownloadInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
  */
 public class GithubAgentDownloadInfoDao implements AgentDownloadInfoDao {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final String GITHUB_API_URL = "https://api.github.com/repos/naver/pinpoint/releases";
 

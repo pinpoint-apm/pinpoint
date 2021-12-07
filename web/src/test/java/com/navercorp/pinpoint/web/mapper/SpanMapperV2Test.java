@@ -12,8 +12,8 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoderV0
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncodingContext;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.nio.ByteBuffer;
 import java.util.Collections;
@@ -23,7 +23,7 @@ import java.util.List;
  * @author Woonduk Kang(emeroad)
  */
 public class SpanMapperV2Test {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final SpanDecoderV0 decoder = new SpanDecoderV0();
 

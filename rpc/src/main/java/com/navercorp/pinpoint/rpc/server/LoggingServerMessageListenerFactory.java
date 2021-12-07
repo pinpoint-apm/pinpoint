@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Map;
 
@@ -49,7 +49,7 @@ public class LoggingServerMessageListenerFactory implements ServerMessageListene
 
     private static class LoggingServerMessageListener implements ServerMessageListener {
 
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
         private final boolean enableDuplex;
 

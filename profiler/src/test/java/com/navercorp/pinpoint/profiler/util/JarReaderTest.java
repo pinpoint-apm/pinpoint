@@ -18,12 +18,13 @@
 package com.navercorp.pinpoint.profiler.util;
 
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
+import org.apache.commons.lang.CharRange;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.URL;
 import java.util.List;
@@ -33,11 +34,11 @@ import java.util.jar.JarFile;
  * @author Woonduk Kang(emeroad)
  */
 public class JarReaderTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void read() throws Exception {
-        URL location = CodeSourceUtils.getCodeLocation(Logger.class);
+        URL location = CodeSourceUtils.getCodeLocation(CharRange.class);
 
         JarFile jarFile = new JarFile(location.getPath());
 
@@ -54,11 +55,11 @@ public class JarReaderTest {
 
     @Test
     public void getInputStream() throws Exception {
-        URL location = CodeSourceUtils.getCodeLocation(Logger.class);
+        URL location = CodeSourceUtils.getCodeLocation(CharRange.class);
 
         JarFile jarFile = new JarFile(location.getPath());
         JarReader jarReader = new JarReader(jarFile);
-        Assert.assertNotNull(jarReader.getInputStream("org/slf4j/Logger.class"));
-        Assert.assertNull(jarReader.getInputStream("org/slf4j/NotFound.class"));
+        Assert.assertNotNull(jarReader.getInputStream("org/apache/commons/lang/CharRange.class"));
+        Assert.assertNull(jarReader.getInputStream("org/apache/commons/lang/NotFound.class"));
     }
 }

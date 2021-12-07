@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.web.service.LinkDataMapService;
 import com.navercorp.pinpoint.web.service.map.processor.LinkDataMapProcessor;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -33,7 +33,7 @@ import java.util.Objects;
  */
 public class DefaultApplicationMapCreator implements ApplicationMapCreator {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final LinkDataMapService linkDataMapService;
 

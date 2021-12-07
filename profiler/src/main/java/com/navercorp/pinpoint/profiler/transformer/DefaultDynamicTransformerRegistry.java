@@ -25,13 +25,13 @@ import com.navercorp.pinpoint.bootstrap.instrument.RequestHandle;
 import java.util.Objects;
 import com.navercorp.pinpoint.profiler.ProfilerException;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 
 public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegistry {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final ConcurrentMap<TransformerKey, ClassFileTransformer> transformerMap = new ConcurrentHashMap<>();
 
     @Inject

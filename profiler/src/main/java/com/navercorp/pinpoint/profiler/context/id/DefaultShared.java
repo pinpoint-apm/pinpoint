@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.id;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultShared implements Shared {
+    private static final Logger logger = LogManager.getLogger(DefaultShared.class);
 
     private static final AtomicReferenceFieldUpdater<DefaultShared, String> END_POINT_UPDATER
             = AtomicReferenceFieldUpdater.newUpdater(DefaultShared.class, String.class, "endPoint");
@@ -77,7 +78,6 @@ public class DefaultShared implements Shared {
     public void setEndPoint(String endPoint) {
         final boolean updated = END_POINT_UPDATER.compareAndSet(this, null, endPoint);
         if (!updated) {
-            final Logger logger = LoggerFactory.getLogger(this.getClass());
             // for debug
             logger.debug("already set EndPoint {}", endPoint);
         }
@@ -92,7 +92,6 @@ public class DefaultShared implements Shared {
     public void setRpcName(String rpc) {
         final boolean updated = RPC_UPDATER.compareAndSet(this, null, rpc);
         if (!updated) {
-            final Logger logger = LoggerFactory.getLogger(this.getClass());
             // for debug
             logger.debug("already set Rpc {}", rpc);
         }

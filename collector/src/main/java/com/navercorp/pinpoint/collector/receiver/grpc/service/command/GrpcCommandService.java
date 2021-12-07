@@ -43,8 +43,8 @@ import io.grpc.StatusException;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.jboss.netty.util.Timer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -58,7 +58,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerCommandServiceImplBase implements Closeable {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final PinpointGrpcServerRepository grpcServerRepository = new PinpointGrpcServerRepository();
 
@@ -344,7 +344,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
         private static final DisabledStreamObserver<?> DISABLED_INSTANCE = new DisabledStreamObserver();
 
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
         public static <V> V instance() {
             return (V) DISABLED_INSTANCE;

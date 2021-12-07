@@ -30,8 +30,8 @@ import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.curator.utils.ZKPaths;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +51,7 @@ public class ZookeeperClusterManager {
     // it is okay for the collector to retry indefinitely, as long as RETRY_INTERVAL is set reasonably
     private static final int DEFAULT_RETRY_INTERVAL = 60000;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final GetAndRegisterTask getAndRegisterTask = new GetAndRegisterTask();
     private final StopTask stopTask = new StopTask();

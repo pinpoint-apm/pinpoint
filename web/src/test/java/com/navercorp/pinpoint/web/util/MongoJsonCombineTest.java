@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.util;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class MongoJsonCombineTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final MongoJsonParser jsonParser = new DefaultMongoJsonParser();
     private final OutputParameterMongoJsonParser outputParameterMongoJsonParser = new OutputParameterMongoJsonParser();

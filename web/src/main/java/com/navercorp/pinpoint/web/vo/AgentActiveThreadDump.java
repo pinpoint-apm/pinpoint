@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -27,7 +27,7 @@ import java.util.Objects;
  */
 public class AgentActiveThreadDump {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgentActiveThreadDump.class);
+    private static final Logger LOGGER = LogManager.getLogger(AgentActiveThreadDump.class);
 
     private final long threadId;
     private final String threadName;

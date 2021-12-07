@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.profiler.plugin.filter.DefaultPluginFilterFactory;
 import com.navercorp.pinpoint.profiler.plugin.filter.ImportPluginFilterFactory;
 import com.navercorp.pinpoint.profiler.plugin.filter.PluginFilter;
 import com.navercorp.pinpoint.profiler.plugin.filter.PluginFilterFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,7 +40,7 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 public class PluginJarsProvider implements Provider<List<PluginJar>> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final List<PluginJar> pluginJars;
 
     @Inject

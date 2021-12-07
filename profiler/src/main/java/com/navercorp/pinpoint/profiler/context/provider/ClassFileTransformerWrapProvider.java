@@ -23,8 +23,8 @@ import java.util.Objects;
 import com.navercorp.pinpoint.profiler.transformer.ClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.instrument.ClassFileTransformer;
 
@@ -32,7 +32,7 @@ import java.lang.instrument.ClassFileTransformer;
  * @author Woonduk Kang(emeroad)
  */
 public class ClassFileTransformerWrapProvider implements Provider<ClassFileTransformer> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final ProfilerConfig profilerConfig;
     private final Provider<ClassFileTransformerDispatcher> classFileTransformerDispatcherProvider;
 

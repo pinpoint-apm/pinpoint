@@ -37,8 +37,8 @@ import io.netty.channel.ServerChannel;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.handler.ssl.SslContext;
 import io.netty.util.concurrent.Future;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import javax.net.ssl.SSLException;
 import java.net.InetSocketAddress;
@@ -55,7 +55,7 @@ import java.util.concurrent.TimeUnit;
  * @author Woonduk Kang(emeroad)
  */
 public class ServerFactory {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String name;
 

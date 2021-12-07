@@ -39,8 +39,8 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +58,7 @@ public class MetadataClientMock {
     private static final ScheduledExecutorService RECONNECT_SCHEDULER
             = Executors.newScheduledThreadPool(1, new PinpointThreadFactory("Pinpoint-reconnect-thread"));
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ChannelFactory channelFactory;
     private final ManagedChannel channel;

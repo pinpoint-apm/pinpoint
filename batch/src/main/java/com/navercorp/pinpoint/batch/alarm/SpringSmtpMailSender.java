@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.batch.alarm;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.batch.common.BatchConfiguration;
 import com.navercorp.pinpoint.web.service.UserGroupService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
@@ -36,7 +36,7 @@ import java.util.Objects;
 public class SpringSmtpMailSender implements MailSender {
 
     private static final InternetAddress[] EMPTY_RECEIVERS = new InternetAddress[0];
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final UserGroupService userGroupService;
     private final String batchEnv;

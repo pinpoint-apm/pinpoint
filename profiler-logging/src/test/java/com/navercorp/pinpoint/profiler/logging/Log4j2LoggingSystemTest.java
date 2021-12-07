@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.profiler.logging;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -18,7 +18,7 @@ public class Log4j2LoggingSystemTest {
         LoggingSystem loggingSystem = new Log4j2LoggingSystem(profilePath);
         loggingSystem.start();
 
-        Logger test = LoggerFactory.getLogger("test");
+        Logger test = LogManager.getLogger("test");
         test.debug("test");
         
         loggingSystem.stop();

@@ -5,13 +5,13 @@ import io.grpc.Attributes;
 import io.grpc.Metadata;
 import io.grpc.internal.ServerStream;
 import io.grpc.internal.ServerTransportListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
 public class LogIdAttachListener implements ServerTransportListener {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ServerTransportListener delegate;
     private final Long logId;

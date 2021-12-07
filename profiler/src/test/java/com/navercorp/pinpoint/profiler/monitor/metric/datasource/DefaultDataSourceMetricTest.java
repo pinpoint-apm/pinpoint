@@ -27,8 +27,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.HashSet;
 import java.util.List;
@@ -41,7 +41,7 @@ import java.util.Set;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultDataSourceMetricTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Mock
     private JdbcUrlParsingService jdbcUrlParsingService;

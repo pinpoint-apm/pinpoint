@@ -29,15 +29,15 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultPluginSetup implements PluginSetup {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
 

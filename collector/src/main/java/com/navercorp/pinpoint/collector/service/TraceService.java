@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,7 +34,7 @@ import java.util.Objects;
 
 @Service
 public class TraceService {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
 
     private final TraceDao traceDao;
 

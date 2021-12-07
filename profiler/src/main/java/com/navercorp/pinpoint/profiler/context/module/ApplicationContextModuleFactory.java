@@ -22,14 +22,14 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.TransportModule;
 import com.navercorp.pinpoint.profiler.context.module.config.ConfigModule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ApplicationContextModuleFactory implements ModuleFactory {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public Module newModule(AgentOption agentOption) {

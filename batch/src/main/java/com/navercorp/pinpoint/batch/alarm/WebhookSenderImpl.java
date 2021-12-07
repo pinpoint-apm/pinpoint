@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.web.service.UserService;
 import com.navercorp.pinpoint.web.service.WebhookService;
 import com.navercorp.pinpoint.web.vo.User;
 import com.navercorp.pinpoint.web.vo.Webhook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  */
 public class WebhookSenderImpl implements WebhookSender {
     
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final UserService userService;
     private final RestTemplate restTemplate;
 

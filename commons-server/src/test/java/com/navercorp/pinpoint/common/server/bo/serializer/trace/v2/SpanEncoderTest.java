@@ -14,8 +14,8 @@ import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class SpanEncoderTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final int REPEAT_COUNT = 10;
 

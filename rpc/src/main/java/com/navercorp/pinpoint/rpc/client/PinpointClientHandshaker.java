@@ -31,8 +31,8 @@ import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Collections;
 import java.util.Map;
@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class PinpointClientHandshaker {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final ChannelFutureListener handShakeFailFutureListener = new WriteFailFutureListener(this.logger, "HandShakePacket write fail.", "HandShakePacket write success.");
     
     private static final int STATE_INIT = 0;

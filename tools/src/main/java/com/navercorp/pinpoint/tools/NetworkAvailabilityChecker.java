@@ -30,8 +30,8 @@ import com.navercorp.pinpoint.tools.network.UDPChecker;
 import com.navercorp.pinpoint.tools.network.grpc.GrpcTransportConfig;
 import com.navercorp.pinpoint.tools.network.thrift.ThriftTransportConfig;
 import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +44,7 @@ import java.util.Properties;
  */
 public class NetworkAvailabilityChecker {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NetworkAvailabilityChecker.class);
+    private static final Logger LOGGER = LogManager.getLogger(NetworkAvailabilityChecker.class);
 
     private static final String SEPARATOR = File.separator;
 

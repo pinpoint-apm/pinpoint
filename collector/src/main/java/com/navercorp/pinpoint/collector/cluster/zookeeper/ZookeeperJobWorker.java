@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +46,7 @@ public class ZookeeperJobWorker implements Runnable {
 
     private static final String PROFILER_SEPARATOR = "\r\n";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final byte[] EMPTY_DATA_BYTES = BytesUtils.toBytes("");
 

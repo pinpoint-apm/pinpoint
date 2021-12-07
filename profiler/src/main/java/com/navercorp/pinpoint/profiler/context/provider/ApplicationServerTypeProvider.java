@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.module.ConfiguredApplicationType;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -34,7 +34,7 @@ public class ApplicationServerTypeProvider implements Provider<ServiceType> {
 
     private static final ServiceType DEFAULT_APPLICATION_TYPE = ServiceType.STAND_ALONE;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ProfilerConfig profilerConfig;
     private final ServiceType configuredApplicationType;

@@ -24,15 +24,15 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author HyunGil Jeong
  */
 public class LinkListFactory {
 
-    private static final Logger logger = LoggerFactory.getLogger(LinkListFactory.class);
+    private static final Logger logger = LogManager.getLogger(LinkListFactory.class);
 
     public static LinkList createLinkList(LinkType linkType, NodeList nodeList, LinkDataDuplexMap linkDataDuplexMap, Range range) {
         // don't change

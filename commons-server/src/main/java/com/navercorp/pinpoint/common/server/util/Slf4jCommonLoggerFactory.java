@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.common.server.util;
 
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -31,7 +31,7 @@ public class Slf4jCommonLoggerFactory implements CommonLoggerFactory {
 
     @Override
     public CommonLogger getLogger(String loggerName) {
-        Logger logger = LoggerFactory.getLogger(loggerName);
+        Logger logger = LogManager.getLogger(loggerName);
 
         return new Sl4jCommonLogger(logger);
     }

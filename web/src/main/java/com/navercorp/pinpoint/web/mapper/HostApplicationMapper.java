@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.web.vo.Application;
 
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -38,7 +38,7 @@ import java.util.Objects;
 @Component
 public class HostApplicationMapper implements RowMapper<Application> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ApplicationFactory applicationFactory;
 

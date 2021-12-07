@@ -20,7 +20,7 @@ import java.util.Objects;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.FutureListener;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author emeroad

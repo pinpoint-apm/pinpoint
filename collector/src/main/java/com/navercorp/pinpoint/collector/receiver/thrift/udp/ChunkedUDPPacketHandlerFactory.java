@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.thrift.io.*;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.*;
 import java.util.List;
@@ -39,7 +39,7 @@ import java.util.Objects;
  */
 public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements PacketHandlerFactory<T> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final DeserializerFactory<ChunkHeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<>(new ChunkHeaderTBaseDeserializerFactory());
 

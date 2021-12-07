@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestMetadataProv
 import com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestMetadataSetupContext;
 import com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestType;
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ClassUtils;
 
@@ -64,7 +64,7 @@ public class ProxyRequestTypeRegistryServiceImpl implements ProxyRequestTypeRegi
         }
     };
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final IntHashMap<ProxyRequestType> codeLookupTable = new IntHashMap<ProxyRequestType>();
 

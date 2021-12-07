@@ -30,8 +30,8 @@ import com.navercorp.pinpoint.web.applicationmap.ServerInstanceListTest;
 
 import com.navercorp.pinpoint.web.util.ServiceTypeRegistryMockFactory;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
@@ -42,7 +42,7 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean;
  * @author emeroad
  */
 public class ServerInstanceListSerializerTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private ServiceTypeRegistryService mockServiceTypeRegistryService() {
         final short standAloneTypeCode = 1005;

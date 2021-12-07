@@ -17,15 +17,15 @@
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 final class Java9DefineClass implements DefineClass {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public final Class<?> defineClass(ClassLoader classLoader, String name, byte[] bytes) {

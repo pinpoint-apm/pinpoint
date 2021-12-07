@@ -20,8 +20,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class PinpointWebSocketMessageConverter {
     private static final String PARAMETERS = "parameters";
     private static final String RESULT = "result";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PinpointWebSocketMessageConverter.class);
+    private static final Logger LOGGER = LogManager.getLogger(PinpointWebSocketMessageConverter.class);
 
     private static final ObjectMapper JSON_SERIALIZER = new ObjectMapper();
 

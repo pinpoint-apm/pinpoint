@@ -5,14 +5,14 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.profiler.context.DefaultAsyncContext;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Map;
 import java.util.Properties;
 
 public class OptionKeyTest {
-    private final Logger logger = LoggerFactory.getLogger(DefaultAsyncContext.class);
+    private final Logger logger = LogManager.getLogger(DefaultAsyncContext.class);
 
     @Test
     public void getKey() {

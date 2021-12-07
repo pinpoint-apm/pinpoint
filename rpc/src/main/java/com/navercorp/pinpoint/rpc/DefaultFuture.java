@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.rpc;
 
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.TimerTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -28,7 +28,7 @@ import java.util.Objects;
  */
 public class DefaultFuture<T> implements TimerTask, Future<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultFuture.class);
+    private static final Logger logger = LogManager.getLogger(DefaultFuture.class);
 
     private final long timeoutMillis;
     private int waiters = 0;

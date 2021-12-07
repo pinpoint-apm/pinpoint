@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.common.profiler.sql;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class OutputParameterParserTest {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
 
     private final OutputParameterParser parser = new OutputParameterParser();
 

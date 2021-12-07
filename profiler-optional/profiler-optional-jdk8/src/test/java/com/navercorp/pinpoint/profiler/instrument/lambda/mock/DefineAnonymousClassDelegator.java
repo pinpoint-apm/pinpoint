@@ -16,15 +16,15 @@
 
 package com.navercorp.pinpoint.profiler.instrument.lambda.mock;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class DefineAnonymousClassDelegator {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefineAnonymousClassDelegator.class.getName());
+    private static final Logger logger = LogManager.getLogger(DefineAnonymousClassDelegator.class.getName());
     public static int count;
 
     public static Class<?> delegate(Class<?> hostClass, byte[] data, Object[] cpPatches) {

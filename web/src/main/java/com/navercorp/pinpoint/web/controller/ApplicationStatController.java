@@ -30,8 +30,8 @@ import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,7 +46,7 @@ import java.util.Objects;
  */
 public class ApplicationStatController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ApplicationStatChartService applicationStatChartService;
 
@@ -111,7 +111,7 @@ public class ApplicationStatController {
     @RequestMapping("/getApplicationStat/dataSource/chart")
     public static class ApplicationDataSourceController {
 
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
         private final ApplicationDataSourceService applicationDataSourceService;
 
         public ApplicationDataSourceController(ApplicationDataSourceService applicationDataSourceService) {

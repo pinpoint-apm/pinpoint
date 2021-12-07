@@ -38,8 +38,8 @@ import com.navercorp.pinpoint.thrift.dto.TResult;
 import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.util.SocketUtils;
 
@@ -55,7 +55,7 @@ import static org.mockito.Mockito.when;
  */
 public class DataReceiverGroupTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DataReceiverGroupTest.class);
+    private static final Logger LOGGER = LogManager.getLogger(DataReceiverGroupTest.class);
 
     @Test
     public void receiverGroupTest1() throws Exception {

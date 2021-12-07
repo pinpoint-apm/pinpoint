@@ -38,8 +38,8 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -69,7 +69,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     private static final long DEFAULT_DESTORY_TIMEOUT = 2000;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean debugEnabled = this.logger.isDebugEnabled();
 
     private final AtomicBoolean isClose = new AtomicBoolean(false);

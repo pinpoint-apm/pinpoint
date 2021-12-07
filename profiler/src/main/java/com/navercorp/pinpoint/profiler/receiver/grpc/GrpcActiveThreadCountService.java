@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class GrpcActiveThreadCountService implements ProfilerGrpcCommandService,
 
     private static final long DEFAULT_FLUSH_DELAY = 1000;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GrpcActiveThreadCountService.class);
+    private static final Logger LOGGER = LogManager.getLogger(GrpcActiveThreadCountService.class);
     private final boolean isDebug = LOGGER.isDebugEnabled();
 
     private final ActiveTraceRepository activeTraceRepository;

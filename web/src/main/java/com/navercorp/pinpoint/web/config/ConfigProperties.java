@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.config;
 
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -32,7 +32,7 @@ import javax.annotation.PostConstruct;
 @Configuration
 public class ConfigProperties {
 
-    private final Logger logger = LoggerFactory.getLogger(ConfigProperties.class);
+    private final Logger logger = LogManager.getLogger(ConfigProperties.class);
 
     @Value("${config.sendUsage:true}")
     private boolean sendUsage;

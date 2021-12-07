@@ -28,8 +28,8 @@ import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author emeroad
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultTransformerRegistry implements TransformerRegistry {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final Map<String, ClassFileTransformer> registry;
 
     public DefaultTransformerRegistry(List<MatchableClassFileTransformer> matchableClassFileTransformerList) {

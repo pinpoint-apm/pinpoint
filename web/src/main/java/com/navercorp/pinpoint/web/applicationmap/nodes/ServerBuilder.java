@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -35,7 +35,7 @@ import java.util.Set;
  */
 public class ServerBuilder {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AgentHistogramList agentHistogramList;
     private final Set<AgentInfo> agentSet;

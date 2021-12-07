@@ -31,7 +31,7 @@ import java.util.Objects;
  */
 public class LinkCallDataMap {
 
-//    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+//    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Map<LinkKey, LinkCallData> linkDataMap = new HashMap<>();
     private final TimeWindow timeWindow;

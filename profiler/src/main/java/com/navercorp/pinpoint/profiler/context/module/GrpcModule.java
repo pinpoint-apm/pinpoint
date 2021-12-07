@@ -53,8 +53,8 @@ import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledReporter;
 import com.navercorp.pinpoint.profiler.sender.grpc.metric.DefaultChannelzScheduledReporter;
 import io.grpc.NameResolverProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -65,7 +65,7 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class GrpcModule extends PrivateModule {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ProfilerConfig profilerConfig;
 

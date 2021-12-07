@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.common.server.env;
 
 import com.navercorp.pinpoint.common.server.profile.PinpointProfileEnvironment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -14,7 +14,7 @@ import java.util.Objects;
 
 public class ExternalEnvironment {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String name;
     private final String externalConfigurationKey;

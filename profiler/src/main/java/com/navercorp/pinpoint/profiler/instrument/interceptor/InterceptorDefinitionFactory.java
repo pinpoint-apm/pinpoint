@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ import java.util.Objects;
  */
 public class InterceptorDefinitionFactory {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final List<TypeHandler> detectHandlers;
 
     public InterceptorDefinitionFactory() {

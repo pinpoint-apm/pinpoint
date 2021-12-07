@@ -20,11 +20,11 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import io.grpc.InternalMetadata;
 import io.grpc.Metadata;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public class MetadataTest {
-    private static final Logger logger = LoggerFactory.getLogger(ChannelFactoryTest.class);
+    private static final Logger logger = LogManager.getLogger(ChannelFactoryTest.class);
 
     @Test
     public void metadataTest() {

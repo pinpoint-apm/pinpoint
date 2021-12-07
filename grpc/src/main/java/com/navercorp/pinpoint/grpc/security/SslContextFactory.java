@@ -25,8 +25,8 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
@@ -39,7 +39,7 @@ import java.util.Objects;
  */
 public final class SslContextFactory {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SslContextFactory.class);
+    private static final Logger LOGGER = LogManager.getLogger(SslContextFactory.class);
 
     public static SslContext create(SslServerConfig serverConfig) throws SSLException {
         Objects.requireNonNull(serverConfig, "serverConfig");

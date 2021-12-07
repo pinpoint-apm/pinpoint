@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.profiler.sender;
 import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import org.junit.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -34,7 +34,7 @@ import java.net.SocketException;
 @Ignore
 public class UdpSocketTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final Logger logger = LogManager.getLogger(this.getClass().getName());
 
     // port conflict against base port. so increased 5
     private int PORT = SocketUtils.findAvailableUdpPort(61112);

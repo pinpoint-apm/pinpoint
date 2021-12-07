@@ -39,8 +39,8 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
@@ -58,7 +58,7 @@ public class MethodInterfaceTest {
     private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
     private final static InstrumentContext pluginContext = mock(InstrumentContext.class);
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @BeforeClass
     public static void beforeClass() {
@@ -188,7 +188,7 @@ public class MethodInterfaceTest {
     }
 
     public static class TestClassLoader extends ClassLoader {
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
         private List<String> targetClassNameList = new ArrayList<>();
         private CallbackHandler callbackHandler;

@@ -35,8 +35,8 @@ import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -52,7 +52,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
 
     private static final int SCANNER_CACHE_SIZE = 20;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final HbaseColumnFamily.AgentEvent DESCRIPTOR = HbaseColumnFamily.AGENT_EVENT_EVENTS;
 

@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.profiler.objectfactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -29,7 +29,7 @@ import java.util.Objects;
  *
  */
 public class ConstructorResolver {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Class<?> type;
     private final ArgumentsResolver argumentsResolver;

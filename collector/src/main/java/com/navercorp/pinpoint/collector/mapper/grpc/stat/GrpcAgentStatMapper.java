@@ -20,15 +20,15 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
 @Component
 public class GrpcAgentStatMapper {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final GrpcStatMapper[] mappers;
 

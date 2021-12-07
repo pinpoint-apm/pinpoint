@@ -3,8 +3,8 @@ package com.navercorp.pinpoint.profiler.instrument;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,7 +18,7 @@ import java.util.Set;
  */
 public class ASMBytecodeDumpService implements BytecodeDumpService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public static final String ENABLE_BYTECODE_DUMP = "bytecode.dump.enable";
     public static final boolean ENABLE_BYTECODE_DUMP_DEFAULT_VALUE = false;

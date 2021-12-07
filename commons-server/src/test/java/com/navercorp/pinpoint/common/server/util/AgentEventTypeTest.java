@@ -17,14 +17,14 @@
 package com.navercorp.pinpoint.common.server.util;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class AgentEventTypeTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     @Test
     public void test() {
         logger.debug("{}", AgentEventType.AGENT_CLOSED_BY_SERVER);

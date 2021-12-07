@@ -27,8 +27,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(org.mockito.junit.MockitoJUnitRunner.class)
 public class DiscardClientInterceptorTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private MethodDescriptor<String, Integer> descriptor;
     @Mock

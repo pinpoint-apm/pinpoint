@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.logging;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;

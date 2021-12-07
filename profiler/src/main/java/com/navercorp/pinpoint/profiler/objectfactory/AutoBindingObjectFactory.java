@@ -24,8 +24,8 @@ import java.util.Objects;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory.ByConstructor;
@@ -37,7 +37,7 @@ import com.navercorp.pinpoint.exception.PinpointException;
  *
  */
 public class AutoBindingObjectFactory {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final InstrumentContext pluginContext;

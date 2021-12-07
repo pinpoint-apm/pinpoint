@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +35,7 @@ import java.util.Set;
  */
 public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ZookeeperJobWorker worker;
 

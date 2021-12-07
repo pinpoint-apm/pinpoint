@@ -22,14 +22,10 @@ import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
 import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
 
+import org.apache.logging.slf4j.Log4jLoggerFactory;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
@@ -51,7 +47,6 @@ import static org.junit.Assert.fail;
  * @author HyunGil Jeong
  */
 public abstract class MariaDB_IT_Base {
-    public static Logger LOGGER = LoggerFactory.getLogger(MariaDB_IT_Base.class);
 
     protected static final String DATABASE_NAME = "test";
 
@@ -104,7 +99,9 @@ public abstract class MariaDB_IT_Base {
     public static void sharedSetUp() throws Exception {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
-        mariaDB.withLogConsumer(new Slf4jLogConsumer(LOGGER));
+        Log4jLoggerFactory log4jLoggerFactory = new Log4jLoggerFactory();
+        org.slf4j.Logger logger = log4jLoggerFactory.getLogger(MariaDB_IT_Base.class.getName());
+        mariaDB.withLogConsumer(new Slf4jLogConsumer(logger));
         mariaDB.withDatabaseName(DATABASE_NAME);
         mariaDB.withUsername(USERNAME);
         mariaDB.withPassword(PASSWORD);

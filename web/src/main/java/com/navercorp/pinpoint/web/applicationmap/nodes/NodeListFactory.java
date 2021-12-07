@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author HyunGil Jeong
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NodeListFactory {
 
-    private static final Logger logger = LoggerFactory.getLogger(NodeListFactory.class);
+    private static final Logger logger = LogManager.getLogger(NodeListFactory.class);
 
     public static NodeList createNodeList(NodeType nodeType, LinkDataDuplexMap linkDataDuplexMap) {
         NodeList nodeList = new NodeList();

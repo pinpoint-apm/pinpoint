@@ -42,8 +42,8 @@ import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import com.navercorp.pinpoint.io.SpanVersion;
 import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,7 +55,7 @@ import java.util.Objects;
  */
 public class GrpcSpanBinder {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final AnnotationFactory<PAnnotation> annotationFactory = new AnnotationFactory<>(new GrpcAnnotationHandler());
 

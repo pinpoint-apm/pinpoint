@@ -33,8 +33,8 @@ import com.navercorp.pinpoint.profiler.receiver.service.ActiveThreadDumpCoreServ
 import com.navercorp.pinpoint.profiler.receiver.service.ThreadDump;
 import com.navercorp.pinpoint.profiler.receiver.service.ThreadDumpRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class GrpcActiveThreadLightDumpService implements ProfilerGrpcCommandServ
 
     static final String JAVA = "JAVA";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final GrpcThreadStateMessageConverter grpcThreadStateMessageConverter = new GrpcThreadStateMessageConverter();
 

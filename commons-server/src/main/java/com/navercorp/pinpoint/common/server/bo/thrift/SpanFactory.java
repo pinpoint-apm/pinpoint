@@ -39,8 +39,8 @@ import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -54,7 +54,7 @@ import java.util.Objects;
 @Component
 public class SpanFactory {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private SpanEventFilter spanEventFilter = new EmptySpanEventFilter();
 

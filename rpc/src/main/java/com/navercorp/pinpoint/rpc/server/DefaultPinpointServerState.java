@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.rpc.common.SocketState;
 import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class DefaultPinpointServerState {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final DefaultPinpointServer pinpointServer;
     private final List<ServerStateChangeEventHandler> stateChangeEventListeners;

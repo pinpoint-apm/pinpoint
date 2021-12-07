@@ -33,8 +33,8 @@ import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.scanner.ClassScannerFactory;
 import com.navercorp.pinpoint.profiler.instrument.scanner.Scanner;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.InputStream;
 import java.security.ProtectionDomain;
@@ -44,7 +44,7 @@ import java.security.ProtectionDomain;
  */
 public class PluginInstrumentContext implements InstrumentContext {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final ProfilerConfig profilerConfig;
     private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;

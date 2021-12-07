@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.common.server.config;
 
 import org.apache.commons.lang3.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Properties;
 
@@ -26,7 +26,7 @@ import java.util.Properties;
  * @author Woonduk Kang(emeroad)
  */
 public final class ConfigurationUtils {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(ConfigurationUtils.class);
 
     private ConfigurationUtils() {
     }

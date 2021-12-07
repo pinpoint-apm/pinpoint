@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.transformer;
 
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.net.URL;
@@ -30,7 +30,7 @@ import java.security.ProtectionDomain;
  * @author jaehong.kim
  */
 public class BaseClassFileTransformer {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ClassLoader agentClassLoader;
 

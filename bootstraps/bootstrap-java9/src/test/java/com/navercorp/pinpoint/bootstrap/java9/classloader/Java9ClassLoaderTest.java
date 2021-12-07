@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import java.net.URL;
  */
 public class Java9ClassLoaderTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Class<?> slf4jClass = org.slf4j.LoggerFactory.class;
 

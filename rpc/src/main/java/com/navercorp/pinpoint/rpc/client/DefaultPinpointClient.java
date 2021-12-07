@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.SocketAddress;
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultPinpointClient implements PinpointClient {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private volatile PinpointClientHandler pinpointClientHandler;
 

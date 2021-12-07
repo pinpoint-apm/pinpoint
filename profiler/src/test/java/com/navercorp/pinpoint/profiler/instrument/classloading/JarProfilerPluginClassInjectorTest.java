@@ -24,10 +24,12 @@ import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import com.navercorp.pinpoint.profiler.plugin.PluginPackageFilter;
+import org.apache.commons.lang.CharRange;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import java.lang.reflect.Constructor;
 import java.net.URL;
@@ -42,14 +44,13 @@ public class JarProfilerPluginClassInjectorTest {
 
     public static final String CONTEXT_TYPE_MATCH_CLASS_LOADER = "org.springframework.context.support.ContextTypeMatchClassLoader";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final List<String> LOG4_IMPL = Arrays.asList("org.apache.logging.slf4j", "org.slf4j.impl");
+    private static final List<String> LOG4_IMPL = Collections.singletonList(CharRange.class.getPackage().getName());
 
     @Test
     public void testInjectClass() throws Exception {
-//        String className = "org.slf4j.impl.Log4jLoggerAdapter";
-        String className = "org.apache.logging.slf4j.Log4jLogger";
+        String className = CharRange.class.getName();
         final Plugin<?> plugin = getMockPlugin(className);
 
         final ClassLoader contextTypeMatchClassLoader = createContextTypeMatchClassLoader(new URL[]{plugin.getURL()});
@@ -59,11 +60,11 @@ public class JarProfilerPluginClassInjectorTest {
         logger.debug("pluginConfig:{}", pluginConfig);
 
         ClassInjector injector = new PlainClassLoaderHandler(pluginConfig);
-        final Class<?> loggerClass = injector.injectClass(contextTypeMatchClassLoader, logger.getClass().getName());
+        final Class<?> commonsLangClass = injector.injectClass(contextTypeMatchClassLoader, className);
 
-        logger.debug("ClassLoader{}", loggerClass.getClassLoader());
-        Assert.assertEquals("check className", loggerClass.getName(), className);
-        Assert.assertEquals("check ClassLoader", loggerClass.getClassLoader().getClass().getName(), CONTEXT_TYPE_MATCH_CLASS_LOADER);
+        logger.debug("ClassLoader{}", commonsLangClass.getClassLoader());
+        Assert.assertEquals("check className", commonsLangClass.getName(), className);
+        Assert.assertEquals("check ClassLoader", commonsLangClass.getClassLoader().getClass().getName(), CONTEXT_TYPE_MATCH_CLASS_LOADER);
 
     }
 

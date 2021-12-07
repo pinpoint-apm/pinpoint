@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.common.util.OsType;
 import com.navercorp.pinpoint.common.util.OsUtils;
 import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetric;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.reflect.Constructor;
 import java.util.EnumSet;
@@ -43,7 +43,7 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
     private static final String ORACLE_FILE_DESCRIPTOR_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.oracle.OracleFileDescriptorMetric";
     private static final String IBM_FILE_DESCRIPTOR_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.ibm.IbmFileDescriptorMetric";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String vendorName;
     private final String osName;

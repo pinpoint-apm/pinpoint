@@ -18,8 +18,8 @@ import java.lang.annotation.Annotation;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
 import com.navercorp.pinpoint.profiler.util.TypeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Jongho Moon
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class OrderedValueProvider implements JudgingParameterResolver {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AutoBindingObjectFactory objectFactory;
     private final Object[] values;

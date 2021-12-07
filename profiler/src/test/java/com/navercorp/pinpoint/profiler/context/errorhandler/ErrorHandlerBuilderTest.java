@@ -2,14 +2,14 @@ package com.navercorp.pinpoint.profiler.context.errorhandler;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.sql.SQLException;
 import java.util.Collections;
 
 public class ErrorHandlerBuilderTest {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
 
     @Test
     public void build_nested_parent() {

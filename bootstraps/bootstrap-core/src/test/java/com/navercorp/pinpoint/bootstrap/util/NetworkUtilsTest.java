@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.bootstrap.util;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -29,7 +29,7 @@ import java.util.List;
  * @author emeroad
  */
 public class NetworkUtilsTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final Logger logger = LogManager.getLogger(this.getClass().getName());
 
     @Test
     public void hostNameCheck() throws UnknownHostException {

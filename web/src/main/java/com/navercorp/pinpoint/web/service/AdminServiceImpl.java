@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public class AdminServiceImpl implements AdminService {
 
     private static final int MIN_DURATION_DAYS_FOR_INACTIVITY = 30;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ApplicationIndexDao applicationIndexDao;
 

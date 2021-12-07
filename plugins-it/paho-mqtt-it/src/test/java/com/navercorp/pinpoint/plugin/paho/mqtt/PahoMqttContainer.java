@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.paho.mqtt;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.GenericContainer;
 
@@ -32,7 +32,7 @@ public abstract class PahoMqttContainer extends GenericContainer {
     private static final int DEFAULT_BROKER_PORT = 1883;
     private static final String LOCAL_BROKER_URL_PREFIX = "tcp://localhost:";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final int brokerPort;
 

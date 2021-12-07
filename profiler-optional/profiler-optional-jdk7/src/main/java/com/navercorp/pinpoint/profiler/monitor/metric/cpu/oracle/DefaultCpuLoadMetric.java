@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuUsageProvider;
 import com.sun.management.OperatingSystemMXBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.management.ManagementFactory;
 
@@ -30,7 +30,7 @@ import java.lang.management.ManagementFactory;
  */
 public class DefaultCpuLoadMetric implements CpuLoadMetric {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final CpuUsageProvider jvmCpuUsageProvider;
     private final CpuUsageProvider systemCpuUsageProvider;

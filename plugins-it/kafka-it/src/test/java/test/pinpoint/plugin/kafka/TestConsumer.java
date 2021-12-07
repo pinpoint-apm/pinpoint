@@ -25,8 +25,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -39,7 +39,7 @@ import static test.pinpoint.plugin.kafka.KafkaITConstants.*;
  */
 public class TestConsumer {
 
-    private static final Logger logger = LoggerFactory.getLogger(KafkaUnitServer.class);
+    private static final Logger logger = LogManager.getLogger(KafkaUnitServer.class);
     private final Thread consumerThread;
     private final Poller poller;
 

@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.grpc;
 import io.grpc.Channel;
 import io.grpc.InternalWithLogId;
 import io.grpc.ManagedChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.concurrent.TimeUnit;
 
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 public final class ManagedChannelUtils {
     public static final long DEFAULT_SHUTDOWN_TIMEOUT = 3000;
 
-    private static final Logger logger = LoggerFactory.getLogger(ExecutorUtils.class.getName());
+    private static final Logger logger = LogManager.getLogger(ExecutorUtils.class.getName());
 
     private ManagedChannelUtils() {
     }

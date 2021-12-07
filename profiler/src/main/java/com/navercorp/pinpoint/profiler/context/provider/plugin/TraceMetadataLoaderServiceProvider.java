@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataRegistrar;
 import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.profiler.metadata.DefaultTraceMetadataLoaderService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -36,7 +36,7 @@ import java.util.Objects;
  */
 public class TraceMetadataLoaderServiceProvider implements Provider<TraceMetadataLoaderService> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ServiceTypeRegistry serviceTypeRegistry;
     private final AnnotationKeyRegistry annotationKeyRegistry;

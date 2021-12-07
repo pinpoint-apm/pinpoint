@@ -16,8 +16,8 @@
 package com.navercorp.pinpoint.batch.flink;
 
 import com.navercorp.pinpoint.batch.common.BatchConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -39,7 +39,7 @@ import java.util.Objects;
 @Deprecated
 public class HealthCheckTasklet implements Tasklet {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final static String URL_FORMAT = "http://%s:8081/joboverview";
     private final List<String> jobNameList;
 

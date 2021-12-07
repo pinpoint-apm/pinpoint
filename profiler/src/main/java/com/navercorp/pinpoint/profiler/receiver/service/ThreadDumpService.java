@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TThreadDumpType;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.management.LockInfo;
 import java.lang.management.MonitorInfo;
@@ -46,7 +46,7 @@ public class ThreadDumpService implements ProfilerRequestCommandService<TBase<?,
 
     private static final Set<TThreadState> THREAD_STATES = EnumSet.allOf(TThreadState.class);
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
 
     @Override

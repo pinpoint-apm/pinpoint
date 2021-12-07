@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Map;
 
@@ -41,7 +41,7 @@ class ClusterAcceptorMessageListenerFactory implements ServerMessageListenerFact
 
     private static class ClusterAcceptorMessageListener extends UnsupportOperationMessageListener implements ServerMessageListener {
 
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
         @Override
         public HandshakeResponseCode handleHandshake(Map<?, ?> properties) {

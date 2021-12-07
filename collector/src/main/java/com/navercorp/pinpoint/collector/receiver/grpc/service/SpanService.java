@@ -39,8 +39,8 @@ import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -49,7 +49,7 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class SpanService extends SpanGrpc.SpanImplBase {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler;
     private final ServerRequestFactory serverRequestFactory;

@@ -14,8 +14,9 @@ import org.apache.hadoop.hbase.client.BufferedMutatorUtils;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Function;
 
 public class BufferedMutatorWriter implements DisposableBean, HbaseBatchWriter {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final BufferedMutatorConfiguration configuration;
     private final boolean autoFlush;

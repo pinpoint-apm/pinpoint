@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
@@ -39,7 +39,7 @@ import com.navercorp.pinpoint.profiler.context.storage.Storage;
  */
 public final class DefaultTrace implements Trace {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
+    private static final Logger logger = LogManager.getLogger(DefaultTrace.class.getName());
     private static final boolean isDebug = logger.isDebugEnabled();
 
     private final CallStack<SpanEvent> callStack;

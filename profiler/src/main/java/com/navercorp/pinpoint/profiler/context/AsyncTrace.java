@@ -19,12 +19,12 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public class AsyncTrace implements Trace {
 
-    private static final Logger logger = LoggerFactory.getLogger(AsyncTrace.class.getName());
+    private static final Logger logger = LogManager.getLogger(AsyncTrace.class.getName());
     private static final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceRoot traceRoot;

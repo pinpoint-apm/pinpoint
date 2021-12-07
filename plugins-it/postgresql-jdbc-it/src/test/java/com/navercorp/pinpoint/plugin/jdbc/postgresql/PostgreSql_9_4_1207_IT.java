@@ -31,8 +31,8 @@ import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.testcontainers.DockerClientFactory;
 
 /**
@@ -46,7 +46,7 @@ import org.testcontainers.DockerClientFactory;
         JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.POSTGRESQL})
 public class PostgreSql_9_4_1207_IT extends PostgreSqlBase {
 
-    private static final Logger logger = LoggerFactory.getLogger(PostgreSql_9_4_1207_IT.class);
+    private static final Logger logger = LogManager.getLogger(PostgreSql_9_4_1207_IT.class);
 
     private static PostgreSqlItHelper HELPER;
     private static PostgreSqlJDBCDriverClass driverClass;
@@ -56,7 +56,7 @@ public class PostgreSql_9_4_1207_IT extends PostgreSqlBase {
     @BeforeSharedClass
     public static void sharedSetup() throws Exception {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
-        container = PostgreSQLContainerFactory.newContainer(logger);
+        container = PostgreSQLContainerFactory.newContainer(logger.getName());
 
         container.start();
         setJdbcUrl(container.getJdbcUrl());

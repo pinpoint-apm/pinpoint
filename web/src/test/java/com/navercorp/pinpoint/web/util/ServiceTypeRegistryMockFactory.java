@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
  */
 public class ServiceTypeRegistryMockFactory {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Map<Short, ServiceType> serviceTypeMap = new HashMap<>();
 

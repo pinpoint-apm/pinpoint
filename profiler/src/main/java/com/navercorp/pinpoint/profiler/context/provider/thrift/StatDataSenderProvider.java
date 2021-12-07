@@ -29,8 +29,8 @@ import com.navercorp.pinpoint.profiler.sender.ThriftMessageSerializer;
 import com.navercorp.pinpoint.profiler.sender.UdpDataSenderFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -39,7 +39,7 @@ import java.util.Objects;
  */
 public class StatDataSenderProvider implements Provider<DataSender<MetricType>> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final String UDP_EXECUTOR_NAME = "Pinpoint-UdpStatDataExecutor";
 

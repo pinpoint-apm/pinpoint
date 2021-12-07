@@ -50,8 +50,8 @@ import com.navercorp.pinpoint.web.security.MetaDataFilter.MetaData;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ import java.util.stream.Collectors;
 @Service
 public class SpanServiceImpl implements SpanService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final TraceDao traceDao;
 

@@ -36,8 +36,8 @@ import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordFactory;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
 @Service
 public class TransactionInfoServiceImpl implements TransactionInfoService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final TraceDao traceDao;
 

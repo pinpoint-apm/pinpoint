@@ -37,8 +37,8 @@ import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Objects;
@@ -50,7 +50,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
 
     public static final String ATTACHMENT_KEY = StreamRouteManager.class.getSimpleName();
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final RouteFilterChain<StreamEvent> streamCreateFilterChain;
     private final RouteFilterChain<ResponseEvent> responseFilterChain;

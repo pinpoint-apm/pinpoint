@@ -36,8 +36,8 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,7 +51,7 @@ import java.util.List;
  */
 public class ASMClassNodeAdapter {
 
-    private static final Logger logger = LoggerFactory.getLogger(ASMClassNodeAdapter.class);
+    private static final Logger logger = LogManager.getLogger(ASMClassNodeAdapter.class);
 
     public static ASMClassNodeAdapter get(final ClassInputStreamProvider pluginClassInputStreamProvider, final ClassLoader classLoader, ProtectionDomain protectionDomain, final String classInternalName) {
         return get(pluginClassInputStreamProvider, classLoader, protectionDomain, classInternalName, false);

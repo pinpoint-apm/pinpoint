@@ -61,8 +61,8 @@ import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Collections;
 import java.util.Map;
@@ -557,7 +557,7 @@ public class AgentInfoSenderTest {
 
     private static class ResponseServerMessageListener implements ServerMessageListener {
 
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
         private final AtomicInteger requestCount;
         private final AtomicInteger successCount;

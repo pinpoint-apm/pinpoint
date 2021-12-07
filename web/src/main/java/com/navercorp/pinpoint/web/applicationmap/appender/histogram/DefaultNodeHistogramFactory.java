@@ -30,8 +30,8 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +43,7 @@ import java.util.Objects;
  */
 public class DefaultNodeHistogramFactory implements NodeHistogramFactory {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final WasNodeHistogramDataSource wasNodeHistogramDataSource;
 

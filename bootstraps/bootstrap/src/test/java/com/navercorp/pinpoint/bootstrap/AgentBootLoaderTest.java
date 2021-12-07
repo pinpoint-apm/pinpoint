@@ -20,8 +20,8 @@ package com.navercorp.pinpoint.bootstrap;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.mock;
  */
 public class AgentBootLoaderTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void boot() {

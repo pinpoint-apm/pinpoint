@@ -22,8 +22,8 @@ import org.junit.Assume;
 import org.junit.AssumptionViolatedException;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
@@ -42,7 +42,7 @@ public class SocketAddressUtilsTest {
     private static final String VALID_HOST = "naver.com";
     private static final String INVALID_HOST = "pinpoint-none-existent-domain-hopefully";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SocketAddressUtilsTest.class);
+    private static final Logger LOGGER = LogManager.getLogger(SocketAddressUtilsTest.class);
 
     private static NameServiceReplacer NAME_SERVICE_REPLACER;
 

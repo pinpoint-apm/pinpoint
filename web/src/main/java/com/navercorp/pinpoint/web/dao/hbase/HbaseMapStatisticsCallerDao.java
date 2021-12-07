@@ -35,8 +35,8 @@ import com.navercorp.pinpoint.web.vo.RangeFactory;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -53,7 +53,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     private static final int MAP_STATISTICS_CALLEE_VER2_NUM_PARTITIONS = 32;
     private static final int SCAN_CACHE_SIZE = 40;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final HbaseColumnFamily.CalleeStatMap DESCRIPTOR = HbaseColumnFamily.MAP_STATISTICS_CALLEE_VER2_COUNTER;
 

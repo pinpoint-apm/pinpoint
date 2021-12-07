@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
 import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
@@ -46,7 +46,7 @@ public class AgentInfoSender {
     // retry 3 times per attempt
     private static final int DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT = 3;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final EnhancedDataSender<MetaDataType> dataSender;
     private final AgentInfoFactory agentInfoFactory;

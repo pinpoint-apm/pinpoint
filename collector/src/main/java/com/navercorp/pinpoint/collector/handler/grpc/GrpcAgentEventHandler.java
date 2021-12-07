@@ -33,8 +33,8 @@ import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import io.grpc.Status;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,7 +46,7 @@ import java.util.Objects;
  */
 @Service
 public class GrpcAgentEventHandler implements SimpleHandler<GeneratedMessageV3> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final GrpcAgentEventMapper agentEventMapper;
 

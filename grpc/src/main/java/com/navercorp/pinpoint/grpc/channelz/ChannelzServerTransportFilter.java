@@ -5,8 +5,8 @@ import com.navercorp.pinpoint.grpc.server.SocketAddressUtils;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import io.grpc.Attributes;
 import io.grpc.ServerTransportFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.InetSocketAddress;
 import java.util.Objects;
@@ -14,7 +14,7 @@ import java.util.Objects;
 
 public class ChannelzServerTransportFilter extends ServerTransportFilter {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final ChannelzRegistry registry;
 
     public ChannelzServerTransportFilter(ChannelzRegistry registry) {

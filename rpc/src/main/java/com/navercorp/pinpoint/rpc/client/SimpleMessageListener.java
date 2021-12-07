@@ -20,12 +20,12 @@ import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public class SimpleMessageListener implements MessageListener {
     
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public static final SimpleMessageListener INSTANCE = new SimpleMessageListener();
     public static final SimpleMessageListener ECHO_INSTANCE = new SimpleMessageListener(true);

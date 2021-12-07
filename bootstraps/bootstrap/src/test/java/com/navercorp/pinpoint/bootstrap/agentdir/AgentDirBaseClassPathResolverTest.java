@@ -23,8 +23,8 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.net.URL;
@@ -39,7 +39,7 @@ import java.util.jar.JarFile;
  */
 public class AgentDirBaseClassPathResolverTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(AgentDirBaseClassPathResolverTest.class);
+    private static final Logger logger = LogManager.getLogger(AgentDirBaseClassPathResolverTest.class);
 
     private static final Path BOOTSTRAP_JAR = Paths.get("pinpoint-bootstrap-" + Version.VERSION + ".jar");
     private static final String TEST_AGENT_DIR = "testagent";

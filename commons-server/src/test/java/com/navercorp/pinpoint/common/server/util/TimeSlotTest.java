@@ -19,15 +19,15 @@ package com.navercorp.pinpoint.common.server.util;
 import org.junit.Assert;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  *
  */
 public class TimeSlotTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final TimeSlot timeSlot = new DefaultTimeSlot();
 

@@ -23,15 +23,15 @@ import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
 import com.navercorp.pinpoint.grpc.trace.PCommandType;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Taejin Koo
  */
 public class GrpcEchoService implements ProfilerGrpcCommandService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public void handle(PCmdRequest request, ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub) {

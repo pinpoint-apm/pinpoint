@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Collections;
 
@@ -35,7 +35,7 @@ import java.util.Collections;
  */
 public class TcpDataSenderReconnectTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 5000);
 

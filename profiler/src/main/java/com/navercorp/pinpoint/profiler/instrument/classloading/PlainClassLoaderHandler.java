@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.profiler.util.ExtensionFilter;
 import com.navercorp.pinpoint.profiler.util.FileBinary;
 import com.navercorp.pinpoint.profiler.util.JarReader;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +43,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author jaehong.kim
  */
 public class PlainClassLoaderHandler implements ClassInjector {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final JarReader pluginJarReader;
@@ -224,7 +224,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
     }
 
     private Map<String, SimpleClassMetadata> parse(List<FileBinary> fileBinaryList) {
-        Map<String, SimpleClassMetadata> parseMap = new HashMap<String, SimpleClassMetadata>();
+        Map<String, SimpleClassMetadata> parseMap = new HashMap<>();
         for (FileBinary fileBinary : fileBinaryList) {
             SimpleClassMetadata classNode = parseClass(fileBinary);
             parseMap.put(classNode.getClassName(), classNode);
@@ -266,6 +266,9 @@ public class PlainClassLoaderHandler implements ClassInjector {
         for (String interfaceName : interfaceList) {
             if (!isSkipClass(interfaceName, classLoadingChecker)) {
                 SimpleClassMetadata interfaceClassBinary = classMetaMap.get(interfaceName);
+                if (interfaceClassBinary == null) {
+                    throw new PinpointException(interfaceName + " not found");
+                }
                 if (isDebug) {
                     logger.debug("interface dependency define interface:{} ori:{}", interfaceClassBinary.getClassName(), interfaceClassBinary.getClassName());
                 }

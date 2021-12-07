@@ -2,14 +2,14 @@ package com.navercorp.pinpoint.grpc.server.flowcontrol;
 
 import io.grpc.Metadata;
 import io.grpc.Status;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 import java.util.concurrent.Future;
 
 public class SimpleRejectedExecutionListener implements RejectedExecutionListener {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final Status STREAM_IDLE_TIMEOUT = Status.DEADLINE_EXCEEDED.withDescription("Stream idle timeout");
 

@@ -21,8 +21,8 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetric;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.reflect.Constructor;
 
@@ -33,7 +33,7 @@ public class BufferMetricProvider implements Provider<BufferMetric> {
 
     private static final String BUFFER_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.buffer.DefaultBufferMetric";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Inject
     public BufferMetricProvider() {

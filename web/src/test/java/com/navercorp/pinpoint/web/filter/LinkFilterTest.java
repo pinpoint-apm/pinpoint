@@ -11,8 +11,8 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.web.TestTraceUtils;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -30,7 +30,7 @@ public class LinkFilterTest {
     private static final int RPC_ANNOTATION_CODE = -1;
     private static final String RPC_ANNOTATION_NAME = "rpc.url";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final ServiceTypeRegistryService serviceTypeRegistryService = TestTraceUtils.mockServiceTypeRegistryService();
     private final AnnotationKeyRegistryService annotationKeyRegistryService = mockAnnotationKeyRegistryService();
 

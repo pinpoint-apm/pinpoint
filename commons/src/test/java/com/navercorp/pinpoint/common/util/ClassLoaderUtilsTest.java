@@ -22,15 +22,15 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.URL;
 import java.net.URLClassLoader;
 
 public class ClassLoaderUtilsTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final URLClassLoader FAKE_CLASS_LOADER = new URLClassLoader(new URL[0]);
 

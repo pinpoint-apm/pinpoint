@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 
 import com.navercorp.pinpoint.common.server.util.pair.LongPair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -37,7 +37,7 @@ import java.util.function.Predicate;
  */
 public class LinkMap {
 
-    private static final Logger logger = LoggerFactory.getLogger(LinkMap.class);
+    private static final Logger logger = LogManager.getLogger(LinkMap.class);
 
     private final MultiValueMap<LongPair, Node> spanToLinkMap;
 

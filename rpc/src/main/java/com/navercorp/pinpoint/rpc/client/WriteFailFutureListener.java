@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.rpc.client;
 
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 

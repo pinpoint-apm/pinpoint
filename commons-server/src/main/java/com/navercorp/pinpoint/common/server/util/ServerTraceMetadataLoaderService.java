@@ -29,8 +29,8 @@ import com.navercorp.pinpoint.common.util.Filter;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.loader.plugins.trace.TraceMetadataProviderLoader;
 import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -55,7 +55,7 @@ public class ServerTraceMetadataLoaderService implements TraceMetadataLoaderServ
     // External plugin type providers
     private static final String DEFAULT_TYPE_PROVIDER_PATH = "classpath*:META-INF/pinpoint/type-providers/*.yml";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final ServiceTypeRegistry serviceTypeRegistry;
     private final AnnotationKeyRegistry annotationKeyRegistry;
     private final AnnotationKeyMatcherRegistry annotationKeyMatcherRegistry;

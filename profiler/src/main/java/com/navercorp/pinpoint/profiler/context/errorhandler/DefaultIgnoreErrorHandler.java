@@ -1,12 +1,12 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
 public class DefaultIgnoreErrorHandler implements IgnoreErrorHandler {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     // for debug
     private final String errorHandlerName;
     private final ThrowableMatcher throwableMatcher;

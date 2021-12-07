@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.web.view.ApplicationGroup;
 import com.navercorp.pinpoint.web.view.ServerTime;
 import com.navercorp.pinpoint.web.view.TagApplications;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +43,7 @@ import java.util.Objects;
 @RestController
 public class MainController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final CommonService commonService;
 

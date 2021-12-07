@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.monitor;
 
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.Closeable;
 import java.util.List;
@@ -29,7 +29,7 @@ import java.util.List;
  */
 class StatMonitorJob implements Runnable {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
 

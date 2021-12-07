@@ -32,8 +32,8 @@ import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.commons.SimpleRemapper;
 import org.objectweb.asm.tree.ClassNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,7 +48,7 @@ public class LambdaFactoryTest {
     private static final String lambdaMetaFactory = "java.lang.invoke.InnerClassLambdaMetafactory";
     private static final String lambdaMetaFactoryResourceName = JavaAssistUtils.javaClassNameToJvmResourceName(lambdaMetaFactory);
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
 
     private final ASMBytecodeDisassembler disassembler = new ASMBytecodeDisassembler();

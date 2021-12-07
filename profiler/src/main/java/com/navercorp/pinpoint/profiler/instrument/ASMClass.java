@@ -43,8 +43,8 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ import java.util.List;
 public class ASMClass implements InstrumentClass {
     private static final String FIELD_PREFIX = "_$PINPOINT$_";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final EngineComponent engineComponent;
 

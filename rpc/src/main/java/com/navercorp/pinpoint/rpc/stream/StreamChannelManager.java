@@ -29,15 +29,15 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 import com.navercorp.pinpoint.rpc.util.IDGenerator;
 
 import org.jboss.netty.channel.Channel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author koo.taejin
  */
 public class StreamChannelManager {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Channel channel;
 

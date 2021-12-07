@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
 import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
  * @author Woonduk Kang(emeroad)
  */
 public class SimpleClassMetadataReaderTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void testSimpleClassMetadata() {

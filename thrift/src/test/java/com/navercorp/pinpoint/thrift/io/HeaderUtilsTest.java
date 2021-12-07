@@ -22,15 +22,15 @@ import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author emeroad
  */
 public class HeaderUtilsTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final Logger logger = LogManager.getLogger(this.getClass().getName());
 
     @Test
     public void validateSignature() throws TException {

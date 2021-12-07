@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +15,7 @@ import javax.annotation.PostConstruct;
 @Component
 public class ReactorNettyBugWorkaroundFilter implements IgnoreStatFilter {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     //    public static final ServiceType REACTOR_NETTY_CODE = ReactorNettyConstants.REACTOR_NETTY_CLIENT;
 //    public static final ServiceType REACTOR_NETTY_INTERNAL_CODE = ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL;
     public static final int REACTOR_NETTY_CODE = 9154;

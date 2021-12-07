@@ -45,8 +45,8 @@ import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ import static com.mongodb.client.model.Filters.eq;
  * @author Roy Kim
  */
 public class WritecontextTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 

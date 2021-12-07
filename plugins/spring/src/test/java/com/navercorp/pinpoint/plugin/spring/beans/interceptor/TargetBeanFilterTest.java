@@ -24,8 +24,8 @@ import org.junit.Test;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 
@@ -35,7 +35,7 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
  */
 public class TargetBeanFilterTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void testClassLoadedByBootClassLoader() {

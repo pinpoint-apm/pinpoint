@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -38,7 +38,7 @@ import java.util.Objects;
 @Service
 public class ThriftAgentInfoHandler implements SimpleAndRequestResponseHandler<TBase<?, ?>, TBase<?, ?>> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final Logger logger = LogManager.getLogger(this.getClass().getName());
 
     private final AgentInfoService agentInfoService;
 

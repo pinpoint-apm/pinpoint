@@ -35,8 +35,8 @@ import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import com.navercorp.pinpoint.profiler.sender.grpc.StatGrpcDataSender;
 import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -46,7 +46,7 @@ import java.util.Objects;
  */
 public class StatGrpcDataSenderProvider implements Provider<DataSender<MetricType>> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final GrpcTransportConfig grpcTransportConfig;
     private final MessageConverter<MetricType, GeneratedMessageV3> messageConverter;

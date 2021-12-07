@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.SocketAddressProvider;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 
 /**
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class ClientFactoryUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClientFactoryUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(ClientFactoryUtils.class);
 
 
     public interface PinpointClientProvider {

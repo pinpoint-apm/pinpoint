@@ -6,11 +6,12 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.profiler.logging.jul.JulAdaptorHandler;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LifeCycle;
+import org.apache.logging.log4j.spi.LoggerContext;
 
 import java.net.URI;
-import java.nio.file.Files;
+
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.logging.Handler;
@@ -80,7 +81,8 @@ public class Log4j2LoggingSystem implements LoggingSystem {
 
 
     private Logger getLoggerContextLogger() {
-        return loggerContext.getLogger(getClass().getName());
+        Logger logger = loggerContext.getLogger(getClass().getName());
+        return logger;
     }
 
 
@@ -97,7 +99,7 @@ public class Log4j2LoggingSystem implements LoggingSystem {
     private LoggerContext getLoggerContext(URI uri) {
         String factory = prepare(FACTORY_PROPERTY_NAME);
         try {
-            return (LoggerContext) LogManager.getContext(this.getClass().getClassLoader(), false, null, uri, CONTEXT_NAME);
+            return LogManager.getContext(this.getClass().getClassLoader(), false, null, uri, CONTEXT_NAME);
         } finally {
             rollback(FACTORY_PROPERTY_NAME, factory);
         }
@@ -121,9 +123,11 @@ public class Log4j2LoggingSystem implements LoggingSystem {
         if (loggerContext != null) {
             Logger logger = getLoggerContextLogger();
             logger.info("{} stop", this.getClass().getSimpleName());
-
             this.binder.shutdown();
-            loggerContext.stop();
+            if (loggerContext instanceof LifeCycle) {
+                logger.info("{} loggerContext stop", this.getClass().getSimpleName());
+                ((LifeCycle)loggerContext).stop();
+            }
         }
 
     }

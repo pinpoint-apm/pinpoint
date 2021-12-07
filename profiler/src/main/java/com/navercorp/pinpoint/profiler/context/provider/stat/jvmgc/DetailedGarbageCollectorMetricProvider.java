@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.profiler.monitor.metric.gc.DefaultDetailedGarbageC
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorType;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.UnknownDetailedGarbageCollectorMetric;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
@@ -36,7 +36,7 @@ import java.util.Map;
  */
 public class DetailedGarbageCollectorMetricProvider implements Provider<DetailedGarbageCollectorMetric> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Inject
     public DetailedGarbageCollectorMetricProvider() {

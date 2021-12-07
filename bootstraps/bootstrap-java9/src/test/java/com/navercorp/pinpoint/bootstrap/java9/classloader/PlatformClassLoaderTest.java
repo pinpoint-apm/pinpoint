@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.bootstrap.java9.classloader;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -32,7 +32,7 @@ import java.sql.Date;
  */
 public class PlatformClassLoaderTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Ignore
     @Test

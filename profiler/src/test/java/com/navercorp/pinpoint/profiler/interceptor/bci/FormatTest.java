@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.interceptor.bci;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Formatter;
 
@@ -27,7 +27,7 @@ import java.util.Formatter;
  * @author emeroad
  */
 public class FormatTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void format() {

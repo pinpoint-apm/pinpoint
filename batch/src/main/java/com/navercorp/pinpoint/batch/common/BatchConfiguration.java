@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.batch.common;
 
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +32,7 @@ import java.util.List;
 @Component
 public class BatchConfiguration {
 
-    private final Logger logger = LoggerFactory.getLogger(BatchConfiguration.class);
+    private final Logger logger = LogManager.getLogger(BatchConfiguration.class);
 
     @Value("${alarm.mail.server.url}")
     private String emailServerUrl;

@@ -18,15 +18,15 @@ package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.SqlMetaDataDao;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
 @Service
 public class SqlMetaDataService {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
 
     private final SqlMetaDataDao sqlMetaDataDao;
 

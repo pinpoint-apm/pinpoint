@@ -30,15 +30,15 @@ import com.navercorp.pinpoint.profiler.sender.grpc.StreamUtils;
 
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Taejin Koo
  */
 public class GrpcCommandService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final CommandServiceStubFactory commandServiceStubFactory;

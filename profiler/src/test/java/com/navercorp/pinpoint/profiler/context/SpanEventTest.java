@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import org.junit.Assert;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 
@@ -37,7 +37,7 @@ import java.util.Arrays;
  * @author emeroad
  */
 public class SpanEventTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final SpanProcessor<TSpan, TSpanChunk> compressorV1 = new SpanProcessorV1();
 
     @Test

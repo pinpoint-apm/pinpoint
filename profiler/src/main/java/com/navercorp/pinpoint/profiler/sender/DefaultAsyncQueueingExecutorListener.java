@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Collection;
 
@@ -26,7 +26,7 @@ import java.util.Collection;
  */
 public abstract class DefaultAsyncQueueingExecutorListener<T> implements AsyncQueueingExecutorListener<T> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public void execute(Collection<T> messageList) {

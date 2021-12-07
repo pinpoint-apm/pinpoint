@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.web.vo.Application;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -34,7 +34,7 @@ import java.util.HashMap;
  */
 public class AgentHistogramTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ObjectMapper mapper = new ObjectMapper();
     @Test

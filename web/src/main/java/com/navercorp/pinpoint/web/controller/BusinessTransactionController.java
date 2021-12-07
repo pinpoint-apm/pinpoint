@@ -43,8 +43,8 @@ import com.navercorp.pinpoint.web.view.TransactionInfoViewModel;
 import com.navercorp.pinpoint.web.view.TransactionTimelineInfoViewModel;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.text.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -66,7 +66,7 @@ import java.util.function.Predicate;
  */
 @RestController
 public class BusinessTransactionController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public static final String DEFAULT_FOCUS_TIMESTAMP = "0";
     public static final String DEFAULT_SPANID = "-1"; // SpanId.NULL

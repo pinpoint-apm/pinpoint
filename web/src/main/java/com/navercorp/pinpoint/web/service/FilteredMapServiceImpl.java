@@ -43,8 +43,8 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
@@ -65,7 +65,7 @@ import java.util.Set;
 @Service
 public class FilteredMapServiceImpl implements FilteredMapService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AgentInfoService agentInfoService;
 

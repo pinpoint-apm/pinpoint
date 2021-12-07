@@ -18,15 +18,15 @@ package com.navercorp.pinpoint.profiler.sender;
 
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author emeroad
  */
 public class EmptyAsyncQueueingExecutorListener<T> implements AsyncQueueingExecutorListener<T> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final boolean isDebug = logger.isDebugEnabled();
 

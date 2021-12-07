@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.rpc;
 
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Taejin Koo
@@ -27,7 +27,7 @@ public class LoggingStateChangeEventListener implements StateChangeEventListener
 
     public static final LoggingStateChangeEventListener INSTANCE = new LoggingStateChangeEventListener();
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public void stateUpdated(PinpointSocket pinpointSocket, SocketStateCode updatedStateCode) {

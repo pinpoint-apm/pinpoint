@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.task.TimerTaskDecorator;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -46,7 +46,7 @@ public class WorkerActiveManager {
 
     private static final long DEFAULT_AGENT_LOOKUP_TIME = TimeUnit.HOURS.toMillis(1);
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final PinpointWebSocketResponseAggregator responseAggregator;
 

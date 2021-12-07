@@ -32,8 +32,8 @@ import com.navercorp.pinpoint.thrift.io.TCommandType;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.Closeable;
 import java.util.List;
@@ -49,7 +49,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService<T
 
     private static final long DEFAULT_FLUSH_DELAY = 1000;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final StreamChannelStateChangeEventHandler stateChangeEventHandler = new ActiveThreadCountStreamChannelStateChangeEventHandler();

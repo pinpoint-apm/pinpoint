@@ -19,8 +19,8 @@ import com.navercorp.pinpoint.collector.config.FlinkConfiguration;
 import com.navercorp.pinpoint.collector.mapper.flink.TFAgentStatBatchMapper;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -31,7 +31,7 @@ import java.util.Objects;
 @Service("sendAgentStatService")
 public class SendAgentStatService extends SendDataToFlinkService implements AgentStatService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean flinkClusterEnable;
     private final TFAgentStatBatchMapper tFAgentStatBatchMapper;
 

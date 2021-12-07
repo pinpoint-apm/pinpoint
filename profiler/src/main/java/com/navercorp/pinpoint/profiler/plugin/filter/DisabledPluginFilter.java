@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.plugin.filter;
 
 
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +31,7 @@ import java.util.Set;
  */
 public class DisabledPluginFilter implements PluginFilter {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final Set<String> disabledPluginIds;
 
     public DisabledPluginFilter(List<String> disabledPluginIds) {

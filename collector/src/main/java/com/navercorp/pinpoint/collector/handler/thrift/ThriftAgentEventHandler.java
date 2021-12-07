@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,7 +41,7 @@ import java.util.Objects;
  */
 @Service
 public class ThriftAgentEventHandler implements SimpleHandler<TBase<?, ?>> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ThriftAgentEventMapper agentEventMapper;
 

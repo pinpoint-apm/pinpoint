@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.URI;
 
@@ -30,7 +30,7 @@ import java.net.URI;
  */
 public class JDBCUrlParserTest {
 
-    private Logger logger = LoggerFactory.getLogger(JDBCUrlParserTest.class);
+    private Logger logger = LogManager.getLogger(JDBCUrlParserTest.class);
     private OracleJdbcUrlParser jdbcUrlParser = new OracleJdbcUrlParser();
 
 

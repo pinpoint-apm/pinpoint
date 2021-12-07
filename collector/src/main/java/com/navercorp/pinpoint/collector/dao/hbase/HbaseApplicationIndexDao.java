@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -41,7 +41,7 @@ import java.util.Objects;
 @Repository
 public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final HbaseColumnFamily.ApplicationIndex DESCRIPTOR = HbaseColumnFamily.APPLICATION_INDEX_AGENTS;
 

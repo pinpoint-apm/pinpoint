@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.collector.grpc.config;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.test.context.ContextConfiguration;
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertEquals;
 @ContextConfiguration(classes = GrpcSpanReceiverConfigurationFactory.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class GrpcSpanReceiverConfigurationTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Autowired
     private GrpcStreamReceiverConfiguration configuration;

@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
 import com.navercorp.pinpoint.collector.dao.hbase.BulkOperationReporter;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 public final class BulkIncrementerFactory {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ScheduledExecutorService memoryObserver;
 

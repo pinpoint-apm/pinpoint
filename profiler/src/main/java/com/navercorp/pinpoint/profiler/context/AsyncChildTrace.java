@@ -30,14 +30,14 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public class AsyncChildTrace implements Trace {
 
     private static final int ASYNC_BEGIN_STACK_ID = 1001;
 
-    private static final Logger logger = LoggerFactory.getLogger(AsyncChildTrace.class.getName());
+    private static final Logger logger = LogManager.getLogger(AsyncChildTrace.class.getName());
     private static final boolean isDebug = logger.isDebugEnabled();
 
     private final CallStack<SpanEvent> callStack;

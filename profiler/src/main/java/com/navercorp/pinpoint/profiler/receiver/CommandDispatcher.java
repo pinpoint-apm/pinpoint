@@ -33,8 +33,8 @@ import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.Closeable;
 import java.util.Set;
@@ -44,7 +44,7 @@ import java.util.Set;
  */
 public class CommandDispatcher extends ServerStreamChannelMessageHandler implements MessageListener {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ProfilerCommandServiceLocator<TBase<?, ?>, TBase<?, ?>> commandServiceLocator;
 

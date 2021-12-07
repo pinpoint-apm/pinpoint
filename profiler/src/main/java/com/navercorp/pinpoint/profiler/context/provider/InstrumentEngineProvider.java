@@ -30,8 +30,8 @@ import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinit
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.instrument.Instrumentation;
 
@@ -40,7 +40,7 @@ import java.lang.instrument.Instrumentation;
  */
 public class InstrumentEngineProvider implements Provider<InstrumentEngine> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final InstrumentConfig instrumentConfig;
     private final InterceptorRegistryBinder interceptorRegistryBinder;

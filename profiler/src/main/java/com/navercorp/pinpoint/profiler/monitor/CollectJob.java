@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshotBatch;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ import java.util.Objects;
  */
 public class CollectJob implements Runnable {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final DataSender<MetricType> dataSender;
     private final String agentId;

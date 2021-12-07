@@ -23,8 +23,8 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.util.CollectionUtils;
 
 import java.nio.ByteBuffer;
@@ -299,7 +299,7 @@ public class BulkIncrementerTestClazz {
 
     static class Incrementer implements Runnable {
 
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
         private final BulkIncrementer bulkIncrementer;
         private final CountDownLatch completeLatch;
@@ -323,7 +323,7 @@ public class BulkIncrementerTestClazz {
 
     static class Flusher implements Callable<Map<TableName, List<Increment>>> {
 
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
         private final BulkIncrementer bulkIncrementer;
         private final RowKeyDistributorByHashPrefix rowKeyDistributor;

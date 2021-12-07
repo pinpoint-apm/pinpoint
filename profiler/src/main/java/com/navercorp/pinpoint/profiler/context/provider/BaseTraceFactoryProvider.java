@@ -29,8 +29,8 @@ import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -77,7 +77,7 @@ public class BaseTraceFactoryProvider implements Provider<BaseTraceFactory> {
 
 
     private boolean isDebugEnabled() {
-        final Logger logger = LoggerFactory.getLogger(DefaultBaseTraceFactory.class);
+        final Logger logger = LogManager.getLogger(DefaultBaseTraceFactory.class);
         return logger.isDebugEnabled();
     }
 

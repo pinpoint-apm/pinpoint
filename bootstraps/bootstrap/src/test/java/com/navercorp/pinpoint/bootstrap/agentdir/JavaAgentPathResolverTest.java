@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver.ClassAgen
 import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver.InputArgumentAgentPathFinder;
 import com.navercorp.pinpoint.common.Version;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.File;
 import java.net.URI;
@@ -37,7 +37,7 @@ import java.util.List;
  */
 public class JavaAgentPathResolverTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     
     @Test
     public void testInputArgument() {

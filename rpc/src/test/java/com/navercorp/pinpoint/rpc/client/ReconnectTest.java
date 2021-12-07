@@ -31,8 +31,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 //@Ignore
 public class ReconnectTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static PinpointClientFactory clientFactory;
 

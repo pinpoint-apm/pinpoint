@@ -25,14 +25,14 @@ import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModuleFactory;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.test.rpc.MockRpcModule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class OverrideModuleFactory implements ModuleFactory {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Module[] overrideModule;
 

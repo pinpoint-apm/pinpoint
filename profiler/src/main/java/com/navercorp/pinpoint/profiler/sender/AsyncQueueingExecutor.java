@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.sender;
 
 import java.util.Objects;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -50,7 +50,7 @@ public class AsyncQueueingExecutor<T> implements Runnable {
     public AsyncQueueingExecutor(int queueSize, String executorName, AsyncQueueingExecutorListener<T> listener) {
         Objects.requireNonNull(executorName, "executorName");
 
-        this.logger = LoggerFactory.getLogger(this.getClass().getName() + "@" + executorName);
+        this.logger = LogManager.getLogger(this.getClass().getName() + "@" + executorName);
         this.isWarn = logger.isWarnEnabled();
 
         // BEFORE executeThread start
