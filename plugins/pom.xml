@@ -65,6 +65,7 @@
         <module>grpc</module>
         <module>jetty</module>
         <module>websphere</module>
+        <module>kotlin-coroutines</module>
         <module>spring</module>
         <module>spring-boot</module>
         <module>spring-webflux</module>
