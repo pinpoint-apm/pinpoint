@@ -74,15 +74,15 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 
 Java version required to run Pinpoint:
 <!-- <compatibilityJava.md> -->
-Pinpoint Version | Agent | Collector | Web
----------------- | ----- | --------- | ---
-1.8.0  | 6-10 | 8   | 8 
-1.8.1+ | 6-11 | 8   | 8 
-2.0.x  | 6-13 | 8   | 8
-2.1.x  | 6-14 | 8   | 8
-2.2.x  | 7-14 | 8   | 8
-2.3.x  | 7-17 | 8   | 8
-2.4.x  | 7-18 | 8   | 8
+Pinpoint Version | Agent | Collector | Web | Flink
+---------------- | ----- | --------- | --- | ---
+1.8.0  | 6-10 | 8   | 8 | 8
+1.8.1+ | 6-11 | 8   | 8 | 8
+2.0.x  | 6-13 | 8   | 8 | 8
+2.1.x  | 6-14 | 8   | 8 | 8
+2.2.x  | 7-14 | 8   | 8 | 8
+2.3.x  | 7-17 | 8   | 8 | 8
+2.4.x  | 7-18 | 11  | 11 | 11
 <!-- </compatibilityJava.md> -->
 HBase compatibility table:
 <!-- <compatibilityHbase.md> -->
