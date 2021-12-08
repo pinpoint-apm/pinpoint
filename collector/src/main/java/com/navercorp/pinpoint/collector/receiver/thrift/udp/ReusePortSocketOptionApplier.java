@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.udp;
 
+import com.navercorp.pinpoint.common.util.OsType;
+import com.navercorp.pinpoint.common.util.OsUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.DatagramSocket;
-import java.net.SocketOption;
 import java.net.StandardSocketOptions;
 
 /**
@@ -33,9 +32,7 @@ public class ReusePortSocketOptionApplier {
 
     private static final Logger LOGGER = LogManager.getLogger(ReusePortSocketOptionApplier.class);
 
-    private static final String FIELD_NAME_SO_REUSEPORT = "SO_REUSEPORT";
-
-    private static final SocketOption REUSE_PORT_SOCKET_OPTION = getReusePortSocketOption();
+    private static final OsType[] UNSUPPORTED_OS = new OsType[]{OsType.WINDOW, OsType.SOLARIS};
 
     private final boolean reusePortEnable;
     private final int socketCount;
@@ -50,14 +47,9 @@ public class ReusePortSocketOptionApplier {
             return;
         }
         try {
-            Method setOptionMethod = DatagramSocket.class.getDeclaredMethod("setOption", SocketOption.class, Object.class);
-            setOptionMethod.invoke(socket, REUSE_PORT_SOCKET_OPTION, true);
-        } catch (Exception e) {
+            socket.setOption(StandardSocketOptions.SO_REUSEPORT, true);
+        } catch (IOException e) {
             LOGGER.warn("setOption invoke error", e);
-            if (e instanceof IOException) {
-                throw (IOException)e;
-            }
-            throw new IOException("setOption invoke error", e);
         }
     }
 
@@ -70,31 +62,24 @@ public class ReusePortSocketOptionApplier {
     }
 
     public static ReusePortSocketOptionApplier create(boolean reusePort, int socketCount) {
-        if (REUSE_PORT_SOCKET_OPTION != null) {
-            return new ReusePortSocketOptionApplier(reusePort, socketCount);
+        if (isUnsupportedOS()) {
+            if (reusePort) {
+                LOGGER.warn("ReusePort not supported, OS:{}", OsUtils.getType());
+            }
+            return new ReusePortSocketOptionApplier(false, socketCount);
         }
-        if (reusePort) {
-            LOGGER.warn("ReusePort not supported, Please use Jvm9+ for using ReusePort SocketOption");
-        }
-        return new ReusePortSocketOptionApplier(false, socketCount);
+
+        return new ReusePortSocketOptionApplier(reusePort, socketCount);
     }
 
-    private static SocketOption getReusePortSocketOption() {
-        try {
-            Field[] declaredFields = StandardSocketOptions.class.getDeclaredFields();
-            for (Field declaredField : declaredFields) {
-                if (declaredField.getName().equals(FIELD_NAME_SO_REUSEPORT)) {
-                    Object socketOption = declaredField.get(null);
-                    if (socketOption instanceof SocketOption) {
-                        LOGGER.info("{} option found", FIELD_NAME_SO_REUSEPORT);
-                        return (SocketOption) socketOption;
-                    }
-                }
+    private static boolean isUnsupportedOS() {
+        final OsType osType = OsUtils.getType();
+        for (OsType unsupportedO : UNSUPPORTED_OS) {
+            if (osType.equals(unsupportedO)) {
+                return true;
             }
-        } catch (Exception ignore) {
-            // ignores
         }
-        return null;
+        return false;
     }
 
     @Override
