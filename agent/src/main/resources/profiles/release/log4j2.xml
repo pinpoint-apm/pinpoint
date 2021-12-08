@@ -51,8 +51,10 @@
                 <SizeBasedTriggeringPolicy size="${backupsize}" />
             </Policies>
             <DefaultRolloverStrategy max="${default-rollover-strategy-max}">
-                <IfFileName glob="pinpoint_stat-*.log"/>
-                <IfLastModified age="${lastmodified}"/>
+                <Delete basePath="${logging_dir}/" maxDepth="1">
+                    <IfFileName glob="pinpoint_stat-*.log"/>
+                    <IfLastModified age="${lastmodified}"/>
+                </Delete>
             </DefaultRolloverStrategy>
         </RollingFile>
     </Appenders>
