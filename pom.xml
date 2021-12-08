@@ -195,8 +195,8 @@
         <plugin.jar.version>3.2.0</plugin.jar.version>
         <plugin.antrun.version>3.0.0</plugin.antrun.version>
 
-        <plugin.spotbugs.version>4.1.4</plugin.spotbugs.version>
-        <plugin.pmd.version>3.14.0</plugin.pmd.version>
+        <plugin.spotbugs.version>4.4.2.2</plugin.spotbugs.version>
+        <plugin.pmd.version>3.15.0</plugin.pmd.version>
 
         <plugin.enforcer.version>3.0.0</plugin.enforcer.version>
         <plugin.animal-sniffer.version>1.20</plugin.animal-sniffer.version>
