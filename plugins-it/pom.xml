@@ -78,6 +78,7 @@
         <module>oracledb-it</module>
         <module>paho-mqtt-it</module>
         <module>kafka-it</module>
+        <module>kotlin-coroutines-it</module>
         <module>lambda-it</module>
     </modules>
 
