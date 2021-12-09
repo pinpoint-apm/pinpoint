@@ -132,7 +132,7 @@
         <plugin.animal-sniffer.skip>false</plugin.animal-sniffer.skip>
 
         <!-- library -->
-        <metrics.version>3.2.6</metrics.version>
+        <metrics.version>4.2.4</metrics.version>
 
         <fastxml.jackson.version>2.12.5</fastxml.jackson.version>
         <snakeyaml.version>1.27</snakeyaml.version>
@@ -505,6 +505,11 @@
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-jvm</artifactId>
+                <version>${metrics.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-jmx</artifactId>
                 <version>${metrics.version}</version>
             </dependency>
             <dependency>

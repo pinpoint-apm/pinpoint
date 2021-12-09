@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.collector.monitor;
 
+import com.codahale.metrics.jmx.JmxReporter;
+import com.codahale.metrics.jvm.JvmAttributeGaugeSet;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 
-import com.codahale.metrics.JmxReporter;
-import com.codahale.metrics.JvmAttributeGaugeSet;
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Reporter;
@@ -28,6 +28,7 @@ import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 
+import com.navercorp.pinpoint.common.util.IOUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,8 +38,6 @@ import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -157,13 +156,7 @@ public class CollectorMetric {
     @PreDestroy
     private void shutdown() {
         for (Reporter reporter : reporterList) {
-            if (reporter instanceof Closeable) {
-                try {
-                    ((Closeable) reporter).close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
+            IOUtils.closeQuietly(reporter);
         }
         reporterList = null;
     }
