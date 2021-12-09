@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 
-import { AnalyticsService, TRACKED_EVENT_LIST, WebAppSettingDataService } from 'app/shared/services';
+import { AnalyticsService, TRACKED_EVENT_LIST, UrlRouteManagerService, WebAppSettingDataService } from 'app/shared/services';
 
 @Component({
     selector: 'pp-configuration-experimental-container',
@@ -16,11 +16,13 @@ export class ConfigurationExperimentalContainerComponent implements OnInit {
     useStatisticsAgentState: boolean;
     enableServerMapRealTime: boolean;
     sampleScatter: boolean;
+    sideNavigationUI: boolean;
 
     constructor(
         private translateService: TranslateService,
-        private webAppSettingDataService: WebAppSettingDataService,
         private analyticsService: AnalyticsService,
+        private urlRouteManagerService: UrlRouteManagerService,
+        private webAppSettingDataService: WebAppSettingDataService,
     ) {}
 
     ngOnInit() {
@@ -43,6 +45,7 @@ export class ConfigurationExperimentalContainerComponent implements OnInit {
         this.useStatisticsAgentState = Boolean(useStatisticsAgentState);
         this.enableServerMapRealTime = enableServerMapRealTime === null ? true : enableServerMapRealTime;
         this.sampleScatter = sampleScatter === null ? true : sampleScatter;
+        this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
     }
 
     onChangeOption(optionKey: string): void {
@@ -66,6 +69,12 @@ export class ConfigurationExperimentalContainerComponent implements OnInit {
                 this.sampleScatter = !this.sampleScatter;
                 this.webAppSettingDataService.setExperimentalOption('scatterSampling', this.sampleScatter);
                 this.applyGA({optionKey, optionValue: this.sampleScatter});
+                break;
+            case 'sideNavigationUI':
+                this.sideNavigationUI = !this.sideNavigationUI;
+                this.webAppSettingDataService.setExperimentalOption('sideNavigationUI', this.sideNavigationUI);
+                this.applyGA({optionKey, optionValue: this.sideNavigationUI});
+                this.urlRouteManagerService.reload();
                 break;
         }
     }

@@ -8,7 +8,8 @@ import {
     UrlRouteManagerService,
     NewUrlStateNotificationService,
     DynamicPopupService,
-    TransactionDetailDataService
+    TransactionDetailDataService,
+    WebAppSettingDataService
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store/reducers';
 import { UrlPath, UrlQuery } from 'app/shared/models';
@@ -24,6 +25,8 @@ export class TransactionDetailPageComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
     private errorMessage: string;
 
+    sideNavigationUI: boolean;
+
     constructor(
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
@@ -32,10 +35,13 @@ export class TransactionDetailPageComponent implements OnInit, OnDestroy {
         private translateService: TranslateService,
         private dynamicPopupService: DynamicPopupService,
         private componentFactoryResolver: ComponentFactoryResolver,
-        private injector: Injector
+        private injector: Injector,
+        private webAppSettingDataService: WebAppSettingDataService,
     ) {}
 
     ngOnInit() {
+        this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
+        
         this.translateService.get('TRANSACTION_LIST.TRANSACTION_RETRIEVE_ERROR').subscribe((text: string) => {
             this.errorMessage = text;
         });

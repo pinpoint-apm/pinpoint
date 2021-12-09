@@ -1,8 +1,16 @@
+.container.sideNavigationUI {
+    display: flex;
+}
+
 .l-main-container {
     display: flex;
     flex-flow: row wrap;
     overflow-y: hidden;
+    width: 100%;
     height: calc(100vh - 50px);
+}
+.l-main-container.sideNavigationUI {
+    height: 100vh;
 }
 .l-component-wrapper {
     position: relative;

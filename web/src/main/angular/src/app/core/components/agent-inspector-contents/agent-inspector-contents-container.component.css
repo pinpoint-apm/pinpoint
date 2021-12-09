@@ -27,6 +27,7 @@
     height: 100%;
     position: relative;
     overflow: auto;
+    padding-bottom: 50px;
 }
 
 .l-chart-option-area {

@@ -1,0 +1,15 @@
+<div class="l-widget-group-container">
+    <pp-application-list-for-header-container></pp-application-list-for-header-container>
+    <div class="l-widget-group-right">
+        <pp-server-map-options-container *ngIf="showServermapOption"></pp-server-map-options-container>
+        <pp-period-selector-container *ngIf="isAppSelected$ | async"></pp-period-selector-container>
+        <ng-container *ngIf="showTransactionIdSearch && isAppSelected$ | async">
+            <ng-container *ngIf="isScreenWideEnough$ | async; else searchIcon">
+                <pp-transaction-id-search-container></pp-transaction-id-search-container>
+            </ng-container>
+            <ng-template #searchIcon>
+                <button class="l-concised-search-button fas fa-search" (click)="onClickSearchIcon($event.target)"></button>
+            </ng-template>
+        </ng-container>
+    </div>  
+</div>

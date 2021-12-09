@@ -9,7 +9,8 @@ import {
     NewUrlStateNotificationService,
     TransactionDetailDataService,
     DynamicPopupService,
-    GutterEventService
+    GutterEventService,
+    WebAppSettingDataService
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store/reducers';
 import { UrlPath, UrlQuery } from 'app/shared/models';
@@ -27,6 +28,8 @@ export class TransactionViewPageComponent implements OnInit, OnDestroy, AfterVie
     private unsubscribe = new Subject<void>();
     private errorMessage: string;
 
+    sideNavigationUI: boolean;
+
     splitSize: number[];
 
     constructor(
@@ -38,9 +41,12 @@ export class TransactionViewPageComponent implements OnInit, OnDestroy, AfterVie
         private dynamicPopupService: DynamicPopupService,
         private componentFactoryResolver: ComponentFactoryResolver,
         private injector: Injector,
+        private webAppSettingDataService: WebAppSettingDataService,
     ) { }
 
     ngOnInit() {
+        this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
+
         this.initSplitRatio();
         this.initTransactionViewInfo();
     }

@@ -1,6 +1,5 @@
 .l-wrapper {
     display: flex;
-    flex-flow: row wrap;
     margin-right: 10px;
     border: 1px solid var(--period-select-box-border);
     border-radius: 0px;

@@ -1,3 +1,6 @@
+.container.sideNavigationUI {
+    display: flex;
+}
 .l-widget-group {
     display: flex;
     flex-flow: row wrap;
@@ -9,8 +12,12 @@
 .l-main-container {
     display: flex;
     flex-flow: row wrap;
+    width: 100%;
     height: calc(100vh - 50px);
     overflow-y: hidden;
+}
+.l-main-container.sideNavigationUI {
+    height: 100vh;
 }
 split-area:first-child {
     overflow: hidden !important;

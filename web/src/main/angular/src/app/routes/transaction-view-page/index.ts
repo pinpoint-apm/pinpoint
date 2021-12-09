@@ -11,6 +11,7 @@ import { TransactionViewBottomContentsModule } from 'app/core/components/transac
 import { TransactionViewPageComponent } from './transaction-view-page.component';
 import { routing } from './transaction-view-page.routing';
 import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
+import { SideNavigationBarModule } from 'app/core/components/side-navigation-bar';
 
 @NgModule({
     declarations: [
@@ -25,7 +26,8 @@ import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
         TransactionViewTopContentsModule,
         TransactionViewBottomContentsModule,
         ServerErrorPopupModule,
-        RouterModule.forChild(routing)
+        SideNavigationBarModule,
+        RouterModule.forChild(routing),
     ],
     exports: [
     ],

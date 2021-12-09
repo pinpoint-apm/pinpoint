@@ -1,18 +1,21 @@
 <pp-notice-container></pp-notice-container>
-<header class="l-header flex-container flex-row">
-    <pp-header-logo></pp-header-logo>
-    <pp-configuration-icon-container></pp-configuration-icon-container>
-</header>
-<div class="l-main-container">
-    <div class="l-component-wrapper">
-        <pp-transaction-short-info-container></pp-transaction-short-info-container>
+<div class="container" [class.sideNavigationUI]="sideNavigationUI">
+    <pp-side-navigation-bar *ngIf="sideNavigationUI"></pp-side-navigation-bar>
+    <header class="l-header flex-container flex-row" *ngIf="!sideNavigationUI">
+        <pp-header-logo></pp-header-logo>
+        <pp-configuration-icon-container></pp-configuration-icon-container>
+    </header>
+    <div class="l-main-container" [class.sideNavigationUI]="sideNavigationUI">
+        <div class="l-component-wrapper">
+            <pp-transaction-short-info-container></pp-transaction-short-info-container>
+        </div>
+        <as-split direction="vertical" (dragEnd)="onGutterResized($event)" #splitElem>
+            <as-split-area [size]="splitSize[0]" minSize="30" maxSize="55">
+                <router-outlet></router-outlet>        
+            </as-split-area>
+            <as-split-area [size]="splitSize[1]">
+                <pp-transaction-view-bottom-contents-container></pp-transaction-view-bottom-contents-container>
+            </as-split-area>
+        </as-split>
     </div>
-    <as-split direction="vertical" (dragEnd)="onGutterResized($event)" #splitElem>
-        <as-split-area [size]="splitSize[0]" minSize="30" maxSize="55">
-            <router-outlet></router-outlet>        
-        </as-split-area>
-        <as-split-area [size]="splitSize[1]">
-            <pp-transaction-view-bottom-contents-container></pp-transaction-view-bottom-contents-container>
-        </as-split-area>
-    </as-split>
 </div>

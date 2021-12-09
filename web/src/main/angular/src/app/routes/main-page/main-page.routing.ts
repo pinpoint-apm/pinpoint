@@ -81,7 +81,7 @@ export const routing: Routes = [
             {
                 path: '',
                 pathMatch: 'full',
-                component: EmptyContentsComponent
+                component: EmptyContentsComponent,
             }
         ]
     }

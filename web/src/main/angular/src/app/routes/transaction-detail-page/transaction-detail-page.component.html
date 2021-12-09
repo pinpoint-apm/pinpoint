@@ -1,14 +1,17 @@
 <pp-notice-container></pp-notice-container>
-<header class="l-header flex-container flex-row">
-    <pp-header-logo></pp-header-logo>
-    <pp-configuration-icon-container></pp-configuration-icon-container>
-</header>
-<div class="l-main-container">
-    <section class="l-main-section">
-        <div class="l-main-contents l-main-contents-transaction">
-            <article class="l-content-item l-margin-none l-transaction-content">
-                <router-outlet></router-outlet>
-            </article>
-        </div>        
-    </section>
+<div class="container" [class.sideNavigationUI]="sideNavigationUI">
+    <pp-side-navigation-bar *ngIf="sideNavigationUI"></pp-side-navigation-bar>
+    <header *ngIf="!sideNavigationUI" class="l-header flex-container flex-row">
+        <pp-header-logo></pp-header-logo>
+        <pp-configuration-icon-container></pp-configuration-icon-container>
+    </header>
+    <div class="l-main-container" [class.sideNavigationUI]="sideNavigationUI">
+        <section class="l-main-section">
+            <div class="l-main-contents l-main-contents-transaction">
+                <article class="l-content-item l-margin-none l-transaction-content">
+                    <router-outlet></router-outlet>
+                </article>
+            </div>        
+        </section>
+    </div>
 </div>

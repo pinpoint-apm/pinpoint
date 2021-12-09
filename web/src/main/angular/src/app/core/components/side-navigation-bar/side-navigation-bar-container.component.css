@@ -1,0 +1,85 @@
+:host {
+    --snb-background: linear-gradient(170deg, var(--blue-500), var(--blue-900));
+    --snb-border: var(--header-border);
+    --snb-text: var(--text-knockout);
+    --snb-logo-hover: var(--blue-700);
+    --snb-scale-button-hover: var(--blue-900);
+}
+
+.dark-mode :host {
+    --snb-background: linear-gradient(170deg, var(--background-primary-darker), var(--background-primary));
+    --snb-border: var(--border-primary-lighter);
+    --snb-text: var(--text-primary);
+    --snb-logo-hover: var(--blue-grey-50);
+    --snb-scale-button-hover: var(--blue-grey-100);
+}
+
+.container {
+    border-right: 1px solid var(--snb-border);
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    font-size: 14px;
+    background: var(--snb-background);
+    width: 200px;
+    height: 100vh;
+    padding: 0 0 40px;
+    color: var(--snb-text);
+    z-index: 99;
+}
+
+.container.minimize {
+    width: 50px;
+    font-size: 16px;
+}
+
+.container:hover .size-button-wrapper {
+    visibility: visible;
+}
+
+.logo-wrapper {
+    position: relative;
+    padding: 30px 20px 40px;
+    margin-bottom: 30px;
+}
+
+.minimize .logo-wrapper {
+    text-align: center;
+    padding: 30px 8px 40px;
+}
+
+.logo-wrapper:hover {
+    background-color: var(--snb-logo-hover);
+}
+
+.size-button-wrapper {
+    cursor: pointer;
+    visibility: hidden;
+    color: var(--icon-default-lighter);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 10px;
+    right: 10px;
+    position: absolute;
+    width: 24px;
+    height: 24px;
+}
+
+.minimize .size-button-wrapper {
+    top: auto;
+    bottom: 2px;
+    right: 12px;
+}
+
+.size-button-wrapper:hover {
+    background-color: var(--snb-scale-button-hover);
+}
+
+.link-wrapper {
+    position: relative;
+}
+
+.link-wrapper.bottom {
+    margin-top: auto;
+}

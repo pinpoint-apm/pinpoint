@@ -8,6 +8,7 @@ import { TransactionDetailContentsModule } from 'app/core/components/transaction
 import { TransactionDetailPageComponent } from './transaction-detail-page.component';
 import { routing } from './transaction-detail-page.routing';
 import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
+import { SideNavigationBarModule } from 'app/core/components/side-navigation-bar';
 
 @NgModule({
     declarations: [
@@ -19,6 +20,7 @@ import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
         ConfigurationIconModule,
         TransactionDetailContentsModule,
         ServerErrorPopupModule,
+        SideNavigationBarModule,
         RouterModule.forChild(routing)
     ],
     exports: [],

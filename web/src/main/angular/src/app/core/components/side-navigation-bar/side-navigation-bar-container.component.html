@@ -1,0 +1,23 @@
+<div [ngClass]="{'container': true, 'minimize': minimize}">
+    <div class="logo-wrapper">
+        <a (click)="onLogoClick()" href="/main" class="l-logo-link">
+            <img [src]="logoPath" alt="PINPOINT LOGO">
+        </a> 
+        <div class="size-button-wrapper" (click)="onClickSizeScale()">
+            <i [hidden]="!minimize" class="fa fa-plus"></i>
+            <i [hidden]="minimize" class="fa fa-minus"></i>
+        </div>
+    </div>
+    <div class="link-wrapper top">
+        <pp-side-navigation-item
+            [minimize]="minimize"
+            [items]="meta.topItems"
+        ></pp-side-navigation-item>
+    </div>
+    <div class="link-wrapper bottom">
+        <pp-side-navigation-item
+            [minimize]="minimize"
+            [items]="meta.bottomItems"
+        ></pp-side-navigation-item>
+    </div>
+</div>

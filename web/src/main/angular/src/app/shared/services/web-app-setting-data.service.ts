@@ -33,12 +33,14 @@ export class WebAppSettingDataService {
         AGENT_CHART_LAYOUT_INFO: 'agentChartLayoutInfo',
         LANGUAGE: 'language',
         THEME: 'theme',
+        SIDE_NAV_BAR_SCALE: 'sideNavigationBarScale',
     };
     private IMAGE_PATH = './assets/img/';
     private IMAGE_EXT = '.png';
     private SERVER_MAP_PATH = 'servermap/';
     private ICON_PATH = 'icons/';
     private LOGO_IMG_NAME = 'logo.png';
+    private MINI_LOGO_IMG_NAME = 'mini-logo.png';
     constructor(
         private store: Store<AppState>,
         private localStorageService: LocalStorageService,
@@ -86,8 +88,10 @@ export class WebAppSettingDataService {
     getImageExt(): string {
         return this.IMAGE_EXT;
     }
-    getLogoPath(): string {
-        return this.getImagePath() + this.LOGO_IMG_NAME;
+    getLogoPath(mini?: boolean): string {
+        return mini 
+            ? this.getImagePath() + this.MINI_LOGO_IMG_NAME
+            : this.getImagePath() + this.LOGO_IMG_NAME;
     }
     getSystemDefaultInbound(): number {
         return this.componentDefaultSettingDataService.getSystemDefaultInbound();
@@ -270,6 +274,13 @@ export class WebAppSettingDataService {
     }
     getTheme(): Theme {
         return this.localStorageService.get(WebAppSettingDataService.KEYS.THEME) || Theme.Light;
+    }
+
+    setSideNavBarScale(minimize: boolean): void {
+        this.localStorageService.set(WebAppSettingDataService.KEYS.SIDE_NAV_BAR_SCALE, minimize);
+    }
+    getSideNavBarScale(): boolean {
+        return this.localStorageService.get(WebAppSettingDataService.KEYS.SIDE_NAV_BAR_SCALE) || false;
     }
     private getLanguage(): string {
         let userLang = this.localStorageService.get<string>(WebAppSettingDataService.KEYS.LANGUAGE);

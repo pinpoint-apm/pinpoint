@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { Actions } from 'app/shared/store/reducers';
-import { StoreHelperService, NewUrlStateNotificationService, UrlRouteManagerService, AnalyticsService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
+import { StoreHelperService, NewUrlStateNotificationService, UrlRouteManagerService, AnalyticsService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO, WebAppSettingDataService } from 'app/shared/services';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 
 @Component({
@@ -16,6 +16,8 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
     private _isInfoPerServerShow: boolean;
     private selectedAgent = '';
+
+    sideNavigationUI: boolean;
 
     enableRealTime: boolean;
     node: INodeInfo;
@@ -33,9 +35,12 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
         private analyticsService: AnalyticsService,
         private cd: ChangeDetectorRef,
         private messageQueueService: MessageQueueService,
+        private webAppSettingDataService: WebAppSettingDataService,
     ) {}
 
     ngOnInit() {
+        this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
+        
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((urlService: NewUrlStateNotificationService) => {

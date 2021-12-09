@@ -1,19 +1,24 @@
 <pp-notice-container></pp-notice-container>
-<header class="l-header flex-container flex-row">
-    <pp-header-logo></pp-header-logo>
-    <div class="l-widget-group">
-        <pp-data-load-indicator-for-transaction-list-container></pp-data-load-indicator-for-transaction-list-container>
+<div class="container" [class.sideNavigationUI]="sideNavigationUI">
+    <pp-side-navigation-bar *ngIf="sideNavigationUI"></pp-side-navigation-bar>
+    <div style="width: 100%;">
+        <header class="l-header flex-container flex-row" [class.light]="sideNavigationUI">
+            <pp-header-logo *ngIf="!sideNavigationUI"></pp-header-logo>
+            <div class="l-widget-group">
+                <pp-data-load-indicator-for-transaction-list-container></pp-data-load-indicator-for-transaction-list-container>
+            </div>
+            <pp-state-button-for-transaction-list-container></pp-state-button-for-transaction-list-container>
+            <pp-configuration-icon-container></pp-configuration-icon-container>
+        </header>
+        <div class="l-main-container">
+            <as-split direction="vertical" (dragEnd)="onGutterResized($event)">
+                <as-split-area [size]="splitSize[0]">
+                    <pp-transaction-table-grid-container></pp-transaction-table-grid-container>
+                </as-split-area>
+                <as-split-area [size]="splitSize[1]">
+                    <router-outlet></router-outlet>
+                </as-split-area>
+            </as-split>
+        </div>
     </div>
-    <pp-state-button-for-transaction-list-container></pp-state-button-for-transaction-list-container>
-    <pp-configuration-icon-container></pp-configuration-icon-container>
-</header>
-<div class="l-main-container">
-    <as-split direction="vertical" (dragEnd)="onGutterResized($event)">
-        <as-split-area [size]="splitSize[0]">
-            <pp-transaction-table-grid-container></pp-transaction-table-grid-container>
-        </as-split-area>
-        <as-split-area [size]="splitSize[1]">
-            <router-outlet></router-outlet>
-        </as-split-area>
-    </as-split>
 </div>

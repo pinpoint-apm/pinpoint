@@ -40,6 +40,7 @@ export class ConfigPageComponent implements OnInit {
         setting: false
     };
     webhookEnable: boolean;
+    sideNavigationUI: boolean;
 
     constructor(
         private urlRouteManagerService: UrlRouteManagerService,
@@ -49,6 +50,7 @@ export class ConfigPageComponent implements OnInit {
     ) {}
 
     ngOnInit() {
+        this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
         this.initWebhookConfig();
     }
 

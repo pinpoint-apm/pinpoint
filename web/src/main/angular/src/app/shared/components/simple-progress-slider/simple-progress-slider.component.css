@@ -114,7 +114,6 @@
     }
 
     .slider-for-progress .sfp-value {
-        color: var(--text-knockout);
         width: 100%;
         position: relative;
         font-size: 10px;
