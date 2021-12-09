@@ -1,4 +1,4 @@
-<div class="l-main-contents-top font-opensans">
+<div class="l-main-contents-top font-opensans" [class.sideNavigationUI]="sideNavigationUI">
     <ng-container *ngIf="showElements$ | async">
         <div class="l-fixed-period-mover-wrapper">
             <pp-fixed-period-mover-container></pp-fixed-period-mover-container>

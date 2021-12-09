@@ -14,6 +14,8 @@ import { ApplicationInspectorContentsModule } from 'app/core/components/applicat
 import { AgentInspectorContentsModule } from 'app/core/components/agent-inspector-contents';
 import { InspectorPageComponent } from './inspector-page.component';
 import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
+import { AppWidgetModule } from 'app/core/components/app-widget';
+import { SideNavigationBarModule } from 'app/core/components/side-navigation-bar';
 
 @NgModule({
     declarations: [
@@ -21,6 +23,7 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
     ],
     imports: [
         SharedModule,
+        SideNavigationBarModule,
         NoticeModule,
         ApplicationListModule,
         PeriodSelectorModule,
@@ -31,7 +34,8 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
         AgentInspectorContentsModule,
         AgentSearchInputModule,
         HelpViewerPopupModule,
-        RouterModule.forChild(routing)
+        RouterModule.forChild(routing),
+        AppWidgetModule,
     ],
     exports: [],
     providers: []

@@ -65,12 +65,12 @@ import { PickPropsPipe } from './pipes/pick-props.pipe';
         HandleObsPipe,
         PickPropsPipe,
         ContextPopupDirective,
-        SearchInputDirective
+        SearchInputDirective,
     ],
     imports: [
         CommonModule,
         RouterModule,
-        ClickOutsideModule
+        ClickOutsideModule,
     ],
     exports: [
         CommonModule,
@@ -93,7 +93,7 @@ import { PickPropsPipe } from './pipes/pick-props.pipe';
         HandleObsPipe,
         PickPropsPipe,
         ContextPopupDirective,
-        SearchInputDirective
+        SearchInputDirective,
     ],
     providers: []
 })

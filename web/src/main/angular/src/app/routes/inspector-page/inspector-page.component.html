@@ -1,24 +1,33 @@
 <pp-notice-container></pp-notice-container>
-<header class="l-header flex-container flex-row">
-    <pp-header-logo></pp-header-logo>
-    <div class="l-widget-group">
-        <pp-application-list-for-header-container></pp-application-list-for-header-container>
-        <pp-period-selector-container></pp-period-selector-container>
-    </div>
-    <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
-    <pp-configuration-icon-container></pp-configuration-icon-container>
-</header>
-<div class="l-main-container">
-    <section *ngIf="(showSideMenu$ | async) as showSideMenu" class="l-sidemenu-wrap font-opensans">
-        <div class="l-sidemenu-left">
-            <section class="l-application-inspector-title-wrapper">
-                <pp-application-inspector-title-container></pp-application-inspector-title-container>
-            </section>
-            <pp-agent-search-input-container></pp-agent-search-input-container>
-            <pp-server-and-agent-list-container></pp-server-and-agent-list-container>            
+<div class="container" [class.sideNavigationUI]="sideNavigationUI">
+    <pp-side-navigation-bar *ngIf="sideNavigationUI"></pp-side-navigation-bar>
+    <header *ngIf="!sideNavigationUI" class="l-header flex-container flex-row">
+        <pp-header-logo></pp-header-logo>
+        <div class="l-widget-group">
+            <pp-application-list-for-header-container></pp-application-list-for-header-container>
+            <pp-period-selector-container></pp-period-selector-container>
         </div>
-    </section>
-    <section class="l-main-section">
-        <router-outlet></router-outlet>
-    </section>
+        <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
+        <pp-configuration-icon-container></pp-configuration-icon-container>
+    </header>
+    <div class="l-main-container" [class.sideNavigationUI]="sideNavigationUI">
+        <pp-app-widget
+            *ngIf="sideNavigationUI"
+            [showServermapOption]="false"
+            [showTransactionIdSearch]="false"
+        >
+        </pp-app-widget>
+        <section *ngIf="(showSideMenu$ | async) as showSideMenu" class="l-sidemenu-wrap font-opensans">
+            <div class="l-sidemenu-left">
+                <section class="l-application-inspector-title-wrapper">
+                    <pp-application-inspector-title-container></pp-application-inspector-title-container>
+                </section>
+                <pp-agent-search-input-container></pp-agent-search-input-container>
+                <pp-server-and-agent-list-container></pp-server-and-agent-list-container>            
+            </div>
+        </section>
+        <section class="l-main-section">
+            <router-outlet></router-outlet>
+        </section>
+    </div>
 </div>

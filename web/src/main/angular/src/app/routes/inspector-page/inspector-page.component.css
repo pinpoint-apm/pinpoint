@@ -1,8 +1,12 @@
-:host {
-    display: block;
-    width: 100%;
-    height: 100%;
+.container {
+    display: flex;
+    flex-flow: row wrap;
 }
+
+.container.sideNavigationUI {
+    flex-flow: unset
+}
+
 .l-widget-group {
     display: flex;
     flex-flow: row wrap;
@@ -17,6 +21,9 @@
     height: calc(100vh - 50px);
     width: 100%;
     overflow-y: hidden;
+}
+.l-main-container.sideNavigationUI {
+    height: 100vh;
 }
 .l-sidemenu-wrap {
     position: relative;

@@ -11,6 +11,7 @@ import { FilteredMapContentsModule } from 'app/core/components/filtered-map-cont
 import { SideBarModule } from 'app/core/components/side-bar';
 
 import { FilteredMapPageComponent } from './filtered-map-page.component';
+import { SideNavigationBarModule } from 'app/core/components/side-navigation-bar';
 
 @NgModule({
     declarations: [
@@ -18,6 +19,7 @@ import { FilteredMapPageComponent } from './filtered-map-page.component';
     ],
     imports: [
         SharedModule,
+        SideNavigationBarModule,
         NoticeModule,
         DataLoadIndicatorModule,
         StateButtonModule,

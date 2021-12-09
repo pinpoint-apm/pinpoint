@@ -16,6 +16,9 @@
     justify-content: flex-end;
     position:absolute;
 }
+.l-main-contents-top.sideNavigationUI {
+    top: 50px;
+}
 .fas {
     color:var(--icon-default);
     font-size:18px;

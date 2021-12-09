@@ -1,15 +1,18 @@
 <pp-notice-container></pp-notice-container>
-<header class="l-header flex-container flex-row">
-    <pp-header-logo></pp-header-logo>
-    <div class="l-widget-group">
-        <pp-data-load-indicator-for-filtered-map-container></pp-data-load-indicator-for-filtered-map-container>
+<pp-side-navigation-bar *ngIf="sideNavigationUI"></pp-side-navigation-bar>
+<div class="container">
+    <header class="l-header flex-container flex-row" [class.light]="sideNavigationUI">
+        <pp-header-logo *ngIf="!sideNavigationUI"></pp-header-logo>
+        <div class="l-widget-group">
+            <pp-data-load-indicator-for-filtered-map-container></pp-data-load-indicator-for-filtered-map-container>
+        </div>
+        <pp-state-button-for-filtered-map-container></pp-state-button-for-filtered-map-container>
+        <pp-configuration-icon-container *ngIf="!sideNavigationUI"></pp-configuration-icon-container>
+    </header>
+    <div class="l-main-container">
+        <section class="l-main-section">
+            <router-outlet></router-outlet>
+        </section>
+        <pp-side-bar-for-filtered-map-container></pp-side-bar-for-filtered-map-container>
     </div>
-    <pp-state-button-for-filtered-map-container></pp-state-button-for-filtered-map-container>
-    <pp-configuration-icon-container></pp-configuration-icon-container>
-</header>
-<div class="l-main-container">
-    <section class="l-main-section">
-        <router-outlet></router-outlet>
-    </section>
-    <pp-side-bar-for-filtered-map-container></pp-side-bar-for-filtered-map-container>
-</div>
+</div>  

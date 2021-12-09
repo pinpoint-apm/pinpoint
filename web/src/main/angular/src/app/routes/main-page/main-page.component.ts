@@ -30,6 +30,8 @@ export class MainPageComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
     private guideText: string;
 
+    sideNavigationUI: boolean;
+
     isAppSelected$: Observable<boolean>;
     isScreenWideEnough$: Observable<boolean>;
 
@@ -45,6 +47,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
+        this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
         this.translateService.get('MAIN.VISIBILITY_HIDDEN').subscribe((text: string) => {
             this.guideText = text;
         });

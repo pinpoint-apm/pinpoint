@@ -1,12 +1,12 @@
 .l-time-set {
     display: flex;
-    flex-flow: row wrap;
     height: 100%;
 }
 .l-time-set li {
     box-shadow: -1px 0px 0px var(--period-select-box-shadow);
 }
 .l-time-set button {
+    white-space: nowrap;
     height: 100%;
     font-size:12px;
     font-weight:600;

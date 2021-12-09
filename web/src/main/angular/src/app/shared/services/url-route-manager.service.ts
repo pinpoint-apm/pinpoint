@@ -60,6 +60,37 @@ export class UrlRouteManagerService {
         ]);
     }
 
+    moveByApplicationCondition(rootRoute: UrlPath): void {
+        if (this.newUrlStateNotificationService.hasValue(UrlPathId.APPLICATION)) {
+            const isRealTimeMode = this.newUrlStateNotificationService.isRealTimeMode()
+            const applicationName = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).applicationName;
+            const serviceType = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).serviceType;
+            const selectedApp = `${applicationName}@${serviceType}`;
+            
+            if (isRealTimeMode) {
+                this.router.navigate([
+                    rootRoute,
+                    UrlPath.REAL_TIME,
+                    selectedApp,
+                ])
+            } else if (
+                this.newUrlStateNotificationService.hasValue(UrlPathId.PERIOD)
+                && this.newUrlStateNotificationService.hasValue(UrlPathId.END_TIME)
+            ) {
+                this.router.navigate([
+                    rootRoute,
+                    selectedApp,
+                    this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
+                    this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
+                ]);
+            }
+        } else {
+            this.router.navigate([
+                rootRoute,
+            ])
+        }
+    }
+
     move({url, needServerTimeRequest, nextUrl = [], queryParams = {}}: {url: string[], needServerTimeRequest: boolean, nextUrl?: string[], queryParams?: any}): void {
         url = url[0] === this.getBaseHref().replace(/\//g, '') ? url.slice(1) : url;
 

@@ -14,12 +14,15 @@ import { MainPageComponent } from './main-page.component';
 import { routing } from './main-page.routing';
 import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
 import { MessagePopupModule } from 'app/core/components/message-popup';
+import { AppWidgetModule } from 'app/core/components/app-widget';
+import { SideNavigationBarModule } from 'app/core/components/side-navigation-bar';
 
 @NgModule({
     declarations: [
         MainPageComponent
     ],
     imports: [
+        SideNavigationBarModule,
         SharedModule,
         NoticeModule,
         ApplicationListModule,
@@ -31,6 +34,7 @@ import { MessagePopupModule } from 'app/core/components/message-popup';
         SideBarModule,
         HelpViewerPopupModule,
         MessagePopupModule,
+        AppWidgetModule,
         RouterModule.forChild(routing)
     ],
     exports: [],

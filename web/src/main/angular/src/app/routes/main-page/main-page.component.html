@@ -1,25 +1,29 @@
 <pp-notice-container></pp-notice-container>
-<header class="l-header flex-container flex-row">
-    <pp-header-logo></pp-header-logo>
-    <div class="l-widget-group">
-        <pp-application-list-for-header-container></pp-application-list-for-header-container>
-        <pp-server-map-options-container></pp-server-map-options-container>
-        <pp-period-selector-container></pp-period-selector-container>
-        <ng-container *ngIf="isAppSelected$ | async">
-            <ng-container *ngIf="isScreenWideEnough$ | async; else searchIcon">
-                <pp-transaction-id-search-container></pp-transaction-id-search-container>
+<div class="container" [class.sideNavigationUI]="sideNavigationUI">
+    <pp-side-navigation-bar *ngIf="sideNavigationUI"></pp-side-navigation-bar>
+    <header *ngIf="!sideNavigationUI" class="l-header flex-container flex-row">
+        <pp-header-logo></pp-header-logo>
+        <div class="l-widget-group">
+            <pp-application-list-for-header-container></pp-application-list-for-header-container>
+            <pp-server-map-options-container></pp-server-map-options-container>
+            <pp-period-selector-container></pp-period-selector-container>
+            <ng-container *ngIf="isAppSelected$ | async">
+                <ng-container *ngIf="isScreenWideEnough$ | async; else searchIcon">
+                    <pp-transaction-id-search-container></pp-transaction-id-search-container>
+                </ng-container>
+                <ng-template #searchIcon>
+                    <button class="l-concised-search-button fas fa-search" (click)="onClickSearchIcon($event.target)"></button>
+                </ng-template>
             </ng-container>
-            <ng-template #searchIcon>
-                <button class="l-concised-search-button fas fa-search" (click)="onClickSearchIcon($event.target)"></button>
-            </ng-template>
-        </ng-container>
+        </div>
+        <button class="fa fa-question-circle" (click)="onShowHelp($event)"></button>
+        <pp-configuration-icon-container></pp-configuration-icon-container>
+    </header>
+    <div class="l-main-container" [class.sideNavigationUI]="sideNavigationUI">
+        <section class="l-main-section">
+            <pp-app-widget *ngIf="sideNavigationUI"></pp-app-widget>
+            <router-outlet></router-outlet>
+        </section>
+        <pp-side-bar-container *ngIf="isAppSelected$ | async"></pp-side-bar-container>
     </div>
-    <button class="fa fa-question-circle" (click)="onShowHelp($event)"></button>
-    <pp-configuration-icon-container></pp-configuration-icon-container>
-</header>
-<div class="l-main-container">
-    <section class="l-main-section">
-        <router-outlet></router-outlet>
-    </section>
-    <pp-side-bar-container *ngIf="isAppSelected$ | async"></pp-side-bar-container>
 </div>

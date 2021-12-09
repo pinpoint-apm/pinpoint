@@ -8,6 +8,10 @@
     height: calc(100% - 50px);
 }
 
+.l-main-container.sideNavigationUI {
+    height: 100%;
+}
+
 .l-sidemenu-section {
     width: 240px;
     height: 100%;
@@ -66,6 +70,10 @@
     width: calc(100% - 240px);
     height: 100%;
     padding: 20px 15px;
+}
+
+.l-main-section.sideNavigationUI {
+    width: 100%;
 }
 
 .l-exit-button {

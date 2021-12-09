@@ -144,7 +144,7 @@ export enum TRACKED_EVENT_LIST {
     SET_REAL_TIME_AREA_HEIGHT = 'Set RealTime Area Height',
     SELECT_APPLICATION_FOR_WEBHOOK = 'Select Application For Webhook',
     SHOW_WEBHOOK_UPDATE_POPUP = 'Show Webhook Update Popup',
-
+    CLICK_SIDE_NAVIGATION_BAR = 'Click Side Navigation Bar',
 }
 
 @Injectable()

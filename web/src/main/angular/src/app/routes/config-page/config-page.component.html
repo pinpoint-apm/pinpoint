@@ -1,9 +1,10 @@
-<header class="l-header flex-container flex-row">
+<header *ngIf="!sideNavigationUI"  class="l-header flex-container flex-row">
     <pp-header-logo></pp-header-logo>
     <button class="l-exit-button" title="Exit the configuration page" (click)="onClickExit()"><i class="fas fa-times"></i></button>
 </header>
-<div class="l-main-container font-opensans">
-    <section class="l-sidemenu-section">
+<div class="l-main-container font-opensans" [class.sideNavigationUI]="sideNavigationUI">
+    <pp-side-navigation-bar *ngIf="sideNavigationUI"></pp-side-navigation-bar>
+    <section *ngIf="!sideNavigationUI" class="l-sidemenu-section">
         <ul class="l-list l-depth-0">
             <li class="l-list-item">
                 <a class="l-link l-link-with-arrow" [class.active]="isActive(linkAdmin)" (click)="toggleMenu('admin')" #linkAdmin>
@@ -35,7 +36,7 @@
             <li class="l-list-item"><a (click)="onMenuClick('experimental')" routerLink="/config/experimental" routerLinkActive="active" class="l-link l-experimental-menu-link">Experimental <i class="fas fa-flask"></i></a></li>
         </ul>
     </section>
-    <section class="l-main-section">
+    <section class="l-main-section" [class.sideNavigationUI]="sideNavigationUI">
         <router-outlet></router-outlet>
     </section>
 </div>

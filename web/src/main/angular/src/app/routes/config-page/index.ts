@@ -14,6 +14,7 @@ import { ConfigurationExperimentalModule } from 'app/core/components/configurati
 import { ConfigurationAlarmModule } from 'app/core/components/configuration-alarm';
 import { ConfigurationAgentStatisticModule } from 'app/core/components/configuration-agent-statistic';
 import { ConfigurationAgentManagementModule } from 'app/core/components/configuration-agent-management';
+import { SideNavigationBarModule } from 'app/core/components/side-navigation-bar';
 
 @NgModule({
     declarations: [
@@ -21,6 +22,7 @@ import { ConfigurationAgentManagementModule } from 'app/core/components/configur
     ],
     imports: [
         SharedModule,
+        SideNavigationBarModule,
         ConfigPageRoutingModule,
         ConfigurationGeneralModule,
         ConfigurationFavoriteModule,

@@ -36,13 +36,12 @@ caption {
     width: 0;
     height: 0;
     overflow: hidden;
-    font-size: 0
+    font-size: 0;
 }
-
 
 #pinpoint {
     min-width: 1290px;
-    height: 100%
+    height: 100%;
 }
 
 .l-header {
@@ -57,6 +56,12 @@ caption {
     min-width: 1290px;
     width: 100%;
     padding: 0 15px;
+}
+
+.l-header.light {
+    background-color: var(--background-default);
+    color: var(--text-primary);
+    border-bottom: 3px solid var(--border-primary-darker);
 }
 
 .flex-container {
@@ -133,7 +138,7 @@ caption {
     text-align: center;
     font-size: 11px;
     line-height: 1em;
-    border-radius: 2px
+    border-radius: 2px;
 }
 
 .pinpoint-btn span {
@@ -150,7 +155,7 @@ caption {
 }
 
 .inactive {
-    display:none;
+    display: none;
 }
 
 *[hidden] {
@@ -164,7 +169,8 @@ caption {
     background: var(--background-default);
 }
 
-.table th, .table td {
+.table td,
+.table th {
     height: 28px;
     font-size: 12px;
     font-family: 'Open Sans', sans-serif;
@@ -177,18 +183,19 @@ caption {
 }
 
 .table tbody th {
-    text-align: left
+    text-align: left;
 }
 
 .table th {
     color: var(--text-primary-lightest);
 }
 
-.table td{
+.table td {
     color: var(--text-secondary);
 }
 
-.table td, .table tbody th {
+.table tbody th,
+.table td {
     font-weight: 400;
     word-break: break-all;
 }
@@ -223,11 +230,11 @@ caption {
     }
 }
 
-.l-transaction-view-top-contents .bb-axis-y-label,
-.l-transaction-view-top-contents .bb-axis-y2-label,
-.l-application-inspector-contents .bb-axis-y-label,
 .l-agent-inspector-contents .bb-axis-y-label,
-.l-agent-inspector-contents .bb-axis-y2-label {
+.l-agent-inspector-contents .bb-axis-y2-label,
+.l-application-inspector-contents .bb-axis-y-label,
+.l-transaction-view-top-contents .bb-axis-y-label,
+.l-transaction-view-top-contents .bb-axis-y2-label {
     text-anchor: middle !important;
     font-family: 'Open Sans';
     font-size: 0.75vw;
@@ -247,7 +254,10 @@ caption {
     stroke-dasharray: 2 2;
 }
 
-.ag-theme-balham .ag-selection-checkbox:not(.ag-hidden) ~ .ag-group-checkbox, .ag-theme-balham .ag-group-expanded:not(.ag-hidden) ~ .ag-group-checkbox, .ag-theme-balham .ag-group-contracted:not(.ag-hidden) ~ .ag-group-checkbox, .ag-theme-balham .ag-group-checkbox:not(.ag-invisible) ~ .ag-group-checkbox {
+.ag-theme-balham .ag-group-checkbox:not(.ag-invisible) ~ .ag-group-checkbox,
+.ag-theme-balham .ag-group-contracted:not(.ag-hidden) ~ .ag-group-checkbox,
+.ag-theme-balham .ag-group-expanded:not(.ag-hidden) ~ .ag-group-checkbox,
+.ag-theme-balham .ag-selection-checkbox:not(.ag-hidden) ~ .ag-group-checkbox {
     margin-left: 0 !important;
 }
 
@@ -265,7 +275,7 @@ caption {
 
 .l-calltree .ag-root {
     border: none;
-    font-size: 12px;    
+    font-size: 12px;
     font-family: 'Open Sans', sans-serif;
 }
 
@@ -382,15 +392,15 @@ caption {
     width: 92%;
 }
 
-.l-response-summary-chart .bb-grid line,
 .l-load-chart .bb-grid line,
+.l-response-summary-chart .bb-grid line,
 .l-url-statistic-chart .bb-grid line {
     stroke: var(--chart-guide-line);
     stroke-width: 1.5;
 }
 
-.l-response-summary-chart .bb-ygrid,
 .l-load-chart .bb-ygrid,
+.l-response-summary-chart .bb-ygrid,
 .l-url-statistic-chart .bb-ygrid {
     stroke-dasharray: 0;
 }
@@ -411,8 +421,8 @@ caption {
     fill: var(--chart-text);
 }
 
-.bb-axis line, 
-.bb-axis .domain {
+.bb-axis .domain,
+.bb-axis line {
     stroke: var(--chart-line);
 }
 

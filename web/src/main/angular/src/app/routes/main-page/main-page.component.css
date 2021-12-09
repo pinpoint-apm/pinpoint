@@ -1,6 +1,12 @@
-:host {
-    display: block;
+.container {
+    display: flex;
+    flex-flow: column;
 }
+
+.container.sideNavigationUI {
+    flex-flow: unset
+}
+
 .l-widget-group {
     display: flex;
     flex-flow: row wrap;
@@ -14,11 +20,16 @@
     display: flex;
     flex-flow: row wrap;
     height: calc(100vh - 50px); /* 50px: header 높이 */
+    width: 100%;
     overflow-y: hidden;
+}
+.l-main-container.sideNavigationUI {
+    height: 100vh;
 }
 .l-main-section {
     display: flex;
     flex: 1;
+    flex-wrap: wrap;
     background: var(--background-primary);
     position: relative;
     height: 100%;

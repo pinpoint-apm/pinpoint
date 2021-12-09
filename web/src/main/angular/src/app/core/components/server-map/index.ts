@@ -27,7 +27,7 @@ import { ServerMapRangeHandlerService } from './server-map-range-handler.service
         ServerErrorPopupModule,
         LinkContextPopupModule,
         NodeContextPopupModule,
-        ServerMapContextPopupModule
+        ServerMapContextPopupModule,
     ],
     exports: [
         ServerMapComponent,

@@ -20,6 +20,8 @@ import { MessagePopupContainerComponent } from 'app/core/components/message-popu
 export class TransactionListPageComponent implements OnInit {
     private errorMessage: string;
 
+    sideNavigationUI: boolean;
+
     splitSize: number[];
 
     constructor(
@@ -30,10 +32,12 @@ export class TransactionListPageComponent implements OnInit {
         private dynamicPopupService: DynamicPopupService,
         private gutterEventService: GutterEventService,
         private componentFactoryResolver: ComponentFactoryResolver,
-        private injector: Injector
+        private injector: Injector,
     ) {}
 
     ngOnInit() {
+        this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
+        
         this.translateService.get('TRANSACTION_LIST.TRANSACTION_RETRIEVE_ERROR').subscribe((text: string) => {
             this.errorMessage = text;
         });

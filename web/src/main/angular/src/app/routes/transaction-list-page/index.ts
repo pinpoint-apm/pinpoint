@@ -12,12 +12,14 @@ import { TransactionListBottomContentsModule } from 'app/core/components/transac
 
 import { TransactionListPageComponent } from './transaction-list-page.component';
 import { routing } from './transaction-list-page.routing';
+import { SideNavigationBarModule } from 'app/core/components/side-navigation-bar';
 
 @NgModule({
     declarations: [
         TransactionListPageComponent
     ],
     imports: [
+        SideNavigationBarModule,
         AngularSplitModule,
         SharedModule,
         NoticeModule,
