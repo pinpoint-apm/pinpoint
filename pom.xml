@@ -179,7 +179,7 @@
         <mybatis.version>3.5.7</mybatis.version>
 
         <jjwt.version>0.9.1</jjwt.version>
-        <jaxb.version>2.3.1</jaxb.version>
+        <jaxb.version>2.3.3</jaxb.version>
 
         <zookeeper.version>3.4.14</zookeeper.version>
         <curator.version>4.2.0</curator.version>
@@ -833,6 +833,17 @@
                 <groupId>jakarta.mail</groupId>
                 <artifactId>jakarta.mail-api</artifactId>
                 <version>1.6.7</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>${jaxb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>2.3.5</version>
+                <scope>runtime</scope>
             </dependency>
 
 
