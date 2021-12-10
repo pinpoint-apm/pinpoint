@@ -845,6 +845,23 @@
                 <version>2.3.5</version>
                 <scope>runtime</scope>
             </dependency>
+            <dependency>
+                <groupId>jakarta.activation</groupId>
+                <artifactId>jakarta.activation-api</artifactId>
+                <version>1.2.2</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.activation</groupId>
+                <artifactId>jakarta.activation</artifactId>
+                <version>1.2.2</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.annotation</groupId>
+                <artifactId>jakarta.annotation-api</artifactId>
+                <version>1.3.5</version>
+            </dependency>
 
 
             <dependency>
@@ -992,6 +1009,10 @@
                     <exclusion>
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.annotation</groupId>
+                        <artifactId>javax.annotation-api</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
