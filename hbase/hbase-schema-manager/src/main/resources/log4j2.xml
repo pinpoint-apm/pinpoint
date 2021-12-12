@@ -6,7 +6,7 @@
 
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="[%-5p] HbaseSchemaManager> %m%n"/>
+            <PatternLayout pattern="[%-5p] HbaseSchemaManager> %msg{nolookups}%n"/>
             <Filters>
                 <MarkerFilter marker="TERMINAL" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
                 <MarkerFilter marker="APP_LOG" onMatch="DENY" onMismatch="NEUTRAL"/>
@@ -14,7 +14,7 @@
         </Console>
         <RollingFile name="AppLog" fileName="${baseDir}/pinpoint-schema-manager.log"
                                    filePattern="${baseDir}/pinpoint-schema-manager-%i.log">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35.35c{1.}:%-3L) %m%n"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35.35c{1.}:%-3L) %msg{nolookups}%n"/>
             <Filters>
                 <MarkerFilter marker="TERMINAL" onMatch="DENY" onMismatch="NEUTRAL"/>
                 <MarkerFilter marker="APP_LOG" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
