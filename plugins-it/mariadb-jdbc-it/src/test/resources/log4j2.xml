@@ -10,8 +10,8 @@
         <Property name="lastmodified">7d</Property>
 
         <!-- message_pattern -->
-        <Property name="line_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.}:%-3L -- %msg%n</Property>
-        <Property name="simple_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.} -- %msg%n</Property>
+        <Property name="line_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.}:%-3L -- %msg{nolookups}%n</Property>
+        <Property name="simple_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.} -- %msg{nolookups}%n</Property>
         <Property name="console_message_pattern">${simple_message_pattern}</Property>
         <Property name="file_message_pattern">${simple_message_pattern}</Property>
     </Properties>
