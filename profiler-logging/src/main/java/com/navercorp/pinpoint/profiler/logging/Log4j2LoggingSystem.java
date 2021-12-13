@@ -19,6 +19,7 @@ public class Log4j2LoggingSystem implements LoggingSystem {
     public static final String CONTEXT_NAME = "pinpoint-agent-logging-context";
 
     public static final String FACTORY_PROPERTY_NAME = "log4j2.loggerContextFactory";
+    public static final String NOLOOKUPS = "log4j2.formatMsgNoLookups";
 
     private static final String[] LOOKUP = {"log4j2-test.xml", "log4j2.xml", "log4j2.properties"};
 
@@ -99,10 +100,15 @@ public class Log4j2LoggingSystem implements LoggingSystem {
     }
 
     private LoggerContext getLoggerContext(URI uri) {
-        String factory = prepare(FACTORY_PROPERTY_NAME);
+        // Prepare SystemProperties
+        final String factory = prepare(FACTORY_PROPERTY_NAME, Log4j2ContextFactory.class.getName());
+        // Log4j2 RCE CVE-2021-44228
+        // https://github.com/pinpoint-apm/pinpoint/issues/8489
+        final String nolookup = prepare(NOLOOKUPS, Boolean.TRUE.toString());
         try {
             return (LoggerContext) LogManager.getContext(this.getClass().getClassLoader(), false, null, uri, CONTEXT_NAME);
         } finally {
+            rollback(NOLOOKUPS, nolookup);
             rollback(FACTORY_PROPERTY_NAME, factory);
         }
     }
@@ -132,9 +138,9 @@ public class Log4j2LoggingSystem implements LoggingSystem {
 
     }
 
-    private String prepare(String key) {
+    private String prepare(String key, String value) {
         final String backup = System.getProperty(key);
-        System.setProperty(key, Log4j2ContextFactory.class.getName());
+        System.setProperty(key, value);
         return backup;
     }
 
