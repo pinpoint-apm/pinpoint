@@ -838,6 +838,12 @@
                 <artifactId>jakarta.mail-api</artifactId>
                 <version>1.6.7</version>
             </dependency>
+            <dependency>
+                <groupId>com.sun.activation</groupId>
+                <artifactId>jakarta.activation</artifactId>
+                <scope>runtime</scope>
+                <version>1.2.2</version>
+            </dependency>
 
 
             <dependency>
