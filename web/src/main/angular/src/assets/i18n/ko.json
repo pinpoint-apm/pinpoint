@@ -98,7 +98,8 @@
         "WEBHOOK": {
             "URL": "url",
             "URL_VALIDATION": "Url을 올바르게 입력해주세요.",
-            "ALIAS": "빈 값일 경우, 입력한  Url로 설정됩니다."
+            "ALIAS": "빈 값일 경우, 입력한  Url로 설정됩니다.",
+            "MAX_LENGTH": "256자까지 입력 가능합니다."
         }
     },
     "TRANSACTION": {
