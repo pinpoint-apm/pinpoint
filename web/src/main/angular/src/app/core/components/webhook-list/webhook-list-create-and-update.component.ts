@@ -28,9 +28,10 @@ export class WebhookListCreateAndUpdateComponent implements OnInit, OnChanges {
 
     webhookForm = new FormGroup({
         'alias': new FormControl('', [
-            Validators.max(100)
+            Validators.maxLength(256)
         ]),
         'url': new FormControl('', [
+            Validators.maxLength(256),
             Validators.required, 
             CustomFormValidatorService.validate(/((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/),
         ]),

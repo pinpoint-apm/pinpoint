@@ -80,9 +80,14 @@ export class WebhookListContainerComponent implements OnInit, OnDestroy {
             this.translateService.get('CONFIGURATION.WEBHOOK.URL'),
             this.translateService.get('CONFIGURATION.WEBHOOK.URL_VALIDATION'),
             this.translateService.get('CONFIGURATION.WEBHOOK.ALIAS'),
-        ).subscribe(([requiredMessage, selectApp, empty, urlLabel, urlValidation, alias]: string[]) => {
+            this.translateService.get('CONFIGURATION.WEBHOOK.MAX_LENGTH'),
+        ).subscribe(([requiredMessage, selectApp, empty, urlLabel, urlValidation, alias, maxlength]: string[]) => {
             this.i18nFormGuide = {
+                alias: {
+                    maxlength,
+                },
                 url: {
+                    maxlength,
                     required: this.translateReplaceService.replace(requiredMessage, urlLabel),
                     valueRule: urlValidation,
                 },

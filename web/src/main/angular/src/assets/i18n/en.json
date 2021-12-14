@@ -99,7 +99,8 @@
         "WEBHOOK": {
             "URL": "url",
             "URL_VALIDATION": "Please enter the Url correctly.",
-            "ALIAS": "If empty, it is set to the entered Url."
+            "ALIAS": "If empty, it is set to the entered Url.",
+            "MAX_LENGTH": "You can enter up to 256 characters."
         }
     },
     "TRANSACTION": {
