@@ -59,7 +59,6 @@
 <!--        <module>spring-cloud-gateway-plugin-testweb</module>-->
 <!--        <module>spring-webflux-plugin-testweb</module>-->
         <module>jdk-http-plugin-testweb</module>
-        <module>vertx-3-plugin-testweb</module>
     </modules>
 
 
