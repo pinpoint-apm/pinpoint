@@ -19,18 +19,22 @@ package com.navercorp.pinpoint.plugin.jdk.http.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
-import com.navercorp.pinpoint.plugin.jdk.http.ConnectedGetter;
+import com.navercorp.pinpoint.plugin.jdk.http.DelegateGetter;
+import sun.net.www.protocol.https.DelegateHttpsURLConnection;
 
-public class HttpURLConnectionInterceptor extends AbstractHttpURLConnectionInterceptor {
-    public HttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
+public class HttpsURLConnectionImplInterceptor extends AbstractHttpURLConnectionInterceptor {
+
+    public HttpsURLConnectionImplInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
         super(traceContext, descriptor, scope);
     }
 
     @Override
-    boolean isConnected(Object target) {
-        if (target instanceof ConnectedGetter) {
-            final boolean connected = ((ConnectedGetter) target)._$PINPOINT$_isConnected();
-            return connected;
+    boolean isConnected(final Object target) {
+        if (target instanceof DelegateGetter) {
+            DelegateHttpsURLConnection delegateHttpsURLConnection = ((DelegateGetter) target)._$PINPOINT$_getDelegate();
+            if (delegateHttpsURLConnection != null) {
+                return delegateHttpsURLConnection.isConnected();
+            }
         }
         return false;
     }

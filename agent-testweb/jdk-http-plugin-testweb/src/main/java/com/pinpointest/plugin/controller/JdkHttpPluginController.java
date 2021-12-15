@@ -63,11 +63,30 @@ public class JdkHttpPluginController {
         return httpCall("http", "POST");
     }
 
+    @GetMapping(value = "/http-post/already-connect")
+    public String httpPostAlreadyConnect() {
+        try {
+            JdkPostUtils.checkLsmList("http://naver.com");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "OK";
+    }
+
     @GetMapping(value = "/https-post")
     public String httpsPost() {
         return httpCall("https", "GET");
     }
 
+    @GetMapping(value = "/https-post/already-connect")
+    public String httpsPostAlreadyConnect() {
+        try {
+            JdkPostUtils.checkLsmList("https://naver.com");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "OK";
+    }
 
     @GetMapping(value = "/error")
     public String error() throws IOException {
