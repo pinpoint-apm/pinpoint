@@ -48,6 +48,7 @@
                 <include>com.navercorp.pinpoint:pinpoint-bootstrap-java8</include>
                 <include>com.navercorp.pinpoint:pinpoint-bootstrap-java9</include>
                 <include>com.navercorp.pinpoint:pinpoint-bootstrap-java9-internal</include>
+                <include>com.navercorp.pinpoint:pinpoint-log4j-core-jdk7-repackage</include>
             </includes>
             <outputDirectory>boot</outputDirectory>
         </dependencySet>
@@ -63,6 +64,7 @@
                 <exclude>com.navercorp.pinpoint:pinpoint-profiler-test</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-plugins-assembly</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-tools</exclude>
+                <exclude>org.apache.logging.log4j:log4j-core</exclude>
                 <exclude>*:pom</exclude>
             </excludes>
             <outputDirectory>lib</outputDirectory>
