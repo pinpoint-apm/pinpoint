@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 import com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionInterceptor;
+import com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpsURLConnectionImplInterceptor;
 
 /**
  * 
@@ -54,7 +55,7 @@ public class JdkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
             return;
         }
         transformTemplate.transform("sun.net.www.protocol.http.HttpURLConnection", HttpURLConnectionTransform.class);
-        transformTemplate.transform(INTERCEPT_HTTPS_CLASS_NAME, HttpURLConnectionTransform.class);
+        transformTemplate.transform(INTERCEPT_HTTPS_CLASS_NAME, HttpsURLConnectionImplTransform.class);
     }
 
     public static class HttpURLConnectionTransform implements TransformCallback {
@@ -77,6 +78,27 @@ public class JdkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             final InstrumentMethod getOutputStreamMethod = InstrumentUtils.findMethod(target, "getOutputStream");
             getOutputStreamMethod.addScopedInterceptor(HttpURLConnectionInterceptor.class, "HttpURLConnectionOutput", ExecutionPolicy.BOUNDARY);
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class HttpsURLConnectionImplTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            target.addGetter(DelegateGetter.class, "delegate");
+
+            final InstrumentMethod connectMethod = InstrumentUtils.findMethod(target, "connect");
+            connectMethod.addScopedInterceptor(HttpsURLConnectionImplInterceptor.class, "HttpURLConnectionConnect", ExecutionPolicy.ALWAYS);
+
+            final InstrumentMethod getInputStreamMethod = InstrumentUtils.findMethod(target, "getInputStream");
+            getInputStreamMethod.addScopedInterceptor(HttpsURLConnectionImplInterceptor.class, "HttpURLConnectionInput", ExecutionPolicy.BOUNDARY);
+
+            final InstrumentMethod getOutputStreamMethod = InstrumentUtils.findMethod(target, "getOutputStream");
+            getOutputStreamMethod.addScopedInterceptor(HttpsURLConnectionImplInterceptor.class, "HttpURLConnectionOutput", ExecutionPolicy.BOUNDARY);
 
             return target.toBytecode();
         }
