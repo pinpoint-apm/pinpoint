@@ -158,7 +158,7 @@
             Message layout : %m -> %m{nolookups}
 -->
         <log4j2-jdk7.version>2.12.1</log4j2-jdk7.version>
-        <log4j2-jdk8.version>2.15.0</log4j2-jdk8.version>
+        <log4j2-jdk8.version>2.16.0</log4j2-jdk8.version>
         <log4j2.version>${log4j2-jdk7.version}</log4j2.version>
         <!-- for plugin & hbase client -->
         <log4j1.version>1.2.17</log4j1.version>
