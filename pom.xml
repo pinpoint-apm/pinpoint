@@ -79,6 +79,7 @@
     </repositories>
 
     <modules>
+        <module>log4j_2_12_1-repackage</module>
         <module>annotations</module>
         <module>agent</module>
         <module>agent-sdk</module>
