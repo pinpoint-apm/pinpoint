@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaClientUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
@@ -258,7 +259,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
                     return true;
                 }
 
-                String sampledFlag = new String(sampledHeader.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
+                String sampledFlag = BytesUtils.toString(sampledHeader.value());
                 return SamplingFlagUtils.isSamplingFlag(sampledFlag);
             }
 
@@ -269,13 +270,13 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
                 String flags = null;
                 for (org.apache.kafka.common.header.Header header : headers.toArray()) {
                     if (header.key().equals(Header.HTTP_TRACE_ID.toString())) {
-                        transactionId = new String(header.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
+                        transactionId = BytesUtils.toString(header.value());
                     } else if (header.key().equals(Header.HTTP_PARENT_SPAN_ID.toString())) {
-                        parentSpanID = new String(header.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
+                        parentSpanID = BytesUtils.toString(header.value());
                     } else if (header.key().equals(Header.HTTP_SPAN_ID.toString())) {
-                        spanID = new String(header.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
+                        spanID = BytesUtils.toString(header.value());
                     } else if (header.key().equals(Header.HTTP_FLAGS.toString())) {
-                        flags = new String(header.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
+                        flags = BytesUtils.toString(header.value());
                     }
                 }
 
@@ -300,9 +301,9 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
                 org.apache.kafka.common.header.Headers headers = consumerRecord.headers();
                 for (org.apache.kafka.common.header.Header header : headers.toArray()) {
                     if (header.key().equals(Header.HTTP_PARENT_APPLICATION_NAME.toString())) {
-                        parentApplicationName = new String(header.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
+                        parentApplicationName = BytesUtils.toString(header.value());
                     } else if (header.key().equals(Header.HTTP_PARENT_APPLICATION_TYPE.toString())) {
-                        parentApplicationType = new String(header.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
+                        parentApplicationType = BytesUtils.toString(header.value());
                     }
                 }
 
