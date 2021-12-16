@@ -34,6 +34,8 @@
 
         <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
         <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
+
+        <spring-boot-build-skip>false</spring-boot-build-skip>
         <pinpoint.plugintest.executable.name>${project.artifactId}-boot-${project.version}</pinpoint.plugintest.executable.name>
 
         <pinpoint.agent.profile>local</pinpoint.agent.profile>
@@ -50,72 +52,32 @@
     </properties>
 
     <modules>
+        <module>bom</module>
         <module>agentsdk-async-testweb</module>
         <module>thread-plugin-testweb</module>
         <module>paho-mqtt-plugin-testweb</module>
         <module>reactor-netty-plugin-testweb</module>
         <module>rocketmq-plugin-testweb</module>
         <module>dubbo-plugin-testweb</module>
-<!--        <module>spring-cloud-gateway-plugin-testweb</module>-->
-<!--        <module>spring-webflux-plugin-testweb</module>-->
+        <module>spring-cloud-gateway-plugin-testweb</module>
+        <module>spring-webflux-plugin-testweb</module>
         <module>jdk-http-plugin-testweb</module>
+        <module>vertx-3-plugin-testweb</module>
+        <module>vertx-4-plugin-testweb</module>
     </modules>
 
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-web</artifactId>
-                <version>${spring.boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-logging</artifactId>
-                <version>${spring.boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-tomcat</artifactId>
-                <version>${spring.boot.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-actuator</artifactId>
-                <version>${spring.boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springdoc</groupId>
-                <artifactId>springdoc-openapi-ui</artifactId>
-                <version>1.4.4</version>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-agent-testweb-bom</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-tomcat</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
-        </dependency>
-    </dependencies>
 
     <build>
         <plugins>
@@ -123,6 +85,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <skip>${spring-boot-build-skip}</skip>
                     <outputDirectory>${project.build.directory}/deploy</outputDirectory>
                     <executable>true</executable>
                     <attach>false</attach>

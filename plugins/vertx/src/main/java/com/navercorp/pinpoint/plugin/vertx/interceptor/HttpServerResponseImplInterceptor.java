@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
-import io.vertx.core.http.impl.HttpServerResponseImpl;
+import io.vertx.core.http.HttpServerResponse;
 
 /**
  * @author jaehong.kim
@@ -48,8 +48,8 @@ public class HttpServerResponseImplInterceptor extends AsyncContextSpanEventEndP
         recorder.recordServiceType(VertxConstants.VERTX_HTTP_SERVER_INTERNAL);
         recorder.recordException(throwable);
 
-        if (target instanceof HttpServerResponseImpl) {
-            final HttpServerResponseImpl response = (HttpServerResponseImpl) target;
+        if (target instanceof HttpServerResponse) {
+            final HttpServerResponse response = (HttpServerResponse) target;
             // TODO more simple.
             final AsyncContext asyncContext = getAsyncContext(target);
             if (asyncContext != null) {
