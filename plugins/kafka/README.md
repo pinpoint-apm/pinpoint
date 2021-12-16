@@ -27,6 +27,12 @@ profiler.kafka.consumer.enable=true
 # ex) profiler.kafka.consumer.entryPoint=clazzName.methodName
 profiler.kafka.consumer.entryPoint=
 ```
+
+#### to collect kafka header information
+``` 
+# You should set profiler.kafka.header.record as false below if you don't want to collect kafka header values.
+profiler.kafka.header.record=true
+```
 <br><br>
 
 

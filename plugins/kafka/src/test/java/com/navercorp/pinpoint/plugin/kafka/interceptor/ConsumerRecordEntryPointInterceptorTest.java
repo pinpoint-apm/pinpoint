@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.plugin.kafka.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -22,6 +23,9 @@ public class ConsumerRecordEntryPointInterceptorTest {
     private TraceContext traceContext;
 
     @Mock
+    private ProfilerConfig profilerConfig;
+
+    @Mock
     private MethodDescriptor descriptor;
 
     @Mock
@@ -41,6 +45,7 @@ public class ConsumerRecordEntryPointInterceptorTest {
 
     @Test
     public void doInBeforeTrace() {
+        doReturn(profilerConfig).when(traceContext).getProfilerConfig();
 
         ConsumerRecordEntryPointInterceptor interceptor = new ConsumerRecordEntryPointInterceptor(traceContext, descriptor, 0);
 
@@ -51,6 +56,7 @@ public class ConsumerRecordEntryPointInterceptorTest {
 
     @Test
     public void doInAfterTrace() {
+        doReturn(profilerConfig).when(traceContext).getProfilerConfig();
 
         ConsumerRecordEntryPointInterceptor interceptor = new ConsumerRecordEntryPointInterceptor(traceContext, descriptor, 0);
 
@@ -64,6 +70,7 @@ public class ConsumerRecordEntryPointInterceptorTest {
     public void createTrace() {
 
         doReturn(trace).when(traceContext).newTraceObject();
+        doReturn(profilerConfig).when(traceContext).getProfilerConfig();
         doReturn(true).when(trace).canSampled();
         doReturn(recorder).when(trace).getSpanRecorder();
 
@@ -72,7 +79,6 @@ public class ConsumerRecordEntryPointInterceptorTest {
         doReturn(0).when(consumerRecord).partition();
         doReturn(headers).when(consumerRecord).headers();
         doReturn(new Header[]{}).when(headers).toArray();
-        doReturn(Collections.emptyIterator()).when(headers).iterator();
 
         ConsumerRecordEntryPointInterceptor interceptor = new ConsumerRecordEntryPointInterceptor(traceContext, descriptor, 0);
 
