@@ -3,33 +3,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.navercorp.pinpoint</groupId>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pinpoint</artifactId>
+        <version>2.4.0-SNAPSHOT</version>
+    </parent>
+
     <artifactId>pinpoint-testcase</artifactId>
     <name>pinpoint-testcase</name>
-    <version>2.4.0-SNAPSHOT</version>
-
     <packaging>jar</packaging>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
-
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <!-- copy parent pom -->
-        <plugin.spotbugs.version>4.1.4</plugin.spotbugs.version>
-        <plugin.pmd.version>3.12.0</plugin.pmd.version>
-        <plugin.jshint.version>1.6.0</plugin.jshint.version>
     </properties>
 
     <dependencies>
@@ -38,30 +23,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>${plugin.spotbugs.version}</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.cj.jshintmojo</groupId>
-                <artifactId>jshint-maven-plugin</artifactId>
-                <version>${plugin.jshint.version}</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.6</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 </project>
