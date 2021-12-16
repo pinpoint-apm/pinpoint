@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.kafka.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -39,6 +40,9 @@ public class ProducerSendInterceptorTest {
     private TraceContext traceContext;
 
     @Mock
+    private ProfilerConfig profilerConfig;
+
+    @Mock
     private MethodDescriptor descriptor;
 
     @Mock
@@ -56,6 +60,7 @@ public class ProducerSendInterceptorTest {
     @Test
     public void before() {
         doReturn(trace).when(traceContext).currentRawTraceObject();
+        doReturn(profilerConfig).when(traceContext).getProfilerConfig();
         doReturn(true).when(trace).canSampled();
         doReturn(recorder).when(trace).traceBlockBegin();
 
@@ -71,6 +76,7 @@ public class ProducerSendInterceptorTest {
     @Test
     public void after() {
         doReturn(trace).when(traceContext).currentTraceObject();
+        doReturn(profilerConfig).when(traceContext).getProfilerConfig();
         doReturn(true).when(trace).canSampled();
         doReturn(recorder).when(trace).currentSpanEventRecorder();
         doReturn("test").when(record).topic();
