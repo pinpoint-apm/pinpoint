@@ -56,8 +56,14 @@ public class HttpServerRequestAdaptor implements RequestAdaptor<HttpServerReques
             final int port = request.localAddress().port();
             if (port <= 0) {
                 return request.host();
-            } else {
-                return request.host() + ":" + port;
+            }
+            final String host = request.host();
+            if (host != null) {
+                if (host.contains(":")) {
+                    return host;
+                } else {
+                    return host + ":" + port;
+                }
             }
         }
         return null;

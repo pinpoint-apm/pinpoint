@@ -39,13 +39,16 @@ import com.navercorp.pinpoint.plugin.vertx.interceptor.HandleExceptionIntercepto
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HandlerInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.Http1xClientConnectionCreateRequestInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplDoRequestInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplDoRequestInterceptorV4;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientRequestImplConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientRequestImplDoHandleResponseInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientRequestImplInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientResponseImplInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientStreamInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpServerRequestImplHandleEndInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpServerResponseImplInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.PromiseImplInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.ServerConnectionHandleRequestInterceptor;
 
 import java.security.ProtectionDomain;
@@ -69,7 +72,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             return;
         }
 
-            // 3.3 <= x <= 3.5
+        // 3.3 <= x <= 3.5
         logger.info("Enable VertxPlugin. version range=[3.3, 3.5.0]");
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
@@ -125,6 +128,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             addHttpClientRequestImpl();
             addHttpClientStream();
             addHttpClientResponseImpl();
+            addPromiseImpl();
         }
     }
 
@@ -241,6 +245,8 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
 
     private void addHttpServerRequestImpl() {
         transformTemplate.transform("io.vertx.core.http.impl.HttpServerRequestImpl", HttpServerRequestImplTransform.class);
+        // 3.7
+        transformTemplate.transform("io.vertx.core.http.impl.Http1xServerRequest", HttpServerRequestImplTransform.class);
     }
 
     public static class HttpServerRequestImplTransform implements TransformCallback {
@@ -266,6 +272,8 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
 
     private void addHttpServerResponseImpl() {
         transformTemplate.transform("io.vertx.core.http.impl.HttpServerResponseImpl", HttpServerResponseImplTransform.class);
+        // 3.7
+        transformTemplate.transform("io.vertx.core.http.impl.Http1xServerResponse", HttpServerResponseImplTransform.class);
     }
 
     public static class HttpServerResponseImplTransform implements TransformCallback {
@@ -321,42 +329,55 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
 
     public static class HttpClientImplTransform implements TransformCallback {
 
-    @Override
-    public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-        final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-        for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("requestAbs", "request", "get", "getAbs", "getNow", "post", "postAbs", "head", "headAbs", "headNow", "options", "optionsAbs", "optionsNow", "put", "putAbs", "delete", "deleteAbs"))) {
-            if (method != null) {
-                method.addScopedInterceptor(HttpClientImplInterceptor.class, VertxConstants.HTTP_CLIENT_REQUEST_SCOPE);
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // 4.x
+            target.addField(AsyncContextAccessor.class);
+            target.addField(SamplingRateFlag.class);
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("requestAbs", "request", "get", "getAbs", "getNow", "post", "postAbs", "head", "headAbs", "headNow", "options", "optionsAbs", "optionsNow", "put", "putAbs", "delete", "deleteAbs"))) {
+                if (method != null) {
+                    method.addScopedInterceptor(HttpClientImplInterceptor.class, VertxConstants.HTTP_CLIENT_REQUEST_SCOPE);
+                }
             }
-        }
 
-        // 3.3.x
-        final InstrumentMethod doRequestMethod = target.getDeclaredMethod("doRequest", "io.vertx.core.http.HttpMethod", "java.lang.String", "int", "java.lang.String", "io.vertx.core.MultiMap");
-        if (doRequestMethod != null) {
-            doRequestMethod.addInterceptor(HttpClientImplDoRequestInterceptor.class);
-        }
+            // 3.3.x
+            final InstrumentMethod doRequestMethod = target.getDeclaredMethod("doRequest", "io.vertx.core.http.HttpMethod", "java.lang.String", "int", "java.lang.String", "io.vertx.core.MultiMap");
+            if (doRequestMethod != null) {
+                doRequestMethod.addInterceptor(HttpClientImplDoRequestInterceptor.class);
+            }
 
-        // 3.4.0, 3.4.1
-        final InstrumentMethod createRequestMethod1 = target.getDeclaredMethod("createRequest", "io.vertx.core.http.HttpMethod", "java.lang.String", "int", "java.lang.Boolean", "java.lang.String", "io.vertx.core.MultiMap");
-        if (createRequestMethod1 != null) {
-            createRequestMethod1.addScopedInterceptor(HttpClientImplDoRequestInterceptor.class, VertxConstants.HTTP_CLIENT_CREATE_REQUEST_SCOPE);
-        }
+            // 3.4.0, 3.4.1
+            final InstrumentMethod createRequestMethod1 = target.getDeclaredMethod("createRequest", "io.vertx.core.http.HttpMethod", "java.lang.String", "int", "java.lang.Boolean", "java.lang.String", "io.vertx.core.MultiMap");
+            if (createRequestMethod1 != null) {
+                createRequestMethod1.addScopedInterceptor(HttpClientImplDoRequestInterceptor.class, VertxConstants.HTTP_CLIENT_CREATE_REQUEST_SCOPE);
+            }
 
-        // 3.4.2
-        final InstrumentMethod createRequestMethod2 = target.getDeclaredMethod("createRequest", "io.vertx.core.http.HttpMethod", "java.lang.String", "java.lang.String", "int", "java.lang.Boolean", "java.lang.String", "io.vertx.core.MultiMap");
-        if (createRequestMethod2 != null) {
-            createRequestMethod2.addScopedInterceptor(HttpClientImplDoRequestInterceptor.class, VertxConstants.HTTP_CLIENT_CREATE_REQUEST_SCOPE);
-        }
+            // 3.4.2
+            final InstrumentMethod createRequestMethod2 = target.getDeclaredMethod("createRequest", "io.vertx.core.http.HttpMethod", "java.lang.String", "java.lang.String", "int", "java.lang.Boolean", "java.lang.String", "io.vertx.core.MultiMap");
+            if (createRequestMethod2 != null) {
+                createRequestMethod2.addScopedInterceptor(HttpClientImplDoRequestInterceptor.class, VertxConstants.HTTP_CLIENT_CREATE_REQUEST_SCOPE);
+            }
 
-        // 3.7
-        final InstrumentMethod createRequestMethod3 = target.getDeclaredMethod("createRequest", "io.vertx.core.http.HttpMethod", "io.vertx.core.net.SocketAddress", "java.lang.String", "java.lang.String", "int", "java.lang.Boolean", "java.lang.String", "io.vertx.core.MultiMap");
-        if (createRequestMethod3 != null) {
-            createRequestMethod3.addScopedInterceptor(HttpClientImplDoRequestInterceptor.class, VertxConstants.HTTP_CLIENT_CREATE_REQUEST_SCOPE);
-        }
+            // 3.7
+            final InstrumentMethod createRequestMethod3 = target.getDeclaredMethod("createRequest", "io.vertx.core.http.HttpMethod", "io.vertx.core.net.SocketAddress", "java.lang.String", "java.lang.String", "int", "java.lang.Boolean", "java.lang.String", "io.vertx.core.MultiMap");
+            if (createRequestMethod3 != null) {
+                createRequestMethod3.addScopedInterceptor(HttpClientImplDoRequestInterceptor.class, VertxConstants.HTTP_CLIENT_CREATE_REQUEST_SCOPE);
+            }
 
-        return target.toBytecode();
+            // 4.x
+            final InstrumentMethod doRequestMethod2 = target.getDeclaredMethod("doRequest", "io.vertx.core.http.HttpMethod", "io.vertx.core.net.SocketAddress", "io.vertx.core.net.SocketAddress", "java.lang.String", "int", "java.lang.Boolean", "java.lang.String", "io.vertx.core.MultiMap", "long", "java.lang.Boolean", "io.vertx.core.net.ProxyOptions", "io.vertx.core.impl.future.PromiseInternal");
+            if (doRequestMethod2 != null) {
+                doRequestMethod2.addScopedInterceptor(HttpClientImplDoRequestInterceptorV4.class, VertxConstants.HTTP_CLIENT_CREATE_REQUEST_SCOPE);
+            }
+            final InstrumentMethod doRequestMethod3 = target.getDeclaredMethod("doRequest", "io.vertx.core.http.HttpMethod", "io.vertx.core.net.SocketAddress", "io.vertx.core.net.SocketAddress", "java.lang.String", "int", "java.lang.Boolean", "java.lang.String", "io.vertx.core.MultiMap", "java.lang.String", "long", "java.lang.Boolean", "io.vertx.core.net.ProxyOptions", "io.vertx.core.impl.future.PromiseInternal");
+            if (doRequestMethod3 != null) {
+                doRequestMethod3.addScopedInterceptor(HttpClientImplDoRequestInterceptorV4.class, VertxConstants.HTTP_CLIENT_CREATE_REQUEST_SCOPE);
+            }
+            return target.toBytecode();
+        }
     }
-}
 
     private void addHttpClientRequestImpl() {
         transformTemplate.transform("io.vertx.core.http.impl.HttpClientRequestImpl", HttpClientRequestImplTransform.class);
@@ -364,72 +385,88 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
 
     public static class HttpClientRequestImplTransform implements TransformCallback {
 
-    @Override
-    public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-        final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-        target.addField(AsyncContextAccessor.class);
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
+            target.addField(SamplingRateFlag.class);
 
-        // for HttpClientResponseImpl.
-        for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("doHandleResponse"))) {
-            if (method != null) {
-                method.addInterceptor(HttpClientRequestImplDoHandleResponseInterceptor.class);
+            // 4.x
+            InstrumentMethod constructor = target.getConstructor("io.vertx.core.http.impl.HttpClientImpl", "io.vertx.core.http.impl.HttpClientStream", "io.vertx.core.impl.future.PromiseInternal", "boolean", "io.vertx.core.http.HttpMethod", "io.vertx.core.net.SocketAddress", "java.lang.String", "int", "java.lang.String");
+            if (constructor != null) {
+                constructor.addInterceptor(HttpClientRequestImplConstructorInterceptor.class);
             }
-        }
+            InstrumentMethod constructor2 = target.getConstructor("io.vertx.core.http.impl.HttpClientImpl", "io.vertx.core.http.impl.HttpClientStream", "io.vertx.core.impl.future.PromiseInternal", "boolean", "io.vertx.core.http.HttpMethod", "io.vertx.core.net.SocketAddress", "java.lang.String", "int", "java.lang.String", "java.lang.String");
+            if (constructor2 != null) {
+                constructor2.addInterceptor(HttpClientRequestImplConstructorInterceptor.class);
+            }
 
-        // for stream.writeHead(), stream.writeHeadWithContent(), headersCompletionHandler.
-        final InstrumentMethod connectedMethod = target.getDeclaredMethod("connected", "io.vertx.core.http.impl.HttpClientStream", "io.vertx.core.Handler");
-        if (connectedMethod != null) {
-            connectedMethod.addInterceptor(HttpClientRequestImplInterceptor.class);
-        }
+            // for HttpClientResponseImpl.
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("doHandleResponse"))) {
+                if (method != null) {
+                    method.addInterceptor(HttpClientRequestImplDoHandleResponseInterceptor.class);
+                }
+            }
 
-        // for vert.x 3.7
-        final InstrumentMethod connectedMethod2 = target.getDeclaredMethod("connected", "io.vertx.core.Handler", "io.vertx.core.http.impl.HttpClientStream");
-        if (connectedMethod2 != null) {
-            connectedMethod2.addInterceptor(HttpClientRequestImplInterceptor.class);
-        }
+            // for stream.writeHead(), stream.writeHeadWithContent(), headersCompletionHandler.
+            final InstrumentMethod connectedMethod = target.getDeclaredMethod("connected", "io.vertx.core.http.impl.HttpClientStream", "io.vertx.core.Handler");
+            if (connectedMethod != null) {
+                connectedMethod.addInterceptor(HttpClientRequestImplInterceptor.class);
+            }
 
-        // handle.
-        final InstrumentMethod handleDrainedMethod = target.getDeclaredMethod("handleDrained");
-        if (handleDrainedMethod != null) {
-            handleDrainedMethod.addInterceptor(HttpClientRequestImplInterceptor.class);
-        }
+            // 3.7
+            final InstrumentMethod connectedMethod2 = target.getDeclaredMethod("connected", "io.vertx.core.Handler", "io.vertx.core.http.impl.HttpClientStream");
+            if (connectedMethod2 != null) {
+                connectedMethod2.addInterceptor(HttpClientRequestImplInterceptor.class);
+            }
 
-        final InstrumentMethod handleExceptionMethod = target.getDeclaredMethod("handleException", "java.lang.Throwable");
-        if (handleExceptionMethod != null) {
-            handleExceptionMethod.addInterceptor(HandleExceptionInterceptor.class);
-        }
+            // handle.
+            final InstrumentMethod handleDrainedMethod = target.getDeclaredMethod("handleDrained");
+            if (handleDrainedMethod != null) {
+                handleDrainedMethod.addInterceptor(HttpClientRequestImplInterceptor.class);
+            }
 
-        return target.toBytecode();
+            final InstrumentMethod handleExceptionMethod = target.getDeclaredMethod("handleException", "java.lang.Throwable");
+            if (handleExceptionMethod != null) {
+                handleExceptionMethod.addInterceptor(HandleExceptionInterceptor.class);
+            }
+
+            // 4.x
+            final InstrumentMethod doWriteMethod = target.getDeclaredMethod("doWrite", "io.netty.buffer.ByteBuf", "boolean", "boolean", "io.vertx.core.Handler");
+            if (doWriteMethod != null) {
+                doWriteMethod.addInterceptor(HttpClientRequestImplInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
     }
-}
 
     private void addHttpClientStream() {
         transformTemplate.transform("io.vertx.core.http.impl.ClientConnection", ClientConnectionTransform.class);
-        // for vert.x 3.7
+        //  3.7
         transformTemplate.transform("io.vertx.core.http.impl.Http1xClientConnection", ClientConnectionTransform.class);
     }
 
     public static class ClientConnectionTransform implements TransformCallback {
 
-    @Override
-    public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-        final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-        // add pinpoint headers.
-        final InstrumentMethod prepareHeadersMethod = target.getDeclaredMethod("prepareHeaders", "io.netty.handler.codec.http.HttpRequest", "java.lang.String", "boolean");
-        if (prepareHeadersMethod != null) {
-            prepareHeadersMethod.addInterceptor(HttpClientStreamInterceptor.class);
+            // add pinpoint headers.
+            final InstrumentMethod prepareHeadersMethod = target.getDeclaredMethod("prepareHeaders", "io.netty.handler.codec.http.HttpRequest", "java.lang.String", "boolean");
+            if (prepareHeadersMethod != null) {
+                prepareHeadersMethod.addInterceptor(HttpClientStreamInterceptor.class);
+            }
+
+            // 3.7
+            final InstrumentMethod createRequestMethod = target.getDeclaredMethod("createRequest", "io.vertx.core.http.HttpMethod", "java.lang.String", "java.lang.String", "io.vertx.core.MultiMap", "java.lang.String", "boolean");
+            if (createRequestMethod != null) {
+                createRequestMethod.addInterceptor(Http1xClientConnectionCreateRequestInterceptor.class);
+            }
+            return target.toBytecode();
         }
-
-        // for vert.x 3.7
-        final InstrumentMethod createRequestMethod = target.getDeclaredMethod("createRequest", "io.vertx.core.http.HttpMethod", "java.lang.String", "java.lang.String", "io.vertx.core.MultiMap", "java.lang.String", "boolean");
-        if (createRequestMethod != null) {
-            createRequestMethod.addInterceptor(Http1xClientConnectionCreateRequestInterceptor.class);
-        }
-
-        return target.toBytecode();
     }
-}
 
     private void addHttpClientResponseImpl() {
         transformTemplate.transform("io.vertx.core.http.impl.HttpClientResponseImpl", HttpClientResponseImplTransform.class);
@@ -437,24 +474,44 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
 
     public static class HttpClientResponseImplTransform implements TransformCallback {
 
-    @Override
-    public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-        final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-        target.addField(AsyncContextAccessor.class);
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
 
-        final InstrumentMethod handleEndMethod = target.getDeclaredMethod("handleEnd", "io.vertx.core.buffer.Buffer", "io.vertx.core.MultiMap");
-        if (handleEndMethod != null) {
-            handleEndMethod.addInterceptor(HttpClientResponseImplInterceptor.class);
+            final InstrumentMethod handleEndMethod = target.getDeclaredMethod("handleEnd", "io.vertx.core.buffer.Buffer", "io.vertx.core.MultiMap");
+            if (handleEndMethod != null) {
+                handleEndMethod.addInterceptor(HttpClientResponseImplInterceptor.class);
+            }
+
+            final InstrumentMethod handleExceptionMethod = target.getDeclaredMethod("handleException", "java.lang.Throwable");
+            if (handleExceptionMethod != null) {
+                handleExceptionMethod.addInterceptor(HandleExceptionInterceptor.class);
+            }
+
+            return target.toBytecode();
         }
-
-        final InstrumentMethod handleExceptionMethod = target.getDeclaredMethod("handleException", "java.lang.Throwable");
-        if (handleExceptionMethod != null) {
-            handleExceptionMethod.addInterceptor(HandleExceptionInterceptor.class);
-        }
-
-        return target.toBytecode();
     }
-}
+
+    private void addPromiseImpl() {
+        // 4.x
+        transformTemplate.transform("io.vertx.core.impl.future.PromiseImpl", PromiseImplTransform.class);
+    }
+
+    public static class PromiseImplTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            final InstrumentMethod tryComplete = target.getDeclaredMethod("tryComplete", "java.lang.Object");
+            if (tryComplete != null) {
+                tryComplete.addInterceptor(PromiseImplInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
 
     @Override
     public void setTransformTemplate(MatchableTransformTemplate transformTemplate) {
