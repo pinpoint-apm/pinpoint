@@ -17,12 +17,11 @@ package com.navercorp.pinpoint.plugin.kafka.recorder;
 
 import com.navercorp.pinpoint.bootstrap.context.AttributeRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaClientUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
-
-import java.nio.charset.StandardCharsets;
 
 /**
  * @author yjqg6666
@@ -51,7 +50,8 @@ public class DefaultHeaderRecorder implements HeaderRecorder {
         }
         for (org.apache.kafka.common.header.Header header : headers) {
             final String key = header.key();
-            final String val = new String(header.value(), StandardCharsets.UTF_8);
+            final String val = BytesUtils.toString(header.value());
+
             if (!Header.startWithPinpointHeader(key)) {
                 recorder.recordAttribute(KafkaConstants.KAFKA_HEADER_ANNOTATION_KEY, key + "=" + val);
             }
