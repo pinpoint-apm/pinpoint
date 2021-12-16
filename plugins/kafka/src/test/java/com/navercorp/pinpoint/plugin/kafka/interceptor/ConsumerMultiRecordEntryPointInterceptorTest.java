@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.plugin.kafka.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -26,6 +27,9 @@ public class ConsumerMultiRecordEntryPointInterceptorTest {
     private TraceContext traceContext;
 
     @Mock
+    private ProfilerConfig profilerConfig;
+
+    @Mock
     private MethodDescriptor descriptor;
 
     @Mock
@@ -43,6 +47,7 @@ public class ConsumerMultiRecordEntryPointInterceptorTest {
         consumerRecordList.add(new ConsumerRecord("Test", 1, 1, "hello", "hello too"));
 
         doReturn(trace).when(traceContext).newTraceObject();
+        doReturn(profilerConfig).when(traceContext).getProfilerConfig();
         doReturn(true).when(trace).canSampled();
         doReturn(recorder).when(trace).getSpanRecorder();
         doReturn(consumerRecordList.iterator()).when(consumerRecords).iterator();
@@ -63,6 +68,7 @@ public class ConsumerMultiRecordEntryPointInterceptorTest {
         consumerRecordList.add(new ConsumerRecord("Test2", 2, 1, "hello2", "hello too2"));
 
         doReturn(trace).when(traceContext).newTraceObject();
+        doReturn(profilerConfig).when(traceContext).getProfilerConfig();
         doReturn(true).when(trace).canSampled();
         doReturn(recorder).when(trace).getSpanRecorder();
         doReturn(consumerRecordList.iterator()).when(consumerRecords).iterator();

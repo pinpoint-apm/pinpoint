@@ -20,7 +20,11 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 public class KafkaConfig {
 
+    // whether this plugin intercepts org.apache.kafka.common.header.Headers
     public static final String HEADER_ENABLE = "profiler.kafka.header.enable";
+
+    // whether this plugin records kafka headers contents to Pinpoint
+    static final String HEADER_RECORD = "profiler.kafka.header.record";
 
     static final String PRODUCER_ENABLE = "profiler.kafka.producer.enable";
 
@@ -33,13 +37,15 @@ public class KafkaConfig {
     private final boolean consumerEnable;
     private final boolean springConsumerEnable;
     private final boolean headerEnable;
+    private final boolean headerRecorded;
     private final String kafkaEntryPoint;
 
     public KafkaConfig(ProfilerConfig config) {
         this.producerEnable = config.readBoolean(PRODUCER_ENABLE, false);
         this.consumerEnable = config.readBoolean(CONSUMER_ENABLE, false);
         this.springConsumerEnable = config.readBoolean(SPRING_CONSUMER_ENABLE, false);
-        this.headerEnable = config.readBoolean(KafkaConfig.HEADER_ENABLE, true);
+        this.headerEnable = config.readBoolean(HEADER_ENABLE, true);
+        this.headerRecorded = config.readBoolean(HEADER_RECORD, true);
         this.kafkaEntryPoint = config.readString(CONSUMER_ENTRY_POINT, "");
     }
 
@@ -57,6 +63,10 @@ public class KafkaConfig {
 
     public boolean isHeaderEnable() {
         return headerEnable;
+    }
+
+    public boolean isHeaderRecorded() {
+        return headerRecorded;
     }
 
     public String getKafkaEntryPoint() {
