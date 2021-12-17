@@ -38,4 +38,13 @@ public class AppRequestParserTest {
         assertEquals(-1, proxyHttpHeader.getIdlePercent());
         assertEquals(-1, proxyHttpHeader.getBusyPercent());
     }
+
+    @Test
+    public void parseAppInvalid() throws Exception {
+        AppRequestParser parser = new AppRequestParser();
+        final long currentTimeMillis = System.currentTimeMillis();
+        String value = "t=" + currentTimeMillis + "app=jndi:xxx";
+        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
+        assertFalse(proxyHttpHeader.isValid());
+    }
 }
