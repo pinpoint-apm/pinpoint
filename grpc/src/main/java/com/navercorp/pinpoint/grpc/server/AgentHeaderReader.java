@@ -86,10 +86,11 @@ public class AgentHeaderReader implements HeaderReader<Header> {
     protected String getAgentName(Metadata headers, Metadata.Key<String> idKey) {
         final String name = headers.get(idKey);
         if (!StringUtils.isEmpty(name)) {
-            if (!IdValidateUtils.checkPattern(name)) {
+            final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(name, PinpointConstants.AGENT_NAME_MAX_LEN);
+            if (result == IdValidateUtils.CheckResult.FAIL_PATTERN) {
                 throw Status.INVALID_ARGUMENT.withDescription("invalid " + idKey.name()).asRuntimeException();
             }
-            if (!IdValidateUtils.checkLength(name,  PinpointConstants.AGENT_NAME_MAX_LEN)) {
+            if (result == IdValidateUtils.CheckResult.FAIL_LENGTH) {
                 throw Status.INVALID_ARGUMENT.withDescription("invalid " + idKey.name() + ".length").asRuntimeException();
             }
         }
