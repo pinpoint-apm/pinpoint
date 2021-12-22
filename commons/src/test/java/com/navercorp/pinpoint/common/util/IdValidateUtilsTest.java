@@ -63,4 +63,21 @@ public class IdValidateUtilsTest  {
         } catch (IllegalArgumentException ignored) {
         }
     }
+
+    @Test
+    public void testValidateId_offset() {
+        String postFix = "agent^";
+        Assert.assertTrue(IdValidateUtils.checkId(postFix, 0, postFix.length() - 1));
+
+        String preFix = "^agent";
+        Assert.assertTrue(IdValidateUtils.checkId(preFix, 1, preFix.length()));
+
+        String all = "^agent^";
+        Assert.assertTrue(IdValidateUtils.checkId(all, 1, all.length() -1));
+
+        String error = "^age&nt&";
+        Assert.assertFalse(IdValidateUtils.checkId(error, 1, error.length()));
+
+    }
+
 }

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.profiler.util;
 
-import java.util.Objects;
+import com.navercorp.pinpoint.common.util.IdValidateUtils;
 
 /**
  * @author emeroad
@@ -28,7 +28,10 @@ public class TransactionId {
     private final long transactionSequence;
 
     public TransactionId(String agentId, long agentStartTime, long transactionSequence) {
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        if (!IdValidateUtils.validateId(agentId)) {
+            throw new IllegalArgumentException("invalid agentId");
+        }
+        this.agentId = agentId;
         this.agentStartTime = agentStartTime;
         this.transactionSequence = transactionSequence;
     }
