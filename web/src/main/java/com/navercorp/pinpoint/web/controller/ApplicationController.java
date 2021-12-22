@@ -64,11 +64,11 @@ public class ApplicationController {
 
     @RequestMapping(value = "/isAvailableApplicationName")
     public CodeResult isAvailableApplicationName(@RequestParam("applicationName") String applicationName) {
-        if (!IdValidateUtils.checkLength(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN)) {
+        final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN);
+        if (result == IdValidateUtils.CheckResult.FAIL_LENGTH) {
             return new CodeResult(CODE_FAIL, "length range is 1 ~ 24");
         }
-
-        if (!IdValidateUtils.validateId(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN)) {
+        if (result == IdValidateUtils.CheckResult.FAIL_PATTERN) {
             return new CodeResult(CODE_FAIL, "invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")");
         }
 

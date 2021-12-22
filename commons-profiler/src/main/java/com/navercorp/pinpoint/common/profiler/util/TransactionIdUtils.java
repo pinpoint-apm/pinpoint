@@ -16,10 +16,12 @@
 
 package com.navercorp.pinpoint.common.profiler.util;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.nio.ByteBuffer;
@@ -99,6 +101,9 @@ public final class TransactionIdUtils {
 
         String agentId = buffer.readPrefixedString();
         agentId = StringUtils.defaultString(agentId, defaultAgentId);
+        if (!IdValidateUtils.validateId(agentId)) {
+            throw new IllegalArgumentException("invalid transactionId:" + transactionId);
+        }
 
         final long agentStartTime = buffer.readVLong();
         final long transactionSequence = buffer.readVLong();
@@ -113,6 +118,12 @@ public final class TransactionIdUtils {
         if (agentIdIndex == -1) {
             throw new IllegalArgumentException("agentIndex not found:" + transactionId);
         }
+        if (agentIdIndex > PinpointConstants.AGENT_ID_MAX_LEN) {
+            throw new IllegalArgumentException("invalid transactionId:" + transactionId);
+        }
+        if (!IdValidateUtils.checkId(transactionId, 0, agentIdIndex)) {
+            throw new IllegalArgumentException("invalid transactionId:" + transactionId);
+        }
         final String agentId = transactionId.substring(0, agentIdIndex);
 
         final int agentStartTimeIndex = nextIndex(transactionId, agentIdIndex + 1);
@@ -124,7 +135,7 @@ public final class TransactionIdUtils {
         int transactionSequenceIndex = nextIndex(transactionId, agentStartTimeIndex + 1);
         if (transactionSequenceIndex == -1) {
             // next index may not exist since default value does not have a delimiter after transactionSequence.
-            // may need fixing when id spec changes 
+            // may need fixing when id spec changes
             transactionSequenceIndex = transactionId.length();
         }
         final long transactionSequence = parseLong(transactionId, agentStartTimeIndex + 1, transactionSequenceIndex);

@@ -169,11 +169,11 @@ public class AgentInfoController {
 
     @RequestMapping(value = "/isAvailableAgentId")
     public CodeResult isAvailableAgentId(@RequestParam("agentId") String agentId) {
-        if (!IdValidateUtils.checkLength(agentId, PinpointConstants.AGENT_ID_MAX_LEN)) {
+        final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(agentId, PinpointConstants.AGENT_ID_MAX_LEN);
+        if (result == IdValidateUtils.CheckResult.FAIL_LENGTH) {
             return new CodeResult(CODE_FAIL, "length range is 1 ~ 24");
         }
-
-        if (!IdValidateUtils.validateId(agentId, PinpointConstants.AGENT_ID_MAX_LEN)) {
+        if (result == IdValidateUtils.CheckResult.FAIL_PATTERN) {
             return new CodeResult(CODE_FAIL, "invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")");
         }
 
