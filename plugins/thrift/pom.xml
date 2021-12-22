@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-plugins</artifactId>
-        <version>2.3.3</version>
+        <version>2.3.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-thrift-plugin</artifactId>
