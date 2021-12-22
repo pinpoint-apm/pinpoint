@@ -32,7 +32,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring.boot.version>2.3.3-SNAPSHOT.RELEASE</spring.boot.version>
+        <spring.boot.version>2.4.5</spring.boot.version>
         <start-class>com.navercorp.pinpoint.testapp.TestApp</start-class>
     </properties>
 
