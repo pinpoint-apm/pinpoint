@@ -22,7 +22,7 @@
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
         <relativePath>../../pom.xml</relativePath>
-        <version>2.3.3-SNAPSHOT</version>
+        <version>2.3.3</version>
     </parent>
 
     <packaging>pom</packaging>
