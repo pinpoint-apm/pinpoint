@@ -43,20 +43,30 @@ public final class IdValidateUtils {
     }
 
     public static boolean validateId(String id, int maxLength) {
+        final CheckResult result = checkId(id, maxLength);
+        return result == CheckResult.SUCCESS;
+    }
+
+    public enum CheckResult {
+        SUCCESS,
+        FAIL_LENGTH,
+        FAIL_PATTERN;
+    }
+
+    public static CheckResult checkId(String id, int maxLength) {
         Objects.requireNonNull(id, "id");
 
         if (maxLength <= 0) {
             throw new IllegalArgumentException("negative maxLength:" + maxLength);
         }
 
-        if (!checkPattern(id)) {
-            return false;
-        }
         if (!checkLength(id, maxLength)) {
-            return false;
+            return CheckResult.FAIL_LENGTH;
         }
-
-        return true;
+        if (!checkPattern(id)) {
+            return CheckResult.FAIL_PATTERN;
+        }
+        return CheckResult.SUCCESS;
     }
 
     public static boolean checkPattern(String id) {
@@ -67,22 +77,17 @@ public final class IdValidateUtils {
     public static boolean checkLength(String id, int maxLength) {
         Objects.requireNonNull(id, "id");
 
-        // try encode
-        final int idLength = getLength(id);
+        final int idLength = id.length();
         if (idLength <= 0) {
             return false;
         }
         return idLength <= maxLength;
     }
 
-    public static int getLength(String id) {
-        if (id == null) {
-            return -1;
-        }
-
-        final byte[] idBytes = BytesUtils.toBytes(id);
-        // -1 encoding fail
-        return ArrayUtils.getLength(idBytes, -1);
+    public static boolean checkId(String id, int offset, int length) {
+        Matcher matcher = ID_PATTERN.matcher(id);
+        matcher.region(offset, length);
+        return matcher.matches();
     }
 
 }

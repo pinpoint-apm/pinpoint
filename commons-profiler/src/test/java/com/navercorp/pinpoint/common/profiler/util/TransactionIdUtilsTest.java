@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.common.profiler.util;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 
 import org.junit.Test;
@@ -124,6 +126,25 @@ public class TransactionIdUtilsTest {
         buffer.putVLong(agentStartTime);
         buffer.putVLong(transactionSequence);
         return buffer.wrapByteBuffer();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateAgentId() {
+        TransactionIdUtils.parseTransactionId("ag$$ent^1^2");
+    }
+
+    @Test
+    public void longAgentId() {
+        String agentId = StringUtils.repeat('a', PinpointConstants.AGENT_ID_MAX_LEN);
+        TransactionId transactionId = TransactionIdUtils.parseTransactionId(agentId + "^1^2");
+        Assert.assertEquals(agentId, transactionId.getAgentId());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void tooLongAgentId() {
+        String agentId = StringUtils.repeat('a', PinpointConstants.AGENT_ID_MAX_LEN+1);
+        TransactionId transactionId = TransactionIdUtils.parseTransactionId(agentId + "^1^2");
+        Assert.assertEquals(agentId, transactionId.getAgentId());
     }
 
 }
