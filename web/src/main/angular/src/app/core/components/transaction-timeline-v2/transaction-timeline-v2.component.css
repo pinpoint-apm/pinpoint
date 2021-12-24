@@ -1,3 +1,17 @@
 #timeline_data_source {
     opacity: 0;
 }
+
+::ng-deep .topbar {
+    position: absolute !important;
+    width: 550px;
+    height: 54px;
+    top: -54px;
+    left: 660px;
+    background-color: var(--background-default) !important;
+}
+
+::ng-deep .omnibox {
+    border: 1px solid var(--border-primary) !important;
+    background-color: var(--background-default) !important;
+}
