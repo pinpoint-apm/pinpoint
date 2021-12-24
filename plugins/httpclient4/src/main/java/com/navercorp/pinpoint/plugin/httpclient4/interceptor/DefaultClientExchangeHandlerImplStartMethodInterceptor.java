@@ -19,11 +19,13 @@ package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
@@ -71,6 +73,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
     private final EntityRecorder<HttpRequest> entityRecorder;
 
     private final RequestTraceWriter<HttpRequest> requestTraceWriter;
+    private final ApplicationInfoSender<HttpRequest> applicationInfoSender;
 
     public DefaultClientExchangeHandlerImplStartMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
@@ -91,6 +94,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
 
         ClientHeaderAdaptor<HttpRequest> clientHeaderAdaptor = new HttpRequest4ClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.applicationInfoSender = new DefaultApplicationInfoSender<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -105,6 +109,8 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
         }
 
         final HttpRequest httpRequest = getHttpRequest(target);
+        this.applicationInfoSender.sendCallerApplicationName(httpRequest);
+
         final NameIntValuePair<String> host = getHost(target);
         final boolean sampling = trace.canSampled();
         if (!sampling) {
