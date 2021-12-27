@@ -4,19 +4,33 @@
 name: Publish package to the Maven Central Repository
 
 on:
-  release:
-    types: [ created ]
+  workflow_dispatch:
+    inputs:
+      git-ref:
+        description: 'The branch, tag or SHA to checkout'
+        required: true
+        default: 'master'
 
 jobs:
   publish:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - run: |
+        echo "Release branch: ${{ github.event.inputs.git-ref }}!"
+    - name : Git checkout
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.inputs.git-ref }}
     - name: Set up JDK 7
       uses: actions/setup-java@v2
       with:
         distribution: 'zulu'
         java-version: '7'
+    - name: Set up JDK 8
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'temurin'
+        java-version: '8'
         server-id: ossrh
         server-username: MAVEN_USERNAME
         server-password: MAVEN_PASSWORD
