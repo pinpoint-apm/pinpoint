@@ -23,9 +23,11 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
@@ -56,6 +58,7 @@ public class ExecuteInterceptor implements AroundInterceptor {
 
     private final ClientRequestRecorder<Request> clientRequestRecorder;
     private final RequestTraceWriter<Request> requestTraceWriter;
+    private final ApplicationInfoSender<Request> applicationInfoSender;
     private final CookieRecorder<Request> cookieRecorder;
     private final EntityRecorder<Request> entityRecorder;
 
@@ -75,6 +78,7 @@ public class ExecuteInterceptor implements AroundInterceptor {
 
         ClientHeaderAdaptor<Request> clientHeaderAdaptor = new RequestHeaderAdaptorV2();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.applicationInfoSender = new DefaultApplicationInfoSender<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -93,6 +97,8 @@ public class ExecuteInterceptor implements AroundInterceptor {
         }
 
         final Request httpRequest = (Request) args[0];
+        applicationInfoSender.sendCallerApplicationName(httpRequest);
+
         final boolean sampling = trace.canSampled();
         if (!sampling) {
             if (httpRequest != null) {
