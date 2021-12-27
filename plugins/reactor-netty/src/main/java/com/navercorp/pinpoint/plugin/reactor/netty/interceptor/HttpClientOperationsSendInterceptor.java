@@ -24,10 +24,12 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
@@ -40,6 +42,7 @@ import reactor.netty.http.client.HttpClientRequest;
 public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final RequestTraceWriter<HttpClientRequest> requestTraceWriter;
+    private final ApplicationInfoSender<HttpClientRequest> applicationInfoSender;
 
     public HttpClientOperationsSendInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
@@ -50,6 +53,7 @@ public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventSi
         this.clientRequestRecorder = new ClientRequestRecorder<>(param, clientRequestAdaptor);
         final HttpClientRequestHeaderAdaptor clientHeaderAdaptor = new HttpClientRequestHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.applicationInfoSender = new DefaultApplicationInfoSender<>(clientHeaderAdaptor, traceContext);
     }
 
     // BEFORE
@@ -64,6 +68,7 @@ public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventSi
         if (asyncContext == null) {
             // Set sampling rate to false
             this.requestTraceWriter.write(request);
+            this.applicationInfoSender.sendCallerApplicationName(request);
             return null;
         }
         return asyncContext;
@@ -85,6 +90,7 @@ public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventSi
         final HttpClientRequest request = (HttpClientRequest) target;
         final ClientRequestWrapper clientRequestWrapper = new HttpClientRequestWrapper(request);
         this.requestTraceWriter.write(request, nextId, clientRequestWrapper.getDestinationId());
+        this.applicationInfoSender.sendCallerApplicationName(request);
     }
 
     // AFTER
