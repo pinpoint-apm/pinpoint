@@ -92,16 +92,7 @@ public abstract class AbstractHttpURLConnectionInterceptor implements AroundInte
             }
         }
 
-        boolean connected = isConnected(target);
-        boolean connecting = false;
-        if (target instanceof ConnectingGetter) {
-            connecting = ((ConnectingGetter) target)._$PINPOINT$_isConnecting();
-        }
-
-        boolean addRequestHeader = !connected && !connecting;
-        if (isInterceptingHttps()) {
-            addRequestHeader = addRequestHeader && isInterceptingConnect();
-        }
+        final boolean addRequestHeader = canAddHeaderToRequest(target);
 
         final HttpURLConnection request = (HttpURLConnection) target;
         final boolean canSample = trace.canSampled();
@@ -120,6 +111,20 @@ public abstract class AbstractHttpURLConnectionInterceptor implements AroundInte
                 this.requestTraceWriter.write(request);
             }
         }
+    }
+
+    private boolean canAddHeaderToRequest(Object target) {
+        boolean connected = isConnected(target);
+        boolean connecting = false;
+        if (target instanceof ConnectingGetter) {
+            connecting = ((ConnectingGetter) target)._$PINPOINT$_isConnecting();
+        }
+
+        boolean canAddHeader = !connected && !connecting;
+        if (isInterceptingHttps()) {
+            canAddHeader = canAddHeader && isInterceptingConnect();
+        }
+        return canAddHeader;
     }
 
     @Override
