@@ -21,11 +21,13 @@ package com.navercorp.pinpoint.flink;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.flink.dao.hbase.StatisticsDao;
+import com.navercorp.pinpoint.flink.function.AgentStatWatermarkStrategy;
 import com.navercorp.pinpoint.flink.function.ApplicationStatBoWindow;
 import com.navercorp.pinpoint.flink.function.Timestamp;
 import com.navercorp.pinpoint.flink.function.ApplicationStatBoFilter;
 import com.navercorp.pinpoint.flink.receiver.TcpSourceFunction;
 import com.navercorp.pinpoint.flink.vo.RawData;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.TimeCharacteristic;
@@ -70,7 +72,7 @@ public class StatStreamingVer2Job implements Serializable {
             .window(TumblingEventTimeWindows.of(Time.milliseconds(ApplicationStatBoWindow.WINDOW_SIZE)))
             .allowedLateness(Time.milliseconds(ApplicationStatBoWindow.ALLOWED_LATENESS))
             .apply(new ApplicationStatBoWindow());
-        applicationStatAggregationData.writeUsingOutputFormat(statisticsDao);
+            applicationStatAggregationData.addSink(statisticsDao);
 
         // 1-2. aggregate application stat data
 //        statOperator.filter(new FilterFunction<Tuple3<String, JoinStatBo, Long>>() {
