@@ -49,6 +49,7 @@ public abstract class AbstractHttpURLConnectionInterceptor implements AroundInte
     private final ServerResponseHeaderRecorder<HttpURLConnection> responseHeaderRecorder;
 
     private final RequestTraceWriter<HttpURLConnection> requestTraceWriter;
+    private final ApplicationInfoSender<HttpURLConnection> applicationInfoSender;
 
     public AbstractHttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
         this.traceContext = traceContext;
@@ -63,6 +64,7 @@ public abstract class AbstractHttpURLConnectionInterceptor implements AroundInte
 
         ClientHeaderAdaptor<HttpURLConnection> clientHeaderAdaptor = new HttpURLConnectionClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.applicationInfoSender = new DefaultApplicationInfoSender<>(clientHeaderAdaptor, traceContext);
     }
 
     abstract boolean isConnected(Object target);
@@ -111,6 +113,11 @@ public abstract class AbstractHttpURLConnectionInterceptor implements AroundInte
                 this.requestTraceWriter.write(request);
             }
         }
+
+        if (addRequestHeader) {
+            this.applicationInfoSender.sendCallerApplicationName(request);
+        }
+
     }
 
     private boolean canAddHeaderToRequest(Object target) {
