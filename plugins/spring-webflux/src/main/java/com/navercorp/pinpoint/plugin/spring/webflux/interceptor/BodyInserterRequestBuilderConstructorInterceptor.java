@@ -22,7 +22,9 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 
@@ -36,17 +38,19 @@ public class BodyInserterRequestBuilderConstructorInterceptor implements AroundI
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor methodDescriptor;
+    private final TraceContext traceContext;
+    private final MethodDescriptor methodDescriptor;
 
     private final RequestTraceWriter<HttpHeaders> requestTraceWriter;
+    private final ApplicationInfoSender<HttpHeaders> applicationInfoSender;
 
     public BodyInserterRequestBuilderConstructorInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
 
-        final ClientHeaderAdaptor clientHeaderAdaptor = new HttpHeadersClientHeaderAdaptor();
+        final ClientHeaderAdaptor<HttpHeaders> clientHeaderAdaptor = new HttpHeadersClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.applicationInfoSender = new DefaultApplicationInfoSender<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -60,15 +64,17 @@ public class BodyInserterRequestBuilderConstructorInterceptor implements AroundI
                 return;
             }
 
-            final HttpHeaders httpHeaders = (HttpHeaders) args[2];
             final Trace trace = traceContext.currentRawTraceObject();
             if (trace == null) {
                 return;
             }
 
+            final HttpHeaders httpHeaders = (HttpHeaders) args[2];
+
             if (!trace.canSampled()) {
                 // Set sampling rate (s0)
                 requestTraceWriter.write(httpHeaders);
+                applicationInfoSender.sendCallerApplicationName(httpHeaders);
             }
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {

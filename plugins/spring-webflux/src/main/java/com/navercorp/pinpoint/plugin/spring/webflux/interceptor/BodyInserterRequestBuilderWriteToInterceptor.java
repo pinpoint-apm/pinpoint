@@ -24,10 +24,12 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
@@ -49,6 +51,7 @@ public class BodyInserterRequestBuilderWriteToInterceptor extends AsyncContextSp
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final CookieRecorder<ClientHttpRequest> cookieRecorder;
     private final RequestTraceWriter<ClientHttpRequest> requestTraceWriter;
+    private final ApplicationInfoSender<ClientHttpRequest> applicationInfoSender;
 
     public BodyInserterRequestBuilderWriteToInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
@@ -62,6 +65,7 @@ public class BodyInserterRequestBuilderWriteToInterceptor extends AsyncContextSp
 
         final ClientHttpRequestClientHeaderAdaptor clientHeaderAdaptor = new ClientHttpRequestClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.applicationInfoSender = new DefaultApplicationInfoSender<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -88,6 +92,7 @@ public class BodyInserterRequestBuilderWriteToInterceptor extends AsyncContextSp
             host = HostAndPort.toHostAndPortString(url.getHost(), url.getPort());
         }
         requestTraceWriter.write(request, nextId, host);
+        applicationInfoSender.sendCallerApplicationName(request);
     }
 
     private boolean validate(final Object[] args) {
