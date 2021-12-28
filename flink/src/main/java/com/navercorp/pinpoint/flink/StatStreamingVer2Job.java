@@ -59,7 +59,6 @@ public class StatStreamingVer2Job implements Serializable {
         final StreamExecutionEnvironment env = bootstrap.createStreamExecutionEnvironment();
         env.getConfig().setGlobalJobParameters(parameters);
         DataStreamSource<RawData> rawData = env.addSource(tcpSourceFunction);
-        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         //0. generation rawdata
         final SingleOutputStreamOperator<Tuple3<String, JoinStatBo, Long>> statOperator = rawData.flatMap(bootstrap.getTbaseFlatMapper());
