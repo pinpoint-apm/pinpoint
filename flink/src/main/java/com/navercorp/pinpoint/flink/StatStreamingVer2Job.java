@@ -21,16 +21,14 @@ package com.navercorp.pinpoint.flink;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.flink.dao.hbase.StatisticsDao;
-import com.navercorp.pinpoint.flink.function.AgentStatWatermarkStrategy;
+import com.navercorp.pinpoint.flink.function.AgentStatTimestampAssigner;
 import com.navercorp.pinpoint.flink.function.ApplicationStatBoWindow;
-import com.navercorp.pinpoint.flink.function.Timestamp;
 import com.navercorp.pinpoint.flink.function.ApplicationStatBoFilter;
 import com.navercorp.pinpoint.flink.receiver.TcpSourceFunction;
 import com.navercorp.pinpoint.flink.vo.RawData;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -66,7 +64,8 @@ public class StatStreamingVer2Job implements Serializable {
         //1-1 save data processing application stat raw data
         final StatisticsDao statisticsDao = bootstrap.getStatisticsDao();
         DataStream<Tuple3<String, JoinStatBo, Long>> applicationStatAggregationData = statOperator.filter(new ApplicationStatBoFilter())
-            .assignTimestampsAndWatermarks(new Timestamp())
+            .assignTimestampsAndWatermarks(WatermarkStrategy.<Tuple3<String, JoinStatBo, Long>>forMonotonousTimestamps()
+                                                            .withTimestampAssigner(new AgentStatTimestampAssigner()))
             .keyBy(0)
             .window(TumblingEventTimeWindows.of(Time.milliseconds(ApplicationStatBoWindow.WINDOW_SIZE)))
             .allowedLateness(Time.milliseconds(ApplicationStatBoWindow.ALLOWED_LATENESS))
