@@ -29,6 +29,8 @@ public class WebServer extends NanoHTTPD {
     public static final String VERSION = "org.nanohttpd:nanohttpd:2.3.1";
     public static final String LOCAL_HOST = "localhost";
 
+    public static final String CALLER_RESPONSE_HEADER_NAME = "caller-app";
+
     public WebServer(String hostname, int port) {
         super(hostname, port);
     }
@@ -43,7 +45,11 @@ public class WebServer extends NanoHTTPD {
     @Override
     public Response serve(IHTTPSession session) {
         Map<String, List<String>> parameters = session.getParameters();
+        final String caller = session.getHeaders().get("x-caller-app");
         Response response = newFixedLengthResponse(parameters.toString());
+        if (caller != null) {
+            response.addHeader(CALLER_RESPONSE_HEADER_NAME, caller);
+        }
         return response;
     }
 
