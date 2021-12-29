@@ -50,7 +50,6 @@ public class CopyAsyncContextInterceptor implements AroundInterceptor {
 
         AsyncContext originalAsyncContext = getDelegateAsyncContext(args[0]);
         if (originalAsyncContext == null) {
-            logger.warn("Could not find delegate's AsyncContext");
             return;
         }
 
