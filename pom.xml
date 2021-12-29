@@ -1414,9 +1414,13 @@
                     </plugin>
                     <plugin>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.2.0</version>
+                        <version>3.3.1</version>
                         <configuration>
                             <additionalJOption>-Xdoclint:none</additionalJOption>
+<!--                            <detectOfflineLinks>false</detectOfflineLinks>-->
+<!--                            <detectJavaApiLink>false</detectJavaApiLink>-->
+<!--                            <source>8</source>-->
+                            <javadocExecutable>${jdk.home}/bin/javadoc</javadocExecutable>
                         </configuration>
                         <executions>
                             <execution>
@@ -1430,7 +1434,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
+                        <version>3.0.1</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -1440,6 +1444,13 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <!-- This is necessary for gpg to not try to use the pinentry programs -->
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
