@@ -38,13 +38,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.anyAnnotationValue;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 import static com.navercorp.pinpoint.common.trace.ServiceType.ASYNC;
 import static com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants.OK_HTTP_CLIENT;
 import static com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants.OK_HTTP_CLIENT_INTERNAL;
 
-public abstract class OkHttpClient_3_4_0_BaseIT {
+public abstract class OkHttpClient_3_4_0_BaseIT extends OkHttpClient_3_BaseIT {
 
     private static WebServer webServer;
 
@@ -83,6 +82,9 @@ public abstract class OkHttpClient_3_4_0_BaseIT {
                 annotation("http.internal.display", hostAndPort)));
 
         verifier.verifyTraceCount(0);
+
+        assertCaller(response);
+
     }
 
     @Test
@@ -134,6 +136,8 @@ public abstract class OkHttpClient_3_4_0_BaseIT {
                 annotation("http.internal.display", hostAndPort)));
 
         verifier.verifyTraceCount(0);
+
+        assertCaller(response);
     }
 
     private Method getConnectMethod(Class<?> realConnectionClass) throws ClassNotFoundException {

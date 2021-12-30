@@ -41,7 +41,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.anyAnnotationValue;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 import static com.navercorp.pinpoint.common.trace.ServiceType.ASYNC;
 import static com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants.OK_HTTP_CLIENT;
@@ -54,7 +53,7 @@ import static com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants.OK_HTTP_CLIEN
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-okhttp-plugin")
 @Dependency({"com.squareup.okhttp:okhttp:[2.0.0,3.0.0)", WebServer.VERSION, PluginITConstants.VERSION})
-public class OkHttpClient_2_x_IT {
+public class OkHttpClient_2_x_IT extends OkHttpClient_2_BaseIT {
 
     private static WebServer webServer;
 
@@ -101,6 +100,9 @@ public class OkHttpClient_2_x_IT {
         );
 
         verifier.verifyTraceCount(0);
+
+        assertCaller(response);
+
     }
 
     @Test
@@ -159,6 +161,9 @@ public class OkHttpClient_2_x_IT {
         );
 
         verifier.verifyTraceCount(0);
+
+        assertCaller(response);
+
     }
 
     private Method getConnectMethod() {
