@@ -16,11 +16,17 @@
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
@@ -40,6 +46,7 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
     private final TraceContext traceContext;
     private final MethodDescriptor methodDescriptor;
     private final RequestTraceWriter<HttpClientRequest> requestTraceWriter;
+    private final ApplicationInfoSender<HttpClientRequest> applicationInfoSender;
 
     public HttpClientImplDoRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
@@ -47,6 +54,7 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
 
         ClientHeaderAdaptor<HttpClientRequest> clientHeaderAdaptor = new HttpClientRequestClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.applicationInfoSender = new DefaultApplicationInfoSender<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -87,6 +95,7 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
         if (!trace.canSampled()) {
             if (request != null) {
                 requestTraceWriter.write(request);
+                applicationInfoSender.sendCallerApplicationName(request);
             }
             return;
         }
@@ -119,7 +128,7 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(final Object result) {
-        if (result == null || !(result instanceof HttpClientRequest)) {
+        if (!(result instanceof HttpClientRequest)) {
             if (isDebug) {
                 logger.debug("Invalid result object. result={}.", result);
             }

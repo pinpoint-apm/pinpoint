@@ -24,11 +24,13 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultApplicationInfoSender;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
@@ -47,11 +49,12 @@ public class Http1xClientConnectionCreateRequestInterceptor implements AroundInt
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor descriptor;
+    private final TraceContext traceContext;
+    private final MethodDescriptor descriptor;
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final CookieRecorder<HttpRequest> cookieRecorder;
     private final RequestTraceWriter<HttpRequest> requestTraceWriter;
+    private final ApplicationInfoSender<HttpRequest> applicationInfoSender;
 
     public Http1xClientConnectionCreateRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
@@ -66,6 +69,7 @@ public class Http1xClientConnectionCreateRequestInterceptor implements AroundInt
 
         ClientHeaderAdaptor<HttpRequest> clientHeaderAdaptor = new HttpRequestClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
+        this.applicationInfoSender = new DefaultApplicationInfoSender<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -84,7 +88,7 @@ public class Http1xClientConnectionCreateRequestInterceptor implements AroundInt
         }
 
         try {
-            final SpanEventRecorder recorder = trace.traceBlockBegin();
+            trace.traceBlockBegin();
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", t.getMessage(), t);
@@ -107,6 +111,7 @@ public class Http1xClientConnectionCreateRequestInterceptor implements AroundInt
             if (result instanceof HttpRequest) {
                 final HttpRequest request = (HttpRequest) result;
                 requestTraceWriter.write(request);
+                applicationInfoSender.sendCallerApplicationName(request);
             }
             return;
         }
@@ -135,7 +140,10 @@ public class Http1xClientConnectionCreateRequestInterceptor implements AroundInt
             // generate next trace id.
             final TraceId nextId = trace.getTraceId().getNextTraceId();
             recorder.recordNextSpanId(nextId.getSpanId());
+
             requestTraceWriter.write(request, nextId, host);
+            applicationInfoSender.sendCallerApplicationName(request);
+
             final ClientRequestWrapper clientRequest = new VertxHttpClientRequestWrapper(request, host);
             this.clientRequestRecorder.record(recorder, clientRequest, throwable);
             this.cookieRecorder.record(recorder, request, throwable);
