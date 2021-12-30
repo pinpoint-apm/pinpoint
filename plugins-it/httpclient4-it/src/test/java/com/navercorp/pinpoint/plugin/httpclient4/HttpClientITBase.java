@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.plugin.httpclient4;
 import com.navercorp.pinpoint.pluginit.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
 import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 
 public abstract class HttpClientITBase {
 
@@ -56,6 +58,17 @@ public abstract class HttpClientITBase {
     @AfterSharedClass
     public static void sharedTearDown() {
         webServer = WebServer.cleanup(webServer);
+    }
+
+    public String getCallerApp(HttpResponse response) {
+        if (response == null) {
+            return null;
+        }
+        final Header callerHeader = response.getFirstHeader(WebServer.CALLER_RESPONSE_HEADER_NAME);
+        if (callerHeader != null) {
+            return callerHeader.getValue();
+        }
+        return null;
     }
 
 }

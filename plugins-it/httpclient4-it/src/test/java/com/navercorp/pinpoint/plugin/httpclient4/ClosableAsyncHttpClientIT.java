@@ -48,6 +48,8 @@ import java.util.concurrent.Future;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.async;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author netspider
@@ -64,6 +66,8 @@ public class ClosableAsyncHttpClientIT extends HttpClientITBase {
         CloseableHttpAsyncClient httpClient = HttpAsyncClients.custom().useSystemProperties().build();
         httpClient.start();
 
+
+        String caller=null;
         try {
             HttpPost httpRequest = new HttpPost(getCallUrl());
 
@@ -77,6 +81,7 @@ public class ClosableAsyncHttpClientIT extends HttpClientITBase {
             if ((response != null) && (response.getEntity() != null)) {
                 EntityUtils.consume(response.getEntity());
             }
+            caller = getCallerApp(response);
         } finally {
             httpClient.close();
         }
@@ -98,5 +103,7 @@ public class ClosableAsyncHttpClientIT extends HttpClientITBase {
         verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", BasicFuture.class.getMethod("get")));
 
         verifier.verifyTraceCount(0);
+        assertNotNull("caller null", caller);
+        assertTrue("not caller test", "test".contentEquals(caller));
     }
 }

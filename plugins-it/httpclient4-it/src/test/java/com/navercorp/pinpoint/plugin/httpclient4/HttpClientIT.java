@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
@@ -46,6 +47,8 @@ import java.lang.reflect.Method;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.anyAnnotationValue;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author jaehong.kim
@@ -60,12 +63,18 @@ public class HttpClientIT extends HttpClientITBase {
     @Test
     public void test() throws Exception {
         HttpClient httpClient = new DefaultHttpClient();
+        String caller=null;
         try {
             HttpPost post = new HttpPost(getCallUrl());
             post.addHeader("Content-Type", "application/json;charset=UTF-8");
 
-            ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            httpClient.execute(post, responseHandler);
+            ResponseHandler<String> callerExtractor = new BasicResponseHandler() {
+                public String handleResponse(HttpResponse response) {
+                    return getCallerApp(response);
+                }
+            };
+
+            caller = httpClient.execute(post, callerExtractor);
         } catch (Exception ignored) {
         } finally {
             if (null != httpClient && null != httpClient.getConnectionManager()) {
@@ -100,5 +109,7 @@ public class HttpClientIT extends HttpClientITBase {
                         annotation("http.io", anyAnnotationValue())
                 ));
         verifier.verifyTraceCount(0);
+        assertNotNull("caller null", caller);
+        assertTrue("not caller test", "test".contentEquals(caller));
     }
 }
