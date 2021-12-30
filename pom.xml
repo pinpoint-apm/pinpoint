@@ -159,7 +159,7 @@
         <!-- for plugin & hbase client -->
         <log4j1.version>1.2.17</log4j1.version>
 
-        <flink.version>1.7.1</flink.version>
+        <flink.version>1.14.2</flink.version>
 
         <javax.servlet4.version>4.0.1</javax.servlet4.version>
         <javax.servlet.version>3.0.1</javax.servlet.version>

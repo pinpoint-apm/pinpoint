@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.flink.dao.hbase.StatisticsDao;
 import com.navercorp.pinpoint.flink.function.AgentStatTimestampAssigner;
 import com.navercorp.pinpoint.flink.function.ApplicationStatBoWindow;
 import com.navercorp.pinpoint.flink.function.ApplicationStatBoFilter;
+import com.navercorp.pinpoint.flink.function.ApplicationStatKeySelector;
 import com.navercorp.pinpoint.flink.receiver.TcpSourceFunction;
 import com.navercorp.pinpoint.flink.vo.RawData;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -66,7 +67,7 @@ public class StatStreamingVer2Job implements Serializable {
         DataStream<Tuple3<String, JoinStatBo, Long>> applicationStatAggregationData = statOperator.filter(new ApplicationStatBoFilter())
             .assignTimestampsAndWatermarks(WatermarkStrategy.<Tuple3<String, JoinStatBo, Long>>forMonotonousTimestamps()
                                                             .withTimestampAssigner(new AgentStatTimestampAssigner()))
-            .keyBy(0)
+            .keyBy(new ApplicationStatKeySelector())
             .window(TumblingEventTimeWindows.of(Time.milliseconds(ApplicationStatBoWindow.WINDOW_SIZE)))
             .allowedLateness(Time.milliseconds(ApplicationStatBoWindow.ALLOWED_LATENESS))
             .apply(new ApplicationStatBoWindow());
