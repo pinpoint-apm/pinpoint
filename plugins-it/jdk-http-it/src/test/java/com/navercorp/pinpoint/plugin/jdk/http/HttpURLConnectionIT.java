@@ -16,6 +16,8 @@
 package com.navercorp.pinpoint.plugin.jdk.http;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
@@ -80,6 +82,8 @@ public class HttpURLConnectionIT {
         verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, destinationId,
                 annotation("http.url", httpUrl),
                 annotation("http.resp.header", anyAnnotationValue())));
+
+        assertCaller(connection);
     }
     
     @Test
@@ -105,8 +109,16 @@ public class HttpURLConnectionIT {
         verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, destinationId,
                 annotation("http.url", httpUrl),
                 annotation("http.resp.header", anyAnnotationValue())));
+
+        assertCaller(connection);
     }
-    
+
+    private void assertCaller(HttpURLConnection connection) {
+        final String caller = connection.getHeaderField(WebServer.CALLER_RESPONSE_HEADER_NAME);
+        assertNotNull("caller null", caller);
+        assertTrue("not caller test", "test".contentEquals(caller));
+    }
+
     @Test
     public void testConnecting() throws Exception {
 
