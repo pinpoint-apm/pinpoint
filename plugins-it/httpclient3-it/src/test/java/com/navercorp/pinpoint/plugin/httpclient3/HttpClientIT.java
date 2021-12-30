@@ -21,13 +21,12 @@ import com.navercorp.pinpoint.pluginit.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -37,6 +36,11 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
 import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
+
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author jaehong.kim
@@ -90,6 +94,7 @@ public class HttpClientIT {
         try {
             // Execute the method.
             client.executeMethod(method);
+            assertCaller(method);
         } catch (Exception ignored) {
         } finally {
             method.releaseConnection();
@@ -124,4 +129,15 @@ public class HttpClientIT {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
     }
+
+
+    private void assertCaller(GetMethod method) {
+        final Header[] headers = method.getResponseHeaders(WebServer.CALLER_RESPONSE_HEADER_NAME);
+        assertNotNull("caller headers null", headers);
+        assertEquals("caller headers count", 1, headers.length);
+        final String caller = headers[0].getValue();
+        assertNotNull("caller null", caller);
+        assertTrue("not caller test", "test".contentEquals(caller));
+    }
+
 }
