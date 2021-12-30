@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.plugin.ning.asynchttpclient;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.Future;
 
@@ -70,6 +72,7 @@ public class NingAsyncHttpClientIT {
         try {
             Future<Response> f = client.preparePost(webServer.getCallHttpUrl()).addParameter("param1", "value1").execute();
             Response response = f.get();
+            assertCaller(response);
         } finally {
             client.close();
         }
@@ -83,4 +86,10 @@ public class NingAsyncHttpClientIT {
                 annotation("http.url", httpUrl)));
         verifier.verifyTraceCount(0);
    }
+
+    private void assertCaller(Response response) {
+        final String caller = response.getHeader(WebServer.CALLER_RESPONSE_HEADER_NAME);
+        assertNotNull("caller null", caller);
+        assertTrue("not caller test", "test".contentEquals(caller));
+    }
 }
