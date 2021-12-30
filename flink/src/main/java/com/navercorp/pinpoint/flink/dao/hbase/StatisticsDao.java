@@ -149,8 +149,4 @@ public class StatisticsDao extends RichSinkFunction<Tuple3<String, JoinStatBo, L
 //        put.addColumn(STAT_METADATA_CF, Bytes.toBytes(qualifierBuffer.wrapByteBuffer()), Bytes.toBytes(valueBuffer.wrapByteBuffer()));
 //        hbaseTemplate2.put(TableName.valueOf("AgentStatV2Aggre"), put);
     }
-
-    @Override
-    public void close() throws IOException {
-    }
 }
