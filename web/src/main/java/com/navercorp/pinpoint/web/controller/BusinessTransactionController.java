@@ -18,9 +18,6 @@ package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCountFactory;
-import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
-import com.navercorp.pinpoint.common.profiler.sql.OutputParameterParser;
-import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -28,23 +25,21 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanFilters;
-import com.navercorp.pinpoint.web.calltree.span.TraceState;
 import com.navercorp.pinpoint.web.config.LogConfiguration;
+import com.navercorp.pinpoint.web.query.BindType;
+import com.navercorp.pinpoint.web.query.QueryService;
+import com.navercorp.pinpoint.web.query.QueryServiceFactory;
 import com.navercorp.pinpoint.web.service.FilteredMapService;
 import com.navercorp.pinpoint.web.service.FilteredMapServiceOption;
 import com.navercorp.pinpoint.web.service.SpanResult;
 import com.navercorp.pinpoint.web.service.SpanService;
 import com.navercorp.pinpoint.web.service.TransactionInfoService;
-import com.navercorp.pinpoint.web.util.DefaultMongoJsonParser;
-import com.navercorp.pinpoint.web.util.MongoJsonParser;
-import com.navercorp.pinpoint.web.util.OutputParameterMongoJsonParser;
 import com.navercorp.pinpoint.web.view.TraceViewerDataViewModel;
 import com.navercorp.pinpoint.web.view.TransactionInfoViewModel;
 import com.navercorp.pinpoint.web.view.TransactionTimelineInfoViewModel;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
-import org.apache.commons.text.StringEscapeUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,10 +47,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -75,21 +68,21 @@ public class BusinessTransactionController {
     private final TransactionInfoService transactionInfoService;
     private final FilteredMapService filteredMapService;
     private final LogConfiguration logConfiguration;
+    private final QueryServiceFactory queryServiceFactory;
+
 
     @Value("${web.callstack.selectSpans.limit:-1}")
     private int callstackSelectSpansLimit;
 
-    private final SqlParser sqlParser = new DefaultSqlParser();
-    private final OutputParameterParser parameterParser = new OutputParameterParser();
-    private final MongoJsonParser mongoJsonParser = new DefaultMongoJsonParser();
-    private final OutputParameterMongoJsonParser parameterJsonParser = new OutputParameterMongoJsonParser();
 
     public BusinessTransactionController(SpanService spanService, TransactionInfoService transactionInfoService,
-                                         FilteredMapService filteredMapService, LogConfiguration logConfiguration) {
+                                         FilteredMapService filteredMapService, LogConfiguration logConfiguration,
+                                         QueryServiceFactory queryServiceFactory) {
         this.spanService = Objects.requireNonNull(spanService, "spanService");
         this.transactionInfoService = Objects.requireNonNull(transactionInfoService, "transactionInfoService");
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
         this.logConfiguration = Objects.requireNonNull(logConfiguration, "logConfiguration");
+        this.queryServiceFactory = Objects.requireNonNull(queryServiceFactory, "queryServiceFactory");
     }
 
     /**
@@ -153,22 +146,16 @@ public class BusinessTransactionController {
         SpanResult spanResult = this.spanService.selectSpan(transactionId, spanMatchFilter, columnGetCount);
         final CallTreeIterator callTreeIterator = spanResult.getCallTree();
 
-        String traceViewerDataURL = null;
-        try {
-            traceViewerDataURL = ServletUriComponentsBuilder.fromPath("traceViewerData.pinpoint")
-                    .queryParam("traceId", URLEncoder.encode(traceId,"UTF-8"))
-                    .queryParam("focusTimestamp", focusTimestamp)
-                    .queryParam("agentId", URLEncoder.encode(agentId,"UTF-8"))
-                    .queryParam("spanId", spanId)
-                    .build()
-                    .toUriString();
-        } catch (UnsupportedEncodingException e) {
-            logger.error(e.getMessage(), e);
-        }
+        String traceViewerDataURL = ServletUriComponentsBuilder.fromPath("traceViewerData.pinpoint")
+                .queryParam("traceId", URLEncoder.encode(traceId, StandardCharsets.UTF_8))
+                .queryParam("focusTimestamp", focusTimestamp)
+                .queryParam("agentId", URLEncoder.encode(agentId, StandardCharsets.UTF_8))
+                .queryParam("spanId", spanId)
+                .build()
+                .toUriString();
 
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
-        TransactionTimelineInfoViewModel result = new TransactionTimelineInfoViewModel(transactionId, spanId, recordSet, traceViewerDataURL, logConfiguration);
-        return result;
+        return new TransactionTimelineInfoViewModel(transactionId, spanId, recordSet, traceViewerDataURL, logConfiguration);
     }
 
     @GetMapping(value = "/traceViewerData")
@@ -188,41 +175,44 @@ public class BusinessTransactionController {
         final CallTreeIterator callTreeIterator = spanResult.getCallTree();
 
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
-        TraceViewerDataViewModel result = new TraceViewerDataViewModel(recordSet);
-        return result;
+        return new TraceViewerDataViewModel(recordSet);
     }
 
     @PostMapping(value = "/bind")
-    public String metaDataBind(@RequestParam("type") String type,
+    public BindSqlView metaDataBind(@RequestParam("type") String type,
                                @RequestParam("metaData") String metaData,
                                @RequestParam("bind") String bind) {
         if (logger.isDebugEnabled()) {
             logger.debug("POST /bind params {metaData={}, bind={}}", metaData, bind);
         }
 
+        final BindType bindType = BindType.of(type);
+        if (bindType == null) {
+            throw new IllegalArgumentException("Unknown Type:" + type);
+        }
+
         if (metaData == null) {
-            return "";
+            return new BindSqlView("");
         }
 
-        List<String> bindValues;
-        String combinedResult = "";
-
-        if (type.equals("sql")) {
-            bindValues = parameterParser.parseOutputParameter(bind);
-            combinedResult = sqlParser.combineBindValues(metaData, bindValues);
-        } else if (type.equals("mongoJson")) {
-            bindValues = parameterJsonParser.parseOutputParameter(bind);
-            combinedResult = mongoJsonParser.combineBindValues(metaData, bindValues);
-        }
-
+        final QueryService service = queryServiceFactory.getService(bindType);
+        final String bindedQuery = service.bind(metaData, bind);
         if (logger.isDebugEnabled()) {
-            logger.debug("Combined result={}", combinedResult);
+            logger.debug("bindedQuery={}", bindedQuery);
         }
 
-        if (type.equals("mongoJson")) {
-            return StringEscapeUtils.unescapeHtml4(combinedResult);
+        return new BindSqlView(bindedQuery);
+    }
+
+    public static class BindSqlView {
+        private final String bindedQuery;
+
+        public BindSqlView(String bindedQuery) {
+            this.bindedQuery = Objects.requireNonNull(bindedQuery, "bindedQuery");
         }
 
-        return StringEscapeUtils.escapeHtml4(combinedResult);
+        public String getBindedQuery() {
+            return bindedQuery;
+        }
     }
 }
