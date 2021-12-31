@@ -17,7 +17,7 @@ jobs:
     steps:
     - run: |
         echo "Release ref: ${{ github.event.inputs.git-ref }}"
-    - name : Git checkout
+    - name: Git checkout
       uses: actions/checkout@v2
       with:
         ref: ${{ github.event.inputs.git-ref }}

@@ -19,28 +19,10 @@ jobs:
           comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
           body: |
             > Action has been started. [Click here to see the action](${{ steps.vars.outputs.run-url }})
-      - name: Checkout
+      - name: Git checkout
         uses: actions/checkout@v2
         with:
           ref: 'refs/pull/${{ env.PR_NUMBER }}/merge'
-      - name: Set up JDK 7
-        uses: actions/setup-java@v1
-        with:
-          java-version: 7
-      - name: Set up JDK 9
-        uses: actions/setup-java@v1
-        with:
-          java-version: 9
-      - name: Set JAVA_HOME
-        run: |
-          echo "JAVA_7_HOME=$JAVA_HOME_7_0_322_X64" >> $GITHUB_ENV
-          echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
-          echo "JAVA_9_HOME=$JAVA_HOME_9_0_7_X64" >> $GITHUB_ENV
-          echo "JAVA_11_HOME=$JAVA_HOME_11_X64" >> $GITHUB_ENV
-          echo "JAVA_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
-          df -h
-      - name: Java Environment
-        run: env | grep '^JAVA'
       - name: Cache node modules
         uses: actions/cache@v2
         with:
@@ -66,6 +48,20 @@ jobs:
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /usr/share/dotnet
           df -h
+      - name: Set up JDK 7
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 7
+      - name: Set JAVA_HOME
+        run: |
+          echo "JAVA_7_HOME=$JAVA_HOME_7_0_322_X64" >> $GITHUB_ENV
+          echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
+          echo "JAVA_11_HOME=$JAVA_HOME_11_X64" >> $GITHUB_ENV
+          echo "JAVA_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
+          df -h
+      - name: Java Environment
+        run: env | grep '^JAVA'
       - name: Maven build
         run: |
           ./mvnw --batch-mode -Pit-module -DskipTests clean install
