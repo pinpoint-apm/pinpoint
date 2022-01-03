@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.bootstrap.config.PropertyLoader;
 import com.navercorp.pinpoint.bootstrap.config.PropertyLoaderFactory;
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.banner.PinpointBanner;
+import com.navercorp.pinpoint.bootstrap.banner.PinpointBannerImpl;
 import com.navercorp.pinpoint.common.util.OsEnvSimpleProperty;
 import com.navercorp.pinpoint.common.util.PropertySnapshot;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
@@ -146,6 +148,11 @@ class PinpointStarter {
             pinpointAgent.registerStopHandler();
 
             logger.info("pinpoint agent started normally.");
+
+            final PinpointBannerImpl banner = new PinpointBannerImpl(profilerConfig.readList("pinpoint.banner.configs"), logger);
+            banner.setPinpointBannerMode(PinpointBanner.Mode.valueOf(profilerConfig.readString("pinpoint.banner.mode", "CONSOLE").toUpperCase()));
+            banner.setPinpointBannerProperty(properties);
+            banner.printBanner();
         } catch (Exception e) {
             // unexpected exception that did not be checked above
             logger.warn(ProductInfo.NAME + " start failed.", e);

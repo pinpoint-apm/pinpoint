@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.starter;
 
+import com.navercorp.pinpoint.common.server.banner.PinpointSpringBanner;
 import com.navercorp.pinpoint.common.server.env.EnvironmentLoggingListener;
 import com.navercorp.pinpoint.common.server.env.ExternalEnvironmentListener;
 import com.navercorp.pinpoint.common.server.env.ProfileResolveListener;
@@ -46,6 +47,7 @@ public class BasicStarter {
         builder.listeners(new ProfileResolveListener());
         builder.listeners(new EnvironmentLoggingListener());
         builder.listeners(new ExternalEnvironmentListener(externalPropertySourceName, externalConfigurationKey));
+        builder.listeners(new PinpointSpringBanner());
 
         SpringApplication springApplication = builder.build();
         springApplication.run(args);
