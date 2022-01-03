@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.filter;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -103,11 +102,8 @@ public class DefaultFilterBuilder implements FilterBuilder<List<SpanBo>> {
         if (value == null) {
             return null;
         }
-        try {
-            return URLDecoder.decode(value, StandardCharsets.UTF_8.name());
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalArgumentException("UTF8 decodeFail. value:" + value);
-        }
+
+        return URLDecoder.decode(value, StandardCharsets.UTF_8);
     }
 
     private Filter<List<SpanBo>> makeFilterFromJson(String jsonFilterText) {
