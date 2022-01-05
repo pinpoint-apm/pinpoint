@@ -1,35 +1,39 @@
 package com.navercorp.pinpoint.web.query;
 
+import io.jsonwebtoken.lang.Assert;
 import org.springframework.stereotype.Component;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 @Component
 public class QueryServiceFactory {
 
-    private final QueryService[] queryServices;
+    private final Map<BindType, QueryService> serviceMap;
 
     public QueryServiceFactory(QueryService[] services) {
         Objects.requireNonNull(services, "services");
-
-        this.queryServices = Stream.of(services)
-                .map(this::wrapFilter)
-                .toArray(QueryService[]::new);
+        this.serviceMap = buildMap(services);
     }
 
-    private QueryService wrapFilter(QueryService service) {
-        return new EscapeJsonFilter(service);
+    private Map<BindType, QueryService> buildMap(QueryService[] services) {
+        Map<BindType, QueryService> map = new EnumMap<>(BindType.class);
+        for (QueryService service : services) {
+            final QueryService duplicate = map.put(service.getBindType(), service);
+            Assert.isNull(duplicate, "Duplicate BindType");
+        }
+        return map;
     }
+
 
     public QueryService getService(BindType bindType) {
         Objects.requireNonNull(bindType, "bindType");
 
-        for (QueryService queryService : queryServices) {
-            if (queryService.getBindType().equals(bindType)) {
-                return queryService;
-            }
+        final QueryService queryService = serviceMap.get(bindType);
+        if (queryService == null) {
+            throw new IllegalArgumentException("Unknown BindType" + bindType);
         }
-        throw new IllegalArgumentException("Unknown BindType" + bindType);
+        return queryService;
     }
 }
