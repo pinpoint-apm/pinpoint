@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.util;
+package com.navercorp.pinpoint.web.query;
 
-import com.navercorp.pinpoint.web.query.DefaultMongoJsonParser;
-import com.navercorp.pinpoint.web.query.OutputParameterMongoJsonParser;
+import com.navercorp.pinpoint.web.util.MongoJsonParser;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -30,7 +29,7 @@ import java.util.List;
  */
 public class MongoJsonCombineTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final MongoJsonParser jsonParser = new DefaultMongoJsonParser();
     private final OutputParameterMongoJsonParser outputParameterMongoJsonParser = new OutputParameterMongoJsonParser();

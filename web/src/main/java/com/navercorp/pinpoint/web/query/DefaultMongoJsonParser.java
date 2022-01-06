@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.util;
+package com.navercorp.pinpoint.web.query;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.web.util.MongoJsonParser;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -61,7 +62,7 @@ public class DefaultMongoJsonParser implements MongoJsonParser {
         }
 
         int additionalSize = 0;
-        final Queue<String> bindValueQueue = new LinkedList<String>();
+        final Queue<String> bindValueQueue = new LinkedList<>();
         for (String value : bindValues) {
             bindValueQueue.add(value);
             additionalSize += value.length();
@@ -70,7 +71,7 @@ public class DefaultMongoJsonParser implements MongoJsonParser {
         final int length = json.length();
         final StringBuilder result = new StringBuilder(length + additionalSize);
 
-        Stack<Character> stack = new Stack<Character>();
+        Stack<Character> stack = new Stack<>();
 
         boolean statusKey = true;
         boolean inString = false;

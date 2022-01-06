@@ -42,8 +42,8 @@ export class SyntaxHighlightPopupContainerComponent implements OnInit, AfterView
 
                     return EMPTY;
                 }),
-                map((bindedContents: string) => {
-                    return { ...this.data, bindedContents };
+                map(({bindedQuery}: {bindedQuery: string}) => {
+                    return {...this.data, bindedContents: bindedQuery};
                 })
             ),
             of(this.data)
