@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
+import com.navercorp.pinpoint.web.config.ExperimentalConfig;
 import com.navercorp.pinpoint.web.service.UserService;
 import com.navercorp.pinpoint.web.vo.User;
 import org.apache.logging.log4j.Logger;
@@ -40,12 +41,15 @@ public class ConfigController {
     private final static String SSO_USER = "SSO_USER";
 
     private final ConfigProperties webProperties;
-    
+
+    private final ExperimentalConfig experimentalConfig;
+
     private final UserService userService;
 
-    public ConfigController(ConfigProperties webProperties, UserService userService) {
+    public ConfigController(ConfigProperties webProperties, UserService userService, ExperimentalConfig experimentalConfig) {
         this.webProperties = Objects.requireNonNull(webProperties, "webProperties");
         this.userService = Objects.requireNonNull(userService, "userService");
+        this.experimentalConfig = Objects.requireNonNull(experimentalConfig, "experimentalConfig");
     }
 
     @GetMapping(value="/configuration")
@@ -63,6 +67,8 @@ public class ConfigController {
         result.put("webhookEnable", webProperties.isWebhookEnable());
         result.put("version", Version.VERSION);
 
+        result.putAll(experimentalConfig.getProperties());
+
         String userId = userService.getUserIdFromSecurity();
         if (StringUtils.hasLength(userId)) {
             User user = userService.selectUserByUserId(userId);
@@ -75,11 +81,11 @@ public class ConfigController {
                 result.put("userDepartment", user.getDepartment());
             }
         }
-        
+
         if (StringUtils.hasLength(webProperties.getSecurityGuideUrl())) {
             result.put("securityGuideUrl", webProperties.getSecurityGuideUrl());
         }
-        
+
         return result;
     }
 }
