@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.test.plugin.PluginTestConstants;
 import com.navercorp.pinpoint.test.plugin.PluginTestContext;
 import com.navercorp.pinpoint.test.plugin.ProcessManager;
 import com.navercorp.pinpoint.test.plugin.util.CollectionUtils;
+import com.navercorp.pinpoint.test.plugin.util.JDKUtils;
 import com.navercorp.pinpoint.test.plugin.util.StringJoiner;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;
 import com.navercorp.pinpoint.test.plugin.util.TLSOption;
@@ -151,7 +152,16 @@ public class SharedProcessManager implements ProcessManager {
         list.add(context.getJavaExecutable());
 
         list.add("-Xmx1024m");
-        list.add("-XX:MaxPermSize=512m");
+        final List<String> jvmArguments = context.getJvmArguments();
+        if (!JDKUtils.isJdk8Plus()) {
+            // -XX:MaxPermSize for jdk 7
+            if (!hasMaxPermSize(jvmArguments)) {
+                list.add("-XX:MaxPermSize=512m");
+            }
+        }
+
+        list.addAll(jvmArguments);
+
 
         String classPath = join(context.getRequiredLibraries());
         list.add("-cp");
@@ -170,10 +180,6 @@ public class SharedProcessManager implements ProcessManager {
         list.add(format(SharedPluginTestConstants.TEST_CLAZZ_NAME, context.getTestClass().getName()));
 
 //        list.add("-D" + PINPOINT_TEST_ID + "=" + testCase.getTestId());
-
-        for (String arg : context.getJvmArguments()) {
-            list.add(arg);
-        }
 
         if (context.isDebug()) {
             list.addAll(getDebugOptions());
@@ -215,6 +221,15 @@ public class SharedProcessManager implements ProcessManager {
         }
 
         return list.toArray(new String[0]);
+    }
+
+    private boolean hasMaxPermSize(List<String> jvmArguments) {
+        for (String jvmArgument : jvmArguments) {
+            if (jvmArgument.startsWith("-XX:MaxPermSize=")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String join(List<String> mavenDependencyLibraries) {

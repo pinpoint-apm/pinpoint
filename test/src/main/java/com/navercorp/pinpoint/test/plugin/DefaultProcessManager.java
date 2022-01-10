@@ -112,7 +112,7 @@ public class DefaultProcessManager implements ProcessManager {
         list.add(format("pinpoint.applicationName", "test"));
         list.add(format(PINPOINT_TEST_ID, pluginTestInstance.getTestId()));
 
-        list.addAll(Arrays.asList(context.getJvmArguments()));
+        list.addAll(context.getJvmArguments());
 
         if (context.isDebug()) {
             list.addAll(getDebugOptions());
