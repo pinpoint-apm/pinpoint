@@ -101,11 +101,11 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         return true;
     }
 
-    public PinpointPluginTestSuite(Class<?> testClass) throws InitializationError, ArtifactResolutionException, DependencyResolutionException {
+    public PinpointPluginTestSuite(Class<?> testClass) throws InitializationError {
         this(testClass, true);
     }
 
-    public PinpointPluginTestSuite(Class<?> testClass, boolean sharedProcess) throws InitializationError, ArtifactResolutionException, DependencyResolutionException {
+    public PinpointPluginTestSuite(Class<?> testClass, boolean sharedProcess) throws InitializationError {
         super(testClass);
 
         OnClassLoader onClassLoader = testClass.getAnnotation(OnClassLoader.class);

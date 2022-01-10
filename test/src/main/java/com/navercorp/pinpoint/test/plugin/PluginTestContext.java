@@ -14,7 +14,6 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -33,7 +32,7 @@ public class PluginTestContext {
     private final Class<?> testClass;
     private final String testClassLocation;
 
-    private final String[] jvmArguments;
+    private final List<String> jvmArguments;
     private final boolean debug;
 
     private final int jvmVersion;
@@ -43,7 +42,7 @@ public class PluginTestContext {
 
     public PluginTestContext(String agentJar, String profile, String configFile, String logLocationConfig,
                              List<String> requiredLibraries, List<String> mavenDependencyLibraries, List<String> repositoryUrls,
-                             Class<?> testClass, String testClassLocation, String[] jvmArguments,
+                             Class<?> testClass, String testClassLocation, List<String> jvmArguments,
                              boolean debug, int jvmVersion,
                              String javaExecutable, List<String> importPluginIds) {
         this.agentJar = agentJar;
@@ -92,7 +91,7 @@ public class PluginTestContext {
         return logLocationConfig;
     }
 
-    public String[] getJvmArguments() {
+    public List<String> getJvmArguments() {
         return jvmArguments;
     }
 
@@ -128,7 +127,7 @@ public class PluginTestContext {
                 ", repositoryUrls=" + repositoryUrls +
                 ", testClass=" + testClass +
                 ", testClassLocation='" + testClassLocation + '\'' +
-                ", jvmArguments=" + Arrays.toString(jvmArguments) +
+                ", jvmArguments=" + jvmArguments +
                 ", debug=" + debug +
                 ", jvmVersion=" + jvmVersion +
                 ", javaExecutable='" + javaExecutable + '\'' +

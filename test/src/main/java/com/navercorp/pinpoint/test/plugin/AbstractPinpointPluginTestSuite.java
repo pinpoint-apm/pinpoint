@@ -23,8 +23,6 @@ import com.navercorp.pinpoint.test.plugin.util.TLSOption;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import com.navercorp.pinpoint.test.plugin.util.TestPluginVersion;
 
-import org.eclipse.aether.resolution.ArtifactResolutionException;
-import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.junit.internal.runners.statements.RunAfters;
 import org.junit.internal.runners.statements.RunBefores;
 import org.junit.runner.Runner;
@@ -61,13 +59,13 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
     private final String profile;
     private final String configFile;
     private final String logLocationConfig;
-    private final String[] jvmArguments;
+    private final List<String> jvmArguments;
     private final int[] jvmVersions;
     private final boolean debug;
 
     private final List<String> importPluginIds;
 
-    public AbstractPinpointPluginTestSuite(Class<?> testClass) throws InitializationError, ArtifactResolutionException, DependencyResolutionException {
+    public AbstractPinpointPluginTestSuite(Class<?> testClass) throws InitializationError {
         super(testClass, Collections.<Runner>emptyList());
         TLSOption.applyTLSv12();
 
@@ -147,11 +145,11 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         return Arrays.asList(repository.value());
     }
 
-    private String[] getJvmArguments(JvmArgument jvmArgument) {
+    private List<String> getJvmArguments(JvmArgument jvmArgument) {
         if (jvmArgument == null) {
-            return new String[0];
+            return Collections.emptyList();
         }
-        return jvmArgument.value();
+        return Arrays.asList(jvmArgument.value());
     }
 
     protected String getJavaExecutable(int version) {
