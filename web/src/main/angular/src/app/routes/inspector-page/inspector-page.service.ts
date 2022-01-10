@@ -1,16 +1,14 @@
 import { Injectable } from '@angular/core';
-import { map, tap, filter, takeUntil } from 'rxjs/operators';
+import { map, tap, takeUntil } from 'rxjs/operators';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 
 import {
     NewUrlStateNotificationService,
-    StoreHelperService,
     WebAppSettingDataService,
     MessageQueueService,
     MESSAGE_TO
 } from 'app/shared/services';
 import { UrlPath, UrlPathId } from 'app/shared/models';
-import { Actions } from 'app/shared/store/reducers';
 import { Timeline } from 'app/core/components/timeline/class';
 
 export interface ISourceForServerAndAgentList {
@@ -42,7 +40,6 @@ export class InspectorPageService {
 
     private timelineInfo: ITimelineInfo;
     private agentId: string;
-    private isFirstFlow: boolean; // AgentId가 invalid상태일때 redirect가 발생하는걸 detect하기위한 property
 
     sourceForServerAndAgentList$: Observable<ISourceForServerAndAgentList>;
     sourceForTimeline$: Observable<ISourceForTimeline>;
@@ -51,7 +48,6 @@ export class InspectorPageService {
 
     constructor(
         private newUrlStateNotificationService: NewUrlStateNotificationService,
-        private storeHelperService: StoreHelperService,
         private webAppSettingDataService: WebAppSettingDataService,
         private messageQueueService: MessageQueueService,
     ) {
@@ -82,14 +78,10 @@ export class InspectorPageService {
             this.notifyToServerAndAgentList(range);
         });
 
-        this.messageQueueService.receiveMessage(unsubscribe, MESSAGE_TO.INSPECTOR_PAGE_VALID).pipe(
-            tap(() => this.isFirstFlow = !this.timelineInfo)
-        ).subscribe(({range, now}: {range: number[], now: number}) => {
+        this.messageQueueService.receiveMessage(unsubscribe, MESSAGE_TO.INSPECTOR_PAGE_VALID).subscribe(({range, now}: {range: number[], now: number}) => {
             this.notifyToTimeline(range);
-            if (!(this.isFirstFlow || this.shouldUpdateRange())) {
-                this.notifyToAgentInfo();
-                this.notifyToChart();
-            }
+            this.notifyToAgentInfo();
+            this.notifyToChart();
 
             if (this.newUrlStateNotificationService.isRealTimeMode()) {
                 const period = this.webAppSettingDataService.getChartRefreshInterval(UrlPath.INSPECTOR);
@@ -102,18 +94,12 @@ export class InspectorPageService {
                 this.notifyToServerAndAgentList([from, to], emitAfter);
             }
         });
-
-        this.storeHelperService.getInspectorTimelineData(unsubscribe).pipe(
-            filter(() => !this.isFirstFlow),
-            tap((timelineInfo: ITimelineInfo) => this.timelineInfo = timelineInfo),
-        ).subscribe(() => {
-            this.notifyToAgentInfo();
-            this.notifyToChart();
-        });
     }
 
     updateTimelineData(data: ITimelineInfo): void {
-        this.storeHelperService.dispatch(new Actions.UpdateTimelineData(data));
+        this.timelineInfo = data;
+        this.notifyToAgentInfo();
+        this.notifyToChart();
     }
 
     private calcuRetrieveTime([from, to]: number[]): number[] {
@@ -136,12 +122,12 @@ export class InspectorPageService {
     }
 
     private notifyToTimeline(range: number[]): void {
-        if (this.isFirstFlow || this.shouldUpdateRange()) {
-            this.updateTimelineData({
+        if (this.shouldUpdateRange() || !this.timelineInfo) {
+            this.timelineInfo = {
                 range: this.calcuRetrieveTime(range),
                 selectedTime: range[1],
                 selectionRange: range
-            });
+            };
         }
 
         this.sourceForTimeline.next({
