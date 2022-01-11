@@ -90,8 +90,8 @@ export class ApplicationDirectBufferMemoryChartContainer implements IInspectorCh
         return [...unitList].reduce((acc: string, curr: string, i: number, arr: string[]) => {
             const v = Number(acc);
 
-            return v >= 1000
-                ? (v / 1000).toString()
+            return v >= 1024
+                ? (v / 1024).toString()
                 : (arr.splice(i + 1), Number.isInteger(v) ? `${v}${curr}` : `${v.toFixed(2)}${curr}`);
         }, value.toString());
     }
