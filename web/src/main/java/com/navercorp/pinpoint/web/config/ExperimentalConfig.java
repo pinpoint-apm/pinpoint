@@ -16,79 +16,74 @@
 
 package com.navercorp.pinpoint.web.config;
 
-import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
-import com.navercorp.pinpoint.common.server.config.LoggingEvent;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Arrays;
-import java.util.Properties;
-import java.util.stream.StreamSupport;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class ExperimentalConfig {
-    private final Environment environment;
+    public static final String PREFIX = "experimental.";
 
-    private Properties experimentalProperties;
+    private final Map<String, Object> properties;
 
-    private Map<String, Object> experimentalPropertiesMap;
-
-    private final Logger logger = LogManager.getLogger(ConfigProperties.class);
 
     public ExperimentalConfig(Environment environment) {
-        this.environment = Objects.requireNonNull(environment, "environment");
-        this.readExperimentalProperties();
+        Objects.requireNonNull(environment, "environment");
+        this.properties = readExperimentalProperties(environment);
     }
 
-    private void readExperimentalProperties() {
-        final String prefix = "experimental.";
-        Properties properties = new Properties();
-        Map<String, Object> propertiesMap = new HashMap<>();
+    private Map<String, Object> readExperimentalProperties(Environment environment) {
+
         MutablePropertySources propertySources = ((AbstractEnvironment) environment).getPropertySources();
-        StreamSupport.stream(propertySources.spliterator(), false)
+        Map<String, Object> collect = propertySources.stream()
                 .filter(ps -> ps instanceof EnumerablePropertySource)
                 .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
-                .flatMap(Arrays::<String>stream)
-                .filter(propName -> propName.startsWith(prefix))
-                .forEach(propName -> {
-                    properties.setProperty(propName, environment.getProperty(propName));
-                    if (Objects.equals(environment.getProperty(propName), "true") || Objects.equals(environment.getProperty(propName), "false")){
-                        propertiesMap.put(propName, Boolean.parseBoolean(environment.getProperty(propName)));
-                    } else {
-                        propertiesMap.put(propName, environment.getProperty(propName));
-                    }
-                });
-        this.experimentalProperties = properties;
-        this.experimentalPropertiesMap = propertiesMap;
+                .flatMap(Arrays::stream)
+                .filter(propName -> propName.startsWith(PREFIX))
+                .collect(Collectors.toMap(Function.identity(), toValue(environment)));
+        return collect;
     }
 
-    public Map<String, Object> getProperties(){
-        return this.experimentalPropertiesMap;
+    private Function<String, Object> toValue(Environment environment) {
+        return key -> {
+            final String value = environment.getProperty(key);
+            final Boolean boolValue = parseBoolean(value);
+            if (boolValue != null) {
+                return boolValue;
+            }
+
+            return value;
+        };
     }
 
-    @PostConstruct
-    public void log() {
-        logger.info("{}", this);
-        AnnotationVisitor<Value> annotationVisitor = new AnnotationVisitor<>(Value.class);
-        annotationVisitor.visit(this, new LoggingEvent(this.logger));
+    private Boolean parseBoolean(String value) {
+        if ("true".equalsIgnoreCase(value)) {
+            return Boolean.TRUE;
+        }
+        if ("false".equalsIgnoreCase(value)) {
+            return Boolean.FALSE;
+        }
+        return null;
     }
+
+
+    public Map<String, Object> getProperties() {
+        return this.properties;
+    }
+
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ExperimentalConfig{");
-        sb.append(this.experimentalProperties.toString());
-        sb.append('}');
-        return sb.toString();
+        return "ExperimentalConfig{" +
+                ", experimentalProperties=" + properties +
+                '}';
     }
-
 }
