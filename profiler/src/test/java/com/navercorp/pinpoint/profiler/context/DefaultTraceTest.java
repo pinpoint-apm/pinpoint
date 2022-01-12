@@ -151,7 +151,7 @@ public class DefaultTraceTest {
         TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 0);
         when(traceRoot.getTraceId()).thenReturn(traceId);
 
-        CallStackFactory<SpanEvent> callStackFactory = new CallStackFactoryV1(maxCallStackDepth);
+        CallStackFactory<SpanEvent> callStackFactory = new CallStackFactoryV1(maxCallStackDepth, (short)-1);
         CallStack<SpanEvent> callStack = callStackFactory.newCallStack();
 
         SpanFactory spanFactory = new DefaultSpanFactory();

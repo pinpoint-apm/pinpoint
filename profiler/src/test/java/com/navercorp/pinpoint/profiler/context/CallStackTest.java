@@ -36,6 +36,7 @@ public abstract class CallStackTest {
 
     abstract CallStack<SpanEvent> newCallStack();
     abstract CallStack<SpanEvent> newCallStack(int depth);
+    abstract CallStack<SpanEvent> newCallStack(int depth, short sequence);
 
     public SpanEvent getSpanEvent() {
         return factory.newInstance();
@@ -136,5 +137,46 @@ public abstract class CallStackTest {
         // low overflow
         assertNull(callStack.pop());
         assertNull(callStack.peek());
+    }
+
+    @Test
+    public void overflow2() {
+        final int maxDepth = 4;
+        final short maxSequence = (short)(maxDepth * 2);
+
+        DefaultCallStack<SpanEvent> callStack = (DefaultCallStack<SpanEvent>) newCallStack(maxDepth, maxSequence);
+        assertEquals(maxDepth, callStack.getMaxDepth());
+        assertEquals(maxSequence, callStack.getMaxSequence());
+
+        for (int i = 0; i < maxDepth + 3; i++) {
+            callStack.push(getSpanEvent());
+        }
+
+        for (int i = 0; i < maxDepth + 3; i++) {
+            callStack.pop();
+        }
+
+        for (int i = 0; i < maxDepth - 1; i++) {
+            callStack.push(getSpanEvent());
+        }
+
+        // overflow by sequence
+        assertEquals(maxDepth - 1, callStack.getIndex());
+        assertTrue(callStack.isOverflow());
+        assertFalse(callStack.getFactory().isDummy(callStack.peek()));
+
+        callStack.push(getSpanEvent());
+        assertEquals(maxDepth, callStack.getIndex());
+        assertTrue(callStack.getFactory().isDummy(callStack.peek()));
+        assertTrue(callStack.getFactory().isDummy(callStack.pop()));
+
+        for (int i = maxDepth - 1; i > 0; i--) {
+            assertNotNull(callStack.peek());
+            assertFalse(callStack.getFactory().isDummy(callStack.peek()));
+            SpanEvent element = callStack.pop();
+            assertNotNull(element);
+            assertFalse(callStack.getFactory().isDummy(element));
+            assertTrue(callStack.isOverflow());
+        }
     }
 }

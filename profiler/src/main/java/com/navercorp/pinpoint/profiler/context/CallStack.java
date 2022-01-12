@@ -34,6 +34,8 @@ public interface CallStack<T> {
 
     int getMaxDepth();
 
+    short getMaxSequence();
+
     Factory<T> getFactory();
 
     interface Factory<T> {
