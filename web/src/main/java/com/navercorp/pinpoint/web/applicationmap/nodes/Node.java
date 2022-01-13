@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.nodes;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.appender.metric.DBMetric;
+import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.view.NodeSerializer;
@@ -53,7 +54,7 @@ public class Node {
     private ServerInstanceList serverInstanceList = new ServerInstanceList();
 
     private NodeHistogram nodeHistogram;
-    
+
     private boolean authorized = true;
     private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
 
@@ -62,7 +63,7 @@ public class Node {
     public Node(Application application) {
         this(NodeType.DETAILED, application);
     }
-    
+
     public Node(NodeType nodeType, Application application) {
         this.nodeType = Objects.requireNonNull(nodeType, "nodeType");
         this.application = Objects.requireNonNull(application, "application");
@@ -119,7 +120,11 @@ public class Node {
     public void setNodeHistogram(NodeHistogram nodeHistogram) {
         this.nodeHistogram = nodeHistogram;
     }
-    
+
+    public ApdexScore getApdexScore() {
+        return ApdexScore.newApdexScore(nodeHistogram.getApplicationHistogram());
+    }
+
     public boolean isAuthorized() {
         return authorized;
     }

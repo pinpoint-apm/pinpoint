@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.view;
 
+import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.appender.metric.DBMetric;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
@@ -39,6 +40,7 @@ import java.util.Map;
  * @author HyunGil Jeong
  */
 public class NodeSerializer extends JsonSerializer<Node> {
+
     @Override
     public void serialize(Node node, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
@@ -65,7 +67,7 @@ public class NodeSerializer extends JsonSerializer<Node> {
         jgen.writeBooleanField("isQueue", serviceType.isQueue());
         jgen.writeBooleanField("isAuthorized", node.isAuthorized());
 
-        writeHistogram(jgen, node);
+        writeHistogram(node, jgen, provider);
         writeServerInstanceList(jgen, node);
         writeMetricDB(jgen, node);
 
@@ -136,7 +138,7 @@ public class NodeSerializer extends JsonSerializer<Node> {
         }
     }
 
-    private void writeHistogram(JsonGenerator jgen, Node node) throws IOException {
+    private void writeHistogram(Node node, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         final ServiceType serviceType = node.getServiceType();
         final NodeHistogram nodeHistogram = node.getNodeHistogram();
         // FIXME isn't this all ServiceTypes that can be a node?
@@ -165,8 +167,13 @@ public class NodeSerializer extends JsonSerializer<Node> {
             jgen.writeObjectField(ResponseTimeStatics.RESPONSE_STATISTICS, responseTimeStatics);
             if (applicationHistogram == null) {
                 writeEmptyObject(jgen, "histogram");
+                writeEmptyObject(jgen, "apdexScore");
             } else {
                 jgen.writeObjectField("histogram", applicationHistogram);
+                //jgen.writeObjectField("apdexScore", node.getApdexScore());
+                JsonSerializer<Object> beanSerializer = provider.findValueSerializer(node.getApdexScore().getClass());
+                JsonSerializer<Object> unwrapping = beanSerializer.unwrappingSerializer(NameTransformer.NOP);
+                unwrapping.serialize(node.getApdexScore(), jgen, provider);
             }
             if (NodeType.DETAILED == node.getNodeType()) {
                 Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
