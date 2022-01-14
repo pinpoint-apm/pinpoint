@@ -109,7 +109,7 @@ public class JarFileAnalyzerTest {
         List<Providers> providers = analyze.getProviders();
         Providers first = providers.get(0);
         Assert.assertEquals(first.getService(), "java.sql.Driver");
-        Assert.assertTrue(first.getProviders().contains("com.mysql.jdbc.Driver"));
+        Assert.assertTrue(first.getProviders().contains("com.mysql.cj.jdbc.Driver"));
 
 
     }
