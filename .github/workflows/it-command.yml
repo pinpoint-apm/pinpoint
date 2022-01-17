@@ -55,11 +55,10 @@ jobs:
           java-version: 7
       - name: Set JAVA_HOME
         run: |
-          echo "JAVA_7_HOME=$JAVA_HOME_7_0_322_X64" >> $GITHUB_ENV
+          echo "JAVA_7_HOME=$JAVA_HOME" >> $GITHUB_ENV
           echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
           echo "JAVA_11_HOME=$JAVA_HOME_11_X64" >> $GITHUB_ENV
           echo "JAVA_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
-          df -h
       - name: Java Environment
         run: env | grep '^JAVA'
       - name: Maven build
