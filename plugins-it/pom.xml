@@ -80,6 +80,7 @@
         <module>kafka-it</module>
         <module>kotlin-coroutines-it</module>
         <module>lambda-it</module>
+        <module>jtds-it</module>
     </modules>
 
     <properties>
