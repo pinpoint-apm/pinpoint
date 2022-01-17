@@ -83,7 +83,7 @@
     </modules>
 
     <properties>
-        <testcontainers.version>1.15.3</testcontainers.version>
+
     </properties>
 
     <dependencyManagement>
