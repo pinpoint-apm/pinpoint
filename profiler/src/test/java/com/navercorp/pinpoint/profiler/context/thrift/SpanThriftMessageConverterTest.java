@@ -154,7 +154,7 @@ public class SpanThriftMessageConverterTest {
         spanEvent.setStartTime(startTime + RandomExUtils.nextInt(0, 100));
         spanEvent.setAfterTime(spanEvent.getStartTime() + RandomExUtils.nextInt(5, 100));
         spanEvent.setDestinationId("destinationId");
-        spanEvent.setSequence((short) RandomExUtils.nextInt(0, 100));
+        spanEvent.setSequence(RandomExUtils.nextInt(0, 100));
         spanEvent.setNextSpanId(RandomExUtils.nextInt(0, 100));
 
         spanEvent.setAsyncIdObject(new DefaultAsyncId(RandomExUtils.nextInt(0, 100)));

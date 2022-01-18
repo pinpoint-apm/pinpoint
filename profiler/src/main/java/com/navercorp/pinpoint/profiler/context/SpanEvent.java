@@ -35,7 +35,7 @@ public class SpanEvent extends DefaultFrameAttachment {
     private long startTime;
     private int elapsedTime;
 
-    private short sequence; // required
+    private int sequence; // required
 
 //    private String rpc; // optional
     private short serviceType; // required
@@ -115,11 +115,11 @@ public class SpanEvent extends DefaultFrameAttachment {
         this.timeRecording = timeRecording;
     }
 
-    public short getSequence() {
+    public int getSequence() {
         return sequence;
     }
 
-    public void setSequence(short sequence) {
+    public void setSequence(int sequence) {
         this.sequence = sequence;
     }
 

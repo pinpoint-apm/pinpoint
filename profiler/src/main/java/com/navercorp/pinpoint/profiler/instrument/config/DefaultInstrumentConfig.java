@@ -46,7 +46,7 @@ public class DefaultInstrumentConfig implements InstrumentConfig {
     private String pinpointExcludePackage;
 
     private int callStackMaxDepth = 64;
-    private short callStackMaxSequence = 5000;
+    private int callStackMaxSequence = 5000;
 
     private Filter<String> profilableClassFilter = new SkipFilter<>();
 
@@ -118,7 +118,7 @@ public class DefaultInstrumentConfig implements InstrumentConfig {
     }
 
     @Override
-    public short getCallStackMaxSequence() {
+    public int getCallStackMaxSequence() {
         return callStackMaxSequence;
     }
 
@@ -132,10 +132,12 @@ public class DefaultInstrumentConfig implements InstrumentConfig {
     }
 
     @Value("${profiler.callstack.max.sequence}")
-    public void setCallStackMaxSequence(short callStackMaxSequence) {
-        final short minLimit = (short) 4;
-        if (callStackMaxSequence != -1 && callStackMaxSequence < minLimit) {
+    public void setCallStackMaxSequence(int callStackMaxSequence) {
+        final int minLimit = 4;
+        if (callStackMaxSequence >= 0 && callStackMaxSequence < minLimit) {
             callStackMaxSequence = minLimit;
+        } else if (callStackMaxSequence < 0 || callStackMaxSequence > Short.MAX_VALUE) {
+            callStackMaxSequence = Short.MAX_VALUE;
         }
         this.callStackMaxSequence = callStackMaxSequence;
     }

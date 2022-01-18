@@ -44,7 +44,7 @@ public class SpanEventFactoryTest {
     public void setSequence() {
         SpanEventFactory factory = new SpanEventFactory();
         final SpanEvent spanEvent = factory.newInstance();
-        factory.setSequence(spanEvent, (short) 999);
+        factory.setSequence(spanEvent, 999);
         assertEquals(999, spanEvent.getSequence());
     }
 
