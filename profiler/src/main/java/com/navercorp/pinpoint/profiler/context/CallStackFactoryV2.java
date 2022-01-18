@@ -23,9 +23,9 @@ public class CallStackFactoryV2 implements CallStackFactory<SpanEvent> {
 
     private final CallStack.Factory<SpanEvent> factory = new SpanEventFactory();
     private final int maxDepth;
-    private final short maxSequence;
+    private final int maxSequence;
 
-    public CallStackFactoryV2(int maxDepth, short maxSequence) {
+    public CallStackFactoryV2(int maxDepth, int maxSequence) {
         this.maxDepth = maxDepth;
         this.maxSequence = maxSequence;
     }

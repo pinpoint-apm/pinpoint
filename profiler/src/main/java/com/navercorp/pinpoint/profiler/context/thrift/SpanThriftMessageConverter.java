@@ -203,7 +203,7 @@ public class SpanThriftMessageConverter implements MessageConverter<SpanType, TB
         if (spanEvent.getElapsedTime() != 0) {
             tSpanEvent.setEndElapsed(spanEvent.getElapsedTime());
         }
-        tSpanEvent.setSequence(spanEvent.getSequence());
+        tSpanEvent.setSequence((short) spanEvent.getSequence());
 //        tSpanEvent.setRpc(spanEvent.getRpc());
         tSpanEvent.setServiceType(spanEvent.getServiceType());
         tSpanEvent.setEndPoint(spanEvent.getEndPoint());

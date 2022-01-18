@@ -74,7 +74,18 @@ public class DefaultInstrumentConfigTest {
         properties.setProperty("profiler.callstack.max.sequence", "-1");
         instrumentConfig = new DefaultInstrumentConfig();
         valueAnnotationProcessor.process(instrumentConfig, properties);
-        Assert.assertEquals(instrumentConfig.getCallStackMaxSequence(), -1);
+        Assert.assertEquals(instrumentConfig.getCallStackMaxSequence(), 32767);
+
+        properties.setProperty("profiler.callstack.max.sequence", "-73");
+        instrumentConfig = new DefaultInstrumentConfig();
+        valueAnnotationProcessor.process(instrumentConfig, properties);
+        Assert.assertEquals(instrumentConfig.getCallStackMaxSequence(), 32767);
+
+        // short overflow
+        properties.setProperty("profiler.callstack.max.sequence", "1048576");
+        instrumentConfig = new DefaultInstrumentConfig();
+        valueAnnotationProcessor.process(instrumentConfig, properties);
+        Assert.assertEquals(instrumentConfig.getCallStackMaxSequence(), 32767);
 
         // Minimum calibration
         properties.setProperty("profiler.callstack.max.sequence", "0");

@@ -34,7 +34,7 @@ public class DefaultCallStackTest extends CallStackTest {
     }
 
     @Override
-    CallStack<SpanEvent> newCallStack(int depth, short sequence) {
+    CallStack<SpanEvent> newCallStack(int depth, int sequence) {
         return new DefaultCallStack<>(factory, depth, sequence);
     }
 

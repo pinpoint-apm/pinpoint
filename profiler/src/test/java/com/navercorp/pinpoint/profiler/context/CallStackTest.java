@@ -36,7 +36,7 @@ public abstract class CallStackTest {
 
     abstract CallStack<SpanEvent> newCallStack();
     abstract CallStack<SpanEvent> newCallStack(int depth);
-    abstract CallStack<SpanEvent> newCallStack(int depth, short sequence);
+    abstract CallStack<SpanEvent> newCallStack(int depth, int sequence);
 
     public SpanEvent getSpanEvent() {
         return factory.newInstance();
@@ -142,7 +142,7 @@ public abstract class CallStackTest {
     @Test
     public void overflow2() {
         final int maxDepth = 4;
-        final short maxSequence = (short)(maxDepth * 2);
+        final int maxSequence = maxDepth * 2;
 
         DefaultCallStack<SpanEvent> callStack = (DefaultCallStack<SpanEvent>) newCallStack(maxDepth, maxSequence);
         assertEquals(maxDepth, callStack.getMaxDepth());

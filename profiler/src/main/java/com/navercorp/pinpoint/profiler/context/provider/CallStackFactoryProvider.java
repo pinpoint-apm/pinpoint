@@ -34,7 +34,7 @@ public class CallStackFactoryProvider implements Provider<CallStackFactory<SpanE
 
     private final TraceDataFormatVersion version;
     private final int callStackMaxDepth;
-    private final short callStackMaxSequence;
+    private final int callStackMaxSequence;
 
 
     @Inject
