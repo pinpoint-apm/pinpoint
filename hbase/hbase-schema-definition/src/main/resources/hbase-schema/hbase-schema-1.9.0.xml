@@ -394,6 +394,65 @@
                 </splitKeys>
             </split>
         </createTable>
+
+        <createTable name="ApplicationMapStatisticsCallerCompact">
+            <createColumnFamily name="C">
+                <configuration>
+                    <timeToLive>5184000</timeToLive>
+                    <maxVersions>1</maxVersions>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+            <split>
+                <splitKeys>
+                    <splitKey>\x02</splitKey>
+                    <splitKey>\x04</splitKey>
+                    <splitKey>\x06</splitKey>
+                    <splitKey>\x08</splitKey>
+                    <splitKey>\x0a</splitKey>
+                    <splitKey>\x0c</splitKey>
+                    <splitKey>\x0e</splitKey>
+                    <splitKey>\x10</splitKey>
+                    <splitKey>\x12</splitKey>
+                    <splitKey>\x14</splitKey>
+                    <splitKey>\x16</splitKey>
+                    <splitKey>\x18</splitKey>
+                    <splitKey>\x1a</splitKey>
+                    <splitKey>\x1c</splitKey>
+                    <splitKey>\x1e</splitKey>
+                </splitKeys>
+            </split>
+        </createTable>
+
+        <createTable name="ApplicationMapStatisticsCalleeCompact">
+            <createColumnFamily name="C">
+                <configuration>
+                    <timeToLive>5184000</timeToLive>
+                    <maxVersions>1</maxVersions>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+            <split>
+                <splitKeys>
+                    <splitKey>\x02</splitKey>
+                    <splitKey>\x04</splitKey>
+                    <splitKey>\x06</splitKey>
+                    <splitKey>\x08</splitKey>
+                    <splitKey>\x0a</splitKey>
+                    <splitKey>\x0c</splitKey>
+                    <splitKey>\x0e</splitKey>
+                    <splitKey>\x10</splitKey>
+                    <splitKey>\x12</splitKey>
+                    <splitKey>\x14</splitKey>
+                    <splitKey>\x16</splitKey>
+                    <splitKey>\x18</splitKey>
+                    <splitKey>\x1a</splitKey>
+                    <splitKey>\x1c</splitKey>
+                    <splitKey>\x1e</splitKey>
+                </splitKeys>
+            </split>
+        </createTable>
+
     </changeSet>
 
 </hbaseSchema>

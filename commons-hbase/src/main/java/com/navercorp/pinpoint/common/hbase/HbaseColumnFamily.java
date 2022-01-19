@@ -134,6 +134,19 @@ public class HbaseColumnFamily {
         }
     }
 
+    public static final CalleeStatMapCompact MAP_STATISTICS_CALLEE_COMPACT_COUNTER = new CalleeStatMapCompact(HbaseTable.MAP_STATISTICS_CALLEE_COMPACT, Bytes.toBytes("C"));
+    public static class CalleeStatMapCompact extends HbaseColumnFamily {
+        private CalleeStatMapCompact(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
+
+    public static final CallerStatMapCompact MAP_STATISTICS_CALLER_COMPACT_COUNTER = new CallerStatMapCompact(HbaseTable.MAP_STATISTICS_CALLER_COMPACT, Bytes.toBytes("C"));
+    public static class CallerStatMapCompact extends HbaseColumnFamily {
+        private CallerStatMapCompact(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
 
     public static final SqlMetadataV2 SQL_METADATA_VER2_SQL = new SqlMetadataV2(HbaseTable.SQL_METADATA_VER2, Bytes.toBytes("Sql"));
     public static class SqlMetadataV2 extends HbaseColumnFamily {

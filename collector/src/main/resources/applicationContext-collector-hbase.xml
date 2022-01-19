@@ -114,9 +114,9 @@
     </bean>
 
     <util:list id="cachedStatisticsDaoList" value-type="com.navercorp.pinpoint.collector.dao.CachedStatisticsDao">
-        <beans:ref bean="hbaseMapStatisticsCallerDao"/>
-        <beans:ref bean="hbaseMapStatisticsCalleeDao"/>
         <beans:ref bean="hbaseMapResponseTimeDao"/>
+        <beans:ref bean="hbaseMapStatisticsCallerCompactDao"/>
+        <beans:ref bean="hbaseMapStatisticsCalleeCompactDao"/>
     </util:list>
 
     <bean id="statisticsLinkScheduler" class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
@@ -127,9 +127,9 @@
         <property name="awaitTerminationSeconds" value="10"/>
     </bean>
     <task:scheduled-tasks scheduler="statisticsLinkScheduler">
-        <task:scheduled ref="hbaseMapStatisticsCallerDao" method="flushLink" fixed-rate="1000"/>
-        <task:scheduled ref="hbaseMapStatisticsCalleeDao" method="flushLink" fixed-rate="1000"/>
         <task:scheduled ref="hbaseMapResponseTimeDao" method="flushLink" fixed-rate="1000"/>
+        <task:scheduled ref="hbaseMapStatisticsCallerCompactDao" method="flushLink" fixed-rate="1000"/>
+        <task:scheduled ref="hbaseMapStatisticsCalleeCompactDao" method="flushLink" fixed-rate="1000"/>
     </task:scheduled-tasks>
 
     <bean id="statisticsAvgMaxScheduler" class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
@@ -140,9 +140,9 @@
         <property name="awaitTerminationSeconds" value="10"/>
     </bean>
     <task:scheduled-tasks scheduler="statisticsAvgMaxScheduler">
-        <task:scheduled ref="hbaseMapStatisticsCallerDao" method="flushAvgMax" fixed-rate="1000"/>
-        <task:scheduled ref="hbaseMapStatisticsCalleeDao" method="flushAvgMax" fixed-rate="1000"/>
         <task:scheduled ref="hbaseMapResponseTimeDao" method="flushAvgMax" fixed-rate="1000"/>
+        <task:scheduled ref="hbaseMapStatisticsCallerCompactDao" method="flushAvgMax" fixed-rate="1000"/>
+        <task:scheduled ref="hbaseMapStatisticsCalleeCompactDao" method="flushAvgMax" fixed-rate="1000"/>
     </task:scheduled-tasks>
 
 </beans>

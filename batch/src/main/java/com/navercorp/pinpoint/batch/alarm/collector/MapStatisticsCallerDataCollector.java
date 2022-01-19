@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.dao.MapStatisticsCallerCompactDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 
@@ -36,13 +36,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class MapStatisticsCallerDataCollector extends DataCollector {
 
     private final Application application;
-    private final MapStatisticsCallerDao mapStatisticsCallerDao;
+    private final MapStatisticsCallerCompactDao mapStatisticsCallerDao;
     private final long timeSlotEndTime;
     private final long slotInterval;
     private final Map<String, LinkCallData> calleeStatMap = new HashMap<>();
     private final AtomicBoolean init = new AtomicBoolean(false); // need to consider a trace condition when checkers start simultaneously.
 
-    public MapStatisticsCallerDataCollector(DataCollectorCategory category, Application application, MapStatisticsCallerDao mapStatisticsCallerDao, long timeSlotEndTime, long slotInterval) {
+    public MapStatisticsCallerDataCollector(DataCollectorCategory category, Application application, MapStatisticsCallerCompactDao mapStatisticsCallerDao, long timeSlotEndTime, long slotInterval) {
         super(category);
         this.application = application;
         this.mapStatisticsCallerDao = mapStatisticsCallerDao;

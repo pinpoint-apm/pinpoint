@@ -13,13 +13,14 @@ disable 'SqlMetaData_Ver2'
 disable 'ApplicationTraceIndex'
 disable 'TraceV2'
 
-
 disable 'ApplicationMapStatisticsCaller_Ver2'
 disable 'ApplicationMapStatisticsCallee_Ver2'
 disable 'ApplicationMapStatisticsSelf_Ver2'
 
-disable 'HostApplicationMap_Ver2'
+disable 'ApplicationMapStatisticsCallerCompact'
+disable 'ApplicationMapStatisticsCalleeCompact'
 
+disable 'HostApplicationMap_Ver2'
 
 drop 'AgentInfo'
 drop 'AgentStatV2'
@@ -39,6 +40,9 @@ drop 'TraceV2'
 drop 'ApplicationMapStatisticsCaller_Ver2'
 drop 'ApplicationMapStatisticsCallee_Ver2'
 drop 'ApplicationMapStatisticsSelf_Ver2'
+
+drop 'ApplicationMapStatisticsCallerCompact'
+drop 'ApplicationMapStatisticsCalleeCompact'
 
 drop 'HostApplicationMap_Ver2'
 
