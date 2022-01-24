@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
 import { makeYData, makeXData, getMaxTickValue } from 'app/core/utils/chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
+import { InspectorChartThemeService } from './inspector-chart-theme.service';
 
 export class AgentDirectBufferCountChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getAgentStat/directBuffer/chart.pinpoint';
@@ -12,7 +13,8 @@ export class AgentDirectBufferCountChartContainer implements IInspectorChartCont
     title = 'Direct Buffer Count';
 
     constructor(
-        private inspectorChartDataService: InspectorChartDataService
+        private inspectorChartDataService: InspectorChartDataService,
+        private inspectorChartThemeService: InspectorChartThemeService,
     ) {}
 
     getData(range: number[]): Observable<IInspectorChartData> {
@@ -27,13 +29,15 @@ export class AgentDirectBufferCountChartContainer implements IInspectorChartCont
     }
 
     makeDataOption(): Data {
+        const alpha = this.inspectorChartThemeService.getAlpha(0.4);
+        
         return {
             type: spline(),
             names: {
                 directCount: 'Direct Buffer Count',
             },
             colors: {
-                directCount: 'rgba(31, 119, 180, 0.4)',
+                directCount: `rgba(31, 119, 180, ${alpha})`,
             }
         };
     }

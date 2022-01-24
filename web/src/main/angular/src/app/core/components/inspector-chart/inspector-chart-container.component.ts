@@ -18,6 +18,7 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
 import { ChartType, InspectorChartContainerFactory } from './inspector-chart-container-factory';
+import { InspectorChartThemeService } from './inspector-chart-theme.service';
 
 export enum Layer {
     LOADING = 'loading',
@@ -34,7 +35,7 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
     @Input()
     set chartType(chartType: ChartType) {
         this._chartType = chartType;
-        this.chartContainer = InspectorChartContainerFactory.createInspectorChartContainer(chartType, this.inspectorChartDataService);
+        this.chartContainer = InspectorChartContainerFactory.createInspectorChartContainer(chartType, this.inspectorChartDataService, this.inspectorChartThemeService);
     }
 
     get chartType(): ChartType {
@@ -61,6 +62,7 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
     constructor(
         private storeHelperService: StoreHelperService,
         private inspectorChartDataService: InspectorChartDataService,
+        private inspectorChartThemeService: InspectorChartThemeService,
         private translateService: TranslateService,
         private analyticsService: AnalyticsService,
         private dynamicPopupService: DynamicPopupService,

@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { makeYData, makeXData, getMaxTickValue, getStackedData } from 'app/core/utils/chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
+import { InspectorChartThemeService } from './inspector-chart-theme.service';
 
 export class AgentActiveRequestChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getAgentStat/activeTrace/chart.pinpoint';
@@ -12,7 +13,8 @@ export class AgentActiveRequestChartContainer implements IInspectorChartContaine
     title = 'Active Request';
 
     constructor(
-        private inspectorChartDataService: InspectorChartDataService
+        private inspectorChartDataService: InspectorChartDataService,
+        private inspectorChartThemeService: InspectorChartThemeService,
     ) {}
 
     getData(range: number[]): Observable<IInspectorChartData> {
@@ -30,6 +32,8 @@ export class AgentActiveRequestChartContainer implements IInspectorChartContaine
     }
 
     makeDataOption(): Data {
+        const alpha = this.inspectorChartThemeService.getAlpha(0.4);
+        
         return {
             type: areaSpline(),
             names: {
@@ -39,10 +43,10 @@ export class AgentActiveRequestChartContainer implements IInspectorChartContaine
                 verySlow: 'Very Slow'
             },
             colors: {
-                fast: 'rgba(44, 160, 44, 0.4)',
-                normal: 'rgba(60, 129, 250, 0.4)',
-                slow: 'rgba(248, 199, 49, 0.4)',
-                verySlow: 'rgba(246, 145, 36, 0.4)'
+                fast: `rgba(44, 160, 44, ${alpha})`,
+                normal: `rgba(60, 129, 250, ${alpha})`,
+                slow: `rgba(248, 199, 49, ${alpha})`,
+                verySlow: `rgba(246, 145, 36, ${alpha})`
             },
             groups: [['fast', 'normal', 'slow', 'verySlow']],
             order: null

@@ -32,6 +32,7 @@ import { ApplicationMappedBufferMemoryChartContainer } from './application-mappe
 import { ApplicationLoadedClassCountChartContainer } from './application-loaded-class-count-chart-container';
 import { ApplicationUnloadedClassCountChartContainer } from './application-unloaded-class-count-chart-container';
 import { IInspectorChartData } from './inspector-chart-data.service';
+import { InspectorChartThemeService } from './inspector-chart-theme.service';
 
 export interface IInspectorChartContainer {
     title: string;
@@ -81,66 +82,66 @@ export enum ChartType {
 }
 
 export class InspectorChartContainerFactory {
-    static createInspectorChartContainer(chartType: ChartType, dataService: InspectorChartDataService): IInspectorChartContainer {
+    static createInspectorChartContainer(chartType: ChartType, dataService: InspectorChartDataService, themeService?: InspectorChartThemeService): IInspectorChartContainer {
         switch (chartType) {
             case ChartType.AGENT_JVM_HEAP:
-                return new AgentJVMHeapChartContainer(dataService);
+                return new AgentJVMHeapChartContainer(dataService, themeService);
             case ChartType.AGENT_JVM_NON_HEAP:
-                return new AgentJVMNonHeapChartContainer(dataService);
+                return new AgentJVMNonHeapChartContainer(dataService, themeService);
             case ChartType.AGENT_CPU:
-                return new AgentCPUChartContainer(dataService);
+                return new AgentCPUChartContainer(dataService, themeService);
             case ChartType.AGENT_TPS:
-                return new AgentTPSChartContainer(dataService);
+                return new AgentTPSChartContainer(dataService, themeService);
             case ChartType.AGENT_ACTIVE_REQUEST:
-                return new AgentActiveRequestChartContainer(dataService);
+                return new AgentActiveRequestChartContainer(dataService, themeService);
             case ChartType.AGENT_TOTAL_THREAD:
-                return new AgentTotalThreadCountChartContainer(dataService);
+                return new AgentTotalThreadCountChartContainer(dataService, themeService);
             case ChartType.AGENT_RESPONSE_TIME:
-                return new AgentResponseTimeChartContainer(dataService);
+                return new AgentResponseTimeChartContainer(dataService, themeService);
             case ChartType.AGENT_OPEN_FILE_DESCRIPTOR:
-                return new AgentOpenFileDescriptorChartContainer(dataService);
+                return new AgentOpenFileDescriptorChartContainer(dataService, themeService);
             case ChartType.AGENT_DIRECT_BUFFER_COUNT:
-                return new AgentDirectBufferCountChartContainer(dataService);
+                return new AgentDirectBufferCountChartContainer(dataService, themeService);
             case ChartType.AGENT_DIRECT_BUFFER_MEMORY:
-                return new AgentDirectBufferMemoryChartContainer(dataService);
+                return new AgentDirectBufferMemoryChartContainer(dataService, themeService);
             case ChartType.AGENT_MAPPED_BUFFER_COUNT:
-                return new AgentMappedBufferCountChartContainer(dataService);
+                return new AgentMappedBufferCountChartContainer(dataService, themeService);
             case ChartType.AGENT_MAPPED_BUFFER_MEMORY:
-                return new AgentMappedBufferMemoryChartContainer(dataService);
+                return new AgentMappedBufferMemoryChartContainer(dataService, themeService);
             case ChartType.AGENT_LOADED_CLASS_COUNT:
-                return new AgentLoadedCLassCountChartContainer(dataService);
+                return new AgentLoadedCLassCountChartContainer(dataService, themeService);
             case ChartType.AGENT_UNLOADED_CLASS_COUNT:
-                return new AgentUnloadedCLassCountChartContainer(dataService);
+                return new AgentUnloadedCLassCountChartContainer(dataService, themeService);
             case ChartType.APPLICATION_JVM_HEAP:
-                return new ApplicationJVMHeapChartContainer(dataService);
+                return new ApplicationJVMHeapChartContainer(dataService, themeService);
             case ChartType.APPLICATION_JVM_NON_HEAP:
-                return new ApplicationJVMNonHeapChartContainer(dataService);
+                return new ApplicationJVMNonHeapChartContainer(dataService, themeService);
             case ChartType.APPLICATION_JVM_CPU:
-                return new ApplicationJVMCpuChartContainer(dataService);
+                return new ApplicationJVMCpuChartContainer(dataService, themeService);
             case ChartType.APPLICATION_SYSTEM_CPU:
-                return new ApplicationSystemCpuChartContainer(dataService);
+                return new ApplicationSystemCpuChartContainer(dataService, themeService);
             case ChartType.APPLICATION_TPS:
-                return new ApplicationTPSChartContainer(dataService);
+                return new ApplicationTPSChartContainer(dataService, themeService);
             case ChartType.APPLICATION_ACTIVE_REQUEST:
-                return new ApplicationActiveRequestChartContainer(dataService);
+                return new ApplicationActiveRequestChartContainer(dataService, themeService);
             case ChartType.APPLICATION_TOTAL_THREAD:
-                return new ApplicationTotalThreadCountChartContainer(dataService);
+                return new ApplicationTotalThreadCountChartContainer(dataService, themeService);
             case ChartType.APPLICATION_RESPONSE_TIME:
-                return new ApplicationResponseTimeChartContainer(dataService);
+                return new ApplicationResponseTimeChartContainer(dataService, themeService);
             case ChartType.APPLICATION_OPEN_FILE_DESCRIPTOR:
-                return new ApplicationOpenFileDescriptorChartContainer(dataService);
+                return new ApplicationOpenFileDescriptorChartContainer(dataService, themeService);
             case ChartType.APPLICATION_DIRECT_BUFFER_COUNT:
-                return new ApplicationDirectBufferCountChartContainer(dataService);
+                return new ApplicationDirectBufferCountChartContainer(dataService, themeService);
             case ChartType.APPLICATION_DIRECT_BUFFER_MEMORY:
-                return new ApplicationDirectBufferMemoryChartContainer(dataService);
+                return new ApplicationDirectBufferMemoryChartContainer(dataService, themeService);
             case ChartType.APPLICATION_MAPPED_BUFFER_COUNT:
-                return new ApplicationMappedBufferCountChartContainer(dataService);
+                return new ApplicationMappedBufferCountChartContainer(dataService, themeService);
             case ChartType.APPLICATION_MAPPED_BUFFER_MEMORY:
-                return new ApplicationMappedBufferMemoryChartContainer(dataService);
+                return new ApplicationMappedBufferMemoryChartContainer(dataService, themeService);
             case ChartType.APPLICATION_LOADED_CLASS_COUNT:
-                return new ApplicationLoadedClassCountChartContainer(dataService);
+                return new ApplicationLoadedClassCountChartContainer(dataService, themeService);
             case ChartType.APPLICATION_UNLOADED_CLASS_COUNT:
-                return new ApplicationUnloadedClassCountChartContainer(dataService);
+                return new ApplicationUnloadedClassCountChartContainer(dataService, themeService);
         }
     }
 }

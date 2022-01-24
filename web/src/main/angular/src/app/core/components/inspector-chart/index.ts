@@ -14,6 +14,7 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
 import { InspectorChartContainerComponent } from './inspector-chart-container.component';
 import { InspectorChartDataService } from './inspector-chart-data.service';
 import { TransactionViewChartContainerComponent } from './transaction-view-chart-container.component';
+import { InspectorChartThemeService } from './inspector-chart-theme.service';
 
 @NgModule({
     declarations: [
@@ -41,7 +42,8 @@ import { TransactionViewChartContainerComponent } from './transaction-view-chart
     providers: [
         AgentDataSourceChartDataService,
         ApplicationDataSourceChartDataService,
-        InspectorChartDataService
+        InspectorChartDataService,
+        InspectorChartThemeService,
     ]
 })
 export class InspectorChartModule { }

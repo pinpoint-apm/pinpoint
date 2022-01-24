@@ -13,6 +13,7 @@ import { InspectorPageService, ISourceForChart } from 'app/routes/inspector-page
 import { IInspectorChartData } from './inspector-chart-data.service';
 import { makeXData, makeYData, getMaxTickValue } from 'app/core/utils/chart-util';
 import { Layer } from './inspector-chart-container.component';
+import { InspectorChartThemeService } from './inspector-chart-theme.service';
 
 @Component({
     selector: 'pp-application-data-source-chart-container',
@@ -44,6 +45,7 @@ export class ApplicationDataSourceChartContainerComponent implements OnInit, OnD
     constructor(
         private storeHelperService: StoreHelperService,
         private inspectorChartDataService: ApplicationDataSourceChartDataService,
+        private inspectorChartThemeService: InspectorChartThemeService,
         private translateService: TranslateService,
         private analyticsService: AnalyticsService,
         private dynamicPopupService: DynamicPopupService,
@@ -191,9 +193,7 @@ export class ApplicationDataSourceChartContainerComponent implements OnInit, OnD
                 max: 'Max',
             },
             colors: {
-                min: '#66B2FF',
-                avg: '#4C0099',
-                max: '#0000CC',
+                ...this.inspectorChartThemeService.getMinAvgMaxColors()
             },
             empty: {
                 label: {

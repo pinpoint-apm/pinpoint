@@ -21,7 +21,7 @@ export interface IInspectorChartData {
 export class InspectorChartDataService {
     constructor(
         private http: HttpClient,
-        private newUrlStateNotificationService: NewUrlStateNotificationService
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
     ) {}
 
     getData(url: string, range: number[]): Observable<IInspectorChartData> {

@@ -5,6 +5,7 @@ import { IInspectorChartContainer } from './inspector-chart-container-factory';
 import { makeYData, makeXData, getMaxTickValue } from 'app/core/utils/chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
 import { getAgentId } from './inspector-chart-util';
+import { InspectorChartThemeService } from './inspector-chart-theme.service';
 
 export class ApplicationDirectBufferMemoryChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getApplicationStat/directBuffer/chart.pinpoint';
@@ -15,7 +16,8 @@ export class ApplicationDirectBufferMemoryChartContainer implements IInspectorCh
     title = 'Direct Buffer Memory';
 
     constructor(
-        private inspectorChartDataService: InspectorChartDataService
+        private inspectorChartDataService: InspectorChartDataService,
+        private inspectorChartThemeService: InspectorChartThemeService,
     ) {}
 
     getData(range: number[]): Observable<IInspectorChartData> {
@@ -43,9 +45,7 @@ export class ApplicationDirectBufferMemoryChartContainer implements IInspectorCh
                 max: 'Max',
             },
             colors: {
-                min: '#66B2FF',
-                avg: '#4C0099',
-                max: '#0000CC',
+                ...this.inspectorChartThemeService.getMinAvgMaxColors()
             }
         };
     }

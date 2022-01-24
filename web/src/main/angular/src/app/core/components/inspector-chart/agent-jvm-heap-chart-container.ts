@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
 import { makeYData, makeXData, getMaxTickValue } from 'app/core/utils/chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
+import { InspectorChartThemeService } from './inspector-chart-theme.service';
 
 export class AgentJVMHeapChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getAgentStat/jvmGc/chart.pinpoint';
@@ -13,7 +14,8 @@ export class AgentJVMHeapChartContainer implements IInspectorChartContainer {
     title = 'Heap Usage';
 
     constructor(
-        private inspectorChartDataService: InspectorChartDataService
+        private inspectorChartDataService: InspectorChartDataService,
+        private inspectorThemeService: InspectorChartThemeService,
     ) {}
 
     getData(range: number[]): Observable<IInspectorChartData> {
@@ -45,6 +47,9 @@ export class AgentJVMHeapChartContainer implements IInspectorChartContainer {
     }
 
     makeDataOption(): Data {
+        const alpha1 = this.inspectorThemeService.getAlpha(0.4);
+        const alpha2 = this.inspectorThemeService.getAlpha(0.3);
+
         return {
             types: {
                 max: spline(),
@@ -57,9 +62,9 @@ export class AgentJVMHeapChartContainer implements IInspectorChartContainer {
                 fgcTime: 'Major GC'
             },
             colors: {
-                max: 'rgba(31, 119, 180, 0.4)',
-                used: 'rgba(174, 199, 232, 0.4)',
-                fgcTime: 'rgba(255, 42, 0, 0.3)'
+                max: `rgba(31, 119, 180, ${alpha1})`,
+                used: `rgba(174, 199, 232, ${alpha1})`,
+                fgcTime: `rgba(255, 42, 0, ${alpha2})`
             },
             axes: {
                 max: 'y',

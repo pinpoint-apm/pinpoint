@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
 import { makeYData, makeXData, getMaxTickValue } from 'app/core/utils/chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
+import { InspectorChartThemeService } from './inspector-chart-theme.service';
 
 export class AgentOpenFileDescriptorChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getAgentStat/fileDescriptor/chart.pinpoint';
@@ -12,7 +13,8 @@ export class AgentOpenFileDescriptorChartContainer implements IInspectorChartCon
     title = 'Open File Descriptor';
 
     constructor(
-        private inspectorChartDataService: InspectorChartDataService
+        private inspectorChartDataService: InspectorChartDataService,
+        private inspectorChartThemeService: InspectorChartThemeService,
     ) {}
 
     getData(range: number[]): Observable<IInspectorChartData> {
@@ -27,13 +29,15 @@ export class AgentOpenFileDescriptorChartContainer implements IInspectorChartCon
     }
 
     makeDataOption(): Data {
+        const alpha = this.inspectorChartThemeService.getAlpha(0.4);
+
         return {
             type: spline(),
             names: {
                 openFileDescriptorCount: 'Open File Descriptor'
             },
             colors: {
-                openFileDescriptorCount: 'rgb(31, 119, 180, 0.4)'
+                openFileDescriptorCount: `rgba(31, 119, 180, ${alpha})`
             }
         };
     }

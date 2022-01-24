@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
 import { makeYData, makeXData, getMaxTickValue } from 'app/core/utils/chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
+import { InspectorChartThemeService } from './inspector-chart-theme.service';
 
 export class AgentResponseTimeChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getAgentStat/responseTime/chart.pinpoint';
@@ -12,7 +13,8 @@ export class AgentResponseTimeChartContainer implements IInspectorChartContainer
     title = 'Response Time';
 
     constructor(
-        private inspectorChartDataService: InspectorChartDataService
+        private inspectorChartDataService: InspectorChartDataService,
+        private inspectorChartThemeService: InspectorChartThemeService,
     ) {}
 
     getData(range: number[]): Observable<IInspectorChartData> {
@@ -28,6 +30,8 @@ export class AgentResponseTimeChartContainer implements IInspectorChartContainer
     }
 
     makeDataOption(): Data {
+        const alpha = this.inspectorChartThemeService.getAlpha(0.4);
+        
         return {
             types: {
                 avg: areaSpline(),
@@ -38,8 +42,8 @@ export class AgentResponseTimeChartContainer implements IInspectorChartContainer
                 max: 'Max'
             },
             colors: {
-                avg: 'rgba(44, 160, 44, 0.4)',
-                max: 'rgba(246, 145, 36, 0.4)'
+                avg: `rgba(44, 160, 44, ${alpha})`,
+                max: `rgba(246, 145, 36, ${alpha})`
             }
         };
     }
