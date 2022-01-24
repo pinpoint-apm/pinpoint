@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ public class CoroutinesMetadataProvider implements TraceMetadataProvider {
     @Override
     public void setup(TraceMetadataSetupContext context) {
         context.addServiceType(CoroutinesConstants.SERVICE_TYPE);
+        context.addAnnotationKey(CoroutinesConstants.COROUTINE_THREAD_NAME_ANNOTATION_KEY);
     }
 
 }
