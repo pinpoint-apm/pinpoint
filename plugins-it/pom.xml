@@ -81,6 +81,7 @@
         <module>kotlin-coroutines-it</module>
         <module>lambda-it</module>
         <module>jtds-it</module>
+        <module>mysql-jdbc-driver-plugin-it</module>
     </modules>
 
     <properties>
