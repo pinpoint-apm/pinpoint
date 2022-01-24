@@ -140,6 +140,7 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
             this.cd.detectChanges();
         });
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).pipe(
+            filter(({isAuthorized}: ISelectedTarget) => isAuthorized),
             tap((target: ISelectedTarget) => {
                 this.isChangedTarget = true;
                 this.selectedTarget = target;
