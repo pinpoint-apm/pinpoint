@@ -16,103 +16,74 @@
 
 package com.navercorp.pinpoint.plugin.kotlinx.coroutines.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
-import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-import kotlin.coroutines.Continuation;
-import kotlinx.coroutines.CancellableContinuation;
 
-/**
- * @author Taejin Koo
- */
-public class DispatchInterceptor implements AroundInterceptor {
+public class NotifyCancellingInterceptor implements AroundInterceptor {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(BasicMethodInterceptor.class);
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final MethodDescriptor descriptor;
     private final TraceContext traceContext;
     private final ServiceType serviceType;
 
-    public DispatchInterceptor(TraceContext traceContext, MethodDescriptor descriptor, ServiceType serviceType) {
+    public NotifyCancellingInterceptor(TraceContext traceContext, MethodDescriptor descriptor, ServiceType serviceType) {
         this.descriptor = descriptor;
         this.traceContext = traceContext;
         this.serviceType = serviceType;
     }
 
-    public DispatchInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public NotifyCancellingInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this(traceContext, descriptor, ServiceType.INTERNAL_METHOD);
     }
 
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, descriptor.getClassName(), descriptor.getMethodName(), descriptor.getParameterDescriptor(), args);
+            logger.beforeInterceptor(target, args);
         }
 
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
-            return;
-        }
-
-        if (isCompletedContinuation(args)) {
             return;
         }
 
         final SpanEventRecorder recorder = trace.traceBlockBegin();
         recorder.recordServiceType(serviceType);
-
-        if (ArrayUtils.hasLength(args)) {
-            if (args[0] instanceof AsyncContextAccessor) {
-                AsyncContextAccessor accessor = (AsyncContextAccessor) args[0];
-                final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-                accessor._$PINPOINT$_setAsyncContext(asyncContext);
-            }
-        }
-    }
-
-    private boolean isCompletedContinuation(final Object[] args) {
-        if (ArrayUtils.getLength(args) == 2 && args[1] instanceof Continuation) {
-            Continuation continuation = (Continuation) args[1];
-            if (continuation instanceof CancellableContinuation) {
-                return ((CancellableContinuation) continuation).isCompleted();
-            }
-        }
-        return false;
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
-            logger.afterInterceptor(target, descriptor.getClassName(), descriptor.getMethodName(), descriptor.getParameterDescriptor(), args, result, throwable);
+            logger.afterInterceptor(target, args);
         }
 
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
-            return;
-        }
-
-        if (isCompletedContinuation(args)) {
             return;
         }
 
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
-            recorder.recordServiceType(serviceType);
+
+            if (ArrayUtils.getLength(args) == 2) {
+                Object expectedThrowable = args[1];
+                if (expectedThrowable instanceof Throwable) {
+                    recorder.recordException((Throwable) expectedThrowable);
+                }
+            }
         } finally {
             trace.traceBlockEnd();
         }
-
     }
-
 }

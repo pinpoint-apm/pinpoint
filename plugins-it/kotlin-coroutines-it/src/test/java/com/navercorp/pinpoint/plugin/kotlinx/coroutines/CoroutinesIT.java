@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,9 @@ import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-
+import kotlin.coroutines.CoroutineContext;
+import kotlinx.coroutines.CoroutineDispatcher;
+import kotlinx.coroutines.Dispatchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,66 +51,109 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CoroutinesIT {
 
     private static final String DISPATCH_METHOD = ".dispatch(";
-    private static final String RUN_METHOD = ".runSafely(";
+    private static final String RESUME_WITH_METHOD = ".resumeWith(";
+    private static final String SCHEDULE_RESUME_METHOD = ".scheduleResumeAfterDelay(";
     private static final String ASYNC_INVOCATION = "Asynchronous Invocation";
 
     @Test
-    public void executeOneLaunchBlockTest() {
-        int minimumExpectedCount = 7;
-        int launchBlockCount = 1;
-        int expectedExecutedRunSafelyCount = 2;
-
-        // This test has 1 ~ 2 executed Async Invocation
-        // This test has 2 executed runSafely()
-        CoroutinesLaunch coroutinesLaunch = new CoroutinesLaunch();
-        coroutinesLaunch.execute("pinpoint-test");
-
-        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        List<String> executedMethod = verifier.getExecutedMethod();
-
-        AtomicInteger index = new AtomicInteger();
-
-        // dispatch runblocking
-        Assert.assertTrue(executedMethod.size() >= minimumExpectedCount);
-        assertFirstDispatch(executedMethod, index);
-        for (int i = 0; i < launchBlockCount; i++) {
-            // dispatch launch job
-            Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
-        }
-
-        final String[] executeActualMethods = Arrays.copyOfRange(executedMethod.toArray(new String[0]), index.get(), executedMethod.size());
-        Assert.assertTrue(assertExecutedCount(executeActualMethods, RUN_METHOD, expectedExecutedRunSafelyCount));
-        Assert.assertTrue(assertExecutedCount(executeActualMethods, ASYNC_INVOCATION, executeActualMethods.length - expectedExecutedRunSafelyCount));
-    }
-
-    @Test
-    public void executeTwoLaunchBlockTest() {
-        int minimumExpectedCount = 10;
-        int launchBlockCount = 2;
-        int expectedExecutedRunSafelyCount = 4;
-
+    public void executeRunBlockingWitoutContext() {
+        final boolean activeAsync = false;
 
         // This test has 1 ~ 4 executed Async Invocation
         // This test has 4 executed runSafely()
         CoroutinesLaunch coroutinesLaunch = new CoroutinesLaunch();
-        coroutinesLaunch.execute2("pinpoint-test");
+        coroutinesLaunch.executeWithRunBlocking();
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         List<String> executedMethod = verifier.getExecutedMethod();
 
         AtomicInteger index = new AtomicInteger();
 
-        // dispatch runblocking
-        Assert.assertTrue(executedMethod.size() >= minimumExpectedCount);
-        assertFirstDispatch(executedMethod, index);
-        for (int i = 0; i < launchBlockCount; i++) {
-            // dispatch launch job
-            Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
-        }
+        //         runBlocking(context) {
+        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+        //         runBlocking(context) {
+        assertResumeWith(executedMethod, index, activeAsync);
 
-        final String[] executeActualMethods = Arrays.copyOfRange(executedMethod.toArray(new String[0]), index.get(), executedMethod.size());
-        Assert.assertTrue(assertExecutedCount(executeActualMethods, RUN_METHOD, expectedExecutedRunSafelyCount));
-        Assert.assertTrue(assertExecutedCount(executeActualMethods, ASYNC_INVOCATION, executeActualMethods.length - expectedExecutedRunSafelyCount));
+        //        val job1 = async(CoroutineName("first")) {
+        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+        //        val job2 = launch(CoroutineName("second")) {
+        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+
+        //        delay(10L) // job1
+        assertResumeWithAndSchedule(executedMethod, index, activeAsync);
+
+        //        delay(5L) // job2
+        assertResumeWithAndSchedule(executedMethod, index, activeAsync);
+
+        //        println("Hello World 1")  // job1
+        assertResumeWith(executedMethod, index, activeAsync);
+        //        println("Hello World 2")  // job2
+        assertResumeWith(executedMethod, index, activeAsync);
+        //    println("Hello all of jobs") // rootjob
+        assertResumeWith(executedMethod, index, activeAsync);
+    }
+
+    @Test
+    public void executeRunBlocking() {
+        final boolean activeAsync = true;
+
+        CoroutinesLaunch coroutinesLaunch = new CoroutinesLaunch();
+        CoroutineDispatcher dispatcher = Dispatchers.getDefault();
+        coroutinesLaunch.executeWithRunBlocking((CoroutineContext) dispatcher);
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+
+        verifier.awaitTraceCount(17, 10L, 1000L);
+
+        List<String> executedMethod = verifier.getExecutedMethod();
+
+        AtomicInteger index = new AtomicInteger();
+
+        //         runBlocking(context) {
+        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+        //         runBlocking(context) {
+        assertResumeWith(executedMethod, index, activeAsync);
+
+        //        val job1 = async(CoroutineName("first")) {
+        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+        //        val job2 = launch(CoroutineName("second")) {
+        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+
+        //    println("Hello all of jobs") // rootjob
+        assertResumeWith(executedMethod, index, activeAsync);
+
+        //        delay(10L) // job1
+        assertResumeWithAndSchedule(executedMethod, index, activeAsync);
+
+        //        delay(5L) // job2
+        assertResumeWithAndSchedule(executedMethod, index, activeAsync);
+
+        //        println("Hello World 1")  // job1
+        assertResumeWith(executedMethod, index, activeAsync);
+        //        println("Hello World 2")  // job2
+        assertResumeWith(executedMethod, index, activeAsync);
+    }
+
+    private void assertResumeWithAndSchedule(List<String> executedMethod, AtomicInteger index, boolean activeAsync) {
+        if (activeAsync) {
+            Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(ASYNC_INVOCATION));
+        }
+        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(RESUME_WITH_METHOD));
+        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(SCHEDULE_RESUME_METHOD));
+    }
+
+    private void assertResumeWith(List<String> executedMethod, AtomicInteger index, boolean activeAsync) {
+        if (activeAsync) {
+            Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(ASYNC_INVOCATION));
+        }
+        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(RESUME_WITH_METHOD));
+    }
+
+    private void assertRunblockingDispatch(List<String> executedMethod, AtomicInteger index) {
+        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).equals(ASYNC_INVOCATION));
+        // run dispatchedContinuation
+        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(RESUME_WITH_METHOD));
     }
 
 
@@ -116,30 +161,12 @@ public class CoroutinesIT {
         Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
         Assert.assertTrue(executedMethod.get(index.getAndIncrement()).equals(ASYNC_INVOCATION));
         // run dispatchedContinuation
-        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(RUN_METHOD));
+        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(RESUME_WITH_METHOD));
     }
 
     private boolean assertExecutedCount(String[] executeActualMethod, String expectedActualMethod, int expectedCount) {
         long count = Arrays.stream(executeActualMethod).filter(e -> e.contains(expectedActualMethod)).count();
         return count == expectedCount;
-    }
-
-    @Test
-    public void executeCurrentThreadTest() {
-        int expectedCount = 2;
-
-        // This test has 0 executed Async Invocation
-        // This test has 0 executed runSafely()
-        CoroutinesLaunch coroutinesLaunch = new CoroutinesLaunch();
-        coroutinesLaunch.executeParentDispatcher("pinpoint-test");
-
-        // executes 2 times dispatch
-        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-
-        List<String> executedMethod = verifier.getExecutedMethod();
-        Assert.assertEquals(expectedCount, executedMethod.size());
-        Assert.assertTrue(executedMethod.get(0).contains(DISPATCH_METHOD));
-        Assert.assertTrue(executedMethod.get(1).contains(DISPATCH_METHOD));
     }
 
 }

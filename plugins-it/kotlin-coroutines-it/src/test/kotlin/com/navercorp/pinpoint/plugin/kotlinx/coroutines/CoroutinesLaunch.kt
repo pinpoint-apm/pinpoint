@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,45 +17,28 @@
 package com.navercorp.pinpoint.plugin.kotlinx.coroutines
 
 import kotlinx.coroutines.*
-import java.util.*
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * @author Taejin Koo
  */
 class CoroutinesLaunch {
 
-    fun execute(coroutineName: String) {
-        runBlocking(CoroutineName(coroutineName) + Dispatchers.Default) {
-            execute0(coroutineName)
-        }
-    }
-
-    // Concurrently executes both sections
-    suspend fun execute0(firstName: String, secondName: String = UUID.randomUUID().toString()) =
-        coroutineScope { // this: CoroutineScope
-            val job = async(CoroutineName(firstName)) {
+    @JvmOverloads
+    fun executeWithRunBlocking(context: CoroutineContext = EmptyCoroutineContext) {
+        runBlocking(context) {
+            val job1 = async(CoroutineName("first")) {
                 delay(10L)
                 println("Hello World 1")
             }
-            launch(CoroutineName(secondName)) {
+            val job2 = launch(CoroutineName("second")) {
                 delay(5L)
                 println("Hello World 2")
             }
-            job.join()
-            println("Hello World")
-        }
-
-    fun execute2(coroutineName: String) {
-        runBlocking(CoroutineName(coroutineName) + Dispatchers.Default) {
-            execute0(coroutineName, coroutineName)
+            joinAll(job1, job2)
+            println("Hello all of jobs")
         }
     }
-
-    fun executeParentDispatcher(coroutineName: String) {
-        runBlocking(CoroutineName(coroutineName)) {
-            execute0(coroutineName)
-        }
-    }
-
 
 }
