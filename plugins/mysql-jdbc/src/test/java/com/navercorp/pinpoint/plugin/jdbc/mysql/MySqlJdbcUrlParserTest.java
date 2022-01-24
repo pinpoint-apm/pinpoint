@@ -128,7 +128,7 @@ public class MySqlJdbcUrlParserTest {
     }
 
     @Test
-    public void mysqlParse7() {
+    public void mysqlParse_loadbalance1() {
         final String jdbcUrl = LOADBALANCE_CONNECTION_STRING + "?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-UNCOMMITTED'";
         DatabaseInfo dbInfo = jdbcUrlParser.parse(jdbcUrl);
         Assert.assertTrue(dbInfo.isParsingComplete());
@@ -141,7 +141,7 @@ public class MySqlJdbcUrlParserTest {
     }
 
     @Test
-    public void mysqlParse8() {
+    public void mysqlParse_loadbalance2() {
         final String jdbcUrl = LOADBALANCE_CONNECTION_STRING2 + "?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-UNCOMMITTED'";
         DatabaseInfo dbInfo = jdbcUrlParser.parse(jdbcUrl);
         Assert.assertTrue(dbInfo.isParsingComplete());
@@ -169,6 +169,16 @@ public class MySqlJdbcUrlParserTest {
         Assert.assertFalse(dbInfo.isParsingComplete());
 
         Assert.assertEquals(ServiceType.UNKNOWN_DB, dbInfo.getType());
+    }
+
+    @Test
+    public void emptyDataBase() {
+        final String jdbcUrl = "jdbc:mysql://1.2.3.4:3306";
+        DatabaseInfo dbInfo = jdbcUrlParser.parse(jdbcUrl);
+        Assert.assertTrue(dbInfo.isParsingComplete());
+
+        Assert.assertEquals(SERVICE_TYPE, dbInfo.getType());
+        Assert.assertEquals(MySqlJdbcUrlParser.EMPTY_DATABASE, dbInfo.getDatabaseId());
     }
 
 }

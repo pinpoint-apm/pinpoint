@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,6 +38,7 @@ public class MySqlJdbcUrlParser implements JdbcUrlParserV2 {
     static final String URL_PREFIX = "jdbc:mysql:";
     // jdbc:mysql:loadbalance://10.22.33.44:3306,10.22.33.55:3306/MySQL?characterEncoding=UTF-8
     private static final String LOADBALANCE_URL_PREFIX = URL_PREFIX + "loadbalance:";
+    static final String EMPTY_DATABASE = "EMPTY_DATABASE";
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
@@ -71,6 +73,9 @@ public class MySqlJdbcUrlParser implements JdbcUrlParserV2 {
         List<String> hostList = parseHost(host);
 
         String databaseId = maker.next().after('/').before('?').value();
+        if (StringUtils.isEmpty((databaseId))) {
+            databaseId = EMPTY_DATABASE;
+        }
         String normalizedUrl = maker.clear().before('?').value();
         
         return new DefaultDatabaseInfo(MySqlConstants.MYSQL, MySqlConstants.MYSQL_EXECUTE_QUERY, jdbcUrl, normalizedUrl, hostList, databaseId);
