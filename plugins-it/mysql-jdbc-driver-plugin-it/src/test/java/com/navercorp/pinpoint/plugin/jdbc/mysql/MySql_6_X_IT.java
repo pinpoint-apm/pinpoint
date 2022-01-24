@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.PinpointProfile;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +41,6 @@ import java.util.Properties;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
-@PinpointProfile("test")
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-mysql-jdbc-driver-plugin")
 @Dependency({"mysql:mysql-connector-java:[6.min,6.max]",
         "org.slf4j:slf4j-log4j12:1.7.5",
