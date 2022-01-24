@@ -10,6 +10,7 @@ import { StoreHelperService, NewUrlStateNotificationService } from 'app/shared/s
 import { InspectorChartDataService, IInspectorChartData } from './inspector-chart-data.service';
 import { UrlPathId, UrlQuery } from 'app/shared/models';
 import { catchError, filter } from 'rxjs/operators';
+import { InspectorChartThemeService } from './inspector-chart-theme.service';
 
 export enum Layer {
     LOADING = 'loading',
@@ -27,7 +28,7 @@ export class TransactionViewChartContainerComponent implements OnInit, OnDestroy
     @Input()
     set chartType(chartType: ChartType) {
         this._chartType = chartType;
-        this.chartContainer = InspectorChartContainerFactory.createInspectorChartContainer(chartType, this.inspectorChartDataService);
+        this.chartContainer = InspectorChartContainerFactory.createInspectorChartContainer(chartType, this.inspectorChartDataService, this.inspectorChartThemeService);
     }
 
     get chartType(): ChartType {
@@ -53,6 +54,7 @@ export class TransactionViewChartContainerComponent implements OnInit, OnDestroy
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private inspectorChartDataService: InspectorChartDataService,
+        private inspectorChartThemeService: InspectorChartThemeService,
         private translateService: TranslateService
     ) {}
 

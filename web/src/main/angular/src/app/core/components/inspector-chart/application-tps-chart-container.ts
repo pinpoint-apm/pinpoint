@@ -5,6 +5,7 @@ import { IInspectorChartContainer } from './inspector-chart-container-factory';
 import { makeYData, makeXData, getMaxTickValue } from 'app/core/utils/chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
 import { getAgentId } from './inspector-chart-util';
+import { InspectorChartThemeService } from './inspector-chart-theme.service';
 
 export class ApplicationTPSChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getApplicationStat/transaction/chart.pinpoint';
@@ -15,7 +16,8 @@ export class ApplicationTPSChartContainer implements IInspectorChartContainer {
     title = 'Transactions Per Second';
 
     constructor(
-        private inspectorChartDataService: InspectorChartDataService
+        private inspectorChartDataService: InspectorChartDataService,
+        private inspectorChartThemeService: InspectorChartThemeService,
     ) {}
 
     getData(range: number[]): Observable<IInspectorChartData> {
@@ -43,9 +45,7 @@ export class ApplicationTPSChartContainer implements IInspectorChartContainer {
                 max: 'Max',
             },
             colors: {
-                min: '#66B2FF',
-                avg: '#4C0099',
-                max: '#0000CC',
+                ...this.inspectorChartThemeService.getMinAvgMaxColors()
             }
         };
     }

@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
 import { makeYData, makeXData, getMaxTickValue, getStackedData } from 'app/core/utils/chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
+import { InspectorChartThemeService } from './inspector-chart-theme.service';
 
 export class AgentTPSChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getAgentStat/transaction/chart.pinpoint';
@@ -12,7 +13,8 @@ export class AgentTPSChartContainer implements IInspectorChartContainer {
     title = 'Transactions Per Second';
 
     constructor(
-        private inspectorChartDataService: InspectorChartDataService
+        private inspectorChartDataService: InspectorChartDataService,
+        private inspectorChartThemeService: InspectorChartThemeService,
     ) {}
 
     getData(range: number[]): Observable<IInspectorChartData> {
@@ -33,6 +35,8 @@ export class AgentTPSChartContainer implements IInspectorChartContainer {
     }
 
     makeDataOption(): Data {
+        const alpha = this.inspectorChartThemeService.getAlpha(0.4);
+
         return {
             type: areaSpline(),
             names: {
@@ -45,12 +49,12 @@ export class AgentTPSChartContainer implements IInspectorChartContainer {
                 tpsT: 'Total'
             },
             colors: {
-                tpsSC: 'rgba(214, 141, 8, 0.4)',
-                tpsSN: 'rgba(252, 178, 65, 0.4)',
-                tpsUC: 'rgba(90, 103, 166, 0.4)',
-                tpsUN: 'rgba(160, 153, 255, 0.4)',
-                tpsSSN: 'rgba(26, 188, 156, 0.4)',
-                tpsSSC: 'rgba(82, 190, 128, 0.4)',
+                tpsSC: `rgba(214, 141, 8, ${alpha})`,
+                tpsSN: `rgba(252, 178, 65, ${alpha})`,
+                tpsUC: `rgba(90, 103, 166, ${alpha})`,
+                tpsUN: `rgba(160, 153, 255, ${alpha})`,
+                tpsSSN: `rgba(26, 188, 156, ${alpha})`,
+                tpsSSC: `rgba(82, 190, 128, ${alpha})`,
                 tpsT: 'rgb(255, 255, 255)'
             },
             groups: [

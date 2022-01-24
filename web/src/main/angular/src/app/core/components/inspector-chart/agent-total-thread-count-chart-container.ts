@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
 import { makeYData, makeXData, getMaxTickValue } from 'app/core/utils/chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
+import { InspectorChartThemeService } from './inspector-chart-theme.service';
 
 export class AgentTotalThreadCountChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getAgentStat/totalThreadCount/chart.pinpoint';
@@ -12,7 +13,8 @@ export class AgentTotalThreadCountChartContainer implements IInspectorChartConta
     title = 'Total Thread';
 
     constructor(
-        private inspectorChartDataService: InspectorChartDataService
+        private inspectorChartDataService: InspectorChartDataService,
+        private inspectorChartThemeService: InspectorChartThemeService,
     ) {}
 
     getData(range: number[]): Observable<IInspectorChartData> {
@@ -27,13 +29,15 @@ export class AgentTotalThreadCountChartContainer implements IInspectorChartConta
     }
 
     makeDataOption(): Data {
+        const alpha = this.inspectorChartThemeService.getAlpha(0.4);
+
         return {
             type: spline(),
             names: {
                 totalThreadCount: 'Total Thread Count'
             },
             colors: {
-                totalThreadCount: 'rgb(31, 119, 180, 0.4)'
+                totalThreadCount: `rgba(31, 119, 180, ${alpha})`
             }
         };
     }
