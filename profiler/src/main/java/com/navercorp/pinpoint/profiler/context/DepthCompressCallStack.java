@@ -24,11 +24,15 @@ public class DepthCompressCallStack<T> extends DefaultCallStack<T> {
     private int latestStackIndex = 0;
 
     public DepthCompressCallStack(Factory<T> factory) {
-        this(factory, -1);
+        this(factory, -1, -1);
     }
-    
+
     public DepthCompressCallStack(Factory<T> factory, int maxDepth) {
-        super(factory, maxDepth);
+        this(factory, maxDepth, -1);
+    }
+
+    public DepthCompressCallStack(Factory<T> factory, int maxDepth, int maxSequence) {
+        super(factory, maxDepth, maxSequence);
     }
 
     @Override

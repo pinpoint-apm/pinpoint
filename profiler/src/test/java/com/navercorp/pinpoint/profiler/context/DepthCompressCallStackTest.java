@@ -34,5 +34,10 @@ public class DepthCompressCallStackTest extends CallStackTest {
         return new DepthCompressCallStack<>(factory, depth);
     }
 
+    @Override
+    CallStack<SpanEvent> newCallStack(int depth, int sequence) {
+        return new DepthCompressCallStack<>(factory, depth, sequence);
+    }
+
 
 }

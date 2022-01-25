@@ -34,7 +34,7 @@ public class SpanEventBuilder {
 
     public void addSpanEvent() {
         SpanEvent spanEvent = new SpanEvent();
-        spanEvent.setSequence((short) nextSequence());
+        spanEvent.setSequence(nextSequence());
         spanEvent.setStartTime(nextStartTime());
         spanEventList.add(spanEvent);
 

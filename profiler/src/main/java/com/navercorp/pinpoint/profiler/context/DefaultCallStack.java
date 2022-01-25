@@ -37,16 +37,22 @@ public class DefaultCallStack<T> implements CallStack<T> {
     protected final int maxDepth;
     protected int index = DEFAULT_INDEX;
     protected int overflowIndex = 0;
-    protected short sequence;
+    protected final int maxSequence;
+    protected int sequence;
 
     public DefaultCallStack(Factory<T> factory) {
-        this(factory, -1);
+        this(factory, -1, -1);
+    }
+
+    public DefaultCallStack(Factory<T> factory, int maxDepth) {
+        this(factory, maxDepth, -1);
     }
 
     @SuppressWarnings("unchecked")
-    public DefaultCallStack(Factory<T> factory, int maxDepth) {
+    public DefaultCallStack(Factory<T> factory, int maxDepth, int maxSequence) {
         this.factory = factory;
         this.maxDepth = maxDepth;
+        this.maxSequence = maxSequence;
 
         this.stack = newStack(factory.getType(), STACK_SIZE);
     }
@@ -141,9 +147,22 @@ public class DefaultCallStack<T> implements CallStack<T> {
         return maxDepth;
     }
 
+    @Override
+    public int getMaxSequence() {
+        return maxSequence;
+    }
+
     @VisibleForTesting
     boolean isOverflow() {
+        return isDepthOverflow() || isSequenceOverflow();
+    }
+
+    private boolean isDepthOverflow() {
         return maxDepth != -1 && maxDepth < index;
+    }
+
+    private boolean isSequenceOverflow() {
+        return maxSequence != -1 && maxSequence <= sequence;
     }
 
     @Override

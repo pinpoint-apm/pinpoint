@@ -80,10 +80,12 @@
         <module>kafka-it</module>
         <module>kotlin-coroutines-it</module>
         <module>lambda-it</module>
+        <module>jtds-it</module>
+        <module>mysql-jdbc-driver-plugin-it</module>
     </modules>
 
     <properties>
-        <testcontainers.version>1.15.3</testcontainers.version>
+
     </properties>
 
     <dependencyManagement>

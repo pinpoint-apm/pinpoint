@@ -101,7 +101,8 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
 
     ngAfterViewInit() {
         this.storeHelperService.getInfoPerServerState(this.unsubscribe).pipe(
-            filter((visibleState: boolean) => visibleState && this.isChangedTarget)
+            filter((visibleState: boolean) => visibleState && this.isChangedTarget),
+            filter(() => this.selectedTarget.isAuthorized)
         ).subscribe((visibleState: boolean) => {
             this.scatterChartDataOfAllNode.forEach((scatterData: any) => {
                 this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData[this.selectedApplication]);

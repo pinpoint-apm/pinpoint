@@ -130,7 +130,7 @@ public class TraceTest {
 
 
     private CallStack<SpanEvent> newCallStack() {
-        final CallStackFactory<SpanEvent> callStackFactory = new CallStackFactoryV1(64);
+        final CallStackFactory<SpanEvent> callStackFactory = new CallStackFactoryV1(64, -1);
         return callStackFactory.newCallStack();
     }
 

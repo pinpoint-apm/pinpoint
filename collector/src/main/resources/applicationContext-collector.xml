@@ -213,7 +213,7 @@
     </bean>
 
     <bean id="sequenceSpanEventFilter" class="com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter">
-        <constructor-arg index="0" value="${collector.spanEvent.sequence.limit:10000}"/>
+        <constructor-arg index="0" value="${collector.spanEvent.sequence.limit:5000}"/>
     </bean>
 
 </beans>

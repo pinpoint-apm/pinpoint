@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,12 @@
 
 package com.navercorp.pinpoint.plugin.kotlinx.coroutines;
 
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+
+import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_RECORD_SET;
 
 /**
  * @author Taejin Koo
@@ -28,7 +32,6 @@ public final class CoroutinesConstants {
     }
 
     public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(8901, "KT_COROUTINES");
-
-    public static final String SCOPE = "KT_COROUTINES_SCOPE";
+    public static final AnnotationKey COROUTINE_THREAD_NAME_ANNOTATION_KEY = AnnotationKeyFactory.of(340, "thread.name", VIEW_IN_RECORD_SET);
 
 }

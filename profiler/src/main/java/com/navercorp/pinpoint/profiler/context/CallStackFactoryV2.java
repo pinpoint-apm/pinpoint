@@ -23,13 +23,15 @@ public class CallStackFactoryV2 implements CallStackFactory<SpanEvent> {
 
     private final CallStack.Factory<SpanEvent> factory = new SpanEventFactory();
     private final int maxDepth;
+    private final int maxSequence;
 
-    public CallStackFactoryV2(int maxDepth) {
+    public CallStackFactoryV2(int maxDepth, int maxSequence) {
         this.maxDepth = maxDepth;
+        this.maxSequence = maxSequence;
     }
 
     @Override
     public CallStack<SpanEvent> newCallStack() {
-        return new DefaultCallStack<>(factory, maxDepth);
+        return new DefaultCallStack<>(factory, maxDepth, maxSequence);
     }
 }

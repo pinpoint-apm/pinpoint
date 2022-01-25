@@ -145,7 +145,9 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
             }
             this.cd.detectChanges();
         });
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe((target: ISelectedTarget) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).pipe(
+            filter(({isAuthorized}: ISelectedTarget) => isAuthorized)
+        ).subscribe((target: ISelectedTarget) => {
             this.selectedTarget = target;
             this.shouldHide = !(this.selectedTarget.isNode && this.selectedTarget.isWAS && !this.selectedTarget.isMerged);
             if (!this.shouldHide) {

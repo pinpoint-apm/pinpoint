@@ -47,7 +47,7 @@ public class SpanEventFactory implements CallStack.Factory<SpanEvent> {
     }
 
     @Override
-    public void setSequence(SpanEvent element, short sequence) {
+    public void setSequence(SpanEvent element, int sequence) {
         element.setSequence(sequence);
     }
 
