@@ -18,12 +18,8 @@ package com.navercorp.pinpoint.web.cluster;
 
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.util.NetUtils;
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
-import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.SimpleMessageListener;
 import com.navercorp.pinpoint.test.client.TestPinpointClient;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
 import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterDataManager;
 import com.navercorp.pinpoint.web.config.WebClusterConfig;
@@ -32,6 +28,9 @@ import org.apache.curator.test.TestingServer;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
+import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -45,7 +44,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -61,7 +62,13 @@ public class ClusterTest {
     // some tests may fail when executed in local environment
     // when failures happen, you have to copy pinpoint-web-root.properties of resource-test to resource-local. Tests will succeed.
 
-    private static TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 10000);
+    private ConditionFactory awaitility() {
+        ConditionFactory conditionFactory = Awaitility.await()
+                .pollDelay(100, TimeUnit.MILLISECONDS)
+                .timeout(10000, TimeUnit.MILLISECONDS);
+        return conditionFactory;
+    }
+
 
     private static final String DEFAULT_IP = NetUtils.LOOPBACK_ADDRESS_V4;
     static ClusterConnectionManager clusterConnectionManager;
@@ -222,33 +229,15 @@ public class ClusterTest {
     }
 
     private void awaitZookeeperConnected(final ZooKeeper zookeeper) {
-        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                return getNodeAndCompareContents0(zookeeper);
-            }
-        });
-        Assert.assertTrue(pass);
+        awaitility().until(() -> getNodeAndCompareContents0(zookeeper));
     }
 
     private void awaitZookeeperDisconnected(final ZooKeeper zookeeper) {
-        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                return !getNodeAndCompareContents0(zookeeper);
-            }
-        });
-        Assert.assertTrue(pass);
+        awaitility().until(() -> getNodeAndCompareContents0(zookeeper), is(false));
     }
 
     private void awaitPinpointClientConnected(final ClusterConnectionManager connectionManager) {
-        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                return !connectionManager.getClusterList().isEmpty();
-            }
-        });
-        Assert.assertTrue(pass);
+        awaitility().until(connectionManager::getClusterList, not(IsEmptyCollection.empty()));
     }
 
     private void getNodeAndCompareContents(ZooKeeper zookeeper) throws KeeperException, InterruptedException {
@@ -294,16 +283,6 @@ public class ClusterTest {
             LOGGER.warn(e.getMessage(), e);
         }
         return false;
-    }
-
-    private void closePinpointSocket(PinpointClientFactory clientFactory, PinpointClient client) {
-        if (client != null) {
-            client.close();
-        }
-
-        if (clientFactory != null) {
-            clientFactory.release();
-        }
     }
 
 }

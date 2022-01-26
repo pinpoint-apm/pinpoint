@@ -23,9 +23,8 @@ import com.navercorp.pinpoint.rpc.TestByteUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
+import org.awaitility.Awaitility;
 import org.jboss.netty.channel.ChannelFuture;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -40,6 +39,8 @@ import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -111,13 +112,15 @@ public class PinpointClientFactoryTest {
         try {
             PinpointClient client = clientFactory.connect("127.0.0.1", bindPort);
 
-            boolean await = TestAwaitUtils.await(new TestAwaitTaskUtils() {
-                @Override
-                public boolean checkCompleted() {
-                    return serverMessageListener.hasReceivedPing();
-                }
-            }, 100, 3000);
-            Assert.assertTrue(await);
+            Awaitility.await()
+                    .pollDelay(100, TimeUnit.MILLISECONDS)
+                    .timeout(3000, TimeUnit.MILLISECONDS)
+                    .until(new Callable<Boolean>() {
+                        @Override
+                        public Boolean call() {
+                            return serverMessageListener.hasReceivedPing();
+                        }
+                    });
             PinpointRPCTestUtils.close(client);
         } finally {
             testPinpointServerAcceptor.close();

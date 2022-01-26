@@ -16,45 +16,48 @@
 
 package com.navercorp.pinpoint.rpc.util;
 
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionTimeoutException;
+import org.hamcrest.Matchers;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Socket;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Taejin Koo
  */
-public final class IOUtils {
+public final class AwaitIOUtils {
 
     public static byte[] read(final InputStream inputStream) throws IOException {
         return read(inputStream, 100, 1000);
     }
 
     public static byte[] read(final InputStream inputStream, long waitUnitTime, long maxWaitTime) throws IOException {
-        boolean isReceived = TestAwaitUtils.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                try {
-                    int availableSize = inputStream.available();
-                    return availableSize > 0;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return false;
-            }
-        }, waitUnitTime, maxWaitTime);
-
-        if (!isReceived) {
-            throw new IOException("no available data");
+        try {
+            waitForIoReady(inputStream, waitUnitTime, maxWaitTime);
+        } catch (ConditionTimeoutException e) {
+            throw new IOException("no available data", e);
         }
 
         int availableSize = inputStream.available();
         byte[] payload = new byte[availableSize];
         inputStream.read(payload);
         return payload;
+    }
+
+    private static void waitForIoReady(final InputStream inputStream, long waitUnitTime, long maxWaitTime) {
+        Awaitility.await()
+                .pollDelay(waitUnitTime, TimeUnit.MILLISECONDS)
+                .timeout(maxWaitTime, TimeUnit.MILLISECONDS)
+                .until(new Callable<Integer>() {
+                    @Override
+                    public Integer call() throws Exception {
+                        return inputStream.available();
+                    }
+                }, Matchers.greaterThan(0));
     }
 
     public static void write(OutputStream outputStream, byte[] payload) throws IOException {
@@ -64,12 +67,6 @@ public final class IOUtils {
         }
     }
 
-    public static void close(Socket socket) throws IOException {
-        com.navercorp.pinpoint.common.util.IOUtils.close(socket);
-    }
 
-    public static void closeQuietly(Socket socket) {
-        com.navercorp.pinpoint.common.util.IOUtils.closeQuietly(socket);
-    }
 
 }

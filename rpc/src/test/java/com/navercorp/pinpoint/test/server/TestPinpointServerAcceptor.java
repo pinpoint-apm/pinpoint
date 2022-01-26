@@ -17,20 +17,25 @@
 package com.navercorp.pinpoint.test.server;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageHandler;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
+import org.awaitility.Awaitility;
 import org.jboss.netty.channel.ChannelHandler;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 /**
  * @author Taejin Koo
@@ -89,46 +94,28 @@ public class TestPinpointServerAcceptor {
     }
 
     public void assertAwaitClientConnected(int maxWaitTime) {
-        boolean clientConnected = awaitClientConnected(maxWaitTime);
-        org.junit.Assert.assertTrue(clientConnected);
-    }
-
-    public boolean awaitClientConnected(int maxWaitTime) {
         Assert.isTrue(maxWaitTime > 100, "maxWaitTime must be greater than 100");
-
-        TestAwaitUtils awaitUtils = new TestAwaitUtils(100, maxWaitTime);
-        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                return !serverAcceptor.getWritableSocketList().isEmpty();
-            }
-        });
-
-        return pass;
+        Awaitility.await()
+                .timeout(maxWaitTime, TimeUnit.MILLISECONDS)
+                .until(getConnectedPinpointSocketListWrap(), is(not(empty())));
     }
 
     public void assertAwaitClientConnected(int expectedConnectedClientCount, int maxWaitTime) {
-        boolean clientConnected = awaitClientConnected(expectedConnectedClientCount, maxWaitTime);
-        org.junit.Assert.assertTrue(clientConnected);
-    }
-
-    public boolean awaitClientConnected(final int expectedConnectedClientCount, int maxWaitTime) {
         Assert.isTrue(maxWaitTime > 100, "maxWaitTime must be greater than 100");
+        Awaitility.await()
+                .timeout(maxWaitTime, TimeUnit.MILLISECONDS)
+                .until(getConnectedPinpointSocketListWrap(), is(hasSize(expectedConnectedClientCount)));
+    }
 
-        TestAwaitUtils awaitUtils = new TestAwaitUtils(100, maxWaitTime);
-        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
+    private Callable<List<PinpointSocket>> getConnectedPinpointSocketListWrap() {
+        return new Callable<List<PinpointSocket>>() {
             @Override
-            public boolean checkCompleted() {
-                return CollectionUtils.nullSafeSize(serverAcceptor.getWritableSocketList()) == expectedConnectedClientCount;
+            public List<PinpointSocket> call() {
+                return getConnectedPinpointSocketList();
             }
-        });
-
-        return pass;
+        };
     }
 
-    public int getConnectedClientCount() {
-        return CollectionUtils.nullSafeSize(serverAcceptor.getWritableSocketList());
-    }
 
     public List<PinpointSocket> getConnectedPinpointSocketList() {
         return serverAcceptor.getWritableSocketList();

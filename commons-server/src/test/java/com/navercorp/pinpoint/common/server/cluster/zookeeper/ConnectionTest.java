@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 
-import com.navercorp.pinpoint.common.server.util.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.common.server.util.TestAwaitUtils;
 import org.apache.curator.test.TestingServer;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.ZooKeeper;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
+import org.awaitility.core.ConditionTimeoutException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -28,6 +29,10 @@ import org.junit.Test;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.util.SocketUtils;
+
+import java.util.concurrent.TimeUnit;
+
+import static org.hamcrest.Matchers.is;
 
 /**
  * This test compares the connection status of Curator and Zookeeper.
@@ -38,7 +43,12 @@ public class ConnectionTest {
 
     private static final Logger LOGGER = LogManager.getLogger(ConnectionTest.class);
 
-    private static TestAwaitUtils AWAIT_UTILS = new TestAwaitUtils(100, 3000);
+    private ConditionFactory awaitility() {
+        ConditionFactory conditionFactory = Awaitility.await()
+                .pollDelay(100, TimeUnit.MILLISECONDS)
+                .timeout(3000, TimeUnit.MILLISECONDS);
+        return conditionFactory;
+    }
 
     private static int zookeeperPort;
     private static TestingServer ts = null;
@@ -67,27 +77,23 @@ public class ConnectionTest {
         ZooKeeper zookeeper = new ZooKeeper(ts.getConnectString(), 5000, null);
 
         try {
-            boolean pass = awaitState(zookeeper, ZooKeeper.States.CONNECTED);
-            Assert.assertTrue(pass);
+            assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper);
 
             ts.restart();
-            pass = awaitState(zookeeper, ZooKeeper.States.CONNECTED);
-            Assert.assertTrue(pass);
+            assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper);
 
             ts.stop();
             ts.close();
 
-            pass = awaitState(zookeeper, ZooKeeper.States.CONNECTING);
-            Assert.assertTrue(pass);
+            assertAwaitState(ZooKeeper.States.CONNECTING, zookeeper);
+
 
             ts = createTestingServer();
 
-            pass = awaitState(zookeeper, ZooKeeper.States.CONNECTED);
-            Assert.assertFalse(pass);
+            Assert.assertThrows(ConditionTimeoutException.class, () -> assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper));
+
         } finally {
-            if (zookeeper != null) {
-                zookeeper.close();
-            }
+            ZKUtils.close(zookeeper);
         }
     }
 
@@ -97,27 +103,18 @@ public class ConnectionTest {
         ZooKeeper zookeeper = new ZooKeeper(ts.getConnectString(), 5000, null);
 
         try {
-            boolean pass = awaitState(zookeeper, ZooKeeper.States.CONNECTED);
-            Assert.assertTrue(pass);
+            assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper);
 
             ts.restart();
-            pass = awaitState(zookeeper, ZooKeeper.States.CONNECTED);
-            Assert.assertTrue(pass);
+            assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper);
         } finally {
-            if (zookeeper != null) {
-                zookeeper.close();
-            }
+            ZKUtils.close(zookeeper);
         }
     }
 
-    private boolean awaitState(ZooKeeper zookeeper, ZooKeeper.States expectedState) {
-        return AWAIT_UTILS.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                ZooKeeper.States state = zookeeper.getState();
-                return state == expectedState;
-            }
-        });
+
+    private void assertAwaitState(ZooKeeper.States expectedState, ZooKeeper zookeeper) {
+        awaitility().until(zookeeper::getState, is(expectedState));
     }
 
     // Even if the Instance of the ZookeeperServer changes, the Curator will automatically reconnect.
@@ -127,30 +124,25 @@ public class ConnectionTest {
         try {
             curatorZookeeperClient.connect();
 
-            boolean pass = awaitState(curatorZookeeperClient, true);
-            Assert.assertTrue(pass);
+            assertAwaitState(true, curatorZookeeperClient);
 
             ts.restart();
 
-            pass = awaitState(curatorZookeeperClient, true);
-            Assert.assertTrue(pass);
+            assertAwaitState(true, curatorZookeeperClient);
 
             ts.stop();
             ts.close();
 
-            pass = awaitState(curatorZookeeperClient, false);
-            Assert.assertTrue(pass);
+            assertAwaitState(false, curatorZookeeperClient);
 
             ts = createTestingServer();
 
-            pass = awaitState(curatorZookeeperClient, true);
-            Assert.assertTrue(pass);
+            assertAwaitState(true, curatorZookeeperClient);
         } finally {
-            if (curatorZookeeperClient != null) {
-                curatorZookeeperClient.close();
-            }
+            ZKUtils.close(curatorZookeeperClient);
         }
     }
+
 
     @Test
     public void curatorReconnectTest() throws Exception {
@@ -159,26 +151,18 @@ public class ConnectionTest {
         try {
             curatorZookeeperClient.connect();
 
-            boolean pass = awaitState(curatorZookeeperClient, true);
-            Assert.assertTrue(pass);
+            assertAwaitState(true, curatorZookeeperClient);
 
             ts.restart();
-            pass = awaitState(curatorZookeeperClient, true);
-            Assert.assertTrue(pass);
+            assertAwaitState(true, curatorZookeeperClient);
         } finally {
-            if (curatorZookeeperClient != null) {
-                curatorZookeeperClient.close();
-            }
+            ZKUtils.close(curatorZookeeperClient);
         }
     }
 
-    private boolean awaitState(CuratorZookeeperClient curatorZookeeperClient, boolean expectedConnected) {
-        return AWAIT_UTILS.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                return curatorZookeeperClient.isConnected() == expectedConnected;
-            }
-        });
+    private void assertAwaitState(boolean expectedConnected, CuratorZookeeperClient curatorZookeeperClient) {
+        awaitility()
+                .until(curatorZookeeperClient::isConnected, is(expectedConnected));
     }
 
     private static class LoggingZookeeperEventWatcher implements ZookeeperEventWatcher {

@@ -22,17 +22,19 @@ import com.navercorp.pinpoint.rpc.server.DefaultPinpointServer;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
+import org.hamcrest.Matchers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Taejin Koo
@@ -40,7 +42,6 @@ import java.util.Objects;
 public class PinpointClientStateTest {
 
     private final TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX);
-    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 2000);
 
     @Test
     public void connectFailedStateTest() throws InterruptedException {
@@ -145,14 +146,13 @@ public class PinpointClientStateTest {
     }
 
     private void assertHandlerState(final SocketStateCode stateCode, final DefaultPinpointClientHandler handler) {
-        boolean passed = awaitUtils.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                return handler.getCurrentStateCode() == stateCode;
-            }
-        });
-
-        Assert.assertTrue(passed);
+        Awaitility.await()
+                .until(new Callable<SocketStateCode>() {
+                    @Override
+                    public SocketStateCode call() {
+                        return handler.getCurrentStateCode();
+                    }
+                }, Matchers.is(stateCode));
     }
 
     private DefaultPinpointClientHandler connect(DefaultPinpointClientFactory factory, int port) {

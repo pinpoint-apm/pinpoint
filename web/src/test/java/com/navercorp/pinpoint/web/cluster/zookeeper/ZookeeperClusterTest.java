@@ -21,8 +21,6 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.Pinpoint
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.web.config.WebClusterConfig;
 import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
 
@@ -32,6 +30,9 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
+import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -43,7 +44,10 @@ import org.apache.logging.log4j.LogManager;
 import org.springframework.util.SocketUtils;
 
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.when;
 
 /**
@@ -58,13 +62,18 @@ public class ZookeeperClusterTest {
     private static int zookeeperPort;
     private static WebClusterConfig webClusterConfig;
 
-    private static TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 10000);
-
     private static final String COLLECTOR_TEST_NODE_PATH
             = ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.COLLECTOR_LEAF_PATH, "test");
     private static String CLUSTER_NODE_PATH;
 
     private static TestingServer ts = null;
+
+    private ConditionFactory awaitility() {
+        ConditionFactory conditionFactory = Awaitility.await()
+                .pollDelay(100, TimeUnit.MILLISECONDS)
+                .timeout(10000, TimeUnit.MILLISECONDS);
+        return conditionFactory;
+    }
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -122,14 +131,9 @@ public class ZookeeperClusterTest {
 
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "".getBytes(), -1);
             final ZookeeperClusterDataManager finalManager = manager;
-            boolean await = awaitUtils.await(new TestAwaitTaskUtils() {
-                @Override
-                public boolean checkCompleted() {
-                    return finalManager.getRegisteredAgentList("a", "b", 1L).isEmpty();
-                }
-            });
+            awaitility()
+                    .until(getRegisteredAgentList(finalManager, "a", "b", 1L), IsEmptyCollection.empty());
 
-            Assert.assertTrue(await);
         } finally {
             if (zookeeper != null) {
                 zookeeper.close();
@@ -190,33 +194,22 @@ public class ZookeeperClusterTest {
     }
 
     private void awaitClusterManagerConnected(final ZookeeperClusterDataManager manager) {
-        boolean await = awaitUtils.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                return manager.isConnected();
-            }
-        });
-        Assert.assertTrue(await);
+        awaitility()
+                .until(manager::isConnected);
     }
 
     private void awaitCheckAgentRegistered(final ZookeeperClusterDataManager manager, final String applicationName, final String agentId, final long startTimeStamp) {
-        boolean await = awaitUtils.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                return !manager.getRegisteredAgentList(applicationName, agentId, startTimeStamp).isEmpty();
-            }
-        });
-        Assert.assertTrue(await);
+        awaitility()
+                .until(getRegisteredAgentList(manager, applicationName, agentId, startTimeStamp), not(IsEmptyCollection.empty()));
     }
 
     private void awaitCheckAgentUnRegistered(final ZookeeperClusterDataManager manager, final String applicationName, final String agentId, final long startTimeStamp) {
-        boolean await = awaitUtils.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                return manager.getRegisteredAgentList(applicationName, agentId, startTimeStamp).isEmpty();
-            }
-        });
-        Assert.assertTrue(await);
+        awaitility()
+                .until(getRegisteredAgentList(manager, applicationName, agentId, startTimeStamp), IsEmptyCollection.empty());
+    }
+
+    private Callable<List<String>> getRegisteredAgentList(ZookeeperClusterDataManager manager, String applicationName, String agentId, long startTimeStamp) {
+        return () -> manager.getRegisteredAgentList(applicationName, agentId, startTimeStamp);
     }
 
     private static TestingServer createZookeeperServer(int port) throws Exception {

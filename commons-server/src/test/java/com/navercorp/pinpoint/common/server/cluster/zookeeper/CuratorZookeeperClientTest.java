@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.BadOperationException;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
-import com.navercorp.pinpoint.common.server.util.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.common.server.util.TestAwaitUtils;
 import org.apache.curator.test.TestingServer;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.CreateMode;
@@ -29,6 +27,9 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
+import org.awaitility.core.ConditionTimeoutException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,7 +41,10 @@ import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.hamcrest.Matchers.notNullValue;
 
 /**
  * @author Taejin Koo
@@ -49,7 +53,12 @@ public class CuratorZookeeperClientTest {
 
     private static final Logger LOGGER = LogManager.getLogger(CuratorZookeeperClientTest.class);
 
-    private static TestAwaitUtils AWAIT_UTILS = new TestAwaitUtils(100, 3000);
+    private ConditionFactory awaitility() {
+        ConditionFactory conditionFactory = Awaitility.await()
+                .pollDelay(100, TimeUnit.MILLISECONDS)
+                .timeout(3000, TimeUnit.MILLISECONDS);
+        return conditionFactory;
+    }
 
     private static TestingServer ts = null;
     private static EventHoldingZookeeperEventWatcher eventHoldingZookeeperEventWatcher;
@@ -119,9 +128,7 @@ public class CuratorZookeeperClientTest {
 
             Assert.assertFalse(isExistNode(zooKeeper, testNodePath));
         } finally {
-            if (zooKeeper != null) {
-                zooKeeper.close();
-            }
+            ZKUtils.close(zooKeeper);
         }
     }
 
@@ -156,9 +163,7 @@ public class CuratorZookeeperClientTest {
 
             curatorZookeeperClient.delete(testNodePath);
         } finally {
-            if (zooKeeper != null) {
-                zooKeeper.close();
-            }
+            ZKUtils.close(zooKeeper);
         }
     }
 
@@ -174,9 +179,7 @@ public class CuratorZookeeperClientTest {
 
             curatorZookeeperClient.createNode(new CreateNodeMessage(testNodePath, "test".getBytes()));
         } finally {
-            if (zooKeeper != null) {
-                zooKeeper.close();
-            }
+            ZKUtils.close(zooKeeper);
         }
     }
 
@@ -199,20 +202,13 @@ public class CuratorZookeeperClientTest {
             curatorZookeeperClient.createOrSetNode(new CreateNodeMessage(testNodePath, message.getBytes(), true));
             assertGetWatchedEvent(testNodePath, message);
         } finally {
-            if (zooKeeper != null) {
-                zooKeeper.close();
-            }
+            ZKUtils.close(zooKeeper);
         }
     }
 
     private void assertGetWatchedEvent(String path, String message) throws PinpointZookeeperException {
-        boolean await = AWAIT_UTILS.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                return eventHoldingZookeeperEventWatcher.getLastWatchedEvent() != null;
-            }
-        });
-        Assert.assertTrue(await);
+        awaitility()
+                .until(eventHoldingZookeeperEventWatcher::getLastWatchedEvent, notNullValue());
 
         WatchedEvent lastWatchedEvent = eventHoldingZookeeperEventWatcher.getLastWatchedEvent();
         Assert.assertEquals(Watcher.Event.EventType.NodeDataChanged, lastWatchedEvent.getType());
@@ -234,13 +230,8 @@ public class CuratorZookeeperClientTest {
 
             zooKeeper.create(testNodePath, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
 
-            boolean await = AWAIT_UTILS.await(new TestAwaitTaskUtils() {
-                @Override
-                public boolean checkCompleted() {
-                    return eventHoldingZookeeperEventWatcher.getLastWatchedEvent() != null;
-                }
-            });
-            Assert.assertTrue(await);
+            awaitility()
+                    .until(eventHoldingZookeeperEventWatcher::getLastWatchedEvent, notNullValue());
 
             WatchedEvent lastWatchedEvent = eventHoldingZookeeperEventWatcher.getLastWatchedEvent();
             Assert.assertEquals(Watcher.Event.EventType.NodeChildrenChanged, lastWatchedEvent.getType());
@@ -248,9 +239,7 @@ public class CuratorZookeeperClientTest {
             childrenNode = curatorZookeeperClient.getChildNodeList(pathAndNode.getPath(), false);
             Assert.assertFalse(childrenNode.isEmpty());
         } finally {
-            if (zooKeeper != null) {
-                zooKeeper.close();
-            }
+            ZKUtils.close(zooKeeper);
         }
     }
 
