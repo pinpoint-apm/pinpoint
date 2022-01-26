@@ -17,22 +17,36 @@
 package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils.EchoClientListener;
 import com.navercorp.pinpoint.test.client.TestPinpointClient;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
+import static org.hamcrest.Matchers.greaterThan;
 
 /**
  * @author Taejin Koo
  */
 public class ClientMessageListenerTest {
 
-    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(10, 1000);
+    private ConditionFactory awaitility() {
+        ConditionFactory conditionFactory = Awaitility.await()
+                .pollDelay(10, TimeUnit.MILLISECONDS)
+                .timeout(1000, TimeUnit.MILLISECONDS);
+        return conditionFactory;
+    }
+
     private final TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX);
 
     @Test
@@ -90,12 +104,12 @@ public class ClientMessageListenerTest {
     private void assertSendMessage(PinpointSocket writableServer, String message, final EchoClientListener echoMessageListener) {
         writableServer.send(message.getBytes());
 
-        awaitUtils.await(new TestAwaitTaskUtils() {
+        awaitility().until(new Callable<List<SendPacket>>() {
             @Override
-            public boolean checkCompleted() {
-                return echoMessageListener.getSendPacketRepository().size() > 0;
+            public List<SendPacket> call() {
+                return echoMessageListener.getSendPacketRepository();
             }
-        });
+        }, Matchers.<SendPacket>hasSize(greaterThan(0)));
 
         Assert.assertEquals(message, new String(echoMessageListener.getSendPacketRepository().get(0).getPayload()));
     }

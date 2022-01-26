@@ -20,15 +20,17 @@ import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.server.LoggingServerMessageListenerFactory;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
-import org.junit.Assert;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import java.util.Collections;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author emeroad
@@ -37,7 +39,12 @@ public class TcpDataSenderReconnectTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 5000);
+        private ConditionFactory awaitility() {
+        ConditionFactory conditionFactory = Awaitility.await()
+                .pollDelay(100, TimeUnit.MILLISECONDS)
+                .timeout(5000, TimeUnit.MILLISECONDS);
+        return conditionFactory;
+    }
 
     @Test
     public void connectAndSend() throws InterruptedException {
@@ -78,14 +85,12 @@ public class TcpDataSenderReconnectTest {
     }
 
     private void waitClientDisconnected(final TcpDataSender sender) {
-        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                return !sender.isConnected();
-            }
-        });
-
-        Assert.assertTrue(pass);
+            awaitility().until(new Callable<Boolean>() {
+                @Override
+                public Boolean call() {
+                    return sender.isConnected();
+                }
+            }, Matchers.not(true));
     }
 
 }

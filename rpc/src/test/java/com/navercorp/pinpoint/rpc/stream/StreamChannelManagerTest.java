@@ -28,19 +28,20 @@ import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.test.client.TestPinpointClient;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 
+import org.awaitility.Awaitility;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import static org.hamcrest.Matchers.is;
 
 public class StreamChannelManagerTest {
 
-    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(10, 1000);
     private final TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX);
 
     // Client to Server Stream
@@ -137,8 +138,8 @@ public class StreamChannelManagerTest {
 
             RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
 
-            if (writableServer instanceof  PinpointServer) {
-                ClientStreamChannel clientStreamChannel = ((PinpointServer)writableServer).openStreamAndAwait(new byte[0], clientListener, 3000);
+            if (writableServer instanceof PinpointServer) {
+                ClientStreamChannel clientStreamChannel = ((PinpointServer) writableServer).openStreamAndAwait(new byte[0], clientListener, 3000);
 
                 int sendCount = 4;
                 for (int i = 0; i < sendCount; i++) {
@@ -194,12 +195,13 @@ public class StreamChannelManagerTest {
 
             clientStreamChannel.close();
 
-            awaitUtils.await(new TestAwaitTaskUtils() {
-                @Override
-                public boolean checkCompleted() {
-                    return bo.getStreamChannelContextSize() == 0;
-                }
-            });
+            Awaitility.await()
+                    .until(new Callable<Integer>() {
+                        @Override
+                        public Integer call() throws Exception {
+                            return bo.getStreamChannelContextSize();
+                        }
+                    }, is(0));
 
             Assert.assertEquals(0, bo.getStreamChannelContextSize());
         } finally {
@@ -229,10 +231,10 @@ public class StreamChannelManagerTest {
 
             PinpointSocket writableServer = writableServerList.get(0);
 
-            if (writableServer instanceof  PinpointServer) {
+            if (writableServer instanceof PinpointServer) {
                 RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
 
-                ClientStreamChannel clientStreamChannel = ((PinpointServer)writableServer).openStreamAndAwait(new byte[0], clientListener, 3000);
+                ClientStreamChannel clientStreamChannel = ((PinpointServer) writableServer).openStreamAndAwait(new byte[0], clientListener, 3000);
 
                 StreamChannel streamChannel = serverStreamChannelMessageHandler.bo.serverStreamChannelList.get(0);
 

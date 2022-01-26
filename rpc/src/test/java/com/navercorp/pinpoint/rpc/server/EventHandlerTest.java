@@ -100,7 +100,7 @@ public class EventHandlerTest {
         return MapUtils.getInteger(responseData, "code", -1);
     }
 
-    private void sendAndReceiveSimplePacket(TestRawSocket testRawSocket) throws ProtocolException, IOException {
+    private void sendAndReceiveSimplePacket(TestRawSocket testRawSocket) throws IOException {
         testRawSocket.sendRequestPacket();
         Assert.assertNotNull(testRawSocket.readResponsePacket(3000));
     }

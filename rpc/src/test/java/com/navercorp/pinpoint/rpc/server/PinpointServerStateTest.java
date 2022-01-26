@@ -24,19 +24,21 @@ import com.navercorp.pinpoint.test.client.TestPinpointClient;
 import com.navercorp.pinpoint.test.client.TestRawSocket;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
+import org.awaitility.Awaitility;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.concurrent.Callable;
+
+import static org.hamcrest.Matchers.is;
+
 
 /**
  * @author Taejin Koo
  */
 public class PinpointServerStateTest {
 
-    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 1000);
     private final TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX);
 
     @Test
@@ -136,14 +138,13 @@ public class PinpointServerStateTest {
     }
 
     private void assertPinpointServerState(final SocketStateCode stateCode, final PinpointServer pinpointServer) {
-        boolean passed = awaitUtils.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                return pinpointServer.getCurrentStateCode() == stateCode;
-            }
-        });
-
-        Assert.assertTrue(passed);
+        Awaitility.await()
+                .until(new Callable<SocketStateCode>() {
+                    @Override
+                    public SocketStateCode call() {
+                        return pinpointServer.getCurrentStateCode();
+                    }
+                }, is(stateCode));
     }
 
 }

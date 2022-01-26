@@ -121,6 +121,11 @@
             <scope>test</scope>
             <!-- classloader test : JarProfilerPluginClassInjectorTest-->
         </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <scope>test</scope>
+        </dependency>
 
 
         <!-- [End] Compile Interceptors -->

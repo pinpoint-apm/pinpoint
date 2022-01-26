@@ -28,17 +28,13 @@ import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
-
 import org.apache.curator.utils.ZKPaths;
-import org.apache.hadoop.mapreduce.ID;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
 import org.junit.Assert;
 import org.junit.Test;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,6 +42,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Taejin Koo
@@ -58,8 +59,14 @@ public class ZookeeperJobWorkerTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(50, 3000);
     private final ChannelPropertiesFactory channelPropertiesFactory = new ChannelPropertiesFactory();
+
+    private ConditionFactory awaitility() {
+        ConditionFactory conditionFactory = Awaitility.await()
+                .pollDelay(50, TimeUnit.MILLISECONDS)
+                .timeout(3000, TimeUnit.MILLISECONDS);
+        return conditionFactory;
+    }
 
     @Test
     public void test1() throws Exception {
@@ -195,7 +202,7 @@ public class ZookeeperJobWorkerTest {
         return decodeServerData(clusterString);
     }
 
-    private List<String> decodeServerData(String serverData) throws PinpointZookeeperException, InterruptedException {
+    private List<String> decodeServerData(String serverData) {
         if (serverData == null) {
             return Collections.emptyList();
         }
@@ -205,19 +212,7 @@ public class ZookeeperJobWorkerTest {
     }
 
     private void waitZookeeperServerData(final int expectedServerDataCount, final InMemoryZookeeperClient zookeeperClient) {
-        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                try {
-                    return expectedServerDataCount == getServerData(zookeeperClient).size();
-                } catch (Exception e) {
-                    logger.warn(e.getMessage(), e);
-                }
-                return false;
-            }
-        });
-
-        Assert.assertTrue(pass);
+        awaitility().until(() -> getServerData(zookeeperClient), hasSize(expectedServerDataCount));
     }
 
 }

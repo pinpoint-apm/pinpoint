@@ -49,24 +49,24 @@ import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import org.apache.commons.lang.math.RandomUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.junit.Assert;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
@@ -75,6 +75,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -82,9 +83,12 @@ public class AgentInfoSenderTest {
 
     public static final String HOST = "127.0.0.1";
 
-    private final int awaitSpinDelay = 50;
-
-    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(this.awaitSpinDelay, 60000);
+    private ConditionFactory awaitility() {
+        ConditionFactory conditionFactory = Awaitility.await()
+                .pollDelay(50, TimeUnit.MILLISECONDS)
+                .timeout(60000, TimeUnit.MILLISECONDS);
+        return conditionFactory;
+    }
 
     private AgentInformation agentInformation;
     private ServerMetaDataRegistryService serverMetaDataRegistryService;
@@ -129,7 +133,7 @@ public class AgentInfoSenderTest {
 
         try {
             agentInfoSender.start();
-            waitExpectedRequestCount(messageListener, 1);
+            waitExpectedRequestCount(1, messageListener);
         } finally {
             closeAll(agentInfoSender, clientFactory);
             testPinpointServerAcceptor.close();
@@ -160,7 +164,7 @@ public class AgentInfoSenderTest {
 
         try {
             agentInfoSender.start();
-            waitExpectedRequestCount(messageListener, expectedTriesUntilSuccess);
+            waitExpectedRequestCount(expectedTriesUntilSuccess, messageListener);
         } finally {
             closeAll(agentInfoSender, socketFactory);
             testPinpointServerAcceptor.close();
@@ -191,7 +195,7 @@ public class AgentInfoSenderTest {
 
         try {
             agentInfoSender.start();
-            waitExpectedRequestCount(messageListener, expectedTriesUntilSuccess);
+            waitExpectedRequestCount(expectedTriesUntilSuccess, messageListener);
         } finally {
             closeAll(agentInfoSender, socketFactory);
             testPinpointServerAcceptor.close();
@@ -239,7 +243,7 @@ public class AgentInfoSenderTest {
 
         try {
             agentInfoSender.start();
-            waitExpectedRequestCount(successMessageListener, expectedSuccessServerTries);
+            waitExpectedRequestCount(expectedSuccessServerTries, successMessageListener);
             testPinpointServerAcceptor.close();
             sleep(agentInfoSendRetryIntervalMs * maxTryPerAttempt);
 
@@ -248,7 +252,7 @@ public class AgentInfoSenderTest {
 
             // wait till agent reconnects
             await(agentReconnectLatch, 3000);
-            waitExpectedRequestCount(failMessageListener, expectedFailServerTries);
+            waitExpectedRequestCount(expectedFailServerTries, failMessageListener);
         } finally {
             closeAll(agentInfoSender, socketFactory);
             TestPinpointServerAcceptor.staticClose(failTestPinpointServerAcceptor);
@@ -307,7 +311,7 @@ public class AgentInfoSenderTest {
         try {
             // initial connect
             agentInfoSender.start();
-            waitExpectedRequestCount(messageListener, 1);
+            waitExpectedRequestCount(1, messageListener);
             testPinpointServerAcceptor.close();
             // reconnect
             for (int i = 0; i < expectedReconnectCount; i++) {
@@ -392,7 +396,7 @@ public class AgentInfoSenderTest {
                 serverMetaDataRegistryService.notifyListeners();
             }
 
-            waitExpectedRequestCount(messageListener, expectedRequestCount);
+            waitExpectedRequestCount(expectedRequestCount, messageListener);
         } finally {
             closeAll(agentInfoSender, clientFactory);
             testPinpointServerAcceptor.close();
@@ -456,8 +460,8 @@ public class AgentInfoSenderTest {
         await(endLatch, 3000);
         executorService.shutdown();
         try {
-            waitExpectedRequestCount(messageListener, threadCount);
-            waitExpectedSuccessCount(messageListener, threadCount);
+            waitExpectedRequestCount(threadCount, messageListener);
+            waitExpectedSuccessCount(threadCount, messageListener);
         } finally {
             closeAll(agentInfoSender, clientFactory);
             testPinpointServerAcceptor.close();
@@ -632,30 +636,26 @@ public class AgentInfoSenderTest {
         return clientFactory;
     }
 
-    private void waitExpectedRequestCount(final ResponseServerMessageListener listener, final int expectedRequestCount) {
-        TestAwaitTaskUtils task = new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                return listener.getRequestCount() == expectedRequestCount;
-            }
-        };
-        awaitTask(task);
+    private void waitExpectedRequestCount(final int expectedRequestCount, final ResponseServerMessageListener listener) {
+        awaitility()
+                .until(new Callable<Integer>() {
+                    @Override
+                    public Integer call() {
+                        return listener.getRequestCount();
+                    }
+                }, is(expectedRequestCount));
     }
 
-    private void waitExpectedSuccessCount(final ResponseServerMessageListener listener, final int expectedRequestCount) {
-        TestAwaitTaskUtils task = new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                return listener.getSuccessCount() == expectedRequestCount;
-            }
-        };
-        awaitTask(task);
+    private void waitExpectedSuccessCount(final int expectedRequestCount, final ResponseServerMessageListener listener) {
+        awaitility()
+                .until(new Callable<Integer>() {
+                    @Override
+                    public Integer call() {
+                        return listener.getSuccessCount();
+                    }
+                }, is(expectedRequestCount));
     }
 
-    private void awaitTask(TestAwaitTaskUtils awaitTaskUtils) {
-        boolean pass = awaitUtils.await(awaitTaskUtils);
-        Assert.assertTrue(pass);
-    }
 
     private void sleep(long time) {
         try {
