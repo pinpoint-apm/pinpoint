@@ -67,6 +67,7 @@
         <module>mongodb-plugin-testweb</module>
         <module>mongodb-reactive-plugin-testweb</module>
         <module>reactor-plugin-testweb</module>
+        <module>thrift-plugin-testweb</module>
     </modules>
 
     <dependencyManagement>
