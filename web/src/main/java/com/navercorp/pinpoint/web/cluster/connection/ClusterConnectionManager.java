@@ -21,11 +21,9 @@ import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.web.config.WebClusterConfig;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.zookeeper.KeeperException;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +42,7 @@ public class ClusterConnectionManager {
         this.config = config;
     }
 
-    public void start() throws InterruptedException, IOException, KeeperException {
+    public void start() {
         logger.info("start() started.");
 
         String hostAddress = config.getHostAddress();

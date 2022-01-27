@@ -18,8 +18,11 @@ package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.BadOperationException;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
+import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import org.apache.curator.test.TestingServer;
 import org.apache.curator.utils.ZKPaths;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -29,15 +32,11 @@ import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
-import org.awaitility.core.ConditionTimeoutException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -88,7 +87,7 @@ public class CuratorZookeeperClientTest {
         eventHoldingZookeeperEventWatcher.eventClear();
     }
 
-    private static CuratorZookeeperClient createCuratorZookeeperClient(String connectString, EventHoldingZookeeperEventWatcher zookeeperEventWatcher) throws IOException {
+    private static CuratorZookeeperClient createCuratorZookeeperClient(String connectString, EventHoldingZookeeperEventWatcher zookeeperEventWatcher) throws PinpointZookeeperException {
         CuratorZookeeperClient curatorZookeeperClient = new CuratorZookeeperClient(connectString, 3000, zookeeperEventWatcher);
         curatorZookeeperClient.connect();
         curatorZookeeperClient.connect();
@@ -128,7 +127,7 @@ public class CuratorZookeeperClientTest {
 
             Assert.assertFalse(isExistNode(zooKeeper, testNodePath));
         } finally {
-            ZKUtils.close(zooKeeper);
+            ZKUtils.closeQuietly(zooKeeper);
         }
     }
 
@@ -163,7 +162,7 @@ public class CuratorZookeeperClientTest {
 
             curatorZookeeperClient.delete(testNodePath);
         } finally {
-            ZKUtils.close(zooKeeper);
+            ZKUtils.closeQuietly(zooKeeper);
         }
     }
 
@@ -179,7 +178,7 @@ public class CuratorZookeeperClientTest {
 
             curatorZookeeperClient.createNode(new CreateNodeMessage(testNodePath, "test".getBytes()));
         } finally {
-            ZKUtils.close(zooKeeper);
+            ZKUtils.closeQuietly(zooKeeper);
         }
     }
 
@@ -202,7 +201,7 @@ public class CuratorZookeeperClientTest {
             curatorZookeeperClient.createOrSetNode(new CreateNodeMessage(testNodePath, message.getBytes(), true));
             assertGetWatchedEvent(testNodePath, message);
         } finally {
-            ZKUtils.close(zooKeeper);
+            ZKUtils.closeQuietly(zooKeeper);
         }
     }
 
@@ -239,7 +238,7 @@ public class CuratorZookeeperClientTest {
             childrenNode = curatorZookeeperClient.getChildNodeList(pathAndNode.getPath(), false);
             Assert.assertFalse(childrenNode.isEmpty());
         } finally {
-            ZKUtils.close(zooKeeper);
+            ZKUtils.closeQuietly(zooKeeper);
         }
     }
 

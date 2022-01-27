@@ -29,8 +29,9 @@ import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
-import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
-import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonState;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonStateContext;
 import com.navercorp.pinpoint.common.util.Assert;
 
 import org.apache.commons.lang3.StringUtils;
@@ -102,7 +103,7 @@ public class ZookeeperClusterService implements ClusterService {
 
 
     @Override
-    public void setUp() throws IOException {
+    public void setUp() {
         logger.info("pinpoint-collector cluster setUp");
 
         switch (this.serviceState.getCurrentState()) {
@@ -112,7 +113,11 @@ public class ZookeeperClusterService implements ClusterService {
 
                     ClusterManagerWatcher watcher = new ClusterManagerWatcher();
                     this.client = new CuratorZookeeperClient(config.getClusterAddress(), config.getClusterSessionTimeout(), watcher);
-                    this.client.connect();
+                    try {
+                        this.client.connect();
+                    } catch (PinpointZookeeperException e) {
+                        throw new RuntimeException("ZookeeperClient connect failed", e);
+                    }
 
                     final String connectedAgentZNodePath = ZKPaths.makePath(config.getCollectorZNodePath(), serverIdentifier);
 
@@ -153,7 +158,7 @@ public class ZookeeperClusterService implements ClusterService {
         if (!(this.serviceState.changeStateDestroying())) {
             CommonState state = this.serviceState.getCurrentState();
 
-            logger.info("{} already {}.", this.getClass().getSimpleName(), state.toString());
+            logger.info("{} already {}.", this.getClass().getSimpleName(), state);
             return;
         }
 

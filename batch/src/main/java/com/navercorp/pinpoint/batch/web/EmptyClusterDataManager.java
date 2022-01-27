@@ -18,9 +18,7 @@ package com.navercorp.pinpoint.batch.web;
 
 import com.navercorp.pinpoint.web.cluster.ClusterDataManager;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
-import org.apache.zookeeper.KeeperException;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -28,7 +26,7 @@ import java.util.List;
  */
 public class EmptyClusterDataManager implements ClusterDataManager {
     @Override
-    public void start() throws InterruptedException, IOException, KeeperException, Exception {
+    public void start() {
     }
 
     @Override

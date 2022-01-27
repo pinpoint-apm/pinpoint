@@ -20,8 +20,7 @@
                                           com.navercorp.pinpoint.collector.service,
                                           com.navercorp.pinpoint.common.server.bo.codec,
                                           com.navercorp.pinpoint.common.server.util,
-                                          com.navercorp.pinpoint.common.server.bo,
-                                          com.navercorp.pinpoint.common.server.config" />
+                                          com.navercorp.pinpoint.common.server.bo" />
 
     <import resource="classpath:applicationContext-collector-profile.xml"/>
     <import resource="classpath:applicationContext-collector-grpc.xml"/>
@@ -29,6 +28,7 @@
     <import resource="classpath:applicationContext-collector-hbase.xml"/>
     <import resource="classpath:applicationContext-collector-namespace.xml"/>
 
+    <bean class="com.navercorp.pinpoint.common.server.cluster.zookeeper.config.ClusterConfigurationFactory"/>
 
     <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry">
     </bean>

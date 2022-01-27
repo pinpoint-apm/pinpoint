@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.config;
+package com.navercorp.pinpoint.common.server.cluster.zookeeper.config;
 
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterConfiguration;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
-
 import org.apache.curator.utils.ZKPaths;
 import org.junit.Assert;
 import org.junit.Test;

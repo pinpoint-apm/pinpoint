@@ -24,8 +24,7 @@
         <version>2.4.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-commons-server</artifactId>
-    <name>pinpoint-commons-server</name>
+    <artifactId>pinpoint-commons-server-cluster</artifactId>
     <packaging>jar</packaging>
 
     <properties>
@@ -35,58 +34,26 @@
         <test.jdk.home>${jdk.home}</test.jdk.home>
 
         <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
-        <guava.version>${guava-jdk8.version}</guava.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-thrift</artifactId>
-            <scope>provided</scope>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-grpc</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-commons</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-commons-profiler</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-commons-hbase</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-plugins-loader</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <scope>test</scope>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -97,17 +64,7 @@
             <artifactId>spring-boot</artifactId>
             <version>${spring.boot.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
 
-        <!-- commons module may be used at agent so there will be problems. you should set optional -->
-        <dependency>
-            <groupId>org.apache.thrift</groupId>
-            <artifactId>libthrift</artifactId>
-            <optional>true</optional>
-        </dependency>
 
         <!-- Logging dependencies -->
         <dependency>
@@ -133,12 +90,27 @@
             </exclusions>
         </dependency>
 
-        <!--<dependency> -->
-        <!--<groupId>org.slf4j</groupId> -->
-        <!--<artifactId>slf4j-jdk14</artifactId> -->
-        <!--<version>1.6.6</version> -->
-        <!--<scope>test</scope> -->
-        <!--</dependency> -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-testcase</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 

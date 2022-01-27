@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.common.PathUtils;
+import org.springframework.util.Assert;
 
 import java.util.Objects;
 

@@ -16,7 +16,10 @@
 
 package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 
+import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import org.apache.curator.test.TestingServer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.ZooKeeper;
 import org.awaitility.Awaitility;
@@ -26,9 +29,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-import org.springframework.util.SocketUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -93,7 +93,7 @@ public class ConnectionTest {
             Assert.assertThrows(ConditionTimeoutException.class, () -> assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper));
 
         } finally {
-            ZKUtils.close(zookeeper);
+            ZKUtils.closeQuietly(zookeeper);
         }
     }
 
@@ -108,7 +108,7 @@ public class ConnectionTest {
             ts.restart();
             assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper);
         } finally {
-            ZKUtils.close(zookeeper);
+            ZKUtils.closeQuietly(zookeeper);
         }
     }
 
@@ -121,7 +121,7 @@ public class ConnectionTest {
     @Test
     public void curatorExpiredTest() throws Exception {
         CuratorZookeeperClient curatorZookeeperClient = new CuratorZookeeperClient(ts.getConnectString(), 5000, new LoggingZookeeperEventWatcher());
-        try {
+        try (curatorZookeeperClient) {
             curatorZookeeperClient.connect();
 
             assertAwaitState(true, curatorZookeeperClient);
@@ -138,8 +138,6 @@ public class ConnectionTest {
             ts = createTestingServer();
 
             assertAwaitState(true, curatorZookeeperClient);
-        } finally {
-            ZKUtils.close(curatorZookeeperClient);
         }
     }
 
@@ -147,16 +145,13 @@ public class ConnectionTest {
     @Test
     public void curatorReconnectTest() throws Exception {
         CuratorZookeeperClient curatorZookeeperClient = new CuratorZookeeperClient(ts.getConnectString(), 5000, new LoggingZookeeperEventWatcher());
-
-        try {
+        try (curatorZookeeperClient){
             curatorZookeeperClient.connect();
 
             assertAwaitState(true, curatorZookeeperClient);
 
             ts.restart();
             assertAwaitState(true, curatorZookeeperClient);
-        } finally {
-            ZKUtils.close(curatorZookeeperClient);
         }
     }
 

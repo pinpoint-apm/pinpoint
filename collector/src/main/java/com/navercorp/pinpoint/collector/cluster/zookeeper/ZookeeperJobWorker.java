@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
-import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonStateContext;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;

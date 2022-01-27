@@ -20,18 +20,16 @@ import com.navercorp.pinpoint.collector.config.FlinkConfiguration;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
-import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
-import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
-import org.apache.zookeeper.KeeperException;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonState;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonStateContext;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -40,6 +38,7 @@ import java.util.Objects;
 public class FlinkClusterService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
+
     private final CommonStateContext serviceState;
     private final FlinkConfiguration config;
     private final FlinkClusterConnectionManager clusterConnectionManager;
@@ -56,7 +55,7 @@ public class FlinkClusterService {
     }
 
     @PostConstruct
-    public void setUp() throws KeeperException, IOException, InterruptedException {
+    public void setUp() {
         if (!config.isFlinkClusterEnable()) {
             logger.info("flink cluster disable.");
             return;
@@ -69,7 +68,11 @@ public class FlinkClusterService {
 
                     ClusterManagerWatcher watcher = new ClusterManagerWatcher(pinpointFlinkClusterPath);
                     this.client = new CuratorZookeeperClient(config.getFlinkClusterZookeeperAddress(), config.getFlinkClusterSessionTimeout(), watcher);
-                    this.client.connect();
+                    try {
+                        this.client.connect();
+                    } catch (PinpointZookeeperException e) {
+                        throw new RuntimeException("ZookeeperClient connect failed", e);
+                    }
 
                     this.zookeeperClusterManager = new ZookeeperClusterManager(client, pinpointFlinkClusterPath, clusterConnectionManager);
                     this.zookeeperClusterManager.start();

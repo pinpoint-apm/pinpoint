@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.web.cluster.connection.ClusterAcceptor;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
 import com.navercorp.pinpoint.web.config.WebClusterConfig;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
-import org.apache.zookeeper.KeeperException;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -57,7 +56,7 @@ public class ClusterManager {
     }
 
     @PostConstruct
-    public void start() throws InterruptedException, IOException, KeeperException {
+    public void start() {
         logger.info("start() started.");
 
         if (!config.isClusterEnable()) {

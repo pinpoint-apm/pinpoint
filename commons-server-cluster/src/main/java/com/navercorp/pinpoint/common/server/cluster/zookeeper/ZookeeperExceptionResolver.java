@@ -28,19 +28,16 @@ import org.apache.zookeeper.KeeperException;
 /**
  * @author Taejin Koo
  */
-public class ZookeeperExceptionResolver {
+public final class ZookeeperExceptionResolver {
 
-    public static PinpointZookeeperException resolve(Exception exception, boolean throwException) throws PinpointZookeeperException {
-        PinpointZookeeperException newException = resolve(exception);
-
-        if (throwException) {
-            throw newException;
-        } else {
-            return newException;
-        }
+    private ZookeeperExceptionResolver() {
     }
 
-    static PinpointZookeeperException resolve(Exception exception) {
+    public static void resolveAndThrow(Exception exception) throws PinpointZookeeperException {
+        throw resolve(exception);
+    }
+
+    public static PinpointZookeeperException resolve(Exception exception) {
         if (exception instanceof KeeperException) {
             KeeperException keeperException = (KeeperException) exception;
             switch (keeperException.code()) {

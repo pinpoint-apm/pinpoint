@@ -20,9 +20,7 @@ import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.web.cluster.ClusterManager;
 import com.navercorp.pinpoint.web.config.WebClusterConfig;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
-import org.apache.zookeeper.KeeperException;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -35,7 +33,7 @@ public class EmptyClusterManager extends ClusterManager {
     };
 
     @Override
-    public void start() throws InterruptedException, IOException, KeeperException {
+    public void start() {
     }
 
     @Override

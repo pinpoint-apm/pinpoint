@@ -15,8 +15,7 @@
                                          com.navercorp.pinpoint.web.applicationmap,
                                          com.navercorp.pinpoint.web.query,
                                          com.navercorp.pinpoint.common.server.bo,
-                                         com.navercorp.pinpoint.common.server.util,
-                                         com.navercorp.pinpoint.common.server.config" />
+                                         com.navercorp.pinpoint.common.server.util" />
 
     <import resource="classpath:applicationContext-web-profile.xml" />
     <import resource="classpath:applicationContext-web-hbase.xml" />
@@ -24,6 +23,8 @@
     <import resource="classpath:applicationContext-web-dao-config.xml" />
     <import resource="classpath:applicationContext-web-websocket.xml" />
     <import resource="classpath:applicationContext-web-namespace.xml"/>
+
+    <bean class="com.navercorp.pinpoint.common.server.cluster.zookeeper.config.ClusterConfigurationFactory"/>
 
     <bean id="jsonObjectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean"/>
 
