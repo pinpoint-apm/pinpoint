@@ -5,7 +5,11 @@
     overflow-y: auto;
 }
 
-.l-empty-text {
+.l-guide-text {
     font-size: 14px;
     padding: 7px 13px;
+}
+
+.l-error-text {
+    color: var(--status-fail);
 }

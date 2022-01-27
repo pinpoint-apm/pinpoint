@@ -18,7 +18,7 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
 import { InspectorPageService, ISourceForServerAndAgentList } from 'app/routes/inspector-page/inspector-page.service';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ServerAndAgentListDataService } from './server-and-agent-list-data.service';
-import { isEmpty } from 'app/core/utils/util';
+import { isEmpty, isThatType } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-server-and-agent-list-container',
@@ -31,11 +31,12 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
     filterStr: string;
     agentId: string;
     serverList: { [key: string]: IServerAndAgentData[] };
-    filteredServerList: { [key: string]: IServerAndAgentData[] };
-    filteredServerKeyList: string[];
+    filteredServerList: { [key: string]: IServerAndAgentData[] } = {};
+    filteredServerKeyList: string[] = [];
     funcImagePath: Function;
     isEmpty: boolean;
     emptyText$: Observable<string>;
+    errorMessage: string;
 
     constructor(
         private newUrlStateNotificationService: NewUrlStateNotificationService,
@@ -73,6 +74,15 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
                     const requestStartAt = Date.now();
 
                     return this.serverAndAgentListDataService.getData(appName, range).pipe(
+                        filter((res: {[key: string]: IServerAndAgentData[]} | IServerErrorShortFormat) => {
+                            if (isThatType<IServerErrorShortFormat>(res, 'errorCode', 'errorMessage')) {
+                                this.errorMessage = res.errorMessage;
+                                return false;
+                            } else {
+                                this.errorMessage = '';
+                                return true;
+                            }
+                        }),
                         filter((res: {[key: string]: IServerAndAgentData[]}) => {
                             if (this.agentId) {
                                 const filteredList = this.filterServerList(res, this.agentId, ({ agentId }: IServerAndAgentData) => this.agentId.toLowerCase() === agentId.toLowerCase());
