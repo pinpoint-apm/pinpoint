@@ -17,8 +17,10 @@
 package com.navercorp.pinpoint.plugin.thrift.interceptor.server;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContextAttachmentFactory;
 import com.navercorp.pinpoint.plugin.thrift.field.getter.TProtocolFieldGetter;
 import org.apache.thrift.ProcessFunction;
+import org.apache.thrift.TBaseAsyncProcessor;
 import org.apache.thrift.protocol.TProtocol;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
@@ -37,9 +39,8 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.ServerMarkerFlagField
  * <tt>TProtocolReadTTypeInterceptor</tt> -> <tt>TProtocolReadMessageEndInterceptor</tt>
  * <p>
  * Based on Thrift 0.9.x
- * 
+ *
  * @author HyunGil Jeong
- * 
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.server.TBaseProcessorProcessInterceptor TBaseProcessorProcessInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadFieldBeginInterceptor TProtocolReadFieldBeginInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
@@ -67,20 +68,24 @@ public class ProcessFunctionProcessInterceptor implements AroundInterceptor {
         }
         String methodName = ThriftConstants.UNKNOWN_METHOD_NAME;
         if (target instanceof ProcessFunction) {
-            ProcessFunction<?, ?> processFunction = (ProcessFunction<?, ?>)target;
+            final ProcessFunction<?, ?> processFunction = (ProcessFunction<?, ?>) target;
             methodName = processFunction.getMethodName();
         }
-        ThriftClientCallContext clientCallContext = new ThriftClientCallContext(methodName);
-        InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
-        currentTransaction.setAttachment(clientCallContext);
+        final InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
+        final Object attachment = currentTransaction.getOrCreateAttachment(ThriftClientCallContextAttachmentFactory.INSTANCE);
+        if (attachment instanceof ThriftClientCallContext) {
+            final ThriftClientCallContext clientCallContext = (ThriftClientCallContext) attachment;
+            clientCallContext.setMethodName(methodName);
+        }
+
         // Set server marker - server handlers may create a client to call another Thrift server.
         // When this happens, TProtocol interceptors for clients are triggered since technically they're still within THRIFT_SERVER_SCOPE.
         // We set the marker inside server's input protocol to safeguard against such cases.
-        Object iprot = args[1];
+        final Object iprot = args[1];
         // With the addition of TProtocolDecorator, iprot may actually be a wrapper around the actual input protocol
-        Object rootInputProtocol = getRootInputProtocol(iprot);
+        final Object rootInputProtocol = getRootInputProtocol(iprot);
         if (validateInputProtocol(rootInputProtocol)) {
-            ((ServerMarkerFlagFieldAccessor)rootInputProtocol)._$PINPOINT$_setServerMarkerFlag(true);
+            ((ServerMarkerFlagFieldAccessor) rootInputProtocol)._$PINPOINT$_setServerMarkerFlag(true);
         }
     }
 
@@ -91,7 +96,7 @@ public class ProcessFunctionProcessInterceptor implements AroundInterceptor {
         }
         // Unset server marker
         if (args.length != 4) {
-            Object iprot = args[1];
+            final Object iprot = args[1];
             if (validateInputProtocol(iprot)) {
                 ((ServerMarkerFlagFieldAccessor) iprot)._$PINPOINT$_setServerMarkerFlag(false);
             }
@@ -119,5 +124,4 @@ public class ProcessFunctionProcessInterceptor implements AroundInterceptor {
         }
         return false;
     }
-
 }

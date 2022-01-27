@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server;
 
 import java.net.Socket;
 
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransport;
@@ -55,9 +57,8 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
  * </ul>
  * <p>
  * Based on Thrift 0.8.0+
- * 
+ *
  * @author HyunGil Jeong
- * 
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.server.TBaseProcessorProcessInterceptor TBaseProcessorProcessInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.server.ProcessFunctionProcessInterceptor ProcessFunctionProcessInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.server.async.TBaseAsyncProcessorProcessInterceptor TBaseAsyncProcessProcessInterceptor
@@ -66,24 +67,96 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
  */
 public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
-
+    private static final String SCOPE_NAME = "##THRIFT_SERVER_PROTOCOL_TRACE";
     private final ThriftServerEntryMethodDescriptor thriftServerEntryMethodDescriptor = new ThriftServerEntryMethodDescriptor();
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
+    private final MethodDescriptor descriptor;
     private final InterceptorScope scope;
 
-    public TProtocolReadMessageEndInterceptor(TraceContext traceContext, InterceptorScope scope) {
+    public TProtocolReadMessageEndInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
         this.traceContext = traceContext;
+        this.descriptor = descriptor;
         this.scope = scope;
         this.traceContext.cacheApi(this.thriftServerEntryMethodDescriptor);
     }
 
     @Override
     public void before(Object target, Object[] args) {
-        // Do nothing
+        if (isDebug) {
+            logger.beforeInterceptor(target, args);
+        }
+
+        if (!validate(target)) {
+            return;
+        }
+
+        final InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
+        if (currentTransaction == null) {
+            return;
+        }
+
+        final Object attachment = currentTransaction.getAttachment();
+        if (attachment instanceof ThriftClientCallContext) {
+            ThriftClientCallContext clientCallContext = (ThriftClientCallContext) attachment;
+            try {
+                if (traceContext.currentRawTraceObject() != null) {
+                    // duplicate trace.
+                    return;
+                }
+
+                // Check if there is an active trace first for cases such as TServlet, which one of the WAS plugins would
+                // have created one already.
+                ThriftRequestProperty parentTraceInfo = clientCallContext.getTraceHeader();
+                this.logger.debug("parentTraceInfo : {}", parentTraceInfo);
+
+                final String methodUri = toMethodUri(clientCallContext);
+                final Trace trace = createTrace(target, parentTraceInfo, methodUri);
+                clientCallContext.setEntryPoint(true);
+                if (trace == null) {
+                    return;
+                }
+
+                if (!initScope(trace)) {
+                    // invalid scope.
+                    deleteTrace(trace);
+                    return;
+                }
+                entryScope(trace);
+
+                if (!trace.canSampled()) {
+                    return;
+                }
+
+                SpanEventRecorder recorder = trace.traceBlockBegin();
+                recorder.recordServiceType(ThriftConstants.THRIFT_SERVER_INTERNAL);
+                if (methodUri != null) {
+                    recorder.recordAttribute(ThriftConstants.THRIFT_URL, methodUri);
+                }
+            } catch (Throwable t) {
+                logger.warn("Error creating trace object. Cause:{}", t.getMessage(), t);
+            }
+        }
+    }
+
+    private String toMethodUri(ThriftClientCallContext clientCallContext) {
+        String methodUri = ThriftConstants.UNKNOWN_METHOD_URI;
+        final String methodName = clientCallContext.getMethodName();
+        final String processName = clientCallContext.getProcessName();
+        if (processName != null) {
+            StringBuilder sb = new StringBuilder(processName);
+            if (!methodUri.endsWith("/")) {
+                sb.append("/");
+            }
+            if (methodName != null) {
+                sb.append(methodName);
+            }
+            methodUri = sb.toString();
+        }
+        return methodUri;
     }
 
     @Override
@@ -91,20 +164,52 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
+
+        final Trace trace = traceContext.currentRawTraceObject();
+        if (trace == null) {
+            return;
+        }
+
         if (!validate(target)) {
             return;
         }
-        final boolean shouldTrace = ((ServerMarkerFlagFieldAccessor)target)._$PINPOINT$_getServerMarkerFlag();
-        if (shouldTrace) {
-            InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
-            Object attachment = currentTransaction.getAttachment();
-            if (attachment instanceof ThriftClientCallContext) {
-                ThriftClientCallContext clientCallContext = (ThriftClientCallContext) attachment;
-                try {
-                    recordTrace(target, clientCallContext);
-                } catch (Throwable t) {
-                    logger.warn("Error creating trace object. Cause:{}", t.getMessage(), t);
+
+        final InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
+        final Object attachment = currentTransaction.getAttachment();
+        if (attachment instanceof ThriftClientCallContext) {
+            if (!hasScope(trace)) {
+                // not vertx trace.
+                return;
+            }
+
+            if (!leaveScope(trace)) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("Failed to leave scope. trace={}, sampled={}", trace, trace.canSampled());
                 }
+                // delete unstable trace.
+                deleteTrace(trace);
+                return;
+            }
+
+            if (!isEndScope(trace)) {
+                // ignored recursive call.
+                return;
+            }
+
+            if (!trace.canSampled()) {
+                deleteTrace(trace);
+                return;
+            }
+
+            try {
+                final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+                recorder.recordException(throwable);
+                recorder.recordApi(this.descriptor);
+            } catch (Throwable t) {
+                logger.warn("AFTER. Cause:{}", t.getMessage(), t);
+            } finally {
+                trace.traceBlockEnd();
+                deleteTrace(trace);
             }
         }
     }
@@ -119,35 +224,19 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
             }
             return false;
         }
-        TTransport transport = ((TProtocol)target).getTransport();
+        TTransport transport = ((TProtocol) target).getTransport();
         if (!(transport instanceof SocketFieldAccessor)) {
             if (isDebug) {
                 logger.debug("Invalid target object. Need field accessor({}).", SocketFieldAccessor.class.getName());
             }
             return false;
         }
-        return true;
-    }
+        final boolean shouldTrace = ((ServerMarkerFlagFieldAccessor) target)._$PINPOINT$_getServerMarkerFlag();
+        if (Boolean.FALSE == shouldTrace) {
+            return false;
+        }
 
-    private void recordTrace(Object target, ThriftClientCallContext clientCallContext) {
-        String methodName = clientCallContext.getMethodName();
-        // Check if there is an active trace first for cases such as TServlet, which one of the WAS plugins would
-        // have created one already.
-        Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
-            ThriftRequestProperty parentTraceInfo = clientCallContext.getTraceHeader();
-            this.logger.debug("parentTraceInfo : {}", parentTraceInfo);
-            trace = createTrace(target, parentTraceInfo, methodName);
-            clientCallContext.setEntryPoint(true);
-        }
-        if (trace == null) {
-            return;
-        }
-        if (!trace.canSampled()) {
-            return;
-        }
-        SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.recordServiceType(ThriftConstants.THRIFT_SERVER_INTERNAL);
+        return true;
     }
 
     private Trace createTrace(Object target, ThriftRequestProperty parentTraceInfo, String methodName) {
@@ -172,7 +261,7 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
             // TODO Maybe we should decide to trace or not even if the sampling flag is true to prevent too many requests are traced.
             final Trace trace = this.traceContext.continueTraceObject(traceId);
             if (trace.canSampled()) {
-                recordRootSpan(trace, parentTraceInfo, target);
+                recordRootSpan(trace, parentTraceInfo, target, methodName);
                 if (isDebug) {
                     logger.debug("TraceId exists - continue trace. TraceId:{}, method:{}", traceId, methodName);
                 }
@@ -186,7 +275,7 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
             // No parent trace info, start new trace
             final Trace trace = traceContext.newTraceObject();
             if (trace.canSampled()) {
-                recordRootSpan(trace, parentTraceInfo, target);
+                recordRootSpan(trace, parentTraceInfo, target, methodName);
                 if (isDebug) {
                     logger.debug("TraceId does not exist - start new trace. Method:{}", methodName);
                 }
@@ -199,7 +288,7 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
         }
     }
 
-    private void recordRootSpan(final Trace trace, final ThriftRequestProperty parentTraceInfo, Object target) {
+    private void recordRootSpan(final Trace trace, final ThriftRequestProperty parentTraceInfo, Object target, String methodName) {
         // begin root span
         SpanRecorder recorder = trace.getSpanRecorder();
         recorder.recordServiceType(ThriftConstants.THRIFT_SERVER);
@@ -209,8 +298,8 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
         }
         // record connection information here as the socket may be closed by the time the Span is popped in
         // TBaseAsyncProcessorProcessInterceptor's after section.
-        TTransport transport = ((TProtocol)target).getTransport();
-        recordConnection(recorder, transport);
+        TTransport transport = ((TProtocol) target).getTransport();
+        recordConnection(recorder, transport, methodName);
     }
 
     private boolean checkSamplingFlag(ThriftRequestProperty parentTraceInfo) {
@@ -236,7 +325,7 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
         String transactionId = parentTraceInfo.getTraceId();
         long parentSpanId = parentTraceInfo.getParentSpanId(SpanId.NULL);
         long spanId = parentTraceInfo.getSpanId(SpanId.NULL);
-        short flags = parentTraceInfo.getFlags((short)0);
+        short flags = parentTraceInfo.getFlags((short) 0);
 
         return this.traceContext.createTraceId(transactionId, parentSpanId, spanId, flags);
     }
@@ -251,8 +340,8 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
         recorder.recordParentApplication(parentApplicationName, parentApplicationType);
         recorder.recordAcceptorHost(acceptorHost);
     }
-    
-    private void recordConnection(SpanRecorder recorder, TTransport transport) {
+
+    private void recordConnection(SpanRecorder recorder, TTransport transport, String methodName) {
         // retrieve connection information
         String localIpPort = ThriftConstants.UNKNOWN_ADDRESS;
         String remoteAddress = ThriftConstants.UNKNOWN_ADDRESS;
@@ -267,6 +356,60 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
         if (remoteAddress != ThriftConstants.UNKNOWN_ADDRESS) {
             recorder.recordRemoteAddress(remoteAddress);
         }
+        recorder.recordRpcName(methodName);
     }
 
+    private void deleteTrace(final Trace trace) {
+        traceContext.removeTraceObject();
+        trace.close();
+    }
+
+    private boolean initScope(final Trace trace) {
+        // add user scope.
+        final TraceScope oldScope = trace.addScope(SCOPE_NAME);
+        if (oldScope != null) {
+            // delete corrupted trace.
+            if (logger.isInfoEnabled()) {
+                logger.info("Duplicated trace scope={}.", oldScope.getName());
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    private void entryScope(final Trace trace) {
+        final TraceScope scope = trace.getScope(SCOPE_NAME);
+        if (scope != null) {
+            scope.tryEnter();
+            if (isDebug) {
+                logger.debug("Try enter trace scope={}", scope.getName());
+            }
+        }
+    }
+
+    private boolean leaveScope(final Trace trace) {
+        final TraceScope scope = trace.getScope(SCOPE_NAME);
+        if (scope != null) {
+            if (scope.canLeave()) {
+                scope.leave();
+                if (isDebug) {
+                    logger.debug("Leave trace scope={}", scope.getName());
+                }
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean hasScope(final Trace trace) {
+        final TraceScope scope = trace.getScope(SCOPE_NAME);
+        return scope != null;
+    }
+
+    private boolean isEndScope(final Trace trace) {
+        final TraceScope scope = trace.getScope(SCOPE_NAME);
+        return scope != null && !scope.isActive();
+    }
 }
