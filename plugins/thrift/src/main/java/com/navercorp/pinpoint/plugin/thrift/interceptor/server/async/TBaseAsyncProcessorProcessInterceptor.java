@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.thrift.interceptor.server.async;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContextAttachmentFactory;
 import org.apache.thrift.TBaseAsyncProcessor;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.server.AbstractNonblockingServer.AsyncFrameBuffer;
@@ -49,13 +50,13 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.ServerMarkerFlagField
  * {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageBeginInterceptor TProtocolReadMessageBeginInterceptor} retrieves
  * the method name called by the client.</li>
  * </p>
- * 
+ *
  * <li>
  * <p>
  * {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadFieldBeginInterceptor TProtocolReadFieldBeginInterceptor},
  * {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor} reads the header fields
  * and injects the parent trace object (if any).</li></p>
- * 
+ *
  * <li>
  * <p>
  * {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor} creates the
@@ -65,9 +66,8 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.ServerMarkerFlagField
  * <tt>TProtocolReadTTypeInterceptor</tt> -> <tt>TProtocolReadMessageEndInterceptor</tt>
  * <p>
  * Based on Thrift 0.9.1+
- * 
+ *
  * @author HyunGil Jeong
- * 
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageBeginInterceptor TProtocolReadMessageBeginInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadFieldBeginInterceptor TProtocolReadFieldBeginInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
@@ -99,10 +99,17 @@ public class TBaseAsyncProcessorProcessInterceptor implements AroundInterceptor 
         }
         // Set server markers
         if (args[0] instanceof AsyncFrameBuffer) {
-            AsyncFrameBuffer frameBuffer = (AsyncFrameBuffer)args[0];
+            AsyncFrameBuffer frameBuffer = (AsyncFrameBuffer) args[0];
             attachMarkersToInputProtocol(frameBuffer.getInputProtocol(), true);
         }
 
+        final InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
+        final Object attachment = currentTransaction.getOrCreateAttachment(ThriftClientCallContextAttachmentFactory.INSTANCE);
+        if (attachment instanceof ThriftClientCallContext && target instanceof TBaseAsyncProcessor) {
+            final ThriftClientCallContext clientCallContext = (ThriftClientCallContext) attachment;
+            final String processName = toProcessName(target);
+            clientCallContext.setProcessName(processName);
+        }
     }
 
     @Override
@@ -112,22 +119,8 @@ public class TBaseAsyncProcessorProcessInterceptor implements AroundInterceptor 
         }
         // Unset server markers
         if (args[0] instanceof AsyncFrameBuffer) {
-            AsyncFrameBuffer frameBuffer = (AsyncFrameBuffer)args[0];
+            AsyncFrameBuffer frameBuffer = (AsyncFrameBuffer) args[0];
             attachMarkersToInputProtocol(frameBuffer.getInputProtocol(), false);
-        }
-        final Trace trace = this.traceContext.currentRawTraceObject();
-        if (trace == null) {
-            return;
-        }
-        this.traceContext.removeTraceObject();
-        if (trace.canSampled()) {
-            try {
-                processTraceObject(trace, target, args, throwable);
-            } catch (Throwable t) {
-                logger.warn("Error processing trace object. Cause:{}", t.getMessage(), t);
-            } finally {
-                trace.close();
-            }
         }
     }
 
@@ -152,47 +145,12 @@ public class TBaseAsyncProcessorProcessInterceptor implements AroundInterceptor 
 
     private void attachMarkersToInputProtocol(TProtocol iprot, boolean flag) {
         if (validateInputProtocol(iprot)) {
-            ((ServerMarkerFlagFieldAccessor)iprot)._$PINPOINT$_setServerMarkerFlag(flag);
-            ((AsyncMarkerFlagFieldAccessor)iprot)._$PINPOINT$_setAsyncMarkerFlag(flag);
+            ((ServerMarkerFlagFieldAccessor) iprot)._$PINPOINT$_setServerMarkerFlag(flag);
+            ((AsyncMarkerFlagFieldAccessor) iprot)._$PINPOINT$_setAsyncMarkerFlag(flag);
         }
     }
 
-    private void processTraceObject(final Trace trace, Object target, Object[] args, Throwable throwable) {
-        // end spanEvent
-        try {
-            // TODO Might need a way to collect and record method arguments
-            // trace.recordAttribute(...);
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordException(throwable);
-            recorder.recordApi(this.descriptor);
-        } catch (Throwable t) {
-            logger.warn("Error processing trace object. Cause:{}", t.getMessage(), t);
-        } finally {
-            trace.traceBlockEnd();
-        }
-
-        // end root span
-        SpanRecorder recorder = trace.getSpanRecorder();
-        String methodUri = getMethodUri(target);
-        recorder.recordRpcName(methodUri);
+    private String toProcessName(Object target) {
+        return ThriftUtils.getAsyncProcessorNameAsUri((TBaseAsyncProcessor<?>) target);
     }
-
-    private String getMethodUri(Object target) {
-        String methodUri = ThriftConstants.UNKNOWN_METHOD_URI;
-        InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
-        Object attachment = currentTransaction.getAttachment();
-        if (attachment instanceof ThriftClientCallContext && target instanceof TBaseAsyncProcessor) {
-            ThriftClientCallContext clientCallContext = (ThriftClientCallContext)attachment;
-            String methodName = clientCallContext.getMethodName();
-            methodUri = ThriftUtils.getAsyncProcessorNameAsUri((TBaseAsyncProcessor<?>)target);
-            StringBuilder sb = new StringBuilder(methodUri);
-            if (!methodUri.endsWith("/")) {
-                sb.append("/");
-            }
-            sb.append(methodName);
-            methodUri = sb.toString();
-        }
-        return methodUri;
-    }
-
 }

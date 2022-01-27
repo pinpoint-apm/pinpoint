@@ -110,11 +110,9 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined,
                                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-
             ThriftPluginConfig config = new ThriftPluginConfig(instrumentor.getProfilerConfig());
             final boolean traceServiceArgs = config.traceThriftServiceArgs();
             final boolean traceServiceResult = config.traceThriftServiceResult();
-
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             // TServiceClient.sendBase(String, TBase)
@@ -134,9 +132,7 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-
     // Client - asynchronous
-
     private void addInterceptorsForAsynchronousClients() {
         addTAsyncClientManagerEditor();
         addTAsyncMethodCallEditor();
@@ -238,7 +234,6 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-
     }
 
     private void addProcessFunctionEditor() {
@@ -265,18 +260,11 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-
     }
 
     // Processor - asynchronous
-
     private void addInterceptorsForAsynchronousProcessors() {
-        addTBaseAsyncProcessorEditor();
-    }
-
-    private void addTBaseAsyncProcessorEditor() {
-        final String targetClassName = "org.apache.thrift.TBaseAsyncProcessor";
-        transformTemplate.transform(targetClassName, TBaseAsyncProcessorTransform.class);
+        transformTemplate.transform("org.apache.thrift.TBaseAsyncProcessor", TBaseAsyncProcessorTransform.class);
     }
 
     public static class TBaseAsyncProcessorTransform implements TransformCallback {
@@ -298,11 +286,9 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-
     }
 
     // THttpClient
-
     private void addTHttpClientEditor() {
         transformTemplate.transform("org.apache.thrift.transport.THttpClient", THttpClientTransform.class);
     }
@@ -552,7 +538,6 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-
     }
 
     private void addTProtocolDecoratorEditor() {
