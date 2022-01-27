@@ -16,23 +16,22 @@
 
 package com.navercorp.pinpoint.flink.config;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.config.ClusterConfigurationFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-@TestPropertySource(locations = "classpath:profiles/local/pinpoint-flink.properties")
-@ContextConfiguration("classpath:applicationContext-flink-test.xml")
+@ContextConfiguration(classes = {FlinkConfiguration.class, ClusterConfigurationFactory.class})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class FlinkConfigurationTest {
     @Autowired
-    FlinkConfiguration flinkConfiguration;
+    private FlinkConfiguration flinkConfiguration;
 
     @Test
     public void log() {

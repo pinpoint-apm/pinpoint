@@ -21,13 +21,13 @@ import com.navercorp.pinpoint.collector.util.Address;
 import com.navercorp.pinpoint.collector.util.AddressParser;
 import com.navercorp.pinpoint.collector.util.MultipleAddress;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.ConnectionException;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
-import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
-import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
-
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonState;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonStateContext;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.logging.log4j.Logger;
@@ -123,7 +123,7 @@ public class ZookeeperClusterManager {
         if (!(this.workerState.changeStateDestroying())) {
             CommonState state = this.workerState.getCurrentState();
 
-            logger.info("{} already {}.", this.getClass().getSimpleName(), state.toString());
+            logger.info("{} already {}.", this.getClass().getSimpleName(), state);
             return;
         }
 
@@ -164,7 +164,7 @@ public class ZookeeperClusterManager {
             }
         } else {
             CommonState state = this.workerState.getCurrentState();
-            logger.info("{} invalid state {}.", this.getClass().getSimpleName(), state.toString());
+            logger.info("{} invalid state {}.", this.getClass().getSimpleName(), state);
         }
     }
 

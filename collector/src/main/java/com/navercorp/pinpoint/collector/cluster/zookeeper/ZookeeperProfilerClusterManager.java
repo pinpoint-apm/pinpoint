@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
 import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
-import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonStateContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;

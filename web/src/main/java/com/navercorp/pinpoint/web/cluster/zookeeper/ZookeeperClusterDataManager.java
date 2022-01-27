@@ -19,11 +19,11 @@ package com.navercorp.pinpoint.web.cluster.zookeeper;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
-import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.NoNodeException;
 import java.util.Objects;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
@@ -93,10 +93,14 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
     }
 
     @Override
-    public void start() throws Exception {
+    public void start() {
         this.timer = createTimer();
         this.client = new CuratorZookeeperClient(connectAddress, sessionTimeout, this);
-        this.client.connect();
+        try {
+            this.client.connect();
+        } catch (PinpointZookeeperException e) {
+            throw new RuntimeException("ZookeeperClient connect failed", e);
+        }
         if (periodicSyncTask != null) {
             this.timer.newTimeout(periodicSyncTask, periodicSyncTask.getIntervalMillis(), TimeUnit.MILLISECONDS);
         }

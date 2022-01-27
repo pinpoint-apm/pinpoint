@@ -18,20 +18,20 @@ package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.ConnectionException;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
-import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
-
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonStateContext;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.CreateBuilder;
+import org.apache.curator.framework.api.GetChildrenBuilder;
+import org.apache.curator.framework.api.GetDataBuilder;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.utils.ZKPaths;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 import org.springframework.util.Assert;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -61,7 +61,7 @@ public class CuratorZookeeperClient implements ZookeeperClient {
     }
 
     @Override
-    public void connect() throws IOException {
+    public void connect() throws PinpointZookeeperException {
         logger.debug("connect() started");
         if (stateContext.changeStateInitializing()) {
             stateContext.changeStateStarted();
@@ -69,7 +69,7 @@ public class CuratorZookeeperClient implements ZookeeperClient {
                 connectionManager.start();
             } catch (PinpointZookeeperException e) {
                 stateContext.changeStateIllegal();
-                throw new IOException(e.getMessage(), e);
+                throw e;
             }
         } else {
             logger.warn("connect() failed. error : Illegal State. State may be {}.", stateContext.getCurrentState());
@@ -88,7 +88,7 @@ public class CuratorZookeeperClient implements ZookeeperClient {
         try {
             stat = curator.checkExists().forPath(path);
         } catch (Exception e) {
-            ZookeeperExceptionResolver.resolve(e, true);
+            ZookeeperExceptionResolver.resolveAndThrow(e);
         }
 
         if (stat == null) {
@@ -97,7 +97,7 @@ public class CuratorZookeeperClient implements ZookeeperClient {
             } catch (KeeperException.NodeExistsException nodeExists) {
                 // skip
             } catch (Exception e) {
-                ZookeeperExceptionResolver.resolve(e, true);
+                ZookeeperExceptionResolver.resolveAndThrow(e);
             }
         }
     }
@@ -151,8 +151,7 @@ public class CuratorZookeeperClient implements ZookeeperClient {
             byte[] data = message.getData();
             createBuilder.withMode(CreateMode.EPHEMERAL).forPath(nodePath, data);
         } catch (Exception e) {
-            PinpointZookeeperException exception = ZookeeperExceptionResolver.resolve(e);
-            throw exception;
+            ZookeeperExceptionResolver.resolveAndThrow(e);
         }
     }
 
@@ -171,21 +170,19 @@ public class CuratorZookeeperClient implements ZookeeperClient {
         try {
             CuratorFramework curator = connectionManager.getCuratorFramework();
 
+            final GetDataBuilder data = curator.getData();
             if (watch) {
-                byte[] bytes = curator.getData().usingWatcher(zookeeperEventWatcher).forPath(path);
-                return bytes;
+                return data.usingWatcher(zookeeperEventWatcher).forPath(path);
             } else {
-                byte[] bytes = curator.getData().forPath(path);
-                return bytes;
+                return data.forPath(path);
             }
         } catch (Exception e) {
-            PinpointZookeeperException resolveException = ZookeeperExceptionResolver.resolve(e);
-            throw resolveException;
+            throw ZookeeperExceptionResolver.resolve(e);
         }
     }
 
     @Override
-    public List<String> getChildNodeList(String value, boolean watch) throws PinpointZookeeperException, InterruptedException {
+    public List<String> getChildNodeList(String value, boolean watch) throws PinpointZookeeperException {
         checkState();
 
         String path = getPath(value, true);
@@ -195,17 +192,16 @@ public class CuratorZookeeperClient implements ZookeeperClient {
         try {
             CuratorFramework curator = connectionManager.getCuratorFramework();
 
+            final GetChildrenBuilder children = curator.getChildren();
             if (watch) {
-                List<String> childList = curator.getChildren().usingWatcher(zookeeperEventWatcher).forPath(path);
-                return childList;
+                return children.usingWatcher(zookeeperEventWatcher).forPath(path);
             } else {
-                List<String> childList = curator.getChildren().forPath(path);
-                return childList;
+                return children.forPath(path);
             }
         } catch (KeeperException.NoNodeException noNode) {
             // skip
         } catch (Exception e) {
-            ZookeeperExceptionResolver.resolve(e, true);
+            ZookeeperExceptionResolver.resolveAndThrow(e);
         }
 
         return Collections.emptyList();
@@ -225,7 +221,7 @@ public class CuratorZookeeperClient implements ZookeeperClient {
         } catch (KeeperException.NoNodeException noNode) {
             // skip
         } catch (Exception e) {
-            ZookeeperExceptionResolver.resolve(e, true);
+            ZookeeperExceptionResolver.resolveAndThrow(e);
         }
     }
 

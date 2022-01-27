@@ -52,18 +52,18 @@ public class InMemoryZookeeperClient implements ZookeeperClient {
     }
 
     @Override
-    public void connect() throws IOException {
+    public void connect() throws PinpointZookeeperException {
         connected = true;
     }
 
     @Override
-    public synchronized void createPath(String value) throws PinpointZookeeperException, InterruptedException {
+    public synchronized void createPath(String value) throws PinpointZookeeperException {
         ZKPaths.PathAndNode pathAndNode = ZKPaths.getPathAndNode(value);
         contents.put(pathAndNode.getPath(), EMPTY_BYTE);
     }
 
     @Override
-    public synchronized void createNode(CreateNodeMessage createNodeMessage) throws PinpointZookeeperException, InterruptedException {
+    public synchronized void createNode(CreateNodeMessage createNodeMessage) throws PinpointZookeeperException {
         byte[] bytes = contents.putIfAbsent(createNodeMessage.getNodePath(), createNodeMessage.getData());
         if (bytes != null) {
             throw new BadOperationException("node already exist");
@@ -71,7 +71,7 @@ public class InMemoryZookeeperClient implements ZookeeperClient {
     }
 
     @Override
-    public synchronized void createOrSetNode(CreateNodeMessage createNodeMessage) throws PinpointZookeeperException, KeeperException, InterruptedException {
+    public synchronized void createOrSetNode(CreateNodeMessage createNodeMessage) throws PinpointZookeeperException {
         if (intAdder.incrementAndGet() % 2 == 1 && throwException) {
             throw new PinpointZookeeperException("exception");
         }
@@ -80,18 +80,18 @@ public class InMemoryZookeeperClient implements ZookeeperClient {
     }
 
     @Override
-    public synchronized byte[] getData(String path) throws PinpointZookeeperException, InterruptedException {
+    public synchronized byte[] getData(String path) throws PinpointZookeeperException {
         byte[] bytes = contents.get(path);
         return bytes;
     }
 
     @Override
-    public byte[] getData(String path, boolean watch) throws PinpointZookeeperException, InterruptedException {
+    public byte[] getData(String path, boolean watch) throws PinpointZookeeperException {
         return contents.get(path);
     }
 
     @Override
-    public synchronized void delete(String path) throws PinpointZookeeperException, InterruptedException {
+    public synchronized void delete(String path) throws PinpointZookeeperException {
         contents.remove(path);
     }
 

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.config;
+package com.navercorp.pinpoint.common.server.cluster.zookeeper.config;
 
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterConfiguration;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;

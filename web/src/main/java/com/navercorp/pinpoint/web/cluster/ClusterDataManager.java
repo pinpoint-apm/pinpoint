@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface ClusterDataManager {
 
-    void start() throws InterruptedException, IOException, KeeperException, Exception;
+    void start();
 
     void stop();
 

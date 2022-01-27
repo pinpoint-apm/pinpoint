@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.util.concurrent;
+package com.navercorp.pinpoint.common.server.cluster.zookeeper.util;
 
 
 public enum CommonState {

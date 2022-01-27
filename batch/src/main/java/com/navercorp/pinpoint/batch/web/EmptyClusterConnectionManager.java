@@ -22,9 +22,7 @@ import com.navercorp.pinpoint.web.cluster.connection.ClusterAcceptor;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnector;
 import com.navercorp.pinpoint.web.config.WebClusterConfig;
-import org.apache.zookeeper.KeeperException;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -38,7 +36,7 @@ public class EmptyClusterConnectionManager extends ClusterConnectionManager {
     }
 
     @Override
-    public void start() throws InterruptedException, IOException, KeeperException {
+    public void start() {
     }
 
     @Override

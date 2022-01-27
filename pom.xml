@@ -91,6 +91,7 @@
         <module>commons-profiler</module>
         <module>commons-hbase</module>
         <module>commons-server</module>
+        <module>commons-server-cluster</module>
         <module>tools</module>
         <module>plugins</module>
         <module>plugins-loader</module>
@@ -264,6 +265,11 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-commons-server-cluster</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-commons-hbase</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -413,12 +419,19 @@
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-testcase</artifactId>
                 <version>${project.version}</version>
+                <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>${spring.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -439,6 +452,7 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
+                <scope>test</scope>
             </dependency>
             <!-- for spring test -->
             <dependency>

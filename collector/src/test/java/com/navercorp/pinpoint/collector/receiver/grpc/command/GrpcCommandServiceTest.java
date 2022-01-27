@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClust
 import com.navercorp.pinpoint.collector.receiver.grpc.RecordedStreamObserver;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.command.GrpcCommandService;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.DefaultTransportMetadata;
@@ -67,7 +68,7 @@ public class GrpcCommandServiceTest {
     }
 
     @Test
-    public void oldVersionHandshakeTest() throws IOException {
+    public void oldVersionHandshakeTest() throws IOException, PinpointZookeeperException {
         ZookeeperProfilerClusterManager manager = creteMemoryClusterManager();
 
         ZookeeperClusterService mockClusterService = Mockito.mock(ZookeeperClusterService.class);
@@ -91,7 +92,7 @@ public class GrpcCommandServiceTest {
     }
 
     @Test
-    public void oldVersionHandshakeFailTest() throws IOException {
+    public void oldVersionHandshakeFailTest() throws IOException, PinpointZookeeperException {
         ZookeeperProfilerClusterManager manager = creteMemoryClusterManager();
 
         ZookeeperClusterService mockClusterService = Mockito.mock(ZookeeperClusterService.class);
@@ -117,7 +118,7 @@ public class GrpcCommandServiceTest {
     }
 
     @Test
-    public void newVersionHandshakeTest() throws IOException {
+    public void newVersionHandshakeTest() throws IOException, PinpointZookeeperException {
         ZookeeperProfilerClusterManager manager = creteMemoryClusterManager();
 
         ZookeeperClusterService mockClusterService = Mockito.mock(ZookeeperClusterService.class);
@@ -136,7 +137,7 @@ public class GrpcCommandServiceTest {
         }
     }
 
-    private ZookeeperProfilerClusterManager creteMemoryClusterManager() throws IOException {
+    private ZookeeperProfilerClusterManager creteMemoryClusterManager() throws PinpointZookeeperException {
         InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient();
         zookeeperClient.connect();
 

@@ -17,14 +17,14 @@
 package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
-import com.navercorp.pinpoint.common.util.Assert;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.RetrySleeper;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.state.ConnectionState;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -57,11 +57,7 @@ class CuratorZookeeperConnectionManager {
             }
         });
 
-        if (sessionTimeout < DEFAULT_CONNECTION_TIMEOUT) {
-            builder.connectionTimeoutMs(sessionTimeout);
-        } else {
-            builder.connectionTimeoutMs(DEFAULT_CONNECTION_TIMEOUT);
-        }
+        builder.connectionTimeoutMs(Math.min(sessionTimeout, DEFAULT_CONNECTION_TIMEOUT));
 
         builder.sessionTimeoutMs(sessionTimeout);
 
@@ -71,7 +67,7 @@ class CuratorZookeeperConnectionManager {
         curatorFramework.getConnectionStateListenable().addListener(connectionStateListener);
     }
 
-    public void start() throws IOException, PinpointZookeeperException {
+    public void start() throws PinpointZookeeperException {
         try {
             curatorFramework.start();
             boolean connected = curatorFramework.blockUntilConnected(3000, TimeUnit.MILLISECONDS);
@@ -79,14 +75,16 @@ class CuratorZookeeperConnectionManager {
                 logger.info("failed while to connect(). it will be retried automatically");
             }
         } catch (Exception e) {
-            if (curatorFramework != null) {
-                curatorFramework.close();
-            }
-            ZookeeperExceptionResolver.resolve(e, true);
+            closeQuietly(curatorFramework);
+            ZookeeperExceptionResolver.resolveAndThrow(e);
         }
     }
 
     public void stop() {
+        closeQuietly(curatorFramework);
+    }
+
+    private void closeQuietly(CuratorFramework curatorFramework) {
         if (curatorFramework != null) {
             curatorFramework.close();
         }
