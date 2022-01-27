@@ -5,8 +5,22 @@ serviceTypes:
       name: 'ELASTICSEARCH_HIGHLEVEL_CLIENT'
       desc: 'ELASTICSEARCH'
       property:
-#          recordStatistics: true
-          alias: true
-#      matcher:
-#          type: 'exact'
-#          code: 40 # http.url
+          recordStatistics: true
+#          alias: true
+      matcher:
+          type: 'exact'
+          code: 40 # http.url
+    - code: 9205
+      name: 'ELASTICSEARCH_REST_CLIENT'
+      desc: 'ELASTICSEARCH'
+      property:
+           recordStatistics: true
+annotationKeys:
+    - code: 17777
+      name: 'es.index'
+      property:
+          viewInRecordSet: true
+    - code: 17778
+      name: 'es.index.method'
+      property:
+          viewInRecordSet: true

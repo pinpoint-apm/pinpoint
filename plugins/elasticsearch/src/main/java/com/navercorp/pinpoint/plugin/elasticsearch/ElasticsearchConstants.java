@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyProperty;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyProvider;
 
 /**
  * @author Roy Kim
@@ -27,9 +28,13 @@ public class ElasticsearchConstants {
 
     public static final AnnotationKey ARGS_DSL_ANNOTATION_KEY = AnnotationKeyFactory.of(173, "es.dsl", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
     public static final AnnotationKey ARGS_VERSION_ANNOTATION_KEY = AnnotationKeyFactory.of(176, "es.version", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+    public static final AnnotationKey INDEX_KEY = AnnotationKeyProvider.getByCode(17777);;
+    public static final AnnotationKey INDEX_KEY_METHOD = AnnotationKeyProvider.getByCode(17778);;
+
 
     public static final ServiceType ELASTICSEARCH = ServiceTypeProvider.getByName("ELASTICSEARCH");
     public static final ServiceType ELASTICSEARCH_EXECUTOR = ServiceTypeProvider.getByName("ELASTICSEARCH_HIGHLEVEL_CLIENT");
+    public static final ServiceType ELASTICSEARCH_EEST = ServiceTypeProvider.getByName("ELASTICSEARCH_REST_CLIENT");
 
     public static final String ELASTICSEARCH_SCOPE = "Elasticsearch_SCOPE";
     public static final String ELASTICSEARCH_EXECUTOR_SCOPE = "ElasticsearchExecutor_SCOPE";

@@ -72,7 +72,7 @@ public class HighLevelConnectInterceptor implements AroundInterceptor {
         }
     }
 
-    private String merge(List<String> host) {
+    public static String merge(List<String> host) {
         if (host.isEmpty()) {
             return "";
         }
@@ -95,12 +95,12 @@ public class HighLevelConnectInterceptor implements AroundInterceptor {
     }
 
 
-    private List<String> getHostList(Object arg) {
+    public static List<String> getHostList(Object arg) {
         if (!(arg instanceof RestClient)) {
             return Collections.emptyList();
         }
 
-        final List<String> hostList = new ArrayList<>();
+        final List<String> hostList = new ArrayList<String>();
 
         HttpHost[] httpHosts = null;
         if (arg instanceof HttpHostInfoAccessor) {

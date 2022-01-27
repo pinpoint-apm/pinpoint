@@ -23,14 +23,14 @@ import com.navercorp.pinpoint.plugin.elasticsearch.accessor.HttpHostInfoAccessor
 import org.apache.http.HttpHost;
 
 /**
- * @author Roy Kim
+ * @author shuijing
  */
-public class RestClientConnectInterceptor implements AroundInterceptor {
+public class RestClientHostsInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    public RestClientConnectInterceptor() {
+    public RestClientHostsInterceptor() {
     }
 
     @Override

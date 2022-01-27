@@ -30,9 +30,12 @@ public class ElasticsearchMetadataProvider implements TraceMetadataProvider {
         }
         context.addServiceType(ElasticsearchConstants.ELASTICSEARCH);
         context.addServiceType(ElasticsearchConstants.ELASTICSEARCH_EXECUTOR);
+        context.addServiceType(ElasticsearchConstants.ELASTICSEARCH_EEST);
 
         context.addAnnotationKey(ElasticsearchConstants.ARGS_VERSION_ANNOTATION_KEY);//Elasticsearch version info
         context.addAnnotationKey(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY);//HTTP DSL body conent
+        context.addAnnotationKey(ElasticsearchConstants.INDEX_KEY);
+        context.addAnnotationKey(ElasticsearchConstants.INDEX_KEY_METHOD);
     }
 
 }

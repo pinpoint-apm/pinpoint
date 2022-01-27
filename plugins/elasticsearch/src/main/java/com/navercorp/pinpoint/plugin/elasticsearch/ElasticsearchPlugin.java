@@ -14,11 +14,7 @@
  */
 package com.navercorp.pinpoint.plugin.elasticsearch;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -30,9 +26,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.plugin.elasticsearch.accessor.ClusterInfoAccessor;
 import com.navercorp.pinpoint.plugin.elasticsearch.accessor.EndPointAccessor;
 import com.navercorp.pinpoint.plugin.elasticsearch.accessor.HttpHostInfoAccessor;
-import com.navercorp.pinpoint.plugin.elasticsearch.interceptor.ElasticsearchExecutorInterceptor;
-import com.navercorp.pinpoint.plugin.elasticsearch.interceptor.HighLevelConnectInterceptor;
-import com.navercorp.pinpoint.plugin.elasticsearch.interceptor.RestClientConnectInterceptor;
+import com.navercorp.pinpoint.plugin.elasticsearch.interceptor.*;
 
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
@@ -42,7 +36,7 @@ import java.security.ProtectionDomain;
  */
 public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAware {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    public final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private TransformTemplate transformTemplate;
 
     private static String[] methodList() {
@@ -86,6 +80,7 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 
     private void addElasticsearchConnectorInterceptors() {
         //v6.0.0 ~ v6.3.2 Connector
+        //Add support 5.6.0 ~ 7.4.x RestClient
         transformTemplate.transform("org.elasticsearch.client.RestClient", ConnectorTransformCallback.class);
     }
 
@@ -110,16 +105,32 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
             }
 
             target.addField(HttpHostInfoAccessor.class);
-
-            InstrumentMethod client = target.getConstructor("org.apache.http.impl.nio.client.CloseableHttpAsyncClient"
+            //support 5.6.0 ~ 6.3.x
+            InstrumentMethod constructor6 = target.getConstructor("org.apache.http.impl.nio.client.CloseableHttpAsyncClient"
                     , "long"
                     , "org.apache.http.Header[]"
                     , "org.apache.http.HttpHost[]"
                     , "java.lang.String"
                     , "org.elasticsearch.client.RestClient$FailureListener"
             );
-            if (client != null) {
-                client.addScopedInterceptor(RestClientConnectInterceptor.class, ElasticsearchConstants.ELASTICSEARCH_SCOPE, ExecutionPolicy.BOUNDARY);
+            if (constructor6 != null) {
+                constructor6.addInterceptor(RestClientHostsInterceptor.class);
+            }
+            InstrumentMethod methodPerformRequest5 = target.getDeclaredMethod("performRequestAsync", "java.lang.String", "java.lang.String", "java.util.Map", "org.apache.http.HttpEntity", "org.elasticsearch.client.HttpAsyncResponseConsumerFactory", "org.elasticsearch.client.ResponseListener", "org.apache.http.Header[]");
+
+            if (methodPerformRequest5 != null) {
+                methodPerformRequest5.addInterceptor(RestClient6ConnectInterceptor.class);
+            }
+
+            //support 6.4.x ~ 7.x.x
+            InstrumentMethod methodPerformRequest7 = target.getDeclaredMethod("performRequest", "org.elasticsearch.client.Request");
+            if (methodPerformRequest7 != null) {
+                methodPerformRequest7.addInterceptor(RestClient7ConnectInterceptor.class);
+            }
+
+            InstrumentMethod methodPerformRequestAsync7 = target.getDeclaredMethod("performRequestAsync", "org.elasticsearch.client.Request", "org.elasticsearch.client.ResponseListener");
+            if (methodPerformRequestAsync7 != null) {
+                methodPerformRequestAsync7.addInterceptor(RestClient7ConnectInterceptor.class);
             }
 
             return target.toBytecode();
