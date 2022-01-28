@@ -19,13 +19,12 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 import com.navercorp.pinpoint.common.server.bo.stat.EachUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.UriStatHistogram;
 import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.web.vo.stat.SampledEachUriStatBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledUriStatHistogramBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -81,7 +80,7 @@ public class AgentUriStatSampler implements AgentStatSampler<EachUriStatBo, Samp
     }
 
     private String getUri(List<EachUriStatBo> eachUriStatBoList) {
-        EachUriStatBo representative = ListUtils.getFirst(eachUriStatBoList);
+        EachUriStatBo representative = CollectionUtils.firstElement(eachUriStatBoList);
         return representative.getUri();
     }
 

@@ -63,10 +63,12 @@ public final class ListUtils {
         }
     }
 
+    @Deprecated
     public static <V> V getFirst(List<V> list) {
         return getFirst(list, null);
     }
 
+    @Deprecated
     public static <V> V getFirst(List<V> list, V defaultValue) {
         if (list == null) {
             return defaultValue;
@@ -80,6 +82,7 @@ public final class ListUtils {
         }
     }
 
+    @Deprecated
     public static <V> boolean isFirst(List<V> list, V object) {
         V first = getFirst(list);
         if (first == null) {
@@ -88,6 +91,7 @@ public final class ListUtils {
         return first.equals(object);
     }
 
+    @Deprecated
     public static <V> V get(List<V> list, int index, V defaultValue) {
         try {
             return list.get(index);
@@ -97,10 +101,12 @@ public final class ListUtils {
         return defaultValue;
     }
 
+    @Deprecated
     public static <V> V getLast(List<V> list) {
         return getLast(list, null);
     }
 
+    @Deprecated
     public static <V> V getLast(List<V> list, V defaultValue) {
         if (list == null) {
             return defaultValue;

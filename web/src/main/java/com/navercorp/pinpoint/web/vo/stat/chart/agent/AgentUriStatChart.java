@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
 import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatPointFactory;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
@@ -27,6 +26,7 @@ import com.navercorp.pinpoint.web.vo.stat.SampledEachUriStatBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledUriStatHistogramBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +50,7 @@ public class AgentUriStatChart implements StatChart {
     private final AgentUriChartGroup failedAgentUriChartGroup;
 
     public AgentUriStatChart(TimeWindow timeWindow, List<SampledEachUriStatBo> sampledEachUriStatBoList) {
-        SampledEachUriStatBo representative = ListUtils.getFirst(sampledEachUriStatBoList);
+        SampledEachUriStatBo representative = CollectionUtils.firstElement(sampledEachUriStatBoList);
         if (representative == null) {
             this.uri = UNCOLLECTED_STRING;
         } else {

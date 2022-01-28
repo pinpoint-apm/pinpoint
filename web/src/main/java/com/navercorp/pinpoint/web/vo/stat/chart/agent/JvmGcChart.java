@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
 import com.google.common.collect.ImmutableMap;
 import com.navercorp.pinpoint.common.server.bo.JvmGcType;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -26,7 +25,7 @@ import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -106,7 +105,7 @@ public class JvmGcChart implements StatChart {
             if (CollectionUtils.isEmpty(sampledJvmGcs)) {
                 return JvmGcType.UNKNOWN;
             } else {
-                return ListUtils.getLast(sampledJvmGcs).getJvmGcType();
+                return CollectionUtils.lastElement(sampledJvmGcs).getJvmGcType();
             }
         }
 

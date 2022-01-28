@@ -20,7 +20,6 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
@@ -45,11 +44,11 @@ import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineBuild
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -388,7 +387,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
 
         // 3rd find greater
-        AgentDownloadInfo downloadInfo = ListUtils.getLast(downloadInfoList);
+        AgentDownloadInfo downloadInfo = CollectionUtils.lastElement(downloadInfoList);
         cachedAgentDownloadInfo = downloadInfo;
         return downloadInfo;
     }

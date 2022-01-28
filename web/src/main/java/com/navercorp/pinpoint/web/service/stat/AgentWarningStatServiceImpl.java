@@ -18,14 +18,13 @@ package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentWarningStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentState;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,14 +81,15 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
     }
 
     private Map<Long, List<AgentWarningStatDataPoint>> parseByStartTimestamp(List<AgentWarningStatDataPoint> agentWarningStatDataPointList) {
-        Map<Long, List<AgentWarningStatDataPoint>> partitions = new HashMap<>();
+        if (CollectionUtils.isEmpty(agentWarningStatDataPointList)) {
+            return Collections.emptyMap();
+        }
 
-        if (CollectionUtils.hasLength(agentWarningStatDataPointList)) {
-            for (AgentWarningStatDataPoint agentWarningStatDataPoint : agentWarningStatDataPointList) {
-                long startTimestamp = agentWarningStatDataPoint.getStartTimestamp();
-                List<AgentWarningStatDataPoint> partition = partitions.computeIfAbsent(startTimestamp, k -> new ArrayList<>());
-                partition.add(agentWarningStatDataPoint);
-            }
+        Map<Long, List<AgentWarningStatDataPoint>> partitions = new HashMap<>();
+        for (AgentWarningStatDataPoint agentWarningStatDataPoint : agentWarningStatDataPointList) {
+            long startTimestamp = agentWarningStatDataPoint.getStartTimestamp();
+            List<AgentWarningStatDataPoint> partition = partitions.computeIfAbsent(startTimestamp, k -> new ArrayList<>());
+            partition.add(agentWarningStatDataPoint);
         }
         return partitions;
     }
@@ -136,8 +136,8 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
             return null;
         }
 
-        AgentWarningStatDataPoint first = ListUtils.getFirst(agentWarningStatDataPointList);
-        AgentWarningStatDataPoint last = ListUtils.getLast(agentWarningStatDataPointList);
+        AgentWarningStatDataPoint first = CollectionUtils.firstElement(agentWarningStatDataPointList);
+        AgentWarningStatDataPoint last = CollectionUtils.lastElement(agentWarningStatDataPointList);
 
         AgentStatusTimelineSegment timelineSegment = new AgentStatusTimelineSegment();
         timelineSegment.setStartTimestamp(first.getTimestamp());

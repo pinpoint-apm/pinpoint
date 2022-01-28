@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.web.service.stat;
 
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.web.dao.stat.SampledDataSourceDao;
 import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSourceList;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.DataSourceChart;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,7 +56,8 @@ public class DataSourceChartService implements AgentStatChartService {
         if (CollectionUtils.isEmpty(sampledAgentStatList)) {
             return new DataSourceChart(timeWindow, Collections.emptyList(), serviceTypeRegistryService);
         } else {
-            return new DataSourceChart(timeWindow, ListUtils.getFirst(sampledAgentStatList).getSampledDataSourceList(), serviceTypeRegistryService);
+            List<SampledDataSource> sampledDataSourceList = CollectionUtils.firstElement(sampledAgentStatList).getSampledDataSourceList();
+            return new DataSourceChart(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
         }
     }
 
