@@ -6,6 +6,7 @@ import { UrlPathId } from 'app/shared/models';
 import { StoreHelperService, NewUrlStateNotificationService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { ActiveThreadDumpListDataService, IActiveThreadDump } from './active-thread-dump-list-data.service';
 import { IThreadDumpData } from './thread-dump-list.component';
+import { isThatType } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-thread-dump-list-container',
@@ -29,6 +30,7 @@ export class ThreadDumpListContainerComponent implements OnInit, OnDestroy {
         private activeThreadDumpListDataService: ActiveThreadDumpListDataService,
         private messageQueueService: MessageQueueService
     ) {}
+
     ngOnInit() {
         this.connectStore();
         this.rowData$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
@@ -38,6 +40,16 @@ export class ThreadDumpListContainerComponent implements OnInit, OnDestroy {
                 const agentId = urlService.getPathValue(UrlPathId.AGENT_ID);
 
                 return this.activeThreadDumpListDataService.getData(applicationName, agentId);
+            }),
+            filter((data: {[key: string]: any} | IServerErrorShortFormat) => {
+                if (isThatType<IServerErrorShortFormat>(data, 'errorCode', 'errorMessage')) {
+                    this.errorMessage = data.errorMessage;
+                    this.showLoading = false;
+                    return false;
+                } else {
+                    this.errorMessage = '';
+                    return true;
+                }
             }),
             switchMap((data: {[key: string]: any}) => {
                 if (data.code === -1)  {
