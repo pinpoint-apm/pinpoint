@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.web.service.stat;
 
-import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.web.dao.stat.SampledAgentUriStatDao;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentUriStat;
@@ -26,6 +24,7 @@ import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentUriStatChart;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +55,7 @@ public class AgentUriStatChartService implements AgentStatChartService {
         if (CollectionUtils.isEmpty(sampledAgentUriStatList)) {
             return new AgentUriStatChart(timeWindow, Collections.emptyList());
         } else {
-            SampledAgentUriStat first = ListUtils.getFirst(sampledAgentUriStatList);
+            SampledAgentUriStat first = CollectionUtils.firstElement(sampledAgentUriStatList);
             return new AgentUriStatChart(timeWindow, first.getSampledEachUriStatBoList());
         }
     }

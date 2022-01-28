@@ -23,13 +23,12 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -194,7 +193,7 @@ public class ZookeeperJobWorker implements Runnable {
                 }
 
 
-                ZookeeperJob headJob = ListUtils.getFirst(zookeeperJobList);
+                ZookeeperJob headJob = CollectionUtils.firstElement(zookeeperJobList);
                 if (latestHeadJob != null && latestHeadJob == headJob) {
                     // for defence spinLock (zookeeper problem, etc..)
                     await(500);
@@ -292,7 +291,7 @@ public class ZookeeperJobWorker implements Runnable {
             return false;
         }
 
-        ZookeeperJob defaultJob = ListUtils.getFirst(zookeeperJobList);
+        ZookeeperJob defaultJob = CollectionUtils.firstElement(zookeeperJobList);
         ZookeeperJob.Type type = defaultJob.getType();
         switch (type) {
             case ADD:

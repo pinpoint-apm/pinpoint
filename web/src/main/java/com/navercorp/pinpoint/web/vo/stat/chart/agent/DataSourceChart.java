@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 import com.google.common.collect.ImmutableMap;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -27,7 +26,7 @@ import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -50,20 +49,20 @@ public class DataSourceChart implements StatChart {
         Objects.requireNonNull(timeWindow, "timeWindow");
 
         Map<StatChartGroup.ChartType, Chart<? extends Point>> chartTypeChartMap = newDatasourceChart(timeWindow, sampledDataSources);
-        if (CollectionUtils.isNotEmpty(sampledDataSources)) {
-            SampledDataSource latestSampledDataSource = ListUtils.getLast(sampledDataSources);
+        if (CollectionUtils.isEmpty(sampledDataSources)) {
+            final Integer uncollectedValue = SampledDataSource.UNCOLLECTED_VALUE;
+            // TODO avoid null
+            final String uncollectedString = SampledDataSource.UNCOLLECTED_STRING;
+
+            return new DataSourceChartGroup(timeWindow, chartTypeChartMap, uncollectedValue, uncollectedString, uncollectedString, uncollectedString);
+        } else {
+            SampledDataSource latestSampledDataSource = CollectionUtils.lastElement(sampledDataSources);
 
             int id = latestSampledDataSource.getId();
             String serviceTypeName = serviceTypeRegistryService.findServiceType(latestSampledDataSource.getServiceTypeCode()).getName();
             String databaseName = latestSampledDataSource.getDatabaseName();
             String jdbcUrl = latestSampledDataSource.getJdbcUrl();
             return new DataSourceChartGroup(timeWindow, chartTypeChartMap, id, serviceTypeName, databaseName, jdbcUrl);
-        } else {
-            final Integer uncollectedValue = SampledDataSource.UNCOLLECTED_VALUE;
-            // TODO avoid null
-            final String uncollectedString = SampledDataSource.UNCOLLECTED_STRING;
-
-            return new DataSourceChartGroup(timeWindow, chartTypeChartMap, uncollectedValue, uncollectedString, uncollectedString, uncollectedString);
         }
     }
 
