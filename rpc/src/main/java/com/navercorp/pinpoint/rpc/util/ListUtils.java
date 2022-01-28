@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.rpc.util;
 
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,12 +46,7 @@ public final class ListUtils {
                 return false;
             }
         }
-
-        for (V value : values) {
-            list.add(value);
-        }
-
-        return true;
+        return Collections.addAll(list, values);
     }
 
     public static <V> void addAllExceptNullValue(List<V> list, V[] values) {
