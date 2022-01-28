@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +30,6 @@ import com.navercorp.pinpoint.collector.manage.ClusterManager;
 import com.navercorp.pinpoint.collector.manage.CollectorManager;
 import com.navercorp.pinpoint.collector.manage.HBaseManager;
 import com.navercorp.pinpoint.collector.manage.HandlerManager;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
 
 /**
  * @author Taejin Koo
@@ -39,7 +39,7 @@ public class JMXCollectorManagerList {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
 
-    private boolean isActive;
+    private final boolean isActive;
 
     private final HandlerManager handlerManager;
 
@@ -65,9 +65,9 @@ public class JMXCollectorManagerList {
         
         List<CollectorManager> supportManagerList = new ArrayList<>();
 
-        ListUtils.addIfValueNotNull(supportManagerList, handlerManager);
-        ListUtils.addIfValueNotNull(supportManagerList, clusterManager);
-        ListUtils.addIfValueNotNull(supportManagerList, hBaseManager);
+        CollectionUtils.addIgnoreNull(supportManagerList, handlerManager);
+        CollectionUtils.addIgnoreNull(supportManagerList, clusterManager);
+        CollectionUtils.addIgnoreNull(supportManagerList, hBaseManager);
 
         return supportManagerList;
     }

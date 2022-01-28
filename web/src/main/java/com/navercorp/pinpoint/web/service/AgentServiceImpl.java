@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
@@ -163,7 +162,7 @@ public class AgentServiceImpl implements AgentService {
 
         Set<AgentInfo> agentInfos = agentInfoService.getRecentAgentsByApplicationName(applicationName, currentTime, timeDiff);
         for (AgentInfo agentInfo : agentInfos) {
-            ListUtils.addIfValueNotNull(agentInfoList, agentInfo);
+            org.apache.commons.collections4.CollectionUtils.addIgnoreNull(agentInfoList, agentInfo);
         }
         return agentInfoList;
     }
