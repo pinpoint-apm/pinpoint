@@ -1103,24 +1103,6 @@
                     <artifactId>maven-release-plugin</artifactId>
                     <version>3.0.0-M1</version>
                 </plugin>
-                <plugin>
-                    <groupId>com.cj.jshintmojo</groupId>
-                    <artifactId>jshint-maven-plugin</artifactId>
-                    <version>1.6.0</version>
-                    <configuration>
-                        <options>sub, boss, newcap, loopfunc</options>
-                        <globals></globals>
-                        <directories>
-                            <directory>src/main/webapp</directory>
-                        </directories>
-                        <excludes>
-                            <exclude>src/main/webapp/components</exclude>
-                        </excludes>
-                        <reporter>checkstyle</reporter>
-                        <reportFile>${project.build.directory}/jshint.xml</reportFile>
-                        <failOnError>false</failOnError>
-                    </configuration>
-                </plugin>
 
                 <!-- reporting -->
                 <plugin>
