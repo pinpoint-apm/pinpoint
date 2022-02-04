@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
@@ -38,8 +39,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author HyunGil Jeong
@@ -132,7 +135,13 @@ public class AgentInfoController {
             @RequestParam("agentId") String agentId,
             @RequestParam("eventTimestamp") long eventTimestamp,
             @RequestParam("eventTypeCode") int eventTypeCode) {
-        return this.agentEventService.getAgentEvent(agentId, eventTimestamp, eventTypeCode);
+
+        final AgentEventType eventType = AgentEventType.getTypeByCode(eventTypeCode);
+        if (eventType == null) {
+            throw new IllegalArgumentException("invalid eventTypeCode [" + eventTypeCode + "]");
+        }
+
+        return this.agentEventService.getAgentEvent(agentId, eventTimestamp, eventType);
     }
 
     @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
@@ -143,7 +152,19 @@ public class AgentInfoController {
             @RequestParam("to") long to,
             @RequestParam(value = "exclude", defaultValue = "") int[] excludeEventTypeCodes) {
         Range range = Range.newRange(from, to);
-        return this.agentEventService.getAgentEvents(agentId, range, excludeEventTypeCodes);
+        Set<AgentEventType> excludeEventTypes = getAgentEventTypes(excludeEventTypeCodes);
+        return this.agentEventService.getAgentEvents(agentId, range, excludeEventTypes);
+    }
+
+    private Set<AgentEventType> getAgentEventTypes(int[] excludeEventTypeCodes) {
+        Set<AgentEventType> excludeEventTypes = EnumSet.noneOf(AgentEventType.class);
+        for (int excludeEventTypeCode : excludeEventTypeCodes) {
+            AgentEventType excludeEventType = AgentEventType.getTypeByCode(excludeEventTypeCode);
+            if (excludeEventType != null) {
+                excludeEventTypes.add(excludeEventType);
+            }
+        }
+        return excludeEventTypes;
     }
 
     @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
