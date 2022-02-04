@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="com.navercorp.pinpoint.web.dao.hbase,
+                                            com.navercorp.pinpoint.web.service,
+                                            com.navercorp.pinpoint.web.mapper,
+                                            com.navercorp.pinpoint.web.applicationmap,
+                                            com.navercorp.pinpoint.common.server.bo">
+        <context:exclude-filter type="assignable" expression="com.navercorp.pinpoint.web.service.CacheServiceImpl"/>
+        <context:exclude-filter type="assignable" expression="com.navercorp.pinpoint.web.service.AgentServiceImpl"/>
+    </context:component-scan>
+
+    <bean id="slf4jCommonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Slf4jCommonLoggerFactory">
+    </bean>
+    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.server.util.ServerTraceMetadataLoaderService">
+        <constructor-arg index="0" ref="slf4jCommonLoggerFactory"/>
+    </bean>
+    <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultServiceTypeRegistryService">
+        <constructor-arg ref="typeLoaderService"/>
+    </bean>
+    <bean id="annotationKeyRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService">
+        <constructor-arg ref="typeLoaderService"/>
+    </bean>
+
+    <bean id="timeSlot" class="com.navercorp.pinpoint.common.server.util.DefaultTimeSlot"/>
+
+    <bean id="rangeFactory" class="com.navercorp.pinpoint.web.vo.RangeFactory"/>
+
+
+    <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory" factory-method="getDefaultInstance">
+    </bean>
+    <bean id="agentEventHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.AgentEventHeaderTBaseDeserializerFactory">
+    </bean>
+
+    <bean id="agentEventMessageDeserializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer">
+        <constructor-arg>
+            <list value-type="com.navercorp.pinpoint.thrift.io.DeserializerFactory">
+                <ref bean="commandHeaderTBaseDeserializerFactory"/>
+                <ref bean="agentEventHeaderTBaseDeserializerFactory"/>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="agentEventMessageDeserializerV1" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1"/>
+
+    <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory" factory-method="getDefaultInstance">
+    </bean>
+
+    <bean id="requestContextPropagatingTaskDecorator" class="com.navercorp.pinpoint.web.task.RequestContextPropagatingTaskDecorator"/>
+    <bean id="securityContextPropagatingTaskDecorator" class="com.navercorp.pinpoint.web.task.SecurityContextPropagatingTaskDecorator"/>
+    <bean id="contextPropagatingTaskDecorator" class="com.navercorp.pinpoint.web.task.ChainedTaskDecorator">
+        <constructor-arg>
+            <list>
+                <ref bean="requestContextPropagatingTaskDecorator"/>
+                <ref bean="securityContextPropagatingTaskDecorator"/>
+            </list>
+        </constructor-arg>
+    </bean>
+    <bean id="baseTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" abstract="true">
+        <property name="taskDecorator" ref="contextPropagatingTaskDecorator"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
+    </bean>
+    <bean id="applicationsMapCreateExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
+        <property name="corePoolSize" value="${web.servermap.creator.worker.threadSize:16}"/>
+        <property name="maxPoolSize" value="${web.servermap.creator.worker.threadSize:16}"/>
+        <property name="queueCapacity" value="${web.servermap.creator.worker.queueSize:1024}"/>
+        <property name="threadNamePrefix" value="Pinpoint-Link-Selector-"/>
+    </bean>
+
+    <bean id="nodeHistogramAppendExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
+        <property name="corePoolSize" value="${web.servermap.appender.worker.threadSize:16}"/>
+        <property name="maxPoolSize" value="${web.servermap.appender.worker.threadSize:16}"/>
+        <property name="queueCapacity" value="${web.servermap.appender.worker.queueSize:1024}"/>
+        <property name="threadNamePrefix" value="Pinpoint-Node-Histogram-Appender-"/>
+    </bean>
+    <bean id="serverInfoAppendExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
+        <property name="corePoolSize" value="${web.servermap.appender.worker.threadSize:16}"/>
+        <property name="maxPoolSize" value="${web.servermap.appender.worker.threadSize:16}"/>
+        <property name="queueCapacity" value="${web.servermap.appender.worker.queueSize:1024}"/>
+        <property name="threadNamePrefix" value="Pinpoint-Server-Info-Appender-"/>
+    </bean>
+
+    <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataDao"/>
+
+    <bean id="sqlMetaDataMapper" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
+        <constructor-arg ref="metadataRowKeyDistributor"/>
+    </bean>
+
+    <bean id="sqlMetaDataMapper2" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
+        <constructor-arg ref="metadataRowKeyDistributor2"/>
+    </bean>
+
+    <bean id="scatterChartConfig" class="com.navercorp.pinpoint.web.config.ScatterChartConfig"/>
+
+
+</beans>
