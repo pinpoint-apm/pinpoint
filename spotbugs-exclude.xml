@@ -1,20 +1,29 @@
-<FindBugsFilter>
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter
+        xmlns="https://github.com/spotbugs/filter/3.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/3.1.0/spotbugs/etc/findbugsfilter.xsd">
+    <!--
+        https://spotbugs.readthedocs.io/en/stable/filter.html#complete-example
+        https://github.com/undertow-io/undertow/blob/master/spotbugs-exclude.xml
+    -->
     <Match>
-        <Package name="~com\.navercorp\.pinpoint\.thrift\.dto.*" />
+        <Or>
+            <Package name="com.navercorp.pinpoint.thrift.dto.*" />
+            <Package name="com.navercorp.pinpoint.common.util.apache.*" />
+            <Package name="com.navercorp.pinpoint.bootstrap.util.spring.*" />
+            <Package name="com.navercorp.pinpoint.common.profiler.concurrent.jsr166.*" />
+            <Package name="com.navercorp.pinpoint.profiler.util.jdk.*" />
+            <Package name="com.navercorp.pinpoint.grpc.trace.*" />
+        </Or>
+    </Match>
+
+    <!-- Ignore EI_EXPOSE_REP -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP" />
     </Match>
     <Match>
-        <Package name="~com\.navercorp\.pinpoint\.common\.util\.apache.*" />
+        <Bug pattern="EI_EXPOSE_REP2" />
     </Match>
-    <Match>
-        <Package name="~com\.navercorp\.pinpoint\.bootstrap\.util\.spring.*" />
-    </Match>
-    <Match>
-        <Package name="~com\.navercorp\.pinpoint\.common\.profiler\.concurrent\.jsr166.*" />
-    </Match>
-    <Match>
-        <Package name="~com\.navercorp\.pinpoint\.profiler\.util\.jdk.*" />
-    </Match>
-    <Match>
-        <Package name="~com\.navercorp\.pinpoint\.grpc\.trace.*" />
-    </Match>
+
 </FindBugsFilter>
