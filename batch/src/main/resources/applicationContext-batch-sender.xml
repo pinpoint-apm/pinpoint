@@ -6,7 +6,7 @@
 
     <bean id="mailSender" class="com.navercorp.pinpoint.batch.alarm.SpringSmtpMailSender">
         <constructor-arg ref="batchConfiguration"/>
-        <constructor-arg ref="userGroupService"/>
+        <constructor-arg ref="userGroupServiceImpl"/>
         <constructor-arg ref="javaMailSenderImpl"/>
     </bean>
 

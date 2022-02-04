@@ -20,7 +20,8 @@
     <import resource="classpath:applicationContext-batch-common.xml"/>
     <import resource="classpath:applicationContext-batch-datasource.xml"/>
     <import resource="classpath:applicationContext-batch-dao-config.xml"/>
-    <import resource="classpath:applicationContext-batch-hbase.xml"/>
+    <import resource="classpath:applicationContext-web-hbase.xml"/>
+    <import resource="classpath:applicationContext-batch-web-component.xml"/>
     <import resource="classpath:applicationContext-batch-sender.xml"/>
     <import resource="classpath:applicationContext-batch-namespace.xml"/>
 

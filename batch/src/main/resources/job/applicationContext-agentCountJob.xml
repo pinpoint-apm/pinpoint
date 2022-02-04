@@ -48,5 +48,4 @@
         <constructor-arg index="2" ref="restTemplate"/>
     </bean>
 
-    <bean id="clusterManager" class="com.navercorp.pinpoint.batch.web.EmptyClusterManager"/>
 </beans>

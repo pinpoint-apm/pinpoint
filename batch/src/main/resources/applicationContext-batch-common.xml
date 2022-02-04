@@ -71,10 +71,10 @@
     <bean id="webhookDao" class="com.navercorp.pinpoint.web.dao.mysql.MysqlWebhookDao"/>
     <bean id="webhookSendInfoDao" class="com.navercorp.pinpoint.web.dao.mysql.MysqlWebhookSendInfoDao"/>
 
-    <bean id="userGroupService" class="com.navercorp.pinpoint.web.service.UserGroupServiceImpl"/>
-    <bean id="alarmService" class="com.navercorp.pinpoint.web.service.AlarmServiceImpl"/>
-    <bean id="userService" class="com.navercorp.pinpoint.web.service.UserServiceImpl"/>
+<!--    <bean id="userGroupService" class="com.navercorp.pinpoint.web.service.UserGroupServiceImpl"/>-->
+<!--    <bean id="alarmService" class="com.navercorp.pinpoint.web.service.AlarmServiceImpl"/>-->
+<!--    <bean id="userService" class="com.navercorp.pinpoint.web.service.UserServiceImpl"/>-->
 
-    <bean id="apiParserProvider" class="com.navercorp.pinpoint.common.server.trace.ApiParserProvider">
-    </bean>
+
+    <bean id="apiParserProvider" class="com.navercorp.pinpoint.common.server.trace.ApiParserProvider"/>
 </beans>
