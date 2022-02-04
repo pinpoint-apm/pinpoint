@@ -34,7 +34,6 @@ import org.springframework.stereotype.Service;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.PriorityQueue;
@@ -62,33 +61,29 @@ public class AgentEventServiceImpl implements AgentEventService {
     }
 
     @Override
-    public List<AgentEvent> getAgentEvents(String agentId, Range range, int... excludeEventTypeCodes) {
-        Objects.requireNonNull(agentId, "agentId");
+    public List<AgentEvent> getAgentEvents(String agentId, Range range) {
+        return getAgentEvents(agentId, range, Collections.emptySet());
+    }
 
-        Set<AgentEventType> excludeEventTypes = EnumSet.noneOf(AgentEventType.class);
-        for (int excludeEventTypeCode : excludeEventTypeCodes) {
-            AgentEventType excludeEventType = AgentEventType.getTypeByCode(excludeEventTypeCode);
-            if (excludeEventType != null) {
-                excludeEventTypes.add(excludeEventType);
-            }
-        }
-        List<AgentEventBo> agentEventBos = this.agentEventDao.getAgentEvents(agentId, range, excludeEventTypes);
+    @Override
+    public List<AgentEvent> getAgentEvents(String agentId, Range range, Set<AgentEventType> excludeEventTypeCodes) {
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(excludeEventTypeCodes, "excludeEventTypeCodes");
+
+        List<AgentEventBo> agentEventBos = this.agentEventDao.getAgentEvents(agentId, range, excludeEventTypeCodes);
         List<AgentEvent> agentEvents = createAgentEvents(agentEventBos);
         agentEvents.sort(AgentEvent.EVENT_TIMESTAMP_ASC_COMPARATOR);
         return agentEvents;
     }
 
     @Override
-    public AgentEvent getAgentEvent(String agentId, long eventTimestamp, int eventTypeCode) {
+    public AgentEvent getAgentEvent(String agentId, long eventTimestamp, AgentEventType eventType) {
         Objects.requireNonNull(agentId, "agentId");
         if (eventTimestamp < 0) {
             throw new IllegalArgumentException("eventTimeTimestamp must not be less than 0");
         }
+        Objects.requireNonNull(eventType, "eventType");
 
-        final AgentEventType eventType = AgentEventType.getTypeByCode(eventTypeCode);
-        if (eventType == null) {
-            throw new IllegalArgumentException("invalid eventTypeCode [" + eventTypeCode + "]");
-        }
         final boolean includeEventMessage = true;
         AgentEventBo agentEventBo = this.agentEventDao.getAgentEvent(agentId, eventTimestamp, eventType);
         if (agentEventBo != null) {
