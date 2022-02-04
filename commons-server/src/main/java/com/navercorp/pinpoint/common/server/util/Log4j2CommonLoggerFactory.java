@@ -27,25 +27,25 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class Slf4jCommonLoggerFactory implements CommonLoggerFactory {
+public class Log4j2CommonLoggerFactory implements CommonLoggerFactory {
 
     @Override
     public CommonLogger getLogger(String loggerName) {
         Logger logger = LogManager.getLogger(loggerName);
 
-        return new Sl4jCommonLogger(logger);
+        return new Log4j2CommonLogger(logger);
     }
 
 
-    private static class Sl4jCommonLogger implements CommonLogger {
+    private static class Log4j2CommonLogger implements CommonLogger {
 
         private final Logger logger;
 
         public static CommonLogger wrap(Logger logger) {
-            return new Sl4jCommonLogger(logger);
+            return new Log4j2CommonLogger(logger);
         }
 
-        private Sl4jCommonLogger(Logger logger) {
+        private Log4j2CommonLogger(Logger logger) {
             this.logger = Objects.requireNonNull(logger, "logger");
         }
 

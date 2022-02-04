@@ -13,10 +13,10 @@
         <context:exclude-filter type="assignable" expression="com.navercorp.pinpoint.web.service.AgentServiceImpl"/>
     </context:component-scan>
 
-    <bean id="slf4jCommonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Slf4jCommonLoggerFactory">
-    </bean>
+    <bean id="commonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Log4j2CommonLoggerFactory"/>
+
     <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.server.util.ServerTraceMetadataLoaderService">
-        <constructor-arg index="0" ref="slf4jCommonLoggerFactory"/>
+        <constructor-arg index="0" ref="commonLoggerFactory"/>
     </bean>
     <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultServiceTypeRegistryService">
         <constructor-arg ref="typeLoaderService"/>
