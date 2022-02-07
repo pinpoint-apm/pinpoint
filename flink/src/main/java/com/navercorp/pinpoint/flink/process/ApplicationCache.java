@@ -67,7 +67,7 @@ public class ApplicationCache {
             TableName tableName = tableNameProvider.getTableName(AGENTINFO_INFO.getTable());
             agentInfo = hbaseTemplate2.get(tableName, get, agentInfoMapper);
         } catch (Exception e) {
-            logger.error("can't found application id({})", agentId, e);
+            logger.error("can't found application id({}). {}", agentId, e.getMessage());
         }
 
         return getApplicationId(agentInfo, agentId);
