@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.pluginit.utils.SocketUtils;
 
 import io.grpc.Server;
-import io.grpc.ServerBuilder;
 import io.grpc.Status;
 import io.grpc.examples.manualflowcontrol.HelloReply;
 import io.grpc.examples.manualflowcontrol.HelloRequest;
@@ -29,6 +28,7 @@ import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.Future;
 
 import javax.annotation.PostConstruct;
@@ -59,7 +59,7 @@ public class HelloWorldStreamServer implements HelloWorldServer {
 
     public HelloWorldStreamServer() {
         this.workerExecutor = Executors.newCachedThreadPool();
-        this.eventExecutors = new NioEventLoopGroup(CpuUtils.cpuCount() + 5, workerExecutor);
+        this.eventExecutors = new NioEventLoopGroup(CpuUtils.cpuCount(), workerExecutor);
     }
 
     @PostConstruct
@@ -159,12 +159,12 @@ public class HelloWorldStreamServer implements HelloWorldServer {
 
         bindPort = SocketUtils.findAvailableTcpPort(27675);
 
-        ServerBuilder<?> serverBuilder = ServerBuilder.forPort(bindPort);
-        if (serverBuilder instanceof NettyServerBuilder) {
-            ((NettyServerBuilder) serverBuilder).bossEventLoopGroup(eventExecutors).workerEventLoopGroup(eventExecutors);
-        }
+        NettyServerBuilder serverBuilder = NettyServerBuilder.forPort(bindPort);
+        serverBuilder.bossEventLoopGroup(eventExecutors);
+        serverBuilder.workerEventLoopGroup(eventExecutors);
+        serverBuilder.channelType(NioServerSocketChannel.class);
+        serverBuilder.addService(svc);
         this.server = serverBuilder
-                .addService(svc)
                 .build()
                 .start();
     }
