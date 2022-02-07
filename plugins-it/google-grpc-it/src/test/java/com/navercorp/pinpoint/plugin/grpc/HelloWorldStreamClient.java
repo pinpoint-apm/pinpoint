@@ -17,9 +17,7 @@
 package com.navercorp.pinpoint.plugin.grpc;
 
 import com.navercorp.pinpoint.common.util.CpuUtils;
-
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.Metadata;
 import io.grpc.examples.manualflowcontrol.StreamingGreeterGrpc;
 import io.grpc.netty.NettyChannelBuilder;
@@ -28,6 +26,7 @@ import io.grpc.stub.ClientResponseObserver;
 import io.grpc.stub.MetadataUtils;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.Future;
 
 import java.util.Arrays;
@@ -67,12 +66,11 @@ public class HelloWorldStreamClient implements HelloWorldClient {
     }
 
     private static ManagedChannel newChannel(String host, int port, EventLoopGroup eventExecutors) {
-        ManagedChannelBuilder<?> builder = ManagedChannelBuilder.forAddress(host, port);
+        NettyChannelBuilder builder = NettyChannelBuilder.forAddress(host, port);
         BuilderUtils.usePlainText(builder);
 
-        if (builder instanceof NettyChannelBuilder) {
-            ((NettyChannelBuilder) builder).eventLoopGroup(eventExecutors);
-        }
+        builder.eventLoopGroup(eventExecutors);
+        builder.channelType(NioSocketChannel.class);
 
         builder.intercept(MetadataUtils.newCaptureMetadataInterceptor(new AtomicReference<Metadata>(), new AtomicReference<Metadata>()));
         return builder.build();
