@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.grpc;
 
-
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.test.plugin.Dependency;
@@ -31,9 +30,14 @@ import org.junit.runner.RunWith;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"io.grpc:grpc-all:[1.21.0,1.22.max]", PluginITConstants.VERSION})
+@Dependency({"io.grpc:grpc-all:[1.33.1,1.41.max]", PluginITConstants.VERSION})
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-grpc-plugin")
 @PinpointConfig("pinpoint-grpc-plugin-test.config")
-public class Grpc_1_21_0_to_IT extends GrpcITBase {
+public class Grpc_1_33_0_to_IT extends GrpcITBase {
+
+    @Override
+    protected int getExpectedRequestResponseTestTraceCount() {
+        return 9;
+    }
 
 }

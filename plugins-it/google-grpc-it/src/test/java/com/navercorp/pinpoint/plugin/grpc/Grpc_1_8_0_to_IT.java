@@ -31,8 +31,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"io.grpc:grpc-stub:[1.8.0,1.20.max]", "io.grpc:grpc-netty:[1.8.0]", "io.grpc:grpc-protobuf:[1.8.0]",
-        PluginITConstants.VERSION})
+@Dependency({"io.grpc:grpc-all:[1.8.0,1.20.max]", PluginITConstants.VERSION})
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-grpc-plugin")
 @PinpointConfig("pinpoint-grpc-plugin-test.config")
 public class Grpc_1_8_0_to_IT extends GrpcITBase {
