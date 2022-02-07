@@ -27,6 +27,11 @@
             </div>
         </section>
         <section class="l-main-section">
+            <ng-container *ngIf="isAccessDenyed$ | async">
+                <div class="l-cover">
+                    <img [src]="unAuthImgPath" class="l-auth-img">
+                </div>
+            </ng-container>
             <router-outlet></router-outlet>
         </section>
     </div>

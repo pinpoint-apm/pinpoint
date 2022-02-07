@@ -77,9 +77,11 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
                         filter((res: {[key: string]: IServerAndAgentData[]} | IServerErrorShortFormat) => {
                             if (isThatType<IServerErrorShortFormat>(res, 'errorCode', 'errorMessage')) {
                                 this.errorMessage = res.errorMessage;
+                                this.messageQueueService.sendMessage({to: MESSAGE_TO.IS_ACCESS_DENYED, param: true});
                                 return false;
                             } else {
                                 this.errorMessage = '';
+                                this.messageQueueService.sendMessage({to: MESSAGE_TO.IS_ACCESS_DENYED, param: false});
                                 return true;
                             }
                         }),

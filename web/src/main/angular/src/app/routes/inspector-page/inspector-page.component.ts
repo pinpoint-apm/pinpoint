@@ -3,7 +3,7 @@ import { state, style, animate, transition, trigger } from '@angular/animations'
 import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService, WebAppSettingDataService } from 'app/shared/services';
+import { NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService, WebAppSettingDataService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { UrlPathId } from 'app/shared/models';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { InspectorPageService } from './inspector-page.service';
@@ -36,8 +36,10 @@ export class InspectorPageComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
 
     sideNavigationUI: boolean;
+    unAuthImgPath: string;
 
     showSideMenu$: Observable<boolean>;
+    isAccessDenyed$: Observable<boolean>;
 
     constructor(
         private inspectorPageService: InspectorPageService,
@@ -47,16 +49,19 @@ export class InspectorPageComponent implements OnInit, OnDestroy {
         private componentFactoryResolver: ComponentFactoryResolver,
         private injector: Injector,
         private webAppSettingDataService: WebAppSettingDataService,
+        private messageQueueService: MessageQueueService,
     ) {}
 
     ngOnInit() {
         this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
+        this.unAuthImgPath = this.webAppSettingDataService.getServerMapIconPathMakeFunc()('UNAUTHORIZED');
 
         this.showSideMenu$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             map((urlService: NewUrlStateNotificationService) => {
                 return urlService.isRealTimeMode() || urlService.hasValue(UrlPathId.END_TIME);
             })
         );
+        this.isAccessDenyed$ = this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.IS_ACCESS_DENYED);
         this.inspectorPageService.activate(this.unsubscribe);
     }
 
