@@ -34,7 +34,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"com.oracle.database.jdbc:ojdbc6:(,)", JDBCTestConstants.VERSION, OracleITConstants.ORACLE_TESTCONTAINER})
+@Dependency({"com.oracle.database.jdbc:ojdbc6:(,)", JDBCTestConstants.VERSION, OracleITConstants.ORACLE_TESTCONTAINER_15_3})
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-oracle-jdbc-driver-plugin")
 public class Oracle11_Ojdbc6_IT extends Oracle_IT_Base {
     private static final Logger logger = LogManager.getLogger(Oracle11_Ojdbc6_IT.class);
