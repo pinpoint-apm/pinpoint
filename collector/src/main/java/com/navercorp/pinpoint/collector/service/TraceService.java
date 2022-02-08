@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.Logger;
@@ -210,7 +211,7 @@ public class TraceService {
                 continue;
             }
 
-            final String spanEventApplicationName = spanEvent.getDestinationId();
+            final String spanEventApplicationName = normalize(spanEvent.getDestinationId(), spanEventType);
             final String spanEventEndPoint = spanEvent.getEndPoint();
 
             // if terminal update statistics
@@ -232,6 +233,16 @@ public class TraceService {
             // save the information of callee (the span that spanevent called)
             statisticsService.updateCallee(spanEventApplicationName, spanEventType, applicationId, applicationServiceType, endPoint, elapsed, hasException);
         }
+    }
+
+    private String normalize(String spanEventApplicationName, ServiceType spanEventType) {
+        if (spanEventType.getCategory() == ServiceTypeCategory.DATABASE) {
+            // empty database id
+            if (spanEventApplicationName == null) {
+                return "UNKNWON_DATABASE";
+            }
+        }
+        return spanEventApplicationName;
     }
 
     private boolean isAlias(ServiceType spanEventType, SpanEventBo forDebugEvent) {
