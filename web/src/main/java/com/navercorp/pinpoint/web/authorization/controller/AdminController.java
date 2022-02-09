@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.controller;
+package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.web.service.AdminService;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,13 +33,10 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @RestController
-@PreAuthorize("hasPermission(null, null, T(com.navercorp.pinpoint.web.controller.AdminController).CALL_API_FOR_APP_AGENT_MANAGEMENT)")
 @RequestMapping("/admin")
 public class AdminController {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-
-    public final static String CALL_API_FOR_APP_AGENT_MANAGEMENT = "permission_administration_callApiForAppAgentManagement";
 
     private final AdminService adminService;
 

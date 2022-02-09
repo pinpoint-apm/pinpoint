@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.controller;
+package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
@@ -33,7 +33,6 @@ import com.navercorp.pinpoint.web.vo.CodeResult;
 import com.navercorp.pinpoint.web.vo.DefaultAgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -77,7 +76,6 @@ public class AgentInfoController {
         return this.agentInfoService.getAllApplicationAgentsList(filter, timestamp);
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/getAgentList", params = {"!application", "timestamp"})
     public ApplicationAgentsList getAgentList(
             @RequestParam("timestamp") long timestamp) {
@@ -90,7 +88,6 @@ public class AgentInfoController {
         return getAgentList(applicationName, timestamp);
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/getAgentList", params = {"application", "from", "to"})
     public ApplicationAgentsList getAgentList(
             @RequestParam("application") String applicationName,
@@ -104,7 +101,6 @@ public class AgentInfoController {
         return this.agentInfoService.getApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, containerFilter, applicationName, timestamp);
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/getAgentList", params = {"application", "timestamp"})
     public ApplicationAgentsList getAgentList(
             @RequestParam("application") String applicationName,
@@ -144,7 +140,6 @@ public class AgentInfoController {
         return this.agentEventService.getAgentEvent(agentId, eventTimestamp, eventType);
     }
 
-    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
     @GetMapping(value = "/getAgentEvents")
     public List<AgentEvent> getAgentEvents(
             @RequestParam("agentId") String agentId,
@@ -167,7 +162,6 @@ public class AgentInfoController {
         return excludeEventTypes;
     }
 
-    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
     @GetMapping(value = "/getAgentStatusTimeline")
     public InspectorTimeline getAgentStatusTimeline(
             @RequestParam("agentId") String agentId,
@@ -177,7 +171,6 @@ public class AgentInfoController {
         return agentInfoService.getAgentStatusTimeline(agentId, range);
     }
 
-    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
     @GetMapping(value = "/getAgentStatusTimeline", params = {"exclude"})
     public InspectorTimeline getAgentStatusTimeline(
             @RequestParam("agentId") String agentId,
@@ -214,5 +207,7 @@ public class AgentInfoController {
 
         return new CodeResult(-1, "can't find suitable download url");
     }
+
+
 
 }

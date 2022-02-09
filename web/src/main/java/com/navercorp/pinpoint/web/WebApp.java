@@ -36,7 +36,7 @@ public class WebApp  {
 
     public static void main(String[] args) {
         try {
-            WebStarter starter = new WebStarter(WebApp.class, PinpointBasicLoginConfig.class);
+            WebStarter starter = new WebStarter(WebApp.class, PinpointBasicLoginConfig.class, AuthorizationConfig.class);
             starter.start(args);
         } catch (Exception exception) {
             logger.error("[WebApp] could not launch app.", exception);
