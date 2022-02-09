@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.controller;
+package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.web.service.stat.ApplicationActiveTraceService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationCpuLoadService;
@@ -32,7 +32,6 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,7 +43,7 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-public class ApplicationStatController {
+public abstract class ApplicationStatController {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -54,7 +53,6 @@ public class ApplicationStatController {
         this.applicationStatChartService = Objects.requireNonNull(applicationStatChartService, "applicationStatChartService");
     }
 
-    @PreAuthorize("hasPermission(#applicationId, 'application', 'inspector')")
     @GetMapping()
     public StatChart getAgentStatChart(@RequestParam("applicationId") String applicationId, @RequestParam("from") long from, @RequestParam("to") long to) {
         TimeWindowSlotCentricSampler sampler = new TimeWindowSlotCentricSampler();
