@@ -77,21 +77,4 @@
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>m2e</id>
-            <activation>
-                <property>
-                    <name>m2e.version</name>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>com.navercorp.pinpoint</groupId>
-                    <artifactId>pinpoint-plugins-assembly</artifactId>
-                    <type>pom</type>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
 </project>
