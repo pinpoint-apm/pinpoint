@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.pluginit.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.JvmArgument;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
@@ -65,6 +66,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(7)
+@JvmArgument("-XX:MaxPermSize=768m")
 @Dependency({"io.netty:netty-all:[4.1.0.Final,4.1.max]", WebServer.VERSION, PluginITConstants.VERSION})
 @PinpointConfig("pinpoint-netty-plugin-test.config")
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-netty-plugin"})
