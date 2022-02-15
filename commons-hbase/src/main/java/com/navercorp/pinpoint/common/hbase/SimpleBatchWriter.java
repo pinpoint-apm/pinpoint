@@ -6,5 +6,5 @@ import org.apache.hadoop.hbase.client.Put;
 
 public interface SimpleBatchWriter {
 
-    void write(TableName tableName, Put mutation);
+    boolean write(TableName tableName, Put mutation);
 }

@@ -24,11 +24,11 @@ public class DelegateSimpleBatchWriter implements SimpleBatchWriter {
 
 
     @Override
-    public void write(TableName tableName, Put put) {
+    public boolean write(TableName tableName, Put put) {
         if (batchWriter) {
-            hbaseBatchWriter.write(tableName, put);
+            return hbaseBatchWriter.write(tableName, put);
         } else {
-            hbaseTemplate.asyncPut(tableName, put);
+            return hbaseTemplate.asyncPut(tableName, put);
         }
     }
 }

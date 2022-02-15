@@ -71,7 +71,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
     }
 
     @Override
-    public void insert(final SpanBo spanBo) {
+    public boolean insert(final SpanBo spanBo) {
         Objects.requireNonNull(spanBo, "spanBo");
         if (logger.isDebugEnabled()) {
             logger.debug("insert trace: {}", spanBo);
@@ -91,7 +91,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
         this.spanSerializer.serialize(spanBo, put, null);
 
         TableName traceTableName = tableNameProvider.getTableName(descriptor.getTable());
-        writer.write(traceTableName, put);
+        return writer.write(traceTableName, put);
     }
 
     @Override
