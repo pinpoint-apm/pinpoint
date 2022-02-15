@@ -14,7 +14,6 @@ import org.apache.hadoop.hbase.client.BufferedMutatorUtils;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.DisposableBean;
@@ -27,7 +26,6 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -68,13 +66,13 @@ public class BufferedMutatorWriter implements DisposableBean, HbaseBatchWriter {
     private ExecutorService newExecutorService() {
         ThreadFactory factory = PinpointThreadFactory.createThreadFactory("BufferedMutatorWriter");
         final ThreadPoolExecutor pool = ExecutorFactory.newFixedThreadPool(CpuUtils.cpuCount(), 1024, factory);
-        pool.setRejectedExecutionHandler(new RejectedExecutionHandler() {
-            @Override
-            public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-                // error log
-                logger.warn("Async batch job rejected job:{} ", r);
-            }
-        });
+//        pool.setRejectedExecutionHandler(new RejectedExecutionHandler() {
+//            @Override
+//            public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+//                // error log
+//                logger.warn("Async batch job rejected job:{} ", r);
+//            }
+//        });
         return pool;
     }
 
@@ -84,33 +82,12 @@ public class BufferedMutatorWriter implements DisposableBean, HbaseBatchWriter {
         params.setWriteBufferPeriodicFlushTimeoutMs(configuration.getWriteBufferPeriodicFlushTimerTickMs());
         params.setWriteBufferPeriodicFlushTimerTickMs(configuration.getWriteBufferPeriodicFlushTimerTickMs());
         params.pool(this.sharedPool);
-
-        params.listener(new BufferedMutator.ExceptionListener() {
-            @Override
-            public void onException(RetriesExhaustedWithDetailsException e, BufferedMutator bufferedMutator) throws RetriesExhaustedWithDetailsException {
-
-                errorCounter.increment();
-                // fail count
-                TableName tableName = bufferedMutator.getName();
-                int numExceptions = e.getNumExceptions();
-                if (e.mayHaveClusterIssues()) {
-                    String hosts = HBaseExceptionUtils.getErrorHost(e);
-                    logger.warn("Batch write error(mayHaveClusterIssues) {} numExceptions:{} {}", tableName, numExceptions, hosts);
-                } else {
-                    logger.warn("Batch write error {} numExceptions:{}", tableName, numExceptions);
-                }
-                if (logger.isDebugEnabled()) {
-                    String exhaustiveDescription = e.getExhaustiveDescription();
-                    logger.debug("ExhaustiveDescription {}", exhaustiveDescription);
-                }
-            }
-
-        });
+//        params.listener(this::onException);
         return params;
     }
 
     @Override
-    public void write(TableName tableName, List<? extends Mutation> mutations) {
+    public boolean write(TableName tableName, List<? extends Mutation> mutations) {
         Objects.requireNonNull(tableName, "tableName");
 
         final BufferedMutatorImpl mutator = getBufferedMutator(tableName);
@@ -118,15 +95,37 @@ public class BufferedMutatorWriter implements DisposableBean, HbaseBatchWriter {
         final long currentWriteBufferSize = BufferedMutatorUtils.getCurrentWriteBufferSize(mutator);
         if (currentWriteBufferSize > configuration.getWriteBufferHeapLimit()) {
             this.errorCounter.increment();
-            return;
+            return false;
         }
         try {
             mutator.mutate(mutations);
             this.successCounter.increment();
             autoFlush(mutator);
-        } catch (IOException e) {
+            return true;
+        } catch (RetriesExhaustedWithDetailsException re) {
+            onException(re, mutator);
+            return false;
+        } catch (InterruptedIOException e) {
             this.errorCounter.increment();
-            throw new HbaseSystemException(e);
+            return false;
+        }
+    }
+
+    public void onException(RetriesExhaustedWithDetailsException e, BufferedMutator bufferedMutator) {
+        // fail count
+        TableName tableName = bufferedMutator.getName();
+
+        final int numExceptions = e.getNumExceptions();
+        this.errorCounter.add(numExceptions);
+        if (e.mayHaveClusterIssues()) {
+            String hosts = HBaseExceptionUtils.getErrorHost(e);
+            logger.warn("Batch write error(mayHaveClusterIssues) {} numExceptions:{} {}", tableName, numExceptions, hosts);
+        } else {
+            logger.warn("Batch write error {} numExceptions:{}", tableName, numExceptions);
+        }
+        if (logger.isDebugEnabled()) {
+            String exhaustiveDescription = e.getExhaustiveDescription();
+            logger.debug("ExhaustiveDescription {}", exhaustiveDescription);
         }
     }
 
@@ -154,11 +153,11 @@ public class BufferedMutatorWriter implements DisposableBean, HbaseBatchWriter {
     }
 
     @Override
-    public void write(TableName tableName, Mutation mutation) {
+    public boolean write(TableName tableName, Mutation mutation) {
         Objects.requireNonNull(tableName, "tableName");
         Objects.requireNonNull(mutation, "mutation");
 
-        write(tableName, Collections.singletonList(mutation));
+        return write(tableName, Collections.singletonList(mutation));
     }
 
     private class MutatorFactory implements Function<TableName, BufferedMutatorImpl> {
