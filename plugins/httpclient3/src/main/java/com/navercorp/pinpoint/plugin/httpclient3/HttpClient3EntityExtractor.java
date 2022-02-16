@@ -49,9 +49,8 @@ public class HttpClient3EntityExtractor implements EntityExtractor<HttpMethod> {
                 try {
                     String entityValue;
                     String charSet = entityEnclosingMethod.getRequestCharSet();
-                    if (StringUtils.isEmpty(charSet)) {
-                        charSet = HttpConstants.DEFAULT_CONTENT_CHARSET;
-                    }
+                    charSet = StringUtils.defaultIfEmpty(charSet, HttpConstants.DEFAULT_CONTENT_CHARSET);
+
                     if (entity instanceof ByteArrayRequestEntity || entity instanceof StringRequestEntity) {
                         entityValue = entityUtilsToString(entity, charSet);
                     } else {

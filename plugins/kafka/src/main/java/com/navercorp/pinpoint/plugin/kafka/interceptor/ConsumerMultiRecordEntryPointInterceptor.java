@@ -123,9 +123,8 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
 
                 String endPointAddress = consumerRecordsDesc.getEndPointAddress();
                 String remoteAddress = consumerRecordsDesc.getRemoteAddress();
-                if (StringUtils.isEmpty(endPointAddress)) {
-                    endPointAddress = remoteAddress;
-                }
+                endPointAddress = StringUtils.defaultIfEmpty(endPointAddress, remoteAddress);
+
                 recorder.recordEndPoint(endPointAddress);
                 recorder.recordRemoteAddress(remoteAddress);
                 recorder.recordAcceptorHost(remoteAddress);

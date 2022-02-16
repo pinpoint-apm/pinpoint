@@ -62,9 +62,7 @@ public class ConsumerPollInterceptor implements AroundInterceptor {
         }
 
         String remoteAddress = ((RemoteAddressFieldAccessor) target)._$PINPOINT$_getRemoteAddress();
-        if (StringUtils.isEmpty(remoteAddress)) {
-            remoteAddress = KafkaConstants.UNKNOWN;
-        }
+        remoteAddress = StringUtils.defaultIfEmpty(remoteAddress, KafkaConstants.UNKNOWN);
 
         if (result instanceof ConsumerRecords) {
             Iterator consumerRecordIterator = ((ConsumerRecords) result).iterator();

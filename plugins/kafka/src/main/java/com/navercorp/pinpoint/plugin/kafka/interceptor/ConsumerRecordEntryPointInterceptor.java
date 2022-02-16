@@ -167,9 +167,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
 
                 String endPointAddress = getEndPointAddress(consumerRecord);
                 String remoteAddress = getRemoteAddress(consumerRecord);
-                if (StringUtils.isEmpty(endPointAddress)) {
-                    endPointAddress = remoteAddress;
-                }
+                endPointAddress = StringUtils.defaultIfEmpty(endPointAddress, remoteAddress);
 
                 recorder.recordEndPoint(endPointAddress);
                 recorder.recordRemoteAddress(remoteAddress);
@@ -202,11 +200,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
                     remoteAddress = ((RemoteAddressFieldAccessor) remoteAddressFieldAccessor)._$PINPOINT$_getRemoteAddress();
                 }
 
-                if (StringUtils.isEmpty(remoteAddress)) {
-                    return KafkaConstants.UNKNOWN;
-                } else {
-                    return remoteAddress;
-                }
+                return StringUtils.defaultIfEmpty(remoteAddress, KafkaConstants.UNKNOWN);
             }
 
             private String createRpcName(ConsumerRecord consumerRecord) {

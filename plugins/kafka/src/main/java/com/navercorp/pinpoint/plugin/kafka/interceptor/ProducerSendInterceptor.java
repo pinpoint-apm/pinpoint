@@ -137,11 +137,7 @@ public class ProducerSendInterceptor implements AroundInterceptor {
             remoteAddress = ((RemoteAddressFieldAccessor) remoteAddressFieldAccessor)._$PINPOINT$_getRemoteAddress();
         }
 
-        if (StringUtils.isEmpty(remoteAddress)) {
-            return KafkaConstants.UNKNOWN;
-        } else {
-            return remoteAddress;
-        }
+        return StringUtils.defaultIfEmpty(remoteAddress, KafkaConstants.UNKNOWN);
     }
 
 }

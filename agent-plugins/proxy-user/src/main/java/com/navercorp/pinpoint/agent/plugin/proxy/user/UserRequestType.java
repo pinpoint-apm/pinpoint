@@ -35,10 +35,7 @@ public class UserRequestType implements ProxyRequestType {
 
     @Override
     public String getDisplayName(String name) {
-        if (StringUtils.isEmpty(name)) {
-            return DEFAULT_DISPLAY_NAME;
-        }
-        return name;
+        return StringUtils.defaultIfEmpty(name, DEFAULT_DISPLAY_NAME);
     }
 
     @Override

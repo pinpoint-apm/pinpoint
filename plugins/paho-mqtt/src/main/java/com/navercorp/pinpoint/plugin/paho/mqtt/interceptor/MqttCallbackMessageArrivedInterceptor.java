@@ -100,11 +100,7 @@ public abstract class MqttCallbackMessageArrivedInterceptor extends SpanRecursiv
             brokerUri = ((BrokerUriFieldAccessor) target)._$PINPOINT$_getBrokerUri();
         }
 
-        if (StringUtils.isEmpty(brokerUri)) {
-            return UNKNOWN;
-        } else {
-            return brokerUri;
-        }
+        return StringUtils.defaultIfEmpty(brokerUri, UNKNOWN);
     }
 
 }

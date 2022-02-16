@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.hbase.manager;
 
 import com.navercorp.pinpoint.hbase.manager.logging.Markers;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;

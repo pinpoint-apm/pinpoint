@@ -217,10 +217,7 @@ public class RabbitMQConsumerHandleCompleteInboundCommandInterceptor implements 
         recorder.recordEndPoint(endPoint);
         recorder.recordRemoteAddress(remoteAddress);
 
-        String convertedExchange = exchange;
-        if (StringUtils.isEmpty(convertedExchange)) {
-            convertedExchange = RabbitMQClientConstants.UNKNOWN;
-        }
+        String convertedExchange = StringUtils.defaultIfEmpty(exchange, RabbitMQClientConstants.UNKNOWN);
         recorder.recordRpcName("rabbitmq://exchange=" + convertedExchange);
         recorder.recordAcceptorHost("exchange-" + convertedExchange);
         if (isDebug) {
