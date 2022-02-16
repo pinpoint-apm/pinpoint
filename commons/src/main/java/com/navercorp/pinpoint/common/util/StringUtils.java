@@ -37,6 +37,10 @@ public final class StringUtils {
         return str == null ? defaultStr : str;
     }
 
+    public static String defaultIfEmpty(final String str, final String defaultStr) {
+        return isEmpty(str) ? defaultStr : str;
+    }
+
     public static boolean isEmpty(final String string) {
         return string == null || string.isEmpty();
     }
