@@ -40,10 +40,10 @@ public class ActiveMQClientPluginConfig {
         this.traceActiveMQClientProducer = config.readBoolean("profiler.activemq.client.producer.enable", true);
         this.traceActiveMQClientConsumer = config.readBoolean("profiler.activemq.client.consumer.enable", true);
         this.traceActiveMQTextMessage = config.readBoolean("profiler.activemq.client.trace.message", false);
+
         String excludeDestinationPathSeparator = config.readString("profiler.activemq.client.destination.separator", DEFAULT_DESTINATION_PATH_SEPARATOR);
-        if (StringUtils.isEmpty(excludeDestinationPathSeparator)) {
-            excludeDestinationPathSeparator = DEFAULT_DESTINATION_PATH_SEPARATOR;
-        }
+        excludeDestinationPathSeparator = StringUtils.defaultIfEmpty(excludeDestinationPathSeparator, DEFAULT_DESTINATION_PATH_SEPARATOR);
+
         String excludeDestinations = config.readString("profiler.activemq.client.destination.exclude", "");
         if (!excludeDestinations.isEmpty()) {
             this.excludeDestinationFilter = new ExcludePathFilter(excludeDestinations, excludeDestinationPathSeparator);

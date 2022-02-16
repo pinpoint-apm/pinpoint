@@ -88,9 +88,7 @@ public class CubridJdbcUrlParser implements JdbcUrlParserV2 {
 
 //        String resolvedUrl;
 
-        if (StringUtils.isEmpty(host)) {
-            host = DEFAULT_HOSTNAME;
-        }
+        host = StringUtils.defaultIfEmpty(host, DEFAULT_HOSTNAME);
 
 //        if (portString == null || portString.length() == 0) {
 //            port = DEFAULT_PORT;
@@ -101,10 +99,7 @@ public class CubridJdbcUrlParser implements JdbcUrlParserV2 {
 //                logger.info("cubrid portString parsing fail. portString:{}, url:{}", portString, jdbcUrl);
 //            }
 //        }
-
-        if (user == null) {
-            user = DEFAULT_USER;
-        }
+        user = StringUtils.defaultString(user, DEFAULT_USER);
 
 //        if (pass == null) {
 //            pass = DEFAULT_PASSWORD;

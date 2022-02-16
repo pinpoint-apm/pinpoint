@@ -221,10 +221,8 @@ public class RabbitMQConsumerDispatchInterceptor implements AroundInterceptor {
         recorder.recordEndPoint(endPoint);
         recorder.recordRemoteAddress(remoteAddress);
 
-        String exchange = envelope.getExchange();
-        if (StringUtils.isEmpty(exchange)) {
-            exchange = RabbitMQClientConstants.UNKNOWN;
-        }
+        String exchange = StringUtils.defaultIfEmpty(envelope.getExchange(), RabbitMQClientConstants.UNKNOWN);
+
         recorder.recordRpcName("rabbitmq://exchange=" + exchange);
         recorder.recordAcceptorHost("exchange-" + exchange);
         if (isDebug) {

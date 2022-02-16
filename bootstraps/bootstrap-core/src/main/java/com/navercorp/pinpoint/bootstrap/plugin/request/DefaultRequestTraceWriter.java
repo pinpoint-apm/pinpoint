@@ -49,11 +49,7 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
 
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serverTypeCode = serverTypeCode;
-        if (StringUtils.isEmpty(applicationNamespace)) {
-            this.applicationNamespace = NOT_SET;
-        } else {
-            this.applicationNamespace = applicationNamespace;
-        }
+        this.applicationNamespace = StringUtils.defaultIfEmpty(applicationNamespace, NOT_SET);
     }
 
     @Override

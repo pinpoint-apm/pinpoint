@@ -73,9 +73,8 @@ public class MySqlJdbcUrlParser implements JdbcUrlParserV2 {
         List<String> hostList = parseHost(host);
 
         String databaseId = maker.next().after('/').before('?').value();
-        if (StringUtils.isEmpty((databaseId))) {
-            databaseId = EMPTY_DATABASE;
-        }
+        databaseId = StringUtils.defaultIfEmpty(databaseId, EMPTY_DATABASE);
+
         String normalizedUrl = maker.clear().before('?').value();
         
         return new DefaultDatabaseInfo(MySqlConstants.MYSQL, MySqlConstants.MYSQL_EXECUTE_QUERY, jdbcUrl, normalizedUrl, hostList, databaseId);

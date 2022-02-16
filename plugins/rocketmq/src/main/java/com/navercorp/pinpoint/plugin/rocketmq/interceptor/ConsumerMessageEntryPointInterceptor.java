@@ -144,9 +144,7 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
                 if (msgs.size() == 1) {
                     acceptorHost = messageExt.getUserProperty(RocketMQConstants.ACCEPTOR_HOST);
                 }
-                if (StringUtils.isEmpty(acceptorHost)) {
-                    acceptorHost = RocketMQConstants.UNKNOWN;
-                }
+                acceptorHost = StringUtils.defaultIfEmpty(acceptorHost, RocketMQConstants.UNKNOWN);
 
                 recorder.recordRemoteAddress(acceptorHost);
                 recorder.recordAcceptorHost(acceptorHost);

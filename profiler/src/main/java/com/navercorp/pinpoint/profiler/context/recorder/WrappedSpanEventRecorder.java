@@ -95,18 +95,11 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
             }
         }
 
-        String output = defaultString2(parsingResult.getOutput(), null);
-        bindValue = defaultString2(bindValue, null);
+        String output = StringUtils.defaultIfEmpty(parsingResult.getOutput(), null);
+        bindValue = StringUtils.defaultIfEmpty(bindValue, null);
         final IntStringStringValue sqlValue = new IntStringStringValue(parsingResult.getId(), output, bindValue);
 
         recordSqlParam(sqlValue);
-    }
-
-    private String defaultString2(String string, String defaultString) {
-        if (StringUtils.isEmpty(string)) {
-            return defaultString;
-        }
-        return string;
     }
 
     private void recordSqlParam(IntStringStringValue intStringStringValue) {
