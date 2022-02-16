@@ -41,6 +41,15 @@ public class StringUtilsTest {
     }
 
     @Test
+    public void defaultIfEmpty() {
+        Assert.assertNull(StringUtils.defaultIfEmpty("", null));
+        Assert.assertEquals(StringUtils.defaultIfEmpty("", shortString), shortString);
+        Assert.assertEquals(StringUtils.defaultIfEmpty(shortString, null), shortString);
+        Assert.assertEquals(StringUtils.defaultIfEmpty(shortString, shortString), shortString);
+    }
+
+
+    @Test
     public void toStringTest() {
         int[] array = {0, 1};
 
