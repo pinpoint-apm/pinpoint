@@ -103,7 +103,17 @@ public abstract class CallStackTest {
         callStack.pop();
         assertNull(callStack.pop());
     }
-    
+
+    @Test
+    public void newInstance() {
+        CallStack<SpanEvent> callStack = newCallStack(0);
+        SpanEvent spanEvent1 = callStack.newInstance();
+        callStack.push(spanEvent1);
+
+        SpanEvent spanEvent2 = callStack.newInstance();
+        Assert.assertTrue(callStack.getFactory().isDummy(spanEvent2));
+    }
+
     @Test
     public void overflow() {
         final int maxDepth = 3;

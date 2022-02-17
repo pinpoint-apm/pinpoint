@@ -166,6 +166,15 @@ public class DefaultCallStack<T> implements CallStack<T> {
     }
 
     @Override
+    public T newInstance() {
+        if (isOverflow()) {
+            return factory.dummyInstance();
+        } else {
+            return factory.newInstance();
+        }
+    }
+
+    @Override
     public Factory<T> getFactory() {
         return factory;
     }

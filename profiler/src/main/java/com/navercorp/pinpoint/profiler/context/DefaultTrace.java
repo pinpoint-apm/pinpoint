@@ -273,7 +273,7 @@ public final class DefaultTrace implements Trace {
     }
 
     private SpanEvent newSpanEvent(int stackId) {
-        final SpanEvent spanEvent = callStack.getFactory().newInstance();
+        final SpanEvent spanEvent = callStack.newInstance();
         spanEvent.markStartTime();
         spanEvent.setStackId(stackId);
         return spanEvent;
