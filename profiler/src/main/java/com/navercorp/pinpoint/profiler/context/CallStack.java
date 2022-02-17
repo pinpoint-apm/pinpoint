@@ -36,6 +36,8 @@ public interface CallStack<T> {
 
     int getMaxSequence();
 
+    T newInstance();
+
     Factory<T> getFactory();
 
     interface Factory<T> {
