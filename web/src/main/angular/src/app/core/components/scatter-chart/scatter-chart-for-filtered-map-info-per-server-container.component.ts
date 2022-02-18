@@ -70,9 +70,11 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
     ) {}
 
     ngOnInit() {
-        const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
+        this.webAppSettingDataService.getExperimentalConfiguration().subscribe(configutaion => {
+            const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
+            this.enableServerSideScan = enableServerSideScan === null ? configutaion.enableServerSideScanForScatter.value : enableServerSideScan;            
+        });
 
-        this.enableServerSideScan = enableServerSideScan === null ? true : enableServerSideScan;
         this.setScatterY();
         forkJoin(
             this.translateService.get('COMMON.NO_DATA'),

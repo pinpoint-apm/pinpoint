@@ -28,9 +28,12 @@ export class StateButtonForTransactionListContainerComponent implements OnInit, 
     ) {}
 
     ngOnInit() {
-        const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
+        this.webAppSettingDataService.getExperimentalConfiguration().subscribe(configutaion => {
+            const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
+            this.enableServerSideScan = enableServerSideScan === null ? configutaion.enableServerSideScanForScatter.value : enableServerSideScan;            
+        });
 
-        this.enableServerSideScan = enableServerSideScan === null ? true : enableServerSideScan;
+        
         this.showCountInfo = !this.enableServerSideScan;
         this.transactionMetaDataService.onTransactionDataCount$.pipe(
             takeUntil(this.unsubscribe)

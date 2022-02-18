@@ -48,9 +48,10 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
     ) {}
 
     ngOnInit() {
-        const sampleScatter = this.webAppSettingDataService.getExperimentalOption('scatterSampling');
-
-        this.sampleScatter = sampleScatter === null ? true : sampleScatter;
+        this.webAppSettingDataService.getExperimentalConfiguration().subscribe(configutaion => {
+            const sampleScatter = this.webAppSettingDataService.getExperimentalOption('scatterSampling');
+            this.sampleScatter = sampleScatter === null ? configutaion.sampleScatter.value : sampleScatter;            
+        });
     }
 
     ngOnChanges(changes: SimpleChanges) {

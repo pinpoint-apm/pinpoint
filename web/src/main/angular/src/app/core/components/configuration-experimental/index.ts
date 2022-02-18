@@ -13,6 +13,5 @@ import { ConfigurationExperimentalContainerComponent } from './configuration-exp
     exports: [
         ConfigurationExperimentalContainerComponent
     ],
-    providers: []
 })
 export class ConfigurationExperimentalModule { }

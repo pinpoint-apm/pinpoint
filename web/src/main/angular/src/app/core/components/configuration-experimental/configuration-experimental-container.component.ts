@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 
-import { AnalyticsService, TRACKED_EVENT_LIST, UrlRouteManagerService, WebAppSettingDataService } from 'app/shared/services';
+import { AnalyticsService, ExperimentalConfiguration, ExperimentalConfigurationKeyType, 
+    ExperimentalConfigurationLocalStorageKey, ExperimentalConfigurationMeta, 
+    TRACKED_EVENT_LIST, UrlRouteManagerService, WebAppSettingDataService } from 'app/shared/services';
 
 @Component({
     selector: 'pp-configuration-experimental-container',
@@ -10,13 +12,11 @@ import { AnalyticsService, TRACKED_EVENT_LIST, UrlRouteManagerService, WebAppSet
     styleUrls: ['./configuration-experimental-container.component.css'],
 })
 export class ConfigurationExperimentalContainerComponent implements OnInit {
+    Object = Object;
     desc$: Observable<string>;
 
-    enableServerSideScanForScatter: boolean;
-    useStatisticsAgentState: boolean;
-    enableServerMapRealTime: boolean;
-    sampleScatter: boolean;
-    sideNavigationUI: boolean;
+    configurationMeta: ExperimentalConfigurationMeta;
+    configurations: ExperimentalConfiguration;
 
     constructor(
         private translateService: TranslateService,
@@ -34,48 +34,31 @@ export class ConfigurationExperimentalContainerComponent implements OnInit {
         this.desc$ = this.translateService.get('CONFIGURATION.EXPERIMENTAL.DESC');
     }
 
-    private setOptions(): void {
-        // TODO: Set it as key-value object?
-        const enableServerSideScanForScatter = this.webAppSettingDataService.getExperimentalOption('scatterScan');
-        const useStatisticsAgentState = this.webAppSettingDataService.getExperimentalOption('statisticsAgentState');
-        const enableServerMapRealTime = this.webAppSettingDataService.getExperimentalOption('serverMapRealTime');
-        const sampleScatter = this.webAppSettingDataService.getExperimentalOption('scatterSampling');
-
-        this.enableServerSideScanForScatter = enableServerSideScanForScatter === null ? true : enableServerSideScanForScatter;
-        this.useStatisticsAgentState = Boolean(useStatisticsAgentState);
-        this.enableServerMapRealTime = enableServerMapRealTime === null ? true : enableServerMapRealTime;
-        this.sampleScatter = sampleScatter === null ? true : sampleScatter;
-        this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
+    private setOptions() {
+        this.webAppSettingDataService.getExperimentalConfiguration()
+            .subscribe(configurationMeta => {
+                this.configurationMeta = configurationMeta;
+                const configurations = Object.keys(this.configurationMeta).reduce((prev, curr: ExperimentalConfigurationKeyType) => {
+                    const localStorageKey = ExperimentalConfigurationLocalStorageKey[curr]
+                    const optionFromLocalStorage = this.webAppSettingDataService.getExperimentalOption(localStorageKey);
+                    
+                    return { ...prev, [curr]: optionFromLocalStorage === null ? this.configurationMeta[curr].value : optionFromLocalStorage }
+                }, {} as ExperimentalConfiguration);
+        
+                this.configurations = configurations;
+            }
+        );
     }
 
-    onChangeOption(optionKey: string): void {
-        switch (optionKey) {
-            case 'scatterScan':
-                this.enableServerSideScanForScatter = !this.enableServerSideScanForScatter;
-                this.webAppSettingDataService.setExperimentalOption('scatterScan', this.enableServerSideScanForScatter);
-                this.applyGA({optionKey, optionValue: this.enableServerSideScanForScatter});
-                break;
-            case 'statisticsAgentState':
-                this.useStatisticsAgentState = !this.useStatisticsAgentState;
-                this.webAppSettingDataService.setExperimentalOption('statisticsAgentState', this.useStatisticsAgentState);
-                this.applyGA({optionKey, optionValue: this.useStatisticsAgentState});
-                break;
-            case 'serverMapRealTime':
-                this.enableServerMapRealTime = !this.enableServerMapRealTime;
-                this.webAppSettingDataService.setExperimentalOption('serverMapRealTime', this.enableServerMapRealTime);
-                this.applyGA({optionKey, optionValue: this.enableServerMapRealTime});
-                break;
-            case 'scatterSampling':
-                this.sampleScatter = !this.sampleScatter;
-                this.webAppSettingDataService.setExperimentalOption('scatterSampling', this.sampleScatter);
-                this.applyGA({optionKey, optionValue: this.sampleScatter});
-                break;
-            case 'sideNavigationUI':
-                this.sideNavigationUI = !this.sideNavigationUI;
-                this.webAppSettingDataService.setExperimentalOption('sideNavigationUI', this.sideNavigationUI);
-                this.applyGA({optionKey, optionValue: this.sideNavigationUI});
-                this.urlRouteManagerService.reload();
-                break;
+    onChangeOption(optionKey: ExperimentalConfigurationKeyType): void {
+        const localStorageKey = ExperimentalConfigurationLocalStorageKey[optionKey];
+
+        this.configurations =  { ...this.configurations, [optionKey]: !this.configurations[optionKey] };
+        this.webAppSettingDataService.setExperimentalOption(localStorageKey, this.configurations[optionKey]);
+        this.applyGA({optionKey, optionValue: this.configurations[optionKey]});
+
+        if (optionKey === 'enableSideNavigationUI') {
+            this.urlRouteManagerService.reload();
         }
     }
 

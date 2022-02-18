@@ -10,6 +10,7 @@ import { ComponentDefaultSettingDataService } from 'app/shared/services/componen
 import { Application, Period } from 'app/core/models';
 import { NewUrlStateNotificationService } from 'app/shared/services/new-url-state-notification.service';
 import { Theme } from 'app/shared/services/theme.service';
+import { ExperimentalConfigurationMeta } from '.';
 
 interface IMinMax {
     min: number;
@@ -300,5 +301,8 @@ export class WebAppSettingDataService {
     getExperimentalOption(key: string): boolean {
         // return this.localStorageService.get<boolean>(key) || false;
         return this.localStorageService.get<boolean>(key);
+    }
+    getExperimentalConfiguration(): Observable<ExperimentalConfigurationMeta> {
+        return this.newUrlStateNotificationService.getConfiguration('experimental');
     }
 }
