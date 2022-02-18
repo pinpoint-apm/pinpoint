@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.AsyncId;
+import com.navercorp.pinpoint.profiler.context.SpanEventFactory;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
@@ -124,8 +125,14 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     public AsyncContext recordNextAsyncContext() {
         final TraceRoot traceRoot = this.traceRoot;
         final AsyncId asyncIdObject = getNextAsyncId();
-        final AsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot, asyncIdObject);
-        return asyncContext;
+        // sequence or stack overflow
+        final boolean canSampled = isOverflowState();
+        return asyncContextFactory.newAsyncContext(traceRoot, asyncIdObject, canSampled);
+    }
+
+    // add more conditions to disable asynchronous invocation trace
+    protected boolean isOverflowState() {
+        return !SpanEventFactory.isDisableSpanEvent(spanEvent);
     }
 
     @Override

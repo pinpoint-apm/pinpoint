@@ -45,9 +45,9 @@ public interface CallStack<T> {
 
         T newInstance();
 
-        T dummyInstance();
+        T disableInstance();
 
-        boolean isDummy(T element);
+        boolean isDisable(T element);
 
         void markDepth(T element, int index);
 

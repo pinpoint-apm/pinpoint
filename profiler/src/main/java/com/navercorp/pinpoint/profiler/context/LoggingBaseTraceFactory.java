@@ -72,12 +72,12 @@ public class LoggingBaseTraceFactory implements BaseTraceFactory {
     }
 
     @Override
-    public Trace continueAsyncTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId) {
+    public Trace continueAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId, boolean canSampled) {
         if (logger.isDebugEnabled()) {
-            logger.debug("continueAsyncTraceObject(traceRoot:{}, localAsyncId:{})", traceRoot, localAsyncId);
+            logger.debug("continueAsyncTraceObject(traceRoot:{}, localAsyncId:{}, canSampled:{})", traceRoot, localAsyncId, canSampled);
         }
 
-        return baseTraceFactory.continueAsyncTraceObject(traceRoot, localAsyncId);
+        return baseTraceFactory.continueAsyncContextTraceObject(traceRoot, localAsyncId, canSampled);
     }
 
     @Override

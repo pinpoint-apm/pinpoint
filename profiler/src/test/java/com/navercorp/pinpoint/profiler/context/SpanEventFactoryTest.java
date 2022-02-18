@@ -51,10 +51,10 @@ public class SpanEventFactoryTest {
     @Test
     public void dummy() {
         SpanEventFactory factory = new SpanEventFactory();
-        final SpanEvent dummy = factory.dummyInstance();
-        assertTrue(factory.isDummy(dummy));
+        final SpanEvent dummy = factory.disableInstance();
+        assertTrue(factory.isDisable(dummy));
 
         final SpanEvent spanEvent = factory.newInstance();
-        assertFalse(factory.isDummy(spanEvent));
+        assertFalse(factory.isDisable(spanEvent));
     }
 }

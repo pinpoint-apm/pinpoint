@@ -27,9 +27,9 @@ public interface AsyncTraceContext {
 
 //    Reference<Trace> continueAsyncTraceObject(TraceRoot traceRoot, int asyncId, short asyncSequence);
 
-    Reference<Trace> continueAsyncTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId);
+    Reference<Trace> continueAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId, boolean canSampled);
 
-    Trace newAsyncTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId);
+    Trace newAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId, boolean canSampled);
 
     Reference<Trace> currentRawTraceObject();
 

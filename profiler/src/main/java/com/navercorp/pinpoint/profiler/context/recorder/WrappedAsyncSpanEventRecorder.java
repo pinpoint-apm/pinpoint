@@ -48,10 +48,11 @@ public class WrappedAsyncSpanEventRecorder extends WrappedSpanEventRecorder {
         if (asyncStateSupport) {
             final TraceRoot traceRoot = this.traceRoot;
             final AsyncId asyncIdObject = getNextAsyncId();
+            final boolean isDisabled = isOverflowState();
 
             final AsyncState asyncState = this.asyncState;
             asyncState.setup();
-            final AsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot, asyncIdObject, asyncState);
+            final AsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot, asyncIdObject, isDisabled, asyncState);
             return asyncContext;
         }
         return recordNextAsyncContext();
