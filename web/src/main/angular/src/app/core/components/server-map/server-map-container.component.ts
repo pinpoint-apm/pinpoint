@@ -64,9 +64,11 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        const enableServerMapRealTime = this.webAppSettingDataService.getExperimentalOption('serverMapRealTime');
-
-        this.enableServerMapRealTime = enableServerMapRealTime === null ? true : enableServerMapRealTime;
+        this.webAppSettingDataService.getExperimentalConfiguration().subscribe(configutaion => {
+            const enableServerMapRealTime = this.webAppSettingDataService.getExperimentalOption('serverMapRealTime');
+            this.enableServerMapRealTime = enableServerMapRealTime === null ? configutaion.enableServerMapRealTime.value : enableServerMapRealTime;            
+        });
+        
         this.funcServerMapImagePath = this.webAppSettingDataService.getServerMapIconPathMakeFunc();
         this.addPageLoadingHandler();
         this.getI18NText();

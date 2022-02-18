@@ -58,7 +58,7 @@ const PROXY_CONFIG = [
             "/traceViewerData.pinpoint",
             "/application/webhook.pinpoint",
             "/application/webhookSendInfo.pinpoint",
-            "/application/alarmRule/includeWebhooks.pinpoint"
+            "/application/alarmRule/includeWebhooks.pinpoint",
         ],
         target: 'http://localhost:8080',
         secure: false

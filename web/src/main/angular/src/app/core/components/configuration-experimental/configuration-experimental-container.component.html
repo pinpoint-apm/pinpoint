@@ -1,23 +1,7 @@
 <div class="l-desc-text-wrapper"><p class="l-desc-text nanumgothic">{{desc$ | async}}</p></div>
 <section class="l-contents">
-    <div class="l-checkbox-wrapper">
-        <input type="checkbox" class="l-checkbox-input" id="scatter-scan" [checked]="enableServerSideScanForScatter" (change)="onChangeOption('scatterScan')">
-        <label class="l-item-label" for="scatter-scan">Enable server-side scanning to query the data in the scatter chart.</label>
-    </div>
-    <div class="l-checkbox-wrapper">
-        <input type="checkbox" class="l-checkbox-input" id="statistics-agent-state" [checked]="useStatisticsAgentState" (change)="onChangeOption('statisticsAgentState')">
-        <label class="l-item-label" for="statistics-agent-state">Uses statistics-based agent state in the server map.</label>
-    </div>
-    <div class="l-checkbox-wrapper">
-        <input type="checkbox" class="l-checkbox-input" id="server-map-realtime" [checked]="enableServerMapRealTime" (change)="onChangeOption('serverMapRealTime')">
-        <label class="l-item-label" for="server-map-realtime">Enable real-time update in the server-map.</label>
-    </div>
-    <div class="l-checkbox-wrapper">
-        <input type="checkbox" class="l-checkbox-input" id="scatter-sampling" [checked]="sampleScatter" (change)="onChangeOption('scatterSampling')">
-        <label class="l-item-label" for="scatter-sampling">Sample data in the scatter chart.</label>
-    </div>
-    <div class="l-checkbox-wrapper">
-        <input type="checkbox" class="l-checkbox-input" id="side-navigation-ui" [checked]="sideNavigationUI" (change)="onChangeOption('sideNavigationUI')">
-        <label class="l-item-label" for="side-navigation-ui">Use a new side navigation UI.</label>
+    <div *ngFor="let configurationKey of Object.keys(configurations || {})" class="l-checkbox-wrapper">
+        <input type="checkbox" class="l-checkbox-input" id="{{configurationKey}}" [checked]="configurations[configurationKey]" (change)="onChangeOption(configurationKey)">
+        <label class="l-item-label" for="{{configurationKey}}">{{configurationMeta[configurationKey].description}}</label>
     </div>
 </section>
