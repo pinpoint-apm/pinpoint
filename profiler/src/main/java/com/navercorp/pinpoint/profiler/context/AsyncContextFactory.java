@@ -27,8 +27,8 @@ public interface AsyncContextFactory {
 
     AsyncId newAsyncId();
 
-    AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncId asyncId);
+    AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncId asyncId, boolean canSampled);
 
-    AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncId asyncId, AsyncState asyncState);
+    AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncId asyncId, boolean canSampled, AsyncState asyncState);
 
 }

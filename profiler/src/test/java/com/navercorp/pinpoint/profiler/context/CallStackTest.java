@@ -111,7 +111,7 @@ public abstract class CallStackTest {
         callStack.push(spanEvent1);
 
         SpanEvent spanEvent2 = callStack.newInstance();
-        Assert.assertTrue(callStack.getFactory().isDummy(spanEvent2));
+        Assert.assertTrue(callStack.getFactory().isDisable(spanEvent2));
     }
 
     @Test
@@ -173,19 +173,19 @@ public abstract class CallStackTest {
         // overflow by sequence
         assertEquals(maxDepth - 1, callStack.getIndex());
         assertTrue(callStack.isOverflow());
-        assertFalse(callStack.getFactory().isDummy(callStack.peek()));
+        assertFalse(callStack.getFactory().isDisable(callStack.peek()));
 
         callStack.push(getSpanEvent());
         assertEquals(maxDepth, callStack.getIndex());
-        assertTrue(callStack.getFactory().isDummy(callStack.peek()));
-        assertTrue(callStack.getFactory().isDummy(callStack.pop()));
+        assertTrue(callStack.getFactory().isDisable(callStack.peek()));
+        assertTrue(callStack.getFactory().isDisable(callStack.pop()));
 
         for (int i = maxDepth - 1; i > 0; i--) {
             assertNotNull(callStack.peek());
-            assertFalse(callStack.getFactory().isDummy(callStack.peek()));
+            assertFalse(callStack.getFactory().isDisable(callStack.peek()));
             SpanEvent element = callStack.pop();
             assertNotNull(element);
-            assertFalse(callStack.getFactory().isDummy(element));
+            assertFalse(callStack.getFactory().isDisable(element));
             assertTrue(callStack.isOverflow());
         }
     }

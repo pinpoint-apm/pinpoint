@@ -43,27 +43,25 @@ public class DefaultAsyncTraceContext implements AsyncTraceContext {
     }
 
     @Override
-    public Reference<Trace> continueAsyncTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId) {
+    public Reference<Trace> continueAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId, boolean canSampled) {
         final Reference<Trace> reference = checkAndGet();
 
-        final BaseTraceFactory baseTraceFactory = baseTraceFactoryProvider.get();
-        final Trace trace = baseTraceFactory.continueAsyncTraceObject(traceRoot, localAsyncId);
+        final Trace trace = newAsyncContextTraceObject(traceRoot, localAsyncId, canSampled);
 
         bind(reference, trace);
         return reference;
     }
 
     @Override
-    public Trace newAsyncTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId) {
+    public Trace newAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId, boolean canSampled) {
         final BaseTraceFactory baseTraceFactory = baseTraceFactoryProvider.get();
-        return baseTraceFactory.continueAsyncTraceObject(traceRoot, localAsyncId);
+        return baseTraceFactory.continueAsyncContextTraceObject(traceRoot, localAsyncId, canSampled);
     }
 
 
     @Override
     public Reference<Trace> currentRawTraceObject() {
-        final Reference<Trace> reference = binder.get();
-        return reference;
+        return binder.get();
     }
 
     @Override

@@ -269,12 +269,12 @@ public class AsyncChildTrace implements Trace {
 
     @VisibleForTesting
     SpanEvent dummySpanEvent() {
-        return callStack.getFactory().dummyInstance();
+        return callStack.getFactory().disableInstance();
     }
 
     @VisibleForTesting
     boolean isDummySpanEvent(final SpanEvent spanEvent) {
-        return callStack.getFactory().isDummy(spanEvent);
+        return callStack.getFactory().isDisable(spanEvent);
     }
 
     @Override

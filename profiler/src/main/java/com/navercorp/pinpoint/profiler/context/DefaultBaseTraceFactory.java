@@ -128,21 +128,24 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
     // internal async trace.
     @Override
-    public Trace continueAsyncTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId) {
+    public Trace continueAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId, boolean canSampled) {
+        if (canSampled) {
+            final SpanChunkFactory spanChunkFactory = new AsyncSpanChunkFactory(traceRoot, localAsyncId);
+            final Storage storage = storageFactory.createStorage(spanChunkFactory);
 
-        final SpanChunkFactory spanChunkFactory = new AsyncSpanChunkFactory(traceRoot, localAsyncId);
-        final Storage storage = storageFactory.createStorage(spanChunkFactory);
+            final CallStack<SpanEvent> callStack = callStackFactory.newCallStack();
 
-        final CallStack<SpanEvent> callStack = callStackFactory.newCallStack();
+            final boolean samplingEnable = true;
+            final SpanRecorder spanRecorder = recorderFactory.newTraceRootSpanRecorder(traceRoot, samplingEnable);
 
-        final boolean samplingEnable = true;
-        final SpanRecorder spanRecorder = recorderFactory.newTraceRootSpanRecorder(traceRoot, samplingEnable);
+            final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(traceRoot);
 
-        final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(traceRoot);
+            final Trace asyncTrace = new AsyncChildTrace(traceRoot, callStack, storage, samplingEnable, spanRecorder, wrappedSpanEventRecorder, localAsyncId);
 
-        final Trace asyncTrace = new AsyncChildTrace(traceRoot, callStack, storage, samplingEnable, spanRecorder, wrappedSpanEventRecorder, localAsyncId);
-
-        return asyncTrace;
+            return asyncTrace;
+        } else  {
+            return new DisableAsyncChildTrace(traceRoot, localAsyncId);
+        }
     }
 
 

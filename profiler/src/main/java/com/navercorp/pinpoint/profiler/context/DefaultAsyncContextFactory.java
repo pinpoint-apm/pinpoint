@@ -55,20 +55,20 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
     }
 
     @Override
-    public AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncId asyncId) {
+    public AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncId asyncId, boolean canSampled) {
         Objects.requireNonNull(traceRoot, "traceRoot");
         Objects.requireNonNull(asyncId, "asyncId");
 
-        return new DefaultAsyncContext(asyncTraceContext, traceRoot, asyncId, this.asyncMethodApiId);
+        return new DefaultAsyncContext(asyncTraceContext, traceRoot, asyncId, this.asyncMethodApiId, canSampled);
     }
 
     @Override
-    public AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncId asyncId, AsyncState asyncState) {
+    public AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncId asyncId, boolean canSampled, AsyncState asyncState) {
         Objects.requireNonNull(traceRoot, "traceRoot");
         Objects.requireNonNull(asyncId, "asyncId");
         Objects.requireNonNull(asyncState, "asyncState");
 
-        return new StatefulAsyncContext(asyncTraceContext, traceRoot, asyncId, asyncMethodApiId, asyncState);
+        return new StatefulAsyncContext(asyncTraceContext, traceRoot, asyncId, asyncMethodApiId, asyncState, canSampled);
     }
 
 
