@@ -17,11 +17,19 @@
 package com.navercorp.pinpoint.bootstrap.async;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public final class AsyncContextAccessorUtils {
+
+    public static AsyncContext getAsyncContext(Object[] array, int index) {
+        if (!ArrayUtils.isArrayIndexValid(array, index)) {
+            return null;
+        }
+        return getAsyncContext(array[index]);
+    }
 
     public static AsyncContext getAsyncContext(Object object) {
         if (object instanceof AsyncContextAccessor) {
