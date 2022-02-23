@@ -48,7 +48,7 @@ public class TransactionIdCreateInterceptor implements AroundInterceptor {
         if (requestContextIndex == -1) {
             return;
         }
-        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[requestContextIndex]);
+        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, requestContextIndex);
         if (asyncContext == null) {
             return;
         }

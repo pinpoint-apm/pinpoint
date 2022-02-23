@@ -38,8 +38,10 @@ public class ActiveMQMessageConsumerCreateActiveMQMessageInterceptor implements 
             return;
         }
         if (result instanceof AsyncContextAccessor) {
-            AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
-            ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
+            AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
+            if (asyncContext != null) {
+                ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
+            }
         }
     }
 }

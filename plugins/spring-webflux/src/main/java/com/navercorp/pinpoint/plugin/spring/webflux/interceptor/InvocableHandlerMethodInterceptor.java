@@ -57,6 +57,6 @@ public class InvocableHandlerMethodInterceptor extends AsyncContextSpanEventSimp
         if (ArrayUtils.isEmpty(args)) {
             return null;
         }
-        return AsyncContextAccessorUtils.getAsyncContext(args[0]);
+        return AsyncContextAccessorUtils.getAsyncContext(args, 0);
     }
 }

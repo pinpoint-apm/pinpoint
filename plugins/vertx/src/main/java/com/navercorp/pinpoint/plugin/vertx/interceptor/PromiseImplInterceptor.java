@@ -86,7 +86,7 @@ public class PromiseImplInterceptor extends AsyncContextSpanEventSimpleAroundInt
         }
 
         if (validate(args)) {
-            return AsyncContextAccessorUtils.getAsyncContext(args[0]);
+            return AsyncContextAccessorUtils.getAsyncContext(args, 0);
         }
         return null;
     }
@@ -115,7 +115,7 @@ public class PromiseImplInterceptor extends AsyncContextSpanEventSimpleAroundInt
         }
 
         if (validate(args)) {
-            return AsyncContextAccessorUtils.getAsyncContext(args[0]);
+            return AsyncContextAccessorUtils.getAsyncContext(args, 0);
         }
         return null;
     }

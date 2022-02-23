@@ -37,7 +37,7 @@ public class ConsumerHandleDeliveryInterceptor implements AroundInterceptor {
         if (!validate(target, args)) {
             return;
         }
-        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[1]);
+        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 1);
         if (asyncContext == null) {
             return;
         }
@@ -71,7 +71,7 @@ public class ConsumerHandleDeliveryInterceptor implements AroundInterceptor {
         if (!validate(target, args)) {
             return;
         }
-        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[1]);
+        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 1);
         if (asyncContext == null) {
             return;
         }

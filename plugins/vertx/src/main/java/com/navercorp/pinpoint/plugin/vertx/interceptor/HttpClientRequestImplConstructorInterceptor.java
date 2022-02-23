@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.vertx.SamplingRateFlag;
 
 public class HttpClientRequestImplConstructorInterceptor implements AroundInterceptor {
@@ -47,16 +48,15 @@ public class HttpClientRequestImplConstructorInterceptor implements AroundInterc
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-
-        if(args != null && args.length < 1) {
+        if (ArrayUtils.getLength(args) < 1) {
             return;
         }
-
-        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
-        if(asyncContext != null) {
+        final Object arg = args[0];
+        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(arg);
+        if (asyncContext != null) {
             ((AsyncContextAccessor)target)._$PINPOINT$_setAsyncContext(asyncContext);
         }
-        if(args[0] instanceof SamplingRateFlag) {
+        if (arg instanceof SamplingRateFlag) {
             final Boolean samplingRateFlag = ((SamplingRateFlag)(args[0]))._$PINPOINT$_getSamplingRateFlag();
             ((SamplingRateFlag)target)._$PINPOINT$_setSamplingRateFlag(samplingRateFlag);
         }
