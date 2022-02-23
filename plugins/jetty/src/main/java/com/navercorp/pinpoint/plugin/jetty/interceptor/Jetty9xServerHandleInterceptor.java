@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.jetty.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import org.eclipse.jetty.server.HttpChannel;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,12 +39,8 @@ public class Jetty9xServerHandleInterceptor extends AbstractServerHandleIntercep
 
     @Override
     HttpServletRequest toHttpServletRequest(Object[] args) {
-        if (ArrayUtils.isEmpty(args)) {
-            return null;
-        }
-
-        if (args[0] instanceof HttpChannel) {
-            final HttpChannel<?> channel = (HttpChannel<?>) args[0];
+        HttpChannel<?> channel = getArgument(args);
+        if (channel != null) {
             return channel.getRequest();
         }
         return null;
@@ -52,14 +48,14 @@ public class Jetty9xServerHandleInterceptor extends AbstractServerHandleIntercep
 
     @Override
     HttpServletResponse toHttpServletResponse(Object[] args) {
-        if (ArrayUtils.isEmpty(args)) {
-            return null;
-        }
-
-        if (args[0] instanceof HttpChannel) {
-            final HttpChannel<?> channel = (HttpChannel<?>) args[0];
+        HttpChannel<?> channel = getArgument(args);
+        if (channel != null) {
             return channel.getResponse();
         }
         return null;
+    }
+
+    private HttpChannel getArgument(Object[] args) {
+        return ArrayArgumentUtils.getArgument(args, 0, HttpChannel.class);
     }
 }

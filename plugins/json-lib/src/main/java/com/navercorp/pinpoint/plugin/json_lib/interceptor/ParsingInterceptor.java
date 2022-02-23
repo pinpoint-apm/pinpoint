@@ -19,7 +19,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.json_lib.JsonLibConstants;
 
 /**
@@ -42,8 +42,9 @@ public class ParsingInterceptor extends SpanEventSimpleAroundInterceptorForPlugi
         recorder.recordServiceType(JsonLibConstants.SERVICE_TYPE);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
-        if (ArrayUtils.hasLength(args) && args[0] instanceof String) {
-            recorder.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
+        String json = ArrayArgumentUtils.getArgument(args, 0, String.class);
+        if (json != null) {
+            recorder.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, json.length());
         }
     }
 

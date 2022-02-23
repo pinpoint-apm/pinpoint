@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.akka.http.AkkaHttpConstants;
 
 public class RequestContextImplFailInterceptor extends AsyncContextSpanEventEndPointInterceptor {
@@ -35,8 +35,9 @@ public class RequestContextImplFailInterceptor extends AsyncContextSpanEventEndP
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-        if (ArrayUtils.getLength(args) > 0 && args[0] instanceof Throwable) {
-            recorder.recordException((Throwable) args[0]);
+        Throwable th = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
+        if (th != null) {
+            recorder.recordException(th);
         }
     }
 

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.jboss.interceptor;
 
 import java.lang.reflect.Method;
 
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import org.jboss.as.security.remoting.RemotingContext;
 import org.jboss.remoting3.Connection;
 
@@ -104,33 +105,42 @@ public class MethodInvocationHandlerInterceptor implements AroundInterceptor {
      * @return the trace
      */
     private Trace createTrace(final Object target, final Object[] args) {
-        final Method methodInvoked = (Method) args[2];
-        final StringBuilder methodNameBuilder = new StringBuilder();
-        if (methodInvoked != null) {
-            try {
-                final Class<?> declaringClass = methodInvoked.getDeclaringClass();
-                methodNameBuilder.append(declaringClass.getCanonicalName());
-                methodNameBuilder.append('.');
-                methodNameBuilder.append(methodInvoked.getName());
-            } catch (final Exception exception) {
-                logger.error("An error occurred while fetching method details", exception);
-            }
-        }
         final Trace trace = traceContext.newTraceObject();
         final Connection connection = RemotingContext.getConnection();
         final String remoteAddress = JbossUtility.fetchRemoteAddress(connection);
         if (trace.canSampled()) {
             final SpanRecorder recorder = trace.getSpanRecorder();
-            recordRootSpan(recorder, methodNameBuilder.toString(), remoteAddress);
+            final String methodName = getMethodName(args);
+            recordRootSpan(recorder, methodName, remoteAddress);
             if (isDebug) {
-                logger.debug("Trace sampling is true, Recording trace. methodInvoked:{}, remoteAddress:{}", methodNameBuilder.toString(), remoteAddress);
+                logger.debug("Trace sampling is true, Recording trace. methodInvoked:{}, remoteAddress:{}", methodName, remoteAddress);
             }
         } else {
             if (isDebug) {
-                logger.debug("Trace sampling is false, Skip recording trace. methodInvoked:{}, remoteAddress:{}", methodNameBuilder.toString(), remoteAddress);
+                final String methodName = getMethodName(args);
+                logger.debug("Trace sampling is false, Skip recording trace. methodInvoked:{}, remoteAddress:{}", methodName, remoteAddress);
             }
         }
         return trace;
+    }
+
+    private String getMethodName(Object[] args) {
+        final Method methodInvoked = ArrayArgumentUtils.getArgument(args, 2, Method.class);
+        if (methodInvoked != null) {
+            try {
+                final Class<?> declaringClass = methodInvoked.getDeclaringClass();
+
+                final StringBuilder methodNameBuilder = new StringBuilder();
+                methodNameBuilder.append(declaringClass.getCanonicalName());
+                methodNameBuilder.append('.');
+                methodNameBuilder.append(methodInvoked.getName());
+                return methodInvoked.toString();
+
+            } catch (final Exception exception) {
+                logger.error("An error occurred while fetching method details", exception);
+            }
+        }
+        return "";
     }
 
     /**

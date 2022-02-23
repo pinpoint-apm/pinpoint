@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
 
 /**
@@ -38,14 +38,15 @@ public class PublisherInterceptor extends AsyncContextSpanEventSimpleAroundInter
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
         final AsyncContext publisherAsyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
-        if (publisherAsyncContext != null && ArrayUtils.hasLength(args)) {
+        if (publisherAsyncContext != null) {
+            AsyncContextAccessor accessor = ArrayArgumentUtils.getArgument(args, 0, AsyncContextAccessor.class);
             // Set AsyncContext to CoreSubscriber
-            if (args[0] instanceof AsyncContextAccessor) {
-                if (((AsyncContextAccessor) args[0])._$PINPOINT$_getAsyncContext() != null) {
+            if (accessor != null) {
+                if (accessor._$PINPOINT$_getAsyncContext() != null) {
                     //Ignore the AsyncContext already set.
                     return;
                 }
-                ((AsyncContextAccessor) (args[0]))._$PINPOINT$_setAsyncContext(publisherAsyncContext);
+                accessor._$PINPOINT$_setAsyncContext(publisherAsyncContext);
                 if (isDebug) {
                     logger.debug("Set AsyncContext args[0]={}", args[0]);
                 }

@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.mongo.interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.filters.InternalOperatorNameAccessor;
 
 /**
@@ -35,10 +35,10 @@ public class MongoInternalOperatorNameInterceptor implements AroundInterceptor {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
-
-        if (ArrayUtils.hasLength(args)) {
+        Object argument = ArrayArgumentUtils.getArgument(args, 0, Object.class);
+        if (argument != null) {
             if (target instanceof InternalOperatorNameAccessor) {
-                ((InternalOperatorNameAccessor) target)._$PINPOINT$_setInternalOperatorName(args[0].toString());
+                ((InternalOperatorNameAccessor) target)._$PINPOINT$_setInternalOperatorName(argument.toString());
             }
         }
     }

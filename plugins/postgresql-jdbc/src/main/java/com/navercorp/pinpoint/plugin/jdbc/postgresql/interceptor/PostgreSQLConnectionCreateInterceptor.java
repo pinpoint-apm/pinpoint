@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.jdbc.postgresql.PostgreSqlConstants;
 
@@ -56,7 +57,7 @@ public class PostgreSQLConnectionCreateInterceptor implements AroundInterceptor 
             return;
         }
 
-        final String url = (String) args[4];
+        final String url = ArrayArgumentUtils.getArgument(args, 4, String.class);
 
         final JdbcContext jdbcContext = traceContext.getJdbcContext();
         jdbcContext.parseJdbcUrl(PostgreSqlConstants.POSTGRESQL, url);

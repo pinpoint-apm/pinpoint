@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.redis.redisson.RedissonConstants;
 import com.navercorp.pinpoint.plugin.redis.redisson.RedissonPluginConfig;
@@ -57,7 +58,7 @@ public class ReactiveMethodInterceptor extends SpanEventSimpleAroundInterceptorF
         }
 
         if (this.keyTrace) {
-            Method method = (Method) args[0];
+            Method method = ArrayArgumentUtils.getArgument(args, 0, Method.class);
             if (method != null && StringUtils.hasLength(method.getName())) {
                 recorder.recordAttribute(AnnotationKey.ARGS0, method.getName());
             }

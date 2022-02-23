@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ResponseHeaderRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServerResponseHeaderRecorder;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3EntityExtractor;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3RequestWrapper;
@@ -164,8 +164,9 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     }
 
     private HttpConnection getHttpConnection(final Object[] args) {
-        if (ArrayUtils.getLength(args) > 1 && args[1] instanceof HttpConnection) {
-            return (HttpConnection) args[1];
+        HttpConnection connection = ArrayArgumentUtils.getArgument(args, 1, HttpConnection.class);
+        if (connection != null) {
+            return connection;
         }
         return null;
     }

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.plugin.paho.mqtt.accessor.MqttV5ClientCommsGetter;
 import com.navercorp.pinpoint.plugin.paho.mqtt.accessor.SocketGetter;
@@ -50,7 +51,7 @@ public class MqttV5CallbackMessageArrivedInterceptor extends MqttCallbackMessage
 
     @Override
     protected Trace createTraceByVersion(Object target, Object[] args) {
-        MqttPublish mqttPublish = getMqttPublish(args);
+        MqttPublish mqttPublish = ArrayArgumentUtils.getArgument(args, 0, MqttPublish.class);
         if (mqttPublish == null) {
             return null;
         }
@@ -74,10 +75,8 @@ public class MqttV5CallbackMessageArrivedInterceptor extends MqttCallbackMessage
 
     @Override
     protected void recordDataByVersion(Object target, SpanRecorder recorder, Object[] args) {
-
-        if (args[0] instanceof MqttPublish) {
-
-            MqttPublish mqttPublish = (MqttPublish) args[0];
+        MqttPublish mqttPublish = ArrayArgumentUtils.getArgument(args, 0, MqttPublish.class);
+        if (mqttPublish != null) {
             recorder.recordRpcName(buildRpcName(mqttPublish.getTopicName(), mqttPublish.getQoS()));
             recorder.recordAttribute(MQTT_MESSAGE_PAYLOAD_ANNOTATION_KEY, BytesUtils.toString(mqttPublish.getPayload()));
 
@@ -113,13 +112,6 @@ public class MqttV5CallbackMessageArrivedInterceptor extends MqttCallbackMessage
         }
 
         recorder.recordParentApplication(parentApplicationName, NumberUtils.parseShort(parentApplicationType, ServiceType.UNDEFINED.getCode()));
-    }
-
-    private MqttPublish getMqttPublish(Object[] args) {
-        if (args[0] instanceof MqttPublish) {
-            return (MqttPublish) args[0];
-        }
-        return null;
     }
 
     private boolean isPreviousSpanSampled(List<UserProperty> userProperties) {

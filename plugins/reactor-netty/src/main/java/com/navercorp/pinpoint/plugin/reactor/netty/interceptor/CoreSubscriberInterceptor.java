@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyPluginConfig;
@@ -45,9 +45,8 @@ public class CoreSubscriberInterceptor extends AsyncContextSpanEventSimpleAround
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
         if (this.isTraceSubscribeError) {
-            final Object th = ArrayUtils.get(args, 0);
-            if (th instanceof Throwable) {
-                final Throwable exception = (Throwable) th;
+            final Throwable exception = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
+            if (exception != null) {
                 if (!hasExcludeMessage(exception)) {
                     recorder.recordException(exception);
                 }

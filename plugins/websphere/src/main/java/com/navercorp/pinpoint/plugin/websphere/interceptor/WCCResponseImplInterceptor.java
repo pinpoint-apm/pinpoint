@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.websphere.StatusCodeAccessor;
 
 public class WCCResponseImplInterceptor implements AroundInterceptor {
@@ -42,8 +43,8 @@ public class WCCResponseImplInterceptor implements AroundInterceptor {
         }
 
         if (target instanceof StatusCodeAccessor) {
-            if (args[0] instanceof Integer) {
-                final int statusCode = (Integer) args[0];
+            Integer statusCode = ArrayArgumentUtils.getArgument(args, 0, Integer.class);
+            if (statusCode != null) {
                 final StatusCodeAccessor accessor = (StatusCodeAccessor) target;
                 accessor._$PINPOINT$_setStatusCode(statusCode);
             }

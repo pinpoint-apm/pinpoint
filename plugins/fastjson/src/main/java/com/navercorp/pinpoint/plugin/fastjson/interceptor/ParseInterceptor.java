@@ -18,6 +18,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.fastjson.FastjsonConstants;
 
 /**
@@ -49,11 +50,12 @@ public class ParseInterceptor extends SpanEventSimpleAroundInterceptorForPlugin 
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
 
-        if (args[0] != null) {
-            if (args[0] instanceof String) {
-                recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
-            } else if (args[0] instanceof byte[]) {
-                recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((byte[]) args[0]).length);
+        Object arg = ArrayUtils.get(args, 0);
+        if (arg != null) {
+            if (arg instanceof String) {
+                recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((String) arg).length());
+            } else if (arg instanceof byte[]) {
+                recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((byte[]) arg).length);
             }
         }
     }

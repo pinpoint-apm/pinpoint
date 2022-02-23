@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.spring.web.SpringWebMvcConstants;
 import org.springframework.web.context.request.NativeWebRequest;
 
@@ -54,9 +54,8 @@ public class InvocableHandlerMethodInvokeForRequestMethodInterceptor extends Asy
     }
 
     private AsyncContext getAsyncContextFromArgs(Object[] args) {
-        Object nativeWebRequest = ArrayUtils.get(args, 0);
-        if (nativeWebRequest instanceof NativeWebRequest) {
-            NativeWebRequest request = (NativeWebRequest) nativeWebRequest;
+        NativeWebRequest request = ArrayArgumentUtils.getArgument(args, 0, NativeWebRequest.class);
+        if (request != null) {
             final Object asyncContext = request.getAttribute(AsyncContext.class.getName(), 0);
             if (asyncContext instanceof AsyncContext) {
                 return (AsyncContext) asyncContext;

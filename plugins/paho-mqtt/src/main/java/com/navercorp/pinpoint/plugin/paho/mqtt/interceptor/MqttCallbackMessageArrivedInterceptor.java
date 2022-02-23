@@ -45,7 +45,7 @@ public abstract class MqttCallbackMessageArrivedInterceptor extends SpanRecursiv
     @Override
     protected Trace createTrace(Object target, Object[] args) {
 
-        if(!validateArgs(args)){
+        if (!validateArgs(args)){
             return null;
         }
 
