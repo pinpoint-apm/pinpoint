@@ -64,7 +64,7 @@ public class ExchangeFunctionMethodInterceptor extends SpanEventSimpleAroundInte
         recorder.recordException(throwable);
 
         if (isAsync(args) && isAsync(result)) {
-            final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
+            final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
             if (asyncContext != null) {
                 ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {

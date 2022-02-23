@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.openwhisk.OpenwhiskConfig;
 import com.navercorp.pinpoint.plugin.openwhisk.OpenwhiskConstants;
 import com.navercorp.pinpoint.plugin.openwhisk.accessor.PinpointTraceAccessor;
@@ -60,10 +61,13 @@ public class TransactionIdStartedInterceptor implements AroundInterceptor {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
-
-        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
+        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
         if (asyncContext == null) {
-            logger.debug("Not found asynchronous invocation metadata {}", (LogMarkerToken)args[2]);
+            if (logger.isDebugEnabled()) {
+                // (LogMarkerToken)args[2]
+                Object logMarkerToken = ArrayArgumentUtils.getArgument(args, 2, Object.class);
+                logger.debug("Not found asynchronous invocation metadata {}", logMarkerToken);
+            }
             return;
         }
 
@@ -88,8 +92,7 @@ public class TransactionIdStartedInterceptor implements AroundInterceptor {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-
-        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
+        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
         if (asyncContext == null) {
             logger.debug("Not found asynchronous invocation metadata");
             return;

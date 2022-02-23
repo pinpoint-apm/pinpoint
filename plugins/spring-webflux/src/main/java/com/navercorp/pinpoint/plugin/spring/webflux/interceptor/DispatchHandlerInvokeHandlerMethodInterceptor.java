@@ -39,7 +39,7 @@ public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextS
     @Override
     public AsyncContext getAsyncContext(Object target, Object[] args) {
         if (validate(args)) {
-            return AsyncContextAccessorUtils.getAsyncContext(args[0]);
+            return AsyncContextAccessorUtils.getAsyncContext(args, 0);
         }
         return null;
     }
@@ -52,7 +52,7 @@ public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextS
     @Override
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
         if (validate(args)) {
-            return AsyncContextAccessorUtils.getAsyncContext(args[0]);
+            return AsyncContextAccessorUtils.getAsyncContext(args, 0);
         }
         return null;
     }
@@ -67,7 +67,7 @@ public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextS
             return;
         }
 
-        final AsyncContext publisherAsyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
+        final AsyncContext publisherAsyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
         if (publisherAsyncContext != null) {
             // Set AsyncContext to CoreSubscriber
             if (result instanceof AsyncContextAccessor) {

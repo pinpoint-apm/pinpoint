@@ -104,7 +104,7 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
     private void beforeAsync(Object target, Object[] args) {
         ((AsyncStartFlagFieldAccessor) args[1])._$PINPOINT$_setAsyncStartFlag(true);
 
-        final AsyncContext asyncContext = getAsyncContext(args[1]);
+        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 1);
         if (asyncContext == null) {
             logger.debug("AsyncContext not found");
             return;
@@ -183,7 +183,7 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
     }
 
     private void afterAsync(Object target, Object[] args, Object result, Throwable throwable) {
-        final AsyncContext asyncContext = getAsyncContext(args[1]);
+        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 1);
         if (asyncContext == null) {
             logger.debug("AsyncContext not found");
             return;
@@ -227,9 +227,6 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
         this.clientRequestRecorder.record(recorder, new NettyClientRequestWrapper(httpMessage, channelHandlerContext), throwable);
     }
 
-    protected AsyncContext getAsyncContext(Object target) {
-        return AsyncContextAccessorUtils.getAsyncContext(target);
-    }
 
     private Trace getAsyncTrace(AsyncContext asyncContext) {
         final Trace trace = asyncContext.continueAsyncTraceObject();

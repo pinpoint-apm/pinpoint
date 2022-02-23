@@ -92,7 +92,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
 
         if (traceContext.currentRawTraceObject() != null) {
             if (isDisconnecting(args)) {
-                final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
+                final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
                 if (asyncContext != null) {
                     if (asyncContext instanceof AsyncStateSupport) {
                         final AsyncStateSupport asyncStateSupport = (AsyncStateSupport) asyncContext;

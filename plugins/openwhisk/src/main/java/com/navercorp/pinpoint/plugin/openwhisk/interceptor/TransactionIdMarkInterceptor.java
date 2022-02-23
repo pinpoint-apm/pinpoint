@@ -58,7 +58,7 @@ public class TransactionIdMarkInterceptor implements AroundInterceptor {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
-        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
+        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
         if (asyncContext == null) {
             logger.debug("Not found asynchronous invocation metadata {}", (LogMarkerToken)args[2]);
             return;
