@@ -18,6 +18,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.jackson.JacksonConstants;
 
 import java.io.File;
@@ -42,7 +43,7 @@ public class ReadValueInterceptor extends SpanEventSimpleAroundInterceptorForPlu
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
 
-        Object arg = args[0];
+        Object arg = ArrayUtils.get(args, 0);
 
         if (arg != null) {
             if (arg instanceof String) {

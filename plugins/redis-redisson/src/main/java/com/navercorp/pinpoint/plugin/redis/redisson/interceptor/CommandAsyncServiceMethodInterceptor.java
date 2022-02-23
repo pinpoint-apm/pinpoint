@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.redis.redisson.RedissonConstants;
@@ -52,11 +53,12 @@ public class CommandAsyncServiceMethodInterceptor extends SpanEventSimpleAroundI
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         try {
-            if (isAsynchronousInvocation(target, args)) {
+            AsyncContextAccessor asynchronousInvocation = getAsynchronousInvocation(target, args);
+            if (asynchronousInvocation != null) {
                 // set asynchronous trace
                 final AsyncContext asyncContext = recorder.recordNextAsyncContext();
                 // type check isAsynchronousInvocation
-                ((AsyncContextAccessor) args[5])._$PINPOINT$_setAsyncContext(asyncContext);
+                asynchronousInvocation._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
                     logger.debug("Set AsyncContext {}", asyncContext);
                 }
@@ -66,19 +68,18 @@ public class CommandAsyncServiceMethodInterceptor extends SpanEventSimpleAroundI
         }
     }
 
-    private boolean isAsynchronousInvocation(final Object target, final Object[] args) {
+    private AsyncContextAccessor getAsynchronousInvocation(final Object target, final Object[] args) {
         if (ArrayUtils.getLength(args) < 6) {
-            return false;
+            return null;
         }
 
-        if (!(args[5] instanceof AsyncContextAccessor)) {
+        AsyncContextAccessor accessor = ArrayArgumentUtils.getArgument(args, 5, AsyncContextAccessor.class);
+        if (accessor == null) {
             if (isDebug) {
                 logger.debug("Invalid result object. Need accessor({}).", AsyncContextAccessor.class.getName());
             }
-            return false;
         }
-
-        return true;
+        return accessor;
     }
 
     @Override
@@ -91,7 +92,7 @@ public class CommandAsyncServiceMethodInterceptor extends SpanEventSimpleAroundI
             }
 
             if (this.keyTrace) {
-                RedisCommand redisCommands = (RedisCommand) args[3];
+                RedisCommand<?> redisCommands = ArrayArgumentUtils.getArgument(args, 3, RedisCommand.class);;
                 if (redisCommands != null && StringUtils.hasLength(redisCommands.getName())) {
                     recorder.recordAttribute(AnnotationKey.ARGS0, redisCommands.getName());
                 }
@@ -154,9 +155,9 @@ public class CommandAsyncServiceMethodInterceptor extends SpanEventSimpleAroundI
                 }
 
             }
-        } catch (Exception ignored) {
+        } catch (Exception ignore) {
             if (isDebug) {
-                logger.debug("Unexpected error. nodeSource={}", nodeSource, ignored);
+                logger.debug("Unexpected error. nodeSource={}", nodeSource, ignore);
             }
         }
         return "Unknown";

@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.activemq.client.ActiveMQClientConstants;
 import com.navercorp.pinpoint.plugin.activemq.client.ActiveMQClientHeader;
@@ -89,9 +90,10 @@ public class ActiveMQMessageConsumerDispatchInterceptor implements AroundInterce
             // ------------------------------------------------------
             SpanEventRecorder recorder = trace.traceBlockBegin();
             recorder.recordServiceType(ActiveMQClientConstants.ACTIVEMQ_CLIENT_INTERNAL);
-            if (args[0] instanceof AsyncContextAccessor) {
+            AsyncContextAccessor accessor = ArrayArgumentUtils.getArgument(args, 0, AsyncContextAccessor.class);
+            if (accessor != null) {
                 AsyncContext asyncContext = recorder.recordNextAsyncContext();
-                ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
+                accessor._$PINPOINT$_setAsyncContext(asyncContext);
             }
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -138,7 +140,7 @@ public class ActiveMQMessageConsumerDispatchInterceptor implements AroundInterce
         if (!validate(target, args)) {
             return null;
         }
-        MessageDispatch md = (MessageDispatch) args[0];
+        MessageDispatch md = ArrayArgumentUtils.getArgument(args, 0, MessageDispatch.class);
         ActiveMQMessage message = (ActiveMQMessage) md.getMessage();
         if (filterDestination(message.getDestination())) {
             return null;

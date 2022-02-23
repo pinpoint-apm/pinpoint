@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.paho.mqtt.interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.paho.mqtt.accessor.BrokerUriFieldAccessor;
 
@@ -63,12 +63,9 @@ public class MqttClientConstructorInterceptor implements AroundInterceptor {
     }
 
     private String extractBrokerUri(Object args[]) {
-        if (ArrayUtils.isEmpty(args)) {
-            return UNKNOWN;
-        }
-
-        if (args[0] instanceof String && StringUtils.hasLength((String)args[0])) {
-            return (String) args[0];
+        String argument = ArrayArgumentUtils.getArgument(args, 0, String.class);
+        if (StringUtils.hasLength(argument)) {
+            return argument;
         }
 
         return UNKNOWN;

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.fastjson.FastjsonConstants;
 
 import java.io.IOException;
@@ -87,18 +88,20 @@ public class ParseObjectInterceptor implements AroundInterceptor {
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 
-            if (args[0] != null) {
-                if (args[0] instanceof String) {
-                    recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
-                } else if (args[0] instanceof byte[]) {
-                    recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((byte[]) args[0]).length);
-                } else if (args[0] instanceof char[]) {
-                    recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((char[]) args[0]).length);
-                } else if (args[0] instanceof InputStream) {
-                    recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((InputStream) args[0]).available());
+            Object arg = ArrayUtils.get(args, 0);
+            if (arg != null) {
+                if (arg instanceof String) {
+                    recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((String) arg).length());
+                } else if (arg instanceof byte[]) {
+                    recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((byte[]) arg).length);
+                } else if (arg instanceof char[]) {
+                    recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((char[]) arg).length);
+                } else if (arg instanceof InputStream) {
+                    recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((InputStream) arg).available());
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException ignore) {
+            // ignore
         } finally {
             trace.traceBlockEnd();
         }

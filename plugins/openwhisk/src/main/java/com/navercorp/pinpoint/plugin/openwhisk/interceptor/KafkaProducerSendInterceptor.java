@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.openwhisk.OpenwhiskConstants;
 import com.navercorp.pinpoint.plugin.openwhisk.setter.TraceContextSetter;
 import scala.collection.immutable.Map;
@@ -47,12 +49,11 @@ public class KafkaProducerSendInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        if (!(args[1] instanceof ActivationMessage)) {
+        ActivationMessage activationMessage = ArrayArgumentUtils.getArgument(args, 1, ActivationMessage.class);
+        if (activationMessage == null) {
             logger.debug("It is not ActivationMessage");
             return;
         }
-
-        ActivationMessage activationMessage = (ActivationMessage) args[1];
 
         AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext((activationMessage).transid());
         if (asyncContext == null) {
@@ -70,8 +71,8 @@ public class KafkaProducerSendInterceptor implements AroundInterceptor {
         TraceId nextId = trace.getTraceId().getNextTraceId();
         String applicationName = traceContext.getApplicationName();
         String serverTypeCode = Short.toString(traceContext.getServerTypeCode());
-        String entityPath = String.valueOf((Object)activationMessage.action());
-        String endPoint = args[0].toString();
+        String entityPath = String.valueOf(activationMessage.action());
+        String endPoint = String.valueOf(ArrayUtils.get(args, 0));
 
         recorder.recordServiceType(OpenwhiskConstants.OPENWHISK_CLIENT);
         recorder.recordApi(descriptor);

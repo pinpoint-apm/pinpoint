@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.jdbc.mysql.MySqlConstants;
 
@@ -57,9 +58,9 @@ public class MySQLConnectionCreateInterceptor implements AroundInterceptor {
             return;
         }
 
-        final String hostToConnectTo = getString(args[0]);
-        final Integer portToConnectTo = getInteger(args[1]);
-        final String databaseId = getString(args[3]);
+        final String hostToConnectTo = ArrayArgumentUtils.getArgument(args, 0, String.class);
+        final Integer portToConnectTo = ArrayArgumentUtils.getArgument(args, 1, Integer.class);
+        final String databaseId = ArrayArgumentUtils.getArgument(args, 3, String.class);
         // In case of loadbalance, connectUrl is modified.
         // final String url = getString(args[4]);
         DatabaseInfo databaseInfo = null;
@@ -97,20 +98,6 @@ public class MySQLConnectionCreateInterceptor implements AroundInterceptor {
         DatabaseInfo databaseInfo = new DefaultDatabaseInfo(MySqlConstants.MYSQL, MySqlConstants.MYSQL_EXECUTE_QUERY, url, url, Arrays.asList(url), databaseId);
         return databaseInfo;
 
-    }
-
-    private String getString(Object value) {
-        if (value instanceof String) {
-            return (String) value;
-        }
-        return null;
-    }
-
-    private Integer getInteger(Object value) {
-        if (value instanceof Integer) {
-            return (Integer) value;
-        }
-        return null;
     }
 
     @Override

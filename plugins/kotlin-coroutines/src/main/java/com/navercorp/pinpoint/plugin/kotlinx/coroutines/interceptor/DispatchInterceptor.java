@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import kotlin.coroutines.Continuation;
 import kotlinx.coroutines.CancellableContinuation;
@@ -69,19 +70,16 @@ public class DispatchInterceptor implements AroundInterceptor {
 
         final SpanEventRecorder recorder = trace.traceBlockBegin();
         recorder.recordServiceType(serviceType);
-
-        if (ArrayUtils.hasLength(args)) {
-            if (args[0] instanceof AsyncContextAccessor) {
-                AsyncContextAccessor accessor = (AsyncContextAccessor) args[0];
-                final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-                accessor._$PINPOINT$_setAsyncContext(asyncContext);
-            }
+        AsyncContextAccessor accessor = ArrayArgumentUtils.getArgument(args, 0, AsyncContextAccessor.class);
+        if (accessor != null) {
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+            accessor._$PINPOINT$_setAsyncContext(asyncContext);
         }
     }
 
     private boolean isCompletedContinuation(final Object[] args) {
-        if (ArrayUtils.getLength(args) == 2 && args[1] instanceof Continuation) {
-            Continuation continuation = (Continuation) args[1];
+        if (ArrayUtils.getLength(args) == 2) {
+            Continuation continuation = ArrayArgumentUtils.getArgument(args, 1, Continuation.class);
             if (continuation instanceof CancellableContinuation) {
                 return ((CancellableContinuation) continuation).isCompleted();
             }

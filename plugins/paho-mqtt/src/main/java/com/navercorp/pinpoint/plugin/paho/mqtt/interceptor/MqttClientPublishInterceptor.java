@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -118,10 +119,7 @@ public abstract class MqttClientPublishInterceptor implements AroundInterceptor 
     }
 
     private String getTopic(Object args[]) {
-        if (args[0] instanceof String) {
-            return (String) args[0];
-        }
-        return null;
+        return ArrayArgumentUtils.getArgument(args, 0, String.class);
     }
 
     private String getPayload(Object args[]) {

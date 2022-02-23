@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.hbase.HbasePluginConstants;
 
@@ -68,10 +69,9 @@ public class HbaseClientMethodInterceptor extends SpanEventSimpleAroundIntercept
         //      Message param, Message returnType, User ticket, InetSocketAddress addr,
         //      MetricsConnection.CallStats callStats)
         if (ArrayUtils.getLength(args) == 7) {
-
-            if (args[5] instanceof InetSocketAddress) {
-
-                return SocketAddressUtils.getHostNameFirst((InetSocketAddress) args[5]);
+            InetSocketAddress socketAddress = ArrayArgumentUtils.getArgument(args, 5, InetSocketAddress.class);
+            if (socketAddress != null) {
+                return SocketAddressUtils.getHostNameFirst(socketAddress);
             }
         }
         return null;

@@ -23,6 +23,7 @@ import static org.apache.rocketmq.common.message.MessageDecoder.PROPERTY_SEPARAT
 import java.util.HashMap;
 import java.util.Map;
 
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import org.apache.rocketmq.common.protocol.header.SendMessageRequestHeader;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
@@ -62,9 +63,9 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         }
         try {
             Trace trace = traceContext.currentTraceObject();
-            final Object sendCallback = getSendCallback(args);
+            final AsyncContextAccessor sendCallback = getSendCallback(args);
             // async send process
-            if (sendCallback instanceof AsyncContextAccessor) {
+            if (sendCallback != null) {
                 if (isSkipTrace()) {
                     return;
                 }
@@ -209,8 +210,8 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         }
     }
 
-    private Object getSendCallback(Object[] args) {
-        return args[6];
+    private AsyncContextAccessor getSendCallback(Object[] args) {
+        return ArrayArgumentUtils.getArgument(args, 6, AsyncContextAccessor.class);
     }
 
     private boolean isSkipTrace() {

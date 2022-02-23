@@ -65,7 +65,7 @@ public class ChannelPipelineWriteInterceptor implements AroundInterceptor {
         // Inner handler can run before after() method.
         // If create AsyncContext in after() method, then there is a possibility that AsyncContext will be saved later than execution
         // The write method returns an exception in the Future, so you do not needs to worry about to handle throwable field.
-        Object request = args[0];
+        Object request = ArrayUtils.get(args, 0);
         if (isAsynchronousInvocation(request)) {
             // set asynchronous trace
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();

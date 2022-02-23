@@ -147,14 +147,15 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             return false;
         }
 
-        if (!(args[0] instanceof HttpServerRequest)) {
+        Object arg = args[0];
+        if (!(arg instanceof HttpServerRequest)) {
             if (isDebug) {
-                logger.debug("Invalid args[0] object. {}.", args[0]);
+                logger.debug("Invalid args[0] object. {}.", arg);
             }
             return false;
         }
 
-        if (!(args[0] instanceof AsyncContextAccessor)) {
+        if (!(arg instanceof AsyncContextAccessor)) {
             if (isDebug) {
                 logger.debug("Invalid args[0] object. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
             }

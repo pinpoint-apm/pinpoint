@@ -17,10 +17,9 @@
 package com.navercorp.pinpoint.plugin.spring.web.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 
 /**
  * @author jaehong.kim
@@ -32,8 +31,9 @@ public class StrictHttpFirewallGetFirewalledRequestInterceptor implements Around
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (ArrayUtils.hasLength(args)) {
-            final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
+        AsyncContextAccessor accessor = ArrayArgumentUtils.getArgument(args, 0, AsyncContextAccessor.class);
+        if (accessor != null) {
+            final AsyncContext asyncContext = accessor._$PINPOINT$_getAsyncContext();
             if (asyncContext != null && result instanceof AsyncContextAccessor) {
                 // StrictHttpFirewall$StrictFirewalledRequest
                 ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);

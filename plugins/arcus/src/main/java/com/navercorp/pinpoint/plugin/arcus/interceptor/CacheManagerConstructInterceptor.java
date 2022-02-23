@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.plugin.arcus.interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
 
 /**
@@ -40,7 +41,8 @@ public class CacheManagerConstructInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
         if (target instanceof ServiceCodeAccessor) {
-            ((ServiceCodeAccessor) target)._$PINPOINT$_setServiceCode((String) args[1]);
+            String serviceCode = ArrayArgumentUtils.getArgument(args, 1, String.class);
+            ((ServiceCodeAccessor) target)._$PINPOINT$_setServiceCode(serviceCode);
         }
     }
 }

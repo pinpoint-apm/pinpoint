@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.jetty.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import org.eclipse.jetty.server.HttpConnection;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,13 +39,9 @@ public class Jetty80ServerHandleInterceptor extends AbstractServerHandleIntercep
 
     @Override
     HttpServletRequest toHttpServletRequest(Object[] args) {
-        if (ArrayUtils.isEmpty(args)) {
-            return null;
-        }
-
-        if (args[0] instanceof HttpConnection) {
+        HttpConnection connection = getArgument(args);
+        if (connection != null) {
             try {
-                HttpConnection connection = (HttpConnection) args[0];
                 return connection.getRequest();
             } catch (Throwable ignored) {
             }
@@ -55,18 +51,18 @@ public class Jetty80ServerHandleInterceptor extends AbstractServerHandleIntercep
 
     @Override
     HttpServletResponse toHttpServletResponse(Object[] args) {
-        if (ArrayUtils.isEmpty(args)) {
-            return null;
-        }
-
-        if (args[0] instanceof HttpConnection) {
+        HttpConnection connection = getArgument(args);
+        if (connection != null) {
             try {
-                HttpConnection connection = (HttpConnection) args[0];
                 return connection.getResponse();
             } catch (Throwable ignored) {
             }
         }
         return null;
 
+    }
+
+    private HttpConnection getArgument(Object[] args) {
+        return ArrayArgumentUtils.getArgument(args, 0, HttpConnection.class);
     }
 }

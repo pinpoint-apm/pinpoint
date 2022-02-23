@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.sdk.AgentSdkAsyncConstants;
 
 import java.util.Objects;
@@ -53,33 +53,26 @@ public class ExecutorExecuteInterceptor implements AroundInterceptor {
         final SpanEventRecorder recorder = trace.traceBlockBegin();
 
 
-        boolean r = validate(args);
-        if (r) {
+        AsyncContextAccessor accessor = getAsyncContextAccessor(args);
+        if (accessor != null) {
             // make asynchronous trace-id
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-            ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
+            accessor._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
                 logger.debug("Set asyncContext {}", asyncContext);
             }
         }
     }
 
-    private boolean validate(final Object[] args) {
-        if (ArrayUtils.isEmpty(args)) {
-            if (isDebug) {
-                logger.debug("Invalid args object. args={}.", args);
-            }
-            return false;
-        }
-
-        if (!(args[0] instanceof AsyncContextAccessor)) {
+    private AsyncContextAccessor getAsyncContextAccessor(final Object[] args) {
+        final AsyncContextAccessor accessor = ArrayArgumentUtils.getArgument(args, 0, AsyncContextAccessor.class);
+        if (accessor == null) {
             if (isDebug) {
                 logger.debug("Invalid args[0] object. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
             }
-            return false;
         }
 
-        return true;
+        return accessor;
     }
 
     @Override

@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import com.navercorp.pinpoint.plugin.vertx.VertxHandleException;
@@ -38,9 +38,8 @@ public class HandleExceptionInterceptor extends AsyncContextSpanEventEndPointInt
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
 
-        Object th = ArrayUtils.get(args, 0);
-        if (th instanceof Throwable) {
-            final Throwable handleException = (Throwable) th;
+        final Throwable handleException = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
+        if (handleException != null) {
             if (throwable != null) {
 
                 // handle to two throwable(handle and catch).
