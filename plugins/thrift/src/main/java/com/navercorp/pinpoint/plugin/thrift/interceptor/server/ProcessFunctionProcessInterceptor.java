@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.thrift.interceptor.server;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.thrift.field.getter.TProtocolFieldGetter;
 import org.apache.thrift.ProcessFunction;
 import org.apache.thrift.protocol.TProtocol;
@@ -62,7 +63,7 @@ public class ProcessFunctionProcessInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
         // process(int seqid, TProtocol iprot, TProtocol oprot, I iface)
-        if (args.length != 4) {
+        if (ArrayUtils.getLength(args) != 4) {
             return;
         }
         String methodName = ThriftConstants.UNKNOWN_METHOD_NAME;
@@ -90,7 +91,7 @@ public class ProcessFunctionProcessInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
         // Unset server marker
-        if (args.length != 4) {
+        if (ArrayUtils.getLength(args) != 4) {
             Object iprot = args[1];
             if (validateInputProtocol(iprot)) {
                 ((ServerMarkerFlagFieldAccessor) iprot)._$PINPOINT$_setServerMarkerFlag(false);

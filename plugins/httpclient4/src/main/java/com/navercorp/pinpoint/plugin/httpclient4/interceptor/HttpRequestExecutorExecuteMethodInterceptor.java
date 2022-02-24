@@ -139,12 +139,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     }
 
     private HttpRequest getHttpRequest(Object[] args) {
-        final HttpRequest httpRequest = ArrayArgumentUtils.getArgument(args, 0, HttpRequest.class);
-        if (httpRequest != null) {
-            return httpRequest;
-        }
-
-        return null;
+        return ArrayArgumentUtils.getArgument(args, 0, HttpRequest.class);
     }
 
     private NameIntValuePair<String> getHost() {

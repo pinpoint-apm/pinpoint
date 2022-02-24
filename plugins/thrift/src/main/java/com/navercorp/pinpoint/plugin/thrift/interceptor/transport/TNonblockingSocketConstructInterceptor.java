@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.thrift.interceptor.transport;
 import java.net.Socket;
 import java.net.SocketAddress;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.apache.thrift.transport.TNonblockingSocket;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
@@ -59,7 +60,7 @@ public class TNonblockingSocketConstructInterceptor implements AroundInterceptor
         if (!(target instanceof TNonblockingSocket)) {
             return false;
         }
-        if (args.length != 3) {
+        if (ArrayUtils.getLength(args) != 3) {
             return false;
         }
         if (!(target instanceof SocketFieldAccessor)) {

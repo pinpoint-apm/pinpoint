@@ -164,11 +164,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     }
 
     private HttpConnection getHttpConnection(final Object[] args) {
-        HttpConnection connection = ArrayArgumentUtils.getArgument(args, 1, HttpConnection.class);
-        if (connection != null) {
-            return connection;
-        }
-        return null;
+        return ArrayArgumentUtils.getArgument(args, 1, HttpConnection.class);
     }
 
     @Override
