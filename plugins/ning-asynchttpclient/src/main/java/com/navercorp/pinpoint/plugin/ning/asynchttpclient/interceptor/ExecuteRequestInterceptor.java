@@ -95,7 +95,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
         }
 
         Request httpRequest = getHttpReqeust(args);
-        if (httpRequest != null) {
+        if (httpRequest == null) {
             return;
         }
 
@@ -132,7 +132,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
         }
 
         Request httpReqeust = getHttpReqeust(args);
-        if (httpReqeust != null) {
+        if (httpReqeust == null) {
             return;
         }
 

@@ -96,7 +96,7 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
         }
 
         AsyncContextAccessor accessor = getAsyncContextAccessor(args);
-        if (accessor != null) {
+        if (accessor == null) {
             return;
         }
 
