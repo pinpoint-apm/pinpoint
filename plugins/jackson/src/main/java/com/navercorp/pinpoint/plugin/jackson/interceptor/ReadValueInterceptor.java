@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ContentLength;
 import com.navercorp.pinpoint.plugin.jackson.JacksonConstants;
 
 import java.io.File;
@@ -29,8 +30,18 @@ import java.io.File;
  */
 public class ReadValueInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
+    private final ContentLength contentLength;
+
     public ReadValueInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
+        this.contentLength = newContentLength();
+    }
+
+    private ContentLength newContentLength() {
+        ContentLength.Builder builder = ContentLength.newBuilder();
+        builder.addContentType(String.class);
+        builder.addContentType(byte[].class);
+        return builder.build();
     }
 
     @Override
@@ -44,14 +55,14 @@ public class ReadValueInterceptor extends SpanEventSimpleAroundInterceptorForPlu
         recorder.recordException(throwable);
 
         Object arg = ArrayUtils.get(args, 0);
-
-        if (arg != null) {
-            if (arg instanceof String) {
-                recorder.recordAttribute(JacksonConstants.ANNOTATION_KEY_LENGTH_VALUE, ((String) arg).length());
-            } else if (arg instanceof byte[]) {
-                recorder.recordAttribute(JacksonConstants.ANNOTATION_KEY_LENGTH_VALUE, ((byte[]) arg).length);
-            } else if (arg instanceof File) {
-                recorder.recordAttribute(JacksonConstants.ANNOTATION_KEY_LENGTH_VALUE, ((File) arg).length());
+        if (arg instanceof File) {
+            // long length
+            long length = ((File) arg).length();
+            recorder.recordAttribute(JacksonConstants.ANNOTATION_KEY_LENGTH_VALUE, length);
+        } else {
+            int length = contentLength.getLength(arg);
+            if (length != ContentLength.NOT_EXIST) {
+                recorder.recordAttribute(JacksonConstants.ANNOTATION_KEY_LENGTH_VALUE, length);
             }
         }
     }

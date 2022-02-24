@@ -49,7 +49,7 @@ public class ToJsonInterceptor extends SpanEventSimpleAroundInterceptorForPlugin
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
 
-        if (result instanceof Object) {
+        if (result != null) {
             recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, result.hashCode());
         }
     }
