@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.thrift.interceptor.server.async;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.apache.thrift.TBaseAsyncProcessor;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.server.AbstractNonblockingServer.AsyncFrameBuffer;
@@ -93,7 +94,7 @@ public class TBaseAsyncProcessorProcessInterceptor implements AroundInterceptor 
             logger.beforeInterceptor(target, args);
         }
         // process(final AsyncFrameBuffer fb)
-        if (args.length != 1) {
+        if (ArrayUtils.getLength(args) != 1) {
             return;
         }
         // Set server markers

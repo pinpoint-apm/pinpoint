@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.netty.NettyClientRequestWrapper;
 import com.navercorp.pinpoint.plugin.netty.NettyConfig;
 import com.navercorp.pinpoint.plugin.netty.NettyConstants;
@@ -281,7 +282,7 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(Object[] args) {
-        if (args.length != 3) {
+        if (ArrayUtils.getLength(args) != 3) {
             return false;
         }
 
