@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.job.ZookeeperJob;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
-import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonStateContext;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
@@ -35,8 +34,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Taejin Koo
@@ -54,7 +54,7 @@ public class ZookeeperJobWorker implements Runnable {
     private final CommonStateContext workerState;
     private final String collectorUniqPath;
     private final ZookeeperClient zookeeperClient;
-    private final ConcurrentLinkedDeque<ZookeeperJob> zookeeperJobDeque = new ConcurrentLinkedDeque<>();
+    private final LinkedBlockingDeque<ZookeeperJob> zookeeperJobDeque = new LinkedBlockingDeque<>();
     private Thread workerThread;
 
     public ZookeeperJobWorker(ZookeeperClient zookeeperClient, String connectedAgentZNodePath) {
@@ -66,6 +66,8 @@ public class ZookeeperJobWorker implements Runnable {
     }
 
     public void start() {
+        logger.info("start() collectorUniqPath:{}", collectorUniqPath);
+
         final ThreadFactory threadFactory = new PinpointThreadFactory(this.getClass().getSimpleName(), true);
         this.workerThread = threadFactory.newThread(this);
 
@@ -102,13 +104,12 @@ public class ZookeeperJobWorker implements Runnable {
         }
 
         logger.info("stop() started.");
-        boolean interrupted = false;
         while (workerThread != null && this.workerThread.isAlive()) {
             this.workerThread.interrupt();
             try {
-                this.workerThread.join(100L);
+                this.workerThread.join(3000L);
             } catch (InterruptedException e) {
-                interrupted = true;
+                Thread.currentThread().interrupt();
             }
         }
 
@@ -137,7 +138,7 @@ public class ZookeeperJobWorker implements Runnable {
         return Collections.emptyList();
     }
 
-    private String getClusterData() throws PinpointZookeeperException, InterruptedException {
+    private String getClusterData() {
         try {
             final byte[] result = zookeeperClient.getData(collectorUniqPath);
             if (result == null) {
@@ -169,9 +170,7 @@ public class ZookeeperJobWorker implements Runnable {
 
     private boolean putZookeeperJob(ZookeeperJob zookeeperJob) {
         synchronized (lock) {
-            boolean added = zookeeperJobDeque.add(zookeeperJob);
-            lock.notifyAll();
-            return added;
+            return zookeeperJobDeque.add(zookeeperJob);
         }
     }
 
@@ -185,21 +184,19 @@ public class ZookeeperJobWorker implements Runnable {
         // spinLock possible when events are not deleted
         // may lead to PinpointServer leak when events are left unresolved
         while (workerState.isStarted()) {
-            boolean eventExists = awaitJob(60000, 200);
-            if (eventExists) {
+            try {
                 List<ZookeeperJob> zookeeperJobList = getLatestZookeeperJobList();
                 if (CollectionUtils.isEmpty(zookeeperJobList)) {
                     continue;
                 }
 
-
                 ZookeeperJob headJob = CollectionUtils.firstElement(zookeeperJobList);
                 if (latestHeadJob != null && latestHeadJob == headJob) {
                     // for defence spinLock (zookeeper problem, etc..)
-                    await(500);
+                    Thread.sleep(500);
                 }
-
                 latestHeadJob = headJob;
+
                 boolean completed = handle(zookeeperJobList);
                 if (!completed) {
                     // rollback
@@ -207,14 +204,17 @@ public class ZookeeperJobWorker implements Runnable {
                         zookeeperJobDeque.addFirst(zookeeperJobList.get(i));
                     }
                 }
+            } catch (InterruptedException e) {
+                logger.info("{} thread interrupted", workerThread.getName());
+                break;
             }
         }
 
         logger.info("run() completed.");
     }
 
-    private List<ZookeeperJob> getLatestZookeeperJobList() {
-        ZookeeperJob defaultJob = zookeeperJobDeque.poll();
+    private List<ZookeeperJob> getLatestZookeeperJobList() throws InterruptedException {
+        ZookeeperJob defaultJob = zookeeperJobDeque.poll(3000, TimeUnit.MILLISECONDS);
         if (defaultJob == null) {
             return Collections.emptyList();
         }
@@ -235,54 +235,6 @@ public class ZookeeperJobWorker implements Runnable {
         }
 
         return result;
-    }
-
-    /**
-     * Waits for events to trigger for a given time.
-     *
-     * @param waitTimeMillis total time to wait for events to trigger in milliseconds
-     * @param waitUnitTimeMillis time to wait for each wait attempt in milliseconds
-     * @return true if event triggered, false otherwise
-     */
-    private boolean awaitJob(long waitTimeMillis, long waitUnitTimeMillis) {
-        synchronized (lock) {
-            long waitTime = waitTimeMillis;
-            long waitUnitTime = waitUnitTimeMillis;
-            if (waitTimeMillis < 1000) {
-                waitTime = 1000;
-            }
-            if (waitUnitTimeMillis < 100) {
-                waitUnitTime = 100;
-            }
-
-            long startTimeMillis = System.currentTimeMillis();
-
-            while (zookeeperJobDeque.isEmpty() && !isOverWaitTime(waitTime, startTimeMillis) && workerState.isStarted()) {
-                try {
-                    lock.wait(waitUnitTime);
-                } catch (InterruptedException ignore) {
-//                    Thread.currentThread().interrupt();
-//                    TODO check Interrupted state
-                }
-            }
-
-            if (isOverWaitTime(waitTime, startTimeMillis)) {
-                return false;
-            }
-
-            return true;
-        }
-    }
-
-    private void await(long waitTimeMillis) {
-        try {
-            Thread.sleep(waitTimeMillis);
-        } catch (InterruptedException ignore) {
-        }
-    }
-
-    private boolean isOverWaitTime(long waitTimeMillis, long startTimeMillis) {
-        return waitTimeMillis < (System.currentTimeMillis() - startTimeMillis);
     }
 
     private boolean handle(List<ZookeeperJob> zookeeperJobList) {
