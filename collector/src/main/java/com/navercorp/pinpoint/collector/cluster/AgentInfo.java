@@ -28,7 +28,7 @@ public class AgentInfo {
     private final long startTimestamp;
     private final String version;
 
-    private final String agentKey;
+    private AgentInfoKey agentKey;
 
     public AgentInfo(String applicationName, String agentId, long startTimestamp) {
         this(applicationName, agentId, startTimestamp, "");
@@ -39,18 +39,6 @@ public class AgentInfo {
         this.agentId = agentId;
         this.startTimestamp = startTimestamp;
         this.version = version;
-        this.agentKey = createAgentKey(applicationName, agentId, startTimestamp);
-    }
-
-    private String createAgentKey(String applicationName, String agentId, long startTimestamp) {
-        StringBuilder key = new StringBuilder();
-        key.append(applicationName);
-        key.append(":");
-        key.append(agentId);
-        key.append(":");
-        key.append(startTimestamp);
-
-        return key.toString();
     }
 
     public String getApplicationName() {
@@ -69,9 +57,13 @@ public class AgentInfo {
         return version;
     }
 
-    public String getAgentKey() {
+    public AgentInfoKey getAgentKey() {
+        if (agentKey == null) {
+            agentKey = new AgentInfoKey(applicationName, agentId, startTimestamp);
+        }
         return agentKey;
     }
+
 
     public boolean equals(String applicationName, String agentId, long startTimestamp) {
         if (!this.applicationName.equals(applicationName)) {
@@ -104,9 +96,10 @@ public class AgentInfo {
     @Override
     public String toString() {
         return "AgentInfo{" +
-                getAgentKey() + ":"
-                + version +
+                "applicationName='" + applicationName + '\'' +
+                ", agentId='" + agentId + '\'' +
+                ", startTimestamp=" + startTimestamp +
+                ", version='" + version + '\'' +
                 '}';
     }
-
 }

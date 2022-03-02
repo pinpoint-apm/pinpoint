@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.collector.cluster.AgentInfo;
+import com.navercorp.pinpoint.collector.cluster.AgentInfoKey;
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
@@ -230,7 +231,7 @@ public class ClusterPointController {
 
         private final InetSocketAddress remoteAddress;
 
-        private final String agentKey;
+        private final AgentInfoKey agentKey;
 
         private final String socketStateCode;
 
@@ -252,7 +253,7 @@ public class ClusterPointController {
             return remoteAddress;
         }
 
-        public String getAgentKey() {
+        public AgentInfoKey getAgentKey() {
             return agentKey;
         }
 
