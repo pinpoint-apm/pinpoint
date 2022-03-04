@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    providedCompile(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("com.alibaba:druid:1.1.10")
 }
 

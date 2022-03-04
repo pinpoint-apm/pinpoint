@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    providedCompile(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("org.apache.hbase:hbase-shaded-client:1.2.12")
     compileOnly("commons-logging:commons-logging:1.2")
 }

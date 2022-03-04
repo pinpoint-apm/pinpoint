@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    providedCompile(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("org.apache.cxf:cxf-rt-frontend-jaxrs:3.0.16")
     compileOnly("org.apache.cxf:cxf-rt-frontend-jaxws:3.0.16")
     compileOnly("org.apache.cxf:cxf-rt-transports-http:3.0.16")

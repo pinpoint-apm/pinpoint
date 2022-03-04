@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    providedCompile(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
 }
 
 description = "pinpoint-json-lib-plugin"

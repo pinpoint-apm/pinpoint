@@ -9,8 +9,8 @@ plugins {
 }
 
 dependencies {
-    providedCompile(project(":pinpoint-bootstrap-core"))
-    providedCompile(project(":pinpoint-annotations"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-annotations"))
     compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
 }
 

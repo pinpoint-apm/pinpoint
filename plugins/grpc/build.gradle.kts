@@ -9,8 +9,8 @@ plugins {
 }
 
 dependencies {
-    providedCompile(project(":pinpoint-bootstrap-core"))
-    providedCompile(project(":pinpoint-commons"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-commons"))
     compileOnly("io.grpc:grpc-core:1.14.0")
 }
 

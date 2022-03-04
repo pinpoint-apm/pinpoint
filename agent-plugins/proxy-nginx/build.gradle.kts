@@ -10,8 +10,8 @@ plugins {
 
 dependencies {
     implementation(project(":pinpoint-agent-proxy-common"))
-    providedCompile(project(":pinpoint-bootstrap-core"))
-    providedCompile(project(":pinpoint-profiler"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-profiler"))
 }
 
 description = "pinpoint-agent-proxy-nginx-plugin"

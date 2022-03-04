@@ -25,8 +25,8 @@ dependencies {
     runtimeOnly("org.apache.logging.log4j:log4j-jcl:2.17.1")
     testImplementation("org.awaitility:awaitility:3.1.5")
     testImplementation("org.springframework:spring-test:5.3.13")
-    providedCompile(project(":pinpoint-thrift"))
-    providedCompile(project(":pinpoint-grpc"))
+    compileOnly(project(":pinpoint-thrift"))
+    compileOnly(project(":pinpoint-grpc"))
 }
 
 description = "pinpoint-commons-server"

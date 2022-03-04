@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    providedCompile(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
     compileOnly("org.eclipse.paho:org.eclipse.paho.mqttv5.client:1.2.5")
 }

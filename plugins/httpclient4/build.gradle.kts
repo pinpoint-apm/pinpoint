@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    providedCompile(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("org.apache.httpcomponents:httpcore:4.4.14")
     compileOnly("org.apache.httpcomponents:httpasyncclient:4.1.4")
     compileOnly("org.apache.httpcomponents:httpcore-nio:4.4.14")

@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    providedCompile(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("org.slf4j:slf4j-api:1.7.30")
     compileOnly("ch.qos.logback:logback-core:1.2.5")
 }

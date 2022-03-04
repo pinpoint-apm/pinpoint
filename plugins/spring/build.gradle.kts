@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
     testImplementation(project(":pinpoint-test"))
-    providedCompile(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("org.springframework:spring-context:4.3.30.RELEASE")
     compileOnly("org.springframework:spring-web:4.3.30.RELEASE")
 }

@@ -6,11 +6,10 @@
 
 plugins {
     id("com.navercorp.pinpoint.java-conventions")
-    `java-library`
 }
 
 dependencies {
-    providedCompile(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("org.apache.activemq:activemq-client:5.13.2")
 }
 

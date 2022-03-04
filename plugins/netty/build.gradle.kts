@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    providedCompile(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("io.netty:netty-all:4.1.63.Final")
     compileOnly("org.springframework:spring-web:5.3.13")
 }
