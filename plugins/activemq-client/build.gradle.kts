@@ -6,6 +6,7 @@
 
 plugins {
     id("com.navercorp.pinpoint.java-conventions")
+    `java-library`
 }
 
 dependencies {
