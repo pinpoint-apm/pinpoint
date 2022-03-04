@@ -15,7 +15,7 @@ dependencies {
     testImplementation(project(":pinpoint-profiler-test"))
     testImplementation(project(":pinpoint-test"))
     testImplementation("org.apache.commons:commons-lang3:3.8.1")
-    providedCompile(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("org.jboss.as:jboss-as-security:7.2.0.Final")
 }
 

@@ -11,7 +11,7 @@ plugins {
 dependencies {
     testImplementation(project(":pinpoint-profiler"))
     testImplementation(project(":pinpoint-profiler-test"))
-    providedCompile(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("redis.clients:jedis:2.4.2")
 }
 

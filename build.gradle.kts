@@ -1,8 +1,10 @@
 plugins {
-    java
+    id("java")
 }
 
+group = "com.navercorp"
+version = "2.4.0-SNAPSHOT"
 
-dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
+repositories {
+    mavenCentral()
 }

@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    providedCompile(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("com.squareup.okhttp:okhttp:2.5.0")
     compileOnly("com.squareup.okhttp3:okhttp:3.8.1")
 }

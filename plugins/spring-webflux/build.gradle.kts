@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    providedCompile(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("org.springframework:spring-webflux:5.3.13")
     compileOnly("org.springframework:spring-web:5.3.13")
 }

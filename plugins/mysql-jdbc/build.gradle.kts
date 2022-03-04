@@ -12,7 +12,7 @@ dependencies {
     testImplementation("org.apache.logging.log4j:log4j-api:2.12.4")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
     testImplementation("org.apache.logging.log4j:log4j-core:2.12.4")
-    providedCompile(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
 }
 
 description = "pinpoint-mysql-jdbc-driver-plugin"

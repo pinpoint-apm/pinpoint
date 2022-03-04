@@ -14,7 +14,7 @@ dependencies {
     testImplementation("org.apache.logging.log4j:log4j-core:2.12.4")
     testImplementation(project(":pinpoint-commons-profiler"))
     testImplementation(project(":pinpoint-plugins-loader"))
-    providedCompile(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
 }
 
 description = "pinpoint-mssql-jdbc-driver-plugin"

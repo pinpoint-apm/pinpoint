@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    providedCompile(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("com.ning:async-http-client:1.8.3")
     compileOnly("org.asynchttpclient:async-http-client:2.0.32")
 }
