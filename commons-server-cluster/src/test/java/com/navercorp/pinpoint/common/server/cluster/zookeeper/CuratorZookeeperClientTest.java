@@ -246,7 +246,7 @@ public class CuratorZookeeperClientTest {
         ZooKeeper zooKeeper = new ZooKeeper(ts.getConnectString(), 3000, new Watcher() {
             @Override
             public void process(WatchedEvent watchedEvent) {
-                LOGGER.info("ZooKeeper process:{}", watchedEvent);
+                LOGGER.debug("process:{}", watchedEvent);
             }
         });
 

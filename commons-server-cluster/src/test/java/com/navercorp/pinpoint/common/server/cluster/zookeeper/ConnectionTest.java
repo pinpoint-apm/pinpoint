@@ -21,6 +21,7 @@ import org.apache.curator.test.TestingServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
@@ -41,7 +42,7 @@ import static org.hamcrest.Matchers.is;
  */
 public class ConnectionTest {
 
-    private static final Logger LOGGER = LogManager.getLogger(ConnectionTest.class);
+    private final Logger logger = LogManager.getLogger(ConnectionTest.class);
 
     private ConditionFactory awaitility() {
         ConditionFactory conditionFactory = Awaitility.await()
@@ -74,7 +75,12 @@ public class ConnectionTest {
     // If the Instance of ZookeeperServer is changed, Zookeeper will not automatically reconnect.
     @Test
     public void zookeeperExpiredTest() throws Exception {
-        ZooKeeper zookeeper = new ZooKeeper(ts.getConnectString(), 5000, null);
+        ZooKeeper zookeeper = new ZooKeeper(ts.getConnectString(), 5000, new Watcher() {
+            @Override
+            public void process(WatchedEvent watchedEvent) {
+                logger.info("process:{}", watchedEvent);
+            }
+        });
 
         try {
             assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper);
@@ -100,7 +106,12 @@ public class ConnectionTest {
     // If the Instance of ZookeeperServer is changed, Zookeeper will not automatically reconnect.
     @Test
     public void zookeeperReconnectTest() throws Exception {
-        ZooKeeper zookeeper = new ZooKeeper(ts.getConnectString(), 5000, null);
+        ZooKeeper zookeeper = new ZooKeeper(ts.getConnectString(), 5000, new Watcher() {
+            @Override
+            public void process(WatchedEvent watchedEvent) {
+                logger.info("process:{}", watchedEvent);
+            }
+        });
 
         try {
             assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper);
@@ -161,21 +172,22 @@ public class ConnectionTest {
     }
 
     private static class LoggingZookeeperEventWatcher implements ZookeeperEventWatcher {
+        private final Logger logger = LogManager.getLogger(LoggingZookeeperEventWatcher.class);
         @Override
         public boolean handleConnected() {
-            LOGGER.info("handleConnected()");
+            logger.info("handleConnected()");
             return true;
         }
 
         @Override
         public boolean handleDisconnected() {
-            LOGGER.info("handleDisconnected()");
+            logger.info("handleDisconnected()");
             return true;
         }
 
         @Override
         public void process(WatchedEvent watchedEvent) {
-            LOGGER.info("process:{}", watchedEvent);
+            logger.info("process:{}", watchedEvent);
         }
     }
 

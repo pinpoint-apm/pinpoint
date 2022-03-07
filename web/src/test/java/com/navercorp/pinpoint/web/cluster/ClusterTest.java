@@ -27,6 +27,8 @@ import com.navercorp.pinpoint.web.config.WebClusterConfig;
 import org.apache.curator.test.TestingServer;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
@@ -173,7 +175,12 @@ public class ClusterTest {
 
     @Test
     public void clusterTest1() throws Exception {
-        ZooKeeper zookeeper = new ZooKeeper(zookeeperAddress, 5000, null);
+        ZooKeeper zookeeper = new ZooKeeper(zookeeperAddress, 5000, new Watcher() {
+            @Override
+            public void process(WatchedEvent watchedEvent) {
+                LOGGER.info("process:{}", watchedEvent);
+            }
+        });
         awaitZookeeperConnected(zookeeper);
 
         if (zookeeper != null) {
@@ -183,7 +190,12 @@ public class ClusterTest {
 
     @Test
     public void clusterTest2() throws Exception {
-        ZooKeeper zookeeper = new ZooKeeper(zookeeperAddress, 5000, null);
+        ZooKeeper zookeeper = new ZooKeeper(zookeeperAddress, 5000, new Watcher() {
+            @Override
+            public void process(WatchedEvent watchedEvent) {
+                LOGGER.info("process:{}", watchedEvent);
+            }
+        });
         awaitZookeeperConnected(zookeeper);
 
         ts.stop();
@@ -211,7 +223,12 @@ public class ClusterTest {
         ZooKeeper zookeeper = null;
         TestPinpointClient testPinpointClient = new TestPinpointClient(SimpleMessageListener.INSTANCE);
         try {
-            zookeeper = new ZooKeeper(zookeeperAddress, 5000, null);
+            zookeeper = new ZooKeeper(zookeeperAddress, 5000, new Watcher() {
+                @Override
+                public void process(WatchedEvent watchedEvent) {
+                    LOGGER.info("process:{}", watchedEvent);
+                }
+            });
             awaitZookeeperConnected(zookeeper);
 
             Assert.assertEquals(0, clusterConnectionManager.getClusterList().size());
