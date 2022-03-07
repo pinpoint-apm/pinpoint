@@ -28,6 +28,8 @@ import org.apache.curator.test.TestingServer;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
 import org.awaitility.Awaitility;
@@ -113,7 +115,12 @@ public class ZookeeperClusterTest {
         ZooKeeper zookeeper = null;
         ZookeeperClusterDataManager manager = null;
         try {
-            zookeeper = new ZooKeeper(DEFAULT_IP + ":" + zookeeperPort, 5000, null);
+            zookeeper = new ZooKeeper(DEFAULT_IP + ":" + zookeeperPort, 5000, new Watcher() {
+                @Override
+                public void process(WatchedEvent event) {
+                    logger.debug("event:{}", event);
+                }
+            });
             createPath(zookeeper, COLLECTOR_TEST_NODE_PATH, true);
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1".getBytes(), -1);
 
@@ -150,7 +157,12 @@ public class ZookeeperClusterTest {
         ZooKeeper zookeeper = null;
         ZookeeperClusterDataManager manager = null;
         try {
-            zookeeper = new ZooKeeper(DEFAULT_IP + ":" + zookeeperPort, 5000, null);
+            zookeeper = new ZooKeeper(DEFAULT_IP + ":" + zookeeperPort, 5000, new Watcher() {
+                @Override
+                public void process(WatchedEvent watchedEvent) {
+                    logger.debug("process:{}", watchedEvent);
+                }
+            });
             createPath(zookeeper, COLLECTOR_TEST_NODE_PATH, true);
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1".getBytes(), -1);
 
