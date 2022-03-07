@@ -5,7 +5,7 @@
  */
 
 plugins {
-    id("com.navercorp.pinpoint.java-conventions")
+    id("pinpoint.java-conventions")
 }
 
 description = "pinpoint-annotations"
