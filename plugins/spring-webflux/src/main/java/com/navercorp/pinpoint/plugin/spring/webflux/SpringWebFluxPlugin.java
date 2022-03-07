@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
@@ -32,6 +34,7 @@ import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.BodyInserterRequ
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.BodyInserterRequestBuilderWriteToInterceptor;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.ClientResponseFunctionInterceptor;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.DefaultWebClientExchangeMethodInterceptor;
+import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.DispatchHandlerGetLambdaInterceptor;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.DispatchHandlerHandleMethodInterceptor;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.DispatchHandlerInvokeHandlerMethodInterceptor;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.ExchangeFunctionMethodInterceptor;
@@ -57,6 +60,9 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
         logger.info("{} version range=[5.0.0.RELEASE, 5.2.1.RELEASE], config:{}", this.getClass().getSimpleName(), config);
         // Server
         transformTemplate.transform("org.springframework.web.reactive.DispatcherHandler", DispatchHandlerTransform.class);
+        final Matcher invokeMatcher = Matchers.newPackageBasedMatcher("org.springframework.web.reactive.DispatcherHandler$$Lambda$");
+        transformTemplate.transform(invokeMatcher, DispatchHandlerInvokeHandlerTransform.class);
+
         transformTemplate.transform("org.springframework.web.server.adapter.DefaultServerWebExchange", ServerWebExchangeTransform.class);
         transformTemplate.transform("org.springframework.web.reactive.result.method.InvocableHandlerMethod", InvocableHandlerMethodTransform.class);
 
@@ -92,6 +98,24 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
             final InstrumentMethod handleResultMethod = target.getDeclaredMethod("handleResult", "org.springframework.web.server.ServerWebExchange", "org.springframework.web.reactive.HandlerResult");
             if (handleResultMethod != null) {
                 handleResultMethod.addInterceptor(DispatchHandlerInvokeHandlerMethodInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class DispatchHandlerInvokeHandlerTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            // Async Object
+            target.addField(AsyncContextAccessor.class);
+
+            // flatMap(handler -> invokeHandler(exchange, handler))
+            // flatMap(result -> handleResult(exchange, result))
+            InstrumentMethod handlerAndResultGetLambdaMethod = target.getDeclaredMethod("get$Lambda", "org.springframework.web.reactive.DispatcherHandler", "org.springframework.web.server.ServerWebExchange");
+            if (handlerAndResultGetLambdaMethod != null) {
+                handlerAndResultGetLambdaMethod.addInterceptor(DispatchHandlerGetLambdaInterceptor.class);
             }
 
             return target.toBytecode();

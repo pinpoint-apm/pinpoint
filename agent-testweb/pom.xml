@@ -66,8 +66,8 @@
         <module>vertx-4-plugin-testweb</module>
         <module>mongodb-plugin-testweb</module>
         <module>mongodb-reactive-plugin-testweb</module>
+        <module>reactor-plugin-testweb</module>
     </modules>
-
 
     <dependencyManagement>
         <dependencies>

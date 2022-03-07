@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.async;
+package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 
-/**
- * @author Woonduk Kang(emeroad)
- */
-public final class AsyncContextAccessorUtils {
+public final class ReactorContextAccessorUtils {
 
     public static AsyncContext getAsyncContext(Object[] array, int index) {
         if (!ArrayUtils.isArrayIndexValid(array, index)) {
@@ -32,17 +29,17 @@ public final class AsyncContextAccessorUtils {
     }
 
     public static AsyncContext getAsyncContext(Object object) {
-        if (object instanceof AsyncContextAccessor) {
-            return ((AsyncContextAccessor) object)._$PINPOINT$_getAsyncContext();
+        if (object instanceof ReactorContextAccessor) {
+            return ((ReactorContextAccessor) object)._$PINPOINT$_getReactorContext();
         }
         return null;
     }
 
     public static void setAsyncContext(final AsyncContext asyncContext, final Object object) {
-        if (object instanceof AsyncContextAccessor) {
-            final AsyncContext argAsyncContext = AsyncContextAccessorUtils.getAsyncContext(object);
+        if (object instanceof ReactorContextAccessor) {
+            final AsyncContext argAsyncContext = ReactorContextAccessorUtils.getAsyncContext(object);
             if (argAsyncContext == null) {
-                ((AsyncContextAccessor) object)._$PINPOINT$_setAsyncContext(asyncContext);
+                ((ReactorContextAccessor) object)._$PINPOINT$_setReactorContext(asyncContext);
             }
         }
     }
@@ -74,13 +71,13 @@ public final class AsyncContextAccessorUtils {
             if (array[i] instanceof Object[]) {
                 final Object[] objects = (Object[]) array[i];
                 for (Object object : objects) {
-                    final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(object);
+                    final AsyncContext asyncContext = ReactorContextAccessorUtils.getAsyncContext(object);
                     if (asyncContext != null) {
                         return asyncContext;
                     }
                 }
             } else {
-                final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(array[i]);
+                final AsyncContext asyncContext = ReactorContextAccessorUtils.getAsyncContext(array[i]);
                 if (asyncContext != null) {
                     return asyncContext;
                 }
