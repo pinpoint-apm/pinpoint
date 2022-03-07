@@ -1,11 +1,11 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,24 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
+package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
-import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
+import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 
-/**
- * @author jaehong.kim
- */
-public class CorePublisherInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class RunnableCoreSubscriberInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
-    public CorePublisherInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public RunnableCoreSubscriberInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
     }
 
@@ -39,18 +34,17 @@ public class CorePublisherInterceptor extends AsyncContextSpanEventSimpleAroundI
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
         final AsyncContext publisherAsyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
         if (publisherAsyncContext != null) {
-            AsyncContextAccessor accessor = ArrayArgumentUtils.getArgument(args, 0, AsyncContextAccessor.class);
-            // Set AsyncContext to CoreSubscriber
-            if (accessor != null) {
-                accessor._$PINPOINT$_setAsyncContext(publisherAsyncContext);
+            final AsyncContext subscriberAsyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
+            if (subscriberAsyncContext == null) {
+                AsyncContextAccessorUtils.setAsyncContext(publisherAsyncContext, args, 0);
             }
         }
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_INTERNAL);
+        recorder.recordServiceType(ReactorConstants.REACTOR_NETTY);
         recorder.recordException(throwable);
     }
 }

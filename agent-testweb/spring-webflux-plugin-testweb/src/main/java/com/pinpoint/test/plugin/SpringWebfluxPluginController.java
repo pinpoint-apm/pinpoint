@@ -70,7 +70,6 @@ public class SpringWebfluxPluginController {
                 .baseUrl("http://falfjlajdflajflajlf")
                 .build();
 
-//        WebClient client = WebClient.create("http://falfjlajdflajflajlf");
         WebClient.ResponseSpec response = client.method(HttpMethod.GET)
                 .uri("").retrieve();
         return response.bodyToMono(String.class);

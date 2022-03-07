@@ -47,7 +47,7 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
 
         final AsyncContext asyncContext = getAsyncContext(target, args);
         if (asyncContext == null) {
-            logger.debug("AsyncContext not found");
+            logger.trace("AsyncContext not found");
             return;
         }
 
@@ -80,7 +80,7 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
 
         final AsyncContext asyncContext = getAsyncContext(target, args, result, throwable);
         if (asyncContext == null) {
-            logger.debug("AsyncContext not found");
+            logger.trace("AsyncContext not found");
             return;
         }
 
