@@ -16,13 +16,14 @@
 
 package com.navercorp.pinpoint.web.cluster;
 
+import com.navercorp.pinpoint.common.server.cluster.AgentInfoKey;
 import org.junit.Assert;
 import org.junit.Test;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -30,7 +31,6 @@ import java.util.List;
  */
 public class CollectorClusterInfoRepositoryTest {
 
-    private static final String PROFILER_SEPARATOR = CollectorClusterInfoRepository.PROFILER_SEPARATOR;
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
@@ -38,19 +38,18 @@ public class CollectorClusterInfoRepositoryTest {
 
         CollectorClusterInfoRepository info = new CollectorClusterInfoRepository();
 
-        final String agent1 = "app:agent1:0";
-        final String agent2 = "app:agent2:1";
-        final String profilerInfo = agent1 + PROFILER_SEPARATOR + agent2;
+        final AgentInfoKey agent1 = new AgentInfoKey("app", "agent1", 0);
+        final AgentInfoKey agent2 = new AgentInfoKey("app", "agent2", 1);
+        final Set<AgentInfoKey> profilerInfos = Set.of(agent1, agent2);
 
-        byte[] profilerInfoBytes = profilerInfo.getBytes(StandardCharsets.UTF_8);
-        info.put("collectorA", profilerInfoBytes);
+        info.put("collectorA", profilerInfos);
 
-        List<String> collectorList = info.get("app", "agent1", 0);
+        List<String> collectorList = info.get(agent1);
         logger.debug("{}", collectorList);
         Assert.assertEquals("collectorA", collectorList.get(0));
 
         info.remove("collectorA");
-        Assert.assertTrue("Not found", info.get("app", "agent1", 0).isEmpty());
+        Assert.assertTrue("Not found", info.get(agent1).isEmpty());
     }
 
 

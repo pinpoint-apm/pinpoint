@@ -52,7 +52,7 @@ public class ClusterManager extends AbstractCollectorManager implements ClusterM
         List<? extends ClusterPoint<?>> clusterPointList = clusterPointLocator.getClusterPointList();
         for (ClusterPoint<?> clusterPoint : clusterPointList) {
             AgentInfo destAgentInfo = clusterPoint.getDestAgentInfo();
-            result.add(destAgentInfo.getAgentKey());
+            result.add(destAgentInfo.getAgentKey().toString());
         }
 
         return result;
