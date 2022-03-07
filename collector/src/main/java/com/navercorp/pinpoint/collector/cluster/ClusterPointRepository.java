@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.cluster;
 
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
+import com.navercorp.pinpoint.common.server.cluster.AgentInfoKey;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 
@@ -34,11 +35,11 @@ public class ClusterPointRepository<T extends ClusterPoint<?>> implements Cluste
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final Map<String, Set<T>> clusterPointRepository = new HashMap<>();
+    private final Map<AgentInfoKey, Set<T>> clusterPointRepository = new HashMap<>();
 
     public boolean addAndIsKeyCreated(T clusterPoint) {
         AgentInfo destAgentInfo = clusterPoint.getDestAgentInfo();
-        String key = destAgentInfo.getAgentKey();
+        AgentInfoKey key = destAgentInfo.getAgentKey();
         synchronized (this) {
             final Set<T> clusterPointSet = clusterPointRepository.get(key);
             if (clusterPointSet != null) {
@@ -57,7 +58,7 @@ public class ClusterPointRepository<T extends ClusterPoint<?>> implements Cluste
 
     public boolean removeAndGetIsKeyRemoved(T clusterPoint) {
         AgentInfo destAgentInfo = clusterPoint.getDestAgentInfo();
-        String key = destAgentInfo.getAgentKey();
+        AgentInfoKey key = destAgentInfo.getAgentKey();
         synchronized (this) {
             final Set<T> clusterPointSet = clusterPointRepository.get(key);
             if (clusterPointSet != null) {
@@ -84,12 +85,12 @@ public class ClusterPointRepository<T extends ClusterPoint<?>> implements Cluste
         }
     }
 
-    public Set<String> getAvailableAgentKeyList() {
+    public Set<AgentInfoKey> getAvailableAgentKeyList() {
         synchronized (this) {
-            Set<String> availableAgentKeySet = new HashSet<>(clusterPointRepository.size());
+            Set<AgentInfoKey> availableAgentKeySet = new HashSet<>(clusterPointRepository.size());
 
-            for (Map.Entry<String, Set<T>> entry : clusterPointRepository.entrySet()) {
-                final String key = entry.getKey();
+            for (Map.Entry<AgentInfoKey, Set<T>> entry : clusterPointRepository.entrySet()) {
+                final AgentInfoKey key = entry.getKey();
                 final Set<T> clusterPointSet = entry.getValue();
                 for (T clusterPoint : clusterPointSet) {
                     if (clusterPoint instanceof ThriftAgentConnection) {

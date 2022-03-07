@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
+import com.navercorp.pinpoint.common.server.cluster.AgentInfoKey;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.io.request.Message;
@@ -230,7 +231,7 @@ public class ClusterPointController {
 
         private final InetSocketAddress remoteAddress;
 
-        private final String agentKey;
+        private final AgentInfoKey agentKey;
 
         private final String socketStateCode;
 
@@ -252,7 +253,7 @@ public class ClusterPointController {
             return remoteAddress;
         }
 
-        public String getAgentKey() {
+        public AgentInfoKey getAgentKey() {
             return agentKey;
         }
 
@@ -269,7 +270,7 @@ public class ClusterPointController {
         }
     }
 
-    private static enum CheckConnectionStatusResult {
+    private enum CheckConnectionStatusResult {
 
         NOT_CHECKED,
         STATUS_CHECK_NOT_SUPPORTED,

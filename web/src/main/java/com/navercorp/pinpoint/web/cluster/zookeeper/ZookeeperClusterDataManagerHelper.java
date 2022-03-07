@@ -37,11 +37,14 @@ import java.util.Objects;
 public class ZookeeperClusterDataManagerHelper {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private final ZookeeperClient client;
 
-    public ZookeeperClusterDataManagerHelper() {
+    public ZookeeperClusterDataManagerHelper(ZookeeperClient client) {
+        this.client = Objects.requireNonNull(client, "client");
+
     }
 
-    Map<String, byte[]> getCollectorData(ZookeeperClient client, String parentPath) {
+    Map<String, byte[]> getCollectorData(String parentPath) {
         try {
             List<String> collectorList = client.getChildNodeList(parentPath, true);
             if (CollectionUtils.isEmpty(collectorList)) {
@@ -78,7 +81,7 @@ public class ZookeeperClusterDataManagerHelper {
         return null;
     }
 
-    public boolean pushZnode(ZookeeperClient client, CreateNodeMessage createNodeMessage) {
+    public boolean pushZnode(CreateNodeMessage createNodeMessage) {
         Objects.requireNonNull(createNodeMessage, "createNodeMessage");
 
         try {
@@ -93,8 +96,8 @@ public class ZookeeperClusterDataManagerHelper {
         return false;
     }
 
-    Map<String, byte[]> syncPullCollectorCluster(ZookeeperClient client, String path) {
-        Map<String, byte[]> map = getCollectorData(client, path);
+    Map<String, byte[]> syncPullCollectorCluster(String path) {
+        Map<String, byte[]> map = getCollectorData(path);
         if (MapUtils.isEmpty(map)) {
             return Collections.emptyMap();
         }

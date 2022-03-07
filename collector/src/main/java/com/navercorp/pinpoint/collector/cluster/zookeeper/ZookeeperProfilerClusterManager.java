@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
 import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
+import com.navercorp.pinpoint.common.server.cluster.AgentInfoKey;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonStateContext;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -37,7 +37,7 @@ public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ZookeeperJobWorker worker;
+    private final ZookeeperJobWorker<AgentInfoKey> worker;
 
     private final CommonStateContext workerState = new CommonStateContext();
 
@@ -50,7 +50,7 @@ public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
     public ZookeeperProfilerClusterManager(ZookeeperClient client, String connectedAgentZNodePath, ClusterPointRepository<ClusterPoint<?>> profileCluster) {
         this.profileCluster = Objects.requireNonNull(profileCluster, "profileCluster");
 
-        this.worker = new ZookeeperJobWorker(client, connectedAgentZNodePath);
+        this.worker = new ZookeeperJobWorker<>(client, connectedAgentZNodePath);
     }
 
     @Override
@@ -106,10 +106,10 @@ public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
     public void register(ClusterPoint<?> targetClusterPoint) {
         if (workerState.isStarted()) {
             synchronized (lock) {
-                String key = targetClusterPoint.getDestAgentInfo().getAgentKey();
+                AgentInfoKey key = targetClusterPoint.getDestAgentInfo().getAgentKey();
 
                 boolean added = profileCluster.addAndIsKeyCreated(targetClusterPoint);
-                if (StringUtils.isNotEmpty(key) && added) {
+                if (key != null && added) {
                     worker.addPinpointServer(key);
                 }
             }
@@ -122,10 +122,10 @@ public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
     public void unregister(ClusterPoint<?> targetClusterPoint) {
         if (workerState.isStarted()) {
             synchronized (lock) {
-                String key = targetClusterPoint.getDestAgentInfo().getAgentKey();
+                AgentInfoKey key = targetClusterPoint.getDestAgentInfo().getAgentKey();
 
                 boolean removed = profileCluster.removeAndGetIsKeyRemoved(targetClusterPoint);
-                if (StringUtils.isNotEmpty(key) && removed) {
+                if (key != null && removed) {
                     worker.removePinpointServer(key);
                 }
             }
@@ -139,8 +139,8 @@ public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
         worker.clear();
 
         synchronized (lock) {
-            Set<String> availableAgentKeyList = profileCluster.getAvailableAgentKeyList();
-            for (String availableAgentKey : availableAgentKeyList) {
+            Set<AgentInfoKey> availableAgentKeyList = profileCluster.getAvailableAgentKeyList();
+            for (AgentInfoKey availableAgentKey : availableAgentKeyList) {
                 worker.addPinpointServer(availableAgentKey);
             }
         }

@@ -34,14 +34,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author Taejin Koo
  */
-public class ZookeeperJobWorker implements Runnable {
+public class ZookeeperJobWorker<K> implements Runnable, ClusterJobWorker<K> {
 
     private static final String PROFILER_SEPARATOR = "\r\n";
 
@@ -54,7 +56,7 @@ public class ZookeeperJobWorker implements Runnable {
     private final CommonStateContext workerState;
     private final String collectorUniqPath;
     private final ZookeeperClient zookeeperClient;
-    private final LinkedBlockingDeque<ZookeeperJob> zookeeperJobDeque = new LinkedBlockingDeque<>();
+    private final LinkedBlockingDeque<ZookeeperJob<K>> jobDeque = new LinkedBlockingDeque<>();
     private Thread workerThread;
 
     public ZookeeperJobWorker(ZookeeperClient zookeeperClient, String connectedAgentZNodePath) {
@@ -65,6 +67,7 @@ public class ZookeeperJobWorker implements Runnable {
         this.collectorUniqPath = Objects.requireNonNull(connectedAgentZNodePath, "connectedAgentZNodePath");
     }
 
+    @Override
     public void start() {
         logger.info("start() collectorUniqPath:{}", collectorUniqPath);
 
@@ -97,6 +100,7 @@ public class ZookeeperJobWorker implements Runnable {
         }
     }
 
+    @Override
     public void stop() {
         if (!(this.workerState.changeStateDestroying())) {
             logger.info("stop() failed. caused:Unexpected State.");
@@ -117,16 +121,19 @@ public class ZookeeperJobWorker implements Runnable {
         logger.info("stop() completed.");
     }
 
-    public void addPinpointServer(String key) {
+    @Override
+    public void addPinpointServer(K key) {
         if (logger.isDebugEnabled()) {
             logger.debug("addPinpointServer key:{}", key);
         }
 
+        ZookeeperJob<K> job = new ZookeeperJob<>(ZookeeperJob.Type.ADD, key);
         synchronized (lock) {
-            putZookeeperJob(new ZookeeperJob(ZookeeperJob.Type.ADD, key));
+            putZookeeperJob(job);
         }
     }
 
+    @Override
     public List<String> getClusterList() {
         try {
             final String clusterData = getClusterData();
@@ -151,26 +158,29 @@ public class ZookeeperJobWorker implements Runnable {
         return StringUtils.EMPTY;
     }
 
-    public void removePinpointServer(String key) {
+    @Override
+    public void removePinpointServer(K key) {
         if (logger.isDebugEnabled()) {
             logger.debug("removePinpointServer key:{}", key);
         }
 
+        ZookeeperJob<K> job = new ZookeeperJob<>(ZookeeperJob.Type.REMOVE, key);
         synchronized (lock) {
-            putZookeeperJob(new ZookeeperJob(ZookeeperJob.Type.REMOVE, key));
+            putZookeeperJob(job);
         }
     }
 
+    @Override
     public void clear() {
         synchronized (lock) {
-            zookeeperJobDeque.clear();
-            putZookeeperJob(new ZookeeperJob(ZookeeperJob.Type.CLEAR));
+            jobDeque.clear();
+            putZookeeperJob(new ZookeeperJob<>(ZookeeperJob.Type.CLEAR));
         }
     }
 
-    private boolean putZookeeperJob(ZookeeperJob zookeeperJob) {
+    private boolean putZookeeperJob(ZookeeperJob<K> zookeeperJob) {
         synchronized (lock) {
-            return zookeeperJobDeque.add(zookeeperJob);
+            return jobDeque.add(zookeeperJob);
         }
     }
 
@@ -178,19 +188,19 @@ public class ZookeeperJobWorker implements Runnable {
     public void run() {
         logger.info("run() started.");
 
-        ZookeeperJob latestHeadJob = null;
+        ZookeeperJob<K> latestHeadJob = null;
 
         // Things to consider
         // spinLock possible when events are not deleted
         // may lead to PinpointServer leak when events are left unresolved
         while (workerState.isStarted()) {
             try {
-                List<ZookeeperJob> zookeeperJobList = getLatestZookeeperJobList();
+                List<ZookeeperJob<K>> zookeeperJobList = getLatestZookeeperJobList();
                 if (CollectionUtils.isEmpty(zookeeperJobList)) {
                     continue;
                 }
 
-                ZookeeperJob headJob = CollectionUtils.firstElement(zookeeperJobList);
+                ZookeeperJob<K> headJob = CollectionUtils.firstElement(zookeeperJobList);
                 if (latestHeadJob != null && latestHeadJob == headJob) {
                     // for defence spinLock (zookeeper problem, etc..)
                     Thread.sleep(500);
@@ -201,7 +211,7 @@ public class ZookeeperJobWorker implements Runnable {
                 if (!completed) {
                     // rollback
                     for (int i = zookeeperJobList.size() - 1; i >= 0; i--) {
-                        zookeeperJobDeque.addFirst(zookeeperJobList.get(i));
+                        jobDeque.addFirst(zookeeperJobList.get(i));
                     }
                 }
             } catch (InterruptedException e) {
@@ -213,22 +223,22 @@ public class ZookeeperJobWorker implements Runnable {
         logger.info("run() completed.");
     }
 
-    private List<ZookeeperJob> getLatestZookeeperJobList() throws InterruptedException {
-        ZookeeperJob defaultJob = zookeeperJobDeque.poll(3000, TimeUnit.MILLISECONDS);
+    private List<ZookeeperJob<K>> getLatestZookeeperJobList() throws InterruptedException {
+        ZookeeperJob<K> defaultJob = jobDeque.poll(3000, TimeUnit.MILLISECONDS);
         if (defaultJob == null) {
             return Collections.emptyList();
         }
 
-        List<ZookeeperJob> result = new ArrayList<>();
+        List<ZookeeperJob<K>> result = new ArrayList<>();
         result.add(defaultJob);
 
         while (true) {
-            ZookeeperJob zookeeperJob = zookeeperJobDeque.poll();
+            ZookeeperJob<K> zookeeperJob = jobDeque.poll();
             if (zookeeperJob == null) {
                 break;
             }
             if (zookeeperJob.getType() != defaultJob.getType()) {
-                zookeeperJobDeque.addFirst(zookeeperJob);
+                jobDeque.addFirst(zookeeperJob);
                 break;
             }
             result.add(zookeeperJob);
@@ -237,13 +247,13 @@ public class ZookeeperJobWorker implements Runnable {
         return result;
     }
 
-    private boolean handle(List<ZookeeperJob> zookeeperJobList) {
+    private boolean handle(List<ZookeeperJob<K>> zookeeperJobList) {
         if (CollectionUtils.isEmpty(zookeeperJobList)) {
             logger.warn("zookeeperJobList may not be empty");
             return false;
         }
 
-        ZookeeperJob defaultJob = CollectionUtils.firstElement(zookeeperJobList);
+        ZookeeperJob<K> defaultJob = CollectionUtils.firstElement(zookeeperJobList);
         ZookeeperJob.Type type = defaultJob.getType();
         switch (type) {
             case ADD:
@@ -257,7 +267,7 @@ public class ZookeeperJobWorker implements Runnable {
         return false;
     }
 
-    private boolean handleUpdate(List<ZookeeperJob> zookeeperJobList) {
+    private boolean handleUpdate(List<ZookeeperJob<K>> zookeeperJobList) {
         if (logger.isDebugEnabled()) {
             logger.debug("handleUpdate zookeeperJobList:{}", zookeeperJobList);
         }
@@ -279,7 +289,7 @@ public class ZookeeperJobWorker implements Runnable {
         return false;
     }
 
-    private boolean handleDelete(List<ZookeeperJob> zookeeperJobList) {
+    private boolean handleDelete(List<ZookeeperJob<K>> zookeeperJobList) {
         if (logger.isDebugEnabled()) {
             logger.debug("handleDelete zookeeperJobList:{}", zookeeperJobList);
         }
@@ -301,19 +311,19 @@ public class ZookeeperJobWorker implements Runnable {
         return false;
     }
 
-    private List<String> getZookeeperKeyList(List<ZookeeperJob> zookeeperJobList) {
+    private List<String> getZookeeperKeyList(List<ZookeeperJob<K>> zookeeperJobList) {
         if (zookeeperJobList == null) {
             return Collections.emptyList();
         }
 
         final List<String> keyList = new ArrayList<>(zookeeperJobList.size());
-        for (ZookeeperJob zookeeperJob : zookeeperJobList) {
-            keyList.add(zookeeperJob.getKey());
+        for (ZookeeperJob<K> zookeeperJob : zookeeperJobList) {
+            keyList.add(zookeeperJob.getKey().toString());
         }
         return keyList;
     }
 
-    private boolean handleClear(List<ZookeeperJob> zookeeperJobList) {
+    private boolean handleClear(List<ZookeeperJob<K>> zookeeperJobList) {
         if (logger.isDebugEnabled()) {
             logger.debug("handleClear zookeeperJobList:{}", zookeeperJobList);
         }
@@ -341,12 +351,12 @@ public class ZookeeperJobWorker implements Runnable {
     }
 
     private String join(String originalContent, List<String> addContentList) {
-        final StringBuilder newContent = new StringBuilder(originalContent);
-        for (String addContent : addContentList) {
-            newContent.append(PROFILER_SEPARATOR);
-            newContent.append(addContent);
+        StringJoiner buffer = new StringJoiner(PROFILER_SEPARATOR);
+        buffer.add(originalContent);
+        for (String content : addContentList) {
+            buffer.add(content);
         }
-        return newContent.toString();
+        return buffer.toString();
     }
 
     private boolean isExist(List<String> contentList, String value) {

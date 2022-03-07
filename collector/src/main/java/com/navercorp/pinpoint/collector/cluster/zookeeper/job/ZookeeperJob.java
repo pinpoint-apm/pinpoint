@@ -23,16 +23,16 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-public class ZookeeperJob {
+public class ZookeeperJob<K> {
 
     private final Type type;
-    private final String key;
+    private final K key;
 
     public ZookeeperJob(Type type) {
-        this(type, StringUtils.EMPTY);
+        this(type, null);
     }
 
-    public ZookeeperJob(Type type, String key) {
+    public ZookeeperJob(Type type, K key) {
         this.type = Objects.requireNonNull(type, "type");
         this.key = key;
     }
@@ -41,7 +41,7 @@ public class ZookeeperJob {
         return type;
     }
 
-    public String getKey() {
+    public K getKey() {
         return key;
     }
 
