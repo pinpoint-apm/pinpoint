@@ -1,11 +1,11 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,43 +24,40 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 
-/**
- * @author jaehong.kim
- */
-public class SchedulerAndWorkerScheduleMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public class FluxAndMonoPublishOnInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    public SchedulerAndWorkerScheduleMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        super(traceContext, descriptor);
+    // public final Mono<T> publishOn(Scheduler scheduler)
+    public FluxAndMonoPublishOnInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+        super(traceContext, methodDescriptor);
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
     }
 
-    // Disposable schedule(Runnable task);
-    // Disposable schedule(Runnable task, long delay, TimeUnit unit)
-    // Disposable schedulePeriodically(Runnable task, long initialDelay, long period, TimeUnit unit)
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
         recorder.recordApi(methodDescriptor);
-        recorder.recordException(throwable);
         recorder.recordServiceType(ReactorConstants.REACTOR_NETTY);
-        if (isAsynchronousInvocation(target, args, result, throwable)) {
-            // Trace to Disposable object
+        recorder.recordException(throwable);
+
+        if (isAsync(result, throwable)) {
+            // make asynchronous trace-id
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-            ((AsyncContextAccessor) (result))._$PINPOINT$_setAsyncContext(asyncContext);
+            ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
+            if (isDebug) {
+                logger.debug("Set AsyncContext {}", asyncContext);
+            }
         }
     }
 
-    private boolean isAsynchronousInvocation(final Object target, final Object[] args, Object result, Throwable throwable) {
+    private boolean isAsync(Object result, Throwable throwable) {
         if (throwable != null) {
             return false;
         }
-
-        if (!(result instanceof AsyncContextAccessor)) {
+        if (Boolean.FALSE == (result instanceof AsyncContextAccessor)) {
             return false;
         }
-
         return true;
     }
 }

@@ -132,7 +132,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
                 final AsyncContext asyncContext = recorder.recordNextAsyncContext(asyncStateSupport);
                 ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
-                    if(enableAsyncEndPoint) {
+                    if (enableAsyncEndPoint) {
                         logger.debug("Set closeable-AsyncContext {}", asyncContext);
                     } else {
                         logger.debug("Set AsyncContext {}", asyncContext);
@@ -156,6 +156,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
             if (Boolean.FALSE == isReceived(args)) {
                 return;
             }
+
             final HttpServerRequest request = (HttpServerRequest) args[0];
             final HttpServerResponse response = (HttpServerResponse) args[0];
             final int statusCode = getStatusCode(response);

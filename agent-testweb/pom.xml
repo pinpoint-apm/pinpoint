@@ -64,6 +64,7 @@
         <module>jdk-http-plugin-testweb</module>
         <module>vertx-3-plugin-testweb</module>
         <module>vertx-4-plugin-testweb</module>
+        <module>reactor-plugin-testweb</module>
     </modules>
 
 
