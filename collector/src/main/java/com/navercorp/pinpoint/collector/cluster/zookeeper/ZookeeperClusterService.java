@@ -57,9 +57,7 @@ public class ZookeeperClusterService implements ClusterService {
 
     private final ClusterPointRouter clusterPointRouter;
 
-    // represented as pid@hostname (identifiers may overlap for services hosted on localhost if pids are identical)
-    // shouldn't be too big of a problem, but will change to MAC or IP if it becomes problematic.
-    private final String serverIdentifier = CollectorUtils.getServerIdentifier();
+    private final String serverIdentifier = CollectorUtils.getHumanFriendlyServerIdentifier();
 
     private final CommonStateContext serviceState = new CommonStateContext();
 
