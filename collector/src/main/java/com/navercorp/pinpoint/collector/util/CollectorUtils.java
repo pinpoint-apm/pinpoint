@@ -20,22 +20,34 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
-
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 /**
  * @author koo.taejin
  */
 public final class CollectorUtils {
-    private static final RuntimeMXBean RUNTIME_MXBEAN = ManagementFactory.getRuntimeMXBean();
 
     private CollectorUtils() {
     }
 
     public static String getServerIdentifier() {
-        // if the return value is not unique, it will be changed to MAC address or IP address.
-        // It means that the return value has format of "pid@hostname" (it is possible to be duplicate for "localhost")
-        return RUNTIME_MXBEAN.getName();
+        String hostName = getHostName();
+        long pid = ProcessHandle.current().pid();
+        return pid + "@" + hostName;
+    }
+
+    private static String getHostName() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            return "localhost";
+        }
+    }
+
+    public static String getHumanFriendlyServerIdentifier() {
+        String hostName = getHostName();
+        long pid = ProcessHandle.current().pid();
+        return hostName + "@" + pid;
     }
 
     public static void checkAgentId(final String agentId) {
