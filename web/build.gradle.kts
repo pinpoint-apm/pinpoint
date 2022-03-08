@@ -6,6 +6,8 @@
 
 plugins {
     id("pinpoint.java-conventions")
+    id("pinpoint.plugins-assembly-conventions")
+    id("pinpoint.agent-plugins-conventions")
 }
 
 dependencies {
@@ -15,8 +17,6 @@ dependencies {
     implementation(project(":pinpoint-commons-hbase"))
     implementation(project(":pinpoint-rpc"))
     implementation(project(":pinpoint-thrift"))
-    implementation(project(":pinpoint-plugins-assembly"))
-    implementation(project(":pinpoint-agent-plugins"))
     implementation(project(":pinpoint-grpc"))
     implementation("com.google.guava:guava:30.1-jre")
     implementation("io.netty:netty:3.10.6.Final")

@@ -6,6 +6,7 @@
 
 plugins {
     id("pinpoint.java-conventions")
+    id("pinpoint.plugins-assembly-conventions")
 }
 
 dependencies {
@@ -18,7 +19,6 @@ dependencies {
     implementation(project(":pinpoint-rpc"))
     implementation(project(":pinpoint-thrift"))
     implementation(project(":pinpoint-grpc"))
-    implementation(project(":pinpoint-plugins-assembly"))
     implementation("org.apache.zookeeper:zookeeper:3.4.14")
     implementation(project(":pinpoint-profiler"))
     implementation("com.google.guava:guava:30.1-jre")
