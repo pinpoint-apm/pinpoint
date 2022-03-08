@@ -9,6 +9,7 @@ plugins {
     id("pinpoint.profiler-optional-conventions")
     id("pinpoint.plugins-assembly-conventions")
     id("pinpoint.agent-plugins-conventions")
+    id("pinpoint.bootstraps-conventions")
 }
 
 dependencies {
@@ -19,7 +20,6 @@ dependencies {
     implementation(project(":pinpoint-profiler-test"))
     implementation(project(":pinpoint-grpc"))
     implementation("org.apache.logging.log4j:log4j-api:2.12.4")
-    runtimeOnly(project(":pinpoint-bootstraps"))
     runtimeOnly(project(":pinpoint-tools"))
     runtimeOnly("org.slf4j:slf4j-api:1.7.30")
     runtimeOnly("org.apache.logging.log4j:log4j-core:2.12.4")
