@@ -36,5 +36,5 @@ manager-logs/
 
 ### Gradle ###
 .gradle
-/build/
+**/build/
 .mvn/.gradle-enterprise/
