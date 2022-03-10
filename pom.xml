@@ -175,6 +175,8 @@
         <netty3.version>3.10.6.Final</netty3.version>
         <netty4.version>4.1.63.Final</netty4.version>
 
+        <grpc.version>1.42.1</grpc.version>
+        <protoc.version>3.17.2</protoc.version>
 
         <guava-jdk7.version>30.1-android</guava-jdk7.version>
         <guava-jdk8.version>30.1-jre</guava-jdk8.version>
@@ -678,6 +680,12 @@
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>8.0.27</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.protobuf</groupId>
+                        <artifactId>protobuf-java</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
 

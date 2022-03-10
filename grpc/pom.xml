@@ -29,8 +29,6 @@
     <packaging>jar</packaging>
 
     <properties>
-        <grpc.version>1.42.1</grpc.version>
-        <protoc.version>3.17.2</protoc.version>
         <tcnative.version>2.0.38.Final</tcnative.version>
     </properties>
 
@@ -131,6 +129,11 @@
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
             <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protoc.version}</version>
         </dependency>
 
         <!-- for tls connection -->
