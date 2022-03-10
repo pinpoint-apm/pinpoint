@@ -20,13 +20,14 @@ package com.navercorp.pinpoint.common.hbase;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.HTableMultiplexer;
+import org.springframework.beans.factory.FactoryBean;
 
-import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
-public class HBaseAsyncOperationFactory {
+public class HBaseAsyncOperationFactory implements FactoryBean<HBaseAsyncOperation> {
 
     public static final String ENABLE_ASYNC_METHOD = "hbase.client.async.enable";
     public static final boolean DEFAULT_ENABLE_ASYNC_METHOD = false;
@@ -40,26 +41,16 @@ public class HBaseAsyncOperationFactory {
     public static final String ASYNC_MAX_RETRIES_IN_QUEUE = HTableMultiplexer.TABLE_MULTIPLEXER_MAX_RETRIES_IN_QUEUE;
     public static final int DEFAULT_ASYNC_RETRY_COUNT = 10000;
 
-    public static HBaseAsyncOperation create(Configuration configuration) throws IOException {
-        boolean enableAsyncMethod = configuration.getBoolean(ENABLE_ASYNC_METHOD, DEFAULT_ENABLE_ASYNC_METHOD);
-        if (!enableAsyncMethod) {
-            return DisabledHBaseAsyncOperation.INSTANCE;
-        }
+    private final Connection connection;
+    private final Configuration configuration;
 
-        int queueSize = configuration.getInt(ASYNC_IN_QUEUE_SIZE, DEFAULT_ASYNC_IN_QUEUE_SIZE);
-
-        if (configuration.get(ASYNC_PERIODIC_FLUSH_TIME, null) == null) {
-            configuration.setInt(ASYNC_PERIODIC_FLUSH_TIME, DEFAULT_ASYNC_PERIODIC_FLUSH_TIME);
-        }
-
-        if (configuration.get(ASYNC_MAX_RETRIES_IN_QUEUE, null) == null) {
-            configuration.setInt(ASYNC_MAX_RETRIES_IN_QUEUE, DEFAULT_ASYNC_RETRY_COUNT);
-        }
-
-        return new HBaseAsyncTemplate(configuration, queueSize);
+    public HBaseAsyncOperationFactory(Connection connection, Configuration configuration) {
+        this.connection = Objects.requireNonNull(connection, "connection");
+        this.configuration = Objects.requireNonNull(configuration, "configuration");
     }
 
-    public static HBaseAsyncOperation create(Connection connection, Configuration configuration) throws IOException {
+    @Override
+    public HBaseAsyncOperation getObject() throws Exception {
         boolean enableAsyncMethod = configuration.getBoolean(ENABLE_ASYNC_METHOD, DEFAULT_ENABLE_ASYNC_METHOD);
         if (!enableAsyncMethod) {
             return DisabledHBaseAsyncOperation.INSTANCE;
@@ -78,4 +69,14 @@ public class HBaseAsyncOperationFactory {
         return new HBaseAsyncTemplate(connection, configuration, queueSize);
     }
 
+
+    @Override
+    public Class<HBaseAsyncOperation> getObjectType() {
+        return HBaseAsyncOperation.class;
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return FactoryBean.super.isSingleton();
+    }
 }

@@ -21,11 +21,16 @@ import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricSet;
 import com.navercorp.pinpoint.common.hbase.HBaseAsyncOperation;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Taejin Koo
@@ -39,15 +44,19 @@ public class HBaseAsyncOperationMetrics implements MetricSet {
     private static final String WAITING_COUNT = HBASE_ASYNC_OPS + ".waiting.count";
     private static final String AVERAGE_LATENCY = HBASE_ASYNC_OPS + ".latency.value";
 
-    private final HBaseAsyncOperation hBaseAsyncOperation;
+    private final List<HBaseAsyncOperation> hBaseAsyncOperations;
 
-    public HBaseAsyncOperationMetrics(HBaseAsyncOperation hBaseAsyncOperation) {
-        this.hBaseAsyncOperation = Objects.requireNonNull(hBaseAsyncOperation, "hBaseAsyncOperation");
+    public HBaseAsyncOperationMetrics(List<HBaseAsyncOperation> hBaseAsyncOperationList) {
+        Objects.requireNonNull(hBaseAsyncOperationList, "hBaseAsyncOperation");
+
+        this.hBaseAsyncOperations = hBaseAsyncOperationList.stream()
+                .filter(HBaseAsyncOperation::isAvailable)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Map<String, Metric> getMetrics() {
-        if (!hBaseAsyncOperation.isAvailable()) {
+        if (CollectionUtils.isEmpty(hBaseAsyncOperations)) {
             return Collections.emptyMap();
         }
 
@@ -55,31 +64,41 @@ public class HBaseAsyncOperationMetrics implements MetricSet {
         gauges.put(COUNT, new Gauge<Long>() {
             @Override
             public Long getValue() {
-                return hBaseAsyncOperation.getOpsCount();
+                return hBaseAsyncOperations.stream()
+                        .mapToLong(HBaseAsyncOperation::getOpsCount)
+                        .sum();
             }
         });
         gauges.put(REJECTED_COUNT, new Gauge<Long>() {
             @Override
             public Long getValue() {
-                return hBaseAsyncOperation.getOpsRejectedCount();
+                return hBaseAsyncOperations.stream()
+                        .mapToLong(HBaseAsyncOperation::getOpsRejectedCount)
+                        .sum();
             }
         });
         gauges.put(FAILED_COUNT, new Gauge<Long>() {
             @Override
             public Long getValue() {
-                return hBaseAsyncOperation.getOpsFailedCount();
+                return hBaseAsyncOperations.stream()
+                        .mapToLong(HBaseAsyncOperation::getOpsFailedCount)
+                        .sum();
             }
         });
         gauges.put(WAITING_COUNT, new Gauge<Long>() {
             @Override
             public Long getValue() {
-                return hBaseAsyncOperation.getCurrentOpsCount();
+                return hBaseAsyncOperations.stream()
+                        .mapToLong(HBaseAsyncOperation::getCurrentOpsCount)
+                        .sum();
             }
         });
         gauges.put(AVERAGE_LATENCY, new Gauge<Long>() {
             @Override
             public Long getValue() {
-                return hBaseAsyncOperation.getOpsAverageLatency();
+                return hBaseAsyncOperations.stream()
+                        .mapToLong(HBaseAsyncOperation::getOpsAverageLatency)
+                        .sum();
             }
         });
 
