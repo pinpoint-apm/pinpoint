@@ -52,7 +52,7 @@
         <constructor-arg ref="connectionFactory"/>
     </bean>
 
-    <bean id="asyncOperation" class="com.navercorp.pinpoint.common.hbase.HBaseAsyncOperationFactory" factory-method="create">
+    <bean id="asyncOperation" class="com.navercorp.pinpoint.common.hbase.HBaseAsyncOperationFactory">
         <constructor-arg ref="connectionFactory"/>
         <constructor-arg ref="hbaseConfiguration"/>
     </bean>

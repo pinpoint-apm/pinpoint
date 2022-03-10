@@ -38,10 +38,6 @@ public class HBaseAsyncTemplate implements HBaseAsyncOperation {
     private final LongAdder opsCount = new LongAdder();
     private final LongAdder opsRejectCount = new LongAdder();
 
-    public HBaseAsyncTemplate(Configuration conf, int perRegionServerBufferQueueSize) throws IOException {
-        this.hTableMultiplexer = new HTableMultiplexer(conf, perRegionServerBufferQueueSize);
-    }
-
     public HBaseAsyncTemplate(Connection connection, Configuration conf, int perRegionServerBufferQueueSize) throws IOException {
         this.hTableMultiplexer = new HTableMultiplexer(connection, conf, perRegionServerBufferQueueSize);
     }

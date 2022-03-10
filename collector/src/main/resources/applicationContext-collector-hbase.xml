@@ -69,7 +69,7 @@
 
     <bean class="org.apache.hadoop.util.ShutdownHookManagerProxy"/>
 
-    <bean id="asyncOperation" class="com.navercorp.pinpoint.common.hbase.HBaseAsyncOperationFactory" factory-method="create">
+    <bean id="asyncOperation" class="com.navercorp.pinpoint.common.hbase.HBaseAsyncOperationFactory" primary="true">
         <constructor-arg type="org.apache.hadoop.hbase.client.Connection" ref="connectionFactory"/>
         <constructor-arg type="org.apache.hadoop.conf.Configuration" ref="hbaseConfiguration"/>
     </bean>
@@ -78,7 +78,7 @@
         <constructor-arg ref="asyncOperation"/>
     </bean>
 
-    <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2" destroy-method="destroy" primary="true">
+    <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2" primary="true">
         <property name="configuration" ref="hbaseConfiguration"/>
         <property name="tableFactory" ref="hbaseTableFactory"/>
         <property name="asyncOperation" ref="asyncOperation"/>
@@ -88,12 +88,37 @@
         <constructor-arg ref="hbaseTemplate"/>
     </bean>
 
-    <bean id="bufferedMutatorConfiguration" class="com.navercorp.pinpoint.common.hbase.batch.BufferedMutatorConfiguration"/>
-    <bean id="hbaseBatchWriter" class="com.navercorp.pinpoint.common.hbase.batch.BufferedMutatorWriter">
-        <constructor-arg ref="connectionFactory"/>
+    <bean id="batchHbaseThreadPool" class="com.navercorp.pinpoint.common.server.util.PinpointThreadPoolExecutorFactoryBean">
+        <property name="corePoolSize" value="${hbase.client.thread.max}"/>
+        <property name="maxPoolSize" value="${hbase.client.thread.max}"/>
+        <property name="queueCapacity" value="${hbase.client.threadPool.queueSize}"/>
+        <property name="threadNamePrefix" value="Pinpoint-Batch-HConnectionExecutor-"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
+        <property name="preStartAllCoreThreads" value="true"/>
     </bean>
 
-    <bean id="simpleBatchWriter" class="com.navercorp.pinpoint.common.hbase.batch.DelegateSimpleBatchWriter"/>
+    <bean id="batchConnectionFactory" class="com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean">
+        <constructor-arg type="org.apache.hadoop.conf.Configuration" ref="hbaseConfiguration"/>
+        <constructor-arg type="java.util.concurrent.ExecutorService" ref="batchHbaseThreadPool"/>
+    </bean>
+
+    <bean id="batchAsyncOperation" class="com.navercorp.pinpoint.common.hbase.HBaseAsyncOperationFactory">
+        <constructor-arg type="org.apache.hadoop.hbase.client.Connection" ref="batchConnectionFactory"/>
+        <constructor-arg type="org.apache.hadoop.conf.Configuration" ref="hbaseConfiguration"/>
+    </bean>
+
+    <bean id="bufferedMutatorConfiguration" class="com.navercorp.pinpoint.common.hbase.batch.BufferedMutatorConfiguration"/>
+    <bean id="hbaseBatchWriter" class="com.navercorp.pinpoint.common.hbase.batch.BufferedMutatorWriter">
+        <constructor-arg ref="batchConnectionFactory"/>
+    </bean>
+
+    <bean id="simpleBatchWriter" class="com.navercorp.pinpoint.common.hbase.batch.SimpleBatchWriterFactoryBean">
+        <constructor-arg ref="bufferedMutatorConfiguration"/>
+        <constructor-arg ref="hbaseBatchWriter"/>
+        <constructor-arg ref="batchAsyncOperation"/>
+    </bean>
 
     <bean id="hbaseAdminFactory" class="com.navercorp.pinpoint.common.hbase.HbaseAdminFactory">
         <constructor-arg ref="connectionFactory"/>
