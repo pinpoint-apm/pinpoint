@@ -75,6 +75,11 @@ public class ASMNestedClass implements InstrumentClass {
     }
 
     @Override
+    public InstrumentMethod getLambdaMethod(String... parameterTypes) {
+        return null;
+    }
+
+    @Override
     public List<InstrumentMethod> getDeclaredMethods() {
         return Collections.emptyList();
     }

@@ -46,6 +46,8 @@ public interface InstrumentClass {
 
     InstrumentMethod getDeclaredMethod(String name, String... parameterTypes);
 
+    InstrumentMethod getLambdaMethod(String... parameterTypes);
+
     List<InstrumentClass> getNestedClasses(ClassFilter filter);    
     
     ClassLoader getClassLoader();
