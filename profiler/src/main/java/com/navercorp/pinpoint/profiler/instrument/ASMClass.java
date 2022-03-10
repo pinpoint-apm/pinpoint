@@ -138,6 +138,11 @@ public class ASMClass implements InstrumentClass {
     }
 
     @Override
+    public InstrumentMethod getLambdaMethod(String... parameterTypes) {
+        return getDeclaredMethod("get$Lambda", parameterTypes);
+    }
+
+    @Override
     public List<InstrumentMethod> getDeclaredMethods() {
         return getDeclaredMethods(MethodFilters.ACCEPT_ALL);
     }
