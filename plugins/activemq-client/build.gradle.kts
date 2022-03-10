@@ -9,6 +9,7 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":pinpoint-commons"))
     compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("org.apache.activemq:activemq-client:5.13.2")
 }
