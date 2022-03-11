@@ -112,7 +112,6 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
         } catch (PinpointZookeeperException e) {
             throw new RuntimeException("ZookeeperClient connect failed", e);
         }
-        this.clusterDataManager = new ZookeeperClusterDataManagerHelper(this.client);
 
         if (periodicSyncTask != null) {
             this.timer.newTimeout(periodicSyncTask, periodicSyncTask.getIntervalMillis(), TimeUnit.MILLISECONDS);
