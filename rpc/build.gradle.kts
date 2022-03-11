@@ -13,9 +13,9 @@ dependencies {
     implementation(project(":pinpoint-commons"))
     implementation(project(":pinpoint-commons-profiler"))
     implementation("io.netty:netty:3.10.6.Final")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
+    implementation("org.apache.logging.log4j:log4j-core:2.12.4")
     runtimeOnly("org.slf4j:slf4j-api:1.7.30")
-    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
-    testImplementation("org.apache.logging.log4j:log4j-core:2.12.4")
     testImplementation(project(":pinpoint-testcase"))
     testImplementation("org.awaitility:awaitility:3.1.5")
 }
