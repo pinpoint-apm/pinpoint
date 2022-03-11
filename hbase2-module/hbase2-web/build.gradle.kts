@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-web"))
+    api(project(":pinpoint-web"))
     implementation("org.apache.hbase:hbase-client:2.4.2")
 }
 

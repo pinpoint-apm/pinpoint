@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-plugin-it-utils"))
+    api(project(":pinpoint-plugin-it-utils"))
     testImplementation("com.alibaba:fastjson:1.2.47")
 }
 

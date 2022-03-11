@@ -9,12 +9,12 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-commons"))
-    implementation(project(":pinpoint-profiler"))
-    implementation(project(":pinpoint-thrift"))
-    implementation(project(":pinpoint-bootstrap-core"))
-    implementation(project(":pinpoint-bootstrap"))
-    implementation(project(":pinpoint-rpc"))
+    api(project(":pinpoint-commons"))
+    api(project(":pinpoint-profiler"))
+    api(project(":pinpoint-thrift"))
+    api(project(":pinpoint-bootstrap-core"))
+    api(project(":pinpoint-bootstrap"))
+    api(project(":pinpoint-rpc"))
     implementation("org.ow2.asm:asm:9.2")
     implementation("org.ow2.asm:asm-commons:9.2")
     implementation("org.ow2.asm:asm-util:9.2")

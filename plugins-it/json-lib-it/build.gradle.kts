@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-plugin-it-utils"))
+    api(project(":pinpoint-plugin-it-utils"))
     testImplementation("net.sf.json-lib:json-lib:2.3")
 }
 

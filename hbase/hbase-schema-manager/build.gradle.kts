@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-hbase-schema"))
+    api(project(":pinpoint-hbase-schema"))
     implementation("org.springframework.boot:spring-boot-configuration-processor:2.5.7")
     implementation("org.apache.commons:commons-lang3:3.8.1")
     implementation("org.springframework.boot:spring-boot-starter:2.5.7")

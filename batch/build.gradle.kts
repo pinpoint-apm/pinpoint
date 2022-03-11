@@ -5,11 +5,11 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-commons-server"))
-    implementation(project(":pinpoint-commons"))
-    implementation(project(":pinpoint-thrift"))
-    implementation(project(":pinpoint-web"))
-    implementation(project(":pinpoint-rpc"))
+    api(project(":pinpoint-commons-server"))
+    api(project(":pinpoint-commons"))
+    api(project(":pinpoint-thrift"))
+    api(project(":pinpoint-web"))
+    api(project(":pinpoint-rpc"))
     implementation("org.apache.thrift:libthrift:0.15.0")
     implementation("org.springframework.boot:spring-boot-starter-web:2.5.7")
     implementation("org.springframework.boot:spring-boot-starter-log4j2:2.5.7")

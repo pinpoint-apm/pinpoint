@@ -3,9 +3,9 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-agent-proxy-common"))
-    implementation(project(":pinpoint-agent-proxy-apache-plugin"))
-    implementation(project(":pinpoint-agent-proxy-app-plugin"))
-    implementation(project(":pinpoint-agent-proxy-nginx-plugin"))
-    implementation(project(":pinpoint-agent-proxy-user-plugin"))
+    api(project(":pinpoint-agent-proxy-common"))
+    api(project(":pinpoint-agent-proxy-apache-plugin"))
+    api(project(":pinpoint-agent-proxy-app-plugin"))
+    api(project(":pinpoint-agent-proxy-nginx-plugin"))
+    api(project(":pinpoint-agent-proxy-user-plugin"))
 }

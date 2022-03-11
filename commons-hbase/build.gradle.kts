@@ -9,9 +9,9 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-annotations"))
-    implementation(project(":pinpoint-commons"))
-    implementation(project(":pinpoint-commons-profiler"))
+    api(project(":pinpoint-annotations"))
+    api(project(":pinpoint-commons"))
+    api(project(":pinpoint-commons-profiler"))
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("org.apache.hbase:hbase-shaded-client:1.7.1")
     implementation("org.codehaus.jackson:jackson-core-asl:1.9.13")

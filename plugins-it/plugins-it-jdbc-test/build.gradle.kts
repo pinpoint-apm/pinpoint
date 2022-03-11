@@ -9,8 +9,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-commons"))
-    implementation(project(":pinpoint-bootstrap-core"))
+    api(project(":pinpoint-commons"))
+    api(project(":pinpoint-bootstrap-core"))
 }
 
 description = "pinpoint-plugin-it-jdbc-test"

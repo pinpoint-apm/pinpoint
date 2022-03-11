@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-collector"))
+    api(project(":pinpoint-collector"))
     implementation("org.apache.hbase:hbase-client:2.4.2")
 }
 

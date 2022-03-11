@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-plugin-it-utils"))
+    api(project(":pinpoint-plugin-it-utils"))
     testImplementation("com.zaxxer:HikariCP-java6:2.3.13")
 }
 

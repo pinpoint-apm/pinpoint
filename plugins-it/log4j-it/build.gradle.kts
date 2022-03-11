@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-plugin-it-utils"))
+    api(project(":pinpoint-plugin-it-utils"))
     testImplementation("log4j:log4j:1.2.17")
 }
 

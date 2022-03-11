@@ -9,15 +9,15 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-commons-hbase"))
-    implementation(project(":pinpoint-commons-server"))
-    implementation(project(":pinpoint-commons-server-cluster"))
-    implementation(project(":pinpoint-thrift"))
-    implementation(project(":pinpoint-rpc"))
-    implementation(project(":pinpoint-grpc"))
+    api(project(":pinpoint-commons-hbase"))
+    api(project(":pinpoint-commons-server"))
+    api(project(":pinpoint-commons-server-cluster"))
+    api(project(":pinpoint-thrift"))
+    api(project(":pinpoint-rpc"))
+    api(project(":pinpoint-grpc"))
     implementation("org.apache.thrift:libthrift:0.15.0")
-    implementation(project(":pinpoint-web"))
-    implementation(project(":pinpoint-collector"))
+    api(project(":pinpoint-web"))
+    api(project(":pinpoint-collector"))
     implementation("org.springframework:spring-core:5.3.13")
     implementation("org.springframework:spring-context:5.3.13")
     implementation("org.springframework:spring-context-support:5.3.13")

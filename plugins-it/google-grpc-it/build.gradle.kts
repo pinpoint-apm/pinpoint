@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-plugin-it-utils"))
+    api(project(":pinpoint-plugin-it-utils"))
     testImplementation("io.grpc:grpc-protobuf:1.14.0")
     testImplementation("io.grpc:grpc-stub:1.14.0")
     testImplementation("io.grpc:grpc-netty:1.14.0")

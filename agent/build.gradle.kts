@@ -13,12 +13,12 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-annotations"))
-    implementation(project(":pinpoint-commons-buffer"))
-    implementation(project(":pinpoint-commons-profiler"))
-    implementation(project(":pinpoint-profiler"))
-    implementation(project(":pinpoint-profiler-test"))
-    implementation(project(":pinpoint-grpc"))
+    api(project(":pinpoint-annotations"))
+    api(project(":pinpoint-commons-buffer"))
+    api(project(":pinpoint-commons-profiler"))
+    api(project(":pinpoint-profiler"))
+    api(project(":pinpoint-profiler-test"))
+    api(project(":pinpoint-grpc"))
     implementation("org.apache.logging.log4j:log4j-api:2.12.4")
     runtimeOnly(project(":pinpoint-tools"))
     runtimeOnly("org.slf4j:slf4j-api:1.7.30")

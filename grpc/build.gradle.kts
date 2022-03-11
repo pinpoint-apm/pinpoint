@@ -9,9 +9,9 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-commons"))
-    implementation(project(":pinpoint-bootstrap-core"))
-    implementation(project(":pinpoint-commons-profiler"))
+    api(project(":pinpoint-commons"))
+    api(project(":pinpoint-bootstrap-core"))
+    api(project(":pinpoint-commons-profiler"))
     implementation("io.grpc:grpc-core:1.42.1")
     implementation("io.grpc:grpc-netty:1.42.1")
     implementation("io.netty:netty-handler:4.1.63.Final")

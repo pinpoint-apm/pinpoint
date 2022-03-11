@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-agent-proxy-common"))
+    api(project(":pinpoint-agent-proxy-common"))
     compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly(project(":pinpoint-profiler"))
 }

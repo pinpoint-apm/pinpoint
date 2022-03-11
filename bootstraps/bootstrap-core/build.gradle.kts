@@ -9,8 +9,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-annotations"))
-    implementation(project(":pinpoint-commons"))
+    api(project(":pinpoint-annotations"))
+    api(project(":pinpoint-commons"))
     testImplementation("org.apache.logging.log4j:log4j-api:2.12.4")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
     testImplementation("org.apache.logging.log4j:log4j-core:2.12.4")

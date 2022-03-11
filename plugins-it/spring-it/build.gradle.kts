@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-plugin-it-utils"))
+    api(project(":pinpoint-plugin-it-utils"))
     testImplementation("org.springframework:spring-test:4.3.30.RELEASE")
     testImplementation("org.springframework:spring-context:4.3.30.RELEASE")
     testImplementation("org.springframework:spring-webmvc:4.3.30.RELEASE")

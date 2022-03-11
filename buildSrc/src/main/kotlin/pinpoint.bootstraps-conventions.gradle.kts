@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-bootstrap-core"))
-    implementation(project(":pinpoint-bootstrap-java8"))
-    implementation(project(":pinpoint-bootstrap-java9"))
-    implementation(project(":pinpoint-bootstrap-java9-internal"))
+    api(project(":pinpoint-bootstrap-core"))
+    api(project(":pinpoint-bootstrap-java8"))
+    api(project(":pinpoint-bootstrap-java9"))
+    api(project(":pinpoint-bootstrap-java9-internal"))
 }

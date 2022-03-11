@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-flink"))
+    api(project(":pinpoint-flink"))
     implementation("org.apache.hbase:hbase-client:2.4.2")
 }
 

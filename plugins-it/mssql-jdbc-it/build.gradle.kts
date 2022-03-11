@@ -9,9 +9,9 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-plugin-it-utils"))
-    implementation(project(":pinpoint-plugin-it-jdbc-test"))
-    implementation(project(":pinpoint-bootstrap-core"))
+    api(project(":pinpoint-plugin-it-utils"))
+    api(project(":pinpoint-plugin-it-jdbc-test"))
+    api(project(":pinpoint-bootstrap-core"))
     testImplementation("org.testcontainers:testcontainers:1.16.2")
     testImplementation("org.testcontainers:mssqlserver:1.16.2")
     testImplementation("com.microsoft.sqlserver:mssql-jdbc:7.0.0.jre8")

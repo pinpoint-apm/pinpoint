@@ -9,9 +9,9 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-hbase-schema-definition"))
-    implementation(project(":pinpoint-commons-hbase"))
-    implementation(project(":pinpoint-commons-buffer"))
+    api(project(":pinpoint-hbase-schema-definition"))
+    api(project(":pinpoint-commons-hbase"))
+    api(project(":pinpoint-commons-buffer"))
 }
 
 description = "pinpoint-hbase-schema"
