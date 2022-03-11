@@ -8,7 +8,7 @@
         <version>2.4.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-mongodb-plugin-testweb</artifactId>
+    <artifactId>pinpoint-mongodb-reactive-plugin-testweb</artifactId>
 
     <packaging>jar</packaging>
 
@@ -45,10 +45,12 @@
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
             <version>3.4.3</version>
         </dependency>
+
         <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-sync</artifactId>
+            <artifactId>mongodb-driver-reactivestreams</artifactId>
             <version>4.5.0</version>
         </dependency>
     </dependencies>
+
 </project>

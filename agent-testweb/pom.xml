@@ -65,6 +65,7 @@
         <module>vertx-3-plugin-testweb</module>
         <module>vertx-4-plugin-testweb</module>
         <module>mongodb-plugin-testweb</module>
+        <module>mongodb-reactive-plugin-testweb</module>
     </modules>
 
 
