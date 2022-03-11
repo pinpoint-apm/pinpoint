@@ -12,10 +12,10 @@ dependencies {
     implementation(project(":pinpoint-commons"))
     implementation(project(":pinpoint-commons-buffer"))
     implementation("org.apache.thrift:libthrift:0.12.0")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
+    implementation("org.apache.logging.log4j:log4j-core:2.12.4")
+    implementation("org.apache.logging.log4j:log4j-jcl:2.12.4")
     runtimeOnly("org.slf4j:slf4j-api:1.7.30")
-    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
-    testImplementation("org.apache.logging.log4j:log4j-core:2.12.4")
-    testImplementation("org.apache.logging.log4j:log4j-jcl:2.12.4")
     testImplementation("commons-lang:commons-lang:2.6")
 }
 
