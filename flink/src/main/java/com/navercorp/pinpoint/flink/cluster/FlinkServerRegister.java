@@ -86,7 +86,6 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
         this.client = new CuratorZookeeperClient(connectAddress, sessionTimeout, this);
         this.clusterDataManager = new ZookeeperClusterDataManagerHelper(client);
         this.client.connect();
-        this.clusterDataManager = new ZookeeperClusterDataManagerHelper(client);
 
         registerFlinkNode();
     }
