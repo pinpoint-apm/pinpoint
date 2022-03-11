@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-plugin-it-utils"))
+    api(project(":pinpoint-plugin-it-utils"))
     testImplementation("com.fasterxml.jackson.core:jackson-core:2.12.5")
     testImplementation("com.fasterxml.jackson.core:jackson-annotations:2.12.5")
     testImplementation("com.fasterxml.jackson.core:jackson-databind:2.12.5")

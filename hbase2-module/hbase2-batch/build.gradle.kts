@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-batch"))
+    api(project(":pinpoint-batch"))
 }
 
 description = "pinpoint-hbase2-batch"

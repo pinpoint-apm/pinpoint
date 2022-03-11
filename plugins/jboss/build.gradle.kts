@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-common-servlet"))
+    api(project(":pinpoint-common-servlet"))
     testImplementation(project(":pinpoint-profiler"))
     testImplementation(project(":pinpoint-profiler-logging"))
     testImplementation(project(":pinpoint-profiler-test"))

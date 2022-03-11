@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-plugin-it-utils"))
+    api(project(":pinpoint-plugin-it-utils"))
     testImplementation(project(":pinpoint-kafka-plugin"))
     testImplementation("org.apache.kafka:kafka-clients:0.11.0.1")
     testImplementation("log4j:log4j:1.2.17")

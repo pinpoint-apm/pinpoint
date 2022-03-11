@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
     implementation("com.ning:async-http-client:1.8.3")
-    implementation(project(":pinpoint-plugin-it-utils"))
+    api(project(":pinpoint-plugin-it-utils"))
 }
 
 description = "pinpoint-ning-aysncclient-plugin-it"

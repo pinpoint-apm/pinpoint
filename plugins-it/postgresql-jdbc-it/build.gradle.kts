@@ -9,9 +9,9 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-plugin-it-utils"))
-    implementation(project(":pinpoint-plugin-it-jdbc-test"))
-    implementation(project(":pinpoint-bootstrap-core"))
+    api(project(":pinpoint-plugin-it-utils"))
+    api(project(":pinpoint-plugin-it-jdbc-test"))
+    api(project(":pinpoint-bootstrap-core"))
     testImplementation("org.testcontainers:testcontainers:1.16.2")
     testImplementation("org.testcontainers:postgresql:1.16.2")
     testImplementation("org.postgresql:postgresql:9.4.1212.jre6")

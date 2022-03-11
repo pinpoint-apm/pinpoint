@@ -9,8 +9,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-plugin-it-jdbc-test"))
-    implementation(project(":pinpoint-plugin-it-utils"))
+    api(project(":pinpoint-plugin-it-jdbc-test"))
+    api(project(":pinpoint-plugin-it-utils"))
     testImplementation(project(":pinpoint-oracle-jdbc-driver-plugin"))
     testImplementation("org.testcontainers:oracle-xe:1.16.2")
 }

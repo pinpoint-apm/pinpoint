@@ -11,13 +11,13 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-commons"))
-    implementation(project(":pinpoint-commons-server"))
-    implementation(project(":pinpoint-commons-server-cluster"))
-    implementation(project(":pinpoint-commons-hbase"))
-    implementation(project(":pinpoint-rpc"))
-    implementation(project(":pinpoint-thrift"))
-    implementation(project(":pinpoint-grpc"))
+    api(project(":pinpoint-commons"))
+    api(project(":pinpoint-commons-server"))
+    api(project(":pinpoint-commons-server-cluster"))
+    api(project(":pinpoint-commons-hbase"))
+    api(project(":pinpoint-rpc"))
+    api(project(":pinpoint-thrift"))
+    api(project(":pinpoint-grpc"))
     implementation("com.google.guava:guava:30.1-jre")
     implementation("io.netty:netty:3.10.6.Final")
     implementation("org.apache.zookeeper:zookeeper:3.4.14")

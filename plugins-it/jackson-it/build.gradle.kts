@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-plugin-it-utils"))
+    api(project(":pinpoint-plugin-it-utils"))
     testImplementation("org.codehaus.jackson:jackson-core-asl:1.9.13")
     testImplementation("org.codehaus.jackson:jackson-mapper-asl:1.9.13")
     testImplementation("com.fasterxml.jackson.core:jackson-core:2.12.5")

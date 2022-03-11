@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-plugin-it-utils"))
+    api(project(":pinpoint-plugin-it-utils"))
     testImplementation("org.apache.httpcomponents:httpcore:4.4.14")
     testImplementation("org.apache.httpcomponents:httpasyncclient:4.1.4")
     testImplementation("org.apache.httpcomponents:httpcore-nio:4.4.14")

@@ -9,9 +9,9 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-annotations"))
-    implementation(project(":pinpoint-commons"))
-    implementation(project(":pinpoint-commons-profiler"))
+    api(project(":pinpoint-annotations"))
+    api(project(":pinpoint-commons"))
+    api(project(":pinpoint-commons-profiler"))
     implementation("io.netty:netty:3.10.6.Final")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
     implementation("org.apache.logging.log4j:log4j-core:2.12.4")

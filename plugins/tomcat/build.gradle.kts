@@ -9,8 +9,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-common-servlet"))
-    implementation(project(":pinpoint-jboss-plugin"))
+    api(project(":pinpoint-common-servlet"))
+    api(project(":pinpoint-jboss-plugin"))
     testImplementation(project(":pinpoint-profiler"))
     testImplementation(project(":pinpoint-profiler-test"))
     testImplementation(project(":pinpoint-test"))

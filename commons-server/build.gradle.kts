@@ -9,10 +9,10 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-commons"))
-    implementation(project(":pinpoint-commons-profiler"))
-    implementation(project(":pinpoint-commons-hbase"))
-    implementation(project(":pinpoint-plugins-loader"))
+    api(project(":pinpoint-commons"))
+    api(project(":pinpoint-commons-profiler"))
+    api(project(":pinpoint-commons-hbase"))
+    api(project(":pinpoint-plugins-loader"))
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("org.springframework:spring-core:5.3.13")
     implementation("org.springframework:spring-context:5.3.13")

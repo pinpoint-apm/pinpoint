@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-bootstrap"))
+    api(project(":pinpoint-bootstrap"))
     implementation("org.apache.maven.resolver:maven-resolver-api:1.6.1")
     implementation("org.apache.maven.resolver:maven-resolver-spi:1.6.1")
     implementation("org.apache.maven.resolver:maven-resolver-util:1.6.1")

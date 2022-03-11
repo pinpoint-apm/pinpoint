@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-common-servlet"))
+    api(project(":pinpoint-common-servlet"))
     compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("javax.servlet:javax.servlet-api:3.0.1")
     compileOnly("com.caucho:resin:3.0.9")

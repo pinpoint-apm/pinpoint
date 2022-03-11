@@ -9,8 +9,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-bootstrap-core"))
-    implementation(project(":pinpoint-thrift"))
+    api(project(":pinpoint-bootstrap-core"))
+    api(project(":pinpoint-thrift"))
     implementation("org.apache.thrift:libthrift:0.12.0")
     runtimeOnly("org.slf4j:slf4j-api:1.7.30")
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")

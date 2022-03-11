@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-plugin-it-utils"))
+    api(project(":pinpoint-plugin-it-utils"))
     testImplementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
     testImplementation("org.eclipse.paho:org.eclipse.paho.mqttv5.client:1.2.5")
     testImplementation("org.testcontainers:testcontainers:1.16.2")

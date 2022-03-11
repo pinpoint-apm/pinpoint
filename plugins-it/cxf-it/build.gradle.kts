@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-plugin-it-utils"))
+    api(project(":pinpoint-plugin-it-utils"))
     testImplementation("org.apache.cxf:cxf-rt-frontend-jaxrs:3.0.16")
     testImplementation("org.apache.cxf:cxf-rt-frontend-jaxws:3.0.16")
     testImplementation("org.apache.cxf:cxf-rt-transports-http:3.0.16")

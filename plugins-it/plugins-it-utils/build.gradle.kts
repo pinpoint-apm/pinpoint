@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-commons"))
+    api(project(":pinpoint-commons"))
     implementation("org.nanohttpd:nanohttpd:2.3.1")
 }
 

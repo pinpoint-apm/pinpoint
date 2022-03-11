@@ -9,8 +9,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-commons"))
-    implementation(project(":pinpoint-commons-buffer"))
+    api(project(":pinpoint-commons"))
+    api(project(":pinpoint-commons-buffer"))
     implementation("org.apache.thrift:libthrift:0.12.0")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
     implementation("org.apache.logging.log4j:log4j-core:2.12.4")

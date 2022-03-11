@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":pinpoint-plugin-it-utils"))
+    api(project(":pinpoint-plugin-it-utils"))
     testImplementation(project(":pinpoint-mongodb-driver-plugin"))
     testImplementation("org.mongodb:bson:3.7.0")
     testImplementation("org.mongodb:mongodb-driver:3.9.0")
