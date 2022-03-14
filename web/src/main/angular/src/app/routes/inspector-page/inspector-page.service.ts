@@ -31,12 +31,17 @@ export interface ISourceForChart {
     range: number[];
 }
 
+export interface ISourceForTimelineCommand {
+    selectedTime: number;
+}
+
 @Injectable()
 export class InspectorPageService {
     private sourceForServerAndAgentList = new BehaviorSubject<ISourceForServerAndAgentList>(null);
     private sourceForTimeline = new Subject<ISourceForTimeline>();
     private sourceForAgentInfo = new Subject<ISourceForAgentInfo>();
     private sourceForChart = new Subject<ISourceForChart>();
+    private sourceForTimelineCommand = new Subject<ISourceForTimelineCommand>();
 
     private timelineInfo: ITimelineInfo;
     private agentId: string;
@@ -45,6 +50,7 @@ export class InspectorPageService {
     sourceForTimeline$: Observable<ISourceForTimeline>;
     sourceForAgentInfo$: Observable<ISourceForAgentInfo>;
     sourceForChart$: Observable<ISourceForChart>;
+    sourceForTimelineCommand$: Observable<ISourceForTimelineCommand>;
 
     constructor(
         private newUrlStateNotificationService: NewUrlStateNotificationService,
@@ -55,6 +61,7 @@ export class InspectorPageService {
         this.sourceForTimeline$ = this.sourceForTimeline.asObservable();
         this.sourceForAgentInfo$ = this.sourceForAgentInfo.asObservable();
         this.sourceForChart$ = this.sourceForChart.asObservable();
+        this.sourceForTimelineCommand$ = this.sourceForTimelineCommand.asObservable();
     }
 
     activate(unsubscribe: Subject<void>): void {
@@ -80,6 +87,7 @@ export class InspectorPageService {
 
         this.messageQueueService.receiveMessage(unsubscribe, MESSAGE_TO.INSPECTOR_PAGE_VALID).subscribe(({range, now}: {range: number[], now: number}) => {
             this.notifyToTimeline(range);
+            this.notifyToTimelineCommand();
             this.notifyToAgentInfo();
             this.notifyToChart();
 
@@ -98,6 +106,7 @@ export class InspectorPageService {
 
     updateTimelineData(data: ITimelineInfo): void {
         this.timelineInfo = data;
+        this.notifyToTimelineCommand();
         this.notifyToAgentInfo();
         this.notifyToChart();
     }
@@ -133,6 +142,12 @@ export class InspectorPageService {
         this.sourceForTimeline.next({
             timelineInfo: this.timelineInfo,
             agentId: this.agentId
+        });
+    }
+
+    private notifyToTimelineCommand(): void {
+        this.sourceForTimelineCommand.next({
+            selectedTime: this.timelineInfo.selectedTime
         });
     }
 
