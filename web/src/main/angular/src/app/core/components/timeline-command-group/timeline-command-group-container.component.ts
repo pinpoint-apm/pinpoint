@@ -1,9 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import * as moment from 'moment-timezone';
 import { Subject, Observable, combineLatest } from 'rxjs';
-import { map, filter } from 'rxjs/operators';
+import { map, filter, takeUntil, pluck } from 'rxjs/operators';
 
 import { StoreHelperService } from 'app/shared/services';
+import { InspectorPageService } from 'app/routes/inspector-page/inspector-page.service';
 
 @Component({
     selector: 'pp-timeline-command-group-container',
@@ -17,6 +18,7 @@ export class TimelineCommandGroupContainerComponent implements OnInit, OnDestroy
 
     constructor(
         private storeHelperService: StoreHelperService,
+        private inspectorPageService: InspectorPageService
     ) {}
 
     ngOnInit() {
@@ -32,7 +34,11 @@ export class TimelineCommandGroupContainerComponent implements OnInit, OnDestroy
         this.pointingTime$ = combineLatest(
             this.storeHelperService.getDateFormat(this.unsubscribe, 0),
             this.storeHelperService.getTimezone(this.unsubscribe),
-            this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe).pipe(filter((time: number) => time !== 0))
+            // this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe).pipe(filter((time: number) => time !== 0))
+            this.inspectorPageService.sourceForTimelineCommand$.pipe(
+                takeUntil(this.unsubscribe),
+                pluck('selectedTime')
+            )
         ).pipe(
             map(([dateFormat, timezone, pointingTime]: [string, string, number]) => {
                 return moment(pointingTime).tz(timezone).format(dateFormat);
