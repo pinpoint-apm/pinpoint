@@ -80,7 +80,7 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
     }
 
     @Override
-    public List<SystemMetric > getSystemMetricBoList(QueryParameter queryParameter) {
+    public List<SystemMetric> getSystemMetricBoList(QueryParameter queryParameter) {
 
         MetricDataName metricDataName = new MetricDataName(queryParameter.getMetricName(), queryParameter.getFieldName());
         MetricDataType metricDataType = systemMetricDataTypeService.getMetricDataType(metricDataName);
@@ -145,7 +145,6 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
                         List<SystemMetricPoint<Long>> longSampledSystemMetricData = systemMetricLongDao.getSampledSystemMetricData(metricDataSearchKey, metricTag);
                         MetricValue<Long> longMetricValue = createSystemMetricValue(timeWindow, metricTag, longSampledSystemMetricData, LongUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
                         metricValueList.add(longMetricValue);
-                        //TODO : (minwoo) 위의 2줄도 중복 제거필요
                         break;
                     case DOUBLE:
                         List<SystemMetricPoint<Double>> doubleSampledSystemMetricData = systemMetricDoubleDao.getSampledSystemMetricData(metricDataSearchKey, metricTag);
