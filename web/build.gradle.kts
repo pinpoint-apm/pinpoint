@@ -19,7 +19,7 @@ dependencies {
     api(project(":pinpoint-thrift"))
     api(project(":pinpoint-grpc"))
     implementation("com.google.guava:guava:30.1-jre")
-    implementation("io.netty:netty:3.10.6.Final")
+    implementation("io.netty:netty:${Versions.netty3}")
     implementation("org.apache.zookeeper:zookeeper:3.4.14")
     implementation("org.apache.commons:commons-lang3:3.8.1")
     implementation("org.apache.commons:commons-text:1.9")
