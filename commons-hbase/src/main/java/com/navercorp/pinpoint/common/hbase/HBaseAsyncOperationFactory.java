@@ -66,7 +66,7 @@ public class HBaseAsyncOperationFactory implements FactoryBean<HBaseAsyncOperati
             configuration.setInt(ASYNC_MAX_RETRIES_IN_QUEUE, DEFAULT_ASYNC_RETRY_COUNT);
         }
 
-        return new HBaseAsyncTemplate(connection, configuration, queueSize);
+        return new TableMultiplexerAsyncOperation(connection, configuration, queueSize);
     }
 
 
