@@ -37,8 +37,6 @@ public class SystemMetricDataTypeServiceImpl implements SystemMetricDataTypeServ
         this.pinotSystemMetricLongDao = Objects.requireNonNull(pinotSystemMetricLongDao, "pinotSystemMetricLongDao");
     }
 
-
-    //TODO : (minwoo) 여기에도 cache를 넣는게 어떤가?
     @Override
     public MetricDataType getMetricDataType(MetricDataName metricDataName) {
         MetricData metricData = pinotSystemMetricLongDao.selectMetricDataType(metricDataName);

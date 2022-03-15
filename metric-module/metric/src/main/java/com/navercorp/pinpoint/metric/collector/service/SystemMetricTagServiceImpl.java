@@ -70,8 +70,6 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
             metricTagCache.updateCacheForMetricTag(metricTagKey, createMetricTagCollection(metricTagCollection, copiedTagList));
             metricTagCache.saveMetricTag(new MetricTag(applicationName, hostName, metricName, fieldName, copiedTagList));
         }
-
-        //TODO : (minwoo) exception발생시 상위 controller연산 로직에 영향을 안줘야하지 않을까?
     }
 
     MetricTagCollection createMetricTagCollection(String applicationName, String hostName, String metricName, String fieldName, List<Tag> tagList) {
