@@ -22,7 +22,7 @@ dependencies {
     implementation("org.apache.zookeeper:zookeeper:3.4.14")
     api(project(":pinpoint-profiler"))
     implementation("com.google.guava:guava:30.1-jre")
-    implementation("io.netty:netty:3.10.6.Final")
+    implementation("io.netty:netty:${Versions.netty3}")
     implementation("org.apache.commons:commons-lang3:3.8.1")
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("org.apache.thrift:libthrift:0.15.0")

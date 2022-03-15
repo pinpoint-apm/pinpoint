@@ -12,7 +12,7 @@ dependencies {
     api(project(":pinpoint-annotations"))
     api(project(":pinpoint-commons"))
     api(project(":pinpoint-commons-profiler"))
-    implementation("io.netty:netty:3.10.6.Final")
+    implementation("io.netty:netty:${Versions.netty3}")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
     implementation("org.apache.logging.log4j:log4j-core:2.12.4")
     runtimeOnly("org.slf4j:slf4j-api:1.7.30")
