@@ -24,7 +24,6 @@ import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.HTableMultiplexer;
 import org.apache.hadoop.hbase.client.Put;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.LongAdder;
@@ -32,13 +31,13 @@ import java.util.concurrent.atomic.LongAdder;
 /**
  * @author Taejin Koo
  */
-public class HBaseAsyncTemplate implements HBaseAsyncOperation {
+public class TableMultiplexerAsyncOperation implements HBaseAsyncOperation {
 
     private final HTableMultiplexer hTableMultiplexer;
     private final LongAdder opsCount = new LongAdder();
     private final LongAdder opsRejectCount = new LongAdder();
 
-    public HBaseAsyncTemplate(Connection connection, Configuration conf, int perRegionServerBufferQueueSize) throws IOException {
+    public TableMultiplexerAsyncOperation(Connection connection, Configuration conf, int perRegionServerBufferQueueSize) {
         this.hTableMultiplexer = new HTableMultiplexer(connection, conf, perRegionServerBufferQueueSize);
     }
 

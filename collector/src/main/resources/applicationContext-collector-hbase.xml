@@ -117,7 +117,7 @@
     <bean id="simpleBatchWriter" class="com.navercorp.pinpoint.common.hbase.batch.SimpleBatchWriterFactoryBean">
         <constructor-arg ref="bufferedMutatorConfiguration"/>
         <constructor-arg ref="hbaseBatchWriter"/>
-        <constructor-arg ref="batchAsyncOperation"/>
+        <constructor-arg ref="hbaseTemplate"/>
     </bean>
 
     <bean id="hbaseAdminFactory" class="com.navercorp.pinpoint.common.hbase.HbaseAdminFactory">
