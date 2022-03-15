@@ -1,3 +1,5 @@
+import com.google.protobuf.gradle.*
+
 buildscript {
     repositories {
         mavenCentral()
@@ -30,6 +32,25 @@ dependencies {
     runtimeOnly("org.slf4j:slf4j-api:1.7.30")
     testImplementation("io.grpc:grpc-testing:${Versions.grpc}")
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
+}
+
+sourceSets {
+    main {
+        proto {
+            srcDir("grpc-idl/proto")
+        }
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${Versions.protoc}"
+    }
+    plugins {
+        id("grpc") {
+            artifact = "io.grpc:protoc-gen-grpc-java:${Versions.grpc}"
+        }
+    }
 }
 
 description = "pinpoint-grpc"
