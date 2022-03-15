@@ -18,7 +18,7 @@
             "spaces",
             4
         ],
-        "interface-over-type-literal": true,
+        "interface-over-type-literal": false,
         "label-position": true,
         "max-line-length": [
             false,
