@@ -24,6 +24,7 @@ dependencies {
     implementation("org.ow2.asm:asm-analysis:9.2")
     implementation("org.apache.thrift:libthrift:0.12.0")
     implementation("org.apache.logging.log4j:log4j-core:2.12.4")
+    implementation("com.google.protobuf:protobuf-java:${Versions.protoc}")
     runtimeOnly("org.slf4j:slf4j-api:1.7.30")
     testImplementation("com.google.inject.extensions:guice-grapher:4.1.0")
     testImplementation("commons-lang:commons-lang:2.6")
