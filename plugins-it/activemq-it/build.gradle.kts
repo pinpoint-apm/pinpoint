@@ -12,6 +12,7 @@ dependencies {
     api(project(":pinpoint-plugin-it-utils"))
     testImplementation("org.apache.activemq:activemq-all:5.13.2")
     testImplementation(project(":pinpoint-profiler-test"))
+    testImplementation(project(":pinpoint-test"))
 }
 
 description = "pinpoint-activemq-plugin-it"
