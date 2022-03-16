@@ -25,6 +25,7 @@ dependencies {
     implementation("org.tinylog:tinylog-api:2.2.1")
     implementation("org.tinylog:tinylog-impl:2.2.1")
     implementation("org.tinylog:slf4j-tinylog:2.2.1")
+    implementation("junit:junit:${Versions.junit}")
     runtimeOnly("org.slf4j:slf4j-api:1.7.30")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
     testImplementation("org.apache.logging.log4j:log4j-core:2.12.4")
