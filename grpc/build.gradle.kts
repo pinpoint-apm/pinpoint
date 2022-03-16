@@ -51,6 +51,14 @@ protobuf {
             artifact = "io.grpc:protoc-gen-grpc-java:${Versions.grpc}"
         }
     }
+    generateProtoTasks {
+        ofSourceSet("main").forEach {
+            it.plugins {
+                // Apply the "grpc" plugin whose spec is defined above, without options.
+                id("grpc")
+            }
+        }
+    }
 }
 
 description = "pinpoint-grpc"
