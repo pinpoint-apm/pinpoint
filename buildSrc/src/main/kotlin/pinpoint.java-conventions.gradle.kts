@@ -30,7 +30,6 @@ dependencies {
 
 group = "com.navercorp.pinpoint"
 version = "2.4.0-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 publishing {
     publications.create<MavenPublication>("maven") {
