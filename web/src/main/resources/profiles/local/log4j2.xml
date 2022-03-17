@@ -49,6 +49,12 @@
             <AppenderRef ref="console"/>
         </Logger>
 
+        <!-- zk cluster logger
+        <Logger name="com.navercorp.pinpoint.web.cluster" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        -->
+
         <Logger name="com.navercorp.pinpoint.web.controller" level="DEBUG" additivity="false">
             <AppenderRef ref="console"/>
         </Logger>

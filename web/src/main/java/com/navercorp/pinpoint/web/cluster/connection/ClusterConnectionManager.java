@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.cluster.connection;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
+import com.navercorp.pinpoint.web.cluster.ClusterId;
 import com.navercorp.pinpoint.web.config.WebClusterConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -26,6 +27,7 @@ import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -99,13 +101,16 @@ public class ClusterConnectionManager {
         return NetUtils.LOOPBACK_ADDRESS_V4;
     }
 
-    public PinpointSocket getSocket(String clusterId) {
+    public PinpointSocket getSocket(ClusterId clusterId) {
+        Objects.requireNonNull(clusterId, "clusterId");
+
         if (clusterAcceptor != null) {
             List<PinpointSocket> clusterList = clusterAcceptor.getClusterSocketList();
             for (PinpointSocket cluster : clusterList) {
                 ClusterOption remoteClusterOption = cluster.getRemoteClusterOption();
+                logger.debug("clusterAcceptor clusterId:{} remoteClusterOption:{}", clusterId, remoteClusterOption);
                 if (remoteClusterOption != null) {
-                    if (clusterId.equals(remoteClusterOption.getId())) {
+                    if (clusterId.getCollectorId().equals(remoteClusterOption.getId())) {
                         return cluster;
                     }
                 }
@@ -116,8 +121,9 @@ public class ClusterConnectionManager {
             List<PinpointSocket> clusterList = clusterConnector.getClusterSocketList();
             for (PinpointSocket cluster : clusterList) {
                 ClusterOption remoteClusterOption = cluster.getRemoteClusterOption();
+                logger.debug("clusterConnector clusterId:{} remoteClusterOption:{}", clusterId, remoteClusterOption);
                 if (remoteClusterOption != null) {
-                    if (clusterId.equals(remoteClusterOption.getId())) {
+                    if (clusterId.getCollectorId().equals(remoteClusterOption.getId())) {
                         return cluster;
                     }
                 }

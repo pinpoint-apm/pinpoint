@@ -57,6 +57,9 @@ public class WebClusterConfig {
     @Value("${cluster.zookeeper.periodic.sync.interval:600000}")
     private int clusterZookeeperPeriodicSyncInterval;
 
+    @Value("${cluster.zookeeper.pull-retry.interval:15000}")
+    private int pullRetryIntervalTimeMillis;
+
     @Value("${cluster.connect.address:}")
     private String clusterConnectAddress;
 
@@ -126,6 +129,10 @@ public class WebClusterConfig {
 
     public int getClusterZookeeperRetryInterval() {
         return clusterZookeeperRetryInterval;
+    }
+
+    public int getPullRetryIntervalTimeMillis() {
+        return pullRetryIntervalTimeMillis;
     }
 
     public boolean isClusterZookeeperPeriodicSyncEnable() {
