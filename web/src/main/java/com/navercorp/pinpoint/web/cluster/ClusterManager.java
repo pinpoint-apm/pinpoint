@@ -27,8 +27,6 @@ import org.apache.logging.log4j.LogManager;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,7 +40,6 @@ import java.util.Objects;
 public class ClusterManager {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final Charset charset = StandardCharsets.UTF_8;
 
     private final WebClusterConfig config;
 
@@ -125,19 +122,8 @@ public class ClusterManager {
     }
 
     private byte[] convertIpListToBytes(List<String> ipList, String delimiter) {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        Iterator<String> ipIterator = ipList.iterator();
-        while (ipIterator.hasNext()) {
-            String eachIp = ipIterator.next();
-            stringBuilder.append(eachIp);
-
-            if (ipIterator.hasNext()) {
-                stringBuilder.append(delimiter);
-            }
-        }
-
-        return stringBuilder.toString().getBytes(charset);
+        String ipListStr = String.join(delimiter, ipList);
+        return ipListStr.getBytes(StandardCharsets.UTF_8);
     }
 
     public boolean isEnabled() {
@@ -149,7 +135,7 @@ public class ClusterManager {
             return false;
         }
 
-        List<String> clusterIdList = clusterDataManager.getRegisteredAgentList(agentInfo);
+        List<ClusterId> clusterIdList = clusterDataManager.getRegisteredAgentList(agentInfo);
         return clusterIdList.size() == 1;
     }
 
@@ -162,7 +148,7 @@ public class ClusterManager {
             return Collections.emptyList();
         }
 
-        List<String> clusterIdList = clusterDataManager.getRegisteredAgentList(applicationName, agentId, startTimeStamp);
+        List<ClusterId> clusterIdList = clusterDataManager.getRegisteredAgentList(applicationName, agentId, startTimeStamp);
 
         if (clusterIdList.isEmpty()) {
             logger.warn("{}/{}/{} couldn't find agent.", applicationName, agentId, startTimeStamp);
@@ -172,8 +158,11 @@ public class ClusterManager {
         }
 
         List<PinpointSocket> pinpointSocketList = new ArrayList<>(clusterIdList.size());
-        for (String clusterId : clusterIdList) {
+        for (ClusterId clusterId : clusterIdList) {
             PinpointSocket pinpointSocket = clusterConnectionManager.getSocket(clusterId);
+            if (pinpointSocket == null) {
+                throw new IllegalStateException("clusterId not found " + clusterId);
+            }
             pinpointSocketList.add(pinpointSocket);
         }
 

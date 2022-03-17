@@ -138,13 +138,12 @@ public class ZookeeperClusterManager {
             logger.warn("Insert stopTask failed.");
         }
 
-        boolean interrupted = false;
         while (this.workerThread.isAlive()) {
             this.workerThread.interrupt();
             try {
-                this.workerThread.join(100L);
+                this.workerThread.join(3000L);
             } catch (InterruptedException e) {
-                interrupted = true;
+                Thread.currentThread().interrupt();
             }
         }
 
@@ -214,7 +213,6 @@ public class ZookeeperClusterManager {
 
     }
 
-    @SuppressWarnings("SuspiciousMethodCalls")
     class GetAndRegisterTask implements Task {
 
         @SuppressWarnings("SuspiciousMethodCalls")

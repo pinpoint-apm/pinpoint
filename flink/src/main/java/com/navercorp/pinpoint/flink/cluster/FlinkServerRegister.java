@@ -140,7 +140,6 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
         return true;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void process(WatchedEvent event) {
         logger.info("Handle Zookeeper Event({}) started.", event);

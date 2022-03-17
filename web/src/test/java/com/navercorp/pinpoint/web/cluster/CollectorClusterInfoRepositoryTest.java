@@ -42,13 +42,14 @@ public class CollectorClusterInfoRepositoryTest {
         final AgentInfoKey agent2 = new AgentInfoKey("app", "agent2", 1);
         final Set<AgentInfoKey> profilerInfos = Set.of(agent1, agent2);
 
-        info.put("collectorA", profilerInfos);
+        ClusterId clusterId = new ClusterId("/path", "/collectorA", "appName");
+        info.put(clusterId, profilerInfos);
 
-        List<String> collectorList = info.get(agent1);
+        List<ClusterId> collectorList = info.get(agent1);
         logger.debug("{}", collectorList);
-        Assert.assertEquals("collectorA", collectorList.get(0));
+        Assert.assertEquals(clusterId, collectorList.get(0));
 
-        info.remove("collectorA");
+        info.remove(clusterId);
         Assert.assertTrue("Not found", info.get(agent1).isEmpty());
     }
 

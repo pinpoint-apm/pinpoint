@@ -199,7 +199,7 @@ public class CuratorZookeeperClient implements ZookeeperClient {
                 return children.forPath(path);
             }
         } catch (KeeperException.NoNodeException noNode) {
-            // skip
+            logger.debug("NoNodeException path:{} {}", noNode.getPath(), noNode);
         } catch (Exception e) {
             ZookeeperExceptionResolver.resolveAndThrow(e);
         }

@@ -31,11 +31,11 @@ import java.util.Set;
  */
 public class CollectorClusterInfoRepository {
 
-    private final Map<String, Set<AgentInfoKey>> repository = new HashMap<>();
+    private final Map<ClusterId, Set<AgentInfoKey>> repository = new HashMap<>();
 
     private final Object lock = new Object();
 
-    public void put(String clusterId, Set<AgentInfoKey> profilerInfoSet) {
+    public void put(ClusterId clusterId, Set<AgentInfoKey> profilerInfoSet) {
         Objects.requireNonNull(clusterId, "clusterId");
         Objects.requireNonNull(profilerInfoSet, "profilerInfoSet");
 
@@ -44,7 +44,7 @@ public class CollectorClusterInfoRepository {
         }
     }
 
-    public void remove(String clusterId) {
+    public void remove(ClusterId clusterId) {
         Objects.requireNonNull(clusterId, "clusterId");
 
         synchronized (lock) {
@@ -52,16 +52,16 @@ public class CollectorClusterInfoRepository {
         }
     }
 
-    public List<String> get(AgentInfoKey agentKey) {
+    public List<ClusterId> get(AgentInfoKey agentKey) {
         Objects.requireNonNull(agentKey, "agentKey");
 
-        final List<String> result = new ArrayList<>();
+        final List<ClusterId> result = new ArrayList<>();
         synchronized (lock) {
-            for (Map.Entry<String, Set<AgentInfoKey>> entry : repository.entrySet()) {
+            for (Map.Entry<ClusterId, Set<AgentInfoKey>> entry : repository.entrySet()) {
                 final Set<AgentInfoKey> valueSet = entry.getValue();
                 final boolean exist = valueSet.contains(agentKey);
                 if (exist) {
-                    final String clusterId = entry.getKey();
+                    final ClusterId clusterId = entry.getKey();
                     result.add(clusterId);
                 }
             }

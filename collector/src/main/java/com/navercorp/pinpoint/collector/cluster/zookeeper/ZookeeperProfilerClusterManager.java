@@ -37,7 +37,7 @@ public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ZookeeperJobWorker<AgentInfoKey> worker;
+    private final ClusterJobWorker<AgentInfoKey> worker;
 
     private final CommonStateContext workerState = new CommonStateContext();
 

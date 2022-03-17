@@ -17,8 +17,8 @@ public interface ClusterDataManager {
 
     boolean registerWebCluster(String zNodeName, byte[] contents);
 
-    List<String> getRegisteredAgentList(AgentInfo agentInfo);
+    List<ClusterId> getRegisteredAgentList(AgentInfo agentInfo);
 
-    List<String> getRegisteredAgentList(String applicationName, String agentId, long startTimeStamp);
+    List<ClusterId> getRegisteredAgentList(String applicationName, String agentId, long startTimeStamp);
 
 }

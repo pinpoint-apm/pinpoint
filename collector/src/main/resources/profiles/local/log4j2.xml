@@ -71,10 +71,25 @@
             <Appenderref ref="rollingFile"/>
         </Logger>
 
+        <!-- zk cluster log
+        <Logger name="com.navercorp.pinpoint.common.server.cluster.zookeeper" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Logger>
+        <Logger name="com.navercorp.pinpoint.collector.cluster" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+            <Appenderref ref="rollingFile"/>
+        </Logger>
+        <Logger name="org.apache.curator" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+            <Appenderref ref="rollingFile"/>
+        </Logger>
+        -->
         <Logger name="org.apache.zookeeper" level="INFO" additivity="false">
             <AppenderRef ref="console"/>
             <Appenderref ref="rollingFile"/>
         </Logger>
+
         <Logger name="io.grpc" level="DEBUG" additivity="false">
             <AppenderRef ref="console"/>
             <Appenderref ref="rollingFile"/>
