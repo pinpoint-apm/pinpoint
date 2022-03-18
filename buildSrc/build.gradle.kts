@@ -7,13 +7,3 @@ repositories {
     // Use the plugin portal to apply community plugins in convention plugins.
     gradlePluginPortal()
 }
-
-//tasks.compileJava {
-//    options.release.set(7)
-//}
-
-//java {
-//    toolchain {
-//        languageVersion.set(JavaLanguageVersion.of(7))
-//    }
-//}
