@@ -5,7 +5,7 @@
  */
 
 plugins {
-    id("pinpoint.java-conventions")
+    id("pinpoint.java8-conventions")
 }
 
 dependencies {

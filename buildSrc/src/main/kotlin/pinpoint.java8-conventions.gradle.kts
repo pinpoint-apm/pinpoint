@@ -4,6 +4,6 @@ plugins {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(7))
+        languageVersion.set(JavaLanguageVersion.of(8))
     }
 }

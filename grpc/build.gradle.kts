@@ -10,7 +10,7 @@ buildscript {
 }
 
 plugins {
-    id("pinpoint.java-conventions")
+    id("pinpoint.java7-conventions")
     id("com.google.protobuf") version Versions.protobufPlugin
 }
 
