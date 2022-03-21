@@ -1,5 +1,5 @@
 plugins {
-    id("pinpoint.java-conventions")
+    id("pinpoint.java11-conventions")
     id("pinpoint.plugins-assembly-conventions")
     id("pinpoint.agent-plugins-conventions")
 }

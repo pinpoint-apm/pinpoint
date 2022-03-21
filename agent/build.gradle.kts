@@ -5,7 +5,7 @@
  */
 
 plugins {
-    id("pinpoint.java-conventions")
+    id("pinpoint.java8-conventions")
     id("pinpoint.profiler-optional-conventions")
     id("pinpoint.plugins-assembly-conventions")
     id("pinpoint.agent-plugins-conventions")
