@@ -5,7 +5,7 @@
  */
 
 plugins {
-    id("pinpoint.java7-conventions")
+    id("pinpoint.java11-conventions")
 }
 
 dependencies {
@@ -20,3 +20,7 @@ dependencies {
 }
 
 description = "pinpoint-bootstrap-java9-internal"
+
+tasks.compileJava {
+    options.release.set(9)
+}
