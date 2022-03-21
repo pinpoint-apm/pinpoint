@@ -18,6 +18,8 @@ export class MainContentsContainerComponent implements OnInit {
     showElements$: Observable<boolean>;
     enableRealTime$: Observable<boolean>;
 
+    isAppSelected$: Observable<boolean>;
+
     constructor(
         private dynamicPopupService: DynamicPopupService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
@@ -41,6 +43,12 @@ export class MainContentsContainerComponent implements OnInit {
         ).pipe(
             map(([isRealTimeMode, useActiveThreadChart]: boolean[]) => isRealTimeMode && useActiveThreadChart)
         );
+
+        this.isAppSelected$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            map((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlPathId.APPLICATION))
+        );
+
+        console.log(this.isAppSelected$)
     }
 
     onShowHelp($event: MouseEvent): void {

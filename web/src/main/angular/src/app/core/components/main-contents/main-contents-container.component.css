@@ -1,8 +1,13 @@
 :host {
-    display: block;
+    display: flex;
     width: 100%;
-    height: 100%;
 }
+
+section {
+    position: relative;
+    width: calc(100% - 477px);
+}
+
 .l-main-contents-top {
     display: flex;
     flex-flow: row wrap;
@@ -16,9 +21,7 @@
     justify-content: flex-end;
     position:absolute;
 }
-.l-main-contents-top.sideNavigationUI {
-    top: 50px;
-}
+
 .fas {
     color:var(--icon-default);
     font-size:18px;

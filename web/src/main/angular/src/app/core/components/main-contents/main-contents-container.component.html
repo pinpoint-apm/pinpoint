@@ -1,15 +1,18 @@
-<div class="l-main-contents-top font-opensans" [class.sideNavigationUI]="sideNavigationUI">
-    <ng-container *ngIf="showElements$ | async">
-        <div class="l-fixed-period-mover-wrapper">
-            <pp-fixed-period-mover-container></pp-fixed-period-mover-container>
+<section>
+    <div class="l-main-contents-top font-opensans" [class.sideNavigationUI]="sideNavigationUI">
+        <ng-container *ngIf="showElements$ | async">
+            <div class="l-fixed-period-mover-wrapper">
+                <pp-fixed-period-mover-container></pp-fixed-period-mover-container>
+            </div>
+        </ng-container>
+        <div class="l-search-result-viewer-wrapper">
+            <pp-server-map-search-result-viewer-container></pp-server-map-search-result-viewer-container>
         </div>
-    </ng-container>
-    <div class="l-search-result-viewer-wrapper">
-        <pp-server-map-search-result-viewer-container></pp-server-map-search-result-viewer-container>
+        <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
     </div>
-    <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
-</div>
-<pp-server-map-container></pp-server-map-container>
-<ng-container *ngIf="enableRealTime$ | async">
-    <pp-real-time-container></pp-real-time-container>
-</ng-container>
+    <pp-server-map-container></pp-server-map-container>
+    <ng-container *ngIf="enableRealTime$ | async">
+        <pp-real-time-container></pp-real-time-container>
+    </ng-container>
+</section>
+<pp-side-bar-container *ngIf="isAppSelected$ | async"></pp-side-bar-container>

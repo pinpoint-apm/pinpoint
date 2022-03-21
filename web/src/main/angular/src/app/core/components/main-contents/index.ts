@@ -7,6 +7,7 @@ import { ServerMapModule } from 'app/core/components/server-map';
 import { MainContentsContainerComponent } from './main-contents-container.component';
 import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
 import { RealTimeModule } from 'app/core/components/real-time';
+import { SideBarModule } from '../side-bar';
 
 @NgModule({
     declarations: [
@@ -19,6 +20,7 @@ import { RealTimeModule } from 'app/core/components/real-time';
         ServerMapModule,
         HelpViewerPopupModule,
         RealTimeModule,
+        SideBarModule,
     ],
     exports: [
         MainContentsContainerComponent
