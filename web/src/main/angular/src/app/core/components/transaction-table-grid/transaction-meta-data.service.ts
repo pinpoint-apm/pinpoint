@@ -48,11 +48,6 @@ export class TransactionMetaDataService {
         private componentFactoryResolver: ComponentFactoryResolver,
         private injector: Injector
     ) {
-        this.webAppSettingDataService.getExperimentalConfiguration().subscribe(configutaion => {
-            const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
-            this.enableServerSideScan = enableServerSideScan === null ? configutaion.enableServerSideScanForScatter.value : enableServerSideScan;            
-        });
-
         this.onTransactionDataLoad$ = this.outTransactionDataLoad.asObservable();
         this.onTransactionDataRange$ = this.outTransactionDataRange.asObservable();
         this.onTransactionDataCount$ = this.outTransactionDataCount.asObservable();
@@ -63,6 +58,11 @@ export class TransactionMetaDataService {
         });
     }
     loadData(): void {
+        this.webAppSettingDataService.getExperimentalConfiguration().subscribe(configuration => {
+            const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
+            this.enableServerSideScan = enableServerSideScan === null ? configuration.enableServerSideScanForScatter.value : enableServerSideScan;            
+        });
+
         if (this.enableServerSideScan) {
             this.http.get<{metadata: ITransactionMetaData[], resultFrom: number, complete: boolean}>(this.requestURLV2, this.makeV2RequestOptionsArgs())
                 .pipe(
