@@ -28,9 +28,9 @@ export class StateButtonForTransactionListContainerComponent implements OnInit, 
     ) {}
 
     ngOnInit() {
-        this.webAppSettingDataService.getExperimentalConfiguration().subscribe(configutaion => {
+        this.webAppSettingDataService.getExperimentalConfiguration().subscribe(configuration => {
             const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
-            this.enableServerSideScan = enableServerSideScan === null ? configutaion.enableServerSideScanForScatter.value : enableServerSideScan;            
+            this.enableServerSideScan = enableServerSideScan === null ? configuration.enableServerSideScanForScatter.value : enableServerSideScan;            
         });
 
         
