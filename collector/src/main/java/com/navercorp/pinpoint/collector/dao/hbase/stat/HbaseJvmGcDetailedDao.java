@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -50,7 +49,7 @@ public class HbaseJvmGcDetailedDao implements AgentStatDaoV2<JvmGcDetailedBo> {
 
     private final JvmGcDetailedSerializer jvmGcDetailedSerializer;
 
-    public HbaseJvmGcDetailedDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate,
+    public HbaseJvmGcDetailedDao(HbaseOperations2 hbaseTemplate,
                                  TableNameProvider tableNameProvider,
                                  AgentStatHbaseOperationFactory agentStatHbaseOperationFactory, JvmGcDetailedSerializer jvmGcDetailedSerializer) {
         this.hbaseTemplate = hbaseTemplate;

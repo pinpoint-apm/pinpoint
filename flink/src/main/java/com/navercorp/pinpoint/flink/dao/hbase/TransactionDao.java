@@ -27,7 +27,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Date;
 import java.util.List;
@@ -45,7 +44,7 @@ public class TransactionDao {
     private final TransactionSerializer transactionSerializer;
     private final TableNameProvider tableNameProvider;
 
-    public TransactionDao(@Qualifier("asyncPutHbaseTemplate") HbaseTemplate2 hbaseTemplate2,
+    public TransactionDao(HbaseTemplate2 hbaseTemplate2,
                           ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory,
                           TransactionSerializer transactionSerializer,
                           TableNameProvider tableNameProvider) {

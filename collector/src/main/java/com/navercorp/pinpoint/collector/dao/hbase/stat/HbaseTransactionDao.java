@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -49,7 +48,7 @@ public class HbaseTransactionDao implements AgentStatDaoV2<TransactionBo> {
 
     private final TransactionSerializer transactionSerializer;
 
-    public HbaseTransactionDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate,
+    public HbaseTransactionDao(HbaseOperations2 hbaseTemplate,
                                TableNameProvider tableNameProvider,
                                AgentStatHbaseOperationFactory agentStatHbaseOperationFactory,
                                TransactionSerializer transactionSerializer) {

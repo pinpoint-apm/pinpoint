@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -45,7 +44,7 @@ public class HBaseLoadedClassDao implements AgentStatDaoV2<LoadedClassBo> {
 
     private final LoadedClassSerializer loadedClassSerializer;
 
-    public HBaseLoadedClassDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate,
+    public HBaseLoadedClassDao(HbaseOperations2 hbaseTemplate,
                                TableNameProvider tableNameProvider,
                                AgentStatHbaseOperationFactory agentStatHbaseOperationFactory,
                                LoadedClassSerializer loadedClassSerializer) {

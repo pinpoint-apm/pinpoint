@@ -33,7 +33,6 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -55,7 +54,7 @@ public class HbaseDataSourceListDao implements AgentStatDaoV2<DataSourceListBo> 
 
     private final DataSourceSerializer dataSourceSerializer;
 
-    public HbaseDataSourceListDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate, TableNameProvider tableNameProvider,
+    public HbaseDataSourceListDao(HbaseOperations2 hbaseTemplate, TableNameProvider tableNameProvider,
                                   AgentStatHbaseOperationFactory agentStatHbaseOperationFactory, DataSourceSerializer dataSourceSerializer) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");

@@ -68,7 +68,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final ApplicationNameRowKeyEncoder rowKeyEncoder = new ApplicationNameRowKeyEncoder();
 
-    public HbaseApplicationTraceIndexDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate,
+    public HbaseApplicationTraceIndexDao(HbaseOperations2 hbaseTemplate,
                                          TableNameProvider tableNameProvider,
                                          @Qualifier("applicationTraceIndexDistributor") AbstractRowKeyDistributor rowKeyDistributor,
                                          AcceptedTimeService acceptedTimeService,

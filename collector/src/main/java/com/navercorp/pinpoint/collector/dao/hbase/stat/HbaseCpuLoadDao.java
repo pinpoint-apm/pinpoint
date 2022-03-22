@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -50,7 +49,7 @@ public class HbaseCpuLoadDao implements AgentStatDaoV2<CpuLoadBo> {
 
     private final CpuLoadSerializer cpuLoadSerializer;
 
-    public HbaseCpuLoadDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate,
+    public HbaseCpuLoadDao(HbaseOperations2 hbaseTemplate,
                            TableNameProvider tableNameProvider, AgentStatHbaseOperationFactory agentStatHbaseOperationFactory,
                            CpuLoadSerializer cpuLoadSerializer) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");

@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -46,8 +45,10 @@ public class HBaseTotalThreadCountDao implements AgentStatDaoV2<TotalThreadCount
 
     private final TotalThreadCountSerializer totalThreadCountSerializer;
 
-    public HBaseTotalThreadCountDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate, TableNameProvider tableNameProvider,
-                               AgentStatHbaseOperationFactory agentStatHbaseOperationFactory, TotalThreadCountSerializer totalThreadCountSerializer) {
+    public HBaseTotalThreadCountDao(HbaseOperations2 hbaseTemplate,
+                                    TableNameProvider tableNameProvider,
+                                    AgentStatHbaseOperationFactory agentStatHbaseOperationFactory,
+                                    TotalThreadCountSerializer totalThreadCountSerializer) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.agentStatHbaseOperationFactory = Objects.requireNonNull(agentStatHbaseOperationFactory, "agentStatHbaseOperationFactory");

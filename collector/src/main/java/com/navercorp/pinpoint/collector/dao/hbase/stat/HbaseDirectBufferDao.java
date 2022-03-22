@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -50,7 +49,7 @@ public class HbaseDirectBufferDao implements AgentStatDaoV2<DirectBufferBo> {
 
     private final DirectBufferSerializer directBufferSerializer;
 
-    public HbaseDirectBufferDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate,
+    public HbaseDirectBufferDao(HbaseOperations2 hbaseTemplate,
                                 TableNameProvider tableNameProvider,
                                 AgentStatHbaseOperationFactory agentStatHbaseOperationFactory,
                                 DirectBufferSerializer directBufferSerializer) {

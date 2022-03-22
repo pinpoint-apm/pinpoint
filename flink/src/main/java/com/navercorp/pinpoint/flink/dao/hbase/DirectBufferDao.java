@@ -44,7 +44,7 @@ public class DirectBufferDao {
     private final DirectBufferSerializer directBufferSerializer;
     private final TableNameProvider tableNameProvider;
 
-    public DirectBufferDao(@Qualifier("asyncPutHbaseTemplate") HbaseTemplate2 hbaseTemplate2,
+    public DirectBufferDao(HbaseTemplate2 hbaseTemplate2,
                            ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory,
                            DirectBufferSerializer directBufferSerializer,
                            TableNameProvider tableNameProvider) {

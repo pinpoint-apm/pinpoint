@@ -31,7 +31,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
@@ -55,7 +54,7 @@ public class HbaseAgentUriStatDao implements AgentUriStatDao {
 
     private final AgentUriStatSerializer agentUriStatSerializer;
 
-    public HbaseAgentUriStatDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate,
+    public HbaseAgentUriStatDao(HbaseOperations2 hbaseTemplate,
                                 TableNameProvider tableNameProvider,
                                 AgentStatHbaseOperationFactory agentStatHbaseOperationFactory,
                                 AgentUriStatSerializer agentUriStatSerializer) {

@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -49,7 +48,7 @@ public class HbaseDeadlockThreadCountDao implements AgentStatDaoV2<DeadlockThrea
 
     private final DeadlockThreadCountSerializer deadlockThreadCountSerializer;
 
-    public HbaseDeadlockThreadCountDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate,
+    public HbaseDeadlockThreadCountDao(HbaseOperations2 hbaseTemplate,
                                        TableNameProvider tableNameProvider,
                                        AgentStatHbaseOperationFactory agentStatHbaseOperationFactory,
                                        DeadlockThreadCountSerializer deadlockThreadCountSerializer) {

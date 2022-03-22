@@ -47,15 +47,19 @@
         </property>
     </bean>
 
-    <bean id="hbaseThreadPool" class="com.navercorp.pinpoint.common.server.util.PinpointThreadPoolExecutorFactoryBean">
+    <bean id="abstractHbaseThreadPool" class="com.navercorp.pinpoint.common.server.util.PinpointThreadPoolExecutorFactoryBean" abstract="true">
         <property name="corePoolSize" value="${hbase.client.thread.max}"/>
         <property name="maxPoolSize" value="${hbase.client.thread.max}"/>
         <property name="queueCapacity" value="${hbase.client.threadPool.queueSize}"/>
-        <property name="threadNamePrefix" value="Pinpoint-HConnectionExecutor-"/>
+        <property name="threadNamePrefix" value="HConnectionExecutor-"/>
         <property name="daemon" value="true"/>
         <property name="waitForTasksToCompleteOnShutdown" value="true"/>
         <property name="awaitTerminationSeconds" value="10"/>
         <property name="preStartAllCoreThreads" value="true"/>
+    </bean>
+
+    <bean id="hbaseThreadPool" parent="abstractHbaseThreadPool">
+        <property name="threadNamePrefix" value="Pinpoint-HConnectionExecutor-"/>
     </bean>
 
     <bean id="connectionFactory" class="com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean">
@@ -84,19 +88,8 @@
         <property name="asyncOperation" ref="asyncOperation"/>
     </bean>
 
-    <bean id="asyncPutHbaseTemplate" class="com.navercorp.pinpoint.common.hbase.AsyncPutHbaseTemplate2">
-        <constructor-arg ref="hbaseTemplate"/>
-    </bean>
-
-    <bean id="batchHbaseThreadPool" class="com.navercorp.pinpoint.common.server.util.PinpointThreadPoolExecutorFactoryBean">
-        <property name="corePoolSize" value="${hbase.client.thread.max}"/>
-        <property name="maxPoolSize" value="${hbase.client.thread.max}"/>
-        <property name="queueCapacity" value="${hbase.client.threadPool.queueSize}"/>
+    <bean id="batchHbaseThreadPool" parent="abstractHbaseThreadPool">
         <property name="threadNamePrefix" value="Pinpoint-Batch-HConnectionExecutor-"/>
-        <property name="daemon" value="true"/>
-        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
-        <property name="awaitTerminationSeconds" value="10"/>
-        <property name="preStartAllCoreThreads" value="true"/>
     </bean>
 
     <bean id="batchConnectionFactory" class="com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean">
