@@ -61,6 +61,8 @@ class CuratorZookeeperConnectionManager {
 
         builder.sessionTimeoutMs(sessionTimeout);
 
+        builder.zk34CompatibilityMode(true);
+
         this.curatorFramework = builder.build();
 
         this.connectionStateListener = new PinpointZookeeperConnectionStateListener(zookeeperEventWatcher);
