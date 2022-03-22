@@ -27,7 +27,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Date;
 import java.util.List;
@@ -44,7 +43,7 @@ public class MemoryDao {
     private final MemorySerializer memorySerializer;
     private final TableNameProvider tableNameProvider;
 
-    public MemoryDao(@Qualifier("asyncPutHbaseTemplate") HbaseTemplate2 hbaseTemplate2,
+    public MemoryDao(HbaseTemplate2 hbaseTemplate2,
                      ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory,
                      MemorySerializer memorySerializer,
                      TableNameProvider tableNameProvider) {

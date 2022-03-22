@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -50,7 +49,7 @@ public class HbaseActiveTraceDao implements AgentStatDaoV2<ActiveTraceBo> {
 
     private final ActiveTraceSerializer activeTraceSerializer;
 
-    public HbaseActiveTraceDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate, TableNameProvider tableNameProvider,
+    public HbaseActiveTraceDao(HbaseOperations2 hbaseTemplate, TableNameProvider tableNameProvider,
                                AgentStatHbaseOperationFactory agentStatHbaseOperationFactory, ActiveTraceSerializer activeTraceSerializer) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");

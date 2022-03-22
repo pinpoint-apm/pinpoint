@@ -27,7 +27,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Date;
 import java.util.List;
@@ -44,7 +43,7 @@ public class ResponseTimeDao {
     private final ResponseTimeSerializer responseTimeSerializer;
     private final TableNameProvider tableNameProvider;
 
-    public ResponseTimeDao(@Qualifier("asyncPutHbaseTemplate") HbaseTemplate2 hbaseTemplate2,
+    public ResponseTimeDao(HbaseTemplate2 hbaseTemplate2,
                            ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory,
                            ResponseTimeSerializer responseTimeSerializer,
                            TableNameProvider tableNameProvider) {

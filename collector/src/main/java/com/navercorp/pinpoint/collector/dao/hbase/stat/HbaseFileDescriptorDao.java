@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -50,7 +49,7 @@ public class HbaseFileDescriptorDao implements AgentStatDaoV2<FileDescriptorBo> 
 
     private final FileDescriptorSerializer fileDescriptorSerializer;
 
-    public HbaseFileDescriptorDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate,
+    public HbaseFileDescriptorDao(HbaseOperations2 hbaseTemplate,
                                   TableNameProvider tableNameProvider,
                                   AgentStatHbaseOperationFactory agentStatHbaseOperationFactory,
                                   FileDescriptorSerializer fileDescriptorSerializer) {
