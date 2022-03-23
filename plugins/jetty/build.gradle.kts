@@ -16,3 +16,11 @@ dependencies {
 }
 
 description = "pinpoint-jetty-plugin"
+
+sourceSets {
+    main {
+        java {
+            srcDir("src/main/java-jetty")
+        }
+    }
+}
