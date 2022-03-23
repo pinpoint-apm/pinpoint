@@ -15,3 +15,9 @@ dependencies {
 }
 
 description = "pinpoint-ning-asynchttpclient-plugin"
+
+tasks.withType<JavaCompile>().configureEach {
+    javaCompiler.set(javaToolchains.compilerFor {
+        languageVersion.set(JavaLanguageVersion.of(7))
+    })
+}
