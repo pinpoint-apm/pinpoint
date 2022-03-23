@@ -148,7 +148,7 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
         final String processName = clientCallContext.getProcessName();
         if (processName != null) {
             StringBuilder sb = new StringBuilder(processName);
-            if (!methodUri.endsWith("/")) {
+            if (!processName.endsWith("/")) {
                 sb.append("/");
             }
             if (methodName != null) {
