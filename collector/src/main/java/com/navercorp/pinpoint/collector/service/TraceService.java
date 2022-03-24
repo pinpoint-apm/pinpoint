@@ -178,7 +178,7 @@ public class TraceService {
         statisticsService.updateResponseTime(span.getApplicationId(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
 
         if (bugCheck != 1) {
-            logger.warn("ambiguous span found(bug). span:{}", span);
+            logger.info("ambiguous span found(bug). span:{}", span);
         }
     }
 
