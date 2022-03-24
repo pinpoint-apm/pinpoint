@@ -27,6 +27,8 @@ import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import org.apache.thrift.TBaseProcessor;
 import org.apache.thrift.TException;
 import org.apache.thrift.TProcessor;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.server.THsHaServer;
 import org.apache.thrift.server.TNonblockingServer;
@@ -58,8 +60,8 @@ public abstract class SyncEchoTestServer<T extends TServer> extends ThriftEchoTe
         final InetSocketAddress socketAddress = super.environment.getServerAddress();
         final String address = SocketAddressUtils.getAddressFirst(socketAddress);
         verifier.verifyTraceCount(2);
-        Method process = TBaseProcessor.class.getDeclaredMethod("process", TProtocol.class, TProtocol.class);
-        verifier.verifyDiscreteTrace(
+        Method process = TBinaryProtocol.class.getDeclaredMethod("readMessageEnd");
+        verifier.verifyTrace(
                 // RootSpan - Thrift Server Invocation
                 // refer to TBaseProcessorProcessInterceptor.finalizeSpan(...)
                 root("THRIFT_SERVER", // ServiceType,
@@ -68,7 +70,7 @@ public abstract class SyncEchoTestServer<T extends TServer> extends ThriftEchoTe
                         HostAndPort.toHostAndPortString(address, socketAddress.getPort()), // endPoint
                         address), // remoteAddress
                 // SpanEvent - TBaseProcessor.process
-                event("THRIFT_SERVER_INTERNAL", process));
+                event("THRIFT_SERVER_INTERNAL", process, annotation("thrift.url", "com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo")));
     }
 
     public static class SyncEchoTestServerFactory {

@@ -28,6 +28,7 @@ import org.apache.thrift.TBaseAsyncProcessor;
 import org.apache.thrift.TException;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.async.AsyncMethodCallback;
+import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.AbstractNonblockingServer;
 import org.apache.thrift.server.AbstractNonblockingServer.AsyncFrameBuffer;
 import org.apache.thrift.server.THsHaServer;
@@ -56,7 +57,8 @@ public abstract class AsyncEchoTestServer<T extends AbstractNonblockingServer> e
         final InetSocketAddress socketAddress = super.environment.getServerAddress();
         final String address = SocketAddressUtils.getAddressFirst(socketAddress);
         verifier.verifyTraceCount(2);
-        Method process = TBaseAsyncProcessor.class.getDeclaredMethod("process", AsyncFrameBuffer.class);
+        // Method process = TBaseAsyncProcessor.class.getDeclaredMethod("process", AsyncFrameBuffer.class);
+        Method process = TBinaryProtocol.class.getDeclaredMethod("readMessageEnd");
         // RootSpan
         verifier.verifyTrace(root("THRIFT_SERVER", // ServiceType,
                 "Thrift Server Invocation", // Method
@@ -65,7 +67,7 @@ public abstract class AsyncEchoTestServer<T extends AbstractNonblockingServer> e
                 address // remoteAddress
         ));
         // SpanEvent - TBaseAsyncProcessor.process
-        verifier.verifyTrace(event("THRIFT_SERVER_INTERNAL", process));
+        verifier.verifyTrace(event("THRIFT_SERVER_INTERNAL", process, annotation("thrift.url", "com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo")));
     }
 
     public static class AsyncEchoTestServerFactory {

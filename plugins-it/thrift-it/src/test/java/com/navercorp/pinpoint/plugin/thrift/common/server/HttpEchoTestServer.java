@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
 import org.apache.thrift.TBaseProcessor;
 import org.apache.thrift.TException;
 import org.apache.thrift.TProcessor;
+import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.server.TServlet;
@@ -94,7 +95,7 @@ public abstract class HttpEchoTestServer implements EchoTestServer {
 
         // SpanEvent - TBaseProcessor.process
         // refer to TBaseProcessorProcessInterceptor.finalizeSpanEvent(...)
-        Method processMethod = TBaseProcessor.class.getDeclaredMethod("process", TProtocol.class, TProtocol.class);
+        Method processMethod = TBinaryProtocol.class.getDeclaredMethod("readMessageEnd");
         ExpectedAnnotation thriftUrl = Expectations.annotation(
                 "thrift.url", "com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo");
         ExpectedTrace tBaseProcessorProcessTrace = event(
@@ -102,7 +103,7 @@ public abstract class HttpEchoTestServer implements EchoTestServer {
                 processMethod,
                 thriftUrl);
 
-        verifier.verifyDiscreteTrace(tBaseProcessorProcessTrace);
+        verifier.verifyTrace(tBaseProcessorProcessTrace);
     }
 
     public static HttpEchoTestServer createServer(final TestEnvironment environment) {
