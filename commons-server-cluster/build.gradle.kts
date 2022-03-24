@@ -10,15 +10,15 @@ plugins {
 }
 
 dependencies {
-    implementation("org.apache.zookeeper:zookeeper:3.4.14")
-    implementation("org.springframework:spring-context:5.3.13")
+    implementation("org.apache.zookeeper:zookeeper:${Versions.zookeeper}")
+    implementation("org.springframework:spring-context:${Versions.spring}")
     implementation("org.springframework.boot:spring-boot:2.5.7")
     implementation("org.apache.logging.log4j:log4j-api:2.12.4")
     runtimeOnly("org.slf4j:slf4j-api:1.7.30")
-    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:2.17.1")
-    runtimeOnly("org.apache.logging.log4j:log4j-core:2.17.1")
-    runtimeOnly("org.apache.logging.log4j:log4j-jcl:2.17.1")
-    testImplementation("org.springframework:spring-test:5.3.13")
+    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4j}")
+    runtimeOnly("org.apache.logging.log4j:log4j-core:${Versions.log4j}")
+    runtimeOnly("org.apache.logging.log4j:log4j-jcl:${Versions.log4j}")
+    testImplementation("org.springframework:spring-test:${Versions.spring}")
     testImplementation("org.apache.curator:curator-test:2.13.0")
     testImplementation(project(":pinpoint-testcase"))
     testImplementation("org.awaitility:awaitility:3.1.5")

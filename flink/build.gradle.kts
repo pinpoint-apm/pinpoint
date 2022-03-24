@@ -6,6 +6,8 @@
 
 plugins {
     id("pinpoint.java11-conventions")
+    id("pinpoint.hbase-conventions")
+    id("pinpoint.curator-conventions")
 }
 
 dependencies {
@@ -18,19 +20,20 @@ dependencies {
     implementation("org.apache.thrift:libthrift:0.15.0")
     api(project(":pinpoint-web"))
     api(project(":pinpoint-collector"))
-    implementation("org.springframework:spring-core:5.3.13")
-    implementation("org.springframework:spring-context:5.3.13")
-    implementation("org.springframework:spring-context-support:5.3.13")
+    implementation("org.springframework:spring-core:${Versions.spring}")
+    implementation("org.springframework:spring-context:${Versions.spring}")
+    implementation("org.springframework:spring-context-support:${Versions.spring}")
     implementation("com.github.ben-manes.caffeine:caffeine:2.9.2")
-    implementation("org.apache.logging.log4j:log4j-api:2.17.1")
+    implementation("org.apache.logging.log4j:log4j-api:${Versions.log4j}")
     implementation("io.dropwizard.metrics:metrics-core:3.2.6")
     implementation("io.dropwizard.metrics:metrics-jvm:3.2.6")
     implementation("io.dropwizard.metrics:metrics-servlets:3.2.6")
+    implementation("org.apache.zookeeper:zookeeper:${Versions.zookeeper}")
     runtimeOnly("org.slf4j:slf4j-api:1.7.30")
-    testImplementation("org.apache.logging.log4j:log4j-jcl:2.17.1")
-    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:2.17.1")
-    testImplementation("org.apache.logging.log4j:log4j-core:2.17.1")
-    testImplementation("org.springframework:spring-test:5.3.13")
+    testImplementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4j}")
+    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4j}")
+    testImplementation("org.apache.logging.log4j:log4j-core:${Versions.log4j}")
+    testImplementation("org.springframework:spring-test:${Versions.spring}")
     compileOnly("org.apache.flink:flink-java:1.14.2")
     compileOnly("org.apache.flink:flink-streaming-java_2.11:1.14.2")
     compileOnly("org.apache.flink:flink-clients_2.11:1.14.2")
