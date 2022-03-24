@@ -2,7 +2,7 @@
     <pp-help-viewer-popup
         [data]="data"
         (clickOutside)="onClickOutside()"
-        [exclude]="'.fa-question-circle'">
+        [exclude]="'.fa-question-circle, .helper-viewer-exclude'">
     </pp-help-viewer-popup>
     <div class="tooltip-triangle" [ngStyle]="tooltipTriangleStyle"></div>
 </ng-container> 

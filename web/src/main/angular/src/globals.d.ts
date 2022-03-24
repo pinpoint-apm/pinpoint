@@ -144,7 +144,8 @@ interface INodeInfo {
     agentHistogram?: { [key: string]: IResponseTime | IResponseMilliSecondTime }[];
     agentTimeSeriesHistogram?: { [key: string]: IHistogram[] };
     agentIds?: string[];
-    agentIdNameMap?: { [key: string]: string }
+    agentIdNameMap?: { [key: string]: string };
+    apdexScore?: number;
     applicationName: string;
     category: string;
     errorCount?: number;
@@ -209,6 +210,7 @@ interface ISelectedTarget {
     groupedNode?: string[];
     hasServerList?: boolean;
     isAuthorized?: boolean;
+    apdexScore?: number;
 }
 
 // @store

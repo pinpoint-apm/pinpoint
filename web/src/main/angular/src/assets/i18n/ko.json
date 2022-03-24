@@ -948,6 +948,28 @@
                     "DESC": "열려있는 File Descriptor 개수가 임계치를 초가한 경우 알람이 전송된다."
                 }]
             }]
+        }],
+        "APDEX_SCORE": [{
+            "TITLE": "Apdex Score",
+            "CATEGORY": [{
+                "TITLE": "Score",
+                "ITEMS": [{
+                    "DESC": "[ICON]:{className=fa-smile-beam\\style=font-size:15px;color:var(--status-success);\\value=Excellent}|[TEXT]:{value=&nbsp;Excellent}",
+                    "NAME": "0.94 ~ 1.00"
+                }, {
+                    "DESC": "[ICON]:{className=fa-smile\\style=font-size:15px;color:var(--status-good);}|[TEXT]:{value=&nbsp;Good}",
+                    "NAME": "0.85 ~ 0.94"
+                }, {
+                    "DESC": "[ICON]:{className=fa-meh\\style=font-size:15px;}|[TEXT]:{value=&nbsp;Fair}",
+                    "NAME": "0.7 ~ 0.85"
+                }, {
+                    "DESC": "[ICON]:{className=fa-frown\\style=font-size:15px;color:var(--status-warn);}|[TEXT]:{value=&nbsp;Poor}",
+                    "NAME": "0.5 ~ 0.7"
+                }, {
+                    "DESC": "[ICON]:{className=fa-angry\\style=font-size:15px;color:var(--status-fail);}|[TEXT]:{value=&nbsp;Unacceptable}",
+                    "NAME": "< 0.5"
+                }]
+            }]
         }]
     }
 }

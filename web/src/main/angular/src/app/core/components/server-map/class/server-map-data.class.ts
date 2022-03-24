@@ -102,7 +102,8 @@ export class ServerMapData {
                 isAuthorized: node.isAuthorized,
                 instanceCount: node.instanceCount,
                 serviceTypeCode: node.serviceTypeCode,
-                applicationName: node.applicationName
+                applicationName: node.applicationName,
+                apdexScore: node.apdexScore,
             };
             this.nodeList.push(oNewNode);
             this.nodeMap[node.key] = oNewNode;

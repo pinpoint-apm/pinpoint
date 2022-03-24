@@ -13,6 +13,7 @@ import { ScatterChartForFullScreenModeContainerComponent } from './scatter-chart
 import { ScatterChartInteractionService } from './scatter-chart-interaction.service';
 import { ScatterChartDataService } from './scatter-chart-data.service';
 import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
+import { ApdexScoreModule } from 'app/core/components/apdex-score';
 
 @NgModule({
     declarations: [
@@ -24,11 +25,12 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
         ScatterChartForFilteredMapSideBarContainerComponent,
         ScatterChartForFilteredMapInfoPerServerContainerComponent,
         ScatterChartForInfoPerServerContainerComponent,
-        ScatterChartForFullScreenModeContainerComponent
+        ScatterChartForFullScreenModeContainerComponent,
     ],
     imports: [
         HelpViewerPopupModule,
-        SharedModule
+        SharedModule,
+        ApdexScoreModule,
     ],
     exports: [
         ScatterChartContainerComponent,

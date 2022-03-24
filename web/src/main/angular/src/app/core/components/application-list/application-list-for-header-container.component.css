@@ -45,7 +45,7 @@
     width: 100%;
     border: 1px solid var(--header-border);
     background: var(--background-layer);
-    z-index: 10;
+    z-index: 11;
 }
 .l-search-group-wrap {
     display: flex;

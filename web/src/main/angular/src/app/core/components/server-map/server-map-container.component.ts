@@ -229,7 +229,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
                 isWAS: nodeData.isWas,
                 node: nodeData.mergedNodes.map((nodeInfo: any) => {
                     return nodeInfo.key;
-                })
+                }),
             };
             if (nodeData.mergedSourceNodes) {
                 payload.groupedNode = nodeData.mergedSourceNodes.map((nodeInfo: any) => {
@@ -244,7 +244,8 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
                 isMerged: false,
                 isWAS: nodeData.isWas,
                 node: [nodeData.key],
-                hasServerList: nodeData.instanceCount > 0 ? true : false
+                hasServerList: nodeData.instanceCount > 0 ? true : false,
+                apdexScore: nodeData.apdexScore,
             };
         }
         this.messageQueueService.sendMessage({

@@ -1,0 +1,7 @@
+<div *ngIf="fixedScore" class="helper-viewer-exclude" (click)="onShowHelp($event)">
+    <span class="title">
+        Apdex
+        <button class="fa fa-question-circle"></button>
+    </span>
+    <span class={{getScoreTextClassName()}}>{{ fixedScore }}</span>
+</div>
