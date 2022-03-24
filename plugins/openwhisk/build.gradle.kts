@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly("internal.com.apache.openwhisk:openwhisk-common:1.0.0")
+    compileOnly(files("libs/internal/com/apache/openwhisk/openwhisk-common/1.0.0/openwhisk-common-1.0.0.jar"))
     compileOnly("com.typesafe.akka:akka-http-core_2.12:10.1.0-RC1")
     compileOnly("com.typesafe.akka:akka-http_2.12:10.1.0-RC1")
     compileOnly("org.scala-lang:scala-library:2.11.11")
