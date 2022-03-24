@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    testImplementation("org.springframework:spring-context:5.3.13")
+    testImplementation("org.springframework:spring-context:${Versions.spring}")
     testImplementation(project(":pinpoint-plugin-it-utils"))
 }
 

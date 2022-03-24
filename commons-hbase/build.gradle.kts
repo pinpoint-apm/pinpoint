@@ -15,13 +15,13 @@ dependencies {
     api(project(":pinpoint-commons-profiler"))
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("org.codehaus.jackson:jackson-core-asl:1.9.13")
-    implementation("org.springframework:spring-core:5.3.13")
-    implementation("org.springframework:spring-tx:5.3.13")
-    implementation("org.apache.logging.log4j:log4j-api:2.17.1")
+    implementation("org.springframework:spring-core:${Versions.spring}")
+    implementation("org.springframework:spring-tx:${Versions.spring}")
+    implementation("org.apache.logging.log4j:log4j-api:${Versions.log4j}")
     runtimeOnly("log4j:log4j:1.2.17")
-    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:2.17.1")
-    runtimeOnly("org.apache.logging.log4j:log4j-core:2.17.1")
-    runtimeOnly("org.apache.logging.log4j:log4j-jcl:2.17.1")
+    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4j}")
+    runtimeOnly("org.apache.logging.log4j:log4j-core:${Versions.log4j}")
+    runtimeOnly("org.apache.logging.log4j:log4j-jcl:${Versions.log4j}")
 }
 
 description = "pinpoint-commons-hbase"

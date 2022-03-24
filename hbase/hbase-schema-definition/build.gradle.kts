@@ -6,12 +6,25 @@
 
 plugins {
     id("pinpoint.java11-conventions")
+    id("com.intershop.gradle.jaxb") version Versions.jaxbPlugin
 }
 
 dependencies {
     implementation("javax.annotation:javax.annotation-api:1.3.2")
-    implementation("jakarta.xml.bind:jakarta.xml.bind-api:2.3.3")
-    runtimeOnly("com.sun.xml.bind:jaxb-impl:2.3.3")
+    implementation("jakarta.xml.bind:jakarta.xml.bind-api:${Versions.jaxbImpl}")
+    implementation("jakarta.activation:jakarta.activation-api:${Versions.jakartaActivationApi}")
+    runtimeOnly("com.sun.xml.bind:jaxb-impl:${Versions.jaxbImpl}")
 }
 
 description = "pinpoint-hbase-schema-definition"
+
+jaxb {
+    // generate java code from schema
+    javaGen {
+        //generates a 'project' schema file from existing java code
+        register("name") {
+            packageName = "com.navercorp.pinpoint.hbase.schema.definition.xml"
+            schema = file("../hbase-schema/src/main/java/com/navercorp/pinpoint/hbase/schema/reader/xml/pinpoint-hbase-1.0.xsd")
+        }
+    }
+}
