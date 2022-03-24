@@ -21,6 +21,10 @@ dependencies {
 
 description = "pinpoint-bootstrap-java9-internal"
 
-tasks.compileJava {
-    options.release.set(9)
+tasks.withType<JavaCompile> {
+    sourceCompatibility = "1.9"
+    targetCompatibility = "1.9"
+    options.compilerArgs.add("--add-exports=java.base/jdk.internal.loader=ALL-UNNAMED")
+    options.compilerArgs.add("--add-exports=java.base/jdk.internal.module=ALL-UNNAMED")
+    options.compilerArgs.add("--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED")
 }
