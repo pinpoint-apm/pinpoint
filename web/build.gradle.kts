@@ -8,6 +8,8 @@ plugins {
     id("pinpoint.java11-conventions")
     id("pinpoint.plugins-assembly-conventions")
     id("pinpoint.agent-plugins-conventions")
+    id("pinpoint.hbase-conventions")
+    id("pinpoint.curator-conventions")
 }
 
 dependencies {

@@ -6,6 +6,7 @@
 
 plugins {
     id("pinpoint.java11-conventions")
+    id("pinpoint.hbase-conventions")
 }
 
 dependencies {
@@ -13,9 +14,7 @@ dependencies {
     api(project(":pinpoint-commons"))
     api(project(":pinpoint-commons-profiler"))
     implementation("org.apache.commons:commons-collections4:4.4")
-    implementation("org.apache.hbase:hbase-shaded-client:1.7.1")
     implementation("org.codehaus.jackson:jackson-core-asl:1.9.13")
-    implementation("com.sematext.hbasewd:hbasewd:0.1.0")
     implementation("org.springframework:spring-core:5.3.13")
     implementation("org.springframework:spring-tx:5.3.13")
     implementation("org.apache.logging.log4j:log4j-api:2.17.1")

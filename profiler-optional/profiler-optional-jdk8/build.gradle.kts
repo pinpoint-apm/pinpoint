@@ -6,9 +6,11 @@
 
 plugins {
     id("pinpoint.java8-conventions")
+    id("pinpoint.asm-conventions")
 }
 
 dependencies {
+    compileOnly(project(":pinpoint-profiler"))
     implementation("org.apache.logging.log4j:log4j-api:2.12.4")
     testImplementation(project(":pinpoint-test"))
     testImplementation("org.springframework:spring-test:5.3.13")
@@ -18,3 +20,11 @@ dependencies {
 }
 
 description = "pinpoint-profiler-optional-jdk8"
+
+sourceSets {
+    main {
+        java {
+            srcDir("src/main/java-ibm")
+        }
+    }
+}

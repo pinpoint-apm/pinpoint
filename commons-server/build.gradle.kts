@@ -6,6 +6,8 @@
 
 plugins {
     id("pinpoint.java11-conventions")
+    id("pinpoint.grpc-conventions")
+    id("pinpoint.hbase-conventions")
 }
 
 dependencies {
@@ -19,14 +21,15 @@ dependencies {
     implementation("org.springframework.boot:spring-boot:2.5.7")
     implementation("org.apache.commons:commons-lang3:3.8.1")
     implementation("org.apache.thrift:libthrift:0.12.0")
+    implementation("org.apache.logging.log4j:log4j-api:2.12.4")
     runtimeOnly("org.slf4j:slf4j-api:1.7.30")
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:2.17.1")
     runtimeOnly("org.apache.logging.log4j:log4j-core:2.17.1")
     runtimeOnly("org.apache.logging.log4j:log4j-jcl:2.17.1")
     testImplementation("org.awaitility:awaitility:3.1.5")
     testImplementation("org.springframework:spring-test:5.3.13")
-    compileOnly(project(":pinpoint-thrift"))
-    compileOnly(project(":pinpoint-grpc"))
+    compileOnlyApi(project(":pinpoint-thrift"))
+    compileOnlyApi(project(":pinpoint-grpc"))
 }
 
 description = "pinpoint-commons-server"
