@@ -6,9 +6,11 @@
 
 plugins {
     id("pinpoint.java7-conventions")
+    id("pinpoint.asm-conventions")
 }
 
 dependencies {
+    compileOnly(project(":pinpoint-profiler"))
     implementation("org.apache.logging.log4j:log4j-api:2.12.4")
     testImplementation("org.ow2.asm:asm:9.2")
     testImplementation("org.ow2.asm:asm-commons:9.2")
@@ -19,3 +21,12 @@ dependencies {
 }
 
 description = "pinpoint-profiler-optional-jdk7"
+
+sourceSets {
+    main {
+        java {
+            srcDir("src/main/java-ibm")
+            srcDir("src/main/java-oracle")
+        }
+    }
+}

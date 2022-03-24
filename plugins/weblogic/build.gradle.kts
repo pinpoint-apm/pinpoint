@@ -15,3 +15,11 @@ dependencies {
 }
 
 description = "pinpoint-weblogic-plugin"
+
+sourceSets {
+    main {
+        java {
+            srcDir("src/main/java-oracle")
+        }
+    }
+}

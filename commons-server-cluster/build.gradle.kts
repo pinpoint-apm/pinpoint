@@ -6,13 +6,14 @@
 
 plugins {
     id("pinpoint.java11-conventions")
+    id("pinpoint.curator-conventions")
 }
 
 dependencies {
     implementation("org.apache.zookeeper:zookeeper:3.4.14")
-    implementation("org.apache.curator:curator-framework:4.2.0")
     implementation("org.springframework:spring-context:5.3.13")
     implementation("org.springframework.boot:spring-boot:2.5.7")
+    implementation("org.apache.logging.log4j:log4j-api:2.12.4")
     runtimeOnly("org.slf4j:slf4j-api:1.7.30")
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:2.17.1")
     runtimeOnly("org.apache.logging.log4j:log4j-core:2.17.1")

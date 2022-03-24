@@ -1,5 +1,6 @@
 plugins {
     id("pinpoint.java7-conventions")
+    id("pinpoint.asm-conventions")
 }
 
 dependencies {
@@ -17,11 +18,6 @@ dependencies {
     api(project(":pinpoint-profiler-logging"))
     implementation("com.google.guava:guava:30.1-android")
     implementation("com.google.inject:guice:4.2.2")
-    implementation("org.ow2.asm:asm:9.2")
-    implementation("org.ow2.asm:asm-commons:9.2")
-    implementation("org.ow2.asm:asm-util:9.2")
-    implementation("org.ow2.asm:asm-tree:9.2")
-    implementation("org.ow2.asm:asm-analysis:9.2")
     implementation("org.apache.thrift:libthrift:0.12.0")
     implementation("org.apache.logging.log4j:log4j-core:2.12.4")
     implementation("com.google.protobuf:protobuf-java:${Versions.protoc}")

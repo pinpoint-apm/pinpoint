@@ -11,6 +11,7 @@ buildscript {
 
 plugins {
     id("pinpoint.java7-conventions")
+    id("pinpoint.grpc-conventions")
     id("com.google.protobuf") version Versions.protobufPlugin
 }
 
@@ -18,13 +19,6 @@ dependencies {
     api(project(":pinpoint-commons"))
     api(project(":pinpoint-bootstrap-core"))
     api(project(":pinpoint-commons-profiler"))
-    implementation("io.grpc:grpc-core:${Versions.grpc}")
-    implementation("io.grpc:grpc-netty:${Versions.grpc}")
-    implementation("io.netty:netty-handler:4.1.63.Final")
-    implementation("io.netty:netty-transport-native-epoll:4.1.63.Final")
-    implementation("io.netty:netty-codec-http2:4.1.63.Final")
-    implementation("io.grpc:grpc-stub:${Versions.grpc}")
-    implementation("io.grpc:grpc-protobuf:${Versions.grpc}")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
     implementation("org.apache.logging.log4j:log4j-core:2.12.4")
     implementation("org.apache.commons:commons-lang3:3.8.1")

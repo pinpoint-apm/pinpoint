@@ -15,3 +15,11 @@ dependencies {
 }
 
 description = "pinpoint-websphere-plugin"
+
+sourceSets {
+    main {
+        java {
+            srcDir("src/main/java-ibm")
+        }
+    }
+}
