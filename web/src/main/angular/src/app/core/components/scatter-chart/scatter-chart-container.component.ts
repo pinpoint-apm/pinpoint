@@ -58,6 +58,7 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
     showBlockMessagePopup = false;
     shouldHide = true;
     enableServerSideScan: boolean;
+    apdexScore: number;
 
     constructor(
         private storeHelperService: StoreHelperService,
@@ -224,11 +225,13 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
         ).subscribe((target: ISelectedTarget) => {
             this.selectedTarget = target;
             this.shouldHide = !(this.selectedTarget.isNode && this.selectedTarget.isWAS && !this.selectedTarget.isMerged);
+
             if (!this.shouldHide) {
                 this.selectedAgent = '';
                 this.selectedApplication = this.selectedTarget.node[0];
                 this.reset({fromX: this.fromX, toX: this.toX});
                 this.getScatterData();
+                this.apdexScore = target.apdexScore;
             }
             this.cd.detectChanges();
         });

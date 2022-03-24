@@ -44,7 +44,7 @@
 }
 
 .category-list {
-    padding: 14px 8px;
+    padding: 14px 14px;
 }
 
 .category-list:not(:last-of-type) {

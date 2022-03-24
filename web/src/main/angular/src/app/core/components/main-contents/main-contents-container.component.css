@@ -1,11 +1,16 @@
 :host {
     display: flex;
+    flex-flow: row wrap;
     width: 100%;
+    height: 100%;
 }
 
 section {
     position: relative;
-    width: calc(100% - 477px);
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    overflow: hidden;
 }
 
 .l-main-contents-top {

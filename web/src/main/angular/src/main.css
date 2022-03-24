@@ -182,6 +182,7 @@ body {
   --secondary-lighter: var(--emerald-green-100);
 
   --status-success: var(--green-default);
+  --status-good: var(--blue-500);
   --status-warn: var(--orange-600);
   --status-fail: var(--red-400);
   --status-danger: var(--red-900);
@@ -272,6 +273,7 @@ body.dark-mode {
   --secondary-lighter: var(--emerald-green-100);
 
   --status-success: var(--green-default);
+  --status-good: var(--blue-500);
   --status-warn: var(--orange-600);
   --status-fail: var(--red-400);
   --status-danger: var(--red-50);

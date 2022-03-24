@@ -47,8 +47,6 @@ export class MainContentsContainerComponent implements OnInit {
         this.isAppSelected$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             map((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlPathId.APPLICATION))
         );
-
-        console.log(this.isAppSelected$)
     }
 
     onShowHelp($event: MouseEvent): void {

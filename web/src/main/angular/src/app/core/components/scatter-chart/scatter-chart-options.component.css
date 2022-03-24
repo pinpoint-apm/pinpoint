@@ -1,9 +1,10 @@
 .l-tool-box {
+    display: flex;
+    justify-content: space-between;
     font-size:14px;
     color: var(--icon-default);
-    text-align:right;
     position:relative;
-    padding: 0 25px 0
+    padding: 0 25px 0;
 }
 .l-tool-box button {
     margin:0 0 0 14px;

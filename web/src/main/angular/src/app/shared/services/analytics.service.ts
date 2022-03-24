@@ -145,6 +145,7 @@ export enum TRACKED_EVENT_LIST {
     SELECT_APPLICATION_FOR_WEBHOOK = 'Select Application For Webhook',
     SHOW_WEBHOOK_UPDATE_POPUP = 'Show Webhook Update Popup',
     CLICK_SIDE_NAVIGATION_BAR = 'Click Side Navigation Bar',
+    CLICK_APDEX_SCORE = 'Click Apdex Score',
 }
 
 @Injectable()
