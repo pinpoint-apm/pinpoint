@@ -9,11 +9,11 @@ plugins {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web:2.5.7")
-    implementation("org.springframework.boot:spring-boot-starter-logging:2.5.7")
-    implementation("org.springframework.boot:spring-boot-starter-actuator:2.5.7")
+    implementation("org.springframework.boot:spring-boot-starter-web:${Versions.springBoot}")
+    implementation("org.springframework.boot:spring-boot-starter-logging:${Versions.springBoot}")
+    implementation("org.springframework.boot:spring-boot-starter-actuator:${Versions.springBoot}")
     implementation("org.springdoc:springdoc-openapi-ui:1.4.4")
-    compileOnly("org.springframework.boot:spring-boot-starter-tomcat:2.5.7")
+    compileOnly("org.springframework.boot:spring-boot-starter-tomcat:${Versions.springBoot}")
     compileOnly("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
     compileOnly("org.eclipse.paho:org.eclipse.paho.mqttv5.client:1.2.5")
 }

@@ -38,8 +38,8 @@ dependencies {
     implementation("org.springframework.security:spring-security-web:5.5.3")
     implementation("org.springframework.security:spring-security-config:5.5.3")
     implementation("org.springframework.security:spring-security-messaging:5.5.3")
-    implementation("org.springframework.boot:spring-boot-starter-web:2.5.7")
-    implementation("org.springframework.boot:spring-boot-starter-log4j2:2.5.7")
+    implementation("org.springframework.boot:spring-boot-starter-web:${Versions.springBoot}")
+    implementation("org.springframework.boot:spring-boot-starter-log4j2:${Versions.springBoot}")
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.mybatis:mybatis:3.5.7")
     implementation("org.mybatis:mybatis-spring:2.0.6")
@@ -68,7 +68,7 @@ dependencies {
     testImplementation(project(":pinpoint-rpc"))
     testImplementation("org.skyscreamer:jsonassert:1.5.0")
     compileOnly("javax.servlet:javax.servlet-api:4.0.1")
-    compileOnly("org.springframework.boot:spring-boot-starter-tomcat:2.5.7")
+    compileOnly("org.springframework.boot:spring-boot-starter-tomcat:${Versions.springBoot}")
 }
 
 description = "pinpoint-web"

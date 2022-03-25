@@ -11,8 +11,8 @@ dependencies {
     api(project(":pinpoint-web"))
     api(project(":pinpoint-rpc"))
     implementation("org.apache.thrift:libthrift:0.15.0")
-    implementation("org.springframework.boot:spring-boot-starter-web:2.5.7")
-    implementation("org.springframework.boot:spring-boot-starter-log4j2:2.5.7")
+    implementation("org.springframework.boot:spring-boot-starter-web:${Versions.springBoot}")
+    implementation("org.springframework.boot:spring-boot-starter-log4j2:${Versions.springBoot}")
     implementation("org.springframework:spring-web:${Versions.spring}")
     implementation("org.springframework:spring-context-support:${Versions.spring}")
     implementation("org.springframework:spring-jdbc:${Versions.spring}")
@@ -29,7 +29,7 @@ dependencies {
     runtimeOnly("org.apache.logging.log4j:log4j-core:${Versions.log4j}")
     testImplementation("org.springframework:spring-test:${Versions.spring}")
     testImplementation("org.springframework.batch:spring-batch-test:4.3.3")
-    compileOnly("org.springframework.boot:spring-boot-starter-tomcat:2.5.7")
+    compileOnly("org.springframework.boot:spring-boot-starter-tomcat:${Versions.springBoot}")
 }
 
 description = "pinpoint-batch"
