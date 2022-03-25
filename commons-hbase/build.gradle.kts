@@ -17,11 +17,11 @@ dependencies {
     implementation("org.codehaus.jackson:jackson-core-asl:1.9.13")
     implementation("org.springframework:spring-core:${Versions.spring}")
     implementation("org.springframework:spring-tx:${Versions.spring}")
-    implementation("org.apache.logging.log4j:log4j-api:${Versions.log4j}")
+    implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK8}")
     runtimeOnly("log4j:log4j:1.2.17")
-    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4j}")
-    runtimeOnly("org.apache.logging.log4j:log4j-core:${Versions.log4j}")
-    runtimeOnly("org.apache.logging.log4j:log4j-jcl:${Versions.log4j}")
+    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK8}")
+    runtimeOnly("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK8}")
+    runtimeOnly("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK8}")
 }
 
 description = "pinpoint-commons-hbase"
