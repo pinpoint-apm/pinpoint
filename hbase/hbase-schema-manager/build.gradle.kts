@@ -6,6 +6,7 @@
 
 plugins {
     id("pinpoint.java11-conventions")
+    id("pinpoint.hbase-conventions")
 }
 
 dependencies {
@@ -14,6 +15,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.8.1")
     implementation("org.springframework.boot:spring-boot-starter:2.5.7")
     implementation("org.springframework.boot:spring-boot-starter-log4j2:2.5.7")
+    implementation("org.springframework:spring-tx:${Versions.spring}")
     implementation("org.apache.logging.log4j:log4j-1.2-api:2.14.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test:2.5.7")
 }
