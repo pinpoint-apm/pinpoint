@@ -10,8 +10,8 @@ plugins {
 
 dependencies {
     compileOnly(project(":pinpoint-bootstrap-core"))
-    compileOnly("org.apache.logging.log4j:log4j-core:2.12.4")
-    compileOnly("org.apache.logging.log4j:log4j-api:2.12.4")
+    compileOnly("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
+    compileOnly("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK7}")
 }
 
 description = "pinpoint-log4j2-plugin"

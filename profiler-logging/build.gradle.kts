@@ -13,9 +13,9 @@ dependencies {
     api(project(":pinpoint-commons"))
     api(project(":pinpoint-bootstrap-core"))
     api(project(":pinpoint-bootstrap"))
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
-    implementation("org.apache.logging.log4j:log4j-core:2.12.4")
-    implementation("org.apache.logging.log4j:log4j-api:2.12.4")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
+    implementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
+    implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK7}")
 }
 
 description = "pinpoint-profiler-logging"

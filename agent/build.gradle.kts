@@ -19,11 +19,11 @@ dependencies {
     api(project(":pinpoint-profiler"))
     api(project(":pinpoint-profiler-test"))
     api(project(":pinpoint-grpc"))
-    implementation("org.apache.logging.log4j:log4j-api:2.12.4")
+    implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK7}")
     runtimeOnly(project(":pinpoint-tools"))
     runtimeOnly("org.slf4j:slf4j-api:1.7.30")
-    runtimeOnly("org.apache.logging.log4j:log4j-core:2.12.4")
-    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
+    runtimeOnly("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
+    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
 }
 
 description = "pinpoint-agent-distribution"

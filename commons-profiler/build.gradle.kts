@@ -11,10 +11,10 @@ plugins {
 dependencies {
     api(project(":pinpoint-commons"))
     api(project(":pinpoint-commons-buffer"))
-    testImplementation("org.apache.logging.log4j:log4j-api:2.12.4")
-    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
-    testImplementation("org.apache.logging.log4j:log4j-core:2.12.4")
-    testImplementation("org.apache.logging.log4j:log4j-jcl:2.12.4")
+    testImplementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK7}")
+    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
+    testImplementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
+    testImplementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK7}")
     testImplementation("org.apache.commons:commons-lang3:3.8.1")
 }
 
