@@ -9,7 +9,6 @@ object Versions {
     const val zookeeper = "3.4.14"
     const val spring = "5.3.13"
     const val log4j = "2.17.1"
-    const val jaxbImpl = "3.0.1"
-    const val jaxbPlugin = "5.1.0"
-    const val jakartaActivationApi = "2.0.1"
+    const val jaxbImpl = "2.3.3"
+    const val jaxbPlugin = "4.4.2"
 }
