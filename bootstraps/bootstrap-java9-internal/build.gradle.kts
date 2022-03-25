@@ -11,10 +11,10 @@ plugins {
 dependencies {
     api(project(":pinpoint-bootstrap-core"))
     api(project(":pinpoint-commons"))
-    testImplementation("org.apache.logging.log4j:log4j-api:2.12.4")
-    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
-    testImplementation("org.apache.logging.log4j:log4j-core:2.12.4")
-    testImplementation("org.apache.logging.log4j:log4j-jcl:2.12.4")
+    testImplementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK7}")
+    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
+    testImplementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
+    testImplementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK7}")
     testImplementation("mysql:mysql-connector-java:8.0.27")
     testImplementation("commons-io:commons-io:2.6")
 }

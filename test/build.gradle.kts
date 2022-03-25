@@ -21,15 +21,15 @@ dependencies {
     implementation("org.apache.maven.resolver:maven-resolver-transport-wagon:1.6.1")
     implementation("org.apache.maven:maven-resolver-provider:3.6.3")
     implementation("org.apache.commons:commons-lang3:3.8.1")
-    implementation("org.apache.logging.log4j:log4j-api:2.12.4")
+    implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK7}")
     implementation("org.tinylog:tinylog-api:2.2.1")
     implementation("org.tinylog:tinylog-impl:2.2.1")
     implementation("org.tinylog:slf4j-tinylog:2.2.1")
     implementation("junit:junit:${Versions.junit}")
     runtimeOnly("org.slf4j:slf4j-api:1.7.30")
-    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
-    testImplementation("org.apache.logging.log4j:log4j-core:2.12.4")
-    testImplementation("org.apache.logging.log4j:log4j-jcl:2.12.4")
+    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
+    testImplementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
+    testImplementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK7}")
 }
 
 description = "pinpoint-test"

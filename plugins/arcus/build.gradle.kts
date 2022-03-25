@@ -9,9 +9,9 @@ plugins {
 }
 
 dependencies {
-    testImplementation("org.apache.logging.log4j:log4j-api:2.12.4")
-    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
-    testImplementation("org.apache.logging.log4j:log4j-core:2.12.4")
+    testImplementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK7}")
+    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
+    testImplementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
     compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("com.navercorp.arcus:arcus-java-client:1.8.1")
 }

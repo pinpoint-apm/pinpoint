@@ -10,8 +10,8 @@ plugins {
 
 dependencies {
     testImplementation("org.slf4j:slf4j-api:1.7.30")
-    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.4")
-    testImplementation("org.apache.logging.log4j:log4j-core:2.12.4")
+    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
+    testImplementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
     compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("org.elasticsearch.client:elasticsearch-rest-high-level-client:7.3.0")
 }
