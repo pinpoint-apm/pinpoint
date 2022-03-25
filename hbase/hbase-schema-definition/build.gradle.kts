@@ -12,7 +12,6 @@ plugins {
 dependencies {
     implementation("javax.annotation:javax.annotation-api:1.3.2")
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:${Versions.jaxbImpl}")
-    implementation("jakarta.activation:jakarta.activation-api:${Versions.jakartaActivationApi}")
     runtimeOnly("com.sun.xml.bind:jaxb-impl:${Versions.jaxbImpl}")
 }
 
