@@ -11,6 +11,7 @@ plugins {
 dependencies {
     api(project(":pinpoint-collector"))
     implementation("org.apache.hbase:hbase-client:2.4.2")
+    implementation("org.springframework.boot:spring-boot-autoconfigure:${Versions.springBoot}")
 }
 
 description = "pinpoint-hbase2-collector"

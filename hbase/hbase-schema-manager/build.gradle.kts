@@ -11,13 +11,13 @@ plugins {
 
 dependencies {
     api(project(":pinpoint-hbase-schema"))
-    implementation("org.springframework.boot:spring-boot-configuration-processor:2.5.7")
+    implementation("org.springframework.boot:spring-boot-configuration-processor:${Versions.springBoot}")
     implementation("org.apache.commons:commons-lang3:3.8.1")
-    implementation("org.springframework.boot:spring-boot-starter:2.5.7")
-    implementation("org.springframework.boot:spring-boot-starter-log4j2:2.5.7")
+    implementation("org.springframework.boot:spring-boot-starter:${Versions.springBoot}")
+    implementation("org.springframework.boot:spring-boot-starter-log4j2:${Versions.springBoot}")
     implementation("org.springframework:spring-tx:${Versions.spring}")
     implementation("org.apache.logging.log4j:log4j-1.2-api:2.14.1")
-    testImplementation("org.springframework.boot:spring-boot-starter-test:2.5.7")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:${Versions.springBoot}")
 }
 
 description = "pinpoint-hbase-schema-manager"
