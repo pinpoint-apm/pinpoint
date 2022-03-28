@@ -30,7 +30,7 @@ dependencies {
     testImplementation("commons-lang:commons-lang:2.6")
     testImplementation(project(":pinpoint-rpc"))
     testImplementation(project(":pinpoint-testcase"))
-    testImplementation("org.springframework:spring-context:4.3.30.RELEASE")
+    testImplementation("org.springframework:spring-context:${Versions.spring4}")
     testImplementation("org.awaitility:awaitility:3.1.5")
 }
 

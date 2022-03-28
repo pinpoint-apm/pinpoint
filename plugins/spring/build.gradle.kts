@@ -11,8 +11,8 @@ plugins {
 dependencies {
     testImplementation(project(":pinpoint-test"))
     compileOnly(project(":pinpoint-bootstrap-core"))
-    compileOnly("org.springframework:spring-context:4.3.30.RELEASE")
-    compileOnly("org.springframework:spring-web:4.3.30.RELEASE")
+    compileOnly("org.springframework:spring-context:${Versions.spring4}")
+    compileOnly("org.springframework:spring-web:${Versions.spring4}")
 }
 
 description = "pinpoint-spring-plugin"

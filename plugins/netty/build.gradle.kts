@@ -11,7 +11,6 @@ plugins {
 dependencies {
     compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("io.netty:netty-all:4.1.63.Final")
-    compileOnly("org.springframework:spring-web:${Versions.spring}")
 }
 
 description = "pinpoint-netty-plugin"

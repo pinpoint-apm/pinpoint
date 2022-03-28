@@ -7,6 +7,7 @@ object Versions {
     const val netty4 = "4.1.63.Final"
     const val junit = "4.13.2"
     const val zookeeper = "3.4.14"
+    const val spring4 = "4.3.30.RELEASE"
     const val spring = "5.3.13"
     const val springBoot = "2.5.7"
     const val log4jJDK7 = "2.12.4"
