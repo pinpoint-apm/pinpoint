@@ -16,10 +16,6 @@ repositories {
     maven {
         url = uri("https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/")
     }
-
-    maven {
-        url = uri("file:///Users/feelform/workspace/pinpoint/pinpoint/plugins/openwhisk/libs")
-    }
 }
 
 dependencies {
