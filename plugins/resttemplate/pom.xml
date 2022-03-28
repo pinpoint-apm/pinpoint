@@ -12,6 +12,10 @@
     <name>pinpoint-resttemplate-plugin</name>
     <packaging>jar</packaging>
 
+    <properties>
+        <spring.version>${spring4.version}</spring.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
