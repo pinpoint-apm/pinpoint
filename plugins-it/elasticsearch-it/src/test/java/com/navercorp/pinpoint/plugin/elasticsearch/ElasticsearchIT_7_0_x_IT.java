@@ -19,7 +19,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 
-import com.navercorp.pinpoint.plugin.elasticsearch.ElasticsearchConstants;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
@@ -27,6 +26,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +38,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"org.elasticsearch.client:elasticsearch-rest-high-level-client:[7.0.0,]",
+@Dependency({"org.elasticsearch.client:elasticsearch-rest-high-level-client:[7.0.0,7.16.0)",
         "pl.allegro.tech:embedded-elasticsearch:2.8.0"})
 @JvmVersion(8)
 public class ElasticsearchIT_7_0_x_IT extends ElasticsearchITBase {

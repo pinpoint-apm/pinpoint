@@ -40,6 +40,7 @@
         <module>dubbo-it</module>
         <module>elasticsearch-bbose-it</module>
         <module>elasticsearch-it</module>
+        <module>elasticsearch-7.16-it</module>
         <module>fastjson-it</module>
         <module>google-grpc-it</module>
         <module>google-httpclient-it</module>
