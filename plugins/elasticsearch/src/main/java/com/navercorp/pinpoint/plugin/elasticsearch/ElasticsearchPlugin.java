@@ -138,9 +138,16 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
             target.addField(EndPointAccessor.class);
             target.addField(ClusterInfoAccessor.class);
 
-            InstrumentMethod client = target.getConstructor("org.elasticsearch.client.RestClient"
-                    , "org.elasticsearch.common.CheckedConsumer"
-                    , "java.util.List");
+            InstrumentMethod client = target.getConstructor("org.elasticsearch.client.RestClient", "org.elasticsearch.common.CheckedConsumer", "java.util.List");
+            if (client == null) {
+                // 7.16.0
+                client = target.getConstructor("org.elasticsearch.client.RestClient", "org.elasticsearch.core.CheckedConsumer", "java.util.List", "java.lang.Boolean");
+            }
+            if (client == null) {
+                // 7.14.0
+                client = target.getConstructor("org.elasticsearch.client.RestClient", "org.elasticsearch.core.CheckedConsumer", "java.util.List");
+            }
+
             if (client != null) {
                 client.addScopedInterceptor(HighLevelConnectInterceptor.class, ElasticsearchConstants.ELASTICSEARCH_SCOPE, ExecutionPolicy.BOUNDARY);
             }
