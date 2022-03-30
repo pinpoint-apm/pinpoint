@@ -32,10 +32,10 @@ export class ApdexScoreComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        const score = changes.score.currentValue
+        const score: number = changes.score.currentValue
         
         if (!isNaN(Number(score))) {
-            this.fixedScore = (score as number).toFixed(3);
+            this.fixedScore = (Math.floor(score * 100) / 100).toFixed(2);
         }
     }
 
