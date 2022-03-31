@@ -16,41 +16,21 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.TransactionDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.web.dao.stat.TransactionDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 @Repository("transactionDaoV2")
-public class HbaseTransactionDaoV2 implements TransactionDao {
+public class HbaseTransactionDaoV2 extends AbstractAgentStatDao<TransactionBo> implements TransactionDao {
 
-    private final HbaseAgentStatDaoOperationsV2 operations;
-
-    private final TransactionDecoder transactionDecoder;
-
-    public HbaseTransactionDaoV2(HbaseAgentStatDaoOperationsV2 operations, TransactionDecoder transactionDecoder) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.transactionDecoder = Objects.requireNonNull(transactionDecoder, "transactionDecoder");
+    public HbaseTransactionDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<TransactionBo> decoder) {
+        super(AgentStatType.TRANSACTION, operations, decoder);
     }
 
-    @Override
-    public List<TransactionBo> getAgentStatList(String agentId, Range range) {
-        AgentStatMapperV2<TransactionBo> mapper = operations.createRowMapper(transactionDecoder, range);
-        return operations.getAgentStatList(AgentStatType.TRANSACTION, mapper, agentId, range);
-    }
 
-    @Override
-    public boolean agentStatExists(String agentId, Range range) {
-        AgentStatMapperV2<TransactionBo> mapper = operations.createRowMapper(transactionDecoder, range);
-        return operations.agentStatExists(AgentStatType.TRANSACTION, mapper, agentId, range);
-    }
 }

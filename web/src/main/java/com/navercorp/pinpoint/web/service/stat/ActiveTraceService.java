@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
-import com.navercorp.pinpoint.web.dao.stat.ActiveTraceDao;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -31,9 +31,9 @@ import java.util.Objects;
 @Service
 public class ActiveTraceService implements AgentStatService<ActiveTraceBo> {
 
-    private final ActiveTraceDao activeTraceDao;
+    private final AgentStatDao<ActiveTraceBo> activeTraceDao;
 
-    public ActiveTraceService(@Qualifier("activeTraceDaoFactory") ActiveTraceDao activeTraceDao) {
+    public ActiveTraceService(@Qualifier("activeTraceDaoFactory") AgentStatDao<ActiveTraceBo> activeTraceDao) {
         this.activeTraceDao = Objects.requireNonNull(activeTraceDao, "activeTraceDao");
     }
 

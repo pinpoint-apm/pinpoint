@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentWarningStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
-import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentState;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -42,9 +42,9 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
 
     private static final long LIMIT_TIME = 60000;
 
-    private final DeadlockDao deadlockDao;
+    private final AgentStatDao<DeadlockThreadCountBo> deadlockDao;
 
-    public AgentWarningStatServiceImpl(@Qualifier("deadlockDaoV2") DeadlockDao deadlockDao) {
+    public AgentWarningStatServiceImpl(@Qualifier("deadlockDaoV2") AgentStatDao<DeadlockThreadCountBo> deadlockDao) {
         this.deadlockDao = Objects.requireNonNull(deadlockDao, "deadlockDao");
     }
 

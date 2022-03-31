@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
-import com.navercorp.pinpoint.web.dao.stat.LoadedClassCountDao;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +27,9 @@ import java.util.Objects;
 
 @Service
 public class LoadedClassCountService implements AgentStatService<LoadedClassBo> {
-    private final LoadedClassCountDao loadedClassCountDao;
+    private final AgentStatDao<LoadedClassBo> loadedClassCountDao;
 
-    public LoadedClassCountService(@Qualifier("loadedClassCountDaoFactory") LoadedClassCountDao loadedClassCountDao) {
+    public LoadedClassCountService(@Qualifier("loadedClassCountDaoFactory") AgentStatDao<LoadedClassBo> loadedClassCountDao) {
         this.loadedClassCountDao = Objects.requireNonNull(loadedClassCountDao, "loadedClassCountDao");
     }
 

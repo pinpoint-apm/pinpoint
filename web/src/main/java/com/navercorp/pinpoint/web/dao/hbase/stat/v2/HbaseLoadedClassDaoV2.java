@@ -16,38 +16,17 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.LoadedClassCountDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
 import com.navercorp.pinpoint.web.dao.stat.LoadedClassCountDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Objects;
-
 @Repository("loadedClassDaoV2")
-public class HbaseLoadedClassDaoV2 implements LoadedClassCountDao {
+public class HbaseLoadedClassDaoV2 extends AbstractAgentStatDao<LoadedClassBo> implements LoadedClassCountDao {
 
-    private final HbaseAgentStatDaoOperationsV2 operations;
-    private final LoadedClassCountDecoder loadedClassDecoder;
-
-    public HbaseLoadedClassDaoV2(HbaseAgentStatDaoOperationsV2 operations, LoadedClassCountDecoder loadedClassDecoder) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.loadedClassDecoder = Objects.requireNonNull(loadedClassDecoder, "directBufferDecoder");
-    }
-
-    @Override
-    public List<LoadedClassBo> getAgentStatList(String agentId, Range range) {
-        AgentStatMapperV2<LoadedClassBo> mapper = operations.createRowMapper(loadedClassDecoder, range);
-        return operations.getAgentStatList(AgentStatType.LOADED_CLASS, mapper, agentId, range);
-    }
-
-    @Override
-    public boolean agentStatExists(String agentId, Range range) {
-        AgentStatMapperV2<LoadedClassBo> mapper = operations.createRowMapper(loadedClassDecoder, range);
-        return operations.agentStatExists(AgentStatType.LOADED_CLASS, mapper, agentId, range);
+    public HbaseLoadedClassDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<LoadedClassBo> decoder) {
+        super(AgentStatType.LOADED_CLASS, operations, decoder);
     }
 
 }

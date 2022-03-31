@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
-import com.navercorp.pinpoint.web.dao.stat.ResponseTimeDao;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -31,9 +31,9 @@ import java.util.Objects;
 @Service
 public class ResponseTimeService implements AgentStatService<ResponseTimeBo> {
 
-    private final ResponseTimeDao responseTimeDao;
+    private final AgentStatDao<ResponseTimeBo> responseTimeDao;
 
-    public ResponseTimeService(@Qualifier("responseTimeDaoFactory") ResponseTimeDao responseTimeDao) {
+    public ResponseTimeService(@Qualifier("responseTimeDaoFactory") AgentStatDao<ResponseTimeBo> responseTimeDao) {
         this.responseTimeDao = Objects.requireNonNull(responseTimeDao, "responseTimeDao");
     }
 

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.service.stat;
 
-import com.navercorp.pinpoint.web.dao.stat.SampledJvmGcDetailedDao;
+import com.navercorp.pinpoint.web.dao.SampledAgentStatDao;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGcDetailed;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.web.vo.stat.chart.agent.JvmGcDetailedChart;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,9 +33,9 @@ import java.util.Objects;
 @Service
 public class JvmGcDetailedChartService implements AgentStatChartService {
 
-    private final SampledJvmGcDetailedDao sampledJvmGcDetailedDao;
+    private final SampledAgentStatDao<SampledJvmGcDetailed> sampledJvmGcDetailedDao;
 
-    public JvmGcDetailedChartService(@Qualifier("sampledJvmGcDetailedDaoFactory") SampledJvmGcDetailedDao sampledJvmGcDetailedDao) {
+    public JvmGcDetailedChartService(@Qualifier("sampledJvmGcDetailedDaoFactory") SampledAgentStatDao<SampledJvmGcDetailed> sampledJvmGcDetailedDao) {
         this.sampledJvmGcDetailedDao = Objects.requireNonNull(sampledJvmGcDetailedDao, "sampledJvmGcDetailedDao");
     }
 
@@ -52,11 +51,7 @@ public class JvmGcDetailedChartService implements AgentStatChartService {
     @Override
     public List<StatChart> selectAgentChartList(String agentId, TimeWindow timeWindow) {
         StatChart agentStatChart = selectAgentChart(agentId, timeWindow);
-
-        List<StatChart> result = new ArrayList<>(1);
-        result.add(agentStatChart);
-
-        return result;
+        return List.of(agentStatChart);
     }
 
 }

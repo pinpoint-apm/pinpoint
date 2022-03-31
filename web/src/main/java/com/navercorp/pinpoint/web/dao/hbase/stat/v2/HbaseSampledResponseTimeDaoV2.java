@@ -16,46 +16,25 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.ResponseTimeDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.web.dao.stat.SampledResponseTimeDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ResponseTimeSampler;
-import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 @Repository("sampledResponseTimeDaoV2")
-public class HbaseSampledResponseTimeDaoV2 implements SampledResponseTimeDao {
+public class HbaseSampledResponseTimeDaoV2
+        extends AbstractSampledAgentStatDao<ResponseTimeBo, SampledResponseTime> implements SampledResponseTimeDao {
 
-    private final HbaseAgentStatDaoOperationsV2 operations;
-
-    private final ResponseTimeDecoder responseTimeDecoder;
-    private final ResponseTimeSampler responseTimeSampler;
-
-    public HbaseSampledResponseTimeDaoV2(HbaseAgentStatDaoOperationsV2 operations, ResponseTimeDecoder responseTimeDecoder, ResponseTimeSampler responseTimeSampler) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.responseTimeDecoder = Objects.requireNonNull(responseTimeDecoder, "responseTimeDecoder");
-        this.responseTimeSampler = Objects.requireNonNull(responseTimeSampler, "responseTimeSampler");
-    }
-
-    @Override
-    public List<SampledResponseTime> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
-        Range range = timeWindow.getWindowSlotRange();
-
-        AgentStatMapperV2<ResponseTimeBo> mapper = operations.createRowMapper(responseTimeDecoder, range);
-
-        SampledAgentStatResultExtractor<ResponseTimeBo, SampledResponseTime> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, responseTimeSampler);
-        return operations.getSampledAgentStatList(AgentStatType.RESPONSE_TIME, resultExtractor, agentId, range);
+    public HbaseSampledResponseTimeDaoV2(HbaseAgentStatDaoOperationsV2 operations,
+                                         AgentStatDecoder<ResponseTimeBo> decoder,
+                                         AgentStatSampler<ResponseTimeBo, SampledResponseTime> sampler) {
+        super(AgentStatType.RESPONSE_TIME, operations, decoder, new SampledAgentStatResultExtractorSupplier<>(sampler));
     }
 
 }

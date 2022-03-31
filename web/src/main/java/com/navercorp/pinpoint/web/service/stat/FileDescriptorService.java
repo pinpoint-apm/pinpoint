@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
-import com.navercorp.pinpoint.web.dao.stat.FileDescriptorDao;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -31,9 +31,9 @@ import java.util.Objects;
 @Service
 public class FileDescriptorService implements AgentStatService<FileDescriptorBo> {
 
-    private final FileDescriptorDao fileDescriptorDao;
+    private final AgentStatDao<FileDescriptorBo> fileDescriptorDao;
 
-    public FileDescriptorService(@Qualifier("fileDescriptorDaoFactory") FileDescriptorDao fileDescriptorDao) {
+    public FileDescriptorService(@Qualifier("fileDescriptorDaoFactory") AgentStatDao<FileDescriptorBo> fileDescriptorDao) {
         this.fileDescriptorDao = Objects.requireNonNull(fileDescriptorDao, "fileDescriptorDao");
     }
 

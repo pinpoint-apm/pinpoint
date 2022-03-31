@@ -16,46 +16,25 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.DeadlockDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.web.dao.stat.SampledDeadlockDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DeadlockSampler;
-import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 @Repository("sampledDeadlockDaoV2")
-public class HbaseSampledDeadlockDaoV2 implements SampledDeadlockDao {
+public class HbaseSampledDeadlockDaoV2
+        extends AbstractSampledAgentStatDao<DeadlockThreadCountBo, SampledDeadlock> implements SampledDeadlockDao {
 
-    private final HbaseAgentStatDaoOperationsV2 operations;
-
-    private final DeadlockDecoder deadlockDecoder;
-    private final DeadlockSampler deadlockSampler;
-
-    public HbaseSampledDeadlockDaoV2(HbaseAgentStatDaoOperationsV2 operations, DeadlockDecoder deadlockDecoder, DeadlockSampler deadlockSampler) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.deadlockDecoder = Objects.requireNonNull(deadlockDecoder, "deadlockDecoder");
-        this.deadlockSampler = Objects.requireNonNull(deadlockSampler, "deadlockSampler");
-    }
-
-    @Override
-    public List<SampledDeadlock> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
-        Range range = timeWindow.getWindowSlotRange();
-
-        AgentStatMapperV2<DeadlockThreadCountBo> mapper = operations.createRowMapper(deadlockDecoder, range);
-
-        SampledAgentStatResultExtractor<DeadlockThreadCountBo, SampledDeadlock> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, deadlockSampler);
-        return operations.getSampledAgentStatList(AgentStatType.DEADLOCK, resultExtractor, agentId, range);
+    public HbaseSampledDeadlockDaoV2(HbaseAgentStatDaoOperationsV2 operations,
+                                     AgentStatDecoder<DeadlockThreadCountBo> decoder,
+                                     AgentStatSampler<DeadlockThreadCountBo, SampledDeadlock> sampler) {
+        super(AgentStatType.DEADLOCK, operations, decoder, new SampledAgentStatResultExtractorSupplier<>(sampler));
     }
 
 }

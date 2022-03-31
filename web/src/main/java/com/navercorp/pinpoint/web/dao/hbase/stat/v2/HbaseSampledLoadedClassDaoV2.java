@@ -16,39 +16,21 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.LoadedClassCountDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
 import com.navercorp.pinpoint.web.dao.stat.SampledLoadedClassCountDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.LoadedClassSampler;
-import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.vo.stat.SampledLoadedClassCount;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Objects;
-
 @Repository("sampledLoadedClassDaoV2")
-public class HbaseSampledLoadedClassDaoV2 implements SampledLoadedClassCountDao {
-    private final HbaseAgentStatDaoOperationsV2 operations;
-    private final LoadedClassCountDecoder loadedClassDecoder;
-    private final LoadedClassSampler loadedClassSampler;
+public class HbaseSampledLoadedClassDaoV2
+        extends AbstractSampledAgentStatDao<LoadedClassBo, SampledLoadedClassCount> implements SampledLoadedClassCountDao {
 
-    public HbaseSampledLoadedClassDaoV2(HbaseAgentStatDaoOperationsV2 operations, LoadedClassCountDecoder loadedClassDecoder, LoadedClassSampler loadedClassSampler) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.loadedClassDecoder = Objects.requireNonNull(loadedClassDecoder, "loadedClassDecoder");
-        this.loadedClassSampler = Objects.requireNonNull(loadedClassSampler, "loadedClassSampler");
-    }
-
-    @Override
-    public List<SampledLoadedClassCount> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
-        Range range = timeWindow.getWindowSlotRange();
-
-        AgentStatMapperV2<LoadedClassBo> mapper = operations.createRowMapper(loadedClassDecoder, range);
-        SampledAgentStatResultExtractor<LoadedClassBo, SampledLoadedClassCount> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, loadedClassSampler);
-        return operations.getSampledAgentStatList(AgentStatType.LOADED_CLASS, resultExtractor, agentId, range);
+    public HbaseSampledLoadedClassDaoV2(HbaseAgentStatDaoOperationsV2 operations,
+                                        AgentStatDecoder<LoadedClassBo> decoder,
+                                        AgentStatSampler<LoadedClassBo, SampledLoadedClassCount> sampler) {
+        super(AgentStatType.LOADED_CLASS, operations, decoder, new SampledAgentStatResultExtractorSupplier<>(sampler));
     }
 }

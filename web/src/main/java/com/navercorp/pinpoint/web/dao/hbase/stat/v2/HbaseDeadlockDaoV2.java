@@ -16,42 +16,20 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.DeadlockDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 @Repository("deadlockDaoV2")
-public class HbaseDeadlockDaoV2 implements DeadlockDao {
+public class HbaseDeadlockDaoV2 extends AbstractAgentStatDao<DeadlockThreadCountBo> implements DeadlockDao {
 
-    private final DeadlockDecoder deadlockDecoder;
-
-    private final HbaseAgentStatDaoOperationsV2 operations;
-
-    public HbaseDeadlockDaoV2(HbaseAgentStatDaoOperationsV2 operations, DeadlockDecoder deadlockDecoder) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.deadlockDecoder = Objects.requireNonNull(deadlockDecoder, "deadlockDecoder");
-    }
-
-    @Override
-    public List<DeadlockThreadCountBo> getAgentStatList(String agentId, Range range) {
-        AgentStatMapperV2<DeadlockThreadCountBo> mapper = operations.createRowMapper(deadlockDecoder, range);
-        return operations.getAgentStatList(AgentStatType.DEADLOCK, mapper, agentId, range);
-    }
-
-    @Override
-    public boolean agentStatExists(String agentId, Range range) {
-        AgentStatMapperV2<DeadlockThreadCountBo> mapper = operations.createRowMapper(deadlockDecoder, range);
-        return operations.agentStatExists(AgentStatType.DEADLOCK, mapper, agentId, range);
+    public HbaseDeadlockDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<DeadlockThreadCountBo> decoder) {
+        super(AgentStatType.DEADLOCK, operations, decoder);
     }
 
 }

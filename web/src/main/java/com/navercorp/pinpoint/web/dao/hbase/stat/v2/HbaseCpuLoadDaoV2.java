@@ -16,41 +16,19 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.CpuLoadDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.web.dao.stat.CpuLoadDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 @Repository("cpuLoadDaoV2")
-public class HbaseCpuLoadDaoV2 implements CpuLoadDao {
-
-    private final HbaseAgentStatDaoOperationsV2 operations;
-
-    private final CpuLoadDecoder cpuLoadDecoder;
-
-    public HbaseCpuLoadDaoV2(HbaseAgentStatDaoOperationsV2 operations, CpuLoadDecoder cpuLoadDecoder) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.cpuLoadDecoder = Objects.requireNonNull(cpuLoadDecoder, "cpuLoadDecoder");
+public class HbaseCpuLoadDaoV2 extends AbstractAgentStatDao<CpuLoadBo> implements CpuLoadDao {
+    public HbaseCpuLoadDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<CpuLoadBo> decoder) {
+        super(AgentStatType.CPU_LOAD, operations, decoder);
     }
 
-    @Override
-    public List<CpuLoadBo> getAgentStatList(String agentId, Range range) {
-        AgentStatMapperV2<CpuLoadBo> mapper = operations.createRowMapper(cpuLoadDecoder, range);
-        return operations.getAgentStatList(AgentStatType.CPU_LOAD, mapper, agentId, range);
-    }
-
-    @Override
-    public boolean agentStatExists(String agentId, Range range) {
-        AgentStatMapperV2<CpuLoadBo> mapper = operations.createRowMapper(cpuLoadDecoder, range);
-        return operations.agentStatExists(AgentStatType.CPU_LOAD, mapper, agentId, range);
-    }
 }

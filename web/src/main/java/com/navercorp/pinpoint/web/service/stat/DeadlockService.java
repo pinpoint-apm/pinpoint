@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
-import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -31,9 +31,9 @@ import java.util.Objects;
 @Service
 public class DeadlockService implements AgentStatService<DeadlockThreadCountBo> {
 
-    private final DeadlockDao deadlockDao;
+    private final AgentStatDao<DeadlockThreadCountBo> deadlockDao;
 
-    public DeadlockService(@Qualifier("deadlockDaoFactory") DeadlockDao deadlockDao) {
+    public DeadlockService(@Qualifier("deadlockDaoFactory") AgentStatDao<DeadlockThreadCountBo> deadlockDao) {
         this.deadlockDao = Objects.requireNonNull(deadlockDao, "deadlockDao");
     }
 

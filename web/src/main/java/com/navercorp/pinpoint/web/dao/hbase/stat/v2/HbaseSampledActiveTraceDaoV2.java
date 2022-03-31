@@ -16,44 +16,25 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.ActiveTraceDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.web.dao.stat.SampledActiveTraceDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ActiveTraceSampler;
-import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
-import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 @Repository("sampledActiveTraceDaoV2")
-public class HbaseSampledActiveTraceDaoV2 implements SampledActiveTraceDao {
+public class HbaseSampledActiveTraceDaoV2
+        extends AbstractSampledAgentStatDao<ActiveTraceBo, SampledActiveTrace> implements SampledActiveTraceDao {
 
-    private final HbaseAgentStatDaoOperationsV2 operations;
-
-    private final ActiveTraceDecoder activeTraceDecoder;
-    private final ActiveTraceSampler activeTraceSampler;
-
-    public HbaseSampledActiveTraceDaoV2(HbaseAgentStatDaoOperationsV2 operations, ActiveTraceDecoder activeTraceDecoder, ActiveTraceSampler activeTraceSampler) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.activeTraceDecoder = Objects.requireNonNull(activeTraceDecoder, "activeTraceDecoder");
-        this.activeTraceSampler = Objects.requireNonNull(activeTraceSampler, "activeTraceSampler");
+    public HbaseSampledActiveTraceDaoV2(HbaseAgentStatDaoOperationsV2 operations,
+                                        AgentStatDecoder<ActiveTraceBo> decoder,
+                                        AgentStatSampler<ActiveTraceBo, SampledActiveTrace> sampler) {
+        super(AgentStatType.ACTIVE_TRACE, operations, decoder, new SampledAgentStatResultExtractorSupplier<>(sampler));
     }
 
-    @Override
-    public List<SampledActiveTrace> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
-        Range range = timeWindow.getWindowSlotRange();
-
-        AgentStatMapperV2<ActiveTraceBo> mapper = operations.createRowMapper(activeTraceDecoder, range);
-        SampledAgentStatResultExtractor<ActiveTraceBo, SampledActiveTrace> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, activeTraceSampler);
-        return operations.getSampledAgentStatList(AgentStatType.ACTIVE_TRACE, resultExtractor, agentId, range);
-    }
 }

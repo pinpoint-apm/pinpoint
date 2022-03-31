@@ -16,42 +16,20 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.DirectBufferDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
 import com.navercorp.pinpoint.web.dao.stat.DirectBufferDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Roy Kim
  */
 @Repository("directBufferDaoV2")
-public class HbaseDirectBufferDaoV2 implements DirectBufferDao {
+public class HbaseDirectBufferDaoV2 extends AbstractAgentStatDao<DirectBufferBo> implements DirectBufferDao {
 
-    private final HbaseAgentStatDaoOperationsV2 operations;
-
-    private final DirectBufferDecoder directBufferDecoder;
-
-    public HbaseDirectBufferDaoV2(HbaseAgentStatDaoOperationsV2 operations, DirectBufferDecoder directBufferDecoder) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.directBufferDecoder = Objects.requireNonNull(directBufferDecoder, "directBufferDecoder");
-    }
-
-    @Override
-    public List<DirectBufferBo> getAgentStatList(String agentId, Range range) {
-        AgentStatMapperV2<DirectBufferBo> mapper = operations.createRowMapper(directBufferDecoder, range);
-        return operations.getAgentStatList(AgentStatType.DIRECT_BUFFER, mapper, agentId, range);
-    }
-
-    @Override
-    public boolean agentStatExists(String agentId, Range range) {
-        AgentStatMapperV2<DirectBufferBo> mapper = operations.createRowMapper(directBufferDecoder, range);
-        return operations.agentStatExists(AgentStatType.DIRECT_BUFFER, mapper, agentId, range);
+    public HbaseDirectBufferDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<DirectBufferBo> decoder) {
+        super(AgentStatType.DIRECT_BUFFER, operations, decoder);
     }
 
 }

@@ -16,41 +16,20 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.JvmGcDetailedDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDetailedDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 @Repository("jvmGcDetailedDaoV2")
-public class HbaseJvmGcDetailedDaoV2 implements JvmGcDetailedDao {
+public class HbaseJvmGcDetailedDaoV2 extends AbstractAgentStatDao<JvmGcDetailedBo> implements JvmGcDetailedDao {
 
-    private final HbaseAgentStatDaoOperationsV2 operations;
-
-    private final JvmGcDetailedDecoder jvmGcDetailedDecoder;
-
-    public HbaseJvmGcDetailedDaoV2(HbaseAgentStatDaoOperationsV2 operations, JvmGcDetailedDecoder jvmGcDetailedDecoder) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.jvmGcDetailedDecoder = Objects.requireNonNull(jvmGcDetailedDecoder, "jvmGcDetailedDecoder");
+    public HbaseJvmGcDetailedDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<JvmGcDetailedBo> decoder) {
+        super(AgentStatType.JVM_GC_DETAILED, operations, decoder);
     }
 
-    @Override
-    public List<JvmGcDetailedBo> getAgentStatList(String agentId, Range range) {
-        AgentStatMapperV2<JvmGcDetailedBo> mapper = operations.createRowMapper(jvmGcDetailedDecoder, range);
-        return operations.getAgentStatList(AgentStatType.JVM_GC_DETAILED, mapper, agentId, range);
-    }
-
-    @Override
-    public boolean agentStatExists(String agentId, Range range) {
-        AgentStatMapperV2<JvmGcDetailedBo> mapper = operations.createRowMapper(jvmGcDetailedDecoder, range);
-        return operations.agentStatExists(AgentStatType.JVM_GC_DETAILED, mapper, agentId, range);
-    }
 }

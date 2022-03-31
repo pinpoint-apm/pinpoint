@@ -16,47 +16,20 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.DataSourceDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.web.dao.stat.DataSourceDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 @Repository("dataSourceDaoV2")
-public class HbaseDataSourceDaoV2 implements DataSourceDao {
+public class HbaseDataSourceDaoV2 extends AbstractAgentStatDao<DataSourceListBo> implements DataSourceDao {
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
-
-    private final HbaseAgentStatDaoOperationsV2 operations;
-
-    private final DataSourceDecoder dataSourceDecoder;
-
-    public HbaseDataSourceDaoV2(HbaseAgentStatDaoOperationsV2 operations, DataSourceDecoder dataSourceDecoder) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.dataSourceDecoder = Objects.requireNonNull(dataSourceDecoder, "dataSourceDecoder");
-    }
-
-    @Override
-    public List<DataSourceListBo> getAgentStatList(String agentId, Range range) {
-        AgentStatMapperV2<DataSourceListBo> mapper = operations.createRowMapper(dataSourceDecoder, range);
-        List<DataSourceListBo> agentStatList = operations.getAgentStatList(AgentStatType.DATASOURCE, mapper, agentId, range);
-        return agentStatList;
-    }
-
-    @Override
-    public boolean agentStatExists(String agentId, Range range) {
-        AgentStatMapperV2<DataSourceListBo> mapper = operations.createRowMapper(dataSourceDecoder, range);
-        return operations.agentStatExists(AgentStatType.DATASOURCE, mapper, agentId, range);
+    public HbaseDataSourceDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<DataSourceListBo> decoder) {
+        super(AgentStatType.DATASOURCE, operations, decoder);
     }
 
 }

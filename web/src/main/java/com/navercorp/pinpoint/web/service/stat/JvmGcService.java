@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -31,9 +31,9 @@ import java.util.Objects;
 @Service
 public class JvmGcService implements AgentStatService<JvmGcBo> {
 
-    private final JvmGcDao jvmGcDao;
+    private final AgentStatDao<JvmGcBo> jvmGcDao;
 
-    public JvmGcService(@Qualifier("jvmGcDaoFactory") JvmGcDao jvmGcDao) {
+    public JvmGcService(@Qualifier("jvmGcDaoFactory") AgentStatDao<JvmGcBo> jvmGcDao) {
         this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
     }
 
