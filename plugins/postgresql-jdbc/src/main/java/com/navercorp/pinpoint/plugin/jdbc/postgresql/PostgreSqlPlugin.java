@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -114,8 +114,15 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
                 return null;
             }
 
-            InstrumentUtils.findConstructor(target, "org.postgresql.util.HostSpec[]", "java.lang.String", "java.lang.String", "java.util.Properties", "java.lang.String")
-                    .addInterceptor(PostgreSQLConnectionCreateInterceptor.class);
+            InstrumentMethod constructorMethod = target.getConstructor("org.postgresql.util.HostSpec[]", "java.lang.String", "java.lang.String", "java.util.Properties", "java.lang.String");
+            if (constructorMethod == null) {
+                // 42.3.2
+                constructorMethod = target.getConstructor("org.postgresql.util.HostSpec[]", "java.util.Properties", "java.lang.String");
+            }
+
+            if (constructorMethod != null) {
+                constructorMethod.addInterceptor(PostgreSQLConnectionCreateInterceptor.class);
+            }
 
             target.addField(DatabaseInfoAccessor.class);
 
@@ -225,7 +232,9 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
 
             return target.toBytecode();
         }
-    };
+    }
+
+    ;
 
     private void addPreparedStatementTransformers() {
 
@@ -267,7 +276,9 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
 
             return target.toBytecode();
         }
-    };
+    }
+
+    ;
 
     private void addLegacyConnectionTransformers() {
         transformTemplate.transform("org.postgresql.jdbc2.AbstractJdbc2Connection", AbstractJdbc2ConnectionTransform.class);
@@ -382,7 +393,9 @@ public class PostgreSqlPlugin implements ProfilerPlugin, TransformTemplateAware 
 
             return target.toBytecode();
         }
-    };
+    }
+
+    ;
 
     private void addLegacyStatementTransformers() {
         transformTemplate.transform("org.postgresql.jdbc2.AbstractJdbc2Statement", AbstractJdbc2StatementTransform.class);

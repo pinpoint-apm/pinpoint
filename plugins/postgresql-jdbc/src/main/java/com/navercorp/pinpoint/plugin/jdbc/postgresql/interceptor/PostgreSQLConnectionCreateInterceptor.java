@@ -53,11 +53,7 @@ public class PostgreSQLConnectionCreateInterceptor implements AroundInterceptor 
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-        if (ArrayUtils.getLength(args) != 5) {
-            return;
-        }
-
-        final String url = ArrayArgumentUtils.getArgument(args, 4, String.class);
+        final String url = toUrl(args);
 
         final JdbcContext jdbcContext = traceContext.getJdbcContext();
         jdbcContext.parseJdbcUrl(PostgreSqlConstants.POSTGRESQL, url);
@@ -82,7 +78,13 @@ public class PostgreSQLConnectionCreateInterceptor implements AroundInterceptor 
             recorder.recordEndPoint(databaseInfo.getMultipleHost());
             recorder.recordDestinationId(databaseInfo.getDatabaseId());
         }
+    }
 
+    private String toUrl(final Object[] args) {
+        if (ArrayUtils.getLength(args) == 5) {
+            return ArrayArgumentUtils.getArgument(args, 4, String.class);
+        }
+        return ArrayArgumentUtils.getArgument(args, 3, String.class);
     }
 
     @Override
