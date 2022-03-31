@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.mapper.stat.SampledDataSourceResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DataSourceSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSourceList;
 import org.springframework.stereotype.Repository;
 
@@ -50,9 +50,8 @@ public class HbaseSampledDataSourceDaoV2 implements SampledDataSourceDao {
 
     @Override
     public List<SampledDataSourceList> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
-        long scanFrom = timeWindow.getWindowRange().getFrom();
-        long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = Range.newRange(scanFrom, scanTo);
+        Range range = timeWindow.getWindowSlotRange();
+
         AgentStatMapperV2<DataSourceListBo> mapper = operations.createRowMapper(dataSourceDecoder, range);
 
         SampledDataSourceResultExtractor resultExtractor = new SampledDataSourceResultExtractor(timeWindow, mapper, dataSourceSampler);

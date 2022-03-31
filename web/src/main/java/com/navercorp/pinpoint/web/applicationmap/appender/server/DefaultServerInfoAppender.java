@@ -21,11 +21,12 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -98,7 +99,7 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
         CompletableFuture<ServerInstanceList> serverInstanceListFuture;
         ServiceType nodeServiceType = node.getServiceType();
         if (nodeServiceType.isWas()) {
-            final long to = range.getTo();
+            final Instant to = range.getToInstant();
             serverInstanceListFuture = CompletableFuture.supplyAsync(new Supplier<ServerInstanceList>() {
                 @Override
                 public ServerInstanceList get() {

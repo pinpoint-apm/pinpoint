@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.web.view.TransactionMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.GetTraceInfoParser;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;

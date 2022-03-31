@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
 import org.junit.Assert;
 import org.junit.Before;
@@ -56,7 +56,7 @@ public class AgentWarningStatServiceTest {
 
     @Test
     public void selectTest1() {
-        Range range = Range.newRange(CURRENT_TIME - TIME, CURRENT_TIME);
+        Range range = Range.between(CURRENT_TIME - TIME, CURRENT_TIME);
 
         List<DeadlockThreadCountBo> mockData = createMockData(10, 5000);
         when(deadlockDao.getAgentStatList("pinpoint", range)).thenReturn(mockData);
@@ -66,7 +66,7 @@ public class AgentWarningStatServiceTest {
 
     @Test
     public void selectTest2() {
-        Range range = Range.newRange(CURRENT_TIME - TIME, CURRENT_TIME);
+        Range range = Range.between(CURRENT_TIME - TIME, CURRENT_TIME);
 
         List<DeadlockThreadCountBo> mockData = createMockData(10, 70000);
         when(deadlockDao.getAgentStatList("pinpoint", range)).thenReturn(mockData);

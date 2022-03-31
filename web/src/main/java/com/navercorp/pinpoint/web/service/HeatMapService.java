@@ -4,7 +4,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.scatter.heatmap.HeatMap;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import java.util.List;
 

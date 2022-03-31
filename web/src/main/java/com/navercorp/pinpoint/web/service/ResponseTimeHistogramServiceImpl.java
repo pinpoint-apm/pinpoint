@@ -54,7 +54,7 @@ import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -121,7 +121,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
         if (applicationServiceType.isWas()) {
             NodeHistogram nodeHistogram = nodeHistogramFactory.createWasNodeHistogram(option.getApplication(), option.getRange());
             node.setNodeHistogram(nodeHistogram);
-            ServerInstanceList serverInstanceList = serverInstanceListFactory.createWasNodeInstanceList(node, option.getRange().getTo());
+            ServerInstanceList serverInstanceList = serverInstanceListFactory.createWasNodeInstanceList(node, option.getRange().getToInstant());
             return new NodeHistogramSummary(serverInstanceList, nodeHistogram);
         } else if (applicationServiceType.isTerminal() || applicationServiceType.isUnknown() || applicationServiceType.isAlias()) {
             if (sourceApplications.isEmpty()) {

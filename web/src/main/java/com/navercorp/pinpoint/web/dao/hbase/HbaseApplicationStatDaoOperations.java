@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.web.mapper.RangeTimestampFilter;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
 import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
 
 import org.apache.hadoop.hbase.TableName;

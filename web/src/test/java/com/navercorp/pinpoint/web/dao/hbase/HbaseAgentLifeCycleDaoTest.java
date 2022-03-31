@@ -39,6 +39,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -166,15 +167,15 @@ public class HbaseAgentLifeCycleDaoTest {
     public void agentInfos_should_be_populated_accordingly_even_with_nulls() {
         // Given
         final String expectedAgentId = "test-agent";
-        final long expectedTimestamp = 1000L;
+        final Instant expectedTimestamp = Instant.ofEpochMilli(1000);
         final AgentLifeCycleState expectedAgentLifeCycleState = AgentLifeCycleState.RUNNING;
 
-        final AgentLifeCycleBo scannedLifeCycleBo = createAgentLifeCycleBo(expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
+        final AgentLifeCycleBo scannedLifeCycleBo = createAgentLifeCycleBo(expectedAgentId, expectedTimestamp.toEpochMilli(), expectedAgentLifeCycleState);
         when(this.hbaseOperations2.findParallel(any(TableName.class), anyList(), any(ResultsExtractor.class))).thenReturn(Arrays.asList(scannedLifeCycleBo, scannedLifeCycleBo));
 
         AgentInfo nonNullAgentInfo = new AgentInfo();
         nonNullAgentInfo.setAgentId(expectedAgentId);
-        nonNullAgentInfo.setStartTimestamp(expectedTimestamp);
+        nonNullAgentInfo.setStartTimestamp(expectedTimestamp.toEpochMilli());
         AgentInfo nullAgentInfo = null;
         List<AgentInfo> givenAgentInfos = Arrays.asList(nonNullAgentInfo, nullAgentInfo, nonNullAgentInfo, nullAgentInfo);
         // When
@@ -188,7 +189,7 @@ public class HbaseAgentLifeCycleDaoTest {
         Assert.assertEquals(nullAgentInfo, givenAgentInfos.get(3));
         AgentStatus nonNullAgentInfoStatus = agentStatus.get(0).get();
         Assert.assertEquals(expectedAgentId, nonNullAgentInfoStatus.getAgentId());
-        Assert.assertEquals(expectedTimestamp, nonNullAgentInfoStatus.getEventTimestamp());
+        Assert.assertEquals(expectedTimestamp, Instant.ofEpochMilli(nonNullAgentInfoStatus.getEventTimestamp()));
         Assert.assertEquals(expectedAgentLifeCycleState, nonNullAgentInfoStatus.getState());
     }
 
@@ -196,7 +197,7 @@ public class HbaseAgentLifeCycleDaoTest {
     public void populateAgentStatus_should_not_crash_with_invalid_inputs() {
         this.agentLifeCycleDao.getAgentStatus(null, 1000, 1000L);
         AgentStatusQuery.Builder builder = AgentStatusQuery.newBuilder();
-        AgentStatusQuery query = builder.build(1000L);
+        AgentStatusQuery query = builder.build(Instant.ofEpochMilli(1000));
         this.agentLifeCycleDao.getAgentStatus(query);
     }
 

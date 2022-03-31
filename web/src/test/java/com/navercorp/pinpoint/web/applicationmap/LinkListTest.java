@@ -30,7 +30,7 @@ import org.junit.Test;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 /**
  * @author emeroad
@@ -66,7 +66,7 @@ public class LinkListTest {
         LinkList linkList = new LinkList();
         Node from = new Node(new Application("from", TOMCAT));
         Node to = new Node(new Application("to", TOMCAT));
-        Link link = new Link(CreateType.Source, from, to, Range.newRange(0, 0));
+        Link link = new Link(CreateType.Source, from, to, Range.between(0, 0));
         return link;
     }
 
@@ -74,7 +74,7 @@ public class LinkListTest {
         LinkList linkList = new LinkList();
         Node from = new Node(new Application("from", TOMCAT));
         Node to = new Node(new Application("to", BLOC));
-        Link link = new Link(CreateType.Source, from, to, Range.newRange(0, 0));
+        Link link = new Link(CreateType.Source, from, to, Range.between(0, 0));
         return link;
     }
 

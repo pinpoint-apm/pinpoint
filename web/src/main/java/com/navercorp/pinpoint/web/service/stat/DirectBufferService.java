@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
 import com.navercorp.pinpoint.web.dao.stat.DirectBufferDao;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 

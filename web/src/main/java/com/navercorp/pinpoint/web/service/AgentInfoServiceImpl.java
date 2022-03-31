@@ -36,7 +36,7 @@ import com.navercorp.pinpoint.web.vo.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentEventTimeline;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentEventTimelineBuilder;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimeline;
@@ -50,6 +50,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -186,7 +187,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, durationDays * -1);
         final long fromTimestamp = cal.getTimeInMillis();
-        Range queryRange = Range.newRange(fromTimestamp, fastRange.getFrom() + 1);
+        Range queryRange = Range.between(fromTimestamp, fastRange.getFrom() + 1);
 
         for (String agentId : agentIds) {
             // FIXME This needs to be done with a more accurate information.
@@ -223,7 +224,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         List<AgentInfo> agentInfos = this.getAgentsByApplicationNameWithoutStatus0(applicationName, timestamp);
 
 
-        AgentStatusQuery query = AgentStatusQuery.buildQuery(agentInfos, timestamp);
+        AgentStatusQuery query = AgentStatusQuery.buildQuery(agentInfos, Instant.ofEpochMilli(timestamp));
         List<Optional<AgentStatus>> agentStatus = this.agentLifeCycleDao.getAgentStatus(query);
         for (int i = 0; i < agentStatus.size(); i++) {
             Optional<AgentStatus> status = agentStatus.get(i);

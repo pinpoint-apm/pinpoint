@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.dao.stat;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 /**
  * @author HyunGil Jeong

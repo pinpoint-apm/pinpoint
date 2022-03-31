@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.LoadedClassSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledLoadedClassCount;
 import org.springframework.stereotype.Repository;
 
@@ -45,9 +45,8 @@ public class HbaseSampledLoadedClassDaoV2 implements SampledLoadedClassCountDao 
 
     @Override
     public List<SampledLoadedClassCount> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
-        long scanFrom = timeWindow.getWindowRange().getFrom();
-        long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = Range.newRange(scanFrom, scanTo);
+        Range range = timeWindow.getWindowSlotRange();
+
         AgentStatMapperV2<LoadedClassBo> mapper = operations.createRowMapper(loadedClassDecoder, range);
         SampledAgentStatResultExtractor<LoadedClassBo, SampledLoadedClassCount> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, loadedClassSampler);
         return operations.getSampledAgentStatList(AgentStatType.LOADED_CLASS, resultExtractor, agentId, range);

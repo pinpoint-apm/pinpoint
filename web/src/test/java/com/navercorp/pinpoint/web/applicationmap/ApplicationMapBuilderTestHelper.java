@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import java.util.concurrent.Executor;
 

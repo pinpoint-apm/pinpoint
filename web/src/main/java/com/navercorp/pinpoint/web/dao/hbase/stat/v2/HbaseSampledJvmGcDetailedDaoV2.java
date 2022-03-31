@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JvmGcDetailedSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGcDetailed;
 import org.springframework.stereotype.Repository;
 
@@ -50,9 +50,8 @@ public class HbaseSampledJvmGcDetailedDaoV2 implements SampledJvmGcDetailedDao {
 
     @Override
     public List<SampledJvmGcDetailed> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
-        long scanFrom = timeWindow.getWindowRange().getFrom();
-        long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = Range.newRange(scanFrom, scanTo);
+        Range range = timeWindow.getWindowSlotRange();
+
         AgentStatMapperV2<JvmGcDetailedBo> mapper = operations.createRowMapper(jvmGcDetailedDecoder, range);
         SampledAgentStatResultExtractor<JvmGcDetailedBo, SampledJvmGcDetailed> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, jvmGcDetailedSampler);
         return operations.getSampledAgentStatList(AgentStatType.JVM_GC_DETAILED, resultExtractor, agentId, range);

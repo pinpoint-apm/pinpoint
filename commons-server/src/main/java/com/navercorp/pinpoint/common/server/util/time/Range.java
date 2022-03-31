@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo;
+package com.navercorp.pinpoint.common.server.util.time;
 
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.util.Assert;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -28,17 +32,32 @@ import java.util.concurrent.TimeUnit;
  */
 public final class Range {
 
-    private final long from;
-    private final long to;
+    private final Instant from;
+    private final Instant to;
 
-    private Range(long from, long to) {
-        this.from = from;
-        this.to = to;
+    private Range(Instant from, Instant to) {
+        this.from = Objects.requireNonNull(from, "from");
+        this.to = Objects.requireNonNull(to, "to");
     }
 
+    @Deprecated
     public static Range newRange(long from, long to) {
+        return between(from, to);
+    }
+
+    public static Range between(long from, long to) {
+        return between(toInstant(from), toInstant(to));
+    }
+
+    private static Instant toInstant(long timestamp) {
+        return Instant.ofEpochMilli(timestamp);
+    }
+
+    public static Range between(Instant from, Instant to) {
+        Objects.requireNonNull(from, "from");
+        Objects.requireNonNull(to, "to");
         final Range range = new Range(from, to);
-        validate(range);
+        range.validate();
         return range;
     }
 
@@ -48,14 +67,19 @@ public final class Range {
 
         final long durationMillis = timeUnit.toMillis(duration);
 
-        return Range.newRange(toTimestamp - durationMillis, toTimestamp);
+        return Range.between(toTimestamp - durationMillis, toTimestamp);
     }
 
     public static Range newUncheckedRange(long from, long to) {
-        return new Range(from, to);
+        return new Range(toInstant(from), toInstant(to));
     }
 
     public long getFrom() {
+        return from.toEpochMilli();
+    }
+
+    @JsonIgnore
+    public Instant getFromInstant() {
         return from;
     }
 
@@ -64,6 +88,11 @@ public final class Range {
     }
 
     public long getTo() {
+        return to.toEpochMilli();
+    }
+
+    @JsonIgnore
+    public Instant getToInstant() {
         return to;
     }
 
@@ -71,13 +100,17 @@ public final class Range {
         return DateTimeFormatUtils.formatSimple(from);
     }
 
-    public long getRange() {
-        return to - from;
+    public long durationMillis() {
+        return duration().toMillis();
     }
 
-    public static void validate(Range range) {
-        if (range.to < range.from) {
-            throw new IllegalArgumentException("invalid range:" + range);
+    public Duration duration() {
+        return Duration.between(from, to);
+    }
+
+    public void validate() {
+        if (from.isAfter(to)) {
+            throw new IllegalArgumentException("invalid range:" + this);
         }
     }
 
@@ -88,36 +121,35 @@ public final class Range {
 
         Range range = (Range) o;
 
-        if (from != range.from) return false;
-        if (to != range.to) return false;
-
-        return true;
+        if (!from.equals(range.from)) return false;
+        return to.equals(range.to);
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (from ^ (from >>> 32));
-        result = 31 * result + (int) (to ^ (to >>> 32));
+        int result = from.hashCode();
+        result = 31 * result + to.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Range{");
-        sb.append("from=").append(from);
+        final StringBuilder sb = new StringBuilder(64);
+        sb.append("Range{");
+        sb.append(DateTimeFormatUtils.formatSimple(from));
         sb.append(' ');
         sb.append(getSign(from, to));
-        sb.append(" to=").append(to);
-        sb.append(", range=").append(getRange());
+        sb.append(" ").append(DateTimeFormatUtils.formatSimple(to));
+        sb.append(" duration=").append(duration());
         sb.append('}');
         return sb.toString();
     }
 
-    static char getSign(long long1, long long2 ) {
-        if (long1 < long2) {
+    static char getSign(Instant from, Instant to) {
+        int compareTo = from.compareTo(to);
+        if (compareTo < 0) {
             return '<';
-        }
-        if (long1 == long2) {
+        } else if (compareTo == 0) {
             return '=';
         } else {
             return '>';
@@ -126,9 +158,9 @@ public final class Range {
 
     public String prettyToString() {
         final StringBuilder sb = new StringBuilder("Range{");
-        sb.append("from=").append(from);
-        sb.append(", to=").append(to);
-        sb.append(", range s=").append(TimeUnit.MILLISECONDS.toSeconds(getRange()));
+        sb.append("from=").append(DateTimeFormatUtils.formatSimple(from));
+        sb.append(", to=").append(DateTimeFormatUtils.formatSimple(to));
+        sb.append(", duration=").append(TimeUnit.MILLISECONDS.toSeconds(durationMillis()));
         sb.append('}');
         return sb.toString();
     }

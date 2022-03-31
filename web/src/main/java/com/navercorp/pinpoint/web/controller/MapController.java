@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -95,7 +95,7 @@ public class MapController {
             @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly) {
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         this.dateLimit.limit(range);
 
         SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
@@ -125,7 +125,7 @@ public class MapController {
             @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly) {
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         this.dateLimit.limit(range);
 
         SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
@@ -157,7 +157,7 @@ public class MapController {
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         this.dateLimit.limit(range);
 
         SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
@@ -190,7 +190,7 @@ public class MapController {
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         this.dateLimit.limit(range);
 
         SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
@@ -238,7 +238,7 @@ public class MapController {
             @RequestParam("serviceTypeName") String serviceTypeName,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         dateLimit.limit(range);
 
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
@@ -257,7 +257,7 @@ public class MapController {
             @RequestBody ApplicationPairs applicationPairs,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         dateLimit.limit(range);
 
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
@@ -284,7 +284,7 @@ public class MapController {
             @RequestParam(value = "toServiceTypeCodes", defaultValue = "", required = false) List<Short> toServiceTypeCodes,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         dateLimit.limit(range);
 
         if (fromApplicationNames.size() != fromServiceTypeCodes.size()) {
@@ -338,7 +338,7 @@ public class MapController {
             @RequestParam("from") long from,
             @RequestParam("to") long to,
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         dateLimit.limit(range);
 
         Application fromApplication = null;

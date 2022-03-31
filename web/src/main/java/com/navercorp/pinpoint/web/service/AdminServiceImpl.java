@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -152,7 +152,7 @@ public class AdminServiceImpl implements AdminService {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, durationDays * -1);
         final long fromTimestamp = cal.getTimeInMillis();
-        Range queryRange = Range.newRange(fromTimestamp, fastRange.getFrom() + 1);
+        Range queryRange = Range.between(fromTimestamp, fastRange.getFrom() + 1);
 
         List<String> inactiveAgentIds = new ArrayList<>();
         for (String agentId : agentIds) {

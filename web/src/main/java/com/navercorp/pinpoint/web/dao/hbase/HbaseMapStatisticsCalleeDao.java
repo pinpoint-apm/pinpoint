@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.web.mapper.RowMapReduceResultExtractor;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;

@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import org.apache.logging.log4j.Logger;

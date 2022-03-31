@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.DurationalAgentEvent;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;

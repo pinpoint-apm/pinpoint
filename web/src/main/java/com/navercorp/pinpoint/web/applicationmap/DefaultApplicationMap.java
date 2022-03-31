@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

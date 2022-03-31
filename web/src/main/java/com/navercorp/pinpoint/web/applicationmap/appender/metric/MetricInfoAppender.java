@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.web.applicationmap.appender.metric;
 
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 /**
  * @author minwoo.jung

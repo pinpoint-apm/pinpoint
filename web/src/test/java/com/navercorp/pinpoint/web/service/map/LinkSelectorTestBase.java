@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.service.LinkDataMapService;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -63,7 +63,7 @@ public abstract class LinkSelectorTestBase {
 
     protected final ServiceType testRpcServiceType = ServiceTypeFactory.of(9000, "TEST_RPC_CLIENT", ServiceTypeProperty.RECORD_STATISTICS);
 
-    protected final Range range = Range.newRange(0, 100);
+    protected final Range range = Range.between(0, 100);
 
     protected LinkDataMapService linkDataMapService;
     protected HostApplicationMapDao hostApplicationMapDao;

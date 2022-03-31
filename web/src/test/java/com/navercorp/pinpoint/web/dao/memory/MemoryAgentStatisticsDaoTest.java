@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.dao.memory;
 
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -56,21 +56,21 @@ public class MemoryAgentStatisticsDaoTest {
             dao.insertAgentCount(testData);
         }
 
-        Range range = Range.newRange(660L, 1320L);
+        Range range = Range.between(660L, 1320L);
         List<AgentCountStatistics> agentCountStatisticses = dao.selectAgentCount(range);
         Assert.assertEquals(7, agentCountStatisticses.size());
 
 
-        range = Range.newRange(7100L, System.currentTimeMillis());
+        range = Range.between(7100L, System.currentTimeMillis());
         agentCountStatisticses = dao.selectAgentCount(range);
         Assert.assertEquals(30, agentCountStatisticses.size());
 
-        range = Range.newRange(0L, System.currentTimeMillis());
+        range = Range.between(0L, System.currentTimeMillis());
         agentCountStatisticses = dao.selectAgentCount(range);
         Assert.assertEquals(100, agentCountStatisticses.size());
 
         long currentTime = System.currentTimeMillis();
-        range = Range.newRange(currentTime, currentTime + 100);
+        range = Range.between(currentTime, currentTime + 100);
         agentCountStatisticses = dao.selectAgentCount(range);
         Assert.assertEquals(0, agentCountStatisticses.size());
     }

@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.scatter.DragArea;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
 import java.util.List;

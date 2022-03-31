@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -46,7 +46,7 @@ public class AgentStatusTimelineBuilderTest {
     @Test
     public void defaultTest1() {
         // Given
-        Range timelineRange = Range.newRange(FROM, TO);
+        Range timelineRange = Range.between(FROM, TO);
 
         // When
         long startTime = getRandomLong(FROM + 1, FROM + (DIFF / 2));
@@ -72,7 +72,7 @@ public class AgentStatusTimelineBuilderTest {
     @Test
     public void defaultTest2() {
         // Given
-        Range timelineRange = Range.newRange(FROM, TO);
+        Range timelineRange = Range.between(FROM, TO);
 
         // When
         long firstStartTime = ThreadLocalRandom.current().nextLong(FROM + 1, FROM + (DIFF / 4));
@@ -108,7 +108,7 @@ public class AgentStatusTimelineBuilderTest {
     @Test
     public void boundaryValueTest1() {
         // Given
-        Range timelineRange = Range.newRange(FROM, TO);
+        Range timelineRange = Range.between(FROM, TO);
 
         // When
         long endTime = getRandomLong(FROM + 1, TO - 1);
@@ -130,7 +130,7 @@ public class AgentStatusTimelineBuilderTest {
     @Test
     public void boundaryValueTest2() {
         // Given
-        Range timelineRange = Range.newRange(FROM, TO);
+        Range timelineRange = Range.between(FROM, TO);
 
         // When
         long startTime = ThreadLocalRandom.current().nextLong(FROM + 1, FROM + (DIFF / 2));
@@ -152,7 +152,7 @@ public class AgentStatusTimelineBuilderTest {
     @Test
     public void overBoundaryValueTest1() {
         // Given
-        Range timelineRange = Range.newRange(FROM, TO);
+        Range timelineRange = Range.between(FROM, TO);
 
         // When
         long warningEndTime = ThreadLocalRandom.current().nextLong(FROM, TO);
@@ -172,7 +172,7 @@ public class AgentStatusTimelineBuilderTest {
     @Test
     public void overBoundaryValueTest2() {
         // Given
-        Range timelineRange = Range.newRange(FROM, TO);
+        Range timelineRange = Range.between(FROM, TO);
 
         // When
         long warningStartTime = ThreadLocalRandom.current().nextLong(FROM, TO);

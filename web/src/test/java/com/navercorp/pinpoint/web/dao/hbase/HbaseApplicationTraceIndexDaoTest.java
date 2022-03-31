@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
@@ -90,7 +90,7 @@ public class HbaseApplicationTraceIndexDaoTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void scanTraceIndexExceptionTest() {
-        this.applicationTraceIndexDao.scanTraceIndex("app", Range.newRange(0, 10), -20, false);
+        this.applicationTraceIndexDao.scanTraceIndex("app", Range.between(0, 10), -20, false);
     }
 
     @Test
@@ -99,12 +99,12 @@ public class HbaseApplicationTraceIndexDaoTest {
         when(this.hbaseOperations2.findParallel(any(TableName.class), any(Scan.class), any(AbstractRowKeyDistributor.class),
                 anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(scannedList);
         LimitedScanResult<List<TransactionId>> result =
-                this.applicationTraceIndexDao.scanTraceIndex("app", Range.newRange(1000L, 5000L), 20, false);
+                this.applicationTraceIndexDao.scanTraceIndex("app", Range.between(1000L, 5000L), 20, false);
         Assert.assertEquals(1000L, result.getLimitedTime());
         Assert.assertEquals(ListListUtils.toList(scannedList), result.getScanData());
 
         // using last row accessor
-        result = this.applicationTraceIndexDao.scanTraceIndex("app", Range.newRange(1000L, 5000L), 5, true);
+        result = this.applicationTraceIndexDao.scanTraceIndex("app", Range.between(1000L, 5000L), 5, true);
         Assert.assertEquals(-1L, result.getLimitedTime());
         Assert.assertEquals(ListListUtils.toList(scannedList), result.getScanData());
 
@@ -112,7 +112,7 @@ public class HbaseApplicationTraceIndexDaoTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void scanTraceScatterDataExceptionTest() {
-        this.applicationTraceIndexDao.scanTraceScatterData("app", Range.newRange(1000L, 5000L), -10, false);
+        this.applicationTraceIndexDao.scanTraceScatterData("app", Range.between(1000L, 5000L), -10, false);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class HbaseApplicationTraceIndexDaoTest {
         List<ScatterData> scannedList = new ArrayList<>();
         when(this.hbaseOperations2.findParallel(any(TableName.class), any(Scan.class), any(AbstractRowKeyDistributor.class),
                 anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(scannedList);
-        Range range = Range.newRange(1000L, 5000L);
+        Range range = Range.between(1000L, 5000L);
         LimitedScanResult<List<Dot>> scanResult
                 = this.applicationTraceIndexDao.scanTraceScatterData("app", range,10, false);
         ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), 1, 5);
@@ -137,7 +137,7 @@ public class HbaseApplicationTraceIndexDaoTest {
         List<List<Dot>> scatterDotList = createScatterDotList();
         when(this.hbaseOperations2.findParallel(any(TableName.class), any(Scan.class), any(AbstractRowKeyDistributor.class),
                 anyInt(), any(RowMapper.class), anyInt())).thenReturn(scatterDotList);
-        Range range = Range.newRange(1000L, 5000L);
+        Range range = Range.between(1000L, 5000L);
         LimitedScanResult<List<Dot>> scanResult
                 = this.applicationTraceIndexDao.scanTraceScatterData("app", range,10, false);
         ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), 1, 5);

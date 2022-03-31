@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import java.util.Objects;
 

@@ -41,7 +41,7 @@ import com.navercorp.pinpoint.web.service.map.FilteredMap;
 import com.navercorp.pinpoint.web.service.map.FilteredMapBuilder;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;

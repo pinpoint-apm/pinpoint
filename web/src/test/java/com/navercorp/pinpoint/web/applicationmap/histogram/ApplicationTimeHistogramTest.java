@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.histogram;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,7 +45,7 @@ public class ApplicationTimeHistogramTest {
     public void testViewModel() throws IOException {
 
         Application app = new Application("test", ServiceType.STAND_ALONE);
-        ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(app, Range.newRange(0, 10*6000));
+        ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(app, Range.between(0, 10*6000));
         List<ResponseTime> responseHistogramList = createResponseTime(app);
         ApplicationTimeHistogram histogram = builder.build(responseHistogramList);
 
@@ -74,7 +74,7 @@ public class ApplicationTimeHistogramTest {
     public void testLoadViewModel() {
         Application app = new Application("test", ServiceType.STAND_ALONE);
         final long timestamp = System.currentTimeMillis();
-        Range range = Range.newRange(timestamp, timestamp + 60000);
+        Range range = Range.between(timestamp, timestamp + 60000);
 
         ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(app, range);
 

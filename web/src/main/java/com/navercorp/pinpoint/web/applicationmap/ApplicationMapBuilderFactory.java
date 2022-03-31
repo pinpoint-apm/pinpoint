@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogra
 import com.navercorp.pinpoint.web.applicationmap.appender.metric.DefaultMetricInfoAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.metric.MetricInfoAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;

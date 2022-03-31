@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 /**
  * @author HyunGil Jeong

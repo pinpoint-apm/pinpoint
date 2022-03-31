@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.DefaultApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.junit.Assert;
@@ -67,7 +67,7 @@ public class FilteredMapBuilderTest {
     @Test
     public void twoTier() {
         // Given
-        final Range range = Range.newRange(1, 200000);
+        final Range range = Range.between(1, 200000);
         final FilteredMapBuilder builder = new FilteredMapBuilder(applicationFactory, registry, range, VERSION);
 
         // root app span

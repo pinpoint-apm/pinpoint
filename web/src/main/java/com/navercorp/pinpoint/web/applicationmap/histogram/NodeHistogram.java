@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.vo.*;

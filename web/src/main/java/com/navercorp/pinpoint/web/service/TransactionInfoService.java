@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.vo.BusinessTransactions;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 
 /**

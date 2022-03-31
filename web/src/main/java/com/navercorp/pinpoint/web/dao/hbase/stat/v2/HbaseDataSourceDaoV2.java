@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.web.dao.stat.DataSourceDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Repository;

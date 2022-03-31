@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DeadlockSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
 import org.springframework.stereotype.Repository;
 
@@ -50,9 +50,8 @@ public class HbaseSampledDeadlockDaoV2 implements SampledDeadlockDao {
 
     @Override
     public List<SampledDeadlock> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
-        long scanFrom = timeWindow.getWindowRange().getFrom();
-        long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = Range.newRange(scanFrom, scanTo);
+        Range range = timeWindow.getWindowSlotRange();
+
         AgentStatMapperV2<DeadlockThreadCountBo> mapper = operations.createRowMapper(deadlockDecoder, range);
 
         SampledAgentStatResultExtractor<DeadlockThreadCountBo, SampledDeadlock> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, deadlockSampler);

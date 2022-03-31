@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import java.util.Objects;
 

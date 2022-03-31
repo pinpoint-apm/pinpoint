@@ -36,7 +36,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -102,7 +102,7 @@ public class ApplicationMapBuilder {
 
         Node node = new Node(nodeType, application);
         if (serverInstanceListFactory != null) {
-            ServerInstanceList runningInstances = serverInstanceListFactory.createWasNodeInstanceList(node, range.getTo());
+            ServerInstanceList runningInstances = serverInstanceListFactory.createWasNodeInstanceList(node, range.getToInstant());
             if (runningInstances.getInstanceCount() > 0) {
                 node.setServerInstanceList(runningInstances);
                 nodeList.addNode(node);

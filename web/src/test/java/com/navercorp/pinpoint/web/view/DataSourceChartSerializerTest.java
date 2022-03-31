@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DataSourceSampler;
 import com.navercorp.pinpoint.web.test.util.DataSourceTestUtils;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.DataSourceChart;
 import org.apache.commons.lang3.RandomUtils;
@@ -65,7 +65,7 @@ public class DataSourceChartSerializerTest {
     @Test
     public void serializeTest() throws Exception {
         long currentTimeMillis = System.currentTimeMillis();
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(currentTimeMillis - 300000, currentTimeMillis));
+        TimeWindow timeWindow = new TimeWindow(Range.between(currentTimeMillis - 300000, currentTimeMillis));
 
         List<SampledDataSource> sampledDataSourceList = createSampledDataSourceList(timeWindow);
         DataSourceChart dataSourceChartGroup = new DataSourceChart(timeWindow, sampledDataSourceList, serviceTypeRegistryService);

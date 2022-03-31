@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.controller;
 import com.navercorp.pinpoint.web.service.AgentStatisticsService;
 import com.navercorp.pinpoint.web.util.DateTimeUtils;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -84,7 +84,7 @@ public class AgentStatisticsController {
 
     @GetMapping(value = "/selectAgentCount", params = {"from", "to"})
     public List<AgentCountStatistics> selectAgentCount(@RequestParam("from") long from, @RequestParam("to") long to) {
-        Range range = Range.newRange(DateTimeUtils.timestampToStartOfDay(from), DateTimeUtils.timestampToStartOfDay(to));
+        Range range = Range.between(DateTimeUtils.timestampToStartOfDay(from), DateTimeUtils.timestampToStartOfDay(to));
         List<AgentCountStatistics> agentCountStatisticsList = agentStatisticsService.selectAgentCount(range);
 
         agentCountStatisticsList.sort(Comparator.comparingLong(AgentCountStatistics::getTimestamp).reversed());

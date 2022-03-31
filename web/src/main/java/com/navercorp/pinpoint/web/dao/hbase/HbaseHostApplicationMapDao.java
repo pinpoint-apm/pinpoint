@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.commons.collections4.CollectionUtils;

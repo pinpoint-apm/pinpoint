@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.junit.After;
@@ -172,7 +172,7 @@ public class ApplicationMapBuilderTest {
 
     @Test
     public void testNoCallData() {
-        Range range = Range.newRange(0, 1000);
+        Range range = Range.between(0, 1000);
         Application application = ApplicationMapBuilderTestHelper.createApplicationFromDepth(0);
 
         ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(agentInfoServerInstanceListDataSource);
@@ -200,7 +200,7 @@ public class ApplicationMapBuilderTest {
 
     @Test
     public void testEmptyCallData() {
-        Range range = Range.newRange(0, 1000);
+        Range range = Range.between(0, 1000);
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
 
         NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(mapResponseNodeHistogramDataSource);
@@ -297,7 +297,7 @@ public class ApplicationMapBuilderTest {
     }
 
     private void runTest(int callerDepth, int calleeDepth) {
-        Range range = Range.newRange(0, 1000);
+        Range range = Range.between(0, 1000);
         int expectedNumNodes = ApplicationMapBuilderTestHelper.getExpectedNumNodes(calleeDepth, callerDepth);
         int expectedNumLinks = ApplicationMapBuilderTestHelper.getExpectedNumLinks(calleeDepth, callerDepth);
 

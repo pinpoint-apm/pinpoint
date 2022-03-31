@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.Serv
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -79,7 +79,7 @@ public class ServerInfoAppenderTest {
     @Test
     public void nullNodeList() {
         // Given
-        Range range = Range.newRange(0, 60 * 1000);
+        Range range = Range.between(0, 60 * 1000);
         NodeList nodeList = null;
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
         // When
@@ -93,7 +93,7 @@ public class ServerInfoAppenderTest {
     @Test
     public void emptyNodeList() {
         // Given
-        Range range = Range.newRange(0, 60 * 1000);
+        Range range = Range.between(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
         // When
@@ -107,7 +107,7 @@ public class ServerInfoAppenderTest {
     @Test
     public void wasNode() {
         // Given
-        Range range = Range.newRange(0, 60 * 1000);
+        Range range = Range.between(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
 
@@ -115,7 +115,7 @@ public class ServerInfoAppenderTest {
         nodeList.addNode(wasNode);
 
         ServerInstanceList serverInstanceList = new ServerInstanceList();
-        when(serverInstanceListDataSource.createServerInstanceList(wasNode, range.getTo())).thenReturn(serverInstanceList);
+        when(serverInstanceListDataSource.createServerInstanceList(wasNode, range.getToInstant())).thenReturn(serverInstanceList);
         // When
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
@@ -126,7 +126,7 @@ public class ServerInfoAppenderTest {
     @Test
     public void wasNodes() {
         // Given
-        Range range = Range.newRange(0, 60 * 1000);
+        Range range = Range.between(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
 
@@ -136,9 +136,9 @@ public class ServerInfoAppenderTest {
         nodeList.addNode(wasNode2);
 
         ServerInstanceList serverInstanceList1 = new ServerInstanceList();
-        when(serverInstanceListDataSource.createServerInstanceList(wasNode1, range.getTo())).thenReturn(serverInstanceList1);
+        when(serverInstanceListDataSource.createServerInstanceList(wasNode1, range.getToInstant())).thenReturn(serverInstanceList1);
         ServerInstanceList serverInstanceList2 = new ServerInstanceList();
-        when(serverInstanceListDataSource.createServerInstanceList(wasNode2, range.getTo())).thenReturn(serverInstanceList2);
+        when(serverInstanceListDataSource.createServerInstanceList(wasNode2, range.getToInstant())).thenReturn(serverInstanceList2);
         // When
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
@@ -150,7 +150,7 @@ public class ServerInfoAppenderTest {
     @Test
     public void terminalNode() {
         // Given
-        Range range = Range.newRange(0, 60 * 1000);
+        Range range = Range.between(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
 
@@ -175,7 +175,7 @@ public class ServerInfoAppenderTest {
     @Test
     public void terminalNode_multipleInstances() {
         // Given
-        Range range = Range.newRange(0, 60 * 1000);
+        Range range = Range.between(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
 
@@ -204,7 +204,7 @@ public class ServerInfoAppenderTest {
     @Test
     public void userNode() {
         // Given
-        Range range = Range.newRange(0, 60 * 1000);
+        Range range = Range.between(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
 
@@ -220,7 +220,7 @@ public class ServerInfoAppenderTest {
     @Test
     public void unknownNode() {
         // Given
-        Range range = Range.newRange(0, 60 * 1000);
+        Range range = Range.between(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
 

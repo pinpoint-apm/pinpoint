@@ -37,7 +37,7 @@ import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.scatter.ElpasedTimeDotPredicate;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.Cell;

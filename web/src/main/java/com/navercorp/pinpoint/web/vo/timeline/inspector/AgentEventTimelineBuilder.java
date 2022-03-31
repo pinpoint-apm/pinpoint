@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.vo.timeline.inspector;
 
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -49,13 +49,13 @@ public class AgentEventTimelineBuilder {
 
     public AgentEventTimelineBuilder(Range range, int numTimeslots) {
         Objects.requireNonNull(range, "range");
-        Assert.isTrue(range.getRange() > 0, "timeline must have range greater than 0");
+        Assert.isTrue(range.durationMillis() > 0, "timeline must have range greater than 0");
         Assert.isTrue(numTimeslots > 0, "numTimeslots must be greater than 0");
         this.timelineStartTimestamp = range.getFrom();
         this.timelineEndTimestamp = range.getTo();
         int adjustedNumTimeslots = numTimeslots;
-        if (range.getRange() < adjustedNumTimeslots) {
-            adjustedNumTimeslots = (int) range.getRange();
+        if (range.durationMillis() < adjustedNumTimeslots) {
+            adjustedNumTimeslots = (int) range.durationMillis();
         }
         this.timeslotSize = (timelineEndTimestamp - timelineStartTimestamp) / adjustedNumTimeslots;
         this.numTimeslots = adjustedNumTimeslots;

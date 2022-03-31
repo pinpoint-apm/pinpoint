@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import org.junit.Test;
 import org.apache.logging.log4j.Logger;
@@ -49,7 +49,7 @@ public class LinkSerializerTest {
         Node node1 = new Node(new Application("test1", ServiceType.STAND_ALONE));
         Node node2 = new Node(new Application("test1", ServiceType.STAND_ALONE));
 
-        Link link = new Link(CreateType.Source, node1, node2, Range.newRange(0, 1));
+        Link link = new Link(CreateType.Source, node1, node2, Range.between(0, 1));
         ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();
         String s = objectWriter.writeValueAsString(link);
 

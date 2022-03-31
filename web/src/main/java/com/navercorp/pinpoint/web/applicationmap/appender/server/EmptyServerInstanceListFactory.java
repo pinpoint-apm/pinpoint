@@ -20,13 +20,15 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 
+import java.time.Instant;
+
 /**
  * @author HyunGil Jeong
  */
 public class EmptyServerInstanceListFactory implements ServerInstanceListFactory {
 
     @Override
-    public ServerInstanceList createWasNodeInstanceList(Node wasNode, long timestamp) {
+    public ServerInstanceList createWasNodeInstanceList(Node wasNode, Instant timestamp) {
         return new ServerInstanceList();
     }
 

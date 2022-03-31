@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.service.stat;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentWarningStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentState;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
 import org.springframework.beans.factory.annotation.Qualifier;

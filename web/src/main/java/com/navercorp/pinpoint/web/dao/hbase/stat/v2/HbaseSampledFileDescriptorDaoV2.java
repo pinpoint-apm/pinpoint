@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.FileDescriptorSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledFileDescriptor;
 import org.springframework.stereotype.Repository;
 
@@ -50,9 +50,8 @@ public class HbaseSampledFileDescriptorDaoV2 implements SampledFileDescriptorDao
 
     @Override
     public List<SampledFileDescriptor> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
-        long scanFrom = timeWindow.getWindowRange().getFrom();
-        long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = Range.newRange(scanFrom, scanTo);
+        Range range = timeWindow.getWindowSlotRange();
+
         AgentStatMapperV2<FileDescriptorBo> mapper = operations.createRowMapper(fileDescriptorDecoder, range);
         SampledAgentStatResultExtractor<FileDescriptorBo, SampledFileDescriptor> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, fileDescriptorSampler);
         return operations.getSampledAgentStatList(AgentStatType.FILE_DESCRIPTOR, resultExtractor, agentId, range);

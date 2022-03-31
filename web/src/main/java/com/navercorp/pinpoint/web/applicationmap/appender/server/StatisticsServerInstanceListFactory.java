@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.Application;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -41,7 +42,7 @@ public class StatisticsServerInstanceListFactory implements ServerInstanceListFa
     }
 
     @Override
-    public ServerInstanceList createWasNodeInstanceList(Node wasNode, long timestamp) {
+    public ServerInstanceList createWasNodeInstanceList(Node wasNode, Instant timestamp) {
         ServerInstanceList serverInstanceList = createWasNodeInstanceListFromHistogram(wasNode, timestamp);
         if (serverInstanceList.getServerInstanceList().isEmpty()) {
             // When there is no transaction information, agentInfo information is used.
@@ -50,9 +51,9 @@ public class StatisticsServerInstanceListFactory implements ServerInstanceListFa
         return serverInstanceList;
     }
 
-    ServerInstanceList createWasNodeInstanceListFromHistogram(Node wasNode, long timestamp) {
+    ServerInstanceList createWasNodeInstanceListFromHistogram(Node wasNode, Instant timestamp) {
         Objects.requireNonNull(wasNode, "wasNode");
-        if (timestamp < 0) {
+        if (timestamp.toEpochMilli() < 0) {
             return new ServerInstanceList();
         }
 
@@ -73,7 +74,7 @@ public class StatisticsServerInstanceListFactory implements ServerInstanceListFa
         return builder.build();
     }
 
-    ServerInstanceList createWasNodeInstanceListFromAgentInfo(Node wasNode, long timestamp) {
+    ServerInstanceList createWasNodeInstanceListFromAgentInfo(Node wasNode, Instant timestamp) {
         return serverInstanceListDataSource.createServerInstanceList(wasNode, timestamp);
     }
 

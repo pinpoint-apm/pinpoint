@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.web.filter.Filter;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import java.util.Collections;
 import java.util.List;
@@ -121,7 +121,7 @@ public class FilteredMapServiceOption {
             this.transactionIdList = Collections.singletonList(transactionId);
             this.version = version;
             this.columnGetCount = columnGetCount;
-            this.originalRange = Range.newRange(-1, -1);
+            this.originalRange = Range.between(-1, -1);
             this.filter = Filter.acceptAllFilter();
         }
 
