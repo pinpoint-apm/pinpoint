@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
-import com.navercorp.pinpoint.web.dao.stat.TotalThreadCountDao;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +27,9 @@ import java.util.Objects;
 
 @Service
 public class TotalThreadCountService implements AgentStatService<TotalThreadCountBo> {
-    private final TotalThreadCountDao totalThreadCountDao;
+    private final AgentStatDao<TotalThreadCountBo> totalThreadCountDao;
 
-    public TotalThreadCountService(@Qualifier("totalThreadCountDaoFactory") TotalThreadCountDao totalThreadCountDao) {
+    public TotalThreadCountService(@Qualifier("totalThreadCountDaoFactory") AgentStatDao<TotalThreadCountBo> totalThreadCountDao) {
         this.totalThreadCountDao = Objects.requireNonNull(totalThreadCountDao);
     }
     @Override

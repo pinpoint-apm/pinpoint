@@ -16,44 +16,25 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.FileDescriptorDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.web.dao.stat.SampledFileDescriptorDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.FileDescriptorSampler;
-import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.vo.stat.SampledFileDescriptor;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Roy Kim
  */
 @Repository("sampledFileDescriptorDaoV2")
-public class HbaseSampledFileDescriptorDaoV2 implements SampledFileDescriptorDao {
+public class HbaseSampledFileDescriptorDaoV2
+        extends AbstractSampledAgentStatDao<FileDescriptorBo, SampledFileDescriptor> implements SampledFileDescriptorDao {
 
-    private final HbaseAgentStatDaoOperationsV2 operations;
-
-    private final FileDescriptorDecoder fileDescriptorDecoder;
-    private final FileDescriptorSampler fileDescriptorSampler;
-
-    public HbaseSampledFileDescriptorDaoV2(HbaseAgentStatDaoOperationsV2 operations, FileDescriptorDecoder fileDescriptorDecoder, FileDescriptorSampler fileDescriptorSampler) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.fileDescriptorDecoder = Objects.requireNonNull(fileDescriptorDecoder, "fileDescriptorDecoder");
-        this.fileDescriptorSampler = Objects.requireNonNull(fileDescriptorSampler, "fileDescriptorSampler");
+    public HbaseSampledFileDescriptorDaoV2(HbaseAgentStatDaoOperationsV2 operations,
+                                           AgentStatDecoder<FileDescriptorBo> decoder,
+                                           AgentStatSampler<FileDescriptorBo, SampledFileDescriptor> sampler) {
+        super(AgentStatType.FILE_DESCRIPTOR, operations, decoder, new SampledAgentStatResultExtractorSupplier<>(sampler));
     }
 
-    @Override
-    public List<SampledFileDescriptor> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
-        Range range = timeWindow.getWindowSlotRange();
-
-        AgentStatMapperV2<FileDescriptorBo> mapper = operations.createRowMapper(fileDescriptorDecoder, range);
-        SampledAgentStatResultExtractor<FileDescriptorBo, SampledFileDescriptor> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, fileDescriptorSampler);
-        return operations.getSampledAgentStatList(AgentStatType.FILE_DESCRIPTOR, resultExtractor, agentId, range);
-    }
 }

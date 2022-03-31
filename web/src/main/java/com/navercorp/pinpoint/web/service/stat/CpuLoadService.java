@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
-import com.navercorp.pinpoint.web.dao.stat.CpuLoadDao;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -31,9 +31,9 @@ import java.util.Objects;
 @Service
 public class CpuLoadService implements AgentStatService<CpuLoadBo> {
 
-    private final CpuLoadDao cpuLoadDao;
+    private final AgentStatDao<CpuLoadBo> cpuLoadDao;
 
-    public CpuLoadService(@Qualifier("cpuLoadDaoFactory") CpuLoadDao cpuLoadDao) {
+    public CpuLoadService(@Qualifier("cpuLoadDaoFactory") AgentStatDao<CpuLoadBo> cpuLoadDao) {
         this.cpuLoadDao = Objects.requireNonNull(cpuLoadDao, "cpuLoadDao");
     }
 

@@ -16,44 +16,25 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.JvmGcDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.web.dao.stat.SampledJvmGcDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JvmGcSampler;
-import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
-import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 @Repository("sampledJvmGcDaoV2")
-public class HbaseSampledJvmGcDaoV2 implements SampledJvmGcDao {
+public class HbaseSampledJvmGcDaoV2
+        extends AbstractSampledAgentStatDao<JvmGcBo, SampledJvmGc> implements SampledJvmGcDao {
 
-    private final HbaseAgentStatDaoOperationsV2 operations;
-
-    private final JvmGcDecoder jvmGcDecoder;
-    private final JvmGcSampler jvmGcSampler;
-
-    public HbaseSampledJvmGcDaoV2(HbaseAgentStatDaoOperationsV2 operations, JvmGcDecoder jvmGcDecoder, JvmGcSampler jvmGcSampler) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.jvmGcDecoder = Objects.requireNonNull(jvmGcDecoder, "jvmGcDecoder");
-        this.jvmGcSampler = Objects.requireNonNull(jvmGcSampler, "jvmGcSampler");
+    public HbaseSampledJvmGcDaoV2(HbaseAgentStatDaoOperationsV2 operations,
+                                  AgentStatDecoder<JvmGcBo> decoder,
+                                  AgentStatSampler<JvmGcBo, SampledJvmGc> sampler) {
+        super(AgentStatType.JVM_GC, operations, decoder, new SampledAgentStatResultExtractorSupplier<>(sampler));
     }
 
-    @Override
-    public List<SampledJvmGc> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
-        Range range = timeWindow.getWindowSlotRange();
-
-        AgentStatMapperV2<JvmGcBo> mapper = operations.createRowMapper(jvmGcDecoder, range);
-        SampledAgentStatResultExtractor<JvmGcBo, SampledJvmGc> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, jvmGcSampler);
-        return operations.getSampledAgentStatList(AgentStatType.JVM_GC, resultExtractor, agentId, range);
-    }
 }

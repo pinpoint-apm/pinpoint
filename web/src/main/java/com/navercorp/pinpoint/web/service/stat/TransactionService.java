@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
-import com.navercorp.pinpoint.web.dao.stat.TransactionDao;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -31,9 +31,9 @@ import java.util.Objects;
 @Service
 public class TransactionService implements AgentStatService<TransactionBo> {
 
-    private final TransactionDao transactionDao;
+    private final AgentStatDao<TransactionBo> transactionDao;
 
-    public TransactionService(@Qualifier("transactionDaoFactory") TransactionDao transactionDao) {
+    public TransactionService(@Qualifier("transactionDaoFactory") AgentStatDao<TransactionBo> transactionDao) {
         this.transactionDao = Objects.requireNonNull(transactionDao, "transactionDao");
     }
 

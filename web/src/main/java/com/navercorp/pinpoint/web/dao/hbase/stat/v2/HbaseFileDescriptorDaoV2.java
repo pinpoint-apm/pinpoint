@@ -17,42 +17,19 @@
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.FileDescriptorDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.web.dao.stat.FileDescriptorDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Roy Kim
  */
 @Repository("fileDescriptorDaoV2")
-public class HbaseFileDescriptorDaoV2 implements FileDescriptorDao {
+public class HbaseFileDescriptorDaoV2 extends AbstractAgentStatDao<FileDescriptorBo> implements FileDescriptorDao {
 
-    private final AgentStatDecoder<FileDescriptorBo> fileDescriptorDecoder;
-
-    private final HbaseAgentStatDaoOperationsV2 operations;
-
-    public HbaseFileDescriptorDaoV2(HbaseAgentStatDaoOperationsV2 operations, FileDescriptorDecoder fileDescriptorDecoder) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.fileDescriptorDecoder = Objects.requireNonNull(fileDescriptorDecoder, "fileDescriptorDecoder");
-    }
-
-    @Override
-    public List<FileDescriptorBo> getAgentStatList(String agentId, Range range) {
-        AgentStatMapperV2<FileDescriptorBo> mapper = operations.createRowMapper(fileDescriptorDecoder, range);
-        return operations.getAgentStatList(AgentStatType.FILE_DESCRIPTOR, mapper, agentId, range);
-    }
-
-    @Override
-    public boolean agentStatExists(String agentId, Range range) {
-        AgentStatMapperV2<FileDescriptorBo> mapper = operations.createRowMapper(fileDescriptorDecoder, range);
-        return operations.agentStatExists(AgentStatType.FILE_DESCRIPTOR, mapper, agentId, range);
+    public HbaseFileDescriptorDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<FileDescriptorBo> decoder) {
+        super(AgentStatType.FILE_DESCRIPTOR, operations, decoder);
     }
 
 }

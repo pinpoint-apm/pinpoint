@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentUriStatDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.stat.AgentUriStatDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -32,27 +31,28 @@ import java.util.Objects;
  * @author Taejin Koo
  */
 @Repository("agentUriStatDaoV2")
-public class HbaseAgentUriStatDaoV2  implements AgentUriStatDao {
+public class HbaseAgentUriStatDaoV2 implements AgentUriStatDao {
 
-    private final AgentUriStatDecoder agentUriStatDecoder;
-
+    private final AgentStatType statType = AgentStatType.URI;
     private final HbaseAgentUriStatDaoOperationsV2 operations;
+    private final AgentStatDecoder<AgentUriStatBo> decoder;
 
-    public HbaseAgentUriStatDaoV2(AgentUriStatDecoder agentUriStatDecoder, HbaseAgentUriStatDaoOperationsV2 operations) {
-        this.agentUriStatDecoder = Objects.requireNonNull(agentUriStatDecoder, "agentUriStatDecoder");
+
+    public HbaseAgentUriStatDaoV2(HbaseAgentUriStatDaoOperationsV2 operations, AgentStatDecoder<AgentUriStatBo> decoder) {
         this.operations = Objects.requireNonNull(operations, "operations");
+        this.decoder = Objects.requireNonNull(decoder, "decoder");
     }
 
     @Override
     public List<AgentUriStatBo> getAgentStatList(String agentId, Range range) {
-        AgentStatMapperV2<AgentUriStatBo> mapper = operations.createRowMapper(agentUriStatDecoder, range);
-        return operations.getAgentStatList(AgentStatType.URI, mapper, agentId, range);
+        AgentStatMapperV2<AgentUriStatBo> mapper = operations.createRowMapper(decoder, range);
+        return operations.getAgentStatList(statType, mapper, agentId, range);
     }
 
     @Override
     public boolean agentStatExists(String agentId, Range range) {
-        AgentStatMapperV2<AgentUriStatBo> mapper = operations.createRowMapper(agentUriStatDecoder, range);
-        return operations.agentStatExists(AgentStatType.URI, mapper, agentId, range);
+        AgentStatMapperV2<AgentUriStatBo> mapper = operations.createRowMapper(decoder, range);
+        return operations.agentStatExists(statType, mapper, agentId, range);
     }
 
 }

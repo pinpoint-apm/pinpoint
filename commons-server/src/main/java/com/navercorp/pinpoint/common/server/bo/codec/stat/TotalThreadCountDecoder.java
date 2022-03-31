@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class TotalThreadCountDecoder extends AgentStatDecoder<TotalThreadCountBo>{
+public class TotalThreadCountDecoder extends AgentStatDecoder<TotalThreadCountBo> {
     public TotalThreadCountDecoder(List<AgentStatCodec<TotalThreadCountBo>> agentStatCodecs) {
         super(agentStatCodecs);
     }

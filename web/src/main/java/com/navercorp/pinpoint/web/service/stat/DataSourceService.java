@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
-import com.navercorp.pinpoint.web.dao.stat.DataSourceDao;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -31,9 +31,9 @@ import java.util.Objects;
 @Service
 public class DataSourceService implements AgentStatService<DataSourceListBo> {
 
-    private final DataSourceDao dataSourceDao;
+    private final AgentStatDao<DataSourceListBo> dataSourceDao;
 
-    public DataSourceService(@Qualifier("dataSourceDaoFactory") DataSourceDao dataSourceDao) {
+    public DataSourceService(@Qualifier("dataSourceDaoFactory") AgentStatDao<DataSourceListBo> dataSourceDao) {
         this.dataSourceDao = Objects.requireNonNull(dataSourceDao, "dataSourceDao");
     }
 

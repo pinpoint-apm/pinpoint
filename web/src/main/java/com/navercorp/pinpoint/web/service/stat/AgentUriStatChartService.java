@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.web.service.stat;
 
-import com.navercorp.pinpoint.web.dao.stat.SampledAgentUriStatDao;
+import com.navercorp.pinpoint.web.dao.SampledAgentStatDao;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentUriStat;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentUriStatChart;
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -39,9 +38,9 @@ import java.util.Objects;
 @Service
 public class AgentUriStatChartService implements AgentStatChartService {
 
-    private final SampledAgentUriStatDao sampledAgentUriStatDao;
+    private final SampledAgentStatDao<SampledAgentUriStat> sampledAgentUriStatDao;
 
-    public AgentUriStatChartService(@Qualifier("sampledAgentUriStatDaoFactory") SampledAgentUriStatDao sampledAgentUriStatDao) {
+    public AgentUriStatChartService(@Qualifier("sampledAgentUriStatDaoFactory") SampledAgentStatDao<SampledAgentUriStat> sampledAgentUriStatDao) {
         this.sampledAgentUriStatDao = Objects.requireNonNull(sampledAgentUriStatDao, "sampledAgentUriStatDao");
     }
 

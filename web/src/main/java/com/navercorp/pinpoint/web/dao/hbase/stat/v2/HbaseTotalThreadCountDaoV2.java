@@ -16,36 +16,17 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.TotalThreadCountDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import com.navercorp.pinpoint.web.dao.stat.TotalThreadCountDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Objects;
-
 @Repository("totalThreadCountDaoV2")
-public class HbaseTotalThreadCountDaoV2 implements TotalThreadCountDao {
-    private final HbaseAgentStatDaoOperationsV2 operations;
-    private final TotalThreadCountDecoder decoder;
+public class HbaseTotalThreadCountDaoV2 extends AbstractAgentStatDao<TotalThreadCountBo> implements TotalThreadCountDao {
 
-    public HbaseTotalThreadCountDaoV2(HbaseAgentStatDaoOperationsV2 operations, TotalThreadCountDecoder decoder) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.decoder = Objects.requireNonNull(decoder, "decoder");
+    public HbaseTotalThreadCountDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<TotalThreadCountBo> decoder) {
+        super(AgentStatType.TOTAL_THREAD, operations, decoder);
     }
 
-    @Override
-    public List<TotalThreadCountBo> getAgentStatList(String agentId, Range range) {
-        AgentStatMapperV2<TotalThreadCountBo> mapper = operations.createRowMapper(decoder, range);
-        return operations.getAgentStatList(AgentStatType.TOTAL_THREAD, mapper, agentId, range);
-    }
-
-    @Override
-    public boolean agentStatExists(String agentId, Range range) {
-        AgentStatMapperV2<TotalThreadCountBo> mapper = operations.createRowMapper(decoder, range);
-        return operations.agentStatExists(AgentStatType.TOTAL_THREAD, mapper, agentId, range);
-    }
 }

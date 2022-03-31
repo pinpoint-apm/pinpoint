@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
-import com.navercorp.pinpoint.web.dao.stat.DirectBufferDao;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -31,9 +31,9 @@ import java.util.Objects;
 @Service
 public class DirectBufferService implements AgentStatService<DirectBufferBo> {
 
-    private final DirectBufferDao directBufferDao;
+    private final AgentStatDao<DirectBufferBo> directBufferDao;
 
-    public DirectBufferService(@Qualifier("directBufferDaoFactory") DirectBufferDao directBufferDao) {
+    public DirectBufferService(@Qualifier("directBufferDaoFactory") AgentStatDao<DirectBufferBo> directBufferDao) {
         this.directBufferDao = Objects.requireNonNull(directBufferDao, "directBufferDao");
     }
 

@@ -16,44 +16,24 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.TransactionDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.web.dao.stat.SampledTransactionDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.TransactionSampler;
-import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 @Repository("sampledTransactionDaoV2")
-public class HbaseSampledTransactionDaoV2 implements SampledTransactionDao {
+public class HbaseSampledTransactionDaoV2 extends AbstractSampledAgentStatDao<TransactionBo, SampledTransaction> implements SampledTransactionDao {
 
-    private final HbaseAgentStatDaoOperationsV2 operations;
-
-    private final TransactionDecoder transactionDecoder;
-    private final TransactionSampler transactionSampler;
-
-    public HbaseSampledTransactionDaoV2(HbaseAgentStatDaoOperationsV2 operations, TransactionDecoder transactionDecoder, TransactionSampler transactionSampler) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.transactionDecoder = Objects.requireNonNull(transactionDecoder, "transactionDecoder");
-        this.transactionSampler = Objects.requireNonNull(transactionSampler, "transactionSampler");
+    public HbaseSampledTransactionDaoV2(HbaseAgentStatDaoOperationsV2 operations,
+                                        AgentStatDecoder<TransactionBo> decoder,
+                                        AgentStatSampler<TransactionBo, SampledTransaction> sampler) {
+        super(AgentStatType.TRANSACTION, operations, decoder, new SampledAgentStatResultExtractorSupplier<>(sampler));
     }
 
-    @Override
-    public List<SampledTransaction> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
-        Range range = timeWindow.getWindowSlotRange();
-
-        AgentStatMapperV2<TransactionBo> mapper = operations.createRowMapper(transactionDecoder, range);
-        SampledAgentStatResultExtractor<TransactionBo, SampledTransaction> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, transactionSampler);
-        return operations.getSampledAgentStatList(AgentStatType.TRANSACTION, resultExtractor, agentId, range);
-    }
 }

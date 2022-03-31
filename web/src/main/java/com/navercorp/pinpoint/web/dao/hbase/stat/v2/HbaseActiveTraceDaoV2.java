@@ -16,41 +16,20 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.ActiveTraceDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.web.dao.stat.ActiveTraceDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 @Repository("activeTraceDaoV2")
-public class HbaseActiveTraceDaoV2 implements ActiveTraceDao {
+public class HbaseActiveTraceDaoV2 extends AbstractAgentStatDao<ActiveTraceBo> implements ActiveTraceDao {
 
-    private final HbaseAgentStatDaoOperationsV2 operations;
-
-    private final ActiveTraceDecoder activeTraceDecoder;
-
-    public HbaseActiveTraceDaoV2(HbaseAgentStatDaoOperationsV2 operations, ActiveTraceDecoder activeTraceDecoder) {
-        this.activeTraceDecoder = Objects.requireNonNull(activeTraceDecoder, "activeTraceDecoder");
-        this.operations = Objects.requireNonNull(operations, "operations");
+    public HbaseActiveTraceDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<ActiveTraceBo> decoder) {
+        super(AgentStatType.ACTIVE_TRACE, operations, decoder);
     }
 
-    @Override
-    public List<ActiveTraceBo> getAgentStatList(String agentId, Range range) {
-        AgentStatMapperV2<ActiveTraceBo> mapper = operations.createRowMapper(activeTraceDecoder, range);
-        return operations.getAgentStatList(AgentStatType.ACTIVE_TRACE, mapper, agentId, range);
-    }
-
-    @Override
-    public boolean agentStatExists(String agentId, Range range) {
-        AgentStatMapperV2<ActiveTraceBo> mapper = operations.createRowMapper(activeTraceDecoder, range);
-        return operations.agentStatExists(AgentStatType.ACTIVE_TRACE, mapper, agentId, range);
-    }
 }

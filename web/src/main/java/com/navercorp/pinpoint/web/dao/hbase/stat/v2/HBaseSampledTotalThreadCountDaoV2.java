@@ -16,42 +16,23 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.TotalThreadCountDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import com.navercorp.pinpoint.web.dao.stat.SampledTotalThreadCountDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.TotalThreadCountSampler;
-import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.vo.stat.SampledTotalThreadCount;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Objects;
-
 
 @Repository("sampledTotalThreadCountDaoV2")
-public class HBaseSampledTotalThreadCountDaoV2 implements SampledTotalThreadCountDao {
-    private final HbaseAgentStatDaoOperationsV2 operations;
+public class HBaseSampledTotalThreadCountDaoV2
+        extends AbstractSampledAgentStatDao<TotalThreadCountBo, SampledTotalThreadCount> implements SampledTotalThreadCountDao {
 
-    private final TotalThreadCountDecoder totalThreadCountDecoder;
-    private final TotalThreadCountSampler totalThreadCountSampler;
-
-    public HBaseSampledTotalThreadCountDaoV2(HbaseAgentStatDaoOperationsV2 operations, TotalThreadCountDecoder totalThreadCountDecoder, TotalThreadCountSampler totalThreadCountSampler) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.totalThreadCountDecoder = Objects.requireNonNull(totalThreadCountDecoder, "totalThreadCountDecoder");
-        this.totalThreadCountSampler = Objects.requireNonNull(totalThreadCountSampler, "totalThreadCountSampler");
+    public HBaseSampledTotalThreadCountDaoV2(HbaseAgentStatDaoOperationsV2 operations,
+                                             AgentStatDecoder<TotalThreadCountBo> decoder,
+                                             AgentStatSampler<TotalThreadCountBo, SampledTotalThreadCount> sampler) {
+        super(AgentStatType.TOTAL_THREAD, operations, decoder, new SampledAgentStatResultExtractorSupplier<>(sampler));
     }
 
-    @Override
-    public List<SampledTotalThreadCount> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
-        Range range = timeWindow.getWindowSlotRange();
-
-        AgentStatMapperV2<TotalThreadCountBo> mapper = operations.createRowMapper(totalThreadCountDecoder, range);
-
-        SampledAgentStatResultExtractor<TotalThreadCountBo, SampledTotalThreadCount> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, totalThreadCountSampler);
-        return operations.getSampledAgentStatList(AgentStatType.TOTAL_THREAD, resultExtractor, agentId, range);
-    }
 }

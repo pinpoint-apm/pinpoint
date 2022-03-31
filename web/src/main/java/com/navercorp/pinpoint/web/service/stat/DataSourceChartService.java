@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.web.dao.stat.SampledDataSourceDao;
+import com.navercorp.pinpoint.web.dao.SampledAgentStatDao;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSourceList;
@@ -38,10 +38,10 @@ import java.util.Objects;
 @Service
 public class DataSourceChartService implements AgentStatChartService {
 
-    private final SampledDataSourceDao sampledDataSourceDao;
+    private final SampledAgentStatDao<SampledDataSourceList> sampledDataSourceDao;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
 
-    public DataSourceChartService(@Qualifier("sampledDataSourceDaoFactory") SampledDataSourceDao sampledDataSourceDao,
+    public DataSourceChartService(@Qualifier("sampledDataSourceDaoFactory") SampledAgentStatDao<SampledDataSourceList> sampledDataSourceDao,
                                   ServiceTypeRegistryService serviceTypeRegistryService) {
         this.sampledDataSourceDao = Objects.requireNonNull(sampledDataSourceDao, "sampledDataSourceDao");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");

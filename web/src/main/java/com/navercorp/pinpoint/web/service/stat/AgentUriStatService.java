@@ -17,9 +17,8 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
-import com.navercorp.pinpoint.web.dao.stat.AgentUriStatDao;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -32,9 +31,9 @@ import java.util.Objects;
 @Service
 public class AgentUriStatService implements AgentStatService<AgentUriStatBo> {
 
-    private final AgentUriStatDao agentUriStatDao;
+    private final AgentStatDao<AgentUriStatBo> agentUriStatDao;
 
-    public AgentUriStatService(@Qualifier("agentUriStatDao") AgentUriStatDao agentUriStatDao) {
+    public AgentUriStatService(@Qualifier("agentUriStatDao") AgentStatDao<AgentUriStatBo> agentUriStatDao) {
         this.agentUriStatDao = agentUriStatDao;
     }
 

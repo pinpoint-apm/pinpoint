@@ -16,44 +16,26 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.DirectBufferDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
 import com.navercorp.pinpoint.web.dao.stat.SampledDirectBufferDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DirectBufferSampler;
-import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.vo.stat.SampledDirectBuffer;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Roy Kim
  */
 @Repository("sampledDirectBufferDaoV2")
-public class HbaseSampledDirectBufferDaoV2 implements SampledDirectBufferDao {
+public class HbaseSampledDirectBufferDaoV2
+        extends AbstractSampledAgentStatDao<DirectBufferBo, SampledDirectBuffer> implements SampledDirectBufferDao {
 
-    private final HbaseAgentStatDaoOperationsV2 operations;
 
-    private final DirectBufferDecoder directBufferDecoder;
-    private final DirectBufferSampler directBufferSampler;
-
-    public HbaseSampledDirectBufferDaoV2(HbaseAgentStatDaoOperationsV2 operations, DirectBufferDecoder directBufferDecoder, DirectBufferSampler directBufferSampler) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.directBufferDecoder = Objects.requireNonNull(directBufferDecoder, "directBufferDecoder");
-        this.directBufferSampler = Objects.requireNonNull(directBufferSampler, "directBufferSampler");
+    public HbaseSampledDirectBufferDaoV2(HbaseAgentStatDaoOperationsV2 operations,
+                                         AgentStatDecoder<DirectBufferBo> decoder,
+                                         AgentStatSampler<DirectBufferBo, SampledDirectBuffer> sampler) {
+        super(AgentStatType.DIRECT_BUFFER, operations, decoder, new SampledAgentStatResultExtractorSupplier<>(sampler));
     }
 
-    @Override
-    public List<SampledDirectBuffer> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
-        Range range = timeWindow.getWindowSlotRange();
-
-        AgentStatMapperV2<DirectBufferBo> mapper = operations.createRowMapper(directBufferDecoder, range);
-        SampledAgentStatResultExtractor<DirectBufferBo, SampledDirectBuffer> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, directBufferSampler);
-        return operations.getSampledAgentStatList(AgentStatType.DIRECT_BUFFER, resultExtractor, agentId, range);
-    }
 }

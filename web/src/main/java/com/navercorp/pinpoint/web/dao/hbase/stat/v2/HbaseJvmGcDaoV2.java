@@ -16,41 +16,20 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.JvmGcDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 @Repository("jvmGcDaoV2")
-public class HbaseJvmGcDaoV2 implements JvmGcDao {
+public class HbaseJvmGcDaoV2 extends AbstractAgentStatDao<JvmGcBo> implements JvmGcDao {
 
-    private final HbaseAgentStatDaoOperationsV2 operations;
-
-    private final JvmGcDecoder jvmGcDecoder;
-
-    public HbaseJvmGcDaoV2(HbaseAgentStatDaoOperationsV2 operations, JvmGcDecoder jvmGcDecoder) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.jvmGcDecoder = Objects.requireNonNull(jvmGcDecoder, "jvmGcDecoder");
+    public HbaseJvmGcDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<JvmGcBo> decoder) {
+        super(AgentStatType.JVM_GC, operations, decoder);
     }
 
-    @Override
-    public List<JvmGcBo> getAgentStatList(String agentId, Range range) {
-        AgentStatMapperV2<JvmGcBo> mapper = operations.createRowMapper(jvmGcDecoder, range);
-        return operations.getAgentStatList(AgentStatType.JVM_GC, mapper, agentId, range);
-    }
-
-    @Override
-    public boolean agentStatExists(String agentId, Range range) {
-        AgentStatMapperV2<JvmGcBo> mapper = operations.createRowMapper(jvmGcDecoder, range);
-        return operations.agentStatExists(AgentStatType.JVM_GC, mapper, agentId, range);
-    }
 }

@@ -16,15 +16,18 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.DataSourceDecoder;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.stat.SampledDataSourceDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.mapper.stat.SampledDataSourceResultExtractor;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DataSourceSampler;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSourceList;
 import org.springframework.stereotype.Repository;
 
@@ -37,12 +40,15 @@ import java.util.Objects;
 @Repository("sampledDataSourceDaoV2")
 public class HbaseSampledDataSourceDaoV2 implements SampledDataSourceDao {
 
+    private final AgentStatType statType = AgentStatType.DATASOURCE;
     private final HbaseAgentStatDaoOperationsV2 operations;
 
-    private final DataSourceDecoder dataSourceDecoder;
-    private final DataSourceSampler dataSourceSampler;
+    private final AgentStatDecoder<DataSourceListBo> dataSourceDecoder;
+    private final AgentStatSampler<DataSourceBo, SampledDataSource> dataSourceSampler;
 
-    public HbaseSampledDataSourceDaoV2(HbaseAgentStatDaoOperationsV2 operations, DataSourceDecoder dataSourceDecoder, DataSourceSampler dataSourceSampler) {
+    public HbaseSampledDataSourceDaoV2(HbaseAgentStatDaoOperationsV2 operations,
+                                       AgentStatDecoder<DataSourceListBo> dataSourceDecoder,
+                                       AgentStatSampler<DataSourceBo, SampledDataSource> dataSourceSampler) {
         this.operations = Objects.requireNonNull(operations, "operations");
         this.dataSourceDecoder = Objects.requireNonNull(dataSourceDecoder, "dataSourceDecoder");
         this.dataSourceSampler = Objects.requireNonNull(dataSourceSampler, "dataSourceSampler");
@@ -53,9 +59,8 @@ public class HbaseSampledDataSourceDaoV2 implements SampledDataSourceDao {
         Range range = timeWindow.getWindowSlotRange();
 
         AgentStatMapperV2<DataSourceListBo> mapper = operations.createRowMapper(dataSourceDecoder, range);
-
-        SampledDataSourceResultExtractor resultExtractor = new SampledDataSourceResultExtractor(timeWindow, mapper, dataSourceSampler);
-        return operations.getSampledAgentStatList(AgentStatType.DATASOURCE, resultExtractor, agentId, range);
+        ResultsExtractor<List<SampledDataSourceList>> resultExtractor = new SampledDataSourceResultExtractor(timeWindow, mapper, dataSourceSampler);
+        return operations.getSampledAgentStatList(statType, resultExtractor, agentId, range);
     }
 
 }

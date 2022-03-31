@@ -16,42 +16,20 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.ResponseTimeDecoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.web.dao.stat.ResponseTimeDao;
-import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 @Repository("responseTimeDaoV2")
-public class HbaseResponseTimeDaoV2 implements ResponseTimeDao {
+public class HbaseResponseTimeDaoV2 extends AbstractAgentStatDao<ResponseTimeBo> implements ResponseTimeDao {
 
-    private final HbaseAgentStatDaoOperationsV2 operations;
-
-    private final ResponseTimeDecoder responseTimeDecoder;
-
-    public HbaseResponseTimeDaoV2(HbaseAgentStatDaoOperationsV2 operations, ResponseTimeDecoder responseTimeDecoder) {
-        this.operations = Objects.requireNonNull(operations, "operations");
-        this.responseTimeDecoder = Objects.requireNonNull(responseTimeDecoder, "responseTimeDecoder");
-    }
-
-    @Override
-    public List<ResponseTimeBo> getAgentStatList(String agentId, Range range) {
-        AgentStatMapperV2<ResponseTimeBo> mapper = operations.createRowMapper(responseTimeDecoder, range);
-        return operations.getAgentStatList(AgentStatType.RESPONSE_TIME, mapper, agentId, range);
-    }
-
-    @Override
-    public boolean agentStatExists(String agentId, Range range) {
-        AgentStatMapperV2<ResponseTimeBo> mapper = operations.createRowMapper(responseTimeDecoder, range);
-        return operations.agentStatExists(AgentStatType.RESPONSE_TIME, mapper, agentId, range);
+    public HbaseResponseTimeDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<ResponseTimeBo> decoder) {
+        super(AgentStatType.RESPONSE_TIME, operations, decoder);
     }
 
 }
