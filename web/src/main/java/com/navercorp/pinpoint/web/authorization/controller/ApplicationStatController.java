@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.web.service.stat.ApplicationTotalThreadCountServic
 import com.navercorp.pinpoint.web.service.stat.ApplicationLoadedClassService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -56,7 +56,7 @@ public abstract class ApplicationStatController {
     @GetMapping()
     public StatChart getAgentStatChart(@RequestParam("applicationId") String applicationId, @RequestParam("from") long from, @RequestParam("to") long to) {
         TimeWindowSlotCentricSampler sampler = new TimeWindowSlotCentricSampler();
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
+        TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
         try {
             return this.applicationStatChartService.selectApplicationChart(applicationId, timeWindow);
         } catch (Exception e ) {
@@ -119,7 +119,7 @@ public abstract class ApplicationStatController {
         @GetMapping()
         public List<StatChart> getAgentStatChart(@RequestParam("applicationId") String applicationId, @RequestParam("from") long from, @RequestParam("to") long to) {
             TimeWindowSlotCentricSampler sampler = new TimeWindowSlotCentricSampler();
-            TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
+            TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
             try {
                 return this.applicationDataSourceService.selectApplicationChart(applicationId, timeWindow);
             } catch (Exception e ) {

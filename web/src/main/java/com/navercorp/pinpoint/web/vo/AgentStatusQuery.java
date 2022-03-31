@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -10,11 +11,11 @@ import java.util.function.Function;
 
 public class AgentStatusQuery {
     private final List<SimpleAgentKey> agentKeyList;
-    private final long queryTimestamp;
+    private final Instant queryTimestamp;
 
-    private AgentStatusQuery(List<SimpleAgentKey> agentKeyList, long queryTimestamp) {
+    private AgentStatusQuery(List<SimpleAgentKey> agentKeyList, Instant queryTimestamp) {
         this.agentKeyList = Objects.requireNonNull(agentKeyList, "agentStatusKeys");
-        this.queryTimestamp = queryTimestamp;
+        this.queryTimestamp = Objects.requireNonNull(queryTimestamp, "queryTimestamp");
     }
 
     public List<SimpleAgentKey> getAgentKeys() {
@@ -22,7 +23,7 @@ public class AgentStatusQuery {
     }
 
     public long getQueryTimestamp() {
-        return queryTimestamp;
+        return queryTimestamp.toEpochMilli();
     }
 
     public static Builder newBuilder() {
@@ -46,12 +47,12 @@ public class AgentStatusQuery {
             this.agentKeyList.add(agentKey);
         }
 
-        public AgentStatusQuery build(long queryTimestamp) {
+        public AgentStatusQuery build(Instant queryTimestamp) {
             return new AgentStatusQuery(new ArrayList<>(agentKeyList), queryTimestamp);
         }
     }
 
-    public static AgentStatusQuery buildQuery(Collection<AgentInfo> agentInfos, long timestamp) {
+    public static AgentStatusQuery buildQuery(Collection<AgentInfo> agentInfos, Instant timestamp) {
         return buildQuery(agentInfos, AgentStatusQuery::apply, timestamp);
     }
 
@@ -62,7 +63,7 @@ public class AgentStatusQuery {
         return new SimpleAgentKey(agentInfo.getAgentId(), agentInfo.getStartTimestamp());
     }
 
-    public static <T> AgentStatusQuery buildQuery(Collection<T> agentInfos, Function<T, SimpleAgentKey> transform, long timestamp) {
+    public static <T> AgentStatusQuery buildQuery(Collection<T> agentInfos, Function<T, SimpleAgentKey> transform, Instant timestamp) {
         AgentStatusQuery.Builder builder = AgentStatusQuery.newBuilder();
         for (T agentInfo : agentInfos) {
             SimpleAgentKey apply = transform.apply(agentInfo);

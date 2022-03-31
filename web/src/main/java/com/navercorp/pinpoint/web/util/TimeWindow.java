@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.web.util;
 
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -70,13 +71,19 @@ public class TimeWindow implements Iterable<Long> {
     }
 
     public long getWindowRangeCount() {
-        return (windowRange.getRange() / windowSlotSize) + 1;
+        return (windowRange.durationMillis() / windowSlotSize) + 1;
+    }
+
+    public Range getWindowSlotRange() {
+        Instant scanFrom = windowRange.getFromInstant();
+        long scanTo = windowRange.getTo() + getWindowSlotSize();
+        return  Range.between(scanFrom, Instant.ofEpochMilli(scanTo));
     }
 
     private Range createWindowRange() {
         long from = refineTimestamp(range.getFrom());
         long to = refineTimestamp(range.getTo());
-        return Range.newRange(from, to);
+        return Range.between(from, to);
     }
 
     public int getWindowIndex(long time) {

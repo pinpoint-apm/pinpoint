@@ -43,7 +43,7 @@ import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -146,8 +146,8 @@ public class FilteredMapServiceImplTest {
     @Test
     public void twoTier() {
         // Given
-        Range originalRange = Range.newRange(1000, 2000);
-        Range scanRange = Range.newRange(1000, 2000);
+        Range originalRange = Range.between(1000, 2000);
+        Range scanRange = Range.between(1000, 2000);
         final TimeWindow timeWindow = new TimeWindow(originalRange, TimeWindowDownSampler.SAMPLER);
 
         // root app span

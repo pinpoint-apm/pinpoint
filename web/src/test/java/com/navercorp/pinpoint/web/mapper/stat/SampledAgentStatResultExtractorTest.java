@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSampler;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -91,7 +91,7 @@ public class SampledAgentStatResultExtractorTest {
         final int numValues = 10;
         final long initialTimestamp = System.currentTimeMillis();
         final long finalTimestamp = initialTimestamp + (DEFAULT_TIME_INTERVAL * numValues);
-        final TimeWindow timeWindow = new TimeWindow(Range.newRange(initialTimestamp, finalTimestamp), ONE_TO_ONE_SAMPLER);
+        final TimeWindow timeWindow = new TimeWindow(Range.between(initialTimestamp, finalTimestamp), ONE_TO_ONE_SAMPLER);
         final List<TestAgentStatDataPoint> dataPoints = createDataPoints(finalTimestamp, DEFAULT_TIME_INTERVAL, numValues);
         final Map<Long, List<TestAgentStatDataPoint>> expectedDataPointSlotMap = getExpectedDataPointSlotMap(timeWindow, dataPoints);
         when(this.rowMapper.mapRow(this.result, 0)).thenReturn(dataPoints);
@@ -114,7 +114,7 @@ public class SampledAgentStatResultExtractorTest {
         final int numValues = 20;
         final long initialTimestamp = System.currentTimeMillis();
         final long finalTimestamp = initialTimestamp + (DEFAULT_TIME_INTERVAL * numValues);
-        final TimeWindow timeWindow = new TimeWindow(Range.newRange(initialTimestamp, finalTimestamp), TWO_TO_ONE_SAMPLER);
+        final TimeWindow timeWindow = new TimeWindow(Range.between(initialTimestamp, finalTimestamp), TWO_TO_ONE_SAMPLER);
         final List<TestAgentStatDataPoint> dataPoints = createDataPoints(finalTimestamp, DEFAULT_TIME_INTERVAL, numValues);
         final Map<Long, List<TestAgentStatDataPoint>> expectedDataPointSlotMap = getExpectedDataPointSlotMap(timeWindow, dataPoints);
         when(this.rowMapper.mapRow(this.result, 0)).thenReturn(dataPoints);
@@ -137,7 +137,7 @@ public class SampledAgentStatResultExtractorTest {
         final int numValues = 100;
         final long initialTimestamp = System.currentTimeMillis();
         final long finalTimestamp = initialTimestamp + (DEFAULT_TIME_INTERVAL * numValues);
-        final TimeWindow timeWindow = new TimeWindow(Range.newRange(initialTimestamp, finalTimestamp), TEN_TO_ONE_SAMPLER);
+        final TimeWindow timeWindow = new TimeWindow(Range.between(initialTimestamp, finalTimestamp), TEN_TO_ONE_SAMPLER);
         final List<TestAgentStatDataPoint> dataPoints = createDataPoints(finalTimestamp, DEFAULT_TIME_INTERVAL, numValues);
         final Map<Long, List<TestAgentStatDataPoint>> expectedDataPointSlotMap = getExpectedDataPointSlotMap(timeWindow, dataPoints);
         when(this.rowMapper.mapRow(this.result, 0)).thenReturn(dataPoints);

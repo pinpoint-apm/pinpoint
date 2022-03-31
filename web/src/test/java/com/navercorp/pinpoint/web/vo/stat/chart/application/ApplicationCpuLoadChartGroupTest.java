@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinCpuLoadBo;
@@ -39,7 +39,7 @@ public class ApplicationCpuLoadChartGroupTest {
     @Test
     public void createApplicationCpuLoadChartGroupTest() {
         long time = 1495418083250L;
-        Range range = Range.newRange(time - 240000, time);
+        Range range = Range.between(time - 240000, time);
         TimeWindow timeWindow = new TimeWindow(range);
         List<AggreJoinCpuLoadBo> aggreCpuLoadList = new ArrayList<>(5);
         AggreJoinCpuLoadBo aggreJoinCpuLoadBo1 = new AggreJoinCpuLoadBo("testApp", 0.11, 0.60, "agent1_1", 0.20, "agent1_2", 0.1, 0.60, "agent1_3", 0.47, "agent1_4", time);

@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 import com.navercorp.pinpoint.web.service.map.VirtualLinkMarker;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class RpcCallProcessorTest {
 
-    private final Range testRange = Range.newRange(System.currentTimeMillis(), System.currentTimeMillis());
+    private final Range testRange = Range.between(System.currentTimeMillis(), System.currentTimeMillis());
 
     @Mock
     private HostApplicationMapDao hostApplicationMapDao;

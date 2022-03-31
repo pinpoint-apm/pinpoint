@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.mapper.stat.SampledUriStatResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentUriStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentUriStat;
 
 import org.springframework.stereotype.Repository;
@@ -52,9 +52,7 @@ public class HbaseSampledAgentUriStatDaoV2 implements SampledAgentUriStatDao {
 
     @Override
     public List<SampledAgentUriStat> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
-        long scanFrom = timeWindow.getWindowRange().getFrom();
-        long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = Range.newRange(scanFrom, scanTo);
+        Range range = timeWindow.getWindowSlotRange();
 
         AgentStatMapperV2<AgentUriStatBo> mapper = operations.createRowMapper(agentUriStatDecoder, range);
         SampledUriStatResultExtractor resultExtractor = new SampledUriStatResultExtractor(timeWindow, mapper, agentUriStatSampler);

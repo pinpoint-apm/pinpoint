@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinCpuLoadBo;
 import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
 import org.springframework.stereotype.Repository;
@@ -52,9 +52,8 @@ public class HbaseApplicationCpuLoadDao implements ApplicationCpuLoadDao {
 
     @Override
     public List<AggreJoinCpuLoadBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
-        long scanFrom = timeWindow.getWindowRange().getFrom();
-        long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = Range.newRange(scanFrom, scanTo);
+        Range range = timeWindow.getWindowSlotRange();
+
         ApplicationStatMapper mapper = operations.createRowMapper(cpuLoadDecoder, range);
         SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, cpuLoadSampler);
         List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_CPU_LOAD, resultExtractor, applicationId, range);

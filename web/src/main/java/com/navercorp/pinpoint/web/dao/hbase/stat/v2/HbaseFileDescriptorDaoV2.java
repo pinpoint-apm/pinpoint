@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.FileDescriptorDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.web.dao.stat.FileDescriptorDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.Objects;
 @Repository("fileDescriptorDaoV2")
 public class HbaseFileDescriptorDaoV2 implements FileDescriptorDao {
 
-    private final FileDescriptorDecoder fileDescriptorDecoder;
+    private final AgentStatDecoder<FileDescriptorBo> fileDescriptorDecoder;
 
     private final HbaseAgentStatDaoOperationsV2 operations;
 

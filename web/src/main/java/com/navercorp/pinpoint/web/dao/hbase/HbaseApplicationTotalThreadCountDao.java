@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTotalThreadCountBo;
 import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
 import org.springframework.stereotype.Repository;
@@ -46,12 +46,11 @@ public class HbaseApplicationTotalThreadCountDao implements ApplicationTotalThre
     }
 
     @Override
-    public List<AggreJoinTotalThreadCountBo> getApplicationStatList(String applicationId, TimeWindow timewindow) {
-        long scanFrom = timewindow.getWindowRange().getFrom();
-        long scanTo = timewindow.getWindowRange().getTo() + timewindow.getWindowSlotSize();
-        Range range = Range.newRange(scanFrom, scanTo);
+    public List<AggreJoinTotalThreadCountBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
+        Range range = timeWindow.getWindowSlotRange();
+
         ApplicationStatMapper mapper = operations.createRowMapper(totalThreadCountDecoder, range);
-        SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timewindow, mapper, totalThreadCountSampler);
+        SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, totalThreadCountSampler);
         List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_TOTAL_THREAD_COUNT, resultExtractor, applicationId, range);
         return cast(aggregationStatDataList);
     }

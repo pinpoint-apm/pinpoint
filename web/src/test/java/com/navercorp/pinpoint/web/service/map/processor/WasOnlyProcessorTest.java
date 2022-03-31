@@ -21,9 +21,8 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.navercorp.pinpoint.web.service.map.processor.WasOnlyProcessor;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,7 +31,7 @@ import org.junit.Test;
  */
 public class WasOnlyProcessorTest {
 
-    private final Range testRange = Range.newRange(System.currentTimeMillis(), System.currentTimeMillis());
+    private final Range testRange = Range.between(System.currentTimeMillis(), System.currentTimeMillis());
 
     @Test
     public void shouldFilterLinksToTerminalNodes() {

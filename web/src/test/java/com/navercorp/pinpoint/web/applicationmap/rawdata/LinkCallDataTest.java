@@ -8,7 +8,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.vo.LinkKey;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -38,7 +38,7 @@ public class LinkCallDataTest {
         
         logger.debug("{}", data1.getTimeHistogram().size());
         
-        Range range = Range.newRange(currentTime, currentTime + SIX_HOURS);
+        Range range = Range.between(currentTime, currentTime + SIX_HOURS);
         TimeWindow window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         LinkCallData data2 = new LinkCallData(key, window);
         data2.addCallData(currentTime, (short) 100, 1L);

@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.web.applicationmap.appender.server.datasource;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 
+import java.time.Instant;
+
 /**
  * @author emeroad
  * @author minwoo.jung
@@ -26,5 +28,5 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
  */
 public interface ServerInstanceListDataSource {
 
-    ServerInstanceList createServerInstanceList(Node node, long timestamp);
+    ServerInstanceList createServerInstanceList(Node node, Instant timestamp);
 }

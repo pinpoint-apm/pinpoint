@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.util;
 
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import org.junit.Assert;
 
@@ -36,7 +36,7 @@ public class TimeWindowTest {
 
     @Test
     public void testGetNextWindowFirst() {
-        TimeWindow window = new TimeWindow(Range.newRange(0L, 1000));
+        TimeWindow window = new TimeWindow(Range.between(0L, 1000));
         logger.debug("{}", window.getWindowRange());
         Iterator<Long> iterator = window.iterator();
         Assert.assertEquals(iterator.next(), (Long)0L);
@@ -46,7 +46,7 @@ public class TimeWindowTest {
         } catch (Exception ignored) {
         }
 
-        TimeWindow window2 = new TimeWindow(Range.newRange(0L, TimeUnit.MINUTES.toMillis(1)));
+        TimeWindow window2 = new TimeWindow(Range.between(0L, TimeUnit.MINUTES.toMillis(1)));
         logger.debug("{}", window2.getWindowRange());
         Iterator<Long> iterator2 = window2.iterator();
         Assert.assertEquals(iterator2.next(), (Long)0L);
@@ -60,7 +60,7 @@ public class TimeWindowTest {
 
     @Test
     public void testGetNextWindow() {
-        Range range = Range.newRange(0L, TimeUnit.MINUTES.toMillis(1));
+        Range range = Range.between(0L, TimeUnit.MINUTES.toMillis(1));
         TimeWindow window = new TimeWindow(range);
         int i = 0;
         for (Long aLong : window) {
@@ -71,7 +71,7 @@ public class TimeWindowTest {
 
     @Test
     public void testGetNextWindow2() {
-        Range range = Range.newRange(1L, TimeUnit.MINUTES.toMillis(1));
+        Range range = Range.between(1L, TimeUnit.MINUTES.toMillis(1));
         TimeWindow window = new TimeWindow(range);
         int i = 0;
         for (Long aLong : window) {
@@ -94,7 +94,7 @@ public class TimeWindowTest {
     }
 
     private void testWindowSize(long start, long end) {
-        Range range = Range.newRange(start, end);
+        Range range = Range.between(start, end);
         TimeWindow window = new TimeWindow(range);
 
         logger.debug("{}", window.getWindowSlotSize());
@@ -102,7 +102,7 @@ public class TimeWindowTest {
 
     @Test
     public void refineRange() {
-        Range range = Range.newRange(1L, TimeUnit.MINUTES.toMillis(1)+1);
+        Range range = Range.between(1L, TimeUnit.MINUTES.toMillis(1)+1);
         TimeWindow window = new TimeWindow(range);
         Range windowRange = window.getWindowRange();
         // 1 should be replace by 0.
@@ -114,7 +114,7 @@ public class TimeWindowTest {
 
     @Test
     public void testGetWindowRangeLength() {
-        Range range = Range.newRange(1L, 2L);
+        Range range = Range.between(1L, 2L);
         TimeWindow window = new TimeWindow(range);
         long windowRangeLength = window.getWindowRangeCount();
         logger.debug("{}", windowRangeLength);
@@ -124,7 +124,7 @@ public class TimeWindowTest {
 
     @Test
     public void testGetWindowRangeLength2() {
-        Range range = Range.newRange(1L, 1000*60L + 1);
+        Range range = Range.between(1L, 1000*60L + 1);
         TimeWindow window = new TimeWindow(range);
         long windowRangeLength = window.getWindowRangeCount();
         logger.debug("{}", windowRangeLength);
@@ -133,7 +133,7 @@ public class TimeWindowTest {
 
     @Test
      public void testRefineIndex1() {
-        Range range = Range.newRange(1L, 1000*60L);
+        Range range = Range.between(1L, 1000*60L);
         TimeWindow window = new TimeWindow(range);
         long index = window.getWindowIndex(2);
         logger.debug("{}", index);
@@ -142,7 +142,7 @@ public class TimeWindowTest {
 
     @Test
      public void testRefineIndex2() {
-        Range range = Range.newRange(1L, 1000*60L);
+        Range range = Range.between(1L, 1000*60L);
         TimeWindow window = new TimeWindow(range);
         long index = window.getWindowIndex(1000 * 60L);
         logger.debug("{}", index);

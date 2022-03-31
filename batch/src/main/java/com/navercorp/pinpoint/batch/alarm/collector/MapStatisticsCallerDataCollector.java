@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,7 +56,7 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
             return;
         }
 
-        LinkDataMap callerDataMap = mapStatisticsCallerDao.selectCaller(application, Range.newRange(timeSlotEndTime - slotInterval, timeSlotEndTime));
+        LinkDataMap callerDataMap = mapStatisticsCallerDao.selectCaller(application, Range.between(timeSlotEndTime - slotInterval, timeSlotEndTime));
 
         for (LinkData linkData : callerDataMap.getLinkDataList()) {
             LinkCallDataMap linkCallDataMap = linkData.getLinkCallDataMap();

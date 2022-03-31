@@ -63,7 +63,7 @@ import com.navercorp.pinpoint.web.service.stat.LoadedClassCountService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -93,7 +93,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
             @RequestParam("agentId") String agentId,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
-        Range rangeToScan = Range.newRange(from, to);
+        Range rangeToScan = Range.between(from, to);
         return this.agentStatService.selectAgentStatList(agentId, rangeToScan);
     }
 
@@ -103,7 +103,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         TimeWindowSampler sampler = new TimeWindowSlotCentricSampler();
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
+        TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
         return this.agentStatChartService.selectAgentChart(agentId, timeWindow);
     }
 
@@ -121,7 +121,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
                 return intervalMs;
             }
         };
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
+        TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
         return this.agentStatChartService.selectAgentChart(agentId, timeWindow);
     }
 
@@ -131,7 +131,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         TimeWindowSampler sampler = new TimeWindowSlotCentricSampler();
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
+        TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
         return this.agentStatChartService.selectAgentChartList(agentId, timeWindow);
     }
 
@@ -149,7 +149,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
                 return intervalMs;
             }
         };
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
+        TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
         return this.agentStatChartService.selectAgentChartList(agentId, timeWindow);
     }
 

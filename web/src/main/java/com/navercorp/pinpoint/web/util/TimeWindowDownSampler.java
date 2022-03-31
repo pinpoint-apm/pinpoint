@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.util;
 
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import java.util.concurrent.TimeUnit;
 
@@ -37,7 +37,7 @@ public class TimeWindowDownSampler implements TimeWindowSampler {
 
     @Override
     public long getWindowSize(Range range) {
-        final long diff = range.getRange();
+        final long diff = range.durationMillis();
         long size;
         if (diff <= ONE_HOUR) {
             size = ONE_MINUTE;

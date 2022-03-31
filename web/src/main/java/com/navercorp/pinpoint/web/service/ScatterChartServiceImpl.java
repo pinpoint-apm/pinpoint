@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
 import org.apache.logging.log4j.Logger;

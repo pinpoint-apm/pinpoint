@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.web.util;
 
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author emeroad
@@ -29,28 +30,27 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class DateLimiter implements Limiter {
 
-    private final long limitDay;
-    private final long limitDayMillis;
+    private final Duration limitDay;
 
     public DateLimiter() {
-        this(2);
+        this(Duration.ofDays(2));
     }
 
-    public DateLimiter(int limitDay) {
-        if (limitDay < 0) {
-            throw new IllegalArgumentException("limitDay < 0 " + limitDay);
-        }
-        this.limitDay = limitDay;
-        this.limitDayMillis = TimeUnit.DAYS.toMillis((long) limitDay);
+    public DateLimiter(Duration limitDay) {
+        this.limitDay = Objects.requireNonNull(limitDay, "limitDay");
     }
 
     @Override
-    public void limit(long from, long to) {
-        final long elapsedTime = to - from;
-        if (elapsedTime < 0) {
+    public void limit(Instant from, Instant to) {
+        Objects.requireNonNull(from, "from");
+        Objects.requireNonNull(to, "to");
+
+        Duration duration = Duration.between(from, to);
+        if (duration.isNegative()) {
             throw new  IllegalArgumentException("to - from < 0 from:" + from + " to:" + to);
         }
-        if (limitDayMillis < elapsedTime) {
+
+        if (limitDay.toMillis() < duration.toMillis()) {
             throw new IllegalArgumentException("limitDay:"+ limitDay + " from:" + from + " to:" + to);
         }
     }
@@ -58,13 +58,6 @@ public class DateLimiter implements Limiter {
     @Override
     public void limit(Range range) {
         Objects.requireNonNull(range, "range");
-
-        final long elapsedTime = range.getRange();
-        if (elapsedTime < 0) {
-            throw new  IllegalArgumentException("to - from < 0 " + range);
-        }
-        if (limitDayMillis < elapsedTime) {
-            throw new IllegalArgumentException("limitDay:"+ limitDay + " " + range);
-        }
+        limit(range.getFromInstant(), range.getToInstant());
     }
 }

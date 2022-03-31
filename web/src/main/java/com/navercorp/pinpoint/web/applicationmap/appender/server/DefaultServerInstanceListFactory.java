@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
 
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -38,7 +39,7 @@ public class DefaultServerInstanceListFactory implements ServerInstanceListFacto
     }
 
     @Override
-    public ServerInstanceList createWasNodeInstanceList(Node wasNode, long timestamp) {
+    public ServerInstanceList createWasNodeInstanceList(Node wasNode, Instant timestamp) {
         return serverInstanceListDataSource.createServerInstanceList(wasNode, timestamp);
     }
 

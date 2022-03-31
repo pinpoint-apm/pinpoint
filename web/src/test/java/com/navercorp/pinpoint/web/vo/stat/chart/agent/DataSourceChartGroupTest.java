@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DataSourceSampler;
 import com.navercorp.pinpoint.web.test.util.DataSourceTestUtils;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
@@ -65,7 +65,7 @@ public class DataSourceChartGroupTest {
     @Test
     public void basicFunctionTest1() {
         long currentTimeMillis = System.currentTimeMillis();
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(currentTimeMillis - 300000, currentTimeMillis));
+        TimeWindow timeWindow = new TimeWindow(Range.between(currentTimeMillis - 300000, currentTimeMillis));
 
         List<SampledDataSource> sampledDataSourceList = createSampledDataSourceList(timeWindow);
         StatChartGroup dataSourceChartGroup = DataSourceChart.newDataSourceChartGroup(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
@@ -76,7 +76,7 @@ public class DataSourceChartGroupTest {
     @Test
     public void basicFunctionTest2() {
         long currentTimeMillis = System.currentTimeMillis();
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(currentTimeMillis - 300000, currentTimeMillis));
+        TimeWindow timeWindow = new TimeWindow(Range.between(currentTimeMillis - 300000, currentTimeMillis));
 
         List<SampledDataSource> sampledDataSourceList = Collections.emptyList();
         DataSourceChart dataSourceChartGroup = new DataSourceChart(timeWindow, sampledDataSourceList, serviceTypeRegistryService);

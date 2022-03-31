@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ResponseTimeSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
@@ -45,9 +45,9 @@ public class ResponseTimeChartGroupTest {
     private final ResponseTimeSampler sampler = new ResponseTimeSampler();
 
     @Test
-    public void basicFunctionTest1() throws Exception {
+    public void basicFunctionTest1() {
         long currentTimeMillis = System.currentTimeMillis();
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(currentTimeMillis - 300000, currentTimeMillis));
+        TimeWindow timeWindow = new TimeWindow(Range.between(currentTimeMillis - 300000, currentTimeMillis));
 
         List<SampledResponseTime> sampledResponseTimeList = createSampledResponseTimeList(timeWindow);
 

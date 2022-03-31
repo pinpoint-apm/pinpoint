@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.util;
 
 import com.navercorp.pinpoint.common.util.MathUtils;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 /**
  * @author hyungil.jeong
@@ -52,7 +52,7 @@ public class TimeWindowSlotCentricSampler implements TimeWindowSampler {
      */
     @Override
     public long getWindowSize(Range range) {
-        final long periodMs = range.getRange();
+        final long periodMs = range.durationMillis();
         final long idealTimeslotSize = periodMs / this.idealNumTimeslots;
         if (idealTimeslotSize < this.minTimeslot) {
             return this.minTimeslot;

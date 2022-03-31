@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
 import com.navercorp.pinpoint.web.vo.CodeResult;
 import com.navercorp.pinpoint.web.vo.DefaultAgentInfoFilter;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -146,7 +146,7 @@ public class AgentInfoController {
             @RequestParam("from") long from,
             @RequestParam("to") long to,
             @RequestParam(value = "exclude", defaultValue = "") int[] excludeEventTypeCodes) {
-        Range range = Range.newRange(from, to);
+        Range range = Range.between(from, to);
         Set<AgentEventType> excludeEventTypes = getAgentEventTypes(excludeEventTypeCodes);
         return this.agentEventService.getAgentEvents(agentId, range, excludeEventTypes);
     }
@@ -167,7 +167,7 @@ public class AgentInfoController {
             @RequestParam("agentId") String agentId,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
-        Range range = Range.newRange(from, to);
+        Range range = Range.between(from, to);
         return agentInfoService.getAgentStatusTimeline(agentId, range);
     }
 
@@ -177,7 +177,7 @@ public class AgentInfoController {
             @RequestParam("from") long from,
             @RequestParam("to") long to,
             @RequestParam(value = "exclude", defaultValue = "") int[] excludeEventTypeCodes) {
-        Range range = Range.newRange(from, to);
+        Range range = Range.between(from, to);
         return agentInfoService.getAgentStatusTimeline(agentId, range, excludeEventTypeCodes);
     }
 

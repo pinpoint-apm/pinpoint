@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.vo.chart;
 
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSampler;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -71,7 +71,7 @@ public class TimeSeriesChartBuilderTest {
     public void empty() {
         // Given
         int numSlots = 10;
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(0, TIME_WINDOW_SIZE * numSlots), TIME_WINDOW_SAMPLER);
+        TimeWindow timeWindow = new TimeWindow(Range.between(0, TIME_WINDOW_SIZE * numSlots), TIME_WINDOW_SAMPLER);
         TimeSeriesChartBuilder<TestPoint> builder = new TimeSeriesChartBuilder<>(timeWindow, TestPoint.UNCOLLECTED_POINT_CREATOR);
         List<TestPoint> points = Collections.emptyList();
         // When
@@ -85,7 +85,7 @@ public class TimeSeriesChartBuilderTest {
     public void sampled() {
         // Given
         int numSlots = 100;
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(0, TIME_WINDOW_SIZE * numSlots), TIME_WINDOW_SAMPLER);
+        TimeWindow timeWindow = new TimeWindow(Range.between(0, TIME_WINDOW_SIZE * numSlots), TIME_WINDOW_SAMPLER);
         TimeSeriesChartBuilder<TestPoint> builder = new TimeSeriesChartBuilder<>(timeWindow, TestPoint.UNCOLLECTED_POINT_CREATOR);
         List<TestPoint> points = new ArrayList<>(TIME_WINDOW_SIZE * numSlots);
         for (int i = 0; i <= TIME_WINDOW_SIZE * numSlots; i++) {

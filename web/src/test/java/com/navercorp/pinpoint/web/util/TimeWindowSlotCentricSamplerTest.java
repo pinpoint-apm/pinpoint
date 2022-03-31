@@ -23,9 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.web.util.TimeWindowSampler;
-import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 /**
  * @author hyungil.jeong
@@ -45,7 +43,7 @@ public class TimeWindowSlotCentricSamplerTest {
         // Given
         final long from = START_TIME_STAMP;
         final long to = START_TIME_STAMP + ONE_SECOND;
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         // When
         final long idealWindowSize = sampler.getWindowSize(range);
         // Then
@@ -57,7 +55,7 @@ public class TimeWindowSlotCentricSamplerTest {
         // Given
         final long from = START_TIME_STAMP;
         final long to = START_TIME_STAMP + (5 * ONE_SECOND);
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         // When
         final long idealWindowSize = sampler.getWindowSize(range);
         // Then
@@ -69,7 +67,7 @@ public class TimeWindowSlotCentricSamplerTest {
         // Given
         final long from = START_TIME_STAMP;
         final long to = START_TIME_STAMP + (5 * ONE_MINUTE);
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         // When
         final long idealWindowSize = sampler.getWindowSize(range);
         // Then
@@ -81,7 +79,7 @@ public class TimeWindowSlotCentricSamplerTest {
         // Given
         final long from = START_TIME_STAMP;
         final long to = START_TIME_STAMP + (20 * ONE_MINUTE);
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         // When
         final long idealWindowSize = sampler.getWindowSize(range);
         // Then
@@ -93,7 +91,7 @@ public class TimeWindowSlotCentricSamplerTest {
         // Given
         final long from = START_TIME_STAMP;
         final long to = START_TIME_STAMP + ONE_HOUR;
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         // When
         final long idealWindowSize = sampler.getWindowSize(range);
         // Then
@@ -105,7 +103,7 @@ public class TimeWindowSlotCentricSamplerTest {
         // Given
         final long from = START_TIME_STAMP;
         final long to = START_TIME_STAMP + (3 * ONE_HOUR);
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         // When
         final long idealWindowSize = sampler.getWindowSize(range);
         // Then
@@ -117,7 +115,7 @@ public class TimeWindowSlotCentricSamplerTest {
         // Given
         final long from = START_TIME_STAMP;
         final long to = START_TIME_STAMP + (6 * ONE_HOUR);
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         // When
         final long idealWindowSize = sampler.getWindowSize(range);
         // Then
@@ -129,7 +127,7 @@ public class TimeWindowSlotCentricSamplerTest {
         // Given
         final long from = START_TIME_STAMP;
         final long to = START_TIME_STAMP + (12 * ONE_HOUR);
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         // When
         final long idealWindowSize = sampler.getWindowSize(range);
         // Then
@@ -141,7 +139,7 @@ public class TimeWindowSlotCentricSamplerTest {
         // Given
         final long from = START_TIME_STAMP;
         final long to = START_TIME_STAMP + ONE_DAY;
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         // When
         final long idealWindowSize = sampler.getWindowSize(range);
         // Then
@@ -153,7 +151,7 @@ public class TimeWindowSlotCentricSamplerTest {
         // Given
         final long from = START_TIME_STAMP;
         final long to = START_TIME_STAMP + (2 * ONE_DAY);
-        final Range range = Range.newRange(from, to);
+        final Range range = Range.between(from, to);
         // When
         final long idealWindowSize = sampler.getWindowSize(range);
         // Then
@@ -166,7 +164,7 @@ public class TimeWindowSlotCentricSamplerTest {
         for (long periodMs = 0; periodMs <= numSecondsPerYear * 5; periodMs += ONE_SECOND) {
             final long from = START_TIME_STAMP;
             final long to = START_TIME_STAMP + periodMs;
-            final Range range = Range.newRange(from, to);
+            final Range range = Range.between(from, to);
             final long idealWindowSize = sampler.getWindowSize(range);
             assertWindowSizeIsIdeal(from, to, idealWindowSize);
         }

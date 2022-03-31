@@ -33,7 +33,7 @@
         <typeAlias type="com.navercorp.pinpoint.web.vo.WebhookSendInfo" alias="WebhookSendInfo"/>
 
         <typeAlias type="com.navercorp.pinpoint.web.vo.AgentCountStatistics" alias="AgentCountStatistics"/>
-        <typeAlias type="com.navercorp.pinpoint.web.vo.Range" alias="Range"/>
+        <typeAlias type="com.navercorp.pinpoint.common.server.util.time.Range" alias="Range"/>
     </typeAliases>
 
 </configuration>

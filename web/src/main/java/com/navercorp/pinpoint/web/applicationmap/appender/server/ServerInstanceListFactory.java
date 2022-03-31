@@ -20,12 +20,14 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 
+import java.time.Instant;
+
 /**
  * @author HyunGil Jeong
  */
 public interface ServerInstanceListFactory {
 
-    ServerInstanceList createWasNodeInstanceList(Node wasNode, long timestamp);
+    ServerInstanceList createWasNodeInstanceList(Node wasNode, Instant timestamp);
 
     ServerInstanceList createTerminalNodeInstanceList(Node terminalNode, LinkDataDuplexMap linkDataDuplexMap);
 

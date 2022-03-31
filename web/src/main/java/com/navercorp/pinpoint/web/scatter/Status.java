@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.scatter;
 
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 public class Status {
     private final long currentServerTime;

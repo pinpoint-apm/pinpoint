@@ -31,6 +31,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -53,14 +54,15 @@ public class AgentInfoServerInstanceListDataSource implements ServerInstanceList
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
     }
 
-    public ServerInstanceList createServerInstanceList(Node node, long timestamp) {
+    public ServerInstanceList createServerInstanceList(Node node, Instant timestamp) {
         Objects.requireNonNull(node, "node");
-        if (timestamp < 0) {
+        Objects.requireNonNull(timestamp, "timestamp");
+        if (timestamp.toEpochMilli() < 0) {
             return new ServerInstanceList();
         }
 
         Application application = node.getApplication();
-        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(application.getName(), timestamp);
+        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(application.getName(), timestamp.toEpochMilli());
         if (CollectionUtils.isEmpty(agentInfos)) {
             logger.warn("agentInfo not found. application:{}", application);
             return new ServerInstanceList();
@@ -76,7 +78,7 @@ public class AgentInfoServerInstanceListDataSource implements ServerInstanceList
     }
 
     // TODO Change to list of filters?
-    private Set<AgentInfo> filterAgentInfos(Set<AgentInfo> agentInfos, long timestamp, Node node) {
+    private Set<AgentInfo> filterAgentInfos(Set<AgentInfo> agentInfos, Instant timestamp, Node node) {
 
         final Map<String, Histogram> agentHistogramMap = getAgentHistogramMap(node);
 

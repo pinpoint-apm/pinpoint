@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DeadlockSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
@@ -43,9 +43,9 @@ public class DeadlockChartGroupTest {
     private final DeadlockSampler sampler = new DeadlockSampler();
 
     @Test
-    public void basicFunctionTest1() throws Exception {
+    public void basicFunctionTest1() {
         long currentTimeMillis = System.currentTimeMillis();
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(currentTimeMillis - 300000, currentTimeMillis));
+        TimeWindow timeWindow = new TimeWindow(Range.between(currentTimeMillis - 300000, currentTimeMillis));
 
         List<SampledDeadlock> sampledDeadlockList = createSampledResponseTimeList(timeWindow);
         StatChartGroup deadlockChartGroup = new DeadlockChart.DeadlockChartGroup(timeWindow, sampledDeadlockList);

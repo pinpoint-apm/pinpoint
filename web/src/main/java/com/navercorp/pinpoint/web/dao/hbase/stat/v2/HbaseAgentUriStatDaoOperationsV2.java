@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.web.mapper.RangeTimestampFilter;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.util.ListListUtils;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 
 import org.apache.hadoop.hbase.TableName;
@@ -75,7 +75,7 @@ public class HbaseAgentUriStatDaoOperationsV2 {
 
         TableName agentStatTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         List<List<T>> intermediate = hbaseOperations2.findParallel(agentStatTableName, scan, this.operationFactory.getRowKeyDistributor(), mapper, AGENT_STAT_VER2_NUM_PARTITIONS);
-        int expectedSize = (int) (range.getRange() / DESCRIPTOR.TIMESPAN_MS);
+        int expectedSize = (int) (range.durationMillis() / DESCRIPTOR.TIMESPAN_MS);
 
         return ListListUtils.toList(intermediate, expectedSize);
     }

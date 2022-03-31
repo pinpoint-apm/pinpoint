@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.web.dao.AgentStatisticsDao;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

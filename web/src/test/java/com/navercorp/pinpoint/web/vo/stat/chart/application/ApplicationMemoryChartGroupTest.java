@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
@@ -40,7 +40,7 @@ public class ApplicationMemoryChartGroupTest {
     @Test
     public void createApplicationMemoryChartGroupTest() {
         long time = 1495418083250L;
-        Range range = Range.newRange(time - 240000, time);
+        Range range = Range.between(time - 240000, time);
         TimeWindow timeWindow = new TimeWindow(range);
         List<AggreJoinMemoryBo> aggreJoinMemoryList = new ArrayList<>(5);
         AggreJoinMemoryBo aggreJoinMemoryBo1 = new AggreJoinMemoryBo("testApp", time, 3000, 1000, 5000, "agent1_1", "agent1_2", 300, 100, 500, "agent1_3", "agent1_4");
