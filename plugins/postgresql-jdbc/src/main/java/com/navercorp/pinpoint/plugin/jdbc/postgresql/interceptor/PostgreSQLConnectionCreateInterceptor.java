@@ -84,7 +84,7 @@ public class PostgreSQLConnectionCreateInterceptor implements AroundInterceptor 
         if (ArrayUtils.getLength(args) == 5) {
             return ArrayArgumentUtils.getArgument(args, 4, String.class);
         }
-        return ArrayArgumentUtils.getArgument(args, 3, String.class);
+        return ArrayArgumentUtils.getArgument(args, 2, String.class);
     }
 
     @Override
