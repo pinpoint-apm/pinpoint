@@ -1,7 +1,7 @@
 :host {
     display: block;
-    /* 71px = 38px(Search Input) + 33px(Title) */
-    height: calc(100% - 71px); 
+    /* 89px = 48px(Search Input) + 41px(Title) */
+    height: calc(100% - 89px); 
     overflow-y: auto;
 }
 

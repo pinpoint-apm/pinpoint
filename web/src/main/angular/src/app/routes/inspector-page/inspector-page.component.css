@@ -29,6 +29,9 @@
     position: relative;
     height: 100%;
 }
+.l-sidemenu-wrap.sideNavigationUI {
+    height: calc(100% - 50px);
+}
 .l-sidemenu-left {
     width: 250px;
     overflow: visible;
