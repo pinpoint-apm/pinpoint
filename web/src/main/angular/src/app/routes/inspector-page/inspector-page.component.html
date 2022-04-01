@@ -14,10 +14,9 @@
         <pp-app-widget
             *ngIf="sideNavigationUI"
             [showServermapOption]="false"
-            [showTransactionIdSearch]="false"
-        >
+            [showTransactionIdSearch]="false">
         </pp-app-widget>
-        <section *ngIf="(showSideMenu$ | async) as showSideMenu" class="l-sidemenu-wrap font-opensans">
+        <section *ngIf="(showSideMenu$ | async) as showSideMenu" class="l-sidemenu-wrap font-opensans" [class.sideNavigationUI]="sideNavigationUI">
             <div class="l-sidemenu-left">
                 <section class="l-application-inspector-title-wrapper">
                     <pp-application-inspector-title-container></pp-application-inspector-title-container>
